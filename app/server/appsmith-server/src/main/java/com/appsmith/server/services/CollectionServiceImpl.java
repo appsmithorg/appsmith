@@ -5,29 +5,20 @@ import com.appsmith.server.repositories.cakes.CollectionRepositoryCake;
 import com.appsmith.server.services.ce.CollectionServiceCEImpl;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Slf4j
 @Service
 public class CollectionServiceImpl extends CollectionServiceCEImpl implements CollectionService {
 
     public CollectionServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             CollectionRepository repositoryDirect,
             CollectionRepositoryCake repository,
             AnalyticsService analyticsService) {
 
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService);

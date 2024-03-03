@@ -1,10 +1,10 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Expression;
@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
+
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {
 
@@ -31,18 +33,16 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     }
 
     @Override
-    public Optional<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
-        throw new ex.Marker("saveReleaseNotesViewedVersion"); /*
-        return mongoOperations.upsert(
-                query(where("userId").is(userId)),
-                Update.update("releaseNotesViewedVersion", version).setOnInsert("userId", userId),
-                UserData.class); //*/
+    public int saveReleaseNotesViewedVersion(String userId, String version) {
+        return queryBuilder()
+                .criteria(bridge().equal(UserData.Fields.userId, userId))
+                .updateFirst(Bridge.update().set(UserData.Fields.releaseNotesViewedVersion, version));
     }
 
     @Override
     @Transactional
     @Modifying
-    public Optional<UpdateResult> removeIdFromRecentlyUsedList(
+    public Optional<Void> removeIdFromRecentlyUsedList(
             String userId, String workspaceId, List<String> applicationIds) {
 
         var entityManager = getEntityManager();
@@ -51,7 +51,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         final Root<UserData> root = cu.getRoot();
 
         final Path<Expression<?>> recentlyUsedEntityIdsField =
-                root.get(fieldName(QUserData.userData.recentlyUsedEntityIds));
+                root.get(UserData.Fields.recentlyUsedEntityIds);
         cu.set(
                 recentlyUsedEntityIdsField,
                 cb.function(
@@ -61,7 +61,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                         cb.literal("$[*] ? (@.workspaceId != \"" + workspaceId + "\")")));
 
         final Path<Expression<?>> recentlyUsedWorkspaceIdsField =
-                root.get(fieldName(QUserData.userData.recentlyUsedWorkspaceIds));
+                root.get(UserData.Fields.recentlyUsedWorkspaceIds);
         cu.set(
                 recentlyUsedWorkspaceIdsField,
                 cb.function(
@@ -72,7 +72,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
 
         if (!CollectionUtils.isEmpty(applicationIds)) {
             final Path<Expression<?>> recentlyUsedAppIdsField =
-                    root.get(fieldName(QUserData.userData.recentlyUsedAppIds));
+                    root.get(UserData.Fields.recentlyUsedAppIds);
             final List<String> parts = new ArrayList<>();
             for (String applicationId : applicationIds) {
                 parts.add("@ != \"" + applicationId + "\"");
@@ -86,24 +86,23 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                             cb.literal("$[*] ? (" + String.join(" && ", parts) + ")")));
         }
 
-        cu.where(cb.equal(root.get(fieldName(QUserData.userData.userId)), userId));
+        cu.where(cb.equal(root.get(UserData.Fields.userId), userId));
 
         final int count = entityManager.createQuery(cu).executeUpdate();
-        return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
+        return Optional.empty();
     }
 
     @Override
     public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
-        throw new ex.Marker("fetchMostRecentlyUsedWorkspaceId"); /*
-        final Query query = query(where(fieldName(QUserData.userData.userId)).is(userId));
-
-        query.fields().include(fieldName(QUserData.userData.recentlyUsedEntityIds));
-
-        return mongoOperations.findOne(query, UserData.class).map(userData -> {
-            final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.getRecentlyUsedEntityIds();
-            return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds)
-                    ? ""
-                    : recentlyUsedWorkspaceIds.get(0).getWorkspaceId();
-        }); //*/
+        return queryBuilder()
+                .criteria(bridge().equal(UserData.Fields.userId, userId))
+                .fields(UserData.Fields.recentlyUsedEntityIds)
+                .one()
+                .map(userData -> {
+                    final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.getRecentlyUsedEntityIds();
+                    return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds)
+                            ? ""
+                            : recentlyUsedWorkspaceIds.get(0).getWorkspaceId();
+                });
     }
 }

@@ -14,6 +14,10 @@ public class ReactorUtils {
         return Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(Schedulers.boundedElastic());
     }
 
+    public static <T> Mono<T> toMonoDirect(Supplier<T> supplier) {
+        return Mono.defer(() -> Mono.justOrEmpty(supplier.get())).subscribeOn(Schedulers.boundedElastic());
+    }
+
     public static <T> Flux<T> toFlux(Supplier<? extends Iterable<T>> supplier) {
         return Mono.fromSupplier(supplier).flatMapMany(Flux::fromIterable).subscribeOn(Schedulers.boundedElastic());
     }

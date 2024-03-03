@@ -77,10 +77,7 @@ public class PluginServiceCEImplTest {
     public void setUp() {
         objectMapper = new ObjectMapper();
         pluginService = new PluginServiceCEImpl(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService,

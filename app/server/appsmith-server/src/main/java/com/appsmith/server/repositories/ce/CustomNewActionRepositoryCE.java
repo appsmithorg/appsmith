@@ -4,7 +4,6 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.repositories.AppsmithRepository;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.domain.Sort;
 
 import java.util.List;
@@ -69,7 +68,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Optional<Void> publishActions(String applicationId, AclPermission permission);
 
-    Optional<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
+    Optional<Integer> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission);
 
     List<NewAction> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 

@@ -8,11 +8,14 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@FieldNameConstants
 @NoArgsConstructor
 @Getter
 @Setter
@@ -35,13 +38,15 @@ public class PermissionGroup extends BaseDomain {
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
     @Deprecated
-    private Set<Permission> permissions;
+    private Set<Permission> permissions = new HashSet<>();
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
-    private Set<String> assignedToUserIds;
+    private Set<String> assignedToUserIds = new HashSet<>();
 
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")
-    private Set<User> assignedToGroupIds;
+    Set<String> assignedToGroupIds = new HashSet<>();
+
+    public static class Fields extends BaseDomain.Fields {}
 }

@@ -9,8 +9,6 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
-import com.appsmith.server.domains.QTheme;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
@@ -55,7 +53,6 @@ import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
 import static com.appsmith.server.acl.AclPermission.READ_THEMES;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Configuration
 @Slf4j
@@ -98,7 +95,7 @@ public class SeedData {
                     cq.where(cb.function(
                             "jsonb_path_exists",
                             Boolean.class,
-                            user.get(fieldName(QUser.user.policies)),
+                            user.get(User.Fields.policies),
                             cb.literal("$[*] ? (@.permission == \"" + MANAGE_INSTANCE_ENV + "\")")));
                     final List<User> adminUsers = entityManager.createQuery(cq).getResultList();
 
@@ -292,7 +289,7 @@ public class SeedData {
             CriteriaBuilder cb = entityManager.getCriteriaBuilder();
             CriteriaQuery<Theme> cq = cb.createQuery(Theme.class);
             Root<Theme> root = cq.from(Theme.class);
-            cq.where(cb.equal(root.get(fieldName(QTheme.theme.name)), theme.getName()));
+            cq.where(cb.equal(root.get(Theme.Fields.name), theme.getName()));
 
             Theme savedTheme;
             try {

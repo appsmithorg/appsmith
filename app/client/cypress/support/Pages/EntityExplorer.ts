@@ -63,7 +63,7 @@ export class EntityExplorer {
   _adsPopup = "div[role='menu']";
   _entityExplorerWrapper = ".t--entity-explorer-wrapper";
   _widgetTagsList =
-    "[data-testid='widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
+    "[data-testid='t--widget-sidebar-scrollable-wrapper'] .widget-tag-collapisble";
   _widgetCards = ".t--widget-card-draggable";
   _widgetSearchInput = "#entity-explorer-search";
   _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
@@ -171,8 +171,14 @@ export class EntityExplorer {
         : this.locator._dropHere,
     )
       .first()
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      })
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      });
     this.agHelper.Sleep(200);
     cy.get(
       parentWidgetType
@@ -182,7 +188,10 @@ export class EntityExplorer {
         : this.locator._dropHere,
     )
       .first()
-      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mouseup", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      });
   }
 
   public DragDropWidgetNVerify(

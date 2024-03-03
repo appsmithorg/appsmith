@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import net.minidev.json.JSONObject;
 import org.hibernate.annotations.Type;
 
@@ -19,6 +20,7 @@ import java.util.Map;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@FieldNameConstants
 public class Config extends BaseDomain {
     @Type(JsonBinaryType.class)
     @Column(columnDefinition = "jsonb")

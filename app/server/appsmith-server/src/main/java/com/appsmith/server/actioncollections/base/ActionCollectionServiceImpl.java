@@ -13,20 +13,14 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Service
 @Slf4j
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
 
     public ActionCollectionServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ActionCollectionRepository repositoryDirect,
             ActionCollectionRepositoryCake repository,
             AnalyticsService analyticsService,
@@ -38,10 +32,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ActionPermission actionPermission,
             DefaultResourcesService<ActionCollection> defaultResourcesService) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService,

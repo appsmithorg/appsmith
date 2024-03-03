@@ -13,6 +13,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
+import jakarta.persistence.Entity;
 import org.hibernate.annotations.Type;
 import org.springframework.util.StringUtils;
 
@@ -29,6 +31,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT;
 @Setter
 @ToString
 @Entity
+@FieldNameConstants
 @NoArgsConstructor
 @Cacheable(false)
 public class UserData extends BaseDomain {
@@ -117,4 +120,6 @@ public class UserData extends BaseDomain {
     public UserData(String userId) {
         this.userId = userId;
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

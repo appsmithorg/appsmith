@@ -3,15 +3,14 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QPermissionGroup;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.BUpdate;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.helpers.ce.bridge.Update;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -20,10 +19,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
-import com.mongodb.client.result.UpdateResult;
 import com.querydsl.core.types.Path;
-import com.querydsl.core.types.dsl.BooleanExpression;
-import com.querydsl.core.types.dsl.Expressions;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -147,7 +143,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             return null;
         }
         // Check if the permission is being provided by any of the permission groups
-        return Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+        return Criteria.where(BaseDomain.Fields.policies)
                 .elemMatch(Criteria.where("permissionGroups")
                         .in(permissionGroups)
                         .and("permission")
@@ -220,7 +216,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         id))); // */
     }
 
-    public Optional<UpdateResult> updateFieldByDefaultIdAndBranchName(
+    public Optional<Integer> updateFieldByDefaultIdAndBranchName(
             String defaultId,
             String defaultIdPath,
             Map<String, Object> fieldNameValueMap,
@@ -235,11 +231,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             builder.criteria(Criteria.where(branchNamePath).is(branchName));
         }
 
-        Update update = Bridge.update();
+        BUpdate update = Bridge.update();
         fieldNameValueMap.forEach(update::set);
 
         final int count = builder.permission(permission).updateFirst(update);
-        return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
+        return Optional.of(count);
     }
 
     protected Set<String> getCurrentUserPermissionGroupsIfRequired(Optional<AclPermission> permission) {
@@ -297,45 +293,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return new QueryAllParams<>(this);
     }
 
-    public QueryAllParams<T> queryBuilder(BaseRepository<T, String> actualRepo) {
-        return new QueryAllParams<>(this, actualRepo);
-    }
-
     @SneakyThrows
-    public List<T> queryAllExecute(QueryAllParams<T> params, BaseRepository<T, String> actualRepo) {
-        if (!params.getQuerydslExpressions().isEmpty()) {
-            // perform query with querydsl repository.
-            List<String> pg;
-            if (CollectionUtils.isEmpty(params.getPermissionGroups())) {
-                pg = new ArrayList<>(
-                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())));
-            } else {
-                pg = new ArrayList<>(params.getPermissionGroups());
-            }
-
-            final List<BooleanExpression> expressions = params.getQuerydslExpressions();
-
-            expressions.add(QBaseDomain.baseDomain.deletedAt.isNull());
-
-            if (!CollectionUtils.isEmpty(pg)) {
-                Map<String, String> fnVars = new HashMap<>();
-                fnVars.put("p", params.getPermission().getValue());
-                final List<String> conditions = new ArrayList<>();
-                for (var i = 0; i < pg.size(); i++) {
-                    fnVars.put("g" + i, pg.get(i));
-                    conditions.add("@ == $g" + i);
-                }
-                expressions.add(Expressions.booleanTemplate(
-                        "jsonb_path_exists({0}, {2}, {3})",
-                        QPermissionGroup.permissionGroup.policies,
-                        "$[*] ? (@.permission == $p && exists(@.permissionGroups ? (" + String.join(" || ", conditions)
-                                + ")))",
-                        new ObjectMapper().writeValueAsString(fnVars)));
-            }
-
-            actualRepo.findAll(Expressions.allOf(expressions.toArray(new BooleanExpression[0])));
-        }
-
+    public List<T> queryAllExecute(QueryAllParams<T> params) {
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.defer(() -> Mono.just(
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
@@ -366,7 +325,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                     cb.isTrue(cb.function(
                                             "jsonb_path_exists",
                                             Boolean.class,
-                                            root.get(fieldName(QPermissionGroup.permissionGroup.policies)),
+                                            root.get(PermissionGroup.Fields.policies),
                                             cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
                                                     + String.join(" || ", conditions) + ")))"),
                                             cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
@@ -427,7 +386,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                     cb.isTrue(cb.function(
                                             "jsonb_path_exists",
                                             Boolean.class,
-                                            root.get(fieldName(QPermissionGroup.permissionGroup.policies)),
+                                            root.get(PermissionGroup.Fields.policies),
                                             cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
                                                     + String.join(" || ", conditions) + ")))"),
                                             cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
@@ -460,14 +419,33 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         .flatMap(obj -> Mono.just(setUserPermissionsInObject(obj, permissionGroups1)))); // */
     }
 
-    public Mono<Long> countExecute(QueryAllParams<T> params) {
-        return tryGetPermissionGroups(params)
-                .flatMap(permissionGroups -> mongoOperations.count(
-                        createQueryWithPermission(params.getCriteria(), permissionGroups, params.getPermission()),
-                        this.genericDomain));
+    public Optional<Long> countExecute(QueryAllParams<T> params) {
+        return ensurePermissionGroupsInParams(params)
+                .then(Mono.defer(() -> mongoOperations.count(
+                        createQueryWithPermission(
+                                params.getCriteria(), params.getPermissionGroups(), params.getPermission()),
+                        this.genericDomain)))
+                .blockOptional();
     }
 
-    public Mono<UpdateResult> updateAllExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
+    public int updateExecute(@NonNull QueryAllParams<T> params, @NonNull T resource) {
+        final BUpdate update = new BUpdate();
+
+        // In case the update is not used to update the policies, then set the policies to null to ensure that the
+        // existing policies are not overwritten.
+        if (resource.getPolicies().isEmpty()) {
+            resource.setPolicies(null);
+        }
+
+        final Map<String, Object> updateMap = getDbObject(resource).toMap();
+        for (Map.Entry<String, Object> entry : updateMap.entrySet()) {
+            update.set(entry.getKey(), entry.getValue());
+        }
+
+        return updateExecute(params, update);
+    }
+
+    public Mono<Integer> updateExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
         Objects.requireNonNull(params.getCriteria());
 
         if (!isEmpty(params.getFields())) {
@@ -475,30 +453,57 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "fields"));
         }
 
-        return tryGetPermissionGroups(params).flatMap(permissionGroups -> {
-            final Query query =
-                    createQueryWithPermission(params.getCriteria(), null, permissionGroups, params.getPermission());
-            if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
-                return mongoOperations.updateMulti(query, update, genericDomain);
-            } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
-                return mongoOperations.updateFirst(query, update, genericDomain);
-            } else {
-                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
-            }
-        });
+        return ensurePermissionGroupsInParams(params)
+                .then(Mono.defer(() -> {
+                    final Query query = createQueryWithPermission(
+                            params.getCriteria(), null, params.getPermissionGroups(), params.getPermission());
+                    if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
+                        return mongoOperations.updateMulti(query, update, genericDomain);
+                    } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
+                        return mongoOperations.updateFirst(query, update, genericDomain);
+                    } else {
+                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
+                    }
+                }))
+                .map(updateResult -> Math.toIntExact(updateResult.getMatchedCount()));
     }
 
-    private Mono<Set<String>> tryGetPermissionGroups(QueryAllParams<T> params) {
+    public Mono<T> updateExecuteAndFind(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
+        if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
+            // Not implemented yet, since not needed yet.
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
+
+        } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
+            return updateExecute(params, update).then(Mono.fromSupplier(() -> queryOneExecute(params).orElse(null)));
+
+        } else {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
+        }
+    }
+
+    /**
+     * This method will try to ensure that permission groups are present in the params. If they're already there, don't
+     * do anything. If not, and if a `permission` is available, then get the permission groups for the current user and
+     * permission and fill that into the `params` object.
+     * @param params that may have permission groups already, and a permission that can be used to get permission groups otherwise.
+     * @return the same `params` object, but with permission groups filled in.
+     */
+    private Mono<Void> ensurePermissionGroupsInParams(QueryAllParams<T> params) {
+        if (params.getPermissionGroups() != null) {
+            return Mono.empty();
+        }
+
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.fromSupplier(() -> getCurrentUserPermissionGroupsIfRequired(
-                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())));
+                        Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
+            .then();
     }
 
-    public Mono<Integer> updateExecute(QueryAllParams<T> params, com.appsmith.server.helpers.ce.bridge.Update update) {
-        return Mono.justOrEmpty(updateExecute2(params, update));
+    public int updateExecute(QueryAllParams<T> params, BUpdate update) {
+        return updateExecute2(params, update);
     }
 
-    public Integer updateExecute2(QueryAllParams<T> params, com.appsmith.server.helpers.ce.bridge.Update update) {
+    public int updateExecute2(QueryAllParams<T> params, BUpdate update) {
         Set<String> permissionGroupsSet = params.getPermissionGroups();
         List<String> permissionGroups;
 
@@ -537,7 +542,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         cb.isTrue(cb.function(
                                 "jsonb_path_exists",
                                 Boolean.class,
-                                root.get(fieldName(QPermissionGroup.permissionGroup.policies)),
+                                root.get(PermissionGroup.Fields.policies),
                                 cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
                                         + String.join(" || ", conditions) + ")))"),
                                 cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
@@ -550,7 +555,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         cu.where(predicate);
 
-        for (com.appsmith.server.helpers.ce.bridge.Update.SetOp op : update.getSetOps()) {
+        for (BUpdate.SetOp op : update.getSetOps()) {
             Object key = op.key();
             Object value = op.value();
 
@@ -675,7 +680,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * @see FindAndModifyOptions
      */
     public T updateAndReturn(
-            String id, com.appsmith.server.helpers.ce.bridge.Update updateObj, Optional<AclPermission> permission) {
+        String id, BUpdate updateObj, Optional<AclPermission> permission) {
         return null; /*
                                   Query query = new Query(Criteria.where("id").is(id));
 

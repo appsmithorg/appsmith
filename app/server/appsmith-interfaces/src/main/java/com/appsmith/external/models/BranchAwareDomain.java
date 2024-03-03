@@ -7,11 +7,13 @@ import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 
 @Setter
 @Getter
 @MappedSuperclass
+@FieldNameConstants
 public abstract class BranchAwareDomain extends BaseDomain {
     // This field will be used to store the default/root resource IDs for branched resources generated for git
     // connected applications and will be used to connect resources across the branches
@@ -25,4 +27,6 @@ public abstract class BranchAwareDomain extends BaseDomain {
         this.setDefaultResources(null);
         super.sanitiseToExportDBObject();
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

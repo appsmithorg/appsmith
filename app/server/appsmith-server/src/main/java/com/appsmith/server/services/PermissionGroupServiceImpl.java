@@ -8,20 +8,14 @@ import com.appsmith.server.services.ce_compatible.PermissionGroupServiceCECompat
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import jakarta.validation.Validator;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Service
 public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatibleImpl
         implements PermissionGroupService {
 
     public PermissionGroupServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             PermissionGroupRepository repositoryDirect,
             PermissionGroupRepositoryCake repository,
             AnalyticsService analyticsService,
@@ -33,10 +27,7 @@ public class PermissionGroupServiceImpl extends PermissionGroupServiceCECompatib
             PermissionGroupPermission permissionGroupPermission) {
 
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService,

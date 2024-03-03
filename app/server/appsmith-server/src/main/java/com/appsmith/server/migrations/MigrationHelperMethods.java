@@ -195,7 +195,7 @@ public class MigrationHelperMethods {
         }
 
         userIds.forEach(userId -> {
-            Query query = new Query(new Criteria("id").is(userId));
+            Query query = new Query(new Criteria(User.Fields.id).is(userId));
             User user = mongoTemplate.findOne(query, User.class);
             if (user != null) {
                 // blocking call for cache eviction to ensure its subscribed immediately before proceeding further.
@@ -232,9 +232,8 @@ public class MigrationHelperMethods {
      * .newAction.id, type=NewAction.class
      */
     public static <T extends BaseDomain> List<T> fetchAllDomainObjectsUsingId(
-            String id, MongoTemplate mongoTemplate, Path path, Class<T> type) {
-        final List<T> domainObject =
-                mongoTemplate.find(query(where(fieldName(path)).is(id)), type);
+            String id, MongoTemplate mongoTemplate, String path, Class<T> type) {
+        final List<T> domainObject = mongoTemplate.find(query(where(path).is(id)), type);
         return domainObject;
     }
 

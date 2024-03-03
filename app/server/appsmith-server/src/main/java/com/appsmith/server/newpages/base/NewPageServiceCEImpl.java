@@ -31,13 +31,10 @@ import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -66,10 +63,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
 
     @Autowired
     public NewPageServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             NewPageRepository repositoryDirect,
             NewPageRepositoryCake repository,
             AnalyticsService analyticsService,
@@ -80,10 +74,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             PagePermission pagePermission,
             ApplicationSnapshotRepositoryCake applicationSnapshotRepository) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService);

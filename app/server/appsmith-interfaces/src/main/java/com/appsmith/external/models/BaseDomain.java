@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.EncryptionEntityListener;
+import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -16,11 +17,13 @@ import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.LastModifiedBy;
+import org.springframework.data.domain.Persistable;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -35,9 +38,10 @@ import java.util.UUID;
 @Getter
 @Setter
 @ToString
+@FieldNameConstants
 @MappedSuperclass
 @EntityListeners(EncryptionEntityListener.class)
-public abstract class BaseDomain implements AppsmithDomain, Serializable {
+public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
 
     private static final long serialVersionUID = 7459916000501322517L;
 
@@ -138,4 +142,6 @@ public abstract class BaseDomain implements AppsmithDomain, Serializable {
 
         policyMap = PolicyMap.fromPolicies(policies);
     }
+
+    public static class Fields {}
 }

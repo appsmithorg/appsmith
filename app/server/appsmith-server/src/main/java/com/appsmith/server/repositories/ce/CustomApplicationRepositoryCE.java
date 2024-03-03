@@ -3,9 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.repositories.AppsmithRepository;
-import com.mongodb.client.result.UpdateResult;
 
 import java.util.List;
 import java.util.Map;
@@ -33,20 +31,17 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     List<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
-    Optional<Integer> addPageToApplication(
-            String applicationId, String pageId, boolean isDefault, String defaultPageId);
+    Optional<Integer> addPageToApplication(String applicationId, String pageId, boolean isDefault, String defaultPageId);
 
     /*@Modifying
     @Query(value = "UPDATE Application SET pages = :pages WHERE id = :applicationId")
-    default Optional<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages) {
+    no-cake default int setPages(String applicationId, List<ApplicationPage> pages) {
         return Optional.empty();
     }*/
 
-    Optional<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages);
+    int setPages(String applicationId, List<ApplicationPage> pages);
 
-    Optional<UpdateResult> setDefaultPage(String applicationId, String pageId);
-
-    Optional<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission);
+    Optional<Void> setDefaultPage(String applicationId, String pageId);
 
     Optional<Application> getApplicationByGitBranchAndDefaultApplicationId(
             String defaultApplicationId, String branchName, Optional<AclPermission> permission);
@@ -71,7 +66,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Optional<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 
-    Optional<UpdateResult> updateFieldByDefaultIdAndBranchName(
+    Optional<Integer> updateFieldByDefaultIdAndBranchName(
             String defaultId,
             String defaultIdPath,
             Map<String, Object> fieldNameValueMap,
@@ -87,14 +82,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Optional<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
             AclPermission permission, String permissionGroupId);
 
-    Optional<UpdateResult> unprotectAllBranches(String applicationId, AclPermission permission);
+    int unprotectAllBranches(String applicationId, AclPermission permission);
 
-    Optional<UpdateResult> protectBranchedApplications(
-            String applicationId, List<String> branchNames, AclPermission permission);
-
-    Optional<Application> findByBranchNameAndDefaultApplicationId(
-            String branchName,
-            String defaultApplicationId,
-            List<String> projectionFieldNames,
-            AclPermission aclPermission);
+    Optional<Integer> protectBranchedApplications(String applicationId, List<String> branchNames, AclPermission permission);
 }

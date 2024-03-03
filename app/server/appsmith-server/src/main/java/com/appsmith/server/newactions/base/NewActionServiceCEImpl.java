@@ -3,6 +3,8 @@ package com.appsmith.server.newactions.base;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.helpers.AppsmithEventContext;
+import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -61,8 +63,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.LinkedMultiValueMap;
@@ -71,7 +71,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.time.Instant;
@@ -135,10 +134,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     private final DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
 
     public NewActionServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             NewActionRepository repositoryDirect,
             NewActionRepositoryCake repository,
             AnalyticsService analyticsService,
@@ -163,10 +159,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
 
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService);
@@ -1604,14 +1597,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (!StringUtils.hasLength(savedAction.getUnpublishedAction().getPluginName())) {
             savedAction.getUnpublishedAction().setPluginName(datasource.getPluginName());
         }
-        Map<String, Object> analyticsProperties = this.getAnalyticsProperties(savedAction);
+        Map<String, Object> analyticsProperties =
+                this.getAnalyticsProperties(savedAction, new AppsmithEventContext(AppsmithEventContextType.DEFAULT));
         Map<String, Object> eventData = Map.of(FieldName.DATASOURCE, datasource);
         analyticsProperties.put(FieldName.EVENT_DATA, eventData);
         return analyticsProperties;
     }
 
     @Override
-    public Map<String, Object> getAnalyticsProperties(NewAction savedAction) {
+    public Map<String, Object> getAnalyticsProperties(NewAction savedAction, AppsmithEventContext eventContext) {
         ActionDTO unpublishedAction = savedAction.getUnpublishedAction();
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
@@ -1634,6 +1628,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             analyticsProperties.put(
                     "dsIsMock",
                     ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getIsMock(), ""));
+        }
+
+        if (eventContext != null) {
+            if (AppsmithEventContextType.GENERATE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
+                analyticsProperties.put("isUserCreated", false);
+                analyticsProperties.put("accelerator", "generate-crud");
+            } else if (AppsmithEventContextType.DEFAULT.equals(eventContext.getAppsmithEventContextType())) {
+                analyticsProperties.put("isUserCreated", true);
+            }
         }
         return analyticsProperties;
     }

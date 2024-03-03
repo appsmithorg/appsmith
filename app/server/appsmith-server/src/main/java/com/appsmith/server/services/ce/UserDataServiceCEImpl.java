@@ -33,7 +33,6 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
@@ -42,6 +41,8 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
+import static com.appsmith.server.helpers.cs.ReactorUtils.toMonoDirect;
 
 public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserDataRepositoryCake, UserData, String>
         implements UserDataServiceCE {
@@ -68,10 +69,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Autowired
     public UserDataServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             UserDataRepository repositoryDirect,
             UserDataRepositoryCake repository,
             AnalyticsService analyticsService,
@@ -83,10 +81,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             ApplicationRepositoryCake applicationRepository,
             TenantService tenantService) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService);
@@ -156,7 +151,16 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     @Override
     public Mono<UserData> update(String userId, UserData resource) {
-        return update(userId, resource, "userId");
+        if (userId == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, UserData.Fields.userId));
+        }
+
+        return toMonoDirect(() -> repositoryDirect
+                .queryBuilder()
+                .criteria(bridge().equal(UserData.Fields.userId, userId))
+                .updateFirst(resource))
+                .flatMap(count -> count == 0 ? Mono.empty() : repository.findByUserId(userId))
+                .flatMap(analyticsService::sendUpdateEvent);
     }
 
     @Override
@@ -180,12 +184,17 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                         .getDefaultTenantId()
                         .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId())))
-                .flatMap(repository::findByUserId)
-                .defaultIfEmpty(new UserData(user.getId()))
-                .flatMap(userData -> {
-                    userData.setReleaseNotesViewedVersion(version);
-                    return repository.save(userData);
-                })
+                .flatMap(userId -> repository
+                        .saveReleaseNotesViewedVersion(userId, version)
+                        .flatMap(count -> {
+                            if (count == 0) {
+                                final UserData userData = new UserData();
+                                userData.setReleaseNotesViewedVersion(version);
+                                userData.setUserId(user.getId());
+                                return repository.save(userData).then();
+                            }
+                            return Mono.empty();
+                        }))
                 .thenReturn(user);
     }
 
@@ -350,7 +359,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      * @return update result obtained from DB
      */
     @Override
-    public Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
+    public Mono<Void> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
 
         return applicationRepository
                 .findIdsByWorkspaceId(workspaceId)

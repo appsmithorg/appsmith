@@ -4,7 +4,7 @@ import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.QPermissionGroup;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -32,8 +32,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @RequiredArgsConstructor
 public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T, String>> {
@@ -103,7 +101,7 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
                                 cb.function(
                                         "jsonb_path_exists",
                                         Boolean.class,
-                                        root.get(fieldName(QPermissionGroup.permissionGroup.policies)),
+                                        root.get(PermissionGroup.Fields.policies),
                                         cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
                                                 + String.join(" || ", conditions) + ")))"),
                                         cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));

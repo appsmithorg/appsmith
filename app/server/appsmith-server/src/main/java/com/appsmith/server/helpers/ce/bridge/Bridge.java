@@ -23,8 +23,8 @@ public class Bridge<T extends BaseDomain> implements Specification<T> {
         return new Bridge<>();
     }
 
-    public static Update update() {
-        return new Update();
+    public static BUpdate update() {
+        return new BUpdate();
     }
 
     @Override
@@ -65,6 +65,13 @@ public class Bridge<T extends BaseDomain> implements Specification<T> {
                     inCluse.value(item);
                 }
                 predicate = inCluse;
+
+            } else if (op == Op.EXISTS) {
+                if (key.contains(".")) {
+                    predicate = cb.isTrue(keyToExpressionExists(root, cb, key));
+                } else {
+                    predicate = cb.isNotNull(keyToExpression(Object.class, root, cb, key));
+                }
 
             } else if (op == Op.JSON_IN) {
                 predicate = cb.isTrue(cb.function(
@@ -113,6 +120,11 @@ public class Bridge<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
+    public Bridge<T> exists(String key) {
+        checks.add(new Check(Op.EXISTS, key, null));
+        return this;
+    }
+
     /**
      * Check that the string `needle` is present in the JSON array at `key`.
      */
@@ -137,6 +149,24 @@ public class Bridge<T extends BaseDomain> implements Specification<T> {
                     String.class.equals(type) ? "jsonb_extract_path_text" : "jsonb_extract_path",
                     type,
                     fnArgs.toArray(new Expression<?>[0]));
+        }
+
+        return root.get(key);
+    }
+
+    private static Expression<Boolean> keyToExpressionExists(
+            @NonNull Root<?> root, @NonNull CriteriaBuilder cb, @NonNull String key) {
+        if (key.contains(".")) {
+            final List<String> parts = List.of(key.split("\\."));
+
+            final List<Expression<?>> fnArgs = new ArrayList<>();
+            fnArgs.add(root.get(parts.get(0)));
+
+            return cb.function(
+                    "jsonb_path_exists",
+                    Boolean.class,
+                    root.get(parts.get(0)),
+                    cb.literal("$." +  String.join(".", parts.subList(1, parts.size()))));
         }
 
         return root.get(key);

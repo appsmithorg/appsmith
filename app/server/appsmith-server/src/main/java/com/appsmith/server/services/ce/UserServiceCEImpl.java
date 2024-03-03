@@ -44,8 +44,6 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.message.BasicNameValuePair;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -62,7 +60,6 @@ import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
@@ -123,10 +120,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
 
     @Autowired
     public UserServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             UserRepository repositoryDirect,
             UserRepositoryCake repository,
             WorkspaceService workspaceService,
@@ -146,10 +140,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
             UserServiceHelper userServiceHelper) {
 
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService);
@@ -219,7 +210,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
                     // Throw an exception if the workspaceId is not part of the user's workspaces
                     return Mono.error(new AppsmithException(
                             AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), workspaceId));
-                }); // */
+                });
     }
 
     /**
@@ -468,7 +459,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
     }
 
     private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
-        // TODO: Add policies to the user
         return userPoliciesComputeHelper.addPoliciesToUser(user).flatMap(repository::save);
     }
 
@@ -615,6 +605,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
     }
 
     private Mono<User> update(User existingUser, User userUpdate) {
+
         // The password is being updated. Hash it first and then store it
         if (userUpdate.getPassword() != null) {
             userUpdate.setPassword(passwordEncoder.encode(userUpdate.getPassword()));
@@ -646,25 +637,20 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
         Mono<UserData> updatedUserDataMono;
 
         if (allUpdates.hasUserUpdates()) {
+            final User updates = new User();
             String inputName = allUpdates.getName();
             boolean isValidName = validateName(inputName);
             if (!isValidName) {
                 return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
             }
+            updates.setName(inputName);
             updatedUserMono = sessionUserService
                     .getCurrentUser()
-                    .flatMap(user -> {
-                        user.setName(inputName);
-                        return repository.save(user).flatMap(savedUser -> {
-                            if (exchange != null) {
-                                // Can we do this in a separate thread, async?
-                                return sessionUserService
-                                        .refreshCurrentUser(exchange)
-                                        .thenReturn(savedUser);
-                            }
-                            return Mono.just(savedUser);
-                        });
-                    })
+                    .flatMap(user -> update(user.getEmail(), updates, User.Fields.email)
+                            .then(
+                                    exchange == null
+                                            ? repository.findByEmail(user.getEmail())
+                                            : sessionUserService.refreshCurrentUser(exchange)))
                     .cache();
             monos.add(updatedUserMono.then());
         } else {
@@ -707,6 +693,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
 
     @Override
     public Mono<UserProfileDTO> buildUserProfileDTO(User user) {
+
         Mono<User> userFromDbMono = findByEmail(user.getEmail()).cache();
 
         Mono<Boolean> isSuperUserMono = userFromDbMono.flatMap(userUtils::isSuperUser);

@@ -25,7 +25,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
 
     @Override
     public Optional<User> findByEmail(String email, AclPermission aclPermission) {
-        Criteria emailCriteria = where("email").is(email);
+        Criteria emailCriteria = where(User.Fields.email).is(email);
         return queryBuilder().criteria(emailCriteria).permission(aclPermission).one();
     }
 }

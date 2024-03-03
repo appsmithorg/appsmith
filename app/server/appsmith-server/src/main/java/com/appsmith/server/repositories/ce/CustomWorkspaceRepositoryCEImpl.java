@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -11,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +18,7 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Workspace>
@@ -37,7 +38,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Optional<Workspace> findByName(String name, AclPermission aclPermission) {
         return queryBuilder()
-                .criteria(bridge().equal(fieldName(QWorkspace.workspace.name), name))
+                .criteria(bridge().equal(Workspace.Fields.name, name))
                 .permission(aclPermission)
                 .one();
     }
@@ -45,16 +46,14 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<Workspace> findByIdsIn(
             Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
-        throw new ex.Marker("an emptyList"); /*
-        Criteria workspaceIdCriteria = where("id").in(workspaceIds);
-        Criteria tenantIdCriteria =
-                where("tenantId").is(tenantId);
+        Criteria workspaceIdCriteria = where(Workspace.Fields.id).in(workspaceIds);
+        Criteria tenantIdCriteria = where(Workspace.Fields.tenantId).is(tenantId);
 
         return queryBuilder()
                 .criteria(workspaceIdCriteria, tenantIdCriteria)
                 .permission(aclPermission)
                 .sort(sort)
-                .all(); //*/
+                .all();
     }
 
     @Override
@@ -62,7 +61,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         final User user =
                 Objects.requireNonNull(sessionUserService.getCurrentUser().block());
         return queryBuilder()
-                .criteria(bridge().equal(fieldName(QWorkspace.workspace.tenantId), user.getTenantId()))
+                .criteria(bridge().equal(Workspace.Fields.tenantId, user.getTenantId()))
                 .permission(permission)
                 .all();
     }
@@ -71,11 +70,11 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Optional<Workspace> findByIdAndPluginsPluginId(String id, String pluginId) {
         return queryBuilder()
                 .criteria((root, cq, cb) -> cb.and(
-                        cb.equal(root.get(fieldName(QWorkspace.workspace.id)), id),
+                        cb.equal(root.get(Workspace.Fields.id), id),
                         cb.isTrue(cb.function(
                                 "jsonb_path_exists",
                                 Boolean.class,
-                                root.get(fieldName(QWorkspace.workspace.plugins)),
+                                root.get(Workspace.Fields.plugins),
                                 cb.literal("$[*] ? (@.pluginId == \"" + pluginId + "\")")))))
                 .one();
     }

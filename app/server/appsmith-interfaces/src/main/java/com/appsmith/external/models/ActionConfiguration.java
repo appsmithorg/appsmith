@@ -15,6 +15,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Type;
 import org.hibernate.validator.constraints.Range;
@@ -34,6 +35,7 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 @Slf4j
 @NoArgsConstructor
 @Entity
+@FieldNameConstants
 public class ActionConfiguration implements AppsmithDomain, ExecutableConfiguration {
 
     @Id

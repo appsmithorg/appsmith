@@ -14,7 +14,7 @@ public interface ApplicationPageServiceCE {
 
     Mono<PageDTO> createPageWithBranchName(PageDTO page, String branchName);
 
-    Mono<Void> addPageToApplication(Application application, PageDTO page, Boolean isDefault);
+    Mono<Integer> addPageToApplication(Application application, PageDTO page, Boolean isDefault);
 
     Mono<PageDTO> getPage(NewPage newPage, boolean viewMode);
 

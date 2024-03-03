@@ -14,6 +14,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
+import jakarta.persistence.Entity;
 import org.hibernate.annotations.Type;
 
 import java.util.List;
@@ -26,6 +28,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@FieldNameConstants
 public class Plugin extends BaseDomain {
 
     public enum ResponseType {
@@ -130,4 +133,6 @@ public class Plugin extends BaseDomain {
     // Config to set if the plugin has any dependency on cloud-services
     @JsonView(Views.Internal.class)
     Boolean isDependentOnCS;
+
+    public static class Fields extends BaseDomain.Fields {}
 }

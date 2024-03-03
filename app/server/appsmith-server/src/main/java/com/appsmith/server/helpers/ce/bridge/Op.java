@@ -8,4 +8,5 @@ public enum Op {
     IS_TRUE,
     IN,
     JSON_IN,
+    EXISTS,
 }

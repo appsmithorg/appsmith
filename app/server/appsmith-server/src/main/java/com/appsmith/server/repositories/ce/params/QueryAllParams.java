@@ -3,16 +3,13 @@ package com.appsmith.server.repositories.ce.params;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.helpers.ce.bridge.Update;
-import com.appsmith.server.repositories.BaseRepository;
+import com.appsmith.server.helpers.ce.bridge.BUpdate;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
-import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -27,10 +24,8 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.N
 public class QueryAllParams<T extends BaseDomain> {
     // TODO(Shri): There's a cyclic dependency between the repository and this class. Remove it.
     private final BaseAppsmithRepositoryCEImpl<T> repo;
-    private final BaseRepository<T, String> actualRepo;
     private final List<Criteria> criteria = new ArrayList<>();
     private final List<Specification<T>> specifications = new ArrayList<>();
-    private final List<BooleanExpression> querydslExpressions = new ArrayList<>();
     private final List<String> fields = new ArrayList<>();
     private AclPermission permission;
     private Set<String> permissionGroups;
@@ -47,81 +42,54 @@ public class QueryAllParams<T extends BaseDomain> {
     private Scope scope;
 
     public QueryAllParams(BaseAppsmithRepositoryCEImpl<T> repo) {
-        this(repo, null);
-    }
-
-    public QueryAllParams(BaseAppsmithRepositoryCEImpl<T> repo, BaseRepository<T, String> actualRepo) {
-        // commented use in CustomThemeRepositoryCEImpl
         this.repo = repo;
-        this.actualRepo = actualRepo;
     }
 
     public List<T> all() {
-        if (!criteria.isEmpty()) {
-            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
-            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
-            e.printStackTrace();
-            throw e;
-        }
-
-        return repo.queryAllExecute(this, actualRepo);
+        ensureNoOldStyleCriteria();
+        return repo.queryAllExecute(this);
     }
 
     public Optional<T> one() {
-        if (!criteria.isEmpty()) {
-            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
-            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
-            e.printStackTrace();
-            throw e;
-        }
-
+        ensureNoOldStyleCriteria();
         return repo.queryOneExecute(this);
     }
 
     public Optional<T> first() {
-        if (!criteria.isEmpty()) {
-            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
-            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
-            e.printStackTrace();
-            throw e;
-        }
-
+        ensureNoOldStyleCriteria();
         return repo.queryFirstExecute(this).blockOptional();
     }
 
-    public Mono<Long> count() {
-        if (!criteria.isEmpty()) {
-            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
-            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
-            e.printStackTrace();
-            throw e;
-        }
-
+    public Optional<Long> count() {
+        ensureNoOldStyleCriteria();
         return repo.countExecute(this);
     }
 
-    public int updateAll(@NonNull Update update) {
-        if (!criteria.isEmpty()) {
-            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
-            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
-            e.printStackTrace();
-            throw e;
-        }
-
+    public int updateAll(@NonNull BUpdate update) {
+        ensureNoOldStyleCriteria();
         scope = Scope.ALL;
         return repo.updateExecute2(this, update);
     }
 
-    public int updateFirst(@NonNull Update update) {
+    public int updateFirst(@NonNull T resource) {
+        ensureNoOldStyleCriteria();
+        scope = Scope.FIRST;
+        return repo.updateExecute(this, resource);
+    }
+
+    public int updateFirst(@NonNull BUpdate update) {
+        ensureNoOldStyleCriteria();
+        scope = Scope.FIRST;
+        return repo.updateExecute2(this, update);
+    }
+
+    private void ensureNoOldStyleCriteria() {
         if (!criteria.isEmpty()) {
-            final var e = new RuntimeException("Querying with criteria, instead of specifications!");
+            final var e = new RuntimeException("Operating with criteria, instead of specifications!");
             // We're eating up the exception in some places, so let's print it out for debugging ourselves.
             e.printStackTrace();
             throw e;
         }
-
-        scope = Scope.FIRST;
-        return repo.updateExecute2(this, update);
     }
 
     public QueryAllParams<T> criteria(Criteria... criteria) {
@@ -131,11 +99,11 @@ public class QueryAllParams<T extends BaseDomain> {
         return criteria(List.of(criteria));
     }
 
-    public QueryAllParams<T> criteria(List<Criteria> criterias) {
-        if (criterias == null) {
+    public QueryAllParams<T> criteria(List<Criteria> criteria) {
+        if (criteria == null) {
             return this;
         }
-        this.criteria.addAll(criterias);
+        this.criteria.addAll(criteria);
         return this;
     }
 
@@ -145,20 +113,11 @@ public class QueryAllParams<T extends BaseDomain> {
         return this;
     }
 
-    /**
-     * Set a condition with querydsl expression.
-     */
-    public QueryAllParams<T> criteria(BooleanExpression expression) {
-        querydslExpressions.add(expression);
-        return this;
-    }
-
     public QueryAllParams<T> byId(String id) {
-        criteria(
+        return criteria(
                 id == null
                         ? (root, cq, cb) -> cb.isNull(root.get(FieldName.ID))
                         : (root, cq, cb) -> cb.equal(root.get(FieldName.ID), id));
-        return this;
     }
 
     public QueryAllParams<T> fields(String... fields) {

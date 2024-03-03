@@ -12,10 +12,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -27,21 +24,8 @@ public class CollectionServiceCEImpl
         implements CollectionServiceCE {
 
     public CollectionServiceCEImpl(
-            Scheduler scheduler,
-            Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
-            CollectionRepository repositoryDirect,
-            CollectionRepositoryCake repository,
-            AnalyticsService analyticsService) {
-        super(
-                scheduler,
-                validator,
-                mongoConverter,
-                reactiveMongoTemplate,
-                repositoryDirect,
-                repository,
-                analyticsService);
+            Validator validator, CollectionRepository repositoryDirect,CollectionRepositoryCake repository, AnalyticsService analyticsService) {
+        super(validator, repositoryDirect, repository, analyticsService);
     }
 
     @Override

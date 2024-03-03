@@ -1,31 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
 import CreateNewAppFromTemplatesModal from ".";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { useDispatch, useSelector } from "react-redux";
-import { createAppFromTemplatesModalSelector } from "selectors/templatesSelectors";
-import { hideCreateAppFromTemplatesModal } from "actions/templateActions";
+import { getIsReconnectingDatasourcesModalOpen } from "@appsmith/selectors/entitiesSelector";
+import { useSelector } from "react-redux";
 
 interface Props {
   currentWorkspaceId: string;
+  isOpen: boolean;
+  onModalClose: () => void;
 }
 
-const CreateNewAppFromTemplatesWrapper = ({ currentWorkspaceId }: Props) => {
-  const isCreateAppFromTemplatesEnabled = useFeatureFlag(
-    "release_show_create_app_from_templates_enabled",
+const CreateNewAppFromTemplatesWrapper = ({
+  currentWorkspaceId,
+  isOpen,
+  onModalClose,
+}: Props) => {
+  const isReconnectingModalOpen = useSelector(
+    getIsReconnectingDatasourcesModalOpen,
   );
-  const isOpen = useSelector(createAppFromTemplatesModalSelector);
-  const dispatch = useDispatch();
 
-  if (!isCreateAppFromTemplatesEnabled) return null;
-
-  const handleClose = () => {
-    dispatch(hideCreateAppFromTemplatesModal());
-  };
+  useEffect(() => {
+    if (isReconnectingModalOpen) {
+      onModalClose();
+    }
+  }, [isReconnectingModalOpen]);
 
   return (
     <CreateNewAppFromTemplatesModal
       currentWorkSpaceId={currentWorkspaceId}
-      handleClose={handleClose}
+      handleClose={onModalClose}
       isOpen={isOpen}
     />
   );

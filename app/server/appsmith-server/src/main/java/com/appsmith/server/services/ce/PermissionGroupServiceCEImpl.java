@@ -6,13 +6,12 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.bridge.Update;
+import com.appsmith.server.helpers.ce.bridge.BUpdate;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
@@ -23,15 +22,11 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import org.apache.commons.collections.CollectionUtils;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.HashSet;
 import java.util.List;
@@ -40,8 +35,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.constants.ce.FieldNameCE.PERMISSION_GROUP_ID;
-import static com.appsmith.server.constants.ce.FieldNameCE.PUBLIC_PERMISSION_GROUP;
+import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
+import static com.appsmith.server.constants.FieldName.PUBLIC_PERMISSION_GROUP;
 import static java.lang.Boolean.TRUE;
 
 public class PermissionGroupServiceCEImpl
@@ -59,10 +54,7 @@ public class PermissionGroupServiceCEImpl
     private PermissionGroup publicPermissionGroup = null;
 
     public PermissionGroupServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             PermissionGroupRepository repositoryDirect,
             PermissionGroupRepositoryCake repository,
             AnalyticsService analyticsService,
@@ -74,10 +66,7 @@ public class PermissionGroupServiceCEImpl
             PermissionGroupPermission permissionGroupPermission) {
 
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService);
@@ -254,16 +243,14 @@ public class PermissionGroupServiceCEImpl
                     Set<String> assignedToUserIds = pg.getAssignedToUserIds();
                     assignedToUserIds.removeAll(userIds);
 
-                    Update updateObj = new Update();
+                    BUpdate updateObj = new BUpdate();
 
-                    updateObj.set(QPermissionGroup.permissionGroup.assignedToUserIds, assignedToUserIds);
+                    updateObj.set(PermissionGroup.Fields.assignedToUserIds, assignedToUserIds);
 
-                    Mono<UpdateResult> updatePermissionGroupResultMono = repository.updateById(pg.getId(), updateObj);
+                    Mono<Integer> updatePermissionGroupResultMono = repository.updateById(pg.getId(), updateObj);
                     Mono<Void> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(List.copyOf(userIds));
 
-                    return updatePermissionGroupResultMono
-                            .zipWhen(updatedPermissionGroupResult -> clearCacheForUsersMono)
-                            .map(tuple -> tuple.getT1());
+                    return updatePermissionGroupResultMono.then(clearCacheForUsersMono);
                 })
                 .then(Mono.just(TRUE));
     }
@@ -420,9 +407,9 @@ public class PermissionGroupServiceCEImpl
 
                     assignedToUserIds.remove(userId);
 
-                    Update updateObj = new Update();
+                    BUpdate updateObj = new BUpdate();
 
-                    updateObj.set(QPermissionGroup.permissionGroup.assignedToUserIds, assignedToUserIds);
+                    updateObj.set(PermissionGroup.Fields.assignedToUserIds, assignedToUserIds);
 
                     return repository
                             .updateById(permissionGroupId, updateObj)

@@ -4,7 +4,6 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.jslibs.context.ContextBasedJsLibServiceCE;
-import com.mongodb.client.result.UpdateResult;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -28,8 +27,8 @@ public class ApplicationJsLibServiceCEImpl implements ContextBasedJsLibServiceCE
                         contextId,
                         List.of(
                                 isViewMode
-                                        ? "application.publishedCustomJSLibs"
-                                        : "application.unpublishedCustomJSLibs"),
+                                        ? Application.Fields.publishedCustomJSLibs
+                                        : Application.Fields.unpublishedCustomJSLibs),
                         branchName)
                 .map(application -> {
                     if (isViewMode) {
@@ -45,9 +44,9 @@ public class ApplicationJsLibServiceCEImpl implements ContextBasedJsLibServiceCE
     }
 
     @Override
-    public Mono<UpdateResult> updateJsLibsInContext(
+    public Mono<Integer> updateJsLibsInContext(
             String contextId, String branchName, Set<CustomJSLibContextDTO> updatedJSLibDTOSet) {
-        Map<String, Object> fieldNameValueMap = Map.of("application.unpublishedCustomJSLibs", updatedJSLibDTOSet);
+        Map<String, Object> fieldNameValueMap = Map.of(Application.Fields.unpublishedCustomJSLibs, updatedJSLibDTOSet);
         return applicationService.update(contextId, fieldNameValueMap, branchName);
     }
 }

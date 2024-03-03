@@ -49,7 +49,7 @@ public class CustomUserDataRepositoryTest {
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("123", "234", "345"), null);
 
         // remove the 345 org id from the recently used workspaceId list
-        Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
+        Mono<Void> updateResultMono = createUserDataMono.flatMap(
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(userData.getUserId(), "345", List.of()));
 
         // read the userdata
@@ -75,7 +75,7 @@ public class CustomUserDataRepositoryTest {
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("123", "234", "345"), null);
 
         // remove the 345 org id from the recently used workspaceId list
-        Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
+        Mono<Void> updateResultMono = createUserDataMono.flatMap(
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(userData.getUserId(), "678", List.of()));
 
         // read the userdata
@@ -101,7 +101,7 @@ public class CustomUserDataRepositoryTest {
         Mono<UserData> createUserDataMono = createUser(sampleUserId, null, List.of("123", "456", "789"));
 
         // remove the 345 org id from the recently used workspaceId list
-        Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
+        Mono<Void> updateResultMono = createUserDataMono.flatMap(
                 // workspaceId does not matter
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "345", List.of("123", "789")) // remove 123 and 789
@@ -130,7 +130,7 @@ public class CustomUserDataRepositoryTest {
                 createUser(sampleUserId, List.of("abc", "efg", "hij"), List.of("123", "456", "789"));
 
         // remove the 345 org id from the recently used workspaceId list
-        Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
+        Mono<Void> updateResultMono = createUserDataMono.flatMap(
                 // workspaceId does not matter
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "efg", List.of("123", "789")) // remove 123 and 789

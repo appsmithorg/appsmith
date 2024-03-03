@@ -76,7 +76,7 @@ class TenantServiceCETest {
         originalTenantConfiguration = tenant.getTenantConfiguration();
         mongoOperations.updateFirst(
                 Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
-                Update.update("tenantConfiguration", null),
+                Update.update(Tenant.Fields.tenantConfiguration, null),
                 Tenant.class);
 
         // Make api_user super-user to test tenant admin functionality
@@ -92,7 +92,7 @@ class TenantServiceCETest {
         final Tenant tenant = tenantService.getDefaultTenant().block();
         mongoOperations.updateFirst(
                 Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
-                Update.update("tenantConfiguration", originalTenantConfiguration),
+                Update.update(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
                 Tenant.class);
     }
 

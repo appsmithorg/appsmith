@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.internal;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.converters.ArtifactExchangeJsonAdapter;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -11,11 +12,11 @@ import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
-import org.springframework.stereotype.Component;
+import com.google.gson.GsonBuilder;
+import org.springframework.stereotype.Service;
 
-@Component
+@Service
 public class ImportServiceImpl extends ImportServiceCEImpl implements ImportService {
-
     public ImportServiceImpl(
             ArtifactBasedImportService<Application, ApplicationImportDTO, ApplicationJson> applicationImportService,
             SessionUserService sessionUserService,
@@ -23,7 +24,9 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
             PermissionGroupRepositoryCake permissionGroupRepository,
             AnalyticsService analyticsService,
             ImportableService<Plugin> pluginImportableService,
-            ImportableService<Datasource> datasourceImportableService) {
+            ImportableService<Datasource> datasourceImportableService,
+            GsonBuilder gsonBuilder,
+            ArtifactExchangeJsonAdapter artifactExchangeJsonAdapter) {
         super(
                 applicationImportService,
                 sessionUserService,
@@ -31,6 +34,8 @@ public class ImportServiceImpl extends ImportServiceCEImpl implements ImportServ
                 permissionGroupRepository,
                 analyticsService,
                 pluginImportableService,
-                datasourceImportableService);
+                datasourceImportableService,
+                gsonBuilder,
+                artifactExchangeJsonAdapter);
     }
 }

@@ -5,10 +5,6 @@ import com.appsmith.caching.annotations.CacheEvict;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QTenant;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -36,7 +32,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
 @Component
@@ -69,25 +64,25 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             Predicate predicate;
 
             predicate = cb.and(
-                    cb.isNull(root.get(fieldName(QPermissionGroup.permissionGroup.deletedAt))),
+                    cb.isNull(root.get(PermissionGroup.Fields.deletedAt)),
                     cb.isTrue(cb.function(
                             "jsonb_path_exists",
                             Boolean.class,
-                            root.get(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)),
+                            root.get(PermissionGroup.Fields.assignedToUserIds),
                             cb.literal("$[*] ? (@ == \"" + user.getId() + "\")"))),
                     cb.or(
                             cb.equal(
-                                    root.get(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)),
+                                    root.get(PermissionGroup.Fields.defaultDomainType),
                                     Workspace.class.getSimpleName()),
                             cb.equal(
-                                    root.get(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)),
+                                    root.get(PermissionGroup.Fields.defaultDomainType),
                                     User.class.getSimpleName()),
                             cb.equal(
-                                    root.get(fieldName(QPermissionGroup.permissionGroup.id)),
+                                    root.get(PermissionGroup.Fields.id),
                                     instanceAdminPermissionGroupId)));
 
             cq.where(predicate);
-            // cq.select(root.get(fieldName(QPermissionGroup.permissionGroup.id)));
+            // cq.select(root.get(PermissionGroup.Fields.id));
             return entityManager.createQuery(cq).getResultList().stream()
                     .map(PermissionGroup::getId)
                     .collect(Collectors.toSet());
@@ -108,7 +103,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Config> cq = cb.createQuery(Config.class);
         final Root<Config> config = cq.from(Config.class);
-        cq.where(cb.equal(config.get(fieldName(QConfig.config1.name)), FieldName.PUBLIC_PERMISSION_GROUP));
+        cq.where(cb.equal(config.get(Config.Fields.name), FieldName.PUBLIC_PERMISSION_GROUP));
         final TypedQuery<Config> query = entityManager.createQuery(cq);
 
         // All public access is via a single permission group. Fetch the same and set the cache with it.
@@ -143,10 +138,8 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(tenantAnonymousUserMap.get(tenantId));
         }
 
-        Criteria anonymousUserCriteria =
-                Criteria.where(fieldName(QUser.user.email)).is(ANONYMOUS_USER);
-        Criteria tenantIdCriteria =
-                Criteria.where(fieldName(QUser.user.tenantId)).is(tenantId);
+        Criteria anonymousUserCriteria = Criteria.where(User.Fields.email).is(ANONYMOUS_USER);
+        Criteria tenantIdCriteria = Criteria.where(User.Fields.tenantId).is(tenantId);
 
         Query query = new Query();
         query.addCriteria(anonymousUserCriteria);
@@ -165,7 +158,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return getAnonymousUser(defaultTenantId);
         }
 
-        Criteria defaultTenantCriteria = Criteria.where("slug").is(FieldName.DEFAULT);
+        Criteria defaultTenantCriteria = Criteria.where(Tenant.Fields.slug).is(FieldName.DEFAULT);
         Query query = new Query();
         query.addCriteria(defaultTenantCriteria);
 
@@ -182,8 +175,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             return Mono.just(defaultTenantId);
         }
 
-        Criteria defaultTenantCriteria =
-                Criteria.where(fieldName(QTenant.tenant.slug)).is(FieldName.DEFAULT);
+        Criteria defaultTenantCriteria = Criteria.where(Tenant.Fields.slug).is(FieldName.DEFAULT);
         Query query = new Query();
         query.addCriteria(defaultTenantCriteria);
 

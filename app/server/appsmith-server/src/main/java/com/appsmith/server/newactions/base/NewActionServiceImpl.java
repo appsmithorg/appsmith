@@ -25,20 +25,14 @@ import com.appsmith.server.validations.EntityValidationService;
 import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Service
 @Slf4j
 public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewActionService {
 
     public NewActionServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             NewActionRepository repositoryDirect,
             NewActionRepositoryCake repository,
             AnalyticsService analyticsService,
@@ -62,10 +56,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
             DefaultResourcesService<NewAction> defaultResourcesService,
             DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService,

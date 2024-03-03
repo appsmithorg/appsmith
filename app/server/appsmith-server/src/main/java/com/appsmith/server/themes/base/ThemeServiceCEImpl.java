@@ -18,13 +18,10 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuples;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
@@ -41,10 +38,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
     private String defaultThemeId; // acts as a simple cache so that we don't need to fetch from DB always
 
     public ThemeServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ThemeRepository repositoryDirect,
             ThemeRepositoryCake repository,
             AnalyticsService analyticsService,
@@ -53,10 +47,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
             PolicyGenerator policyGenerator,
             ApplicationPermission applicationPermission) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repositoryDirect,
                 repository,
                 analyticsService);

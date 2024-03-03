@@ -1,36 +1,30 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.cakes.BaseCake;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -38,6 +32,8 @@ import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
+import static com.appsmith.server.helpers.cs.ReactorUtils.toMonoDirect;
 import static java.util.stream.Collectors.toSet;
 
 @Slf4j
@@ -49,13 +45,7 @@ public abstract class BaseService<
                 ID extends Serializable>
         implements CrudService<T, ID> {
 
-    final Scheduler scheduler;
-
     protected final Validator validator;
-
-    protected final MongoConverter mongoConverter;
-
-    protected final ReactiveMongoTemplate mongoTemplate;
 
     protected final R repositoryDirect;
 
@@ -75,6 +65,7 @@ public abstract class BaseService<
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
 
+        /* Original Pg-only implementation:
         // In case the update is not used to update the policies, then set the policies to null to ensure that the
         // existing policies are not overwritten.
         if (CollectionUtils.isNullOrEmpty(resource.getPolicies())) {
@@ -88,6 +79,19 @@ public abstract class BaseService<
                     dbResource.setUpdatedAt(Instant.now());
                     return repository.save(dbResource);
                 });
+        */
+
+        resource.setUpdatedAt(Instant.now());
+
+        // TODO(Shri): update happens with `key=id` and find happens with `id=id` criteria. This is incorrect, but is
+        //   too fragile to touch right now. Need to dig in slow and deep to fix this.
+        return toMonoDirect(() -> repositoryDirect
+                .queryBuilder()
+                .criteria(bridge().equal(key, (String) id))
+                .updateFirst(resource))
+                .flatMap(obj -> repository.findById((String) id))
+                .flatMap(savedResource ->
+                        analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
@@ -141,12 +145,6 @@ public abstract class BaseService<
                         analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
-    protected DBObject getDbObject(Object o) {
-        BasicDBObject basicDBObject = new BasicDBObject();
-        mongoConverter.write(o, basicDBObject);
-        return basicDBObject;
-    }
-
     @Override
     public Mono<T> archiveById(ID id) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
@@ -178,7 +176,7 @@ public abstract class BaseService<
 
     @Override
     public Map<String, Object> getAnalyticsProperties(T savedResource) {
-        return null;
+        return new HashMap<>();
     }
 
     /**

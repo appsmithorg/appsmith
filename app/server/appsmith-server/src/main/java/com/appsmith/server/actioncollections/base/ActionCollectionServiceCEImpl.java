@@ -31,15 +31,12 @@ import org.apache.commons.lang3.ObjectUtils;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -70,10 +67,7 @@ public class ActionCollectionServiceCEImpl
 
     @Autowired
     public ActionCollectionServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ActionCollectionRepository repositoryDirect,
             ActionCollectionRepositoryCake repository,
             AnalyticsService analyticsService,
@@ -85,14 +79,7 @@ public class ActionCollectionServiceCEImpl
             ActionPermission actionPermission,
             DefaultResourcesService<ActionCollection> defaultResourcesService) {
 
-        super(
-                scheduler,
-                validator,
-                mongoConverter,
-                reactiveMongoTemplate,
-                repositoryDirect,
-                repository,
-                analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.newActionService = newActionService;
         this.policyGenerator = policyGenerator;
         this.applicationService = applicationService;
@@ -704,7 +691,7 @@ public class ActionCollectionServiceCEImpl
         newActionService.updateDefaultResourcesInAction(newAction);
 
         Mono<NewAction> sendAnalyticsMono =
-                analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction));
+                analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction, null));
 
         return newActionService
                 .validateAndSaveActionToRepository(newAction)

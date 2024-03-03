@@ -131,10 +131,7 @@ public class NewActionServiceUnitTest {
     @BeforeEach
     public void setup() {
         newActionService = new NewActionServiceCEImpl(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 newActionRepositoryDirect,
                 newActionRepository,
                 analyticsService,

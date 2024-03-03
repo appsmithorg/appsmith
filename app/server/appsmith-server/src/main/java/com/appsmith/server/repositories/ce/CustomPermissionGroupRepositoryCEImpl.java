@@ -1,36 +1,29 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.ce.bridge.Update;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.BUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.TypedQuery;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-import lombok.SneakyThrows;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import reactor.core.publisher.Flux;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<PermissionGroup>
         implements CustomPermissionGroupRepositoryCE {
@@ -49,7 +42,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findByAssignedToUserIdsIn(String userId) {
         return queryBuilder()
-                .criteria(bridge().jsonIn(userId, fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)))
+                .criteria(bridge().jsonIn(userId, PermissionGroup.Fields.assignedToUserIds))
                 .all();
     }
 
@@ -61,11 +54,11 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                         cb.isTrue(cb.function(
                                 "jsonb_path_exists",
                                 Boolean.class,
-                                root.get(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds)),
+                                root.get(PermissionGroup.Fields.assignedToUserIds),
                                 cb.literal("$[*] ? (@ == \"" + userId + "\")"))),
-                        cb.equal(root.get(fieldName(QPermissionGroup.permissionGroup.defaultDomainId)), workspaceId),
+                        cb.equal(root.get(PermissionGroup.Fields.defaultDomainId), workspaceId),
                         cb.equal(
-                                root.get(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)),
+                                root.get(PermissionGroup.Fields.defaultDomainType),
                                 Workspace.class.getSimpleName())))
                 .permission(permission)
                 .all();
@@ -74,94 +67,32 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     @Transactional
     @Modifying
-    public Optional<UpdateResult> updateById(String id, Update updateObj) {
-        final int count = queryBuilder().byId(id).updateFirst(updateObj);
-
-        /*
-        final EntityManager entityManager = getEntityManager();
-
-        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        final CriteriaUpdate<PermissionGroup> cu = cb.createCriteriaUpdate(genericDomain);
-        final Root<PermissionGroup> root = cu.from(genericDomain);
-        cu.where(cb.equal(root.get(FieldName.ID), id));
-
-        for (var entry : updateObj.getSetOps()) {
-            final Object value = entry.value();
-            if (value instanceof Collection<?> collection) {
-                try {
-                    // The type witness is needed here to pick the right overloaded signature of the set method.
-                    // Without it, we see a compile error.
-                    cu.<Object>set(
-                            root.get(fieldName(entry.key())),
-                            cb.function(
-                                    "json",
-                                    Object.class,
-                                    cb.literal(new ObjectMapper().writeValueAsString(collection))));
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
-                }
-            } else {
-                cu.set(root.get(fieldName(entry.key())), value);
-            }
+    public int updateById(String id, BUpdate updateObj) {
+        if (id == null) {
+            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID);
         }
-
-        final int count = entityManager.createQuery(cu).executeUpdate();
-         */
-
-        return Optional.of(UpdateResult.acknowledged(count, (long) count, null));
+        return queryBuilder().byId(id).updateFirst(updateObj);
     }
 
-    @SneakyThrows
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
-        // TODO: use permission
-        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<PermissionGroup> cq = cb.createQuery(PermissionGroup.class);
-
-        final Root<PermissionGroup> root = cq.from(PermissionGroup.class);
-        final Predicate predicate = cb.and(
-                cb.equal(root.get(fieldName(QPermissionGroup.permissionGroup.defaultDomainId)), workspaceId),
-                cb.equal(
-                        root.get(fieldName(QPermissionGroup.permissionGroup.defaultDomainType)),
-                        Workspace.class.getSimpleName()));
-
-        final List<String> permissionGroups =
-                new ArrayList<>(getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission)));
-        if (!CollectionUtils.isNullOrEmpty(permissionGroups)) {
-            Map<String, String> fnVars = new HashMap<>();
-            fnVars.put("p", permission.getValue());
-            final List<String> conditions = new ArrayList<>();
-            for (var i = 0; i < permissionGroups.size(); i++) {
-                fnVars.put("g" + i, permissionGroups.get(i));
-                conditions.add("@ == $g" + i);
-            }
-            cq.where(cb.and(
-                    predicate,
-                    cb.function(
-                            "jsonb_path_match",
-                            Boolean.class,
-                            root.get(fieldName(QPermissionGroup.permissionGroup.policies)),
-                            cb.literal("exists($[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                    + String.join(" || ", conditions) + "))))"),
-                            cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
-
-        } else {
-            cq.where(predicate);
-        }
-
-        final TypedQuery<PermissionGroup> query = entityManager.createQuery(cq);
-
-        // All public access is via a single permission group. Fetch the same and set the cache with it.
-        return query.getResultList();
+        Criteria defaultWorkspaceIdCriteria =
+            where(PermissionGroup.Fields.defaultDomainId).is(workspaceId);
+        Criteria defaultDomainTypeCriteria =
+            where(PermissionGroup.Fields.defaultDomainType).is(Workspace.class.getSimpleName());
+        return queryBuilder()
+            .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
+            .permission(permission)
+            .all();
     }
 
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
         return queryBuilder()
                 .criteria(bridge().equal(
-                                fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
+                                PermissionGroup.Fields.defaultDomainType,
                                 Workspace.class.getSimpleName())
-                        .in(fieldName(QPermissionGroup.permissionGroup.defaultDomainId), workspaceIds))
+                        .in(PermissionGroup.Fields.defaultDomainId, workspaceIds))
                 .permission(permission)
                 .all();
     }
@@ -191,13 +122,12 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
-        throw new ex.Marker("an emptyList"); /*
-        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
-                .in(userIds);
+        Criteria assignedToUserIdCriteria =
+                where(PermissionGroup.Fields.assignedToUserIds).in(userIds);
         return queryBuilder()
                 .criteria(assignedToUserIdCriteria)
                 .fields(includeFields.orElse(null))
                 .permission(permission.orElse(null))
-                .all(); //*/
+                .all();
     }
 }

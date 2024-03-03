@@ -1,11 +1,10 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.helpers.ce.bridge.Update;
+import com.appsmith.server.helpers.ce.bridge.BUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -40,14 +39,9 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public List<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
-        // final BooleanExpression expression =
-        //         QTheme.theme.applicationId.eq(applicationId).and(QTheme.theme.isSystemTheme.isTrue());
-        // // getBaseRepository().findAll(expression);
-        return queryBuilder(/*repository*/ )
-                // .spec(expression)
-                .criteria((root, cq, cb) -> cb.or(
-                        cb.equal(root.get(fieldName(QTheme.theme.applicationId)), applicationId),
-                        cb.isTrue(root.get(fieldName(QTheme.theme.isSystemTheme)))))
+        return queryBuilder()
+            .criteria(bridge().equal(Theme.Fields.applicationId, applicationId)
+                    .isTrue(Theme.Fields.isSystemTheme))
                 .permission(aclPermission)
                 .all();
     }
@@ -55,7 +49,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Override
     public List<Theme> getSystemThemes() {
         return queryBuilder()
-                .criteria(bridge().isTrue(fieldName(QTheme.theme.isSystemTheme)))
+                .criteria(bridge().isTrue(Theme.Fields.isSystemTheme))
                 .permission(AclPermission.READ_THEMES)
                 .all();
     }
@@ -63,8 +57,8 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Override
     public Optional<Theme> getSystemThemeByName(String themeName) {
         return queryBuilder()
-                .criteria(bridge().eqIgnoreCase(fieldName(QTheme.theme.name), themeName)
-                        .isTrue(fieldName(QTheme.theme.isSystemTheme)))
+                .criteria(bridge().eqIgnoreCase(Theme.Fields.name, themeName)
+                        .isTrue(Theme.Fields.isSystemTheme))
                 .permission(AclPermission.READ_THEMES)
                 .one();
     }
@@ -77,8 +71,8 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
                 .map(permissionGroups -> {
                     Criteria permissionCriteria = userAcl(permissionGroups, AclPermission.MANAGE_THEMES);
 
-                    Update update = Bridge.update();
-                    update.set(QTheme.theme.deletedAt, Instant.now());
+                    BUpdate update = Bridge.update();
+                    update.set(Theme.Fields.deletedAt, Instant.now());
                     return queryBuilder().criteria(criteria, permissionCriteria).updateAll(update);
                 })
                 .map(count -> count > 0)
@@ -87,14 +81,14 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public Optional<Boolean> archiveByApplicationId(String applicationId) {
-        return archiveThemeByCriteria(where("applicationId").is(applicationId));
+        return archiveThemeByCriteria(where(Theme.Fields.applicationId).is(applicationId));
     }
 
     @Override
     public Optional<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
-        Criteria criteria = where("id")
+        Criteria criteria = where(Theme.Fields.id)
                 .in(editModeThemeId, publishedModeThemeId)
-                .and("isSystemTheme")
+                .and(Theme.Fields.isSystemTheme)
                 .is(false);
         return archiveThemeByCriteria(criteria);
     }

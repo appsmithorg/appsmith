@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
+import jakarta.persistence.Entity;
 
 /**
  * This stores a snapshot of an application. If a snapshot is more than 15 MB, we'll break it into smaller chunks.
@@ -16,6 +18,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @Entity
+@FieldNameConstants
 public class ApplicationSnapshot extends BaseDomain {
     private String applicationId;
 
@@ -39,4 +42,6 @@ public class ApplicationSnapshot extends BaseDomain {
         if (this.getUpdatedAt() == null) return null;
         return DateUtils.ISO_FORMATTER.format(this.getUpdatedAt());
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

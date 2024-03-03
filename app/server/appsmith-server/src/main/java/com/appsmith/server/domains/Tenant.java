@@ -10,12 +10,16 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
+import lombok.experimental.FieldNameConstants;
+import org.checkerframework.common.aliasing.qual.Unique;
+import jakarta.persistence.Entity;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
 @Entity
+@FieldNameConstants
 public class Tenant extends BaseDomain {
 
     @Column(unique = true)

@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Config;
-import com.appsmith.server.domains.QConfig;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -11,7 +10,9 @@ import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.Optional;
+import java.util.Set;
 
+import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Config>
@@ -26,24 +27,17 @@ public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Con
 
     @Override
     public Optional<Config> findByName(String name, AclPermission permission) {
-        Criteria nameCriteria = where(fieldName(QConfig.config1.name)).is(name);
+        Criteria nameCriteria = where(Config.Fields.name).is(name);
         return queryBuilder().criteria(nameCriteria).permission(permission).one();
     }
 
     @Override
     public Optional<Config> findByNameAsUser(String name, User user, AclPermission permission) {
-        throw new ex.Marker("findByNameAsUser"); /*
-
-        return getAllPermissionGroupsForUser(user).flatMap(permissionGroups -> {
-            Criteria nameCriteria = where("name").is(name);
-            Query query = new Query(nameCriteria);
-            query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-
-            return mongoOperations
-                    .query(this.genericDomain)
-                    .matching(query)
-                    .one()
-                    .flatMap(obj -> setUserPermissionsInObject(obj, permissionGroups));
-        }); //*/
+        final Set<String> permissionGroups = getAllPermissionGroupsForUser(user);
+        return queryBuilder()
+                .criteria(bridge().equal(Config.Fields.name, name))
+                .permission(permission)
+                .permissionGroups(permissionGroups)
+                .one();
     }
 }

@@ -4,11 +4,12 @@
   justify-content: center;
   background: var(--color-bg-neutral-opacity);
   z-index: var(--z-index-99);
+  contain: strict;
 }
 
 .overlay .content {
   background: var(--color-bg);
-  border-radius: var(--border-radius-1);
+  border-radius: var(--border-radius-elevation-3);
   box-shadow: var(--box-shadow-1);
   outline: none;
   display: flex;

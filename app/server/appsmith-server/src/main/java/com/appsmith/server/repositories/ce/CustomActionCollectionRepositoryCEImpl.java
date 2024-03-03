@@ -1,11 +1,13 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -46,8 +48,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public List<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
 
-        Criteria applicationCriteria = where(fieldName(QActionCollection.actionCollection.applicationId))
-                .is(applicationId);
+        Criteria applicationCriteria =
+                where(ActionCollection.Fields.applicationId).is(applicationId);
 
         return queryBuilder()
                 .criteria(applicationCriteria)
@@ -59,15 +61,14 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, boolean viewMode) {
         List<Criteria> criteria = new ArrayList<>();
 
-        Criteria applicationCriterion = where(fieldName(QActionCollection.actionCollection.applicationId))
-                .is(applicationId);
+        Criteria applicationCriterion =
+                where(ActionCollection.Fields.applicationId).is(applicationId);
         criteria.add(applicationCriterion);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriterion = where(
-                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "deletedAt")
+            Criteria deletedCriterion = where(ActionCollection.Fields.unpublishedCollection_deletedAt)
                     .is(null);
             criteria.add(deletedCriterion);
         }
@@ -101,18 +102,17 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         if (Boolean.TRUE.equals(viewMode)) {
 
             if (name != null) {
-                Criteria nameCriteria = where(
-                                fieldName(QActionCollection.actionCollection.publishedCollection) + "." + "name")
-                        .is(name);
+                Criteria nameCriteria =
+                        where(ActionCollection.Fields.publishedCollection_name).is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                String pageIdFieldPath = String.format(
-                        "%s.%s.%s",
-                        fieldName(QActionCollection.actionCollection.publishedCollection),
-                        "defaultResources",
-                        "pageId");
+                String pageIdFieldPath = String.join(
+                        ".",
+                        ActionCollection.Fields.publishedCollection,
+                        ActionCollectionDTO.Fields.defaultResources,
+                        DefaultResources.Fields.pageId);
                 Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
@@ -121,26 +121,24 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         else {
 
             if (name != null) {
-                Criteria nameCriteria = where(
-                                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "name")
+                Criteria nameCriteria = where(ActionCollection.Fields.unpublishedCollection_name)
                         .is(name);
                 criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                String pageIdFieldPath = String.format(
-                        "%s.%s.%s",
-                        fieldName(QActionCollection.actionCollection.unpublishedCollection),
-                        "defaultResources",
-                        "pageId");
+                String pageIdFieldPath = String.join(
+                        ".",
+                        ActionCollection.Fields.unpublishedCollection,
+                        ActionCollectionDTO.Fields.defaultResources,
+                        DefaultResources.Fields.pageId);
                 Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
                 criteriaList.add(pageCriteria);
             }
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(
-                            fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "deletedAt")
+            Criteria deletedCriteria = where(ActionCollection.Fields.unpublishedCollection_deletedAt)
                     .is(null);
             criteriaList.add(deletedCriteria);
         }
@@ -167,8 +165,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public List<ActionCollection> findByPageId(String pageId, AclPermission aclPermission) {
-        String unpublishedPage = "unpublishedCollection" + "." + "pageId";
-        String publishedPage = "publishedCollection" + "." + "pageId";
+        String unpublishedPage = ActionCollection.Fields.unpublishedCollection_pageId;
+        String publishedPage = ActionCollection.Fields.publishedCollection_pageId;
 
         Criteria pageCriteria = new Criteria()
                 .orOperator(
@@ -185,7 +183,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public Optional<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission) {
-        final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
+        final String defaultResources = ActionCollection.Fields.defaultResources;
         Criteria defaultCollectionIdCriteria =
                 where(defaultResources + "." + FieldName.COLLECTION_ID).is(defaultCollectionId);
         Criteria branchCriteria =
@@ -205,7 +203,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public Optional<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
+        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
@@ -218,7 +216,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findByDefaultApplicationId(
             String defaultApplicationId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QActionCollection.actionCollection.defaultResources);
+        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
+        Criteria defaultAppIdCriteria =
+                where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         return queryBuilder()
                 .criteria(bridge().equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
                 .permission(permission.orElse(null))
@@ -229,7 +229,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
                 .criteria(bridge().in(
-                                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "." + "pageId",
+                                ActionCollection.Fields.unpublishedCollection_pageId,
                                 pageIds))
                 .permission(permission)
                 .all();
@@ -251,8 +251,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findAllUnpublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
-        String contextIdPath = "unpublishedCollection" + "." + "pageId";
-        String contextTypePath = "unpublishedCollection" + "." + "contextType";
+        String contextIdPath = ActionCollection.Fields.unpublishedCollection_pageId;
+        String contextTypePath = ActionCollection.Fields.unpublishedCollection_contextType;
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         return queryBuilder()
@@ -264,8 +264,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findAllPublishedActionCollectionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission) {
-        String contextIdPath = "publishedCollection" + "." + "pageId";
-        String contextTypePath = "publishedCollection" + "." + "contextType";
+        String contextIdPath = ActionCollection.Fields.publishedCollection_pageId;
+        String contextTypePath = ActionCollection.Fields.publishedCollection_contextType;
         Criteria contextIdAndContextTypeCriteria =
                 where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
         return queryBuilder()
@@ -280,15 +280,15 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         // Fetch published action collections
         if (Boolean.TRUE.equals(viewMode)) {
-            spec = bridge().equal("publishedCollection.pageId", pageId);
+            spec = bridge().equal(ActionCollection.Fields.publishedCollection_pageId, pageId);
         }
         // Fetch unpublished action collections
         else {
-            spec = bridge().equal("unpublishedCollection.pageId", pageId)
+            spec = bridge().equal(ActionCollection.Fields.unpublishedCollection_pageId, pageId)
                     // In case an action collection has been deleted in edit mode, but still exists in deployed mode,
                     // ActionCollection object
                     // would exist. To handle this, only fetch non-deleted actions
-                    .isNull("unpublishedCollection.deletedAt");
+                    .isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
         }
         return queryBuilder().criteria(spec).permission(permission).all();
     }

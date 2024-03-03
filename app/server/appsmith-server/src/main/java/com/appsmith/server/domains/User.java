@@ -5,10 +5,11 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.annotation.Transient;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.oauth2.core.oidc.OidcIdToken;
@@ -26,6 +27,7 @@ import java.util.Set;
 @Setter
 @ToString
 @Entity
+@FieldNameConstants
 public class User extends BaseDomain implements UserDetails, OidcUser {
 
     @JsonView(Views.Public.class)
@@ -100,12 +102,14 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // TODO: Populate these attributes for a user. Generally required for OAuth2 logins
     @Override
     @JsonView(Views.Public.class)
+    @Transient
     public Map<String, Object> getAttributes() {
         return null;
     }
 
     @Override
     @JsonView(Views.Public.class)
+    @Transient
     public Collection<GrantedAuthority> getAuthorities() {
         return null;
     }
@@ -145,6 +149,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // TODO: Check the return value for the functions below to ensure that correct values are being returned
     @Override
     @JsonView(Views.Public.class)
+    @Transient
     public Map<String, Object> getClaims() {
         return new HashMap<>();
     }
@@ -172,4 +177,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     public String computeFirstName() {
         return (StringUtils.isEmpty(name) ? email : name).split("[\\s@]+", 2)[0];
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

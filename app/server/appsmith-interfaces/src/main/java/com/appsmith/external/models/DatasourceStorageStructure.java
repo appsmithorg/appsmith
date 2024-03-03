@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 
 @Getter
@@ -16,6 +17,7 @@ import org.hibernate.annotations.Type;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
+@FieldNameConstants
 public class DatasourceStorageStructure extends BaseDomain {
     @JsonView(Views.Public.class)
     private String datasourceId;

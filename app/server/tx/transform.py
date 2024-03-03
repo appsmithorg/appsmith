@@ -224,7 +224,7 @@ def generate_cake_class(domain):
     import com.appsmith.external.models.*;
     import com.appsmith.server.acl.AclPermission;
     import com.appsmith.server.domains.*;
-    import com.appsmith.server.helpers.ce.bridge.Update;
+    import com.appsmith.server.helpers.ce.bridge.BUpdate;
     import com.appsmith.server.projections.*;
     import com.appsmith.server.repositories.*;
     import org.springframework.stereotype.Component;

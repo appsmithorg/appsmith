@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
@@ -28,6 +29,7 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
+import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
@@ -37,18 +39,15 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PagePermissionImpl;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.bson.BsonObjectId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
@@ -69,6 +68,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.doReturn;
 
 @ExtendWith(SpringExtension.class)
 @Slf4j
@@ -120,9 +120,6 @@ public class ActionCollectionServiceImplTest {
     private MongoConverter mongoConverter;
 
     @MockBean
-    private ReactiveMongoTemplate reactiveMongoTemplate;
-
-    @MockBean
     private AnalyticsService analyticsService;
 
     @MockBean
@@ -137,10 +134,7 @@ public class ActionCollectionServiceImplTest {
         pagePermission = new PagePermissionImpl();
         actionPermission = new ActionPermissionImpl();
         actionCollectionService = new ActionCollectionServiceImpl(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 actionCollectionRepositoryDirect,
                 actionCollectionRepository,
                 analyticsService,
@@ -547,8 +541,12 @@ public class ActionCollectionServiceImplTest {
             return Mono.just(argument);
         });
 
-        Mockito.when(reactiveMongoTemplate.updateFirst(Mockito.any(), Mockito.any(), Mockito.any(Class.class)))
-                .thenReturn(Mono.just((Mockito.mock(UpdateResult.class))));
+        // Mockito.when(reactiveMongoTemplate.updateFirst(Mockito.any(), Mockito.any(), Mockito.any(Class.class)))
+        //         .thenReturn(Mono.just((Mockito.mock(UpdateResult.class))));
+
+        final QueryAllParams params = Mockito.spy(new QueryAllParams(null));
+        doReturn(Mono.just(1)).when(params).updateFirst(Mockito.<BaseDomain>any());
+        Mockito.when(actionCollectionRepository.queryBuilder()).thenReturn(params);
 
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(actionCollection));
@@ -812,8 +810,9 @@ public class ActionCollectionServiceImplTest {
 
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString())).thenReturn(Mono.just(actionCollection));
 
-        Mockito.when(reactiveMongoTemplate.updateFirst(Mockito.any(), Mockito.any(), Mockito.any(Class.class)))
-                .thenReturn(Mono.just(UpdateResult.acknowledged(1, 1L, new BsonObjectId())));
+        final QueryAllParams params = Mockito.spy(new QueryAllParams(null));
+        doReturn(Mono.just(1)).when(params).updateFirst(Mockito.<BaseDomain>any());
+        Mockito.when(actionCollectionRepository.queryBuilder()).thenReturn(params);
 
         PageDTO oldPageDTO = new PageDTO();
         oldPageDTO.setId("oldPageId");

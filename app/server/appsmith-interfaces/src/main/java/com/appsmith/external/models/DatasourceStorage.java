@@ -11,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -27,6 +28,7 @@ import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATAS
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@FieldNameConstants
 public class DatasourceStorage extends BaseDomain {
 
     @JsonView(Views.Public.class)
