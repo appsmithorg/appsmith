@@ -65,11 +65,7 @@ public class PermissionGroupServiceCEImpl
             ConfigRepositoryCake configRepository,
             PermissionGroupPermission permissionGroupPermission) {
 
-        super(
-                validator,
-                repositoryDirect,
-                repository,
-                analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.sessionUserService = sessionUserService;
         this.tenantService = tenantService;
         this.userRepository = userRepository;

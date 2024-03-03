@@ -23,12 +23,9 @@ import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
@@ -80,11 +77,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             FeatureFlagService featureFlagService,
             ApplicationRepositoryCake applicationRepository,
             TenantService tenantService) {
-        super(
-                validator,
-                repositoryDirect,
-                repository,
-                analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.userRepository = userRepository;
         this.releaseNotesService = releaseNotesService;
         this.assetService = assetService;
@@ -156,9 +149,9 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         }
 
         return toMonoDirect(() -> repositoryDirect
-                .queryBuilder()
-                .criteria(bridge().equal(UserData.Fields.userId, userId))
-                .updateFirst(resource))
+                        .queryBuilder()
+                        .criteria(bridge().equal(UserData.Fields.userId, userId))
+                        .updateFirst(resource))
                 .flatMap(count -> count == 0 ? Mono.empty() : repository.findByUserId(userId))
                 .flatMap(analyticsService::sendUpdateEvent);
     }

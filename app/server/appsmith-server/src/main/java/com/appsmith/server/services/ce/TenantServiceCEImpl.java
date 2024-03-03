@@ -50,11 +50,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, TenantRep
             ConfigService configService,
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper) {
-        super(
-                validator,
-                repositoryDirect,
-                repository,
-                analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;

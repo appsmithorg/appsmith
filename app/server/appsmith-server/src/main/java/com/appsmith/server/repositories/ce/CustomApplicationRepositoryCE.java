@@ -31,7 +31,8 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     List<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
-    Optional<Integer> addPageToApplication(String applicationId, String pageId, boolean isDefault, String defaultPageId);
+    Optional<Integer> addPageToApplication(
+            String applicationId, String pageId, boolean isDefault, String defaultPageId);
 
     /*@Modifying
     @Query(value = "UPDATE Application SET pages = :pages WHERE id = :applicationId")
@@ -84,5 +85,6 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     int unprotectAllBranches(String applicationId, AclPermission permission);
 
-    Optional<Integer> protectBranchedApplications(String applicationId, List<String> branchNames, AclPermission permission);
+    Optional<Integer> protectBranchedApplications(
+            String applicationId, List<String> branchNames, AclPermission permission);
 }

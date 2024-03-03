@@ -9,10 +9,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Type;
 import lombok.experimental.FieldNameConstants;
-import org.checkerframework.common.aliasing.qual.Unique;
-import jakarta.persistence.Entity;
+import org.hibernate.annotations.Type;
 
 @Getter
 @Setter

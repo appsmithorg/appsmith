@@ -17,10 +17,6 @@ public class CollectionServiceImpl extends CollectionServiceCEImpl implements Co
             CollectionRepositoryCake repository,
             AnalyticsService analyticsService) {
 
-        super(
-                validator,
-                repositoryDirect,
-                repository,
-                analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
     }
 }

@@ -46,11 +46,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, ThemeReposi
             ApplicationService applicationService,
             PolicyGenerator policyGenerator,
             ApplicationPermission applicationPermission) {
-        super(
-                validator,
-                repositoryDirect,
-                repository,
-                analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.applicationRepository = applicationRepository;
         this.applicationService = applicationService;
         this.policyGenerator = policyGenerator;

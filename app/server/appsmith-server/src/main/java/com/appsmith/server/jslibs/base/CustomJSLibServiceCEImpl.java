@@ -34,11 +34,7 @@ public class CustomJSLibServiceCEImpl
             CustomJSLibRepositoryCake repository,
             AnalyticsService analyticsService,
             ContextBasedJsLibService<Application> applicationContextBasedJsLibService) {
-        super(
-                validator,
-                repositoryDirect,
-                repository,
-                analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.applicationContextBasedJsLibService = applicationContextBasedJsLibService;
     }
 

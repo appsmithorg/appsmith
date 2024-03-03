@@ -14,7 +14,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import jakarta.persistence.Entity;
 import org.hibernate.annotations.Type;
 import org.springframework.util.StringUtils;
 

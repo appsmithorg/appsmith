@@ -74,12 +74,8 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                             cb.equal(
                                     root.get(PermissionGroup.Fields.defaultDomainType),
                                     Workspace.class.getSimpleName()),
-                            cb.equal(
-                                    root.get(PermissionGroup.Fields.defaultDomainType),
-                                    User.class.getSimpleName()),
-                            cb.equal(
-                                    root.get(PermissionGroup.Fields.id),
-                                    instanceAdminPermissionGroupId)));
+                            cb.equal(root.get(PermissionGroup.Fields.defaultDomainType), User.class.getSimpleName()),
+                            cb.equal(root.get(PermissionGroup.Fields.id), instanceAdminPermissionGroupId)));
 
             cq.where(predicate);
             // cq.select(root.get(PermissionGroup.Fields.id));

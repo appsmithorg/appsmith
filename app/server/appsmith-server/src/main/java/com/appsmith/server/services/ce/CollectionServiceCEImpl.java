@@ -24,7 +24,10 @@ public class CollectionServiceCEImpl
         implements CollectionServiceCE {
 
     public CollectionServiceCEImpl(
-            Validator validator, CollectionRepository repositoryDirect,CollectionRepositoryCake repository, AnalyticsService analyticsService) {
+            Validator validator,
+            CollectionRepository repositoryDirect,
+            CollectionRepositoryCake repository,
+            AnalyticsService analyticsService) {
         super(validator, repositoryDirect, repository, analyticsService);
     }
 

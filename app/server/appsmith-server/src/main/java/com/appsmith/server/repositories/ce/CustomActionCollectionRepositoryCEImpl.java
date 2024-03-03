@@ -38,7 +38,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Deprecated
     public List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
-                .criteria(bridge().equal(fieldName(QActionCollection.actionCollection.applicationId), applicationId))
+                .criteria(bridge().equal(ActionCollection.Fields.applicationId, applicationId))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
@@ -217,8 +217,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public List<ActionCollection> findByDefaultApplicationId(
             String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
-        Criteria defaultAppIdCriteria =
-                where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
         return queryBuilder()
                 .criteria(bridge().equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
                 .permission(permission.orElse(null))
@@ -228,9 +226,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
-                .criteria(bridge().in(
-                                ActionCollection.Fields.unpublishedCollection_pageId,
-                                pageIds))
+                .criteria(bridge().in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds))
                 .permission(permission)
                 .all();
     }

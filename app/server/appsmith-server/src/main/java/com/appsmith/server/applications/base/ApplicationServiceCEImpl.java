@@ -994,9 +994,7 @@ public class ApplicationServiceCEImpl
     @Override
     public Mono<Integer> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
-        return repository
-                .setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission)
-                .map(count -> UpdateResult.acknowledged(count, (long) count, null));
+        return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
     }
 
     @Override

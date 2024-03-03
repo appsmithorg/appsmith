@@ -8,6 +8,12 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Path;
+import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import lombok.NonNull;
 import lombok.SneakyThrows;
@@ -24,7 +30,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
-import static com.appsmith.server.helpers.ce.bridge.Bridge.update;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -128,7 +133,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         applicationPage.setDefaultPageId(defaultPageId);
         applicationPage.setId(pageId);
 
-        /* Original PG implementation
+        // * Original PG implementation
         final CriteriaBuilder cb = getEntityManager().getCriteriaBuilder();
         final CriteriaUpdate<Application> cu = cb.createCriteriaUpdate(genericDomain);
         final Root<Application> root = cu.getRoot();
@@ -145,11 +150,10 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         cu.where(cb.equal(root.get("id"), applicationId));
 
         return Optional.of(getEntityManager().createQuery(cu).executeUpdate());
-        */
+        // */
 
-        return queryBuilder()
-            .byId(applicationId)
-            .updateFirst(update().push(Application.Fields.pages, applicationPage));
+        // return queryBuilder().byId(applicationId).updateFirst(update().push(Application.Fields.pages,
+        // applicationPage));
     }
 
     @Override
@@ -225,9 +229,9 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Optional<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId) {
         return queryBuilder()
-            .criteria(bridge().equal(Application.Fields.workspaceId, workspaceId)
-                .isTrue(Application.Fields.gitApplicationMetadata_isRepoPrivate))
-            .count();
+                .criteria(bridge().equal(Application.Fields.workspaceId, workspaceId)
+                        .isTrue(Application.Fields.gitApplicationMetadata_isRepoPrivate))
+                .count();
     }
 
     @Override
@@ -271,7 +275,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Optional<Long> countByNameAndWorkspaceId(String applicationName, String workspaceId, AclPermission permission) {
+    public Optional<Long> countByNameAndWorkspaceId(
+            String applicationName, String workspaceId, AclPermission permission) {
         return queryBuilder()
                 .criteria(bridge().equal(Application.Fields.workspaceId, workspaceId)
                         .equal(Application.Fields.name, applicationName))

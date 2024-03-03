@@ -39,8 +39,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
 
     @Override
     public List<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission) {
-        Criteria workspaceIdCriteria =
-                where(Datasource.Fields.workspaceId).is(workspaceId);
+        Criteria workspaceIdCriteria = where(Datasource.Fields.workspaceId).is(workspaceId);
         return queryBuilder()
                 .criteria(workspaceIdCriteria)
                 .permission(permission.orElse(null))
@@ -52,8 +51,8 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     @Deprecated
     public Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission) {
         return queryBuilder()
-                .criteria(bridge().equal(Datasource.Fields.name, name)
-                        .equal(Datasource.Fields.workspaceId, workspaceId))
+                .criteria(
+                        bridge().equal(Datasource.Fields.name, name).equal(Datasource.Fields.workspaceId, workspaceId))
                 .permission(aclPermission)
                 .one();
     }

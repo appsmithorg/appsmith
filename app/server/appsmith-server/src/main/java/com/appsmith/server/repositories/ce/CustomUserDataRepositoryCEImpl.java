@@ -42,16 +42,14 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     @Transactional
     @Modifying
-    public Optional<Void> removeIdFromRecentlyUsedList(
-            String userId, String workspaceId, List<String> applicationIds) {
+    public Optional<Void> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds) {
 
         var entityManager = getEntityManager();
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         final CriteriaUpdate<UserData> cu = cb.createCriteriaUpdate(UserData.class);
         final Root<UserData> root = cu.getRoot();
 
-        final Path<Expression<?>> recentlyUsedEntityIdsField =
-                root.get(UserData.Fields.recentlyUsedEntityIds);
+        final Path<Expression<?>> recentlyUsedEntityIdsField = root.get(UserData.Fields.recentlyUsedEntityIds);
         cu.set(
                 recentlyUsedEntityIdsField,
                 cb.function(
@@ -60,8 +58,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                         cb.function("coalesce", List.class, recentlyUsedEntityIdsField, cb.literal("[]")),
                         cb.literal("$[*] ? (@.workspaceId != \"" + workspaceId + "\")")));
 
-        final Path<Expression<?>> recentlyUsedWorkspaceIdsField =
-                root.get(UserData.Fields.recentlyUsedWorkspaceIds);
+        final Path<Expression<?>> recentlyUsedWorkspaceIdsField = root.get(UserData.Fields.recentlyUsedWorkspaceIds);
         cu.set(
                 recentlyUsedWorkspaceIdsField,
                 cb.function(
@@ -71,8 +68,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                         cb.literal(workspaceId).as(String.class)));
 
         if (!CollectionUtils.isEmpty(applicationIds)) {
-            final Path<Expression<?>> recentlyUsedAppIdsField =
-                    root.get(UserData.Fields.recentlyUsedAppIds);
+            final Path<Expression<?>> recentlyUsedAppIdsField = root.get(UserData.Fields.recentlyUsedAppIds);
             final List<String> parts = new ArrayList<>();
             for (String applicationId : applicationIds) {
                 parts.add("@ != \"" + applicationId + "\"");

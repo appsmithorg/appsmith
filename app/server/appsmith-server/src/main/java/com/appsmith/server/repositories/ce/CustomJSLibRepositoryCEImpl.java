@@ -38,6 +38,8 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
                 .map(CustomJSLibContextDTO::getUidString)
                 .collect(Collectors.toSet());
 
-        return queryBuilder().criteria(bridge().in(CustomJSLib.Fields.uidString, uidStrings)).all();
+        return queryBuilder()
+                .criteria(bridge().in(CustomJSLib.Fields.uidString, uidStrings))
+                .all();
     }
 }

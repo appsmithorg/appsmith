@@ -166,7 +166,7 @@ public class Bridge<T extends BaseDomain> implements Specification<T> {
                     "jsonb_path_exists",
                     Boolean.class,
                     root.get(parts.get(0)),
-                    cb.literal("$." +  String.join(".", parts.subList(1, parts.size()))));
+                    cb.literal("$." + String.join(".", parts.subList(1, parts.size()))));
         }
 
         return root.get(key);

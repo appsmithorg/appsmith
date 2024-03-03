@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
-import jakarta.persistence.Entity;
 
 /**
  * This class represents a collection of actions that may or may not belong to the same plugin.

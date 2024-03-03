@@ -8,21 +8,15 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Update;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -144,7 +138,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         Criteria httpMethodCriteria = where(httpMethodQueryKey).is(httpMethod);
         List<Criteria> criterias = List.of(namesCriteria, pageCriteria, httpMethodCriteria, userSetOnLoadCriteria);
 
-        return queryBuilder().criteria(criterias).permission(aclPermission).all(); //*/
+        return queryBuilder().criteria(criterias).permission(aclPermission).all(); // */
     }
 
     @Override
@@ -478,8 +472,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         int count = queryBuilder()
                 .permission(permission)
                 .criteria(bridge().equal(NewAction.Fields.applicationId, applicationId))
-                .updateAll(Bridge.update()
-                        .set(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
+                .updateAll(Bridge.update().set(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
 
         return Optional.empty();
 

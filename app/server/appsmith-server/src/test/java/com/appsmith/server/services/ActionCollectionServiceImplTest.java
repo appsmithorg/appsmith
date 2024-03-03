@@ -29,8 +29,8 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -546,7 +546,7 @@ public class ActionCollectionServiceImplTest {
 
         final QueryAllParams params = Mockito.spy(new QueryAllParams(null));
         doReturn(Mono.just(1)).when(params).updateFirst(Mockito.<BaseDomain>any());
-        Mockito.when(actionCollectionRepository.queryBuilder()).thenReturn(params);
+        Mockito.when(actionCollectionRepositoryDirect.queryBuilder()).thenReturn(params);
 
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString(), Mockito.<AclPermission>any()))
                 .thenReturn(Mono.just(actionCollection));
@@ -812,7 +812,7 @@ public class ActionCollectionServiceImplTest {
 
         final QueryAllParams params = Mockito.spy(new QueryAllParams(null));
         doReturn(Mono.just(1)).when(params).updateFirst(Mockito.<BaseDomain>any());
-        Mockito.when(actionCollectionRepository.queryBuilder()).thenReturn(params);
+        Mockito.when(actionCollectionRepositoryDirect.queryBuilder()).thenReturn(params);
 
         PageDTO oldPageDTO = new PageDTO();
         oldPageDTO.setId("oldPageId");

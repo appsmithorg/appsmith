@@ -474,7 +474,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
 
         } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
-            return updateExecute(params, update).then(Mono.fromSupplier(() -> queryOneExecute(params).orElse(null)));
+            return updateExecute(params, update)
+                    .then(Mono.fromSupplier(() -> queryOneExecute(params).orElse(null)));
 
         } else {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
@@ -496,7 +497,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.fromSupplier(() -> getCurrentUserPermissionGroupsIfRequired(
                         Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
-            .then();
+                .then();
     }
 
     public int updateExecute(QueryAllParams<T> params, BUpdate update) {
@@ -679,8 +680,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      *
      * @see FindAndModifyOptions
      */
-    public T updateAndReturn(
-        String id, BUpdate updateObj, Optional<AclPermission> permission) {
+    public T updateAndReturn(String id, BUpdate updateObj, Optional<AclPermission> permission) {
         return null; /*
                                   Query query = new Query(Criteria.where("id").is(id));
 

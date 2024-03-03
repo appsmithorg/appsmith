@@ -158,11 +158,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             DefaultResourcesService<NewAction> defaultResourcesService,
             DefaultResourcesService<ActionDTO> dtoDefaultResourcesService) {
 
-        super(
-                validator,
-                repositoryDirect,
-                repository,
-                analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.repository = repository;
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;

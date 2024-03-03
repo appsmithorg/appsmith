@@ -73,11 +73,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             ApplicationPermission applicationPermission,
             PagePermission pagePermission,
             ApplicationSnapshotRepositoryCake applicationSnapshotRepository) {
-        super(
-                validator,
-                repositoryDirect,
-                repository,
-                analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
         this.responseUtils = responseUtils;

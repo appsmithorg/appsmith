@@ -18,11 +18,6 @@ public class CustomJSLibServiceImpl extends CustomJSLibServiceCEImpl implements 
             CustomJSLibRepositoryCake repository,
             AnalyticsService analyticsService,
             ContextBasedJsLibService<Application> applicationContextBasedJsLibService) {
-        super(
-                validator,
-                repositoryDirect,
-                repository,
-                analyticsService,
-                applicationContextBasedJsLibService);
+        super(validator, repositoryDirect, repository, analyticsService, applicationContextBasedJsLibService);
     }
 }

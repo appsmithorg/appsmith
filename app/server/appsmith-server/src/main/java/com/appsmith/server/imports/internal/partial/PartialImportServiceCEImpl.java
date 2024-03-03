@@ -81,15 +81,15 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
 
         // Extract file and get App Json
         Mono<Application> partiallyImportedAppMono = importService
-                .extractArtifactExchangeJson(file)
-                .zipWith(getImportApplicationPermissions())
-                .flatMap(tuple -> {
-                    ApplicationJson applicationJson = (ApplicationJson) tuple.getT1();
-                    ImportArtifactPermissionProvider permissionProvider = tuple.getT2();
-                    // Set Application in App JSON, remove the pages other than the one to be imported in
-                    // Set the current page in the JSON to be imported
-                    // Debug and get the value from getImportApplicationMono method if any difference
-                    // Modify the Application set in JSON to be imported
+                        .extractArtifactExchangeJson(file)
+                        .zipWith(getImportApplicationPermissions())
+                        .flatMap(tuple -> {
+                            ApplicationJson applicationJson = (ApplicationJson) tuple.getT1();
+                            ImportArtifactPermissionProvider permissionProvider = tuple.getT2();
+                            // Set Application in App JSON, remove the pages other than the one to be imported in
+                            // Set the current page in the JSON to be imported
+                            // Debug and get the value from getImportApplicationMono method if any difference
+                            // Modify the Application set in JSON to be imported
 
                             Mono<Workspace> workspaceMono = workspaceService
                                     .findById(workspaceId, permissionProvider.getRequiredPermissionOnTargetWorkspace())

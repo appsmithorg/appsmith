@@ -1,6 +1,5 @@
 package com.appsmith.server.plugins.base;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.server.constants.FieldName;
@@ -15,7 +14,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.cakes.PluginRepositoryCake;
-import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
 import com.appsmith.server.services.WorkspaceService;
@@ -58,7 +56,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static com.appsmith.server.helpers.cs.ReactorUtils.toFlux;
 
 @Slf4j
@@ -105,11 +102,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
             ObjectMapper objectMapper) {
-        super(
-                validator,
-                repositoryDirect,
-                repository,
-                analyticsService);
+        super(validator, repositoryDirect, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
@@ -154,7 +147,8 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
                         }
                     }
 
-                    return toFlux(() -> repositoryDirect.queryBuilder().criteria(criteria).all());
+                    return toFlux(() ->
+                            repositoryDirect.queryBuilder().criteria(criteria).all());
                 })
                 .flatMap(plugin ->
                         getTemplates(plugin).doOnSuccess(plugin::setTemplates).thenReturn(plugin));

@@ -16,7 +16,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Optional;
@@ -57,9 +56,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
                                 root.get(PermissionGroup.Fields.assignedToUserIds),
                                 cb.literal("$[*] ? (@ == \"" + userId + "\")"))),
                         cb.equal(root.get(PermissionGroup.Fields.defaultDomainId), workspaceId),
-                        cb.equal(
-                                root.get(PermissionGroup.Fields.defaultDomainType),
-                                Workspace.class.getSimpleName())))
+                        cb.equal(root.get(PermissionGroup.Fields.defaultDomainType), Workspace.class.getSimpleName())))
                 .permission(permission)
                 .all();
     }
@@ -77,21 +74,19 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
         Criteria defaultWorkspaceIdCriteria =
-            where(PermissionGroup.Fields.defaultDomainId).is(workspaceId);
+                where(PermissionGroup.Fields.defaultDomainId).is(workspaceId);
         Criteria defaultDomainTypeCriteria =
-            where(PermissionGroup.Fields.defaultDomainType).is(Workspace.class.getSimpleName());
+                where(PermissionGroup.Fields.defaultDomainType).is(Workspace.class.getSimpleName());
         return queryBuilder()
-            .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
-            .permission(permission)
-            .all();
+                .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
+                .permission(permission)
+                .all();
     }
 
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
         return queryBuilder()
-                .criteria(bridge().equal(
-                                PermissionGroup.Fields.defaultDomainType,
-                                Workspace.class.getSimpleName())
+                .criteria(bridge().equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName())
                         .in(PermissionGroup.Fields.defaultDomainId, workspaceIds))
                 .permission(permission)
                 .all();
