@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers.cs;
+package com.appsmith.server.helpers;
 
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;

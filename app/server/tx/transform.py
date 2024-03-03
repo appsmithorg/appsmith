@@ -243,8 +243,8 @@ def generate_cake_class(domain):
     import java.util.Optional;
     import java.util.Set;
 
-    import static com.appsmith.server.helpers.cs.ReactorUtils.asFlux;
-    import static com.appsmith.server.helpers.cs.ReactorUtils.asMono;
+    import static com.appsmith.server.helpers.ReactorUtils.asFlux;
+    import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
     @Component
     public class {domain}RepositoryCake extends BaseCake<{domain}, {domain}Repository> {{

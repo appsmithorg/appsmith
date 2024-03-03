@@ -57,7 +57,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.helpers.cs.ReactorUtils.asFlux;
+import static com.appsmith.server.helpers.ReactorUtils.asFlux;
 
 @Slf4j
 public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRepositoryCake, Plugin, String>
