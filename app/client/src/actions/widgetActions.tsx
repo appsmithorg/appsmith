@@ -47,9 +47,10 @@ export const createModalAction = (
 
 export const focusWidget = (
   widgetId?: string,
-): ReduxAction<{ widgetId?: string }> => ({
+  alt?: boolean,
+): ReduxAction<{ widgetId?: string; alt?: boolean }> => ({
   type: ReduxActionTypes.FOCUS_WIDGET,
-  payload: { widgetId },
+  payload: { widgetId, alt },
 });
 
 export const showModal = (id: string, shouldSelectModal = true) => {

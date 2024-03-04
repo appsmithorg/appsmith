@@ -23,7 +23,8 @@ export const useWidgetSelection = () => {
       [dispatch],
     ),
     focusWidget: useCallback(
-      (widgetId?: string) => dispatch(focusWidget(widgetId)),
+      (widgetId?: string, alt?: boolean) =>
+        dispatch(focusWidget(widgetId, alt)),
       [dispatch],
     ),
     deselectAll: useCallback(

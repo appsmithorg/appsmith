@@ -100,14 +100,14 @@ function DraggableComponent(props: DraggableComponentProps) {
     !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
 
   // When mouse is over this draggable
-  const handleMouseOver = (e: any) => {
+  const handleMouseOver = (e: React.MouseEvent) => {
     focusWidget &&
       !isResizingOrDragging &&
       !isFocused &&
       !isDistributingSpace &&
       !props.resizeDisabled &&
       !isPreviewMode &&
-      focusWidget(props.widgetId);
+      focusWidget(props.widgetId, e.altKey);
     e.stopPropagation();
   };
 

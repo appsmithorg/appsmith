@@ -66,6 +66,7 @@ import {
   computeFinalAutoLayoutRowCols,
 } from "layoutSystems/common/resizer/ResizableUtils";
 import { getCanvasPreviewMode } from "selectors/ideSelectors";
+import { getIsAltFocusWidget } from "../../../selectors/ui";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -97,6 +98,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     isCurrentWidgetLastSelected(props.widgetId),
   );
   const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
+  const isAltFocused = useSelector(getIsAltFocusWidget);
   // Check if current widget is one of multiple selected widgets
   const isMultiSelected = useSelector(isMultiSelectedWidget(props.widgetId));
 
@@ -385,11 +387,14 @@ export const ResizableComponent = memo(function ResizableComponent(
     !isCanvasPreviewMode;
 
   const isHovered = isFocused && !isSelected;
+  const showInteractive =
+    isFocused && isCanvasPreviewMode ? !isAltFocused : !!isAltFocused;
   const showResizeBoundary =
     !isAutoCanvasResizing &&
     !isPreviewMode &&
     !isAppSettingsPaneWithNavigationTabOpen &&
     !isDragging &&
+    !showInteractive &&
     (isHovered || isSelected);
 
   return (
