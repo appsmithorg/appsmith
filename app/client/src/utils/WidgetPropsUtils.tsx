@@ -26,6 +26,12 @@ import type {
 } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { migrateDSL } from "@shared/dsl";
 
+//WidgetDraggingUpdateParams is an extension of WidgetDraggingBlock,
+// with updateWidgetParams information required to dispatch action for updating DSL
+export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
+  updateWidgetParams: WidgetOperationParams;
+}
+
 const defaultDSL = defaultTemplate;
 
 /**
