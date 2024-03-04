@@ -130,5 +130,6 @@ public class NewActionServiceTest {
         Map<String, Object> analyticProperties = newActionService.getAnalyticsProperties(action);
 
         assertEquals("no-accelerator", analyticProperties.get("accelerator"));
+        assertEquals(true, analyticProperties.get("isUserCreated"));
     }
 }

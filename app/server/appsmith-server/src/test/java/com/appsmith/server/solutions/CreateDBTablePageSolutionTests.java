@@ -1259,9 +1259,9 @@ public class CreateDBTablePageSolutionTests {
 
                     assertThat(actions).hasSize(4);
                     for (NewAction action : actions) {
-                        ActionDTO unpublishedAction = action.getUnpublishedAction();
-                        String accelerator = unpublishedAction.getAccelerator();
-                        assertEquals(accelerator, "generate-crud-page");
+                        Map<String, Object> analyticsProperties = newActionService.getAnalyticsProperties(action);
+                        assertEquals("generate-crud-page", analyticsProperties.get("accelerator"));
+                        assertEquals(false, analyticsProperties.get("isUserCreated"));
                     }
                 })
                 .verifyComplete();
