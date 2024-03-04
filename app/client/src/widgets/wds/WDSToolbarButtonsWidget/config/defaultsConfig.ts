@@ -2,7 +2,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 export const defaultsConfig = {
-  widgetName: "ButtonGroup",
+  widgetName: "ToolbarButtons",
   orientation: "horizontal",
   buttonVariant: "filled",
   buttonColor: "accent",
