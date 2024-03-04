@@ -1,5 +1,6 @@
 import {
   getDefaultSpaceDistributed,
+  reAdjustSpaceDistribution,
   redistributeSectionSpace,
   redistributeSpaceWithDynamicMinWidth,
 } from "./spaceRedistributionSagaUtils";
@@ -83,6 +84,46 @@ describe("spaceRedistributionUtils", () => {
         2,
       );
       expect(distributedSpace4).toEqual([3, 3, 4, 2]);
+    });
+    it("reAdjustSpaceDistribution should redistribute a uneven distribution", () => {
+      // When Space distributed in more than needed
+      const updatedDistribution1 = reAdjustSpaceDistribution(
+        { zone1Id: 8 },
+        ["zone1Id"],
+        6,
+      );
+      expect(updatedDistribution1).toEqual([6]);
+      const updatedDistribution2 = reAdjustSpaceDistribution(
+        { zone1Id: 10, zone2Id: 2 },
+        ["zone1Id", "zone2Id"],
+        6,
+      );
+      expect(updatedDistribution2).toEqual([4, 2]);
+      const updatedDistribution3 = reAdjustSpaceDistribution(
+        { zone1Id: 4, zone2Id: 2, zone3Id: 3 },
+        ["zone1Id", "zone2Id", "zone3Id"],
+        7,
+      );
+      expect(updatedDistribution3).toEqual([3, 2, 2]);
+      // When Space distributed in less than needed
+      const updatedDistribution4 = reAdjustSpaceDistribution(
+        { zone1Id: 3 },
+        ["zone1Id"],
+        6,
+      );
+      expect(updatedDistribution4).toEqual([6]);
+      const updatedDistribution5 = reAdjustSpaceDistribution(
+        { zone1Id: 2, zone2Id: 3 },
+        ["zone1Id", "zone2Id"],
+        8,
+      );
+      expect(updatedDistribution5).toEqual([3, 5]);
+      const updatedDistribution6 = reAdjustSpaceDistribution(
+        { zone1Id: 2, zone2Id: 2, zone3Id: 2 },
+        ["zone1Id", "zone2Id", "zone3Id"],
+        8,
+      );
+      expect(updatedDistribution6).toEqual([2, 3, 3]);
     });
   });
 });

@@ -131,6 +131,24 @@ export const getDefaultSpaceDistributed = (zones: string[]) => {
   );
 };
 
+export const reAdjustSpaceDistribution = (
+  currentDistributedSpace: {
+    [key: string]: number;
+  },
+  zoneOrder: string[],
+  maxColumnLimit: number,
+) => {
+  return redistributeSpaceWithDynamicMinWidth(
+    currentDistributedSpace,
+    [...zoneOrder, "spaceToAdjust"],
+    -10, // Random value to indicate space adjustment
+    zoneOrder.length,
+    {
+      maxColumnLimit,
+    },
+  );
+};
+
 const multiZoneSpaceDistribution = (
   zonesToAdd: string[],
   widgetsAfterUpdate: CanvasWidgetsReduxState,
@@ -188,23 +206,17 @@ const multiZoneSpaceDistribution = (
     },
     {} as { [key: string]: number },
   );
-  const spaceToAdjust = maximumAllowedSpace - requiredSpaceForAllZones;
-  // Add a special key "spaceToAdjust" to store the space adjustment value
-  zonesToAddDistributedSpace["spaceToAdjust"] = spaceToAdjust;
+
   // Handle the addition of zones and update the distributed space
   zonesToAdd.forEach((eachZone, index) => {
     updatedZoneOrder.splice(index, 0, eachZone);
   });
 
-  // Redistribute space considering the space adjustment
-  const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
+  // Redistribute space considering the need for space adjustment
+  const updatedDistributedSpaceArray = reAdjustSpaceDistribution(
     zonesToAddDistributedSpace,
-    [...zonesToAdd, "spaceToAdjust"],
-    -10, // Random value to indicate space adjustment
-    zonesToAdd.length,
-    {
-      maxColumnLimit: maximumAllowedSpace,
-    },
+    zonesToAdd,
+    maximumAllowedSpace,
   );
 
   // Update the distributed space for each zone based on the redistributed space array
