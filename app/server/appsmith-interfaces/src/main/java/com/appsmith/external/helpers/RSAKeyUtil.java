@@ -42,7 +42,7 @@ public class RSAKeyUtil {
         try {
             return keyFactory.generatePrivate(keySpec);
         } catch (InvalidKeySpecException e) {
-            throw new IllegalArgumentException("Unexpected key format!", e);
+            throw new IllegalArgumentException("Unexpected key format! Accepted key formats are pkcs8, pkcs1", e);
         }
     }
 

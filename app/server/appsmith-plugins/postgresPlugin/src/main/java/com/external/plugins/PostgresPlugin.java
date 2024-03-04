@@ -1195,6 +1195,7 @@ public class PostgresPlugin extends BasePlugin {
                 } else {
                     config.addDataSourceProperty("sslmode", "verify-ca");
                 }
+                // Common properties for both VERIFY_CA and VERIFY_FULL
                 config.addDataSourceProperty("sslfactory", MutualTLSCertValidatingFactory.class.getName());
                 config.addDataSourceProperty(
                         "clientCertString",
