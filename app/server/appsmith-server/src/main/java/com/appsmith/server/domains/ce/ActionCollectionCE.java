@@ -8,6 +8,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * This class represents a collection of actions that may or may not belong to the same plugin.
@@ -16,6 +17,7 @@ import lombok.ToString;
 @Getter
 @Setter
 @ToString
+@FieldNameConstants
 public class ActionCollectionCE extends BranchAwareDomain {
     // Default resources from BranchAwareDomain will be used to store branchName, defaultApplicationId and
     // defaultActionCollectionId
@@ -46,5 +48,25 @@ public class ActionCollectionCE extends BranchAwareDomain {
             publishedCollection.sanitiseForExport();
         }
         super.sanitiseToExportDBObject();
+    }
+
+    public static class Fields extends BranchAwareDomain.Fields {
+        public static final String publishedCollection_name =
+                publishedCollection + "." + ActionCollectionDTO.Fields.name;
+        public static final String unpublishedCollection_name =
+                unpublishedCollection + "." + ActionCollectionDTO.Fields.name;
+
+        public static final String publishedCollection_pageId =
+                publishedCollection + "." + ActionCollectionDTO.Fields.pageId;
+        public static final String unpublishedCollection_pageId =
+                unpublishedCollection + "." + ActionCollectionDTO.Fields.pageId;
+
+        public static final String publishedCollection_contextType =
+                publishedCollection + "." + ActionCollectionDTO.Fields.contextType;
+        public static final String unpublishedCollection_contextType =
+                unpublishedCollection + "." + ActionCollectionDTO.Fields.contextType;
+
+        public static final String unpublishedCollection_deletedAt =
+                unpublishedCollection + "." + ActionCollectionDTO.Fields.deletedAt;
     }
 }

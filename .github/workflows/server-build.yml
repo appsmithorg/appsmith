@@ -178,10 +178,16 @@ jobs:
           args=()
           if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
             failed_tests="${{ steps.failed_tests.outputs.tests }}"
-            args+=("-DfailIfNoTests=false" "-Dtest=${failed_tests}")
+            args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
           fi
-          args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
           if ! mvn test "${args[@]}"; then
+            echo "Generating failed test list:"
+            gawk -F\" '/<testcase / {cur_test = $4 "#" $2} /<failure / {print cur_test}' $(find . -type f -name 'TEST-*.xml') \
+              | tee failed-server-tests.txt
+            echo "Report files found:"
+            find . -type f -name 'TEST-*.xml'
+            echo "Test case failure lines:"
+            grep -FoB1 '<failure ' $(find . -type f -name 'TEST-*.xml') || true
             if [[ -s failed-server-tests.txt ]]; then
               content="$(
                 echo "## Failed server tests"
@@ -190,9 +196,11 @@ jobs:
               )"
               echo "$content" >> "$GITHUB_STEP_SUMMARY"
               # Add a comment to the PR with the list of failed tests.
-              curl --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+              curl --silent --show-error \
+                --header "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
                 --data "$(jq -n --arg body "$content" '$ARGS.named')" \
-                "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/${{ inputs.pr }}/comments"
+                "https://api.github.com/repos/$GITHUB_REPOSITORY/issues/${{ inputs.pr }}/comments" \
+                > /dev/null
             fi
             exit 1
           fi

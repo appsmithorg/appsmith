@@ -1,4 +1,6 @@
 import type { AppState } from "@appsmith/reducers";
+import { createSelector } from "reselect";
+import { combinedPreviewModeSelector } from "./editorSelectors";
 
 type GetFormData = (
   state: AppState,
@@ -18,3 +20,12 @@ export const getApiRightPaneSelectedTab = (state: AppState) =>
 
 export const getIsRunning = (state: AppState, apiId: string) =>
   state.ui.apiPane.isRunning[apiId];
+
+export const getApiPaneDebuggerState = (state: AppState) =>
+  state.ui.apiPane.debugger;
+
+export const showApiPaneDebugger = createSelector(
+  (state) => state.ui.apiPane.debugger.open,
+  combinedPreviewModeSelector,
+  (isOpen, isPreview) => isOpen && !isPreview,
+);

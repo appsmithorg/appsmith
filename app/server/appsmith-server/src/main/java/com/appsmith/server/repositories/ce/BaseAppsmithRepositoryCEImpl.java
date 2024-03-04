@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
@@ -125,7 +124,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
             return null;
         }
         // Check if the permission is being provided by any of the permission groups
-        return Criteria.where(fieldName(QBaseDomain.baseDomain.policies))
+        return Criteria.where(BaseDomain.Fields.policies)
                 .elemMatch(Criteria.where("permissionGroups")
                         .in(permissionGroups)
                         .and("permission")
@@ -297,6 +296,23 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         this.genericDomain)));
     }
 
+    public Mono<Integer> updateExecute(@NonNull QueryAllParams<T> params, @NonNull T resource) {
+        final Update update = new Update();
+
+        // In case the update is not used to update the policies, then set the policies to null to ensure that the
+        // existing policies are not overwritten.
+        if (resource.getPolicies().isEmpty()) {
+            resource.setPolicies(null);
+        }
+
+        final Map<String, Object> updateMap = getDbObject(resource).toMap();
+        for (Map.Entry<String, Object> entry : updateMap.entrySet()) {
+            update.set(entry.getKey(), entry.getValue());
+        }
+
+        return updateExecute(params, update);
+    }
+
     public Mono<Integer> updateExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
         Objects.requireNonNull(params.getCriteria());
 
@@ -317,7 +333,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
                     }
                 }))
-                .map(updateResult -> Math.toIntExact(updateResult.getModifiedCount()));
+                .map(updateResult -> Math.toIntExact(updateResult.getMatchedCount()));
     }
 
     public Mono<T> updateExecuteAndFind(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {

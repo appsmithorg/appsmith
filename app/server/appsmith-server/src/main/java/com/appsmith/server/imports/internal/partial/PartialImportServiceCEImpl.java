@@ -5,7 +5,6 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -84,7 +83,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
 
         // Extract file and get App Json
         Mono<Application> partiallyImportedAppMono = importService
-                .extractArtifactExchangeJson(file, ArtifactJsonType.APPLICATION)
+                .extractArtifactExchangeJson(file)
                 .zipWith(getImportApplicationPermissions())
                 .flatMap(tuple -> {
                     ApplicationJson applicationJson = (ApplicationJson) tuple.getT1();
