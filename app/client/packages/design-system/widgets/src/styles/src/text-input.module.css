@@ -60,6 +60,7 @@
     position: absolute;
     box-shadow: 0 0 0 2px var(--color-bd-focus);
     border-radius: var(--border-radius-elevation-3);
+    z-index: -1;
   }
 
   & [data-readonly][data-field-input][data-focused]:before {
