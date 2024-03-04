@@ -442,7 +442,7 @@ export function FixedLayoutResizable(props: ResizableProps) {
           style={{ ..._props, ...resizeWrapperStyle }}
         >
           {props.children}
-          {props.enableHorizontalResize && renderHandles}
+          {props.enableHorizontalResize && props.allowResize && renderHandles}
         </ResizeWrapper>
       )}
     </Spring>

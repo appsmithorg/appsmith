@@ -327,7 +327,6 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode &&
-    !isCanvasPreviewMode &&
     !isAppSettingsPaneWithNavigationTabOpen;
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
@@ -382,7 +381,8 @@ export const ResizableComponent = memo(function ResizableComponent(
     props.isCanvas;
 
   const allowResize: boolean =
-    !isMultiSelected || (isAutoLayout && !props.isFlexChild);
+    (!isMultiSelected || (isAutoLayout && !props.isFlexChild)) &&
+    !isCanvasPreviewMode;
 
   const isHovered = isFocused && !isSelected;
   const showResizeBoundary =
