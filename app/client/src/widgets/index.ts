@@ -65,7 +65,7 @@ import type BaseWidget from "./BaseWidget";
 import ExternalWidget from "./ExternalWidget";
 import { WDSTableWidget } from "./wds/WDSTableWidget";
 import { WDSCurrencyInputWidget } from "./wds/WDSCurrencyInputWidget";
-import { WDSButtonGroupWidget } from "./wds/WDSButtonGroupWidget";
+import { WDSToolbarButtonsWidget } from "./wds/WDSToolbarButtonsWidget";
 import { WDSPhoneInputWidget } from "./wds/WDSPhoneInputWidget";
 import { WDSCheckboxGroupWidget } from "./wds/WDSCheckboxGroupWidget";
 import { WDSSwitchWidget } from "./wds/WDSSwitchWidget";
@@ -80,6 +80,7 @@ import { WDSParagraphWidget } from "./wds/WDSParagraphWidget";
 import { WDSModalWidget } from "./wds/WDSModalWidget";
 import { WDSStatBoxWidget } from "./wds/WDSStatBoxWidget";
 import { WDSKeyValueWidget } from "./wds/WDSKeyValueWidget";
+import { WDSInlineButtonsWidget } from "./wds/WDSInlineButtonsWidget";
 
 const LegacyWidgets = [
   CanvasWidget,
@@ -156,7 +157,7 @@ const WDSWidgets = [
   WDSIconButtonWidget,
   WDSTableWidget,
   WDSCurrencyInputWidget,
-  WDSButtonGroupWidget,
+  WDSToolbarButtonsWidget,
   WDSPhoneInputWidget,
   WDSCheckboxGroupWidget,
   WDSSwitchWidget,
@@ -171,6 +172,7 @@ const WDSWidgets = [
   WDSModalWidget,
   WDSStatBoxWidget,
   WDSKeyValueWidget,
+  WDSInlineButtonsWidget,
 ];
 
 const Widgets = [
