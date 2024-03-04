@@ -15,10 +15,10 @@ import { selectQuerySegmentEditorList } from "@appsmith/selectors/appIDESelector
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { EmptyState } from "../components/EmptyState";
 import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import { QueryListItem } from "@appsmith/pages/Editor/IDE/EditorPane/Query/ListItem";
 import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
+import { Empty } from "./Empty";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -98,17 +98,7 @@ const ListQuery = () => {
         })}
       </Flex>
 
-      {Object.keys(files).length === 0 && (
-        <EmptyState
-          buttonClassName="t--add-item"
-          buttonText={createMessage(EDITOR_PANE_TEXTS.query_add_button)}
-          description={createMessage(
-            EDITOR_PANE_TEXTS.query_blank_state_description,
-          )}
-          icon={"queries-v3"}
-          onClick={canCreateActions ? addButtonClickHandler : undefined}
-        />
-      )}
+      {Object.keys(files).length === 0 && <Empty />}
     </Flex>
   );
 };

@@ -13,6 +13,7 @@ import JSEditor from "pages/Editor/JSEditor";
 import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
 import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
 import ListJS from "pages/Editor/IDE/EditorPane/JS/List";
+import { SplitScreenEmpty } from "pages/Editor/IDE/EditorPane/JS/SplitScreenEmpty";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
@@ -55,6 +56,12 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
         key: "JSEditor",
         component: JSEditor,
         path: [path + "/:collectionId"],
+      },
+      {
+        key: "JSEmpty",
+        component: SplitScreenEmpty,
+        exact: true,
+        path: [path],
       },
     ];
   }

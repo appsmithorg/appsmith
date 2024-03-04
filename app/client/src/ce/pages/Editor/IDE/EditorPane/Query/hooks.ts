@@ -34,6 +34,7 @@ import type { AppState } from "@appsmith/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "design-system";
+import { SplitScreenEmpty } from "pages/Editor/IDE/EditorPane/Query/SplitScreenEmpty";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -96,6 +97,7 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
 export const useQuerySegmentRoutes = (path: string): UseRoutes => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
+
   if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
     return [
       {
@@ -129,6 +131,12 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
         component: QueryEditor,
         exact: true,
         path: [path + "/:queryId"],
+      },
+      {
+        key: "QueryEmpty",
+        component: SplitScreenEmpty,
+        exact: true,
+        path: [path],
       },
     ];
   }
