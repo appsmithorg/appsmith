@@ -1,6 +1,8 @@
 package com.appsmith.server.helpers;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -91,5 +93,20 @@ public class CollectionUtils {
         } else {
             map.put(key, 1);
         }
+    }
+
+    /**
+     * Use this like `List.of`, but can take any `null` values and will not include them in the resulting list.
+     * @return An unmodifiable list of the non-null items.
+     */
+    @SafeVarargs
+    public static <T> List<T> ofNonNulls(T... items) {
+        List<T> list = new ArrayList<>();
+        for (T item : items) {
+            if (item != null) {
+                list.add(item);
+            }
+        }
+        return Collections.unmodifiableList(list);
     }
 }

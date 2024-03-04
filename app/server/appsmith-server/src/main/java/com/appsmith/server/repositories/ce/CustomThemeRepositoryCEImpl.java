@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Theme;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
@@ -15,7 +16,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
-import java.util.List;
 
 @Component
 @Slf4j
@@ -68,7 +68,8 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
-        BridgeQuery<Theme> criteria = Bridge.<Theme>in(Theme.Fields.id, List.of(editModeThemeId, publishedModeThemeId))
+        BridgeQuery<Theme> criteria = Bridge.<Theme>in(
+                        Theme.Fields.id, CollectionUtils.ofNonNulls(editModeThemeId, publishedModeThemeId))
                 .isFalse(Theme.Fields.isSystemTheme);
         return archiveThemeByCriteria(criteria);
     }
