@@ -56,6 +56,8 @@ export const doesPluginRequireDatasource = (plugin: Plugin | undefined) => {
     : true;
 };
 
+export enum APPSMITH_NAMESPACED_FUNCTIONS {}
+
 export const getParentEntityDetailsFromParams = (
   parentEntityIdObject: { pageId?: string },
   parentEntityIdProp: string,
