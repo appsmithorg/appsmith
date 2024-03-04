@@ -14,7 +14,7 @@ import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { widgetOperationParams } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetComponent";
 import equal from "fast-deep-equal/es6";
-import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
+import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArenaTypes";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
