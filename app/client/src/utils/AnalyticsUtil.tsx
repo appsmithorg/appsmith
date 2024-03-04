@@ -20,8 +20,13 @@ declare global {
 
 const parentContextTypeTokens = ["pkg", "workflow"];
 
-// For app, function was returning app name due to the way app urls are structured
-// So this function will only return the parent context for pkg and workflow
+/**
+ * Function to check the current URL and return the parent context.
+ * For app, function was returning app name due to the way app urls are structured
+ * So this function will only return the parent context for pkg and workflow
+ * @param location current location object based on URL
+ * @returns object {id, type} where type is either pkg or workflow and id is the id of the pkg or workflow
+ */
 function getParentContextFromURL(location: Location) {
   const pathSplit = location.pathname.split("/");
   let type = parentContextTypeTokens[0];

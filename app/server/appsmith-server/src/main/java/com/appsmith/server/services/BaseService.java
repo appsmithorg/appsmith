@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import jakarta.validation.Validator;
@@ -25,8 +26,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -58,7 +57,7 @@ public abstract class BaseService<
         //   too fragile to touch right now. Need to dig in slow and deep to fix this.
         return repository
                 .queryBuilder()
-                .criteria(bridge().equal(key, (String) id))
+                .criteria(Bridge.equal(key, (String) id))
                 .updateFirst(resource)
                 .flatMap(obj -> repository.findById(id))
                 .flatMap(savedResource ->
