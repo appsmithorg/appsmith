@@ -19,6 +19,7 @@ import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.querydsl.core.types.Path;
+import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Transient;
@@ -32,6 +33,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NonNull;
 import lombok.SneakyThrows;
+import org.hibernate.annotations.Type;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.domain.Specification;
@@ -513,6 +515,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .then();
     }
 
+    @SneakyThrows
     public int updateExecute(QueryAllParams<T> params, BridgeUpdate update) {
         Set<String> permissionGroupsSet = params.getPermissionGroups();
         List<String> permissionGroups;
@@ -566,37 +569,45 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         cu.where(predicate);
 
         for (BridgeUpdate.SetOp op : update.getSetOps()) {
-            Object key = op.key();
+            Object keyOb = op.key();
             Object value = op.value();
 
-            if (key instanceof Path<?> keyPath) {
+            final String key;
+            if (keyOb instanceof Path<?> keyPath) {
                 key = fieldName(keyPath);
+            } else {
+                key = (String) keyOb;
             }
 
             if (value instanceof Path<?> valuePath) {
                 value = root.get(fieldName(valuePath));
-                cu.set(root.get((String) key), value);
+                cu.set(root.get(key), value);
 
-            } else if (value instanceof Collection<?> collection) {
+            } else if (isJsonColumn(genericDomain.getDeclaredField(key))) {
                 try {
                     // The type witness is needed here to pick the right overloaded signature of the set method.
                     // Without it, we see a compile error.
                     cu.<Object>set(
                             root.get((String) key),
                             cb.function(
-                                    "json",
-                                    Object.class,
-                                    cb.literal(new ObjectMapper().writeValueAsString(collection))));
+                                    "json", Object.class, cb.literal(new ObjectMapper().writeValueAsString(value))));
                 } catch (JsonProcessingException e) {
                     throw new RuntimeException(e);
                 }
 
             } else {
-                cu.set(root.get((String) key), value);
+                cu.set(root.get(key), value);
             }
         }
 
         return em.createQuery(cu).executeUpdate();
+    }
+
+    private boolean isJsonColumn(Field field) {
+        if (!field.isAnnotationPresent(Type.class)) {
+            return false;
+        }
+        return JsonBinaryType.class.equals(field.getAnnotation(Type.class).value());
     }
 
     /**
