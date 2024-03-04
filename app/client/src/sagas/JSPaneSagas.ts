@@ -101,7 +101,7 @@ import {
 } from "@appsmith/utils/actionExecutionUtils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
-import { logActionExecutionForAudit } from "@appsmith/utils/auditLogsHelpers";
+import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
