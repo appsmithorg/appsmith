@@ -139,10 +139,10 @@ export const resetCSSOnZones = (spaceDistributed: {
     const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
     const zonePropDom = document.getElementById(getPropertyPaneZoneId(zoneId));
     if (zoneDom) {
-      zoneDom.style.flexGrow = "";
+      zoneDom.style.flexBasis = "";
       zoneDom.style.transition = "all 0.3s ease";
       if (zonePropDom) {
-        zonePropDom.style.flexGrow = "";
+        zonePropDom.style.flexBasis = "";
         zonePropDom.style.transition = "all 0.3s ease";
       }
       setTimeout(() => {

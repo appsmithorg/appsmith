@@ -13,6 +13,7 @@ import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { Layers } from "constants/Layers";
 import { noop } from "utils/AppsmithUtils";
+import { SectionColumns } from "../sectionSpaceDistributor/constants";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
@@ -70,9 +71,13 @@ export const AnvilFlexComponent = forwardRef(
       const { isFillWidget, verticalAlignment } = widgetConfigProps;
       const data: FlexProps = {
         alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
-        flexGrow: flexGrow ? flexGrow : isFillWidget ? 1 : 0,
+        flexGrow: isFillWidget ? 1 : 0,
         flexShrink: isFillWidget ? 1 : 0,
-        flexBasis: isFillWidget ? "0%" : "auto",
+        flexBasis: flexGrow
+          ? `calc(${(flexGrow * 100) / SectionColumns}%)`
+          : isFillWidget
+          ? "0%"
+          : "auto",
         padding: "spacing-1",
         alignItems: "center",
         width: "max-content",
