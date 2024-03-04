@@ -21,13 +21,13 @@ import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import { getCanvasPreviewMode } from "selectors/ideSelectors";
 
-const DraggableWrapper = styled.div`
+const DraggableWrapper = styled.div<{ draggable: boolean }>`
   display: block;
   flex-direction: column;
   width: 100%;
   height: 100%;
   user-select: none;
-  cursor: grab;
+  cursor: ${(props) => (props.draggable ? "grab" : "unset")};
 `;
 
 export interface DraggableComponentProps {
