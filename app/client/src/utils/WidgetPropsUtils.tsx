@@ -1,6 +1,5 @@
 import type { FetchPageResponse } from "api/PageApi";
 import type { WidgetConfigProps } from "WidgetProvider/types";
-import type { WidgetOperation } from "widgets/types";
 import type { WidgetProps } from "widgets/types";
 import { WidgetOperations } from "widgets/types";
 import type { RenderMode } from "constants/WidgetConstants";
@@ -23,14 +22,9 @@ import { areIntersecting } from "./boxHelpers";
 import type {
   WidgetDraggingBlock,
   XYCord,
+  WidgetOperationParams,
 } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { migrateDSL } from "@shared/dsl";
-
-export interface WidgetOperationParams {
-  operation: WidgetOperation;
-  widgetId: string;
-  payload: any;
-}
 
 const defaultDSL = defaultTemplate;
 
