@@ -17,15 +17,15 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.c
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
-@ChangeUnit(order = "049-ee-02", id = "new-composite-indexes-on-package", author = " ")
-public class Migration049EE02ModifyIndexesForPackage {
+@ChangeUnit(order = "047-ee-03", id = "new-composite-indexes-on-package", author = " ")
+public class Migration047EE03ModifyIndexesForPackage {
     private final MongoTemplate mongoTemplate;
 
     public static final String ws_pkg_name_deleted_at_uindex = "ws_pkg_name_deleted_at_uindex";
     public static final String ws_pkg_uuid_name_branch_deleted_at_uindex = "ws_pkg_uuid_name_branch_deleted_at_uindex";
     public static final String ws_pkg_uuid_deleted_index = "ws_pkg_uuid_deleted_index";
 
-    public Migration049EE02ModifyIndexesForPackage(MongoTemplate mongoTemplate) {
+    public Migration047EE03ModifyIndexesForPackage(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

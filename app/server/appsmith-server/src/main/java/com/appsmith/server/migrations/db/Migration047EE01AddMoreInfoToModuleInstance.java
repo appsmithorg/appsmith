@@ -31,8 +31,8 @@ import static java.lang.Boolean.TRUE;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-@ChangeUnit(order = "048-ee-01", id = "add-more-info-to-module-instance", author = "")
-public class Migration048EE01AddMoreInfoToModuleInstance {
+@ChangeUnit(order = "047-ee-01", id = "add-more-info-to-module-instance", author = "")
+public class Migration047EE01AddMoreInfoToModuleInstance {
 
     private final MongoTemplate mongoTemplate;
 
@@ -40,7 +40,7 @@ public class Migration048EE01AddMoreInfoToModuleInstance {
     private final Map<String, Module> moduleCache = new HashMap<>();
     private final Map<String, Package> packageCache = new HashMap<>();
 
-    public Migration048EE01AddMoreInfoToModuleInstance(MongoTemplate mongoTemplate) {
+    public Migration047EE01AddMoreInfoToModuleInstance(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
