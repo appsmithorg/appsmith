@@ -20,6 +20,7 @@ import { union } from "lodash";
 export const FIRST_EVAL_REDUX_ACTIONS = [
   ...CE_FIRST_EVAL_REDUX_ACTIONS,
   ReduxActionTypes.FETCH_ALL_MODULE_ENTITY_COMPLETION,
+  ReduxActionTypes.FETCH_ALL_WORKFLOWS_ENTITY_COMPLETION,
 ];
 
 export const LINT_REDUX_ACTIONS = {
@@ -35,6 +36,8 @@ export const LINT_REDUX_ACTIONS = {
   [ReduxActionTypes.DELETE_MODULE_INSTANCE_SUCCESS]: true,
   [ReduxActionTypes.FETCH_MODULE_INSTANCE_ENTITIES_SUCCESS]: true,
   [ReduxActionTypes.UPDATE_MODULE_INSTANCE_SUCCESS]: true,
+  // Workflows editor
+  [ReduxActionTypes.FETCH_ALL_WORKFLOWS_ENTITY_COMPLETION]: true,
 };
 
 export const LOG_REDUX_ACTIONS = CE_LOG_REDUX_ACTIONS;

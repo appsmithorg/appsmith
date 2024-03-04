@@ -13,6 +13,7 @@ import {
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isWindowMessageListenerEnabled } from "@appsmith/utils/planHelpers";
 import store from "store";
+import { handleAssignRequestOnBrowserRun } from "../workflowsActionSagas";
 
 export function* executeActionTriggers(
   trigger: ActionDescription,
@@ -34,6 +35,12 @@ export function* executeActionTriggers(
         yield call(unListenWindowMessage);
         return;
     }
+  }
+
+  switch (trigger.type) {
+    case "ASSIGN_REQUEST":
+      const response = yield call(handleAssignRequestOnBrowserRun, trigger);
+      return response;
   }
   return yield call(CE_executeActionTriggers, trigger, eventType, triggerMeta);
 }

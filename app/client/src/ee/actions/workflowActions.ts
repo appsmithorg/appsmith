@@ -138,6 +138,14 @@ export const fetchWorkflowJSCollections = ({
   };
 };
 
+export const fetchAllWorkflowActionsSuccess = (
+  postEvalActions: Array<AnyReduxAction>,
+) => ({
+  type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_ENTITY_COMPLETION,
+  postEvalActions,
+  payload: undefined,
+});
+
 export const saveWorkflowActionName = (
   id: string,
   name: string,

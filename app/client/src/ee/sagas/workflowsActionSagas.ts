@@ -41,6 +41,8 @@ import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorC
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { createNewWorkflowQueryName } from "@appsmith/utils/workflowHelpers";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import type { TWorkflowsAssignRequestDescription } from "@appsmith/workers/Evaluation/fns/workflowFns";
 
 export function* createWorkflowQueryActionSaga(
   action: ReduxAction<{
@@ -292,6 +294,43 @@ export function* createWorkflowJSActionSaga(
       }),
     );
   }
+}
+
+export function* handleAssignRequestOnBrowserRun(
+  action: TWorkflowsAssignRequestDescription,
+) {
+  const { requestName, requestToGroups, requestToUsers, resolutions } =
+    action.payload;
+
+  // requestName is required, if not present, log error and return
+
+  let errorMessage = "";
+  if (!requestName)
+    errorMessage =
+      "Missing parameter: Provide a valid value for 'requestName'.";
+
+  // resolutions is required, if not present, log error and return
+  if (!resolutions || resolutions.length === 0)
+    errorMessage =
+      "Missing parameter: Provide a valid value for 'resolutions'.";
+
+  // at least one of requestToUsers or requestToGroups is required and should have length>0,
+  // If not present, log error and return
+  if (
+    (!requestToUsers || requestToUsers.length === 0) &&
+    (!requestToGroups || requestToGroups.length === 0)
+  )
+    errorMessage =
+      "Missing parameter: Provide a valid 'requestToUsers' or 'requestToGroups'";
+
+  if (errorMessage) {
+    yield call(logActionExecutionError, errorMessage, true);
+    return;
+  }
+
+  // return the first value of resolutions array as the resolution
+  const resolution = resolutions[0];
+  return { resolution };
 }
 
 export default function* workflowsActionSagas() {

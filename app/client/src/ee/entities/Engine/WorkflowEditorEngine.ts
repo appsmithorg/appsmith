@@ -18,14 +18,15 @@ import {
 } from "entities/Engine";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { fetchWorkflowSaga } from "@appsmith/sagas/workflowsSagas";
-import { fetchAllPageEntityCompletion } from "actions/pageActions";
 import type { FetchWorkflowResponse } from "@appsmith/api/WorkflowApi";
 import {
+  fetchAllWorkflowActionsSuccess,
   fetchWorkflowActions,
   fetchWorkflowJSCollections,
 } from "@appsmith/actions/workflowActions";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import history from "utils/history";
+import { waitForFetchUserSuccess } from "ce/sagas/userSagas";
 
 export default class WorkflowEditorEngine {
   *loadWorkflow(workflowId: string) {
@@ -96,7 +97,8 @@ export default class WorkflowEditorEngine {
         `Unable to fetch actions for the workflow: ${workflowId}`,
       );
 
-    yield put(fetchAllPageEntityCompletion([]));
+    yield call(waitForFetchUserSuccess);
+    yield put(fetchAllWorkflowActionsSuccess([]));
   }
 
   *loadPluginsAndDatasources() {

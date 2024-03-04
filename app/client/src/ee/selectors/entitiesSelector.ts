@@ -11,6 +11,7 @@ import {
   getQuerySegmentItems as CE_getQuerySegmentItems,
   selectDatasourceIdToNameMap,
   selectFilesForExplorer as CE_selectFilesForExplorer,
+  GROUP_TYPES,
 } from "ce/selectors/entitiesSelector";
 import { type Module, MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import {
@@ -42,7 +43,10 @@ import {
 import type { JSCollection } from "entities/JSCollection";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { ModuleIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { getCurrentWorkflowJSActions } from "./workflowSelectors";
+import {
+  getCurrentWorkflowJSActions,
+  getIsCurrentEditorWorkflowType,
+} from "./workflowSelectors";
 
 export const getCurrentModule = createSelector(
   getAllModules,
@@ -90,12 +94,20 @@ export const selectFilesForExplorer = createSelector(
   getAllModuleInstances,
   getAllModules,
   getPackages,
-  (CE_files, moduleInstances = {}, modules = {}, packages = {}) => {
+  getIsCurrentEditorWorkflowType,
+  (
+    CE_files,
+    moduleInstances = {},
+    modules = {},
+    packages = {},
+    isCurrenEditorWorkflows = false,
+  ) => {
     const modulesArray = convertModulesToArray(modules);
     const modulePackageMap = getModuleIdPackageNameMap(modulesArray, packages);
     const moduleInstanceFiles = Object.values(moduleInstances).reduce(
       (acc, file) => {
-        const group = modulePackageMap[file.sourceModuleId] || "Packages";
+        const group =
+          modulePackageMap[file.sourceModuleId] || GROUP_TYPES.PACKAGES;
         acc = acc.concat({
           type: "moduleInstance",
           entity: file,
@@ -110,9 +122,15 @@ export const selectFilesForExplorer = createSelector(
       (file: any) => file.type !== "group",
     );
 
+    // if current editor is jsObject, then the files with group name as "JS Objects" should be shown at the top
+    // followed by sorting by group name and then by file name
     const filesSortedByGroupName = sortBy(
       [...filteredCEFiles, ...moduleInstanceFiles],
       [
+        (file) =>
+          isCurrenEditorWorkflows && file.group === GROUP_TYPES.JS_ACTIONS
+            ? 0
+            : 1,
         (file) => file.group?.toLowerCase(),
         (file: any) => file.entity?.name?.toLowerCase(),
       ],
@@ -325,15 +343,15 @@ export const selectFilesForPackageExplorer = createSelector(
     const files = [...actions, ...jsActions].reduce((acc, file) => {
       let group = "";
       if (file.config.pluginType === PluginType.JS) {
-        group = "JS Objects";
+        group = GROUP_TYPES.JS_ACTIONS;
       } else if (file.config.pluginType === PluginType.API) {
         group = isEmbeddedRestDatasource(file.config.datasource)
-          ? "APIs"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+          ? GROUP_TYPES.API
+          : datasourceIdToNameMap[file.config.datasource.id] ?? GROUP_TYPES.API;
       } else if (file.config.pluginType === PluginType.AI) {
         group = isEmbeddedAIDataSource(file.config.datasource)
-          ? "AI Queries"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
+          ? GROUP_TYPES.AI
+          : datasourceIdToNameMap[file.config.datasource.id] ?? GROUP_TYPES.AI;
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }
