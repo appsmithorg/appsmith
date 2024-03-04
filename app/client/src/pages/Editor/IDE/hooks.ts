@@ -185,9 +185,7 @@ export const useGetPageFocusUrl = (pageId: string): string => {
       return;
     }
 
-    const segment =
-      Object.values(editorState)[0].state?.SelectedSegment ||
-      EditorEntityTab.UI;
+    const segment = Object.values(editorState)[0].state?.SelectedSegment;
 
     switch (segment) {
       case EditorEntityTab.UI:
@@ -199,6 +197,8 @@ export const useGetPageFocusUrl = (pageId: string): string => {
       case EditorEntityTab.QUERIES:
         setFocusPageUrl(queryListURL({ pageId: pageId }));
         break;
+      default:
+        setFocusPageUrl(builderURL({ pageId }));
     }
   }, [focusInfo, branch]);
 
@@ -220,24 +220,13 @@ export const useIsEditorPaneSegmentsEnabled = () => {
 export function useCanvasViewModeListener() {
   const { pathname } = useLocation();
   const dispatch = useDispatch();
-  const mouseMoveHandler = (e: MouseEvent) => {
-    const currentFocus = identifyEntityFromPath(pathname);
+  const currentFocus = identifyEntityFromPath(pathname);
+
+  useEffect(() => {
     const focusedOnCanvas = [
       FocusEntity.CANVAS,
       FocusEntity.PROPERTY_PANE,
     ].includes(currentFocus.entity);
-    if (e.altKey) {
-      dispatch(setCanvasPreviewMode(focusedOnCanvas));
-    } else {
-      dispatch(setCanvasPreviewMode(!focusedOnCanvas));
-    }
-  };
-
-  useEffect(() => {
-    window.addEventListener("mousemove", mouseMoveHandler);
-
-    return () => {
-      window.removeEventListener("mousemove", mouseMoveHandler);
-    };
-  }, [pathname]);
+    dispatch(setCanvasPreviewMode(!focusedOnCanvas));
+  }, [currentFocus]);
 }
