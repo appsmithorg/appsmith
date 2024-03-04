@@ -15,10 +15,6 @@ public interface CacheableRepositoryHelperCE {
 
     Mono<Void> evictPermissionGroupsUser(String email, String tenantId);
 
-    Mono<User> getAnonymousUser(String tenantId);
-
-    Mono<User> getAnonymousUser();
-
     Mono<String> getDefaultTenantId();
 
     Mono<String> getInstanceAdminPermissionGroupId();
