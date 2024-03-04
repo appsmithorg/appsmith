@@ -55,3 +55,5 @@ export const doesPluginRequireDatasource = (plugin: Plugin | undefined) => {
     ? plugin.requiresDatasource
     : true;
 };
+
+export enum APPSMITH_NAMESPACED_FUNCTIONS {}

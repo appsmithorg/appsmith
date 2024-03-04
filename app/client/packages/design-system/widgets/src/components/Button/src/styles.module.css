@@ -14,6 +14,7 @@
   padding-inline: var(--inner-spacing-3);
   padding-block: var(--inner-spacing-2);
   min-inline-size: var(--sizing-14);
+  max-inline-size: var(--sizing-70);
   border-radius: var(--border-radius-elevation-3);
 
   @each $color in colors {
