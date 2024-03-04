@@ -9,7 +9,7 @@ import {
   addChildToLayout,
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
-} from "./layoutUtils";
+} from "./baseLayoutUtils";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
 import { mockButtonProps } from "mocks/widgetProps/button";
