@@ -41,7 +41,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
-                .criteria(Bridge.query().equal(NewAction.Fields.applicationId, applicationId))
+                .criteria(Bridge.equal(NewAction.Fields.applicationId, applicationId))
                 .permission(aclPermission)
                 .all();
     }
@@ -110,7 +110,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
-            pageCriterion = Bridge.query().equal(NewAction.Fields.publishedAction_pageId, pageId);
+            pageCriterion = Bridge.equal(NewAction.Fields.publishedAction_pageId, pageId);
         }
         // Fetch unpublished actions
         else {
@@ -347,7 +347,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
-                .criteria(Bridge.query().in(NewAction.Fields.unpublishedAction_pageId, pageIds))
+                .criteria(Bridge.in(NewAction.Fields.unpublishedAction_pageId, pageIds))
                 .permission(permission)
                 .all();
     }
@@ -449,7 +449,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         return queryBuilder()
-                .criteria(Bridge.query().equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
+                .criteria(Bridge.equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -473,7 +473,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         // *
         int count = queryBuilder()
                 .permission(permission)
-                .criteria(Bridge.query().equal(NewAction.Fields.applicationId, applicationId))
+                .criteria(Bridge.equal(NewAction.Fields.applicationId, applicationId))
                 .updateAll(Bridge.update().set(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
 
         return Optional.empty();
@@ -517,7 +517,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Optional<Integer> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
         String unpublishedDeletedAtFieldName = NewAction.Fields.unpublishedAction_deletedAt;
         int count = queryBuilder()
-                // .spec(Bridge.query().equal(NewAction.Fields.applicationId,
+                // .spec(Bridge.equal(NewAction.Fields.applicationId,
                 // applicationId).notEqual(unpublishedDeletedAtFieldName, null))
                 .criteria((root, cq, cb) -> cb.and(
                         cb.equal(root.get(NewAction.Fields.applicationId), applicationId),
@@ -536,7 +536,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
-                .criteria(Bridge.query().in(NewAction.Fields.applicationId, applicationIds))
+                .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
                 .fields(includeFields)
                 .all();
     }

@@ -24,7 +24,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     T setUserPermissionsInObject(T obj);
 
-    int updateFirst(BridgeQuery<T> query, T resource);
+    /* no-cake */ int updateFirst(BridgeQuery<T> query, T resource);
 
     T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission);
 

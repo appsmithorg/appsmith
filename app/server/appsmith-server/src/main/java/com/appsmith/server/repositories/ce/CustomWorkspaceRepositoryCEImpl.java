@@ -38,7 +38,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Optional<Workspace> findByName(String name, AclPermission aclPermission) {
         return queryBuilder()
-                .criteria(Bridge.query().equal(Workspace.Fields.name, name))
+                .criteria(Bridge.equal(Workspace.Fields.name, name))
                 .permission(aclPermission)
                 .one();
     }
@@ -61,7 +61,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         final User user =
                 Objects.requireNonNull(sessionUserService.getCurrentUser().block());
         return queryBuilder()
-                .criteria(Bridge.query().equal(Workspace.Fields.tenantId, user.getTenantId()))
+                .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
                 .permission(permission)
                 .all();
     }

@@ -38,7 +38,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Deprecated
     public List<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
         return queryBuilder()
-                .criteria(Bridge.query().equal(ActionCollection.Fields.applicationId, applicationId))
+                .criteria(Bridge.equal(ActionCollection.Fields.applicationId, applicationId))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
@@ -169,9 +169,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         String publishedPage = ActionCollection.Fields.publishedCollection_pageId;
 
         return queryBuilder()
-                .criteria(Bridge.or(
-                        Bridge.query().equal(unpublishedPage, pageId),
-                        Bridge.query().equal(publishedPage, pageId)))
+                .criteria(Bridge.or(Bridge.equal(unpublishedPage, pageId), Bridge.equal(publishedPage, pageId)))
                 .permission(aclPermission)
                 .all();
     }
@@ -219,7 +217,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         return queryBuilder()
-                .criteria(Bridge.query().equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
+                .criteria(Bridge.equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -227,7 +225,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         return queryBuilder()
-                .criteria(Bridge.query().in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds))
+                .criteria(Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds))
                 .permission(permission)
                 .all();
     }
@@ -240,7 +238,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
-                .criteria(Bridge.query().in(FieldName.APPLICATION_ID, applicationIds))
+                .criteria(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }
@@ -277,7 +275,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
         // Fetch published action collections
         if (Boolean.TRUE.equals(viewMode)) {
-            spec = Bridge.query().equal(ActionCollection.Fields.publishedCollection_pageId, pageId);
+            spec = Bridge.equal(ActionCollection.Fields.publishedCollection_pageId, pageId);
         }
         // Fetch unpublished action collections
         else {

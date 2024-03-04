@@ -33,7 +33,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     public int saveReleaseNotesViewedVersion(String userId, String version) {
         return queryBuilder()
-                .criteria(Bridge.query().equal(UserData.Fields.userId, userId))
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .updateFirst(Bridge.update().set(UserData.Fields.releaseNotesViewedVersion, version));
     }
 
@@ -89,7 +89,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
         return queryBuilder()
-                .criteria(Bridge.query().equal(UserData.Fields.userId, userId))
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .fields(UserData.Fields.recentlyUsedEntityIds)
                 .one()
                 .map(userData -> {
@@ -105,7 +105,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     public int updateByUserId(String userId, UserData userData) {
         return queryBuilder()
-                .criteria(Bridge.query().equal(UserData.Fields.userId, userId))
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .updateFirst(userData);
     }
 }

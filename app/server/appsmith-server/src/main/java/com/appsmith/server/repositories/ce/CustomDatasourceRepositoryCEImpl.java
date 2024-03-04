@@ -31,7 +31,7 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
     public List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {
         Sort sort = Sort.by(Datasource.Fields.name);
         return queryBuilder()
-                .criteria(Bridge.query().equal(Datasource.Fields.workspaceId, workspaceId))
+                .criteria(Bridge.equal(Datasource.Fields.workspaceId, workspaceId))
                 .permission(permission)
                 .sort(sort)
                 .all();

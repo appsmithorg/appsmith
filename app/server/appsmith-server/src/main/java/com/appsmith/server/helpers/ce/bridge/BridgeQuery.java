@@ -119,7 +119,7 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
-    public BridgeQuery<T> in(String needle, Collection<String> haystack) {
+    public BridgeQuery<T> in(@NonNull String needle, @NonNull Collection<String> haystack) {
         checks.add(new Check.Unit(Op.IN, needle, haystack));
         return this;
     }
@@ -132,7 +132,7 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
     /**
      * Check that the string `needle` is present in the JSON array at `key`.
      */
-    public BridgeQuery<T> jsonIn(String needle, String key) {
+    public BridgeQuery<T> jsonIn(@NonNull String needle, @NonNull String key) {
         checks.add(new Check.Unit(Op.JSON_IN, key, needle));
         return this;
     }

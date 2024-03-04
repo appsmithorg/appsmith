@@ -47,7 +47,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
         return queryBuilder()
-                .criteria(Bridge.query().equal("applicationId", applicationId))
+                .criteria(Bridge.equal("applicationId", applicationId))
                 .permission(aclPermission)
                 .all();
     }
@@ -55,7 +55,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public List<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission) {
         return queryBuilder()
-                .criteria(Bridge.query().equal("applicationId", applicationId))
+                .criteria(Bridge.equal("applicationId", applicationId))
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -257,7 +257,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Optional<Void> publishPages(Collection<String> pageIds, AclPermission permission) {
         int count = queryBuilder()
                 .permission(permission)
-                .criteria(Bridge.query().in(NewPage.Fields.id, pageIds))
+                .criteria(Bridge.in(NewPage.Fields.id, pageIds))
                 .updateAll(Bridge.update().set(NewPage.Fields.publishedPage, NewPage.Fields.unpublishedPage));
 
         return Optional.empty();
@@ -267,7 +267,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public List<NewPage> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
         return queryBuilder()
-                .criteria(Bridge.query().in(FieldName.APPLICATION_ID, applicationIds))
+                .criteria(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
     }

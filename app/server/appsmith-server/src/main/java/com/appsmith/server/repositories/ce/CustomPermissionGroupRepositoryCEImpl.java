@@ -41,7 +41,7 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findByAssignedToUserIdsIn(String userId) {
         return queryBuilder()
-                .criteria(Bridge.query().jsonIn(userId, PermissionGroup.Fields.assignedToUserIds))
+                .criteria(Bridge.jsonIn(userId, PermissionGroup.Fields.assignedToUserIds))
                 .all();
     }
 
