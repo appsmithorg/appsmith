@@ -203,8 +203,8 @@ class ActionExecutionSolutionCEImplTest {
 
     @Test
     public void testExecuteAction_withoutExecuteActionDTOPart_failsValidation() {
-        final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(
+                Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -227,8 +227,8 @@ class ActionExecutionSolutionCEImplTest {
 
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(
+                partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -252,7 +252,7 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(partsFlux, null, null, null);
+                actionExecutionSolution.executeAction(partsFlux, null, null, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -288,7 +288,7 @@ class ActionExecutionSolutionCEImplTest {
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null, null);
+                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -304,8 +304,13 @@ class ActionExecutionSolutionCEImplTest {
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
                 .getTrueEnvironmentId(
-                        any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
+                        any(),
+                        any(),
+                        any(),
+                        Mockito.eq(environmentPermission.getExecutePermission()),
+                        anyBoolean(),
+                        anyBoolean());
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any(), anyBoolean());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
@@ -346,7 +351,7 @@ class ActionExecutionSolutionCEImplTest {
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null, null);
+                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -362,8 +367,13 @@ class ActionExecutionSolutionCEImplTest {
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
                 .getTrueEnvironmentId(
-                        any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
+                        any(),
+                        any(),
+                        any(),
+                        Mockito.eq(environmentPermission.getExecutePermission()),
+                        anyBoolean(),
+                        anyBoolean());
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any(), anyBoolean());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
