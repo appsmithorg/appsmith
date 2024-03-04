@@ -23,6 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 public class PackagePublishingMetaDTO {
     String originPackageId;
     Package publishedPackage;
+    String workspaceId;
 
     // Map of all published entities
     Map<String, Module> originModuleIdToPublishedModuleMap = new HashMap<>();

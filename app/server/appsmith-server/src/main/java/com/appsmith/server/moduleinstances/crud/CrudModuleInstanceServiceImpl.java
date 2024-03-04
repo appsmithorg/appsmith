@@ -760,8 +760,8 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
-            Module sourceModule, Optional<AclPermission> permission) {
-        return repository.findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, permission);
+            Module sourceModule, Optional<AclPermission> permission, String workspaceId) {
+        return repository.findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, permission, workspaceId);
     }
 
     @Override

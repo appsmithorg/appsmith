@@ -720,7 +720,8 @@ class CrudModuleInstanceServiceTest {
 
         // Verify the new module instance has the correct input values
         Mono<List<ModuleInstance>> moduleInstancesMono = moduleInstanceRepository
-                .findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, Optional.empty())
+                .findAllUnpublishedByOriginModuleIdOrModuleUUID(
+                        sourceModule, Optional.empty(), moduleInstanceTestHelperDTO.getWorkspaceId())
                 .collectList();
 
         // Verify that after publish package only one module instance is impacted
@@ -754,7 +755,8 @@ class CrudModuleInstanceServiceTest {
 
         // Fetch all module instances by moduleUUID after the package is published
         moduleInstancesMono = moduleInstanceRepository
-                .findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, Optional.empty())
+                .findAllUnpublishedByOriginModuleIdOrModuleUUID(
+                        sourceModule, Optional.empty(), moduleInstanceTestHelperDTO.getWorkspaceId())
                 .collectList();
 
         // Verify that two module instances are impacted by the package-publish event

@@ -548,7 +548,7 @@ class CrudModuleServiceTest {
 
         Mockito.doReturn(Mono.just(Long.valueOf(1)))
                 .when(moduleInstancePermissionChecker)
-                .getModuleInstanceCountByModuleUUID(moduleUUIDRef.get());
+                .getModuleInstanceCountByModuleUUID(moduleUUIDRef.get(), workspaceId);
 
         Mono<ModuleDTO> deletedModuleMono = crudModuleService.deleteModule(moduleIdRef.get());
 
@@ -760,7 +760,7 @@ class CrudModuleServiceTest {
 
         Mockito.doReturn(Mono.just(Long.valueOf(1)))
                 .when(moduleInstancePermissionChecker)
-                .getModuleInstanceCountByModuleUUID(moduleUUIDRef.get());
+                .getModuleInstanceCountByModuleUUID(moduleUUIDRef.get(), workspaceId);
 
         Mono<PackageDTO> deletePackageMono = crudPackageService.deletePackage(packageId.get());
 
