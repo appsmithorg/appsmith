@@ -33,8 +33,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,7 +42,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -71,7 +68,6 @@ public class ApplicationImportServiceCEImpl
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
-    private final Gson gson;
     private final ImportableService<Theme> themeImportableService;
     private final ImportableService<NewPage> newPageImportableService;
     private final ImportableService<CustomJSLib> customJSLibImportableService;
@@ -85,12 +81,6 @@ public class ApplicationImportServiceCEImpl
      */
     protected final Map<String, String> applicationConstantsMap =
             Map.of(FieldName.ARTIFACT_CONTEXT, FieldName.APPLICATION, FieldName.ID, FieldName.APPLICATION_ID);
-
-    @Override
-    public ApplicationJson extractArtifactExchangeJson(String jsonString) {
-        Type fileType = new TypeToken<ApplicationJson>() {}.getType();
-        return gson.fromJson(jsonString, fileType);
-    }
 
     @Override
     public ImportArtifactPermissionProvider getImportArtifactPermissionProviderForImportingArtifact(

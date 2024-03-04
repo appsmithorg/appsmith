@@ -56,8 +56,9 @@ export class GitSync {
     "[data-testid='t--git-protected-branches-select']";
   public _protectedBranchesUpdateBtn =
     "[data-testid='t--git-protected-branches-update-btn']";
-  public _settingsTabBranch = "[data-testid='t--tab-BRANCH']";
+  public _gitSettingsModal = "[data-testid='t--git-settings-modal']";
   public _settingsTabGeneral = "[data-testid='t--tab-GENERAL']";
+  public _settingsTabBranch = "[data-testid='t--tab-BRANCH']";
   public _branchProtectionSelectDropdown =
     "[data-testid='t--git-protected-branches-select']";
   public _branchProtectionUpdateBtn =
@@ -73,6 +74,23 @@ export class GitSync {
   CloseGitSyncModal() {
     this.agHelper.GetNClick(this._closeGitSyncModal);
     this.agHelper.AssertElementAbsence(this._gitSyncModal);
+  }
+
+  OpenGitSettingsModal(tabName: "GENERAL" | "BRANCH" | "CD" = "GENERAL") {
+    this.agHelper.GetNClick(this._bottomSettingsBtn);
+    this.agHelper.AssertElementVisibility(this._gitSettingsModal);
+    if (tabName !== "GENERAL") {
+      this.agHelper.GetNClick(`[data-testid='t--tab-${tabName}']`);
+    }
+  }
+
+  CloseGitSettingsModal() {
+    this.agHelper.GetNClick(this._closeGitSettingsModal);
+    this.agHelper.AssertElementAbsence(this._gitSettingsModal);
+  }
+
+  GetCurrentBranchName() {
+    return this.agHelper.GetText(this._branchButton, "text", 0);
   }
 
   public CreateTestGiteaRepo(repo: string, privateFlag = false) {

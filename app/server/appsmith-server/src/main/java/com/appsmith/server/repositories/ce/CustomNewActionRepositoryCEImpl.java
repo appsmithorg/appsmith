@@ -12,7 +12,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
@@ -22,11 +21,9 @@ import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -44,15 +41,11 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepositoryCE {
 
-    private final MongoTemplate mongoTemplate;
-
     public CustomNewActionRepositoryCEImpl(
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper,
-            MongoTemplate mongoTemplate) {
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
@@ -351,12 +344,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 where(NewAction.Fields.publishedAction + ".datasource._id").is(new ObjectId(datasourceId));
 
         Criteria datasourceCriteria =
-                notDeleted().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
+                new Criteria().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
 
-        Query query = new Query();
-        query.addCriteria(datasourceCriteria);
-
-        return mongoOperations.count(query, NewAction.class);
+        return queryBuilder().criteria(datasourceCriteria).count();
     }
 
     @Override
@@ -515,37 +505,34 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Mono<Void> publishActions(String applicationId, AclPermission permission) {
         Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
+        return copyUnpublishedActionToPublishedAction(applicationIdCriteria, permission);
+    }
 
+    protected Mono<Void> copyUnpublishedActionToPublishedAction(Criteria criteria, AclPermission permission) {
         Mono<Set<String>> permissionGroupsMono =
                 getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
 
         return permissionGroupsMono
-                .flatMap(permissionGroups -> {
-                    return Mono.fromCallable(() -> {
-                                AggregationOperation matchAggregationWithPermission = null;
-                                if (permission == null) {
-                                    matchAggregationWithPermission =
-                                            Aggregation.match(new Criteria().andOperator(notDeleted()));
-                                } else {
-                                    matchAggregationWithPermission = Aggregation.match(new Criteria()
-                                            .andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-                                }
-                                AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
-                                AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
-                                AggregationOperation addFieldsOperation = Aggregation.addFields()
-                                        .addField(NewAction.Fields.publishedAction)
-                                        .withValueOf(Fields.field(NewAction.Fields.unpublishedAction))
-                                        .build();
-                                Aggregation combinedAggregation = Aggregation.newAggregation(
-                                        matchAggregation,
-                                        matchAggregationWithPermission,
-                                        wholeProjection,
-                                        addFieldsOperation);
-                                return mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
-                            })
-                            .subscribeOn(Schedulers.boundedElastic());
+                .flatMapMany(permissionGroups -> {
+                    AggregationOperation matchAggregationWithPermission;
+                    if (permission == null) {
+                        matchAggregationWithPermission = Aggregation.match(new Criteria().andOperator(notDeleted()));
+                    } else {
+                        matchAggregationWithPermission = Aggregation.match(
+                                new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
+                    }
+                    AggregationOperation matchAggregation = Aggregation.match(criteria);
+                    AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
+                    AggregationOperation addFieldsOperation = Aggregation.addFields()
+                            .addField(NewAction.Fields.publishedAction)
+                            .withValueOf(Fields.field(NewAction.Fields.unpublishedAction))
+                            .build();
+                    Aggregation combinedAggregation = Aggregation.newAggregation(
+                            matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
+                    return mongoOperations.aggregate(combinedAggregation, NewAction.class, NewAction.class);
                 })
-                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
+                .collectList()
+                .flatMap(this::bulkUpdate);
     }
 
     @Override
