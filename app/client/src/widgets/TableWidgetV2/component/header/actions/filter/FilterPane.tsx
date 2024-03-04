@@ -162,7 +162,6 @@ const mapDispatchToProps = (dispatch: any) => {
         type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
         payload: { widgetId },
       });
-      dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
     },
   };
 };
