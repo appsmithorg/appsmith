@@ -34,7 +34,8 @@ public class ModuleInstancePackageUpgradableServiceImpl implements PackageUpgrad
                         .getOriginModuleIdToPublishedModuleMap()
                         .values())
                 .flatMap(newSourceModule -> crudModuleInstanceService
-                        .findAllUnpublishedByOriginModuleIdOrModuleUUID(newSourceModule, Optional.empty())
+                        .findAllUnpublishedByOriginModuleIdOrModuleUUID(
+                                newSourceModule, Optional.empty(), publishingMetaDTO.getWorkspaceId())
                         .collectMap(ModuleInstance::getId, moduleInstance -> moduleInstance)
                         .doOnNext(map -> publishingMetaDTO
                                 .getExistingModuleInstanceIdToModuleInstanceMap()

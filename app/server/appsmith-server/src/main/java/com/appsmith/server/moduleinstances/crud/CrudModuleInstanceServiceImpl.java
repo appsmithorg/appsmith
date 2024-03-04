@@ -150,6 +150,36 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<CreateModuleInstanceResponseDTO> createModuleInstance(
             ModuleInstanceDTO moduleInstanceReqDTO, String branchName) {
+
+        return this.createModuleInstanceAndReturn(moduleInstanceReqDTO, branchName)
+                .flatMap(savedModuleInstance -> generateModuleInstanceByViewMode(
+                                savedModuleInstance, ResourceModes.EDIT)
+                        .map(responseUtils::updateModuleInstanceDTOWithDefaultResources)
+                        .flatMap(createdModuleInstance -> {
+                            Mono<List<ActionViewDTO>> actionListMono = newActionService
+                                    .findAllUnpublishedComposedActionViewDTOsByRootModuleInstanceId(
+                                            savedModuleInstance.getId(), actionPermission.getExecutePermission(), false)
+                                    .collectList();
+                            Mono<List<ActionCollectionDTO>> collectionListMono = actionCollectionService
+                                    .findAllUnpublishedComposedActionCollectionDTOsByRootModuleInstanceId(
+                                            savedModuleInstance.getId(), actionPermission.getExecutePermission())
+                                    .collectList();
+
+                            return getModuleInstanceEntitiesDTOMono(actionListMono, collectionListMono, false)
+                                    .flatMap(moduleInstanceEntitiesDTO -> {
+                                        final CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
+                                                new CreateModuleInstanceResponseDTO();
+                                        createModuleInstanceResponseDTO.setModuleInstance(createdModuleInstance);
+                                        createModuleInstanceResponseDTO.setEntities(moduleInstanceEntitiesDTO);
+
+                                        return Mono.just(createModuleInstanceResponseDTO);
+                                    });
+                        }));
+    }
+
+    @Override
+    public Mono<ModuleInstance> createModuleInstanceAndReturn(
+            ModuleInstanceDTO moduleInstanceReqDTO, String branchName) {
         validateModuleInstanceDTO(moduleInstanceReqDTO, false);
         Mono<Module> sourceModuleMono = moduleRepository
                 .findById(
@@ -186,40 +216,11 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                                             moduleInstantiatingMetaDTO))
                                     .then(jsLibModuleInstantiatingService.instantiateEntities(
                                             moduleInstantiatingMetaDTO))
-                                    .then(generateModuleInstanceByViewMode(savedModuleInstance, ResourceModes.EDIT)
-                                            .map(responseUtils::updateModuleInstanceDTOWithDefaultResources)
-                                            .flatMap(createdModuleInstance -> {
-                                                Mono<List<ActionViewDTO>> actionListMono = newActionService
-                                                        .findAllUnpublishedComposedActionViewDTOsByRootModuleInstanceId(
-                                                                savedModuleInstance.getId(),
-                                                                actionPermission.getExecutePermission(),
-                                                                false)
-                                                        .collectList();
-                                                Mono<List<ActionCollectionDTO>> collectionListMono =
-                                                        actionCollectionService
-                                                                .findAllUnpublishedComposedActionCollectionDTOsByRootModuleInstanceId(
-                                                                        savedModuleInstance.getId(),
-                                                                        actionPermission.getExecutePermission())
-                                                                .collectList();
-
-                                                return getModuleInstanceEntitiesDTOMono(
-                                                                actionListMono, collectionListMono, false)
-                                                        .flatMap(moduleInstanceEntitiesDTO -> {
-                                                            final CreateModuleInstanceResponseDTO
-                                                                    createModuleInstanceResponseDTO =
-                                                                            new CreateModuleInstanceResponseDTO();
-                                                            createModuleInstanceResponseDTO.setModuleInstance(
-                                                                    createdModuleInstance);
-                                                            createModuleInstanceResponseDTO.setEntities(
-                                                                    moduleInstanceEntitiesDTO);
-
-                                                            return Mono.just(createModuleInstanceResponseDTO);
-                                                        });
-                                            })))
+                                    .thenReturn(savedModuleInstance))
                             .as(transactionalOperator::transactional)
-                            .flatMap(createdModuleInstance -> updateLayoutService
+                            .flatMap(savedModuleInstance -> updateLayoutService
                                     .updatePageLayoutsByPageId(page.getId())
-                                    .thenReturn(createdModuleInstance));
+                                    .thenReturn(savedModuleInstance));
                 });
     }
 
@@ -346,7 +347,8 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                 .map(Module::getPackageId)
                 .flatMap(packageRepository::findById)
                 .flatMap(aPackage -> {
-                    if (!Boolean.TRUE.equals(aPackage.getLatest())) {
+                    if (!Boolean.TRUE.equals(aPackage.getLatest())
+                            && !Boolean.FALSE.equals(moduleInstanceReqDTO.getIsValid())) {
                         return Mono.error(new AppsmithException(AppsmithError.STALE_MODULE_REFERENCE));
                     }
 
@@ -496,8 +498,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
-    public Mono<CreateModuleInstanceResponseDTO> createOrphanModuleInstance(
-            ModuleInstanceDTO moduleInstanceReqDTO, String branchName) {
+    public Mono<ModuleInstance> createOrphanModuleInstance(ModuleInstanceDTO moduleInstanceReqDTO, String branchName) {
 
         validateModuleInstanceDTO(moduleInstanceReqDTO, true);
 
@@ -523,17 +524,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
 
         return generateBareBonesModuleInstanceAndReturnPage(
                         moduleInstantiatingMetaDTO, moduleInstanceReqDTO, branchName, moduleInstance, cachedNewPageMono)
-                .flatMap(page -> saveModuleInstance(moduleInstance))
-                .flatMap(savedModuleInstance ->
-                        generateModuleInstanceByViewMode(savedModuleInstance, ResourceModes.EDIT))
-                .flatMap(moduleInstanceDTO -> {
-                    final CreateModuleInstanceResponseDTO createModuleInstanceResponseDTO =
-                            new CreateModuleInstanceResponseDTO();
-                    createModuleInstanceResponseDTO.setModuleInstance(moduleInstanceDTO);
-                    createModuleInstanceResponseDTO.setEntities(new ModuleInstanceEntitiesDTO());
-
-                    return Mono.just(createModuleInstanceResponseDTO);
-                });
+                .flatMap(page -> saveModuleInstance(moduleInstance));
     }
 
     @Override
@@ -669,9 +660,9 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         AclPermission permission =
                 viewMode ? actionPermission.getExecutePermission() : actionPermission.getReadPermission();
 
-        Mono<List<ActionViewDTO>> actionDTOListMono = pageMono.flatMapMany(
-                        newPage -> newActionService.getAllModuleInstanceActionInContext(
-                                newPage.getId(), contextType, permission, viewMode, false))
+        Mono<List<ActionViewDTO>> actionDTOListMono = pageMono.flatMapMany(newPage -> newActionService
+                        .getAllModuleInstanceActionInContext(newPage.getId(), contextType, permission, viewMode, false)
+                        .map(responseUtils::updateActionViewDTOWithDefaultResources))
                 .collectList();
 
         Mono<List<ActionCollectionDTO>> collectionDTOListMono = pageMono.flatMapMany(
@@ -697,9 +688,9 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                     .map(actionCollection -> actionCollection.getId())
                     .collect(Collectors.toList());
 
-            Map<String, ActionCollectionDTO> collectionIdToActionCollectionMap = actionCollections.stream()
-                    .collect(Collectors.toMap(
-                            actionCollection -> actionCollection.getId(), actionCollection -> actionCollection));
+            Set<ActionCollectionDTO> defaultActionCollections = actionCollections.stream()
+                    .map(responseUtils::updateCollectionDTOWithDefaultResources)
+                    .collect(Collectors.toSet());
             final Map<String, List<ActionDTO>> collectionIdToActionsMap = new HashMap<>();
 
             return newActionService
@@ -712,7 +703,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                         return actionDTO;
                     })
                     .collectList()
-                    .then(Flux.fromIterable(collectionIdToActionCollectionMap.values())
+                    .then(Flux.fromIterable(defaultActionCollections)
                             .map(actionCollectionDTO -> {
                                 List<ActionDTO> jsActions = collectionIdToActionsMap.get(actionCollectionDTO.getId());
                                 actionCollectionDTO.setActions(jsActions);
@@ -769,8 +760,8 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
-            Module sourceModule, Optional<AclPermission> permission) {
-        return repository.findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, permission);
+            Module sourceModule, Optional<AclPermission> permission, String workspaceId) {
+        return repository.findAllUnpublishedByOriginModuleIdOrModuleUUID(sourceModule, permission, workspaceId);
     }
 
     @Override

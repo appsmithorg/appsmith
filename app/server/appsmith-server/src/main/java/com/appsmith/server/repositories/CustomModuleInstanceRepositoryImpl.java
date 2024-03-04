@@ -42,8 +42,11 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
     }
 
     @Override
-    public Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID) {
-        Criteria moduleIdCriteria = where(ModuleInstance.Fields.moduleUUID).is(moduleUUID);
+    public Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID, String workspaceId) {
+        Criteria moduleIdCriteria = where(ModuleInstance.Fields.moduleUUID)
+                .is(moduleUUID)
+                .and(ModuleInstance.Fields.workspaceId)
+                .is(workspaceId);
 
         return queryBuilder().criteria(moduleIdCriteria).count();
     }
@@ -176,7 +179,7 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
 
     @Override
     public Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
-            Module sourceModule, Optional<AclPermission> permission) {
+            Module sourceModule, Optional<AclPermission> permission, String workspaceId) {
         List<Criteria> criteria = new ArrayList<>();
         Criteria originModuleIdCriterion = new Criteria()
                 .orOperator(
@@ -185,7 +188,8 @@ public class CustomModuleInstanceRepositoryImpl extends BaseAppsmithRepositoryIm
                                 .andOperator(
                                         where(ModuleInstance.Fields.originModuleId)
                                                 .isNull(),
-                                        where(ModuleInstance.Fields.moduleUUID).is(sourceModule.getModuleUUID())));
+                                        where(ModuleInstance.Fields.moduleUUID).is(sourceModule.getModuleUUID()),
+                                        where(ModuleInstance.Fields.workspaceId).is(workspaceId)));
 
         Criteria notDeletedCriterion = where(ModuleInstance.Fields.unpublishedModuleInstance + "."
                         + fieldName(QModuleInstance.moduleInstance.unpublishedModuleInstance.deletedAt))

@@ -16,7 +16,6 @@ import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
-import com.appsmith.server.dtos.CreateModuleInstanceResponseDTO;
 import com.appsmith.server.dtos.ExportableModule;
 import com.appsmith.server.dtos.ImportModuleInstanceResultDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
@@ -185,16 +184,17 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
             ArtifactExchangeJson artifactExchangeJson,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             ImportingMetaDTO importingMetaDTO) {
-        List<ExportableModule> sourceModuleList = CollectionUtils.isEmpty(artifactExchangeJson.getSourceModuleList())
-                ? new ArrayList<>()
-                : artifactExchangeJson.getSourceModuleList();
+        List<ExportableModule> exportableModuleList =
+                CollectionUtils.isEmpty(artifactExchangeJson.getSourceModuleList())
+                        ? new ArrayList<>()
+                        : artifactExchangeJson.getSourceModuleList();
 
         Map<String, Module> moduleUUIDToModuleMap = mappedImportableResourcesDTO.getModuleUUIDToModuleMap();
         Map<String, Package> packageUUIDToPackageMap = mappedImportableResourcesDTO.getPackageUUIDToPackageMap();
         Map<String, ExportableModule> moduleUUIDToExportableModuleMap =
                 mappedImportableResourcesDTO.getModuleUUIDToExportableModuleMap();
 
-        sourceModuleList.stream().forEach(exportableModule -> {
+        exportableModuleList.stream().forEach(exportableModule -> {
             moduleUUIDToExportableModuleMap.put(exportableModule.getModuleUUID(), exportableModule);
         });
 
@@ -206,7 +206,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
 
         // No actual import is performed for packages here
         return crudPackageService
-                .getAllPublishedPackagesByUniqueRef(importingMetaDTO.getWorkspaceId(), sourceModuleList)
+                .getAllPublishedPackagesByUniqueRef(importingMetaDTO.getWorkspaceId(), exportableModuleList)
                 .flatMap(aPackage -> {
                     // TODO: What happens if this instance has also created a package from this unique ref,
                     //  and has reached this version, but with a separate interface/definition ?
@@ -261,7 +261,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                     ImportModuleInstanceResultDTO importModuleInstanceResultDTO = new ImportModuleInstanceResultDTO();
                     importModuleInstanceResultDTO.setExistingModuleInstances(moduleInstancesInCurrentApp.values());
 
-                    List<Mono<CreateModuleInstanceResponseDTO>> newModuleInstanceMonoList = new ArrayList<>();
+                    List<Mono<ModuleInstance>> newModuleInstanceMonoList = new ArrayList<>();
                     for (ModuleInstance moduleInstance : moduleInstanceList) {
                         // If this module instance does not have edit mode configs or a page attached, skip it
                         if (moduleInstance.getUnpublishedModuleInstance() == null
@@ -366,9 +366,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                             updatableModuleInstanceList.add(existingInstance);
 
                             updateMappedModuleInstanceRef(
-                                    mappedImportableResourcesDTO,
-                                    finalParentPage,
-                                    existingInstance.getUnpublishedModuleInstance());
+                                    mappedImportableResourcesDTO, finalParentPage, existingInstance);
 
                             importModuleInstanceResultDTO
                                     .getImportedModuleInstanceIds()
@@ -388,19 +386,17 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE, parentPage.getId()));
                             }
 
-                            Mono<CreateModuleInstanceResponseDTO> createModuleInstanceMono =
-                                    createImportedModuleInstance(moduleInstance, importingMetaDTO)
-                                            .doOnNext(responseDTO -> updateMappedModuleInstanceRef(
-                                                    mappedImportableResourcesDTO,
-                                                    finalParentPage,
-                                                    responseDTO.getModuleInstance()));
+                            Mono<ModuleInstance> createModuleInstanceMono = createImportedModuleInstance(
+                                            moduleInstance, importingMetaDTO)
+                                    .doOnNext(savedModuleInstance -> updateMappedModuleInstanceRef(
+                                            mappedImportableResourcesDTO, finalParentPage, savedModuleInstance));
 
                             newModuleInstanceMonoList.add(createModuleInstanceMono);
                         }
                     }
 
                     Mono<List<ModuleInstance>> bulkInsertMono = Flux.merge(newModuleInstanceMonoList)
-                            .map(responseDTO -> responseDTO.getModuleInstance().getId())
+                            .map(moduleInstance -> moduleInstance.getId())
                             .collectList()
                             .flatMapMany(repository::findAllById)
                             .collectList()
@@ -578,11 +574,12 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
     private void updateMappedModuleInstanceRef(
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             NewPage finalParentPage,
-            ModuleInstanceDTO savedModuleInstance) {
+            ModuleInstance savedModuleInstance) {
         // Update moduleInstanceRef to Id map for composed entities to use
         Map<String, String> instanceRefToIdMap = mappedImportableResourcesDTO.getModuleInstanceRefToIdMap();
         instanceRefToIdMap.put(
-                finalParentPage.getUnpublishedPage().getName() + "_" + savedModuleInstance.getName(),
+                finalParentPage.getUnpublishedPage().getName() + "_"
+                        + savedModuleInstance.getUnpublishedModuleInstance().getName(),
                 savedModuleInstance.getId());
     }
 
@@ -598,7 +595,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
      * @param importingMetaDTO
      * @return
      */
-    private Mono<CreateModuleInstanceResponseDTO> createImportedModuleInstance(
+    private Mono<ModuleInstance> createImportedModuleInstance(
             ModuleInstance moduleInstance, ImportingMetaDTO importingMetaDTO) {
 
         ModuleInstanceDTO moduleInstanceDTO = moduleInstance.getUnpublishedModuleInstance();
@@ -622,7 +619,8 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
         moduleInstanceDTO.setWorkspaceId(importingMetaDTO.getWorkspaceId());
 
         if (TRUE.equals(moduleInstanceDTO.getIsValid())) {
-            return crudModuleInstanceService.createModuleInstance(moduleInstanceDTO, importingMetaDTO.getBranchName());
+            return crudModuleInstanceService.createModuleInstanceAndReturn(
+                    moduleInstanceDTO, importingMetaDTO.getBranchName());
         } else {
             return crudModuleInstanceService.createOrphanModuleInstance(
                     moduleInstanceDTO, importingMetaDTO.getBranchName());
@@ -652,6 +650,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
     private void validateModuleReference(
             MappedImportableResourcesDTO mappedImportableResourcesDTO, ModuleInstance moduleInstance) {
         Map<String, Module> moduleUUIDToModuleMap = mappedImportableResourcesDTO.getModuleUUIDToModuleMap();
+        Map<String, Package> packageUUIDToPackageMap = mappedImportableResourcesDTO.getPackageUUIDToPackageMap();
         ModuleInstanceDTO moduleInstanceDTO = moduleInstance.getUnpublishedModuleInstance();
         if (moduleUUIDToModuleMap.containsKey(moduleInstance.getModuleUUID())
                 && moduleUUIDToModuleMap
