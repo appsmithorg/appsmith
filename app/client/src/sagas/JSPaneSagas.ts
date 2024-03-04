@@ -30,10 +30,7 @@ import type {
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
-import {
-  createJSCollectionRequest,
-  logActionExecutionForAudit,
-} from "actions/jsActionActions";
+import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
 import { executeJSFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
