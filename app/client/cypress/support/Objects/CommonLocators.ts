@@ -224,7 +224,7 @@ export class CommonLocators {
   _dialogCloseButton = ".ads-v2-modal__content-header-close-button";
   _evaluateMsg = ".t--evaluatedPopup-error";
   _evalValuePopover = ".t--CodeEditor-evaluatedValue";
-  _canvas = "[data-testid=widgets-editor]";
+  _canvas = "[data-testid=t--widgets-editor]";
   _enterPreviewMode = "[data-testid='edit-mode']";
   _exitPreviewMode = "[data-testid='preview-mode']";
   _ds_imageSelector = ".ads-dialog-trigger";
