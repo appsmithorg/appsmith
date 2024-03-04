@@ -92,13 +92,13 @@ export class JSEditor {
   private _closeSettings = "span[icon='small-cross']";
   _dialogBody = (jsFuncName: string) =>
     "//div[@role='dialog']//*[contains(text(), '" +
-    Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
+    Cypress.env("MESSAGES")?.QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]//*[contains(text(),'" +
     jsFuncName +
     "')]";
   _dialogInDeployView =
     "//div[@role='dialog']//*[contains(text(), '" +
-    Cypress.env("MESSAGES").QUERY_CONFIRMATION_MODAL_MESSAGE() +
+    Cypress.env("MESSAGES")?.QUERY_CONFIRMATION_MODAL_MESSAGE() +
     "')]";
   _funcDropdown = ".t--formActionButtons .function-select-dropdown";
   _funcDropdownValue = `${this._funcDropdown} p`;
