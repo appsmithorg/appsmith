@@ -6,7 +6,6 @@ import {
   getGitStatus,
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import {
   CHANGES_APP_SETTINGS,
   CHANGES_FROM_APPSMITH,
@@ -18,6 +17,7 @@ import {
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { changeInfoSinceLastCommit } from "../utils";
 import { Callout, Icon, Text } from "design-system";
+import type { GitStatusData } from "actions/gitSyncActionsTypes";
 
 const DummyChange = styled.div`
   width: 50%;

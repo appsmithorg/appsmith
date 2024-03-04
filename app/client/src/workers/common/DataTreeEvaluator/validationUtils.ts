@@ -1,6 +1,6 @@
-import type { ValidationConfig } from "constants/PropertyControlConstants";
 import type { EvaluationError } from "widgets/types";
 import { PropertyEvaluationErrorType, Severity } from "widgets/types";
+import type { ValidationConfig } from "constants/types";
 import type {
   WidgetEntity,
   WidgetEntityConfig,

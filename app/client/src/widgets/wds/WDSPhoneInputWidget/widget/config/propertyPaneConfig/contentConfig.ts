@@ -1,6 +1,6 @@
 import { ISDCodeOptions } from "constants/ISDCodes_v2";
 import type { ISDCodeProps } from "constants/ISDCodes_v2";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 
 import { countryToFlag } from "../../helpers";

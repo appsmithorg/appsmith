@@ -24,12 +24,11 @@ import {
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
 import { call, fork, put, select, spawn } from "redux-saga/effects";
-import type { EditConsolidatedApi } from "sagas/InitSagas";
 import {
   failFastApiCalls,
   reportSWStatus,
   waitForWidgetConfigBuild,
-} from "sagas/InitSagas";
+} from "entities/Engine/AppEngineUtils";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -66,6 +65,7 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
+import type { EditConsolidatedApi } from "api/ApiTypes";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {

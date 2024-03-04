@@ -1,4 +1,4 @@
-import type { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/actionAPITypes";
 
 export const EMPTY_RESPONSE: ActionResponse = {
   statusCode: "",

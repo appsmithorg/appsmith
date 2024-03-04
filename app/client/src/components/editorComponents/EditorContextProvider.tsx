@@ -40,7 +40,7 @@ import {
   updateWidgetDimensionAction,
 } from "actions/autoLayoutActions";
 import { updateOneClickBindingOptionsVisibility } from "actions/oneClickBindingActions";
-import type { EditorContextType } from "./editorContextTypes";
+import type { EditorContextType } from "./types";
 
 export const EditorContext: Context<EditorContextType> = createContext({});
 

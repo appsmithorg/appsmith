@@ -6,14 +6,13 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { GitConfig, MergeStatus } from "entities/GitSync";
 import { GitSyncModalTab } from "entities/GitSync";
-import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
+import {
+  GitSettingsTab,
+  type GetSSHKeyResponseData,
+  type GitStatusData,
+  type SSHKeyType,
+} from "actions/gitSyncActionsTypes";
 import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
-
-export enum GitSettingsTab {
-  GENERAL = "GENERAL",
-  BRANCH = "BRANCH",
-  CD = "CD",
-}
 
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
@@ -655,22 +654,6 @@ const gitSyncReducer = createReducer(initialState, {
     activeGitSettingsModalTab: action.payload.tab || GitSettingsTab.GENERAL,
   }),
 });
-
-export interface GitStatusData {
-  aheadCount: number;
-  behindCount: number;
-  conflicting: Array<string>;
-  isClean: boolean;
-  modified: Array<string>;
-  modifiedPages: number;
-  modifiedQueries: number;
-  remoteBranch: string;
-  modifiedJSObjects: number;
-  modifiedDatasources: number;
-  modifiedJSLibs: number;
-  discardDocUrl?: string;
-  migrationMessage?: string;
-}
 
 interface GitErrorPayloadType {
   code: number | string;

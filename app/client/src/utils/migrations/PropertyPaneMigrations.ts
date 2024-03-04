@@ -1,5 +1,5 @@
 import type { WidgetProps } from "widgets/types";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import { LabelPosition } from "components/constants";
 import { AlignWidgetTypes } from "WidgetProvider/constants";
 

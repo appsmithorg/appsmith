@@ -14,7 +14,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
 import { JSToString, stringToJS } from "./utils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import {
   ORIGINAL_INDEX_KEY,

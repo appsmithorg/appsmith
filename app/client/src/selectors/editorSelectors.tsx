@@ -22,9 +22,7 @@ import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
 import {
   DefaultDimensionMap,
   MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
 } from "constants/WidgetConstants";
-import { APP_MODE } from "entities/App";
 import type {
   WidgetEntity,
   WidgetEntityConfig,
@@ -51,7 +49,7 @@ import {
 } from "utils/widgetRenderUtils";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
@@ -227,12 +225,6 @@ export const selectURLSlugs = createSelector(
     return { applicationSlug, pageSlug, customSlug };
   },
 );
-
-export const getRenderMode = (state: AppState) => {
-  return state.entities.app.mode === APP_MODE.EDIT
-    ? RenderModes.CANVAS
-    : RenderModes.PAGE;
-};
 
 export const getViewModePageList = createSelector(
   getPageList,

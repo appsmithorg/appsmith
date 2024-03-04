@@ -10,7 +10,7 @@ import type { WidgetProps } from "widgets/types";
 import { Callout } from "design-system";
 import React from "react";
 import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetCallout } from "WidgetProvider/constants";
+import type { WidgetCallout } from "WidgetProvider/types";
 
 export function useSearchText(initialVal: string) {
   const [searchText, setSearchText] = useState(initialVal);

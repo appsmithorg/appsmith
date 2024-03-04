@@ -9,7 +9,7 @@ import ExternalComponent from "../component";
 
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
 

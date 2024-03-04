@@ -1,5 +1,5 @@
 import { RenderModes } from "constants/WidgetConstants";
-import * as editorSelectors from "selectors/editorSelectors";
+import * as modeSelectors from "selectors/modeSelectors";
 import { buildChildren } from "test/factories/WidgetFactoryUtils";
 import { renderAppsmithCanvas } from "./CanvasFactory";
 import { render } from "test/testUtils";
@@ -23,7 +23,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
     if (children) {
       const canvasProps = children[0];
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -46,7 +46,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
         editorCanvas.container.getElementsByClassName("t--drop-target")[0];
       expect(editorDropTarget).toBeTruthy();
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       const viewerCanvas = render(<>{renderAppsmithCanvas(canvasProps)}</>, {
         initialState: customState,
@@ -69,7 +69,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
     if (children) {
       const canvasProps = children[0];
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -92,7 +92,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
         editorCanvas.container.getElementsByClassName("t--drop-target")[0];
       expect(editorDropTarget).toBeTruthy();
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       const viewerCanvas = render(<>{renderAppsmithCanvas(canvasProps)}</>, {
         initialState: customState,

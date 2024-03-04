@@ -29,7 +29,7 @@ import type {
   ConfigTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { Severity } from "widgets/types";
@@ -89,10 +89,7 @@ import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluatio
 import { error as logError } from "loglevel";
 import type { JSUpdate } from "utils/JSPaneUtils";
 
-import type {
-  ActionValidationConfigMap,
-  ValidationConfig,
-} from "constants/PropertyControlConstants";
+import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { klona as klonaJSON } from "klona/json";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
@@ -128,6 +125,7 @@ import {
   type EvaluationError,
   PropertyEvaluationErrorType,
 } from "widgets/types";
+import type { ValidationConfig } from "constants/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {

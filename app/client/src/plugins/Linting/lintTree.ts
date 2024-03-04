@@ -1,7 +1,7 @@
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { get, isEmpty, set } from "lodash";
-import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { LintError } from "widgets/types";
+import type { LintErrorsStore } from "widgets/types";
 import { globalData } from "./globalData";
 import lintBindingPath from "./utils/lintBindingPath";
 import lintTriggerPath from "./utils/lintTriggerPath";

@@ -2,7 +2,7 @@ import {
   ButtonBorderRadiusTypes,
   ButtonVariantTypes,
 } from "components/constants";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 import {
   RenderModes,
   TextSizes,

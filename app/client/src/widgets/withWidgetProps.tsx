@@ -20,13 +20,13 @@ import {
   computeMainContainerWidget,
   getChildWidgets,
   getMainCanvasProps,
-  getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaWidget,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
   combinedPreviewModeSelector,
 } from "selectors/editorSelectors";
+import { getRenderMode } from "selectors/modeSelectors";
 import {
   createCanvasWidget,
   createLoadingWidget,

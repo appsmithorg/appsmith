@@ -7,7 +7,8 @@ import {
 import log from "loglevel";
 import history from "utils/history";
 import type { ApiResponse } from "api/ApiResponses";
-import { flushErrors, safeCrashApp } from "actions/errorActions";
+import type { ErrorPayloadType } from "actions/errorActionUtils";
+import { flushErrors, safeCrashApp } from "actions/errorActionUtils";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import type { User } from "constants/userConstants";
 import {
@@ -31,7 +32,7 @@ import store from "store";
 import * as Sentry from "@sentry/react";
 import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
 import { getLoginUrl } from "@appsmith/utils/adminSettingsHelpers";
-import type { PluginErrorDetails } from "api/ActionAPI";
+import type { PluginErrorDetails } from "api/actionAPITypes";
 import showToast from "sagas/ToastSagas";
 
 /**
@@ -154,11 +155,6 @@ export function extractClientDefinedErrorMetadata(
   }
 }
 
-export interface ErrorPayloadType {
-  code?: number | string;
-  message?: string;
-  crash?: boolean;
-}
 const ActionErrorDisplayMap: {
   [key: string]: (error: ErrorPayloadType) => string;
 } = {

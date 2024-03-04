@@ -3,11 +3,9 @@ import { ChildrenMapContext } from "layoutSystems/anvil/context/childrenMapConte
 import type { WidgetProps } from "widgets/types";
 import { RenderModes } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
-import {
-  combinedPreviewModeSelector,
-  getRenderMode,
-} from "selectors/editorSelectors";
-import type { SizeConfig } from "WidgetProvider/constants";
+import { getRenderMode } from "selectors/modeSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import type { SizeConfig } from "WidgetProvider/types";
 import { getWidgetSizeConfiguration } from "layoutSystems/anvil/utils/widgetUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";

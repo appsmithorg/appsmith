@@ -27,7 +27,7 @@ import {
   getBooleanPropertyValue,
   getPropertyValue,
 } from "widgets/wds/WDSTableWidget/widget/utilities";
-import type { ThemeProp } from "WidgetProvider/constants";
+import type { ThemeProp } from "constants/DefaultTheme";
 import type {
   ConfigureMenuItems,
   MenuItem,

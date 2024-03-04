@@ -33,7 +33,6 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type {
   ActionExecutionResponse,
-  ActionResponse,
   ExecuteActionRequest,
   PaginationField,
 } from "api/ActionAPI";
@@ -184,6 +183,7 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
+import type { ActionResponse } from "api/actionAPITypes";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",

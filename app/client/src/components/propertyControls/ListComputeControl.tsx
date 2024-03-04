@@ -15,7 +15,7 @@ import {
 import { getDynamicBindings, isDynamicValue } from "utils/DynamicBindingUtils";
 import CodeEditor from "components/editorComponents/LazyCodeEditor";
 import type { ListWidgetProps } from "widgets/ListWidgetV2/widget";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import { getBindingTemplate } from "widgets/ListWidgetV2/constants";
 
 const PromptMessage = styled.span`

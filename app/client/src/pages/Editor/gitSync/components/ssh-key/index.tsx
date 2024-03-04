@@ -18,7 +18,6 @@ import { CopySSHKey } from "./CopySSHKey";
 import { supportedKeyTypeList } from "./SupportedKeyTypeList";
 import getNotificationBanner from "./getNotificationBanner";
 import { getConfirmMenuItem } from "./getConfirmMenuItem";
-import type { SSHKeyType } from "actions/gitSyncActions";
 import {
   Button,
   toast,
@@ -30,6 +29,7 @@ import {
   Icon,
   MenuGroupName,
 } from "design-system";
+import type { SSHKeyType } from "actions/gitSyncActionsTypes";
 
 interface KeysProps {
   copyToClipboard: () => void;

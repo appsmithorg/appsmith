@@ -1,5 +1,5 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 
 export const propertyPaneContentConfig: PropertyPaneConfig[] = [
   {

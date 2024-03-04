@@ -1,6 +1,6 @@
-import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { LintErrorsStore } from "widgets/types";
 
 export type SetLintErrorsAction = ReduxAction<{ errors: LintErrorsStore }>;
 export const setLintingErrors = (

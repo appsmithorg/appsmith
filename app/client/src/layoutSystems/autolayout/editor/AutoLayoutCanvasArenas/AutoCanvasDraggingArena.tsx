@@ -3,23 +3,8 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
-import type { LayoutDirection } from "layoutSystems/common/utils/constants";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
-
-export interface AutoCanvasDraggingArenaProps {
-  alignItems?: string;
-  canExtend: boolean;
-  detachFromLayout?: boolean;
-  direction?: LayoutDirection;
-  dropDisabled?: boolean;
-  noPad?: boolean;
-  snapColumnSpace: number;
-  snapRows: number;
-  snapRowSpace: number;
-  parentId?: string;
-  widgetId: string;
-  widgetName?: string;
-}
+import type { AutoCanvasDraggingArenaProps } from "./types";
 
 /**
  * AutoCanvasDraggingArena is a wrapper for html Canvas on top of the canvas which renders widgets that provides the canvas and logic for drag n drop

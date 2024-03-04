@@ -4,7 +4,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import _, { find, isString, reduce, remove } from "lodash";
+import _, { find, isString, reduce, remove, set } from "lodash";
 import type { WidgetType } from "constants/WidgetConstants";
 import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
 import {
@@ -31,6 +31,11 @@ import type { DynamicPath } from "widgets/types";
 import {
   getDynamicBindings,
   combineDynamicBindings,
+  getEntityDynamicBindingPathList,
+  getWidgetDynamicTriggerPathList,
+  isPathDynamicTrigger,
+  isDynamicValue,
+  isPathADynamicBinding,
 } from "utils/DynamicBindingUtils";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "WidgetProvider/factory";
@@ -57,18 +62,22 @@ import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import { reflow } from "reflow";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
-import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import {
+  getAllPaths,
+  isWidget,
+} from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { Positioning } from "layoutSystems/common/utils/constants";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
-import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
-import {
-  getWidgetLayoutMetaInfo,
-  type WidgetLayoutPositionInfo,
-} from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+import type {
+  CopiedWidgetData,
+  WidgetLayoutPositionInfo,
+} from "layoutSystems/anvil/utils/paste/types";
+import { getWidgetLayoutMetaInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1818,3 +1827,182 @@ const updateListWidgetBindings = (
 
   return widgets;
 };
+
+interface DynamicPathUpdate {
+  propertyPath: string;
+  effect: DynamicPathUpdateEffectEnum;
+}
+enum DynamicPathUpdateEffectEnum {
+  ADD = "ADD",
+  REMOVE = "REMOVE",
+  NOOP = "NOOP",
+}
+const DYNAMIC_BINDING_IGNORED_LIST = [
+  /* Table widget */
+  "primaryColumns",
+  "derivedColumns",
+
+  /* custom widget */
+  "srcDoc.html",
+  "srcDoc.css",
+  "srcDoc.js",
+  "uncompiledSrcDoc.html",
+  "uncompiledSrcDoc.css",
+  "uncompiledSrcDoc.js",
+];
+
+function getDynamicTriggerPathListUpdate(
+  widget: WidgetProps,
+  propertyPath: string,
+  propertyValue: string,
+): DynamicPathUpdate {
+  if (propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.ADD,
+    };
+  } else if (!propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.REMOVE,
+    };
+  }
+  return {
+    propertyPath,
+    effect: DynamicPathUpdateEffectEnum.NOOP,
+  };
+}
+
+function getDynamicBindingPathListUpdate(
+  widget: WidgetProps,
+  propertyPath: string,
+  propertyValue: any,
+): DynamicPathUpdate {
+  let stringProp = propertyValue;
+  if (_.isObject(propertyValue)) {
+    // Stringify this because composite controls may have bindings in the sub controls
+    stringProp = JSON.stringify(propertyValue);
+  }
+
+  /*
+   * TODO(Balaji Soundararajan): This is not appropriate from the platform's archtecture's point of view.
+   * This setting should come from widget configuration
+   */
+  // Figure out a holistic solutions where we donot have to stringify above.
+  if (DYNAMIC_BINDING_IGNORED_LIST.includes(propertyPath)) {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.NOOP,
+    };
+  }
+
+  const isDynamic = isDynamicValue(stringProp);
+  if (!isDynamic && isPathADynamicBinding(widget, propertyPath)) {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.REMOVE,
+    };
+  } else if (isDynamic && !isPathADynamicBinding(widget, propertyPath)) {
+    return {
+      propertyPath,
+      effect: DynamicPathUpdateEffectEnum.ADD,
+    };
+  }
+  return {
+    propertyPath,
+    effect: DynamicPathUpdateEffectEnum.NOOP,
+  };
+}
+
+function applyDynamicPathUpdates(
+  currentList: DynamicPath[],
+  update: DynamicPathUpdate,
+): DynamicPath[] {
+  if (update.effect === DynamicPathUpdateEffectEnum.ADD) {
+    currentList.push({
+      key: update.propertyPath,
+    });
+  } else if (update.effect === DynamicPathUpdateEffectEnum.REMOVE) {
+    currentList = _.reject(currentList, { key: update.propertyPath });
+  }
+  return currentList;
+}
+
+export function getPropertiesToUpdate(
+  widget: WidgetProps,
+  updates: Record<string, unknown>,
+  triggerPaths?: string[],
+): {
+  propertyUpdates: Record<string, unknown>;
+  dynamicTriggerPathList: DynamicPath[];
+  dynamicBindingPathList: DynamicPath[];
+} {
+  // Create a
+  const widgetWithUpdates = _.cloneDeep(widget);
+  Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
+    set(widgetWithUpdates, propertyPath, propertyValue);
+  });
+
+  // get the flat list of all updates (in case values are objects)
+  const updatePaths = getAllPaths(updates);
+
+  const propertyUpdates: Record<string, unknown> = {
+    ...updates,
+  };
+  const currentDynamicTriggerPathList: DynamicPath[] =
+    getWidgetDynamicTriggerPathList(widget);
+  const currentDynamicBindingPathList: DynamicPath[] =
+    getEntityDynamicBindingPathList(widget);
+  const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
+  const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
+
+  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(
+    widget.type,
+    widget,
+  );
+  const { triggerPaths: triggerPathsFromPropertyConfig = {} } =
+    getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
+
+  Object.keys(updatePaths).forEach((propertyPath) => {
+    const propertyValue = getValueFromTree(updates, propertyPath);
+    // only check if
+    if (!_.isString(propertyValue)) {
+      return;
+    }
+
+    let isTriggerProperty = propertyPath in triggerPathsFromPropertyConfig;
+
+    isTriggerProperty = doesTriggerPathsContainPropertyPath(
+      isTriggerProperty,
+      propertyPath,
+      triggerPaths,
+    );
+
+    // If it is a trigger property, it will go in a different list than the general
+    // dynamicBindingPathList.
+    if (isTriggerProperty) {
+      dynamicTriggerPathListUpdates.push(
+        getDynamicTriggerPathListUpdate(widget, propertyPath, propertyValue),
+      );
+    } else {
+      dynamicBindingPathListUpdates.push(
+        getDynamicBindingPathListUpdate(widget, propertyPath, propertyValue),
+      );
+    }
+  });
+
+  const dynamicTriggerPathList = dynamicTriggerPathListUpdates.reduce(
+    applyDynamicPathUpdates,
+    currentDynamicTriggerPathList,
+  );
+  const dynamicBindingPathList = dynamicBindingPathListUpdates.reduce(
+    applyDynamicPathUpdates,
+    currentDynamicBindingPathList,
+  );
+
+  return {
+    propertyUpdates,
+    dynamicTriggerPathList,
+    dynamicBindingPathList,
+  };
+}

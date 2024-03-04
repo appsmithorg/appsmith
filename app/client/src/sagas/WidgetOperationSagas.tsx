@@ -48,24 +48,20 @@ import type {
   BatchUpdateWidgetDynamicPropertyPayload,
   DeleteWidgetPropertyPayload,
   SetWidgetDynamicPropertyPayload,
-  UpdateWidgetPropertyPayload,
   UpdateWidgetPropertyRequestPayload,
 } from "actions/controlActions";
 import {
   batchUpdateWidgetProperty,
   updateMultipleWidgetPropertiesAction,
 } from "actions/controlActions";
-import type { DynamicPath } from "widgets/types";
+import type { UpdateWidgetPropertyPayload } from "constants/PropertyControlConstants";
 import {
   getEntityDynamicBindingPathList,
   getWidgetDynamicPropertyPathList,
   getWidgetDynamicTriggerPathList,
   isChildPropertyPath,
-  isDynamicValue,
-  isPathADynamicBinding,
-  isPathDynamicTrigger,
 } from "utils/DynamicBindingUtils";
-import type { WidgetProps } from "widgets/types";
+import type { WidgetProps, DynamicPath } from "widgets/types";
 import _, { cloneDeep, get, isString, set, uniq } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
 import { generateReactKey } from "utils/generators";
@@ -81,14 +77,10 @@ import {
   WIDGET_CUT,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getAllPaths } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree, getConfigTree } from "selectors/dataTreeSelectors";
 import { validateProperty } from "./EvaluationsSaga";
 import type { ColumnProperties } from "widgets/TableWidget/component/Constants";
-import {
-  getAllPathsFromPropertyConfig,
-  nextAvailableRowInContainer,
-} from "entities/Widget/utils";
+import { nextAvailableRowInContainer } from "entities/Widget/utils";
 import { getSelectedWidgets } from "selectors/ui";
 import { getReflow } from "selectors/widgetReflowSelectors";
 import {
@@ -103,12 +95,14 @@ import type {
   CopiedWidgetGroup,
   NewPastePositionVariables,
 } from "./WidgetOperationUtils";
-import { WIDGET_PASTE_PADDING } from "./WidgetOperationUtils";
+import {
+  WIDGET_PASTE_PADDING,
+  getPropertiesToUpdate,
+} from "./WidgetOperationUtils";
 import {
   changeIdsOfPastePositions,
   createSelectedWidgetsAsCopiedWidgets,
   createWidgetCopy,
-  doesTriggerPathsContainPropertyPath,
   filterOutSelectedWidgets,
   getBoundariesFromSelectedWidgets,
   getBoundaryWidgetsFromCopiedGroups,
@@ -125,7 +119,6 @@ import {
   getReflowedPositions,
   getSelectedWidgetWhenPasting,
   getSnappedGrid,
-  getValueFromTree,
   getVerifiedSelectedWidgets,
   getVerticallyAdjustedPositions,
   getWidgetDescendantToReset,
@@ -356,108 +349,6 @@ export function* reflowWidgets(
   return widgets;
 }
 
-enum DynamicPathUpdateEffectEnum {
-  ADD = "ADD",
-  REMOVE = "REMOVE",
-  NOOP = "NOOP",
-}
-
-interface DynamicPathUpdate {
-  propertyPath: string;
-  effect: DynamicPathUpdateEffectEnum;
-}
-
-function getDynamicTriggerPathListUpdate(
-  widget: WidgetProps,
-  propertyPath: string,
-  propertyValue: string,
-): DynamicPathUpdate {
-  if (propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
-    return {
-      propertyPath,
-      effect: DynamicPathUpdateEffectEnum.ADD,
-    };
-  } else if (!propertyValue && !isPathDynamicTrigger(widget, propertyPath)) {
-    return {
-      propertyPath,
-      effect: DynamicPathUpdateEffectEnum.REMOVE,
-    };
-  }
-  return {
-    propertyPath,
-    effect: DynamicPathUpdateEffectEnum.NOOP,
-  };
-}
-
-const DYNAMIC_BINDING_IGNORED_LIST = [
-  /* Table widget */
-  "primaryColumns",
-  "derivedColumns",
-
-  /* custom widget */
-  "srcDoc.html",
-  "srcDoc.css",
-  "srcDoc.js",
-  "uncompiledSrcDoc.html",
-  "uncompiledSrcDoc.css",
-  "uncompiledSrcDoc.js",
-];
-
-function getDynamicBindingPathListUpdate(
-  widget: WidgetProps,
-  propertyPath: string,
-  propertyValue: any,
-): DynamicPathUpdate {
-  let stringProp = propertyValue;
-  if (_.isObject(propertyValue)) {
-    // Stringify this because composite controls may have bindings in the sub controls
-    stringProp = JSON.stringify(propertyValue);
-  }
-
-  /*
-   * TODO(Balaji Soundararajan): This is not appropriate from the platform's archtecture's point of view.
-   * This setting should come from widget configuration
-   */
-  // Figure out a holistic solutions where we donot have to stringify above.
-  if (DYNAMIC_BINDING_IGNORED_LIST.includes(propertyPath)) {
-    return {
-      propertyPath,
-      effect: DynamicPathUpdateEffectEnum.NOOP,
-    };
-  }
-
-  const isDynamic = isDynamicValue(stringProp);
-  if (!isDynamic && isPathADynamicBinding(widget, propertyPath)) {
-    return {
-      propertyPath,
-      effect: DynamicPathUpdateEffectEnum.REMOVE,
-    };
-  } else if (isDynamic && !isPathADynamicBinding(widget, propertyPath)) {
-    return {
-      propertyPath,
-      effect: DynamicPathUpdateEffectEnum.ADD,
-    };
-  }
-  return {
-    propertyPath,
-    effect: DynamicPathUpdateEffectEnum.NOOP,
-  };
-}
-
-function applyDynamicPathUpdates(
-  currentList: DynamicPath[],
-  update: DynamicPathUpdate,
-): DynamicPath[] {
-  if (update.effect === DynamicPathUpdateEffectEnum.ADD) {
-    currentList.push({
-      key: update.propertyPath,
-    });
-  } else if (update.effect === DynamicPathUpdateEffectEnum.REMOVE) {
-    currentList = _.reject(currentList, { key: update.propertyPath });
-  }
-  return currentList;
-}
-
 function* updateWidgetPropertySaga(
   updateAction: ReduxAction<UpdateWidgetPropertyRequestPayload>,
 ) {
@@ -616,85 +507,6 @@ export function* setWidgetDynamicPropertySaga(
 
   // Save the layout
   yield put(updateAndSaveLayout(widgets));
-}
-
-export function getPropertiesToUpdate(
-  widget: WidgetProps,
-  updates: Record<string, unknown>,
-  triggerPaths?: string[],
-): {
-  propertyUpdates: Record<string, unknown>;
-  dynamicTriggerPathList: DynamicPath[];
-  dynamicBindingPathList: DynamicPath[];
-} {
-  // Create a
-  const widgetWithUpdates = _.cloneDeep(widget);
-  Object.entries(updates).forEach(([propertyPath, propertyValue]) => {
-    set(widgetWithUpdates, propertyPath, propertyValue);
-  });
-
-  // get the flat list of all updates (in case values are objects)
-  const updatePaths = getAllPaths(updates);
-
-  const propertyUpdates: Record<string, unknown> = {
-    ...updates,
-  };
-  const currentDynamicTriggerPathList: DynamicPath[] =
-    getWidgetDynamicTriggerPathList(widget);
-  const currentDynamicBindingPathList: DynamicPath[] =
-    getEntityDynamicBindingPathList(widget);
-  const dynamicTriggerPathListUpdates: DynamicPathUpdate[] = [];
-  const dynamicBindingPathListUpdates: DynamicPathUpdate[] = [];
-
-  const widgetConfig = WidgetFactory.getWidgetPropertyPaneConfig(
-    widget.type,
-    widget,
-  );
-  const { triggerPaths: triggerPathsFromPropertyConfig = {} } =
-    getAllPathsFromPropertyConfig(widgetWithUpdates, widgetConfig, {});
-
-  Object.keys(updatePaths).forEach((propertyPath) => {
-    const propertyValue = getValueFromTree(updates, propertyPath);
-    // only check if
-    if (!_.isString(propertyValue)) {
-      return;
-    }
-
-    let isTriggerProperty = propertyPath in triggerPathsFromPropertyConfig;
-
-    isTriggerProperty = doesTriggerPathsContainPropertyPath(
-      isTriggerProperty,
-      propertyPath,
-      triggerPaths,
-    );
-
-    // If it is a trigger property, it will go in a different list than the general
-    // dynamicBindingPathList.
-    if (isTriggerProperty) {
-      dynamicTriggerPathListUpdates.push(
-        getDynamicTriggerPathListUpdate(widget, propertyPath, propertyValue),
-      );
-    } else {
-      dynamicBindingPathListUpdates.push(
-        getDynamicBindingPathListUpdate(widget, propertyPath, propertyValue),
-      );
-    }
-  });
-
-  const dynamicTriggerPathList = dynamicTriggerPathListUpdates.reduce(
-    applyDynamicPathUpdates,
-    currentDynamicTriggerPathList,
-  );
-  const dynamicBindingPathList = dynamicBindingPathListUpdates.reduce(
-    applyDynamicPathUpdates,
-    currentDynamicBindingPathList,
-  );
-
-  return {
-    propertyUpdates,
-    dynamicTriggerPathList,
-    dynamicBindingPathList,
-  };
 }
 
 export function* getIsContainerLikeWidget(widget: FlattenedWidgetProps) {
@@ -1701,7 +1513,7 @@ function* pasteWidgetSaga(
               try {
                 const tabs = Object.values(widget.tabsObj);
                 if (Array.isArray(tabs)) {
-                  widget.tabsObj = tabs.reduce((obj: any, tab) => {
+                  widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
                     tab.widgetId = widgetIdMap[tab.widgetId];
                     obj[tab.id] = tab;
                     return obj;

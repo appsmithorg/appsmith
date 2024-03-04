@@ -12,13 +12,13 @@ import type {
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import InputComponent from "../component";
 import { INPUT_TYPES } from "../constants";
 import type { InputWidgetProps } from "./types";
 import { mergeWidgetConfig } from "utils/helpers";
 import { parseText, validateInput } from "./helper";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/widgetFeaturesTypes";
 import type { WidgetState } from "widgets/types";
 import type { SetterConfig } from "entities/AppTheming";
 import { WIDGET_TAGS } from "constants/WidgetConstants";

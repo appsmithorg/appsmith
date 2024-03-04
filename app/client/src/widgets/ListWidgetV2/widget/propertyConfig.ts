@@ -2,9 +2,9 @@ import { get, isPlainObject } from "lodash";
 import log from "loglevel";
 
 import { EVALUATION_PATH, EVAL_VALUE_PATH } from "utils/DynamicBindingUtils";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { WidgetProps } from "widgets/types";
 import type { ListWidgetProps } from ".";
 import { getBindingTemplate } from "../constants";

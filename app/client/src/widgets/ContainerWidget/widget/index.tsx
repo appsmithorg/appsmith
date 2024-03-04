@@ -5,7 +5,7 @@ import type { ContainerStyle } from "../component";
 import ContainerComponent from "../component";
 import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { compact, get, map, sortBy } from "lodash";
 import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGrouping/WidgetsMultiSelectBox";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -16,15 +16,15 @@ import {
   DefaultAutocompleteDefinitions,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
-import {
-  BlueprintOperationTypes,
-  type AnvilConfig,
-  type AutocompletionDefinitions,
-  type AutoLayoutConfig,
-  type WidgetBaseConfiguration,
-  type WidgetDefaultProps,
-  type FlattenedWidgetProps,
-} from "WidgetProvider/constants";
+import type {
+  AnvilConfig,
+  AutocompletionDefinitions,
+  AutoLayoutConfig,
+  WidgetBaseConfiguration,
+  WidgetDefaultProps,
+  FlattenedWidgetProps,
+} from "WidgetProvider/types";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import IconSVG from "../icon.svg";
 import { ButtonBoxShadowTypes } from "components/constants";

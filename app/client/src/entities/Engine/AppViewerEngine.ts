@@ -12,12 +12,11 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { APP_MODE } from "entities/App";
 import { call, put, spawn } from "redux-saga/effects";
-import type { DeployConsolidatedApi } from "sagas/InitSagas";
 import {
   failFastApiCalls,
   reportSWStatus,
   waitForWidgetConfigBuild,
-} from "sagas/InitSagas";
+} from "entities/Engine/AppEngineUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -34,6 +33,7 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
+import type { DeployConsolidatedApi } from "api/ApiTypes";
 
 export default class AppViewerEngine extends AppEngine {
   constructor(mode: APP_MODE) {

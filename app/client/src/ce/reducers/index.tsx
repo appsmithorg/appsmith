@@ -49,15 +49,13 @@ import type { JSObjectNameReduxState } from "reducers/uiReducers/jsObjectNameRed
 import type { GitSyncReducerState } from "reducers/uiReducers/gitSyncReducer";
 import type { AppCollabReducerState } from "reducers/uiReducers/appCollabReducer";
 import type { CrudInfoModalReduxState } from "reducers/uiReducers/crudInfoModalReducer";
-import type { FormEvaluationState } from "components/formControls/formControlTypes";
-
 import type { widgetReflow } from "reducers/uiReducers/reflowReducer";
 import type { AppThemingState } from "reducers/uiReducers/appThemingReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import type { SettingsReduxState } from "@appsmith/reducers/settingsReducer";
 import SettingsReducer from "@appsmith/reducers/settingsReducer";
 import type { TriggerValuesEvaluationState } from "reducers/evaluationReducers/triggerReducer";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import type { AppSettingsPaneReduxState } from "reducers/uiReducers/appSettingsPaneReducer";
 import type { TenantReduxState } from "@appsmith/reducers/tenantReducer";
 import tenantReducer from "@appsmith/reducers/tenantReducer";
@@ -66,7 +64,6 @@ import type { EditorContextState } from "@appsmith/reducers/uiReducers/editorCon
 import type { LibraryState } from "reducers/uiReducers/libraryReducer";
 import type { AutoHeightLayoutTreeReduxState } from "reducers/entityReducers/autoHeightReducers/autoHeightLayoutTreeReducer";
 import type { CanvasLevelsReduxState } from "reducers/entityReducers/autoHeightReducers/canvasLevelsReducer";
-import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import lintErrorReducer from "reducers/lintingReducers";
 import type { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
@@ -81,6 +78,8 @@ import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integ
 import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
+import type { LintErrorsStore } from "widgets/types";
+import type { FormEvaluationState } from "components/formControls/formControlTypes";
 
 export const reducerObject = {
   entities: entityReducer,

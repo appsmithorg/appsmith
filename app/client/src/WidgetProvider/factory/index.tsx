@@ -13,7 +13,7 @@ import type {
   FlattenedWidgetProps,
   WidgetConfigProps,
   WidgetMethods,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import {
   addPropertyConfigIds,
   addSearchConfigToPanelConfig,
@@ -30,7 +30,7 @@ import {
   WidgetFeaturePropertyEnhancements,
   WidgetFeatureProps,
 } from "../../utils/WidgetFeatures";
-import type { RegisteredWidgetFeatures } from "../../utils/WidgetFeatures";
+import type { RegisteredWidgetFeatures } from "../../widgets/types";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
 import produce from "immer";

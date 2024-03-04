@@ -1,14 +1,14 @@
-import type { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
-import type { WidgetSelectionRequest } from "actions/widgetSelectionActions";
-import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
+import type { WidgetOperation } from "widgets/types";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import type {
-  DeleteMetaWidgetsPayload,
   ModifyMetaWidgetPayload,
+  DeleteMetaWidgetsPayload,
   UpdateMetaWidgetPropertyPayload,
 } from "reducers/entityReducers/metaWidgetsReducer";
-import type { WidgetOperation } from "widgets/types";
+import type { WidgetSelectionRequest } from "actions/widgetSelectionActions";
+import type { UpdateWidgetMetaPropertyPayload } from "actions/metaActions";
+import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
 
 export interface EditorContextType<TCache = unknown> {
   executeAction?: (triggerPayload: ExecuteTriggerPayload) => void;

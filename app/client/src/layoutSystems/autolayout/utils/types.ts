@@ -1,4 +1,4 @@
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import type { WidgetType } from "WidgetProvider/factory";
 import type { RenderMode } from "constants/WidgetConstants";
 import type {

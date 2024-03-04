@@ -2,7 +2,7 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
 import type { UpdateWidgetsPayload } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { DynamicPath } from "widgets/types";
+import type { UpdateWidgetPropertyPayload } from "constants/PropertyControlConstants";
 
 export const updateWidgetPropertyRequest = (
   widgetId: string,
@@ -105,17 +105,6 @@ export interface UpdateWidgetPropertyRequestPayload {
   widgetId: string;
   propertyPath: string;
   propertyValue: any;
-}
-
-export interface UpdateWidgetPropertyPayload {
-  widgetId: string;
-  updates: BatchPropertyUpdatePayload;
-  dynamicUpdates?: {
-    dynamicBindingPathList?: DynamicPath[];
-    dynamicTriggerPathList?: DynamicPath[];
-    dynamicPropertyPathList?: DynamicPath[];
-  };
-  shouldReplay?: boolean;
 }
 
 export interface UpdateCanvasLayoutPayload {

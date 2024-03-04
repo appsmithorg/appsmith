@@ -8,7 +8,7 @@ import {
   LintTooltipDirection,
   VALID_JS_OBJECT_BINDING_POSITION,
 } from "./constants";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import {
   CUSTOM_LINT_ERRORS,
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,

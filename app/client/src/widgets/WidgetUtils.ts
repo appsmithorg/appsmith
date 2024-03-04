@@ -13,7 +13,7 @@ import {
 } from "components/constants";
 import { BoxShadowTypes } from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Theme } from "constants/DefaultTheme";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 import {
   CANVAS_SELECTOR,
   CONTAINER_GRID_PADDING,
@@ -28,7 +28,7 @@ import { createGlobalStyle, css } from "styled-components";
 import tinycolor from "tinycolor2";
 import type { DynamicPath } from "widgets/types";
 import { getLocale } from "utils/helpers";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/widgetFeaturesTypes";
 import type { WidgetPositionProps, WidgetProps } from "./types";
 import {
   COMPACT_MODE_MIN_ROWS,

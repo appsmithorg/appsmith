@@ -3,9 +3,9 @@ import type { Uppy } from "@uppy/core";
 import type { UppyFile } from "@uppy/utils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { FILE_SIZE_LIMIT_FOR_BLOBS } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { klona } from "klona";
 import _, { findIndex } from "lodash";
 import log from "loglevel";
@@ -23,7 +23,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import parseFileData from "./FileParser";
 import { FilePickerGlobalStyles } from "./index.styled";
 import { BUTTON_MIN_WIDTH } from "constants/minWidthConstants";

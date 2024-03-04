@@ -1,13 +1,11 @@
-import type {
-  PropertyPaneConfig,
-  ValidationConfig,
-} from "constants/PropertyControlConstants";
+import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 
 import { get, isObject, isUndefined, omitBy } from "lodash";
 import memoize from "micro-memoize";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetProps } from "widgets/types";
+import type { ValidationConfig } from "constants/types";
 
 /**
  * @typedef {Object} Paths

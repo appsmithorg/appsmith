@@ -8,7 +8,7 @@ import * as config from "./../config";
 import BaseWidget from "widgets/BaseWidget";
 import type { CheckboxWidgetProps } from "./types";
 import type { WidgetState } from "widgets/types";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 
 class WDSCheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static type = "WDS_CHECKBOX_WIDGET";

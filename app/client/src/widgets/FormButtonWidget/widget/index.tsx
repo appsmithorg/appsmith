@@ -4,7 +4,7 @@ import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionCo
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ButtonType } from "widgets/ButtonWidget/component";
 import ButtonComponent from "widgets/ButtonWidget/component";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import ButtonWidget from "widgets/ButtonWidget";
 import type {
   ButtonBorderRadius,
@@ -25,7 +25,7 @@ import type {
   AutocompletionDefinitions,
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 
 class FormButtonWidget extends ButtonWidget {

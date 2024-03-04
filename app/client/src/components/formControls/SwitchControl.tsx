@@ -2,7 +2,7 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { Switch } from "design-system";
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import type { WrappedFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import styled from "styled-components";

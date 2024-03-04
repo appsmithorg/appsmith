@@ -2,7 +2,7 @@ import React from "react";
 import { useMemo } from "react";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
-import type { SizeConfig } from "WidgetProvider/constants";
+import type { SizeConfig } from "WidgetProvider/types";
 import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";

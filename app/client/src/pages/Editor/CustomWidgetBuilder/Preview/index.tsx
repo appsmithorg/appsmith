@@ -8,7 +8,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import type { AppThemeProperties } from "entities/AppTheming";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/widgetFeaturesTypes";
 
 export default function Preview({ width }: { width: number }) {
   const {

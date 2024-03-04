@@ -11,7 +11,7 @@ import { clone, get, has, set } from "lodash";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import type { WidgetProps } from "widgets/types";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import {
   BUTTON_GROUP_CHILD_STYLESHEET,
   JSON_FORM_WIDGET_CHILD_STYLESHEET,

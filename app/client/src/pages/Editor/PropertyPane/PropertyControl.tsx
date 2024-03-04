@@ -9,7 +9,7 @@ import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
+import type { UpdateWidgetPropertyPayload } from "constants/PropertyControlConstants";
 import {
   batchUpdateMultipleWidgetProperties,
   batchUpdateWidgetProperty,
@@ -53,12 +53,12 @@ import {
   setSelectedPropertyPanel,
 } from "actions/propertyPaneActions";
 import WidgetFactory from "WidgetProvider/factory";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import clsx from "clsx";
 import styled from "styled-components";
 import { importSvg } from "design-system-old";
 import classNames from "classnames";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";

@@ -1,4 +1,3 @@
-import type { HttpMethod } from "api/Api";
 import API from "api/Api";
 import type { ApiResponse } from "./ApiResponses";
 import { DEFAULT_EXECUTE_ACTION_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
@@ -6,11 +5,11 @@ import type { AxiosPromise, CancelTokenSource } from "axios";
 import axios from "axios";
 import type { Action, ActionViewMode } from "entities/Action";
 import type { APIRequest } from "constants/AppsmithActionConstants/ActionConstants";
-import type { WidgetType } from "constants/WidgetConstants";
 import { omit } from "lodash";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
 import { wrapFnWithParentTraceContext } from "UITelemetry/generateTraces";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionApiResponseReq } from "./actionAPITypes";
 
 export interface CreateActionRequest<T> extends APIRequest {
   datasourceId: string;
@@ -70,14 +69,6 @@ export type ExecuteActionResponse = ApiResponse & {
   actionId: string;
 };
 
-export interface ActionApiResponseReq {
-  headers: Record<string, string[]>;
-  body: Record<string, unknown> | null;
-  httpMethod: HttpMethod | "";
-  url: string;
-  requestedAt?: number;
-}
-
 export type ActionExecutionResponse = ApiResponse<{
   body: Record<string, unknown> | string;
   headers: Record<string, string[]>;
@@ -92,44 +83,6 @@ export type ActionExecutionResponse = ApiResponse<{
     size: string;
   };
 };
-
-export interface SuggestedWidget {
-  type: WidgetType;
-  bindingQuery: string;
-}
-
-export interface ActionResponse {
-  body: React.ReactNode;
-  headers: Record<string, string[]>;
-  request?: ActionApiResponseReq;
-  statusCode: string;
-  dataTypes: Record<string, string>[];
-  duration: string;
-  size: string;
-  isExecutionSuccess?: boolean;
-  suggestedWidgets?: SuggestedWidget[];
-  messages?: Array<string>;
-  errorType?: string;
-  readableError?: string;
-  responseDisplayFormat?: string;
-  pluginErrorDetails?: PluginErrorDetails;
-}
-
-//This contains the error details from the plugin that is sent to the client in the response
-//title: The title of the error
-//errorType: The type of error that occurred
-//appsmithErrorCode: The error code that is used to identify the error in the appsmith
-//appsmithErrorMessage: The appsmith error message that is shown to the user
-//downstreamErrorCode: The error code that is sent by the plugin
-//downstreamErrorMessage: The error message that is sent by the plugin
-export interface PluginErrorDetails {
-  title: string;
-  errorType: string;
-  appsmithErrorCode: string;
-  appsmithErrorMessage: string;
-  downstreamErrorCode?: string;
-  downstreamErrorMessage?: string;
-}
 
 export interface MoveActionRequest {
   action: Action;

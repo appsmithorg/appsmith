@@ -1,4 +1,4 @@
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/widgetFeaturesTypes";
 
 export const featuresConfig = {
   dynamicHeight: {

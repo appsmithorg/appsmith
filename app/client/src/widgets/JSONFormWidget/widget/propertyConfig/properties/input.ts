@@ -7,7 +7,7 @@ import type { InputFieldProps } from "widgets/JSONFormWidget/fields/InputField";
 import { ISDCodeDropdownOptions } from "widgets/PhoneInputWidget/component/ISDCodeDropdown";
 import type { JSONFormWidgetProps } from "../..";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { ICON_NAMES } from "WidgetProvider/constants";
 
 function defaultValueValidation(

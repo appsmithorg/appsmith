@@ -4,7 +4,7 @@ import React from "react";
 import type { TextSize } from "constants/WidgetConstants";
 import { countOccurrences } from "workers/Evaluation/helpers";
 
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";

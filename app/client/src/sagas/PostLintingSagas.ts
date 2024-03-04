@@ -4,10 +4,10 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import isLintErrorLoggingEnabledForEntity from "@appsmith/plugins/Linting/utils/isLintErrorLoggingEnabledForEntity";
 import getEntityUniqueIdForLogs from "@appsmith/plugins/Linting/utils/getEntityUniqueIdForLogs";
 import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import type { LintErrorsStore } from "widgets/types";
 
 // We currently only log lint errors in JSObjects
 export function* logLatestLintPropertyErrors({

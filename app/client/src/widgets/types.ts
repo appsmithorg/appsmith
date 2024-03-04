@@ -2,7 +2,7 @@ import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import type {
   CanvasWidgetStructure,
   FlattenedWidgetProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type {
   CSSUnit,
   PositionType,
@@ -17,17 +17,70 @@ import type {
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import type { RefObject } from "react";
 
-export const WidgetOperations = {
-  MOVE: "MOVE",
-  RESIZE: "RESIZE",
-  ADD_CHILD: "ADD_CHILD",
-  UPDATE_PROPERTY: "UPDATE_PROPERTY",
-  DELETE: "DELETE",
-  ADD_CHILDREN: "ADD_CHILDREN",
-};
+export interface WidgetProps
+  extends WidgetDataProps,
+    WidgetDynamicPathListProps,
+    DataTreeEvaluationProps {
+  key?: string;
+  isDefaultClickDisabled?: boolean;
 
-export type WidgetOperation =
-  (typeof WidgetOperations)[keyof typeof WidgetOperations];
+  [key: string]: any;
+}
+
+export interface WidgetDataProps
+  extends WidgetBaseProps,
+    WidgetErrorProps,
+    WidgetPositionProps,
+    WidgetDisplayProps,
+    WidgetCanvasProps {}
+
+export interface WidgetError extends Error {
+  type: "property" | "configuration" | "other";
+  path?: string;
+}
+
+export interface WidgetErrorProps {
+  errors?: WidgetError[];
+}
+
+export interface WidgetDisplayProps {
+  //TODO(abhinav): Some of these props are mandatory
+  isVisible?: boolean;
+  isLoading: boolean;
+  isDisabled?: boolean;
+  backgroundColor?: string;
+  animateLoading?: boolean;
+  deferRender?: boolean;
+  wrapperRef?: RefObject<HTMLDivElement>;
+  selectedWidgetAncestry?: string[];
+  classList?: string[];
+}
+
+export interface WidgetPositionProps extends WidgetRowCols {
+  parentColumnSpace: number;
+  parentRowSpace: number;
+  // The detachFromLayout flag tells use about the following properties when enabled
+  // 1) Widget does not drag/resize
+  // 2) Widget CAN (but not neccessarily) be a dropTarget
+  // Examples: MainContainer is detached from layout,
+  // MODAL_WIDGET is also detached from layout.
+  detachFromLayout?: boolean;
+  noContainerOffset?: boolean; // This won't offset the child in parent
+  isFlexChild?: boolean;
+  direction?: LayoutDirection;
+  responsiveBehavior?: ResponsiveBehavior;
+  minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
+  isMobile?: boolean;
+  flexVerticalAlignment?: FlexVerticalAlignment;
+  layoutSystemType?: LayoutSystemTypes;
+  widthInPercentage?: number; // Stores the widget's width set by the user
+  mobileWidthInPercentage?: number;
+  width?: number;
+}
+
+export interface WidgetCanvasProps {
+  isWidgetSelected?: boolean;
+}
 
 export interface BaseStyle {
   componentHeight: number;
@@ -95,31 +148,17 @@ export interface WidgetRowCols {
   height?: number;
 }
 
-export interface WidgetPositionProps extends WidgetRowCols {
-  parentColumnSpace: number;
-  parentRowSpace: number;
-  // The detachFromLayout flag tells use about the following properties when enabled
-  // 1) Widget does not drag/resize
-  // 2) Widget CAN (but not neccessarily) be a dropTarget
-  // Examples: MainContainer is detached from layout,
-  // MODAL_WIDGET is also detached from layout.
-  detachFromLayout?: boolean;
-  noContainerOffset?: boolean; // This won't offset the child in parent
-  isFlexChild?: boolean;
-  direction?: LayoutDirection;
-  responsiveBehavior?: ResponsiveBehavior;
-  minWidth?: number; // Required to avoid squishing of widgets on mobile viewport.
-  isMobile?: boolean;
-  flexVerticalAlignment?: FlexVerticalAlignment;
-  layoutSystemType?: LayoutSystemTypes;
-  widthInPercentage?: number; // Stores the widget's width set by the user
-  mobileWidthInPercentage?: number;
-  width?: number;
-}
+export const WidgetOperations = {
+  MOVE: "MOVE",
+  RESIZE: "RESIZE",
+  ADD_CHILD: "ADD_CHILD",
+  UPDATE_PROPERTY: "UPDATE_PROPERTY",
+  DELETE: "DELETE",
+  ADD_CHILDREN: "ADD_CHILDREN",
+};
 
-export interface WidgetCanvasProps {
-  isWidgetSelected?: boolean;
-}
+export type WidgetOperation =
+  (typeof WidgetOperations)[keyof typeof WidgetOperations];
 
 export const WIDGET_DISPLAY_PROPS = {
   isVisible: true,
@@ -127,43 +166,6 @@ export const WIDGET_DISPLAY_PROPS = {
   isDisabled: true,
   backgroundColor: true,
 };
-export interface WidgetError extends Error {
-  type: "property" | "configuration" | "other";
-  path?: string;
-}
-export interface WidgetErrorProps {
-  errors?: WidgetError[];
-}
-
-export interface WidgetDisplayProps {
-  //TODO(abhinav): Some of these props are mandatory
-  isVisible?: boolean;
-  isLoading: boolean;
-  isDisabled?: boolean;
-  backgroundColor?: string;
-  animateLoading?: boolean;
-  deferRender?: boolean;
-  wrapperRef?: RefObject<HTMLDivElement>;
-  selectedWidgetAncestry?: string[];
-  classList?: string[];
-}
-
-export interface WidgetDataProps
-  extends WidgetBaseProps,
-    WidgetErrorProps,
-    WidgetPositionProps,
-    WidgetDisplayProps,
-    WidgetCanvasProps {}
-
-export interface WidgetProps
-  extends WidgetDataProps,
-    WidgetDynamicPathListProps,
-    DataTreeEvaluationProps {
-  key?: string;
-  isDefaultClickDisabled?: boolean;
-
-  [key: string]: any;
-}
 
 export interface DynamicPath {
   key: string;
@@ -234,3 +236,5 @@ export enum Severity {
   // Makes the app unusable, can't progress without fixing this.
   // CRITICAL = "critical",
 }
+
+export type LintErrorsStore = Record<string, LintError[]>;

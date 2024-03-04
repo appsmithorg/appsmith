@@ -3,6 +3,7 @@
  * spawing components based on those props
  * Widgets are also responsible for dispatching actions and updating the state tree
  */
+import type { EditorContextType } from "components/editorComponents/types";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import type { ExecuteTriggerPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
@@ -20,18 +21,17 @@ import shallowequal from "shallowequal";
 import AppsmithConsole from "utils/AppsmithConsole";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type {
+  AutocompletionDefinitions,
   AnvilConfig,
   AutoLayoutConfig,
   FlattenedWidgetProps,
   WidgetBaseConfiguration,
   WidgetDefaultProps,
   WidgetMethods,
-} from "../WidgetProvider/constants";
-import type { AutocompletionDefinitions } from "../WidgetProvider/constants";
+} from "../WidgetProvider/types";
 import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import store from "store";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import type { WidgetFeatures } from "utils/WidgetFeatures";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type {
@@ -41,8 +41,7 @@ import type {
 } from "layoutSystems/anvil/utils/paste/types";
 import { type CallEffect, call } from "redux-saga/effects";
 import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
-import type { EditorContextType } from "components/editorComponents/editorContextTypes";
-import type { WidgetProps, WidgetState } from "./types";
+import type { WidgetProps, WidgetState, WidgetFeatures } from "./types";
 
 /***
  * BaseWidget

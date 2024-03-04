@@ -3,7 +3,7 @@ import { formValueSelector } from "redux-form";
 import { connect } from "react-redux";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import {
   EditorSize,
@@ -18,7 +18,7 @@ import {
   getPluginNameFromId,
 } from "@appsmith/selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
-import type { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 

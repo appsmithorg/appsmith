@@ -10,7 +10,7 @@ import {
 } from "@appsmith/constants/messages";
 import { InputTypes } from "components/constants";
 import type { InputType } from "../component/types";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/widgetFeaturesTypes";
 import type { WidgetProps } from "widgets/types";
 
 import { INPUT_TYPES } from "../constants";

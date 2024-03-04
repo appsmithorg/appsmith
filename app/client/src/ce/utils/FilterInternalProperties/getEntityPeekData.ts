@@ -1,4 +1,4 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type {
   ActionEntity,
   WidgetEntity,

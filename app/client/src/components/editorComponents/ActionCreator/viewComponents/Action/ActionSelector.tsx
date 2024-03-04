@@ -6,7 +6,7 @@ import React, { useCallback, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getWidgetOptionsTree } from "sagas/selectors";
 import { getPageListAsOptions } from "@appsmith/selectors/entitiesSelector";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import { ActionCreatorContext } from "../..";
 import { AppsmithFunction } from "../../constants";
 import FieldGroup from "../../FieldGroup";

@@ -1,6 +1,6 @@
 import { makeFactory } from "factory.ts";
 import type { WidgetProps } from "widgets/types";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import defaultTemplate from "templates/default";
 import { WidgetTypeFactories } from "./Widgets/WidgetTypeFactories";
 const defaultMainContainer: DSLWidget = {
@@ -24,7 +24,7 @@ export const buildChildren = (children: Partial<WidgetProps>[]) => {
       return buildChild(child);
     });
   } catch (error) {
-    console.error("Check if child widget data provided");
+    // console.error("Check if child widget data provided");
   }
 };
 

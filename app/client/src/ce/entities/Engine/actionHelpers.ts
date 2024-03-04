@@ -8,8 +8,8 @@ import type { DependentFeatureFlags } from "@appsmith/selectors/engineSelectors"
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPageDSLs } from "actions/pageActions";
 import { fetchPlugins } from "actions/pluginActions";
+import type { EditConsolidatedApi } from "api/ApiTypes";
 import type { Plugin } from "api/PluginApi";
-import type { EditConsolidatedApi } from "sagas/InitSagas";
 
 export const CreateNewActionKey = {
   PAGE: "pageId",

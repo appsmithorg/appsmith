@@ -11,7 +11,7 @@ import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

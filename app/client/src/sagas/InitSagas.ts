@@ -1,8 +1,7 @@
-import { get, identity, pickBy } from "lodash";
+import { identity, pickBy } from "lodash";
 import {
   all,
   call,
-  delay,
   fork,
   put,
   race,
@@ -16,7 +15,6 @@ import type {
   ApplicationPayload,
   Page,
   ReduxAction,
-  ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { resetApplicationWidgets, resetPageList } from "actions/pageActions";
@@ -33,7 +31,6 @@ import {
 import {
   getCurrentPageId,
   getIsEditorInitialized,
-  getIsWidgetConfigBuilt,
   selectCurrentApplicationSlug,
 } from "selectors/editorSelectors";
 import { getIsInitialized as getIsViewerInitialized } from "selectors/appViewSelectors";
@@ -43,10 +40,7 @@ import { PageNotFoundError } from "entities/Engine";
 import type AppEngine from "entities/Engine";
 import { AppEngineApiError } from "entities/Engine";
 import AppEngineFactory from "entities/Engine/factory";
-import type {
-  ApplicationPagePayload,
-  FetchApplicationResponse,
-} from "@appsmith/api/ApplicationApi";
+import type { ApplicationPagePayload } from "@appsmith/api/ApplicationApi";
 import { getSearchQuery, updateSlugNamesInURL } from "utils/helpers";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { safeCrashAppRequest } from "../actions/errorActions";
@@ -62,8 +56,6 @@ import {
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
 import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";
 import { getCurrentUser } from "actions/authActions";
@@ -75,19 +67,12 @@ import {
 } from "actions/userActions";
 import { embedRedirectURL, validateResponse } from "./ErrorSagas";
 import type { ApiResponse } from "api/ApiResponses";
-import type { ProductAlert } from "reducers/uiReducers/usersReducer";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import type { Action, ActionViewMode } from "entities/Action";
-import type { JSCollection } from "entities/JSCollection";
-import type { FetchPageResponse, FetchPageResponseData } from "api/PageApi";
-import type { AppTheme } from "entities/AppTheming";
-import type { Datasource } from "entities/Datasource";
-import type { Plugin, PluginFormPayload } from "api/PluginApi";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { fetchFeatureFlags } from "@appsmith/sagas/userSagas";
 import ConsolidatedPageLoadApi from "api/ConsolidatedPageLoadApi";
 import { axiosConnectionAbortedCode } from "@appsmith/api/ApiUtils";
+import type { InitConsolidatedApi } from "api/ApiTypes";
 
 export const URL_CHANGE_ACTIONS = [
   ReduxActionTypes.CURRENT_APPLICATION_NAME_UPDATE,
@@ -99,96 +84,7 @@ export interface ReduxURLChangeAction {
   type: typeof URL_CHANGE_ACTIONS;
   payload: ApplicationPagePayload | ApplicationPayload | Page;
 }
-export interface DeployConsolidatedApi {
-  productAlert: ApiResponse<ProductAlert>;
-  tenantConfig: ApiResponse;
-  featureFlags: ApiResponse<FeatureFlags>;
-  userProfile: ApiResponse;
-  pages: FetchApplicationResponse;
-  publishedActions: ApiResponse<ActionViewMode[]>;
-  publishedActionCollections: ApiResponse<JSCollection[]>;
-  customJSLibraries: ApiResponse;
-  pageWithMigratedDsl: FetchPageResponse;
-  currentTheme: ApiResponse<AppTheme[]>;
-  themes: ApiResponse<AppTheme>;
-}
-export interface EditConsolidatedApi {
-  productAlert: ApiResponse<ProductAlert>;
-  tenantConfig: ApiResponse;
-  featureFlags: ApiResponse<FeatureFlags>;
-  userProfile: ApiResponse;
-  pages: FetchApplicationResponse;
-  publishedActions: ApiResponse<ActionViewMode[]>;
-  publishedActionCollections: ApiResponse<JSCollection[]>;
-  customJSLibraries: ApiResponse;
-  pageWithMigratedDsl: FetchPageResponse;
-  currentTheme: ApiResponse<AppTheme[]>;
-  themes: ApiResponse<AppTheme>;
-  datasources: ApiResponse<Datasource[]>;
-  pagesWithMigratedDsl: ApiResponse<FetchPageResponseData[]>;
-  plugins: ApiResponse<Plugin[]>;
-  mockDatasources: ApiResponse;
-  pluginFormConfigs: ApiResponse<PluginFormPayload>[];
-  unpublishedActions: ApiResponse<Action[]>;
-  unpublishedActionCollections: ApiResponse<JSCollection[]>;
-}
-export type InitConsolidatedApi = DeployConsolidatedApi | EditConsolidatedApi;
-export function* failFastApiCalls(
-  triggerActions: Array<ReduxAction<unknown> | ReduxActionWithoutPayload>,
-  successActions: string[],
-  failureActions: string[],
-) {
-  yield all(triggerActions.map((triggerAction) => put(triggerAction)));
-  const effectRaceResult: { success: boolean; failure: boolean } = yield race({
-    success: all(successActions.map((successAction) => take(successAction))),
-    failure: take(failureActions),
-  });
-  if (effectRaceResult.failure) {
-    yield put(
-      safeCrashAppRequest(get(effectRaceResult, "failure.payload.error.code")),
-    );
-    return false;
-  }
-  return true;
-}
 
-export function* waitForWidgetConfigBuild() {
-  const isBuilt: boolean = yield select(getIsWidgetConfigBuilt);
-  if (!isBuilt) {
-    yield take(ReduxActionTypes.WIDGET_INIT_SUCCESS);
-  }
-}
-
-export function* reportSWStatus() {
-  const mode: APP_MODE = yield select(getAppMode);
-  const startTime = Date.now();
-  if ("serviceWorker" in navigator) {
-    const result: { success: any; failed: any } = yield race({
-      success: navigator.serviceWorker.ready.then((reg) => ({
-        reg,
-        timeTaken: Date.now() - startTime,
-      })),
-      failed: delay(20000),
-    });
-    if (result.success) {
-      AnalyticsUtil.logEvent("SW_REGISTRATION_SUCCESS", {
-        message: "Service worker is active",
-        mode,
-        timeTaken: result.success.timeTaken,
-      });
-    } else {
-      AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
-        message: "Service worker is not active in 20s",
-        mode,
-      });
-    }
-  } else {
-    AnalyticsUtil.logEvent("SW_REGISTRATION_FAILED", {
-      message: "Service worker is not supported",
-      mode,
-    });
-  }
-}
 function* isConsolidatedFetchFeatureFlagEnabled() {
   yield call(fetchFeatureFlags);
 

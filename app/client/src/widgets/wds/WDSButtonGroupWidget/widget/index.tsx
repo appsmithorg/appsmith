@@ -15,7 +15,7 @@ import type { ButtonGroupWidgetProps } from "./types";
 import { ButtonGroupComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 
 class WDSButtonGroupWidget extends BaseWidget<
   ButtonGroupWidgetProps,

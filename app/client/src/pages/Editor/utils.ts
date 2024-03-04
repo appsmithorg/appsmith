@@ -18,7 +18,7 @@ import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembl
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "constants/WidgetConstants";
-import type { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/actionAPITypes";
 
 export const draggableElement = (
   id: string,

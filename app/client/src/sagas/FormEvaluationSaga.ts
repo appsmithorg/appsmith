@@ -12,8 +12,7 @@ import type {
   FormEvaluationState,
 } from "components/formControls/formControlTypes";
 import { FORM_EVALUATION_REDUX_ACTIONS } from "@appsmith/actions/evaluationActionsList";
-import type { Action, ActionConfig } from "entities/Action";
-import type { FormConfigType } from "components/formControls/BaseControl";
+import type { Action } from "entities/Action";
 import PluginsApi from "api/PluginApi";
 import type { ApiResponse } from "api/ApiResponses";
 import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
@@ -27,22 +26,10 @@ import {
   extractFetchDynamicValueFormConfigs,
   extractQueueOfValuesToBeFetched,
 } from "./helper";
-import type { DatasourceConfiguration } from "entities/Datasource";
 import { buffers } from "redux-saga";
 import type { Plugin } from "api/PluginApi";
 import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
-
-export interface FormEvalActionPayload {
-  formId: string;
-  datasourceId?: string;
-  pluginId?: string;
-  actionConfiguration?: ActionConfig;
-  editorConfig?: FormConfigType[];
-  settingConfig?: FormConfigType[];
-  actionDiffPath?: string;
-  hasRouteChanged?: boolean;
-  datasourceConfiguration?: DatasourceConfiguration;
-}
+import type { FormEvalActionPayload } from "workers/Evaluation/types";
 
 // This value holds an array of values that needs to be dynamically fetched
 // when we run form evaluations we store dynamic values to be fetched in this array

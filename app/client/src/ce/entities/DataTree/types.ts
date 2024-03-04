@@ -1,13 +1,13 @@
-import type { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/actionAPITypes";
 import type { PluginId } from "api/PluginApi";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
+import type { ValidationConfig } from "constants/types";
 import type { ActionConfig, PluginType } from "entities/Action";
 import type { ActionDescription } from "@appsmith/workers/Evaluation/fns";
 import type { Variable } from "entities/JSCollection";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import type { WidgetConfigProps } from "WidgetProvider/constants";
+import type { WidgetConfigProps } from "WidgetProvider/types";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { DynamicPath, WidgetProps } from "widgets/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";

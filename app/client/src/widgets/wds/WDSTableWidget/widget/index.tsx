@@ -126,7 +126,7 @@ import type {
   FlattenedWidgetProps,
   PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
@@ -137,8 +137,8 @@ import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
 import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

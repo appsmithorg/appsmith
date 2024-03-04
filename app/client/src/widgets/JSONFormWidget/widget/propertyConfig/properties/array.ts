@@ -1,6 +1,6 @@
 import { get } from "lodash";
 
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { SchemaItem } from "widgets/JSONFormWidget/constants";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import type { JSONFormWidgetProps } from "../..";

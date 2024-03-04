@@ -1,5 +1,5 @@
 import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 
 export const defaultsConfig = {
   label: "Open Menu",

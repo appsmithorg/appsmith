@@ -1,7 +1,8 @@
 import type { FetchPageResponse } from "api/PageApi";
-import type { WidgetConfigProps } from "WidgetProvider/constants";
+import type { WidgetConfigProps } from "WidgetProvider/types";
+import type { WidgetOperation } from "widgets/types";
 import type { WidgetProps } from "widgets/types";
-
+import { WidgetOperations } from "widgets/types";
 import type { RenderMode } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
@@ -13,7 +14,7 @@ import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetType } from "../WidgetProvider/factory";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { BlockSpace, GridProps } from "reflow/reflowTypes";
 import type { Rect } from "./boxHelpers";
@@ -24,8 +25,6 @@ import type {
   XYCord,
 } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { migrateDSL } from "@shared/dsl";
-import type { WidgetOperation } from "widgets/types";
-import { WidgetOperations } from "widgets/types";
 
 export interface WidgetOperationParams {
   operation: WidgetOperation;

@@ -10,7 +10,7 @@ import {
   propertyPaneStyleConfig,
   settersConfig,
 } from "./../config";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 import { Button, Item, Menu, MenuList } from "@design-system/widgets";
 import { isArray, orderBy } from "lodash";
 import type { MenuButtonWidgetProps, MenuItem } from "./types";

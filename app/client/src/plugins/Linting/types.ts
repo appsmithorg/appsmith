@@ -3,7 +3,6 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import type {
   createEvaluationContext,
   EvaluationScriptType,
@@ -11,6 +10,7 @@ import type {
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { TJSPropertiesState } from "workers/Evaluation/JSObject/jsPropertiesState";
 import type { JSLibrary } from "workers/common/JSLibrary";
+import type { LintErrorsStore } from "widgets/types";
 
 export enum LINT_WORKER_ACTIONS {
   LINT_TREE = "LINT_TREE",

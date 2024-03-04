@@ -1,5 +1,5 @@
 import { TYPOGRAPHY_VARIANTS } from "@design-system/theming";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 
 export const propertyPaneStyleConfig = [
   {

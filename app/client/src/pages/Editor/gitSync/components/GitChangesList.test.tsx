@@ -1,4 +1,4 @@
-import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
+import type { GitStatusData } from "actions/gitSyncActionsTypes";
 import { gitChangeListData } from "./GitChangesList";
 
 describe("GitChangesList", () => {
