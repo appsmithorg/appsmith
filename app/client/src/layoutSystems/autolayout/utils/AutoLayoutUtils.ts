@@ -1,37 +1,34 @@
+import WidgetFactory from "WidgetProvider/factory";
+import type { DSLWidget } from "WidgetProvider/types";
 import {
-  FLEXBOX_PADDING,
-  layoutConfigurations,
+  DefaultDimensionMap,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
-  WIDGET_PADDING,
-  DefaultDimensionMap,
-  AUTO_LAYOUT_CONTAINER_PADDING,
   MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
+  layoutConfigurations,
 } from "constants/WidgetConstants";
-import type {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   updatePositionsOfParentAndSiblings,
   updateWidgetPositions,
 } from "layoutSystems/autolayout/utils/positionUtils";
-import { getWidgetWidth } from "./flexWidgetUtils";
-import type { DSLWidget } from "WidgetProvider/types";
-import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
-import WidgetFactory from "WidgetProvider/factory";
-import { isFunction } from "lodash";
-import { SNAPSHOT_EXPIRY_IN_DAYS, defaultAutoLayoutWidgets } from "./constants";
+import type {
+  AlignmentColumnData,
+  AlignmentColumnInfo,
+} from "layoutSystems/autolayout/utils/types";
 import {
   FlexLayerAlignment,
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { isFunction } from "lodash";
 import type {
-  AlignmentColumnData,
-  AlignmentColumnInfo,
-} from "layoutSystems/autolayout/utils/types";
+  CanvasWidgetsReduxState,
+  FlattenedWidgetProps,
+} from "reducers/entityReducers/canvasWidgetsReducer";
+import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
+import { SNAPSHOT_EXPIRY_IN_DAYS, defaultAutoLayoutWidgets } from "./constants";
+import { getWidgetWidth } from "./flexWidgetUtils";
 import type { FlexLayer, LayerChild } from "./types";
 
 export interface ReadableSnapShotDetails {
@@ -456,88 +453,6 @@ export function getAlignmentColumnInfo(
     [FlexLayerAlignment.End]: end,
     [FlexLayerAlignment.None]: 0,
   };
-}
-
-export function getCanvasDimensions(
-  canvas: FlattenedWidgetProps,
-  widgets: CanvasWidgetsReduxState,
-  mainCanvasWidth: number,
-  isMobile: boolean,
-): { canvasWidth: number; columnSpace: number } {
-  const canvasWidth: number = getCanvasWidth(
-    canvas,
-    widgets,
-    mainCanvasWidth,
-    isMobile,
-  );
-
-  const columnSpace: number = canvasWidth / GridDefaults.DEFAULT_GRID_COLUMNS;
-
-  return { canvasWidth: canvasWidth, columnSpace };
-}
-
-function getCanvasWidth(
-  canvas: FlattenedWidgetProps,
-  widgets: CanvasWidgetsReduxState,
-  mainCanvasWidth: number,
-  isMobile: boolean,
-): number {
-  if (!mainCanvasWidth) return 0;
-  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID)
-    return mainCanvasWidth - getPadding(canvas);
-
-  const stack = [];
-  let widget = canvas;
-  while (widget.parentId) {
-    stack.push(widget);
-    widget = widgets[widget.parentId];
-
-    //stop at modal
-    if (widget.type === "MODAL_WIDGET") {
-      break;
-    }
-  }
-  stack.push(widget);
-
-  let width = mainCanvasWidth;
-
-  //modal will be the total width instead of the mainCanvasWidth
-  if (widget.type === "MODAL_WIDGET") {
-    width = Math.min(
-      widget.width || 0,
-      mainCanvasWidth * MAX_MODAL_WIDTH_FROM_MAIN_WIDTH,
-    );
-  }
-
-  while (stack.length) {
-    const widget = stack.pop();
-    if (!widget) continue;
-    const columns = getWidgetWidth(widget, isMobile);
-    const padding = getPadding(widget);
-    const factor = widget.detachFromLayout
-      ? 1
-      : columns / GridDefaults.DEFAULT_GRID_COLUMNS;
-    width = width * factor - padding;
-  }
-
-  return width;
-}
-
-function getPadding(canvas: FlattenedWidgetProps): number {
-  let padding = 0;
-  if (canvas.widgetId === MAIN_CONTAINER_WIDGET_ID) {
-    padding = FLEXBOX_PADDING * 2;
-  } else if (canvas.type === "CONTAINER_WIDGET") {
-    padding = (AUTO_LAYOUT_CONTAINER_PADDING + FLEXBOX_PADDING) * 2;
-  } else if (canvas.isCanvas) {
-    padding = AUTO_LAYOUT_CONTAINER_PADDING * 2;
-  }
-
-  if (canvas.noPad) {
-    padding -= WIDGET_PADDING;
-  }
-
-  return padding;
 }
 
 /**
