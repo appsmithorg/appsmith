@@ -36,10 +36,7 @@ import type {
 } from "api/PluginApi";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { APP_MODE } from "entities/App";
-import {
-  GROUP_TYPES,
-  type ExplorerFileEntity,
-} from "@appsmith/pages/Editor/Explorer/helpers";
+import type { ExplorerFileEntity } from "@appsmith/pages/Editor/Explorer/helpers";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import {
@@ -68,6 +65,14 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+
+export enum GROUP_TYPES {
+  API = "APIs",
+  JS_ACTIONS = "JS Objects",
+  AI = "AI Queries",
+  WORKFLOWS = "Workflows",
+  PACKAGES = "Packages",
+}
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
