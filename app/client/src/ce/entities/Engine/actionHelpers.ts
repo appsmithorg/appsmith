@@ -55,3 +55,17 @@ export const doesPluginRequireDatasource = (plugin: Plugin | undefined) => {
     ? plugin.requiresDatasource
     : true;
 };
+
+export const getParentEntityDetailsFromParams = (
+  parentEntityIdObject: { pageId?: string },
+  parentEntityIdProp: string,
+  isInsideReconnectModal?: boolean,
+) => {
+  const { pageId } = parentEntityIdObject;
+  const parentEntityIdQuery = pageId || "";
+  const parentEntityId = isInsideReconnectModal
+    ? parentEntityIdProp
+    : parentEntityIdQuery;
+  const entityType = ActionParentEntityType.PAGE;
+  return { parentEntityId, entityType };
+};
