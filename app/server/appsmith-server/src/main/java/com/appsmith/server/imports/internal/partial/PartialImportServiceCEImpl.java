@@ -209,7 +209,14 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 })
                 // Update the refactored names of the actions and action collections in the DSL bindings
                 .flatMap(application -> {
-                    final JsonNode dsl = widgetRefactorUtil.convertDslStringToJsonNode(applicationJson.getWidgets());
+                    // The building block is stored as a page in an application
+                    final JsonNode dsl = widgetRefactorUtil.convertDslStringToJsonNode(applicationJson
+                            .getPageList()
+                            .get(0)
+                            .getUnpublishedPage()
+                            .getLayouts()
+                            .get(0)
+                            .getDsl());
                     return Flux.fromIterable(mappedImportableResourcesDTO
                                     .getRefactoringNameReference()
                                     .keySet())

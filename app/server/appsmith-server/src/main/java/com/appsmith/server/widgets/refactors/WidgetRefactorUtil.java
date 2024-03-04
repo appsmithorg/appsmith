@@ -10,6 +10,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import lombok.RequiredArgsConstructor;
+import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
@@ -193,7 +194,7 @@ public class WidgetRefactorUtil {
         return refactorBindingsMono;
     }
 
-    public JsonNode convertDslStringToJsonNode(String dslString) {
-        return objectMapper.convertValue(dslString, JsonNode.class);
+    public JsonNode convertDslStringToJsonNode(JSONObject dsl) {
+        return objectMapper.convertValue(dsl, JsonNode.class);
     }
 }
