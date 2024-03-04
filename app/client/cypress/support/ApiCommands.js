@@ -347,7 +347,7 @@ Cypress.Commands.add("DeleteAPI", () => {
 });
 
 Cypress.Commands.add("testCreateApiButton", () => {
-  cy.get(ApiEditor.createBlankApiCard).first().click({ force: true });
+  agHelper.GetNClick(ApiEditor.createBlankApiCard);
   cy.wait("@createNewApi");
   cy.get("@createNewApi")
     .its("response.body.responseMeta.status")

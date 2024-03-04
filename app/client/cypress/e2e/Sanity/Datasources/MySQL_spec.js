@@ -25,7 +25,7 @@ describe(
 
     it("2. Create with trailing white spaces in host address and database name, test, save then delete a MySQL datasource", function () {
       cy.NavigateToDatasourceEditor();
-      ragHelper.GetNClick(datasource.MySQL);
+      agHelper.GetNClick(datasource.MySQL);
       cy.fillMySQLDatasourceForm(true);
       cy.generateUUID().then((UUID) => {
         datasourceName = `MySQL MOCKDS ${UUID}`;

@@ -15,7 +15,7 @@ import { fetchPlugins } from "actions/pluginActions";
 import { Flex, Link, Text } from "design-system";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { default as React, useCallback, useEffect } from "react";
+import { default as React, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -167,38 +167,6 @@ const CreateNewAppsOption = ({
     }
   };
 
-  const renderStartWithData = useCallback(() => {
-    return (
-      <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
-        <Header
-          subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
-          title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
-        />
-        <WithDataWrapper>
-          {createNewAppPluginId && !!selectedDatasource ? (
-            selectedPlugin?.type === PluginType.SAAS ? (
-              <DatasourceForm
-                datasourceId={TEMP_DATASOURCE_ID}
-                isOnboardingFlow
-                pageId={application?.defaultPageId || ""}
-                pluginPackageName={PluginPackageName.GOOGLE_SHEETS}
-              />
-            ) : (
-              <DataSourceEditor
-                applicationId={currentApplicationIdForCreateNewApp}
-                datasourceId={TEMP_DATASOURCE_ID}
-                isOnboardingFlow
-                pageId={application?.defaultPageId}
-              />
-            )
-          ) : (
-            <CreateNewDatasourceTab isOnboardingScreen />
-          )}
-        </WithDataWrapper>
-      </Flex>
-    );
-  }, [createNewAppPluginId, selectedDatasource, selectedPlugin]);
-
   useEffect(() => {
     if (application) {
       urlBuilder.updateURLParams(
@@ -250,7 +218,33 @@ const CreateNewAppsOption = ({
           {createMessage(SKIP_START_WITH_USE_CASE_TEMPLATES)}
         </LinkWrapper>
       </BackWrapper>
-      {renderStartWithData}
+      <Flex flexDirection="column" pl="spaces-3" pr="spaces-3">
+        <Header
+          subtitle={createMessage(START_WITH_DATA_CONNECT_SUBHEADING)}
+          title={createMessage(START_WITH_DATA_CONNECT_HEADING)}
+        />
+        <WithDataWrapper>
+          {createNewAppPluginId && !!selectedDatasource ? (
+            selectedPlugin?.type === PluginType.SAAS ? (
+              <DatasourceForm
+                datasourceId={TEMP_DATASOURCE_ID}
+                isOnboardingFlow
+                pageId={application?.defaultPageId || ""}
+                pluginPackageName={PluginPackageName.GOOGLE_SHEETS}
+              />
+            ) : (
+              <DataSourceEditor
+                applicationId={currentApplicationIdForCreateNewApp}
+                datasourceId={TEMP_DATASOURCE_ID}
+                isOnboardingFlow
+                pageId={application?.defaultPageId}
+              />
+            )
+          ) : (
+            <CreateNewDatasourceTab isOnboardingScreen />
+          )}
+        </WithDataWrapper>
+      </Flex>
     </SectionWrapper>
   );
 };
