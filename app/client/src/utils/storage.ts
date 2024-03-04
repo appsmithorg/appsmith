@@ -4,6 +4,7 @@ import localforage from "localforage";
 import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -36,6 +37,7 @@ export const STORAGE_KEYS: {
   CURRENT_ENV: "CURRENT_ENV",
   AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
   PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
+  IDE_VIEW_MODE: "IDE_VIEW_MODE",
 };
 
 const store = localforage.createInstance({
@@ -853,6 +855,30 @@ export const getPartnerProgramCalloutShown = async () => {
     return flag;
   } catch (error) {
     log.error("An error occurred while fetching PARTNER_PROGRAM_CALLOUT");
+    log.error(error);
+  }
+};
+
+export const storeIDEViewMode = async (mode: EditorViewMode) => {
+  try {
+    await store.setItem(STORAGE_KEYS.IDE_VIEW_MODE, mode);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting IDE_VIEW_MODE");
+    log.error(error);
+  }
+};
+
+export const retrieveIDEViewMode = async (): Promise<
+  EditorViewMode | undefined
+> => {
+  try {
+    const mode = (await store.getItem(
+      STORAGE_KEYS.IDE_VIEW_MODE,
+    )) as EditorViewMode;
+    return mode;
+  } catch (error) {
+    log.error("An error occurred while fetching IDE_VIEW_MODE");
     log.error(error);
   }
 };

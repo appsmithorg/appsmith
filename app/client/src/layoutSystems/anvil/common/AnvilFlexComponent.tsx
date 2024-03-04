@@ -12,12 +12,15 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { Layers } from "constants/Layers";
+import { noop } from "utils/AppsmithUtils";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
   // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
   overflow: "hidden",
   zIndex: Layers.positionedWidget,
+  // add transition ease-in animation when there is a flexgrow value change
+  transition: "flex-grow 0.1s ease-in",
 };
 
 /**
@@ -38,12 +41,19 @@ export const AnvilFlexComponent = forwardRef(
       children,
       className,
       flexGrow,
+      onClick = noop,
+      onClickCapture = noop,
       widgetId,
       widgetSize,
       widgetType,
     }: AnvilFlexComponentProps,
     ref: any,
   ) => {
+    // The `anvil-widget-wrapper` className is necessary for the following features
+    // "Vertical Alignment" and "Asymmetric Padding". The code for the same can be found in `src/index.css`
+    // Please do not remove this class.
+    const _className = `${className} anvil-widget-wrapper`;
+
     const widgetConfigProps = useMemo(() => {
       const widgetConfig:
         | (Partial<WidgetProps> & WidgetConfigProps & { type: string })
@@ -65,12 +75,13 @@ export const AnvilFlexComponent = forwardRef(
         flexBasis: isFillWidget ? "0%" : "auto",
         padding: "spacing-1",
         alignItems: "center",
+        width: "max-content",
       };
       if (widgetSize) {
         const { maxHeight, maxWidth, minHeight, minWidth } = widgetSize;
         data.maxHeight = maxHeight;
         data.maxWidth = maxWidth;
-        data.minHeight = minHeight ?? { base: "sizing-12" };
+        data.minHeight = minHeight;
         data.minWidth = minWidth;
       }
       return data;
@@ -80,8 +91,10 @@ export const AnvilFlexComponent = forwardRef(
     return (
       <Flex
         {...flexProps}
-        className={className}
+        className={_className}
         id={getAnvilWidgetDOMId(widgetId)}
+        onClick={onClick}
+        onClickCapture={onClickCapture}
         ref={ref}
         style={anvilWidgetStyleProps}
       >

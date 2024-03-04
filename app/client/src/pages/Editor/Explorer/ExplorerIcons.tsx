@@ -117,6 +117,10 @@ export const getPluginIcon = (plugin?: Plugin) => {
   return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
 };
 
+export const getPluginEntityIcon = (plugin?: Plugin) => {
+  return <EntityIcon>{getPluginIcon(plugin)}</EntityIcon>;
+};
+
 const StyledTag = styled.div<{ color: string }>`
   font-size: 8px;
   width: 40px;
@@ -333,4 +337,22 @@ export function AppsmithAIIcon() {
 
 export function ActionUrlIcon(url: string) {
   return <img src={url} />;
+}
+
+export function ModuleIcon(
+  height = 18,
+  width = 18,
+  noBackground = false,
+  noBorder = false,
+) {
+  return (
+    <EntityIcon
+      height={height + "px"}
+      noBackground={noBackground}
+      noBorder={noBorder}
+      width={width + "px"}
+    >
+      <Icon name="module" size="md" />
+    </EntityIcon>
+  );
 }

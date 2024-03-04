@@ -1,4 +1,3 @@
-import React, { useCallback, useState } from "react";
 import {
   Button,
   Divider,
@@ -7,19 +6,21 @@ import {
   MenuItem,
   MenuTrigger,
 } from "design-system";
+import React, { useCallback, useState } from "react";
 import { useSelector } from "react-redux";
 
-import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
-import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import {
   IMPORT_BTN_LABEL,
+  NEW_APP,
   NEW_APP_FROM_TEMPLATE,
   WORKSPACE_ACTION_BUTTON,
   createMessage,
 } from "@appsmith/constants/messages";
-import { NEW_APP } from "@appsmith/constants/messages";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export interface WorkspaceActionProps {
@@ -47,7 +48,7 @@ function WorkspaceAction({
     useSelector(getIsCreatingApplicationByWorkspaceId(workspace.id)),
   );
   const isCreateAppFromTemplatesEnabled = useFeatureFlag(
-    "release_show_create_app_from_templates_enabled",
+    FEATURE_FLAG.release_show_create_app_from_templates_enabled,
   );
 
   const openActionMenu = useCallback(() => {
@@ -95,20 +96,17 @@ function WorkspaceAction({
         >
           {createMessage(NEW_APP)}
         </MenuItem>
+        {<Divider className="!block mb-[2px]" />}
         {isCreateAppFromTemplatesEnabled && (
-          <>
-            <Divider className="!block mb-[2px]" />
-            <MenuItem
-              data-testid="t--workspace-action-start-from-template"
-              disabled={!hasCreateNewApplicationPermission}
-              onSelect={() => onStartFromTemplate(workspaceId)}
-              startIcon="layout-2-line"
-            >
-              {createMessage(NEW_APP_FROM_TEMPLATE)}
-            </MenuItem>
-          </>
+          <MenuItem
+            data-testid="t--workspace-action-create-app-from-template"
+            disabled={!hasCreateNewApplicationPermission}
+            onSelect={() => onStartFromTemplate(workspaceId)}
+            startIcon="layout-2-line"
+          >
+            {createMessage(NEW_APP_FROM_TEMPLATE)}
+          </MenuItem>
         )}
-        <Divider className="!block mb-[2px]" />
         {enableImportExport && hasCreateNewApplicationPermission && (
           <MenuItem
             data-testid="t--workspace-import-app"

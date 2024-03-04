@@ -3,10 +3,13 @@ package com.appsmith.server.repositories.ce.params;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
+import lombok.NonNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -36,6 +39,8 @@ public class QueryAllParams<T extends BaseDomain> {
      */
     private boolean includeAnonymousUserPermissions = true;
 
+    private Scope scope;
+
     public QueryAllParams(BaseAppsmithRepositoryCEImpl<T> repo) {
         this.repo = repo;
     }
@@ -56,6 +61,26 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.countExecute(this);
     }
 
+    public Mono<Integer> updateAll(@NonNull UpdateDefinition update) {
+        scope = Scope.ALL;
+        return repo.updateExecute(this, update);
+    }
+
+    public Mono<Integer> updateFirst(@NonNull T resource) {
+        scope = Scope.FIRST;
+        return repo.updateExecute(this, resource);
+    }
+
+    public Mono<Integer> updateFirst(@NonNull UpdateDefinition update) {
+        scope = Scope.FIRST;
+        return repo.updateExecute(this, update);
+    }
+
+    public Mono<T> updateFirstAndFind(@NonNull UpdateDefinition update) {
+        scope = Scope.FIRST;
+        return repo.updateExecuteAndFind(this, update);
+    }
+
     public QueryAllParams<T> criteria(Criteria... criteria) {
         if (criteria == null) {
             return this;
@@ -63,11 +88,19 @@ public class QueryAllParams<T extends BaseDomain> {
         return criteria(List.of(criteria));
     }
 
-    public QueryAllParams<T> criteria(List<Criteria> criterias) {
-        if (criterias == null) {
+    public QueryAllParams<T> criteria(List<Criteria> criteria) {
+        if (criteria == null) {
             return this;
         }
-        this.criteria.addAll(criterias);
+
+        for (Criteria c : criteria) {
+            if (c instanceof BridgeQuery<?> b && b.getCriteriaObject().isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.");
+            }
+            this.criteria.add(c);
+        }
+
         return this;
     }
 
@@ -116,5 +149,11 @@ public class QueryAllParams<T extends BaseDomain> {
     public QueryAllParams<T> includeAnonymousUserPermissions(boolean value) {
         includeAnonymousUserPermissions = value;
         return this;
+    }
+
+    public enum Scope {
+        ALL,
+        FIRST,
+        ONE,
     }
 }

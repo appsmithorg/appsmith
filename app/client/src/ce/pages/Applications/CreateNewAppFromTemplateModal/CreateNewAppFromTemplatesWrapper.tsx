@@ -1,28 +1,33 @@
-import React from "react";
+import React, { useEffect } from "react";
 import CreateNewAppFromTemplatesModal from ".";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getIsReconnectingDatasourcesModalOpen } from "@appsmith/selectors/entitiesSelector";
+import { useSelector } from "react-redux";
 
 interface Props {
   currentWorkspaceId: string;
-  handleClose: () => void;
   isOpen: boolean;
+  onModalClose: () => void;
 }
 
 const CreateNewAppFromTemplatesWrapper = ({
   currentWorkspaceId,
-  handleClose,
   isOpen,
+  onModalClose,
 }: Props) => {
-  const isCreateAppFromTemplatesEnabled = useFeatureFlag(
-    "release_show_create_app_from_templates_enabled",
+  const isReconnectingModalOpen = useSelector(
+    getIsReconnectingDatasourcesModalOpen,
   );
 
-  if (!isCreateAppFromTemplatesEnabled) return null;
+  useEffect(() => {
+    if (isReconnectingModalOpen) {
+      onModalClose();
+    }
+  }, [isReconnectingModalOpen]);
 
   return (
     <CreateNewAppFromTemplatesModal
       currentWorkSpaceId={currentWorkspaceId}
-      handleClose={handleClose}
+      handleClose={onModalClose}
       isOpen={isOpen}
     />
   );

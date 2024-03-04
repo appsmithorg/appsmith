@@ -50,7 +50,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -835,7 +834,7 @@ public class ImportServiceTests {
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
 
         Mono<? extends ImportableArtifactDTO> resultMono =
-                importService.extractArtifactExchangeJsonAndSaveArtifact(filepart, workspaceId, null, APPLICATION);
+                importService.extractArtifactExchangeJsonAndSaveArtifact(filepart, workspaceId, null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> error instanceof AppsmithException)
@@ -848,7 +847,7 @@ public class ImportServiceTests {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
 
         Mono<? extends ImportableArtifactDTO> resultMono =
-                importService.extractArtifactExchangeJsonAndSaveArtifact(filepart, null, null, APPLICATION);
+                importService.extractArtifactExchangeJsonAndSaveArtifact(filepart, null, null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -865,7 +864,7 @@ public class ImportServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
 
         Mono<? extends ImportableArtifactDTO> resultMono =
-                importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null, APPLICATION);
+                importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -882,7 +881,7 @@ public class ImportServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-app.json");
         Mono<? extends ImportableArtifactDTO> resultMono =
-                importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null, APPLICATION);
+                importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(
@@ -912,9 +911,8 @@ public class ImportServiceTests {
                         workspace.getId(), environmentPermission.getExecutePermission()))
                 .block();
 
-        final Mono<? extends ImportableArtifactDTO> resultMono =
-                workspaceMono.flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION));
+        final Mono<? extends ImportableArtifactDTO> resultMono = workspaceMono.flatMap(workspace ->
+                importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null));
 
         List<PermissionGroup> permissionGroups = workspaceMono
                 .flatMapMany(savedWorkspace -> {
@@ -1088,7 +1086,7 @@ public class ImportServiceTests {
         newWorkspace = workspaceService.create(newWorkspace).block();
 
         importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, newWorkspace.getId(), null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, newWorkspace.getId(), null)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
@@ -1123,8 +1121,8 @@ public class ImportServiceTests {
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService
                 .create(newWorkspace)
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(resultMono.flatMap(applicationImportDTO -> Mono.zip(
@@ -1164,8 +1162,8 @@ public class ImportServiceTests {
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         List<PermissionGroup> permissionGroups = workspaceMono
@@ -1282,8 +1280,8 @@ public class ImportServiceTests {
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService
                 .create(newWorkspace)
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1308,8 +1306,8 @@ public class ImportServiceTests {
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService
                 .create(newWorkspace)
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono.flatMap(applicationImportDTO -> Mono.zip(
@@ -1432,7 +1430,7 @@ public class ImportServiceTests {
     public void importApplication_incompatibleJsonFile_throwException() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/incompatible_version.json");
         Mono<ApplicationImportDTO> resultMono = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null)
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1453,8 +1451,8 @@ public class ImportServiceTests {
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         List<PermissionGroup> permissionGroups = workspaceMono
@@ -4414,7 +4412,7 @@ public class ImportServiceTests {
                 .block();
 
         Mono<ApplicationImportDTO> resultMono = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null)
                 .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(resultMono)
@@ -4693,7 +4691,7 @@ public class ImportServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null)
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .flatMap(applicationImportDTO -> {
                     PageDTO page = new PageDTO();
@@ -4749,7 +4747,7 @@ public class ImportServiceTests {
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
                 .flatMap(importedApplication -> applicationService.save(importedApplication))
                 .flatMap(savedApplication -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspaceId, savedApplication.getId(), APPLICATION))
+                        filePart, workspaceId, savedApplication.getId()))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .map(ApplicationImportDTO::getApplication);
 
@@ -4804,7 +4802,7 @@ public class ImportServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         final Mono<ApplicationImportDTO> resultMono = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, application.getId(), APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, application.getId())
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -4892,7 +4890,7 @@ public class ImportServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         final Mono<ApplicationImportDTO> resultMono = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, application.getId(), APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, application.getId())
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -4927,7 +4925,7 @@ public class ImportServiceTests {
                 .flatMap(application -> {
                     FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
                     return importService
-                            .extractArtifactExchangeJson(filePart, APPLICATION)
+                            .extractArtifactExchangeJson(filePart)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                             .flatMap(applicationJson -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                     workspaceId, application.getId(), null, applicationJson, null))
@@ -4962,8 +4960,7 @@ public class ImportServiceTests {
                 .flatMap(application -> {
                     FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
                     return importService
-                            .extractArtifactExchangeJsonAndSaveArtifact(
-                                    filePart, workspaceId, application.getId(), APPLICATION)
+                            .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, application.getId())
                             .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
                 });
 

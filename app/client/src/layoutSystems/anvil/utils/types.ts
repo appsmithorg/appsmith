@@ -5,18 +5,17 @@ import type { WidgetType } from "WidgetProvider/factory";
 export interface AnvilFlexComponentProps {
   children: ReactNode;
   className?: string;
-  isResizeDisabled?: boolean;
   layoutId: string;
-  focused?: boolean;
   parentId?: string;
   rowIndex: number;
-  selected?: boolean;
   flexGrow?: number;
   isVisible: boolean;
   widgetId: string;
   widgetName: string;
   widgetSize?: SizeConfig;
   widgetType: WidgetType;
+  onClick?: (e: any) => void;
+  onClickCapture?: React.MouseEventHandler;
 }
 
 export type PositionValues =

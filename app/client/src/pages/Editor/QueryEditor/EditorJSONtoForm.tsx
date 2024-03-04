@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from "react";
+import { useContext } from "react";
 import React, { useCallback } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { noop } from "lodash";
@@ -15,7 +15,6 @@ import ActionSettings from "pages/Editor/ActionSettings";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
-import { ResizerCSS } from "components/editorComponents/Debugger/Resizer";
 import {
   createMessage,
   DOCUMENTATION,
@@ -30,16 +29,10 @@ import ActionRightPane, {
 import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import {
-  getDebuggerSelectedTab,
-  showDebuggerFlag,
-} from "selectors/debuggerSelectors";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
@@ -47,7 +40,6 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 import FormRender from "./FormRender";
@@ -77,16 +69,6 @@ const QueryFormContainer = styled.form`
     justify-content: flex-end;
     margin-top: 10px;
   }
-`;
-
-export const TabbedViewContainer = styled.div`
-  ${ResizerCSS};
-  height: ${ActionExecutionResizerHeight}px;
-  // Minimum height of bottom tabs as it can be resized
-  min-height: 36px;
-  width: 100%;
-  background-color: var(--ads-v2-color-bg);
-  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 const SettingsWrapper = styled.div`
@@ -221,7 +203,6 @@ export function EditorJSONtoForm(props: Props) {
     onCreateDatasourceClick,
     onRunClick,
     plugin,
-    responseDisplayFormat,
     runErrorMessage,
     settingConfig,
     uiComponent,
@@ -242,8 +223,6 @@ export function EditorJSONtoForm(props: Props) {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
-  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
-    useState<boolean>(false);
 
   const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
 
@@ -264,38 +243,6 @@ export function EditorJSONtoForm(props: Props) {
 
   const dispatch = useDispatch();
 
-  // These useEffects are used to open the response tab by default for page load queries
-  // as for page load queries, query response is available and can be shown in response tab
-  useEffect(() => {
-    // actionResponse and responseDisplayFormat is present only when query has response available
-    if (
-      responseDisplayFormat &&
-      !!responseDisplayFormat?.title &&
-      actionResponse &&
-      actionResponse.isExecutionSuccess &&
-      !showResponseOnFirstLoad
-    ) {
-      dispatch(showDebugger(true));
-      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
-      setShowResponseOnFirstLoad(true);
-    }
-  }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
-
-  useEffect(() => {
-    if (showSchema) {
-      dispatch(showDebugger(true));
-      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.SCHEMA_TAB));
-    }
-  }, [showSchema]);
-
-  // When multiple page load queries exist, we want to response tab by default for all of them
-  // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
-  useEffect(() => {
-    if (!!currentActionConfig?.id) {
-      setShowResponseOnFirstLoad(false);
-    }
-  }, [currentActionConfig?.id]);
-
   const handleDocumentationClick = () => {
     openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
   };
@@ -311,14 +258,9 @@ export function EditorJSONtoForm(props: Props) {
 
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
-  // Debugger render flag
-  const renderDebugger = useSelector(showDebuggerFlag);
-
   const setSelectedConfigTab = useCallback((selectedIndex: string) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
   }, []);
-
-  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
 
   // here we check for normal conditions for opening action pane
   // or if any of the flags are true, We should open the actionpane by default.
@@ -465,19 +407,16 @@ export function EditorJSONtoForm(props: Props) {
                   </Tooltip>
                 )}
               </TabContainerView>
-              {renderDebugger &&
-                selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
-                  <QueryDebuggerTabs
-                    actionName={actionName}
-                    actionResponse={actionResponse}
-                    actionSource={actionSource}
-                    currentActionConfig={currentActionConfig}
-                    isRunning={isRunning}
-                    onRunClick={onRunClick}
-                    runErrorMessage={runErrorMessage}
-                    showSchema={showSchema}
-                  />
-                )}
+              <QueryDebuggerTabs
+                actionName={actionName}
+                actionResponse={actionResponse}
+                actionSource={actionSource}
+                currentActionConfig={currentActionConfig}
+                isRunning={isRunning}
+                onRunClick={onRunClick}
+                runErrorMessage={runErrorMessage}
+                showSchema={showSchema}
+              />
             </SecondaryWrapper>
           </div>
           {showRightPane && (

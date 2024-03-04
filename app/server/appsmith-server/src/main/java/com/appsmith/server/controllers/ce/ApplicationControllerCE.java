@@ -24,8 +24,8 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
-import com.appsmith.server.imports.importable.ImportService;
-import com.appsmith.server.imports.internal.PartialImportService;
+import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.ApplicationFetcher;
@@ -296,8 +296,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
-        return fileMono.flatMap(file -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        file, workspaceId, applicationId, APPLICATION))
+        return fileMono.flatMap(file ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(file, workspaceId, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 

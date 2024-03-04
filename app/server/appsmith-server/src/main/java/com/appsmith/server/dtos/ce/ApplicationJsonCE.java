@@ -32,6 +32,9 @@ import java.util.Set;
 @Setter
 public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
 
+    @JsonView({Views.Public.class, Views.Export.class})
+    ArtifactJsonType artifactJsonType = ArtifactJsonType.APPLICATION;
+
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
     @JsonView({Views.Public.class, Views.Export.class})
@@ -117,11 +120,6 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
     String widgets;
 
     @Override
-    public ArtifactJsonType getArtifactJsonType() {
-        return ArtifactJsonType.APPLICATION;
-    }
-
-    @Override
     public ImportableArtifact getImportableArtifact() {
         return this.getExportedApplication();
     }
@@ -135,5 +133,10 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
     public void setThemes(Theme unpublishedTheme, Theme publishedTheme) {
         this.setEditModeTheme(unpublishedTheme);
         this.setPublishedTheme(publishedTheme);
+    }
+
+    @Override
+    public Theme getUnpublishedTheme() {
+        return this.getEditModeTheme();
     }
 }

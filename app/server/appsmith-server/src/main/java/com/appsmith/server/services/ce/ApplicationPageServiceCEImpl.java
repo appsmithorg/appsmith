@@ -20,7 +20,6 @@ import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
@@ -62,7 +61,6 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
 import com.appsmith.server.themes.base.ThemeService;
 import com.google.common.base.Strings;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -89,7 +87,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -218,7 +215,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * @return UpdateResult object with details on how many documents have been updated, which should be 0 or 1.
      */
     @Override
-    public Mono<UpdateResult> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
+    public Mono<Integer> addPageToApplication(Application application, PageDTO page, Boolean isDefault) {
 
         String defaultPageId = page.getDefaultResources() == null
                         || StringUtils.isEmpty(page.getDefaultResources().getPageId())
@@ -227,8 +224,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         if (isDuplicatePage(application, page.getId())) {
             return applicationRepository
                     .addPageToApplication(application.getId(), page.getId(), isDefault, defaultPageId)
-                    .doOnSuccess(result -> {
-                        if (result.getModifiedCount() != 1) {
+                    .doOnSuccess(count -> {
+                        if (count != 1) {
                             log.error(
                                     "Add page to application didn't update anything, probably because application wasn't found.");
                         }
@@ -491,7 +488,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(savedPage -> addPageToApplication(savedApplication, savedPage, true))
                             // Now publish this newly created app with default states so that
                             // launching of newly created application is possible.
-                            .flatMap(updatedApplication -> publish(savedApplication.getId(), false)
+                            .flatMap(ignored -> publish(savedApplication.getId(), false)
                                     .then(applicationService.findById(
                                             savedApplication.getId(), applicationPermission.getReadPermission())));
                 });
@@ -1297,7 +1294,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     return applicationRepository
                             .setPages(application.getId(), pages)
-                            .flatMap(updateResult ->
+                            .flatMap(ignored ->
                                     sendPageOrderAnalyticsEvent(application, defaultPageId, order, branchName))
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(
                                     application.getId(), Boolean.FALSE, false));
@@ -1449,11 +1446,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Flux<BaseDomain> datasourceFlux = applicationMono
                 .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
                         List.of(application.getId()),
-                        List.of(
-                                "id",
-                                fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource) + "."
-                                        + fieldName(QNewAction.newAction.unpublishedAction.datasource.id))))
+                        List.of(BaseDomain.Fields.id, NewAction.Fields.unpublishedAction_datasource_id)))
                 .collectList()
                 .map(actions -> {
                     return actions.stream()

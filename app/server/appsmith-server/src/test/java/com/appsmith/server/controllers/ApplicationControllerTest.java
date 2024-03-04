@@ -13,8 +13,8 @@ import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.imports.importable.ImportService;
-import com.appsmith.server.imports.internal.PartialImportService;
+import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
@@ -122,7 +122,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithLongHeader_thenVerifyErrorStatus() throws IOException {
 
-        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any(), any()))
+        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any()))
                 .thenAnswer(importableArtifactDTOAnswer(new ApplicationImportDTO()));
 
         final String fileName = getFileName(130 * 1024);
@@ -153,7 +153,7 @@ public class ApplicationControllerTest {
     @WithMockUser
     public void whenFileUploadedWithShortHeader_thenVerifySuccessStatus() throws IOException {
 
-        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any(), any()))
+        Mockito.when(importService.extractArtifactExchangeJsonAndSaveArtifact(any(), any(), any()))
                 .thenAnswer(importableArtifactDTOAnswer(new ApplicationImportDTO()));
 
         final String fileName = getFileName(2 * 1024);
