@@ -1,5 +1,5 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import { dataSources } from "../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 let datasourceName;
 
 describe(
@@ -22,7 +22,7 @@ describe(
 
     it("2. Create with trailing white spaces in host address and database name, test, save then delete a postgres datasource", function () {
       cy.NavigateToDatasourceEditor();
-      cy.get(datasource.PostgreSQL).click({ force: true });
+      agHelper.GetNClick(datasource.PostgreSQL);
       cy.fillPostgresDatasourceForm(true);
       cy.testSaveDatasource();
       cy.get("@saveDatasource").then((httpResponse) => {

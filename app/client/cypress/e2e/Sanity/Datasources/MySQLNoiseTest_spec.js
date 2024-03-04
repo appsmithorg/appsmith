@@ -21,7 +21,7 @@ describe(
 
     it("1. Verify after killing MySQL session, app should not crash", function () {
       cy.NavigateToDatasourceEditor();
-      cy.get(datasourceEditor.MySQL).click();
+      agHelper.GetNClick(datasourceEditor.MySQL);
       cy.generateUUID().then((uid) => {
         datasourceName = uid;
         cy.get(".t--edit-datasource-name").click();

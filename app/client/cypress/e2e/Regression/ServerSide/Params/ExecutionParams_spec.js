@@ -24,7 +24,7 @@ describe(
     });
     it("1. Create a postgres datasource", function () {
       cy.NavigateToDatasourceEditor();
-      cy.get(datasource.PostgreSQL).click();
+      agHelper.GetNClick(datasource.PostgreSQL);
       cy.fillPostgresDatasourceForm();
       cy.testSaveDatasource();
       cy.get("@saveDatasource").then((httpResponse) => {
