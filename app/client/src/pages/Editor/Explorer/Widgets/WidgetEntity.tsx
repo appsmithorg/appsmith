@@ -5,7 +5,7 @@ import type { WidgetType } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import WidgetContextMenu from "./WidgetContextMenu";
 import { updateWidgetName } from "actions/propertyPaneActions";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import type { CanvasStructure } from "utils/canvasStructureTypes";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import WidgetIcon from "./WidgetIcon";

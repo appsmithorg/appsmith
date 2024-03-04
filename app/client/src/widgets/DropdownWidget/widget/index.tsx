@@ -19,11 +19,11 @@ import {
 } from "widgets/WidgetUtils";
 import type {
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 import { layoutConfigurations } from "constants/WidgetConstants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 function defaultOptionValueValidation(value: unknown): ValidationResponse {
   if (typeof value === "string") return { isValid: true, parsed: value.trim() };

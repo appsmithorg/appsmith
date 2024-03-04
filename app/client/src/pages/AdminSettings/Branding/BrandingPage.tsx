@@ -10,19 +10,7 @@ import { Wrapper } from "pages/AdminSettings/Authentication/AuthPage";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { AdminConfigType } from "@appsmith/pages/AdminSettings/config/types";
 import { getUpgradeBanner } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
-
-export type brandColorsKeys =
-  | "primary"
-  | "background"
-  | "font"
-  | "hover"
-  | "disabled";
-
-export interface Inputs {
-  brandColors: Record<brandColorsKeys, string>;
-  brandLogo: string;
-  brandFavicon: string;
-}
+import type { Inputs } from "./types";
 
 interface BrandingPageProps {
   category: AdminConfigType;

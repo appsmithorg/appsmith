@@ -1,5 +1,3 @@
-import type { WidgetOperationParams } from "utils/WidgetPropsUtils";
-
 //This File contains all the types that are common types required in layout System's CanvasArenas
 
 //WidgetDraggingBlock contains information related to a dragging widget,
@@ -16,12 +14,6 @@ export interface WidgetDraggingBlock {
   detachFromLayout?: boolean;
   fixedHeight?: number;
   type: string;
-}
-
-//WidgetDraggingUpdateParams is an extension of WidgetDraggingBlock,
-// with updateWidgetParams information required to dispatch action for updating DSL
-export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
-  updateWidgetParams: WidgetOperationParams;
 }
 
 //Simple Type used to define co-ordinates

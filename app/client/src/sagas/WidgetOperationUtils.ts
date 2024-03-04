@@ -70,7 +70,6 @@ import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { MetaState } from "reducers/entityReducers/metaReducer";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { Positioning } from "layoutSystems/common/utils/constants";
-import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import type {
   CopiedWidgetData,
   WidgetLayoutPositionInfo,
@@ -78,6 +77,7 @@ import type {
 import { getWidgetLayoutMetaInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
+import { getWidgetHierarchy } from "layoutSystems/anvil/canvasArenas/utils";
 
 export interface CopiedWidgetGroup {
   widgetId: string;

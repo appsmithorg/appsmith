@@ -41,7 +41,7 @@ import {
   getCanvasWidgets,
   getJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
-import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
+import { checkIsDropTarget } from "WidgetProvider/factory/utils";
 import {
   buildChildWidgetTree,
   createCanvasWidget,

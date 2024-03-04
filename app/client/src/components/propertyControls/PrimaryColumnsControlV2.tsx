@@ -27,7 +27,7 @@ import type { EvaluationError } from "widgets/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Checkbox } from "design-system";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/types";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { Button } from "design-system";
 const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`

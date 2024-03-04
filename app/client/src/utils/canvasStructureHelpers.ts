@@ -1,14 +1,11 @@
 import { pick } from "lodash";
 
 import type {
-  CanvasStructure,
-  DSL,
-} from "reducers/uiReducers/pageCanvasStructureReducer";
-import type {
   CanvasWidgetStructure,
   FlattenedWidgetProps,
 } from "WidgetProvider/types";
 import { WIDGET_DSL_STRUCTURE_PROPS } from "constants/WidgetConstants";
+import type { CanvasStructure, DSL } from "./canvasStructureTypes";
 
 interface DenormalizeOptions {
   widgetTypeForHaltingRecursion?: string;

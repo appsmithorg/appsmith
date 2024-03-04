@@ -4,20 +4,9 @@ import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { WidgetProps } from "widgets/types";
 import { compareAndGenerateImmutableCanvasStructure } from "utils/canvasStructureHelpers";
-import type { WidgetType } from "constants/WidgetConstants";
+import type { CanvasStructure, DSL } from "utils/canvasStructureTypes";
 
-export interface CanvasStructure {
-  widgetName: string;
-  widgetId: string;
-  type: WidgetType;
-  children?: CanvasStructure[];
-}
-
-export interface DSL extends WidgetProps {
-  children?: DSL[];
-}
 export interface PageCanvasStructureReduxState {
   [pageId: string]: CanvasStructure;
 }

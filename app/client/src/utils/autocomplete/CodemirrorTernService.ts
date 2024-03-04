@@ -9,7 +9,6 @@ import {
 } from "utils/DynamicBindingUtils";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
-import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 import { AutocompleteSorter } from "./AutocompleteSortRules";
 import { getCompletionsForKeyword } from "./keywordCompletion";
 import TernWorkerServer from "./TernWorkerService";
@@ -21,83 +20,19 @@ import {
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { findIndex, isString } from "lodash";
 import { renderTernTooltipContent } from "./ternDocTooltip";
+import type { RequestQuery } from "msw";
+import type {
+  TernCompletionResult,
+  TernDocs,
+  ArgHints,
+  DataTreeDefEntityInformation,
+  Completion,
+  TernDoc,
+} from "./types";
 
 const bigDoc = 250;
 const cls = "CodeMirror-Tern-";
 const hintDelay = 1700;
-
-export interface Completion<
-  T = {
-    doc: string;
-  },
-> extends Hint {
-  origin: string;
-  type: AutocompleteDataType | string;
-  data: T;
-  render?: any;
-  isHeader?: boolean;
-  recencyWeight?: number;
-  isEntityName?: boolean;
-}
-
-export interface CommandsCompletion
-  extends Omit<Completion, "type" | "origin" | "data"> {
-  data: unknown;
-  action?: (callback?: (completion: string) => void) => void;
-  shortcut?: string;
-  triggerCompletionsPostPick?: boolean;
-}
-
-type TernDocs = Record<string, TernDoc>;
-
-interface TernDoc {
-  doc: CodeMirror.Doc;
-  name: string;
-  changed: { to: number; from: number } | null;
-}
-
-export interface TernCompletionResult {
-  name: string;
-  type?: string | undefined;
-  depth?: number | undefined;
-  doc?: string | undefined;
-  url?: string | undefined;
-  origin?: string | undefined;
-}
-
-interface ArgHints {
-  start: CodeMirror.Position;
-  type: { args: any[]; rettype: null | string };
-  name: string;
-  guess: boolean;
-  doc: CodeMirror.Doc;
-}
-
-interface RequestQuery {
-  type: string;
-  types?: boolean;
-  docs?: boolean;
-  urls?: boolean;
-  origins?: boolean;
-  caseInsensitive?: boolean;
-  preferFunction?: boolean;
-  end?: CodeMirror.Position;
-  guess?: boolean;
-  inLiteral?: boolean;
-  fullDocs?: any;
-  lineCharPositions?: any;
-  start?: any;
-  file?: any;
-  includeKeywords?: boolean;
-  depth?: number;
-  sort?: boolean;
-  expandWordForward?: boolean;
-}
-
-export interface DataTreeDefEntityInformation {
-  type: EntityTypeValue;
-  subType: string;
-}
 
 /** Tern hard coded some keywords which return `isKeyword` true.
  * There is however no provision to add more keywords to the list. Therefore,
@@ -1194,16 +1129,6 @@ class CodeMirrorTernService {
     this.recentEntities = recentEntities;
   }
 }
-
-export const createCompletionHeader = (name: string): Completion<any> => ({
-  text: name,
-  displayText: name,
-  className: "CodeMirror-hint-header",
-  data: { doc: "" },
-  origin: "",
-  type: AutocompleteDataType.UNKNOWN,
-  isHeader: true,
-});
 
 export default new CodeMirrorTernService({
   async: true,

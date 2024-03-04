@@ -6,7 +6,7 @@ import {
   hideByColumnType,
   selectColumnOptionsValidation,
 } from "../../propertyUtils";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/types";
 
 export default {
   sectionName: "Select properties",

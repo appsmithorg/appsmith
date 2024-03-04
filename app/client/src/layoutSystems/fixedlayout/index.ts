@@ -1,7 +1,7 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { FixedLayoutEditorWrapper } from "./editor/FixedLayoutEditorWrapper";
 import { FixedLayoutViewerWrapper } from "./viewer/FixedLayoutViewerWrapper";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import { getFixedLayoutComponentDimensions } from "layoutSystems/common/utils/ComponentSizeUtils";
 import { FixedLayoutEditorCanvas } from "./canvas/FixedLayoutEditorCanvas";
 import type { CanvasProps } from "./canvas/FixedLayoutEditorCanvas";

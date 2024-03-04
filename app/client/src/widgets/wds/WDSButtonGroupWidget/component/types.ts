@@ -3,8 +3,9 @@ import type {
   ButtonProps,
   IconProps,
 } from "@design-system/widgets";
-import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+
+export type ButtonsList = Record<string, ButtonGroupItemComponentProps>;
 
 export interface ButtonGroupComponentProps {
   color?: ActionGroupProps<object>["color"];

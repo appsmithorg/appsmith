@@ -2,7 +2,7 @@ import { GridDefaults } from "constants/WidgetConstants";
 import type { RenderModes } from "constants/WidgetConstants";
 import { renderChildren } from "layoutSystems/common/utils/canvasUtils";
 import React, { useMemo } from "react";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import FlexBoxComponent from "../common/flexCanvas/FlexBoxComponent";
 import type { AdditionalAutoLayoutProperties } from "./types";
 import type { WidgetProps } from "widgets/types";

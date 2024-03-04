@@ -71,12 +71,10 @@ import { cloneDeep, set } from "lodash";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { combineDynamicBindings } from "utils/DynamicBindingUtils";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

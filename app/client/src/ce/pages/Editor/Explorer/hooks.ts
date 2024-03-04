@@ -7,7 +7,7 @@ import { isStoredDatasource } from "entities/Action";
 import type { WidgetProps } from "widgets/types";
 import log from "loglevel";
 import produce from "immer";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import type { CanvasStructure } from "utils/canvasStructureTypes";
 import {
   getActions,
   getDatasources,

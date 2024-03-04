@@ -1,7 +1,5 @@
-import type {
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 export const methodsConfig = {
   getSnipingModeUpdates: (

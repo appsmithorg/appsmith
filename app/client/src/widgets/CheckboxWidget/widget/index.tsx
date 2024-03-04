@@ -19,13 +19,11 @@ import type {
 } from "WidgetProvider/types";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
   static type = "CHECKBOX_WIDGET";

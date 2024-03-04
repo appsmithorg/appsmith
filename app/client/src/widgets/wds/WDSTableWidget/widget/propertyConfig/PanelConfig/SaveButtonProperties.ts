@@ -4,7 +4,7 @@ import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { hideByColumnType, getBasePropertyPath } from "../../propertyUtils";
 import { ButtonVariantTypes } from "components/constants";
 import { ICON_NAMES } from "WidgetProvider/constants";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/types";
 
 export default {
   sectionName: "Save Button",

@@ -3,7 +3,6 @@ import type {
   FieldEntityInformation,
   HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
-import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -12,11 +11,12 @@ import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { checkIfCursorInsideBinding } from "components/editorComponents/CodeEditor/codeEditorUtils";
 import type { SlashCommandPayload } from "entities/Action";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { getAIContext } from "@appsmith/components/editorComponents/GPT/trigger";
+import type { CommandsCompletion } from "utils/autocomplete/types";
 import type {
   EntityNavigationData,
   NavigationData,
-} from "selectors/navigationSelectors";
-import { getAIContext } from "@appsmith/components/editorComponents/GPT/trigger";
+} from "utils/NavigationSelector/types";
 
 export const slashCommandHintHelper: HintHelper = (
   _,

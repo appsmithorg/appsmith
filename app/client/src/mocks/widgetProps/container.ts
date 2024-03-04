@@ -1,7 +1,6 @@
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { generateReactKey } from "utils/generators";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-
+import type { BaseWidgetProps } from "widgets/types";
 export const mockContainerProps = (): BaseWidgetProps => ({
   type: "CONTAINER_WIDGET",
   widgetId: generateReactKey(),

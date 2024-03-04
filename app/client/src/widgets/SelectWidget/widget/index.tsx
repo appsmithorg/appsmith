@@ -47,14 +47,12 @@ import { DynamicHeight } from "utils/widgetFeaturesTypes";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 
 import IconSVG from "../icon.svg";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { DynamicPath } from "widgets/types";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 class SelectWidget extends BaseWidget<SelectWidgetProps, WidgetState> {
   constructor(props: SelectWidgetProps) {

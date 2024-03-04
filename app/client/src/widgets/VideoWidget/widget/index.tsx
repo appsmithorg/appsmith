@@ -20,11 +20,9 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const VideoComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

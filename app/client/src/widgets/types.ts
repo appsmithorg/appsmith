@@ -78,6 +78,8 @@ export interface WidgetPositionProps extends WidgetRowCols {
   width?: number;
 }
 
+export interface BaseWidgetProps extends WidgetProps, WidgetState {}
+
 export interface WidgetCanvasProps {
   isWidgetSelected?: boolean;
 }

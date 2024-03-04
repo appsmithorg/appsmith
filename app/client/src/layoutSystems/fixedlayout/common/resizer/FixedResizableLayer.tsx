@@ -1,6 +1,6 @@
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import React, { memo } from "react";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import { ResizableComponent } from "layoutSystems/common/resizer/ResizableComponent";
 
 export const FixedResizableLayer = memo((props: BaseWidgetProps) => {

@@ -5,10 +5,7 @@ import { isNumber, isNil } from "lodash";
 import type { BaseCellComponentProps, VerticalAlignment } from "../Constants";
 import { ALIGN_ITEMS } from "../Constants";
 import type { EditableCell } from "widgets/wds/WDSTableWidget/constants";
-import {
-  ColumnTypes,
-  EditableCellActions,
-} from "widgets/wds/WDSTableWidget/constants";
+import { EditableCellActions } from "widgets/wds/WDSTableWidget/constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import { CELL_WRAPPER_LINE_HEIGHT } from "../TableStyledWrappers";
 import { BasicCell } from "./BasicCell";
@@ -21,6 +18,7 @@ import CurrencyTypeDropdown, {
 import { getLocale } from "utils/helpers";
 import * as Sentry from "@sentry/react";
 import { getLocaleThousandSeparator } from "widgets/WidgetUtils";
+import { ColumnTypes } from "widgets/TableWidgetV2/types";
 
 const Container = styled.div<{
   isCellEditMode?: boolean;

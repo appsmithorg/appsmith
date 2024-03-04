@@ -6,7 +6,7 @@ import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { AnvilDraggedWidgetTypesEnum } from "../types";
 import { anvilWidgets } from "widgets/anvil/constants";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
-import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
+import { getWidgetHierarchy } from "../utils";
 
 /**
  * Determines whether a canvas can be activated for a dragged widget based on specific conditions.

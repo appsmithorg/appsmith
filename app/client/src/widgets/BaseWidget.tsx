@@ -41,7 +41,8 @@ import type {
 } from "layoutSystems/anvil/utils/paste/types";
 import { type CallEffect, call } from "redux-saga/effects";
 import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
-import type { WidgetProps, WidgetState, WidgetFeatures } from "./types";
+import type { WidgetProps, WidgetState } from "./types";
+import type { WidgetFeatures } from "utils/widgetFeaturesTypes";
 
 /***
  * BaseWidget

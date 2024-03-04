@@ -1,7 +1,7 @@
 import { get } from "lodash";
 import { ValidationTypes } from "constants/types";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
+import { ColumnTypes } from "widgets/TableWidgetV2/types";
 import { hideByColumnType, getBasePropertyPath } from "../../propertyUtils";
 import { ButtonVariantTypes } from "components/constants";
 import { ICON_NAMES } from "WidgetProvider/constants";

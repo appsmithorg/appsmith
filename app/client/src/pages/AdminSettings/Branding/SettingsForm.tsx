@@ -10,7 +10,6 @@ import type {
 import { Controller } from "react-hook-form";
 import { Button, Icon, Text, Tooltip } from "design-system";
 
-import type { Inputs } from "./BrandingPage";
 import {
   ADMIN_BRANDING_LOGO_REQUIREMENT,
   ADMIN_BRANDING_FAVICON_REQUIREMENT,
@@ -29,6 +28,7 @@ import { useBrandingForm } from "@appsmith/pages/AdminSettings/Branding/useBrand
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import styled from "styled-components";
 import { HelperText } from "pages/AdminSettings/components";
+import type { Inputs } from "./types";
 
 const Wrapper = styled.form`
   .help-icon {

@@ -14,8 +14,8 @@ import type {
 import type { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
 import type { SupportedLayouts } from "api/pagetypes";
 import { sortBy } from "lodash";
-import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { createReducer } from "utils/ReducerUtils";
+import type { DSL } from "utils/canvasStructureTypes";
 
 const initialState: PageListReduxState = {
   pages: [],

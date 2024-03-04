@@ -1,7 +1,7 @@
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import WidgetComponentBoundary from "layoutSystems/common/widgetComponent/WidgetComponentBoundary";
 import React from "react";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import Skeleton from "widgets/Skeleton";
 
 export const AnvilWidgetComponent = (props: BaseWidgetProps) => {

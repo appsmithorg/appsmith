@@ -43,13 +43,11 @@ import { DynamicHeight } from "utils/widgetFeaturesTypes";
 
 import IconSVG from "../icon.svg";
 
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 export function defaultValueValidation(
   value: any,

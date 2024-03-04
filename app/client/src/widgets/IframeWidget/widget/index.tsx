@@ -14,15 +14,13 @@ import type {
 } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const isAirgappedInstance = isAirgapped();
 

@@ -1,8 +1,5 @@
 import React from "react";
-import {
-  GridDefaults,
-  MAIN_CONTAINER_WIDGET_ID,
-} from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import lazyLottie from "./lazyLottie";
 import welcomeConfettiAnimationURL from "assets/lottie/welcome-confetti.json.txt";
 import {
@@ -29,15 +26,8 @@ import {
 } from "constants/routes";
 import history from "./history";
 import { APPSMITH_GLOBAL_FUNCTIONS } from "components/editorComponents/ActionCreator/constants";
-import type {
-  CanvasWidgetsReduxState,
-  FlattenedWidgetProps,
-} from "reducers/entityReducers/canvasWidgetsReducer";
-import { checkContainerScrollable } from "widgets/WidgetUtils";
-import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
-import scrollIntoView from "scroll-into-view-if-needed";
+import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import validateColor from "validate-color";
-import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -221,135 +211,6 @@ export const flashElementsById = (
     }, timeout);
   });
 };
-
-/**
- * Scrolls to the widget of WidgetId without any animantion.
- * @param widgetId
- * @param canvasWidgets
- */
-export const quickScrollToWidget = (
-  widgetId: string,
-  widgetIdSelector: string,
-  canvasWidgets: CanvasWidgetsReduxState,
-) => {
-  if (!widgetId || widgetId === "") return;
-  window.requestIdleCallback(() => {
-    const el = document.getElementById(widgetIdSelector);
-    const canvas = document.getElementById(CANVAS_VIEWPORT);
-
-    if (el && canvas && !isElementVisibleInContainer(el, canvas, 5)) {
-      const scrollElement = getWidgetElementToScroll(
-        widgetId,
-        widgetIdSelector,
-        canvasWidgets,
-      );
-      if (scrollElement) {
-        scrollIntoView(scrollElement, {
-          block: "center",
-          inline: "nearest",
-          behavior: "smooth",
-        });
-      }
-    }
-  });
-};
-
-/** Checks if a percentage of element is visible inside a container or not
-
- The function first retrieves the bounding rectangles of both the
- container and the element using the getBoundingClientRect() method.
- It then calculates the visible area of the element inside the container
- by determining the intersection between the two bounding rectangles.
-
- The function then calculates the percentage of the element that is
- visible by dividing the visible area by the total area of the element
- and multiplying by 100. Finally, it returns true if the visible percentage
- is greater than or equal to the desired percentage, and false otherwise.
-
- Note that this function assumes that the element and the container
- are both positioned using the CSS position property, and that the
- container is positioned relative to its containing block. If the
- element or the container have a different positioning, the
- function may need to be adjusted accordingly.
- **/
-function isElementVisibleInContainer(
-  element: HTMLElement,
-  container: HTMLElement,
-  percentage = 100,
-) {
-  const elementBounds = element.getBoundingClientRect();
-  const containerBounds = container.getBoundingClientRect();
-  // Calculate the visible area of the element inside the container
-  const visibleWidth =
-    Math.min(elementBounds.right, containerBounds.right) -
-    Math.max(elementBounds.left, containerBounds.left);
-  const visibleHeight =
-    Math.min(elementBounds.bottom, containerBounds.bottom) -
-    Math.max(elementBounds.top, containerBounds.top);
-  const visibleArea = visibleWidth * visibleHeight;
-
-  // Calculate the percentage of the element that is visible
-  const elementArea = element.clientWidth * element.clientHeight;
-  const visiblePercentage = (visibleArea / elementArea) * 100;
-
-  // Return whether the visible percentage is greater than or equal to the desired percentage
-  return visiblePercentage >= percentage;
-}
-
-/**
- * This function provides the correct DOM element to scroll to
- * such that the widget (argument) is visible in the viewport.
- * This function has been implemented to run when the viewer or editor
- * is loaded with a widget ID in the URL.
- * This is a part of the Context preserving logic
- *
- * @param widgetId : Widget ID to scroll to
- * @param canvasWidgets : Canvas widgets redux state
- * @returns HTMLElement to scroll to or null
- */
-function getWidgetElementToScroll(
-  widgetId: string,
-  widgetIdSelector: string,
-  canvasWidgets: CanvasWidgetsReduxState,
-): HTMLElement | null {
-  const widget = canvasWidgets[widgetId];
-  const parentId = widget.parentId;
-  // If the widget doesn't have a parent, scroll to the widget itself
-  // This is the case for the main container widget, however,
-  // this scenario is not likely to occur in a normal use case.
-  if (parentId == undefined) return document.getElementById(widgetIdSelector);
-
-  // Get the containing container like widget for the widget
-  // Note: The parentId is usually pointing to a CANVAS_WIDGET
-  // However, we can only scroll a container like widget which is the parent
-  // of the CANVAS_WIDGET. Hence, we need to get the container like widget's Id.
-  const containerId = getContainerIdForCanvas(parentId);
-
-  // If we failed to get the container, try to scroll to the widget itself
-  if (containerId === undefined) {
-    return document.getElementById(widgetIdSelector);
-  } else {
-    // If the widget is not within a modal widget,
-    // but is the child of the main container widget,
-    // scroll to the widget itself
-    if (containerId === MAIN_CONTAINER_WIDGET_ID) {
-      if (widget.detachFromLayout) {
-        return document.getElementById(widgetIdSelector);
-      }
-    }
-
-    // Get the container widget props from the redux state
-    const containerWidget: FlattenedWidgetProps = canvasWidgets[containerId];
-
-    // If the widget is within a container, check if the container is scrollable
-    if (checkContainerScrollable(containerWidget)) {
-      return document.getElementById(widgetIdSelector);
-    } else {
-      // If the container is not scrollable, scroll to the container itself
-      return document.getElementById(containerId);
-    }
-  }
-}
 
 export const resolveAsSpaceChar = (value: string, limit?: number) => {
   // ensures that all special characters are disallowed

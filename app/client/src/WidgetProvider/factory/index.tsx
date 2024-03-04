@@ -30,7 +30,7 @@ import {
   WidgetFeaturePropertyEnhancements,
   WidgetFeatureProps,
 } from "../../utils/WidgetFeatures";
-import type { RegisteredWidgetFeatures } from "../../widgets/types";
+import type { RegisteredWidgetFeatures } from "utils/widgetFeaturesTypes";
 import type { SetterConfig } from "entities/AppTheming";
 import { freeze, memoize } from "./decorators";
 import produce from "immer";

@@ -1,4 +1,4 @@
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import { Classes, Overlay } from "@blueprintjs/core";
 import React, { useEffect, useState } from "react";
 import type { ReactNode } from "react";

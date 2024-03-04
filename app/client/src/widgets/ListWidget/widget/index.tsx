@@ -55,7 +55,6 @@ import {
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
   FlattenedWidgetProps,
   DSLWidget,
@@ -65,6 +64,7 @@ import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import IconSVG from "../icon.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 

@@ -21,7 +21,6 @@ import type {
   AutocompletionDefinitions,
   CanvasWidgetStructure,
   FlattenedWidgetProps,
-  PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/types";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
@@ -52,6 +51,7 @@ import defaultProps from "./defaultProps";
 import IconSVG from "../icon.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const getCurrentItemsViewBindingTemplate = () => ({
   prefix: "{{[",

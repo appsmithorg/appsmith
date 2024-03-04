@@ -8,7 +8,7 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import type { RecaptchaProps } from "./useRecaptcha";
+import type { RecaptchaProps } from "./types";
 
 export type RecaptchaV2Props = RecaptchaProps;
 

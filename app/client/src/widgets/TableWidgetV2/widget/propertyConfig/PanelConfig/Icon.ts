@@ -1,7 +1,8 @@
 import { ValidationTypes } from "constants/types";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes, ICON_NAMES } from "widgets/TableWidgetV2/constants";
+import { ICON_NAMES } from "widgets/TableWidgetV2/constants";
 import { hideByColumnType, updateIconAlignment } from "../../propertyUtils";
+import { ColumnTypes } from "widgets/TableWidgetV2/types";
 
 export default {
   sectionName: "Icon",

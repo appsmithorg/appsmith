@@ -8,11 +8,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type {
-  ClonePageActionPayload,
-  CreatePageActionPayload,
-  FetchPageListPayload,
-} from "actions/pageActions";
+import type { FetchPageListPayload } from "actions/pageActions";
 import { createPage, fetchPublishedPage } from "actions/pageActions";
 import {
   clonePageSuccess,
@@ -44,7 +40,6 @@ import type {
   FetchPageResponseData,
   FetchPublishedPageRequest,
   GenerateTemplatePageRequest,
-  PageLayout,
   PageLayoutsRequest,
   SavePageRequest,
   SavePageResponse,
@@ -148,6 +143,11 @@ import {
   waitForWidgetConfigBuild,
   failFastApiCalls,
 } from "entities/Engine/AppEngineUtils";
+import type {
+  ClonePageActionPayload,
+  CreatePageActionPayload,
+  PageLayout,
+} from "api/pagetypes";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,

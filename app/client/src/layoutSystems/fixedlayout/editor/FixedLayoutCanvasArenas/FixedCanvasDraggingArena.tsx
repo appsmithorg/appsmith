@@ -6,19 +6,7 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
-
-export interface FixedCanvasDraggingArenaProps {
-  canExtend: boolean;
-  detachFromLayout?: boolean;
-  dropDisabled?: boolean;
-  noPad?: boolean;
-  snapColumnSpace: number;
-  snapRows: number;
-  snapRowSpace: number;
-  parentId?: string;
-  widgetId: string;
-  widgetName?: string;
-}
+import type { FixedCanvasDraggingArenaProps } from "./types";
 
 /**
  * FixedCanvasDraggingArena is a wrapper for html Canvas on top of the canvas which renders widgets that helps with drag n drop

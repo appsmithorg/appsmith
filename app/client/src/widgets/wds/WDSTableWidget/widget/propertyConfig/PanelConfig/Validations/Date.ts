@@ -1,5 +1,5 @@
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/types";
 import {
   getColumnPath,
   hideByColumnType,

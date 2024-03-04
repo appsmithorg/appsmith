@@ -19,12 +19,10 @@ import { StyledButton as Button } from "widgets/ButtonWidget/component";
 import { ButtonVariantTypes } from "components/constants";
 
 import { cloneDeep } from "lodash";
-import {
-  ColumnTypes,
-  FilterableColumnTypes,
-} from "widgets/TableWidgetV2/constants";
+import { FilterableColumnTypes } from "widgets/TableWidgetV2/constants";
 import { generateReactKey } from "utils/generators";
 import { importRemixIcon } from "design-system-old";
+import { ColumnTypes } from "widgets/TableWidgetV2/types";
 
 const AddIcon = importRemixIcon(
   async () => import("remixicon-react/AddLineIcon"),

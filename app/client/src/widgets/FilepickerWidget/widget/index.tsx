@@ -15,12 +15,12 @@ import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/types";
 import { importUppy, isUppyLoaded } from "utils/importUppy";
 import type { SetterConfig } from "entities/AppTheming";
 import IconSVG from "../icon.svg";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 class FilePickerWidget extends BaseWidget<
   FilePickerWidgetProps,

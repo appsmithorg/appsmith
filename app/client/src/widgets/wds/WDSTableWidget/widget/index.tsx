@@ -51,7 +51,6 @@ import type {
 import {
   ActionColumnTypes,
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-  ColumnTypes,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
@@ -124,7 +123,6 @@ import type {
   AnvilConfig,
   AutocompletionDefinitions,
   FlattenedWidgetProps,
-  PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/types";
 import type {
@@ -139,6 +137,8 @@ import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPos
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
 import type { WidgetDefaultProps } from "WidgetProvider/types";
+import { ColumnTypes } from "../types";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

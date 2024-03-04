@@ -1,4 +1,3 @@
-import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 import { ACTION_TYPE, JSACTION_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
@@ -29,25 +28,7 @@ import { PluginType } from "entities/Action";
 import type { StoredDatasource } from "entities/Action";
 import type { Datasource } from "entities/Datasource";
 import { getModuleInstanceNavigationData } from "@appsmith/utils/moduleInstanceNavigationData";
-
-export interface NavigationData {
-  name: string;
-  id: string;
-  type: EntityTypeValue;
-  isfunction?: boolean;
-  url: string | undefined;
-  navigable: boolean;
-  children: EntityNavigationData;
-  key?: string;
-  pluginName?: string;
-  pluginId?: string;
-  isMock?: boolean;
-  datasourceId?: string;
-  actionType?: string;
-  widgetType?: string;
-  value?: boolean | string;
-}
-export type EntityNavigationData = Record<string, NavigationData>;
+import type { EntityNavigationData } from "utils/NavigationSelector/types";
 
 export const getModulesData = createSelector(
   getModuleInstances,

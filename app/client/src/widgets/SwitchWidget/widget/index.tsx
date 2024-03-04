@@ -18,12 +18,10 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/types";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static type = "SWITCH_WIDGET";

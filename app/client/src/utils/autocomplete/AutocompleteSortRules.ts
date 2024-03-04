@@ -4,14 +4,15 @@ import {
   PriorityOrder,
   blockedCompletions,
 } from "./dataTypeSortRules";
-import type {
-  Completion,
-  DataTreeDefEntityInformation,
-  TernCompletionResult,
-} from "./CodemirrorTernService";
-import { createCompletionHeader } from "./CodemirrorTernService";
+
 import { AutocompleteDataType } from "./AutocompleteDataType";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { createCompletionHeader } from "./helpers";
+import type {
+  Completion,
+  TernCompletionResult,
+  DataTreeDefEntityInformation,
+} from "./types";
 
 interface AutocompleteRule {
   computeScore(

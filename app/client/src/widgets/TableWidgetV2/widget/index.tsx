@@ -51,7 +51,6 @@ import type {
 import {
   ActionColumnTypes,
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-  ColumnTypes,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
@@ -123,7 +122,6 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/types";
 import type {
@@ -139,6 +137,8 @@ import {
 import IconSVG from "../icon.svg";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
+import { ColumnTypes } from "../types";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

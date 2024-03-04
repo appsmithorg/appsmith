@@ -4,7 +4,7 @@ import { EditorContext } from "components/editorComponents/EditorContextProvider
 import { GridDefaults } from "constants/WidgetConstants";
 import React, { useContext } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import {
   getWidgetMaxAutoHeight,
   getWidgetMinAutoHeight,

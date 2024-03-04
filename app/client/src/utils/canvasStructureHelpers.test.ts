@@ -1,4 +1,4 @@
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import type { CanvasStructure } from "utils/canvasStructureTypes";
 import { compareAndGenerateImmutableCanvasStructure } from "./canvasStructureHelpers";
 const canvasStructure: CanvasStructure = {
   widgetId: "x",

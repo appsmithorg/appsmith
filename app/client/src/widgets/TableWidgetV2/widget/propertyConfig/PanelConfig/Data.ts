@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/types";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes, DateInputFormat } from "widgets/TableWidgetV2/constants";
+import { DateInputFormat } from "widgets/TableWidgetV2/constants";
 import { get } from "lodash";
 import {
   getBasePropertyPath,
@@ -15,6 +15,7 @@ import {
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
 import { CurrencyDropdownOptions } from "widgets/CurrencyInputWidget/component/CurrencyCodeDropdown";
+import { ColumnTypes } from "widgets/TableWidgetV2/types";
 
 export default {
   sectionName: "Data",

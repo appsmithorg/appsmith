@@ -121,7 +121,7 @@ import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
 import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
+import type { EntityNavigationData } from "utils/NavigationSelector/types";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";

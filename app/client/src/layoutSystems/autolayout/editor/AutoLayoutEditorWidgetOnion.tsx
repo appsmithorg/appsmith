@@ -2,7 +2,7 @@ import SnipeableComponent from "layoutSystems/common/snipeable/SnipeableComponen
 import { get } from "lodash";
 import React, { useCallback } from "react";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import { WidgetNameLayer } from "../../common/widgetName/WidgetNameLayer";
 import { AutoLayoutWidgetComponent } from "../common/widgetComponent/AutoLayoutWidgetComponent";
 import FlexComponent from "../common/FlexComponent";

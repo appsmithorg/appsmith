@@ -3,7 +3,8 @@ import type { ColumnProperties } from "../component/Constants";
 import { StickyType } from "../component/Constants";
 import { CellAlignmentTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
-import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
+import { InlineEditingSaveOptions } from "../constants";
+import { ColumnTypes } from "../types";
 import _, { findIndex, get, isBoolean } from "lodash";
 import { Colors } from "constants/Colors";
 import {
@@ -18,6 +19,15 @@ import type { PropertyUpdates } from "constants/PropertyControlConstants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 import type { ValidationConfig } from "constants/types";
 import type { ValidationResponse } from "constants/WidgetValidation";
+
+/*
+ * Nested propeties are not validated when application is refreshed
+ * TODO(Balai): Should confirm and create an issue to address this.
+ */
+export function getSelectColumnTypeOptions(value: unknown) {
+  const result = SelectColumnOptionsValidations(value, {}, _);
+  return result.parsed;
+}
 
 export function totalRecordsCountValidation(
   value: unknown,

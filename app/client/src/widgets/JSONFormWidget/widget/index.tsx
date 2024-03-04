@@ -35,7 +35,6 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/types";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
@@ -64,6 +63,7 @@ import {
 } from "../constants/messages";
 import { createMessage } from "@appsmith/constants/messages";
 import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,

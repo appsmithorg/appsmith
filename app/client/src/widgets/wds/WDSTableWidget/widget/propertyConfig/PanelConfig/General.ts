@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/types";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/types";
 import { get } from "lodash";
 import {
   getBasePropertyPath,

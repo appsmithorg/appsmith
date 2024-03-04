@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/types";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
-import { ColumnTypes, ICON_NAMES } from "widgets/wds/WDSTableWidget/constants";
+import { ICON_NAMES } from "widgets/wds/WDSTableWidget/constants";
 import {
   hideByColumnType,
   hideByMenuItemsSource,
@@ -12,6 +12,7 @@ import { IconNames } from "@blueprintjs/icons";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
 import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/types";
 
 export default {
   sectionName: "Basic",

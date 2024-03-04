@@ -1,10 +1,10 @@
 import { ValidationTypes } from "constants/types";
 import type { TableWidgetProps } from "widgets/TableWidgetV2/constants";
-import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import {
   hideByColumnType,
   removeBoxShadowColorProp,
 } from "../../propertyUtils";
+import { ColumnTypes } from "widgets/TableWidgetV2/types";
 
 export default {
   sectionName: "Border and shadow",

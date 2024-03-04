@@ -1,12 +1,12 @@
 import { Checkbox, Text } from "design-system";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import React from "react";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 import {
   CheckBoxGrid,
   CheckboxContainer,
   CheckboxWrapper,
 } from "./StyledSheet";
+import type { CanvasStructure } from "utils/canvasStructureTypes";
 
 interface BaseProps {
   selectedWidgetIds: string[];

@@ -31,11 +31,9 @@ import moment from "moment";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/widgetFeaturesTypes";
 import IconSVG from "../icon.svg";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 function allowedRange(value: any) {
   const allowedValues = [0, 1, 2, 3, 4, 5, 6];

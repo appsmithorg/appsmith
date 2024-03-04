@@ -5,8 +5,7 @@ import type {
 } from "WidgetProvider/types";
 import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-
+import type { BaseWidgetProps } from "widgets/types";
 export const getAutoDimensionsConfig = (
   config: AutoLayoutConfig,
   props: BaseWidgetProps,

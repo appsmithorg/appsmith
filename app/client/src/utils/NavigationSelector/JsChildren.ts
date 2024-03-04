@@ -5,11 +5,8 @@ import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { keyBy } from "lodash";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
-import type {
-  EntityNavigationData,
-  NavigationData,
-} from "selectors/navigationSelectors";
 import { createNavData } from "./common";
+import type { EntityNavigationData, NavigationData } from "./types";
 
 export const getJsChildrenNavData = (
   jsAction: JSCollectionData,

@@ -3,8 +3,8 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
 import { builderURL } from "@appsmith/RouteBuilder";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
 import { createNavData } from "./common";
+import type { EntityNavigationData } from "./types";
 
 export const getWidgetChildrenNavData = (
   widgetName: string,

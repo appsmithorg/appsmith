@@ -10,7 +10,6 @@ import ThumbnailSVG from "../thumbnail.svg";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/types";
 import InputComponent from "../component";
@@ -29,6 +28,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   static getConfig() {

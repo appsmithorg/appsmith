@@ -4,14 +4,12 @@ import type {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/types";
-import { memoize } from "lodash";
 import log from "loglevel";
 import type { WidgetType } from ".";
-import WidgetFactory from ".";
 import type {
   RegisteredWidgetFeatures,
   WidgetFeatures,
-} from "../../widgets/types";
+} from "utils/widgetFeaturesTypes";
 import {
   PropertyPaneConfigTemplates,
   WidgetFeaturePropertyPaneEnhancements,
@@ -294,9 +292,3 @@ export function convertFunctionsToString(config: PropertyPaneConfig[]) {
     return sectionOrControlConfig;
   });
 }
-
-export const checkIsDropTarget = memoize(function isDropTarget(
-  type: WidgetType,
-) {
-  return !!WidgetFactory.widgetConfigMap.get(type)?.isCanvas;
-});

@@ -7,11 +7,12 @@ import type {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { DSLWidget } from "WidgetProvider/types";
-import type {
-  ClonePageActionPayload,
-  CreatePageActionPayload,
-} from "actions/pageActions";
 import type { FetchApplicationResponse } from "@appsmith/api/ApplicationApi";
+import type {
+  CreatePageActionPayload,
+  ClonePageActionPayload,
+  PageLayout,
+} from "./pagetypes";
 
 export interface FetchPageRequest {
   id: string;
@@ -31,14 +32,6 @@ export interface SavePageRequest {
   layoutId: string;
   pageId: string;
   applicationId: string;
-}
-
-export interface PageLayout {
-  id: string;
-  dsl: Partial<DSLWidget>;
-  layoutOnLoadActions: PageAction[][];
-  layoutActions: PageAction[];
-  layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
 }
 
 export interface PageLayoutsRequest {

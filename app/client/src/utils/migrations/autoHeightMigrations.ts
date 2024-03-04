@@ -1,10 +1,10 @@
 import { WidgetFeatureProps } from "utils/WidgetFeatures";
-import { RegisteredWidgetFeatures } from "widgets/types";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import type { WidgetProps } from "widgets/types";
 import type { DSLWidget } from "WidgetProvider/types";
 import { GRID_DENSITY_MIGRATION_V1 } from "WidgetProvider/constants";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
+import { RegisteredWidgetFeatures } from "utils/widgetFeaturesTypes";
 export const migratePropertiesForDynamicHeight = (currentDSL: DSLWidget) => {
   /*  const widgetsWithDynamicHeight = compact(
     ALL_WIDGETS_AND_CONFIG.map(([, config]) => {

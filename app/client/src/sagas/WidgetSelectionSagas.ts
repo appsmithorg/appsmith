@@ -43,7 +43,6 @@ import {
 } from "selectors/editorSelectors";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { areArraysEqual } from "utils/AppsmithUtils";
-import { quickScrollToWidget } from "utils/helpers";
 import history, { NavigationMethod } from "utils/history";
 import {
   getWidgetIdsByType,
@@ -55,6 +54,7 @@ import { getModalWidgetType } from "selectors/widgetSelectors";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
+import { quickScrollToWidget } from "widgets/WidgetUtils";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities

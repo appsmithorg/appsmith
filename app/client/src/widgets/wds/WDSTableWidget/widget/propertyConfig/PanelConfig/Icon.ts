@@ -2,7 +2,7 @@ import { ValidationTypes } from "constants/types";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ICON_NAMES } from "widgets/wds/WDSTableWidget/constants";
 import { hideByColumnType, updateIconAlignment } from "../../propertyUtils";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/types";
 
 export default {
   sectionName: "Icon",

@@ -37,10 +37,10 @@ import {
 } from "widgets/WidgetUtils";
 import type {
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
 } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 export function defaultValueValidation(
   value: any,

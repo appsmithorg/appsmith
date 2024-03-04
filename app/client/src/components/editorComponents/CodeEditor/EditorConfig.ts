@@ -2,7 +2,7 @@ import type CodeMirror from "codemirror";
 import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
+import type { EntityNavigationData } from "utils/NavigationSelector/types";
 import type { ExpectedValueExample } from "utils/validation/common";
 
 import { editorSQLModes } from "./sql/config";

@@ -26,13 +26,11 @@ import { OverflowTypes } from "../constants";
 import IconSVG from "../icon.svg";
 import { DynamicHeight } from "utils/widgetFeaturesTypes";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import { get } from "lodash";
 import type { DynamicPath } from "widgets/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {

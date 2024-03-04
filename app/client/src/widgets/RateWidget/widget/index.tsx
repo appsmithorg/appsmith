@@ -18,11 +18,9 @@ import type {
 } from "WidgetProvider/types";
 import { Colors } from "constants/Colors";
 import IconSVG from "../icon.svg";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 function validateDefaultRate(value: unknown, props: any, _: any) {
   try {

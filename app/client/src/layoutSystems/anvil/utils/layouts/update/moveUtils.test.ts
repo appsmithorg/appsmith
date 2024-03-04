@@ -1,5 +1,5 @@
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import type {
   LayoutComponentProps,
   LayoutProps,

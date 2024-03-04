@@ -25,12 +25,10 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/types";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 /**
  * Validation rules:

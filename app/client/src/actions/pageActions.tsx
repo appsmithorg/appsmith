@@ -17,7 +17,6 @@ import type { WidgetOperation } from "widgets/types";
 import type {
   FetchPageRequest,
   FetchPageResponse,
-  PageLayout,
   SavePageResponse,
   UpdatePageRequest,
   UpdatePageResponse,
@@ -29,22 +28,11 @@ import type { GenerateTemplatePageRequest } from "api/PageApi";
 import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import * as Sentry from "@sentry/react";
+import type { PageLayout } from "api/pagetypes";
 
 export interface FetchPageListPayload {
   applicationId: string;
   mode: APP_MODE;
-}
-
-export interface ClonePageActionPayload {
-  id: string;
-  blockNavigation?: boolean;
-}
-
-export interface CreatePageActionPayload {
-  applicationId: string;
-  name: string;
-  layouts: Partial<PageLayout>[];
-  blockNavigation?: boolean;
 }
 
 export interface updateLayoutOptions {
