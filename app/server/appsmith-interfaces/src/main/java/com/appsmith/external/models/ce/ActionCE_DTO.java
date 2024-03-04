@@ -171,6 +171,8 @@ public class ActionCE_DTO implements Identifiable, Executable {
     protected Instant updatedAt;
 
     @JsonView(Views.Public.class)
+    // Denotes the method used for action creation: "one-click-binding", "generate-crud-page", or "no-accelerator"
+    // Used in analytic events
     String accelerator;
 
     @Override

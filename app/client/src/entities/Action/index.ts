@@ -65,6 +65,11 @@ export enum PaginationType {
   CURSOR = "CURSOR",
 }
 
+type AcceleratorType =
+  | "one-click-binding"
+  | "generate-crud-page"
+  | "no-accelerator";
+
 export interface KeyValuePair {
   key?: string;
   value?: unknown;
@@ -166,7 +171,7 @@ export interface BaseAction {
   isMainJSCollection?: boolean;
   // Denotes how the action was created, whether it was through
   // one click binding/ generate crud/ manually (no accelerator)
-  accelerator?: string;
+  accelerator?: AcceleratorType;
 }
 
 interface BaseApiAction extends BaseAction {

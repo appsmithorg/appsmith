@@ -1629,8 +1629,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getIsMock(), ""));
         }
 
-        analyticsProperties.put(
-                "accelerator", ObjectUtils.defaultIfNull(unpublishedAction.getAccelerator(), "no-accelerator"));
+        String accelerator = unpublishedAction.getAccelerator();
+        analyticsProperties.put("accelerator", ObjectUtils.defaultIfNull(accelerator, "no-accelerator"));
+        analyticsProperties.put("isUserCreated", accelerator == null ? true : false);
 
         return analyticsProperties;
     }
