@@ -1,3 +1,5 @@
+import type { WidgetOperation } from "widgets/types";
+
 //This File contains all the types that are common types required in layout System's CanvasArenas
 
 //WidgetDraggingBlock contains information related to a dragging widget,
@@ -20,4 +22,10 @@ export interface WidgetDraggingBlock {
 export interface XYCord {
   x: number;
   y: number;
+}
+
+export interface WidgetOperationParams {
+  operation: WidgetOperation;
+  widgetId: string;
+  payload: any;
 }
