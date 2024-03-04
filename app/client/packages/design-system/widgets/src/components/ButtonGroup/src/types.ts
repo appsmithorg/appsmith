@@ -14,7 +14,7 @@ export const ACTION_GROUP_ORIENTATIONS = {
 export interface InheritedActionButtonProps
   extends Pick<ButtonProps, "variant" | "color"> {}
 
-export interface ActionGroupProps<T>
+export interface ButtonGroupProps<T>
   extends Omit<
       SpectrumActionGroupProps<T>,
       | "staticColor"
@@ -36,7 +36,7 @@ export interface ActionGroupProps<T>
   size?: Omit<keyof typeof SIZES, "large">;
 }
 
-export interface ActionGroupItemProps<T> extends ButtonProps {
+export interface ButtonGroupItemProps<T> extends ButtonProps {
   state: ListState<T>;
   item: Node<T>;
 }

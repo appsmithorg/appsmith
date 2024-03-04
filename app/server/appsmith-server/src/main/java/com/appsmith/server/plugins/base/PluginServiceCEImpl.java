@@ -135,7 +135,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
                     List<String> pluginIds = org.getPlugins().stream()
                             .map(WorkspacePlugin::getPluginId)
                             .collect(Collectors.toList());
-                    final BridgeQuery<Plugin> criteria = Bridge.<Plugin>query().in(FieldName.ID, pluginIds);
+                    final BridgeQuery<Plugin> criteria = Bridge.in(FieldName.ID, pluginIds);
 
                     final String typeString = params.getFirst(FieldName.TYPE);
                     if (typeString != null) {

@@ -24,8 +24,7 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
     @Override
     public int updateStructure(String datasourceId, String environmentId, DatasourceStructure structure) {
         return queryBuilder()
-                .criteria(Bridge.query()
-                        .equal(DatasourceStorageStructure.Fields.datasourceId, datasourceId)
+                .criteria(Bridge.equal(DatasourceStorageStructure.Fields.datasourceId, datasourceId)
                         .equal(DatasourceStorageStructure.Fields.environmentId, environmentId))
                 .updateFirst(Bridge.update().set(DatasourceStorageStructure.Fields.structure, structure));
     }

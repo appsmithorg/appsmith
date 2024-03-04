@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -28,13 +27,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
-import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -163,12 +159,6 @@ public abstract class BaseService<
                     AppsmithError.INVALID_PARAMETER,
                     constraint.stream().findFirst().get().getPropertyPath()));
         });
-    }
-
-    private Map<String, Set<Policy>> getAllPoliciesAsMap(Set<Policy> policies) {
-        return policies.stream()
-                .collect(
-                        Collectors.groupingBy(Policy::getPermission, Collectors.mapping(Function.identity(), toSet())));
     }
 
     @Override
