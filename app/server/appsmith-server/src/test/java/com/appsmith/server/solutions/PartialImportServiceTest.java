@@ -16,9 +16,12 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.BuildingBlockDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -29,6 +32,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationTemplateService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -138,6 +142,12 @@ public class PartialImportServiceTest {
 
     @Autowired
     ActionCollectionService actionCollectionService;
+
+    @Autowired
+    ImportService importService;
+
+    @MockBean
+    ApplicationTemplateService applicationTemplateService;
 
     @BeforeEach
     public void setup() {
@@ -440,6 +450,50 @@ public class PartialImportServiceTest {
                                         action.getUnpublishedAction().getName()))
                                 .isTrue();
                     });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testPartialImportWithBuildingBlock_nameClash_success() {
+
+        Part filePart = createFilePart("test_assets/ImportExportServiceTest/building-block.json");
+        ApplicationJson applicationJson = (ApplicationJson)
+                importService.extractArtifactExchangeJson(filePart).block();
+        // Mock the call to fetch the json file from CS
+        Mockito.when(applicationTemplateService.getApplicationJsonFromTemplate(Mockito.anyString()))
+                .thenReturn(Mono.just(applicationJson));
+
+        // Create an application with all resources
+        Application testApplication = new Application();
+        testApplication.setName("testPartialImportWithBuildingBlock_nameClash_success");
+        testApplication.setWorkspaceId(workspaceId);
+
+        testApplication = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .block();
+
+        String pageId = newPageService
+                .findById(testApplication.getPages().get(0).getId(), Optional.empty())
+                .block()
+                .getId();
+        BuildingBlockDTO buildingBlockDTO = new BuildingBlockDTO();
+        buildingBlockDTO.setApplicationId(testApplication.getId());
+        buildingBlockDTO.setPageId(pageId);
+        buildingBlockDTO.setWorkspaceId(workspaceId);
+        buildingBlockDTO.setTemplateId("templatedId");
+
+        Mono<String> result = partialImportService
+                .importResourceInPage(workspaceId, testApplication.getId(), pageId, null, filePart)
+                .then(partialImportService.importBuildingBlock(buildingBlockDTO, null));
+
+        StepVerifier.create(result)
+                .assertNext(dsl -> {
+                    assertThat(dsl).isNotNull();
+                    // Compare the json string of widget DSL,
+                    // the binding names will be updated, and hence the json will be different
+                    assertThat(dsl).isNotEqualTo(applicationJson.getWidgets());
                 })
                 .verifyComplete();
     }

@@ -377,8 +377,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         return applicationJsonMono
                 .flatMap(applicationJson -> this.importResourceInPage(
                         buildingBlockDTO.getWorkspaceId(),
-                        buildingBlockDTO.getPageId(),
                         buildingBlockDTO.getApplicationId(),
+                        buildingBlockDTO.getPageId(),
                         branchName,
                         applicationJson))
                 .map(BuildingBlockImportDTO::getWidgetDsl);
