@@ -21,8 +21,8 @@
 }
 
 .overlay .content .header {
-  padding-inline: 0 calc(var(--inner-spacing-1));
-  margin-inline: 0 calc(-1 * var(--inner-spacing-3));
+  padding-inline: 0 calc(var(--inner-spacing-2));
+  margin-inline: 0 calc(-1 * var(--inner-spacing-4));
 }
 
 .overlay .content .body {
