@@ -10,7 +10,6 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -148,10 +147,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, UserData.Fields.userId));
         }
 
-        return asMonoDirect(() -> repositoryDirect
-                        .queryBuilder()
-                        .criteria(Bridge.query().equal(UserData.Fields.userId, userId))
-                        .updateFirst(resource))
+        return asMonoDirect(() -> repositoryDirect.updateByUserId(userId, resource))
                 .flatMap(count -> count == 0 ? Mono.empty() : repository.findByUserId(userId))
                 .flatMap(analyticsService::sendUpdateEvent);
     }

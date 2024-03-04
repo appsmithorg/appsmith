@@ -57,7 +57,7 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public Optional<T> first() {
         ensureNoOldStyleCriteria();
-        return repo.queryFirstExecute(this).blockOptional();
+        return repo.queryFirstExecute(this);
     }
 
     public Optional<Long> count() {
@@ -68,7 +68,7 @@ public class QueryAllParams<T extends BaseDomain> {
     public int updateAll(@NonNull BridgeUpdate update) {
         ensureNoOldStyleCriteria();
         scope = Scope.ALL;
-        return repo.updateExecute2(this, update);
+        return repo.updateExecute(this, update);
     }
 
     public int updateFirst(@NonNull T resource) {
@@ -80,7 +80,7 @@ public class QueryAllParams<T extends BaseDomain> {
     public int updateFirst(@NonNull BridgeUpdate update) {
         ensureNoOldStyleCriteria();
         scope = Scope.FIRST;
-        return repo.updateExecute2(this, update);
+        return repo.updateExecute(this, update);
     }
 
     private void ensureNoOldStyleCriteria() {

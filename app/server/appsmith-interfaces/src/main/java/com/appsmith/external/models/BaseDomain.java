@@ -77,6 +77,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Internal.class)
     protected PolicyMap policyMap;
 
+    @Transient
     @JsonView(Views.Public.class)
     public boolean isNew() {
         return this.getId() == null;

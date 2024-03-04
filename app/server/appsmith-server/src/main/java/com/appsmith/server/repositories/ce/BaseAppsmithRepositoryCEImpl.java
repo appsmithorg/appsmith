@@ -10,6 +10,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
@@ -17,11 +18,10 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.querydsl.core.types.Path;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
+import jakarta.persistence.Transient;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
@@ -46,6 +46,7 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -154,10 +155,20 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return where("id").is(id);
     }
 
-    protected DBObject getDbObject(Object o) {
-        BasicDBObject basicDBObject = new BasicDBObject();
-        mongoConverter.write(o, basicDBObject);
-        return basicDBObject;
+    @SneakyThrows
+    protected Map<String, Object> getDbObject(Object o) {
+        final Map<String, Object> map = new HashMap<>();
+        for (Field field : o.getClass().getDeclaredFields()) {
+            if (field.isAnnotationPresent(Transient.class)) {
+                continue;
+            }
+            field.setAccessible(true);
+            final Object value = field.get(o);
+            if (value != null) {
+                map.put(field.getName(), value);
+            }
+        }
+        return map;
     }
 
     public Optional<T> findById(String id, AclPermission permission) {
@@ -407,16 +418,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .blockOptional();
     }
 
-    public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
-        return Mono.justOrEmpty(params.getPermissionGroups())
-                .switchIfEmpty(Mono.defer(() -> Mono.just(
-                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
-                .flatMap(permissionGroups1 -> mongoOperations
-                        .query(this.genericDomain)
-                        .matching(createQueryWithPermission(
-                                params.getCriteria(), params.getFields(), permissionGroups1, params.getPermission()))
-                        .first()
-                        .flatMap(obj -> Mono.just(setUserPermissionsInObject(obj, permissionGroups1)))); // */
+    public Optional<T> queryFirstExecute(QueryAllParams<T> params) {
+        params.limit(1);
+        return queryOneExecute(params);
     }
 
     public Optional<Long> countExecute(QueryAllParams<T> params) {
@@ -437,12 +441,21 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             resource.setPolicies(null);
         }
 
-        final Map<String, Object> updateMap = getDbObject(resource).toMap();
-        for (Map.Entry<String, Object> entry : updateMap.entrySet()) {
-            update.set(entry.getKey(), entry.getValue());
+        getDbObject(resource).forEach(update::set);
+        return updateExecute(params, update);
+
+        /*
+        if (QueryAllParams.Scope.FIRST == params.getScope()) {
+            final Optional<T> dbEntity = queryFirstExecute(params);
+            if (dbEntity.isEmpty()) {
+                return 0;
+            }
+            AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(resource, dbEntity.get());
+            entityManager.persist(dbEntity);
+            return 1;
         }
 
-        return updateExecute(params, update);
+        throw new RuntimeException("Not implemented yet!"); //*/
     }
 
     public Mono<Integer> updateExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
@@ -501,10 +514,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public int updateExecute(QueryAllParams<T> params, BridgeUpdate update) {
-        return updateExecute2(params, update);
-    }
-
-    public int updateExecute2(QueryAllParams<T> params, BridgeUpdate update) {
         Set<String> permissionGroupsSet = params.getPermissionGroups();
         List<String> permissionGroups;
 
@@ -588,6 +597,21 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         }
 
         return em.createQuery(cu).executeUpdate();
+    }
+
+    /**
+     * This method is needed, as opposed to letting services directly call `update*` methods on query builder, because
+     * we need the `@Modifying` and the `@Transactional` annotations to be present on the method that actually does the
+     * update operation. Not on a method that calls the update operation via `Mono.defer` or `asMono` etc. That doesn't
+     * work.
+     * That would hint that adding these annotations to the `updateExecute` method would solve the problem, but it also
+     * doesn't. I don't know why yet, but this gets us across for now.
+     */
+    @Modifying
+    @Transactional
+    @Override
+    public int updateFirst(BridgeQuery<T> query, T resource) {
+        return queryBuilder().criteria(query).updateFirst(resource);
     }
 
     public T setUserPermissionsInObject(T obj) {

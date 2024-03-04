@@ -99,4 +99,13 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                             : recentlyUsedWorkspaceIds.get(0).getWorkspaceId();
                 });
     }
+
+    @Modifying
+    @Transactional
+    @Override
+    public int updateByUserId(String userId, UserData userData) {
+        return queryBuilder()
+                .criteria(Bridge.query().equal(UserData.Fields.userId, userId))
+                .updateFirst(userData);
+    }
 }

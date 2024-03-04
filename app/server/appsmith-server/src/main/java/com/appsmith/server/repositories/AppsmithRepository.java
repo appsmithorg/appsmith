@@ -2,6 +2,7 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 
@@ -22,6 +23,8 @@ public interface AppsmithRepository<T extends BaseDomain> {
     T setUserPermissionsInObject(T obj, Collection<String> permissionGroups);
 
     T setUserPermissionsInObject(T obj);
+
+    int updateFirst(BridgeQuery<T> query, T resource);
 
     T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission);
 

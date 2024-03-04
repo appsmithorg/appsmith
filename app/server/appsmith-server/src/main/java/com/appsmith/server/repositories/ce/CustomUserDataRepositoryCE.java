@@ -13,4 +13,6 @@ public interface CustomUserDataRepositoryCE extends AppsmithRepository<UserData>
     Optional<Void> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds);
 
     Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId);
+
+    int updateByUserId(String userId, UserData userData);
 }
