@@ -46,8 +46,7 @@ public interface CrudModuleInstanceServiceCECompatible extends BaseModuleInstanc
      * @param branchName           The name of the branch to associate the orphan module instance with
      * @return A Mono emitting the response DTO for the created orphan module instance
      */
-    Mono<CreateModuleInstanceResponseDTO> createOrphanModuleInstance(
-            ModuleInstanceDTO moduleInstanceReqDTO, String branchName);
+    Mono<ModuleInstance> createOrphanModuleInstance(ModuleInstanceDTO moduleInstanceReqDTO, String branchName);
 
     Mono<ModuleInstanceDTO> deleteUnpublishedModuleInstance(String defaultModuleInstanceId, String branchName);
 

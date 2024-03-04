@@ -823,27 +823,15 @@ class GitBranchEETest {
                                 .as("Branch name")
                                 .isEqualTo(createGitBranchDTO.getBranchName());
 
-                        if (!Boolean.FALSE.equals(newAction.getIsPublic())) {
-                            assertThat(newAction.getDefaultResources().getActionId())
-                                    .as("Default action id")
-                                    .isNotEqualTo(newAction.getId());
-                            assertThat(newAction.getDefaultResources().getRootModuleInstanceId())
-                                    .as("Default root module instance id")
-                                    .isNotEqualTo(newAction.getRootModuleInstanceId());
-                            assertThat(newAction.getDefaultResources().getModuleInstanceId())
-                                    .as("Default module instance id")
-                                    .isNotEqualTo(newAction.getModuleInstanceId());
-                        } else {
-                            assertThat(newAction.getDefaultResources().getActionId())
-                                    .as("Default action id")
-                                    .isEqualTo(newAction.getId());
-                            assertThat(newAction.getDefaultResources().getRootModuleInstanceId())
-                                    .as("Default root module instance id")
-                                    .isEqualTo(newAction.getRootModuleInstanceId());
-                            assertThat(newAction.getDefaultResources().getModuleInstanceId())
-                                    .as("Default module instance id")
-                                    .isEqualTo(newAction.getModuleInstanceId());
-                        }
+                        assertThat(newAction.getDefaultResources().getActionId())
+                                .as("Default action id")
+                                .isNotEqualTo(newAction.getId());
+                        assertThat(newAction.getDefaultResources().getRootModuleInstanceId())
+                                .as("Default root module instance id")
+                                .isNotEqualTo(newAction.getRootModuleInstanceId());
+                        assertThat(newAction.getDefaultResources().getModuleInstanceId())
+                                .as("Default module instance id")
+                                .isNotEqualTo(newAction.getModuleInstanceId());
 
                         ActionDTO action = newAction.getUnpublishedAction();
                         assertThat(action.getDefaultResources())
@@ -853,15 +841,9 @@ class GitBranchEETest {
                                 .as("Default page id")
                                 .isEqualTo(parentApplication.getPages().get(0).getId());
                         if (!StringUtils.isEmpty(action.getDefaultResources().getCollectionId())) {
-                            if (!Boolean.FALSE.equals(newAction.getIsPublic())) {
-                                assertThat(action.getDefaultResources().getCollectionId())
-                                        .as("Default collection id")
-                                        .isNotEqualTo(action.getCollectionId());
-                            } else {
-                                assertThat(action.getDefaultResources().getCollectionId())
-                                        .as("Default collection id")
-                                        .isEqualTo(action.getCollectionId());
-                            }
+                            assertThat(action.getDefaultResources().getCollectionId())
+                                    .as("Default collection id")
+                                    .isNotEqualTo(action.getCollectionId());
                         }
                     });
 
@@ -876,43 +858,21 @@ class GitBranchEETest {
                                 .as("Branch name")
                                 .isEqualTo(createGitBranchDTO.getBranchName());
 
-                        if (!Boolean.FALSE.equals(actionCollection.getIsPublic())) {
-                            assertThat(actionCollection.getDefaultResources().getCollectionId())
-                                    .as("Default collection id")
-                                    .isNotEqualTo(actionCollection.getId());
-                            assertThat(actionCollection.getDefaultResources().getRootModuleInstanceId())
-                                    .as("Default root module instance id")
-                                    .isNotEqualTo(actionCollection.getRootModuleInstanceId());
-                            assertThat(actionCollection.getDefaultResources().getModuleInstanceId())
-                                    .as("Default module instance id")
-                                    .isNotEqualTo(actionCollection.getModuleInstanceId());
-                        } else {
-                            assertThat(actionCollection.getDefaultResources().getCollectionId())
-                                    .as("Default collection id")
-                                    .isEqualTo(actionCollection.getId());
-                            assertThat(actionCollection.getDefaultResources().getRootModuleInstanceId())
-                                    .as("Default root module instance id")
-                                    .isEqualTo(actionCollection.getRootModuleInstanceId());
-                            assertThat(actionCollection.getDefaultResources().getModuleInstanceId())
-                                    .as("Default module instance id")
-                                    .isEqualTo(actionCollection.getModuleInstanceId());
-                        }
+                        assertThat(actionCollection.getDefaultResources().getCollectionId())
+                                .as("Default collection id")
+                                .isNotEqualTo(actionCollection.getId());
+                        assertThat(actionCollection.getDefaultResources().getRootModuleInstanceId())
+                                .as("Default root module instance id")
+                                .isNotEqualTo(actionCollection.getRootModuleInstanceId());
+                        assertThat(actionCollection.getDefaultResources().getModuleInstanceId())
+                                .as("Default module instance id")
+                                .isNotEqualTo(actionCollection.getModuleInstanceId());
 
                         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
 
-                        if (!Boolean.FALSE.equals(actionCollection.getIsPublic())) {
-                            unpublishedCollection
-                                    .getDefaultToBranchedActionIdsMap()
-                                    .forEach((key, value) -> assertThat(key)
-                                            .as("Default to branched action id %s", key)
-                                            .isNotEqualTo(value));
-                        } else {
-                            unpublishedCollection
-                                    .getDefaultToBranchedActionIdsMap()
-                                    .forEach((key, value) -> assertThat(key)
-                                            .as("Default to branched action id %s", key)
-                                            .isEqualTo(value));
-                        }
+                        unpublishedCollection.getDefaultToBranchedActionIdsMap().forEach((key, value) -> assertThat(key)
+                                .as("Default to branched action id %s", key)
+                                .isNotEqualTo(value));
 
                         assertThat(unpublishedCollection.getDefaultResources())
                                 .as("Dto default resources")
@@ -1723,12 +1683,13 @@ class GitBranchEETest {
         action.setConfirmBeforeExecute(true);
         action.getActionConfiguration().setHttpMethod(HttpMethod.POST);
         action.getActionConfiguration()
-                .setBody("""
-{
-    "bodyKey1": {{bodyInput1.text}},
-    "bodyKey2": {{bodyInput2.text}}
-}
-""");
+                .setBody(
+                        """
+                {
+                    "bodyKey1": {{bodyInput1.text}},
+                    "bodyKey2": {{bodyInput2.text}}
+                }
+                """);
         action.getActionConfiguration()
                 .setHeaders(List.of(
                         new Property("header1", "{{headerInput1.text}}"),

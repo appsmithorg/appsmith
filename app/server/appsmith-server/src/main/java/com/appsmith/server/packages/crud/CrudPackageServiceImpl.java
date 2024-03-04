@@ -129,7 +129,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<PackageDTO> createPackage(PackageDTO packageToBeCreated, String workspaceId) {
-        return this.createPackageWithCustomRetries(packageToBeCreated, workspaceId, false)
+        return this.createPackageWithCustomRetries(packageToBeCreated, workspaceId, true)
                 .flatMap(createdPackage -> setTransientFieldsFromPackageToPackageDTO(
                         createdPackage, createdPackage.getUnpublishedPackage()));
     }
@@ -137,11 +137,11 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     @Override
     @FeatureFlagged(featureFlagName = FeatureFlagEnum.release_query_module_enabled)
     public Mono<Package> createPackageWithPreciseName(PackageDTO packageToBeCreated, String workspaceId) {
-        return this.createPackageWithCustomRetries(packageToBeCreated, workspaceId, true);
+        return this.createPackageWithCustomRetries(packageToBeCreated, workspaceId, false);
     }
 
     private Mono<Package> createPackageWithCustomRetries(
-            PackageDTO packageToBeCreated, String workspaceId, boolean isPrecise) {
+            PackageDTO packageToBeCreated, String workspaceId, boolean retry) {
         if (ValidationUtils.isEmptyParam(packageToBeCreated.getName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.NAME));
         }
@@ -182,7 +182,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                     newPackage.setModifiedBy(currentUser.getUsername());
                     newPackage.setLastEditedAt(Instant.now());
 
-                    return createSuffixedPackage(newPackage, packageToBeCreated.getName(), isPrecise ? 6 : 0);
+                    return createSuffixedPackage(newPackage, packageToBeCreated.getName(), 0, retry);
                 });
     }
 
@@ -203,8 +203,9 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
     }
 
     @Override
-    public Flux<Package> getAllPublishedPackagesByUniqueRef(String workspaceId, List<ExportableModule> packageList) {
-        return repository.findAllPublishedByUniqueReference(workspaceId, packageList, Optional.empty());
+    public Flux<Package> getAllPublishedPackagesByUniqueRef(
+            String workspaceId, List<ExportableModule> exportableModuleList) {
+        return repository.findAllPublishedByUniqueReference(workspaceId, exportableModuleList, Optional.empty());
     }
 
     @Override
@@ -405,7 +406,7 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
         return updateObj;
     }
 
-    private Mono<Package> createSuffixedPackage(Package requestedPackage, String name, int suffix) {
+    private Mono<Package> createSuffixedPackage(Package requestedPackage, String name, int suffix, boolean retry) {
         final String actualName = name + (suffix == 0 ? "" : " (" + suffix + ")");
         requestedPackage.getUnpublishedPackage().setName(actualName);
 
@@ -418,10 +419,10 @@ public class CrudPackageServiceImpl extends CrudPackageServiceCECompatibleImpl i
                 .flatMap(repository::setUserPermissionsInObject)
                 .onErrorResume(DuplicateKeyException.class, error -> {
                     if (error.getMessage() != null && error.getMessage().contains("ws_pkg_name_deleted_at_uindex")) {
-                        if (suffix > 5) {
+                        if (suffix > 5 || !retry) {
                             return Mono.error(new AppsmithException(AppsmithError.DUPLICATE_KEY_PAGE_RELOAD, name));
                         } else {
-                            return createSuffixedPackage(requestedPackage, name, suffix + 1);
+                            return createSuffixedPackage(requestedPackage, name, suffix + 1, retry);
                         }
                     }
                     throw error;

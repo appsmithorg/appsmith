@@ -671,8 +671,7 @@ public class NewActionServiceImpl extends NewActionServiceCEImpl implements NewA
                         actionDTO = newAction.getUnpublishedAction();
                     }
                     return this.generateActionViewDTO(newAction, actionDTO, viewMode);
-                })
-                .map(responseUtils::updateActionViewDTOWithDefaultResources);
+                });
     }
 
     @Override

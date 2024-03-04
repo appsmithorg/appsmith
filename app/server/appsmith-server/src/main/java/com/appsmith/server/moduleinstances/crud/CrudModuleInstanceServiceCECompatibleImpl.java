@@ -39,8 +39,7 @@ public class CrudModuleInstanceServiceCECompatibleImpl extends BaseModuleInstanc
     }
 
     @Override
-    public Mono<CreateModuleInstanceResponseDTO> createOrphanModuleInstance(
-            ModuleInstanceDTO moduleInstanceReqDTO, String branchName) {
+    public Mono<ModuleInstance> createOrphanModuleInstance(ModuleInstanceDTO moduleInstanceReqDTO, String branchName) {
         return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 

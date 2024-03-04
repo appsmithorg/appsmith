@@ -97,24 +97,24 @@ public class CustomPackageRepositoryImpl extends BaseAppsmithRepositoryImpl<Pack
 
     @Override
     public Flux<Package> findAllPublishedByUniqueReference(
-            String workspaceId, List<ExportableModule> packageList, Optional<AclPermission> aclPermission) {
+            String workspaceId, List<ExportableModule> exportableModuleList, Optional<AclPermission> aclPermission) {
         Criteria originPackageCriteria = Criteria.where(fieldName(QPackage.package$.originPackageId))
                 .exists(true)
                 .and(fieldName(QPackage.package$.workspaceId))
                 .is(workspaceId);
 
-        List<Criteria> criteriaList = packageList.stream()
+        List<Criteria> criteriaList = exportableModuleList.stream()
                 .map(aPackage -> {
                     return where(fieldName(QPackage.package$.packageUUID))
                             .is(aPackage.getPackageUUID())
-                            .and(fieldName(QPackage.package$.version))
-                            .is(aPackage.getVersion());
+                            .and(fieldName(QPackage.package$.latest))
+                            .is(true);
                 })
                 .toList();
 
         Criteria packageRefCriteria = new Criteria();
         if (!criteriaList.isEmpty()) {
-            packageRefCriteria.orOperator(criteriaList);
+            packageRefCriteria.andOperator(criteriaList);
         }
 
         return queryBuilder()

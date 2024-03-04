@@ -254,7 +254,6 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                 .flatMap(aPackage -> isValidName(moduleDTO.getName(), aPackage.getId(), null)
                         .flatMap(valid -> {
                             module.setPackageId(aPackage.getId());
-                            module.setVersion(aPackage.getVersion());
                             module.setPackageUUID(aPackage.getPackageUUID());
 
                             generateAndSetPolicies(aPackage, module);
