@@ -382,22 +382,12 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 applicationTemplateService.getApplicationJsonFromTemplate(buildingBlockDTO.getTemplateId());
 
         return applicationJsonMono
-                .flatMap(applicationJson -> {
-                    applicationJson.setWidgets(applicationJson
-                            .getPageList()
-                            .get(0)
-                            .getUnpublishedPage()
-                            .getLayouts()
-                            .get(0)
-                            .getDsl()
-                            .toString());
-                    return this.importResourceInPage(
-                            buildingBlockDTO.getWorkspaceId(),
-                            buildingBlockDTO.getApplicationId(),
-                            buildingBlockDTO.getPageId(),
-                            branchName,
-                            applicationJson);
-                })
+                .flatMap(applicationJson -> this.importResourceInPage(
+                        buildingBlockDTO.getWorkspaceId(),
+                        buildingBlockDTO.getApplicationId(),
+                        buildingBlockDTO.getPageId(),
+                        branchName,
+                        applicationJson))
                 .map(BuildingBlockImportDTO::getWidgetDsl);
     }
 }

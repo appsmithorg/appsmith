@@ -493,7 +493,14 @@ public class PartialImportServiceTest {
                     assertThat(dsl).isNotNull();
                     // Compare the json string of widget DSL,
                     // the binding names will be updated, and hence the json will be different
-                    assertThat(dsl).isNotEqualTo(applicationJson.getWidgets());
+                    assertThat(dsl)
+                            .isNotEqualTo(applicationJson
+                                    .getPageList()
+                                    .get(0)
+                                    .getUnpublishedPage()
+                                    .getLayouts()
+                                    .get(0)
+                                    .getDsl());
                 })
                 .verifyComplete();
     }
