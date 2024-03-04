@@ -258,7 +258,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         int count = queryBuilder()
                 .permission(permission)
                 .criteria(Bridge.in(NewPage.Fields.id, pageIds))
-                .updateAll(Bridge.update().set(NewPage.Fields.publishedPage, NewPage.Fields.unpublishedPage));
+                .updateAll(Bridge.update()
+                        .setToValueFromField(NewPage.Fields.publishedPage, NewPage.Fields.unpublishedPage));
 
         return Optional.empty();
     }

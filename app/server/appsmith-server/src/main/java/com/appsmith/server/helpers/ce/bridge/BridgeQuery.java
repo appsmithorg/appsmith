@@ -51,6 +51,15 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
                         predicate = cb.isTrue(keyToExpression(Boolean.class, root, cb, key));
                     }
 
+                } else if (op == Op.IS_FALSE) {
+                    if (key.contains(".")) {
+                        predicate = cb.equal(
+                                keyToExpression(Object.class, root, cb, key),
+                                cb.function("jsonb", Object.class, cb.literal("false")));
+                    } else {
+                        predicate = cb.isFalse(keyToExpression(Boolean.class, root, cb, key));
+                    }
+
                 } else if (op == Op.IS_NULL) {
                     predicate = cb.isNull(keyToExpression(String.class, root, cb, key));
 
@@ -116,6 +125,11 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
 
     public BridgeQuery<T> isTrue(String field) {
         checks.add(new Check.Unit(Op.IS_TRUE, field, null));
+        return this;
+    }
+
+    public BridgeQuery<T> isFalse(String field) {
+        checks.add(new Check.Unit(Op.IS_FALSE, field, null));
         return this;
     }
 

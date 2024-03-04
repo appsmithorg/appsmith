@@ -160,15 +160,19 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @SneakyThrows
     protected Map<String, Object> getDbObject(Object o) {
         final Map<String, Object> map = new HashMap<>();
-        for (Field field : o.getClass().getDeclaredFields()) {
-            if (field.isAnnotationPresent(Transient.class)) {
-                continue;
+        Class<?> cls = o.getClass();
+        while (!Object.class.equals(cls) && !BaseDomain.class.equals(cls)) {
+            for (Field field : cls.getDeclaredFields()) {
+                if (field.isAnnotationPresent(Transient.class)) {
+                    continue;
+                }
+                field.setAccessible(true);
+                final Object value = field.get(o);
+                if (value != null) {
+                    map.put(field.getName(), value);
+                }
             }
-            field.setAccessible(true);
-            final Object value = field.get(o);
-            if (value != null) {
-                map.put(field.getName(), value);
-            }
+            cls = cls.getSuperclass();
         }
         return map;
     }
@@ -569,44 +573,62 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         cu.where(predicate);
 
         for (BridgeUpdate.SetOp op : update.getSetOps()) {
-            Object keyOb = op.key();
+            String key = op.key();
             Object value = op.value();
 
-            final String key;
-            if (keyOb instanceof Path<?> keyPath) {
-                key = fieldName(keyPath);
-            } else {
-                key = (String) keyOb;
-            }
+            if (op.isRawValue()) {
+                if (value instanceof Path<?> valuePath) {
+                    throw new ex.Marker("We're not expecting this anymore");
+                    // value = root.get(fieldName(valuePath));
+                    // cu.set(root.get(key), value);
 
-            if (value instanceof Path<?> valuePath) {
-                value = root.get(fieldName(valuePath));
-                cu.set(root.get(key), value);
+                } else if (isJsonColumn(genericDomain, key)) {
+                    try {
+                        // The type witness is needed here to pick the right overloaded signature of the set method.
+                        // Without it, we see a compile error.
+                        cu.<Object>set(
+                                root.get(key),
+                                cb.function(
+                                        "json",
+                                        Object.class,
+                                        cb.literal(new ObjectMapper().writeValueAsString(value))));
+                    } catch (JsonProcessingException e) {
+                        throw new RuntimeException(e);
+                    }
 
-            } else if (isJsonColumn(genericDomain.getDeclaredField(key))) {
-                try {
-                    // The type witness is needed here to pick the right overloaded signature of the set method.
-                    // Without it, we see a compile error.
-                    cu.<Object>set(
-                            root.get((String) key),
-                            cb.function(
-                                    "json", Object.class, cb.literal(new ObjectMapper().writeValueAsString(value))));
-                } catch (JsonProcessingException e) {
-                    throw new RuntimeException(e);
+                } else {
+                    cu.set(root.get(key), value);
                 }
-
             } else {
-                cu.set(root.get(key), value);
+                // The type witness is necessary here to fix ambiguity regarding the method being called.
+                cu.<Object>set(root.get(key), root.get((String) value));
             }
         }
 
         return em.createQuery(cu).executeUpdate();
     }
 
-    private boolean isJsonColumn(Field field) {
+    private boolean isJsonColumn(Class<?> cls, String fieldName) {
+        Field field = null;
+
+        while (!Object.class.equals(cls)) {
+            try {
+                field = cls.getDeclaredField(fieldName);
+                break;
+            } catch (NoSuchFieldException e) {
+                // Check the super class then.
+                cls = cls.getSuperclass();
+            }
+        }
+
+        if (field == null) {
+            throw new RuntimeException("Field not found: " + fieldName);
+        }
+
         if (!field.isAnnotationPresent(Type.class)) {
             return false;
         }
+
         return JsonBinaryType.class.equals(field.getAnnotation(Type.class).value());
     }
 

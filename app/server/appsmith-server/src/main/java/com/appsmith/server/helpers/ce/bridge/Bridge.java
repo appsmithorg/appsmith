@@ -45,6 +45,10 @@ public class Bridge {
         return Bridge.<T>query().isTrue(key);
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> isFalse(@NonNull String key) {
+        return Bridge.<T>query().isFalse(key);
+    }
+
     /**
      * Check that the string `needle` is present in the JSON array at `key`.
      */

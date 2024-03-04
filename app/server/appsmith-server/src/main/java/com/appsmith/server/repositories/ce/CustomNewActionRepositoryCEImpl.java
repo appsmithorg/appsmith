@@ -474,7 +474,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         int count = queryBuilder()
                 .permission(permission)
                 .criteria(Bridge.equal(NewAction.Fields.applicationId, applicationId))
-                .updateAll(Bridge.update().set(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
+                .updateAll(Bridge.update()
+                        .setToValueFromField(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
 
         return Optional.empty();
 
