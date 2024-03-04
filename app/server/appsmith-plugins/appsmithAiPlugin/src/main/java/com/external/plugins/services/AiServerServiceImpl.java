@@ -44,6 +44,21 @@ public class AiServerServiceImpl implements AiServerService {
     }
 
     @Override
+    public Mono<Void> disassociateDatasource(AssociateDTO associateDTO) {
+        URI uri = RequestUtils.getAssociateUri();
+        String jsonBody = gson.toJson(associateDTO);
+
+        return RequestUtils.makeRequest(
+                        HttpMethod.DELETE,
+                        uri,
+                        MediaType.APPLICATION_JSON,
+                        new HashMap<>(),
+                        BodyInserters.fromValue(jsonBody))
+                .flatMap(RequestUtils::handleResponse)
+                .then();
+    }
+
+    @Override
     public Mono<FileStatusDTO> getFilesStatus(List<String> fileIds, SourceDetails sourceDetails) {
         Map<String, Object> body = new HashMap<>();
         body.put(FILE_IDS, fileIds);

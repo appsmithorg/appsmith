@@ -830,6 +830,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                         .deleteDatasourceContext(datasourceStorage)
                                         .then(datasourceStorageService.archive(datasourceStorage));
                             })
+                            .flatMap(datasourceStorage -> {
+                                Mono<PluginExecutor> pluginExecutorMono = findPluginExecutor(toDelete.getPluginId());
+                                return pluginExecutorMono
+                                        .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                                .preDeleteHook(datasourceStorage))
+                                        .onErrorResume(error -> {
+                                            log.error("Error occurred while executing after delete hook", error);
+                                            return Mono.empty();
+                                        });
+                            })
                             .then(repository.archive(toDelete))
                             .thenReturn(toDelete);
                 })
@@ -839,6 +849,14 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendDeleteEvent(datasource, analyticsProperties);
                 });
+    }
+
+    private Mono<PluginExecutor> findPluginExecutor(String pluginId) {
+        final Mono<Plugin> pluginMono = pluginService.findById(pluginId).cache();
+        return pluginExecutorHelper
+                .getPluginExecutor(pluginMono)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, pluginId)));
     }
 
     /**
