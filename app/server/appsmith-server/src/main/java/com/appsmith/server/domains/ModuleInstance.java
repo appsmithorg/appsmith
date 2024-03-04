@@ -22,6 +22,9 @@ public class ModuleInstance extends BranchAwareDomain {
 
     // Fields in module instance that are not allowed to change between published and unpublished versions
     @JsonView(Views.Export.class)
+    String packageUUID;
+
+    @JsonView(Views.Export.class)
     String moduleUUID; // this refers to the `moduleUUID` field of the Module domain
 
     // This is the id of the original published module from where it is derived

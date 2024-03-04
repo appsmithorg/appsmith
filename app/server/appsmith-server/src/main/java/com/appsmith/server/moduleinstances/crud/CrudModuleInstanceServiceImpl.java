@@ -368,6 +368,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
                     moduleInstance.setType(sourceModule.getType());
                     moduleInstance.setSourceModuleId(sourceModule.getId());
                     moduleInstance.setModuleUUID(sourceModule.getModuleUUID());
+                    moduleInstance.setPackageUUID(sourcePackage.getPackageUUID());
                     moduleInstance.setOriginModuleId(sourceModule.getOriginModuleId());
                     moduleInstance.setDefaultResources(moduleInstanceReqDTO.getDefaultResources());
                     moduleInstance.setWorkspaceId(sourcePackage.getWorkspaceId());
@@ -506,6 +507,7 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         ModuleInstance moduleInstance = new ModuleInstance();
 
         moduleInstance.setType(moduleInstanceReqDTO.getType());
+        moduleInstance.setPackageUUID(moduleInstanceReqDTO.getPackageUUID());
         moduleInstance.setModuleUUID(moduleInstanceReqDTO.getModuleUUID());
         moduleInstance.setDefaultResources(moduleInstanceReqDTO.getDefaultResources());
         moduleInstance.setWorkspaceId(moduleInstanceReqDTO.getWorkspaceId());
@@ -567,9 +569,13 @@ public class CrudModuleInstanceServiceImpl extends CrudModuleInstanceServiceCECo
         } else {
             moduleInstanceDTO.setInputs(moduleInstanceReqDTO.getInputs());
         }
-
         moduleInstanceDTO.setIsValid(moduleInstanceReqDTO.getIsValid() == null || moduleInstanceReqDTO.getIsValid());
-        moduleInstanceDTO.setInvalids(moduleInstanceReqDTO.getInvalids());
+
+        if (sourceModuleDTO == null) {
+            // source module is null in case of orphan module instance
+            moduleInstanceDTO.setInvalids(moduleInstanceReqDTO.getInvalids());
+            moduleInstanceDTO.setInvalidState(moduleInstanceReqDTO.getInvalidState());
+        }
 
         moduleInstanceDTO.setDefaultResources(moduleInstanceReqDTO.getDefaultResources());
 

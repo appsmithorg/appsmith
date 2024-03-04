@@ -12,6 +12,7 @@ import com.appsmith.server.domains.Module;
 import com.appsmith.server.domains.ModuleInstance;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Package;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -189,6 +190,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                 : artifactExchangeJson.getSourceModuleList();
 
         Map<String, Module> moduleUUIDToModuleMap = mappedImportableResourcesDTO.getModuleUUIDToModuleMap();
+        Map<String, Package> packageUUIDToPackageMap = mappedImportableResourcesDTO.getPackageUUIDToPackageMap();
         Map<String, ExportableModule> moduleUUIDToExportableModuleMap =
                 mappedImportableResourcesDTO.getModuleUUIDToExportableModuleMap();
 
@@ -208,6 +210,7 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                 .flatMap(aPackage -> {
                     // TODO: What happens if this instance has also created a package from this unique ref,
                     //  and has reached this version, but with a separate interface/definition ?
+                    packageUUIDToPackageMap.put(aPackage.getPackageUUID(), aPackage);
                     return crudModuleService
                             .getAllModules(aPackage.getId(), modulePermission.getReadPermission())
                             .doOnNext(module -> {
@@ -309,6 +312,33 @@ public class ModuleInstanceImportableServiceImpl implements ImportableService<Mo
                                     mappedImportableResourcesDTO.getContextMap());
                             unpublishedModuleInstance.setVersion(unpublishedModuleInstance.getVersion());
                             unpublishedModuleInstance.setContextId(unpublishedModuleInstance.getPageId());
+                            if (!TRUE.equals(moduleInstance
+                                    .getUnpublishedModuleInstance()
+                                    .getIsValid())) {
+                                ExportableModule exportableModule = mappedImportableResourcesDTO
+                                        .getModuleUUIDToExportableModuleMap()
+                                        .get(moduleInstance.getModuleUUID());
+
+                                moduleInstance
+                                        .getUnpublishedModuleInstance()
+                                        .getInvalidState()
+                                        .setPackageName(exportableModule.getPackageName());
+
+                                moduleInstance
+                                        .getUnpublishedModuleInstance()
+                                        .getInvalidState()
+                                        .setModuleName(exportableModule.getModuleName());
+
+                                Package sourcePackage = mappedImportableResourcesDTO
+                                        .getPackageUUIDToPackageMap()
+                                        .get(exportableModule.getPackageUUID());
+                                if (sourcePackage != null) {
+                                    moduleInstance
+                                            .getUnpublishedModuleInstance()
+                                            .getInvalidState()
+                                            .setOriginPackageId(sourcePackage.getOriginPackageId());
+                                }
+                            }
                         }
 
                         if (publishedModuleInstance != null && publishedModuleInstance.getName() != null) {

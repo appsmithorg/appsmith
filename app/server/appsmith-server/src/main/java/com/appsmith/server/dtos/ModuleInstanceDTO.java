@@ -36,6 +36,10 @@ public class ModuleInstanceDTO implements Identifiable {
 
     @Transient
     @JsonView(Views.Export.class)
+    String packageUUID;
+
+    @Transient
+    @JsonView(Views.Export.class)
     String moduleUUID;
 
     @Transient
@@ -95,6 +99,10 @@ public class ModuleInstanceDTO implements Identifiable {
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Set<String> invalids = new HashSet<>();
+
+    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
+    @JsonView(Views.Public.class)
+    ModuleInstanceInvalidStateMetadata invalidState = new ModuleInstanceInvalidStateMetadata();
 
     @Transient
     @JsonView(Views.Public.class)
