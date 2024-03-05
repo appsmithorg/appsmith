@@ -111,12 +111,6 @@ const themeReducer = createImmerReducer(initialState, {
       (theme) => theme.id !== action.payload.themeId,
     );
   },
-  [ReduxActionTypes.SAVE_APP_THEME_SUCCESS]: (
-    state: AppThemingState,
-    action: ReduxAction<AppTheme>,
-  ) => {
-    state.themes.push(action.payload);
-  },
   [ReduxActionTypes.UPDATE_BETA_CARD_SHOWN]: (
     state: AppThemingState,
     action: ReduxAction<boolean>,
