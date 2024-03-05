@@ -48,7 +48,7 @@ jobs:
       - name: Check for Cyclic Dependencies
         id: cyclic-check
         run: |
-          OUTPUT=$(yarn check:cyclic-deps 2>&1) || echo "{cyclic_deps}={OUTPUT}" >> $GITHUB_OUTPUT
+          OUTPUT=$(yarn check-cyclic-deps 2>&1) || echo "{cyclic_deps}={OUTPUT}" >> $GITHUB_OUTPUT
 
       # Comment on the PR if cyclic dependencies are found
       - name: Comment the result on PR
