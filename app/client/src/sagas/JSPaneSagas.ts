@@ -399,8 +399,15 @@ export function* handleExecuteJSFunctionSaga(data: {
   collection: JSCollection;
   isExecuteJSFunc: boolean;
   openDebugger?: boolean;
+  onPageLoad?: boolean;
 }) {
-  const { action, collection, isExecuteJSFunc, openDebugger = false } = data;
+  const {
+    action,
+    collection,
+    isExecuteJSFunc,
+    onPageLoad = false,
+    openDebugger = false,
+  } = data;
   const { id: collectionId } = collection;
   const actionId = action.id;
   const appMode: APP_MODE = yield select(getAppMode);
@@ -433,6 +440,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       executeJSFunction,
       action,
       collection,
+      onPageLoad,
     );
     // open response tab in debugger on runnning or page load js action.
 
