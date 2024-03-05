@@ -69,23 +69,6 @@ class AppThemingApi extends API {
   }
 
   /**
-   * fires api for saving current theme
-   *
-   * @param applicationId
-   * @param theme
-   * @returns
-   */
-  static async saveTheme(
-    applicationId: string,
-    payload: { name: string },
-  ): Promise<AxiosPromise<ApiResponse<AppTheme[]>>> {
-    return API.patch(
-      `${AppThemingApi.baseUrl}/themes/applications/${applicationId}`,
-      payload,
-    );
-  }
-
-  /**
    * fires api for deleting theme
    *
    * @param applicationId
