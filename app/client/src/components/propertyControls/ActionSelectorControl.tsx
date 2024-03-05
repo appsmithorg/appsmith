@@ -9,10 +9,8 @@ import {
   DS_EVENT,
   emitInteractionAnalyticsEvent,
 } from "utils/AppsmithUtils";
-import {
-  codeToAction,
-  getCodeFromMoustache,
-} from "components/editorComponents/ActionCreator/utils";
+import { getCodeFromMoustache } from "components/editorComponents/ActionCreator/utils";
+import { codeToAction } from "components/editorComponents/ActionCreator/codeToActionUtils";
 import { canTranslateToUI, getActionBlocks } from "@shared/ast";
 import {
   getActions,
