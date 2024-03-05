@@ -33,7 +33,6 @@ jobs:
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
-        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
         with:
           path: app/client/.yarn/cache
@@ -43,28 +42,26 @@ jobs:
 
       # Install all the dependencies
       - name: Install dependencies
-        if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --immutable
 
       # Check for cyclic dependencies and save the output
       - name: Check for Cyclic Dependencies
         id: cyclic-check
         run: |
-          OUTPUT=$(yarn check:cyclic-deps 2>&1) || echo "::set-output name=cyclic-deps-output::${OUTPUT}"
+          OUTPUT=$(yarn check:cyclic-deps 2>&1) || echo "{cyclic_deps}={OUTPUT}" >> $GITHUB_OUTPUT
 
       # Comment on the PR if cyclic dependencies are found
       - name: Comment the result on PR
-        if: steps.cyclic-check.outputs.cyclic-deps-output
+        if: steps.cyclic-check.outputs.cyclic_deps
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const output = `${{ steps.cyclic-check.outputs.cyclic-deps-output }}`;
-            const prNumber = context.payload.pull_request.number;
+            const output = `${{ steps.cyclic-check.outputs.cyclic_deps }}`;
             const message = `🔄 Cyclic Dependency Check:\n\`\`\`\n${output}\n\`\`\``;
             github.issues.createComment({
               ...context.repo,
-              issue_number: prNumber,
+              issue_number: ${{ github.event.pull_request.number }},
               body: message
             });
 
