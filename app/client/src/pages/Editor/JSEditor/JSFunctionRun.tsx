@@ -7,7 +7,7 @@ import {
   createMessage,
   NO_JS_FUNCTION_TO_RUN,
 } from "@appsmith/constants/messages";
-import type { JSActionDropdownOption } from "./utils";
+import type { JSActionDropdownOption } from "./utilsTypes";
 import { RUN_BUTTON_DEFAULTS, testLocators } from "./constants";
 
 interface Props {

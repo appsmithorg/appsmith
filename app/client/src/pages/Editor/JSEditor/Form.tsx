@@ -31,7 +31,7 @@ import {
   getJSActions,
   getJSCollectionParseErrors,
 } from "@appsmith/selectors/entitiesSelector";
-import type { JSActionDropdownOption } from "./utils";
+import type { JSActionDropdownOption } from "./utilsTypes";
 import {
   convertJSActionsToDropdownOptions,
   convertJSActionToDropdownOption,
