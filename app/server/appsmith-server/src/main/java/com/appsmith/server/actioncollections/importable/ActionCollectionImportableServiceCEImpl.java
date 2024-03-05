@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ import java.util.Set;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class ActionCollectionImportableServiceCEImpl implements ImportableServiceCE<ActionCollection> {
     private final ActionCollectionRepository repository;
@@ -52,13 +54,14 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             Mono<? extends ImportableArtifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
-        List<ActionCollection> importedActionCollectionList =
-                CollectionUtils.isEmpty(artifactExchangeJson.getActionCollectionList())
-                        ? new ArrayList<>()
-                        : artifactExchangeJson.getActionCollectionList();
+        Mono<List<ActionCollection>> importedActionCollectionListMono = getImportableEntities(artifactExchangeJson);
 
-        Mono<ImportActionCollectionResultDTO> importActionCollectionMono = createImportActionCollectionMono(
-                importedActionCollectionList, importableArtifactMono, importingMetaDTO, mappedImportableResourcesDTO);
+        Mono<ImportActionCollectionResultDTO> importActionCollectionMono = importedActionCollectionListMono.flatMap(
+                importedActionCollectionList -> createImportActionCollectionMono(
+                        importedActionCollectionList,
+                        importableArtifactMono,
+                        importingMetaDTO,
+                        mappedImportableResourcesDTO));
 
         return importActionCollectionMono.then();
     }
@@ -375,5 +378,13 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
     protected void populateDomainMappedReferences(
             MappedImportableResourcesDTO mappedImportableResourcesDTO, ActionCollection actionCollection) {
         // Nothing needs to be copied into the action collection from mapped resources
+    }
+
+    protected Mono<List<ActionCollection>> getImportableEntities(ArtifactExchangeJson artifactExchangeJson) {
+        List<ActionCollection> list = CollectionUtils.isEmpty(artifactExchangeJson.getActionCollectionList())
+                ? new ArrayList<>()
+                : artifactExchangeJson.getActionCollectionList();
+
+        return Mono.just(list);
     }
 }
