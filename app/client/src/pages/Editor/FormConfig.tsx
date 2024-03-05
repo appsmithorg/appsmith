@@ -11,7 +11,7 @@ import {
   FormSubtitleText,
   FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
-import type { FormControlProps } from "./FormControl";
+import type { FormControlProps } from "./FormControlTypes";
 import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
