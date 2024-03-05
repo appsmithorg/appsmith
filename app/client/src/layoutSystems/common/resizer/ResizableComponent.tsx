@@ -382,15 +382,12 @@ export const ResizableComponent = memo(function ResizableComponent(
     // We want to enable auto height for container like widgets only, other widgets will need to respect the provided height
     props.isCanvas;
 
-  const showInteractive = isFocused
-    ? isCanvasPreviewMode
-      ? !isAltFocused
-      : !!isAltFocused
-    : false;
+  const showInteractive =
+    isFocused && isCanvasPreviewMode ? !isAltFocused : !!isAltFocused;
 
-  const allowResize: boolean =
-    (!isMultiSelected || (isAutoLayout && !props.isFlexChild)) &&
-    !showInteractive;
+  const allowResize: boolean = isCanvasPreviewMode
+    ? false
+    : !isMultiSelected || (isAutoLayout && !props.isFlexChild);
 
   const isHovered = isFocused && !isSelected;
 
