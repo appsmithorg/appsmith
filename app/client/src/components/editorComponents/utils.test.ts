@@ -1,4 +1,4 @@
-import { JSResponseState } from "./JSResponseView";
+import { JSResponseState } from "./JSResponseViewTypes";
 import { getJSResponseViewState } from "./utils";
 
 const TEST_JS_FUNCTION_ID = "627ccff468e1fa5185b7f901";

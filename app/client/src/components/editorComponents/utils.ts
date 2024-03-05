@@ -1,5 +1,5 @@
 import type { JSAction } from "entities/JSCollection";
-import { JSResponseState } from "./JSResponseView";
+import { JSResponseState } from "./JSResponseViewTypes";
 
 /**
  * Returns state of the JSResponseview editor component
