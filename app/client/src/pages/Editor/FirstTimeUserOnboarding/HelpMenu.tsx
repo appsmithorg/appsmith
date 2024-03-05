@@ -9,7 +9,7 @@ import moment from "moment";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
-import { IntercomConsent } from "../HelpButton";
+import { IntercomConsent } from "../IntercomConsent";
 import classNames from "classnames";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
