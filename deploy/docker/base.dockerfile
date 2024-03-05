@@ -1,7 +1,7 @@
 FROM caddy:builder-alpine AS caddybuilder
 
 RUN xcaddy build \
-		--with github.com/mholt/caddy-ratelimit
+  --with github.com/mholt/caddy-ratelimit
 
 FROM ubuntu:20.04
 
