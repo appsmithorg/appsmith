@@ -110,7 +110,7 @@ describe(
 
       // Upload a new file
       cy.get(widgetsPage.filepickerwidgetv2).click();
-      cy.get(".uppy-DashboardContent-addMore").click();
+      cy.get(commonlocators.AddMoreFiles).click();
       cy.get(commonlocators.filePickerInput)
         .first()
         .selectFile("cypress/fixtures/testRemoveFile2.json", {
@@ -127,7 +127,7 @@ describe(
       );
 
       cy.get(widgetsPage.filepickerwidgetv2).click();
-      cy.get(".uppy-Dashboard-Item-action--remove").first().click();
+      cy.get(commonlocators.filePickerRemoveButton).first().click();
       cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
 
       // Check file data
