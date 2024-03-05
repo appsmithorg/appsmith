@@ -1,4 +1,8 @@
 .switch {
+  &[data-label-position="left"] {
+    width: 100%;
+  }
+
   [data-icon] {
     --gutter: 2px;
     --knob-size: var(--sizing-3);
