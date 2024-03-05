@@ -12,12 +12,12 @@ import {
   anvilConfig,
 } from "./../config";
 import type { ButtonGroupWidgetProps } from "./types";
-import { ButtonGroupComponent } from "../component";
+import { ToolbarButtonsComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AnvilConfig } from "WidgetProvider/types";
 
-class WDSButtonGroupWidget extends BaseWidget<
+class WDSToolbarButtonsWidget extends BaseWidget<
   ButtonGroupWidgetProps,
   WidgetState
 > {
@@ -25,7 +25,7 @@ class WDSButtonGroupWidget extends BaseWidget<
     super(props);
   }
 
-  static type = "WDS_BUTTON_GROUP_WIDGET";
+  static type = "WDS_TOOLBAR_BUTTONS_WIDGET";
 
   static getConfig() {
     return metaConfig;
@@ -75,7 +75,7 @@ class WDSButtonGroupWidget extends BaseWidget<
 
   getWidgetView() {
     return (
-      <ButtonGroupComponent
+      <ToolbarButtonsComponent
         buttonsList={this.props.buttonsList}
         color={this.props.buttonColor}
         density={this.props.density}
@@ -88,4 +88,4 @@ class WDSButtonGroupWidget extends BaseWidget<
   }
 }
 
-export { WDSButtonGroupWidget };
+export { WDSToolbarButtonsWidget };

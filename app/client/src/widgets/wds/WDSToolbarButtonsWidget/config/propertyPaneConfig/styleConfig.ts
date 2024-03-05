@@ -69,27 +69,6 @@ export const propertyPaneStyleConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
-      {
-        propertyName: "density",
-        helpText: "Controls the density of the widget",
-        label: "Density",
-        controlType: "ICON_TABS",
-        fullWidth: true,
-        options: [
-          {
-            label: "Regular",
-            value: "regular",
-          },
-          {
-            label: "Compact",
-            value: "compact",
-          },
-        ],
-        defaultValue: "regular",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
     ],
   },
 ];

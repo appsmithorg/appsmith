@@ -1,11 +1,9 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { focusWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { LayoutSystemTypes } from "layoutSystems/types";
 import log from "loglevel";
 import { put, select, takeLatest } from "redux-saga/effects";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import {
   getFocusedParentToOpen,
@@ -22,11 +20,13 @@ import type { WidgetProps } from "widgets/types";
  * @returns
  */
 export function* selectAnvilWidget(
-  action: ReduxAction<{ widgetId: string; e: PointerEvent }>,
+  action: ReduxAction<{ widgetId: string; e: CustomEvent }>,
 ) {
   const start = performance.now();
   const { e, widgetId } = action.payload;
-
+  const {
+    detail: { ctrlKey, metaKey, shiftKey },
+  } = e;
   const isPropPaneVisible: boolean = yield select(getIsPropertyPaneVisible);
   const isWidgetAlreadySelected: boolean = yield select(
     isWidgetSelected(widgetId),
@@ -35,8 +35,6 @@ export function* selectAnvilWidget(
   const shouldIgnoreClicks: boolean = yield select(
     shouldWidgetIgnoreClicksSelector(widgetId),
   );
-
-  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
 
   // The following code has been copied from `useWidgetSelection` hook.
   // In the event of any changes to the hook, this code needs to be updated as well.
@@ -47,9 +45,9 @@ export function* selectAnvilWidget(
     !isWidgetAlreadySelected
   ) {
     let type: SelectionRequestType = SelectionRequestType.One;
-    if (e.metaKey || e.ctrlKey || (layoutSystemType && e.shiftKey)) {
+    if (metaKey || ctrlKey) {
       type = SelectionRequestType.PushPop;
-    } else if (e.shiftKey) {
+    } else if (shiftKey) {
       type = SelectionRequestType.ShiftSelect;
     }
 

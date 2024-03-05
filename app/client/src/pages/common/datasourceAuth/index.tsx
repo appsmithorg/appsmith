@@ -167,10 +167,6 @@ function DatasourceAuth({
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const isEnabledForTestPrimary = !!useFeatureFlag(
-    FEATURE_FLAG.ab_flip_primary_secondary_ctas_dsform_enabled,
-  );
-
   const canManageDatasource = getHasManageDatasourcePermission(
     isFeatureEnabled,
     datasourcePermissions,
@@ -336,11 +332,7 @@ function DatasourceAuth({
           floatLeft={!isInsideReconnectModal}
           isLoading={isTesting}
           key={buttonType}
-          kind={
-            isEnabledForTestPrimary && pluginType === "DB"
-              ? "primary"
-              : "secondary"
-          }
+          kind="secondary"
           onClick={handleDatasourceTest}
           size="md"
         >
@@ -387,11 +379,6 @@ function DatasourceAuth({
           }
           isLoading={isSaving}
           key={buttonType}
-          kind={
-            isEnabledForTestPrimary && pluginType === "DB"
-              ? "secondary"
-              : "primary"
-          }
           onClick={
             authType === AuthType.OAUTH2
               ? handleOauthDatasourceSave

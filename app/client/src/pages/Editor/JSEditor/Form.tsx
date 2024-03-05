@@ -122,8 +122,6 @@ function JSEditorForm({
 
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
 
-  // Currently active response (only changes upon execution)
-  const [activeResponse, setActiveResponse] = useState<JSAction | null>(null);
   const parseErrors = useSelector(
     (state: AppState) =>
       getJSCollectionParseErrors(state, currentJSCollection.name),
@@ -140,6 +138,10 @@ function JSEditorForm({
   const activeJSAction = getActionFromJsCollection(
     activeJSActionId,
     currentJSCollection,
+  );
+  // Currently active response (only changes upon execution)
+  const [activeResponse, setActiveResponse] = useState<JSAction | null>(
+    activeJSAction,
   );
 
   const [selectedJSActionOption, setSelectedJSActionOption] =

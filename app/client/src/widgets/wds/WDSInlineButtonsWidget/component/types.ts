@@ -1,25 +1,24 @@
 import type {
-  ActionGroupProps,
+  ButtonGroupProps,
   ButtonProps,
   IconProps,
 } from "@design-system/widgets";
+import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
-export type ButtonsList = Record<string, ButtonGroupItemComponentProps>;
-
-export interface ButtonGroupComponentProps {
-  color?: ActionGroupProps<object>["color"];
-  variant?: ActionGroupProps<object>["variant"];
-  orientation: ActionGroupProps<object>["orientation"];
+export interface InlineButtonsComponentProps {
+  color?: ButtonGroupProps<object>["color"];
+  variant?: ButtonGroupProps<object>["variant"];
+  orientation: ButtonGroupProps<object>["orientation"];
   buttonsList: ButtonsList;
   onButtonClick: (
     onClick?: string,
     callback?: (result: ExecutionResult) => void,
   ) => void;
-  density?: ActionGroupProps<object>["density"];
+  density?: ButtonGroupProps<object>["density"];
 }
 
-export interface ButtonGroupItemComponentProps {
+export interface InlineButtonsItemComponentProps {
   label?: string;
   isVisible?: boolean;
   isLoading?: boolean;
@@ -31,4 +30,6 @@ export interface ButtonGroupItemComponentProps {
   iconAlign?: ButtonProps["iconPosition"];
   onClick?: string;
   itemType: "SEPARATOR" | "BUTTON";
+  buttonVariant?: ButtonProps["variant"];
+  buttonColor?: ButtonProps["color"];
 }
