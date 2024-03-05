@@ -9,7 +9,6 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import type { FontFamily } from "@design-system/theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
@@ -51,21 +50,16 @@ const Canvas = (props: CanvasProps) => {
   const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
   const themeSetting = useSelector(getAppThemeSettings);
-  const themeProps = {
-    borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
-    seedColor: selectedTheme.properties.colors.primaryColor,
-    fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
-  };
   const wdsThemeProps = {
     borderRadius: themeSetting.borderRadius,
     seedColor: themeSetting.accentColor,
     colorMode: themeSetting.colorMode.toLowerCase(),
-    fontFamily: themeSetting.fontFamily as FontFamily,
+    fontFamily: themeSetting.fontFamily,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
     iconStyle: themeSetting.iconStyle.toLowerCase(),
-  };
-  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
+  } as Parameters<typeof useTheme>[0];
+  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : {});
 
   /**
    * background for canvas
