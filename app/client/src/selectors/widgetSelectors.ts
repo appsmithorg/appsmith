@@ -10,6 +10,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import {
   getFocusedWidget,
+  getIsAltFocusWidget,
   getLastSelectedWidget,
   getSelectedWidgets,
 } from "./ui";
@@ -181,6 +182,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     combinedPreviewModeSelector,
     getIsAutoHeightWithLimitsChanging,
     getCanvasPreviewMode,
+    getIsAltFocusWidget,
     (
       focusedWidgetId,
       isTableFilterPaneVisible,
@@ -191,6 +193,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
       isPreviewMode,
       isAutoHeightWithLimitsChanging,
       canvasPreviewMode,
+      isAltFocused,
     ) => {
       const isFocused = focusedWidgetId === widgetId;
 
@@ -203,7 +206,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
         !isFocused ||
         isTableFilterPaneVisible ||
         isAutoHeightWithLimitsChanging ||
-        canvasPreviewMode
+        (canvasPreviewMode && !isAltFocused)
       );
     },
   );
