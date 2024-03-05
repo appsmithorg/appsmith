@@ -65,6 +65,10 @@ export const getPlatformFunctions = () => {
   return platformFns;
 };
 
+export const getEntityFunctions = () => {
+  return entityFns;
+};
+
 const platformFns = [
   {
     name: "navigateTo",
@@ -112,7 +116,7 @@ const platformFns = [
   },
 ];
 
-export const entityFns = [
+const entityFns = [
   {
     name: "run",
     qualifier: (entity: DataTreeEntity) => isRunNClearFnQualifierEntity(entity),

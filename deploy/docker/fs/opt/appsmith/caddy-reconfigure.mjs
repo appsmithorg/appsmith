@@ -73,7 +73,7 @@ parts.push(`
   }
 
   request_body {
-    max_size 150MB
+    max_size ${process.env.APPSMITH_CODEC_SIZE || 150}MB
   }
 
   handle {
