@@ -106,7 +106,7 @@ export function renderWidgetCallouts(props: WidgetProps): JSX.Element[] {
   if (getEditorCallouts) {
     const callouts: WidgetCallout[] = getEditorCallouts(props);
     return callouts.map((callout, index) => {
-      const links = callout.links.map((link) => {
+      const links = callout.links?.map((link) => {
         return {
           children: link.text,
           to: link.url,

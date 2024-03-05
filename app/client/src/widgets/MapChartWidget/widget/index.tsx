@@ -24,6 +24,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
+  WidgetCallout,
 } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
@@ -444,6 +445,19 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
       borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
       boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
       fontFamily: "{{appsmith.theme.fontFamily.appFont}}",
+    };
+  }
+
+  static getMethods() {
+    return {
+      getEditorCallouts(): WidgetCallout[] {
+        return [
+          {
+            message:
+              "Map chart widget switched from using Fusion chart library to Echarts. Please verify that the chart is displaying properly",
+          },
+        ];
+      },
     };
   }
 
