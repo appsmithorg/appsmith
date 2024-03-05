@@ -90,12 +90,7 @@ public interface DatasourceServiceCE {
             String workspaceId, String environmentId, String pluginId, AclPermission aclPermission);
 
     Mono<String> getTrueEnvironmentId(
-            String workspaceId,
-            String environmentId,
-            String pluginId,
-            AclPermission aclPermission,
-            boolean isEmbedded,
-            Boolean operateWithoutPermission);
+            String workspaceId, String environmentId, String pluginId, AclPermission aclPermission, boolean isEmbedded);
 
     Datasource createDatasourceFromDatasourceStorage(DatasourceStorage datasourceStorage);
 

@@ -304,13 +304,8 @@ class ActionExecutionSolutionCEImplTest {
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
                 .getTrueEnvironmentId(
-                        any(),
-                        any(),
-                        any(),
-                        Mockito.eq(environmentPermission.getExecutePermission()),
-                        anyBoolean(),
-                        anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any(), anyBoolean());
+                        any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
@@ -367,13 +362,8 @@ class ActionExecutionSolutionCEImplTest {
         doReturn(Mono.just(FieldName.UNUSED_ENVIRONMENT_ID))
                 .when(datasourceService)
                 .getTrueEnvironmentId(
-                        any(),
-                        any(),
-                        any(),
-                        Mockito.eq(environmentPermission.getExecutePermission()),
-                        anyBoolean(),
-                        anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any(), anyBoolean());
+                        any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
         doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
 
         StepVerifier.create(actionExecutionResultMono)
