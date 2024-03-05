@@ -36,7 +36,7 @@ export default {
   [MapTypes.WORLD_WITH_ANTARCTICA]: {
     AF: {
       short_label: "AF",
-      label: "Africa Testing",
+      label: "Africa",
     },
     AT: {
       short_label: "AT",
