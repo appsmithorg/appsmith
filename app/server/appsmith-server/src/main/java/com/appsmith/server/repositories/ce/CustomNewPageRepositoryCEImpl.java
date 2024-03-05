@@ -170,10 +170,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 NewPage.Fields.publishedPage_slug,
                 NewPage.Fields.publishedPage_customSlug);
 
-        Criteria idsCriterion = where("id").in(ids);
-
-        return this.queryBuilder()
-                .criteria(idsCriterion)
+        return queryBuilder()
+                .criteria(Bridge.in(NewPage.Fields.id, ids))
                 .fields(includedFields)
                 .permission(aclPermission)
                 .all();

@@ -30,6 +30,8 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
     }
 
+    @Modifying
+    @Transactional
     @Override
     public int saveReleaseNotesViewedVersion(String userId, String version) {
         return queryBuilder()

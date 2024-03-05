@@ -73,12 +73,9 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
-        Criteria defaultWorkspaceIdCriteria =
-                where(PermissionGroup.Fields.defaultDomainId).is(workspaceId);
-        Criteria defaultDomainTypeCriteria =
-                where(PermissionGroup.Fields.defaultDomainType).is(Workspace.class.getSimpleName());
         return queryBuilder()
-                .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
+                .criteria(Bridge.equal(PermissionGroup.Fields.defaultDomainId, workspaceId)
+                        .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName()))
                 .permission(permission)
                 .all();
     }

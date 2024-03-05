@@ -16,6 +16,6 @@ public class EncryptionEntityListener {
 
     @PrePersist
     public void prePersist(Object entity) {
-        new EncryptionHandler().convertEncryption(entity, encryptionService::encryptString);
+        // new EncryptionHandler().convertEncryption(entity, encryptionService::encryptString);
     }
 }
