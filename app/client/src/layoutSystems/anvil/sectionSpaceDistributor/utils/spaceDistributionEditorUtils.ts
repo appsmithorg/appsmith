@@ -7,6 +7,20 @@ import {
 } from "../constants";
 
 /**
+ * Utility function to convert flex-grow values of zone space distribution to flex-basis.
+ *
+ * Why not just store flex basis values?
+ * This is because when representing on the UI, we show column values which add up to SectionColumns
+ * Also space distribution algorithm work with the flex-grow values.
+ */
+export const convertFlexGrowToFlexBasis = (
+  flexGrow: number,
+  columns = SectionColumns,
+) => {
+  return `${(flexGrow / columns) * 100}%`;
+};
+
+/**
  * Utility function to convert pixel values to numbers.
  */
 const convertPixelValuesToNumber = (value: string) => {
