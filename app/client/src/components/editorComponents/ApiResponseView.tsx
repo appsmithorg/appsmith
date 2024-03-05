@@ -33,7 +33,6 @@ import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
-import { isHtml } from "./utils";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import LogAdditionalInfo from "./Debugger/ErrorLogs/components/LogAdditionalInfo";
@@ -226,6 +225,13 @@ export const ResponseTabErrorContent = styled.div`
 export const ResponseTabErrorDefaultMessage = styled.div`
   flex-shrink: 0;
 `;
+
+export const isHtml = (str: string) => {
+  const doc = new DOMParser().parseFromString(str, "text/html");
+  return Array.from(doc.body.childNodes).some(
+    (node: any) => node.nodeType === 1,
+  );
+};
 
 export const apiReactJsonProps = { ...reactJsonProps, collapsed: 0 };
 
