@@ -1,7 +1,7 @@
 import type { TParsedJSProperty } from "@shared/ast";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
-import type { jsLintEntityParser } from "./entityParser";
+import type { jsLintEntityParser } from "../entityParser";
 import type { IEntity } from "@appsmith/plugins/Linting/lib/entity/types";
 import type { JSEntity } from "plugins/Linting/lib/entity/JSActionEntity";
 
@@ -64,6 +64,3 @@ export class JSLintDiffGenerator implements EntityDiffGenerator {
     return config.value + `${startColumn}${endColumn}${startLine}${endLine}`;
   }
 }
-
-export const jsLintDiffGenerator = new JSLintDiffGenerator();
-export const defaultDiffGenerator = new DefaultDiffGenerator();
