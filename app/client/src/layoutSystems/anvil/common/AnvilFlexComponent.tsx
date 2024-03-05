@@ -104,7 +104,7 @@ export const AnvilFlexComponent = forwardRef(
         ref={ref}
         style={anvilWidgetStyleProps}
       >
-        <div className="h-full w-full">{children}</div>
+        {children}
       </Flex>
     );
   },
