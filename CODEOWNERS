@@ -29,11 +29,6 @@ app/client/src/sagas/OneClickBindingSaga.ts @sbalaji1192
 app/client/src/WidgetQueryGenerators/* @sbalaji1192
 app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @sbalaji1192
 app/client/src/pages/AppViewer/* @appsmithorg/app-viewers
-app/client/src/pages/Editor/AppSettingsPane/AppSettings/NavigationSettings/* @dhruvikn
-app/client/src/ce/pages/AppViewer/NavigationLogo.tsx @dhruvikn
-app/client/src/ce/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn
-app/client/src/ee/pages/AppViewer/NavigationLogo.tsx @dhruvikn
-app/client/src/ee/pages/Editor/NavigationSettings/LogoInput.tsx @dhruvikn
 
 # New Developers Pod
 app/client/src/ce/entities/FeatureFlag.ts @hetunandu
@@ -107,14 +102,14 @@ app/client/src/widgets/withWidgetProps.tsx @appsmithorg/ui-builders
 
 # Git Pod
 app/server/appsmith-git/* @AnaghHegde
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ImportExportApplicationServiceCEImpl.java @AnaghHegde @nayan-rafiq
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ImportExportApplicationServiceCE.java @AnaghHegde @nayan-rafiq
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/GitServiceCEImpl.java @AnaghHegde @nayan-rafiq
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/GitServiceCE.java @AnaghHegde @nayan-rafiq
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitCloudServicesUtils.java @AnaghHegde @nayan-rafiq
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitDeployKeyGenerator.java @AnaghHegde @nayan-rafiq
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitFileUtils.java @AnaghHegde @nayan-rafiq
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitUtils.java @AnaghHegde @nayan-rafiq
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ImportExportApplicationServiceCEImpl.java @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ImportExportApplicationServiceCE.java @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/GitServiceCEImpl.java @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/GitServiceCE.java @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitCloudServicesUtils.java @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitDeployKeyGenerator.java @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitFileUtils.java @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitUtils.java @AnaghHegde
 app/client/src/pages/Editor/gitSync/* @brayn003
 
 # DSL Package
@@ -234,3 +229,10 @@ app/client/src/ce/ActionExecution/ActionExecutionSagas.ts @ApekshaBhosale
 app/client/src/ee/ActionExecution/ActionExecutionSagas.ts @ApekshaBhosale
 app/client/src/ce/JSFunctionExecutionSaga.ts @ApekshaBhosale
 app/client/src/ee/JSFunctionExecutionSaga.ts @ApekshaBhosale
+
+# DevOps & Shri
+deploy/**/* @sharat87 @pratapaprasanna
+app/server/**/pom.xml @sharat87
+app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/BaseAppsmithRepositoryCEImpl.java @sharat87
+app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/ce/params/QueryAllParams.java @sharat87
+app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/ce/bridge/Bridge.java @sharat87

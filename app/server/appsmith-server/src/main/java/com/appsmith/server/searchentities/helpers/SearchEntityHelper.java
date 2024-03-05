@@ -1,5 +1,9 @@
 package com.appsmith.server.searchentities.helpers;
 
+import com.appsmith.server.constants.FieldName;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+
 public class SearchEntityHelper {
     /**
      * This method checks if the entity should be searched based on the entities list provided. If the entities list is null or empty, then all entities are searched.
@@ -18,5 +22,13 @@ public class SearchEntityHelper {
             }
         }
         return false;
+    }
+
+    public static Sort getSort() {
+        return Sort.by(Sort.Direction.DESC, FieldName.UPDATED_AT);
+    }
+
+    public static Pageable getPageable(int page, int size) {
+        return Pageable.ofSize(size).withPage(page);
     }
 }

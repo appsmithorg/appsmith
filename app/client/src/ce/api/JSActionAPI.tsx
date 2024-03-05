@@ -23,6 +23,7 @@ export interface UpdateJSObjectNameRequest {
   newName: string;
   oldName: string;
   moduleId?: string;
+  workflowId?: string;
   contextType?: ActionParentEntityTypeInterface;
 }
 

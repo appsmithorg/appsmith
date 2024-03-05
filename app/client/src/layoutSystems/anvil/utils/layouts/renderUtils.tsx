@@ -26,7 +26,7 @@ export function renderWidgets(props: LayoutComponentProps, startIndex = 0) {
       return (
         <WidgetRenderer
           canvasId={canvasId}
-          key={index + startIndex}
+          key={each.widgetId}
           parentDropTarget={parentDropTarget}
           renderMode={(renderMode as RenderModes) || RenderModes.CANVAS}
           rowIndex={index + startIndex}

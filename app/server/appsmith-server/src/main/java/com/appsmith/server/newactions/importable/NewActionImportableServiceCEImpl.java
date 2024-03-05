@@ -56,8 +56,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     }
 
     // Requires contextNameMap, contextNameToOldNameMap, pluginMap and datasourceNameToIdMap, to be present in
-    // importable
-    // resources.
+    // importable resources.
     // Updates actionResultDTO in importable resources.
     // Also, directly updates required information in DB
     @Override
@@ -361,7 +360,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             ImportableArtifact importableArtifact,
             NewAction branchedNewAction,
             NewAction newAction) {
-        ArtifactBasedImportableService<NewAction, ?> artifactBasedExportableService =
+        ArtifactBasedImportableService<NewAction, ?> artifactBasedImportableService =
                 this.getArtifactBasedImportableService(importingMetaDTO);
 
         String workspaceId = importingMetaDTO.getWorkspaceId();
@@ -374,14 +373,13 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
         if (unpublishedAction.getValidName() != null) {
             unpublishedAction.setId(newAction.getId());
-            parentContext = artifactBasedExportableService.updateContextInResource(
+            parentContext = artifactBasedImportableService.updateContextInResource(
                     unpublishedAction, mappedImportableResourcesDTO.getContextMap(), fallbackDefaultContextId);
 
             mappedImportableResourcesDTO
                     .getActionResultDTO()
                     .getActionIdMap()
                     .put(unpublishedAction.getValidName() + parentContext.getId(), unpublishedAction.getId());
-
             sanitizeDatasourceInActionDTO(
                     unpublishedAction,
                     mappedImportableResourcesDTO.getDatasourceNameToIdMap(),
@@ -392,7 +390,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
         if (publishedAction != null && publishedAction.getValidName() != null) {
             publishedAction.setId(newAction.getId());
-            Context publishedActionContext = artifactBasedExportableService.updateContextInResource(
+            Context publishedActionContext = artifactBasedImportableService.updateContextInResource(
                     publishedAction, mappedImportableResourcesDTO.getContextMap(), fallbackDefaultContextId);
 
             if (publishedActionContext != null) {
@@ -416,7 +414,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
         newAction.setPluginId(mappedImportableResourcesDTO.getPluginMap().get(newAction.getPluginId()));
 
-        artifactBasedExportableService.populateDefaultResources(
+        artifactBasedImportableService.populateDefaultResources(
                 importingMetaDTO, mappedImportableResourcesDTO, importableArtifact, branchedNewAction, newAction);
 
         return parentContext;

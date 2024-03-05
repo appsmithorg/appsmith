@@ -46,6 +46,10 @@ const AddJS = () => {
         titleMessage={EDITOR_PANE_TEXTS.js_create_tab_title}
       />
       <GroupedList
+        flexProps={{
+          pr: "spaces-2",
+          px: "spaces-3",
+        }}
         groups={groupedJsOperations.map((op) => ({
           groupTitle: op.title,
           className: op.className,

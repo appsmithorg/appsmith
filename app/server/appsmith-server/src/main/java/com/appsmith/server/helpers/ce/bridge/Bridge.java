@@ -1,28 +1,55 @@
 package com.appsmith.server.helpers.ce.bridge;
 
+import com.appsmith.external.models.BaseDomain;
 import lombok.NonNull;
-import org.bson.Document;
+import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Collection;
 
-public class Bridge extends Criteria {
-    private final List<Criteria> criteriaList = new ArrayList<>();
-
+public final class Bridge {
     private Bridge() {}
 
-    public static Bridge bridge() {
-        return new Bridge();
+    public static <T extends BaseDomain> BridgeQuery<T> query() {
+        return new BridgeQuery<>();
     }
 
-    public Bridge equal(@NonNull String key, @NonNull String value) {
-        criteriaList.add(Criteria.where(key).is(value));
-        return this;
+    @Deprecated
+    public static <T extends BaseDomain> BridgeQuery<T> bridge() {
+        return new BridgeQuery<>();
     }
 
-    @Override
-    public Document getCriteriaObject() {
-        return new Criteria().andOperator(criteriaList.toArray(new Criteria[0])).getCriteriaObject();
+    @SafeVarargs
+    public static <T extends BaseDomain> BridgeQuery<T> or(BridgeQuery<T>... items) {
+        final BridgeQuery<T> q = new BridgeQuery<>();
+        q.checks.add(new Criteria().orOperator(items));
+        return q;
+    }
+
+    @SafeVarargs
+    public static <T extends BaseDomain> BridgeQuery<T> and(BridgeQuery<T>... items) {
+        final BridgeQuery<T> q = new BridgeQuery<>();
+        q.checks.add(new Criteria().andOperator(items));
+        return q;
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull String value) {
+        return Bridge.<T>query().equal(key, value);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull ObjectId value) {
+        return Bridge.<T>query().equal(key, value);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> in(@NonNull String key, @NonNull Collection<String> value) {
+        return Bridge.<T>query().in(key, value);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> exists(@NonNull String key) {
+        return Bridge.<T>query().exists(key);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> isTrue(@NonNull String key) {
+        return Bridge.<T>query().isTrue(key);
     }
 }
