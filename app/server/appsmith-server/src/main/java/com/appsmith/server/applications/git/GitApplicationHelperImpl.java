@@ -11,7 +11,11 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.GitArtifactHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
 
+@Slf4j
+@Service
 public class GitApplicationHelperImpl extends GitApplicationHelperCECompatibleImpl
         implements GitArtifactHelper<Application> {
 

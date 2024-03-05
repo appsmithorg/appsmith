@@ -9,7 +9,6 @@ import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.helpers.FileUtilsImpl;
-import com.appsmith.server.applications.git.ApplicationGitFileUtils;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -62,8 +61,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 @Import({FileUtilsImpl.class})
 public class CommonGitFileUtilsCE {
 
-    protected final ApplicationGitFileUtils applicationGitFileUtils;
-
+    protected final ArtifactGitFileUtils<ApplicationGitReference> applicationGitFileUtils;
     private final FileInterface fileUtils;
     private final AnalyticsService analyticsService;
     private final SessionUserService sessionUserService;
@@ -73,7 +71,7 @@ public class CommonGitFileUtilsCE {
     @Value("${appsmith.index.lock.file.time}")
     public final int INDEX_LOCK_FILE_STALE_TIME = 300;
 
-    private ArtifactGitFileUtils getArtifactBasedFileHelper(ArtifactType artifactType) {
+    private ArtifactGitFileUtils<?> getArtifactBasedFileHelper(ArtifactType artifactType) {
         if (ArtifactType.APPLICATION.equals(artifactType)) {
             return applicationGitFileUtils;
         }
@@ -167,7 +165,7 @@ public class CommonGitFileUtilsCE {
      * Method to convert artifact resources to the structure which can be serialised by appsmith-git module for
      * serialisation
      *
-     * @param ArtifactExchangeJson artifact resource including datasource, jsobjects, actions
+     * @param artifactExchangeJson artifact resource including datasource, jsobjects, actions
      * @return resource which can be saved to file system
      */
     public ArtifactGitReference createArtifactReference(ArtifactExchangeJson artifactExchangeJson) {

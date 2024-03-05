@@ -25,11 +25,9 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CommonGitFileUtils;
-import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.GitArtifactHelper;
@@ -47,6 +45,7 @@ import org.eclipse.jgit.api.errors.TransportException;
 import org.eclipse.jgit.errors.RepositoryNotFoundException;
 import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.util.StringUtils;
+import org.springframework.stereotype.Service;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -75,12 +74,12 @@ import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
     private final CommonGitFileUtils commonGitFileUtils;
-    private final GitFileUtils gitFileUtils;
     private final RedisUtils redisUtils;
     private final SessionUserService sessionUserService;
     private final UserDataService userDataService;
@@ -94,7 +93,6 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
 
     private final GitExecutor gitExecutor;
     private final GitArtifactHelper<Application> gitApplicationHelper;
-    private final ResponseUtils responseUtils;
     private static final String ORIGIN = "origin/";
     private static final String REMOTE_NAME_REPLACEMENT = "";
 

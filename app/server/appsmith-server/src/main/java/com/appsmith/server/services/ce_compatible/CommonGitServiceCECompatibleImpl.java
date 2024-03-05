@@ -4,10 +4,8 @@ import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.CommonGitFileUtils;
-import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.GitArtifactHelper;
@@ -26,7 +24,6 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
     public CommonGitServiceCECompatibleImpl(
             GitPrivateRepoHelper gitPrivateRepoHelper,
             CommonGitFileUtils commonGitFileUtils,
-            GitFileUtils gitFileUtils,
             RedisUtils redisUtils,
             SessionUserService sessionUserService,
             UserDataService userDataService,
@@ -36,12 +33,10 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
             ExportService exportService,
             ImportService importService,
             GitExecutor gitExecutor,
-            GitArtifactHelper<Application> gitApplicationHelper,
-            ResponseUtils responseUtils) {
+            GitArtifactHelper<Application> gitApplicationHelper) {
         super(
                 gitPrivateRepoHelper,
                 commonGitFileUtils,
-                gitFileUtils,
                 redisUtils,
                 sessionUserService,
                 userDataService,
@@ -51,7 +46,6 @@ public class CommonGitServiceCECompatibleImpl extends CommonGitServiceCEImpl imp
                 exportService,
                 importService,
                 gitExecutor,
-                gitApplicationHelper,
-                responseUtils);
+                gitApplicationHelper);
     }
 }
