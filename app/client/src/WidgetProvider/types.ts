@@ -1,6 +1,9 @@
 import type { WidgetProps } from "widgets/types";
 import type { Responsive, SizingDimension } from "@design-system/widgets";
-import type { PropertyPaneConfig, PropertyUpdates } from "constants/PropertyControlConstants";
+import type {
+  PropertyPaneConfig,
+  PropertyUpdates,
+} from "constants/PropertyControlConstants";
 import type { WidgetTags } from "constants/WidgetConstants";
 import type { Stylesheet } from "entities/AppTheming";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";

@@ -5,7 +5,7 @@ import {
 import { MockCodemirrorEditor } from "../../../../test/__mocks__/CodeMirrorEditorMock";
 import { random } from "lodash";
 import "codemirror/addon/hint/sql-hint";
-import { MAX_NUMBER_OF_SQL_HINTS } from "./utils/sqlHint";
+import { MAX_NUMBER_OF_SQL_HINTS } from "./hintHelpers";
 
 jest.mock("./codeEditorUtils", () => {
   const actualExports = jest.requireActual("./codeEditorUtils");
