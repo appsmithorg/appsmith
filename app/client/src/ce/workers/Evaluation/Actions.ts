@@ -11,7 +11,7 @@ import type { EvalContext } from "workers/Evaluation/evaluate";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 import { addFn } from "workers/Evaluation/fns/utils/fnGuard";
 import {
-  entityFns,
+  getEntityFunctions,
   getPlatformFunctions,
 } from "@appsmith/workers/Evaluation/fns";
 import { getEntityForEvalContext } from "workers/Evaluation/getEntityForContext";
@@ -67,7 +67,7 @@ export const addDataTreeToContext = (args: {
 
     if (skipEntityFunctions) continue;
 
-    for (const entityFn of entityFns) {
+    for (const entityFn of getEntityFunctions()) {
       if (!entityFn.qualifier(entity)) continue;
       const func = entityFn.fn(entity, entityName);
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
@@ -166,7 +166,7 @@ export const getAllAsyncFunctions = (
   let allAsyncFunctions: Record<string, true> = {};
   const dataTreeEntries = Object.entries(dataTree);
   for (const [entityName, entity] of dataTreeEntries) {
-    for (const entityFn of entityFns) {
+    for (const entityFn of getEntityFunctions()) {
       if (!entityFn.qualifier(entity)) continue;
       const fullPath = `${entityFn.path || `${entityName}.${entityFn.name}`}`;
       allAsyncFunctions[fullPath] = true;

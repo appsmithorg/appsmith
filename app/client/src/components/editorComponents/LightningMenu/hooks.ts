@@ -35,6 +35,7 @@ export const useActions = () => {
       (action) =>
         action.config.pluginType === PluginType.SAAS ||
         action.config.pluginType === PluginType.REMOTE ||
+        action.config.pluginType === PluginType.INTERNAL ||
         action.config.pluginType === PluginType.AI,
     )
     .map((action) => action.config);

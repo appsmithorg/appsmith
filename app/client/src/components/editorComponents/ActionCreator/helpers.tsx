@@ -461,6 +461,7 @@ function getApiAndQueryOptions(
       action.config.pluginType === PluginType.API ||
       action.config.pluginType === PluginType.SAAS ||
       action.config.pluginType === PluginType.REMOTE ||
+      action.config.pluginType === PluginType.INTERNAL ||
       action.config.pluginType === PluginType.AI,
   );
 
