@@ -25,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -42,6 +43,7 @@ import static com.appsmith.server.helpers.ImportExportUtils.sanitizeDatasourceIn
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
+@Service
 @RequiredArgsConstructor
 public class NewActionImportableServiceCEImpl implements ImportableServiceCE<NewAction> {
 
@@ -67,12 +69,11 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             Mono<? extends ImportableArtifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
-        List<NewAction> importedNewActionList = CollectionUtils.isEmpty(artifactExchangeJson.getActionList())
-                ? new ArrayList<>()
-                : artifactExchangeJson.getActionList();
+        Mono<List<NewAction>> importedNewActionListMono = this.getImportableEntities(artifactExchangeJson);
 
-        return createImportNewActionsMono(
-                        importedNewActionList, importableArtifactMono, importingMetaDTO, mappedImportableResourcesDTO)
+        return importedNewActionListMono
+                .flatMap(importedNewActionList -> createImportNewActionsMono(
+                        importedNewActionList, importableArtifactMono, importingMetaDTO, mappedImportableResourcesDTO))
                 .flatMap(importActionResultDTO -> {
                     log.info("Actions imported. result: {}", importActionResultDTO.getGist());
                     // Updating the existing artifact for git-sync
@@ -114,6 +115,14 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                     return Mono.error(throwable);
                 })
                 .then();
+    }
+
+    protected Mono<List<NewAction>> getImportableEntities(ArtifactExchangeJson artifactExchangeJson) {
+        List<NewAction> list = CollectionUtils.isEmpty(artifactExchangeJson.getActionList())
+                ? new ArrayList<>()
+                : artifactExchangeJson.getActionList();
+
+        return Mono.just(list);
     }
 
     @Override
