@@ -43,7 +43,7 @@ import {
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
 import type { Action } from "entities/Action";
-import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
+import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoFormStyles";
 import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { EMPTY_RESPONSE } from "./emptyResponse";
