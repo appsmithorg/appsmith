@@ -209,6 +209,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 })
                 // Update the refactored names of the actions and action collections in the DSL bindings
                 .flatMap(application -> {
+                    // Partial export can have no pages
+                    if (applicationJson.getPageList().size() == 0) {
+                        return Mono.just(application);
+                    }
                     // The building block is stored as a page in an application
                     final JsonNode dsl = widgetRefactorUtil.convertDslStringToJsonNode(applicationJson
                             .getPageList()
