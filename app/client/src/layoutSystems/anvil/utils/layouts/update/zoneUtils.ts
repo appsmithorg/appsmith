@@ -16,7 +16,11 @@ import {
 } from "../../widgetAdditionUtils";
 import { isLargeWidget } from "../../widgetUtils";
 import { anvilWidgets } from "widgets/anvil/constants";
-import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
+import {
+  moveWidgets,
+  severTiesFromParents,
+  transformMovedWidgets,
+} from "./moveUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export function* createZoneAndAddWidgets(
@@ -176,7 +180,7 @@ function* updateDraggedWidgets(
   return updatedWidgets;
 }
 
-export function* moveWidgetsToZone(
+function* moveWidgetsToNewLayout(
   allWidgets: CanvasWidgetsReduxState,
   movedWidgets: string[],
   highlight: AnvilHighlightInfo,
@@ -207,4 +211,34 @@ export function* moveWidgetsToZone(
   );
 
   return canvasWidgets;
+}
+
+export function* moveWidgetsToZone(
+  allWidgets: CanvasWidgetsReduxState,
+  movedWidgets: string[],
+  highlight: AnvilHighlightInfo,
+) {
+  const widgets: CanvasWidgetsReduxState = { ...allWidgets };
+  const draggedWidgets: WidgetLayoutProps[] = transformMovedWidgets(
+    widgets,
+    movedWidgets,
+    highlight,
+  );
+  const isLargeWidgetPresent = draggedWidgets.some((each) =>
+    isLargeWidget(each.widgetType),
+  );
+  if (isLargeWidgetPresent) {
+    // If a large widget is present, move widgets to a new layout.
+    const canvasWidgets: CanvasWidgetsReduxState = yield call(
+      moveWidgetsToNewLayout,
+      widgets,
+      movedWidgets,
+      highlight,
+    );
+    return canvasWidgets;
+  } else {
+    // If no large widget is present, move widgets to the same layout.
+    const updatedWidgets = moveWidgets(allWidgets, movedWidgets, highlight);
+    return updatedWidgets;
+  }
 }
