@@ -59,13 +59,16 @@ import StartWithTemplatesWrapper from "./StartWithTemplatesWrapper";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { Template } from "api/TemplatesApi";
+import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 
-const SectionWrapper = styled.div`
+const SectionWrapper = styled.div<{ isBannerVisible: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
   ${(props) => `
-    margin-top: ${props.theme.homePage.header}px;
+    margin-top: ${
+      props.theme.homePage.header + (props.isBannerVisible ? 40 : 0)
+    }px;
   `}
   background: var(--ads-v2-color-gray-50);
   ${(props) => `
@@ -201,6 +204,8 @@ const CreateNewAppsOption = ({
   const isEnabledForStartWithDataDefault = useFeatureFlag(
     FEATURE_FLAG.ab_start_with_data_default_enabled,
   );
+
+  const isBannerVisible = useSelector(shouldShowLicenseBanner);
 
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
@@ -496,7 +501,7 @@ const CreateNewAppsOption = ({
   };
 
   return (
-    <SectionWrapper>
+    <SectionWrapper isBannerVisible={!!isBannerVisible}>
       <BackWrapper hidden={!useType}>
         <LinkWrapper
           className="t--create-new-app-option-goback"
