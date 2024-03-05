@@ -9,7 +9,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { EmptyState } from "../components/EmptyState";
 
-const Empty: React.FC = () => {
+const BlankState: React.FC = () => {
   const pagePermissions = useSelector(getPagePermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const canCreateActions = getHasCreateActionPermission(
@@ -29,4 +29,4 @@ const Empty: React.FC = () => {
   );
 };
 
-export { Empty };
+export { BlankState };

@@ -18,7 +18,7 @@ import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import { QueryListItem } from "@appsmith/pages/Editor/IDE/EditorPane/Query/ListItem";
 import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
-import { Empty } from "./Empty";
+import { BlankState } from "./BlankState";
 
 const ListQuery = () => {
   const pageId = useSelector(getCurrentPageId) as string;
@@ -98,7 +98,7 @@ const ListQuery = () => {
         })}
       </Flex>
 
-      {Object.keys(files).length === 0 && <Empty />}
+      {Object.keys(files).length === 0 && <BlankState />}
     </Flex>
   );
 };

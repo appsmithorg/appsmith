@@ -1,14 +1,14 @@
 import React from "react";
 import { Flex } from "design-system";
 
-import { Empty } from "./Empty";
+import { BlankState } from "./BlankState";
 
-const SplitScreenEmpty: React.FC = () => {
+const BlankStateContainer: React.FC = () => {
   return (
     <Flex flexDirection="column" gap="spaces-3" overflow="hidden" py="spaces-3">
-      <Empty />
+      <BlankState />
     </Flex>
   );
 };
 
-export { SplitScreenEmpty };
+export { BlankStateContainer };

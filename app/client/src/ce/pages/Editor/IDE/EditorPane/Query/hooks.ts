@@ -34,7 +34,7 @@ import type { AppState } from "@appsmith/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "design-system";
-import { SplitScreenEmpty } from "pages/Editor/IDE/EditorPane/Query/SplitScreenEmpty";
+import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/Query/BlankStateContainer";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -134,7 +134,7 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
       },
       {
         key: "QueryEmpty",
-        component: SplitScreenEmpty,
+        component: BlankStateContainer,
         exact: true,
         path: [path],
       },

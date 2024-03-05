@@ -1,9 +1,9 @@
 import React from "react";
 import { Flex } from "design-system";
 
-import { Empty } from "./Empty";
+import { BlankState } from "./BlankState";
 
-const SplitScreenEmpty: React.FC = () => {
+const BlankStateContainer: React.FC = () => {
   return (
     <Flex
       flex="1"
@@ -12,9 +12,9 @@ const SplitScreenEmpty: React.FC = () => {
       overflow="hidden"
       py="spaces-3"
     >
-      <Empty />
+      <BlankState />
     </Flex>
   );
 };
 
-export { SplitScreenEmpty };
+export { BlankStateContainer };
