@@ -178,7 +178,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       onMouseOver={handleMouseOver}
       ref={draggableRef}
       style={dragWrapperStyle}
-      tabIndex={0}
     >
       {props.children}
       {showBoundary && (
