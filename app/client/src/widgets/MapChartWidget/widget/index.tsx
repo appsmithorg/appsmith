@@ -487,7 +487,7 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
           data={data}
           fontFamily={this.props.fontFamily ?? "Nunito Sans"}
           height={this.props.componentHeight}
-          isVisible={isVisible || false}
+          isVisible={isVisible}
           onDataPointClick={this.handleDataPointClick}
           showLabels={showLabels}
           type={mapType}
