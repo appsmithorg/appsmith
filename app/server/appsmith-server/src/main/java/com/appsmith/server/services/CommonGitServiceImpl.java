@@ -5,7 +5,9 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitFileUtils;
+import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.services.ce_compatible.CommonGitServiceCECompatibleImpl;
 import io.micrometer.observation.ObservationRegistry;
@@ -16,6 +18,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class CommonGitServiceImpl extends CommonGitServiceCECompatibleImpl implements CommonGitService {
     public CommonGitServiceImpl(
+            GitPrivateRepoHelper gitPrivateRepoHelper,
             CommonGitFileUtils commonGitFileUtils,
             GitFileUtils gitFileUtils,
             RedisUtils redisUtils,
@@ -27,8 +30,10 @@ public class CommonGitServiceImpl extends CommonGitServiceCECompatibleImpl imple
             ExportService exportService,
             ImportService importService,
             GitExecutor gitExecutor,
-            GitArtifactHelper<Application> gitApplicationHelper) {
+            GitArtifactHelper<Application> gitApplicationHelper,
+            ResponseUtils responseUtils) {
         super(
+                gitPrivateRepoHelper,
                 commonGitFileUtils,
                 gitFileUtils,
                 redisUtils,
@@ -40,6 +45,7 @@ public class CommonGitServiceImpl extends CommonGitServiceCECompatibleImpl imple
                 exportService,
                 importService,
                 gitExecutor,
-                gitApplicationHelper);
+                gitApplicationHelper,
+                responseUtils);
     }
 }

@@ -164,7 +164,7 @@ public class GitServiceTest {
     private void mockForValidConnectRequest() throws IOException, GitAPIException {
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(Mockito.any(), anyString(), anyString(), anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         Mockito.any(Path.class),
                         anyString(),
                         anyString(),

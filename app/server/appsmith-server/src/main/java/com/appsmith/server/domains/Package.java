@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.PackageDTO;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -69,6 +70,12 @@ public class Package extends BranchAwareDomain implements Artifact {
 
     @JsonView(Views.Internal.class)
     Integer serverSchemaVersion = JsonSchemaVersions.serverVersion;
+
+    @Override
+    @JsonView(Views.Internal.class)
+    public ArtifactType getArtifactType() {
+        return ArtifactType.PACKAGE;
+    }
 
     @JsonProperty(value = "modifiedAt", access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)

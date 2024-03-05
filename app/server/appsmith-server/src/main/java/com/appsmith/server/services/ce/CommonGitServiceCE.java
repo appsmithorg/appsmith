@@ -14,12 +14,16 @@ public interface CommonGitServiceCE {
 
     Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile);
 
-    Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(GitProfile gitProfile, String defaultArtifactId);
+    Mono<Map<String, GitProfile>> updateOrCreateGitProfileForCurrentUser(
+            GitProfile gitProfile, String defaultArtifactId);
 
     Mono<GitStatusDTO> getStatus(String defaultArtifactId, boolean compareRemote, String branchName);
 
     Mono<BranchTrackingStatus> fetchRemoteChanges(
             String defaultApplicationId, String branchName, boolean isFileLock, ArtifactType artifactType);
 
-    Mono<? extends Artifact> connectArtifactToGit(String defaultArtifactId, GitConnectDTO gitConnectDTO, String origin, ArtifactType artifactType);
+    Mono<? extends Artifact> connectArtifactToGit(
+            String defaultArtifactId, GitConnectDTO gitConnectDTO, String origin, ArtifactType artifactType);
+
+    Mono<? extends Artifact> detachRemote(String defaultArtifactId, ArtifactType artifactType);
 }

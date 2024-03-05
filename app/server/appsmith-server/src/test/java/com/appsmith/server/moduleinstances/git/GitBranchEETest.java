@@ -694,7 +694,7 @@ class GitBranchEETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -712,7 +712,8 @@ class GitBranchEETest {
                         Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
-        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(DEFAULT_BRANCH));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))

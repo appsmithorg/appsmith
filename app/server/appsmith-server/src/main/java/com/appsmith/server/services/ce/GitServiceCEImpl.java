@@ -545,7 +545,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     result.append("Commit Result : ");
                     Mono<String> gitCommitMono = gitExecutor
-                            .commitApplication(
+                            .commitArtifact(
                                     baseRepoPath,
                                     commitMessage,
                                     authorProfile.getAuthorName(),
@@ -911,7 +911,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                         profile = userData.getGitProfileByKey(DEFAULT);
                                     }
-                                    return gitExecutor.commitApplication(
+                                    return gitExecutor.commitArtifact(
                                             tuple.getT1(),
                                             DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason(),
                                             profile.getAuthorName(),
@@ -3030,7 +3030,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private Mono<String> commitAndPushWithDefaultCommit(
             Path repoSuffix, GitAuth auth, GitArtifactMetadata gitArtifactMetadata, GitDefaultCommitMessage reason) {
         return gitExecutor
-                .commitApplication(
+                .commitArtifact(
                         repoSuffix,
                         DEFAULT_COMMIT_MESSAGE + reason.getReason(),
                         APPSMITH_BOT_USERNAME,

@@ -89,7 +89,7 @@ public class GitExecutorCEImpl implements GitExecutor {
      * @return if the commit was successful
      */
     @Override
-    public Mono<String> commitApplication(
+    public Mono<String> commitArtifact(
             Path path,
             String commitMessage,
             String authorName,
@@ -244,7 +244,8 @@ public class GitExecutorCEImpl implements GitExecutor {
      *  @return defaultBranchName of the repo
      * */
     @Override
-    public Mono<String> cloneRemoteIntoArtifactRepo(Path repoSuffix, String remoteUrl, String privateKey, String publicKey) {
+    public Mono<String> cloneRemoteIntoArtifactRepo(
+            Path repoSuffix, String remoteUrl, String privateKey, String publicKey) {
 
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CLONE.getEventName());

@@ -315,7 +315,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(branchName));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -381,7 +381,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -398,7 +398,7 @@ public class GitServiceWithRBACTest {
                         Mockito.anyString(),
                         Mockito.anyString()))
                 .thenReturn(Mono.just("success"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -507,7 +507,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         Mockito.any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -524,7 +524,7 @@ public class GitServiceWithRBACTest {
                         Mockito.anyString(),
                         Mockito.anyString()))
                 .thenReturn(Mono.just("success"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -1842,7 +1842,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2130,7 +2130,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2301,7 +2301,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2372,7 +2372,7 @@ public class GitServiceWithRBACTest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         Mockito.any(Path.class), Mockito.any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         Mockito.any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),

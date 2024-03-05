@@ -1,6 +1,7 @@
 package com.appsmith.server.domains.ce;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.GitArtifactMetadata;
 
 import java.util.Set;
@@ -34,4 +35,6 @@ public interface ArtifactCE {
     void setPublishedThemeId(String themeId);
 
     Set<Policy> getPolicies();
+
+    ArtifactType getArtifactType();
 }

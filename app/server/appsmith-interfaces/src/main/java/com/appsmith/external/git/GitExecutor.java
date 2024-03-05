@@ -26,7 +26,7 @@ public interface GitExecutor {
      * @param doAmend       To amend with the previous commit
      * @return if the commit was successful
      */
-    Mono<String> commitApplication(
+    Mono<String> commitArtifact(
             Path repoPath,
             String commitMessage,
             String authorName,

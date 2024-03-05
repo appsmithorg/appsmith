@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -348,6 +349,12 @@ public class Application extends BaseDomain implements Artifact {
         } else {
             unpublishedApplicationDetail = applicationDetail;
         }
+    }
+
+    @Override
+    @JsonView(Views.Internal.class)
+    public ArtifactType getArtifactType() {
+        return ArtifactType.APPLICATION;
     }
 
     @Data
