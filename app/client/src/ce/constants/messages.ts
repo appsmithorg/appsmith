@@ -2455,3 +2455,6 @@ export const HEADER_TITLES = {
 export const PASTE_FAILED = (str: string): string => `Paste failed! ${str}`;
 
 export const CREATE_A_NEW_ITEM = (item: string) => `Create a new ${item}`;
+
+export const MAXIMIZE_BUTTON_TOOLTIP = () => `Expand to fullscreen mode`;
+export const MINIMIZE_BUTTON_TOOLTIP = () => `Open splitscreen mode`;
