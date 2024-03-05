@@ -81,3 +81,7 @@ export const getPageDependencyActions = (
     errorActions,
   };
 };
+
+export enum APPSMITH_NAMESPACED_FUNCTIONS {
+  assignRequest = "appsmith.workflows.assignRequest",
+}

@@ -81,21 +81,21 @@ export const getJSModuleInstanceChildNavigationData = (
       },
     );
 
-    const variableChildren: NavigationData[] =
-      publicJSCollection.config.variables.map((jsChild) => {
-        return createNavData({
-          id: `${moduleInstance.name}.${jsChild.name}`,
-          name: `${moduleInstance.name}.${jsChild.name}`,
-          type: ENTITY_TYPE.MODULE_INSTANCE,
-          isfunction: false,
-          url: moduleInstanceEditorURL({
-            moduleInstanceId: moduleInstance.id,
-            moduleType: moduleInstance.type,
-          }),
-          children: {},
-          key: jsChild.name,
-        });
+    const jsVariables = publicJSCollection.config.variables || [];
+    const variableChildren: NavigationData[] = jsVariables.map((jsChild) => {
+      return createNavData({
+        id: `${moduleInstance.name}.${jsChild.name}`,
+        name: `${moduleInstance.name}.${jsChild.name}`,
+        type: ENTITY_TYPE.MODULE_INSTANCE,
+        isfunction: false,
+        url: moduleInstanceEditorURL({
+          moduleInstanceId: moduleInstance.id,
+          moduleType: moduleInstance.type,
+        }),
+        children: {},
+        key: jsChild.name,
       });
+    });
 
     children = children.concat(variableChildren);
 

@@ -1,6 +1,5 @@
 export * from "ce/sagas/JSFunctionExecutionSaga";
 
-import { logActionExecutionForAudit } from "actions/jsActionActions";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { call, put, select } from "redux-saga/effects";
 import { getCurrentPageName } from "selectors/editorSelectors";
@@ -13,6 +12,7 @@ import { get, set, uniq } from "lodash";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import { logJSActionExecution } from "@appsmith/sagas/analyticsSaga";
+import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
 
 export function* logJSFunctionExecution(
   message: TMessage<{

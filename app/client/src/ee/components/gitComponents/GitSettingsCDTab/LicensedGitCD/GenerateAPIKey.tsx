@@ -77,6 +77,7 @@ function GenerateAPIKey({
       </div>
       {!cdApiKey ? (
         <Button
+          data-testid="t--cd-generate-api-key-btn"
           isLoading={generateCdApiKeyLoading}
           kind="secondary"
           onClick={
@@ -97,9 +98,12 @@ function GenerateAPIKey({
               size="md"
               style={{ marginRight: 4 }}
             />
-            <CopyText>{maskedCdApiKey}</CopyText>
+            <CopyText data-testid="t--cd-api-key-display">
+              {maskedCdApiKey}
+            </CopyText>
             <CopyButton
               style={{ marginLeft: "auto" }}
+              testIdSuffix="cd-api-key-btn"
               tooltipMessage={createMessage(GIT_CD_COPY_API_KEY)}
               value={cdApiKey}
             />

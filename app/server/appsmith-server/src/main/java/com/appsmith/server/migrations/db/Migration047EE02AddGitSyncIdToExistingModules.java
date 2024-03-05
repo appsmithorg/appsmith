@@ -24,12 +24,12 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.f
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
-@ChangeUnit(order = "049-ee-01", id = "add-git-sync-id-to-existing-modules", author = "")
-public class Migration049EE01AddGitSyncIdToExistingModules {
+@ChangeUnit(order = "047-ee-02", id = "add-git-sync-id-to-existing-modules", author = "")
+public class Migration047EE02AddGitSyncIdToExistingModules {
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration049EE01AddGitSyncIdToExistingModules(MongoTemplate mongoTemplate) {
+    public Migration047EE02AddGitSyncIdToExistingModules(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 

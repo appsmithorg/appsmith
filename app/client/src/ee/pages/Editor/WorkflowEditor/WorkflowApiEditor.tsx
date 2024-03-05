@@ -21,6 +21,7 @@ import { getHasDeleteActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import { deleteAction, runAction } from "actions/pluginActionActions";
 import CloseEditor from "components/editorComponents/CloseEditor";
 import ActionEditorContextMenu from "../ModuleEditor/ActionEditorContextMenu";
+import { saveWorkflowActionName } from "@appsmith/actions/workflowActions";
 
 interface WorkflowApiEditorRouteParams {
   workflowId: string;
@@ -97,12 +98,20 @@ function WorkflowApiEditor(props: WorkflowApiEditorProps) {
 
   const closeEditorLink = useMemo(() => <CloseEditor />, []);
 
+  const onSaveWorkflowJSActionName = useCallback(
+    ({ id, name }: { id: string; name: string }) => {
+      return saveWorkflowActionName(id, name);
+    },
+    [],
+  );
+
   return (
     <ApiEditorContextProvider
       closeEditorLink={closeEditorLink}
       handleDeleteClick={handleDeleteClick}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
+      saveActionName={onSaveWorkflowJSActionName}
       settingsConfig={settingsConfig}
     >
       <Editor {...props} isEditorInitialized={isWorkflowEditorInitialized} />

@@ -32,6 +32,7 @@ public abstract class BaseModuleInstanceServiceImpl implements BaseModuleInstanc
             ModuleInstance moduleInstance, ModuleInstanceDTO moduleInstanceDTO) {
         moduleInstanceDTO.setId(moduleInstance.getId());
         moduleInstanceDTO.setType(moduleInstance.getType());
+        moduleInstanceDTO.setPackageUUID(moduleInstance.getPackageUUID());
         moduleInstanceDTO.setModuleUUID(moduleInstance.getModuleUUID());
         moduleInstanceDTO.setSourceModuleId(moduleInstance.getSourceModuleId());
         moduleInstanceDTO.setOriginModuleId(moduleInstance.getOriginModuleId());

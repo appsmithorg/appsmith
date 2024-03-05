@@ -66,6 +66,7 @@ import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtil
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.ACTION_CONFIG_ONLY;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_AND_ACTION_CONFIG;
 import static com.appsmith.external.helpers.restApiUtils.helpers.HintMessageUtils.DUPLICATE_ATTRIBUTE_LOCATION.DATASOURCE_CONFIG_ONLY;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertIterableEquals;
@@ -1912,9 +1913,8 @@ public class RestApiPluginTest {
         StepVerifier.create(resultMono)
                 .assertNext(result -> {
                     assertFalse(result.getIsExecutionSuccess());
-                    assertTrue(result.getPluginErrorDetails()
-                            .getDownstreamErrorMessage()
-                            .contains("Host not allowed."));
+                    assertThat(result.getPluginErrorDetails().getDownstreamErrorMessage())
+                            .endsWith("Host not allowed.");
                 })
                 .verifyComplete();
     }

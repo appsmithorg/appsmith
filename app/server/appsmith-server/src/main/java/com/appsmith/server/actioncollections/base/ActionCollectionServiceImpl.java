@@ -245,8 +245,7 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
         return repository
                 .findAllModuleInstanceEntitiesByContextAndViewMode(
                         contextId, contextType, Optional.of(permission), viewMode)
-                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode))
-                .map(responseUtils::updateCollectionDTOWithDefaultResources);
+                .flatMap(actionCollection -> generateActionCollectionByViewMode(actionCollection, viewMode));
     }
 
     @Override

@@ -6,7 +6,6 @@ export const defaultsConfig = {
   defaultCheckedState: true,
   widgetName: "Checkbox",
   version: 1,
-  labelPosition: "left",
   isDisabled: false,
   isRequired: false,
   animateLoading: true,

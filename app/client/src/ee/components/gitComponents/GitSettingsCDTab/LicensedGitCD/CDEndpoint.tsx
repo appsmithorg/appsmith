@@ -82,7 +82,7 @@ function CDEndpoint({
       </div>
       <div className="flex justify-between mb-1">
         <StyledSelect
-          data-testid="t--git-settings-cd-branch-select"
+          data-testid="t--cd-branch-select"
           dropdownMatchSelectWidth
           getPopupContainer={(triggerNode) => triggerNode.parentNode}
           isLoading={isFetchingBranches}
@@ -96,12 +96,13 @@ function CDEndpoint({
         </StyledSelect>
         <CopyButton
           style={{ marginLeft: "auto" }}
+          testIdSuffix="cd-curl-btn"
           tooltipMessage={createMessage(GIT_CD_COPY_ENDPOINT)}
-          value={cdEndpointUrl}
+          value={curlCmd}
         />
       </div>
       <CopyContainer>
-        <CopyText>{curlCmd}</CopyText>
+        <CopyText data-testid="t--cd-curl-display">{curlCmd}</CopyText>
       </CopyContainer>
     </div>
   );

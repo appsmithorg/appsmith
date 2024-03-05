@@ -7,21 +7,29 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   getActions,
+  getJSCollection,
   getJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import type { Action, ApiAction } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
-import { select, put, takeLatest, call, all } from "redux-saga/effects";
+import { select, put, takeLatest, call, all, fork } from "redux-saga/effects";
 import { createDefaultActionPayloadWithPluginDefaults } from "sagas/ActionSagas";
 import { validateResponse } from "sagas/ErrorSagas";
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
-import { createActionRequest } from "actions/pluginActionActions";
+import {
+  createActionRequest,
+  updateActionData,
+} from "actions/pluginActionActions";
 import ActionAPI from "api/ActionAPI";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import type { FetchWorkflowActionsPayload } from "@appsmith/actions/workflowActions";
+import {
+  fetchWorkflowActions,
+  fetchWorkflowJSCollections,
+  type FetchWorkflowActionsPayload,
+} from "@appsmith/actions/workflowActions";
 import { createDefaultApiActionPayload } from "sagas/ApiPaneSagas";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
@@ -40,7 +48,49 @@ import { getPluginIdOfPackageName } from "sagas/selectors";
 import { DEFAULT_DATASOURCE_NAME } from "constants/ApiEditorConstants/ApiEditorConstants";
 import { checkAndGetPluginFormConfigsSaga } from "sagas/PluginSagas";
 import { createNewWorkflowQueryName } from "@appsmith/utils/workflowHelpers";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type {
+  ActionData,
+  ActionDataState,
+} from "@appsmith/reducers/entityReducers/actionsReducer";
+import { logActionExecutionError } from "sagas/ActionExecution/errorUtils";
+import type { TWorkflowsAssignRequestDescription } from "@appsmith/workers/Evaluation/fns/workflowFns";
+import { toast } from "design-system";
+import {
+  ERROR_ACTION_RENAME_FAIL,
+  ERROR_JS_COLLECTION_RENAME_FAIL,
+  createMessage,
+} from "@appsmith/constants/messages";
+import log from "loglevel";
+import { ActionsNotFoundError } from "entities/Engine";
+import { failFastApiCalls } from "sagas/InitSagas";
+
+export function* fetchAllWorkflowActions(workflowId: string) {
+  const initActionsCalls = [
+    fetchWorkflowActions({ workflowId }, []),
+    fetchWorkflowJSCollections({ workflowId }),
+  ];
+
+  const successActionEffects = [
+    ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
+    ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
+  ];
+
+  const failureActionEffects = [
+    ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
+    ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
+  ];
+
+  const allActionCalls: boolean = yield call(
+    failFastApiCalls,
+    initActionsCalls,
+    successActionEffects,
+    failureActionEffects,
+  );
+  if (!allActionCalls)
+    throw new ActionsNotFoundError(
+      `Unable to fetch actions for the workflow: ${workflowId}`,
+    );
+}
 
 export function* createWorkflowQueryActionSaga(
   action: ReduxAction<{
@@ -294,6 +344,208 @@ export function* createWorkflowJSActionSaga(
   }
 }
 
+export function* handleAssignRequestOnBrowserRun(
+  action: TWorkflowsAssignRequestDescription,
+) {
+  const { requestName, requestToGroups, requestToUsers, resolutions } =
+    action.payload;
+
+  // requestName is required, if not present, log error and return
+
+  let errorMessage = "";
+  if (!requestName)
+    errorMessage =
+      "Missing parameter: Provide a valid value for 'requestName'.";
+
+  // resolutions is required, if not present, log error and return
+  if (!resolutions || resolutions.length === 0)
+    errorMessage =
+      "Missing parameter: Provide a valid value for 'resolutions'.";
+
+  // at least one of requestToUsers or requestToGroups is required and should have length>0,
+  // If not present, log error and return
+  if (
+    (!requestToUsers || requestToUsers.length === 0) &&
+    (!requestToGroups || requestToGroups.length === 0)
+  )
+    errorMessage =
+      "Missing parameter: Provide a valid 'requestToUsers' or 'requestToGroups'";
+
+  if (errorMessage) {
+    yield call(logActionExecutionError, errorMessage, true);
+    return;
+  }
+
+  // return the first value of resolutions array as the resolution
+  const resolution = resolutions[0];
+  return { resolution };
+}
+
+export function* refactorJSObjectName(
+  id: string,
+  workflowId: string,
+  oldName: string,
+  newName: string,
+) {
+  // call to refactor action
+  const refactorResponse: ApiResponse =
+    yield JSActionAPI.updateJSCollectionOrActionName({
+      actionCollectionId: id,
+      oldName: oldName,
+      newName: newName,
+      workflowId,
+      contextType: ActionParentEntityType.WORKFLOW,
+    });
+
+  const isRefactorSuccessful: boolean =
+    yield validateResponse(refactorResponse);
+
+  if (isRefactorSuccessful) {
+    yield put({
+      type: ReduxActionTypes.SAVE_JS_COLLECTION_NAME_SUCCESS,
+      payload: {
+        actionId: id,
+      },
+    });
+    const jsObject: JSCollection = yield select((state) =>
+      getJSCollection(state, id),
+    );
+    const functions = jsObject.actions;
+    yield put(
+      updateActionData(
+        functions.map((f) => ({
+          entityName: newName,
+          data: undefined,
+          dataPath: `${f.name}.data`,
+          dataPathRef: `${oldName}.${f.name}.data`,
+        })),
+      ),
+    );
+  }
+}
+
+export function* refactorActionNameForWorkflows(
+  id: string,
+  workflowId: string,
+  oldName: string,
+  newName: string,
+) {
+  PerformanceTracker.startAsyncTracking(
+    PerformanceTransactionName.REFACTOR_ACTION_NAME,
+    { actionId: id },
+  );
+
+  // call to refactor action
+  const refactorResponse: ApiResponse = yield ActionAPI.updateActionName({
+    actionId: id,
+    oldName: oldName,
+    newName: newName,
+    workflowId,
+    contextType: ActionParentEntityType.WORKFLOW,
+  });
+
+  const isRefactorSuccessful: boolean =
+    yield validateResponse(refactorResponse);
+
+  PerformanceTracker.stopAsyncTracking(
+    PerformanceTransactionName.REFACTOR_ACTION_NAME,
+    { isSuccess: isRefactorSuccessful },
+  );
+  if (isRefactorSuccessful) {
+    yield put({
+      type: ReduxActionTypes.SAVE_ACTION_NAME_SUCCESS,
+      payload: {
+        actionId: id,
+      },
+    });
+    yield put(
+      updateActionData([
+        {
+          entityName: newName,
+          dataPath: "data",
+          data: undefined,
+          dataPathRef: `${oldName}.data`,
+        },
+      ]),
+    );
+  }
+}
+
+export function* saveActionNameForWorkflowsSaga(
+  action: ReduxAction<{ id: string; name: string }>,
+) {
+  const { id, name } = action.payload;
+  const actions: ActionDataState = yield select(getActions);
+  const actionToBeUpdated: ActionData | undefined = actions.find(
+    (action) => action.config.id === id,
+  );
+  const workflowId = actionToBeUpdated?.config.workflowId;
+
+  try {
+    if (workflowId) {
+      yield refactorActionNameForWorkflows(
+        id,
+        workflowId,
+        actionToBeUpdated?.config.name || "",
+        name,
+      );
+
+      yield fork(fetchAllWorkflowActions, workflowId);
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_ACTION_NAME_ERROR,
+      payload: {
+        actionId: action.payload.id,
+        oldName: actionToBeUpdated?.config.name,
+      },
+    });
+    toast.show(createMessage(ERROR_ACTION_RENAME_FAIL, action.payload.name), {
+      kind: "error",
+    });
+    log.error(e);
+  }
+}
+
+export function* saveJSObjectNameForWorkflowsSaga(
+  action: ReduxAction<{ id: string; name: string }>,
+) {
+  const { id, name } = action.payload;
+  const jsActions: JSCollectionDataState = yield select(getJSCollections);
+  const jsActionToBeUpdated: JSCollectionData | undefined = jsActions.find(
+    (jsaction) => jsaction.config.id === id,
+  );
+  const workflowId = jsActionToBeUpdated?.config.workflowId;
+
+  try {
+    if (workflowId) {
+      yield refactorJSObjectName(
+        id,
+        workflowId,
+        jsActionToBeUpdated?.config.name || "",
+        name,
+      );
+
+      yield fork(fetchAllWorkflowActions, workflowId);
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.SAVE_JS_COLLECTION_NAME_ERROR,
+      payload: {
+        actionId: action.payload.id,
+        oldName: jsActionToBeUpdated?.config.name,
+      },
+    });
+    toast.show(
+      createMessage(ERROR_JS_COLLECTION_RENAME_FAIL, action.payload.name),
+      {
+        kind: "error",
+      },
+    );
+    log.error(e);
+  }
+}
+
 export default function* workflowsActionSagas() {
   yield all([
     takeLatest(
@@ -319,6 +571,14 @@ export default function* workflowsActionSagas() {
     takeLatest(
       ReduxActionTypes.FETCH_WORKFLOW_JS_ACTIONS_INIT,
       fetchWorkflowJSCollectionsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.SAVE_ACTION_NAME_FOR_WORKFLOWS_INIT,
+      saveActionNameForWorkflowsSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.SAVE_JS_OBJECT_NAME_FOR_WORKFLOWS_INIT,
+      saveJSObjectNameForWorkflowsSaga,
     ),
   ]);
 }

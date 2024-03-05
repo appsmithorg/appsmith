@@ -174,7 +174,7 @@ export const generateJSModuleInstance = (
         data: `{{${publicJSObject.config.name}.${action.name}.data}}`,
       };
       meta[action.name] = {
-        arguments: action.actionConfiguration.jsArguments,
+        arguments: action.actionConfiguration?.jsArguments,
         confirmBeforeExecute: !!action.confirmBeforeExecute,
       };
     }

@@ -4,9 +4,11 @@ import type { ItemProps as HeadlessItemProps } from "@react-types/shared";
 
 import type { IconProps } from "../../Icon";
 import type { COLORS } from "../../../shared";
+import type { ButtonProps } from "../../Button";
 
 interface ItemProps<T> extends HeadlessItemProps<T> {
   color?: keyof typeof COLORS;
+  variant?: ButtonProps["variant"];
   icon?: IconProps["name"];
   iconPosition?: "start" | "end";
   isLoading?: boolean;
@@ -24,6 +26,8 @@ _Item.getCollectionNode = <T,>(props: ItemProps<T>) => {
   // @ts-expect-error this method is hidden by the types. See the source code of Item from Spectrum for more context.
   return HeadlessItem.getCollectionNode({
     ...rest,
+    color,
+    // TODO(pawan): Check why we need [data-color] here.
     ["data-color"]: Boolean(color) ? color : undefined,
   });
 };

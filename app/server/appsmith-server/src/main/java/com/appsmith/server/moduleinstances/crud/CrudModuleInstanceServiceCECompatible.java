@@ -46,8 +46,7 @@ public interface CrudModuleInstanceServiceCECompatible extends BaseModuleInstanc
      * @param branchName           The name of the branch to associate the orphan module instance with
      * @return A Mono emitting the response DTO for the created orphan module instance
      */
-    Mono<CreateModuleInstanceResponseDTO> createOrphanModuleInstance(
-            ModuleInstanceDTO moduleInstanceReqDTO, String branchName);
+    Mono<ModuleInstance> createOrphanModuleInstance(ModuleInstanceDTO moduleInstanceReqDTO, String branchName);
 
     Mono<ModuleInstanceDTO> deleteUnpublishedModuleInstance(String defaultModuleInstanceId, String branchName);
 
@@ -64,7 +63,7 @@ public interface CrudModuleInstanceServiceCECompatible extends BaseModuleInstanc
             CreatorContextType creatorContextType, List<String> contextIds, AclPermission permission);
 
     Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
-            Module sourceModule, Optional<AclPermission> permission);
+            Module sourceModule, Optional<AclPermission> permission, String workspaceId);
 
     Mono<List<ModuleInstanceDTO>> deleteByContextId(String contextId, CreatorContextType contextType);
 

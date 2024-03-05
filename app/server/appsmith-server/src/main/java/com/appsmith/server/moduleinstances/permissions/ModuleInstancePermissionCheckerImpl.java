@@ -13,7 +13,7 @@ public class ModuleInstancePermissionCheckerImpl implements ModuleInstancePermis
     }
 
     @Override
-    public Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID) {
-        return moduleInstanceRepository.getModuleInstanceCountByModuleUUID(moduleUUID);
+    public Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID, String workspaceId) {
+        return moduleInstanceRepository.getModuleInstanceCountByModuleUUID(moduleUUID, workspaceId);
     }
 }

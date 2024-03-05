@@ -30,10 +30,7 @@ import type {
 import { createNewJSFunctionName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
-import {
-  createJSCollectionRequest,
-  logActionExecutionForAudit,
-} from "actions/jsActionActions";
+import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
 import { executeJSFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
@@ -103,6 +100,8 @@ import {
   getJSActionPathNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
+import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
+import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -459,6 +458,9 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
     });
 
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, true, collectionId, isDirty);
+
     yield put(
       logActionExecutionForAudit({
         actionName: action.name,
@@ -504,6 +506,10 @@ export function* handleExecuteJSFunctionSaga(data: {
         }),
       );
     }
+
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, false, collectionId, false);
+
     AppsmithConsole.addErrors([
       {
         payload: {

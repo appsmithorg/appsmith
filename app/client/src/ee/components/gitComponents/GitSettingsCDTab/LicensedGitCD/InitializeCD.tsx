@@ -98,7 +98,7 @@ function InitializeCD() {
   };
 
   return (
-    <Container>
+    <Container data-testid="t--cd-setup">
       <SectionTitle kind="heading-s" renderAs="h3">
         {createMessage(CONFIGURE_CD_TITLE)}
       </SectionTitle>
@@ -138,7 +138,7 @@ function InitializeCD() {
       </WellContainer>
       <Footer>
         <StyledCheckbox
-          data-testid="t--git-settings-cd-checkbox"
+          data-testid="t--cd-confirm-setup-checkbox"
           isDisabled={!cdApiKey}
           isSelected={confirmed}
           onChange={(isSelected) => {
@@ -149,7 +149,12 @@ function InitializeCD() {
             {createMessage(GIT_CD_CONFIRM_CONFIGURATION)}
           </Text>
         </StyledCheckbox>
-        <Button isDisabled={!confirmed} onClick={handleSubmit} size="md">
+        <Button
+          data-testid="t--cd-finish-setup-btn"
+          isDisabled={!confirmed}
+          onClick={handleSubmit}
+          size="md"
+        >
           {createMessage(GIT_CD_FINISH_CONFIGURATION_CTA)}
         </Button>
       </Footer>

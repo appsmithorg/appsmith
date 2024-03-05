@@ -12,20 +12,17 @@ import {
 } from "actions/datasourceActions";
 import { failFastApiCalls } from "sagas/InitSagas";
 import {
-  ActionsNotFoundError,
   PluginFormConfigsNotFoundError,
   PluginsNotFoundError,
 } from "entities/Engine";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { fetchWorkflowSaga } from "@appsmith/sagas/workflowsSagas";
-import { fetchAllPageEntityCompletion } from "actions/pageActions";
 import type { FetchWorkflowResponse } from "@appsmith/api/WorkflowApi";
-import {
-  fetchWorkflowActions,
-  fetchWorkflowJSCollections,
-} from "@appsmith/actions/workflowActions";
+import { fetchAllWorkflowActionsSuccess } from "@appsmith/actions/workflowActions";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import history from "utils/history";
+import { waitForFetchUserSuccess } from "ce/sagas/userSagas";
+import { fetchAllWorkflowActions } from "@appsmith/sagas/workflowsActionSagas";
 
 export default class WorkflowEditorEngine {
   *loadWorkflow(workflowId: string) {
@@ -69,34 +66,9 @@ export default class WorkflowEditorEngine {
   }
 
   *loadPageThemesAndActions(workflowId: string) {
-    const initActionsCalls = [
-      fetchWorkflowActions({ workflowId }, []),
-      fetchWorkflowJSCollections({ workflowId }),
-    ];
-
-    const successActionEffects = [
-      ReduxActionTypes.FETCH_ACTIONS_SUCCESS,
-      ReduxActionTypes.FETCH_JS_ACTIONS_SUCCESS,
-    ];
-
-    const failureActionEffects = [
-      ReduxActionErrorTypes.FETCH_ACTIONS_ERROR,
-      ReduxActionErrorTypes.FETCH_JS_ACTIONS_ERROR,
-    ];
-
-    const allActionCalls: boolean = yield call(
-      failFastApiCalls,
-      initActionsCalls,
-      successActionEffects,
-      failureActionEffects,
-    );
-
-    if (!allActionCalls)
-      throw new ActionsNotFoundError(
-        `Unable to fetch actions for the workflow: ${workflowId}`,
-      );
-
-    yield put(fetchAllPageEntityCompletion([]));
+    yield call(fetchAllWorkflowActions, workflowId);
+    yield call(waitForFetchUserSuccess);
+    yield put(fetchAllWorkflowActionsSuccess([]));
   }
 
   *loadPluginsAndDatasources() {

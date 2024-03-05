@@ -46,6 +46,7 @@ import { workflowEditorURL } from "@appsmith/RouteBuilder";
 import { toast } from "design-system";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { HistoryStateFilterStates } from "@appsmith/pages/Editor/WorkflowEditor/BottomBar/WorkflowRunHistory/helpers";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 interface CreateWorkflowSagaProps {
   workspaceId: string;
@@ -81,11 +82,7 @@ export function* createWorkflowFromWorkspaceSaga(
         payload: response.data,
       });
 
-      //TODO (Workflows): Add back once we get the workflow JS object api
-      // yield fetchPluginsSaga(fetchPlugins({ workspaceId }));
-      // yield put(createNewJSCollection(pageId, "WORKFLOW_CREATION", "workflow"));
-
-      // history.push(`${BASE_WORKFLOW_EDITOR_URL}/${workflowId}/edit`);
+      AnalyticsUtil.logEvent("CREATE_WORKFLOW", { workflowId });
       history.push(workflowEditorURL({ workflowId }));
     }
   } catch (error) {
@@ -235,7 +232,9 @@ export function* deleteWorkflowSaga(
         type: ReduxActionTypes.DELETE_WORKFLOW_SUCCESS,
         payload: action.payload,
       });
-
+      AnalyticsUtil.logEvent("DELETE_WORKFLOW", {
+        workflowId: action.payload.id,
+      });
       return response.data;
     }
   } catch (error) {
@@ -295,6 +294,10 @@ export function* publishWorkflowSaga(
       yield put({
         type: ReduxActionTypes.PUBLISH_WORKFLOW_SUCCESS,
         payload: response.data,
+      });
+
+      AnalyticsUtil.logEvent("DEPLOY_WORKFLOW", {
+        workflowId: action.payload.workflowId,
       });
 
       toast.show("Workflow published successfully", { kind: "success" });

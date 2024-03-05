@@ -50,9 +50,9 @@ RUN set -o xtrace \
   && curl --location "https://github.com/caddyserver/caddy/releases/download/v$version/caddy_${version}_linux_$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/').tar.gz" \
   | tar -xz -C /opt/caddy
 
-# Untar & install keycloak - Service Layer
+# Install Keycloak
 RUN mkdir -p /opt/keycloak/data \
-  && curl --location https://github.com/keycloak/keycloak/releases/download/23.0.4/keycloak-23.0.4.tar.gz \
+  && curl --location https://github.com/keycloak/keycloak/releases/download/24.0.0/keycloak-24.0.0.tar.gz \
   | tar -xz -C /opt/keycloak --strip-components 1 \
   && curl --location --output "/opt/h2-2.1.214.jar" 'https://search.maven.org/remotecontent?filepath=com/h2database/h2/2.1.214/h2-2.1.214.jar'
 

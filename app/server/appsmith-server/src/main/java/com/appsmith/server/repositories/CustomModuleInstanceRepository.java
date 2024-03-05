@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface CustomModuleInstanceRepository extends AppsmithRepository<ModuleInstance> {
-    Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID);
+    Mono<Long> getModuleInstanceCountByModuleUUID(String moduleUUID, String workspaceId);
 
     Flux<ModuleInstance> findAllPublishedByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission);
@@ -36,7 +36,7 @@ public interface CustomModuleInstanceRepository extends AppsmithRepository<Modul
     Flux<ModuleInstance> findAllByModuleIds(List<String> contextIds, AclPermission permission);
 
     Flux<ModuleInstance> findAllUnpublishedByOriginModuleIdOrModuleUUID(
-            Module sourceModule, Optional<AclPermission> permission);
+            Module sourceModule, Optional<AclPermission> permission, String workspaceId);
 
     Flux<ModuleInstance> findByDefaultApplicationId(
             String defaultApplicationId, Optional<AclPermission> permissionOptional);

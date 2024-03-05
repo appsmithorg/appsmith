@@ -138,20 +138,31 @@ export const fetchWorkflowJSCollections = ({
   };
 };
 
-export const saveWorkflowActionName = (
-  id: string,
-  name: string,
-  workflowId: string,
-) => {
+export const fetchAllWorkflowActionsSuccess = (
+  postEvalActions: Array<AnyReduxAction>,
+) => ({
+  type: ReduxActionTypes.FETCH_ALL_WORKFLOWS_ENTITY_COMPLETION,
+  postEvalActions,
+  payload: undefined,
+});
+
+export const saveWorkflowActionName = (id: string, name: string) => {
   return {
-    type: ReduxActionTypes.SAVE_ACTION_NAME_INIT,
+    type: ReduxActionTypes.SAVE_ACTION_NAME_FOR_WORKFLOWS_INIT,
     payload: {
       id,
       name,
-      workflowId,
     },
   };
 };
+
+export const saveJSObjectNameForWorkflows = (payload: {
+  id: string;
+  name: string;
+}) => ({
+  type: ReduxActionTypes.SAVE_JS_OBJECT_NAME_FOR_WORKFLOWS_INIT,
+  payload,
+});
 
 export const publishWorkflow = (payload: PublishWorkflowPayload) => {
   return {

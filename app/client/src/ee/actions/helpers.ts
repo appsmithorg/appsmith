@@ -7,6 +7,8 @@ import {
   createWorkflowJSCollection,
   createWorkflowQueryAction,
   createWorkflowQueryInApp,
+  saveJSObjectNameForWorkflows,
+  saveWorkflowActionName,
 } from "@appsmith/actions/workflowActions";
 import {
   createNewQueryBasedOnParentEntity as CE_createNewQueryBasedOnParentEntity,
@@ -79,6 +81,8 @@ export const saveActionNameBasedOnParentEntity = (
   parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   switch (parentEntityType) {
+    case ActionParentEntityType.WORKFLOW:
+      return saveWorkflowActionName(id, name);
     case ActionParentEntityType.MODULE:
       return saveActionNameForPackage({ id, name });
     default:
@@ -92,6 +96,8 @@ export const saveJSObjectNameBasedOnParentEntity = (
   parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   switch (parentEntityType) {
+    case ActionParentEntityType.WORKFLOW:
+      return saveJSObjectNameForWorkflows({ id, name });
     case ActionParentEntityType.MODULE:
       return saveJSObjectNameForPackage({ id, name });
     default:

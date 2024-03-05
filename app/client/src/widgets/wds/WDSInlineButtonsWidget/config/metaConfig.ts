@@ -4,7 +4,7 @@ import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const metaConfig = {
-  name: "Button Group",
+  name: "Inline Buttons",
   iconSVG: IconSVG,
   thumbnailSVG: ThumbnailSVG,
   needsMeta: false,

@@ -91,6 +91,7 @@ public class PublishPackageServiceImpl extends PublishPackageCECompatibleService
                     originalPackage.setVersion(nextVersion);
                     originalPackage.setLastPublishedAt(packageToBePublished.getLastPublishedAt());
                     publishingMetaDTO.setOriginPackageId(packageId);
+                    publishingMetaDTO.setWorkspaceId(originalPackage.getWorkspaceId());
 
                     Mono<Void> unsetCurrentLatestMono =
                             packageRepository.unsetLatestPackageByOriginId(originalPackage.getId(), null);

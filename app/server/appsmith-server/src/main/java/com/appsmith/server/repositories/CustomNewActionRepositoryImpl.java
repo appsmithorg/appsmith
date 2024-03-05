@@ -10,24 +10,18 @@ import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.repositories.ce.CustomNewActionRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.aggregation.Aggregation;
-import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
-import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -35,15 +29,12 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 @Slf4j
 public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEImpl
         implements CustomNewActionRepository {
-    private final MongoTemplate mongoTemplate;
 
     public CustomNewActionRepositoryImpl(
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper,
-            MongoTemplate mongoTemplate) {
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-        this.mongoTemplate = mongoTemplate;
     }
 
     @Override
@@ -233,7 +224,7 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
     public Mono<Void> publishActionsForWorkflows(String workflowId, AclPermission aclPermission) {
         Criteria workflowIdCriteria = where(NewAction.Fields.workflowId).is(workflowId);
 
-        return copyUnpublishedActionToPublishedActionForActions(aclPermission, workflowIdCriteria);
+        return copyUnpublishedActionToPublishedAction(workflowIdCriteria, aclPermission);
     }
 
     @Override
@@ -473,38 +464,6 @@ public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEIm
         Criteria collectionIdCriteria = where(completeFieldName(QNewAction.newAction.unpublishedAction.collectionId))
                 .is(actionCollectionId);
 
-        return copyUnpublishedActionToPublishedActionForActions(aclPermission, collectionIdCriteria);
-    }
-
-    private Mono<Void> copyUnpublishedActionToPublishedActionForActions(
-            AclPermission aclPermission, Criteria collectionIdCriteria) {
-        Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(aclPermission));
-
-        return permissionGroupsMono
-                .flatMap(permissionGroups -> Mono.fromCallable(() -> {
-                            AggregationOperation matchAggregationWithPermission;
-                            if (aclPermission == null) {
-                                matchAggregationWithPermission =
-                                        Aggregation.match(new Criteria().andOperator(notDeleted()));
-                            } else {
-                                matchAggregationWithPermission = Aggregation.match(new Criteria()
-                                        .andOperator(notDeleted(), userAcl(permissionGroups, aclPermission)));
-                            }
-                            AggregationOperation matchAggregation = Aggregation.match(collectionIdCriteria);
-                            AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
-                            AggregationOperation addFieldsOperation = Aggregation.addFields()
-                                    .addField(NewAction.Fields.publishedAction)
-                                    .withValueOf(Fields.field(NewAction.Fields.unpublishedAction))
-                                    .build();
-                            Aggregation combinedAggregation = Aggregation.newAggregation(
-                                    matchAggregation,
-                                    matchAggregationWithPermission,
-                                    wholeProjection,
-                                    addFieldsOperation);
-                            return mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
-                        })
-                        .subscribeOn(Schedulers.boundedElastic()))
-                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
+        return copyUnpublishedActionToPublishedAction(collectionIdCriteria, aclPermission);
     }
 }

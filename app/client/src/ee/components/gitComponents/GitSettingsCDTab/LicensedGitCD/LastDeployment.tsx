@@ -43,7 +43,12 @@ function LastDeployment() {
         )}
       </div>
       <div className="shrink-0">
-        <Button kind="error" onClick={handleDisableCD} size="md">
+        <Button
+          data-testid="t--cd-disable-btn"
+          kind="error"
+          onClick={handleDisableCD}
+          size="md"
+        >
           {createMessage(GIT_CD_DISABLE_CD)}
         </Button>
       </div>

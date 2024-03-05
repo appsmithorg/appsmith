@@ -34,7 +34,8 @@ public class ModuleInstancePackageUpgradableServiceImpl implements PackageUpgrad
                         .getOriginModuleIdToPublishedModuleMap()
                         .values())
                 .flatMap(newSourceModule -> crudModuleInstanceService
-                        .findAllUnpublishedByOriginModuleIdOrModuleUUID(newSourceModule, Optional.empty())
+                        .findAllUnpublishedByOriginModuleIdOrModuleUUID(
+                                newSourceModule, Optional.empty(), publishingMetaDTO.getWorkspaceId())
                         .collectMap(ModuleInstance::getId, moduleInstance -> moduleInstance)
                         .doOnNext(map -> publishingMetaDTO
                                 .getExistingModuleInstanceIdToModuleInstanceMap()
@@ -67,12 +68,15 @@ public class ModuleInstancePackageUpgradableServiceImpl implements PackageUpgrad
         // TODO: Update dynamic binding path list
 
         existingModuleInstance.setOriginModuleId(createdModuleInstanceDTO.getOriginModuleId());
+        existingModuleInstance.setPackageUUID(
+                publishingMetaDTO.getPublishedPackage().getPackageUUID());
         existingModuleInstance.setSourceModuleId(createdModuleInstanceDTO.getSourceModuleId());
         existingModuleInstanceDTO.setVersion(createdModuleInstanceDTO.getVersion());
 
         // TODO: Do this validation step properly in a centralized method
         existingModuleInstanceDTO.setIsValid(true);
         existingModuleInstanceDTO.setInvalids(Set.of());
+        existingModuleInstanceDTO.setInvalidState(null);
 
         crudModuleInstanceService.extractAndSetJsonPathKeys(existingModuleInstance);
 

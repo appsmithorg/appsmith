@@ -120,7 +120,7 @@ function WorkflowQueryEditor(props: WorkflowQueryEditorProps) {
 
   const onSaveWorkflowActionName = useCallback(
     ({ id, name }: { id: string; name: string }) => {
-      return saveWorkflowActionName(id, name, workflowId);
+      return saveWorkflowActionName(id, name);
     },
     [workflowId],
   );

@@ -254,7 +254,6 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                 .flatMap(aPackage -> isValidName(moduleDTO.getName(), aPackage.getId(), null)
                         .flatMap(valid -> {
                             module.setPackageId(aPackage.getId());
-                            module.setVersion(aPackage.getVersion());
                             module.setPackageUUID(aPackage.getPackageUUID());
 
                             generateAndSetPolicies(aPackage, module);
@@ -384,28 +383,41 @@ public class CrudModuleServiceImpl extends CrudModuleServiceCECompatibleImpl imp
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.MODULE_ID, moduleId)));
 
         return originModuleMono
-                .flatMap(originModule -> moduleInstancePermissionChecker
-                        .getModuleInstanceCountByModuleUUID(originModule.getModuleUUID())
-                        .flatMap(numberOfModuleInstances -> {
-                            if (numberOfModuleInstances > 0) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.MODULE_HAS_INSTANCES, numberOfModuleInstances));
-                            }
+                .flatMap(originModule -> {
+                    Mono<Package> originPackageMono = packagePermissionChecker
+                            .findById(originModule.getPackageId(), packagePermission.getEditPermission())
+                            .switchIfEmpty(Mono.error(new AppsmithException(
+                                    AppsmithError.ACL_NO_RESOURCE_FOUND,
+                                    FieldName.PACKAGE_ID,
+                                    originModule.getPackageId())));
+                    return originPackageMono.flatMap(originPackage -> {
+                        return moduleInstancePermissionChecker
+                                .getModuleInstanceCountByModuleUUID(
+                                        originModule.getModuleUUID(), originPackage.getWorkspaceId())
+                                .flatMap(numberOfModuleInstances -> {
+                                    if (numberOfModuleInstances > 0) {
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.MODULE_HAS_INSTANCES, numberOfModuleInstances));
+                                    }
 
-                            return repository
-                                    .findAllByModuleUUID(
-                                            originModule.getModuleUUID(),
-                                            Optional.of(modulePermission.getDeletePermission()))
-                                    .flatMap(toBeDeletedModule -> repository
-                                            .archive(toBeDeletedModule)
-                                            .flatMap(deletedModule -> newActionService
-                                                    .archiveActionsByModuleId(moduleId)
-                                                    .then(actionCollectionService.archiveActionCollectionsByModuleId(
-                                                            moduleId))))
-                                    .collectList()
-                                    .then(setTransientFieldsFromModuleToModuleDTO(
-                                            originModule, originModule.getUnpublishedModule()));
-                        }))
+                                    return repository
+                                            .findAllByModuleUUID(
+                                                    originModule.getModuleUUID(),
+                                                    Optional.of(modulePermission.getDeletePermission()))
+                                            .flatMap(toBeDeletedModule -> repository
+                                                    .archive(toBeDeletedModule)
+                                                    .flatMap(deletedModule -> newActionService
+                                                            .archiveActionsByModuleId(moduleId)
+                                                            .then(
+                                                                    actionCollectionService
+                                                                            .archiveActionCollectionsByModuleId(
+                                                                                    moduleId))))
+                                            .collectList()
+                                            .then(setTransientFieldsFromModuleToModuleDTO(
+                                                    originModule, originModule.getUnpublishedModule()));
+                                });
+                    });
+                })
                 .flatMap(moduleDTO -> packageMetadataService
                         .saveLastEditInformation(moduleDTO.getPackageId())
                         .thenReturn(moduleDTO))
