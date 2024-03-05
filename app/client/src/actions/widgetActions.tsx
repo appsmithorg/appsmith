@@ -53,6 +53,11 @@ export const focusWidget = (
   payload: { widgetId, alt },
 });
 
+export const altFocusWidget = (alt: boolean) => ({
+  type: ReduxActionTypes.ALT_FOCUS_WIDGET,
+  payload: alt,
+});
+
 export const showModal = (id: string, shouldSelectModal = true) => {
   return {
     type: ReduxActionTypes.SHOW_MODAL,

@@ -109,6 +109,12 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
       state.altFocus = action.payload.alt;
     }
   },
+  [ReduxActionTypes.ALT_FOCUS_WIDGET]: (
+    state: WidgetDragResizeState,
+    action: ReduxAction<boolean>,
+  ) => {
+    state.altFocus = action.payload;
+  },
   [ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTRY]: (
     state: WidgetDragResizeState,
     action: ReduxAction<string[]>,
