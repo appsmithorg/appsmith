@@ -190,13 +190,9 @@ public class AppsmithAiPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStorage> preSaveHook(DatasourceStorage datasourceStorage) {
-            DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
-            if (hasFiles(datasourceConfiguration)) {
-                return aiServerService
-                        .associateDatasource(createAssociateDTO(datasourceStorage))
-                        .thenReturn(datasourceStorage);
-            }
-            return super.preSaveHook(datasourceStorage);
+            return aiServerService
+                    .associateDatasource(createAssociateDTO(datasourceStorage))
+                    .thenReturn(datasourceStorage);
         }
 
         @Override
