@@ -321,7 +321,6 @@ public class DataUtilsTest {
         test.setType("text");
         properties.add(test);
 
-
         Property test1 = new Property("test1", enString);
         test1.setType("text");
         properties.add(test1);
@@ -330,25 +329,23 @@ public class DataUtilsTest {
         test2.setType("text");
         properties.add(test2);
 
-
-
         final BodyInserter<Object, MockClientHttpRequest> bodyInserter =
-            (BodyInserter<Object, MockClientHttpRequest>) dataUtils.parseMultipartFileData(properties);
+                (BodyInserter<Object, MockClientHttpRequest>) dataUtils.parseMultipartFileData(properties);
         MockClientHttpRequest request = new MockClientHttpRequest(HttpMethod.POST, URI.create("https://example.com"));
 
         Mono<Void> result = bodyInserter.insert(request, this.context);
         StepVerifier.create(result).expectComplete().verify();
         StepVerifier.create(DataBufferUtils.join(request.getBody()))
-            .consumeNextWith(dataBuffer -> {
-                byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
-                dataBuffer.read(resultBytes);
-                DataBufferUtils.release(dataBuffer);
-                String content = new String(resultBytes, StandardCharsets.UTF_8);
-                Assertions.assertThat(content).contains(cnString);
-                Assertions.assertThat(content).contains(enString);
-                Assertions.assertThat(content).contains(jpString);
-            })
-            .expectComplete()
-            .verify();
+                .consumeNextWith(dataBuffer -> {
+                    byte[] resultBytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(resultBytes);
+                    DataBufferUtils.release(dataBuffer);
+                    String content = new String(resultBytes, StandardCharsets.UTF_8);
+                    Assertions.assertThat(content).contains(cnString);
+                    Assertions.assertThat(content).contains(enString);
+                    Assertions.assertThat(content).contains(jpString);
+                })
+                .expectComplete()
+                .verify();
     }
 }
