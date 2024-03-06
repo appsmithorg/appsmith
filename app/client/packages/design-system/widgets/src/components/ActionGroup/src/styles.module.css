@@ -4,6 +4,10 @@
   display: flex;
   width: 100%;
 
+  & :is([data-separator]) {
+    inline-size: var(--sizing-5);
+  }
+
   [data-button]:not(:last-of-type) {
     min-inline-size: fit-content;
   }

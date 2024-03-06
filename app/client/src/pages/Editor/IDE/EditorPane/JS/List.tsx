@@ -14,11 +14,11 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { EmptyState } from "../components/EmptyState";
 import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 import { FilesContextProvider } from "pages/Editor/Explorer/Files/FilesContextProvider";
 import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { JSListItem } from "@appsmith/pages/Editor/IDE/EditorPane/JS/ListItem";
+import { BlankState } from "./BlankState";
 
 const JSContainer = styled(Flex)`
   & .t--entity-item {
@@ -114,17 +114,7 @@ const ListJSObjects = () => {
         </Flex>
       </FilesContextProvider>
 
-      {(!jsList || jsList.length === 0) && (
-        <EmptyState
-          buttonClassName="t--add-item"
-          buttonText={createMessage(EDITOR_PANE_TEXTS.js_add_button)}
-          description={createMessage(
-            EDITOR_PANE_TEXTS.js_blank_state_description,
-          )}
-          icon={"js-square-v3"}
-          onClick={canCreateActions ? addButtonClickHandler : undefined}
-        />
-      )}
+      {(!jsList || jsList.length === 0) && <BlankState />}
     </JSContainer>
   );
 };

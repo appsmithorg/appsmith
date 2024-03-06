@@ -1338,6 +1338,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         });
     }
 
+    @Override
+    public int getEvaluationVersion() {
+        return EVALUATION_VERSION;
+    }
+
     /**
      * To send analytics event for cloning an application
      *
