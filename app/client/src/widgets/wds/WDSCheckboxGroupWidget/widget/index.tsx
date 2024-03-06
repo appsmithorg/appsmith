@@ -103,14 +103,8 @@ class WDSCheckboxGroupWidget extends BaseWidget<
   };
 
   getWidgetView() {
-    const {
-      labelPosition,
-      labelTooltip,
-      options,
-      selectedOptionValue,
-      widgetId,
-      ...rest
-    } = this.props;
+    const { labelTooltip, options, selectedOptionValue, widgetId, ...rest } =
+      this.props;
 
     const validation = validateInput(this.props);
 
@@ -124,11 +118,7 @@ class WDSCheckboxGroupWidget extends BaseWidget<
         value={selectedOptionValue}
       >
         {options.map((option, index) => (
-          <Checkbox
-            key={`${widgetId}-option-${index}`}
-            labelPosition={labelPosition}
-            value={option.value}
-          >
+          <Checkbox key={`${widgetId}-option-${index}`} value={option.value}>
             {option.label}
           </Checkbox>
         ))}
