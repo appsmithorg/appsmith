@@ -132,19 +132,26 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             newAction.setPluginId(mappedExportableResourcesDTO.getPluginMap().get(newAction.getPluginId()));
             newAction.setWorkspaceId(null);
             newAction.setPolicies(null);
-            // Only add the datasource for this action to dbNamesUsed if it is not a module action
-            dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
+
+            String publishedDbName = sanitizeDatasourceInActionDTO(
                     newAction.getPublishedAction(),
                     mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
                     mappedExportableResourcesDTO.getPluginMap(),
                     null,
-                    true));
-            dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
+                    true);
+
+            String unpublishedDbName = sanitizeDatasourceInActionDTO(
                     newAction.getUnpublishedAction(),
                     mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
                     mappedExportableResourcesDTO.getPluginMap(),
                     null,
-                    true));
+                    true);
+
+            // Only add the datasource for this action to dbNamesUsed if it is not a module action
+            if (hasExportableDatasource(newAction)) {
+                dbNamesUsedInActions.add(publishedDbName);
+                dbNamesUsedInActions.add(unpublishedDbName);
+            }
 
             // Set unique id for action
             if (newAction.getUnpublishedAction() != null) {
@@ -155,5 +162,9 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             }
         });
         return dbNamesUsedInActions;
+    }
+
+    protected boolean hasExportableDatasource(NewAction newAction) {
+        return true;
     }
 }
