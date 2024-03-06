@@ -10,6 +10,7 @@
     padding-inline: var(--inner-spacing-1);
     flex: 1;
     max-inline-size: 100%;
+    isolation: isolate;
   }
 
   & [data-field-input] :is(input, textarea) {
