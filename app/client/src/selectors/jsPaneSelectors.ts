@@ -21,3 +21,6 @@ export const getFirstJSObject = (
     return identifyEntityFromPath(urlWithoutQueryParams);
   }
 };
+
+export const getJsPaneDebuggerState = (state: AppState) =>
+  state.ui.jsPane.debugger;

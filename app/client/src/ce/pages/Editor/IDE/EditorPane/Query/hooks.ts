@@ -23,6 +23,7 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "@appsmith/constants/routes/appRoutes";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import ApiEditor from "pages/Editor/APIEditor";
 import type { UseRoutes } from "@appsmith/entities/IDE/constants";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
@@ -33,6 +34,7 @@ import type { AppState } from "@appsmith/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "design-system";
+import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/Query/BlankStateContainer";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -95,6 +97,7 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
 export const useQuerySegmentRoutes = (path: string): UseRoutes => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
+
   if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
     return [
       {
@@ -114,13 +117,26 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
         path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
       },
       {
-        key: "QueryEditor",
+        key: "SAASEditor",
         component: QueryEditor,
         exact: true,
         path: [
-          path + "/api/:apiId", // SAAS path
-          path + "/:queryId",
+          BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
         ],
+      },
+      {
+        key: "QueryEditor",
+        component: QueryEditor,
+        exact: true,
+        path: [path + "/:queryId"],
+      },
+      {
+        key: "QueryEmpty",
+        component: BlankStateContainer,
+        exact: true,
+        path: [path],
       },
     ];
   }

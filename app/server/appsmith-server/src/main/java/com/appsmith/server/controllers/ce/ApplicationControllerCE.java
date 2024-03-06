@@ -13,6 +13,7 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.BuildingBlockDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.ImportableArtifactDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
@@ -296,8 +297,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
-        return fileMono.flatMap(file -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        file, workspaceId, applicationId, APPLICATION))
+        return fileMono.flatMap(file ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(file, workspaceId, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
@@ -403,6 +404,16 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return fileMono.flatMap(fileData -> partialImportService.importResourceInPage(
                         workspaceId, applicationId, pageId, branchName, fileData))
+                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.CREATED.value(), fetchedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/import/partial/block")
+    public Mono<ResponseDTO<String>> importBlock(
+            @RequestBody BuildingBlockDTO buildingBlockDTO,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return partialImportService
+                .importBuildingBlock(buildingBlockDTO, branchName)
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.CREATED.value(), fetchedResource, null));
     }
 }

@@ -11,7 +11,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.UserDataRepository;
-import com.appsmith.server.solutions.UserChangedHandler;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -62,9 +60,6 @@ public class UserDataServiceTest {
 
     @Autowired
     private AssetRepository assetRepository;
-
-    @MockBean
-    private UserChangedHandler userChangedHandler;
 
     @Autowired
     private AssetService assetService;

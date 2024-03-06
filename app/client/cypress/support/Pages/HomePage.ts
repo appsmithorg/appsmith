@@ -3,7 +3,7 @@ import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
-
+import { featureFlagIntercept } from "../Objects/FeatureFlags";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -60,6 +60,10 @@ export class HomePage {
   _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = " .createnew";
   _newButtonCreateApplication = "[data-testid=t--workspace-action-create-app]";
+  _newButtonCreateApplicationFromTemplates =
+    "[data-testid=t--workspace-action-create-app-from-template]";
+  _createAppFromTemplatesDialog =
+    "[data-testid=t--create-app-from-templates-dialog-component]";
   _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   _applicationName = ".t--application-name";
@@ -323,6 +327,15 @@ export class HomePage {
     this.agHelper.AssertElementVisibility(this.locator._sidebar);
     this.agHelper.AssertElementAbsence(this.locator._loading);
     if (appname) this.RenameApplication(appname);
+  }
+
+  public OpenTemplatesDialogInStartFromTemplates() {
+    featureFlagIntercept({
+      release_show_create_app_from_templates_enabled: true,
+    });
+    this.agHelper.GetNClick(this._homePageAppCreateBtn, 0, true);
+    this.agHelper.GetNClick(this._newButtonCreateApplicationFromTemplates);
+    this.agHelper.AssertElementVisibility(this._createAppFromTemplatesDialog);
   }
 
   //Maps to AppSetupForRename in command.js

@@ -18,6 +18,9 @@ export const getFirstQuery = (state: AppState): FocusEntityInfo | undefined => {
   }
 };
 
+export const getQueryPaneDebuggerState = (state: AppState) =>
+  state.ui.queryPane.debugger;
+
 export const getQueryRunErrorMessage = (state: AppState, id: string) => {
   const { runErrorMessage } = state.ui.queryPane;
   return runErrorMessage[id];
