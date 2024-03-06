@@ -264,7 +264,6 @@ public class UpdateLayoutServiceCEImpl implements UpdateLayoutServiceCE {
         layoutDTO.setScreen(layout.getScreen());
         layoutDTO.setLayoutOnLoadActions(layout.getLayoutOnLoadActions());
         layoutDTO.setLayoutOnLoadActionErrors(layout.getLayoutOnLoadActionErrors());
-        layoutDTO.setUserPermissions(layout.getUserPermissions());
 
         return layoutDTO;
     }

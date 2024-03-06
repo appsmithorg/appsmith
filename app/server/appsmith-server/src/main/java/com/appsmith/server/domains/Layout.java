@@ -2,7 +2,6 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;
@@ -24,7 +23,10 @@ import static java.lang.Boolean.TRUE;
 @Setter
 @ToString
 @NoArgsConstructor
-public class Layout extends BaseDomain {
+public class Layout {
+
+    @JsonView({Views.Public.class, Views.Export.class})
+    private String id;
 
     @JsonView({Views.Public.class, Views.Export.class})
     ScreenType screen;
@@ -40,12 +42,6 @@ public class Layout extends BaseDomain {
 
     @JsonView({Views.Public.class, Views.Export.class})
     List<Set<DslExecutableDTO>> layoutOnLoadActions;
-
-    @JsonView({Views.Public.class, Views.Export.class})
-    @Override
-    public String getId() {
-        return super.getId();
-    }
 
     // this attribute will be used to display errors caused white calculating allOnLoadAction
     // PageLoadActionsUtilCEImpl.java
@@ -88,11 +84,8 @@ public class Layout extends BaseDomain {
         return viewMode ? publishedLayoutOnLoadActions : layoutOnLoadActions;
     }
 
-    @Override
     public void sanitiseToExportDBObject() {
         this.setAllOnPageLoadActionNames(null);
-        this.setCreatedAt(null);
-        this.setUpdatedAt(null);
         this.setActionsUsedInDynamicBindings(null);
         this.setWidgetNames(null);
         List<Set<DslExecutableDTO>> layoutOnLoadActions = this.getLayoutOnLoadActions();
