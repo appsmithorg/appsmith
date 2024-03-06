@@ -1,6 +1,6 @@
 package com.appsmith.server.exports.internal;
 
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportFileDTO;
@@ -9,13 +9,10 @@ import reactor.core.publisher.Mono;
 
 public interface ExportServiceCE {
 
-    ArtifactBasedExportService<?, ?> getContextBasedExportService(ArtifactJsonType artifactJsonType);
+    ArtifactBasedExportService<?, ?> getContextBasedExportService(ArtifactType artifactType);
 
     Mono<? extends ArtifactExchangeJson> exportByExportableArtifactIdAndBranchName(
-            String artifactId,
-            String branchName,
-            SerialiseArtifactObjective objective,
-            ArtifactJsonType artifactJsonType);
+            String artifactId, String branchName, SerialiseArtifactObjective objective, ArtifactType artifactType);
 
     /**
      * This function will give the artifact the resources to rebuild the artifact in import artifact flow
@@ -24,10 +21,10 @@ public interface ExportServiceCE {
      * @return application reference from which entire application can be rehydrated
      */
     Mono<? extends ArtifactExchangeJson> exportByArtifactId(
-            String artifactId, SerialiseArtifactObjective objective, ArtifactJsonType artifactJsonType);
+            String artifactId, SerialiseArtifactObjective objective, ArtifactType artifactType);
 
     Mono<? extends ArtifactExchangeJson> exportByArtifactIdAndBranchName(
-            String artifactId, String branchName, ArtifactJsonType artifactJsonType);
+            String artifactId, String branchName, ArtifactType artifactType);
 
-    Mono<ExportFileDTO> getArtifactFile(String artifactId, String branchName, ArtifactJsonType artifactJsonType);
+    Mono<ExportFileDTO> getArtifactFile(String artifactId, String branchName, ArtifactType artifactType);
 }
