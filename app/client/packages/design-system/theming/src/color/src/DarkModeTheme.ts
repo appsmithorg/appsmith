@@ -146,11 +146,11 @@ export class DarkModeTheme implements ColorModeTheme {
     }
 
     if (!this.seedIsAchromatic && this.seedIsCold) {
-      color.oklch.c = 0.059;
+      color.oklch.c = 0.029;
     }
 
     if (!this.seedIsAchromatic && !this.seedIsCold) {
-      color.oklch.c = 0.046;
+      color.oklch.c = 0.012;
     }
     return color;
   }
