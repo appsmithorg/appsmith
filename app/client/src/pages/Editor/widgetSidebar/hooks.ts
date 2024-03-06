@@ -37,9 +37,8 @@ export const useUIExplorerItems = () => {
     Content: false,
     External: false,
   });
-  const releaseDragDropBuildingBlocks = useFeatureFlag(
-    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
-  );
+  const releaseDragDropBuildingBlocks = true;
+  useFeatureFlag(FEATURE_FLAG.release_drag_drop_building_blocks_enabled);
   const widgetCards = useSelector(getWidgetCards);
   const buildingBlockCards = useSelector(getBuildingBlockExplorerCards);
 

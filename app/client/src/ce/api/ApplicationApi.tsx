@@ -260,6 +260,13 @@ export interface ImportPartialApplicationRequest {
   pageId: string;
 }
 
+export interface ImportBuildingBlockRequest {
+  pageId: string;
+  applicationId: string;
+  workspaceId: string;
+  templateId: string;
+}
+
 export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -478,6 +485,10 @@ export class ApplicationApi extends Api {
         onUploadProgress: request.progress,
       },
     );
+  }
+
+  static async importBuildingBlock(request: ImportBuildingBlockRequest) {
+    return Api.post(`${ApplicationApi.baseURL}/import/partial/block`, request);
   }
 }
 

@@ -60,6 +60,12 @@ export const getTemplateById = (id: string) => (state: AppState) => {
   return state.ui.templates.templates.find((template) => template.id === id);
 };
 
+export const getTemplateByName = (name: string) => (state: AppState) => {
+  return state.ui.templates.templates.find(
+    (template) => template.title === name,
+  );
+};
+
 export const getActiveTemplateSelector = (state: AppState) =>
   state.ui.templates.activeTemplate;
 
