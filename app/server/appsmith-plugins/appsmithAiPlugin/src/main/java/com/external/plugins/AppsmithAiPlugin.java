@@ -87,6 +87,16 @@ public class AppsmithAiPlugin extends BasePlugin {
                             TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
                             triggerResultDTO.setTrigger(response);
                             return Mono.just(triggerResultDTO);
+                        })
+                        .onErrorResume(error -> {
+                            log.error(
+                                    "An error has occurred while trying to upload files. Error: {}",
+                                    error.getMessage());
+                            if (!(error instanceof AppsmithPluginException)) {
+                                error = new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
+                            }
+                            return Mono.error(error);
                         });
             } else if (LIST_FILES.equals(requestType)) {
                 List<String> fileIds = getFileIds(datasourceConfiguration);
@@ -101,23 +111,35 @@ public class AppsmithAiPlugin extends BasePlugin {
                             "NO_FILES_AVAILABLE")));
                     return Mono.just(triggerResultDTO);
                 }
-                return aiServerService.getFilesStatus(fileIds, sourceDetails).flatMap(fileStatusDTO -> {
-                    List<Map<String, Object>> response = new ArrayList<>();
-                    fileStatusDTO.getFiles().forEach(file -> {
-                        Map<String, Object> dropdownOption = new HashMap<>();
-                        if (!file.isProcessed()) {
-                            dropdownOption.put(LABEL, "(Processing...) " + file.getName());
-                        } else {
-                            dropdownOption.put(LABEL, file.getName());
-                        }
-                        dropdownOption.put(VALUE, file.getId());
-                        dropdownOption.put(DISABLED, !file.isProcessed());
-                        response.add(dropdownOption);
-                    });
-                    TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
-                    triggerResultDTO.setTrigger(response);
-                    return Mono.just(triggerResultDTO);
-                });
+                return aiServerService
+                        .getFilesStatus(fileIds, sourceDetails)
+                        .flatMap(fileStatusDTO -> {
+                            List<Map<String, Object>> response = new ArrayList<>();
+                            fileStatusDTO.getFiles().forEach(file -> {
+                                Map<String, Object> dropdownOption = new HashMap<>();
+                                if (!file.isProcessed()) {
+                                    dropdownOption.put(LABEL, "(Processing...) " + file.getName());
+                                } else {
+                                    dropdownOption.put(LABEL, file.getName());
+                                }
+                                dropdownOption.put(VALUE, file.getId());
+                                dropdownOption.put(DISABLED, !file.isProcessed());
+                                response.add(dropdownOption);
+                            });
+                            TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                            triggerResultDTO.setTrigger(response);
+                            return Mono.just(triggerResultDTO);
+                        })
+                        .onErrorResume(error -> {
+                            log.error(
+                                    "An error has occurred while trying to list uploaded files. Error: {}",
+                                    error.getMessage());
+                            if (!(error instanceof AppsmithPluginException)) {
+                                error = new AppsmithPluginException(
+                                        AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
+                            }
+                            return Mono.error(error);
+                        });
             }
             return super.trigger(connection, datasourceConfiguration, request);
         }
