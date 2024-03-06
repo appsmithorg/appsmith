@@ -14,9 +14,8 @@ const formatCyclicDeps = (cyclicDeps) => {
   const cyclicDeps = response.circular();
 
   if (cyclicDeps.length > 0) {
-    console.error(`Found ${cyclicDeps.length} cyclic dependencies:`);
-    console.error(formatCyclicDeps(cyclicDeps)); // Output the cyclic dependencies
-    process.exit(1); // Exit with a failure code
+    console.log(`Found ${cyclicDeps.length} cyclic dependencies:`);
+    console.log(formatCyclicDeps(cyclicDeps)); // Output the cyclic dependencies
   } else {
     console.log("No cyclic dependencies found");
   }
