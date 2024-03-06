@@ -157,8 +157,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     if (Boolean.TRUE.equals(importingMetaDTO.getIsPartialImport())
                             && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
                         updateActionCollectionNameBeforeMerge(
-                                importedActionCollectionList,
-                                mappedImportableResourcesDTO.getRefactoringNameReference());
+                                importedActionCollectionList, mappedImportableResourcesDTO);
                     }
 
                     return Mono.zip(actionCollectionsInCurrentArtifactMono, actionCollectionsInBranchesMono)
@@ -304,7 +303,10 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
     }
 
     private void updateActionCollectionNameBeforeMerge(
-            List<ActionCollection> importedNewActionCollectionList, Set<String> refactoringNameSet) {
+            List<ActionCollection> importedNewActionCollectionList,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+        Set<String> refactoringNameSet =
+                mappedImportableResourcesDTO.getRefactoringNameReference().keySet();
 
         for (ActionCollection actionCollection : importedNewActionCollectionList) {
             String
@@ -322,6 +324,9 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             if (actionCollection.getPublishedCollection() != null) {
                 actionCollection.getPublishedCollection().setName(newNameActionCollection);
             }
+            mappedImportableResourcesDTO
+                    .getRefactoringNameReference()
+                    .put(oldNameActionCollection, newNameActionCollection);
         }
     }
 
