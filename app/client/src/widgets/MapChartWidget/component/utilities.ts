@@ -233,6 +233,11 @@ export const getChartOption = (
           borderColor: "#ccc",
           areaColor: "#aeaeae",
         },
+        emphasis: {
+          itemStyle: {
+            areaColor: "#FFF9C4",
+          },
+        },
         tooltip: {
           show: true,
           borderColor: "#ccc",
