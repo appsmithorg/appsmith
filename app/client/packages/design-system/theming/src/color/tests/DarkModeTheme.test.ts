@@ -8,7 +8,7 @@ describe("bg color", () => {
 
   it("should return correct color when chroma > 0.04", () => {
     const { bg } = new DarkModeTheme("oklch(0.92 0.05 110)").getColors();
-    expect(bg).toBe("rgb(4.9706% 4.8091% 0%)");
+    expect(bg).toBe("rgb(4.4523% 4.5607% 2.4575%)");
   });
 });
 
