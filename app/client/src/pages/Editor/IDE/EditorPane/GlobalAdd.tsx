@@ -1,4 +1,4 @@
-import UIEntityTagGroup from "pages/Editor/widgetSidebar/UIEntityTagGroup";
+import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
 import React, { useCallback } from "react";
 import styled from "styled-components";
 import { Button, Flex, Icon, Text } from "design-system";
@@ -117,7 +117,7 @@ const GlobalAdd = () => {
         <Flex padding="spaces-3">
           <Text kind="heading-xs">Drag & drop widgets</Text>
         </Flex>
-        <UIEntityTagGroup isActive />
+        <UIEntitySidebar isActive />
       </Flex>
     </Flex>
   );

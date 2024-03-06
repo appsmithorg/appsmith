@@ -1,148 +1,100 @@
+import type { WidgetTags } from "constants/WidgetConstants";
 import {
-  WIDGET_PANEL_EMPTY_MESSAGE,
-  createMessage,
-} from "@appsmith/constants/messages";
-import { ENTITY_EXPLORER_SEARCH_ID } from "constants/Explorer";
-import type {
-  WidgetCardsGroupedByTags,
-  WidgetTags,
+  SUGGESTED_WIDGETS_ORDER,
+  WIDGET_TAGS,
+  initialEntityCountForExplorerTag,
 } from "constants/WidgetConstants";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { SearchInput, Text } from "design-system";
-import Fuse from "fuse.js";
-import { debounce } from "lodash";
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { groupWidgetCardsByTags } from "../utils";
-import UIEntityList from "./UIEntityList";
-import { useUIExplorerItems } from "./hooks";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleHeader,
+  Spinner,
+  Text,
+} from "design-system";
+import { sortBy } from "lodash";
+import React from "react";
+import type { WidgetCardProps } from "widgets/BaseWidget";
+import SeeMoreButton from "./SeeMoreButton";
+import WidgetCard from "./WidgetCard";
+import styled from "styled-components";
 
-function UIEntityTagGroup({ isActive }: { isActive: boolean }) {
-  const { cards, entityLoading, groupedCards } = useUIExplorerItems();
-  const [filteredCards, setFilteredCards] =
-    useState<WidgetCardsGroupedByTags>(groupedCards);
-  const searchInputRef = useRef<HTMLInputElement | null>(null);
-  const [isSearching, setIsSearching] = useState(false);
-  const [isEmpty, setIsEmpty] = useState(false);
+const LoadingWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 70px;
+  margin-bottom: 70px;
+`;
 
-  const searchWildcards = useMemo(
-    () =>
-      cards
-        .filter((card) => card.isSearchWildcard)
-        .map((card) => ({ ...card, tags: [WIDGET_TAGS.SUGGESTED_WIDGETS] })),
-    [cards],
-  );
-
-  const fuse = useMemo(
-    () =>
-      new Fuse(cards, {
-        keys: [
-          { name: "displayName", weight: 0.8 },
-          { name: "searchTags", weight: 0.1 },
-          { name: "tags", weight: 0.1 },
-        ],
-        threshold: 0.2,
-        distance: 100,
-      }),
-    [cards],
-  );
-
-  const sendWidgetSearchAnalytics = debounce((value: string) => {
-    if (value !== "") {
-      AnalyticsUtil.logEvent("WIDGET_SEARCH", { value });
-    }
-  }, 1000);
-
-  const filterCards = (keyword: string) => {
-    setIsSearching(true);
-    sendWidgetSearchAnalytics(keyword);
-
-    if (keyword.trim().length > 0) {
-      const searchResult = fuse.search(keyword);
-
-      setFilteredCards(
-        groupWidgetCardsByTags(
-          searchResult.length > 0 ? searchResult : searchWildcards,
-        ),
-      );
-      setIsEmpty(searchResult.length === 0);
-    } else {
-      setFilteredCards(groupedCards);
-      setIsSearching(false);
-      setIsEmpty(false);
-    }
-  };
-
-  const search = debounce((value: string) => {
-    filterCards(value.toLowerCase());
-  }, 300);
-
-  useEffect(() => {
-    setFilteredCards(groupedCards);
-  }, [groupedCards]);
-
-  return (
-    <div
-      className={`flex flex-col t--widget-sidebar overflow-hidden ${
-        isActive ? "" : "hidden"
-      }`}
-    >
-      <div className="sticky top-0 px-3 mt-0.5">
-        <SearchInput
-          autoComplete="off"
-          id={ENTITY_EXPLORER_SEARCH_ID}
-          onChange={search}
-          placeholder="Search widgets"
-          ref={searchInputRef}
-          type="text"
-        />
-      </div>
-      <div
-        className="flex-grow px-3 mt-2 overflow-y-scroll"
-        data-testid="t--widget-sidebar-scrollable-wrapper"
-      >
-        {isEmpty && (
-          <Text
-            color="#6A7585"
-            kind="body-m"
-            renderAs="p"
-            style={{ marginBottom: "15px" }}
-          >
-            {createMessage(WIDGET_PANEL_EMPTY_MESSAGE)} `
-            {searchInputRef.current?.value}`
-          </Text>
-        )}
-        <div>
-          {Object.keys(filteredCards).map((tag) => {
-            const cardsForThisTag = filteredCards[tag as WidgetTags];
-
-            if (!cardsForThisTag?.length && !entityLoading[tag as WidgetTags]) {
-              return null;
-            }
-
-            if (
-              isSearching &&
-              tag === WIDGET_TAGS.SUGGESTED_WIDGETS &&
-              !isEmpty
-            ) {
-              return null;
-            }
-
-            return (
-              <UIEntityList
-                cards={cardsForThisTag}
-                isLoading={!!entityLoading[tag as WidgetTags]}
-                key={tag}
-                tag={tag}
-              />
-            );
-          })}
-        </div>
-      </div>
-    </div>
-  );
+interface Props {
+  tag: string;
+  cards: WidgetCardProps[];
+  isLoading: boolean;
 }
 
-UIEntityTagGroup.displayName = "UIEntityTagGroup";
+const UIEntityTagGroup = (props: Props) => {
+  const [showFullItems, setShowFullItems] = React.useState(false);
+  const toggleShowFullItems = () => {
+    setShowFullItems(!showFullItems);
+  };
+  const noOfItemsToRender = showFullItems
+    ? props.cards.length
+    : initialEntityCountForExplorerTag[props.tag as WidgetTags] ||
+      props.cards.length;
+
+  if (props.isLoading) {
+    return (
+      <LoadingWrapper key={props.tag}>
+        <CollapsibleHeader arrowPosition="start">
+          <Text
+            className="select-none"
+            color="var(--ads-v2-color-gray-600)"
+            kind="heading-xs"
+          >
+            {props.tag}
+          </Text>
+        </CollapsibleHeader>
+        <Spinner size={"lg"} />
+      </LoadingWrapper>
+    );
+  }
+
+  return (
+    <Collapsible
+      className={`pb-2 widget-tag-collapisble widget-tag-collapisble-${props.tag
+        .toLowerCase()
+        .replace(/ /g, "-")}`}
+      isOpen
+      key={props.tag}
+    >
+      <CollapsibleHeader arrowPosition="start">
+        <Text
+          className="select-none"
+          color="var(--ads-v2-color-gray-600)"
+          kind="heading-xs"
+        >
+          {props.tag}
+        </Text>
+      </CollapsibleHeader>
+      <CollapsibleContent>
+        <div className="grid items-stretch grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch">
+          {props.tag === WIDGET_TAGS.SUGGESTED_WIDGETS
+            ? sortBy(
+                props.cards,
+                (widget) => SUGGESTED_WIDGETS_ORDER[widget.type],
+              ).map((card) => <WidgetCard details={card} key={card.key} />)
+            : props.cards
+                .slice(0, noOfItemsToRender)
+                .map((card) => <WidgetCard details={card} key={card.key} />)}
+        </div>
+        <SeeMoreButton
+          hidden={noOfItemsToRender >= props.cards.length && !showFullItems}
+          showSeeLess={showFullItems}
+          toggleSeeMore={toggleShowFullItems}
+        />
+      </CollapsibleContent>
+    </Collapsible>
+  );
+};
 
 export default UIEntityTagGroup;

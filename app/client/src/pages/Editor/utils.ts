@@ -1,24 +1,24 @@
-import {
-  WIDGET_DEPRECATION_MESSAGE,
-  createMessage,
-} from "@appsmith/constants/messages";
-import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
-import WidgetFactory from "WidgetProvider/factory";
-import type { ActionResponse } from "api/ActionAPI";
+import { debounce, random } from "lodash";
+import { useEffect, useMemo, useState } from "react";
+import ReactDOM from "react-dom";
+import { useLocation } from "react-router";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
   WidgetType,
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { debounce, random } from "lodash";
-import { useEffect, useMemo, useState } from "react";
-import ReactDOM from "react-dom";
-import { useSelector } from "react-redux";
-import { useLocation } from "react-router";
 import ResizeObserver from "resize-observer-polyfill";
+import WidgetFactory from "WidgetProvider/factory";
+import {
+  createMessage,
+  WIDGET_DEPRECATION_MESSAGE,
+} from "@appsmith/constants/messages";
+import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
+import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "widgets/BaseWidget";
+import type { ActionResponse } from "api/ActionAPI";
 
 export const draggableElement = (
   id: string,
