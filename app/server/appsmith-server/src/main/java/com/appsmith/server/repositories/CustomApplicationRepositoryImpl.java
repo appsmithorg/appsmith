@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.repositories.ce.CustomApplicationRepositoryCEImpl;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +20,8 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
             @NonNull ReactiveMongoOperations mongoOperations,
             @NonNull MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper,
-            ApplicationPermission applicationPermission) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper, applicationPermission);
+            ApplicationPermission applicationPermission,
+            TenantService tenantService) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper, applicationPermission, tenantService);
     }
 }

@@ -8,6 +8,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
@@ -34,16 +35,19 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final ApplicationPermission applicationPermission;
+    private final TenantService tenantService;
 
     @Autowired
     public CustomApplicationRepositoryCEImpl(
             @NonNull ReactiveMongoOperations mongoOperations,
             @NonNull MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper,
-            ApplicationPermission applicationPermission) {
+            ApplicationPermission applicationPermission,
+            TenantService tenantService) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.applicationPermission = applicationPermission;
+        this.tenantService = tenantService;
     }
 
     @Override
@@ -92,7 +96,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 .map(auth -> (User) auth.getPrincipal())
                 .flatMap(user -> {
                     if (user.getTenantId() == null) {
-                        return cacheableRepositoryHelper.getDefaultTenantId().map(tenantId -> {
+                        return tenantService.getDefaultTenantId().map(tenantId -> {
                             user.setTenantId(tenantId);
                             return user;
                         });
