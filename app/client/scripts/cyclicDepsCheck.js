@@ -3,7 +3,7 @@ const madge = require("madge");
 const formatCyclicDeps = (cyclicDeps) => {
   return cyclicDeps
     .map((deps, index) => `${index + 1}. ${deps.join(" -> ")}`)
-    .join("\n");
+    .join("<br />");
 };
 
 (async () => {
