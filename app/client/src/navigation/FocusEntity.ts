@@ -92,6 +92,15 @@ export function matchEntityFromPath(
   });
 }
 
+const getQueryAddPathObj = (match: match<MatchEntityFromPath>) => {
+  return {
+    entity: FocusEntity.QUERY_ADD,
+    id: "",
+    appState: EditorState.EDITOR,
+    params: match.params,
+  };
+};
+
 export function identifyEntityFromPath(path: string): FocusEntityInfo {
   const match = matchEntityFromPath(path);
   if (!match) {
@@ -104,12 +113,18 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
   }
   if (match.params.apiId) {
     if (match.params.pluginPackageName) {
+      if (match.url.endsWith(ADD_PATH)) {
+        return getQueryAddPathObj(match);
+      }
       return {
         entity: FocusEntity.QUERY,
         id: match.params.apiId,
         appState: EditorState.EDITOR,
         params: match.params,
       };
+    }
+    if (match.url.endsWith(ADD_PATH)) {
+      return getQueryAddPathObj(match);
     }
     return {
       entity: FocusEntity.QUERY,
@@ -153,12 +168,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
   }
   if (match.params.queryId) {
     if (match.params.queryId == "add" || match.url.endsWith(ADD_PATH)) {
-      return {
-        entity: FocusEntity.QUERY_ADD,
-        id: "",
-        appState: EditorState.EDITOR,
-        params: match.params,
-      };
+      return getQueryAddPathObj(match);
     }
     return {
       entity: FocusEntity.QUERY,

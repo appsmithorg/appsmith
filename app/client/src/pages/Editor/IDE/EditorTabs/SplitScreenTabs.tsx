@@ -19,7 +19,6 @@ import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import history, { NavigationMethod } from "utils/history";
 import { includes } from "lodash";
 import ListButton from "./ListButton";
-import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -29,11 +28,6 @@ const SplitScreenTabs = () => {
   const onJSAddClick = useJSAdd();
   const onQueryAddClick = useQueryAdd();
   const onAddClick = useCallback(() => {
-    if (segmentMode === EditorEntityTabState.Add) {
-      if (segment === EditorEntityTab.QUERIES)
-        history.push(location.pathname.replace(`${ADD_PATH}`, ""));
-      return;
-    }
     if (segment === EditorEntityTab.JS) onJSAddClick();
     if (segment === EditorEntityTab.QUERIES) onQueryAddClick();
   }, [segment, segmentMode, onQueryAddClick, onJSAddClick]);
