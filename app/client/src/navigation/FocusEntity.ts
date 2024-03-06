@@ -196,7 +196,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     }
   }
   if (match.params.collectionId) {
-    if (match.params.collectionId == "add") {
+    if (match.params.collectionId == "add" || match.url.endsWith(ADD_PATH)) {
       return {
         entity: FocusEntity.JS_OBJECT_ADD,
         id: "",
