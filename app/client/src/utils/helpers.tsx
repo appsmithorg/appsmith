@@ -847,7 +847,7 @@ export const mergeWidgetConfig = (target: any, source: any) => {
     if (targetSection) {
       Array.prototype.push.apply(targetSection.children, section.children);
     } else {
-      mergedConfig.concat([section]);
+      mergedConfig.push(section);
     }
   });
 
