@@ -54,7 +54,7 @@ const SplitScreenTabs = () => {
   if (!isSideBySideEnabled) return null;
   if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
-  return (
+  return files.length > 0 ? (
     <Container>
       <Button
         isIconButton
@@ -65,7 +65,7 @@ const SplitScreenTabs = () => {
       <FileTabs navigateToTab={onClick} tabs={files} />
       <ListButton items={overflowList} navigateToTab={onClick} />
     </Container>
-  );
+  ) : null;
 };
 
 export default SplitScreenTabs;
