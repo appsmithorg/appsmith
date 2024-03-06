@@ -329,6 +329,15 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+            additionalAutoComplete: () => ({
+              selectedDataPoint: {
+                value: 1.1,
+                label: "",
+                shortLabel: "",
+                originalId: "",
+                id: "",
+              },
+            }),
           },
         ],
       },
