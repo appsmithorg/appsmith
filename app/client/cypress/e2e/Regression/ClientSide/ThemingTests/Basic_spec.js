@@ -165,243 +165,9 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
           );
         });
     });
-  });
+  }); 
 
-  it.skip("3. Checks if the theme can be saved", () => {
-    //Click on dropDown elipses
-    cy.contains("Theme properties")
-      .closest("div")
-      .siblings()
-      .first()
-      .find("button")
-      .click({ force: true });
-
-    agHelper.AssertAutoSave();
-
-    //Click on save theme dropdown option
-    cy.contains("Save theme").click({ force: true });
-
-    //Type the name of the theme:
-    agHelper.TypeText("input[placeholder='My theme']", "testtheme");
-    //Click on save theme button
-    agHelper.ClickButton("Save theme");
-    agHelper.ValidateToastMessage("Theme testtheme saved");
-    appSettings.ClosePane();
-  });
-
-  it.skip("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
-    cy.dragAndDropToCanvas("iconbuttonwidget", { x: 300, y: 300 });
-    cy.assertPageSave();
-    cy.get("canvas").first(0).trigger("click", { force: true });
-
-    appSettings.OpenAppSettings();
-    appSettings.GoToThemeSettings();
-    //#region Change Font & verify widgets:
-
-    agHelper.GetNClick(".rc-select-selection-search-input").then(($elem) => {
-      cy.get($elem).click({ force: true });
-      cy.wait(250);
-      cy.get(".rc-virtual-list-holder div")
-        .children()
-        .eq(4)
-        .then(($childElem) => {
-          cy.get($childElem).click({ force: true });
-          cy.get(widgetsPage.iconWidgetBtn).should(
-            "have.css",
-            "font-family",
-            `${$childElem.children().last().text()}Inter, sans-serif`,
-          );
-          cy.get(widgetsPage.widgetBtn).should(
-            "have.css",
-            "font-family",
-            `${$childElem.children().last().text()}Inter, sans-serif`,
-          );
-        });
-    });
-
-    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
-    cy.get(widgetsPage.colorPickerV2Color)
-      .eq(-15)
-      .then(($elem) => {
-        cy.get($elem).click({ force: true });
-        cy.get(widgetsPage.iconWidgetBtn).should(
-          "have.css",
-          "background-color",
-          $elem.css("background-color"),
-        );
-        cy.get(widgetsPage.widgetBtn).should(
-          "have.css",
-          "background-color",
-          $elem.css("background-color"),
-        );
-      });
-
-    //Change the background color:
-    cy.get("[data-testid='theme-backgroundColor']").click({ force: true });
-    cy.wait(500);
-    cy.get(widgetsPage.colorPickerV2Popover).click({ force: true }).click();
-    cy.get(widgetsPage.colorPickerV2TailwindColor)
-      .eq(23)
-      .then(($elem) => {
-        cy.get($elem).click({ force: true });
-        cy.get(commonlocators.canvas).should(
-          "have.css",
-          "background-color",
-          $elem.css("background-color"),
-        );
-      });
-
-    cy.get(commonlocators.themeAppBorderRadiusBtn).eq(2).click({ force: true });
-    cy.get(`${commonlocators.themeAppBorderRadiusBtn}`)
-      .eq(2)
-      .invoke("css", "border-top-left-radius")
-      .then((borderRadius) => {
-        cy.get(widgetsPage.iconWidgetBtn).should(
-          "have.css",
-          "border-radius",
-          borderRadius,
-        );
-        cy.get(widgetsPage.widgetBtn).should(
-          "have.css",
-          "border-radius",
-          borderRadius,
-        );
-      });
-
-    //#region Change the shadow & verify widgets
-    cy.get("[data-value='L']").eq(1).click({ force: true });
-    cy.get("[data-value='L']")
-      .eq(1)
-      .invoke("css", "box-shadow")
-      .then((boxShadow) => {
-        cy.get(containerShadowElement).should(
-          "have.css",
-          "box-shadow",
-          boxShadow,
-        );
-      });
-
-    //#region Click on dropDown elipses
-    cy.contains("Theme properties")
-      .closest("div")
-      .siblings()
-      .first()
-      .find("button")
-      .click({ force: true });
-    cy.wait(300);
-
-    //Click on save theme dropdown option & close it
-    cy.contains("Save theme").click({ force: true });
-    cy.wait(200);
-    cy.get(".ads-v2-modal__content-header-close-button").click();
-
-    //Click on save theme dropdown option & cancel it
-    cy.contains("Theme properties")
-      .closest("div")
-      .siblings()
-      .first()
-      .find("button")
-      .click({ force: true });
-    cy.wait(300);
-    cy.contains("Save theme").click({ force: true });
-    cy.wait(200);
-    cy.xpath("//span[text()='Cancel']/parent::div").click();
-
-    //Click on save theme dropdown option, give duplicte name & save it
-    cy.contains("Theme properties")
-      .closest("div")
-      .siblings()
-      .first()
-      .find("button")
-      .click({ force: true });
-    cy.wait(300);
-    cy.contains("Save theme").click({ force: true });
-    cy.wait(200);
-    //Type the name of the theme:
-    agHelper.TypeText("input[placeholder='My theme']", "testtheme");
-    cy.contains("Name must be unique");
-
-    cy.get("input[placeholder='My theme']").clear().type("VioletYellowTheme");
-
-    //Click on save theme button
-    agHelper.ClickButton("Save theme");
-    agHelper.ValidateToastMessage("Theme VioletYellowTheme saved");
-  });
-
-  it.skip("5. Verify Themes exists under respective section when ChangeTheme button is cicked in properties with Apply Theme & Trash as applicable", () => {
-    //Click on change theme:
-    cy.get(commonlocators.changeThemeBtn).click({ force: true });
-    cy.xpath(applyTheme("Your themes", "testtheme"))
-      .click({ force: true })
-      .wait(1000); //Changing to testtheme
-
-    cy.contains("Applied theme")
-      .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > main")
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(236, 72, 153)");
-      });
-
-    //Check if the saved theme is present under 'Yours Themes' section with Trash button
-    cy.xpath(applyTheme("Your themes", "testtheme")).should("exist");
-    cy.xpath(themesDeletebtn("Your themes", "testtheme")).should("exist");
-
-    cy.xpath(applyTheme("Your themes", "VioletYellowTheme")).should("exist");
-    cy.xpath(themesDeletebtn("Your themes", "VioletYellowTheme")).should(
-      "exist",
-    );
-
-    cy.xpath(applyTheme("Featured themes", "Earth")).should("exist");
-    cy.xpath(themesDeletebtn("Featured themes", "Earth")).should("not.exist");
-
-    cy.xpath(applyTheme("Featured themes", "Sunrise")).should("exist");
-    cy.xpath(themesDeletebtn("Featured themes", "Sunrise")).should("not.exist");
-
-    cy.xpath(applyTheme("Featured themes", "Pacific")).should("exist");
-    cy.xpath(themesDeletebtn("Featured themes", "Pacific")).should("not.exist");
-
-    cy.xpath(applyTheme("Featured themes", "Pampas")).should("exist");
-    cy.xpath(themesDeletebtn("Featured themes", "Pampas")).should("not.exist");
-  });
-
-  it.skip("6. Verify the custom theme can be deleted", () => {
-    //Delete the created theme
-    cy.xpath(themesDeletebtn("Your themes", "testtheme"))
-      .click({ force: true })
-      .wait(200);
-    cy.contains(
-      "Do you really want to delete this theme? This process cannot be undone.",
-    );
-
-    //Click on Delete theme trash icon & close it
-    cy.xpath("//*[text()='Are you sure?']/following-sibling::button").click();
-    cy.get(commonlocators.toastMsg).should("not.exist");
-
-    //Click on Delete theme trash icon & cancel it
-    cy.xpath(themesDeletebtn("Your themes", "testtheme"))
-      .click({ force: true })
-      .wait(200);
-    cy.xpath("//span[text()='No']/parent::div").click();
-    cy.get(commonlocators.toastMsg).should("not.exist");
-
-    //Click on Delete theme trash icon & delete it
-    cy.xpath(themesDeletebtn("Your themes", "testtheme"))
-      .click({ force: true })
-      .wait(200);
-    agHelper.ClickButton("Delete");
-    // cy.contains("Delete").click({ force: true });
-
-    //check for delete alert
-    // cy.wait(500);
-    agHelper.ValidateToastMessage("Theme testtheme deleted");
-    //cy.get(commonlocators.toastMsg).contains("Theme testtheme deleted");
-    cy.xpath(applyTheme("Your themes", "testtheme")).should("not.exist");
-  });
-
-  it("7. Verify user able to change between saved theme & already existing Featured themes", () => {
+  it("4. Verify user able to change between saved theme & already existing Featured themes", () => {
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
 
     //#region Pampas
@@ -624,7 +390,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     //#endregion
   });
 
-  it("8. Verify widgets conform to the selected theme in Publish mode", () => {
+  it("5. Verify widgets conform to the selected theme in Publish mode", () => {
     deployMode.DeployApp();
 
     //cy.wait(4000); //for theme to settle
@@ -649,7 +415,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("9. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
+  it("6. Verify Adding new Individual widgets & it can change Color, Border radius, Shadow & can revert [Color/Border Radius] to already selected theme", () => {
     cy.dragAndDropToCanvas("buttonwidget", { x: 200, y: 400 }); //another button widget
     cy.moveToStyleTab();
     //Change Color & verify
@@ -817,7 +583,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     deployMode.NavigateBacktoEditor();
   });
 
-  it("10. Verify Chainging theme should not affect Individual widgets with changed Color, Border radius, Shadow & can revert to newly selected theme", () => {
+  it("7. Verify Chainging theme should not affect Individual widgets with changed Color, Border radius, Shadow & can revert to newly selected theme", () => {
     cy.get("canvas").first(0).trigger("click", { force: true });
 
     appSettings.OpenAppSettings();
