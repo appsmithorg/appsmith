@@ -17,7 +17,7 @@ import { groupWidgetCardsByTags } from "../utils";
 import UIEntityList from "./UIEntityList";
 import { useUIExplorerItems } from "./hooks";
 
-function UIEntitySidebar({ isActive }: { isActive: boolean }) {
+function UIEntityTagGroup({ isActive }: { isActive: boolean }) {
   const { cards, entityLoading, groupedCards } = useUIExplorerItems();
   const [filteredCards, setFilteredCards] =
     useState<WidgetCardsGroupedByTags>(groupedCards);
@@ -130,8 +130,8 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
 
             return (
               <UIEntityList
-                cardsForThisTag={cardsForThisTag}
-                isLoading={entityLoading[tag as WidgetTags]}
+                cards={cardsForThisTag}
+                isLoading={!!entityLoading[tag as WidgetTags]}
                 key={tag}
                 tag={tag}
               />
@@ -143,6 +143,6 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
   );
 }
 
-UIEntitySidebar.displayName = "UIEntitySidebar";
+UIEntityTagGroup.displayName = "UIEntityTagGroup";
 
-export default UIEntitySidebar;
+export default UIEntityTagGroup;

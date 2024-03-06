@@ -16,36 +16,25 @@ import { groupWidgetCardsByTags } from "../utils";
  * @returns Object containing grouped cards and cards.
  */
 export const useUIExplorerItems = () => {
+  const releaseDragDropBuildingBlocks = true;
+  useFeatureFlag(FEATURE_FLAG.release_drag_drop_building_blocks_enabled);
   const dispatch = useDispatch();
   // check if entities have loaded
-  const isBuildingBlocksLoaded =
-    useSelector(templatesCountSelector) > 0 ? true : false;
+  const isBuildingBlocksLoaded = useSelector(templatesCountSelector) > 0;
 
   const [entityLoading, setEntityLoading] = useState<
-    Record<WidgetTags, boolean>
+    Partial<Record<WidgetTags, boolean>>
   >({
-    "Building Blocks": !isBuildingBlocksLoaded,
-    Suggested: false,
-    Inputs: false,
-    Buttons: false,
-    Select: false,
-    Display: false,
-    Layout: false,
-    Media: false,
-    Toggles: false,
-    Sliders: false,
-    Content: false,
-    External: false,
+    "Building Blocks": releaseDragDropBuildingBlocks
+      ? !isBuildingBlocksLoaded
+      : false,
   });
-  const releaseDragDropBuildingBlocks = useFeatureFlag(
-    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
-  );
   const widgetCards = useSelector(getWidgetCards);
   const buildingBlockCards = useSelector(getBuildingBlockExplorerCards);
 
   // handle loading async entities
   useEffect(() => {
-    if (!isBuildingBlocksLoaded) {
+    if (!isBuildingBlocksLoaded && releaseDragDropBuildingBlocks) {
       dispatch(getAllTemplates());
     } else {
       setEntityLoading((prev) => ({ ...prev, "Building Blocks": false }));
