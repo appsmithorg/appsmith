@@ -101,14 +101,14 @@ function DraggableComponent(props: DraggableComponentProps) {
     !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isAltFocused && e.altKey) {
-      altFocus(e.altKey);
+    if (!isAltFocused && e.metaKey) {
+      altFocus(e.metaKey);
     }
   };
 
   const handleKeyUp = (e: React.KeyboardEvent) => {
-    if (!e.altKey) {
-      altFocus(e.altKey);
+    if (!e.metaKey) {
+      altFocus(e.metaKey);
     }
   };
 
@@ -121,7 +121,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       !props.resizeDisabled &&
       !isPreviewMode
     ) {
-      focusWidget(props.widgetId, e.altKey);
+      focusWidget(props.widgetId, e.metaKey);
     }
     e.stopPropagation();
   };
