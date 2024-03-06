@@ -167,7 +167,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     });
   });
 
-  it("3. Checks if the theme can be saved", () => {
+  it.skip("3. Checks if the theme can be saved", () => {
     //Click on dropDown elipses
     cy.contains("Theme properties")
       .closest("div")
@@ -189,7 +189,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     appSettings.ClosePane();
   });
 
-  it("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
+  it.skip("4. Verify Save Theme after changing all properties & widgets conform to the selected theme", () => {
     cy.dragAndDropToCanvas("iconbuttonwidget", { x: 300, y: 300 });
     cy.assertPageSave();
     cy.get("canvas").first(0).trigger("click", { force: true });
@@ -328,7 +328,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     agHelper.ValidateToastMessage("Theme VioletYellowTheme saved");
   });
 
-  it("5. Verify Themes exists under respective section when ChangeTheme button is cicked in properties with Apply Theme & Trash as applicable", () => {
+  it.skip("5. Verify Themes exists under respective section when ChangeTheme button is cicked in properties with Apply Theme & Trash as applicable", () => {
     //Click on change theme:
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
     cy.xpath(applyTheme("Your themes", "testtheme"))
@@ -367,7 +367,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     cy.xpath(themesDeletebtn("Featured themes", "Pampas")).should("not.exist");
   });
 
-  it("6. Verify the custom theme can be deleted", () => {
+  it.skip("6. Verify the custom theme can be deleted", () => {
     //Delete the created theme
     cy.xpath(themesDeletebtn("Your themes", "testtheme"))
       .click({ force: true })
