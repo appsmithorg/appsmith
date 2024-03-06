@@ -152,7 +152,7 @@ export function identifyEntityFromPath(path: string): FocusEntityInfo {
     };
   }
   if (match.params.queryId) {
-    if (match.params.queryId == "add") {
+    if (match.params.queryId == "add" || match.url.endsWith(ADD_PATH)) {
       return {
         entity: FocusEntity.QUERY_ADD,
         id: "",
