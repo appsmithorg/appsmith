@@ -76,12 +76,12 @@ const SectionWrapper = styled.div<{ isBannerVisible: boolean }>`
   `}
 `;
 
-const BackWrapper = styled.div<{ hidden?: boolean }>`
+const BackWrapper = styled.div<{ hidden?: boolean; isBannerVisible: boolean }>`
   position: sticky;
   display: flex;
   justify-content: space-between;
   ${(props) => `
-    top: ${props.theme.homePage.header}px;
+    top: ${props.theme.homePage.header + (props.isBannerVisible ? 40 : 0)}px;
     `}
   background: inherit;
   padding: var(--ads-v2-spaces-3);
@@ -502,7 +502,7 @@ const CreateNewAppsOption = ({
 
   return (
     <SectionWrapper isBannerVisible={!!isBannerVisible}>
-      <BackWrapper hidden={!useType}>
+      <BackWrapper hidden={!useType} isBannerVisible={!!isBannerVisible}>
         <LinkWrapper
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"
