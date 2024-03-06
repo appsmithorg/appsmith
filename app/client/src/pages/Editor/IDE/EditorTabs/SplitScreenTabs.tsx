@@ -46,7 +46,7 @@ const SplitScreenTabs = () => {
         invokedBy: NavigationMethod.EditorTabs,
       });
     },
-    [segment],
+    [segment, pageId],
   );
 
   const overflowList = allFilesList.filter((item) => !includes(files, item));
