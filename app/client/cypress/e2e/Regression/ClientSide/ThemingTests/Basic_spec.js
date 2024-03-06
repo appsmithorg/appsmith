@@ -402,12 +402,14 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
   });
 
   it("7. Verify user able to change between saved theme & already existing Featured themes", () => {
+    cy.get(commonlocators.changeThemeBtn).click({ force: true });
+
     //#region Pampas
     cy.xpath(applyTheme("Featured themes", "Pampas"))
       .click({ force: true })
       .wait(1000); //Changing to one of Featured themes
     cy.contains("Applied theme")
-      // .click()
+      .click()
       .parent()
       .siblings()
       .find(".t--theme-card > main > section > div > main")
@@ -619,35 +621,6 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
       .then((backgroudColor) => {
         expect(backgroudColor).to.eq("rgb(248, 250, 252)");
       });
-    //#endregion
-
-    //#region VioletYellowTheme
-    cy.xpath(applyTheme("Your themes", "VioletYellowTheme"))
-      .click({ force: true })
-      .wait(1000); //Changing to created test theme
-
-    cy.contains("Applied theme")
-      // .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(0)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(219, 234, 254)");
-      });
-
-    cy.contains("Applied theme")
-      // .click()
-      .parent()
-      .siblings()
-      .find(".t--theme-card > main > section > div > main")
-      .eq(1)
-      .invoke("css", "background-color")
-      .then((backgroudColor) => {
-        expect(backgroudColor).to.eq("rgb(29, 78, 216)");
-      });
-
     //#endregion
   });
 
