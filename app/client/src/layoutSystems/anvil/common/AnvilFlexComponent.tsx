@@ -72,7 +72,7 @@ export const AnvilFlexComponent = forwardRef(
       let flexBasis = "auto";
       if (flexGrow) {
         // flexGrow is a widget property present only for zone widgets which represents the number of columns the zone occupies in a section.
-        // pls refer to convertFlexGrowToFlexBasis to understand why we convert flex grow back to flex basis.
+        // pls refer to convertFlexGrowToFlexBasis for more details.
         flexBasis = convertFlexGrowToFlexBasis(flexGrow);
       } else if (isFillWidget) {
         flexBasis = "0%";

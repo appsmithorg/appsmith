@@ -9,7 +9,13 @@ import {
 /**
  * Utility function to convert flex-grow values of zone space distribution to flex-basis.
  *
+ * Why use flex-basis instead of flex-grow?
+ *
+ * we used flex basis values instead of flex grow to achieve zones of same flex grow values to have same width in pixels
+ * irrespective of number of zones in the section. This will enable us to align zones of different sections.
+ *
  * Why not just store flex basis values?
+ *
  * This is because when representing on the UI, we show column values which add up to SectionColumns
  * Also space distribution algorithm(redistributeSpaceWithDynamicMinWidth) works with the flex-grow values.
  */
