@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
@@ -17,6 +18,10 @@ import java.util.Set;
 @NoArgsConstructor
 @Document
 public class CustomJSLib extends CustomJSLibCE {
+
+    /* Fields to be associated with libraries that have been instantiated in a context */
+    @Transient
+    Boolean isHidden;
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
     public CustomJSLib(

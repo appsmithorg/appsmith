@@ -25,6 +25,11 @@ on:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
         type: number
+      airgap-enabled:
+        description: "This flag is used to determine if the workflow is running for airgap"
+        required: false
+        type: string
+        default: "false"
       previous-workflow-run-id:
         description: "This is the PR number in case the workflow is being called in a pull request"
         required: false
@@ -48,6 +53,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    outputs:
+      dashboard_url: ${{ steps.dashboard_url.outputs.cypress_url }}
     strategy:
       fail-fast: false
       matrix:
@@ -68,6 +75,13 @@ jobs:
           - 27017:27017
 
     steps:
+      - name: Clean up disk
+        run: |
+          sudo rm -rf /usr/share/dotnet
+          sudo rm -rf /opt/ghc
+          sudo rm -rf "/usr/local/share/boost"
+          sudo rm -rf "$AGENT_TOOLSDIRECTORY"
+
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 
@@ -133,34 +147,63 @@ jobs:
           echo "specs_to_run=$specs_to_run" >> $GITHUB_ENV
 
       # In case of run-id provided download the artifact from the previous run
-      - name: Download Docker image artifact
-        if: inputs.previous-workflow-run-id != 0
-        uses: actions/cache@v3
-        with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{ inputs.previous-workflow-run-id }}
+      - name: Get docker image artifact name to download
+        run: |
+          if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+           echo 'docker_container_name=airgap-cicontainer' >> "$GITHUB_ENV"
+           echo 'cache_download_key=airgap-docker-image' >> "$GITHUB_ENV"
+          else
+           echo 'docker_container_name=cicontainer' >> "$GITHUB_ENV"
+           echo 'cache_download_key=docker-image' >> "$GITHUB_ENV"
+           fi
 
-      # In case of run-id is 0 download the artifact from the current run
+      - name: Log the docker container name
+        run: |
+          echo "docker_container_name: ${{ env.docker_container_name }}"
+          echo "cache_download_key: ${{ env.cache_download_key }}"
+
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id == 0
         uses: actions/cache@v3
         with:
-          path: cicontainer.tar.gz
-          key: docker-image-${{github.run_id}}
+          path: ${{ env.docker_container_name }}.tar.gz
+          key: ${{ env.cache_download_key }}-${{ github.run_id }}
+
+      # In case of run-id provided download the artifact from the previous run
+      - name: Download Docker image artifact
+        if: inputs.previous-workflow-run-id != 0
+        uses: actions/cache@v3
+        with:
+          path: ${{ env.docker_container_name }}.tar.gz
+          key: ${{ env.cache_download_key }}-${{ inputs.previous-workflow-run-id }}
 
       - name: Load Docker image from tar file
         run: |
-          gunzip cicontainer.tar.gz
-          docker load -i cicontainer.tar
+          gunzip ${{ env.docker_container_name }}.tar.gz
+          docker load -i ${{ env.docker_container_name }}.tar
 
       - name: Create folder
         if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ secrets.APPSMITH_LICENSE_KEY }}
         working-directory: "."
         run: |
           mkdir -p cicontainerlocal/stacks/configuration/
 
-      - name: Run Appsmith & TED docker image
+      - name: Set APPSMITH_LICENSE_KEY based on Airgapped Enabled flag
         if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          if [[ "${{ inputs.airgap-enabled }}" == 'true' ]]; then
+            export APPSMITH_LICENSE_KEY=${{ secrets.APPSMITH_LICENSE_KEY }}
+          else
+            export APPSMITH_LICENSE_KEY="VALID-LICENSE-KEY"
+          fi
+
+      - name: Run Appsmith, CS & TED docker image
+        if: steps.run_result.outputs.run_result != 'success'
+        env:
+          APPSMITH_LICENSE_KEY: ${{ env.APPSMITH_LICENSE_KEY }}
+          LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY: ${{ secrets.LAUNCHDARKLY_BUSINESS_FLAGS_SERVER_KEY }}
         working-directory: "."
         run: |
           sudo /etc/init.d/ssh stop ;
@@ -171,6 +214,9 @@ jobs:
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
+            -e KEYGEN_API_URL=http://host.docker.internal:5001 \
+            -e KEYGEN_BYPASS_SIGNATURE_VERIFICATION=true \
+            -e CREATE_DUMMY_LICENSES=true \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_URI=mongodb://host.docker.internal:27017 \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_DATABASE=cs \
             -e APPSMITH_CLOUD_SERVICES_MONGODB_AUTH_DATABASE=admin \
@@ -203,11 +249,13 @@ jobs:
           cd cicontainerlocal
           docker run -d --name appsmith -p 80:80 \
             -v "$PWD/stacks:/appsmith-stacks" \
+            -e APPSMITH_LICENSE_KEY="$APPSMITH_LICENSE_KEY" \
             -e APPSMITH_DISABLE_TELEMETRY=true \
             -e APPSMITH_INTERCOM_APP_ID=DUMMY_VALUE \
             -e APPSMITH_CLOUD_SERVICES_BASE_URL=http://host.docker.internal:5001 \
+            -e APPSMITH_CLOUD_SERVICES_SIGNATURE_BASE_URL=http://host.docker.internal:8090 \
             --add-host=host.docker.internal:host-gateway --add-host=api.segment.io:host-gateway --add-host=t.appsmith.com:host-gateway \
-            cicontainer
+            ${{ env.docker_container_name }}
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -230,6 +278,19 @@ jobs:
         run: |
           yarn install --immutable
 
+      - name: Set cypress tags to exclude
+        if: steps.run_result.outputs.run_result != 'success'
+        run: |
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            echo 'tags_to_exclude=excludeForAirgap' >> "$GITHUB_ENV"
+            echo 'ci-build-id=${{ github.run_id }}-airgap' >> "$GITHUB_ENV"
+            echo 'commit-info-instance=Airgap' >> "$GITHUB_ENV"
+          else
+            echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
+            echo 'ci-build-id=${{ github.run_id }}-normal' >> "$GITHUB_ENV"
+            echo 'commit-info-instance=EE' >> "$GITHUB_ENV"
+          fi
+
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
         shell: bash
@@ -243,6 +304,12 @@ jobs:
           chrome-version: stable
       - run: |
           echo "BROWSER_PATH=$(which chrome)" >> $GITHUB_ENV
+
+      # - name: Set Pull Request Title
+      #   env:
+      #     EVENT_COMMITS: ${{ toJson(github.event.commits[0].message) }}
+      #   run: |
+      #     echo "test: Cypress (#24586)\n\n## Description\r\n- This PR adds the No Error toast to NavigateBacktoEditor() which\r\nsometimes results in Edit page not being load in CI runs" | awk -F '\\\\n' '{sub(/.*#/, "#", $1); sub(/).*/, "", $1); print $1}'
 
       - name: Save Git values
         # pass env variables from this step to other steps
@@ -329,8 +396,9 @@ jobs:
           CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_JWKS_URL }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_OKTA_PASSWORD }}
           CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_OIDC_DIRECT_URL }}
-          CYPRESS_EXCLUDE_TAGS: "airgap"
-          CYPRESS_AIRGAPPED: false
+          CYPRESS_OFFLINE_LICENSE_KEY: ${{ secrets.CYPRESS_OFFLINE_LICENSE_KEY }}
+          CYPRESS_EXCLUDE_TAGS: ${{ env.tags_to_exclude }}
+          CYPRESS_AIRGAPPED: ${{ inputs.airgap-enabled }}
           APPSMITH_DISABLE_TELEMETRY: true
           APPSMITH_GOOGLE_MAPS_API_KEY: ${{ secrets.APPSMITH_GOOGLE_MAPS_API_KEY }}
           POSTGRES_PASSWORD: postgres
@@ -428,7 +496,7 @@ jobs:
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
         uses: actions/upload-artifact@v3
-        if: failure()
+        if: always()
         with:
           name: server-logs-${{ matrix.job }}
           path: app/server/server-logs.log

@@ -258,6 +258,12 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>org.bouncycastle</groupId>
+            <artifactId>bcprov-jdk18on</artifactId>
+            <version>1.74</version>
+        </dependency>
+
         <!-- For junit5 parameterised test support -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -265,11 +271,6 @@
             <scope>test</scope>
         </dependency>
 
-        <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.74</version>
-        </dependency>
         <!-- Only required to run junit5 test from IDE -->
         <dependency>
             <groupId>org.junit.platform</groupId>
@@ -441,6 +442,18 @@
             <artifactId>quarkus-junit4-mock</artifactId>
             <version>2.14.2.Final</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.bucket4j</groupId>
+            <artifactId>bucket4j-core</artifactId>
+            <version>8.3.0</version>
+        </dependency>
+        <!--        Dependency for adding the system env stub as the System.getEnv() is a UnmodifiableMap   -->
+        <!--        TODO remove this dependency once the SSO configs are moved to DB                        -->
+        <dependency>
+            <groupId>uk.org.webcompere</groupId>
+            <artifactId>system-stubs-jupiter</artifactId>
+            <version>2.1.1</version>
         </dependency>
     </dependencies>
 

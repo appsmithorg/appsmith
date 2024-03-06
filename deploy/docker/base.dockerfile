@@ -21,6 +21,7 @@ RUN set -o xtrace \
     supervisor curl nfs-common gnupg wget netcat openssh-client \
     gettext \
     ca-certificates \
+    gawk \
   # Install MongoDB v5, Redis, PostgreSQL v13
   && curl --silent --show-error --location https://www.mongodb.org/static/pgp/server-5.0.asc | apt-key add - \
   && echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu focal/mongodb-org/5.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-5.0.list \
@@ -49,6 +50,23 @@ RUN set -o xtrace \
 
 # Install Caddy
 COPY --from=caddybuilder /usr/bin/caddy /opt/caddy/caddy
+
+# Install Keycloak
+RUN mkdir -p /opt/keycloak/data \
+  && curl --location https://github.com/keycloak/keycloak/releases/download/24.0.0/keycloak-24.0.0.tar.gz \
+  | tar -xz -C /opt/keycloak --strip-components 1 \
+  && curl --location --output "/opt/h2-2.1.214.jar" 'https://search.maven.org/remotecontent?filepath=com/h2database/h2/2.1.214/h2-2.1.214.jar'
+
+# Install Temporal client 0.11.0
+RUN mkdir -p /opt/temporal/cli \
+    && curl  --silent --show-error https://temporal.download/cli.sh | sh -s -- --dir /opt/temporal/cli --version 0.11.0
+
+# Install temporal server 1.22.4  (prebuilt binaries and postgres schema files)
+RUN mkdir -p /opt/temporal \
+    && curl --location "https://github.com/temporalio/temporal/releases/download/v1.22.4/temporal_1.22.4_linux_amd64.tar.gz" \
+    | tar -xz -C /opt/temporal temporal-server temporal-sql-tool \
+    && curl --location "https://github.com/temporalio/temporal/archive/refs/tags/v1.22.4.tar.gz" \
+    | tar -xz -C /opt/temporal temporal-1.22.4/schema/postgresql
 
 # Clean up
 RUN rm -rf \

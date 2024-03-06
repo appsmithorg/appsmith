@@ -1,3 +1,8 @@
 package com.appsmith.server.datasourcestorages.base;
 
-public interface DatasourceStorageServiceCECompatible extends DatasourceStorageServiceCE {}
+import reactor.core.publisher.Mono;
+
+public interface DatasourceStorageServiceCECompatible extends DatasourceStorageServiceCE {
+
+    Mono<Long> getDatasourceStorageDTOsAllowed();
+}

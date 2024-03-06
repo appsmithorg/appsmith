@@ -640,6 +640,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             return page;
                         }));
 
+        final Flux<ActionCollection> sourceActionCollectionsFlux = getCloneableActionCollections(pageId);
+
+        Flux<NewAction> sourceActionFlux = getCloneableActions(pageId);
+
         return sourcePageMono
                 .flatMap(page -> {
                     clonePageMetaDTO.setBranchedSourcePageId(page.getId());
@@ -736,6 +740,26 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             })
                             .thenReturn(savedPage);
                 }));
+    }
+
+    protected Flux<ActionCollection> getCloneableActionCollections(String pageId) {
+        final Flux<ActionCollection> sourceActionCollectionsFlux = actionCollectionService.findByPageId(pageId);
+        return sourceActionCollectionsFlux;
+    }
+
+    protected Flux<NewAction> getCloneableActions(String pageId) {
+        Flux<NewAction> sourceActionFlux = newActionService
+                .findByPageId(pageId, actionPermission.getEditPermission())
+                // Set collection reference in actions to null to reset to the new application's collections later
+                .map(newAction -> {
+                    if (newAction.getUnpublishedAction() != null) {
+                        newAction.getUnpublishedAction().setCollectionId(null);
+                    }
+                    return newAction;
+                })
+                // In case there are no actions in the page being cloned, return empty
+                .switchIfEmpty(Flux.empty());
+        return sourceActionFlux;
     }
 
     private Mono<PageDTO> clonePageGivenApplicationId(String pageId, String applicationId) {

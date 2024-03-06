@@ -31,6 +31,7 @@ jobs:
             ok-to-test
             perf-test
             ci-merge-check
+            ok-to-test-airgap
             ci-test-limit
             ok-to-test-with-documentdb
             build-deploy-preview

@@ -3,6 +3,8 @@ package com.appsmith.server.helpers;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.springframework.util.StringUtils;
 
+import java.util.Collection;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -39,5 +41,25 @@ public final class ValidationUtils {
         }
         final Matcher matcher = EMAIL_CSV_PATTERN.matcher(inputString);
         return matcher.matches();
+    }
+
+    public static <T> boolean isEmptyParam(T obj) {
+        if (obj == null) {
+            return true;
+        }
+
+        if (obj instanceof String) {
+            return ((String) obj).isEmpty();
+        }
+
+        if (obj instanceof Collection<?>) {
+            return ((Collection<?>) obj).isEmpty();
+        }
+
+        if (obj instanceof Map<?, ?>) {
+            return ((Map<?, ?>) obj).isEmpty();
+        }
+
+        return false; // For other types, consider them non-empty.
     }
 }

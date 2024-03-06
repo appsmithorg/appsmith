@@ -55,6 +55,21 @@ jobs:
       # Checkout the code
       - uses: actions/checkout@v4
 
+      - name: Load secrets from AWS
+        env:
+          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID_FOR_SECRETS }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_SECRETS }}"
+          AWS_REGION: us-east-2
+        uses: abhilash1in/aws-secrets-manager-action@v2.1.0
+        with:
+          secrets: |
+            ga/segment_key
+          parse-json: true
+
+      - name: Check if required variables are available
+        run: |
+          test -n "${GA_SEGMENT_KEY_EE_LATEST-}"
+
       - name: Use Node.js
         uses: actions/setup-node@v3
         with:
@@ -80,11 +95,11 @@ jobs:
         env:
           REACT_APP_ENVIRONMENT: "PRODUCTION"
           REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}"
-          REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
           REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID }}"
-          REACT_APP_VERSION_EDITION: "Community"
+          REACT_APP_VERSION_EDITION: "Business"
         run: |
-          yarn build
+          REACT_APP_SEGMENT_CE_KEY="$GA_SEGMENT_KEY_EE_LATEST" \
+            yarn build
           ls -l build
 
       - name: Pack the client build directory
@@ -210,6 +225,20 @@ jobs:
       - name: Checkout the merged commit from PR and base branch
         uses: actions/checkout@v4
 
+      - name: Load secrets from AWS
+        env:
+          AWS_ACCESS_KEY_ID: "${{ secrets.AWS_ACCESS_KEY_ID_FOR_SECRETS }}"
+          AWS_SECRET_ACCESS_KEY: "${{ secrets.AWS_SECRET_ACCESS_KEY_FOR_SECRETS }}"
+          AWS_REGION: us-east-2
+        uses: abhilash1in/aws-secrets-manager-action@v2.1.0
+        with:
+          secrets: |
+            ga/segment_key
+          parse-json: true
+
+      - name: Check if required variables are available
+        run: |
+          test -n "${GA_SEGMENT_KEY_EE_LATEST-}"
       - name: Set up Depot CLI
         uses: depot/setup-action@v1
 

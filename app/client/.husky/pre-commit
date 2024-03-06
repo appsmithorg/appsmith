@@ -2,3 +2,5 @@
 . "$(dirname -- "$0")/_/husky.sh"
 
 sh app/client/.husky/check-staged-files.sh
+
+sh app/client/.husky/check-ee-only-files.sh

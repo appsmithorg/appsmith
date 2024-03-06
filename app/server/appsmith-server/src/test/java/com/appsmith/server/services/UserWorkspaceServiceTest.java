@@ -11,8 +11,10 @@ import com.appsmith.server.dtos.MemberInfoDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
+import com.appsmith.server.repositories.UserGroupRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -58,6 +60,12 @@ public class UserWorkspaceServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    UserGroupRepository userGroupRepository;
+
+    @Autowired
+    UserUtils userUtils;
 
     @Autowired
     private UserWorkspaceService userWorkspaceService;

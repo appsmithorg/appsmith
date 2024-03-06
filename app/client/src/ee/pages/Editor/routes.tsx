@@ -1,7 +1,13 @@
 import React from "react";
-import { Switch, useRouteMatch } from "react-router-dom";
+import { Route, Switch } from "react-router-dom";
+import { useRouteMatch } from "react-router";
 import styled from "styled-components";
 import CE_EditorRoutes from "ce/pages/Editor/routes";
+import * as Sentry from "@sentry/react";
+import { MODULE_INSTANCE_ID_PATH } from "@appsmith/constants/routes/appRoutes";
+import QueryModuleInstanceEditor from "@appsmith/pages/Editor/ModuleInstanceEditor/Query";
+
+const SentryRoute = Sentry.withSentryRouting(Route);
 
 const Wrapper = styled.div<{ isVisible: boolean }>`
   position: absolute;
@@ -22,6 +28,11 @@ function EditorsRouter() {
     <Wrapper isVisible>
       <Switch key={path}>
         <CE_EditorRoutes />
+        <SentryRoute
+          component={QueryModuleInstanceEditor}
+          exact
+          path={`${path}${MODULE_INSTANCE_ID_PATH}`}
+        />
       </Switch>
     </Wrapper>
   );

@@ -1,5 +1,6 @@
 package com.appsmith.server.filters;
 
+import com.appsmith.server.constants.PatternConstants;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -13,6 +14,7 @@ import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
+import java.util.regex.Pattern;
 
 @Slf4j
 public class CSRFFilter implements WebFilter {
@@ -23,6 +25,12 @@ public class CSRFFilter implements WebFilter {
             Url.USER_URL + "/super", // For superuser signup request
             Url.USER_URL + "/verifyEmailVerificationToken");
 
+    // Workflows are triggered for specific IDs, and hence exempting complete regex for the same.
+    // Expepting GIT deploy URLs to enable continuos deployment
+    private static final Set<String> EXEMPT_PATTERNS = Set.of(
+            Url.WORKFLOW_URL + Url.WORKFLOW_TRIGGER_BASEPATH + PatternConstants.CSRF_URL_ID_REGEX_FILTER,
+            Url.GIT_URL + Url.GIT_DEPLOY_URL_BASEPATH + PatternConstants.CSRF_URL_ID_REGEX_FILTER);
+
     private static final String X_REQUESTED_BY_NAME = "X-Requested-By";
     private static final String X_REQUESTED_BY_VALUE = "Appsmith";
 
@@ -32,7 +40,9 @@ public class CSRFFilter implements WebFilter {
         final HttpMethod method = request.getMethod();
         final boolean isGetOrHead = HttpMethod.GET.equals(method) || HttpMethod.HEAD.equals(method);
 
-        if (!isGetOrHead && !EXEMPT.contains(request.getPath().value())) {
+        if (!isGetOrHead
+                && !(EXEMPT.contains(request.getPath().value())
+                        || isUrlPatternExempted(request.getPath().value()))) {
             // For POST requests, either a `X-Requested-By: Appsmith` header or a `Content-Type: application/json`
             // is required. If neither is present, reject the request. This is to prevent CSRF attacks.
             if (MediaType.APPLICATION_JSON.equals(request.getHeaders().getContentType())
@@ -46,5 +56,10 @@ public class CSRFFilter implements WebFilter {
         }
 
         return chain.filter(exchange);
+    }
+
+    boolean isUrlPatternExempted(String requestPath) {
+        return EXEMPT_PATTERNS.stream()
+                .anyMatch(pattern -> Pattern.matches(Pattern.compile(pattern).pattern(), requestPath));
     }
 }

@@ -1,6 +1,6 @@
 package com.appsmith.server.converters.ce;
 
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.google.gson.Gson;
@@ -16,7 +16,7 @@ import java.util.Map;
 
 public class ArtifactExchangeJsonAdapterCE implements JsonDeserializer<ArtifactExchangeJson> {
     private static final String FIELD_NAME = "artifactJsonType";
-    protected Map<ArtifactJsonType, Class<? extends ArtifactExchangeJson>> artifactTypeRegistry;
+    protected Map<ArtifactType, Class<? extends ArtifactExchangeJson>> artifactTypeRegistry;
     private final Gson gson;
 
     public ArtifactExchangeJsonAdapterCE(Gson gson) {
@@ -26,7 +26,7 @@ public class ArtifactExchangeJsonAdapterCE implements JsonDeserializer<ArtifactE
 
     protected void populateArtifactTypeRegistry() {
         this.artifactTypeRegistry = new HashMap<>();
-        this.artifactTypeRegistry.put(ArtifactJsonType.APPLICATION, ApplicationJson.class);
+        this.artifactTypeRegistry.put(ArtifactType.APPLICATION, ApplicationJson.class);
     }
 
     @Override
@@ -36,7 +36,7 @@ public class ArtifactExchangeJsonAdapterCE implements JsonDeserializer<ArtifactE
         JsonElement artifactJsonTypeElement = jsonObject.get(FIELD_NAME);
         Class<? extends ArtifactExchangeJson> instanceClass = ApplicationJson.class;
         if (artifactJsonTypeElement != null) {
-            ArtifactJsonType artifactJsonType = ArtifactJsonType.valueOf(artifactJsonTypeElement.getAsString());
+            ArtifactType artifactJsonType = ArtifactType.valueOf(artifactJsonTypeElement.getAsString());
             instanceClass = artifactTypeRegistry.getOrDefault(artifactJsonType, ApplicationJson.class);
         }
         return gson.fromJson(json, instanceClass);

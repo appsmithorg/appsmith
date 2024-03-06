@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   clip-rule="evenodd"
+   fill-rule="evenodd"
+   stroke-linejoin="round"
+   stroke-miterlimit="1.41421"
+   viewBox="0 0 200 275"
+   version="1.1"
+   id="svg841"
+   sodipodi:docname="GoogleSheets.svg"
+   width="200"
+   height="275"
+   inkscape:version="1.0.1 (c497b03c, 2020-09-10)">
+  <metadata
+     id="metadata847">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <defs
+     id="defs845" />
+  <sodipodi:namedview
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1"
+     objecttolerance="10"
+     gridtolerance="10"
+     guidetolerance="10"
+     inkscape:pageopacity="0"
+     inkscape:pageshadow="2"
+     inkscape:window-width="1536"
+     inkscape:window-height="960"
+     id="namedview843"
+     showgrid="false"
+     inkscape:zoom="1.1035714"
+     inkscape:cx="-1.4886731"
+     inkscape:cy="139.3123"
+     inkscape:window-x="0"
+     inkscape:window-y="0"
+     inkscape:window-maximized="0"
+     inkscape:current-layer="svg841" />
+  <g
+     fill-rule="nonzero"
+     transform="scale(3.125)"
+     id="g839">
+    <path
+       d="M 58,88 H 6 C 2.7,88 0,85.3 0,82 V 6 C 0,2.7 2.7,0 6,0 h 36 l 22,22 v 60 c 0,3.3 -2.7,6 -6,6 z"
+       fill="#0dc54c"
+       id="path833" />
+    <path
+       d="M 42,0 64,22 H 42 Z"
+       fill="#08962d"
+       id="path835" />
+    <path
+       d="m 12,34.5 v 28 h 40 v -28 z m 5,5 H 29.5 V 46 H 17 Z M 17,51 h 12.5 v 6.5 H 17 Z m 30,6.5 H 34.5 V 51 H 47 Z M 47,46 H 34.5 V 39.5 H 47 Z"
+       fill="#fdffff"
+       id="path837" />
+  </g>
+</svg>

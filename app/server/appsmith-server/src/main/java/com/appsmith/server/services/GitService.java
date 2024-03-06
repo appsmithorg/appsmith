@@ -1,5 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.server.services.ce.GitServiceCE;
+import com.appsmith.server.services.ce_compatible.GitServiceCECompatible;
 
-public interface GitService extends GitServiceCE {}
+public interface GitService extends GitServiceCECompatible {}

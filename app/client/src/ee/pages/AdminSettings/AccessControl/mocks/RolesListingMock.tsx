@@ -1,0 +1,88 @@
+import type { RoleProps } from "../types";
+
+export const rolesTableData: RoleProps[] = [
+  {
+    id: "1",
+    name: "HR_Appsmith",
+    autoCreated: false,
+    userPermissions: [
+      "assign:permissionGroups",
+      "delete:permissionGroups",
+      "manage:permissionGroups",
+      "read:permissionGroups",
+      "unassign:permissionGroups",
+    ],
+    isSaving: false,
+    isEditing: false,
+  },
+  {
+    id: "2",
+    name: "devops_design",
+    autoCreated: false,
+    userPermissions: [
+      "assign:permissionGroups",
+      "delete:permissionGroups",
+      "manage:permissionGroups",
+      "read:permissionGroups",
+      "unassign:permissionGroups",
+    ],
+    isSaving: false,
+    isEditing: false,
+  },
+  {
+    id: "3",
+    name: "devops_eng_nov",
+    autoCreated: false,
+    userPermissions: [
+      "assign:permissionGroups",
+      "manage:permissionGroups",
+      "read:permissionGroups",
+      "unassign:permissionGroups",
+    ],
+    isSaving: false,
+    isEditing: false,
+  },
+  {
+    id: "4",
+    name: "marketing_nov",
+    autoCreated: false,
+    userPermissions: [
+      "assign:permissionGroups",
+      "delete:permissionGroups",
+      "manage:permissionGroups",
+      "read:permissionGroups",
+      "unassign:permissionGroups",
+    ],
+    isSaving: false,
+    isEditing: false,
+  },
+  {
+    id: "5",
+    name: "Administrator",
+    autoCreated: true,
+    userPermissions: [
+      "assign:permissionGroups",
+      "delete:permissionGroups",
+      "read:permissionGroups",
+      "unassign:permissionGroups",
+    ],
+    isSaving: false,
+    isEditing: false,
+  },
+  {
+    id: "6",
+    name: "App Viewer",
+    autoCreated: true,
+    userPermissions: ["read:permissionGroups"],
+    isSaving: false,
+    isEditing: false,
+  },
+  {
+    id: "7",
+    name: "Default Role For All Users",
+    autoCreated: false,
+    userPermissions: ["read:permissionGroups", "manage:permissionGroups"],
+    isSaving: false,
+    isEditing: false,
+  },
+];

@@ -174,6 +174,8 @@ To change Appsmith configurations, you can use configuration UI in application o
 | `applicationConfig.APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET`| `""`									|
 | `applicationConfig.APPSMITH_OAUTH2_GITHUB_CLIENT_ID`		| `""`									|
 | `applicationConfig.APPSMITH_OAUTH2_GITHUB_CLIENT_SECRET`| `""`									|
+| `applicationConfig.APPSMITH_OAUTH2_OIDC_CLIENT_ID`      | `""`                  |
+| `applicationConfig.APPSMITH_OAUTH2_OIDC_CLIENT_SECRET`  | `""`                  |
 | `applicationConfig.APPSMITH_CLIENT_LOG_LEVEL`						| `""`									|
 | `applicationConfig.APPSMITH_MAIL_ENABLED`								| `""`									|
 | `applicationConfig.APPSMITH_MAIL_HOST`									| `""`									|

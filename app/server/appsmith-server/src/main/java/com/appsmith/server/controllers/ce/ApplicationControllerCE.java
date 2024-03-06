@@ -13,8 +13,8 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
-import com.appsmith.server.dtos.ImportableArtifactDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -57,7 +57,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 
 @Slf4j
 @RequestMapping(Url.APPLICATION_URL)
@@ -291,7 +291,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<ImportableArtifactDTO>> importApplicationFromFile(
+    public Mono<ResponseDTO<ArtifactImportDTO>> importApplicationFromFile(
             @RequestPart("file") Mono<Part> fileMono,
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {

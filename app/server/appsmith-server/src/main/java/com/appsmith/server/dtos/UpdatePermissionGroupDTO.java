@@ -6,4 +6,6 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class UpdatePermissionGroupDTO extends UpdatePermissionGroupCE_DTO {}
+public class UpdatePermissionGroupDTO extends UpdatePermissionGroupCE_DTO {
+    String userGroupId;
+}

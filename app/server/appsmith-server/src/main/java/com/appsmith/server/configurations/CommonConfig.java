@@ -68,6 +68,12 @@ public class CommonConfig {
 
     private List<String> allowedDomains;
 
+    @Value("${APPSMITH_OIDC_DISABLE_NONCE:false}")
+    private boolean isNonceDisabled;
+
+    @Value("${APPSMITH_OAUTH2_OIDC_AUDIENCE:}")
+    private String oidcAudience;
+
     private String mongoDBVersion;
 
     private static final String MIN_SUPPORTED_MONGODB_VERSION = "5.0.0";
@@ -135,6 +141,10 @@ public class CommonConfig {
 
     public String getRtsBaseUrl() {
         return "http://127.0.0.1:" + rtsPort;
+    }
+
+    public String getWorkflowProxyUrl() {
+        return String.format("%s/rts-api/v1/workflow-proxy", getRtsBaseUrl());
     }
 
     public boolean isMongoUptoDate() {

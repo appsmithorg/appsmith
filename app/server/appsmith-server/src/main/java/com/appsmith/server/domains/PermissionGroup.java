@@ -6,6 +6,7 @@ import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -17,6 +18,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Getter
 @Setter
+@ToString
 public class PermissionGroup extends BaseDomain {
 
     @NotNull String name;
@@ -31,6 +33,7 @@ public class PermissionGroup extends BaseDomain {
     String defaultWorkspaceId;
 
     String defaultDomainId;
+
     String defaultDomainType;
 
     @Deprecated

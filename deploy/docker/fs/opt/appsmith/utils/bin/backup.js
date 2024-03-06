@@ -1,4 +1,5 @@
 const fsPromises = require('fs/promises');
+const fs = require('fs');
 const path = require('path');
 const os = require('os');
 const shell = require('shelljs');
@@ -7,6 +8,7 @@ const Constants = require('./constants');
 const logger = require('./logger');
 const mailer = require('./mailer');
 
+const aws = require('./aws');
 const command_args = process.argv.slice(3);
 
 async function run() {
@@ -43,10 +45,18 @@ async function run() {
 
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
 
+    if (command_args.includes('--upload-to-s3')){
+      await aws.uploadArchiveToS3Bucket(archivePath);
+    }
+
     logger.backup_info('Finished taking a backup at' + archivePath);
 
   } catch (err) {
     errorCode = 1;
+    if (err.message == Constants.S3_UPLOAD_FAILED_ERROR_MSG) { // Fail safe if aws credentials are not configured, so that watchtower hook continues execution
+      errorCode = 0;
+    }
+    
     await logger.backup_error(err.stack);
 
     if (command_args.includes('--error-mail')) {

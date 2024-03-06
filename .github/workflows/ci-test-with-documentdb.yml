@@ -227,7 +227,7 @@ jobs:
         run: |
           echo "$SSH_PRIVATE_KEY" > ssh_key.pem
           chmod 400 ssh_key.pem
-
+       
       - name: Setup SSH tunnel to AWS DocumentDB instance
         run: |
           chmod 400 ssh_key.pem

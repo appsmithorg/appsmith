@@ -14,6 +14,10 @@ module.exports = {
     "@controllers/(.*)": ["<rootDir>/src/controllers/$1"],
     "@rules/(.*)": ["<rootDir>/src/middlewares/rules/$1"],
     "@utils/(.*)": ["<rootDir>/src/utils/$1"],
+    // EE only entries start
+    "@scim/(.*)": ["<rootDir>/src/scim/$1"],
+    "@workflowProxy/(.*)": ["<rootDir>/src/workflowProxy/$1"],
+    // EE only entries end
   },
   globals: {
     "ts-jest": {
@@ -21,3 +25,8 @@ module.exports = {
     },
   },
 };
+
+process.env = Object.assign(process.env, {
+  APPSMITH_API_BASE_URL: "http://localhost:8080",
+  APPSMITH_LOG_LEVEL: "debug",
+});

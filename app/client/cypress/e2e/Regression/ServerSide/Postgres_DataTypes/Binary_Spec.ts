@@ -193,7 +193,7 @@ describe("Binary Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   });
 
   it("7. Deleting records - binarytype", () => {
-    //entityExplorer.SelectEntityByName("Page1");//commenting 2 lines since case 6th is skipped!
+    //EditorNavigation.SelectEntityByName("Page1", EntityType.Page);//commenting 2 lines since case 6th is skipped!
     //deployMode.DeployApp();
     table.WaitUntilTableLoad();
     table.SelectTableRow(1);

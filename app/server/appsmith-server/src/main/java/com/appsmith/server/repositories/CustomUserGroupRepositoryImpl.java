@@ -1,0 +1,204 @@
+package com.appsmith.server.repositories;
+
+import com.appsmith.external.models.Policy;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.domains.UserGroup;
+import com.appsmith.server.dtos.PagedDomain;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.stereotype.Component;
+import org.springframework.util.MultiValueMap;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+
+import static com.appsmith.server.constants.QueryParams.PROVISIONED_FILTER;
+import static com.appsmith.server.helpers.RegexHelper.getStringsToRegex;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
+
+@Component
+public class CustomUserGroupRepositoryImpl extends BaseAppsmithRepositoryImpl<UserGroup>
+        implements CustomUserGroupRepository {
+
+    private final ReactiveMongoOperations reactiveMongoOperations;
+
+    public CustomUserGroupRepositoryImpl(
+            ReactiveMongoOperations mongoOperations,
+            MongoConverter mongoConverter,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        this.reactiveMongoOperations = mongoOperations;
+    }
+
+    @Override
+    public Flux<UserGroup> findAllByTenantId(
+            String tenantId, MultiValueMap<String, String> filters, AclPermission aclPermission) {
+        Criteria criteria = where(UserGroup.Fields.tenantId).is(tenantId);
+        List<Criteria> criteriaListFromFilters = getCriteriaListFromFilters(filters);
+        List<Criteria> allCriteria = new ArrayList<>();
+        allCriteria.add(criteria);
+        allCriteria.addAll(criteriaListFromFilters);
+        return queryBuilder().criteria(allCriteria).permission(aclPermission).all();
+    }
+
+    @Override
+    public Flux<UserGroup> findAllByTenantIdWithoutPermission(String tenantId, List<String> includeFields) {
+        Criteria criteria = where(UserGroup.Fields.tenantId).is(tenantId);
+        return queryBuilder().criteria(criteria).fields(includeFields).all();
+    }
+
+    @Override
+    public Mono<UserGroup> findByIdAndTenantIdithoutPermission(String id, String tenantId) {
+        Criteria idCriteria = where(UserGroup.Fields.id).is(id);
+        Criteria tenantIdCriteria = where(UserGroup.Fields.tenantId).is(tenantId);
+
+        Criteria andCriteria = new Criteria();
+        andCriteria.andOperator(idCriteria, tenantIdCriteria, notDeleted());
+
+        Query query = new Query();
+        query.addCriteria(andCriteria);
+        return mongoOperations.findOne(query, UserGroup.class);
+    }
+
+    @Override
+    public Flux<UserGroup> findAllByIds(Set<String> ids, AclPermission aclPermission) {
+        Criteria criteria = where(UserGroup.Fields.id).in(ids);
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
+    }
+
+    public Flux<UserGroup> findAllByUsersIn(Set<String> userIds, AclPermission aclPermission) {
+        Criteria criteria = where(UserGroup.Fields.users).in(userIds);
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
+    }
+
+    @Override
+    public Mono<Void> updateById(String id, Update updateObj) {
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+        Query query = new Query(Criteria.where("id").is(id));
+        return mongoOperations.updateFirst(query, updateObj, this.genericDomain).then();
+    }
+
+    @Override
+    public Mono<Long> countAllReadableUserGroups() {
+        return queryBuilder().permission(AclPermission.READ_USER_GROUPS).count();
+    }
+
+    @Override
+    public Flux<UserGroup> getAllByUsersIn(
+            Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
+        Criteria criteriaUserIdsIn = where(UserGroup.Fields.users).in(userIds);
+        return queryBuilder()
+                .criteria(criteriaUserIdsIn)
+                .fields(includeFields.orElse(null))
+                .permission(permission.orElse(null))
+                .all();
+    }
+
+    @Override
+    public Mono<PagedDomain<UserGroup>> findUserGroupsWithParamsPaginated(
+            int count,
+            int startIndex,
+            List<String> groupNames,
+            List<String> filterUserIds,
+            Optional<AclPermission> aclPermission) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        Sort sortWithEmail = Sort.by(Sort.Direction.ASC, UserGroup.Fields.name);
+        // Keeping this a case-insensitive, because provisioning clients require case-insensitive searches on group
+        // names.
+        if (CollectionUtils.isNotEmpty(groupNames)) {
+            criteriaList.add(where(UserGroup.Fields.name).regex(getStringsToRegex(groupNames), "i"));
+        }
+        if (!Optional.ofNullable(filterUserIds).isEmpty() && filterUserIds.size() > 0) {
+            criteriaList.add(where(UserGroup.Fields.users).in(filterUserIds));
+        }
+        Flux<UserGroup> userFlux = queryBuilder()
+                .criteria(criteriaList)
+                .permission(aclPermission.orElse(null))
+                .sort(sortWithEmail)
+                .limit(count)
+                .skip(startIndex)
+                .all();
+        Mono<Long> countMono = queryBuilder()
+                .criteria(criteriaList)
+                .permission(aclPermission.orElse(null))
+                .count();
+        return Mono.zip(countMono, userFlux.collectList()).map(pair -> {
+            Long totalFilteredUserGroups = pair.getT1();
+            List<UserGroup> userGroupsPage = pair.getT2();
+            return new PagedDomain<>(userGroupsPage, userGroupsPage.size(), startIndex, totalFilteredUserGroups);
+        });
+    }
+
+    @Override
+    public Mono<Long> countAllUserGroupsByIsProvisioned(boolean isProvisioned, Optional<AclPermission> aclPermission) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(UserGroup.Fields.isProvisioned).is(isProvisioned);
+        return queryBuilder()
+                .criteria(criteriaIsProvisioned)
+                .permission(aclPermission.orElse(null))
+                .count();
+    }
+
+    @Override
+    public Flux<UserGroup> getAllUserGroupsByIsProvisioned(
+            boolean isProvisioned, Optional<List<String>> includeFields, Optional<AclPermission> aclPermission) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(UserGroup.Fields.isProvisioned).is(isProvisioned);
+        return queryBuilder()
+                .criteria(criteriaIsProvisioned)
+                .fields(includeFields.orElse(null))
+                .permission(aclPermission.orElse(null))
+                .all();
+    }
+
+    @Override
+    public Mono<Boolean> updateProvisionedUserGroupsPoliciesAndIsProvisionedWithoutPermission(
+            Boolean isProvisioned, Set<Policy> policies) {
+        Criteria criteriaIsProvisioned =
+                Criteria.where(UserGroup.Fields.isProvisioned).is(true);
+        Update updateGroup = new Update();
+        updateGroup.set(UserGroup.Fields.isProvisioned, isProvisioned);
+        updateGroup.set(UserGroup.Fields.policies, policies);
+        return updateByCriteriaWithoutPermission(List.of(criteriaIsProvisioned), updateGroup)
+                .thenReturn(Boolean.TRUE);
+    }
+
+    @Override
+    public Flux<UserGroup> findAllByUsersIn(
+            Set<String> userIds, Optional<AclPermission> aclPermission, Optional<List<String>> includeFields) {
+        Criteria criteria = where(UserGroup.Fields.users).in(userIds);
+        return queryBuilder()
+                .criteria(criteria)
+                .fields(includeFields.orElse(null))
+                .permission(aclPermission.orElse(null))
+                .all();
+    }
+
+    private List<Criteria> getCriteriaListFromFilters(MultiValueMap<String, String> filters) {
+        List<Criteria> criteriaList = new ArrayList<>();
+        if (StringUtils.isNotEmpty(filters.getFirst(PROVISIONED_FILTER))) {
+            String provisionValue = filters.getFirst(PROVISIONED_FILTER).toLowerCase();
+            if (provisionValue.equals(Boolean.TRUE.toString())) {
+                criteriaList.add(where(UserGroup.Fields.isProvisioned).is(Boolean.TRUE));
+            } else if (provisionValue.equals(Boolean.FALSE.toString())) {
+                criteriaList.add(where(UserGroup.Fields.isProvisioned).is(Boolean.FALSE));
+            }
+        }
+        return criteriaList;
+    }
+}

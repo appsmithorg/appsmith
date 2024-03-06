@@ -1,0 +1,240 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { Widgets } from "../../../../support/Pages/DataSources";
+import {
+  agHelper,
+  assertHelper,
+  dataManager,
+  dataSources,
+  deployMode,
+  draggableWidgets,
+  entityExplorer,
+  entityItems,
+  locators,
+  multipleEnv,
+  table,
+} from "../../../../support/ee/ObjectsCore_EE";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
+
+let meDatasourceName: string,
+  meQueryName: string,
+  meStagingOnlyQueryName: string,
+  prodEnv: string,
+  stagingEnv: string,
+  meDSStagingOnlyName: string;
+
+describe(
+  "Multiple environment datasource creation and test flow",
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
+  function () {
+    before(() => {
+      // Need to remove the previous user preference for the callout
+      window.localStorage.removeItem("userPreferenceDismissEnvCallout");
+      featureFlagIntercept({ release_datasource_environments_enabled: true });
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
+      multipleEnv.SwitchEnv(prodEnv);
+      meQueryName = "postgres_select";
+      meStagingOnlyQueryName = "postgres_stageonly_select";
+    });
+
+    it("1. Creates a new Postgres ds for both envs and one for only staging", function () {
+      // Create DS with production details
+      dataSources.CreateDataSource("Postgres", true, true, prodEnv, true);
+      cy.get("@dsName").then(($dsName) => {
+        meDatasourceName = $dsName.toString();
+      });
+      dataSources.selectTabOnDatasourcePage("Configurations");
+      multipleEnv.VerifyEnvDetailsInReviewMode("PostgreSQL", prodEnv);
+
+      // Add staging env details
+      dataSources.EditDatasource();
+      multipleEnv.SwitchEnvInDSEditor(stagingEnv);
+      // Enter wrong values and test
+      dataSources.FillPostgresDSForm(stagingEnv, false, "failTest");
+      dataSources.TestDatasource(false);
+      // Enter correct values and test
+      cy.get(dataSources._username)
+        .clear()
+        .type(dataManager.dsValues[stagingEnv].postgres_username);
+      dataSources.TestDatasource(true);
+      // Save env details
+      dataSources.SaveDatasource(false, true);
+      dataSources.selectTabOnDatasourcePage("Configurations");
+      multipleEnv.VerifyEnvDetailsInReviewMode("PostgreSQL", stagingEnv);
+
+      // Create DS with Staging only details
+      dataSources.CreateDataSource(
+        "Postgres",
+        true,
+        true,
+        stagingEnv,
+        true,
+        multipleEnv.SwitchEnvInDSEditor,
+      );
+      cy.get("@dsName").then(($dsName) => {
+        meDSStagingOnlyName = $dsName.toString();
+      });
+
+      dataSources.selectTabOnDatasourcePage("Configurations");
+      multipleEnv.VerifyEnvDetailsInReviewMode("PostgreSQL", stagingEnv);
+    });
+
+    it("2. Create and test query responses for both ds on both environmets and add Suggested table", function () {
+      // Create a query on the ME ds
+      const query = 'SELECT * FROM public."city"';
+      dataSources.CreateQueryForDS(meDatasourceName);
+      agHelper.RenameWithInPane(meQueryName, true);
+      dataSources.EnterQuery(query);
+      // Run and verify the response for the query
+      dataSources.RunQueryNVerifyResponseViews(600);
+
+      dataSources.AddSuggestedWidget(Widgets.Table);
+      // Create query on staging only DS
+      agHelper.Sleep(2000);
+      PageList.AddNewPage("New blank page");
+      multipleEnv.SwitchEnv(stagingEnv);
+      EditorNavigation.SelectEntityByName(
+        meDSStagingOnlyName,
+        EntityType.Datasource,
+      );
+      dataSources.CreateQueryAfterDSSaved(query, meStagingOnlyQueryName);
+      // Run and verify the response for the query
+      dataSources.RunQueryNVerifyResponseViews(43);
+      multipleEnv.SwitchEnv(prodEnv);
+      // verify query fails on prod for staging only configured DS
+      dataSources.RunQuery({ expectedStatus: false });
+      cy.get("@postExecute").then((interception: any) => {
+        expect(interception.response.body.data.title).to.eq(
+          "Datasource not configured for the given environment",
+        );
+        expect(interception.response.body.data.body).contains(
+          "does not have a valid production configuration",
+        );
+      });
+      // Bind the postgres query to a table
+      multipleEnv.SwitchEnv(stagingEnv);
+      dataSources.RunQueryNVerifyResponseViews(43);
+      EditorNavigation.SelectEntityByName(
+        meStagingOnlyQueryName,
+        EntityType.Query,
+      );
+      dataSources.AddSuggestedWidget(Widgets.Table);
+      assertHelper.AssertNetworkStatus("@updateLayout", 200);
+      agHelper.Sleep();
+    });
+
+    it("3. Check table response for both environments", function () {
+      // Check the records on the table
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "43 Records",
+      );
+      multipleEnv.SwitchEnv(prodEnv);
+      agHelper.ValidateToastMessage(
+        'The action "postgres_stageonly_select" has failed.',
+      );
+      agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "600 Records",
+      );
+      multipleEnv.SwitchEnv(stagingEnv);
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "43 Records",
+      );
+    });
+
+    it("4. Generate CRUD page for both datasources", function () {
+      dataSources.GeneratePageForDS(meDatasourceName);
+      assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+      agHelper.ValidateToastMessage("Successfully generated a page");
+      //assertHelper.AssertNetworkStatus("@getActions", 200);//Since failing sometimes
+      assertHelper.AssertNetworkStatus("@postExecute", 200);
+      agHelper.ClickButton("Got it");
+      assertHelper.AssertNetworkStatus("@updateLayout", 200);
+      agHelper.Sleep(2000);
+      table.WaitUntilTableLoad(0, 0, "v2");
+      // verify generate crud option is not present on prod
+      multipleEnv.SwitchEnv(prodEnv);
+      cy.get(dataSources._datasourceCardGeneratePageBtn).should("not.exist");
+    });
+
+    it("5 Deploy the app, check for modal and check table response for both envs", function () {
+      // Need to remove the previous user preference for the callout
+      window.localStorage.removeItem("userPreferenceDismissEnvCallout");
+      agHelper.Sleep(2000);
+      deployMode.DeployApp(
+        locators._widgetInDeployed(draggableWidgets.TABLE),
+        true,
+        true,
+        true,
+      );
+      featureFlagIntercept({ release_datasource_environments_enabled: true });
+      agHelper.GetNClickByContains(locators._deployedPage, "Public.city");
+      agHelper.AssertElementExist(dataSources._selectedRow);
+
+      table.ReadTableRowColumnData(0, 1, "v2", 4000).then(($cellData) => {
+        expect($cellData).to.eq("A Corua (La Corua)");
+      });
+      table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
+        expect($cellData).to.eq("87");
+      });
+
+      //Validating loaded JSON form
+      cy.xpath(locators._buttonByText("Update")).then((selector) => {
+        cy.wrap(selector)
+          .invoke("attr", "class")
+          .then((classes) => {
+            //cy.log("classes are:" + classes);
+            expect(classes).not.contain("bp3-disabled");
+          });
+      });
+      dataSources.AssertJSONFormHeader(0, 0, "city_id", "1");
+      //Validating loaded table
+      agHelper.AssertElementExist(dataSources._selectedRow);
+      table.ReadTableRowColumnData(0, 1, "v2", 4000).then(($cellData) => {
+        expect($cellData).to.eq("A Corua (La Corua)");
+      });
+      table.ReadTableRowColumnData(0, 2, "v2", 200).then(($cellData) => {
+        expect($cellData).to.eq("87");
+      });
+
+      //Validating loaded JSON form
+      cy.xpath(locators._buttonByText("Update")).then((selector) => {
+        cy.wrap(selector)
+          .invoke("attr", "class")
+          .then((classes) => {
+            //cy.log("classes are:" + classes);
+            expect(classes).not.contain("bp3-disabled");
+          });
+      });
+      dataSources.AssertJSONFormHeader(0, 0, "city_id", "1");
+      // Check table values for binded tables
+      agHelper.GetNClickByContains(locators._deployedPage, "Page1");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "600 Records",
+      );
+      agHelper.GetNClickByContains(locators._deployedPage, "Page2");
+      agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
+      deployMode.NavigateBacktoEditor();
+      multipleEnv.SwitchEnv(prodEnv);
+      // Clean up
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Table1",
+        action: "Delete",
+        entityType: entityItems.Widget,
+      });
+      // dataSources.DeleteQuery(meQueryName);
+      EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
+      // dataSources.DeleteQuery(meStagingOnlyQueryName);
+      // Won't be deleting the ds since it is being used by a query in deploy mode
+    });
+  },
+);

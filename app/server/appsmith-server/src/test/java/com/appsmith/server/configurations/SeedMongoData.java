@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserState;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
@@ -16,6 +17,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.PolicySolution;
 import lombok.extern.slf4j.Slf4j;
+import net.minidev.json.JSONObject;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,6 +32,8 @@ import java.util.Set;
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
 import static com.appsmith.server.acl.AclPermission.READ_USERS;
 import static com.appsmith.server.acl.AclPermission.USER_MANAGE_WORKSPACES;
+import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
+import static com.appsmith.server.constants.FieldName.DEFAULT_USER_PERMISSION_GROUP;
 
 @Slf4j
 @Configuration
@@ -42,6 +46,7 @@ public class SeedMongoData {
             PluginRepository pluginRepository,
             TenantRepository tenantRepository,
             PermissionGroupRepository permissionGroupRepository,
+            ConfigRepository configRepository,
             PolicySolution policySolution) {
 
         log.info("Seeding the data");
@@ -128,7 +133,7 @@ public class SeedMongoData {
                 .map(Tenant::getId)
                 .cache();
 
-        Flux<User> userFlux = Flux.just(userData)
+        Mono<Void> userFlux = Flux.just(userData)
                 .zipWith(defaultTenantId.repeat())
                 .flatMap(tuple -> {
                     Object[] array = tuple.getT1();
@@ -156,7 +161,27 @@ public class SeedMongoData {
 
                         return userRepository.save(updatedWithPolicies);
                     });
-                });
+                })
+                .map(User::getId)
+                .collectList()
+                .flatMapMany(userIds -> configRepository
+                        .findByName(DEFAULT_USER_PERMISSION_GROUP)
+                        .flatMap(defaultRoleConfig -> {
+                            JSONObject config = defaultRoleConfig.getConfig();
+                            String defaultPermissionGroup = (String) config.getOrDefault(DEFAULT_PERMISSION_GROUP, "");
+                            /*
+                               We use retrieveById instead of findById because findById tries to get the logged in user's
+                               principal object before querying the DB. Since we are running this code in SeedMongo, there
+                               is no logged in user. Hence, we use retrieveById which simply queries the DB to fetch
+                               non-deleted object with the given ID parameter.
+                            */
+                            return permissionGroupRepository.findById(defaultPermissionGroup);
+                        })
+                        .flatMap(defaultPermissionGroup -> {
+                            defaultPermissionGroup.getAssignedToUserIds().addAll(userIds);
+                            return permissionGroupRepository.save(defaultPermissionGroup);
+                        }))
+                .then();
 
         return args -> {
             Mono.when(workspaceRepository.deleteAll(), pluginFlux, userFlux).block();

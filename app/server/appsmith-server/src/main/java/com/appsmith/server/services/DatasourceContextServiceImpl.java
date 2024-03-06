@@ -1,7 +1,9 @@
 package com.appsmith.server.services;
 
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.domains.DatasourceContextIdentifier;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.ce.DatasourceContextServiceCEImpl;
@@ -29,5 +31,20 @@ public class DatasourceContextServiceImpl extends DatasourceContextServiceCEImpl
                 pluginExecutorHelper,
                 configService,
                 datasourcePermission);
+    }
+
+    /**
+     * Generates the custom key that is used in:
+     * datasourceContextMap
+     * datasourceContextMonoMap
+     * datasourceContextSynchronizationMonitorMap
+     *
+     * @param datasourceStorage
+     * @return an DatasourceContextIdentifier object
+     */
+    @Override
+    public DatasourceContextIdentifier initializeDatasourceContextIdentifier(DatasourceStorage datasourceStorage) {
+        return new DatasourceContextIdentifier(
+                datasourceStorage.getDatasourceId(), datasourceStorage.getEnvironmentId());
     }
 }

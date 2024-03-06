@@ -1,3 +1,22 @@
 export * from "ce/pages/Applications/EmbedSnippetTab";
-import { default as CE_EmbedSnippetTab } from "ce/pages/Applications/EmbedSnippetTab";
-export default CE_EmbedSnippetTab;
+import { getAppsmithConfigs } from "@appsmith/configs";
+import {
+  default as CE_EmbedSnippetTab,
+  AppSettings,
+  ShareModal,
+} from "ce/pages/Applications/EmbedSnippetTab";
+import React from "react";
+
+const { cloudHosting } = getAppsmithConfigs();
+
+export function EmbedSnippetTab({
+  isAppSettings,
+}: {
+  isAppSettings?: boolean;
+}) {
+  if (isAppSettings) return <AppSettings />;
+
+  return <ShareModal />;
+}
+
+export default cloudHosting ? CE_EmbedSnippetTab : EmbedSnippetTab;

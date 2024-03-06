@@ -1,0 +1,271 @@
+import {
+  adminSettings,
+  agHelper,
+  assertHelper,
+  dataSources,
+  draggableWidgets,
+  entityExplorer,
+  fakerHelper,
+  homePage,
+  locators,
+  rbacHelper,
+} from "../../../../../support/ee/ObjectsCore_EE";
+import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlags";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
+
+describe(
+  "User performing actions on page with access and without access Tests",
+  { tags: ["@tag.AccessControl"] },
+  function () {
+    let workspaceName: string, appName: string, datasourceName;
+    const pageName = "page_no_permission" + fakerHelper.GetRandomNumber();
+    const permissionAtPageLevel =
+      "PagePermissionRule" + fakerHelper.GetRandomNumber();
+    const queryName = "GetProduct" + fakerHelper.GetRandomNumber();
+
+    beforeEach(() => {
+      rbacHelper.RoleIntercepts();
+    });
+
+    /**
+     * Creates a workspace
+     * In the workspace creates an app
+     * Creates 2 pages in the page and renames Page 2 to page_no_permission
+     * Creates a datasource - Postgres
+     * Adds a query1 to the datasource
+     * Runs and checks the query1
+     * Creates a role with access to Page 1
+     * Modifies the role to remove edit access to Page 2
+     * Modifies the role to add view access to the Page 2
+     * Modifies thr role to add only view permission to query1
+     * Assigns the role to the test user 1
+     */
+    before(() => {
+      rbacHelper.RoleIntercepts();
+      agHelper.GenerateUUID();
+      // get the guid from the alias and assign it to the workspace name
+      cy.get("@guid").then((guid) => {
+        workspaceName = "workspace" + guid;
+        appName = "app" + guid;
+        homePage.CreateNewWorkspace(workspaceName, true);
+        homePage.CreateAppInWorkspace(workspaceName, appName);
+        PageList.AddNewPage("New blank page")?.then((newPage) => {
+          entityExplorer.RenameEntityFromExplorer(newPage, pageName, true);
+        });
+        dataSources.CreateDataSource("Postgres");
+        cy.get("@dsName").then(($dsName) => {
+          datasourceName = $dsName;
+        });
+        dataSources.CreateQueryAfterDSSaved(
+          "SELECT * FROM public.astronauts LIMIT 10;",
+          queryName,
+        );
+        dataSources.RunQuery();
+        adminSettings.NavigateToAdminSettings();
+        featureFlagIntercept({ license_gac_enabled: true });
+        cy.wait(2000);
+        rbacHelper.CreatePermissionPageLevel(
+          permissionAtPageLevel,
+          workspaceName,
+          appName,
+          "Page1",
+        );
+      });
+      rbacHelper.ModifyPermissionsNSave(
+        permissionAtPageLevel,
+        pageName,
+        "Edit",
+        false,
+      );
+      rbacHelper.ModifyPermissionsNSave(
+        permissionAtPageLevel,
+        pageName,
+        "View",
+        true,
+      );
+      rbacHelper.ModifyPermissionsNSave(
+        permissionAtPageLevel,
+        queryName,
+        "View",
+        true,
+      );
+      rbacHelper.AssignRoleToUser(
+        permissionAtPageLevel,
+        Cypress.env("TESTUSERNAME1"),
+      );
+    });
+
+    /**
+     * Creates a role with edit acces to Page 1 and view access to Page 2
+     * Assign the role to test user
+     * Login as test user and verify the access to the pages
+     * Verify copy is not present in
+     */
+    it("1.Verify Page edit permission for test user with view permission on page level", function () {
+      homePage.LogintoApp(
+        Cypress.env("TESTUSERNAME1"),
+        Cypress.env("TESTPASSWORD1"),
+        "App Viewer",
+      );
+      homePage.SelectWorkspace(workspaceName);
+      featureFlagIntercept({ license_gac_enabled: true });
+      assertHelper.AssertDocumentReady();
+      agHelper.AssertElementAbsence(locators._buttonByText("Upgrade"));
+      homePage.SelectWorkspace(workspaceName);
+      homePage.EditAppFromAppHover(appName);
+      EditorNavigation.NavigateToPage("Page1", true);
+      agHelper.waitUntilTextVisible("UI");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      PageLeftPane.switchToAddNew();
+      agHelper.WaitUntilEleAppear(
+        locators._widgetPageIcon(draggableWidgets.INPUT_V2),
+      );
+      entityExplorer.DragDropWidgetNVerify(
+        draggableWidgets.INPUT_V2,
+        500,
+        300,
+        "",
+        "",
+        true,
+      );
+      agHelper.AssertElementAbsence(locators._saveStatusError);
+      EditorNavigation.NavigateToPage(pageName, true);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      agHelper.AssertElementAbsence(PageLeftPane.locators.addItem);
+      EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
+      agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
+      agHelper.AssertElementAbsence(locators._contextMenuItem("Copy to page"));
+    });
+
+    /**
+     * User with 2 roles - Developer and custom with page view permission, Developer takes precedence
+     * and user is able to edit the page
+     */
+    it("2. User with 2 roles - Dev and custom page view", function () {
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      homePage.SelectWorkspace(workspaceName);
+      adminSettings.NavigateToAdminSettings();
+      featureFlagIntercept({ license_gac_enabled: true });
+      assertHelper.AssertDocumentReady();
+      agHelper.WaitUntilEleAppear(adminSettings._usersTab);
+      rbacHelper.AddDefaultRole(
+        Cypress.env("TESTUSERNAME1"),
+        "Developer",
+        workspaceName,
+      );
+      homePage.LogintoApp(
+        Cypress.env("TESTUSERNAME1"),
+        Cypress.env("TESTPASSWORD1"),
+        "Developer",
+      );
+      homePage.SelectWorkspace(workspaceName);
+      homePage.EditAppFromAppHover(appName);
+      EditorNavigation.NavigateToPage("Page1", true);
+      agHelper.waitUntilTextVisible("UI");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      entityExplorer.DragDropWidgetNVerify(
+        draggableWidgets.INPUT_V2,
+        300,
+        100,
+        "",
+        "",
+        true,
+      );
+
+      EditorNavigation.NavigateToPage(pageName, true);
+      agHelper.waitUntilTextVisible("UI");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      entityExplorer.DragDropWidgetNVerify(
+        draggableWidgets.INPUT_V2,
+        500,
+        500,
+        "",
+        "",
+        true,
+      );
+    });
+
+    /**
+     * user with edit role on page and no delete permission on page
+     */
+    it("3. Verify query edit permission for test user", function () {
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      featureFlagIntercept({ license_gac_enabled: true });
+      assertHelper.AssertDocumentReady();
+      // agHelper.AssertElementVisibility(locators._buttonByText("Upgrade"));
+      agHelper.WaitUntilEleAppear(adminSettings._adminSettingsBtn);
+      adminSettings.NavigateToAdminSettings();
+      rbacHelper.AssignRoleToUser(
+        permissionAtPageLevel,
+        Cypress.env("TESTUSERNAME2"),
+      );
+      rbacHelper.ModifyPermissionsNSave(
+        permissionAtPageLevel,
+        queryName,
+        "Edit",
+        true,
+      );
+      homePage.LogintoApp(
+        Cypress.env("TESTUSERNAME2"),
+        Cypress.env("TESTPASSWORD2"),
+        "App Viewer",
+      );
+      featureFlagIntercept({ license_gac_enabled: true });
+      cy.wait(5000);
+      homePage.SearchAndOpenApp(appName, locators._emptyPageTxt);
+      EditorNavigation.NavigateToPage(pageName, true);
+      EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
+      agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
+      agHelper.AssertElementExist(locators._contextMenuItem("Copy to page"));
+      agHelper.AssertElementAbsence(locators._contextMenuItem("Delete"));
+    });
+
+    /**
+     * user with delete permission on page
+     */
+    it("4. Verify query delete permission for test user", function () {
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      featureFlagIntercept({ license_gac_enabled: true });
+      assertHelper.AssertDocumentReady();
+      // agHelper.AssertElementVisibility(locators._buttonByText("Upgrade"));
+      agHelper.WaitUntilEleAppear(adminSettings._adminSettingsBtn);
+      adminSettings.NavigateToAdminSettings();
+      rbacHelper.AssignRoleToUser(
+        permissionAtPageLevel,
+        Cypress.env("TESTUSERNAME2"),
+      );
+      rbacHelper.ModifyPermissionsNSave(
+        permissionAtPageLevel,
+        queryName,
+        "Delete",
+        true,
+      );
+      homePage.LogintoApp(
+        Cypress.env("TESTUSERNAME2"),
+        Cypress.env("TESTPASSWORD2"),
+        "App Viewer",
+      );
+      homePage.SearchAndOpenApp(appName, locators._emptyPageTxt);
+      EditorNavigation.NavigateToPage(pageName, true);
+      EditorNavigation.SelectEntityByName(queryName, EntityType.Query);
+      agHelper.GetNClick(entityExplorer._contextMenu(queryName), 0, true, 500);
+      agHelper.AssertElementExist(locators._contextMenuItem("Delete"));
+    });
+
+    after(() => {
+      homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
+      featureFlagIntercept({ license_gac_enabled: true });
+      assertHelper.AssertDocumentReady();
+      agHelper.VisitNAssert("settings/roles", "fetchRoles");
+      rbacHelper.DeleteRole(permissionAtPageLevel);
+      homePage.NavigateToHome();
+      homePage.DeleteApplication(appName);
+      homePage.DeleteWorkspace(workspaceName);
+    });
+  },
+);

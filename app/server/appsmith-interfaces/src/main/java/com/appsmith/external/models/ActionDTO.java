@@ -1,12 +1,20 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.Reusable;
 import com.appsmith.external.models.ce.ActionCE_DTO;
+import com.appsmith.external.views.Views;
+import com.appsmith.util.PatternUtils;
+import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEmbeddable;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.data.annotation.Transient;
+
+import java.util.Set;
+import java.util.regex.Matcher;
 
 @Getter
 @Setter
@@ -14,6 +22,87 @@ import lombok.experimental.FieldNameConstants;
 @ToString(callSuper = true)
 @QueryEmbeddable
 @FieldNameConstants
-public class ActionDTO extends ActionCE_DTO {
+public class ActionDTO extends ActionCE_DTO implements Reusable {
+    @Transient
+    @JsonView(Views.Public.class)
+    String packageId;
+
+    @JsonView(Views.Public.class)
+    String moduleId;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    Boolean isPublic;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    String moduleInstanceId;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    String rootModuleInstanceId;
+
+    @JsonView(Views.Public.class)
+    String workflowId;
+
+    @Override
+    public Set<String> getExecutableNames() {
+        Set<String> executableNames = super.getExecutableNames();
+        if (executableNames.isEmpty() || !Boolean.TRUE.equals(this.isPublic)) {
+            return executableNames;
+        }
+        String alternateExecutableName;
+        Matcher matcher = PatternUtils.COMPOSITE_ENTITY_PARENT_NAME_PATTERN.matcher(this.getValidName());
+        if (matcher.find()) {
+            alternateExecutableName = matcher.group(1);
+            if (matcher.group(3) != null) {
+                alternateExecutableName += matcher.group(3);
+            }
+            executableNames.add(alternateExecutableName);
+        }
+        return executableNames;
+    }
+
+    @Override
+    public String getUserExecutableName() {
+        String userExecutableName = super.getUserExecutableName();
+        if (userExecutableName == null || !Boolean.TRUE.equals(this.isPublic)) {
+            return userExecutableName;
+        }
+
+        Matcher matcher = PatternUtils.COMPOSITE_ENTITY_PARENT_NAME_PATTERN.matcher(userExecutableName);
+        if (matcher.find()) {
+            userExecutableName = matcher.group(1);
+            if (matcher.group(3) != null) {
+                userExecutableName += matcher.group(3);
+            }
+        }
+        return userExecutableName;
+    }
+
+    @Override
+    public Boolean isOnLoadMessageAllowed() {
+        return this.getIsPublic() == null || Boolean.TRUE.equals(this.getIsPublic());
+    }
+
+    @Override
+    protected void resetTransientFields() {
+        super.resetTransientFields();
+        this.setPackageId(null);
+        this.setModuleInstanceId(null);
+        this.setRootModuleInstanceId(null);
+        this.setIsPublic(null);
+        this.setPackageId(null);
+    }
+
+    @Override
+    public String calculateContextId() {
+        if (this.getContextType() == null || CreatorContextType.PAGE.equals(this.getContextType())) {
+            return super.calculateContextId();
+        } else {
+            return this.getModuleId();
+        }
+    }
+
     public static class Fields extends ActionCE_DTO.Fields {}
 }

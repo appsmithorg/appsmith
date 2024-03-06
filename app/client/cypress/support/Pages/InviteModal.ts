@@ -25,6 +25,14 @@ export class InviteModal {
     _privateEmbedRampLink: "[data-testid='t--private-embed-ramp-link']",
   };
 
+  public locatorsEE = {
+    _inputOIDC: "input[value='oidc']",
+    _inputSAML: "input[value='saml']",
+    _inputGoogle: "input[value='google']",
+    _docLink: "[data-testid='t--documentation-link']",
+    _ssoMethods: "[data-testid='t--sso-methods]",
+  };
+
   public SelectInviteTab() {
     this.agHelper.GetNClick(this.locators._inviteTab);
   }

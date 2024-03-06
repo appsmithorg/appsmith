@@ -375,4 +375,4 @@ Let's build great software together.
 
 ## License
 
-Appsmith is licensed under the terms of [Apache License 2.0](https://github.com/appsmithorg/appsmith/blob/release/LICENSE).
+Appsmith EE is a private source code and not available for distribution or reproduction. Use it wisely. 

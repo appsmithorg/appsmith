@@ -69,6 +69,7 @@ public enum AnalyticsEvents {
     REFACTOR_ACTION,
     REFACTOR_JSACTION,
     REFACTOR_WIDGET,
+    REFACTOR_MODULE_INSTANCE,
 
     INVITE_USERS_TO_USER_GROUPS,
     REMOVE_USERS_FROM_USER_GROUPS,
@@ -89,10 +90,26 @@ public enum AnalyticsEvents {
     SERVER_SETUP_COMPLETE("server_setup_complete"),
 
     PARTIAL_IMPORT,
-
     PARTIAL_EXPORT,
 
-    COMMUNITY_TEMPLATE_PUBLISHED;
+    COMMUNITY_TEMPLATE_PUBLISHED,
+
+    SCIM_DISABLED("scim_disabled"),
+    SCIM_LINKED("scim_linked"),
+
+    AI_KB_GENERATE_SUCCESS,
+    AI_KB_GENERATE_FAILURE,
+    ADD_LICENSE("add_license_instance"),
+    FREE_PLAN("free_plan_instance"),
+    REMOVE_LICENSE("remove_license_instance"),
+    UPDATE_LICENSE("update_license_instance"),
+    REFRESH_LICENSE("refresh_license_instance"),
+    WORKFLOW_DEPLOYED,
+
+    // event triggered when there's a change in the default branch
+    GIT_UPDATE_DEFAULT_BRANCH,
+    GIT_CD_DISABLED,
+    ;
 
     private final String eventName;
 

@@ -1,9 +1,16 @@
 package com.appsmith.server.repositories;
 
+import com.appsmith.external.models.Datasource;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.repositories.ce.CustomDatasourceRepositoryCEImpl;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
+import java.util.Set;
 
 @Component
 public class CustomDatasourceRepositoryImpl extends CustomDatasourceRepositoryCEImpl
@@ -14,5 +21,13 @@ public class CustomDatasourceRepositoryImpl extends CustomDatasourceRepositoryCE
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+    }
+
+    @Override
+    public Flux<Datasource> findAllByWorkspaceIdsWithoutPermission(
+            Set<String> workspaceIds, List<String> includeFields) {
+        Criteria workspaceCriteria = Criteria.where(FieldName.WORKSPACE_ID).in(workspaceIds);
+
+        return queryBuilder().criteria(workspaceCriteria).fields(includeFields).all();
     }
 }

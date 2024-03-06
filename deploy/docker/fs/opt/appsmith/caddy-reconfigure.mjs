@@ -99,7 +99,7 @@ parts.push(`
     import file_server
   }
 
-  @backend path /api/* /oauth2/* /login/*
+  @backend path /api/* /oauth2/* /login/* /actuator/*
   handle @backend {
     import reverse_proxy 8080
   }
@@ -111,6 +111,15 @@ parts.push(`
   redir /supervisor /supervisor/
   handle_path /supervisor/* {
     import reverse_proxy 9001
+  }
+
+  redir /auth /auth/
+  handle /auth/* {
+    import reverse_proxy 8081
+  }
+
+  handle /scim/* {
+    import reverse_proxy 8886
   }
 
   handle_errors {
@@ -176,10 +185,15 @@ function finalizeIndexHtml() {
     APPSMITH_VERSION_RELEASE_DATE: info?.imageBuiltAt ?? "",
   }
 
-  const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replace(
+  let content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replace(
     /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
     (_, name) => (process.env[name] || extraEnv[name] || "")
   )
+
+  const cdnUrl = (process.env.APPSMITH_CDN_URL || "").replace(/\/+$/, "")
+  if (cdnUrl) {
+    content = content.replace(/\/static\//g, cdnUrl + "/static/")
+  }
 
   fs.writeFileSync(process.env.WWW_PATH + "/index.html", content)
 }

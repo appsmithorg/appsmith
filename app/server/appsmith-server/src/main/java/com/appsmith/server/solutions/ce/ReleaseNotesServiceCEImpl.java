@@ -24,7 +24,7 @@ public class ReleaseNotesServiceCEImpl implements ReleaseNotesServiceCE {
 
     private final ReleaseNotesUtils releaseNotesUtils;
 
-    public List<ReleaseNode> releaseNodesCache = new ArrayList<>();
+    private List<ReleaseNode> releaseNodesCache = new ArrayList<>();
 
     private Instant cacheExpiryTime = null;
 

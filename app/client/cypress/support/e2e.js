@@ -23,6 +23,8 @@ import * as MESSAGES from "../../../client/src/ce/constants/messages.ts";
 import "./ApiCommands";
 // Import commands.js using ES2015 syntax:
 import "./commands";
+import "./OIDCCommands";
+import "./SAMLCommands";
 import { initLocalstorage, addIndexedDBKey } from "./commands";
 import "./dataSourceCommands";
 import "./gitSync";
@@ -37,6 +39,9 @@ import "./queryCommands";
 import "./widgetCommands";
 import "./themeCommands";
 import "./AdminSettingsCommands";
+import "./RBACCommands";
+import "./LicenseCommands";
+import { CURRENT_REPO, REPO } from "../fixtures/REPO";
 import "cypress-plugin-tab";
 import {
   FEATURE_WALKTHROUGH_INDEX_KEY,

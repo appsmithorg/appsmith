@@ -1,11 +1,22 @@
 package com.appsmith.server.widgets.refactors;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.server.domains.Layout;
+import com.appsmith.server.dtos.EntityType;
+import com.appsmith.server.dtos.RefactorEntityNameDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.entities.EntityRefactoringService;
 import com.appsmith.server.services.AstService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
+
+import java.util.regex.Pattern;
+
+import static com.appsmith.server.helpers.ContextTypeUtils.isWorkflowContext;
 
 @Service
 public class WidgetRefactoringServiceImpl extends WidgetRefactoringServiceCEImpl
@@ -13,5 +24,39 @@ public class WidgetRefactoringServiceImpl extends WidgetRefactoringServiceCEImpl
     public WidgetRefactoringServiceImpl(
             NewPageService newPageService, AstService astService, ObjectMapper objectMapper) {
         super(newPageService, astService, objectMapper);
+    }
+
+    @Override
+    public Mono<Object> refactorCurrentEntity(
+            Object currentEntity,
+            RefactorEntityNameDTO refactorEntityNameDTO,
+            Pattern oldNamePattern,
+            Mono<Integer> evalVersionMono) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Flux<RefactorEntityNameDTO> getRefactorDTOsForExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId) {
+        return this.getExistingEntityNames(contextId, contextType, layoutId, true)
+                .map(widgetName -> {
+                    RefactorEntityNameDTO dto = new RefactorEntityNameDTO();
+                    dto.setOldName(widgetName);
+                    dto.setEntityType(EntityType.WIDGET);
+                    return dto;
+                })
+                .map(refactorEntityNameDTO -> {
+                    this.sanitizeRefactorEntityDTO(refactorEntityNameDTO);
+                    return refactorEntityNameDTO;
+                });
+    }
+
+    @Override
+    public Flux<String> getExistingEntityNames(
+            String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
+        if (isWorkflowContext(contextType)) {
+            return Flux.empty();
+        }
+        return super.getExistingEntityNames(contextId, contextType, layoutId, viewMode);
     }
 }

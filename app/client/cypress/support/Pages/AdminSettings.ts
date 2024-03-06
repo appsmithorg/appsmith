@@ -16,6 +16,7 @@ export class AdminSettings {
     "')]/parent::div/parent::span/parent::a/parent::td/following-sibling::td[1]";
   public _instanceName = '[name="instanceName"]';
   public rolesTab = ".t--settings-category-roles";
+  public auditLogsTab = ".t--settings-category-audit-logs";
 
   public NavigateToAdminSettings(toNavigateToHome = true) {
     toNavigateToHome && this.homePage.NavigateToHome();
@@ -28,7 +29,7 @@ export class AdminSettings {
   public EnableGAC(
     toNavigateToHome = true,
     toNavigateBackToHome = true,
-    methodType: "adminSettings" | "home" = "adminSettings",
+    methodType: "adminSettings" | "home" | "current" = "adminSettings",
   ) {
     switch (methodType) {
       case "adminSettings":
@@ -47,12 +48,29 @@ export class AdminSettings {
         this.agHelper.AssertElementExist(this.homePage._homePageContainer);
         this.agHelper.AssertElementVisibility(this.homePage._homePageContainer);
         break;
+      case "current":
+        this.enableGACFeatureFlag();
+        this.assertHelper.AssertDocumentReady();
+        break;
       default:
         break;
     }
   }
 
+  public EnableAuditlogs(toNavigateBackToHome = true) {
+    this.enableAuditlogsFeatureFlag();
+    this.assertHelper.AssertDocumentReady();
+    this.agHelper.WaitUntilEleAppear(this.auditLogsTab);
+    this.agHelper.AssertElementExist(this.auditLogsTab);
+    this.agHelper.AssertElementVisibility(this.auditLogsTab);
+    toNavigateBackToHome && this.homePage.NavigateToHome();
+  }
+
   private enableGACFeatureFlag() {
     featureFlagIntercept({ license_gac_enabled: true });
+  }
+
+  private enableAuditlogsFeatureFlag() {
+    featureFlagIntercept({ license_audit_logs_enabled: true });
   }
 }

@@ -1,4 +1,10 @@
 export * from "ce/sagas/JSActionSagas";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import JSActionAPI from "@appsmith/api/JSActionAPI";
+import { validateResponse } from "../../sagas/ErrorSagas";
+import type { ApiResponse } from "api/ApiResponses";
+import * as log from "loglevel";
+import { getIsViewMode } from "selectors/editorSelectors";
 import {
   ReduxActionTypes,
   ReduxActionErrorTypes,
@@ -14,7 +20,33 @@ import {
   fetchJSCollectionsForViewModeSaga,
   saveJSObjectName,
 } from "ce/sagas/JSActionSagas";
-import { all, takeEvery, takeLatest } from "redux-saga/effects";
+import { all, takeEvery, takeLatest, select } from "redux-saga/effects";
+
+export function* logActionExecutionSaga(
+  action: ReduxAction<{
+    actionId: string;
+    pageId: string;
+    collectionId: string;
+    actionName: string;
+    pageName: string;
+  }>,
+) {
+  try {
+    const response: ApiResponse = yield JSActionAPI.logActionExecution({
+      metadata: {
+        ...action.payload,
+        origin: "client",
+        viewMode: yield select(getIsViewMode),
+      },
+      event: "EXECUTE",
+      resourceType: "ACTION",
+      resourceId: action.payload.actionId,
+    });
+    yield validateResponse(response);
+  } catch (error) {
+    log.error(error);
+  }
+}
 
 export function* watchJSActionSagas() {
   yield all([
@@ -36,6 +68,10 @@ export function* watchJSActionSagas() {
     takeEvery(
       ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
       fetchJSCollectionsForViewModeSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.AUDIT_LOGS_LOG_ACTION_EXECUTION,
+      logActionExecutionSaga,
     ),
   ]);
 }

@@ -1,0 +1,41 @@
+package com.appsmith.server.workflows.crud;
+
+import com.appsmith.server.domains.ApprovalRequest;
+import com.appsmith.server.dtos.ApprovalRequestCreationDTO;
+import com.appsmith.server.dtos.ApprovalRequestResponseDTO;
+import com.appsmith.server.dtos.PagedDomain;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.repositories.ApprovalRequestRepository;
+import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.workflows.base.BaseApprovalRequestServiceImpl;
+import jakarta.validation.Validator;
+import org.springframework.stereotype.Service;
+import org.springframework.util.MultiValueMap;
+import reactor.core.publisher.Mono;
+
+@Service
+public class CrudApprovalRequestServiceCECompatibleImpl extends BaseApprovalRequestServiceImpl
+        implements CrudApprovalRequestServiceCECompatible {
+    protected CrudApprovalRequestServiceCECompatibleImpl(
+            Validator validator, ApprovalRequestRepository repository, AnalyticsService analyticsService) {
+        super(validator, repository, analyticsService);
+    }
+
+    @Override
+    public Mono<ApprovalRequestResponseDTO> createApprovalRequest(
+            ApprovalRequestCreationDTO approvalRequestCreationDTO) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<ApprovalRequest> getApprovalRequestById(String id) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+
+    @Override
+    public Mono<PagedDomain<ApprovalRequestResponseDTO>> getPaginatedApprovalRequests(
+            MultiValueMap<String, String> filters) {
+        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+    }
+}

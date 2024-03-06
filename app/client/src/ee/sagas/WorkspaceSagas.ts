@@ -5,7 +5,6 @@ import {
   createWorkspaceSaga,
   fetchAllUsersSaga,
   fetchAllRolesSaga,
-  deleteWorkspaceUserSaga,
   changeWorkspaceUserRoleSaga,
   deleteWorkspaceSaga,
   uploadWorkspaceLogoSaga,
@@ -14,8 +13,88 @@ import {
   searchWorkspaceEntitiesSaga,
   fetchEntitiesOfWorkspaceSaga,
 } from "ce/sagas/WorkspaceSagas";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { all, takeLatest } from "redux-saga/effects";
+import type { DeleteWorkspaceUserRequest } from "@appsmith/api/WorkspaceApi";
+import WorkspaceApi from "@appsmith/api/WorkspaceApi";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionErrorTypes,
+  ReduxActionTypes,
+} from "@appsmith/constants/ReduxActionConstants";
+import type { ApiResponse } from "api/ApiResponses";
+import { all, call, put, select, takeLatest } from "redux-saga/effects";
+import { validateResponse } from "sagas/ErrorSagas";
+import type { User } from "constants/userConstants";
+import { getCurrentUser } from "selectors/usersSelectors";
+import { APPLICATIONS_URL } from "constants/routes";
+import { toast } from "design-system";
+import history from "utils/history";
+
+export function* fetchInviteGroupsSuggestionsSaga() {
+  try {
+    const response: ApiResponse = yield call(
+      WorkspaceApi.fetchGroupSuggestions,
+    );
+
+    const isValidResponse: boolean = yield validateResponse(response);
+
+    if (isValidResponse) {
+      yield put({
+        type: ReduxActionTypes.FETCH_GROUP_SUGGESTIONS_SUCCESS,
+        payload: response.data,
+      });
+    } else {
+      yield put({
+        type: ReduxActionErrorTypes.FETCH_GROUP_SUGGESTIONS_ERROR,
+      });
+    }
+  } catch (e) {
+    yield put({
+      type: ReduxActionErrorTypes.FETCH_GROUP_SUGGESTIONS_ERROR,
+    });
+  }
+}
+
+export function* deleteWorkspaceUserSaga(
+  action: ReduxAction<DeleteWorkspaceUserRequest>,
+) {
+  try {
+    const request: DeleteWorkspaceUserRequest = action.payload;
+    const response: ApiResponse & { data: any } = yield call(
+      WorkspaceApi.deleteWorkspaceUser,
+      request,
+    );
+    const isValidResponse: boolean = yield validateResponse(response);
+    if (isValidResponse) {
+      const currentUser: User | undefined = yield select(getCurrentUser);
+      if (currentUser?.username == action.payload.username) {
+        history.replace(APPLICATIONS_URL);
+      } else {
+        yield put({
+          type: ReduxActionTypes.DELETE_WORKSPACE_USER_SUCCESS,
+          payload: {
+            username: action.payload.username,
+            userGroupId: action.payload.userGroupId,
+          },
+        });
+      }
+      toast.show(
+        `${
+          response.data?.username || response.data?.name
+        } has been removed successfully`,
+        {
+          kind: "success",
+        },
+      );
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.DELETE_WORKSPACE_USER_ERROR,
+      payload: {
+        error,
+      },
+    });
+  }
+}
 
 export default function* workspaceSagas() {
   yield all([
@@ -46,6 +125,14 @@ export default function* workspaceSagas() {
     takeLatest(
       ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
       searchWorkspaceEntitiesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
+      searchWorkspaceEntitiesSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.FETCH_GROUP_SUGGESTIONS,
+      fetchInviteGroupsSuggestionsSaga,
     ),
   ]);
 }

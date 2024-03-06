@@ -1,0 +1,121 @@
+log:
+  stdout: true
+  level: error
+
+persistence:
+  defaultStore: postgres-default
+  visibilityStore: postgres-visibility
+  numHistoryShards: 4
+  datastores:
+    postgres-default:
+      sql:
+        pluginName: "postgres"
+        databaseName: "appsmith"
+        connectAttributes: 
+          search_path: "temporal"   # set schema to "temporal"
+        connectAddr: "127.0.0.1:5432"
+        connectProtocol: "tcp"
+        user: "temporal"
+        password: "temporal"
+        maxConns: 20
+        maxIdleConns: 20
+        maxConnLifetime: "1h"
+    postgres-visibility:
+      sql:
+        pluginName: "postgres"
+        databaseName: "appsmith"
+        connectAttributes: 
+          search_path: "temporal_visibility"   #  set schema to "temporal_visibility"
+        connectAddr: "127.0.0.1:5432"
+        connectProtocol: "tcp"
+        user: "temporal"
+        password: "temporal"
+        maxConns: 2
+        maxIdleConns: 2
+        maxConnLifetime: "1h"
+
+global:
+  membership:
+    maxJoinDuration: 30s
+    broadcastAddress: "127.0.0.1"
+  pprof:
+    port: 7936
+  metrics:
+    prometheus:
+#      # specify framework to use new approach for initializing metrics and/or use opentelemetry
+#      framework: "opentelemetry"
+      framework: "tally"
+      timerType: "histogram"
+      listenAddress: "127.0.0.1:8000"
+
+services:
+  frontend:
+    rpc:
+      grpcPort: 7233
+      membershipPort: 6933
+      bindOnLocalHost: true
+      httpPort: 7243
+
+  matching:
+    rpc:
+      grpcPort: 7235
+      membershipPort: 6935
+      bindOnLocalHost: true
+
+  history:
+    rpc:
+      grpcPort: 7234
+      membershipPort: 6934
+      bindOnLocalHost: true
+
+  worker:
+    rpc:
+      grpcPort: 7239
+      membershipPort: 6939
+      bindOnLocalHost: true
+
+clusterMetadata:
+  enableGlobalNamespace: false
+  failoverVersionIncrement: 10
+  masterClusterName: "active"
+  currentClusterName: "active"
+  clusterInformation:
+    active:
+      enabled: true
+      initialFailoverVersion: 1
+      rpcName: "frontend"
+      rpcAddress: "localhost:7233"
+
+dcRedirectionPolicy:
+  policy: "noop"
+
+archival:
+  history:
+    state: "enabled"
+    enableRead: true
+    provider:
+      filestore:
+        fileMode: "0666"
+        dirMode: "0766"
+      gstorage:
+        credentialsPath: "/tmp/gcloud/keyfile.json"
+  visibility:
+    state: "enabled"
+    enableRead: true
+    provider:
+      filestore:
+        fileMode: "0666"
+        dirMode: "0766"
+
+namespaceDefaults:
+  archival:
+    history:
+      state: "disabled"
+      URI: "file:///tmp/temporal_archival/development"
+    visibility:
+      state: "disabled"
+      URI: "file:///tmp/temporal_vis_archival/development"
+
+dynamicConfigClient:
+  filepath: "config/dynamicconfig/development-sql.yaml"
+  pollInterval: "10s"

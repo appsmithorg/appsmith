@@ -13,9 +13,9 @@ on:
         type: string
         default: ""
 
-  # trigger for pushes to master
+  # trigger for pushes to release and master
   push:
-    branches: [master]
+    branches: [release, master]
     paths:
       - "app/client/**"
       - "app/server/**"
@@ -210,22 +210,22 @@ jobs:
           echo ${{ github.repository }}
           
       # This step triggers an external workflow for automated analysis of Cypress test runs.
-      - name: Invoke Automated analysis workflow
-        run: |
-         curl --location --request POST ${{secrets.CYPRESS_WORKFLOW_API}}    \
-         --header 'x-appsmith-key: ${{ secrets.CYPRESS_WORKFLOW_KEY }}'      \
-         --header 'Content-Type: application/json' \
-         --data-raw '{ "workflow_id" : ${{ github.run_id }} , 
-                       "commit_id" : "${{ github.sha }}" , 
-                       "repo" : "${{  github.event.repository.full_name }}" , 
-                       "task" : "${{  github.job }}" ,   
-                       "workflow_type" : "${{ github.event_name }}",  
-                       "workflow_name" : "${{ github.workflow }}", 
-                       "job_id" : "",     
-                       "job_data": { 
-                           "ci_test_result_sample_data" : "sample_data" 
-                        }  
-          }'
+      # - name: Invoke Automated analysis workflow
+      #  run: |
+      #   curl --location --request POST ${{secrets.CYPRESS_WORKFLOW_API}}    \
+      #   --header 'x-appsmith-key: ${{ secrets.CYPRESS_WORKFLOW_KEY }}'      \
+      #   --header 'Content-Type: application/json' \
+      #   --data-raw '{ "workflow_id" : ${{ github.run_id }} , 
+      #                 "commit_id" : "${{ github.sha }}" , 
+      #                 "repo" : "${{  github.event.repository.full_name }}" , 
+      #                 "task" : "${{  github.job }}" ,   
+      #                 "workflow_type" : "${{ github.event_name }}",  
+      #                 "workflow_name" : "${{ github.workflow }}", 
+      #                 "job_id" : "",     
+      #                 "job_data": { 
+      #                     "ci_test_result_sample_data" : "sample_data" 
+      #                  }  
+      #    }'
           
       # Force save the CI failed spec list into a cache
       - name: Store the combined run result for CI

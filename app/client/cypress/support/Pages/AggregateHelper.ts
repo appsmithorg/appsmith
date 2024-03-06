@@ -529,6 +529,12 @@ export class AggregateHelper {
     // cy.waitUntil(()) => (selector.includes("//") ? cy.xpath(selector) : cy.get(selector))).then(($ele) => { cy.wrap($ele).eq(0).should("be.visible");});
   }
 
+  public waitUntilTextVisible(text: string, timeout: number = 2000) {
+    cy.waitUntil(() =>
+      cy.contains(text, { timeout: timeout }).should("be.visible"),
+    );
+  }
+
   public WaitForCondition(conditionFn: any) {
     cy.waitUntil(() => conditionFn, {
       timeout: Cypress.config("pageLoadTimeout"),

@@ -142,12 +142,13 @@ public abstract class BaseService<
     /**
      * This function is used to filter the entities based on the entity fields and the search string.
      * The search is performed with contains operator on the entity fields and is case-insensitive.
-     * @param searchableEntityFields  The list of entity fields to search for. If null or empty, all entities are searched.
-     * @param searchString  The string to search for in the entity fields.
-     * @param pageable      The page number of the results to return.
-     * @param sort          The sort order of the results to return.
-     * @param permission    The permission to check for the entity.
-     * @return  A Flux of entities.
+     *
+     * @param searchableEntityFields The list of entity fields to search for. If null or empty, all entities are searched.
+     * @param searchString           The string to search for in the entity fields.
+     * @param pageable               The page number of the results to return.
+     * @param sort                   The sort order of the results to return.
+     * @param permission             The permission to check for the entity.
+     * @return A Flux of entities.
      */
     public Flux<T> filterByEntityFields(
             List<String> searchableEntityFields,
@@ -178,12 +179,13 @@ public abstract class BaseService<
     /**
      * This function is used to filter the entities based on the entity fields and the search string.
      * The search is performed with contains operator on the entity fields and is case-insensitive.
-     * @param searchableEntityFields  The list of entity fields to search for. If null or empty, all entities are searched.
-     * @param searchString  The string to search for in the entity fields.
-     * @param pageable      The page number of the results to return.
-     * @param sort          The sort order of the results to return.
-     * @param permission    The permission to check for the entity.
-     * @return  A Flux of entities.
+     *
+     * @param searchableEntityFields The list of entity fields to search for. If null or empty, all entities are searched.
+     * @param searchString           The string to search for in the entity fields.
+     * @param pageable               The page number of the results to return.
+     * @param sort                   The sort order of the results to return.
+     * @param permission             The permission to check for the entity.
+     * @return A Flux of entities.
      */
     public Flux<T> filterByEntityFieldsWithoutPublicAccess(
             List<String> searchableEntityFields,

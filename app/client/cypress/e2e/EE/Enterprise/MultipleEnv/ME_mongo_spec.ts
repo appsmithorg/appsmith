@@ -1,0 +1,224 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
+import { Widgets } from "../../../../support/Pages/DataSources";
+import {
+  agHelper,
+  assertHelper,
+  dataManager,
+  dataSources,
+  deployMode,
+  draggableWidgets,
+  entityExplorer,
+  entityItems,
+  locators,
+  multipleEnv,
+  table,
+} from "../../../../support/ee/ObjectsCore_EE";
+import EditorNavigation, {
+  EntityType,
+} from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
+
+let meDatasourceName: string,
+  meDSStagingOnlyName: string,
+  meQueryName: string,
+  prodEnv: string,
+  stagingEnv: string,
+  meStagingOnlyQueryName: string;
+describe(
+  "Multiple environment datasource creation and test flow",
+  { tags: ["@tag.MultiEnv", "@tag.Datasource", "@tag.excludeForAirgap"] },
+  function () {
+    before(() => {
+      featureFlagIntercept({ release_datasource_environments_enabled: true });
+      prodEnv = dataManager.defaultEnviorment;
+      stagingEnv = dataManager.environments[1];
+      multipleEnv.SwitchEnv(prodEnv);
+      meQueryName = "mongo_select";
+      meStagingOnlyQueryName = "mongo_stageonly_select";
+    });
+
+    it("1. Creates a new Mongo ds for both envs", function () {
+      // Create DS with production details
+      dataSources.CreateDataSource("Mongo", true, true, prodEnv, true);
+      cy.get("@dsName").then(($dsName) => {
+        meDatasourceName = $dsName.toString();
+      });
+
+      // Add staging env details
+      dataSources.EditDatasource();
+      multipleEnv.SwitchEnvInDSEditor(stagingEnv);
+      // Enter wrong values and test
+      dataSources.FillMongoDSForm(stagingEnv);
+      dataSources.TestDatasource(true);
+      // Save env details
+      dataSources.SaveDatasource(false, true);
+      dataSources.CreateDataSource(
+        "Mongo",
+        true,
+        true,
+        stagingEnv,
+        true,
+        multipleEnv.SwitchEnvInDSEditor,
+      );
+      cy.get("@dsName").then(($dsName) => {
+        meDSStagingOnlyName = $dsName.toString();
+      });
+    });
+
+    it("2. Create and test query responses for both ds on both environments and bind to a table", function () {
+      // Create a query on the ME DS
+      dataSources.CreateQueryForDS(meDatasourceName);
+      agHelper.RenameWithInPane(meQueryName, true);
+
+      dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
+      agHelper.EnterValue("100", {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Limit",
+      });
+      // Run and verify the response for the query
+      dataSources.RunQueryNVerifyResponseViews(23, false);
+      // Bind the mongo query to a table
+      EditorNavigation.SelectEntityByName(meQueryName, EntityType.Query);
+      // Check both query responses on staging
+      multipleEnv.SwitchEnv(stagingEnv);
+      agHelper.Sleep();
+      dataSources.RunQueryNVerifyResponseViews(17, false);
+      dataSources.AddSuggestedWidget(Widgets.Table);
+      // Create query on staging only DS
+      agHelper.Sleep(2000);
+      PageList.AddNewPage("New blank page");
+      dataSources.CreateQueryForDS(meDSStagingOnlyName);
+      agHelper.RenameWithInPane(meStagingOnlyQueryName, true);
+      dataSources.ValidateNSelectDropdown("Collection", "", "mongomart");
+      agHelper.EnterValue("100", {
+        propFieldName: "",
+        directInput: false,
+        inputFieldName: "Limit",
+      });
+      // Run and verify the response for the query
+      dataSources.RunQueryNVerifyResponseViews(17, false);
+      multipleEnv.SwitchEnv(prodEnv);
+      // verify query fails on prod
+      dataSources.RunQuery({ expectedStatus: false });
+      cy.get("@postExecute").then((interception: any) => {
+        expect(interception.response.body.data.title).to.eq(
+          "Datasource not configured for the given environment",
+        );
+        expect(interception.response.body.data.body).contains(
+          "does not have a valid production configuration",
+        );
+      });
+      // Bind the mongo query to a table
+      multipleEnv.SwitchEnv(stagingEnv);
+      dataSources.RunQueryNVerifyResponseViews(17, false);
+      EditorNavigation.SelectEntityByName(
+        meStagingOnlyQueryName,
+        EntityType.Query,
+      );
+      dataSources.AddSuggestedWidget(Widgets.Table);
+      assertHelper.AssertNetworkStatus("@updateLayout", 200);
+      agHelper.Sleep();
+    });
+
+    it("3. Check table response for both environments", function () {
+      // Check the records on the table with only staging configured
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "17 Records",
+      );
+      multipleEnv.SwitchEnv(prodEnv);
+      agHelper.ValidateToastMessage(
+        'The action "mongo_stageonly_select" has failed.',
+      );
+      agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "23 Records",
+      );
+      multipleEnv.SwitchEnv(stagingEnv);
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "17 Records",
+      );
+    });
+
+    it("4. Generate CRUD page for both datasources", function () {
+      dataSources.GeneratePageForDS(meDatasourceName);
+      agHelper.GetNClick(dataSources._selectTableDropdown, 0, true);
+      agHelper.GetNClickByContains(dataSources._dropdownOption, "mongomart");
+      // generate crud on staging env
+      agHelper.ClickButton("Generate page");
+      assertHelper.AssertNetworkStatus("@replaceLayoutWithCRUDPage", 201);
+      agHelper.AssertContains("Successfully generated a page"); // Commenting this since FindQuery failure appears sometimes
+      assertHelper.AssertNetworkStatus("@getActions", 200);
+      assertHelper.AssertNetworkStatus("@postExecute", 200);
+      agHelper.ClickButton("Got it");
+      assertHelper.AssertNetworkStatus("@updateLayout", 200);
+      agHelper.Sleep(2000);
+      // verify genertae crud option is not present on prod
+      multipleEnv.SwitchEnv(prodEnv);
+      EditorNavigation.SelectEntityByName(
+        meDSStagingOnlyName,
+        EntityType.Datasource,
+      );
+      cy.get(dataSources._datasourceCardGeneratePageBtn).should("not.exist");
+    });
+
+    // it is not possible to test multiple env on deployed application as env switcher has been removed from the deployed app
+    it("5. Deploy the app, check for modal and check table response for both envs", function () {
+      // Need to remove the previous user preference for the callout
+      window.localStorage.removeItem("userPreferenceDismissEnvCallout");
+      agHelper.Sleep();
+      deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
+      featureFlagIntercept({ release_datasource_environments_enabled: true });
+      agHelper.AssertElementExist(dataSources._selectedRow);
+      table.SelectTableRow(1, 0, true, "v2");
+      table.ReadTableRowColumnData(1, 0, "v2", 2000).then(($cellData) => {
+        expect($cellData).to.not.be.empty;
+      });
+      table.ReadTableRowColumnData(1, 2, "v2", 200).then(($cellData) => {
+        expect($cellData).to.eq("45");
+      });
+      table.ReadTableRowColumnData(1, 6, "v2", 200).then(($cellData) => {
+        expect($cellData).to.eq("Track Jacket");
+      });
+
+      //Validating loaded JSON form
+      cy.xpath(locators._buttonByText("Update")).then((selector) => {
+        cy.wrap(selector)
+          .invoke("attr", "class")
+          .then((classes) => {
+            //cy.log("classes are:" + classes);
+            expect(classes).not.contain("bp3-disabled");
+          });
+      });
+      dataSources.AssertJSONFormHeader(1, 4, "Id", "4", true);
+
+      // Check table values
+
+      agHelper.GetNClickByContains(locators._deployedPage, "Page1");
+      agHelper.GetNAssertContains(
+        locators._tableRecordsContainer,
+        "23 Records",
+      );
+      agHelper.GetNClickByContains(locators._deployedPage, "Page2");
+      agHelper.ValidateToastMessage(
+        'The action "mongo_stageonly_select" has failed.',
+      );
+      agHelper.GetNAssertContains(locators._tableRecordsContainer, "0 Records");
+      // Won't be deleting the ds since it is being used by a query in deploy mode
+      deployMode.NavigateBacktoEditor();
+      multipleEnv.SwitchEnv(prodEnv);
+      // Clean up
+      EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "Table1",
+        action: "Delete",
+        entityType: entityItems.Widget,
+      });
+      // dataSources.DeleteQuery(meQueryName);
+    });
+  },
+);

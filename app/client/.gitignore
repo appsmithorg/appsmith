@@ -66,3 +66,8 @@ stats.json
 !.yarn/releases
 !.yarn/sdks
 !.yarn/versions
+
+LICENSE
+config/*
+/lib/*
+index.js

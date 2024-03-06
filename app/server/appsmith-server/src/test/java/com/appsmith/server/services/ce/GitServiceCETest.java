@@ -317,9 +317,10 @@ public class GitServiceCETest {
         if (StringUtils.isEmpty(branchName)) {
             branchName = DEFAULT_BRANCH;
         }
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(branchName));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -491,7 +492,8 @@ public class GitServiceCETest {
 
         GitConnectDTO gitConnectDTO = getConnectRequest("git@github.com:test/testRepo.git", testUserProfile);
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(false));
 
@@ -521,7 +523,8 @@ public class GitServiceCETest {
 
         GitConnectDTO gitConnectDTO = getConnectRequest("https://github.com/test/testRepo.git", testUserProfile);
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.error(new ClassCastException("TransportHttp")));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
 
@@ -537,7 +540,8 @@ public class GitServiceCETest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_InvalidFilePath_ThrowIOException() throws IOException {
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class)))
                 .thenThrow(new IOException("Error while accessing the file system"));
@@ -568,7 +572,8 @@ public class GitServiceCETest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_ClonedRepoNotEmpty_Failure() throws IOException {
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(false));
 
@@ -598,7 +603,8 @@ public class GitServiceCETest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_cloneException_throwGitException() throws IOException {
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.error(new Exception("error message")));
         Mockito.when(gitFileUtils.deleteLocalRepo(any(Path.class))).thenReturn(Mono.just(true));
 
@@ -616,9 +622,10 @@ public class GitServiceCETest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_WithEmptyPublishedPages_CloneSuccess() throws IOException, GitAPIException {
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -635,7 +642,7 @@ public class GitServiceCETest {
                         Mockito.anyString(),
                         Mockito.anyString()))
                 .thenReturn(Mono.just("success"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -688,9 +695,10 @@ public class GitServiceCETest {
     public void connectApplicationToGit_WithoutGitProfileUsingDefaultProfile_CloneSuccess()
             throws IOException, GitAPIException {
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -707,7 +715,7 @@ public class GitServiceCETest {
                         Mockito.anyString(),
                         Mockito.anyString()))
                 .thenReturn(Mono.just("success"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -792,9 +800,10 @@ public class GitServiceCETest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_WithNonEmptyPublishedPages_CloneSuccess() throws IOException, GitAPIException {
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -811,7 +820,7 @@ public class GitServiceCETest {
                         Mockito.anyString(),
                         Mockito.anyString()))
                 .thenReturn(Mono.just("success"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -877,9 +886,10 @@ public class GitServiceCETest {
         Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(Mockito.anyString(), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(0));
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -936,9 +946,10 @@ public class GitServiceCETest {
         Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(
                         eq(limitPrivateRepoTestWorkspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(3));
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -996,9 +1007,10 @@ public class GitServiceCETest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_WithValidCustomGitDomain_CloneSuccess() throws IOException, GitAPIException {
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -1015,7 +1027,7 @@ public class GitServiceCETest {
                         Mockito.anyString(),
                         Mockito.anyString()))
                 .thenReturn(Mono.just("success"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -1417,7 +1429,8 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitExecutor.createAndCheckoutToBranch(any(Path.class), eq("defaultBranch")))
                 .thenReturn(Mono.just("defaultBranch"));
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
@@ -1460,7 +1473,8 @@ public class GitServiceCETest {
                 .thenReturn(Mono.just("feature1"));
         Mockito.when(gitExecutor.createAndCheckoutToBranch(any(Path.class), eq("feature1")))
                 .thenReturn(Mono.just("feature1"));
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
@@ -1522,7 +1536,8 @@ public class GitServiceCETest {
         Mockito.when(gitExecutor.getRemoteDefaultBranch(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("feature1"));
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
@@ -2067,7 +2082,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2147,7 +2162,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2176,7 +2191,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2203,7 +2218,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2250,7 +2265,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2457,7 +2472,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2475,7 +2490,8 @@ public class GitServiceCETest {
                         Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(DEFAULT_BRANCH));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
@@ -2700,7 +2716,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2718,7 +2734,8 @@ public class GitServiceCETest {
                         Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(DEFAULT_BRANCH));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
@@ -2790,7 +2807,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -2808,7 +2825,8 @@ public class GitServiceCETest {
                         Mockito.anyString()))
                 .thenReturn(Mono.just("pushed successfully"));
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just(DEFAULT_BRANCH));
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));
         Mockito.when(gitFileUtils.initializeReadme(any(Path.class), Mockito.anyString(), Mockito.anyString()))
@@ -3134,9 +3152,10 @@ public class GitServiceCETest {
     @WithUserDetails(value = "api_user")
     public void connectApplicationToGit_cancelledMidway_cloneSuccess() throws IOException {
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranchName"));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -3214,7 +3233,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -3279,7 +3298,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -3459,7 +3478,7 @@ public class GitServiceCETest {
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.setExportedApplication(null);
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
@@ -3484,7 +3503,7 @@ public class GitServiceCETest {
         ApplicationJson applicationJson = createAppJson(filePath).block();
         applicationJson.getExportedApplication().setName("testRepo");
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
@@ -3531,7 +3550,7 @@ public class GitServiceCETest {
         testApplication.setWorkspaceId(workspaceId);
         applicationPageService.createApplication(testApplication).block();
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
@@ -3592,7 +3611,7 @@ public class GitServiceCETest {
 
         datasourceService.create(datasource).block();
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
@@ -3657,7 +3676,7 @@ public class GitServiceCETest {
 
         Mockito.when(gitCloudServicesUtils.getPrivateRepoLimitForOrg(eq(testWorkspaceId), Mockito.anyBoolean()))
                 .thenReturn(Mono.just(3));
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
@@ -3727,7 +3746,7 @@ public class GitServiceCETest {
 
         datasourceService.create(datasource).block();
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
@@ -3751,7 +3770,7 @@ public class GitServiceCETest {
 
         ApplicationJson applicationJson = new ApplicationJson();
 
-        Mockito.when(gitExecutor.cloneApplication(
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
                         any(Path.class), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
@@ -4054,7 +4073,7 @@ public class GitServiceCETest {
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         any(Path.class),
                         Mockito.anyString(),
                         Mockito.anyString(),
@@ -4593,7 +4612,8 @@ public class GitServiceCETest {
                 .thenReturn(Mono.error(new RepositoryNotFoundException("repo not found"))) // throw exception first
                 .thenReturn(Mono.just(branchList)); // return list of branches later
 
-        Mockito.when(gitExecutor.cloneApplication(any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
+        Mockito.when(gitExecutor.cloneRemoteIntoArtifactRepo(
+                        any(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.just("defaultBranch"));
 
         Mockito.when(gitFileUtils.checkIfDirectoryIsEmpty(any(Path.class))).thenReturn(Mono.just(true));

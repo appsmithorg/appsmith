@@ -940,7 +940,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
                         defaultApplicationId + ", " + branchName)))
-                .map(Application::getId);
+                .map(application -> application.getId());
     }
 
     public Mono<String> findBranchedApplicationId(

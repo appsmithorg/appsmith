@@ -142,7 +142,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                         .flatMap(baseRepoPath -> {
                             // commit the application
                             return gitExecutor
-                                    .commitApplication(
+                                    .commitArtifact(
                                             baseRepoPath,
                                             String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
                                             autoCommitEvent.getAuthorName(),

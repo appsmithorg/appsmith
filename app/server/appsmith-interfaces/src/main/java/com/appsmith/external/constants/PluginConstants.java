@@ -24,6 +24,7 @@ public interface PluginConstants {
         String APPSMITH_AI_PLUGIN = "appsmithai-plugin";
         String DATABRICKS_PLUGIN = "databricks-plugin";
         String AWS_LAMBDA_PLUGIN = "aws-lambda-plugin";
+        String WORKFLOW_PLUGIN = "workflow-plugin";
     }
 
     public static final String DEFAULT_REST_DATASOURCE = "DEFAULT_REST_DATASOURCE";
@@ -54,6 +55,7 @@ public interface PluginConstants {
         public static final String APPSMITH_AI_PLUGIN_NAME = "Appsmith AI";
         public static final String DATABRICKS_PLUGIN_NAME = "Databricks";
         public static final String AWS_LAMBDA_PLUGIN_NAME = "AWS Lambda";
+        String WORKFLOW_PLUGIN_NAME = "Workflow";
     }
 
     interface HostName {

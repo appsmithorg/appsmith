@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "target": "es6",
+    "resolveJsonModule": true,
     "module": "commonjs",
     "esModuleInterop": true,
     "moduleResolution": "node",
@@ -9,17 +10,28 @@
     "allowJs": true,
     "baseUrl": ".",
     "skipLibCheck": true,
-    "resolveJsonModule": true,
     "paths": {
       "@constants/*": ["./src/constants/*"],
       "@services/*": ["./src/services/*"],
       "@middlewares/*": ["./src/middlewares/*"],
       "@controllers/*": ["./src/controllers/*"],
       "@rules/*": ["./src/middlewares/rules/*"],
-      "@utils/*": ["./src/utils/*"]
+      "@utils/*": ["./src/utils/*"],
+      // EE ONLY ENTRIES START
+      "@scim/*": ["./src/scim/*"],
+      "@workflowProxy/*": ["./src/workflowProxy/*"]
+      // EE ONLY ENTRIES END
     }
   },
   "include": ["src/**/*", "src/**/*.json"],
-  "exclude": ["jest.config.js", "src/test", "index.js", "build.js"],
+  "exclude": [
+    "jest.config.js",
+    "src/test",
+    "index.js",
+    "build.js",
+    // EE ONLY ENTRIES START
+    "workflows.js"
+    // EE ONLY ENTRIES END
+  ],
   "lib": ["es2015"]
 }

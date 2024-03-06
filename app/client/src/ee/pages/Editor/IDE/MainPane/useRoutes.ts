@@ -1,3 +1,119 @@
 export * from "ce/pages/Editor/IDE/MainPane/useRoutes";
 import { default as useCE_Routes } from "ce/pages/Editor/IDE/MainPane/useRoutes";
-export default useCE_Routes;
+import type { RouteReturnType } from "ce/pages/Editor/IDE/MainPane/useRoutes";
+import ModuleInstanceEditor from "@appsmith/pages/Editor/ModuleInstanceEditor";
+import {
+  MODULE_INSTANCE_ID_PATH,
+  WORKFLOW_GENERAL_SETTINGS_PATH,
+  WORKFLOW_TRIGGER_SETTINGS_PATH,
+  ADD_PATH,
+  CURL_IMPORT_PAGE_PATH,
+} from "@appsmith/constants/routes/appRoutes";
+import { useSelector } from "react-redux";
+import { getShowQueryModule } from "@appsmith/selectors/moduleFeatureSelectors";
+import ModuleEditor from "../../ModuleEditor";
+import { MODULE_EDITOR_PATH } from "@appsmith/constants/routes/packageRoutes";
+import { getShowWorkflowFeature } from "@appsmith/selectors/workflowSelectors";
+import WorkflowQueryEditor from "../../WorkflowEditor/WorkflowQueryEditor";
+import {
+  SAAS_EDITOR_API_ID_PATH,
+  WORKFLOW_API_EDITOR_PATH,
+  WORKFLOW_EDITOR_URL,
+  WORKFLOW_QUERY_EDITOR_PATH,
+} from "@appsmith/constants/routes/workflowRoutes";
+import WorkflowApiEditor from "../../WorkflowEditor/WorkflowApiEditor";
+import TriggerWorkflowSettings from "../../WorkflowEditor/WorkflowSettingsPane/WorkflowSettings/TriggerWorkflowSettings";
+import GeneralWorkflowSettings from "../../WorkflowEditor/WorkflowSettingsPane/WorkflowSettings/GeneralWorkflowSettings";
+import WorkflowCurlImportEditor from "../../WorkflowEditor/WorkflowCurlImportEditor";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import WidgetsEditor from "pages/Editor/WidgetsEditor";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+
+function useRoutes(path: string) {
+  const ceRoutes = useCE_Routes(path);
+  const showQueryModule = useSelector(getShowQueryModule);
+  const showWorkflows = useSelector(getShowWorkflowFeature);
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
+  const moduleRoutes: RouteReturnType[] = [];
+  let workflowRoutes: RouteReturnType[] = [];
+
+  if (showQueryModule) {
+    if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
+      // Show Canvas on Main pane when in split screen
+      moduleRoutes.push({
+        key: "ModuleInstance",
+        component: WidgetsEditor,
+        exact: true,
+        path: [
+          `${path}${MODULE_INSTANCE_ID_PATH}`,
+          `${path}${MODULE_INSTANCE_ID_PATH}${ADD_PATH}`,
+        ],
+      });
+    } else {
+      moduleRoutes.push({
+        key: "ModuleInstance",
+        component: ModuleInstanceEditor,
+        exact: true,
+        path: [
+          `${path}${MODULE_INSTANCE_ID_PATH}`,
+          `${path}${MODULE_INSTANCE_ID_PATH}${ADD_PATH}`,
+        ],
+      });
+    }
+    // Module Editor is on Package IDE which does not have split screen
+    moduleRoutes.push({
+      key: "ModuleEditor",
+      component: ModuleEditor,
+      path: `${MODULE_EDITOR_PATH}`,
+    });
+  }
+
+  if (showWorkflows) {
+    workflowRoutes = [
+      {
+        key: "WorkflowQueryEditor",
+        component: WorkflowQueryEditor,
+        path: `${WORKFLOW_EDITOR_URL}${WORKFLOW_QUERY_EDITOR_PATH}`,
+        exact: true,
+      },
+      {
+        key: "WorkflowSaasQueryEditor",
+        component: WorkflowQueryEditor,
+        path: `${WORKFLOW_EDITOR_URL}${SAAS_EDITOR_API_ID_PATH}`,
+        exact: true,
+      },
+      {
+        key: "WorkflowApiEditor",
+        component: WorkflowApiEditor,
+        path: `${WORKFLOW_EDITOR_URL}${WORKFLOW_API_EDITOR_PATH}`,
+        exact: true,
+      },
+      {
+        key: "WorkflowTriggerSettings",
+        component: TriggerWorkflowSettings,
+        path: WORKFLOW_TRIGGER_SETTINGS_PATH(path),
+        exact: true,
+      },
+      {
+        key: "WorkflowGeneralSettings",
+        component: GeneralWorkflowSettings,
+        path: WORKFLOW_GENERAL_SETTINGS_PATH(path),
+        exact: true,
+      },
+      {
+        key: "WorkflowCurlImportEditor",
+        component: WorkflowCurlImportEditor,
+        exact: true,
+        path: [
+          `${WORKFLOW_EDITOR_URL}${CURL_IMPORT_PAGE_PATH}`,
+          `${WORKFLOW_EDITOR_URL}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
+        ],
+      },
+    ];
+  }
+
+  return [...workflowRoutes, ...ceRoutes, ...moduleRoutes];
+}
+
+export default useRoutes;

@@ -61,6 +61,7 @@ import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_APPLICATION
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_CREATE_DATASOURCE;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_DELETE_DATASOURCES;
+import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXECUTE_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_EXPORT_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.WORKSPACE_MANAGE_DATASOURCES;
@@ -178,15 +179,17 @@ public class PolicyGeneratorCE {
         // Add the must-have side effects of datasource permissions
         lateralGraph.addEdge(WORKSPACE_CREATE_DATASOURCE, WORKSPACE_MANAGE_DATASOURCES);
         lateralGraph.addEdge(WORKSPACE_CREATE_DATASOURCE, WORKSPACE_DELETE_DATASOURCES);
+        lateralGraph.addEdge(WORKSPACE_CREATE_DATASOURCE, WORKSPACE_EXECUTE_DATASOURCES);
+        lateralGraph.addEdge(WORKSPACE_CREATE_DATASOURCE, WORKSPACE_READ_DATASOURCES);
         lateralGraph.addEdge(WORKSPACE_MANAGE_DATASOURCES, WORKSPACE_READ_DATASOURCES);
         lateralGraph.addEdge(WORKSPACE_DELETE_DATASOURCES, WORKSPACE_READ_DATASOURCES);
     }
 
     protected void createDatasourcePolicyGraph() {
-        hierarchyGraph.addEdge(WORKSPACE_MANAGE_APPLICATIONS, MANAGE_DATASOURCES);
+        hierarchyGraph.addEdge(WORKSPACE_MANAGE_DATASOURCES, MANAGE_DATASOURCES);
 
         // If a viewer of all apps in the workspace, give execute permission on all the datasources
-        hierarchyGraph.addEdge(WORKSPACE_READ_APPLICATIONS, EXECUTE_DATASOURCES);
+        hierarchyGraph.addEdge(WORKSPACE_EXECUTE_DATASOURCES, EXECUTE_DATASOURCES);
         hierarchyGraph.addEdge(WORKSPACE_DELETE_DATASOURCES, DELETE_DATASOURCES);
 
         lateralGraph.addEdge(MANAGE_DATASOURCES, READ_DATASOURCES);

@@ -368,4 +368,30 @@ public class DataTypeStringUtils {
 
         return dataTypes;
     }
+
+    /**
+     * To mask a string by adding mask char in the middle of the string
+     * @param str           String to be masked
+     * @param preserveChars Chars needs to be preserved from begin and end of given string
+     * @param maskChar      Character which will be used to mask the string
+     * @param maxLength     Length of masked string
+     * @return              Masked string
+     */
+    public static String maskString(String str, int preserveChars, int maxLength, char maskChar) {
+        if (str == null) {
+            // Nothing to mask
+            return null;
+        }
+        if (str.length() < preserveChars) {
+            // No maskable portion exist
+            return str;
+        }
+        String start = str.substring(0, preserveChars);
+        String end = str.substring(str.length() - preserveChars);
+        String middle = "";
+        if (maxLength - 2 * preserveChars > 0) {
+            middle = new String(new char[maxLength - 2 * preserveChars]).replace('\0', maskChar);
+        }
+        return start + middle + end;
+    }
 }

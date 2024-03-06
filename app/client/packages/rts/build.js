@@ -3,7 +3,7 @@ const esbuild = require("esbuild");
 const fs = require("fs").promises;
 
 // List of external workflow packages (EE only)
-const externalWorkflowPackages = [];
+const externalWorkflowPackages = ["@temporalio/workflow", "@temporalio/worker"];
 
 async function ensureDirectoryExistence(dirname) {
   try {

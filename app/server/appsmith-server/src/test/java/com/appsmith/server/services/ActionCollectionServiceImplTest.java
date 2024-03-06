@@ -25,6 +25,9 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ObjectMapperUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.layouts.UpdateLayoutService;
+import com.appsmith.server.modules.metadata.ModuleMetadataService;
+import com.appsmith.server.modules.moduleentity.ModuleEntityService;
+import com.appsmith.server.modules.permissions.ModulePermissionChecker;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -36,6 +39,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ApplicationPermissionImpl;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.PagePermissionImpl;
+import com.appsmith.server.workflows.crud.CrudWorkflowEntityService;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.validation.Validator;
@@ -123,6 +127,18 @@ public class ActionCollectionServiceImplTest {
     private PolicyGenerator policyGenerator;
 
     @MockBean
+    private CrudWorkflowEntityService crudWorkflowEntityService;
+
+    @MockBean
+    private ModuleEntityService<ActionCollection> actionCollectionModuleEntityService;
+
+    @MockBean
+    private ModulePermissionChecker modulePermissionChecker;
+
+    @MockBean
+    private ModuleMetadataService moduleMetadataService;
+
+    @MockBean
     private DefaultResourcesService<ActionCollection> actionCollectionDefaultResourcesService;
 
     @BeforeEach
@@ -140,7 +156,8 @@ public class ActionCollectionServiceImplTest {
                 responseUtils,
                 applicationPermission,
                 actionPermission,
-                actionCollectionDefaultResourcesService);
+                actionCollectionDefaultResourcesService,
+                moduleMetadataService);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
@@ -153,7 +170,10 @@ public class ActionCollectionServiceImplTest {
                 responseUtils,
                 actionCollectionRepository,
                 pagePermission,
-                actionPermission);
+                actionPermission,
+                crudWorkflowEntityService,
+                actionCollectionModuleEntityService,
+                modulePermissionChecker);
 
         Mockito.when(analyticsService.sendCreateEvent(Mockito.any()))
                 .thenAnswer(

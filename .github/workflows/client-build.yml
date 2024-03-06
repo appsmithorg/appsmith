@@ -12,6 +12,11 @@ on:
         required: false
         type: string
         default: "false"
+      airgap-enabled:
+        description: "This is a boolean value in case the workflow is building for airgap"
+        required: false
+        type: string
+        default: "false"
       check-test-files:
         description: "This is a boolean value in case the workflow is being called in build deploy-preview"
         required: false
@@ -39,6 +44,7 @@ jobs:
     if: |
       github.event.pull_request.head.repo.full_name == github.repository ||
       github.event_name == 'push' ||
+      github.event_name == 'schedule' ||
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'repository_dispatch' ||
       github.event_name == 'schedule'
@@ -253,10 +259,17 @@ jobs:
           else
             export REACT_APP_SEGMENT_CE_KEY="${{ secrets.APPSMITH_SEGMENT_CE_KEY_RELEASE }}"
           fi
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            export REACT_APP_AIRGAP_ENABLED=true
+          fi
+          if [[ "${{ inputs.airgap-enabled }}" == "true" ]]; then
+            export REACT_APP_VERSION_EDITION="Airgapped"
+          else
+            export REACT_APP_VERSION_EDITION="Business"
+          fi
           REACT_APP_ENVIRONMENT=${{steps.vars.outputs.REACT_APP_ENVIRONMENT}} \
             REACT_APP_FUSIONCHARTS_LICENSE_KEY=${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }} \
             SENTRY_AUTH_TOKEN=${{ secrets.SENTRY_AUTH_TOKEN }} \
-            REACT_APP_VERSION_EDITION="Community" \
             yarn build
 
       # Saving the cache to use it in subsequent runs
@@ -267,19 +280,36 @@ jobs:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
+      # We may not need the client_build_dir env variable.
+      - name: Set the client build path env vars
+        run: |
+          if [[ '${{ inputs.airgap-enabled }}' == 'true' ]]; then
+           echo 'client_build_name=client-build-airgap' >> "$GITHUB_ENV"
+           echo 'client_build_path=app/client/build_airgap/' >> "$GITHUB_ENV"
+           echo 'client_build_dir=build_airgap' >> "$GITHUB_ENV"
+          else
+           echo 'client_build_name=client-build' >> "$GITHUB_ENV"
+           echo 'client_build_path=app/client/build/' >> "$GITHUB_ENV"
+           echo 'client_build_dir=build' >> "$GITHUB_ENV"
+           fi
+
+      - name: Log the client build env vars
+        run: |
+          echo "client_build_name: ${{ env.client_build_name }}"
+          echo "client_build_path: ${{ env.client_build_path }}"
+
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
         if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         uses: actions/cache@v3
         with:
-          path: |
-            app/client/build/
+          path: ${{ env.client_build_path }}
           key: ${{ github.run_id }}-${{ github.job }}-client
 
       - name: Pack the client build directory
         if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
         run: |
-          tar -cvf ./build.tar -C build .
+          tar -cvf ./build.tar -C ${{ env.client_build_dir }} .
 
       - name: Fetch client build from cache
         if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
@@ -306,7 +336,7 @@ jobs:
       - name: Upload react build bundle
         uses: actions/upload-artifact@v3
         with:
-          name: client-build
+          name: ${{ env.client_build_name }}
           path: app/client/build.tar
 
       - name: Put release build in cache

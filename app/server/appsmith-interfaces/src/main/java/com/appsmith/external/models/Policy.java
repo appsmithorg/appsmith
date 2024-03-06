@@ -23,4 +23,9 @@ public class Policy implements Serializable {
 
     @Builder.Default
     Set<String> permissionGroups = new HashSet<>();
+
+    public Policy(Policy other) {
+        this.permission = other.permission;
+        this.permissionGroups = new HashSet<>(other.permissionGroups);
+    }
 }

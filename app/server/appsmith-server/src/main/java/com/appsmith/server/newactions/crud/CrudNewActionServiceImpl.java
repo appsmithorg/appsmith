@@ -1,0 +1,31 @@
+package com.appsmith.server.newactions.crud;
+
+import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.repositories.NewActionRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import reactor.core.publisher.Flux;
+
+import java.util.List;
+import java.util.Optional;
+
+@RequiredArgsConstructor
+@Service
+public class CrudNewActionServiceImpl implements CrudNewActionService {
+
+    private final NewActionRepository repository;
+
+    @Override
+    public Flux<NewAction> getByContextTypeAndContextIds(
+            CreatorContextType contextType, List<String> contextIds, AclPermission aclPermission) {
+        if (CreatorContextType.MODULE.equals(contextType)) {
+            return repository.findAllByModuleIds(contextIds, Optional.ofNullable(aclPermission));
+        } else if (CreatorContextType.PAGE.equals(contextType)) {
+            return repository.findByPageIds(contextIds, aclPermission);
+        } else {
+            return Flux.empty();
+        }
+    }
+}

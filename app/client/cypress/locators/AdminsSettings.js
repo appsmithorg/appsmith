@@ -23,6 +23,7 @@ export default {
   appsmithHeader: "[data-testid='t--appsmith-page-header']",
   loginWithGoogle: "[data-testid='login-with-Google']",
   loginWithGithub: "[data-testid='login-with-Github']",
+  loginWithOIDC: "[data-testid='login-with-OIDC']",
   disconnectBtn: "[data-testid='disconnect-service-button']",
   formSignupDisabled: "[data-testid='APPSMITH_SIGNUP_DISABLED']",
   formLoginDisabled: "[data-testid='APPSMITH_FORM_LOGIN_DISABLED']",

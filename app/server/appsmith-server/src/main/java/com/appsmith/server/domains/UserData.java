@@ -73,8 +73,18 @@ public class UserData extends BaseDomain {
     @JsonView(Views.Internal.class)
     Map<String, GitProfile> gitProfiles;
 
+    // JWT tokens
+    @JsonView(Views.Internal.class)
+    AppsmithOidcAccessToken oidcAccessToken;
+
+    @JsonView(Views.Public.class)
+    Map<String, Object> oidcIdTokenClaims;
+
     @JsonView(Views.Public.class)
     Map<String, Object> userClaims;
+
+    @JsonView(Views.Public.class)
+    String rawIdToken;
 
     // Status of user's consent on sharing email for Intercom communications
     @JsonView(Views.Internal.class)

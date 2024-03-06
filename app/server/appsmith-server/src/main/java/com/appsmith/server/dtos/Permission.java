@@ -7,6 +7,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
@@ -14,6 +15,7 @@ import lombok.Setter;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Builder
+@ToString
 public class Permission {
 
     String documentId;

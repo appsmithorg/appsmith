@@ -22,6 +22,7 @@ import com.appsmith.server.dtos.UserSignupDTO;
 import com.appsmith.server.dtos.UserUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -121,9 +122,18 @@ public class UserServiceTest {
     @SpyBean
     CommonConfig commonConfig;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
     @BeforeEach
     public void setup() {
         userMono = userService.findByEmail("usertest@usertest.com");
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_branding_enabled))
+                .thenReturn(Mono.just(true));
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_pac_enabled))
+                .thenReturn(Mono.just(true));
+        Mockito.when(featureFlagService.check(FeatureFlagEnum.license_audit_logs_enabled))
+                .thenReturn(Mono.just(true));
     }
     // Test the update workspace flow.
     @Test
@@ -692,6 +702,7 @@ public class UserServiceTest {
     }
 
     @Test
+    @WithUserDetails("api_user")
     public void emailVerificationTokenGenerate_WhenInstanceEmailVerificationIsNotEnabled_ThrowsException() {
         String testEmail = "test-email-for-verification";
 

@@ -152,4 +152,6 @@ public class DatasourceStorage extends BaseDomain {
         return (DEFAULT_REST_DATASOURCE.equals(this.name) || DEFAULT_APPSMITH_AI_DATASOURCE.equals(this.name))
                 && !StringUtils.hasText(this.datasourceId);
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

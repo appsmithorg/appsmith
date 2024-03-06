@@ -13,7 +13,8 @@
   "cracoConfig": "craco.dev.config.js",
   "workspaces": [
     "packages/**",
-    "!packages/**/build"
+    "!packages/**/build",
+    "!packages/**/dist"
   ],
   "scripts": {
     "analyze": "yarn cra-bundle-analyzer",
@@ -119,6 +120,7 @@
     "fuse.js": "^3.4.5",
     "fusioncharts": "^3.18.0",
     "fusionmaps": "^3.18.0",
+    "fuzzyset": "^1.0.7",
     "graphql": "^16.8.1",
     "history": "^4.10.1",
     "http-proxy": "^1.18.1",
@@ -256,6 +258,7 @@
     "@types/deep-diff": "^1.0.0",
     "@types/dom-mediacapture-record": "^1.0.11",
     "@types/downloadjs": "^1.4.2",
+    "@types/fuzzyset": "^1.0.4",
     "@types/jest": "^27.4.1",
     "@types/js-beautify": "^1.13.2",
     "@types/jshint": "^2.12.0",

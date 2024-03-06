@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers;
 
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -148,5 +149,17 @@ public class GitUtils {
     public static boolean isAutoCommitEnabled(GitArtifactMetadata gitArtifactMetadata) {
         return gitArtifactMetadata.getAutoCommitConfig() == null
                 || gitArtifactMetadata.getAutoCommitConfig().getEnabled();
+    }
+
+    public static String generateGitBotUserEmail(String applicationId) {
+        return String.format("%s@appsmithbot.com", applicationId).toLowerCase();
+    }
+
+    public static String generateGitBotUserName(String applicationId) {
+        return String.format("Git Bot User - Application %s", applicationId);
+    }
+
+    public static String generateGitBotRoleName(Application application) {
+        return String.format("%s - %s", FieldName.GIT_WEB_HOOK_EXECUTOR, application.getId());
     }
 }

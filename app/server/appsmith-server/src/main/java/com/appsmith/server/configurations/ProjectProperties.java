@@ -18,7 +18,7 @@ public class ProjectProperties {
     private static final String INFO_JSON_PATH = "/opt/appsmith/info.json";
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
-    public static final String EDITION = "CE";
+    public static final String EDITION = "EE";
     private String version = "UNKNOWN";
     private String commitSha = "UNKNOWN";
 

@@ -6,13 +6,18 @@ import log from "loglevel";
 import { VERSION as buildVersion } from "./version"; // release version of the api
 import { initializeSockets } from "./sockets";
 
+// EE only imports
+import "@scim/lib/plugin-scim";
+import workflowRoutes from "@workflowProxy/routes";
+import { DeployService } from "@workflowProxy/services/DeployService";
+// EE only imports end
+
 // routes
 import ast_routes from "./routes/ast_routes";
 import dsl_routes from "./routes/dsl_routes";
 import health_check_routes from "./routes/health_check_routes";
-
-const RTS_BASE_PATH = "/rts";
-export const RTS_BASE_API_PATH = "/rts-api/v1";
+// route constants
+import { RTS_BASE_PATH, RTS_BASE_API_PATH } from "@constants/routes";
 
 // Setting the logLevel for all log messages
 const logLevel: LogLevelDesc = (process.env.APPSMITH_LOG_LEVEL ||
@@ -43,6 +48,12 @@ app.use(express.json({ limit: "5mb" }));
 app.use(`${RTS_BASE_API_PATH}/ast`, ast_routes);
 app.use(`${RTS_BASE_API_PATH}/dsl`, dsl_routes);
 app.use(`${RTS_BASE_API_PATH}`, health_check_routes);
+
+// ee only routes start
+app.use(`${RTS_BASE_API_PATH}`, workflowRoutes);
+//Create a worker bound to the oneentry workflow definition
+DeployService.createWorker();
+// ee only routes end
 
 server.headersTimeout = 61000;
 server.keepAliveTimeout = 60000;

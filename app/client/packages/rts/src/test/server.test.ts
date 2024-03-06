@@ -1,5 +1,8 @@
-import app, { RTS_BASE_API_PATH } from "../server";
+import app from "../server";
+import { RTS_BASE_API_PATH } from "../constants/routes";
 import supertest from "supertest";
+
+jest.mock("scimgateway/lib/scimgateway");
 
 const singleScript = {
   script:

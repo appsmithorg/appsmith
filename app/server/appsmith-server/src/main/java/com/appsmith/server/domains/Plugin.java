@@ -118,5 +118,11 @@ public class Plugin extends BaseDomain {
     @JsonView(Views.Internal.class)
     Boolean isDependentOnCS;
 
+    @JsonView(Views.Internal.class)
+    Boolean requiresAppsmithUserContext = Boolean.FALSE;
+
+    @JsonView(Views.Public.class)
+    Boolean requiresDatasource = Boolean.TRUE;
+
     public static class Fields extends BaseDomain.Fields {}
 }

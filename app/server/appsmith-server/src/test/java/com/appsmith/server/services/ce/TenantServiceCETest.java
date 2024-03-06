@@ -10,6 +10,7 @@ import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserRepository;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.EnvManager;
 import org.junit.jupiter.api.AfterEach;
@@ -20,6 +21,7 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.mock.mockito.SpyBean;
 import org.springframework.data.mongodb.core.MongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
@@ -40,6 +42,7 @@ import static com.appsmith.server.constants.MigrationStatus.IN_PROGRESS;
 import static com.appsmith.server.exceptions.AppsmithErrorCode.FEATURE_FLAG_MIGRATION_FAILURE;
 import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATURE;
 import static com.appsmith.server.featureflags.FeatureFlagEnum.TEST_FEATURE_2;
+import static com.appsmith.server.featureflags.FeatureFlagEnum.license_branding_enabled;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -64,6 +67,9 @@ class TenantServiceCETest {
     @Autowired
     MongoOperations mongoOperations;
 
+    @SpyBean
+    FeatureFlagService featureFlagService;
+
     @MockBean
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
@@ -71,6 +77,7 @@ class TenantServiceCETest {
 
     @BeforeEach
     public void setup() throws IOException {
+        Mockito.when(featureFlagService.check(license_branding_enabled)).thenReturn(Mono.just(true));
         final Tenant tenant = tenantService.getDefaultTenant().block();
         assert tenant != null;
         originalTenantConfiguration = tenant.getTenantConfiguration();

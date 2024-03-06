@@ -1,12 +1,14 @@
 package com.appsmith.server.controllers;
 
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.configurations.InMemoryReactiveClientRegistrationRepositoryConfiguration;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.RedisTestContainerConfig;
 import com.appsmith.server.configurations.SecurityTestConfig;
+import com.appsmith.server.configurations.solutions.OidcAccessTokenUpdateSolution;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.dtos.ApplicationImportDTO;
-import com.appsmith.server.dtos.ImportableArtifactDTO;
+import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.exceptions.AppsmithErrorCode;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.exports.internal.partial.PartialExportService;
@@ -16,6 +18,7 @@ import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationMemberService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.services.SessionUserService;
@@ -45,7 +48,12 @@ import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
 @WebFluxTest(ApplicationController.class)
-@Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
+@Import({
+    SecurityTestConfig.class,
+    RedisUtils.class,
+    RedisTestContainerConfig.class,
+    InMemoryReactiveClientRegistrationRepositoryConfiguration.class
+})
 public class ApplicationControllerTest {
     @MockBean
     ApplicationService applicationService;
@@ -78,6 +86,9 @@ public class ApplicationControllerTest {
     private WebTestClient webTestClient;
 
     @MockBean
+    ApplicationMemberService applicationMemberService;
+
+    @MockBean
     AnalyticsService analyticsService;
 
     @MockBean
@@ -88,6 +99,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     PartialExportService partialExportService;
+
+    @MockBean
+    OidcAccessTokenUpdateSolution oidcAccessTokenUpdateSolution;
 
     @MockBean
     PartialImportService partialImportService;
@@ -169,7 +183,7 @@ public class ApplicationControllerTest {
                 .isEqualTo(200);
     }
 
-    private <T extends ImportableArtifactDTO> Answer<Mono<T>> importableArtifactDTOAnswer(T object) {
+    private <T extends ArtifactImportDTO> Answer<Mono<T>> importableArtifactDTOAnswer(T object) {
         return invocationOnMock -> Mono.just(object);
     }
 }

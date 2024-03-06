@@ -239,7 +239,18 @@ $(if [[ $use_https == 1 ]]; then echo "
     server {
         listen $http_listen_port default_server;
         server_name $domain;
-        return 301 https://\$host$(if [[ $https_listen_port != 443 ]]; then echo ":$https_listen_port"; fi)\$request_uri;
+
+        location / {
+            return 301 https://\$host$(if [[ $https_listen_port != 443 ]]; then echo ":$https_listen_port"; fi)\$request_uri;
+        }
+
+        location /auth {
+            proxy_pass $backend;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-Proto \$scheme;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        }
     }
 "; fi)
 
@@ -294,6 +305,7 @@ $(if [[ $use_https == 1 ]]; then echo "
             sub_filter __APPSMITH_ZIPY_SDK_KEY__ '${APPSMITH_ZIPY_SDK_KEY-}';
             sub_filter __APPSMITH_HIDE_WATERMARK__ '${APPSMITH_HIDE_WATERMARK-}';
             sub_filter __APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX__ '${APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX-}';
+            sub_filter __APPSMITH_AIRGAP_ENABLED__ '${APPSMITH_AIRGAP_ENABLED-}';
         }
 
         location /api {
@@ -314,6 +326,21 @@ $(if [[ $use_https == 1 ]]; then echo "
             proxy_set_header Host \$host;
             proxy_set_header Connection upgrade;
             proxy_set_header Upgrade \$http_upgrade;
+        }
+
+        location /actuator {
+            proxy_pass $backend;
+        }
+
+        location /auth {
+            proxy_pass $backend;
+            proxy_set_header Host \$host;
+            proxy_set_header X-Real-IP \$remote_addr;
+            proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto \$origin_scheme;
+            proxy_set_header X-Forwarded-Host \$host;
+            # Keycloak sticks big long JWTs in cookies, which makes headers too big. This throws 502 error, unless we have the below.
+            proxy_buffer_size 8k;
         }
     }
 }

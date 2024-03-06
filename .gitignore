@@ -1,3 +1,6 @@
+# Github config changes from CE
+.github/config.json
+
 .DS_Store
 *.iml
 .env
@@ -9,6 +12,8 @@ stacks
 node_modules
 # to ignore the package-lock.json file
 package-lock.json
+# to ignore the yarn.lock file
+yarn.lock
 
 # test coverage
 coverage-summary.json
@@ -28,7 +33,7 @@ app/client/.yalc/
 app/client/yalc.lock
 
 # editor related
-.vscode/*
+**/.vscode/*
 .idea
 .fleet/*
 app/client/.fleet/*

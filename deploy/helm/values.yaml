@@ -29,6 +29,15 @@ mongodb:
   hidden:
     nodeSelector: {}
 
+## postgresql parameters
+postgresql:
+  enabled: true
+  auth:
+    username: root
+    password: password
+    postgresPassword: password
+    database: keycloak
+
 ## @section Global parameters
 ## Global Docker image parameters
 ## Please, note that this will override the image parameters, including dependencies, configured to use the global value
@@ -69,11 +78,13 @@ initContainer: {}
   #   image: docker.io/bitnami/redis-cluster:7.0.13-debian-11-r10
   # mongodb:
   #   image:  docker.io/bitnami/mongodb:5.0.21-debian-11-r5
+  # postgresql:
+  #   image: docker.io/bitnami/postgresql:14.5.0-debian-11-r21
 ## Image
 ##
 image:
   registry: index.docker.io
-  repository: appsmith/appsmith-ce
+  repository: appsmith/appsmith-ee
   pullPolicy: IfNotPresent
   pullSecrets: ""
   # Overrides the image tag whose default is the chart appVersion.
@@ -208,13 +219,26 @@ resources:
   #   cpu: 100m
   #   memory: 128Mi
   limits: {}
-  requests: {}
+  requests:
+     cpu: 500m
+     memory: 3000Mi
+
+autoscaling:
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 2
+  targetCPUUtilizationPercentage: 5
 
 nodeSelector: {}
 
 tolerations: []
 
 affinity: {}
+
+#topologySpreadConstraints:
+#  - maxSkew: 1 # distribute pods in an absolute even manner
+#    topologyKey: kubernetes.io/hostname  # use the hostname as topology domain
+#    whenUnsatisfiable: ScheduleAnyway # always schedule pods even if it can’t satisfy even distribution of pods
 
 persistence:
   ## @param persistence.enabled - Enable data persistence using PVC
@@ -234,15 +258,39 @@ persistence:
   storagePath: /tmp/hostpath_pv
   ## @param persistence.localCluster
   ##
-  localCluster:
-    - minikube
+  localCluster: {}
   ## @param persistence.accessModes PV Access Mode
   ##
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteMany
   ## @param persistence.size PVC Storage Request
   ##
   size: 10Gi
+  ## Fine tuning for volumeClaimTemplates
+  ##
+  reclaimPolicy: Retain
+  existingClaim:
+    enabled:
+    name:
+    claimName:
+  efs:
+    enabled:
+    driver:
+    volumeHandle:
+  volumeClaimTemplates:
+    ## @param persistence.volumeClaimTemplates.selector A label query over volumes to consider for binding (e.g. when using local volumes)
+    ## A label query over volumes to consider for binding (e.g. when using local volumes)
+    ## See https://kubernetes.io/docs/reference/generated/kubernetes-api/v1.20/#labelselector-v1-meta for more details
+    ##
+    selector: {}
+    ## @param persistence.volumeClaimTemplates.requests Custom PVC requests attributes
+    ## Sometime cloud providers use additional requests attributes to provision custom storage instance
+    ## See https://cloud.ibm.com/docs/containers?topic=containers-file_storage#file_dynamic_statefulset
+    ##
+    requests: {}
+    ## @param persistence.volumeClaimTemplates.dataSource Add dataSource to the VolumeClaimTemplate
+    ##
+    dataSource: {}
 # tags:
 #   install-ingress-nginx: true
 storageClass:
@@ -273,6 +321,20 @@ storageClass:
   ## @param storageClass.parameters - storage class parameters used for volumes created with this storage class
   ##
   parameters: {}
+
+podDisruptionBudgets:
+  minAvailable: 1
+
+keda:
+  enabled: false
+  pollingInterval: 30
+  cooldownPeriod: 60
+  minReplicaCount: 1
+  maxReplicaCount: 6
+  fallback:
+    failureThreshold: 3
+    replicas: 4
+  triggers: []
 
 autoupdate:
   ## @param autoupdate.enabled - Enable config autoupdate
@@ -311,3 +373,8 @@ applicationConfig:
   APPSMITH_ENCRYPTION_SALT: ""
   APPSMITH_CUSTOM_DOMAIN: ""
   APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX: "false"
+  APPSMITH_LICENSE_KEY: ""
+  APPSMITH_KEYCLOAK_DB_DRIVER: ""
+  APPSMITH_KEYCLOAK_DB_USERNAME: ""
+  APPSMITH_KEYCLOAK_DB_PASSWORD: ""
+  APPSMITH_KEYCLOAK_DB_URL: ""

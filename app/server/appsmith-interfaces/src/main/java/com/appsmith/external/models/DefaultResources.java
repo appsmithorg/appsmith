@@ -13,5 +13,16 @@ import lombok.experimental.FieldNameConstants;
 @Data
 @FieldNameConstants
 public class DefaultResources extends DefaultResourcesCE {
+
+    /**
+     * When present, moduleInstanceId will hold the default module instance id
+     */
+    String moduleInstanceId;
+
+    /**
+     * When present, rootModuleInstanceId will hold the default root module instance id
+     */
+    String rootModuleInstanceId;
+
     public static class Fields extends DefaultResourcesCE.Fields {}
 }

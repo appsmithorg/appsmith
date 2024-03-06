@@ -8,6 +8,7 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.SessionLimiterService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
@@ -15,11 +16,17 @@ import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.WorkspacePermission;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 @Slf4j
 @Component
 public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE {
+
+    private final TenantService tenantService;
+    private final SessionLimiterService sessionLimiterService;
 
     public AuthenticationSuccessHandler(
             RedirectHelper redirectHelper,
@@ -34,7 +41,8 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
             RateLimitService rateLimitService,
             TenantService tenantService,
             UserService userService,
-            WorkspaceServiceHelper workspaceServiceHelper) {
+            WorkspaceServiceHelper workspaceServiceHelper,
+            SessionLimiterService sessionLimiterService) {
         super(
                 redirectHelper,
                 sessionUserService,
@@ -49,5 +57,15 @@ public class AuthenticationSuccessHandler extends AuthenticationSuccessHandlerCE
                 tenantService,
                 userService,
                 workspaceServiceHelper);
+        this.tenantService = tenantService;
+        this.sessionLimiterService = sessionLimiterService;
+    }
+
+    @Override
+    public Mono<Void> onAuthenticationSuccess(WebFilterExchange webFilterExchange, Authentication authentication) {
+        return super.onAuthenticationSuccess(webFilterExchange, authentication)
+                .then(tenantService.getTenantConfiguration())
+                .flatMap(tenant -> sessionLimiterService.handleSessionLimits(authentication, webFilterExchange, tenant))
+                .then();
     }
 }

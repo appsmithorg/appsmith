@@ -1,0 +1,45 @@
+#frontend.enableClientVersionCheck:
+#- value: true
+#  constraints: {}
+#history.persistenceMaxQPS:
+#- value: 3000
+#  constraints: {}
+#frontend.persistenceMaxQPS:
+#- value: 3000
+#  constraints: {}
+#frontend.throttledLogRPS:
+#- value: 20
+#  constraints: {}
+#history.defaultActivityRetryPolicy:
+#- value:
+#    InitialIntervalInSeconds: 1
+#    MaximumIntervalCoefficient: 100.0
+#    BackoffCoefficient: 2.0
+#    MaximumAttempts: 0
+#history.defaultWorkflowRetryPolicy:
+#- value:
+#    InitialIntervalInSeconds: 1
+#    MaximumIntervalCoefficient: 100.0
+#    BackoffCoefficient: 2.0
+#    MaximumAttempts: 0
+#system.secondaryVisibilityWritingMode:
+#  - value: "off"
+#    constraints: {}
+#system.enableReadFromSecondaryVisibility:
+#  - value: false
+#    constraints: {}
+#system.enableParentClosePolicyWorker:
+#  - value: true
+system.enableEagerWorkflowStart:
+  - value: true
+limit.maxIDLength:
+  - value: 255
+    constraints: {}
+frontend.workerVersioningDataAPIs:
+  - value: true
+frontend.workerVersioningWorkflowAPIs:
+  - value: true
+frontend.enableUpdateWorkflowExecution:
+  - value: true
+frontend.enableUpdateWorkflowExecutionAsyncAccepted:
+  - value: true

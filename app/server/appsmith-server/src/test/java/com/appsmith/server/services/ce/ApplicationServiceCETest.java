@@ -152,7 +152,7 @@ import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_DATASOURCES;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.ANONYMOUS_USER;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
@@ -610,7 +610,7 @@ public class ApplicationServiceCETest {
                     assertThat(page.getPolicies().stream()
                                     .map(Policy::getPermission)
                                     .collect(Collectors.toSet()))
-                            .containsExactlyInAnyOrder(
+                            .contains(
                                     MANAGE_PAGES.getValue(),
                                     READ_PAGES.getValue(),
                                     PAGE_CREATE_PAGE_ACTIONS.getValue(),
