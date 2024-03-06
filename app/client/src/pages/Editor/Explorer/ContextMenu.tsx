@@ -19,7 +19,7 @@ import { AddButtonWrapper, EntityClassNames } from "./Entity";
 import styled from "styled-components";
 
 export interface TreeDropdownOption {
-  label: string;
+  label: React.ReactNode;
   value: string;
   children?: TreeDropdownOption[];
   className?: string;

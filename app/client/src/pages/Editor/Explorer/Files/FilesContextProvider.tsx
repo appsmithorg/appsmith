@@ -4,10 +4,10 @@ import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/
 export enum ActionEntityContextMenuItemsEnum {
   EDIT_NAME = "Edit Name",
   SHOW_BINDING = "Show Bindings",
+  CONVERT_QUERY_MODULE_INSTANCE = "Create Module",
   COPY = "Copy",
   MOVE = "Move",
   DELETE = "Delete",
-  CONVERT_QUERY_MODULE_INSTANCE = "Create Module",
 }
 
 export const defaultMenuItems = [
