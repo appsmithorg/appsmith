@@ -470,6 +470,9 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
       event: {
         type: EventType.ON_DATA_POINT_CLICK,
       },
+      globalContext: {
+        selectedDataPoint: data,
+      },
     });
   };
 

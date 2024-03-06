@@ -122,7 +122,11 @@ function getProjection(type: string) {
   }
 }
 
-function getPositionOffset(type: MapTypes, width: number, height: number) {
+export function getPositionOffset(
+  type: MapTypes,
+  width: number,
+  height: number,
+) {
   switch (type) {
     case MapTypes.SOURTH_AMERICA:
     case MapTypes.NORTH_AMERICA:
@@ -145,8 +149,8 @@ function getPositionOffset(type: MapTypes, width: number, height: number) {
     case MapTypes.WORLD:
     case MapTypes.WORLD_WITH_ANTARCTICA:
       return {
-        top: "130px",
-        bottom: "30px",
+        layoutSize: Math.min(width, height),
+        layoutCenter: ["50%", height / 2 + 40],
       };
     default:
       return {};
@@ -205,12 +209,12 @@ export const getChartOption = (
         return `${min}-${max}`;
       },
       orient: "horizontal",
-      top: "65px",
+      top: "68px",
       left: "center",
       itemWidth: 12,
       itemHeight: 12,
       textStyle: {
-        fontSize: 10,
+        fontSize: 14,
         color: "#4c5664",
         overflow: "break",
       },
@@ -227,6 +231,7 @@ export const getChartOption = (
         map: type,
         itemStyle: {
           borderColor: "#ccc",
+          areaColor: "#aeaeae",
         },
         tooltip: {
           show: true,

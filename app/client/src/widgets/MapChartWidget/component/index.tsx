@@ -44,6 +44,7 @@ export default function EchartComponent(props: MapChartComponentProps) {
         max: color.maxValue,
         color: color.code,
         colorAlpha: alpha ? alpha / 100 : 0,
+        label: color.displayValue,
       };
     });
   }, [colorRange]);
