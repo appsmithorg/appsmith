@@ -27,6 +27,13 @@ function shouldSetState(
   if (
     state &&
     state.invokedBy &&
+    NavigationMethod.AppNavigation === state.invokedBy
+  ) {
+    return false;
+  }
+  if (
+    state &&
+    state.invokedBy &&
     [NavigationMethod.CommandClick, NavigationMethod.Omnibar].includes(
       state.invokedBy,
     )
@@ -34,6 +41,7 @@ function shouldSetState(
     // If it is a direct navigation, we will set the state
     return true;
   }
+
   const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
   const currFocusEntityInfo = identifyEntityFromPath(currPath);
   const isSamePage = !isPageChange(prevPath, currPath);
