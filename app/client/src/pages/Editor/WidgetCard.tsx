@@ -8,8 +8,9 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 import { Text } from "design-system";
 import { useIsEditorPaneSegmentsEnabled } from "./IDE/hooks";
+import { noop } from "utils/AppsmithUtils";
 
-interface CardProps {
+export interface CardProps {
   details: WidgetCardProps;
 }
 
@@ -76,6 +77,40 @@ const ICON_SIZE = 24;
 const THUMBNAIL_HEIGHT = 76;
 const THUMBNAIL_WIDTH = 72;
 
+export function WidgetCardComponent({
+  details,
+  onDragStart = noop,
+}: {
+  details: WidgetCardProps;
+  onDragStart?: (e: any) => void;
+}) {
+  const type = `${details.type.split("_").join("").toLowerCase()}`;
+  const className = `t--widget-card-draggable t--widget-card-draggable-${type} ${
+    !Boolean(details.thumbnail) ? "pt-2 gap-2 mt-2" : ""
+  }`;
+  return (
+    <Wrapper
+      className={className}
+      data-guided-tour-id={`widget-card-${type}`}
+      draggable
+      id={`widget-card-draggable-${type}`}
+      // isThumbnail is used to add conditional styles for widget that renders thumbnail on widget card
+      isThumbnail={Boolean(details.thumbnail)}
+      onDragStart={onDragStart}
+    >
+      <IconWrapper
+        // if widget has a thumbnail, use thumbnail dimensions, else use icon dimensions
+        height={details.thumbnail ? THUMBNAIL_HEIGHT : ICON_SIZE}
+        width={details.thumbnail ? THUMBNAIL_WIDTH : ICON_SIZE}
+      >
+        <img src={details.thumbnail ?? details.icon} />
+      </IconWrapper>
+      <Text kind="body-s">{details.displayName}</Text>
+      {details.isBeta && <BetaLabel>Beta</BetaLabel>}
+    </Wrapper>
+  );
+}
+
 function WidgetCard(props: CardProps) {
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
@@ -98,31 +133,8 @@ function WidgetCard(props: CardProps) {
     }
   };
 
-  const type = `${props.details.type.split("_").join("").toLowerCase()}`;
-  const className = `t--widget-card-draggable t--widget-card-draggable-${type} ${
-    !Boolean(props.details.thumbnail) ? "pt-2 gap-2 mt-2" : ""
-  }`;
-
   return (
-    <Wrapper
-      className={className}
-      data-guided-tour-id={`widget-card-${type}`}
-      draggable
-      id={`widget-card-draggable-${type}`}
-      // isThumbnail is used to add conditional styles for widget that renders thumbnail on widget card
-      isThumbnail={Boolean(props.details.thumbnail)}
-      onDragStart={onDragStart}
-    >
-      <IconWrapper
-        // if widget has a thumbnail, use thumbnail dimensions, else use icon dimensions
-        height={props.details.thumbnail ? THUMBNAIL_HEIGHT : ICON_SIZE}
-        width={props.details.thumbnail ? THUMBNAIL_WIDTH : ICON_SIZE}
-      >
-        <img src={props.details.thumbnail ?? props.details.icon} />
-      </IconWrapper>
-      <Text kind="body-s">{props.details.displayName}</Text>
-      {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
-    </Wrapper>
+    <WidgetCardComponent details={props.details} onDragStart={onDragStart} />
   );
 }
 

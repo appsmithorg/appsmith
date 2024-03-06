@@ -10,7 +10,6 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useCanvasActivationStates } from "./useCanvasActivationStates";
 import { canActivateCanvasForDraggedWidget } from "../utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
-import { useAnvilDragPreview } from "./useAnvilDragPreview";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
@@ -215,11 +214,7 @@ export const useCanvasActivation = () => {
       }
     }
   };
-  useAnvilDragPreview({
-    isDragging,
-    isNewWidget,
-    dragDetails,
-  });
+
   useEffect(() => {
     if (isDragging) {
       // Adding event listeners for mouse move and mouse up events

@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useRef } from "react";
 import { useCanvasActivation } from "../canvasArenas/hooks/mainCanvas/useCanvasActivation";
 import { useSelectWidgetListener } from "../common/hooks/useSelectWidgetListener";
 import { useClickToClearSelections } from "./useClickToClearSelections";
+import { AnvilDragPreview } from "../canvasArenas/AnvilDragPreview";
 
 /**
  * Anvil Main Canvas is just a wrapper around AnvilCanvas.
@@ -35,5 +36,10 @@ export const AnvilMainCanvas = (props: BaseWidgetProps) => {
 
   useCanvasActivation();
   useSelectWidgetListener();
-  return <AnvilCanvas {...props} ref={canvasRef} />;
+  return (
+    <>
+      <AnvilCanvas {...props} ref={canvasRef} />
+      <AnvilDragPreview />
+    </>
+  );
 };
