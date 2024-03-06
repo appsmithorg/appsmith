@@ -545,7 +545,7 @@ public class ActionCollectionServiceImplTest {
         //         .thenReturn(Mono.just((Mockito.mock(UpdateResult.class))));
 
         final QueryAllParams params = Mockito.spy(new QueryAllParams(null));
-        doReturn(Mono.just(1)).when(params).updateFirst(Mockito.<BaseDomain>any());
+        doReturn(1).when(params).updateFirst(Mockito.<BaseDomain>any());
         Mockito.when(actionCollectionRepositoryDirect.queryBuilder()).thenReturn(params);
 
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString(), Mockito.<AclPermission>any()))
@@ -811,7 +811,7 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString())).thenReturn(Mono.just(actionCollection));
 
         final QueryAllParams params = Mockito.spy(new QueryAllParams(null));
-        doReturn(Mono.just(1)).when(params).updateFirst(Mockito.<BaseDomain>any());
+        doReturn(1).when(params).updateFirst(Mockito.<BaseDomain>any());
         Mockito.when(actionCollectionRepositoryDirect.queryBuilder()).thenReturn(params);
 
         PageDTO oldPageDTO = new PageDTO();
