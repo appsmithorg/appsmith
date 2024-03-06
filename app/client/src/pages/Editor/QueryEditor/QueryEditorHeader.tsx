@@ -26,6 +26,7 @@ const NameWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 50%;
   input {
     margin: 0;
     box-sizing: border-box;
@@ -38,6 +39,7 @@ const ActionsWrapper = styled.div`
   flex: 1 1 50%;
   justify-content: flex-end;
   gap: var(--ads-v2-spaces-3);
+  width: 50%;
 `;
 
 interface Props {

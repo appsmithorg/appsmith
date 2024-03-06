@@ -10,9 +10,12 @@ export const PageViewWrapper = styled.div<{
   isPublished: boolean;
 }>`
   ${({ isPublished }) => (isPublished ? "" : "width: inherit;")};
-  ${({ hasPinnedSidebar, sidebarWidth }) =>
-    hasPinnedSidebar ? `margin-left: ${sidebarWidth}px;` : ""};
-  ${({ isPreview }) => (isPreview ? "width: 100%;" : "")};
+  ${({ hasPinnedSidebar, isPreview, sidebarWidth }) =>
+    (hasPinnedSidebar && !isPreview && `margin-left: ${sidebarWidth}px;`) ||
+    (hasPinnedSidebar &&
+      isPreview &&
+      `padding-left: ${sidebarWidth}px; margin: 0 auto;`) ||
+    "margin: 0 auto;"}
 `;
 
 export const PageView = styled.div<{ width: string }>`

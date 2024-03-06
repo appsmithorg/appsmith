@@ -117,6 +117,10 @@ export const getPluginIcon = (plugin?: Plugin) => {
   return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
 };
 
+export const getPluginEntityIcon = (plugin?: Plugin) => {
+  return <EntityIcon>{getPluginIcon(plugin)}</EntityIcon>;
+};
+
 const StyledTag = styled.div<{ color: string }>`
   font-size: 8px;
   width: 40px;
@@ -286,11 +290,10 @@ export function CurlIconV2() {
   );
 }
 
-// TODO (workflows): replace with actual workflow icon
 export function WorkflowIcon() {
   return (
     <EntityIcon>
-      <Icon name="fork" size="lg" />
+      <Icon name="workflows" size="lg" />
     </EntityIcon>
   );
 }

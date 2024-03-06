@@ -1,6 +1,10 @@
 import React from "react";
-import { Button, Flex, SegmentedControl } from "design-system";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import { Button, Flex, SegmentedControl, Tooltip } from "design-system";
+import {
+  createMessage,
+  EDITOR_PANE_TEXTS,
+  MAXIMIZE_BUTTON_TOOLTIP,
+} from "@appsmith/constants/messages";
 import {
   EditorEntityTab,
   EditorViewMode,
@@ -79,16 +83,20 @@ const SegmentedHeader = () => {
           startIcon="add-line"
         />
       ) : null}
-      {isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen ? (
-        <Button
-          id="editor-mode-maximize"
-          isIconButton
-          kind="tertiary"
-          onClick={() =>
-            dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen))
-          }
-          startIcon="maximize"
-        />
+      {isSideBySideEnabled &&
+      editorMode === EditorViewMode.SplitScreen &&
+      segment !== EditorEntityTab.UI ? (
+        <Tooltip content={createMessage(MAXIMIZE_BUTTON_TOOLTIP)}>
+          <Button
+            id="editor-mode-maximize"
+            isIconButton
+            kind="tertiary"
+            onClick={() =>
+              dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen))
+            }
+            startIcon="maximize-v3"
+          />
+        </Tooltip>
       ) : null}
     </Container>
   );

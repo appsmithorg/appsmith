@@ -4,7 +4,6 @@ import type { WidgetDefaultProps } from "WidgetProvider/constants";
 export const defaultsConfig = {
   animateLoading: true,
   label: "Label",
-  labelPosition: "right",
   options: [
     { label: "Yes", value: "Y" },
     { label: "No", value: "N" },

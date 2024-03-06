@@ -1,0 +1,25 @@
+@import "../../../shared/colors/colors.module.css";
+
+.buttonGroup {
+  display: flex;
+  width: 100%;
+  gap: var(--inner-spacing-2);
+
+  & :is([data-button]) {
+    min-inline-size: fit-content;
+  }
+
+  &[data-orientation="vertical"] {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  &[data-orientation="vertical"] :is([data-button]) {
+    min-inline-size: 100%;
+    max-inline-size: none;
+  }
+
+  & :is([data-separator]) {
+    flex-grow: 1;
+  }
+}
