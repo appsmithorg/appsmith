@@ -11,7 +11,7 @@ import {
  *
  * Why not just store flex basis values?
  * This is because when representing on the UI, we show column values which add up to SectionColumns
- * Also space distribution algorithm work with the flex-grow values.
+ * Also space distribution algorithm(redistributeSpaceWithDynamicMinWidth) works with the flex-grow values.
  */
 export const convertFlexGrowToFlexBasis = (
   flexGrow: number,

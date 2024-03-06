@@ -69,11 +69,14 @@ export const AnvilFlexComponent = forwardRef(
     // If the widget is being resized => update width and height to auto.
     const flexProps: FlexProps = useMemo(() => {
       const { isFillWidget, verticalAlignment } = widgetConfigProps;
-      const flexBasis = flexGrow
-        ? convertFlexGrowToFlexBasis(flexGrow)
-        : isFillWidget
-        ? "0%"
-        : "auto";
+      let flexBasis = "auto";
+      if (flexGrow) {
+        // flexGrow is a widget property present only for zone widgets which represents the number of columns the zone occupies in a section.
+        // pls refer to convertFlexGrowToFlexBasis to understand why we convert flex grow back to flex basis.
+        flexBasis = convertFlexGrowToFlexBasis(flexGrow);
+      } else if (isFillWidget) {
+        flexBasis = "0%";
+      }
       const data: FlexProps = {
         alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
         flexGrow: isFillWidget ? 1 : 0,
