@@ -82,6 +82,7 @@ import { getTemplateByName } from "selectors/templatesSelectors";
 import { saveCopiedWidgets } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { SelectionRequestType } from "./WidgetSelectUtils";
+import { flattenDSL } from "@shared/dsl";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -558,6 +559,9 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
       if (isValid) {
         const responseJson = JSON.parse(response.data);
         const blockWidgets = responseJson.children;
+        const flattenedBlockWidgets = blockWidgets.map((widget: WidgetProps) =>
+          flattenDSL(widget),
+        );
         // call deleteSagaInit to remove skeleton loader
         yield put({
           type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
@@ -575,7 +579,7 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
           list: FlattenedWidgetProps[];
           hierarchy: number;
         }[] = yield all(
-          blockWidgets.map((widget: WidgetProps) => {
+          flattenedBlockWidgets.map((widget: WidgetProps) => {
             let widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
             if (
               widget.parentId &&
