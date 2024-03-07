@@ -132,20 +132,25 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             newAction.setPluginId(mappedExportableResourcesDTO.getPluginMap().get(newAction.getPluginId()));
             newAction.setWorkspaceId(null);
             newAction.setPolicies(null);
+
+            String publishedDbName = sanitizeDatasourceInActionDTO(
+                    newAction.getPublishedAction(),
+                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                    mappedExportableResourcesDTO.getPluginMap(),
+                    null,
+                    true);
+
+            String unpublishedDbName = sanitizeDatasourceInActionDTO(
+                    newAction.getUnpublishedAction(),
+                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                    mappedExportableResourcesDTO.getPluginMap(),
+                    null,
+                    true);
+
+            // Only add the datasource for this action to dbNamesUsed if it is not a module action
             if (hasExportableDatasource(newAction)) {
-                // Only add the datasource for this action to dbNamesUsed if it is not a module action
-                dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                        newAction.getPublishedAction(),
-                        mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                        mappedExportableResourcesDTO.getPluginMap(),
-                        null,
-                        true));
-                dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                        newAction.getUnpublishedAction(),
-                        mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                        mappedExportableResourcesDTO.getPluginMap(),
-                        null,
-                        true));
+                dbNamesUsedInActions.add(publishedDbName);
+                dbNamesUsedInActions.add(unpublishedDbName);
             }
 
             // Set unique id for action

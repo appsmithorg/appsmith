@@ -16,6 +16,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getCurrentPageName,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
 import {
@@ -99,6 +100,8 @@ import {
   getJSActionPathNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
+import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
+import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -455,7 +458,21 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
     });
 
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, true, collectionId, isDirty);
+
+    yield put(
+      logActionExecutionForAudit({
+        actionName: action.name,
+        actionId: action.id,
+        collectionId: collectionId,
+        pageId: action.pageId,
+        pageName: yield select(getCurrentPageName),
+      }),
+    );
+
     const jsActionNameToDisplay = getJSActionNameToDisplay(action);
+
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
       source: {
@@ -489,6 +506,10 @@ export function* handleExecuteJSFunctionSaga(data: {
         }),
       );
     }
+
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, false, collectionId, false);
+
     AppsmithConsole.addErrors([
       {
         payload: {

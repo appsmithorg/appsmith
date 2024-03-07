@@ -181,13 +181,17 @@ jobs:
             args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
           fi
           if ! mvn test "${args[@]}"; then
-            gawk -F\" '/<testcase / {cur_test = $4 "#" $2} /<failure / {print cur_test}' $(find . -type f -name 'TEST-*.xml') \
-              > failed-server-tests.txt
-            if [[ -s failed-server-tests.txt ]]; then
+            echo "Generating failed test list:"
+            failed_tests_file="$PWD/failed-server-tests.txt"
+            gawk -F\" '/<testcase / {cur_test = $4 "#" $2} /<(failure|error) / {print cur_test}' $(find . -type f -name 'TEST-*.xml') \
+              | sort -u \
+              | tee "$failed_tests_file"
+            echo "Saved to $failed_tests_file"
+            if [[ -s $failed_tests_file ]]; then
               content="$(
                 echo "## Failed server tests"
                 echo
-                sed 's/^/- /' 'failed-server-tests.txt' | sort -u
+                sed 's/^/- /' "$failed_tests_file"
               )"
               echo "$content" >> "$GITHUB_STEP_SUMMARY"
               # Add a comment to the PR with the list of failed tests.
