@@ -18,6 +18,7 @@ export * from "./components/Menu";
 export * from "./components/Modal";
 export * from "./components/TagGroup";
 export * from "./components/ActionGroup";
+export * from "./components/ButtonGroup";
 
 export * from "./utils";
 export * from "./styles";

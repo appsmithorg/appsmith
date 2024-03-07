@@ -12,6 +12,7 @@ import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -54,8 +55,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 
 @Slf4j
 public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, String> implements PluginServiceCE {
@@ -131,7 +130,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     List<String> pluginIds = org.getPlugins().stream()
                             .map(WorkspacePlugin::getPluginId)
                             .collect(Collectors.toList());
-                    final Bridge criteria = bridge().in(FieldName.ID, pluginIds);
+                    final BridgeQuery<Plugin> criteria = Bridge.in(FieldName.ID, pluginIds);
 
                     final String typeString = params.getFirst(FieldName.TYPE);
                     if (typeString != null) {

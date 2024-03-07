@@ -9,6 +9,8 @@
     box-shadow: inset 0 0 0 1px var(--color-bd-neutral);
     padding-inline: var(--inner-spacing-1);
     flex: 1;
+    max-inline-size: 100%;
+    isolation: isolate;
   }
 
   & [data-field-input] :is(input, textarea) {
@@ -19,6 +21,7 @@
     color: var(--color-fg);
     text-overflow: ellipsis;
     padding: 0;
+    max-inline-size: 100%;
 
     &:autofill,
     &:autofill:hover,
@@ -60,6 +63,7 @@
     position: absolute;
     box-shadow: 0 0 0 2px var(--color-bd-focus);
     border-radius: var(--border-radius-elevation-3);
+    z-index: -1;
   }
 
   & [data-readonly][data-field-input][data-focused]:before {

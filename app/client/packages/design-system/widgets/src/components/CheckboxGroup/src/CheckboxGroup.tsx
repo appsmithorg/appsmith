@@ -29,7 +29,7 @@ const _CheckboxGroup = (
       contextualHelp={contextualHelp}
       fieldClassName={fieldStyles.field}
       helpTextClassName={getTypographyClassName("footnote")}
-      labelClassName={getTypographyClassName("body")}
+      labelClassName={getTypographyClassName("caption")}
       ref={ref}
       {...rest}
     />

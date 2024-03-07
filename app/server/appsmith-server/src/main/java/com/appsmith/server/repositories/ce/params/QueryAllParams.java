@@ -3,7 +3,7 @@ package com.appsmith.server.repositories.ce.params;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.Getter;
 import lombok.NonNull;
@@ -94,7 +94,7 @@ public class QueryAllParams<T extends BaseDomain> {
         }
 
         for (Criteria c : criteria) {
-            if (c instanceof Bridge b && b.getCriteriaObject().isEmpty()) {
+            if (c instanceof BridgeQuery<?> b && b.getCriteriaObject().isEmpty()) {
                 throw new IllegalArgumentException(
                         "Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.");
             }

@@ -23,9 +23,13 @@ import {
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
 } from "@appsmith/constants/routes/appRoutes";
+import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import ApiEditor from "pages/Editor/APIEditor";
 import type { UseRoutes } from "@appsmith/entities/IDE/constants";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import {
+  EditorEntityTabState,
+  EditorViewMode,
+} from "@appsmith/entities/IDE/constants";
 import QueryEditor from "pages/Editor/QueryEditor";
 import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
 import ListQuery from "pages/Editor/IDE/EditorPane/Query/List";
@@ -33,18 +37,28 @@ import type { AppState } from "@appsmith/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "design-system";
+import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/Query/BlankStateContainer";
+import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 
 export const useQueryAdd = () => {
   const location = useLocation();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
+  const { segmentMode } = useCurrentEditorState();
 
   const addButtonClickHandler = useCallback(() => {
-    const url = getQueryAddUrl(currentEntityInfo);
+    let url = "";
+    if (segmentMode === EditorEntityTabState.Add) {
+      // Already in add mode, back to the previous active item
+      url = location.pathname.replace(`${ADD_PATH}`, "");
+    } else {
+      url = getQueryAddUrl(currentEntityInfo);
+    }
     history.push(url);
-  }, [currentEntityInfo.id]);
+  }, [currentEntityInfo.id, segmentMode]);
 
   return addButtonClickHandler;
 };
+//history.push(location.pathname.replace(`${ADD_PATH}`, ""));
 
 export type GroupedAddOperations = Array<{
   title?: string;
@@ -95,6 +109,7 @@ export const useGroupedAddQueryOperations = (): GroupedAddOperations => {
 export const useQuerySegmentRoutes = (path: string): UseRoutes => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
+
   if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
     return [
       {
@@ -114,13 +129,26 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
         path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
       },
       {
-        key: "QueryEditor",
+        key: "SAASEditor",
         component: QueryEditor,
         exact: true,
         path: [
-          path + "/api/:apiId", // SAAS path
-          path + "/:queryId",
+          BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
+          BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
         ],
+      },
+      {
+        key: "QueryEditor",
+        component: QueryEditor,
+        exact: true,
+        path: [path + "/:queryId"],
+      },
+      {
+        key: "QueryEmpty",
+        component: BlankStateContainer,
+        exact: true,
+        path: [path],
       },
     ];
   }

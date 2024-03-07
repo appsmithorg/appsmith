@@ -1,63 +1,55 @@
 package com.appsmith.server.helpers.ce.bridge;
 
+import com.appsmith.external.models.BaseDomain;
 import lombok.NonNull;
-import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 
-public class Bridge extends Criteria {
-    private final List<Criteria> criteriaList = new ArrayList<>();
-
+public final class Bridge {
     private Bridge() {}
 
-    public static Bridge bridge() {
-        return new Bridge();
+    public static <T extends BaseDomain> BridgeQuery<T> query() {
+        return new BridgeQuery<>();
     }
 
-    public Bridge equal(@NonNull String key, @NonNull String value) {
-        criteriaList.add(Criteria.where(key).is(value));
-        return this;
+    @Deprecated
+    public static <T extends BaseDomain> BridgeQuery<T> bridge() {
+        return new BridgeQuery<>();
     }
 
-    public Bridge equal(@NonNull String key, @NonNull ObjectId value) {
-        criteriaList.add(Criteria.where(key).is(value));
-        return this;
+    @SafeVarargs
+    public static <T extends BaseDomain> BridgeQuery<T> or(BridgeQuery<T>... items) {
+        final BridgeQuery<T> q = new BridgeQuery<>();
+        q.checks.add(new Criteria().orOperator(items));
+        return q;
     }
 
-    public Bridge in(@NonNull String key, @NonNull Collection<String> value) {
-        criteriaList.add(Criteria.where(key).in(value));
-        return this;
+    @SafeVarargs
+    public static <T extends BaseDomain> BridgeQuery<T> and(BridgeQuery<T>... items) {
+        final BridgeQuery<T> q = new BridgeQuery<>();
+        q.checks.add(new Criteria().andOperator(items));
+        return q;
     }
 
-    public Bridge exists(@NonNull String key) {
-        criteriaList.add(Criteria.where(key).exists(true));
-        return this;
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull String value) {
+        return Bridge.<T>query().equal(key, value);
     }
 
-    public Bridge isTrue(@NonNull String key) {
-        criteriaList.add(Criteria.where(key).is(true));
-        return this;
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull ObjectId value) {
+        return Bridge.<T>query().equal(key, value);
     }
 
-    /**
-     * Explicitly disable the `where()` API to prevent its usage. This is because querying with this API will work here,
-     * but won't work in the Postgres version.
-     */
-    public static Bridge where() {
-        throw new UnsupportedOperationException("Not implemented");
+    public static <T extends BaseDomain> BridgeQuery<T> in(@NonNull String key, @NonNull Collection<String> value) {
+        return Bridge.<T>query().in(key, value);
     }
 
-    @Override
-    public Document getCriteriaObject() {
-        if (criteriaList.isEmpty()) {
-            throw new UnsupportedOperationException(
-                    "Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.");
-        }
+    public static <T extends BaseDomain> BridgeQuery<T> exists(@NonNull String key) {
+        return Bridge.<T>query().exists(key);
+    }
 
-        return new Criteria().andOperator(criteriaList.toArray(new Criteria[0])).getCriteriaObject();
+    public static <T extends BaseDomain> BridgeQuery<T> isTrue(@NonNull String key) {
+        return Bridge.<T>query().isTrue(key);
     }
 }

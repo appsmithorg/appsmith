@@ -2,10 +2,7 @@ import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/cons
 import { useCallback, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import {
-  isCurrentWidgetFocused,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
+import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
 
 export const useAnvilWidgetClick = (
   widgetId: string,
@@ -13,12 +10,11 @@ export const useAnvilWidgetClick = (
 ) => {
   // Retrieve state from the Redux store
   const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
-  const isSelected = useSelector(isWidgetSelected(widgetId));
   const isSnipingMode = useSelector(snipingModeSelector);
   const allowSelectionRef = useRef(false);
   useEffect(() => {
-    allowSelectionRef.current = isFocused && !isSelected;
-  }, [isFocused, isSelected]);
+    allowSelectionRef.current = isFocused;
+  }, [isFocused]);
   // Function to stop event propagation if not in sniping mode
   // Note: Sniping mode is irrelevant to the Anvil however it becomes relevant if we decide to make Anvil the default editor
   const onClickFn = useCallback(
@@ -29,15 +25,20 @@ export const useAnvilWidgetClick = (
   );
 
   // Callback function for handling click events on AnvilFlexComponent in Edit mode
-  const onClickCaptureFn = useCallback(
-    function () {
+  const onClickCaptureFn: React.MouseEventHandler = useCallback(
+    function (e) {
       // Dispatch a custom event when the Anvil widget is clicked and focused
       if (ref.current && allowSelectionRef.current) {
         ref.current.dispatchEvent(
           new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
             bubbles: true,
             cancelable: true,
-            detail: { widgetId: widgetId },
+            detail: {
+              widgetId,
+              metaKey: e.metaKey,
+              ctrlKey: e.ctrlKey,
+              shiftKey: e.shiftKey,
+            },
           }),
         );
       }

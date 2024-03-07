@@ -743,9 +743,9 @@ public enum AppsmithError {
     GENERIC_JSON_IMPORT_ERROR(
             400,
             AppsmithErrorCode.GENERIC_JSON_IMPORT_ERROR.getCode(),
-            "Unable to import application in workspace {0}. {1}",
+            "Unable to import artifact in workspace {0}. {1}",
             AppsmithErrorAction.DEFAULT,
-            "Unable to import application in workspace",
+            "Unable to import artifact in workspace",
             ErrorType.BAD_REQUEST,
             null),
     FILE_PART_DATA_BUFFER_ERROR(

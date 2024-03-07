@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo, useRef } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import styled from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
@@ -203,7 +203,7 @@ export function InviteUserText({
   return (
     <Text
       color="var(--ads-v2-color-fg)"
-      data-testid="helper-message"
+      data-testid="t--helper-message"
       kind="action-m"
     >
       {canShowRamp && isApplicationPage ? (
@@ -308,8 +308,6 @@ function InviteUsersForm(props: any) {
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
 
-  const invitedEmails = useRef<undefined | string[]>();
-
   useEffect(() => {
     setSelectedOption([]);
   }, [submitSucceeded]);
@@ -337,10 +335,8 @@ function InviteUsersForm(props: any) {
           : createMessage(INVITE_USER_SUBMIT_SUCCESS),
         { kind: "success" },
       );
-
-      props?.checkIfInvitedUsersFromDifferentDomain?.(invitedEmails.current);
     }
-  }, [submitSucceeded, invitedEmails.current]);
+  }, [submitSucceeded]);
 
   const styledRoles =
     props.options && props.options.length > 0
@@ -389,7 +385,6 @@ function InviteUsersForm(props: any) {
           isEmail(user),
         );
         const validEmailsString = [...new Set(validEmails)].join(",");
-        invitedEmails.current = validEmails;
 
         AnalyticsUtil.logEvent("INVITE_USER", {
           ...(!isFeatureEnabled ? { users: usersAsStringsArray } : {}),

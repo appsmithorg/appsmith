@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
@@ -14,7 +15,6 @@ import reactor.core.publisher.Mono;
 import java.util.HashSet;
 import java.util.Set;
 
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -36,7 +36,7 @@ public class CustomUserRepositoryCEImpl extends BaseAppsmithRepositoryImpl<User>
     @Override
     public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
         return queryBuilder()
-                .criteria(bridge().equal(User.Fields.email, email).equal(User.Fields.tenantId, tenantId))
+                .criteria(Bridge.equal(User.Fields.email, email).equal(User.Fields.tenantId, tenantId))
                 .one();
     }
 
