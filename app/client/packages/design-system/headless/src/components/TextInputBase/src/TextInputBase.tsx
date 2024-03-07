@@ -23,7 +23,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     labelProps,
     multiLine = false,
     onBlur,
-    onFocus,
+    onFocus: onFocusProp,
     prefix,
     startIcon,
     suffix,
@@ -53,6 +53,15 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     autoFocus,
   });
 
+  const onFocus: React.FocusEventHandler = (e) => {
+    if (isReadOnly) {
+      inputRef.current?.blur();
+      return;
+    }
+
+    onFocusProp?.(e);
+  };
+
   const { focusableProps } = useFocusable(
     { isDisabled: getDisabledState(), onFocus: onFocus, onBlur: onBlur },
     inputRef,
@@ -60,6 +69,8 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
 
   // When user clicks on the startIcon or endIcon, we want to focus the input.
   const focusInput: React.MouseEventHandler = () => {
+    if (isReadOnly) return;
+
     inputRef.current?.focus();
   };
 
@@ -85,6 +96,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
         {...mergeProps(inputProps, hoverProps, focusProps, focusableProps)}
         className={inputClassName}
         disabled={getDisabledState()}
+        onFocus={onFocus}
         readOnly={isReadOnly}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ref={inputRef as any}

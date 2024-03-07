@@ -8,6 +8,7 @@ import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
   args={{
     label: "Label",
     placeholder: "Placeholder",
+    onChange: (value) => console.log(value),
   }}
 />
 
@@ -30,6 +31,18 @@ TextInput is a component that allows users to input text.
   args={{
     placeholder: "Default Value",
     defaultValue: "Default Value",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Readonly
+
+<Story
+  name="Readonly"
+  args={{
+    placeholder: "Readonly",
+    isReadOnly: true,
   }}
 >
   {Template.bind({})}
