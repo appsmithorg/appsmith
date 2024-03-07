@@ -55,7 +55,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest

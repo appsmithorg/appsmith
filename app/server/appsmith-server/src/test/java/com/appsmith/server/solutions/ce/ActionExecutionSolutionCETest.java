@@ -19,7 +19,7 @@ import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
@@ -263,7 +263,7 @@ public class ActionExecutionSolutionCETest {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1).zipWhen(application11 -> exportService
                             .exportByArtifactIdAndBranchName(
-                                    application11.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION)
+                                    application11.getId(), gitData.getBranchName(), ArtifactType.APPLICATION)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application

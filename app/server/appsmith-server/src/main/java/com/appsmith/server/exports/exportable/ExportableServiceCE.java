@@ -2,7 +2,7 @@ package com.appsmith.server.exports.exportable;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
@@ -20,7 +20,7 @@ public interface ExportableServiceCE<T extends BaseDomain> {
     default Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         return Mono.empty().then();
     }
@@ -28,7 +28,7 @@ public interface ExportableServiceCE<T extends BaseDomain> {
     default Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
         return Mono.empty();

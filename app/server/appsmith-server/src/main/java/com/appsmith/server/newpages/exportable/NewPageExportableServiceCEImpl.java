@@ -3,7 +3,7 @@ package com.appsmith.server.newpages.exportable;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -51,7 +51,7 @@ public class NewPageExportableServiceCEImpl implements ExportableServiceCE<NewPa
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;

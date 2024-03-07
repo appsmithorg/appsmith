@@ -6,8 +6,8 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Context;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
@@ -57,7 +57,7 @@ public class ActionCollectionApplicationImportableServiceCEImpl
     }
 
     @Override
-    public Flux<ActionCollection> getExistingResourcesInCurrentArtifactFlux(ImportableArtifact artifact) {
+    public Flux<ActionCollection> getExistingResourcesInCurrentArtifactFlux(Artifact artifact) {
         return repository.findByApplicationId(artifact.getId());
     }
 
@@ -97,7 +97,7 @@ public class ActionCollectionApplicationImportableServiceCEImpl
     public void populateDefaultResources(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            ImportableArtifact artifact,
+            Artifact artifact,
             ActionCollection branchedActionCollection,
             ActionCollection actionCollection) {
         actionCollection.setApplicationId(artifact.getId());

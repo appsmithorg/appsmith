@@ -6,12 +6,11 @@ import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ExportableArtifact;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -33,7 +32,7 @@ import java.util.Set;
 public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
 
     @JsonView({Views.Public.class, Views.Export.class})
-    ArtifactJsonType artifactJsonType = ArtifactJsonType.APPLICATION;
+    ArtifactType artifactJsonType = ArtifactType.APPLICATION;
 
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
@@ -120,12 +119,7 @@ public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
     String widgets;
 
     @Override
-    public ImportableArtifact getImportableArtifact() {
-        return this.getExportedApplication();
-    }
-
-    @Override
-    public ExportableArtifact getExportableArtifact() {
+    public Artifact getArtifact() {
         return this.getExportedApplication();
     }
 
