@@ -16,7 +16,7 @@ const SeeMoreButton = (props: Props) => {
   return (
     <Button
       className="mt-4"
-      data-testid="t--explorer-see-more"
+      data-testid="t--explorer-ui-entity-tag-see-more"
       hidden={props.hidden}
       kind="tertiary"
       onClick={() => props.toggleSeeMore()}
