@@ -65,6 +65,10 @@ import {
   computeFinalRowCols,
   computeFinalAutoLayoutRowCols,
 } from "layoutSystems/common/resizer/ResizableUtils";
+import {
+  getAltBlockWidgetSelection,
+  getWidgetSelectionBlock,
+} from "selectors/ui";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -80,6 +84,8 @@ export const ResizableComponent = memo(function ResizableComponent(
   const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
+  const isAltWidgetSelectionBlock = useSelector(getAltBlockWidgetSelection);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -325,6 +331,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode &&
+    !isWidgetSelectionBlock &&
     !isAppSettingsPaneWithNavigationTabOpen;
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
@@ -387,6 +394,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     !isPreviewMode &&
     !isAppSettingsPaneWithNavigationTabOpen &&
     !isDragging &&
+    !isAltWidgetSelectionBlock &&
     (isHovered || isSelected);
 
   return (

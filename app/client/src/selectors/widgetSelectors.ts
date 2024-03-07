@@ -9,6 +9,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 
 import WidgetFactory from "WidgetProvider/factory";
 import {
+  getAltBlockWidgetSelection,
   getFocusedWidget,
   getLastSelectedWidget,
   getSelectedWidgets,
@@ -179,6 +180,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
     getAppMode,
     combinedPreviewModeSelector,
     getIsAutoHeightWithLimitsChanging,
+    getAltBlockWidgetSelection,
     (
       focusedWidgetId,
       isTableFilterPaneVisible,
@@ -188,6 +190,7 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
       appMode,
       isPreviewMode,
       isAutoHeightWithLimitsChanging,
+      isWidgetSelectionBlock,
     ) => {
       const isFocused = focusedWidgetId === widgetId;
 
@@ -199,7 +202,8 @@ export const shouldWidgetIgnoreClicksSelector = (widgetId: string) => {
         appMode !== APP_MODE.EDIT ||
         !isFocused ||
         isTableFilterPaneVisible ||
-        isAutoHeightWithLimitsChanging
+        isAutoHeightWithLimitsChanging ||
+        isWidgetSelectionBlock
       );
     },
   );

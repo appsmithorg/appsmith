@@ -74,3 +74,10 @@ export const getIsAltFocusWidget = (state: AppState) =>
 
 export const getWidgetSelectionBlock = (state: AppState) =>
   state.ui.widgetDragResize.blockSelection;
+
+export const getAltBlockWidgetSelection = createSelector(
+  [getWidgetSelectionBlock, getIsAltFocusWidget],
+  (isWidgetSelectionBlock, isAltFocusWidget) => {
+    return isWidgetSelectionBlock ? !isAltFocusWidget : false;
+  },
+);

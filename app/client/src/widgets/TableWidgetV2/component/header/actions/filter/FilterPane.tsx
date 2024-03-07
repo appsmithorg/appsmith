@@ -19,8 +19,6 @@ import { getTableFilterState } from "selectors/tableFilterSelectors";
 import { getWidgetMetaProps } from "sagas/selectors";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { importSvg } from "design-system-old";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 
@@ -155,14 +153,12 @@ const mapDispatchToProps = (dispatch: any) => {
           position,
         },
       });
-      dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
     },
     hideFilterPane: (widgetId: string) => {
       dispatch({
         type: ReduxActionTypes.HIDE_TABLE_FILTER_PANE,
         payload: { widgetId },
       });
-      dispatch(selectWidgetInitAction(SelectionRequestType.One, [widgetId]));
     },
   };
 };
