@@ -357,6 +357,7 @@ export const retryPromise = async (
   fn: () => Promise<any>,
   retriesLeft = 5,
   interval = 1000,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   shouldRetry = (e: Error) => true, // default to retry on all errors
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
