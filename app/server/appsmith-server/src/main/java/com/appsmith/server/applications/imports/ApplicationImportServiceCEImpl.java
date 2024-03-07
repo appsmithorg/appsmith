@@ -405,7 +405,7 @@ public class ApplicationImportServiceCEImpl
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
             if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
-                if (!mappedImportableResourcesDTO.getInstalledJsLibsList().isEmpty()) {
+                if (!CollectionUtils.isEmpty(mappedImportableResourcesDTO.getInstalledJsLibsList())) {
                     Application update = new Application();
                     update.setUnpublishedCustomJSLibs(
                             new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
