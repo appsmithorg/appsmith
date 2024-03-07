@@ -142,16 +142,16 @@ export function SettingsControl(props: SettingsControlProps) {
             size="md"
           />
         )}
-        <WidgetName className="t--widget-name">
-          {isSnipingMode ? `Bind to ${props.name}` : props.name}
-        </WidgetName>
         {isCanvasPreviewMode && (
           <Icon
             color="var(--ads-v2-color-white)"
-            name="pencil-line"
-            size="sm"
+            name="pencil-fill-icon"
+            size="md"
           />
         )}
+        <WidgetName className="t--widget-name">
+          {isSnipingMode ? `Bind to ${props.name}` : props.name}
+        </WidgetName>
       </SettingsWrapper>
     </Tooltip>
   );
