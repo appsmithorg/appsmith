@@ -27,7 +27,6 @@ import {
   DEPLOY_MENU_OPTION,
   IN_APP_EMBED_SETTING,
   INVITE_TAB,
-  RENAME_APPLICATION_TOOLTIP,
   HEADER_TITLES,
 } from "@appsmith/constants/messages";
 import EditorName from "pages/Editor/EditorName";
@@ -224,49 +223,43 @@ const Header = () => {
         height={"100%"}
         justifyContent={"center"}
       >
-        <Tooltip
-          content={createMessage(RENAME_APPLICATION_TOOLTIP)}
-          isDisabled={isPopoverOpen}
-          placement="bottom"
-        >
-          <Flex alignItems={"center"}>
-            {currentWorkspace.name && (
-              <>
-                <Text
-                  color={"var(--ads-v2-colors-content-label-inactive-fg)"}
-                  kind="body-m"
-                >
-                  {currentWorkspace.name + " / "}
-                </Text>
-                <EditorName
-                  applicationId={applicationId}
-                  className="t--application-name editable-application-name max-w-48"
-                  defaultSavingState={
-                    isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
-                  }
-                  defaultValue={currentApplication?.name || ""}
-                  editInteractionKind={EditInteractionKind.SINGLE}
-                  editorName="Application"
-                  fill
-                  getNavigationMenu={GetNavigationMenuData}
-                  isError={isErroredSavingName}
-                  isNewEditor={
-                    applicationList.filter((el) => el.id === applicationId)
-                      .length > 0
-                  }
-                  isPopoverOpen={isPopoverOpen}
-                  onBlur={(value: string) =>
-                    updateApplicationDispatch(applicationId || "", {
-                      name: value,
-                      currentApp: true,
-                    })
-                  }
-                  setIsPopoverOpen={setIsPopoverOpen}
-                />
-              </>
-            )}
-          </Flex>
-        </Tooltip>
+        <Flex alignItems={"center"}>
+          {currentWorkspace.name && (
+            <>
+              <Text
+                color={"var(--ads-v2-colors-content-label-inactive-fg)"}
+                kind="body-m"
+              >
+                {currentWorkspace.name + " / "}
+              </Text>
+              <EditorName
+                applicationId={applicationId}
+                className="t--application-name editable-application-name max-w-48"
+                defaultSavingState={
+                  isSavingName ? SavingState.STARTED : SavingState.NOT_STARTED
+                }
+                defaultValue={currentApplication?.name || ""}
+                editInteractionKind={EditInteractionKind.SINGLE}
+                editorName="Application"
+                fill
+                getNavigationMenu={GetNavigationMenuData}
+                isError={isErroredSavingName}
+                isNewEditor={
+                  applicationList.filter((el) => el.id === applicationId)
+                    .length > 0
+                }
+                isPopoverOpen={isPopoverOpen}
+                onBlur={(value: string) =>
+                  updateApplicationDispatch(applicationId || "", {
+                    name: value,
+                    currentApp: true,
+                  })
+                }
+                setIsPopoverOpen={setIsPopoverOpen}
+              />
+            </>
+          )}
+        </Flex>
       </Flex>
       <Flex
         alignItems={"center"}
