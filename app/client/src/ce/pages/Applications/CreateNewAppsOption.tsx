@@ -30,13 +30,16 @@ import { fetchMockDatasources } from "actions/datasourceActions";
 import DatasourceForm from "pages/Editor/SaaSEditor/DatasourceForm";
 import type { Datasource } from "entities/Datasource";
 import { fetchingEnvironmentConfigs } from "@appsmith/actions/environmentAction";
+import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 
-const SectionWrapper = styled.div`
+const SectionWrapper = styled.div<{ isBannerVisible: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
   ${(props) => `
-    margin-top: ${props.theme.homePage.header}px;
+    margin-top: ${
+      props.theme.homePage.header + (props.isBannerVisible ? 40 : 0)
+    }px;
   `}
   background: var(--ads-v2-color-gray-50);
   ${(props) => `
@@ -44,12 +47,12 @@ const SectionWrapper = styled.div`
   `}
 `;
 
-const BackWrapper = styled.div<{ hidden?: boolean }>`
+const BackWrapper = styled.div<{ hidden?: boolean; isBannerVisible: boolean }>`
   position: sticky;
   display: flex;
   justify-content: space-between;
   ${(props) => `
-    top: ${props.theme.homePage.header}px;
+    top: ${props.theme.homePage.header + (props.isBannerVisible ? 40 : 0)}px;
     `}
   background: inherit;
   padding: var(--ads-v2-spaces-3);
@@ -96,6 +99,7 @@ const CreateNewAppsOption = ({
     getDatasource(state, TEMP_DATASOURCE_ID || ""),
   );
 
+  const isBannerVisible = useSelector(shouldShowLicenseBanner);
   const dispatch = useDispatch();
 
   const startWithData = () => {
@@ -197,8 +201,8 @@ const CreateNewAppsOption = ({
   const isBackButtonHidden = !createNewAppPluginId || !selectedDatasource;
 
   return (
-    <SectionWrapper>
-      <BackWrapper>
+    <SectionWrapper isBannerVisible={!!isBannerVisible}>
+      <BackWrapper isBannerVisible={!!isBannerVisible}>
         <LinkWrapper
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"
