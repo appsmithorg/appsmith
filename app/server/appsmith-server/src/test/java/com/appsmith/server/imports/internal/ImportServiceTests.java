@@ -4286,6 +4286,14 @@ public class ImportServiceTests {
                     List<NewAction> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
+                    assertThat(application1.getUnpublishedCustomJSLibs().size()).isEqualTo(2);
+                    application1.getUnpublishedCustomJSLibs().forEach(customJSLib -> {
+                        assertThat(customJSLib.getUidString())
+                                .containsAnyOf(
+                                        "accessor1_url",
+                                        "xmlParser_https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.min.js");
+                    });
+
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application1.getPages().size());
