@@ -10,7 +10,7 @@ import {
   DEDICATED_WORKER_GLOBAL_SCOPE_IDENTIFIERS,
   JAVASCRIPT_KEYWORDS,
 } from "constants/WidgetValidation";
-import { get, set, isNil, has, uniq } from "lodash";
+import { get, has, isNil, set, uniq } from "lodash";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import moment from "moment";

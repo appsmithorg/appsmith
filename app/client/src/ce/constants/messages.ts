@@ -245,8 +245,14 @@ export const EDITOR_HEADER = {
   saveFailed: () => "Save failed",
   share: () => "Share",
   previewTooltip: {
-    text: () => "Preview",
-    shortcut: () => "P",
+    normal: {
+      text: () => "Preview",
+      shortcut: () => "P",
+    },
+    quick: {
+      text: () => "Quick Preview",
+      shortcut: () => "Click",
+    },
   },
 };
 
