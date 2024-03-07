@@ -16,7 +16,6 @@ import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
 import {
   BUILDING_BLOCK_EXPLORER_TYPE,
-  MAIN_CONTAINER_WIDGET_ID,
   RenderModes,
 } from "constants/WidgetConstants";
 import { toast } from "design-system";
@@ -36,8 +35,6 @@ import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getCanvasWidth,
-  getCurrentApplicationId,
-  getCurrentPageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
@@ -54,35 +51,12 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
-import {
-  getDragDetails,
-  getWidget,
-  getWidgetByName,
-  getWidgets,
-} from "./selectors";
+import { getDragDetails, getWidget, getWidgets } from "./selectors";
 // import {
 //   ApplicationApi,
 //   type ImportBuildingBlockRequest,
 // } from "@appsmith/api/ApplicationApi";
-import type { ImportBuildingBlockRequest } from "@appsmith/api/ApplicationApi";
-import ApplicationApi from "@appsmith/api/ApplicationApi";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { pasteWidget } from "actions/widgetActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import type { Template } from "api/TemplatesApi";
-import {
-  getWidgetLayoutMetaInfo,
-  type WidgetLayoutPositionInfo,
-} from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
-import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { getTemplateByName } from "selectors/templatesSelectors";
-import { saveCopiedWidgets } from "utils/storage";
-import { validateResponse } from "./ErrorSagas";
-import { SelectionRequestType } from "./WidgetSelectUtils";
-import { flattenDSL } from "@shared/dsl";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -515,19 +489,9 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
     if (addEntityAction.payload.type === BUILDING_BLOCK_EXPLORER_TYPE) {
       const dragDetails: DragDetails = yield select(getDragDetails);
       const buildingblockName = dragDetails.newWidget.displayName;
-      const applicationId: string = yield select(getCurrentApplicationId);
-      const currentPageId: string = yield select(getCurrentPageId);
-      const workspaceId: string = yield select(getCurrentWorkspaceId);
-      const layoutSystemType: LayoutSystemTypes =
-        yield select(getLayoutSystemType);
-      const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
-        yield select(getWidgets);
       const skeletonWidgetName = `loading_${buildingblockName
         .toLowerCase()
         .replace(/ /g, "_")}`;
-      const template: Template = yield select(
-        getTemplateByName(buildingblockName),
-      );
       const createSkeletonWidget: ReduxAction<WidgetAddChild> = {
         ...addEntityAction,
         payload: {
@@ -537,79 +501,6 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
         },
       };
       yield call(addChildSaga, createSkeletonWidget);
-
-      const skeletonWidget: FlattenedWidgetProps | undefined = yield select(
-        getWidgetByName,
-        skeletonWidgetName,
-      );
-
-      const body: ImportBuildingBlockRequest = {
-        pageId: currentPageId,
-        applicationId,
-        workspaceId,
-        templateId: template.id,
-      };
-
-      const response: {
-        responseMeta: { status: number; success: boolean };
-        data: string;
-        errorDisplay: string;
-      } = yield call(ApplicationApi.importBuildingBlock, body);
-      const isValid: boolean = yield validateResponse(response);
-      if (isValid) {
-        const responseJson = JSON.parse(response.data);
-        const blockWidgets = responseJson.children;
-        const flattenedBlockWidgets = blockWidgets.map((widget: WidgetProps) =>
-          flattenDSL(widget),
-        );
-        // call deleteSagaInit to remove skeleton loader
-        yield put({
-          type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
-          payload: {
-            widgetId: skeletonWidget?.widgetId,
-            parentId: MAIN_CONTAINER_WIDGET_ID,
-            disallowUndo: true,
-            isShortcut: false,
-          },
-        });
-
-        const widgetListsToStore: {
-          widgetId: string;
-          parentId: string;
-          list: FlattenedWidgetProps[];
-          hierarchy: number;
-        }[] = yield all(
-          flattenedBlockWidgets.map((widget: WidgetProps) => {
-            let widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
-            if (
-              widget.parentId &&
-              layoutSystemType === LayoutSystemTypes.ANVIL
-            ) {
-              widgetPositionInfo = getWidgetLayoutMetaInfo(
-                allWidgets[widget?.parentId]?.layout[0] ?? null,
-                widget.widgetId,
-              );
-            }
-            return {
-              hierarchy: getWidgetHierarchy(widget.type, widget.widgetId),
-              list: [widget],
-              parentId: widget.parentId,
-              widgetId: widget.widgetId,
-              widgetPositionInfo,
-            };
-          }),
-        );
-
-        yield saveCopiedWidgets(
-          JSON.stringify({
-            widgets: widgetListsToStore,
-            flexLayers: [],
-          }),
-        );
-
-        yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-        yield put(pasteWidget(false, { x: 0, y: 0 }));
-      }
     } else {
       yield call(addChildSaga, addEntityAction);
     }
