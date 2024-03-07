@@ -1,5 +1,6 @@
 package com.appsmith.server.newactions.clonepage;
 
+import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
@@ -47,6 +48,9 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
                      */
                     AppsmithEventContext eventContext = new AppsmithEventContext(AppsmithEventContextType.CLONE_PAGE);
                     ActionDTO cloneActionDTO = new ActionDTO();
+
+                    // Indicates that source of action creation is clone page action
+                    cloneActionDTO.setSource(ActionCreationSourceTypeEnum.CLONE_PAGE);
                     copyNestedNonNullProperties(action.getUnpublishedAction(), cloneActionDTO);
                     return Mono.zip(
                             layoutActionService

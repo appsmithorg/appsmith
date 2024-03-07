@@ -1,5 +1,6 @@
 package com.appsmith.external.models.ce;
 
+import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
@@ -170,6 +171,13 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Internal.class)
     protected Instant updatedAt;
 
+    // Defines what triggered action creation, could be self (user explicitly created action) / generate crud / one
+    // click binding etc
+    // Used in logging create action event
+    @Transient
+    @JsonView(Views.Public.class)
+    ActionCreationSourceTypeEnum source;
+
     @Override
     @JsonView(Views.Public.class)
     public String getValidName() {
@@ -305,6 +313,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
         this.setPluginType(null);
         this.setErrorReports(null);
         this.setDocumentation(null);
+        this.setSource(null);
     }
 
     public String calculateContextId() {

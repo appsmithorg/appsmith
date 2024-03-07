@@ -56,7 +56,7 @@ import type {
   CreateActionDefaultsParams,
   SlashCommandPayload,
 } from "entities/Action";
-import { isGraphqlPlugin } from "entities/Action";
+import { isGraphqlPlugin, ActionCreationSourceTypeEnum } from "entities/Action";
 import {
   isAPIAction,
   PluginPackageName,
@@ -307,6 +307,8 @@ export function* createActionSaga(
   >,
 ) {
   try {
+    // Indicates that source of action creation is self
+    actionPayload.payload.source = ActionCreationSourceTypeEnum.SELF;
     const payload = actionPayload.payload;
 
     const response: ApiResponse<ActionCreateUpdateResponse> =

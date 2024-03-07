@@ -1,5 +1,6 @@
 package com.appsmith.server.fork.internal;
 
+import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.helpers.AppsmithEventContext;
@@ -254,11 +255,17 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                             }
                                             return Mono.zip(
                                                     actionMono
-                                                            .flatMap(actionDTO -> layoutActionService.createAction(
-                                                                    actionDTO,
-                                                                    new AppsmithEventContext(
-                                                                            AppsmithEventContextType.CLONE_PAGE),
-                                                                    Boolean.FALSE))
+                                                            .flatMap(actionDTO -> {
+                                                                // Indicates that source of action creation is fork
+                                                                // application
+                                                                actionDTO.setSource(
+                                                                        ActionCreationSourceTypeEnum.FORK_APPLICATION);
+                                                                return layoutActionService.createAction(
+                                                                        actionDTO,
+                                                                        new AppsmithEventContext(
+                                                                                AppsmithEventContextType.CLONE_PAGE),
+                                                                        Boolean.FALSE);
+                                                            })
                                                             .map(ActionDTO::getId),
                                                     Mono.justOrEmpty(originalActionId));
                                         })

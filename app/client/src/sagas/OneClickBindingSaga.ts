@@ -5,6 +5,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { Plugin } from "api/PluginApi";
 import {
+  ActionCreationSourceTypeEnum,
   PluginType,
   type Action,
   type QueryActionConfig,
@@ -53,6 +54,9 @@ export function* createActionsForOneClickBindingSaga(
   payload: Partial<Action> & { eventData: unknown; pluginId: string },
 ) {
   try {
+    // Indicates that source of action creation is one click binding
+    payload.source = ActionCreationSourceTypeEnum.ONE_CLICK_BINDING;
+
     const response: ApiResponse<ActionCreateUpdateResponse> | undefined =
       yield ActionAPI.createAction(payload);
 
