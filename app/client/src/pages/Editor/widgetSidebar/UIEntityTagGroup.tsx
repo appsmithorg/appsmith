@@ -28,19 +28,19 @@ const LoadingWrapper = styled.div`
 
 interface Props {
   tag: string;
-  cardsForThisTag: WidgetCardProps[];
+  cards: WidgetCardProps[];
   isLoading: boolean;
 }
 
-const UIEntityList = (props: Props) => {
+const UIEntityTagGroup = (props: Props) => {
   const [showFullItems, setShowFullItems] = React.useState(false);
   const toggleShowFullItems = () => {
     setShowFullItems(!showFullItems);
   };
   const noOfItemsToRender = showFullItems
-    ? props.cardsForThisTag.length
+    ? props.cards.length
     : initialEntityCountForExplorerTag[props.tag as WidgetTags] ||
-      props.cardsForThisTag.length;
+      props.cards.length;
 
   if (props.isLoading) {
     return (
@@ -80,17 +80,15 @@ const UIEntityList = (props: Props) => {
         <div className="grid items-stretch grid-cols-3 gap-x-1 gap-y-1 justify-items-stretch">
           {props.tag === WIDGET_TAGS.SUGGESTED_WIDGETS
             ? sortBy(
-                props.cardsForThisTag,
+                props.cards,
                 (widget) => SUGGESTED_WIDGETS_ORDER[widget.type],
               ).map((card) => <WidgetCard details={card} key={card.key} />)
-            : props.cardsForThisTag
+            : props.cards
                 .slice(0, noOfItemsToRender)
                 .map((card) => <WidgetCard details={card} key={card.key} />)}
         </div>
         <SeeMoreButton
-          hidden={
-            noOfItemsToRender === props.cardsForThisTag.length && !showFullItems
-          }
+          hidden={noOfItemsToRender >= props.cards.length && !showFullItems}
           showSeeLess={showFullItems}
           toggleSeeMore={toggleShowFullItems}
         />
@@ -99,4 +97,4 @@ const UIEntityList = (props: Props) => {
   );
 };
 
-export default UIEntityList;
+export default UIEntityTagGroup;

@@ -14,7 +14,7 @@ import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { groupWidgetCardsByTags } from "../utils";
-import UIEntityList from "./UIEntityList";
+import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
 
 function UIEntitySidebar({ isActive }: { isActive: boolean }) {
@@ -129,9 +129,9 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
             }
 
             return (
-              <UIEntityList
-                cardsForThisTag={cardsForThisTag}
-                isLoading={entityLoading[tag as WidgetTags]}
+              <UIEntityTagGroup
+                cards={cardsForThisTag}
+                isLoading={!!entityLoading[tag as WidgetTags]}
                 key={tag}
                 tag={tag}
               />
