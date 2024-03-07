@@ -17,7 +17,6 @@ import type {
 } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DEFAULT_MODEL } from "../constants";
 import defaultApp from "./defaultApp";
@@ -48,9 +47,6 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   static getConfig() {
     return {
       name: "Custom",
-      hideCard: !super.getFeatureFlag(
-        FEATURE_FLAG.release_custom_widgets_enabled,
-      ),
       iconSVG: IconSVG,
       needsMeta: true,
       isCanvas: false,

@@ -17,7 +17,6 @@ export const PROFILE = "/profile";
 export const GIT_PROFILE_ROUTE = `${PROFILE}/git`;
 export const USERS_URL = "/users";
 export const SETUP = "/setup/welcome";
-export const WIDGET_BUILDER = "/widgets/builder";
 export const FORGOT_PASSWORD_URL = `${USER_AUTH_URL}/forgotPassword`;
 export const RESET_PASSWORD_URL = `${USER_AUTH_URL}/resetPassword`;
 export const BASE_SIGNUP_URL = `/signup`;

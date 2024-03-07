@@ -27,7 +27,6 @@ import {
   VIEWER_PATCH_PATH,
   VIEWER_PATH,
   VIEWER_PATH_DEPRECATED,
-  WIDGET_BUILDER,
   WORKSPACE_URL,
 } from "constants/routes";
 import WorkspaceLoader from "pages/workspace/loader";
@@ -65,7 +64,6 @@ import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
 import Walkthrough from "components/featureWalkthrough";
 import ProductAlertBanner from "components/editorComponents/ProductAlertBanner";
-import WidgetBuilder from "pages/WidgetBuilder";
 import { getAdminSettingsPath } from "@appsmith/utils/BusinessFeatures/adminSettingsHelpers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
@@ -80,9 +78,6 @@ export function Routes() {
   const user = useSelector(getCurrentUserSelector);
   const tenantPermissions = useSelector(getTenantPermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
-  const isCustomWidgetsEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_custom_widgets_enabled,
-  );
 
   return (
     <Switch>
@@ -100,9 +95,6 @@ export function Routes() {
       <SentryRoute component={SignupSuccess} exact path={SIGNUP_SUCCESS_URL} />
       <SentryRoute component={UserProfile} path={PROFILE} />
       <SentryRoute component={Setup} exact path={SETUP} />
-      {isCustomWidgetsEnabled && (
-        <SentryRoute component={WidgetBuilder} exact path={WIDGET_BUILDER} />
-      )}
       <SentryRoute component={TemplatesListLoader} path={TEMPLATES_PATH} />
       <Redirect
         exact
