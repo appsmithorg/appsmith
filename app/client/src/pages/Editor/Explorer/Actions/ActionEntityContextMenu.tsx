@@ -119,7 +119,11 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
       onSelect: () => showBinding(props.id, props.name),
       label: createMessage(CONTEXT_SHOW_BINDING),
     },
-
+    menuItems.includes(
+      ActionEntityContextMenuItemsEnum.CONVERT_QUERY_MODULE_INSTANCE,
+    ) &&
+      props.pluginType !== PluginType.INTERNAL &&
+      convertQueryToModuleOption,
     menuItems.includes(ActionEntityContextMenuItemsEnum.COPY) &&
       canManageAction && {
         value: "copy",
@@ -174,11 +178,6 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
             : setConfirmDelete(true);
         },
       },
-    menuItems.includes(
-      ActionEntityContextMenuItemsEnum.CONVERT_QUERY_MODULE_INSTANCE,
-    ) &&
-      props.pluginType !== PluginType.INTERNAL &&
-      convertQueryToModuleOption,
   ].filter(Boolean);
 
   return optionsTree.length > 0 ? (
