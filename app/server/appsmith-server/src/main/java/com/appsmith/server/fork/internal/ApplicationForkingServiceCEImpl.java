@@ -11,7 +11,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -631,7 +631,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                     application.getWorkspaceId(),
                                     application.getId(),
                                     application,
-                                    ArtifactJsonType.APPLICATION))
+                                    ArtifactType.APPLICATION))
                             .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
                 });
     }

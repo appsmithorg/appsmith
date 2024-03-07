@@ -6,7 +6,6 @@ import {
   homePage,
   assertHelper,
   inviteModal,
-  onboarding,
 } from "../../../../support/Objects/ObjectsCore";
 
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
@@ -131,22 +130,6 @@ describe(
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
       agHelper.AssertContains("Sign in to your account", "be.visible");
-    });
-
-    it("8. Show partner program callout when invited user is from a different domain", function () {
-      if (CURRENT_REPO === REPO.CE) {
-        agHelper.GenerateUUID();
-        cy.get("@guid").then((uid) => {
-          homePage.SignUp(`${uid}@appsmithtest.com`, uid as unknown as string);
-          onboarding.closeIntroModal();
-
-          inviteModal.OpenShareModal();
-          homePage.InviteUserToApplication(`${uid}@appsmith.com`, "App Viewer");
-        });
-        agHelper.AssertElementVisibility(
-          `[data-testid="partner-program-callout"]`,
-        );
-      }
     });
   },
 );

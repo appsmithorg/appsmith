@@ -9,7 +9,7 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ApplicationImportDTO extends ImportableArtifactDTO {
+public class ApplicationImportDTO extends ArtifactImportDTO {
 
     Application application;
 

@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 @NoArgsConstructor
 @Data
@@ -27,7 +26,7 @@ public class MappedImportableResourcesCE_DTO {
 
     // Artifact independent, used in PartialImport
     // This attribute contain set of names used/existing in page such as widgetName, action and actionCollection names
-    Set<String> refactoringNameReference;
+    Map<String, String> refactoringNameReference;
 
     /**
      * Attribute used to carry objects specific to the context of the Artifacts.

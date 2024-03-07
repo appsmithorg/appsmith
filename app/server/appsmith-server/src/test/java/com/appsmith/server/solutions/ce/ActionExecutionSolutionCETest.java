@@ -19,7 +19,7 @@ import com.appsmith.external.models.WidgetSuggestionDTO;
 import com.appsmith.external.models.WidgetType;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.domains.Application;
@@ -29,6 +29,7 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ExecuteActionMetaDTO;
 import com.appsmith.server.dtos.MockDataSource;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -262,7 +263,7 @@ public class ActionExecutionSolutionCETest {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1).zipWhen(application11 -> exportService
                             .exportByArtifactIdAndBranchName(
-                                    application11.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION)
+                                    application11.getId(), gitData.getBranchName(), ArtifactType.APPLICATION)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application
@@ -334,8 +335,12 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
+        ExecuteActionMetaDTO executeActionMetaDTO = ExecuteActionMetaDTO.builder()
+                .environmentId(defaultEnvironmentId)
+                .build();
+
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId, null);
+                actionExecutionSolution.executeAction(executeActionDTO, executeActionMetaDTO);
         return actionExecutionResultMono;
     }
 
@@ -530,8 +535,11 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
+        ExecuteActionMetaDTO executeActionMetaDTO =
+                ExecuteActionMetaDTO.builder().build();
+
         Mono<ActionExecutionResult> executionResultMono =
-                actionExecutionSolution.executeAction(executeActionDTO, null, null);
+                actionExecutionSolution.executeAction(executeActionDTO, executeActionMetaDTO);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -584,8 +592,11 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
+        ExecuteActionMetaDTO executeActionMetaDTO =
+                ExecuteActionMetaDTO.builder().build();
+
         Mono<ActionExecutionResult> executionResultMono =
-                actionExecutionSolution.executeAction(executeActionDTO, null, null);
+                actionExecutionSolution.executeAction(executeActionDTO, executeActionMetaDTO);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -632,8 +643,11 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
+        ExecuteActionMetaDTO executeActionMetaDTO =
+                ExecuteActionMetaDTO.builder().build();
+
         Mono<ActionExecutionResult> executionResultMono =
-                actionExecutionSolution.executeAction(executeActionDTO, null, null);
+                actionExecutionSolution.executeAction(executeActionDTO, executeActionMetaDTO);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -680,8 +694,11 @@ public class ActionExecutionSolutionCETest {
                 .when(spyDatasourceService)
                 .isEndpointBlockedForConnectionRequest(Mockito.any());
 
+        ExecuteActionMetaDTO executeActionMetaDTO =
+                ExecuteActionMetaDTO.builder().build();
+
         Mono<ActionExecutionResult> executionResultMono =
-                actionExecutionSolution.executeAction(executeActionDTO, null, null);
+                actionExecutionSolution.executeAction(executeActionDTO, executeActionMetaDTO);
 
         StepVerifier.create(executionResultMono)
                 .assertNext(result -> {
@@ -725,8 +742,11 @@ public class ActionExecutionSolutionCETest {
         executeActionDTO.setActionId(createdAction.getId());
         executeActionDTO.setViewMode(false);
 
+        ExecuteActionMetaDTO executeActionMetaDTO =
+                ExecuteActionMetaDTO.builder().build();
+
         Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(executeActionDTO, null, null);
+                actionExecutionSolution.executeAction(executeActionDTO, executeActionMetaDTO);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(result -> {
@@ -765,13 +785,17 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(savedDs);
 
+        ExecuteActionMetaDTO executeActionMetaDTO = ExecuteActionMetaDTO.builder()
+                .environmentId(defaultEnvironmentId)
+                .build();
+
         Mono<ActionExecutionResult> resultMono = layoutActionService
                 .createSingleAction(action, Boolean.FALSE)
                 .flatMap(savedAction -> {
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
                     executeActionDTO.setViewMode(false);
-                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId, null);
+                    return actionExecutionSolution.executeAction(executeActionDTO, executeActionMetaDTO);
                 });
 
         StepVerifier.create(resultMono)
@@ -1917,13 +1941,17 @@ public class ActionExecutionSolutionCETest {
         action.setActionConfiguration(actionConfiguration);
         action.setDatasource(savedDs);
 
+        ExecuteActionMetaDTO executeActionMetaDTO = ExecuteActionMetaDTO.builder()
+                .environmentId(defaultEnvironmentId)
+                .build();
+
         Mono<ActionExecutionResult> resultMono = layoutActionService
                 .createSingleAction(action, Boolean.FALSE)
                 .flatMap(savedAction -> {
                     ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
                     executeActionDTO.setActionId(savedAction.getId());
                     executeActionDTO.setViewMode(false);
-                    return actionExecutionSolution.executeAction(executeActionDTO, defaultEnvironmentId, null);
+                    return actionExecutionSolution.executeAction(executeActionDTO, executeActionMetaDTO);
                 });
 
         Mockito.doReturn(Mono.empty())

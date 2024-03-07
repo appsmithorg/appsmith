@@ -103,7 +103,8 @@ public class ActionControllerCE {
                         partFlux,
                         branchName,
                         environmentId,
-                        serverWebExchange.getRequest().getHeaders())
+                        serverWebExchange.getRequest().getHeaders(),
+                        Boolean.FALSE)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

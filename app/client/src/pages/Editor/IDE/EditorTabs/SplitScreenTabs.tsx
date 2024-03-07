@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Button } from "design-system";
+import { ToggleButton } from "design-system";
 
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
@@ -28,7 +28,6 @@ const SplitScreenTabs = () => {
   const onJSAddClick = useJSAdd();
   const onQueryAddClick = useQueryAdd();
   const onAddClick = useCallback(() => {
-    if (segmentMode === EditorEntityTabState.Add) return;
     if (segment === EditorEntityTab.JS) onJSAddClick();
     if (segment === EditorEntityTab.QUERIES) onQueryAddClick();
   }, [segment, segmentMode, onQueryAddClick, onJSAddClick]);
@@ -56,11 +55,11 @@ const SplitScreenTabs = () => {
   if (segment === EditorEntityTab.UI) return null;
   return files.length > 0 ? (
     <Container>
-      <Button
-        isIconButton
-        kind={"secondary"}
+      <ToggleButton
+        icon="add-line"
+        isSelected={segmentMode === EditorEntityTabState.Add}
         onClick={onAddClick}
-        startIcon={"add-line"}
+        size="md"
       />
       <FileTabs navigateToTab={onClick} tabs={files} />
       <ListButton items={overflowList} navigateToTab={onClick} />

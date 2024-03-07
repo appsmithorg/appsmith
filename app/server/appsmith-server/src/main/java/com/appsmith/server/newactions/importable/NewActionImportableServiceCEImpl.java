@@ -6,8 +6,8 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Context;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -66,7 +66,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         Mono<List<NewAction>> importedNewActionListMono = this.getImportableEntities(artifactExchangeJson);
@@ -127,7 +127,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
 
     @Override
     public Mono<Void> updateImportedEntities(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
@@ -198,7 +198,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
      */
     private Mono<ImportActionResultDTO> createImportNewActionsMono(
             List<NewAction> importedNewActions,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
@@ -243,7 +243,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     }
 
     @NotNull private Mono<ImportActionResultDTO> importNewActions(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             List<NewAction> importedNewActionList,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
@@ -280,8 +280,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             // It is context level action and hence the action name should be unique
             if (TRUE.equals(importingMetaDTO.getIsPartialImport())
                     && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
-                updateActionNameBeforeMerge(
-                        importedNewActionList, mappedImportableResourcesDTO.getRefactoringNameReference());
+                updateActionNameBeforeMerge(importedNewActionList, mappedImportableResourcesDTO);
             }
 
             return Mono.zip(actionsInCurrentArtifactMono, actionsInOtherBranchesMono)
@@ -366,7 +365,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
     private Context populateIdReferencesAndReturnDefaultContext(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             NewAction branchedNewAction,
             NewAction newAction) {
         ArtifactBasedImportableService<NewAction, ?> artifactBasedImportableService =
@@ -429,7 +428,10 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
         return parentContext;
     }
 
-    private void updateActionNameBeforeMerge(List<NewAction> importedNewActionList, Set<String> refactoringNames) {
+    private void updateActionNameBeforeMerge(
+            List<NewAction> importedNewActionList, MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+        Set<String> refactoringNames =
+                mappedImportableResourcesDTO.getRefactoringNameReference().keySet();
 
         for (NewAction newAction : importedNewActionList) {
             String oldNameAction = newAction.getUnpublishedAction().getName(),
@@ -446,6 +448,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                 newAction.getPublishedAction().setName(newNameAction);
                 newAction.getPublishedAction().setFullyQualifiedName(newNameAction);
             }
+            mappedImportableResourcesDTO.getRefactoringNameReference().put(oldNameAction, newNameAction);
         }
     }
 

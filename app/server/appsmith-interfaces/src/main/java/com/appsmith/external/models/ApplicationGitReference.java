@@ -12,4 +12,4 @@ import lombok.NoArgsConstructor;
 @EqualsAndHashCode(callSuper = true)
 @Data
 @NoArgsConstructor
-public class ApplicationGitReference extends ApplicationGitReferenceCE {}
+public class ApplicationGitReference extends ApplicationGitReferenceCE implements ArtifactGitReference {}

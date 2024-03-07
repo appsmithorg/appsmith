@@ -3,8 +3,8 @@ package com.appsmith.server.actioncollections.importable;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Context;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -51,7 +51,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         Mono<List<ActionCollection>> importedActionCollectionListMono = getImportableEntities(artifactExchangeJson);
@@ -68,7 +68,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
     private Mono<ImportActionCollectionResultDTO> createImportActionCollectionMono(
             List<ActionCollection> importedActionCollectionList,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
@@ -117,7 +117,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
      * @return tuple of imported actionCollectionId and saved actionCollection in DB
      */
     private Mono<ImportActionCollectionResultDTO> importActionCollections(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             List<ActionCollection> importedActionCollectionList,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
@@ -157,8 +157,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     if (Boolean.TRUE.equals(importingMetaDTO.getIsPartialImport())
                             && mappedImportableResourcesDTO.getRefactoringNameReference() != null) {
                         updateActionCollectionNameBeforeMerge(
-                                importedActionCollectionList,
-                                mappedImportableResourcesDTO.getRefactoringNameReference());
+                                importedActionCollectionList, mappedImportableResourcesDTO);
                     }
 
                     return Mono.zip(actionCollectionsInCurrentArtifactMono, actionCollectionsInBranchesMono)
@@ -254,7 +253,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
     private Context populateIdReferencesAndReturnDefaultContext(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            ImportableArtifact artifact,
+            Artifact artifact,
             ActionCollection branchedActionCollection,
             ActionCollection actionCollection) {
 
@@ -304,7 +303,10 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
     }
 
     private void updateActionCollectionNameBeforeMerge(
-            List<ActionCollection> importedNewActionCollectionList, Set<String> refactoringNameSet) {
+            List<ActionCollection> importedNewActionCollectionList,
+            MappedImportableResourcesDTO mappedImportableResourcesDTO) {
+        Set<String> refactoringNameSet =
+                mappedImportableResourcesDTO.getRefactoringNameReference().keySet();
 
         for (ActionCollection actionCollection : importedNewActionCollectionList) {
             String
@@ -322,6 +324,9 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             if (actionCollection.getPublishedCollection() != null) {
                 actionCollection.getPublishedCollection().setName(newNameActionCollection);
             }
+            mappedImportableResourcesDTO
+                    .getRefactoringNameReference()
+                    .put(oldNameActionCollection, newNameActionCollection);
         }
     }
 

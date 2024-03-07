@@ -38,6 +38,7 @@ import { getContainerIdForCanvas } from "sagas/WidgetOperationUtils";
 import scrollIntoView from "scroll-into-view-if-needed";
 import validateColor from "validate-color";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { klona as clone } from "klona/full";
 
 export const snapToGrid = (
   columnWidth: number,
@@ -834,8 +835,9 @@ export function isValidColor(color: string) {
  */
 export const mergeWidgetConfig = (target: any, source: any) => {
   const sectionMap: Record<string, any> = {};
+  const mergedConfig = clone(target);
 
-  target.forEach((section: { sectionName: string }) => {
+  mergedConfig.forEach((section: { sectionName: string }) => {
     sectionMap[section.sectionName] = section;
   });
 
@@ -845,11 +847,11 @@ export const mergeWidgetConfig = (target: any, source: any) => {
     if (targetSection) {
       Array.prototype.push.apply(targetSection.children, section.children);
     } else {
-      target.push(section);
+      mergedConfig.push(section);
     }
   });
 
-  return target;
+  return mergedConfig;
 };
 
 export const getLocale = () => {

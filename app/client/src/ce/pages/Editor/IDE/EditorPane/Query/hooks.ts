@@ -27,7 +27,10 @@ import {
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import ApiEditor from "pages/Editor/APIEditor";
 import type { UseRoutes } from "@appsmith/entities/IDE/constants";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import {
+  EditorEntityTabState,
+  EditorViewMode,
+} from "@appsmith/entities/IDE/constants";
 import QueryEditor from "pages/Editor/QueryEditor";
 import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
 import ListQuery from "pages/Editor/IDE/EditorPane/Query/List";
@@ -36,19 +39,28 @@ import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "design-system";
 import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/Query/BlankStateContainer";
-import CurlImportEditor from "../../../../../../pages/Editor/APIEditor/CurlImportEditor";
+import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
+import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 
 export const useQueryAdd = () => {
   const location = useLocation();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
+  const { segmentMode } = useCurrentEditorState();
 
   const addButtonClickHandler = useCallback(() => {
-    const url = getQueryAddUrl(currentEntityInfo);
+    let url = "";
+    if (segmentMode === EditorEntityTabState.Add) {
+      // Already in add mode, back to the previous active item
+      url = location.pathname.replace(`${ADD_PATH}`, "");
+    } else {
+      url = getQueryAddUrl(currentEntityInfo);
+    }
     history.push(url);
-  }, [currentEntityInfo.id]);
+  }, [currentEntityInfo.id, segmentMode]);
 
   return addButtonClickHandler;
 };
+//history.push(location.pathname.replace(`${ADD_PATH}`, ""));
 
 export type GroupedAddOperations = Array<{
   title?: string;
