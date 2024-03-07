@@ -47,9 +47,15 @@ export const createModalAction = (
 
 export const focusWidget = (
   widgetId?: string,
-): ReduxAction<{ widgetId?: string }> => ({
+  alt?: boolean,
+): ReduxAction<{ widgetId?: string; alt?: boolean }> => ({
   type: ReduxActionTypes.FOCUS_WIDGET,
-  payload: { widgetId },
+  payload: { widgetId, alt },
+});
+
+export const altFocusWidget = (alt: boolean) => ({
+  type: ReduxActionTypes.ALT_FOCUS_WIDGET,
+  payload: alt,
 });
 
 export const showModal = (id: string, shouldSelectModal = true) => {
@@ -142,5 +148,12 @@ export const partialExportWidgets = (params: PartialExportParams) => {
   return {
     type: ReduxActionTypes.PARTIAL_EXPORT_INIT,
     payload: params,
+  };
+};
+
+export const setWidgetSelectionBlock = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_WIDGET_SELECTION_BLOCK,
+    payload,
   };
 };
