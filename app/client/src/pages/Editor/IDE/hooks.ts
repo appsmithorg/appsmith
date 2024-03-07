@@ -8,7 +8,11 @@ import {
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useDispatch, useSelector } from "react-redux";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import {
+  getCanvasPreviewMode,
+  getIDEViewMode,
+  getIsSideBySideEnabled,
+} from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import history, { NavigationMethod } from "utils/history";
@@ -29,6 +33,8 @@ import {
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { setCanvasPreviewMode } from "actions/ideActions";
+import { getIsAltFocusWidget } from "selectors/ui";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -221,12 +227,39 @@ export function useCanvasViewModeListener() {
   const { pathname } = useLocation();
   const dispatch = useDispatch();
   const currentFocus = identifyEntityFromPath(pathname);
+  const isAltFocused = useSelector(getIsAltFocusWidget);
+  const { altFocus } = useWidgetSelection();
+  const canvasPreviewMode = useSelector(getCanvasPreviewMode);
 
   useEffect(() => {
     const focusedOnCanvas = [
       FocusEntity.CANVAS,
       FocusEntity.PROPERTY_PANE,
+      FocusEntity.WIDGET_LIST,
     ].includes(currentFocus.entity);
     dispatch(setCanvasPreviewMode(!focusedOnCanvas));
   }, [currentFocus]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  });
+  const handleKeyDown = (e: KeyboardEvent) => {
+    const modifierKey = canvasPreviewMode ? e.metaKey : e.altKey;
+    if (!isAltFocused && modifierKey) {
+      altFocus(modifierKey);
+    }
+  };
+
+  const handleKeyUp = (e: KeyboardEvent) => {
+    const modifierKey = canvasPreviewMode ? e.metaKey : e.altKey;
+    if (!modifierKey) {
+      altFocus(modifierKey);
+    }
+  };
 }

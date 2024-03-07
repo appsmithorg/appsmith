@@ -19,7 +19,6 @@ import {
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
-import { getIsAltFocusWidget } from "selectors/ui";
 
 const DraggableWrapper = styled.div<{ draggable: boolean }>`
   display: block;
@@ -59,7 +58,7 @@ const WidgetBoundaries = styled.div`
 
 function DraggableComponent(props: DraggableComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
-  const { altFocus, focusWidget, selectWidget } = useWidgetSelection();
+  const { focusWidget, selectWidget } = useWidgetSelection();
 
   const shouldAllowDrag = useSelector(getShouldAllowDrag);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
@@ -71,7 +70,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
   const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
-  const isAltFocused = useSelector(getIsAltFocusWidget);
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
@@ -100,18 +98,6 @@ function DraggableComponent(props: DraggableComponentProps) {
   const showBoundary =
     !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
 
-  const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (!isAltFocused && e.metaKey) {
-      altFocus(e.metaKey);
-    }
-  };
-
-  const handleKeyUp = (e: React.KeyboardEvent) => {
-    if (!e.metaKey) {
-      altFocus(e.metaKey);
-    }
-  };
-
   // When mouse is over this draggable
   const handleMouseOver = (e: React.MouseEvent) => {
     if (
@@ -121,7 +107,7 @@ function DraggableComponent(props: DraggableComponentProps) {
       !props.resizeDisabled &&
       !isPreviewMode
     ) {
-      focusWidget(props.widgetId, e.metaKey);
+      focusWidget(props.widgetId);
     }
     e.stopPropagation();
   };
@@ -172,8 +158,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       data-testid={isSelected ? "t--selected" : ""}
       draggable={allowDrag}
       onDragStart={onDragStart}
-      onKeyDown={handleKeyDown}
-      onKeyUp={handleKeyUp}
       onMouseLeave={handleMouseLeave}
       onMouseOver={handleMouseOver}
       ref={draggableRef}
