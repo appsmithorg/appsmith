@@ -12,7 +12,7 @@ import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
@@ -60,7 +60,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importContextMono,
+            Mono<? extends Artifact> importContextMono,
             ArtifactExchangeJson artifactExchangeJson,
             boolean isContextAgnostic) {
 
@@ -83,7 +83,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         return workspaceMono.flatMap(workspace -> {
             final Flux<Datasource> existingDatasourceFlux = datasourceService
