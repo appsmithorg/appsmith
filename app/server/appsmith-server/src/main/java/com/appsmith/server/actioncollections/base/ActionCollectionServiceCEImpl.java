@@ -741,7 +741,9 @@ public class ActionCollectionServiceCEImpl
                                     savedActionCollection
                                             .getDefaultResources()
                                             .setCollectionId(savedActionCollection.getId());
-                                    return this.save(savedActionCollection);
+                                    // With PG, this `save` method is returning a different object than what was passed
+                                    // to it.
+                                    return this.save(savedActionCollection).thenReturn(savedActionCollection);
                                 }
                                 return Mono.just(savedActionCollection);
                             })

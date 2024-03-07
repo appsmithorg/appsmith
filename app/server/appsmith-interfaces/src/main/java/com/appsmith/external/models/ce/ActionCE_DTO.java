@@ -166,12 +166,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Public.class)
     AnalyticsInfo eventData;
 
-    @JsonView(Views.Internal.class)
-    protected Instant createdAt;
-
-    @JsonView(Views.Internal.class)
-    protected Instant updatedAt;
-
     @Override
     @JsonView(Views.Public.class)
     public String getValidName() {

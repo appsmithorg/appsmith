@@ -76,6 +76,7 @@ public class ActionCollectionCE_DTO {
     // This property is not shared with the client since the reference is only useful to server
     // Map<defaultActionId, branchedActionId>
     @JsonView(Views.Internal.class)
+    // XXX: In PG, this is not getting saved to the database, because JSON view is internal!
     Map<String, String> defaultToBranchedActionIdsMap = Map.of();
 
     @Deprecated

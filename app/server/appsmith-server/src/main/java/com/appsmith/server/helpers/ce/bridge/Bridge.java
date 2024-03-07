@@ -24,12 +24,23 @@ public class Bridge {
         return q;
     }
 
+    @SafeVarargs
+    public static <T extends BaseDomain> BridgeQuery<T> and(BridgeQuery<T>... items) {
+        final BridgeQuery<T> q = new BridgeQuery<>();
+        q.checks.add(new Check.And<>(items));
+        return q;
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull String value) {
         return Bridge.<T>query().equal(key, value);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull ObjectId value) {
         throw new UnsupportedOperationException("Won't be supported");
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
+        return Bridge.<T>query().notEqual(key, value);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> in(
@@ -39,6 +50,10 @@ public class Bridge {
 
     public static <T extends BaseDomain> BridgeQuery<T> exists(@NonNull String key) {
         return Bridge.<T>query().exists(key);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> isNull(@NonNull String key) {
+        return Bridge.<T>query().isNull(key);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> isTrue(@NonNull String key) {

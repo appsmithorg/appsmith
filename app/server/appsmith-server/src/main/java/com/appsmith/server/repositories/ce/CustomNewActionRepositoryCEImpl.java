@@ -545,26 +545,20 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        List<Criteria> criteriaList = new ArrayList<>();
-
-        String contextIdPath = NewAction.Fields.unpublishedAction_pageId;
-        String contextTypePath = NewAction.Fields.unpublishedAction_contextType;
-        Criteria contextTypeCriterion = new Criteria()
-                .orOperator(
-                        where(contextTypePath).is(contextType),
-                        where(contextTypePath).isNull());
-        Criteria contextIdAndContextTypeCriteria =
-                where(contextIdPath).is(contextId).andOperator(contextTypeCriterion);
-
-        criteriaList.add(contextIdAndContextTypeCriteria);
+        final BridgeQuery<BaseDomain> q = Bridge.equal(NewAction.Fields.unpublishedAction_pageId, contextId);
 
         if (!includeJs) {
-            Criteria jsInclusionOrExclusionCriteria =
-                    where(NewAction.Fields.pluginType).ne(PluginType.JS);
-            criteriaList.add(jsInclusionOrExclusionCriteria);
+            q.notEqual(NewAction.Fields.pluginType, PluginType.JS.name());
         }
 
-        return queryBuilder().criteria(criteriaList).permission(permission).all();
+        return queryBuilder()
+                .criteria(Bridge.and(
+                        q,
+                        Bridge.or(
+                                Bridge.equal(NewAction.Fields.unpublishedAction_contextType, contextType.name()),
+                                Bridge.isNull(NewAction.Fields.unpublishedAction_contextType))))
+                .permission(permission)
+                .all();
     }
 
     @Override

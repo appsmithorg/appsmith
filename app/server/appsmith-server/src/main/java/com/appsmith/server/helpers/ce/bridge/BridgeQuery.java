@@ -93,6 +93,11 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
                         .map(s -> s.toPredicate(root, ignored, cb))
                         .toArray(Predicate[]::new));
 
+            } else if (check instanceof Check.And<? extends BaseDomain> orCheck) {
+                predicate = cb.and(Stream.of(((Check.And<T>) orCheck).items())
+                        .map(s -> s.toPredicate(root, ignored, cb))
+                        .toArray(Predicate[]::new));
+
             } else {
                 throw new IllegalArgumentException();
             }

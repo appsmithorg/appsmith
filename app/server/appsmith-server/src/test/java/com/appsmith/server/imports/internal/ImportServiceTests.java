@@ -1031,8 +1031,6 @@ public class ImportServiceTests {
                             // Test the fallback page ID from the unpublishedAction is copied to published version when
                             // published version does not have pageId
                             assertThat(actionDTO.getPageId()).isEqualTo(publishedAction.getPageId());
-                            // check that createAt field is getting populated from JSON
-                            assertThat(actionDTO.getCreatedAt()).isEqualTo("2023-12-13T12:10:02Z");
                         }
 
                         if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
