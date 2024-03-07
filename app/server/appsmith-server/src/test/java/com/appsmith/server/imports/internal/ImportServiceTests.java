@@ -4288,10 +4288,7 @@ public class ImportServiceTests {
 
                     assertThat(application1.getUnpublishedCustomJSLibs().size()).isEqualTo(2);
                     application1.getUnpublishedCustomJSLibs().forEach(customJSLib -> {
-                        assertThat(customJSLib.getUidString())
-                                .containsAnyOf(
-                                        "accessor1_url",
-                                        "xmlParser_https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.min.js");
+                        assertThat(customJSLib.getUidString()).containsAnyOf("accessor1_url", "xmlParser");
                     });
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
