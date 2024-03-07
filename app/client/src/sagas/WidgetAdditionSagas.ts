@@ -562,16 +562,6 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
         const flattenedBlockWidgets = blockWidgets.map((widget: WidgetProps) =>
           flattenDSL(widget),
         );
-        // call deleteSagaInit to remove skeleton loader
-        yield put({
-          type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
-          payload: {
-            widgetId: skeletonWidget?.widgetId,
-            parentId: MAIN_CONTAINER_WIDGET_ID,
-            disallowUndo: true,
-            isShortcut: false,
-          },
-        });
 
         const widgetListsToStore: {
           widgetId: string;
@@ -599,15 +589,23 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
             };
           }),
         );
-
         yield saveCopiedWidgets(
           JSON.stringify({
             widgets: widgetListsToStore,
             flexLayers: [],
           }),
         );
-
         yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+        // call deleteSagaInit to remove skeleton loader
+        yield put({
+          type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
+          payload: {
+            widgetId: skeletonWidget?.widgetId,
+            parentId: MAIN_CONTAINER_WIDGET_ID,
+            disallowUndo: true,
+            isShortcut: false,
+          },
+        });
         yield put(pasteWidget(false, { x: 0, y: 0 }));
       }
     } else {
