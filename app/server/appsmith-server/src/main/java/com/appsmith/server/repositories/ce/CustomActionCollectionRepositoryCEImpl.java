@@ -58,30 +58,26 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 .all();
     }
 
-    protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, boolean viewMode) {
-        List<Criteria> criteria = new ArrayList<>();
-
-        Criteria applicationCriterion =
-                where(ActionCollection.Fields.applicationId).is(applicationId);
-        criteria.add(applicationCriterion);
+    protected BridgeQuery<ActionCollection> getCriteriaForFindByApplicationIdAndViewMode(
+            String applicationId, boolean viewMode) {
+        final BridgeQuery<ActionCollection> q = Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriterion = where(ActionCollection.Fields.unpublishedCollection_deletedAt)
-                    .is(null);
-            criteria.add(deletedCriterion);
+            q.isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
         }
-        return criteria;
+
+        return q;
     }
 
     @Override
     public List<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission) {
-
-        List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
-
-        return queryBuilder().criteria(criteria).permission(aclPermission).all();
+        return queryBuilder()
+                .criteria(this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode))
+                .permission(aclPermission)
+                .all();
     }
 
     protected List<Criteria> getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(

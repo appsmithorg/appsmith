@@ -39,9 +39,9 @@
             <version>1.0.2.Final</version>
         </dependency>
         <dependency>
-            <groupId>com.vladmihalcea</groupId>
-            <artifactId>hibernate-types-60</artifactId>
-            <version>2.21.1</version>
+            <groupId>io.hypersistence</groupId>
+            <artifactId>hypersistence-utils-hibernate-60</artifactId>
+            <version>3.7.3</version>
         </dependency>
 
         <!-- Actual Junit5 implementation. Will transitively include junit-jupiter-api -->

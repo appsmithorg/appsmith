@@ -1,7 +1,7 @@
 package com.appsmith.server.domains.ce;
 
 import com.appsmith.server.domains.Application;
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
