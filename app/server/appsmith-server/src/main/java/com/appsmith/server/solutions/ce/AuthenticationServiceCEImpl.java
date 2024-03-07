@@ -8,6 +8,8 @@ import com.appsmith.external.helpers.SSLHelper;
 import com.appsmith.external.helpers.restApiUtils.helpers.OAuth2Utils;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DefaultResources;
@@ -25,6 +27,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.IntegrationDTO;
+import com.appsmith.server.dtos.RequestAppsmithTokenDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -37,6 +40,7 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -357,9 +361,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     public Mono<String> getAppsmithToken(
             String datasourceId,
             String environmentId,
-            String pageId,
+            RequestAppsmithTokenDTO requestAppsmithTokenDTO,
             String branchName,
-            ServerHttpRequest request,
+            HttpHeaders headers,
             String importForGit) {
         // Check whether user has access to manage the datasource
         // Validate the datasource according to plugin type as well
@@ -384,38 +388,26 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     return datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, trueEnvironmentId);
                 });
 
-        final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
+        final String redirectUri = redirectHelper.getRedirectDomain(headers);
 
         return datasourceStorageMonoCached
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                                newPageService.findById(pageId, pagePermission.getReadPermission()),
-                                configService.getInstanceId(),
-                                pluginService.findById(datasource.getPluginId()))
-                        .map(tuple -> {
+                                configService.getInstanceId(), pluginService.findById(datasource.getPluginId()))
+                        .flatMap(tuple -> {
+                            String instanceId = tuple.getT1();
+                            Plugin plugin = tuple.getT2();
                             IntegrationDTO integrationDTO = new IntegrationDTO();
-                            integrationDTO.setInstallationKey(tuple.getT2());
-                            NewPage page = tuple.getT1();
+                            integrationDTO.setInstallationKey(instanceId);
 
-                            DefaultResources defaultResourceIds = page.getDefaultResources();
-                            String defaultPageId = StringUtils.hasLength(defaultResourceIds.getPageId())
-                                    ? defaultResourceIds.getPageId()
-                                    : page.getId();
-
-                            String defaultApplicationId = StringUtils.hasLength(defaultResourceIds.getApplicationId())
-                                    ? defaultResourceIds.getApplicationId()
-                                    : page.getApplicationId();
-
-                            integrationDTO.setPageId(defaultPageId);
-                            integrationDTO.setApplicationId(defaultApplicationId);
                             integrationDTO.setBranch(branchName);
                             integrationDTO.setImportForGit(importForGit);
                             integrationDTO.setWorkspaceId(datasource.getWorkspaceId());
-                            final Plugin plugin = tuple.getT3();
                             integrationDTO.setPluginName(plugin.getPluginName());
                             integrationDTO.setPluginVersion(plugin.getVersion());
+                            integrationDTO.setContextType(requestAppsmithTokenDTO.getContextType());
                             // TODO add authenticationDTO
                             integrationDTO.setDatasourceId(datasourceId);
                             integrationDTO.setScope(((OAuth2) datasource
@@ -423,7 +415,11 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                             .getAuthentication())
                                     .getScope());
                             integrationDTO.setRedirectionDomain(redirectUri);
-                            return integrationDTO;
+                            return getContext(
+                                            requestAppsmithTokenDTO.getContextId(),
+                                            requestAppsmithTokenDTO.getContextType())
+                                    .map(context -> associateIntegrationDTOWithContext(
+                                            integrationDTO, context, requestAppsmithTokenDTO.getContextType()));
                         }))
                 .flatMap(integrationDTO -> {
                     return WebClientUtils.create(
@@ -471,6 +467,26 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     .save(datasourceStorage)
                                     .then(Mono.error(error));
                         }));
+    }
+
+    protected Mono<? extends BaseDomain> getContext(String contextId, CreatorContextType contextType) {
+        return newPageService.findById(contextId, pagePermission.getReadPermission());
+    }
+
+    protected IntegrationDTO associateIntegrationDTOWithContext(
+            IntegrationDTO integrationDTO, BaseDomain baseDomain, CreatorContextType contextType) {
+        NewPage newPage = (NewPage) baseDomain;
+        DefaultResources defaultResources = newPage.getDefaultResources();
+        String defaultPageId =
+                StringUtils.hasLength(defaultResources.getPageId()) ? defaultResources.getPageId() : newPage.getId();
+
+        String defaultApplicationId = StringUtils.hasLength(defaultResources.getApplicationId())
+                ? defaultResources.getApplicationId()
+                : newPage.getApplicationId();
+
+        integrationDTO.setPageId(defaultPageId);
+        integrationDTO.setApplicationId(defaultApplicationId);
+        return integrationDTO;
     }
 
     public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(
