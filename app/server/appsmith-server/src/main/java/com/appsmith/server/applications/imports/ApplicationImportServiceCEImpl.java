@@ -307,6 +307,14 @@ public class ApplicationImportServiceCEImpl
                     .collect(Collectors.toList());
             applicationJson.setActionCollectionList(importedActionCollectionList);
         }
+
+        if (applicationJson.getCustomJSLibList() != null) {
+            List<CustomJSLib> importedCustomJSLibList = applicationJson.getCustomJSLibList().stream()
+                    .peek(customJSLib -> customJSLib.setGitSyncId(
+                            null)) // setting this null so that this custom js lib can be imported again
+                    .collect(Collectors.toList());
+            applicationJson.setCustomJSLibList(importedCustomJSLibList);
+        }
     }
 
     @Override
@@ -397,7 +405,16 @@ public class ApplicationImportServiceCEImpl
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
             if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
-                importApplicationMono = existingApplicationMono;
+                if (!mappedImportableResourcesDTO.getInstalledJsLibsList().isEmpty()) {
+                    Application update = new Application();
+                    update.setUnpublishedCustomJSLibs(
+                            new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
+                    importApplicationMono = applicationService
+                            .update(importingMetaDTO.getArtifactId(), update)
+                            .then(existingApplicationMono);
+                } else {
+                    importApplicationMono = existingApplicationMono;
+                }
             } else {
                 importApplicationMono = importApplicationMono
                         .zipWith(existingApplicationMono)
