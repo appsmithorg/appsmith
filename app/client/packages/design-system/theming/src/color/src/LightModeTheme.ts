@@ -141,16 +141,16 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     if (!this.seedIsVeryLight) {
-      color.oklch.l = 0.96;
+      color.oklch.l = 0.97;
     }
 
     // Cold colors can have a bit more chroma while staying perceptually neutral
     if (this.seedIsCold) {
-      color.oklch.c = 0.009;
+      color.oklch.c = 0.002;
     }
 
     if (!this.seedIsCold) {
-      color.oklch.c = 0.007;
+      color.oklch.c = 0.001;
     }
 
     // If initial seed had non-substantial amount of chroma, make sure bg is achromatic.
@@ -340,11 +340,11 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     if (this.seedIsCold && !this.seedIsAchromatic) {
-      color.oklch.c = 0.03;
+      color.oklch.c = 0.002;
     }
 
     if (!this.seedIsCold && !this.seedIsAchromatic) {
-      color.oklch.c = 0.015;
+      color.oklch.c = 0.001;
     }
 
     return color;
@@ -413,8 +413,8 @@ export class LightModeTheme implements ColorModeTheme {
       color.oklch.l = 0.93;
     }
 
-    if (this.seedChroma > 0.01) {
-      color.oklch.c = 0.01;
+    if (this.seedChroma > 0.001) {
+      color.oklch.c = 0.001;
     }
 
     if (this.seedIsAchromatic) {
@@ -668,6 +668,10 @@ export class LightModeTheme implements ColorModeTheme {
 
     color.oklch.l = 0.3;
 
+    if (color.oklch.c >= 0.02) {
+      color.oklch.c = 0.02;
+    }
+
     color.alpha = 0.1;
 
     return color;
@@ -711,7 +715,7 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     if (!this.seedIsAchromatic) {
-      color.oklch.c = 0.032;
+      color.oklch.c = 0.006;
     }
 
     return color;
@@ -743,7 +747,7 @@ export class LightModeTheme implements ColorModeTheme {
 
     // Minimal contrast that we set for fgAccent (60) is too low for a gray color
     if (this.bg.contrastAPCA(this.fgAccent) < 75) {
-      color.oklch.l -= 0.1;
+      color.oklch.l -= 0.2;
     }
 
     if (this.seedIsAchromatic) {
@@ -751,11 +755,11 @@ export class LightModeTheme implements ColorModeTheme {
     }
 
     if (this.seedIsCold && !this.seedIsAchromatic) {
-      color.oklch.c = 0.05;
+      color.oklch.c = 0.003;
     }
 
     if (!this.seedIsCold && !this.seedIsAchromatic) {
-      color.oklch.c = 0.015;
+      color.oklch.c = 0.001;
     }
 
     return color;
@@ -833,6 +837,15 @@ export class LightModeTheme implements ColorModeTheme {
     // Light and dark derivatives of the seed
     tint.oklch.l = 0.96;
     shade.oklch.l = 0.23;
+
+    // Chroma limits for tint and shade
+    if (tint.oklch.c >= 0.015) {
+      tint.oklch.c = 0.015;
+    }
+
+    if (shade.oklch.c >= 0.03) {
+      shade.oklch.c = 0.03;
+    }
 
     // Check which of them has better contrast with bgAccent
     if (
@@ -952,13 +965,13 @@ export class LightModeTheme implements ColorModeTheme {
     // For dark content on light background APCA contrast is positive. 15 is “The absolute minimum for any non-text that needs to be discernible and differentiable, but does not apply to semantic non-text such as icons”. In practice, thin borders are perceptually too subtle when using this as a threshould. 25 is used as the required minimum instead. Failure to reach this contrast level is most likely due to high lightness. Lightness and chroma are set to ones that reach the threshold universally regardless of hue.
     if (this.bg.contrastAPCA(this.seedColor) <= 25) {
       if (this.seedIsAchromatic) {
-        color.oklch.l = 0.3;
+        color.oklch.l = 0.25;
         color.oklch.c = 0;
       }
 
       if (!this.seedIsAchromatic) {
-        color.oklch.l = 0.55;
-        color.oklch.c = 0.25;
+        color.oklch.l = 0.45;
+        color.oklch.c = 0.15;
       }
     }
 
@@ -981,7 +994,7 @@ export class LightModeTheme implements ColorModeTheme {
     // Desatured version of the seed for harmonious combination with backgrounds and accents.
     const color = this.bdAccent.clone();
 
-    color.oklch.c = 0.035;
+    color.oklch.c = 0.001;
 
     if (this.seedIsAchromatic) {
       color.oklch.c = 0;
