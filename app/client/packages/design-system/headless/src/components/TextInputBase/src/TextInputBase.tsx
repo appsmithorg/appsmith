@@ -96,7 +96,6 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
         {...mergeProps(inputProps, hoverProps, focusProps, focusableProps)}
         className={inputClassName}
         disabled={getDisabledState()}
-        onFocus={onFocus}
         readOnly={isReadOnly}
         // eslint-disable-next-line @typescript-eslint/no-explicit-any
         ref={inputRef as any}
