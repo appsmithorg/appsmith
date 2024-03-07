@@ -15,6 +15,14 @@ function getWrapper(store: Store): React.FC {
   );
 }
 
+// Mock react-router-dom
+jest.mock("react-router", () => ({
+  ...jest.requireActual("react-router"),
+  useLocation: jest.fn().mockReturnValue({
+    pathname: "/app/untitled-application-1/page1-1/edit/jsObjects",
+  }),
+}));
+
 describe("JS Segment", () => {
   it("creates JS in the correct page", () => {
     const store = createStore(rootReducer, {

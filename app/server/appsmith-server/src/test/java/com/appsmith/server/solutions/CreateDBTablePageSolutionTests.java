@@ -64,7 +64,7 @@ import java.util.Set;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;

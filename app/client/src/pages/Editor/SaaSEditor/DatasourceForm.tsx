@@ -681,7 +681,7 @@ class DatasourceSaaSEditor extends JSONtoForm<Props, State> {
                     isSaving={isSaving}
                     isTesting={isTesting}
                     onCancel={() => this.onCancel()}
-                    pageId={pageId}
+                    parentEntityId={pageId}
                     pluginName={plugin?.name || ""}
                     pluginPackageName={pluginPackageName}
                     pluginType={plugin?.type as PluginType}

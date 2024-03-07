@@ -32,6 +32,7 @@ import {
 } from "../Files/FilesContextProvider";
 import { useConvertToModuleOptions } from "@appsmith/pages/Editor/Explorer/hooks";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import { PluginType } from "entities/Action";
 
 interface EntityContextMenuProps {
   id: string;
@@ -39,6 +40,7 @@ interface EntityContextMenuProps {
   className?: string;
   canManageAction: boolean;
   canDeleteAction: boolean;
+  pluginType: PluginType;
 }
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   // Import the context
@@ -119,7 +121,9 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     },
     menuItems.includes(
       ActionEntityContextMenuItemsEnum.CONVERT_QUERY_MODULE_INSTANCE,
-    ) && convertQueryToModuleOption,
+    ) &&
+      props.pluginType !== PluginType.INTERNAL &&
+      convertQueryToModuleOption,
     menuItems.includes(ActionEntityContextMenuItemsEnum.COPY) &&
       canManageAction && {
         value: "copy",

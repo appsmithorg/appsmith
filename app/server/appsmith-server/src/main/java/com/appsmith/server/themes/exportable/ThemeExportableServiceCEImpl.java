@@ -1,7 +1,7 @@
 package com.appsmith.server.themes.exportable;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -37,7 +37,7 @@ public class ThemeExportableServiceCEImpl implements ExportableServiceCE<Theme> 
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         Mono<Theme> defaultThemeMono = themeService

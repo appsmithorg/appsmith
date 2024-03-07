@@ -1,6 +1,6 @@
 package com.appsmith.server.plugins.importable;
 
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
@@ -37,7 +37,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         return workspaceMono
                 .map(workspace -> workspace.getPlugins().stream()
@@ -64,7 +64,7 @@ public class PluginImportableServiceCEImpl implements ImportableServiceCE<Plugin
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             boolean isContextAgnostic) {
         return importEntities(

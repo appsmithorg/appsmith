@@ -7,6 +7,9 @@ import {X509Certificate} from "crypto"
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
 
+// Rate limit, numeric value defining the requests-per-second allowed.
+const RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 15, 10)
+
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
 let certLocation = null
@@ -44,6 +47,7 @@ parts.push(`
   servers {
     trusted_proxies static 0.0.0.0/0
   }
+  order rate_limit before basicauth
 }
 
 (file_server) {
@@ -111,6 +115,14 @@ parts.push(`
   redir /supervisor /supervisor/
   handle_path /supervisor/* {
     import reverse_proxy 9001
+  }
+
+  rate_limit {
+    zone dynamic_zone {
+      key {http.request.remote_ip}
+      events ${RATE_LIMIT}
+      window 1s
+    }
   }
 
   handle_errors {
