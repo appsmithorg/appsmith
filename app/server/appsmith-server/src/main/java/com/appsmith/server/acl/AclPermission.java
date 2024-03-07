@@ -151,4 +151,11 @@ public enum AclPermission {
         }
         return aclPermission.getEntity().equals(entityClass);
     }
+
+    public static AclPermission getPermissionOrNull(AclPermission permission, Boolean operateWithoutPermission) {
+        if (Boolean.TRUE.equals(operateWithoutPermission)) {
+            return null;
+        }
+        return permission;
+    }
 }

@@ -131,6 +131,24 @@ export const getDefaultSpaceDistributed = (zones: string[]) => {
   );
 };
 
+export const reAdjustSpaceDistribution = (
+  currentDistributedSpace: {
+    [key: string]: number;
+  },
+  zoneOrder: string[],
+  maxColumnLimit: number,
+) => {
+  return redistributeSpaceWithDynamicMinWidth(
+    currentDistributedSpace,
+    [...zoneOrder, "spaceToAdjust"],
+    -10, // Random value to indicate space adjustment
+    zoneOrder.length,
+    {
+      maxColumnLimit,
+    },
+  );
+};
+
 const multiZoneSpaceDistribution = (
   zonesToAdd: string[],
   widgetsAfterUpdate: CanvasWidgetsReduxState,
@@ -158,6 +176,9 @@ const multiZoneSpaceDistribution = (
       updatedZoneOrder,
       requiredSpaceForAllZones,
       indexToDrop,
+      {
+        currentZoneShrinkLimit: ZoneMinColumnWidth * zonesToAdd.length,
+      },
     );
   const distributedSpaceOfExistingZones = updatedZoneOrder.reduce(
     (result, each, index) => {
@@ -186,23 +207,15 @@ const multiZoneSpaceDistribution = (
     {} as { [key: string]: number },
   );
 
-  // Add a special key "spaceToAdjust" to store the space adjustment value
-  zonesToAddDistributedSpace["spaceToAdjust"] = Math.abs(
-    maximumAllowedSpace - requiredSpaceForAllZones,
-  );
-
   // Handle the addition of zones and update the distributed space
   zonesToAdd.forEach((eachZone, index) => {
     updatedZoneOrder.splice(index, 0, eachZone);
   });
 
-  // Redistribute space considering the space adjustment
-  const updatedDistributedSpaceArray = redistributeSpaceWithDynamicMinWidth(
+  // Redistribute space considering the need for space adjustment
+  const updatedDistributedSpaceArray = reAdjustSpaceDistribution(
     zonesToAddDistributedSpace,
-    [...zonesToAdd, "spaceToAdjust"],
-    -zonesToAddDistributedSpace["spaceToAdjust"],
-    zonesToAdd.length,
-    false,
+    zonesToAdd,
     maximumAllowedSpace,
   );
 
@@ -471,6 +484,9 @@ function adjustZoneSpaces(
   isSmallestZoneLargeRelatively: boolean,
   largestZoneSpace: number,
   newlyAdjustedValues: number[],
+  index: number,
+  minColumnWidth: number,
+  currentZoneShrinkLimit: number,
 ): number[] {
   for (let i = 0; i < spaceDistributedArray.length; i++) {
     const minColumns =
@@ -480,7 +496,9 @@ function adjustZoneSpaces(
         ? Math.round(
             LARGE_SMALL_ZONE_SHRINK_THRESHOLD * spaceDistributedArray[i],
           )
-        : ZoneMinColumnWidth;
+        : index === i
+        ? currentZoneShrinkLimit
+        : minColumnWidth;
 
     const adjustedSpace = Math.max(
       Math.round(newlyAdjustedValues[i]),
@@ -500,7 +518,7 @@ function adjustZoneSpaces(
  * @param zoneOrder - An array specifying the order of zones in the section.
  * @param zoneChangeFactor - The factor by which space is added or removed.
  * @param index - The index where the space is added or removed.
- * @param addedViaStepper - A flag indicating whether the space change is initiated via a stepper.
+ * @param options - An object containing additional options for the operation.
  * @returns An array representing the redistributed space in each zone after the operation.
  */
 export const redistributeSpaceWithDynamicMinWidth = (
@@ -510,9 +528,19 @@ export const redistributeSpaceWithDynamicMinWidth = (
   zoneOrder: string[],
   zoneChangeFactor: number,
   index: number,
-  addedViaStepper?: boolean,
-  maxColumnLimit = SectionColumns,
+  options: {
+    addedViaStepper?: boolean;
+    maxColumnLimit?: number;
+    minColumnWidth?: number;
+    currentZoneShrinkLimit?: number;
+  } = {},
 ): number[] => {
+  const {
+    addedViaStepper = false,
+    currentZoneShrinkLimit = ZoneMinColumnWidth,
+    maxColumnLimit = SectionColumns,
+    minColumnWidth = ZoneMinColumnWidth,
+  } = options;
   // Extract the current distribution of space into an array
   const spaceDistributedArray = zoneOrder.map(
     (zone) => spaceDistributedObj[zone],
@@ -532,8 +560,7 @@ export const redistributeSpaceWithDynamicMinWidth = (
   }
 
   // Check if the absolute value of the space change factor is less than the minimum column width
-  if (Math.abs(zoneChangeFactor) < ZoneMinColumnWidth)
-    return spaceDistributedArray;
+  if (Math.abs(zoneChangeFactor) < minColumnWidth) return spaceDistributedArray;
 
   const { isSmallestZoneLargeRelatively, largestZoneSpace, zoneChange } =
     getZoneChangeAndRelativeSize(
@@ -590,6 +617,9 @@ export const redistributeSpaceWithDynamicMinWidth = (
     isSmallestZoneLargeRelatively,
     largestZoneSpace,
     newlyAdjustedValues,
+    index,
+    minColumnWidth,
+    currentZoneShrinkLimit,
   );
   roundOffSpaceDistributedArray(spaceDistributedArray, maxColumnLimit);
 
