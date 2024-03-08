@@ -22,6 +22,7 @@
     text-overflow: ellipsis;
     padding: 0;
     max-inline-size: 100%;
+    min-inline-size: 0;
 
     &:autofill,
     &:autofill:hover,
