@@ -1,4 +1,4 @@
-name: Cyclic Dependency Check
+name: Madge Check
 
 on:
   pull_request:
@@ -7,6 +7,7 @@ on:
 
 jobs:
   check-cyclic-dependencies:
+    name: Check for Cyclic Dependencies and comment on PR
     runs-on: ubuntu-latest
     outputs:
       has_cyclic_deps: ${{ steps.check_cyclic_deps.outputs.has_cyclic_deps }}
@@ -52,7 +53,6 @@ jobs:
         id: check_cyclic_deps
         run: |
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
-          OUTPUT="${OUTPUT//'%'/'%25'}"
           OUTPUT="${OUTPUT//$'\n'/'%0A'}"
           OUTPUT="${OUTPUT//$'\r'/'%0D'}"
           echo "cyclic_deps_result=${OUTPUT}" >> "$GITHUB_OUTPUT"
@@ -74,7 +74,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const output = `${{ steps.check_cyclic_deps.outputs.cyclic_deps_result }}`;
-            const message = `🔄 Cyclic Dependency Check:\n\`\`\`\n${output}\n\`\`\``;
+            const message = `🔄 Cyclic Dependency Check:\n\n${output}\n`;
             github.issues.createComment({
               ...context.repo,
               issue_number: ${{ github.event.pull_request.number }},
