@@ -51,7 +51,8 @@ jobs:
         id: check_cyclic_deps
         run: |
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
-          echo "$OUTPUT" | base64 > cyclic_deps.txt
+          OUTPUT="${OUTPUT//$'\n'/\\n}"
+          echo "$OUTPUT" > cyclic_deps.txt
           if [[ $OUTPUT == *"cyclic dependencies:"* ]]; then
             echo "has_cyclic_deps=true" >> "$GITHUB_OUTPUT"
           fi
