@@ -7,7 +7,7 @@ import { generateReactKey } from "utils/generators";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { IconWrapper } from "constants/IconConstants";
 import { Text } from "design-system";
-import { useIsEditorPaneSegmentsEnabled } from "./IDE/hooks";
+import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 
 interface CardProps {
   details: WidgetCardProps;
