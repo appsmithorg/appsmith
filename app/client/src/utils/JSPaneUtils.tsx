@@ -43,7 +43,7 @@ export const getDifferenceInJSCollection = (
         if (
           preExisted.actionConfiguration.body !== action.body ||
           !getDifferenceInJSArgumentArrays(
-            preExisted.actionConfiguration.jsArguments,
+            preExisted.actionConfiguration?.jsArguments,
             action.arguments,
           )
         ) {

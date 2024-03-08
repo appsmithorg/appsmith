@@ -290,11 +290,10 @@ export function CurlIconV2() {
   );
 }
 
-// TODO (workflows): replace with actual workflow icon
 export function WorkflowIcon() {
   return (
     <EntityIcon>
-      <Icon name="fork" size="lg" />
+      <Icon name="workflows" size="lg" />
     </EntityIcon>
   );
 }
