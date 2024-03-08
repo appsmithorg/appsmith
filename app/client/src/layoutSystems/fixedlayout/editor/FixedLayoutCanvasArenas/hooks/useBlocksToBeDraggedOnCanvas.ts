@@ -1,44 +1,44 @@
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { AppState } from "@appsmith/reducers";
-import { stopReflowAction } from "actions/reflowActions";
-import { EditorContext } from "components/editorComponents/EditorContextProvider";
-import type {
-  OccupiedSpace,
-  WidgetSpace,
-} from "constants/CanvasEditorConstants";
 import {
   CONTAINER_GRID_PADDING,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
-import equal from "fast-deep-equal/es6";
-import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetComponent";
-import {
-  getBlocksToDraw,
-  getBoundUpdateRelativeRowsMethod,
-  getDragCenterSpace,
-  getParentDiff,
-  getRelativeStartPoints,
-  updateBottomRow as updateBottomRowHelper,
-} from "layoutSystems/common/utils/canvasDraggingUtils";
-import { useContext, useEffect, useRef } from "react";
-import { useDispatch, useSelector } from "react-redux";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
+import type { AppState } from "@appsmith/reducers";
+import { getSelectedWidgets } from "selectors/ui";
 import { getOccupiedSpacesWhileMoving } from "selectors/editorSelectors";
 import { getTableFilterState } from "selectors/tableFilterSelectors";
-import { getSelectedWidgets } from "selectors/ui";
-import { getIsReflowing } from "selectors/widgetReflowSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import type {
+  OccupiedSpace,
+  WidgetSpace,
+} from "constants/CanvasEditorConstants";
+import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
 import { widgetOperationParams } from "utils/WidgetPropsUtils";
-import { snapToGrid } from "utils/helpers";
+import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetComponent";
+import equal from "fast-deep-equal/es6";
+import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
+import { useDispatch, useSelector } from "react-redux";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { snapToGrid } from "utils/helpers";
+import { stopReflowAction } from "actions/reflowActions";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { getIsReflowing } from "selectors/widgetReflowSelectors";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { useContext, useEffect, useRef } from "react";
 import type {
   WidgetDraggingBlock,
   WidgetDraggingUpdateParams,
   XYCord,
 } from "../../../../common/canvasArenas/ArenaTypes";
-import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
+import {
+  getBlocksToDraw,
+  getParentDiff,
+  getRelativeStartPoints,
+  getBoundUpdateRelativeRowsMethod,
+  updateBottomRow as updateBottomRowHelper,
+  getDragCenterSpace,
+} from "layoutSystems/common/utils/canvasDraggingUtils";
 
 /**
  * useBlocksToBeDraggedOnCanvas, provides information or functions/methods related to drag n drop,
