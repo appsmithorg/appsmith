@@ -26,7 +26,7 @@ jobs:
           body: |
             The provided command lacks any tags. Please execute '/ok-to-test' again, specifying the tags you want to include or use `/ok-to-test tags="@tag.All"` to run all specs.
             Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
-      
+
       - name: Stop the workflow run if tags are not present
         if: steps.checkTags.outputs.tags != 'true'
         run: exit 1
@@ -46,7 +46,7 @@ jobs:
             echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]" >> $GITHUB_OUTPUT
           fi
 
-      - name: Add comment to use correct @tag.All format 
+      - name: Add comment to use correct @tag.All format
         if: steps.checkAll.outputs.invalid_tags_all != ''
         uses: peter-evans/create-or-update-comment@v3
         with:
@@ -54,13 +54,13 @@ jobs:
           body: |
             Please use `/ok-to-test tags="@tag.All"` to run all specs.
             Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
-      
+
       - name: Stop the workflow run if given @tag.All format is wrong
         if: steps.checkAll.outputs.invalid_tags_all != ''
         run: exit 1
 
       # tags is set to empty string if @tag.All is given in step - Check if @tag.All is present in tags
-      - name: Add suggestion in the PR on using @tag.All 
+      - name: Add suggestion in the PR on using @tag.All
         if: steps.checkAll.outputs.tags == ''
         uses: peter-evans/create-or-update-comment@v3
         with:
@@ -306,49 +306,26 @@ jobs:
               ref
             });
 
-            const check = checks.check_runs.filter(c => c.name === process.env.job);
-
-            if(check.length == 0) {
-              try {
-                console.log("Going to create the check run: ci-test-result");
-                const head_sha = pull.head.sha;
-                const { data: completed_at } = await github.rest.checks.create({
-                  owner: context.repo.owner,
-                  repo: context.repo.repo,
-                  head_sha: head_sha,
-                  name: process.env.job,
-                  status: 'completed',
-                  conclusion: JSON.parse(process.env.matrix_result).result,
-                  output: {
-                    title: "Integration tests result for ok to test",
-                    summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                  }
-                });
-                console.log({ completed_at });
-                return completed_at;  
-              } catch(e) {
-                console.error("Error while creating the check run: ci-test-result");
-                console.error({ error: e.message });
-              }
-            } else {
-              try {
-                console.log("Going to update the check run ci-test-result with id: " + check[0].id);
-                const { data: result } = await github.rest.checks.update({
-                  ...context.repo,
-                  check_run_id: check[0].id,
-                  status: 'completed',
-                  conclusion: JSON.parse(process.env.matrix_result).result,
-                    output: {
-                      title: "Integration tests result for ok to test",
-                      summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                    }
-                });
-                console.log({ result });
-                return result;
-              } catch(e) {
-                console.error("Error while updating the check run: ci-test-result for check_id: " + check[0].id);
-                console.error({ error: e.message });
-              }
+            try {
+              console.log("Going to create the check run: ci-test-result");
+              const head_sha = pull.head.sha;
+              const { data: completed_at } = await github.rest.checks.create({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                head_sha: head_sha,
+                name: process.env.job,
+                status: 'completed',
+                conclusion: JSON.parse(process.env.matrix_result).result,
+                output: {
+                  title: "Integration tests result for ok to test",
+                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
+                }
+              });
+              console.log({ completed_at });
+              return completed_at;
+            } catch(e) {
+              console.error("Error while creating the check run: ci-test-result");
+              console.error({ error: e.message });
             }
 
       - name: Dump the client payload context
