@@ -7,8 +7,8 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -218,7 +218,7 @@ public class ApplicationImportServiceCEImpl
 
     @Override
     public ApplicationImportDTO getImportableArtifactDTO(
-            ImportableArtifact importableArtifact, List<Datasource> datasourceList, String environmentId) {
+            Artifact importableArtifact, List<Datasource> datasourceList, String environmentId) {
         Application application = (Application) importableArtifact;
         ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
         applicationImportDTO.setApplication(application);
@@ -307,6 +307,14 @@ public class ApplicationImportServiceCEImpl
                     .collect(Collectors.toList());
             applicationJson.setActionCollectionList(importedActionCollectionList);
         }
+
+        if (applicationJson.getCustomJSLibList() != null) {
+            List<CustomJSLib> importedCustomJSLibList = applicationJson.getCustomJSLibList().stream()
+                    .peek(customJSLib -> customJSLib.setGitSyncId(
+                            null)) // setting this null so that this custom js lib can be imported again
+                    .collect(Collectors.toList());
+            applicationJson.setCustomJSLibList(importedCustomJSLibList);
+        }
     }
 
     @Override
@@ -335,7 +343,7 @@ public class ApplicationImportServiceCEImpl
 
     @Override
     public Mono<Application> updateAndSaveArtifactInContext(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currentUserMono) {
@@ -396,7 +404,16 @@ public class ApplicationImportServiceCEImpl
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
             if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
-                importApplicationMono = existingApplicationMono;
+                if (!CollectionUtils.isEmpty(mappedImportableResourcesDTO.getInstalledJsLibsList())) {
+                    Application update = new Application();
+                    update.setUnpublishedCustomJSLibs(
+                            new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
+                    importApplicationMono = applicationService
+                            .update(importingMetaDTO.getArtifactId(), update)
+                            .then(existingApplicationMono);
+                } else {
+                    importApplicationMono = existingApplicationMono;
+                }
             } else {
                 importApplicationMono = importApplicationMono
                         .zipWith(existingApplicationMono)
@@ -453,7 +470,7 @@ public class ApplicationImportServiceCEImpl
     }
 
     @Override
-    public Mono<Application> updateImportableArtifact(ImportableArtifact importableArtifact) {
+    public Mono<Application> updateImportableArtifact(Artifact importableArtifact) {
         return Mono.just((Application) importableArtifact)
                 .flatMap(application -> {
                     log.info("Imported application with id {}", application.getId());
@@ -475,7 +492,7 @@ public class ApplicationImportServiceCEImpl
 
     @Override
     public Mono<Application> updateImportableEntities(
-            ImportableArtifact importableContext,
+            Artifact importableContext,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             ImportingMetaDTO importingMetaDTO) {
         return Mono.just((Application) importableContext).flatMap(application -> {
@@ -489,7 +506,7 @@ public class ApplicationImportServiceCEImpl
 
     @Override
     public Map<String, Object> createImportAnalyticsData(
-            ArtifactExchangeJson artifactExchangeJson, ImportableArtifact importableArtifact) {
+            ArtifactExchangeJson artifactExchangeJson, Artifact importableArtifact) {
 
         Application application = (Application) importableArtifact;
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
@@ -519,7 +536,7 @@ public class ApplicationImportServiceCEImpl
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         return importableArtifactMono.flatMapMany(importableContext -> {
             Application application = (Application) importableContext;
@@ -552,7 +569,7 @@ public class ApplicationImportServiceCEImpl
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         return importableArtifactMono.flatMapMany(importableContext -> {

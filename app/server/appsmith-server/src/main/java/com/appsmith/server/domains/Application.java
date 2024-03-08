@@ -3,6 +3,7 @@ package com.appsmith.server.domains;
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -39,7 +40,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @QueryEntity
 @Entity
 @FieldNameConstants
-public class Application extends BaseDomain implements ImportableArtifact, ExportableArtifact {
+public class Application extends BaseDomain implements Artifact {
 
     @NotNull @JsonView(Views.Public.class)
     String name;
@@ -295,6 +296,12 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
         return this.gitApplicationMetadata;
     }
 
+    @JsonView(Views.Internal.class)
+    @Override
+    public void setGitArtifactMetadata(GitArtifactMetadata gitArtifactMetadata) {
+        this.gitApplicationMetadata = gitArtifactMetadata;
+    }
+
     @Override
     public String getUnpublishedThemeId() {
         return this.getEditModeThemeId();
@@ -361,6 +368,12 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
         } else {
             unpublishedApplicationDetail = applicationDetail;
         }
+    }
+
+    @Override
+    @JsonView(Views.Internal.class)
+    public ArtifactType getArtifactType() {
+        return ArtifactType.APPLICATION;
     }
 
     @Data

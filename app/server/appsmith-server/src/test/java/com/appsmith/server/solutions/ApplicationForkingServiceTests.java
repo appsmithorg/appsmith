@@ -20,7 +20,7 @@ import com.appsmith.external.models.UploadedFile;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -364,7 +364,7 @@ public class ApplicationForkingServiceTests {
                                 application.getWorkspaceId(),
                                 application.getId(),
                                 application,
-                                ArtifactJsonType.APPLICATION)))
+                                ArtifactType.APPLICATION)))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono.zipWhen(applicationImportDTO -> Mono.zip(
@@ -494,7 +494,7 @@ public class ApplicationForkingServiceTests {
         final Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, sourceEnvironmentId)
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, ArtifactType.APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1276,7 +1276,7 @@ public class ApplicationForkingServiceTests {
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, ArtifactType.APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1306,7 +1306,7 @@ public class ApplicationForkingServiceTests {
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, ArtifactType.APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1336,7 +1336,7 @@ public class ApplicationForkingServiceTests {
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, ArtifactType.APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)

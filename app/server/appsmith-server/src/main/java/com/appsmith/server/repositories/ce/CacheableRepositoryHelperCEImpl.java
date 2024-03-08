@@ -25,8 +25,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.HashMap;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -40,7 +38,6 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     private final ReactiveMongoOperations mongoOperations;
     private final EntityManager entityManager;
     private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
-    private final Map<String, User> tenantAnonymousUserMap = new HashMap<>();
 
     @Cache(cacheName = "permissionGroupsForUser", key = "{#user.email + #user.tenantId}")
     @Override
@@ -126,42 +123,6 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @Override
     public Mono<Void> evictPermissionGroupsUser(String email, String tenantId) {
         return Mono.empty();
-    }
-
-    @Override
-    public Mono<User> getAnonymousUser(String tenantId) {
-        if (tenantAnonymousUserMap.containsKey(tenantId)) {
-            return Mono.just(tenantAnonymousUserMap.get(tenantId));
-        }
-
-        Criteria anonymousUserCriteria = Criteria.where(User.Fields.email).is(ANONYMOUS_USER);
-        Criteria tenantIdCriteria = Criteria.where(User.Fields.tenantId).is(tenantId);
-
-        Query query = new Query();
-        query.addCriteria(anonymousUserCriteria);
-        query.addCriteria(tenantIdCriteria);
-
-        return mongoOperations.findOne(query, User.class).map(anonymousUser -> {
-            tenantAnonymousUserMap.put(tenantId, anonymousUser);
-            return anonymousUser;
-        });
-    }
-
-    @Override
-    public Mono<User> getAnonymousUser() {
-        String defaultTenantId = inMemoryCacheableRepositoryHelper.getDefaultTenantId();
-        if (defaultTenantId != null && !defaultTenantId.isEmpty()) {
-            return getAnonymousUser(defaultTenantId);
-        }
-
-        Criteria defaultTenantCriteria = Criteria.where(Tenant.Fields.slug).is(FieldName.DEFAULT);
-        Query query = new Query();
-        query.addCriteria(defaultTenantCriteria);
-
-        return mongoOperations.findOne(query, Tenant.class).flatMap(defaultTenant -> {
-            inMemoryCacheableRepositoryHelper.setDefaultTenantId(defaultTenant.getId());
-            return getAnonymousUser(defaultTenant.getId());
-        }); // */
     }
 
     @Override

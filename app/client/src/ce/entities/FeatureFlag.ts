@@ -31,7 +31,6 @@ export const FEATURE_FLAG = {
   release_git_autocommit_feature_enabled:
     "release_git_autocommit_feature_enabled",
   license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
-  release_custom_widgets_enabled: "release_custom_widgets_enabled",
   ab_create_new_apps_enabled: "ab_create_new_apps_enabled",
   release_show_partial_import_export_enabled:
     "release_show_partial_import_export_enabled",
@@ -42,8 +41,6 @@ export const FEATURE_FLAG = {
   release_side_by_side_ide_enabled: "release_side_by_side_ide_enabled",
   release_global_add_pane_enabled: "release_global_add_pane_enabled",
   ab_appsmith_ai_query: "ab_appsmith_ai_query",
-  ab_flip_primary_secondary_ctas_dsform_enabled:
-    "ab_flip_primary_secondary_ctas_dsform_enabled",
   rollout_consolidated_page_load_fetch_enabled:
     "rollout_consolidated_page_load_fetch_enabled",
   ab_start_with_data_default_enabled: "ab_start_with_data_default_enabled",
@@ -82,7 +79,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_git_continuous_delivery_enabled: false,
   release_git_continuous_delivery_enabled: false,
   license_widget_rtl_support_enabled: false,
-  release_custom_widgets_enabled: false,
   ab_create_new_apps_enabled: false,
   release_show_partial_import_export_enabled: false,
   release_show_new_sidebar_pages_pane_enabled: false,
@@ -90,7 +86,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_side_by_side_ide_enabled: false,
   release_global_add_pane_enabled: false,
   ab_appsmith_ai_query: false,
-  ab_flip_primary_secondary_ctas_dsform_enabled: false,
   rollout_consolidated_page_load_fetch_enabled: false,
   ab_start_with_data_default_enabled: false,
   release_actions_redesign_enabled: false,

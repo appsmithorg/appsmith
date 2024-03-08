@@ -1,7 +1,7 @@
 package com.appsmith.server.jslibs.importable;
 
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
@@ -37,7 +37,7 @@ public class CustomJSLibImportableServiceCEImpl implements ImportableServiceCE<C
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         List<CustomJSLib> customJSLibs = artifactExchangeJson.getCustomJSLibList();
         if (customJSLibs == null) {
