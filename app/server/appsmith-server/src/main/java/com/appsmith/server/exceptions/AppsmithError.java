@@ -1020,6 +1020,14 @@ public enum AppsmithError {
             "Trigger parameters empty.",
             ErrorType.INTERNAL_ERROR,
             null),
+    INSUFFICIENT_PASSWORD_STRENGTH(
+            400,
+            AppsmithErrorCode.INSUFFICIENT_PASSWORD_STRENGTH.getCode(),
+            "Your password must meet the following criteria: Must contain at least one digit, one lower case letter, one upper case letter, one special character, and no whitespace",
+            AppsmithErrorAction.DEFAULT,
+            "Insufficient password strength",
+            ErrorType.INTERNAL_ERROR,
+            null),
     ;
 
     private final Integer httpErrorCode;
