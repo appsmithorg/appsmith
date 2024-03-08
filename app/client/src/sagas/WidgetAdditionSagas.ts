@@ -488,7 +488,7 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
       const skeletonWidgetName = `loading_${buildingblockName
         .toLowerCase()
         .replace(/ /g, "_")}`;
-      const createSkeletonWidget: ReduxAction<WidgetAddChild> = {
+      const addSkeletonWidgetAction: ReduxAction<WidgetAddChild> = {
         ...addEntityAction,
         payload: {
           ...addEntityAction.payload,
@@ -496,7 +496,7 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
           widgetName: skeletonWidgetName,
         },
       };
-      yield call(addChildSaga, createSkeletonWidget);
+      yield call(addChildSaga, addSkeletonWidgetAction);
     } else {
       yield call(addChildSaga, addEntityAction);
     }
