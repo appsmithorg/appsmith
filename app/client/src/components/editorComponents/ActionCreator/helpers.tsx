@@ -550,7 +550,7 @@ export function getJSOptions(
           jsObject.children = [];
 
           jsAction.config.actions.forEach((js: JSAction) => {
-            const jsArguments = js.actionConfiguration.jsArguments;
+            const jsArguments = js.actionConfiguration?.jsArguments;
             const argValue: Array<any> = [];
 
             if (jsArguments && jsArguments.length) {
@@ -596,7 +596,7 @@ export function getJSOptions(
           jsObject.children = [];
 
           jsModuleInstance.config.actions.forEach((js: JSAction) => {
-            const jsArguments = js.actionConfiguration.jsArguments;
+            const jsArguments = js.actionConfiguration?.jsArguments;
             const argValue: Array<any> = [];
 
             if (jsArguments && jsArguments.length) {
