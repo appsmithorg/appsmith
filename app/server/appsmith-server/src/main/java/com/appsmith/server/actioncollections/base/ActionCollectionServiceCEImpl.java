@@ -224,6 +224,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection) {
+        return generateActionCollectionViewDTO(actionCollection, actionPermission.getExecutePermission(), true);
+    }
+
+    protected Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(
+            ActionCollection actionCollection, AclPermission aclPermission, boolean viewMode) {
         if (actionCollection.getPublishedCollection() == null) {
             return Mono.empty();
         }
@@ -256,8 +261,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         actionCollectionViewDTO.setDefaultResources(defaults);
         return Flux.fromIterable(
                         publishedCollection.getDefaultToBranchedActionIdsMap().values())
-                .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(
-                        actionId, true, actionPermission.getExecutePermission()))
+                .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, viewMode, aclPermission))
                 .collectList()
                 .map(actionDTOList -> {
                     actionCollectionViewDTO.setActions(actionDTOList);
