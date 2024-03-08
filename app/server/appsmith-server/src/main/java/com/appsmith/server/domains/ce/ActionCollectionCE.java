@@ -1,11 +1,11 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -33,12 +33,12 @@ public class ActionCollectionCE extends BranchAwareDomain {
     String workspaceId;
 
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     ActionCollectionDTO unpublishedCollection;
 
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     ActionCollectionDTO publishedCollection;
 

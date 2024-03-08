@@ -1,10 +1,10 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
@@ -76,7 +76,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // There is a many-to-many relationship with groups. If this value is modified, please also modify the list of
     // users in that particular group document as well.
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private Set<String> groupIds = new HashSet<>();
 
@@ -85,7 +85,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     // to users instead of creating a group for them. To be used only for one-off permissions.
     // During evaluation a union of the group permissions and user-specific permissions will take effect.
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private Set<String> permissions = new HashSet<>();
 

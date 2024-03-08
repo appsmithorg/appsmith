@@ -1,11 +1,11 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Cacheable;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -62,32 +62,32 @@ public class UserData extends BaseDomain {
     // list of workspace ids that were recently accessed by the user
     @Deprecated
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private List<String> recentlyUsedWorkspaceIds;
 
     // list of application ids that were recently accessed by the user
     @Deprecated
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private List<String> recentlyUsedAppIds;
 
     // Map of workspaceId to list of recently used applicationIds. This field should be used to add entities
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private List<RecentlyUsedEntityDTO> recentlyUsedEntityIds;
 
     // Map of defaultApplicationIds with the GitProfiles. For fallback/default git profile per user default will be the
     // the key for the map
     @JsonView(Views.Internal.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     Map<String, GitProfile> gitProfiles;
 
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     Map<String, Object> userClaims;
 

@@ -1,10 +1,10 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.PageDTO;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.Getter;
@@ -22,12 +22,12 @@ public class NewPage extends BranchAwareDomain implements Context {
     @JsonView(Views.Public.class)
     String applicationId;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     PageDTO unpublishedPage;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     PageDTO publishedPage;

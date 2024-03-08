@@ -1,10 +1,10 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotBlank;
@@ -38,7 +38,7 @@ public class Workspace extends BaseDomain {
     @JsonView(Views.Public.class)
     private String email;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     private Set<WorkspacePlugin> plugins;
@@ -58,7 +58,7 @@ public class Workspace extends BaseDomain {
     @JsonView(Views.Internal.class)
     private Boolean hasEnvironments;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     private Set<String> defaultPermissionGroups;

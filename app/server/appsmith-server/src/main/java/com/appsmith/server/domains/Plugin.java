@@ -1,10 +1,10 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
@@ -60,12 +60,12 @@ public class Plugin extends BaseDomain {
     ResponseType responseType;
 
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     List<PluginParameterType> datasourceParams;
 
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     List<PluginParameterType> actionParams;
 
@@ -107,13 +107,13 @@ public class Plugin extends BaseDomain {
     boolean isRemotePlugin = false;
 
     // Stores the equivalent of editor.json for remote plugins
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     Map actionUiConfig;
 
     // Stores the equivalent of form.json for remote plugins
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     Map datasourceUiConfig;

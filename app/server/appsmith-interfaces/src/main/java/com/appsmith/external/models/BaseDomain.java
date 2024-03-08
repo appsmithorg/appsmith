@@ -1,12 +1,12 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.EncryptionEntityListener;
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryTransient;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.EntityListeners;
 import jakarta.persistence.Id;
@@ -67,12 +67,12 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     protected Set<Policy> policies = new HashSet<>();
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     protected PolicyMap policyMap;

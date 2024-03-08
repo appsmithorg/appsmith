@@ -1,5 +1,6 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BranchAwareDomain;
@@ -8,7 +9,6 @@ import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
@@ -38,18 +38,18 @@ public class NewActionCE extends BranchAwareDomain {
     String pluginId;
 
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     Documentation documentation; // Documentation for the template using which this action was created
 
     // Action specific fields that are allowed to change between published and unpublished versions
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     ActionDTO unpublishedAction;
 
     @JsonView(Views.Public.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     ActionDTO publishedAction;
 

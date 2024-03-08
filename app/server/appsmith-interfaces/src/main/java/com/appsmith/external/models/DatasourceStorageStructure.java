@@ -1,8 +1,8 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
@@ -26,7 +26,7 @@ public class DatasourceStorageStructure extends BaseDomain {
     private String environmentId;
 
     @JsonView(Views.Internal.class)
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private DatasourceStructure structure;
 }

@@ -1,8 +1,8 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.Permission;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
@@ -36,16 +36,16 @@ public class PermissionGroup extends BaseDomain {
     String defaultDomainId;
     String defaultDomainType;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @Deprecated
     private Set<Permission> permissions = new HashSet<>();
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private Set<String> assignedToUserIds = new HashSet<>();
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     Set<String> assignedToGroupIds = new HashSet<>();
 

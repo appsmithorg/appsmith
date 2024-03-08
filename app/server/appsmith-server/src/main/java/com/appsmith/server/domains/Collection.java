@@ -1,7 +1,7 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.*;
 import jakarta.persistence.Column;
 import lombok.Getter;
@@ -28,7 +28,7 @@ public class Collection extends BaseDomain {
     Boolean shared;
 
     // To save space, when creating/updating collection, only add Action's id field instead of the entire action.
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     List<NewAction> actions;
 }

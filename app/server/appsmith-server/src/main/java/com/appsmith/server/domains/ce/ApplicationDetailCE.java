@@ -1,7 +1,7 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.server.domains.Application;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -19,15 +19,15 @@ public class ApplicationDetailCE {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private Application.AppPositioning appPositioning;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private Application.NavigationSetting navigationSetting;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     Application.ThemeSetting themeSetting;
 

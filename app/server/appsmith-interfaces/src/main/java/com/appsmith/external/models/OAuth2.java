@@ -5,15 +5,14 @@ import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.external.helpers.CustomJsonType;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.apache.logging.log4j.util.Strings;
-import org.hibernate.annotations.Type;
 import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -22,6 +21,7 @@ import java.time.Instant;
 import java.util.Arrays;
 import java.util.Set;
 import java.util.stream.Collectors;
+;
 
 @Getter
 @Setter
@@ -73,7 +73,7 @@ public class OAuth2 extends AuthenticationDTO {
 
     String headerPrefix;
 
-    @org.hibernate.annotations.Type(JsonBinaryType.class)
+    @org.hibernate.annotations.Type(CustomJsonType.class)
     Set<Property> customTokenParameters;
 
     String audience;

@@ -1,9 +1,9 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Transient;
@@ -51,7 +51,7 @@ public class Datasource extends BranchAwareDomain {
     String templateName;
 
     // This is only kept public for embedded datasource
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
@@ -60,7 +60,7 @@ public class Datasource extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     Map<String, DatasourceStorageDTO> datasourceStorages = new HashMap<>();
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)

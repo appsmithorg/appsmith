@@ -1,6 +1,6 @@
 package com.appsmith.external.models;
 
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
+import com.appsmith.external.helpers.CustomJsonType;
 import jakarta.persistence.Column;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -26,7 +26,7 @@ public class Property {
 
     String key;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     Object value;
 

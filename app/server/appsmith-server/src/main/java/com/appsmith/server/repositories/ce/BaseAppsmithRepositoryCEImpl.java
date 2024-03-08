@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -629,7 +630,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             return false;
         }
 
-        return JsonBinaryType.class.equals(field.getAnnotation(Type.class).value());
+        return JsonBinaryType.class.equals(field.getAnnotation(Type.class).value())
+                || CustomJsonType.class.equals(field.getAnnotation(Type.class).value());
     }
 
     /**

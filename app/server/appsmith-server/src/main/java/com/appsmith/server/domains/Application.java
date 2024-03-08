@@ -1,13 +1,12 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import com.querydsl.core.annotations.QueryEntity;
-import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
-import jakarta.persistence.*;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
@@ -54,12 +53,12 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     @JsonView(Views.Public.class)
     Boolean isPublic;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     List<ApplicationPage> pages;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     List<ApplicationPage> publishedPages;
@@ -79,12 +78,12 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     @JsonView(Views.Internal.class)
     String clonedFromApplicationId; // todo: turn this into foreign key as well?
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     ApplicationDetail unpublishedApplicationDetail;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Internal.class)
     ApplicationDetail publishedApplicationDetail;
@@ -104,17 +103,17 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     @JsonView(Views.Internal.class)
     AppLayout publishedAppLayout;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     Set<CustomJSLibContextDTO> unpublishedCustomJSLibs;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     Set<CustomJSLibContextDTO> publishedCustomJSLibs;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     GitArtifactMetadata gitApplicationMetadata;
@@ -145,7 +144,7 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
     @JsonView(Views.Internal.class)
     Instant lastEditedAt;
 
-    @Type(JsonBinaryType.class)
+    @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     @JsonView(Views.Public.class)
     EmbedSetting embedSetting;
