@@ -53,7 +53,8 @@ jobs:
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
           OUTPUT="${OUTPUT//$'\n'/\\n}"
           echo "$OUTPUT" > cyclic_deps.txt
-          if [[ $OUTPUT == *"cyclic dependencies:"* ]]; then
+          if [[ $OUTPUT =~ Found\ [0-9]+\ circular\ dependencies! ]]; then
+            echo "Cyclic deps found."
             echo "has_cyclic_deps=true" >> "$GITHUB_OUTPUT"
           fi
 

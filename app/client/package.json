@@ -43,7 +43,7 @@
     "check-types": "yarn tsc --noEmit",
     "init-husky": "cd ../.. && husky install app/client/.husky",
     "clean:workspaces": "yarn workspaces foreach -pAv exec rm -rf node_modules",
-    "check-cyclic-deps": "node scripts/cyclicDepsCheck.js"
+    "check-cyclic-deps": "yarn madge --circular --extensions ts,tsx ./src"
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.441.0",
