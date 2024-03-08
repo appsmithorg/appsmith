@@ -260,7 +260,7 @@ export interface ImportPartialApplicationRequest {
   pageId: string;
 }
 
-export interface ImportBuildingBlockRequest {
+export interface ImportBuildingBlockToApplicationRequest {
   pageId: string;
   applicationId: string;
   workspaceId: string;
@@ -487,7 +487,9 @@ export class ApplicationApi extends Api {
     );
   }
 
-  static async importBuildingBlock(request: ImportBuildingBlockRequest) {
+  static async importBuildingBlockToApplication(
+    request: ImportBuildingBlockToApplicationRequest,
+  ) {
     return Api.post(`${ApplicationApi.baseURL}/import/partial/block`, request);
   }
 }
