@@ -6,5 +6,6 @@ public enum ActionCreationSourceTypeEnum {
     GENERATE_PAGE,
     ONE_CLICK_BINDING,
     CLONE_PAGE,
-    FORK_APPLICATION;
+    FORK_APPLICATION,
+    COPY_ACTION;
 }

@@ -72,6 +72,7 @@ export enum ActionCreationSourceTypeEnum {
   ONE_CLICK_BINDING = "ONE_CLICK_BINDING",
   CLONE_PAGE = "CLONE_PAGE",
   FORK_APPLICATION = "FORK_APPLICATION",
+  COPY_ACTION = "COPY_ACTION",
 }
 
 export interface KeyValuePair {

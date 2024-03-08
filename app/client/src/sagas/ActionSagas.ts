@@ -738,6 +738,9 @@ function* copyActionSaga(
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
 
+    // Indicates that source of action creation is copy action
+    copyAction.source = ActionCreationSourceTypeEnum.COPY_ACTION;
+
     delete copyAction.id;
     const response: ApiResponse<ActionCreateUpdateResponse> =
       yield ActionAPI.createAction(copyAction);
