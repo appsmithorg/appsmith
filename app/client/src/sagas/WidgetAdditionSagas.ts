@@ -5,12 +5,6 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
-import type { WidgetBlueprint } from "WidgetProvider/constants";
-import {
-  BlueprintOperationTypes,
-  GRID_DENSITY_MIGRATION_V1,
-} from "WidgetProvider/constants";
-import WidgetFactory from "WidgetProvider/factory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
@@ -43,10 +37,22 @@ import {
 } from "selectors/editorSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { generateReactKey } from "utils/generators";
+import { generateWidgetProps } from "utils/WidgetPropsUtils";
+import type { WidgetBlueprint } from "WidgetProvider/constants";
+import {
+  BlueprintOperationTypes,
+  GRID_DENSITY_MIGRATION_V1,
+} from "WidgetProvider/constants";
+import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
+import {
+  getDragDetails,
+  getWidget,
+  getWidgetByName,
+  getWidgets,
+} from "./selectors";
 import {
   buildWidgetBlueprint,
   executeWidgetBlueprintBeforeOperations,
@@ -54,12 +60,6 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
-import {
-  getDragDetails,
-  getWidget,
-  getWidgetByName,
-  getWidgets,
-} from "./selectors";
 // import {
 //   ApplicationApi,
 //   type ImportBuildingBlockRequest,
@@ -67,6 +67,7 @@ import {
 import type { ImportBuildingBlockRequest } from "@appsmith/api/ApplicationApi";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { flattenDSL } from "@shared/dsl";
 import { pasteWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { Template } from "api/TemplatesApi";
@@ -82,7 +83,6 @@ import { getTemplateByName } from "selectors/templatesSelectors";
 import { saveCopiedWidgets } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
 import { SelectionRequestType } from "./WidgetSelectUtils";
-import { flattenDSL } from "@shared/dsl";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -562,32 +562,36 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
         const flattenedBlockWidgets = blockWidgets.map((widget: WidgetProps) =>
           flattenDSL(widget),
         );
-
         const widgetListsToStore: {
           widgetId: string;
           parentId: string;
           list: FlattenedWidgetProps[];
           hierarchy: number;
         }[] = yield all(
-          flattenedBlockWidgets.map((widget: WidgetProps) => {
-            let widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
-            if (
-              widget.parentId &&
-              layoutSystemType === LayoutSystemTypes.ANVIL
-            ) {
-              widgetPositionInfo = getWidgetLayoutMetaInfo(
-                allWidgets[widget?.parentId]?.layout[0] ?? null,
-                widget.widgetId,
-              );
-            }
-            return {
-              hierarchy: getWidgetHierarchy(widget.type, widget.widgetId),
-              list: [widget],
-              parentId: widget.parentId,
-              widgetId: widget.widgetId,
-              widgetPositionInfo,
-            };
-          }),
+          flattenedBlockWidgets.map(
+            (widget: FlattenedWidgetProps, index: number) => {
+              let widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
+              if (
+                widget.parentId &&
+                layoutSystemType === LayoutSystemTypes.ANVIL
+              ) {
+                widgetPositionInfo = getWidgetLayoutMetaInfo(
+                  allWidgets[widget?.parentId]?.layout[0] ?? null,
+                  widget.widgetId,
+                );
+              }
+              return {
+                hierarchy: getWidgetHierarchy(
+                  blockWidgets[index].type,
+                  blockWidgets[index].widgetId,
+                ),
+                list: Object.values(widget).map((obj) => ({ ...obj })),
+                parentId: "0",
+                widgetId: blockWidgets[index].widgetId,
+                widgetPositionInfo,
+              };
+            },
+          ),
         );
         yield saveCopiedWidgets(
           JSON.stringify({
