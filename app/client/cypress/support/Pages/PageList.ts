@@ -21,6 +21,7 @@ class PageList {
       | "Add page from template" = "New blank page",
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
+    this.ShowList();
     ObjectsRegistry.AggregateHelper.GetNClick(this.locators.newButton);
     ObjectsRegistry.AggregateHelper.GetNClick(
       this.locators.newPageOption(option),
@@ -34,6 +35,7 @@ class PageList {
   }
 
   public VerifyIsCurrentPage(pageName: string) {
+    this.ShowList();
     ObjectsRegistry.AggregateHelper.GetElement(
       this.locators.pageListItem(pageName),
     ).should("have.class", "activePage");
@@ -45,6 +47,7 @@ class PageList {
 
   public ClonePage(pageName = "Page1") {
     AppSidebar.navigate(AppSidebarButton.Editor);
+    this.ShowList();
     EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     ObjectsRegistry.EntityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: pageName,
@@ -63,12 +66,14 @@ class PageList {
   }
 
   assertPresence(pageName: string) {
+    this.ShowList();
     ObjectsRegistry.AggregateHelper.AssertElementVisibility(
       this.locators.pageListItem(pageName),
     );
   }
 
   assertAbsence(pageName: string) {
+    this.ShowList();
     ObjectsRegistry.AggregateHelper.AssertElementAbsence(
       this.locators.pageListItem(pageName),
     );
