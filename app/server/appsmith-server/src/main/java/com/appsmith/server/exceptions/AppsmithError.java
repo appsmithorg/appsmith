@@ -1026,7 +1026,7 @@ public enum AppsmithError {
             "Your password must meet the following criteria: Must contain at least one digit, one lower case letter, one upper case letter, one special character, and no whitespace",
             AppsmithErrorAction.DEFAULT,
             "Insufficient password strength",
-            ErrorType.INTERNAL_ERROR,
+            ErrorType.ARGUMENT_ERROR,
             null),
     ;
 

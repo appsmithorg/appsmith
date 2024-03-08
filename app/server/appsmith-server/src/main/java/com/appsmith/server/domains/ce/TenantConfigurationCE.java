@@ -76,6 +76,7 @@ public class TenantConfigurationCE {
 
         featuresWithPendingMigration = tenantConfiguration.getFeaturesWithPendingMigration();
         migrationStatus = tenantConfiguration.getMigrationStatus();
+        isStrongPasswordPolicyEnabled = tenantConfiguration.getIsStrongPasswordPolicyEnabled();
     }
 
     public Boolean isEmailVerificationEnabled() {

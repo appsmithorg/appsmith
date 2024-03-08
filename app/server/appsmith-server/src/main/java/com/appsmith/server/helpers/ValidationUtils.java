@@ -9,6 +9,7 @@ import java.util.regex.Pattern;
 public final class ValidationUtils {
     public static final int LOGIN_PASSWORD_MIN_LENGTH = 8;
     public static final int LOGIN_PASSWORD_MAX_LENGTH = 48;
+    private static final String SPECIAL_CHARACTERS = "!@#$%^&*()_\\-\\[\\]+{}|:<>?`=;',./~";
     private static final String EMAIL_PATTERN = "[\\w+\\-.%]+@[\\w\\-.]+\\.[A-Za-z]+";
     private static final Pattern EMAIL_CSV_PATTERN =
             Pattern.compile("^\\s*(" + EMAIL_PATTERN + "\\s*,\\s*)*(" + EMAIL_PATTERN + ")\\s*$");
@@ -16,17 +17,21 @@ public final class ValidationUtils {
     // This regex is used to validate the password strength. The password should contain at least one digit, one lower
     // case letter, one upper case letter, one special character, and no whitespace. The length of the password should
     // be between 8 and 48 characters.
-    private static final String STRONG_PASSWORD_REGEX =
-            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[@#$%^&+=!])(?!.*\\s).{8,48}$";
+    private static final String STRONG_PASSWORD_REGEX = String.format(
+            "^(?=.*[0-9])(?=.*[a-z])(?=.*[A-Z])(?=.*[%s])(?!.*\\s).{%d,%d}$",
+            SPECIAL_CHARACTERS, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
 
     public static boolean validateEmail(String emailStr) {
         return EmailValidator.getInstance().isValid(emailStr);
     }
 
     public static boolean validateUserPassword(String password, boolean isStrongPasswordPolicyEnabled) {
+        if (!StringUtils.hasLength(password)) {
+            return false;
+        }
         int passwordLength = password.length();
         if (isStrongPasswordPolicyEnabled) {
-            return validateStrongPassword(password, isStrongPasswordPolicyEnabled);
+            return validateStrongPassword(password);
         }
         return passwordLength >= LOGIN_PASSWORD_MIN_LENGTH && passwordLength <= LOGIN_PASSWORD_MAX_LENGTH;
     }
@@ -42,10 +47,9 @@ public final class ValidationUtils {
      * 7. Password should not contain the username
      *
      * @param password                      The password to be validated
-     * @param isStrongPasswordPolicyEnabled Whether the strong password policy is enabled or not
      * @return True if the password is strong, false otherwise
      */
-    private static boolean validateStrongPassword(String password, Boolean isStrongPasswordPolicyEnabled) {
+    private static boolean validateStrongPassword(String password) {
         return password.matches(STRONG_PASSWORD_REGEX);
     }
 
