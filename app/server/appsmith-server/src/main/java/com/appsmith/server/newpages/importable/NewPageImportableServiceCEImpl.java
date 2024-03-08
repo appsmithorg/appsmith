@@ -6,7 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
@@ -71,7 +71,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
@@ -117,7 +117,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
 
     @Override
     public Mono<Void> updateImportedEntities(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
@@ -172,7 +172,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
     private Mono<Tuple2<List<NewPage>, Map<String, String>>> getImportNewPagesMono(
             List<NewPage> importedNewPageList,
             Mono<List<NewPage>> existingPagesMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             boolean appendToApp,
             String branchName,
             ImportArtifactPermissionProvider permissionProvider,
@@ -216,7 +216,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
     Mono<Application> savePagesToApplicationMono(
             Application importedApplication,
             Mono<Map<String, NewPage>> pageNameMapMono,
-            Mono<? extends ImportableArtifact> applicationMono,
+            Mono<? extends Artifact> applicationMono,
             boolean appendToApp,
             String applicationId,
             Mono<List<NewPage>> existingPagesMono,
@@ -554,7 +554,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
     private Mono<List<ApplicationPage>> importUnpublishedPages(
             List<ApplicationPage> editModeApplicationPages,
             boolean appendToApp,
-            Mono<? extends ImportableArtifact> importApplicationMono,
+            Mono<? extends Artifact> importApplicationMono,
             Mono<Tuple2<List<NewPage>, Map<String, String>>> importedNewPagesMono) {
         Mono<List<ApplicationPage>> unpublishedPagesMono = Mono.just(editModeApplicationPages);
         if (appendToApp) {
