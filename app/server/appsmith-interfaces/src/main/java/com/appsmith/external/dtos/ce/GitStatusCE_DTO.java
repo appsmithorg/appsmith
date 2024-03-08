@@ -3,6 +3,7 @@ package com.appsmith.external.dtos.ce;
 import com.appsmith.external.constants.Assets;
 import lombok.Data;
 
+import java.util.HashMap;
 import java.util.Set;
 
 /**
@@ -11,39 +12,37 @@ import java.util.Set;
 @Data
 public class GitStatusCE_DTO {
 
-    // Name of modified, added and deleted resources in local git repo
-    Set<String> modified;
+    // Hashmap that contains files changed in a set, keys - added, removed, modified, uncommitted, untracked
+    HashMap<String, Set<String>> changes;
 
-    // Name of added resources to local git repo
-    Set<String> added;
+    // Number of total changes
+    Integer totalChanges;
 
-    // Name of deleted resources from local git repo
-    Set<String> removed;
+    // Hashmap that contains pages changed
+    HashMap<String, Set<String>> changedPages;
 
-    // Name of conflicting resources
+    // Hashmap that contains pages changed
+    HashMap<String, Set<String>> changedQueries;
+
+    // Hashmap that contains pages changed
+    HashMap<String, Set<String>> changedJsObjects;
+
+    // Hashmap that contains pages changed
+    HashMap<String, Set<String>> changedDatasources;
+
+    // Hashmap that contains pages changed
+    HashMap<String, Set<String>> changedJsLibs;
+
+    // Name of the conflicting resources
     Set<String> conflicting;
 
+    // bool to check if the branch is clean
     Boolean isClean;
 
-    // number of modified custom JS libs
-    int modifiedJSLibs;
-
-    // number of modified pages
-    int modifiedPages;
-
-    // number of modified actions
-    int modifiedQueries;
-
-    // number of modified JSObjects
-    int modifiedJSObjects;
-
-    // number of modified JSObjects
-    int modifiedDatasources;
-
-    // number of local commits which are not present in remote repo
+    // Number of local commits which are not present in remote repo
     Integer aheadCount;
 
-    // number of remote commits which are not present in local repo
+    // Number of remote commits which are not present in local repo
     Integer behindCount;
 
     // Remote tracking branch name
