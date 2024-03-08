@@ -52,12 +52,13 @@ jobs:
         id: check_cyclic_deps
         run: |
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
+          OUTPUT="${OUTPUT//'%'/'%25'}"
+          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
+          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
+          echo "cyclic_deps_result=${OUTPUT}" >> "$GITHUB_OUTPUT"
+
           if [[ $OUTPUT == *"cyclic dependencies:"* ]]; then
-            OUTPUT="${OUTPUT//'%'/'%25'}"
-            OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-            OUTPUT="${OUTPUT//$'\r'/'%0D'}"
             echo "has_cyclic_deps=true" >> "$GITHUB_OUTPUT"
-            echo "cyclic_deps_result=${OUTPUT}" >> "$GITHUB_OUTPUT"
           fi
 
       # Saving the cache to use it in subsequent runs
@@ -67,24 +68,12 @@ jobs:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
-  comment-on-pr:
-    needs: check-cyclic-dependencies
-    if: needs.check-cyclic-dependencies.outputs.has_cyclic_deps == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      # Download the artifact from the first job
-      - name: Download Artifact
-        uses: actions/download-artifact@v3
-        with:
-          name: cyclic_deps
-
-      # Comment on the PR
       - name: Comment the result on PR
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
-            const output = `${{ needs.check-cyclic-dependencies.outputs.cyclic_deps_result }}`;
+            const output = `${{ steps.check_cyclic_deps.outputs.cyclic_deps_result }}`;
             const message = `🔄 Cyclic Dependency Check:\n\`\`\`\n${output}\n\`\`\``;
             github.issues.createComment({
               ...context.repo,
@@ -94,4 +83,5 @@ jobs:
 
       # Fail the job explicitly
       - name: Fail the Job
+        if: steps.check_cyclic_deps.outputs.has_cyclic_deps == 'true'
         run: exit 1
