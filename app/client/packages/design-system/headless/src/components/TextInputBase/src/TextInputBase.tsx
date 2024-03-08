@@ -62,7 +62,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
   // Also, we want to prevent the default behavior of the click event if the user
   // is holding the ctrl or meta key.
   const focusInput: React.MouseEventHandler = (e) => {
-    if (e.ctrlKey || e.metaKey) {
+    if (e.metaKey || e.ctrlKey) {
       e.preventDefault();
 
       return;
