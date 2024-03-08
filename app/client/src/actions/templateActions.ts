@@ -1,5 +1,4 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 
 export const getAllTemplates = () => ({
   type: ReduxActionTypes.GET_ALL_TEMPLATES_INIT,
@@ -80,15 +79,6 @@ export const importStarterBuildingBlockIntoApplication = (
     templateId,
     templateName,
     pageNames: [templatePageName],
-  },
-});
-
-export const dragBuildingBlockToCanvas = (
-  buildingBlock: WidgetDraggingUpdateParams,
-) => ({
-  type: ReduxActionTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_INIT,
-  payload: {
-    buildingBlock,
   },
 });
 
