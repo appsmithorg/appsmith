@@ -51,7 +51,7 @@ jobs:
         id: check_cyclic_deps
         run: |
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
-          echo "$OUTPUT" > cyclic_deps.txt
+          echo "$OUTPUT" | base64 > cyclic_deps.txt
           if [[ $OUTPUT == *"cyclic dependencies:"* ]]; then
             echo "has_cyclic_deps=true" >> "$GITHUB_OUTPUT"
           fi
@@ -65,7 +65,7 @@ jobs:
         # Read the artifact content
       - name: Read Cyclic Dependencies Result
         id: read_cyclic_deps
-        run: echo "content=$(<cyclic_deps.txt)" >> "$GITHUB_OUTPUT"
+        run: echo "content=$(base64 -d < cyclic_deps.txt)" >> "$GITHUB_OUTPUT"
 
       # Comment on the PR
       - name: Comment the result on PR
