@@ -64,7 +64,7 @@ body:
     options:
         - Low (Inconsistent UI/UX)
         - Medium (Frustrating UX)
-        - High (Blocker to building)
+        - High (Blocker to building or releasing)
         - Critical (Broken Production apps)
   validations:
     required: true
