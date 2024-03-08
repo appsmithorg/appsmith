@@ -62,10 +62,10 @@ jobs:
         run: |
           ls -la
 
-       # Read the artifact content
+        # Read the artifact content
       - name: Read Cyclic Dependencies Result
-       id: read_cyclic_deps
-       run: echo "content=$(<cyclic_deps.txt)" >> "$GITHUB_OUTPUT"
+        id: read_cyclic_deps
+        run: echo "content=$(<cyclic_deps.txt)" >> "$GITHUB_OUTPUT"
 
       # Comment on the PR
       - name: Comment the result on PR
