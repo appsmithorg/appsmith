@@ -19,6 +19,9 @@ import {
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
+import { Tooltip } from "design-system";
+import { getWidgetSelectionBlock } from "selectors/ui";
+import { modText } from "utils/helpers";
 
 const DraggableWrapper = styled.div<{ draggable: boolean }>`
   display: block;
@@ -65,6 +68,7 @@ function DraggableComponent(props: DraggableComponentProps) {
   // The value is boolean
   const { setDraggingState } = useWidgetDragResize();
   const showTableFilterPane = useShowTableFilterPane();
+  const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
 
   const isSelected = useSelector(isWidgetSelected(props.widgetId));
   // This state tels us which widget is focused
@@ -151,24 +155,35 @@ function DraggableComponent(props: DraggableComponentProps) {
   };
 
   return (
-    <DraggableWrapper
-      className={className}
-      data-testid={isSelected ? "t--selected" : ""}
-      draggable={allowDrag}
-      onDragStart={onDragStart}
-      onMouseLeave={handleMouseLeave}
-      onMouseOver={handleMouseOver}
-      ref={draggableRef}
-      style={dragWrapperStyle}
+    <Tooltip
+      content={`${modText()} click to select`}
+      isDisabled={!isWidgetSelectionBlock}
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore
+      openDelay={5000}
+      placement={"bottom"}
+      showArrow={false}
+      trigger={"hover"}
     >
-      {props.children}
-      {showBoundary && (
-        <WidgetBoundaries
-          className={`widget-boundary-${props.widgetId}`}
-          style={dragBoundariesStyle}
-        />
-      )}
-    </DraggableWrapper>
+      <DraggableWrapper
+        className={className}
+        data-testid={isSelected ? "t--selected" : ""}
+        draggable={allowDrag}
+        onDragStart={onDragStart}
+        onMouseLeave={handleMouseLeave}
+        onMouseOver={handleMouseOver}
+        ref={draggableRef}
+        style={dragWrapperStyle}
+      >
+        {props.children}
+        {showBoundary && (
+          <WidgetBoundaries
+            className={`widget-boundary-${props.widgetId}`}
+            style={dragBoundariesStyle}
+          />
+        )}
+      </DraggableWrapper>
+    </Tooltip>
   );
 }
 
