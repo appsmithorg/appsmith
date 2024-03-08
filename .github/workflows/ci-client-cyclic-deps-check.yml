@@ -2,8 +2,8 @@ name: Cyclic Dependency Check
 
 on:
   pull_request:
-    # paths:
-    #   - "app/client/src/**"
+    paths:
+      - "app/client/src/**"
 
 jobs:
   check-cyclic-dependencies:
