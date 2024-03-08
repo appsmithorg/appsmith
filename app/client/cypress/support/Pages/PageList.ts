@@ -11,6 +11,7 @@ class PageList {
       `.t--entity.page:contains('${pageName}')`,
     newButton: ".pages .t--entity-add-btn",
     newPageOption: (option: string) => `//span[text()='${option}']/parent::div`,
+    switcher: `.t--pages-switcher`,
   };
 
   public AddNewPage(
@@ -50,6 +51,15 @@ class PageList {
       action: "Clone",
     });
     ObjectsRegistry.AssertHelper.AssertNetworkStatus("@clonePage", 201);
+  }
+
+  public ShowList() {
+    cy.get(this.locators.switcher).then(($switcher) => {
+      const isActive: string | undefined = $switcher.attr("data-active");
+      if (isActive === "false") {
+        cy.get(this.locators.switcher).click();
+      }
+    });
   }
 
   assertPresence(pageName: string) {
