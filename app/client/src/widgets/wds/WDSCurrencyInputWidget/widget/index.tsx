@@ -158,14 +158,20 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   };
 
   onFocusChange = (isFocused?: boolean) => {
+    // if (this.props.isReadOnly) return;
+
     try {
       if (isFocused) {
-        const text = this.props.text || "";
-        const deFormattedValue = text.replace(
-          new RegExp("\\" + getLocaleThousandSeparator(), "g"),
-          "",
-        );
-        this.props.updateWidgetMetaProperty("text", deFormattedValue);
+        if (!this.props.isReadOnly) {
+          const text = this.props.text || "";
+          const deFormattedValue = text.replace(
+            new RegExp("\\" + getLocaleThousandSeparator(), "g"),
+            "",
+          );
+
+          this.props.updateWidgetMetaProperty("text", deFormattedValue);
+        }
+
         this.props.updateWidgetMetaProperty("isFocused", isFocused, {
           triggerPropertyName: "onFocus",
           dynamicString: this.props.onFocus,
@@ -174,7 +180,7 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
           },
         });
       } else {
-        if (this.props.text) {
+        if (this.props.text && !this.props.isReadOnly) {
           const formattedValue = formatCurrencyNumber(
             this.props.decimals,
             this.props.text,

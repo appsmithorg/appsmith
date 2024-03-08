@@ -23,7 +23,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     labelProps,
     multiLine = false,
     onBlur,
-    onFocus: onFocusProp,
+    onFocus,
     prefix,
     startIcon,
     suffix,
@@ -53,23 +53,20 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
     autoFocus,
   });
 
-  const onFocus: React.FocusEventHandler = (e) => {
-    if (isReadOnly) {
-      inputRef.current?.blur();
-      return;
-    }
-
-    onFocusProp?.(e);
-  };
-
   const { focusableProps } = useFocusable(
     { isDisabled: getDisabledState(), onFocus: onFocus, onBlur: onBlur },
     inputRef,
   );
 
   // When user clicks on the startIcon or endIcon, we want to focus the input.
-  const focusInput: React.MouseEventHandler = () => {
-    if (isReadOnly) return;
+  // Also, we want to prevent the default behavior of the click event if the user
+  // is holding the ctrl or meta key.
+  const focusInput: React.MouseEventHandler = (e) => {
+    if (e.ctrlKey || e.metaKey) {
+      e.preventDefault();
+
+      return;
+    }
 
     inputRef.current?.focus();
   };
@@ -86,7 +83,7 @@ function TextInputBase(props: TextInputBaseProps, ref: Ref<HTMLDivElement>) {
       data-invalid={isInvalid ? "" : undefined}
       data-loading={isLoading ? "" : undefined}
       data-readonly={isReadOnly ? "" : undefined}
-      onClick={focusInput}
+      onMouseDown={focusInput}
       ref={ref}
     >
       {Boolean(startIcon) && (
