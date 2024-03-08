@@ -2,6 +2,9 @@ package com.appsmith.server.helpers;
 
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import static org.assertj.core.api.Assertions.assertThat;
 
 public class ValidationUtilsTest {
@@ -16,22 +19,26 @@ public class ValidationUtilsTest {
         String upperCase = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
         String lowerCase = "abcdefghijklmnopqrstuvwxyz";
         String digits = "0123456789";
-        String allowedChars = "z";
+        List<String> allowedChars = new ArrayList<>();
         if (includeSpecialChars) {
-            allowedChars += specialChars;
+            allowedChars.add(specialChars);
         }
         if (includeUpperCase) {
-            allowedChars += upperCase;
+            allowedChars.add(upperCase);
         }
         if (includeLowerCase) {
-            allowedChars += lowerCase;
+            allowedChars.add(lowerCase);
         }
         if (includeDigits) {
-            allowedChars += digits;
+            allowedChars.add(digits);
+        }
+        if (allowedChars.isEmpty()) {
+            return "z".repeat(length);
         }
         StringBuilder randomString = new StringBuilder();
         for (int i = 0; i < length; i++) {
-            randomString.append(allowedChars.charAt((int) (Math.random() * allowedChars.length())));
+            String allowedCharsString = allowedChars.get(i % allowedChars.size());
+            randomString.append(allowedCharsString.charAt((int) (Math.random() * allowedCharsString.length())));
         }
         return randomString.toString();
     }
