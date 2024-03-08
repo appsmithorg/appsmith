@@ -1,6 +1,6 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -40,7 +40,7 @@ public class ArtifactSchemaMigrationCE {
      * @param artifactExchangeJson artifactExchangeJson which is imported
      */
     private static void migrateClientAndServerSchemas(ArtifactExchangeJson artifactExchangeJson) {
-        if (ArtifactJsonType.APPLICATION.equals(artifactExchangeJson.getArtifactJsonType())) {
+        if (ArtifactType.APPLICATION.equals(artifactExchangeJson.getArtifactJsonType())) {
             migrateApplicationJsonClientSchema((ApplicationJson) artifactExchangeJson);
             migrateApplicationJsonServerSchema((ApplicationJson) artifactExchangeJson);
         }

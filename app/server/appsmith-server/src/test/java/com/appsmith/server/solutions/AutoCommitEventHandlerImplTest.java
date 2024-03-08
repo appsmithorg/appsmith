@@ -182,7 +182,7 @@ public class AutoCommitEventHandlerImplTest {
                         autoCommitEvent.getBranchName()))
                 .thenReturn(Mono.just(baseRepoSuffix));
 
-        Mockito.when(gitExecutor.commitApplication(
+        Mockito.when(gitExecutor.commitArtifact(
                         baseRepoSuffix,
                         String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
                         autoCommitEvent.getAuthorName(),
