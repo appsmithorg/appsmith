@@ -146,7 +146,10 @@ public class UserSignupCEImpl implements UserSignupCE {
 
             if (!validateUserPassword(user.getPassword(), isStrongPasswordPolicyEnabled)) {
                 return isStrongPasswordPolicyEnabled
-                        ? Mono.error(new AppsmithException(AppsmithError.INSUFFICIENT_PASSWORD_STRENGTH))
+                        ? Mono.error(new AppsmithException(
+                                AppsmithError.INSUFFICIENT_PASSWORD_STRENGTH,
+                                LOGIN_PASSWORD_MIN_LENGTH,
+                                LOGIN_PASSWORD_MAX_LENGTH))
                         : Mono.error(new AppsmithException(
                                 AppsmithError.INVALID_PASSWORD_LENGTH,
                                 LOGIN_PASSWORD_MIN_LENGTH,

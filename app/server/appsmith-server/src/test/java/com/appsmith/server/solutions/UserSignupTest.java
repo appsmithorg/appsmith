@@ -149,7 +149,10 @@ public class UserSignupTest {
         StepVerifier.create(userMono)
                 .expectErrorSatisfies(throwable -> {
                     assertTrue(throwable instanceof AppsmithException);
-                    assertEquals(AppsmithError.INSUFFICIENT_PASSWORD_STRENGTH.getMessage(), throwable.getMessage());
+                    assertEquals(
+                            AppsmithError.INSUFFICIENT_PASSWORD_STRENGTH.getMessage(
+                                    LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH),
+                            throwable.getMessage());
                 })
                 .verify();
 

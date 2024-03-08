@@ -1023,7 +1023,7 @@ public enum AppsmithError {
     INSUFFICIENT_PASSWORD_STRENGTH(
             400,
             AppsmithErrorCode.INSUFFICIENT_PASSWORD_STRENGTH.getCode(),
-            "Password must be 8-48 characters long and include at least one uppercase letter, one lowercase letter, one number, one symbol, and no whitespaces.",
+            "Password must be {0}-{1} characters long and include at least one uppercase letter, one lowercase letter, one number, one symbol, and no whitespaces.",
             AppsmithErrorAction.DEFAULT,
             "Insufficient password strength",
             ErrorType.ARGUMENT_ERROR,
