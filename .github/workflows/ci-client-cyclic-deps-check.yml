@@ -1,4 +1,4 @@
-name: Madge Check
+name: Cyclic Dependency Check
 
 on:
   pull_request:
@@ -7,11 +7,9 @@ on:
 
 jobs:
   check-cyclic-dependencies:
-    name: Check for Cyclic Dependencies and comment on PR
     runs-on: ubuntu-latest
     outputs:
       has_cyclic_deps: ${{ steps.check_cyclic_deps.outputs.has_cyclic_deps }}
-      cyclic_deps_result: ${{ steps.check_cyclic_deps.outputs.cyclic_deps_result }}
     defaults:
       run:
         working-directory: app/client
@@ -53,13 +51,35 @@ jobs:
         id: check_cyclic_deps
         run: |
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
-          OUTPUT="${OUTPUT//$'\n'/'%0A'}"
-          OUTPUT="${OUTPUT//$'\r'/'%0D'}"
-          echo "cyclic_deps_result=${OUTPUT}" >> "$GITHUB_OUTPUT"
-
+          echo "$OUTPUT" > cyclic_deps.txt
           if [[ $OUTPUT == *"cyclic dependencies:"* ]]; then
             echo "has_cyclic_deps=true" >> "$GITHUB_OUTPUT"
           fi
+
+      # Check for cyclic dependencies and save the output
+      - name: Debug
+        id: debug
+        run: |
+          ls -la
+
+       # Read the artifact content
+      - name: Read Cyclic Dependencies Result
+       id: read_cyclic_deps
+       run: echo "content=$(<cyclic_deps.txt)" >> "$GITHUB_OUTPUT"
+
+      # Comment on the PR
+      - name: Comment the result on PR
+        uses: actions/github-script@v3
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const output = `${{ steps.read_cyclic_deps.outputs.content }}`;
+            const message = `🔄 Cyclic Dependency Check:\n\n${output}\n`;
+            github.issues.createComment({
+              ...context.repo,
+              issue_number: ${{ github.event.pull_request.number }},
+              body: message
+            });
 
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
@@ -68,20 +88,11 @@ jobs:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
-      - name: Comment the result on PR
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const output = `${{ steps.check_cyclic_deps.outputs.cyclic_deps_result }}`;
-            const message = `🔄 Cyclic Dependency Check:\n\n${output}\n`;
-            github.issues.createComment({
-              ...context.repo,
-              issue_number: ${{ github.event.pull_request.number }},
-              body: message
-            });
-
+  fail-on-cyclic-dependencies:
+    needs: check-cyclic-dependencies
+    if: needs.check-cyclic-dependencies.outputs.has_cyclic_deps == 'true'
+    runs-on: ubuntu-latest
+    steps:
       # Fail the job explicitly
       - name: Fail the Job
-        if: steps.check_cyclic_deps.outputs.has_cyclic_deps == 'true'
         run: exit 1
