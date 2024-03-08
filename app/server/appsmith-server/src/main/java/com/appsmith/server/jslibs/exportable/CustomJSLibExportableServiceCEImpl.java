@@ -2,8 +2,8 @@ package com.appsmith.server.jslibs.exportable;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -36,7 +36,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         ArtifactBasedExportableService<CustomJSLib, ?> artifactBasedExportableService =
@@ -46,7 +46,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
          * Ref: https://theappsmith.slack.com/archives/CGBPVEJ5C/p1672225134025919
          */
         return exportableArtifactMono
-                .map(ExportableArtifact::getId)
+                .map(Artifact::getId)
                 .flatMapMany(artifactId ->
                         artifactBasedExportableService.findByContextIdsForExport(List.of(artifactId), null))
                 .collectList()
@@ -56,7 +56,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
                 })
                 .zipWith(exportableArtifactMono)
                 .map(tuple2 -> {
-                    ExportableArtifact exportableArtifact = tuple2.getT2();
+                    Artifact exportableArtifact = tuple2.getT2();
                     GitArtifactMetadata gitArtifactMetadata = exportableArtifact.getGitArtifactMetadata();
                     Instant artifactLastCommittedAt =
                             gitArtifactMetadata != null ? gitArtifactMetadata.getLastCommittedAt() : null;
@@ -94,7 +94,7 @@ public class CustomJSLibExportableServiceCEImpl implements ExportableServiceCE<C
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
         return getExportableEntities(

@@ -14,22 +14,27 @@
   outline: none;
   display: flex;
   flex-direction: column;
-  gap: var(--outer-spacing-4);
-  padding-inline: var(--outer-spacing-4);
-  padding-block: var(--outer-spacing-4);
+  gap: var(--inner-spacing-3);
+  padding-inline: var(--inner-spacing-4);
+  padding-block: var(--inner-spacing-3);
   flex: 1;
+}
+
+.overlay .content .header {
+  padding-inline: 0 calc(var(--inner-spacing-2));
+  margin-inline: 0 calc(-1 * var(--inner-spacing-4));
 }
 
 .overlay .content .body {
   overflow: auto;
-  padding-inline: var(--outer-spacing-4);
-  margin-inline: calc(var(--outer-spacing-4) * -1);
+  padding-inline: var(--inner-spacing-4);
+  margin-inline: calc(var(--inner-spacing-4) * -1);
 }
 
 .overlay [role="dialog"] {
   display: flex;
-  max-inline-size: calc(100% - var(--outer-spacing-8));
-  max-block-size: calc(100% - var(--outer-spacing-8));
+  max-inline-size: calc(100% - var(--inner-spacing-8));
+  max-block-size: calc(100% - var(--inner-spacing-8));
 }
 
 .overlay [role="dialog"][data-size="small"] {

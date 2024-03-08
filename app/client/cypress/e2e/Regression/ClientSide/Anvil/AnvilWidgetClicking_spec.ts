@@ -48,7 +48,20 @@ describe(
       agHelper.GetNClick(locators._widgetByName("Switch1"));
       agHelper.AssertElementLength(locators._selectedWidget, 1);
     });
-    it("2. Click on widgets like Switch, Checkbox to toggle selection", () => {
+    it("2. Ctrl + Click to select multiple widgets", () => {
+      agHelper.PressEscape();
+      agHelper.GetNClick(locators._widgetByName("Switch2"));
+      agHelper.AssertElementLength(locators._selectedWidget, 1);
+      agHelper.GetNClick(
+        locators._widgetByName("Button1"),
+        0,
+        false,
+        500,
+        true,
+      );
+      agHelper.AssertElementLength(locators._selectedWidget, 2);
+    });
+    it("3. Click on widgets like Switch, Checkbox to toggle selection", () => {
       // deselect all widgets
       agHelper.PressEscape();
       agHelper
@@ -63,6 +76,9 @@ describe(
         });
       anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSCHECKBOX, 5, 20, {
         skipWidgetSearch: true,
+        dropTargetDetails: {
+          name: "Zone1",
+        },
       });
       wdsWidgets.verifyCheckboxWidgetState("Checkbox1", "checked");
       agHelper

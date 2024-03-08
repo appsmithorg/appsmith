@@ -5,7 +5,6 @@ import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 import type { FilterKeys, Template } from "api/TemplatesApi";
 import {
-  BUILDING_BLOCK_EXPLORER_TYPE,
   DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
   DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
   WIDGET_TAGS,
@@ -83,7 +82,7 @@ export const getBuildingBlockExplorerCards = createSelector(
       (buildingBlock) => ({
         rows: DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
         columns: DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
-        type: BUILDING_BLOCK_EXPLORER_TYPE,
+        type: "BUILDING_BLOCK",
         displayName: buildingBlock.title,
         icon:
           buildingBlock.screenshotUrls.length > 1
