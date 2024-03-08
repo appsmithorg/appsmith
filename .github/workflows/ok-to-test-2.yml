@@ -2,7 +2,7 @@ name: Ok To Test 2
 
 on:
   pull_request:
-    branches: [main]
+    branches: [release]
     types:
       - opened
       - labeled
