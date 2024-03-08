@@ -201,7 +201,6 @@ const Header = () => {
       className={"t--editor-header"}
       height={"40px"}
       overflow={"hidden"}
-      px={"spaces-4"}
       width={"100%"}
     >
       <Flex
@@ -211,6 +210,7 @@ const Header = () => {
         gap={"spaces-4"}
         height={"100%"}
         justifyContent={"left"}
+        pl={"spaces-4"}
       >
         <AppsmithLink />
         <Divider orientation="vertical" />
