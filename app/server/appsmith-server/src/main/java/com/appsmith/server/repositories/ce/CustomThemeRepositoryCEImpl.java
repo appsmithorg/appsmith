@@ -50,7 +50,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     public Optional<Theme> getSystemThemeByName(String themeName) {
         return queryBuilder()
                 .criteria(Bridge.query()
-                        .eqIgnoreCase(Theme.Fields.name, themeName)
+                        .equalIgnoreCase(Theme.Fields.name, themeName)
                         .isTrue(Theme.Fields.isSystemTheme))
                 .permission(AclPermission.READ_THEMES)
                 .one();

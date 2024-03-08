@@ -118,7 +118,7 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
-    public BridgeQuery<T> eqIgnoreCase(String key, String value) {
+    public BridgeQuery<T> equalIgnoreCase(String key, String value) {
         checks.add(new Check.Unit(Op.EQ_IGNORE_CASE, key, value));
         return this;
     }
