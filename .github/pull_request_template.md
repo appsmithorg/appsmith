@@ -14,8 +14,9 @@ Fixes `Issue URL`
 
 /ok-to-test tags=""
 
-################# _Do Not Edit This Area_ #################
+### ok-to-test status
+<!-- This is an auto-generated comment: Cypress test results  -->
 > [!CAUTION]  
 > If you modify the content in this section, you are likely to disrupt the CI result for your PR.
 
-###################################################
+<!-- end of auto-generated comment: Cypress test results  -->
