@@ -283,7 +283,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     protected BridgeQuery<NewAction> getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode) {
-        final BridgeQuery<NewAction> q = Bridge.equal(NewAction.Fields.pluginType, PluginType.JS);
+        final BridgeQuery<NewAction> q = Bridge.notEqual(NewAction.Fields.pluginType, PluginType.JS);
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {

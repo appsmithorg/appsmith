@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("UnusedReturnValue")
 public final class BridgeQuery<T extends BaseDomain> extends Criteria {
     final List<Criteria> checks = new ArrayList<>();
 
