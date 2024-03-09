@@ -57,8 +57,9 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              The provided command lacks proper tags. Please modify PR body, specifying the tags you want to include or use `/ok-to-test tags="@tag.All"` to run all specs.
-              Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
+              > [!CAUTION]  
+              > The provided command lacks proper tags. Please modify PR body, specifying the tags you want to include or use `/ok-to-test tags="@tag.All"` to run all specs.
+              > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
 
               <!-- end of auto-generated comment: Cypress test results  -->
             regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
@@ -92,8 +93,9 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              Please use `/ok-to-test tags="@tag.All"` to run all specs.
-              Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
+              > [!CAUTION]  
+              > Please use `/ok-to-test tags="@tag.All"` to run all specs.
+              > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
 
               <!-- end of auto-generated comment: Cypress test results  -->
             regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
@@ -112,10 +114,11 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              Whoa, @tag.All spotted in your test suite! 🚀
-              While @tag.All is cool, like a catch-all net, why not try specific tags? 🏷️
-              Narrow down your suite with specific tags for quicker and more accurate tests! 🚀 Less waiting, more zipping through tests like a ninja!
-              Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
+              > [!WARNING]  
+              > Whoa, @tag.All spotted in your test suite! 🚀
+              > While @tag.All is cool, like a catch-all net, why not try specific tags? 🏷️
+              > Narrow down your suite with specific tags for quicker and more accurate tests! 🚀 Less waiting, more zipping through tests like a ninja!
+              > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
 
               <!-- end of auto-generated comment: Cypress test results  -->
             regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
@@ -128,10 +131,11 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-              Commit: `${{ github.event.pull_request.head.sha }}`
-              Workflow: `${{ github.workflow }}`
-              Tags: `${{ steps.checkAll.outputs.tags }}`
+              > [!TIP]  
+              > Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+              > Commit: `${{ github.event.pull_request.head.sha }}`
+              > Workflow: `${{ github.workflow }}`
+              > Tags: `${{ steps.checkAll.outputs.tags }}`
 
               <!-- end of auto-generated comment: Cypress test results  -->
             regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
