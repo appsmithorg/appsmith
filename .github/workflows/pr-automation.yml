@@ -57,7 +57,7 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!CAUTION]  
+              > [!WARNING]  
               > The provided command lacks proper tags. Please modify PR body, specifying the tags you want to include or use `/ok-to-test tags="@tag.All"` to run all specs.
               > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
 
@@ -93,11 +93,12 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!CAUTION]  
+              > [!WARNING]  
               > Please use `/ok-to-test tags="@tag.All"` to run all specs.
               > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
 
               <!-- end of auto-generated comment: Cypress test results  -->
+
             regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
             regexFlags: ims
             token: ${{ secrets.GITHUB_TOKEN }}
@@ -121,6 +122,7 @@ jobs:
               > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
 
               <!-- end of auto-generated comment: Cypress test results  -->
+
             regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
             regexFlags: ims
             token: ${{ secrets.GITHUB_TOKEN }}
@@ -138,6 +140,7 @@ jobs:
               > Tags: `${{ steps.checkAll.outputs.tags }}`
 
               <!-- end of auto-generated comment: Cypress test results  -->
+
             regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
             regexFlags: ims
             token: ${{ secrets.GITHUB_TOKEN }}
