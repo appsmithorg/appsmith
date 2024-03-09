@@ -36,6 +36,7 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.grou
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.match;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.newAggregation;
 import static org.springframework.data.mongodb.core.aggregation.Aggregation.project;
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
@@ -68,14 +69,13 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
-        final BridgeQuery<NewAction> nameCriteria = Bridge.<NewAction>equal(
-                        NewAction.Fields.unpublishedAction_name, name)
+        final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(NewAction.Fields.unpublishedAction_name, name)
                 .equal(NewAction.Fields.unpublishedAction_pageId, pageId)
                 // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
                 // would exist. To handle this, only fetch non-deleted actions
                 .isNull(NewAction.Fields.unpublishedAction_deletedAt);
 
-        return queryBuilder().criteria(nameCriteria).permission(aclPermission).one();
+        return queryBuilder().criteria(q).permission(aclPermission).one();
     }
 
     @Override
@@ -181,8 +181,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .isTrue(NewAction.Fields.unpublishedAction_userSetOnLoad)
                 .equal(NewAction.Fields.unpublishedAction_pageId, pageId)
                 // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
-                // would
-                // exist. To handle this, only fetch non-deleted actions
+                // would exist. To handle this, only fetch non-deleted actions
                 .isNull(NewAction.Fields.unpublishedAction_deletedAt);
 
         return queryBuilder().criteria(q).permission(permission).all();
@@ -204,6 +203,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
+        return queryBuilder()
+                .criteria(getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode))
+                .permission(aclPermission)
+                .all();
+    }
+
+    protected BridgeQuery<NewAction> getCriteriaForFindByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode) {
         final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId);
 
         if (Boolean.FALSE.equals(viewMode)) {
@@ -212,7 +219,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
         }
 
-        return queryBuilder().criteria(q).permission(aclPermission).all();
+        return q;
     }
 
     @Override
@@ -260,7 +267,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     protected BridgeQuery<NewAction> getCriteriaForFindNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode) {
         final BridgeQuery<NewAction> q =
-                getCriterionForFindByApplicationId(applicationId).equal(NewAction.Fields.pluginType, PluginType.JS);
+                getCriterionForFindByApplicationId(applicationId).notEqual(NewAction.Fields.pluginType, PluginType.JS);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
@@ -373,9 +380,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId) {
         GroupOperation countByPluginType =
                 group(NewAction.Fields.pluginType).count().as("count");
-        MatchOperation filterStates = match(Bridge.and(
-                Bridge.equal(NewAction.Fields.applicationId, applicationId),
-                Bridge.isNull(NewAction.Fields.deletedAt)));
+        MatchOperation filterStates =
+                match(where(NewAction.Fields.applicationId).is(applicationId).andOperator(notDeleted()));
         ProjectionOperation projectionOperation = project("count").and("_id").as("pluginType");
         Aggregation aggregation = newAggregation(filterStates, countByPluginType, projectionOperation);
         return mongoOperations.aggregate(
