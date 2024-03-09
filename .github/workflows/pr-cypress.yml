@@ -1,4 +1,4 @@
-name: Appsmith External Integration Test Workflow 2
+name: Cypress test suite
 
 on:
   workflow_call:
@@ -146,7 +146,7 @@ jobs:
           fi
 
       # Upload combined failed CI spec list to a file
-      # This is done for debugging.
+      # This is done for debugging
       - name: Upload combined failed spec
         if: needs.ci-test.result != 'success'
         uses: actions/upload-artifact@v3
@@ -177,8 +177,8 @@ jobs:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
               > [!CAUTION]  
-              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-              > Commit: `${{ github.event.pull_request.head.sha }}`.
+              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+              > Commit: `${{ github.event.pull_request.head.sha }}`
               > Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
               > The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
               > To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
@@ -195,8 +195,8 @@ jobs:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
               > [!CAUTION]  
-              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-              > Commit: `${{ github.event.pull_request.head.sha }}`.
+              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+              > Commit: `${{ github.event.pull_request.head.sha }}`
               > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
               > It seems like **no tests ran** 😔. We are not able to recognize it, please check workflow <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
 
@@ -212,8 +212,8 @@ jobs:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
               > [!IMPORTANT]  
-              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-              > Commit: `${{ github.event.pull_request.head.sha }}`.
+              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+              > Commit: `${{ github.event.pull_request.head.sha }}`
               > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
               > All cypress tests have passed 🎉🎉🎉
 
