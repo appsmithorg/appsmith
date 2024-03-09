@@ -22,7 +22,7 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
     }
 
     public BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
-        checks.add(Criteria.where(key).not().is(value));
+        checks.add(Criteria.where(key).ne(value));
         return this;
     }
 
@@ -68,7 +68,7 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
     }
 
     public BridgeQuery<T> isNotNull(@NonNull String key) {
-        checks.add(Criteria.where(key).not().isNull());
+        checks.add(Criteria.where(key).ne(null));
         return this;
     }
 
