@@ -78,6 +78,19 @@ class PageList {
       this.locators.pageListItem(pageName),
     );
   }
+
+  DeletePage(name: string) {
+    this.ShowList();
+    cy.get(this.locators.pageListItem(name)).within(() => {
+      cy.get(".t--context-menu").click({ force: true });
+    });
+    cy.wait(2000);
+    cy.selectAction("Delete");
+    cy.selectAction("Are you sure?");
+    cy.wait("@deletePage")
+      .its("response.body.responseMeta.status")
+      .should("eq", 200);
+  }
 }
 
 export default new PageList();
