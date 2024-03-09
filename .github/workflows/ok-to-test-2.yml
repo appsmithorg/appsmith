@@ -148,6 +148,7 @@ jobs:
     needs: [parse-tags]
     if: success()
     uses: ./.github/workflows/integration-tests-command-2.yml
+    secrets: inherit
     with:
       tags: ${{ needs.parse-tags.outputs.tags}}
       matrix: ${{ needs.parse-tags.outputs.matrix}}
