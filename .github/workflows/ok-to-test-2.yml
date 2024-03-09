@@ -141,7 +141,6 @@ jobs:
             regex: "################# _Do Not Edit This Area_ #################.*?###################################################"
             regexFlags: ims
             token: ${{ secrets.GITHUB_TOKEN }}
-            uses: peter-evans/create-or-update-comment@v3
 
   # Call the workflow to run Cypress tests
   perform-test:
