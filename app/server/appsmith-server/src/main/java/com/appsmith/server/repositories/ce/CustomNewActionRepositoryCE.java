@@ -21,8 +21,6 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
 
     Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission);
 
-    Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission);
-
     Flux<NewAction> findByPageId(String pageId);
 
     Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission);
@@ -32,14 +30,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
             String pageId, AclPermission permission);
 
-    Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(
-            Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad, AclPermission aclPermission);
-
     Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
-
-    Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
-            Set<String> names, String pageId, AclPermission permission);
 
     Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
@@ -53,13 +45,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Mono<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission);
 
-    Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission);
-
     Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
-
-    Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
     Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission);
 

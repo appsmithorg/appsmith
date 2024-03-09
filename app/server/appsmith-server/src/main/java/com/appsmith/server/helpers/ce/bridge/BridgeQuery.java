@@ -21,12 +21,33 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
+    public BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
+        checks.add(Criteria.where(key).not().is(value));
+        return this;
+    }
+
+    public BridgeQuery<T> equal(@NonNull String key, @NonNull Enum<?> value) {
+        return equal(key, value.name());
+    }
+
+    public BridgeQuery<T> notEqual(@NonNull String key, @NonNull Enum<?> value) {
+        return notEqual(key, value.name());
+    }
+
     public BridgeQuery<T> equalIgnoreCase(@NonNull String key, @NonNull String value) {
         checks.add(Criteria.where(key).regex("^" + Pattern.quote(value) + "$", "i"));
         return this;
     }
 
     public BridgeQuery<T> equal(@NonNull String key, @NonNull ObjectId value) {
+        checks.add(Criteria.where(key).is(value));
+        return this;
+    }
+
+    /**
+     * Prefer using `.isTrue()` or `.isFalse()` instead of this method **if possible**.
+     */
+    public BridgeQuery<T> equal(@NonNull String key, boolean value) {
         checks.add(Criteria.where(key).is(value));
         return this;
     }
@@ -38,6 +59,16 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
 
     public BridgeQuery<T> exists(@NonNull String key) {
         checks.add(Criteria.where(key).exists(true));
+        return this;
+    }
+
+    public BridgeQuery<T> isNull(@NonNull String key) {
+        checks.add(Criteria.where(key).isNull());
+        return this;
+    }
+
+    public BridgeQuery<T> isNotNull(@NonNull String key) {
+        checks.add(Criteria.where(key).not().isNull());
         return this;
     }
 
