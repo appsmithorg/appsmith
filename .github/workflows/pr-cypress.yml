@@ -184,6 +184,7 @@ jobs:
               > To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
 
               <!-- end of auto-generated comment: Cypress test results  -->
+
             regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
             regexFlags: ims
             token: ${{ secrets.GITHUB_TOKEN }}
@@ -194,13 +195,14 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!CAUTION]  
+              > [!WARNING]  
               > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
               > Commit: `${{ github.event.pull_request.head.sha }}`
               > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
               > It seems like **no tests ran** 😔. We are not able to recognize it, please check workflow <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
 
               <!-- end of auto-generated comment: Cypress test results  -->
+
             regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
             regexFlags: ims
             token: ${{ secrets.GITHUB_TOKEN }}
@@ -218,6 +220,7 @@ jobs:
               > All cypress tests have passed 🎉🎉🎉
 
               <!-- end of auto-generated comment: Cypress test results  -->
+
             regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
             regexFlags: ims
             token: ${{ secrets.GITHUB_TOKEN }}
