@@ -1,4 +1,4 @@
-name: Ok To Test 2
+name: PR Automation test suite
 
 on:
   pull_request:
@@ -132,7 +132,7 @@ jobs:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
               > [!TIP]  
-              > Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
+              > Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
               > Commit: `${{ github.event.pull_request.head.sha }}`
               > Workflow: `${{ github.workflow }}`
               > Tags: `${{ steps.checkAll.outputs.tags }}`
@@ -146,7 +146,7 @@ jobs:
   perform-test:
     needs: [parse-tags]
     if: success()
-    uses: ./.github/workflows/integration-tests-command-2.yml
+    uses: ./.github/workflows/pr-cypress.yml
     secrets: inherit
     with:
       tags: ${{ needs.parse-tags.outputs.tags}}
