@@ -233,5 +233,6 @@
   "convertanyways": "button:contains('Convert anyways')",
   "discard": "button:contains('Discard')",
   "heightProperty": ".rc-select-single input",
-  "heightPropertyOption": ".rc-select-item-option-content span"
+  "heightPropertyOption": ".rc-select-item-option-content span",
+  "filePickerMaxNoOfFiles": ".t--property-control-maxno\\.offiles .CodeMirror-code"
 }
