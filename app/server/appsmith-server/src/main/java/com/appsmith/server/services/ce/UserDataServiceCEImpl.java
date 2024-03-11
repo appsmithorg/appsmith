@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -37,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 
 public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserData, String>
         implements UserDataServiceCE {
@@ -147,7 +147,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
         return repository
                 .queryBuilder()
-                .criteria(bridge().equal(UserData.Fields.userId, userId))
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .updateFirst(resource)
                 .flatMap(count -> count == 0 ? Mono.empty() : repository.findByUserId(userId))
                 .flatMap(analyticsService::sendUpdateEvent);

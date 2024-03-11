@@ -62,4 +62,6 @@ public interface ApplicationPageServiceCE {
     Mono<Application> deleteApplicationByResource(Application application);
 
     Mono<Application> createOrUpdateSuffixedApplication(Application application, String name, int suffix);
+
+    int getEvaluationVersion();
 }

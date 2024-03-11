@@ -15,6 +15,7 @@ import type {
 } from "@appsmith/entities/DataTree/types";
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { eeAppsmithAutocompleteDefs } from "@appsmith/utils/autocomplete/helpers";
 
 export const entityDefinitions = {
   APPSMITH: (entity: AppsmithEntity, extraDefsToDefine: ExtraDef) => {
@@ -88,6 +89,7 @@ export const entityDefinitions = {
               "https://docs.appsmith.com/reference/appsmith-framework/context-object#geolocationclearwatch",
           },
         },
+        ...eeAppsmithAutocompleteDefs(generatedTypeDef),
       };
     }
     return generatedTypeDef;

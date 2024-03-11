@@ -35,5 +35,5 @@
     "importsNotUsedAsValues": "error"
   },
   "include": ["./src/**/*", "./packages"],
-  "exclude": ["./packages/rts"]
+  "exclude": ["./packages/rts", "**/node_modules", "**/.*/"]
 }

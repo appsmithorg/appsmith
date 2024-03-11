@@ -122,14 +122,8 @@ class WDSRadioGroupWidget extends BaseWidget<
   };
 
   getWidgetView() {
-    const {
-      labelPosition,
-      labelTooltip,
-      options,
-      selectedOptionValue,
-      widgetId,
-      ...rest
-    } = this.props;
+    const { labelTooltip, options, selectedOptionValue, widgetId, ...rest } =
+      this.props;
 
     const validation = validateInput(this.props);
 
@@ -143,11 +137,7 @@ class WDSRadioGroupWidget extends BaseWidget<
         value={selectedOptionValue}
       >
         {options.map((option, index) => (
-          <Radio
-            key={`${widgetId}-option-${index}`}
-            labelPosition={labelPosition}
-            value={option.value}
-          >
+          <Radio key={`${widgetId}-option-${index}`} value={option.value}>
             {option.label}
           </Radio>
         ))}

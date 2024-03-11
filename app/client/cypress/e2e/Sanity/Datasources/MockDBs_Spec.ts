@@ -44,6 +44,12 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
+        // Validates the value of source for action creation -
+        // should be self here as the user explicitly triggered create action
+        cy.wait("@createNewApi").then((interception) => {
+          expect(interception.request.body.source).to.equal("SELF");
+        });
+
         dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
