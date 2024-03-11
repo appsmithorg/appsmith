@@ -35,6 +35,10 @@ public class Bridge {
         return Bridge.<T>query().equal(key, value);
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> equalIgnoreCase(@NonNull String key, @NonNull String value) {
+        return Bridge.<T>query().equalIgnoreCase(key, value);
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull ObjectId value) {
         throw new UnsupportedOperationException("Won't be supported");
     }

@@ -2,9 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
-import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
@@ -15,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
