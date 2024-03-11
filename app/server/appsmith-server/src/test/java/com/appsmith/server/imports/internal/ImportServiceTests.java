@@ -43,6 +43,7 @@ import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ArtifactImportDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -4285,6 +4286,16 @@ public class ImportServiceTests {
                     List<NewPage> pageList = tuple.getT2();
                     List<NewAction> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
+
+                    assertThat(application1.getUnpublishedCustomJSLibs().size()).isEqualTo(2);
+                    List<String> uidNameList = application1.getUnpublishedCustomJSLibs().stream()
+                            .map(CustomJSLibContextDTO::getUidString)
+                            .toList();
+                    assertThat(uidNameList)
+                            .containsAll(
+                                    List.of(
+                                            "accessor1_url",
+                                            "xmlParser_https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.min.js"));
 
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
