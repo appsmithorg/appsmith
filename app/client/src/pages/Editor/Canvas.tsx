@@ -88,11 +88,11 @@ const Canvas = (props: CanvasProps) => {
   const renderChildren = () => {
     return (
       <Tooltip
-        content={`${modText()} click to select`}
+        content={`💡 ${modText()} click a widget to navigate to UI mode.`}
         isDisabled={!isWidgetSelectionBlock}
         // eslint-disable-next-line @typescript-eslint/ban-ts-comment
         // @ts-ignore
-        openDelay={5000}
+        openDelay={4000}
         placement={"bottom"}
         showArrow={false}
         trigger={"hover"}
