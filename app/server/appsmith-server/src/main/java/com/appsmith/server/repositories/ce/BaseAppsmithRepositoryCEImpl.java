@@ -431,11 +431,54 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public Optional<Long> countExecute(QueryAllParams<T> params) {
-        return ensurePermissionGroupsInParams(params)
-                .then(Mono.defer(() -> mongoOperations.count(
-                        createQueryWithPermission(
-                                params.getCriteria(), params.getPermissionGroups(), params.getPermission()),
-                        this.genericDomain)))
+        return Mono.justOrEmpty(params.getPermissionGroups())
+                .switchIfEmpty(Mono.defer(() -> Mono.just(
+                        getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
+                .map(ArrayList::new)
+                .flatMap(permissionGroups -> {
+                    final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+                    final CriteriaQuery<Long> cq = cb.createQuery(Long.class);
+                    final Root<T> root = cq.from(genericDomain);
+
+                    final List<Specification<T>> specifications = new ArrayList<>(params.getSpecifications());
+
+                    Predicate predicate = cb.and(
+                            Specification.allOf(specifications).toPredicate(root, cq, cb),
+                            root.get(FieldName.DELETED_AT).isNull());
+
+                    if (!permissionGroups.isEmpty()) {
+                        Map<String, String> fnVars = new HashMap<>();
+                        fnVars.put("p", params.getPermission().getValue());
+                        final List<String> conditions = new ArrayList<>();
+                        for (var i = 0; i < permissionGroups.size(); i++) {
+                            fnVars.put("g" + i, permissionGroups.get(i));
+                            conditions.add("@ == $g" + i);
+                        }
+
+                        try {
+                            predicate = cb.and(
+                                    predicate,
+                                    cb.isTrue(cb.function(
+                                            "jsonb_path_exists",
+                                            Boolean.class,
+                                            root.get(PermissionGroup.Fields.policies),
+                                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                                                    + String.join(" || ", conditions) + ")))"),
+                                            cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
+                        } catch (JsonProcessingException e) {
+                            // This should never happen, were serializing a Map<String, String>, which ideally should
+                            // never fail.
+                            throw new RuntimeException(e);
+                        }
+                    }
+
+                    cq.where(predicate);
+                    cq.select(cb.count(root));
+
+                    // All public access is via a single permission group. Fetch the same and set the cache with it.
+                    return Mono.fromSupplier(entityManager.createQuery(cq)::getSingleResult)
+                            .onErrorResume(NoResultException.class, e -> Mono.empty());
+                })
                 .blockOptional();
     }
 

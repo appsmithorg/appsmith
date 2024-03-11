@@ -2,13 +2,8 @@ package com.appsmith.external.helpers;
 
 import com.appsmith.external.views.Views;
 import com.appsmith.util.SerializationUtils;
-import com.fasterxml.jackson.annotation.JsonInclude;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.SerializationFeature;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
-
-import java.util.TimeZone;
 
 /**
  * Extends the default JsonBinaryType to use a custom ObjectMapper for database serialization.
