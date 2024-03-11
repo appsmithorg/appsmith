@@ -1,4 +1,4 @@
-name: Appsmith External Integration Test Workflow 2
+name: Cypress test suite
 
 on:
   workflow_call:
@@ -146,7 +146,7 @@ jobs:
           fi
 
       # Upload combined failed CI spec list to a file
-      # This is done for debugging.
+      # This is done for debugging
       - name: Upload combined failed spec
         if: needs.ci-test.result != 'success'
         uses: actions/upload-artifact@v3
@@ -164,115 +164,67 @@ jobs:
         if: needs.ci-test.result != 'success'
         shell: bash
         run: |
-          new_failed_spec_env="<ol>$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/<li>/')</ol>"
+          new_failed_spec_env="<ol>\n$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/> <li>/')</ol>"
           echo "$new_failed_spec_env"
           echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
           echo "$new_failed_spec_env" >> $GITHUB_ENV
           echo "EOF" >> $GITHUB_ENV
 
-      - name: Add a comment on the PR with new CI failures
+      - name: Modify test response in the PR with new CI failures
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '1'
-        uses: peter-evans/create-or-update-comment@v3
+        uses: nefrob/pr-description@v1.1.1
         with:
-          issue-number: ${{ github.event.number }}
-          body: |
-            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
-            The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
-            To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
+            content: |
+              <!-- This is an auto-generated comment: Cypress test results  -->
+              > [!CAUTION]  
+              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+              > Commit: `${{ github.event.pull_request.head.sha }}`
+              > Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
+              > The following are new failures, please fix them before merging the PR: ${{env.new_failed_spec_env}}
+              > To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
 
-      - name: Add a comment on the PR when ci-test is failed but no specs found
+              <!-- end of auto-generated comment: Cypress test results  -->
+
+            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+            regexFlags: ims
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Modify test response in the PR when ci-test is failed but no specs found
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '0'
-        uses: peter-evans/create-or-update-comment@v3
+        uses: nefrob/pr-description@v1.1.1
         with:
-          issue-number: ${{ github.event.number }}
-          body: |
-            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
-            It seems like **no tests ran** 😔. We are not able to recognize it, please check workflow <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
+            content: |
+              <!-- This is an auto-generated comment: Cypress test results  -->
+              > [!WARNING]  
+              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+              > Commit: `${{ github.event.pull_request.head.sha }}`
+              > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+              > It seems like **no tests ran** 😔. We are not able to recognize it, please check workflow <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
 
-      - name: Add a comment on the PR when ci-test is success
+              <!-- end of auto-generated comment: Cypress test results  -->
+
+            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+            regexFlags: ims
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Modify test response in the PR when ci-test is success
         if: needs.ci-test.result == 'success' && steps.combine_ci.outputs.specs_failed == '0'
-        uses: peter-evans/create-or-update-comment@v3
+        uses: nefrob/pr-description@v1.1.1
         with:
-          issue-number: ${{ github.event.number }}
-          body: |
-            Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Commit: `${{ github.event.client_payload.slash_command.args.named.sha }}`.
-            Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
-            All cypress tests have passed 🎉🎉🎉
+            content: |
+              <!-- This is an auto-generated comment: Cypress test results  -->
+              > [!IMPORTANT]  
+              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+              > Commit: `${{ github.event.pull_request.head.sha }}`
+              > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+              > All cypress tests have passed 🎉🎉🎉
+
+              <!-- end of auto-generated comment: Cypress test results  -->
+
+            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+            regexFlags: ims
+            token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check ci-test set status
         if: needs.ci-test.result != 'success'
         run: exit 1
-
-  package:
-    needs: [ci-test]
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: app/client
-    # Run this job only if all the previous steps are a success and the reference if the release or master branch
-    if: success() && (github.ref == 'refs/heads/release' || github.ref == 'refs/heads/master')
-
-    steps:
-      # Update check run called "package"
-      - name: Mark package job as complete
-        uses: actions/github-script@v6
-        id: update-check-run
-        if: ${{ always() }}
-        env:
-          run_id: ${{ github.run_id }}
-          repository: ${{ github.repository }}
-          number: ${{ github.event.number }}
-          job: ${{ github.job }}
-          # Conveniently, job.status maps to https://developer.github.com/v3/checks/runs/#update-a-check-run
-          conclusion: ${{ job.status }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            const { data: pull } = await github.rest.pulls.get({
-              ...context.repo,
-              pull_number: process.env.number
-            });
-            const ref = pull.head.sha;
-
-            const { data: checks } = await github.rest.checks.listForRef({
-              ...context.repo,
-              ref
-            });
-
-            const check = checks.check_runs.filter(c => c.name === process.env.job);
-
-            if(check.length == 0) {
-              const head_sha = pull.head.sha;
-              const { data: completed_at } = await github.rest.checks.create({
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                head_sha: head_sha,
-                name: process.env.job,
-                status: 'completed',
-                conclusion: process.env.conclusion,
-                output: {
-                  title: "Package result for ok to test",
-                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                }
-              });
-
-              return completed_at;
-            } else {
-              const { data: result } = await github.rest.checks.update({
-              ...context.repo,
-              check_run_id: check[0].id,
-              status: 'completed',
-              conclusion: process.env.conclusion,
-                output: {
-                  title: "Package result for ok to test",
-                  summary: "https://github.com/" + process.env.repository + "/actions/runs/" + process.env.run_id
-                }
-            });
-
-            return result;
-            }

@@ -318,4 +318,47 @@ class TenantServiceCETest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    @WithUserDetails("api_user")
+    void updateTenantConfiguration_updateStrongPasswordPolicy_success() {
+
+        // Ensure that the default tenant does not have strong password policy setup
+        Mono<Tenant> tenantMono = tenantService.getDefaultTenant();
+        StepVerifier.create(tenantMono)
+                .assertNext(tenant -> {
+                    assertThat(tenant.getTenantConfiguration().getIsStrongPasswordPolicyEnabled())
+                            .isNull();
+                })
+                .verifyComplete();
+
+        // Ensure that the strong password policy is enabled after the update
+        final TenantConfiguration changes = new TenantConfiguration();
+        changes.setIsStrongPasswordPolicyEnabled(TRUE);
+        Mono<TenantConfiguration> resultMono = tenantService
+                .updateDefaultTenantConfiguration(changes)
+                .then(tenantService.getTenantConfiguration())
+                .map(Tenant::getTenantConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(tenantConfiguration -> {
+                    assertThat(tenantConfiguration.getIsStrongPasswordPolicyEnabled())
+                            .isTrue();
+                })
+                .verifyComplete();
+
+        // Ensure that the strong password policy is disabled after the update
+        changes.setIsStrongPasswordPolicyEnabled(FALSE);
+        resultMono = tenantService
+                .updateDefaultTenantConfiguration(changes)
+                .then(tenantService.getTenantConfiguration())
+                .map(Tenant::getTenantConfiguration);
+
+        StepVerifier.create(resultMono)
+                .assertNext(tenantConfiguration -> {
+                    assertThat(tenantConfiguration.getIsStrongPasswordPolicyEnabled())
+                            .isFalse();
+                })
+                .verifyComplete();
+    }
 }
