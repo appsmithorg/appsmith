@@ -8,16 +8,17 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.index.Index;
 
+import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 
 @Slf4j
-@ChangeUnit(order = "047", id = "add-missing-index-in-user-collection", author = " ")
-public class Migration048AddIndexToUserCollection {
+@ChangeUnit(order = "048", id = "add-compound-index-in-user-collection", author = " ")
+public class Migration048AddCompoundIndexToUserEntity {
 
     private final MongoTemplate mongoTemplate;
 
-    public Migration048AddIndexToUserCollection(MongoTemplate mongoTemplate) {
+    public Migration048AddCompoundIndexToUserEntity(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
     }
 
@@ -26,6 +27,8 @@ public class Migration048AddIndexToUserCollection {
 
     @Execution
     public void addMissingIndexInUserCollection() {
+
+        dropIndexIfExists(mongoTemplate, User.class, "user_compound_index");
 
         Index userEmailCreatedAtIndex =
                 makeIndex("deleted", "deletedAt", "email", "createdAt").unique().named("user_compound_index");
