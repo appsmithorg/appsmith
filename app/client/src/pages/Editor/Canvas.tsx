@@ -18,9 +18,7 @@ import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
-import { modText } from "utils/helpers";
-import { Tooltip } from "design-system";
-import { getWidgetSelectionBlock } from "selectors/ui";
+import CodeModeTooltip from "pages/Editor/WidgetsEditor/CodeModeTooltip";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -51,7 +49,6 @@ const Canvas = (props: CanvasProps) => {
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
-  const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
 
   const themeSetting = useSelector(getAppThemeSettings);
   const wdsThemeProps = {
@@ -87,16 +84,7 @@ const Canvas = (props: CanvasProps) => {
 
   const renderChildren = () => {
     return (
-      <Tooltip
-        content={`💡 ${modText()} click a widget to navigate to UI mode.`}
-        isDisabled={!isWidgetSelectionBlock}
-        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-        // @ts-ignore
-        openDelay={4000}
-        placement={"bottom"}
-        showArrow={false}
-        trigger={"hover"}
-      >
+      <CodeModeTooltip>
         <Wrapper
           $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
           background={isWDSEnabled ? "" : backgroundForCanvas}
@@ -111,7 +99,7 @@ const Canvas = (props: CanvasProps) => {
           {props.widgetsStructure.widgetId &&
             renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
         </Wrapper>
-      </Tooltip>
+      </CodeModeTooltip>
     );
   };
 
