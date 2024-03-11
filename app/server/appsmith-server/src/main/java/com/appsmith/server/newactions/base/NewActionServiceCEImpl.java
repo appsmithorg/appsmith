@@ -532,12 +532,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     Set<String> datasourceKeys = datasourceBindings.stream()
                             .map(token -> token.getValue())
                             .collect(Collectors.toSet());
-                    Set<String> keys = new HashSet<>() {
-                        {
-                            addAll(actionKeys);
-                            addAll(datasourceKeys);
-                        }
-                    };
+                    Set<String> keys = new HashSet<>();
+                    keys.addAll(actionKeys);
+                    keys.addAll(datasourceKeys);
 
                     action.setJsonPathKeys(keys);
                     return newAction;
