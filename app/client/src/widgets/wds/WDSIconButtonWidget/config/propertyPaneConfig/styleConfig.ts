@@ -1,52 +1,55 @@
-import { capitalize } from "lodash";
-import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
+import { InputTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
+
+import type { InputWidgetProps } from "../types";
+import { ICONS } from "@design-system/widgets";
 
 export const propertyPaneStyleConfig = [
   {
-    sectionName: "General",
+    sectionName: "Icon",
     children: [
       {
-        propertyName: "buttonVariant",
-        label: "Button variant",
-        controlType: "ICON_TABS",
-        fullWidth: true,
-        helpText: "Sets the variant of the button",
-        options: Object.values(BUTTON_VARIANTS).map((variant) => ({
-          label: capitalize(variant),
-          value: variant,
-        })),
-        isJSConvertible: true,
+        propertyName: "iconName",
+        label: "Icon",
+        helpText: "Sets the icon to be used in input field",
+        controlType: "ICON_SELECT_V2",
         isBindProperty: true,
         isTriggerProperty: false,
+        isJSConvertible: true,
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: Object.values(BUTTON_VARIANTS),
-            default: BUTTON_VARIANTS.filled,
+            allowedValues: Object.keys(ICONS),
           },
         },
+        hidden: (props: InputWidgetProps) => {
+          return props.inputType === InputTypes.MULTI_LINE_TEXT;
+        },
+        dependencies: ["inputType"],
       },
       {
-        propertyName: "buttonColor",
-        label: "Button color",
-        controlType: "DROP_DOWN",
-        fullWidth: true,
-        helpText: "Sets the semantic color of the button",
-        options: Object.values(COLORS).map((semantic) => ({
-          label: capitalize(semantic),
-          value: semantic,
-        })),
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: {
-          type: ValidationTypes.TEXT,
-          params: {
-            allowedValues: Object.values(COLORS),
-            default: COLORS.accent,
+        propertyName: "iconAlign",
+        label: "Position",
+        helpText: "Sets the icon alignment of input field",
+        controlType: "ICON_TABS",
+        defaultValue: "left",
+        fullWidth: false,
+        options: [
+          {
+            startIcon: "skip-left-line",
+            value: "left",
           },
-        },
+          {
+            startIcon: "skip-right-line",
+            value: "right",
+          },
+        ],
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+        hidden: (props: InputWidgetProps) =>
+          props.inputType === InputTypes.MULTI_LINE_TEXT || !props.iconName,
+        dependencies: ["iconName", "inputType"],
       },
     ],
   },

@@ -1,6 +1,6 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 
-import type { BaseInputWidgetProps } from "./types";
+import type { BaseInputWidgetProps } from "../widget/types";
 
 export const propertyPaneContentConfig = [
   {
