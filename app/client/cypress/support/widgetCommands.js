@@ -931,15 +931,10 @@ Cypress.Commands.add("DeleteModal", () => {
 });
 
 Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
-  PageList.AddNewPage();
-  cy.wait("@createPage").then((xhr) => {
-    expect(xhr.response.body.responseMeta.status).to.equal(201);
+  PageList.AddNewPage().then((oldPageName) => {
     if (pageName) {
-      const pageId = xhr.response.body.data.id;
-      const oldPageName = xhr.response.body.data.name;
       cy.wait(2000);
       ee.RenameEntityFromExplorer(oldPageName, pageName, true);
-      cy.wrap(pageId).as("currentPageId");
     }
     cy.get("#loading").should("not.exist");
   });
