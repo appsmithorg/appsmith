@@ -27,7 +27,7 @@ const StyledContainerComponent = styled.div<
       background-color: var(--color-bg-elevation-${props.elevation});
       border-radius: var(--border-radius-elevation-${props.elevation})};
       border-color: var(--color-bd-elevation-${props.elevation});
-      border-width: 1px;
+      border-width: var(--border-width-1);
       border-style: solid;
 
       /* Add padding to the container to maintain the visual spacing rhythm */
