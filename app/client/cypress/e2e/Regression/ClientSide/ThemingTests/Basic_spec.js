@@ -165,7 +165,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
           );
         });
     });
-  }); 
+  });
 
   it("4. Verify user able to change between saved theme & already existing Featured themes", () => {
     cy.get(commonlocators.changeThemeBtn).click({ force: true });
@@ -395,7 +395,11 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
 
     //cy.wait(4000); //for theme to settle
 
-    cy.get("body").should("have.css", "font-family", `"Nunito Sans", sans-serif`); //Font
+    cy.get("body").should(
+      "have.css",
+      "font-family",
+      `"Nunito Sans", sans-serif`,
+    ); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -406,7 +410,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
       "have.css",
       "background-color",
       "rgb(100, 116, 139)",
-    ); //Widget Color 
+    ); //Widget Color
 
     cy.get(widgetsPage.widgetBtn).should("have.css", "border-radius", "0px"); //Border Radius
 
@@ -434,7 +438,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
           "have.css",
           "background-color",
           "rgb(100, 116, 139)",
-        ); //old widgets still conforming to theme color 
+        ); //old widgets still conforming to theme color
       });
 
     //Change Border & verify
@@ -448,7 +452,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
           "have.css",
           "border-radius",
           borderRadius, //0px
-        ); 
+        );
         cy.get(".t--widget-button1 button").should(
           "have.css",
           "border-radius",
@@ -534,7 +538,11 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
     deployMode.DeployApp();
 
     cy.wait(4000); //for theme to settle
-    cy.get("body").should("have.css", "font-family", `"Nunito Sans", sans-serif`); //Font
+    cy.get("body").should(
+      "have.css",
+      "font-family",
+      `"Nunito Sans", sans-serif`,
+    ); //Font
 
     cy.xpath("//div[@id='root']//section/parent::div").should(
       "have.css",
@@ -557,7 +565,6 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
       "background-color",
       "rgb(100, 116, 139)",
     ); //Widget Color
-   
 
     cy.get(".t--widget-button1 button").should(
       "have.css",
@@ -631,7 +638,7 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
           "border-radius",
           borderRadius, //6px
         );
- 
+
         cy.get(".t--widget-button2 button").should(
           "have.css",
           "border-radius",
@@ -667,7 +674,6 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
       "background-color",
       "rgb(239, 68, 68)",
     );
-   
 
     //Verify Border radius
     cy.get(".t--widget-button1 button").should(
@@ -746,7 +752,6 @@ describe("App Theming funtionality", { tags: ["@tag.Theme"] }, function () {
       "background-color",
       "rgb(239, 68, 68)",
     ); //Widget Color
-   
 
     cy.get(".t--widget-button1 button").should(
       "have.css",
