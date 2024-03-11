@@ -1,3 +1,4 @@
+import PageList from "../../../../../support/Pages/PageList";
 const { ObjectsRegistry } = require("../../../../../support/Objects/Registry");
 import EditorNavigation, {
   EntityType,
@@ -31,6 +32,7 @@ describe(
     it("2.Check the OnSrcDocChange event call on first render", () => {
       agHelper.RefreshPage();
       cy.wait(2000);
+      PageList.ShowList();
       cy.get(`.t--entity .page`).first().should("have.class", "activePage");
       cy.openPropertyPane("iframewidget");
       cy.testJsontext("srcdoc", "<h1>Hello World!</h1>");

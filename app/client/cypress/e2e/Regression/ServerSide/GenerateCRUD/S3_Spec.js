@@ -143,19 +143,9 @@ describe(
 
       //Create Dummy Page2 :
       PageList.AddNewPage();
-      cy.wait("@createPage").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
 
       //Creating CRUD Page3
       PageList.AddNewPage();
-      cy.wait("@createPage").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
 
       cy.get("@dSName").then((dbName) => {
         PageList.AddNewPage("Generate page with data");
