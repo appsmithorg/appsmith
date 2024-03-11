@@ -388,12 +388,12 @@ export class DarkModeTheme implements ColorModeTheme {
     }
 
     // If the color is too dark it won't be visible against bg.
-    if (this.seedLightness < 0.2) {
-      color.oklch.l = 0.2;
+    if (this.seedLightness < 0.22) {
+      color.oklch.l = 0.22;
     }
 
-    if (this.seedChroma > 0.025) {
-      color.oklch.c = 0.025;
+    if (this.seedChroma > 0.015) {
+      color.oklch.c = 0.015;
     }
 
     if (this.seedIsAchromatic) {
