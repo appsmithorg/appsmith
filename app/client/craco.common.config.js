@@ -17,6 +17,9 @@ module.exports = {
   babel: {
     plugins: ["babel-plugin-lodash"],
   },
+  eslint: {
+    enable: false,
+  },
   webpack: {
     configure: {
       resolve: {

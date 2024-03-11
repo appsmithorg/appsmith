@@ -23,7 +23,7 @@ import {
   LintEntityTree,
   type EntityTree,
 } from "plugins/Linting/lib/entity/EntityTree";
-import { entityFns } from "workers/Evaluation/fns";
+import { getEntityFunctions } from "@appsmith/workers/Evaluation/fns";
 
 class LintService {
   cachedEntityTree: EntityTree | null;
@@ -339,7 +339,7 @@ function filterDataPaths(paths: string[], entityTree: EntityTree) {
 function getAllEntityActions(entityTree: EntityTree) {
   const allEntityActions = new Set<string>();
   for (const [entityName, entity] of Object.entries(entityTree.getRawTree())) {
-    for (const entityFnDescription of entityFns) {
+    for (const entityFnDescription of getEntityFunctions()) {
       if (entityFnDescription.qualifier(entity)) {
         const fullPath = `${
           entityFnDescription.path ||
