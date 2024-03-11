@@ -190,7 +190,7 @@ public class DataUtils {
                         byte[] valueBytesArray = new byte[0];
                         if (StringUtils.hasLength(String.valueOf(property.getValue()))) {
                             valueBytesArray =
-                                    String.valueOf(property.getValue()).getBytes(StandardCharsets.ISO_8859_1);
+                                    String.valueOf(property.getValue()).getBytes(StandardCharsets.UTF_8);
                         }
                         bodyBuilder.part(key, valueBytesArray, MediaType.TEXT_PLAIN);
                         break;
