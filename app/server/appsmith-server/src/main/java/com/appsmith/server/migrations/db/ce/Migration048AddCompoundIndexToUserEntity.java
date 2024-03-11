@@ -37,7 +37,8 @@ public class Migration048AddCompoundIndexToUserEntity {
         doc.put("deletedAt", 1);
         doc.put("email", 1);
         doc.put("createdAt", -1);
-        Index userCompoundIndex = new CompoundIndexDefinition(doc).named("user_compound_index");
+        Index userCompoundIndex =
+                new CompoundIndexDefinition(doc).named("user_deleted_deletedAt_email_createdAt_compound_index");
 
         ensureIndexes(mongoTemplate, User.class, userCompoundIndex);
     }
