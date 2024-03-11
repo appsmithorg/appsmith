@@ -2,7 +2,7 @@ package com.appsmith.server.themes.importable;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -61,7 +61,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         if (Boolean.TRUE.equals(importingMetaDTO.getAppendToArtifact())) {
             // appending to existing app, theme should not change
@@ -98,7 +98,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
     }
 
     private Mono<Theme> updateExistingAppThemeFromJSON(
-            ImportableArtifact destinationArtifact, String existingThemeId, Theme themeFromJson) {
+            Artifact destinationArtifact, String existingThemeId, Theme themeFromJson) {
         if (!StringUtils.hasLength(existingThemeId)) {
             return themeService.getOrSaveTheme(themeFromJson, (Application) destinationArtifact);
         }
@@ -131,7 +131,7 @@ public class ThemeImportableServiceCEImpl implements ImportableServiceCE<Theme> 
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             boolean isContextAgnostic) {
         return importEntities(
