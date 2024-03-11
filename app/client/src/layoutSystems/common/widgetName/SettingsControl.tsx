@@ -5,8 +5,6 @@ import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import styled from "styled-components";
 import { Icon, Text, Tooltip } from "design-system";
-import { modText } from "utils/helpers";
-import { getWidgetSelectionBlock } from "selectors/ui";
 
 // I honestly can't think of a better name for this enum
 export enum Activities {
@@ -104,24 +102,12 @@ const getStyles = (
 export function SettingsControl(props: SettingsControlProps) {
   const isSnipingMode = useSelector(snipingModeSelector);
   const errorIcon = <Icon name="warning" size="sm" />;
-  const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
 
   return (
     <Tooltip
       content={
         <Text color="var(--ads-v2-color-white)">
-          {isSnipingMode ? (
-            `Bind to widget ${props.name}`
-          ) : (
-            <>
-              <Text color="var(--ads-v2-color-white)">Edit widget</Text>
-              {isWidgetSelectionBlock ? (
-                <Text color="var(--ads-v2-color-fg-muted)">
-                  {` ${modText()} +`} Click
-                </Text>
-              ) : null}
-            </>
-          )}
+          {isSnipingMode ? `Bind to widget ${props.name}` : `Edit widget`}
         </Text>
       }
       mouseEnterDelay={0}
@@ -140,13 +126,6 @@ export function SettingsControl(props: SettingsControlProps) {
           <Icon
             color="var(--ads-v2-color-white)"
             name="arrow-right-line"
-            size="md"
-          />
-        )}
-        {isWidgetSelectionBlock && !isSnipingMode && (
-          <Icon
-            color="var(--ads-v2-color-white)"
-            name="pencil-fill-icon"
             size="md"
           />
         )}
