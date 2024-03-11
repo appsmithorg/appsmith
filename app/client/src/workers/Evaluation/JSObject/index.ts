@@ -85,10 +85,10 @@ export function saveResolvedFunctionsAndJSUpdates(
   entityName: string,
 ) {
   jsPropertiesState.delete(entityName);
-  const correctFormat = validJSBodyRegex.test(entity.body);
-  const isEmptyBody = entity.body.trim() === "";
+  const correctFormat = entity.body && validJSBodyRegex.test(entity.body);
+  const isEmptyBody = entity.body ? entity?.body.trim() === "" : entity.body;
 
-  if (correctFormat || isEmptyBody) {
+  if (!!entity.body && (correctFormat || isEmptyBody)) {
     try {
       JSObjectCollection.deleteResolvedFunction(entityName);
       JSObjectCollection.deleteUnEvalState(entityName);
