@@ -18,6 +18,9 @@ import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import { modText } from "utils/helpers";
+import { Tooltip } from "design-system";
+import { getWidgetSelectionBlock } from "selectors/ui";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -48,6 +51,7 @@ const Canvas = (props: CanvasProps) => {
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
   const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
+  const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
 
   const themeSetting = useSelector(getAppThemeSettings);
   const wdsThemeProps = {
@@ -83,20 +87,31 @@ const Canvas = (props: CanvasProps) => {
 
   const renderChildren = () => {
     return (
-      <Wrapper
-        $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
-        background={isWDSEnabled ? "" : backgroundForCanvas}
-        className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
-          canvasWidth,
-        )}`}
-        data-testid={"t--canvas-artboard"}
-        id={CANVAS_ART_BOARD}
-        ref={isWDSEnabled ? undefined : focusRef}
-        width={canvasWidth}
+      <Tooltip
+        content={`${modText()} click to select`}
+        isDisabled={!isWidgetSelectionBlock}
+        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+        // @ts-ignore
+        openDelay={5000}
+        placement={"bottom"}
+        showArrow={false}
+        trigger={"hover"}
       >
-        {props.widgetsStructure.widgetId &&
-          renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
-      </Wrapper>
+        <Wrapper
+          $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
+          background={isWDSEnabled ? "" : backgroundForCanvas}
+          className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
+            canvasWidth,
+          )}`}
+          data-testid={"t--canvas-artboard"}
+          id={CANVAS_ART_BOARD}
+          ref={isWDSEnabled ? undefined : focusRef}
+          width={canvasWidth}
+        >
+          {props.widgetsStructure.widgetId &&
+            renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
+        </Wrapper>
+      </Tooltip>
     );
   };
 
