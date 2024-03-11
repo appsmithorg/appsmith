@@ -3,8 +3,6 @@ package com.appsmith.server.newactions.base;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.helpers.AppsmithEventContext;
-import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -1599,15 +1597,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (!StringUtils.hasLength(savedAction.getUnpublishedAction().getPluginName())) {
             savedAction.getUnpublishedAction().setPluginName(datasource.getPluginName());
         }
-        Map<String, Object> analyticsProperties =
-                this.getAnalyticsProperties(savedAction, new AppsmithEventContext(AppsmithEventContextType.DEFAULT));
+        Map<String, Object> analyticsProperties = this.getAnalyticsProperties(savedAction);
         Map<String, Object> eventData = Map.of(FieldName.DATASOURCE, datasource);
         analyticsProperties.put(FieldName.EVENT_DATA, eventData);
         return analyticsProperties;
     }
 
     @Override
-    public Map<String, Object> getAnalyticsProperties(NewAction savedAction, AppsmithEventContext eventContext) {
+    public Map<String, Object> getAnalyticsProperties(NewAction savedAction) {
         ActionDTO unpublishedAction = savedAction.getUnpublishedAction();
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
@@ -1632,14 +1629,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getIsMock(), ""));
         }
 
-        if (eventContext != null) {
-            if (AppsmithEventContextType.GENERATE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
-                analyticsProperties.put("isUserCreated", false);
-                analyticsProperties.put("accelerator", "generate-crud");
-            } else if (AppsmithEventContextType.DEFAULT.equals(eventContext.getAppsmithEventContextType())) {
-                analyticsProperties.put("isUserCreated", true);
-            }
-        }
+        analyticsProperties.put("source", ObjectUtils.defaultIfNull(unpublishedAction.getSource(), null));
         return analyticsProperties;
     }
 

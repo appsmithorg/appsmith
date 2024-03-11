@@ -1,6 +1,5 @@
 package com.appsmith.server.newactions.base;
 
-import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Executable;
@@ -132,7 +131,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> fillSelfReferencingDataPaths(ActionDTO actionDTO);
 
-    Map<String, Object> getAnalyticsProperties(NewAction savedAction, AppsmithEventContext eventContext);
+    Map<String, Object> getAnalyticsProperties(NewAction savedAction);
 
     Mono<ImportedActionAndCollectionMapsDTO> updateActionsWithImportedCollectionIds(
             ImportActionCollectionResultDTO importActionCollectionResultDTO,
