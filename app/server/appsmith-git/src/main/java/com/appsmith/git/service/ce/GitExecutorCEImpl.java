@@ -52,7 +52,16 @@ import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.appsmith.git.constants.CommonConstants.FILE_MIGRATION_MESSAGE;
 
@@ -491,26 +500,31 @@ public class GitExecutorCEImpl implements GitExecutor {
                         Status status = git.status().call();
                         GitStatusDTO response = new GitStatusDTO();
 
-                        HashMap<String, Set<String>> changes = getStatusChanges(status);
-                        HashMap<String, HashMap<String, Set<String>>> categorisedChanges =
-                                categoriseStatusChanges(changes);
-                        int totalChanges = 0;
-                        for (HashMap.Entry<String, Set<String>> changeEntry : changes.entrySet()) {
-                            totalChanges += changeEntry.getValue().size();
-                        }
+                        // resource changes
+                        Set<String> modified = Stream.concat(
+                                        status.getChanged().stream(), status.getModified().stream())
+                                .collect(Collectors.toSet());
+                        Set<String> added = Stream.concat(status.getAdded().stream(), status.getUntracked().stream())
+                                .collect(Collectors.toSet());
+                        Set<String> removed = Stream.concat(status.getRemoved().stream(), status.getMissing().stream())
+                                .collect(Collectors.toSet());
 
-                        LEGACY_populateJsLibMigrationMessage(changes, response);
+                        response.setModified(modified);
+                        response.setAdded(added);
+                        response.setRemoved(removed);
 
-                        response.setChanges(changes);
-                        response.setTotalChanges(totalChanges);
-                        response.setChangedPages(categorisedChanges.get("pages"));
-                        response.setChangedQueries(categorisedChanges.get("queries"));
-                        response.setChangedJsObjects(categorisedChanges.get("jsObjects"));
-                        response.setChangedDatasources(categorisedChanges.get("datasources"));
-                        response.setChangedJsLibs(categorisedChanges.get("jsLibs"));
+                        populatePageChanges(response);
+                        populateQueryChanges(response);
+                        populateJsObjectChanges(response);
+                        populateDatasourceChanges(response);
+                        populateJsLibsChanges(response);
+                        legacyPopulateJsLibMigrationMessage(response);
+
+                        // conflicts changes
                         response.setConflicting(status.getConflicting());
                         response.setIsClean(status.isClean());
 
+                        // remote status changes
                         BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
                         if (trackingStatus != null) {
                             response.setAheadCount(trackingStatus.getAheadCount());
@@ -543,102 +557,135 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .subscribeOn(scheduler);
     }
 
-    protected HashMap<String, Set<String>> getStatusChanges(Status status) {
-        HashMap<String, Set<String>> changes = new HashMap<>();
-        changes.put("modified", new HashSet<>(status.getModified()));
-        changes.put("added", new HashSet<>(status.getAdded()));
-        changes.put("removed", new HashSet<>(status.getRemoved()));
-        changes.put("untracked", new HashSet<>(status.getUntracked()));
-        changes.put("uncommitted", new HashSet<>(status.getUncommittedChanges()));
-        return changes;
+    protected void populatePageChanges(GitStatusDTO response) {
+        Predicate<String> isPageModified = x -> x.startsWith(GitDirectories.PAGE_DIRECTORY)
+                && !x.contains(GitDirectories.ACTION_DIRECTORY)
+                && !x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY);
+
+        Predicate<String> isPageAddedOrRemoved = x -> {
+            if (isPageModified.test(x)) {
+                String[] pageNameArray = x.split(CommonConstants.DELIMITER_PATH);
+                String folderName = pageNameArray[1];
+                String fileName =
+                        pageNameArray[2].replace(CommonConstants.JSON_EXTENSION, CommonConstants.EMPTY_STRING);
+                return folderName.equals(fileName);
+            }
+            return false;
+        };
+
+        Function<String, String> getName = x -> x.split(CommonConstants.DELIMITER_PATH)[1];
+
+        Set<String> pagesAdded = response.getAdded().stream()
+                .filter(isPageAddedOrRemoved)
+                .map(getName)
+                .collect(Collectors.toSet());
+        Set<String> pagesRemoved = response.getRemoved().stream()
+                .filter(isPageAddedOrRemoved)
+                .map(getName)
+                .collect(Collectors.toSet());
+        Set<String> pagesModified = Stream.concat(
+                        response.getModified().stream(),
+                        Stream.concat(response.getAdded().stream(), response.getRemoved().stream()))
+                .filter(isPageModified)
+                .map(getName)
+                .filter(x -> !pagesAdded.contains(x))
+                .filter(x -> !pagesRemoved.contains(x))
+                .collect(Collectors.toSet());
+
+        response.setPagesModified(pagesModified);
+        response.setPagesAdded(pagesAdded);
+        response.setPagesRemoved(pagesRemoved);
     }
 
-    protected HashMap<String, HashMap<String, Set<String>>> categoriseStatusChanges(
-            HashMap<String, Set<String>> changes) {
-        String[] categories = {"pages", "queries", "jsObjects", "datasources", "jsLibs"};
-        Set<String> changeTypeSet = changes.keySet();
-
-        /*
-        eg - {
-           pages: { added: [], removed: [] },
-           datasources: { added: [], removed: [] }
-        }
-        */
-        HashMap<String, HashMap<String, Set<String>>> categorisedChanges = new HashMap<>();
-
-        // initialising data structure
-        for (String category : categories) {
-            HashMap<String, Set<String>> changeMap = new HashMap<>();
-            for (String changeType : changeTypeSet) {
-                changeMap.put(changeType, new HashSet<>());
+    protected void populateQueryChanges(GitStatusDTO response) {
+        Predicate<String> condition = x -> {
+            if (x.contains(GitDirectories.ACTION_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
+                String queryName = x.split(CommonConstants.DELIMITER_PATH)[3];
+                return !queryName.contains(CommonConstants.DELIMITER_HYPHEN);
             }
-            categorisedChanges.put(category, changeMap);
-        }
+            return false;
+        };
 
-        for (HashMap.Entry<String, Set<String>> changeEntry : changes.entrySet()) {
-            String changeType = changeEntry.getKey();
-            Set<String> changedFiles = changeEntry.getValue();
+        Function<String, String> getName = x -> {
+            String pageName = x.split(CommonConstants.DELIMITER_PATH)[1];
+            String queryName = x.split(CommonConstants.DELIMITER_PATH)[3];
+            return pageName + CommonConstants.DELIMITER_PATH + queryName;
+        };
 
-            for (String fileName : changedFiles) {
+        Set<String> queriesModified =
+                response.getModified().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> queriesAdded =
+                response.getAdded().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> queriesRemoved =
+                response.getRemoved().stream().filter(condition).map(getName).collect(Collectors.toSet());
 
-                // condition for categorising pages
-                if (fileName.contains(CommonConstants.WIDGETS) || isAModifiedPage(fileName)) {
-                    String pageName = getPageName(fileName);
-                    HashMap<String, Set<String>> changedPages = categorisedChanges.get("pages");
-                    Set<String> changedPageSet = changedPages.get(changeType);
-                    changedPageSet.add(pageName);
-                    changedPages.put(changeType, changedPageSet);
-                }
-                // condition for categorising queries
-                else if (fileName.contains(GitDirectories.ACTION_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
-                    String queryName =
-                            fileName.split(GitDirectories.ACTION_DIRECTORY + CommonConstants.DELIMITER_PATH)[1];
-                    int position = queryName.indexOf(CommonConstants.DELIMITER_PATH);
-                    if (position != -1) {
-                        queryName = queryName.substring(0, position);
-                        String pageName = fileName.split(CommonConstants.DELIMITER_PATH)[1];
-                        HashMap<String, Set<String>> changedQueries = categorisedChanges.get("queries");
-                        Set<String> changedQuerySet = changedQueries.get(changeType);
-                        changedQuerySet.add(pageName + "/" + queryName);
-                        changedQueries.put(changeType, changedQuerySet);
-                    }
-                }
-                // condition for categorising jsObject
-                else if (fileName.contains(
-                        GitDirectories.ACTION_COLLECTION_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
-                    String pageName = fileName.split(CommonConstants.DELIMITER_PATH)[1];
-                    String jsObjectName = fileName.substring(fileName.lastIndexOf(CommonConstants.DELIMITER_PATH) + 1);
-                    jsObjectName = fileName.substring(0, fileName.lastIndexOf('.'));
-                    HashMap<String, Set<String>> changedJsObjects = categorisedChanges.get("jsObjects");
-                    Set<String> changedJsObjectSet = changedJsObjects.get(changeType);
-                    changedJsObjectSet.add(pageName + "/" + jsObjectName);
-                    changedJsObjects.put(changeType, changedJsObjectSet);
-                }
-                // condition for categorising datasources
-                else if (fileName.contains(GitDirectories.DATASOURCE_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
-                    String datasourceName = fileName.split(CommonConstants.DELIMITER_PATH)[1];
-                    datasourceName = fileName.substring(0, fileName.lastIndexOf('.'));
-                    HashMap<String, Set<String>> changedDatasources = categorisedChanges.get("datasources");
-                    Set<String> changedDatasourceSet = changedDatasources.get(changeType);
-                    changedDatasourceSet.add(datasourceName);
-                    changedDatasources.put(changeType, changedDatasourceSet);
-                }
-                // condition for categorising jsLibs
-                else if (fileName.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
-                    String libName = fileName.split(CommonConstants.DELIMITER_PATH)[1];
-                    libName = fileName.split("_")[0];
-                    HashMap<String, Set<String>> changedJsLibs = categorisedChanges.get("jsLibs");
-                    Set<String> changedJsLibSet = changedJsLibs.get(changeType);
-                    changedJsLibSet.add(libName);
-                    changedJsLibs.put(changeType, changedJsLibSet);
-                }
-            }
-        }
-
-        return categorisedChanges;
+        response.setQueriesModified(queriesModified);
+        response.setQueriesAdded(queriesAdded);
+        response.setQueriesRemoved(queriesRemoved);
     }
 
-    protected void LEGACY_populateJsLibMigrationMessage(HashMap<String, Set<String>> changes, GitStatusDTO response) {
+    protected void populateJsObjectChanges(GitStatusDTO response) {
+        Predicate<String> condition =
+                x -> x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + CommonConstants.DELIMITER_PATH)
+                        && !x.contains(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
+
+        Function<String, String> getName = x -> {
+            String pageName = x.split(CommonConstants.DELIMITER_PATH)[1];
+            String jsObjectName = x.substring(
+                    x.lastIndexOf(CommonConstants.DELIMITER_PATH) + 1, x.lastIndexOf(CommonConstants.DELIMITER_POINT));
+            return pageName + CommonConstants.DELIMITER_PATH + jsObjectName;
+        };
+
+        Set<String> jsObjectsModified =
+                response.getModified().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> jsObjectsAdded =
+                response.getAdded().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> jsObjectsRemoved =
+                response.getRemoved().stream().filter(condition).map(getName).collect(Collectors.toSet());
+
+        response.setJsObjectsModified(jsObjectsModified);
+        response.setJsObjectsAdded(jsObjectsAdded);
+        response.setJsObjectsRemoved(jsObjectsRemoved);
+    }
+
+    protected void populateDatasourceChanges(GitStatusDTO response) {
+        Predicate<String> condition =
+                x -> x.contains(GitDirectories.DATASOURCE_DIRECTORY + CommonConstants.DELIMITER_PATH);
+
+        Function<String, String> getName = x -> x.substring(
+                x.lastIndexOf(CommonConstants.DELIMITER_PATH) + 1, x.lastIndexOf(CommonConstants.DELIMITER_POINT));
+
+        Set<String> datasourcesModified =
+                response.getModified().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> datasourcesAdded =
+                response.getAdded().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> datasourcesRemoved =
+                response.getRemoved().stream().filter(condition).map(getName).collect(Collectors.toSet());
+
+        response.setDatasourcesModified(datasourcesModified);
+        response.setDatasourcesAdded(datasourcesAdded);
+        response.setDatasourcesRemoved(datasourcesRemoved);
+    }
+
+    protected void populateJsLibsChanges(GitStatusDTO response) {
+        Predicate<String> condition = x -> x.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH);
+
+        Function<String, String> getName =
+                x -> x.split(CommonConstants.DELIMITER_PATH)[1].split(CommonConstants.SEPARATOR_UNDERSCORE)[0];
+
+        Set<String> jsLibsModified =
+                response.getModified().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> jsLibsAdded =
+                response.getAdded().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> jsLibsRemoved =
+                response.getRemoved().stream().filter(condition).map(getName).collect(Collectors.toSet());
+
+        response.setJsLibsModified(jsLibsModified);
+        response.setJsLibsAdded(jsLibsAdded);
+        response.setJsLibsRemoved(jsLibsRemoved);
+    }
+
+    protected void legacyPopulateJsLibMigrationMessage(GitStatusDTO response) {
         /*
            LEGACY: Remove this code in future when all the older format js libs are migrated to new format
 
@@ -646,21 +693,16 @@ public class GitExecutorCEImpl implements GitExecutor {
            lib file that we're going to rename with the format without colon.
            Hence, we need to show a message to user saying this might be a system level change.
         */
-        for (HashMap.Entry<String, Set<String>> changeEntry : changes.entrySet()) {
-            for (String fileName : changeEntry.getValue()) {
-                if (fileName.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH)
-                        && fileName.contains("js.json")) {
-                    response.setMigrationMessage(FILE_MIGRATION_MESSAGE);
-                }
-            }
-        }
-    }
+        Predicate<String> condition = x ->
+                x.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH) && x.contains("js.json");
 
-    protected boolean isAModifiedPage(String x) {
-        return !x.contains(CommonConstants.WIDGETS)
-                && x.startsWith(GitDirectories.PAGE_DIRECTORY)
-                && !x.contains(GitDirectories.ACTION_DIRECTORY)
-                && !x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY);
+        Boolean isModified = response.getModified().stream().anyMatch(condition);
+        Boolean isAdded = response.getAdded().stream().anyMatch(condition);
+        Boolean isRemoved = response.getAdded().stream().anyMatch(condition);
+
+        if (isModified || isAdded || isRemoved) {
+            response.setMigrationMessage(FILE_MIGRATION_MESSAGE);
+        }
     }
 
     private String getPageName(String path) {

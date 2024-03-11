@@ -3,7 +3,6 @@ package com.appsmith.external.dtos.ce;
 import com.appsmith.external.constants.Assets;
 import lombok.Data;
 
-import java.util.HashMap;
 import java.util.Set;
 
 /**
@@ -12,26 +11,59 @@ import java.util.Set;
 @Data
 public class GitStatusCE_DTO {
 
-    // Hashmap that contains files changed in a set, keys - added, removed, modified, uncommitted, untracked
-    HashMap<String, Set<String>> changes;
+    // set of files that were modified
+    Set<String> modified;
 
-    // Number of total changes
-    Integer totalChanges;
+    // set of files that were added anew
+    Set<String> added;
 
-    // Hashmap that contains pages changed
-    HashMap<String, Set<String>> changedPages;
+    // set of files that were removed
+    Set<String> removed;
 
-    // Hashmap that contains pages changed
-    HashMap<String, Set<String>> changedQueries;
+    // set of pages that were modified
+    Set<String> pagesModified;
 
-    // Hashmap that contains pages changed
-    HashMap<String, Set<String>> changedJsObjects;
+    // set of pages that were added
+    Set<String> pagesAdded;
 
-    // Hashmap that contains pages changed
-    HashMap<String, Set<String>> changedDatasources;
+    // set of pages that were removed
+    Set<String> pagesRemoved;
 
-    // Hashmap that contains pages changed
-    HashMap<String, Set<String>> changedJsLibs;
+    // set of queries that were modified
+    Set<String> queriesModified;
+
+    // set of queries that were added
+    Set<String> queriesAdded;
+
+    // set of queries that were removed
+    Set<String> queriesRemoved;
+
+    // set of jsObjects that were modified
+    Set<String> jsObjectsModified;
+
+    // set of jsObjects that were added
+    Set<String> jsObjectsAdded;
+
+    // set of jsObjects that were removed
+    Set<String> jsObjectsRemoved;
+
+    // set of datasources that were modified
+    Set<String> datasourcesModified;
+
+    // set of datasources that were added
+    Set<String> datasourcesAdded;
+
+    // set of datasources that were removed
+    Set<String> datasourcesRemoved;
+
+    // set of jsLibs that were modified
+    Set<String> jsLibsModified;
+
+    // set of jsLibs that were added
+    Set<String> jsLibsAdded;
+
+    // set of jsLibs that were removed
+    Set<String> jsLibsRemoved;
 
     // Name of the conflicting resources
     Set<String> conflicting;
