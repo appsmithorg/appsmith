@@ -2,7 +2,7 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.views.RequestBodyView;
+import com.appsmith.external.views.RequestOnly;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -65,7 +65,7 @@ public class ActionControllerCE {
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionDTO>> createAction(
-            @Valid @RequestBody @JsonView(RequestBodyView.class) ActionDTO resource,
+            @Valid @RequestBody @JsonView(RequestOnly.class) ActionDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return layoutActionService
@@ -77,7 +77,7 @@ public class ActionControllerCE {
     @PutMapping("/{defaultActionId}")
     public Mono<ResponseDTO<ActionDTO>> updateAction(
             @PathVariable String defaultActionId,
-            @Valid @RequestBody @JsonView(RequestBodyView.class) ActionDTO resource,
+            @Valid @RequestBody @JsonView(RequestOnly.class) ActionDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to update resource with defaultActionId: {}, branch: {}", defaultActionId, branchName);
         return layoutActionService
