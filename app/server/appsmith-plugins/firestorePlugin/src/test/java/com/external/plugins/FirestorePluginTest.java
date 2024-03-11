@@ -935,25 +935,19 @@ public class FirestorePluginTest {
          * - get all documents where category == test.
          * - this returns 2 documents.
          */
-        children.add(new HashMap<String, Object>() {
-            {
-                put("key", "{{Input1.text}}");
-                put("condition", "EQ");
-                put("value", "{{Input2.text}}");
-            }
-        });
+        children.add(Map.of(
+                "key", "{{Input1.text}}",
+                "condition", "EQ",
+                "value", "{{Input2.text}}"));
 
         /*
          * - get all documents where name == two.
          * - Of the two documents returned by above condition, this will narrow it down to one.
          */
-        children.add(new HashMap<String, Object>() {
-            {
-                put("key", "{{Input3.text}}");
-                put("condition", "EQ");
-                put("value", "{{Input4.text}}");
-            }
-        });
+        children.add(Map.of(
+                "key", "{{Input3.text}}",
+                "condition", "EQ",
+                "value", "{{Input4.text}}"));
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
@@ -1019,13 +1013,10 @@ public class FirestorePluginTest {
         setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
-        children.add(new HashMap<String, Object>() {
-            {
-                put("key", "{{Input1.text}}");
-                put("condition", "EQ");
-                put("value", "{{Input2.text}}");
-            }
-        });
+        children.add(Map.of(
+                "key", "{{Input1.text}}",
+                "condition", "EQ",
+                "value", "{{Input2.text}}"));
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
@@ -1065,13 +1056,10 @@ public class FirestorePluginTest {
         setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
-        children.add(new HashMap<String, Object>() {
-            {
-                put("key", "{{Input1.text}}");
-                put("condition", "EQ");
-                put("value", "{{Input2.text}}");
-            }
-        });
+        children.add(Map.of(
+                "key", "{{Input1.text}}",
+                "condition", "EQ",
+                "value", "{{Input2.text}}"));
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
@@ -1111,13 +1099,10 @@ public class FirestorePluginTest {
         setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
-        children.add(new HashMap<String, Object>() {
-            {
-                put("key", "{{Input1.text}}");
-                put("condition", "EQ");
-                put("value", "{{Input2.text}}");
-            }
-        });
+        children.add(Map.of(
+                "key", "{{Input1.text}}",
+                "condition", "EQ",
+                "value", "{{Input2.text}}"));
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
@@ -1157,13 +1142,10 @@ public class FirestorePluginTest {
         setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
-        children.add(new HashMap<String, Object>() {
-            {
-                put("key", "{{Input1.text}}");
-                put("condition", "EQ");
-                put("value", "{{Input2.text}}");
-            }
-        });
+        children.add(Map.of(
+                "key", "{{Input1.text}}",
+                "condition", "EQ",
+                "value", "{{Input2.text}}"));
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
@@ -1202,13 +1184,10 @@ public class FirestorePluginTest {
         setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
-        children.add(new HashMap<String, Object>() {
-            {
-                put("key", "{{Input1.text}}");
-                put("condition", "ARRAY_CONTAINS");
-                put("value", "{{Input2.text}}");
-            }
-        });
+        children.add(Map.of(
+                "key", "{{Input1.text}}",
+                "condition", "ARRAY_CONTAINS",
+                "value", "{{Input2.text}}"));
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
@@ -1247,13 +1226,10 @@ public class FirestorePluginTest {
         setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
-        children.add(new HashMap<String, Object>() {
-            {
-                put("key", "{{Input1.text}}");
-                put("condition", "ARRAY_CONTAINS");
-                put("value", "{{Input2.text}}");
-            }
-        });
+        children.add(Map.of(
+                "key", "{{Input1.text}}",
+                "condition", "ARRAY_CONTAINS",
+                "value", "{{Input2.text}}"));
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
@@ -1292,13 +1268,10 @@ public class FirestorePluginTest {
         setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
-        children.add(new HashMap<String, Object>() {
-            {
-                put("key", "{{Input1.text}}");
-                put("condition", "ARRAY_CONTAINS_ANY");
-                put("value", "{{Input2.text}}");
-            }
-        });
+        children.add(Map.of(
+                "key", "{{Input1.text}}",
+                "condition", "ARRAY_CONTAINS_ANY",
+                "value", "{{Input2.text}}"));
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
@@ -1337,13 +1310,10 @@ public class FirestorePluginTest {
         setDataValueSafelyInFormData(configMap, COMMAND, "GET_COLLECTION");
 
         List<Object> children = new ArrayList<>();
-        children.add(new HashMap<String, Object>() {
-            {
-                put("key", "{{Input1.text}}");
-                put("condition", "IN");
-                put("value", "{{Input2.text}}");
-            }
-        });
+        children.add(Map.of(
+                "key", "{{Input1.text}}",
+                "condition", "IN",
+                "value", "{{Input2.text}}"));
 
         Map<String, Object> whereMap = new HashMap<>();
         whereMap.put(CHILDREN, children);
@@ -1604,13 +1574,11 @@ public class FirestorePluginTest {
          * - get all documents where category == test.
          * - this returns 2 documents.
          */
-        ((List) whereProperty.getValue()).add(new HashMap<String, Object>() {
-            {
-                put("path", "{{Input2.text}}");
-                put("operator", "EQ");
-                put("value", "{{Input3.text}}");
-            }
-        });
+        ((List) whereProperty.getValue())
+                .add(Map.of(
+                        "path", "{{Input2.text}}",
+                        "operator", "EQ",
+                        "value", "{{Input3.text}}"));
 
         pluginSpecifiedTemplates.add(whereProperty);
         actionConfiguration.setPluginSpecifiedTemplates(pluginSpecifiedTemplates);

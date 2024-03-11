@@ -8,6 +8,7 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.ce.UserSignupCEImpl;
@@ -29,7 +30,8 @@ public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
             CommonConfig commonConfig,
             UserUtils userUtils,
             NetworkUtils networkUtils,
-            EmailService emailService) {
+            EmailService emailService,
+            TenantService tenantService) {
 
         super(
                 userService,
@@ -42,6 +44,7 @@ public class UserSignupImpl extends UserSignupCEImpl implements UserSignup {
                 commonConfig,
                 userUtils,
                 networkUtils,
-                emailService);
+                emailService,
+                tenantService);
     }
 }
