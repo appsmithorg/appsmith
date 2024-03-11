@@ -198,16 +198,35 @@ const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
     {},
   );
 
+const getDataTree = (data: any, evalOrder: any) => {
+  const withErrors = Object.keys(data).reduce((acc: any, key) => {
+    const widgetValue = data[key];
+    acc[key] = {
+      __evaluation__: {
+        errors: widgetValue.__evaluation__?.errors,
+      },
+    };
+    return acc;
+  }, {});
+  return evalOrder.reduce((acc: any, key: any) => {
+    set(acc, key, get(data, key));
+    return acc;
+  }, withErrors);
+};
 const generateDiffUpdates = (
   oldDataTree: any,
   dataTree: any,
   ignoreLargeKeys: any,
+  evalOrder: string[],
 ): DiffWithReferenceState[] => {
   const attachDirectly: DiffWithReferenceState[] = [];
   const ignoreLargeKeysHasBeenAttached = new Set();
   const attachLater: DiffWithReferenceState[] = [];
+
+  const oldData = getDataTree(oldDataTree, evalOrder);
+  const newData = getDataTree(dataTree, evalOrder);
   const updates =
-    diff(oldDataTree, dataTree, (path, key) => {
+    diff(oldData, newData, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
 
       const { path: setPath, segmentedPath } = generateWithKey(path, key);
@@ -283,10 +302,16 @@ const generateDiffUpdates = (
 export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
+  evalOrder: string[],
   identicalEvalPathsPatches?: Record<string, string>,
 ): DiffWithReferenceState[] => {
   const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
-  const updates = generateDiffUpdates(oldDataTree, dataTree, ignoreLargeKeys);
+  const updates = generateDiffUpdates(
+    oldDataTree,
+    dataTree,
+    ignoreLargeKeys,
+    evalOrder,
+  );
   return updates;
 };
 
@@ -294,22 +319,24 @@ export const generateSerialisedUpdates = (
   prevState: any,
   currentState: any,
   identicalEvalPathsPatches: any,
+  evalOrder: string[],
 ): {
   serialisedUpdates: string;
   error?: { type: string; message: string };
 } => {
-  const updates = generateOptimisedUpdates(
-    prevState,
-    currentState,
-    identicalEvalPathsPatches,
-  );
 
+
+  try {
+    const allRootWidgetPaths = evalOrder.map((p) => p.split(".")[0]);
+    const allUniqueRootWidgetPaths = Array.from(new Set(allRootWidgetPaths));
+    const updates =  allUniqueRootWidgetPaths.map((p) => ({ path: p, lhs: get(prevState, p), rhs: get(currentState, p) }))
+    .filter(({ lhs, rhs }) => !equal(lhs, rhs))
+    .map(({ path, rhs }) => ({ kind: "N", path:[path], rhs}))
   //remove lhs from diff to reduce the size of diff upload,
   //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
 
-  try {
     // serialise bigInt values and convert the updates to a string over here to minismise the cost of transfer
     // to the main thread. In the main thread parse this object there.
     return { serialisedUpdates: serialiseToBigInt(removedLhs) };
@@ -327,6 +354,7 @@ export const generateSerialisedUpdates = (
 export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: any,
   dataTreeEvaluator: any,
+  evalOrder: string[],
 ) => {
   const identicalEvalPathsPatches =
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
@@ -335,6 +363,7 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     dataTreeEvaluator.getPrevState(),
     dataTree,
     identicalEvalPathsPatches,
+    evalOrder,
   );
 
   if (error) {

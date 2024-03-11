@@ -7,6 +7,7 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import * as Sentry from "@sentry/react";
 import { get } from "lodash";
 import type { DiffWithReferenceState } from "workers/Evaluation/helpers";
+import { redoShortCut } from "utils/helpers";
 
 export type EvaluatedTreeState = DataTree;
 
@@ -17,7 +18,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     state: EvaluatedTreeState,
     action: ReduxAction<{
       dataTree: DataTree;
-      updates: DiffWithReferenceState[];
+      updates: DiffWithReferenceState[] | any;
       removedPaths: [string];
     }>,
   ) => {
@@ -27,9 +28,10 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     }
     for (const update of updates) {
       // Null check for typescript
-      if (!Array.isArray(update.path) || update.path.length === 0) {
-        continue;
-      }
+
+      // if (update.kind !== "newTree" &&  update.path.length === 0) {
+      //   continue;
+      // }
       try {
         //these are the decompression updates, there are cases where identical values are present in the state
         //over here we have the path which has the identical value and apply as an update
@@ -42,6 +44,9 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
             rhs: get(state, referencePath),
           } as Diff<DataTree, DataTree>;
           applyChange(state, undefined, patch);
+        }
+        else if (update.kind === "newTree") {
+          return update.rhs;
         } else {
           applyChange(state, undefined, update);
         }
