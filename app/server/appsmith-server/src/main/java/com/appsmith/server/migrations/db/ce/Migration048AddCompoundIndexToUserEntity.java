@@ -30,7 +30,7 @@ public class Migration048AddCompoundIndexToUserEntity {
 
         // Prod index name
         dropIndexIfExists(mongoTemplate, User.class, "deleted_1_deletedAt_1_email_1_createdAt_-1");
-        dropIndexIfExists(mongoTemplate, User.class, "user_compound_index");
+        dropIndexIfExists(mongoTemplate, User.class, "user_deleted_deletedAt_email_createdAt_compound_index");
 
         org.bson.Document doc = new org.bson.Document();
         doc.put("deleted", 1);
