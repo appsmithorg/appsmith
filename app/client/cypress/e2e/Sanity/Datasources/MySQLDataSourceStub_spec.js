@@ -38,11 +38,12 @@ describe(
 
     it("3. Create a new query from the datasource editor", function () {
       dataSources.CreateQueryAfterDSSaved();
-      cy.wait("@createNewApi").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
+      cy.wait("@createNewApi").then((interception) => {
+        // Validates the value of source for action creation -
+        // should be self here as the user explicitly triggered create action
+        expect(interception.request.body.source).to.equal("SELF");
+        expect(interception.response.body.responseMeta.status).to.equal(201);
+      });
       cy.deleteQueryUsingContext();
       cy.deleteDatasource(datasourceName);
     });

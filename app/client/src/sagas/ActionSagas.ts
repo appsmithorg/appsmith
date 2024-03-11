@@ -56,7 +56,7 @@ import type {
   CreateActionDefaultsParams,
   SlashCommandPayload,
 } from "entities/Action";
-import { isGraphqlPlugin } from "entities/Action";
+import { isGraphqlPlugin, ActionCreationSourceTypeEnum } from "entities/Action";
 import {
   isAPIAction,
   PluginPackageName,
@@ -307,6 +307,8 @@ export function* createActionSaga(
   >,
 ) {
   try {
+    // Indicates that source of action creation is self
+    actionPayload.payload.source = ActionCreationSourceTypeEnum.SELF;
     const payload = actionPayload.payload;
 
     const response: ApiResponse<ActionCreateUpdateResponse> =
@@ -735,6 +737,9 @@ function* copyActionSaga(
       name: action.payload.name,
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
+
+    // Indicates that source of action creation is copy action
+    copyAction.source = ActionCreationSourceTypeEnum.COPY_ACTION;
 
     delete copyAction.id;
     const response: ApiResponse<ActionCreateUpdateResponse> =

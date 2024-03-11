@@ -1,11 +1,10 @@
 package com.appsmith.server.solutions.ce;
 
+import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.HttpMethodConverter;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.helpers.AppsmithEventContext;
-import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.DatasourceStorage;
@@ -614,6 +613,9 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
             actionDTO.setName(templateAction.getUnpublishedAction().getName());
             actionDTO.setDefaultResources(templateAction.getDefaultResources());
 
+            // Indicates that source of action creation is generate-crud-page
+            actionDTO.setSource(ActionCreationSourceTypeEnum.GENERATE_PAGE);
+
             String actionBody = templateActionConfiguration.getBody();
             actionDTO.setActionConfiguration(templateActionConfiguration);
             ActionConfiguration actionConfiguration = actionDTO.getActionConfiguration();
@@ -674,8 +676,7 @@ public class CreateDBTablePageSolutionCEImpl implements CreateDBTablePageSolutio
                                 deleteUnwantedWidgetReferenceInActions(actionConfiguration, deletedWidgetNames));
                         return actionDTO;
                     })
-                    .flatMap(action -> layoutActionService.createAction(
-                            action, new AppsmithEventContext(AppsmithEventContextType.GENERATE_PAGE), Boolean.FALSE));
+                    .flatMap(action -> layoutActionService.createSingleAction(action, Boolean.FALSE));
         });
     }
 

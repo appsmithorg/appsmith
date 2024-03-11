@@ -38,6 +38,12 @@ describe(
 
       agHelper.GetNClick(oneClickBindingLocator.connectData);
 
+      // Validates the value of source for action creation -
+      // should be one click binding here
+      cy.wait("@createNewApi").then((interception) => {
+        expect(interception.request.body.source).to.equal("ONE_CLICK_BINDING");
+      });
+
       assertHelper.AssertNetworkStatus("@postExecute");
 
       agHelper.Sleep(2000);
