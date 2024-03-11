@@ -31,4 +31,12 @@ class AclPermissionTest {
         assertThat(AclPermission.isPermissionForEntity(AclPermission.MANAGE_PAGES, NewPage.class))
                 .isTrue();
     }
+
+    @Test
+    void testGetAclPermissionWhenOperateWithoutPermission() {
+        assertThat(AclPermission.getPermissionOrNull(AclPermission.READ_APPLICATIONS, Boolean.FALSE))
+                .isEqualTo(AclPermission.READ_APPLICATIONS);
+        assertThat(AclPermission.getPermissionOrNull(AclPermission.READ_APPLICATIONS, Boolean.TRUE))
+                .isNull();
+    }
 }

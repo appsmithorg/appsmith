@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
@@ -7,20 +7,12 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { Avatar, Icon, Spinner, Text, Tooltip } from "design-system";
 import { getInitialsFromName } from "utils/AppsmithUtils";
 import ManageUsers from "pages/workspace/ManageUsers";
 import { USER_PHOTO_ASSET_URL } from "constants/userConstants";
 import { importSvg } from "design-system-old";
 import type { WorkspaceUserRoles } from "@appsmith/constants/workspaceConstants";
-import { getDomainFromEmail } from "utils/helpers";
-import { getCurrentUser } from "selectors/usersSelectors";
-import PartnerProgramCallout from "pages/workspace/PartnerProgramCallout";
-import {
-  getPartnerProgramCalloutShown,
-  setPartnerProgramCalloutShown,
-} from "utils/storage";
 import InviteUsersForm from "@appsmith/pages/workspace/InviteUsersForm";
 import { ENTITY_TYPE } from "@appsmith/constants/workspaceConstants";
 import {
@@ -38,8 +30,6 @@ import type { AppState } from "@appsmith/reducers";
 const NoEmailConfigImage = importSvg(
   async () => import("assets/images/email-not-configured.svg"),
 );
-
-const { cloudHosting } = getAppsmithConfigs();
 
 export const WorkspaceInviteWrapper = styled.div``;
 
@@ -110,7 +100,6 @@ export const ManageUsersContainer = styled.div`
 function WorkspaceInviteUsers(props: any) {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const userRef = React.createRef<HTMLDivElement>();
-  const currentUser = useSelector(getCurrentUser);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
   const showAppLevelInviteModal =
     (isFeatureEnabled && props.isApplicationPage) || false;
@@ -123,10 +112,6 @@ function WorkspaceInviteUsers(props: any) {
         ? getApplicationLoadingStates(state).isFetchingAllUsers
         : selectedWorkspaceLoadingStates(state).isFetchingAllUsers,
     ) || false;
-
-  const emailOutsideCurrentDomain = useRef<undefined | string>();
-  const [showPartnerProgramCallout, setShowPartnerProgramCallout] =
-    useState(false);
 
   const userWorkspacePermissions = currentWorkspace?.userPermissions ?? [];
   const canManage = isPermitted(
@@ -153,49 +138,9 @@ function WorkspaceInviteUsers(props: any) {
     [allUsers],
   );
 
-  const checkIfInvitedUsersFromDifferentDomain = async (
-    invitedEmails?: string[],
-  ) => {
-    if (!currentUser?.email) return true;
-
-    const currentUserEmail = currentUser?.email;
-    const partnerProgramCalloutShown = await getPartnerProgramCalloutShown();
-    const currentUserDomain = getDomainFromEmail(currentUserEmail);
-
-    if (invitedEmails && !partnerProgramCalloutShown) {
-      const _emailOutsideCurrentDomain = invitedEmails.find(
-        (email) => getDomainFromEmail(email) !== currentUserDomain,
-      );
-      if (_emailOutsideCurrentDomain) {
-        emailOutsideCurrentDomain.current = _emailOutsideCurrentDomain;
-        invitedEmails = undefined;
-        setShowPartnerProgramCallout(true);
-      }
-    }
-  };
-
   return (
     <WorkspaceInviteWrapper>
-      <InviteUsersForm
-        {...props}
-        checkIfInvitedUsersFromDifferentDomain={
-          checkIfInvitedUsersFromDifferentDomain
-        }
-      />
-      {!cloudHosting &&
-        showPartnerProgramCallout &&
-        emailOutsideCurrentDomain.current && (
-          <div className="mt-2">
-            <PartnerProgramCallout
-              email={emailOutsideCurrentDomain.current}
-              onClose={() => {
-                setShowPartnerProgramCallout(false);
-                setPartnerProgramCalloutShown();
-                emailOutsideCurrentDomain.current = undefined;
-              }}
-            />
-          </div>
-        )}
+      <InviteUsersForm {...props} />
       {isLoading ? (
         <div className="pt-4 overflow-hidden">
           <Spinner size="lg" />
@@ -203,7 +148,7 @@ function WorkspaceInviteUsers(props: any) {
       ) : (
         <>
           {allUsers.length === 0 && (
-            <MailConfigContainer data-testid="no-users-content">
+            <MailConfigContainer data-testid="t--no-users-content">
               <NoEmailConfigImage />
               <Text kind="action-s">{createMessage(NO_USERS_INVITED)}</Text>
             </MailConfigContainer>

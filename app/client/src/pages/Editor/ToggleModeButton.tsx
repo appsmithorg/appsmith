@@ -10,6 +10,7 @@ import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
 import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
+import { altText } from "../../utils/helpers";
 
 function ToggleModeButton() {
   const dispatch = useDispatch();
@@ -31,7 +32,9 @@ function ToggleModeButton() {
         <>
           {createMessage(EDITOR_HEADER.previewTooltip.text)}
           <span style={{ marginLeft: 20 }}>
-            {createMessage(EDITOR_HEADER.previewTooltip.shortcut)}
+            {`${altText()} ${createMessage(
+              EDITOR_HEADER.previewTooltip.shortcut,
+            )}`}
           </span>
         </>
       }
