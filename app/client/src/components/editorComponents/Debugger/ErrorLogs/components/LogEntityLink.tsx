@@ -2,13 +2,13 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { keyBy } from "lodash";
-import type { LogItemProps } from "../ErrorLogItem";
 import { Colors } from "constants/Colors";
 import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import EntityLink from "../../EntityLink";
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
 import { getIconForEntity } from "@appsmith/components/editorComponents/Debugger/ErrorLogs/getLogIconForEntity";
 import type { Plugin } from "api/PluginApi";
+import type { LogItemProps } from "./types";
 
 const EntityLinkWrapper = styled.div`
   display: flex;

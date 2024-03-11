@@ -1,12 +1,11 @@
 import React from "react";
 import { useDispatch } from "react-redux";
-import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import type { Log } from "entities/AppsmithConsole";
 import { LOG_CATEGORY } from "entities/AppsmithConsole";
 import { Severity } from "widgets/types";
 import styled from "styled-components";
 import { Classes, getTypographyByKey } from "design-system-old";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { PluginErrorDetails } from "api/actionAPITypes";
 import LogCollapseData from "./components/LogCollapseData";
 import LogAdditionalInfo from "./components/LogAdditionalInfo";
 import LogEntityLink from "./components/LogEntityLink";
@@ -17,6 +16,7 @@ import moment from "moment";
 import LogHelper from "./components/LogHelper";
 import { toggleExpandErrorLogItem } from "actions/debuggerActions";
 import { Button, Icon } from "design-system";
+import type { LogItemProps } from "./components/types";
 
 const InnerWrapper = styled.div`
   display: flex;
@@ -163,27 +163,6 @@ export const getLogItemProps = (e: Log) => {
     environmentName: e.environmentName,
   };
 };
-
-export interface LogItemProps {
-  collapsable?: boolean;
-  icon: string;
-  timestamp: string;
-  label: string;
-  timeTaken: string;
-  severity: Severity;
-  text: string;
-  category: LOG_CATEGORY;
-  iconId?: string;
-  logType?: LOG_TYPE;
-  logData?: any[];
-  state?: Record<string, any>;
-  id?: string;
-  source?: SourceEntity;
-  messages?: Message[];
-  pluginErrorDetails?: PluginErrorDetails;
-  isExpanded: boolean;
-  environmentName?: string;
-}
 
 // Log item component
 const ErrorLogItem = (props: LogItemProps) => {
