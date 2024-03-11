@@ -65,6 +65,16 @@ export enum PaginationType {
   CURSOR = "CURSOR",
 }
 
+// Used for analytic events
+export enum ActionCreationSourceTypeEnum {
+  SELF = "SELF",
+  GENERATE_PAGE = "GENERATE_PAGE",
+  ONE_CLICK_BINDING = "ONE_CLICK_BINDING",
+  CLONE_PAGE = "CLONE_PAGE",
+  FORK_APPLICATION = "FORK_APPLICATION",
+  COPY_ACTION = "COPY_ACTION",
+}
+
 export interface KeyValuePair {
   key?: string;
   value?: unknown;
@@ -164,6 +174,7 @@ export interface BaseAction {
   // added here to avoid ts error in entitiesSelector file, in practice
   // will always be undefined for non js actions
   isMainJSCollection?: boolean;
+  source?: ActionCreationSourceTypeEnum;
 }
 
 interface BaseApiAction extends BaseAction {
