@@ -28,6 +28,8 @@ public class Migration048AddCompoundIndexToUserEntity {
     @Execution
     public void addMissingIndexInUserCollection() {
 
+        // Prod index name
+        dropIndexIfExists(mongoTemplate, User.class, "deleted_1_deletedAt_1_email_1_createdAt_-1");
         dropIndexIfExists(mongoTemplate, User.class, "user_compound_index");
 
         org.bson.Document doc = new org.bson.Document();
