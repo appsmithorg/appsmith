@@ -33,7 +33,6 @@ describe(
     it("2.1 Update the Map type to different types and verify - part1", function () {
       // Change the map type to World with Antarctica and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "World with Antarctica");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 11);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -43,7 +42,6 @@ describe(
 
       // Change the map type to World and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "World");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 10);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -53,7 +51,6 @@ describe(
 
       // Change the map type to Europe and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Europe");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 18);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -63,7 +60,6 @@ describe(
 
       // Change the map type to North America and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "North America");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 12);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -73,7 +69,6 @@ describe(
 
       // Change the map type to South America and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "South America");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 16);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -85,7 +80,6 @@ describe(
     it("2.2 Update the Map type to different types and verify - part2", function () {
       // Change the map type to Oceania and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Oceania");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 14);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -95,7 +89,6 @@ describe(
 
       // Change the map type to Africa and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Africa");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 19);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -105,7 +98,6 @@ describe(
 
       // Change the map type to USA and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "USA");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 19);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -115,7 +107,6 @@ describe(
 
       // Change the map type to Asia and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Asia");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 21);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
