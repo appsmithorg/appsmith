@@ -206,7 +206,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
             Set<String> names, String pageId, AclPermission permission) {
-        throw new ex.Marker("an emptyList"); /*
         List<Criteria> criteriaList = new ArrayList<>();
         if (names != null) {
             Criteria namesCriteria =
@@ -226,13 +225,12 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 where(NewAction.Fields.unpublishedAction_deletedAt).is(null);
         criteriaList.add(deletedCriteria);
 
-        return queryBuilder().criteria(criteriaList).permission(permission).all(); //*/
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 
     @Override
     public List<NewAction> findUnpublishedActionsByNameInAndPageId(
             Set<String> names, String pageId, AclPermission permission) {
-        throw new ex.Marker("an emptyList"); /*
         List<Criteria> criteriaList = new ArrayList<>();
 
         if (names != null) {
@@ -251,7 +249,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 where(NewAction.Fields.unpublishedAction_deletedAt).is(null);
         criteriaList.add(deletedCriteria);
 
-        return queryBuilder().criteria(criteriaList).permission(permission).all(); //*/
+        return queryBuilder().criteria(criteriaList).permission(permission).all();
     }
 
     @Override
@@ -269,7 +267,6 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
-        throw new ex.Marker("findByApplicationId"); /*
 
         Criteria applicationCriteria = this.getCriterionForFindByApplicationId(applicationId);
 
@@ -277,7 +274,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(applicationCriteria)
                 .permission(aclPermission)
                 .sort(sort)
-                .all(); //*/
+                .all();
     }
 
     protected Criteria getCriterionForFindByApplicationId(String applicationId) {
@@ -288,18 +285,16 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
-        throw new ex.Marker("findByApplicationIdAndViewMode"); /*
 
         List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
-        return queryBuilder().criteria(criteria).permission(aclPermission).all(); //*/
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
     protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, Boolean viewMode) {
-        throw new ex.Marker("getCriteriaForFindByApplicationIdAndViewMode"); /*
         List<Criteria> criteria = new ArrayList<>();
 
-
+        Criteria applicationCriterion = this.getCriterionForFindByApplicationId(applicationId);
         criteria.add(applicationCriterion);
 
         if (Boolean.FALSE.equals(viewMode)) {
@@ -308,7 +303,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             Criteria deletedCriterion =
                     where(NewAction.Fields.unpublishedAction_deletedAt).is(null);
             criteria.add(deletedCriterion);
-        }*/
+        }
+        return criteria;
     }
 
     @Override
@@ -389,13 +385,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        throw new ex.Marker("an emptyList"); /*
+        List<Criteria> criteriaList =
+                this.getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode);
 
         return queryBuilder()
                 .criteria(criteriaList)
                 .permission(aclPermission)
                 .sort(sort)
-                .all(); //*/
+                .all();
     }
 
     protected List<Criteria> getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(

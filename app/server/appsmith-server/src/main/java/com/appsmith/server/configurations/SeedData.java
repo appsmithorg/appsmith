@@ -241,6 +241,13 @@ public class SeedData {
                         .type(PluginType.DB)
                         .uiComponent("UQIDbEditorForm")
                         .defaultInstall(true)
+                        .build(),
+                Plugin.builder()
+                        .name("Authenticated GraphQL API")
+                        .packageName("graphql-plugin")
+                        .type(PluginType.API)
+                        .uiComponent("GraphQLEditorForm")
+                        .defaultInstall(true)
                         .build());
 
         for (final Plugin plugin : plugins) {

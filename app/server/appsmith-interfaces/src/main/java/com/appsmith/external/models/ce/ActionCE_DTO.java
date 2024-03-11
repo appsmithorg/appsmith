@@ -17,7 +17,6 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Transient;
 import lombok.EqualsAndHashCode;
@@ -89,7 +88,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
     ActionConfiguration actionConfiguration;
 
     // this attribute carries error messages while processing the actionCollection
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Transient
     @JsonView(Views.Public.class)
     List<ErrorDTO> errorReports;
@@ -107,22 +105,18 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Public.class)
     List<Property> dynamicBindingPathList;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Boolean isValid;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Set<String> invalids;
 
     @Transient
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Set<String> messages = new HashSet<>();
 
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @JsonView(Views.Public.class)
     Set<String> jsonPathKeys;
 
