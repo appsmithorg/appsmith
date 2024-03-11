@@ -6,11 +6,11 @@ import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.data.mongodb.core.index.CompoundIndexDefinition;
 import org.springframework.data.mongodb.core.index.Index;
 
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
-import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 
 @Slf4j
 @ChangeUnit(order = "048", id = "add-compound-index-in-user-collection", author = " ")
@@ -30,9 +30,13 @@ public class Migration048AddCompoundIndexToUserEntity {
 
         dropIndexIfExists(mongoTemplate, User.class, "user_compound_index");
 
-        Index userEmailCreatedAtIndex =
-                makeIndex("deleted", "deletedAt", "email", "createdAt").unique().named("user_compound_index");
+        org.bson.Document doc = new org.bson.Document();
+        doc.put("deleted", 1);
+        doc.put("deletedAt", 1);
+        doc.put("email", 1);
+        doc.put("createdAt", -1);
+        Index userCompoundIndex = new CompoundIndexDefinition(doc).named("user_compound_index");
 
-        ensureIndexes(mongoTemplate, User.class, userEmailCreatedAtIndex);
+        ensureIndexes(mongoTemplate, User.class, userCompoundIndex);
     }
 }
