@@ -101,14 +101,15 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
      *
      * @param datasourceId  required to validate the details in the request and populate redirect url
      * @param environmentId
-     * @param pageId        Required to populate redirect url
+     * @param contextId        Required to populate redirect url
      * @param httpRequest   Used to find the redirect domain
      * @return a url String to continue the authorization flow
      */
     public Mono<String> getAuthorizationCodeURLForGenericOAuth2(
             String datasourceId,
             String environmentId,
-            String pageId,
+            CreatorContextType contextType,
+            String contextId,
             String branchName,
             ServerHttpRequest httpRequest) {
         // This is the only database access that is controlled by ACL
@@ -141,10 +142,14 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     OAuth2 oAuth2 = (OAuth2)
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
-                    final String state = StringUtils.hasText(branchName)
-                            ? String.join(
-                                    ",", pageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId, branchName)
-                            : String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId);
+                    final String state = getState(
+                            contextType,
+                            contextId,
+                            datasourceId,
+                            trueEnvironmentId,
+                            redirectUri,
+                            workspaceId,
+                            branchName);
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(
                                     oAuth2.getAuthorizationUrl())
@@ -167,6 +172,19 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
 
                     return Mono.just(uriComponentsBuilder.toUriString());
                 });
+    }
+
+    protected String getState(
+            CreatorContextType contextType,
+            String contextId,
+            String datasourceId,
+            String trueEnvironmentId,
+            String redirectUri,
+            String workspaceId,
+            String branchName) {
+        return StringUtils.hasText(branchName)
+                ? String.join(",", contextId, datasourceId, trueEnvironmentId, redirectUri, workspaceId, branchName)
+                : String.join(",", contextId, datasourceId, trueEnvironmentId, redirectUri, workspaceId);
     }
 
     private Mono<DatasourceStorage> validateRequiredFieldsForGenericOAuth2(DatasourceStorage datasourceStorage) {
