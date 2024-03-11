@@ -1,7 +1,6 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.DatasourceStructure;
@@ -155,22 +154,18 @@ public class DatasourceControllerCE {
     }
 
     @JsonView(Views.Public.class)
-    @GetMapping("/{datasourceId}/code")
+    @GetMapping("/{datasourceId}/pages/{pageId}/code")
     public Mono<Void> getTokenRequestUrl(
             @PathVariable String datasourceId,
-            @RequestParam(required = false, value = "PAGE") CreatorContextType contextType,
-            @RequestParam String contextId,
+            @PathVariable String pageId,
             @RequestParam String environmentId,
             @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName,
             ServerWebExchange serverWebExchange) {
         log.debug(
-                "Going to retrieve token request URL for datasource with id: {}, contextType: {} and context id: {}",
-                datasourceId,
-                contextType,
-                contextId);
+                "Going to retrieve token request URL for datasource with id: {} and page id: {}", datasourceId, pageId);
         return authenticationService
                 .getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId, environmentId, contextType, contextId, branchName, serverWebExchange.getRequest())
+                        datasourceId, environmentId, pageId, branchName, serverWebExchange.getRequest())
                 .flatMap(url -> {
                     serverWebExchange.getResponse().setStatusCode(HttpStatus.FOUND);
                     serverWebExchange.getResponse().getHeaders().setLocation(URI.create(url));

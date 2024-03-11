@@ -109,7 +109,7 @@ public class AuthenticationServiceTest {
     @WithUserDetails(value = "api_user")
     public void testGetAuthorizationCodeURL_missingDatasource() {
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, null, "irrelevantPageId", null, null);
+                "invalidId", FieldName.UNUSED_ENVIRONMENT_ID, "irrelevantPageId", null, null);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -150,7 +150,7 @@ public class AuthenticationServiceTest {
         Mono<String> authorizationCodeUrlMono = datasourceMono
                 .map(BaseDomain::getId)
                 .flatMap(datasourceId -> authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                        datasourceId, defaultEnvironmentId, null, "irrelevantPageId", null, null));
+                        datasourceId, defaultEnvironmentId, "irrelevantPageId", null, null));
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -228,7 +228,7 @@ public class AuthenticationServiceTest {
         final String datasourceId1 = datasourceMono.map(BaseDomain::getId).block();
 
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                datasourceId1, defaultEnvironmentId, null, pageDto.getId(), null, httpRequest);
+                datasourceId1, defaultEnvironmentId, pageDto.getId(), null, httpRequest);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .assertNext(url -> {
@@ -322,7 +322,7 @@ public class AuthenticationServiceTest {
         final String datasourceId = datasourceMono.map(BaseDomain::getId).block();
 
         Mono<String> authorizationCodeUrlMono = authenticationService.getAuthorizationCodeURLForGenericOAuth2(
-                datasourceId, null, null, pageDTO.getId(), "testBranch", httpRequest);
+                datasourceId, null, pageDTO.getId(), "testBranch", httpRequest);
 
         StepVerifier.create(authorizationCodeUrlMono)
                 .assertNext(url -> {
