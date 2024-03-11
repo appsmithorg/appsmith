@@ -1,4 +1,4 @@
-import { get, isEmpty, set } from "lodash";
+import { get, isEmpty, isUndefined, set } from "lodash";
 import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
@@ -198,7 +198,7 @@ export function saveResolvedFunctionsAndJSUpdates(
     }
   }
 
-  if (!correctFormat) {
+  if (!correctFormat && !isUndefined(entity.body)) {
     const errors = {
       type: EvalErrorTypes.PARSE_JS_ERROR,
       context: {
