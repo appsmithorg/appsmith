@@ -29,12 +29,9 @@ class PageList {
     if (option === "New blank page") {
       ObjectsRegistry.AssertHelper.AssertNetworkStatus("@createPage", 201);
 
-      return cy.get("@createPage").then((xhr: any) => {
-        const pageId = xhr.response?.body.data.id;
-        const pageName = xhr.response?.body.data.name;
-        cy.wrap(pageId).as("currentPageId");
-        return pageName;
-      });
+      return cy
+        .get("@createPage")
+        .then(($pageName: any) => $pageName.response?.body.data.name);
     }
   }
 

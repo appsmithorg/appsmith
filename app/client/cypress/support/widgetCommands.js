@@ -938,6 +938,10 @@ Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
     }
     cy.get("#loading").should("not.exist");
   });
+  cy.get("@createPage").then((xhr) => {
+    const pageId = xhr.response.body.data.id;
+    cy.wrap(pageId).as("currentPageId");
+  });
 });
 
 Cypress.Commands.add("dropdownDynamic", (text) => {
