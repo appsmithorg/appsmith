@@ -5,6 +5,9 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
+import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import jakarta.transaction.Transactional;
@@ -12,6 +15,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -49,20 +53,16 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Override
     public Optional<Theme> getSystemThemeByName(String themeName) {
         return queryBuilder()
-                .criteria(Bridge.query()
-                        .equalIgnoreCase(Theme.Fields.name, themeName)
-                        .isTrue(Theme.Fields.isSystemTheme))
+                .criteria(Bridge.equalIgnoreCase(Theme.Fields.name, themeName).isTrue(Theme.Fields.isSystemTheme))
                 .permission(AclPermission.READ_THEMES)
                 .one();
     }
 
-    public Optional<Boolean> archiveThemeByCriteria(BridgeQuery criteria) {
-        BridgeUpdate update = Bridge.update();
-        update.set(Theme.Fields.deletedAt, Instant.now());
+    public Optional<Boolean> archiveThemeByCriteria(BridgeQuery<Theme> criteria) {
         return Optional.of(queryBuilder()
                         .criteria(criteria)
                         .permission(AclPermission.MANAGE_THEMES)
-                        .updateAll(update)
+                        .updateAll(Bridge.update().set(Theme.Fields.deletedAt, Instant.now()))
                 > 0);
     }
 
@@ -77,7 +77,9 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
     @Transactional
     @Override
     public Optional<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
-        return archiveThemeByCriteria(Bridge.in(Theme.Fields.id, List.of(editModeThemeId, publishedModeThemeId))
-                .isFalse(Theme.Fields.isSystemTheme));
+        BridgeQuery<Theme> criteria = Bridge.<Theme>in(
+                        Theme.Fields.id, CollectionUtils.ofNonNulls(editModeThemeId, publishedModeThemeId))
+                .isFalse(Theme.Fields.isSystemTheme);
+        return archiveThemeByCriteria(criteria);
     }
 }

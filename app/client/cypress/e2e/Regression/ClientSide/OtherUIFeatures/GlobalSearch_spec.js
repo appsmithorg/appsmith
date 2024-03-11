@@ -58,6 +58,12 @@ describe("GlobalSearch", function () {
   it("3. navigatesToApi", () => {
     cy.CreateAPI("SomeApi");
 
+    // Validates the value of source for action creation -
+    // should be self here as the user explicitly triggered create action
+    cy.wait("@createNewApi").then((interception) => {
+      expect(interception.request.body.source).to.equal("SELF");
+    });
+
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
