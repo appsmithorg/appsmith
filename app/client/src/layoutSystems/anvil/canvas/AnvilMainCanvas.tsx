@@ -31,8 +31,9 @@ export const AnvilMainCanvas = (props: BaseWidgetProps) => {
       );
 
       // If we can confirm that the event target is the main canvas, we can clear selections.
-      if (isTargetMainCanvas) clickToClearSelections(event);
-      else event.stopPropagation(); // Stops bubbling of this event.
+      if (isTargetMainCanvas) {
+        clickToClearSelections(event);
+      }
     },
     [clickToClearSelections],
   );
