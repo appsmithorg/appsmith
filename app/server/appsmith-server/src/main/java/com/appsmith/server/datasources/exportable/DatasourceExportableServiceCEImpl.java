@@ -12,7 +12,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
@@ -55,11 +55,11 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         Mono<String> defaultEnvironmentIdMono = exportableArtifactMono
-                .map(ExportableArtifact::getWorkspaceId)
+                .map(Artifact::getWorkspaceId)
                 .flatMap(workspaceId -> workspaceService.getDefaultEnvironmentId(workspaceId, null));
 
         AclPermission exportPermission = datasourcePermission.getExportPermission(
@@ -106,7 +106,7 @@ public class DatasourceExportableServiceCEImpl implements ExportableServiceCE<Da
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
         return exportableArtifactMono.flatMap(exportableArtifact -> {

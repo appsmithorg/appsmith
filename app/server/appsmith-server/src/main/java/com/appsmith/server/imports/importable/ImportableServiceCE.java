@@ -1,7 +1,7 @@
 package com.appsmith.server.imports.importable;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.domains.ImportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ImportingMetaDTO;
@@ -18,11 +18,11 @@ public interface ImportableServiceCE<T extends BaseDomain> {
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson);
 
     default Mono<Void> updateImportedEntities(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
         return null;
@@ -32,7 +32,7 @@ public interface ImportableServiceCE<T extends BaseDomain> {
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importContextMono,
+            Mono<? extends Artifact> importContextMono,
             ArtifactExchangeJson artifactExchangeJson,
             boolean isContextAgnostic) {
         return null;

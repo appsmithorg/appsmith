@@ -4,7 +4,7 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const publishPage = require("../../../../locators/publishWidgetspage.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 
-describe("Preview mode functionality", function () {
+describe("Preview mode functionality", { tags: ["@tag.IDE"] }, function () {
   before(() => {
     _.agHelper.AddDsl("previewMode");
   });

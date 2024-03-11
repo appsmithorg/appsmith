@@ -1,5 +1,6 @@
 package com.appsmith.server.fork.internal;
 
+import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.helpers.AppsmithEventContext;
@@ -11,7 +12,7 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -254,11 +255,17 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                             }
                                             return Mono.zip(
                                                     actionMono
-                                                            .flatMap(actionDTO -> layoutActionService.createAction(
-                                                                    actionDTO,
-                                                                    new AppsmithEventContext(
-                                                                            AppsmithEventContextType.CLONE_PAGE),
-                                                                    Boolean.FALSE))
+                                                            .flatMap(actionDTO -> {
+                                                                // Indicates that source of action creation is fork
+                                                                // application
+                                                                actionDTO.setSource(
+                                                                        ActionCreationSourceTypeEnum.FORK_APPLICATION);
+                                                                return layoutActionService.createAction(
+                                                                        actionDTO,
+                                                                        new AppsmithEventContext(
+                                                                                AppsmithEventContextType.CLONE_PAGE),
+                                                                        Boolean.FALSE);
+                                                            })
                                                             .map(ActionDTO::getId),
                                                     Mono.justOrEmpty(originalActionId));
                                         })
@@ -631,7 +638,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                                     application.getWorkspaceId(),
                                     application.getId(),
                                     application,
-                                    ArtifactJsonType.APPLICATION))
+                                    ArtifactType.APPLICATION))
                             .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
                 });
     }

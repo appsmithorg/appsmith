@@ -100,9 +100,11 @@ function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
   const { applicationSlug, pageSlug } = useSelector(selectURLSlugs);
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enableForkingFromTemplates] = checkLayoutSystemFeatures([
-    LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
-  ]);
+  const [enableForkingFromTemplates, enableGenerateCrud] =
+    checkLayoutSystemFeatures([
+      LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
+      LayoutSystemFeatures.ENABLE_GENERATE_CRUD_APP,
+    ]);
 
   useEffect(() => {
     if (!showCanvasTopSection && !isPreview) {
@@ -143,21 +145,23 @@ function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
           </Content>
         </Card>
       )}
-      <Card
-        centerAlign={false}
-        data-testid="generate-app"
-        onClick={onGeneratePageClick}
-      >
-        <Icon name="database-2-line" size="lg" />
-        <Content>
-          <Text color={"var(--ads-v2-color-fg-emphasis)"} type={TextType.H5}>
-            {createMessage(GENERATE_PAGE)}
-          </Text>
-          <Text type={TextType.P3}>
-            {createMessage(GENERATE_PAGE_DESCRIPTION)}
-          </Text>
-        </Content>
-      </Card>
+      {enableGenerateCrud && (
+        <Card
+          centerAlign={false}
+          data-testid="generate-app"
+          onClick={onGeneratePageClick}
+        >
+          <Icon name="database-2-line" size="lg" />
+          <Content>
+            <Text color={"var(--ads-v2-color-fg-emphasis)"} type={TextType.H5}>
+              {createMessage(GENERATE_PAGE)}
+            </Text>
+            <Text type={TextType.P3}>
+              {createMessage(GENERATE_PAGE_DESCRIPTION)}
+            </Text>
+          </Content>
+        </Card>
+      )}
     </Wrapper>
   );
 }

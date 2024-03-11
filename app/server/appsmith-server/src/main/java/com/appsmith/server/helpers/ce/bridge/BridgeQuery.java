@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.regex.Pattern;
 
 public final class BridgeQuery<T extends BaseDomain> extends Criteria {
     final List<Criteria> checks = new ArrayList<>();
@@ -17,6 +18,11 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
 
     public BridgeQuery<T> equal(@NonNull String key, @NonNull String value) {
         checks.add(Criteria.where(key).is(value));
+        return this;
+    }
+
+    public BridgeQuery<T> equalIgnoreCase(@NonNull String key, @NonNull String value) {
+        checks.add(Criteria.where(key).regex("^" + Pattern.quote(value) + "$", "i"));
         return this;
     }
 
@@ -40,6 +46,11 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
+    public BridgeQuery<T> isFalse(@NonNull String key) {
+        checks.add(Criteria.where(key).is(false));
+        return this;
+    }
+
     public BridgeQuery<T> or(BridgeQuery... items) {
         checks.add(new Criteria().orOperator(items));
         return this;
@@ -55,6 +66,14 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
      * but won't work in the Postgres version.
      */
     public static Bridge where() {
+        throw new UnsupportedOperationException("Not implemented");
+    }
+
+    /**
+     * Explicitly disable the `and()` API to prevent its usage. This is because querying with this API will work here,
+     * but won't work in the Postgres version.
+     */
+    public static Bridge and() {
         throw new UnsupportedOperationException("Not implemented");
     }
 

@@ -1,6 +1,4 @@
-import React, { lazy, Suspense } from "react";
-
-import Skeleton from "components/utils/Skeleton";
+import React, { Suspense, lazy } from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
@@ -9,7 +7,6 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import type { MapType } from "../component";
 import type { MapColorObject } from "../constants";
 import {
   dataSetForAfrica,
@@ -27,6 +24,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
+  WidgetCallout,
 } from "WidgetProvider/constants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import {
@@ -35,6 +33,8 @@ import {
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import Skeleton from "components/utils/Skeleton";
+import type { MapType } from "../component/types";
 
 const MapChartComponent = lazy(async () =>
   retryPromise(
@@ -329,6 +329,15 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
             isJSConvertible: true,
             isBindProperty: true,
             isTriggerProperty: true,
+            additionalAutoComplete: () => ({
+              selectedDataPoint: {
+                value: 1.1,
+                label: "",
+                shortLabel: "",
+                originalId: "",
+                id: "",
+              },
+            }),
           },
         ],
       },
@@ -448,14 +457,30 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
     };
   }
 
-  handleDataPointClick = (evt: any) => {
+  static getMethods() {
+    return {
+      getEditorCallouts(): WidgetCallout[] {
+        return [
+          {
+            message:
+              "Map chart widget switched from using Fusion chart library to Echarts. Please verify that the chart is displaying properly",
+          },
+        ];
+      },
+    };
+  }
+
+  handleDataPointClick = (data: any) => {
     const { onDataPointClick } = this.props;
 
-    this.props.updateWidgetMetaProperty("selectedDataPoint", evt.data, {
+    this.props.updateWidgetMetaProperty("selectedDataPoint", data, {
       triggerPropertyName: "onDataPointClick",
       dynamicString: onDataPointClick,
       event: {
         type: EventType.ON_DATA_POINT_CLICK,
+      },
+      globalContext: {
+        selectedDataPoint: data,
       },
     });
   };
@@ -469,14 +494,16 @@ class MapChartWidget extends BaseWidget<MapChartWidgetProps, WidgetState> {
         <MapChartComponent
           borderRadius={this.props.borderRadius}
           boxShadow={this.props.boxShadow}
-          caption={mapTitle}
+          caption={mapTitle || ""}
           colorRange={colorRange}
           data={data}
           fontFamily={this.props.fontFamily ?? "Nunito Sans"}
+          height={this.props.componentHeight}
           isVisible={isVisible}
           onDataPointClick={this.handleDataPointClick}
           showLabels={showLabels}
           type={mapType}
+          width={this.props.componentWidth}
         />
       </Suspense>
     );
