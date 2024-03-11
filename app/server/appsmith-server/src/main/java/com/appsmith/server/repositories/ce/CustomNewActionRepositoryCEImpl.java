@@ -89,8 +89,13 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission) {
+        return findByPageId(pageId, aclPermission.orElse(null));
+    }
+
+    @Override
     public Flux<NewAction> findByPageId(String pageId) {
-        return findByPageId(pageId, null);
+        return this.findByPageId(pageId, Optional.empty());
     }
 
     @Override

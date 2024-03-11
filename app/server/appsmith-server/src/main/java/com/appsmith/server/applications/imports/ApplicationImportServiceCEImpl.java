@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -609,7 +610,7 @@ public class ApplicationImportServiceCEImpl
     @Override
     public Mono<Set<String>> getDatasourceIdSetConsumedInArtifact(String defaultApplicationId) {
         return newActionService
-                .findAllByApplicationIdAndViewMode(defaultApplicationId, false, null, null)
+                .findAllByApplicationIdAndViewMode(defaultApplicationId, false, Optional.empty(), Optional.empty())
                 .filter(newAction -> StringUtils.hasText(
                         newAction.getUnpublishedAction().getDatasource().getId()))
                 .mapNotNull(newAction ->
