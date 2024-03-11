@@ -1,6 +1,5 @@
 package com.appsmith.server.solutions.ce;
 
-import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.OAuth2ResponseDTO;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
@@ -17,18 +16,12 @@ public interface AuthenticationServiceCE {
      *
      * @param datasourceId  required to validate the details in the request and populate redirect url
      * @param environmentId
-     * @param contextId        Required to populate redirect url
-     * @param contextType      Required to populate redirect url
+     * @param pageId        Required to populate redirect url
      * @param httpRequest   Used to find the redirect domain
      * @return a url String to continue the authorization flow
      */
     Mono<String> getAuthorizationCodeURLForGenericOAuth2(
-            String datasourceId,
-            String environmentId,
-            CreatorContextType contextType,
-            String contextId,
-            String branchName,
-            ServerHttpRequest httpRequest);
+            String datasourceId, String environmentId, String pageId, String branchName, ServerHttpRequest httpRequest);
 
     /**
      * This is the method that handles callback for generic OAuth2. We will be retrieving and storing token information here
