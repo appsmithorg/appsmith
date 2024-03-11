@@ -63,6 +63,11 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
+    public BridgeQuery<T> notExists(@NonNull String key) {
+        checks.add(Criteria.where(key).exists(false));
+        return this;
+    }
+
     public BridgeQuery<T> isNull(@NonNull String key) {
         checks.add(Criteria.where(key).isNull());
         return this;
