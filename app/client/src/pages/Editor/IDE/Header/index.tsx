@@ -34,8 +34,10 @@ import { GetNavigationMenuData } from "pages/Editor/EditorName/NavigationMenuDat
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsPageSaving,
   getIsPublishingApplication,
   getPageById,
+  getPageSavingError,
 } from "selectors/editorSelectors";
 import {
   getApplicationList,
@@ -73,6 +75,7 @@ import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { DefaultTitle } from "./DeaultTitle";
 import { EditorState } from "@appsmith/entities/IDE/constants";
+import { EditorSaveIndicator } from "../../EditorSaveIndicator";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -98,6 +101,8 @@ const Header = () => {
   const pageId = useSelector(getCurrentPageId) as string;
   const currentPage = useSelector(getPageById(pageId));
   const appState = useCurrentAppState();
+  const isSaving = useSelector(getIsPageSaving);
+  const pageSaveError = useSelector(getPageSavingError);
 
   // states
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
@@ -269,6 +274,7 @@ const Header = () => {
         height={"100%"}
         justifyContent={"right"}
       >
+        <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
         <HelpBar />
         <StyledDivider orientation={"vertical"} />
         <ToggleModeButton />
