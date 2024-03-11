@@ -63,10 +63,15 @@ export function evalTreeWithChanges(
     configTree = dataTreeEvaluator.oldConfigTree;
   }
 
+  const allAffectedNodes = [
+    ...evalOrder,
+    ...unEvalUpdates.map((v) => v.payload.propertyPath),
+  ];
+
   const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
     dataTreeEvaluator,
-    evalOrder,
+    allAffectedNodes,
   );
   const evalTreeResponse: EvalTreeResponseData = {
     updates,

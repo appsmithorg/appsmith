@@ -324,18 +324,23 @@ export const generateSerialisedUpdates = (
   serialisedUpdates: string;
   error?: { type: string; message: string };
 } => {
-
-
   try {
     const allRootWidgetPaths = evalOrder.map((p) => p.split(".")[0]);
     const allUniqueRootWidgetPaths = Array.from(new Set(allRootWidgetPaths));
-    const updates =  allUniqueRootWidgetPaths.map((p) => ({ path: p, lhs: get(prevState, p), rhs: get(currentState, p) }))
-    .filter(({ lhs, rhs }) => !equal(lhs, rhs))
-    .map(({ path, rhs }) => ({ kind: "N", path:[path], rhs}))
-  //remove lhs from diff to reduce the size of diff upload,
-  //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
+    // const deepDifff = diff(prevState, currentState);
+    // console.log("deepDifff", deepDifff);
+    const updates = allUniqueRootWidgetPaths
+      .map((p) => ({
+        path: p,
+        lhs: get(prevState, p),
+        rhs: get(currentState, p),
+      }))
+      .filter(({ lhs, rhs }) => !equal(lhs, rhs))
+      .map(({ path, rhs }) => ({ kind: "N", path: [path], rhs }));
+    //remove lhs from diff to reduce the size of diff upload,
+    //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
 
     // serialise bigInt values and convert the updates to a string over here to minismise the cost of transfer
     // to the main thread. In the main thread parse this object there.

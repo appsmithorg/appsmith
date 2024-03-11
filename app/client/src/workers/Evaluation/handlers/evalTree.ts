@@ -8,7 +8,8 @@ import type { JSUpdate } from "utils/JSPaneUtils";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
-import { DataTreeDiff, serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   CrashingError,
   getSafeToRenderDataTree,
@@ -248,16 +249,19 @@ export function evalTree(request: EvalWorkerSyncRequest) {
       //for new tree send the whole thing, don't diff at all
       updates = serialiseToBigInt([{ kind: "newTree", rhs: dataTree }]);
     } catch (e) {
-      updates= "[]";
+      updates = "[]";
     }
     isNewTree = false;
-  }
-  else {
-   updates = generateOptimisedUpdatesAndSetPrevState(
-    dataTree,
-    dataTreeEvaluator,
-    evalOrder,
-  );
+  } else {
+    const allAffectedNodes = [
+      ...evalOrder,
+      ...unEvalUpdates.map((v) => v.payload.propertyPath),
+    ];
+    updates = generateOptimisedUpdatesAndSetPrevState(
+      dataTree,
+      dataTreeEvaluator,
+      allAffectedNodes,
+    );
   }
 
   const evalTreeResponse: EvalTreeResponseData = {
