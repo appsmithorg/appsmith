@@ -97,21 +97,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Override
     public List<Application> findAllUserApps(AclPermission permission) {
-        Optional<User> currentUserWithTenantMono = ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> (User) auth.getPrincipal())
-                .flatMap(user -> {
-                    if (user.getTenantId() == null) {
-                        return cacheableRepositoryHelper.getDefaultTenantId().map(tenantId -> {
-                            user.setTenantId(tenantId);
-                            return user;
-                        });
-                    }
-                    return Mono.just(user);
-                })
-                .blockOptional();
-
-        return Mono.justOrEmpty(currentUserWithTenantMono)
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
                 .flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
                 .flatMapMany(permissionGroups -> asFlux(() -> queryBuilder()
                         .permission(permission)

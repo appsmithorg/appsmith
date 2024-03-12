@@ -109,6 +109,7 @@ public class QueryAllParams<T extends BaseDomain> {
 
     @SuppressWarnings("unchecked") // This should be okay with the way we use this fluent API.
     public QueryAllParams<T> criteria(Specification<? extends BaseDomain> spec) {
+        // TODO: Check if we can use reflection to ensure this typecast is valid.
         specifications.add((Specification<T>) spec);
         return this;
     }
