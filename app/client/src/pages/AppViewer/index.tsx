@@ -59,6 +59,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
+import BottomBar from "components/BottomBar";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
