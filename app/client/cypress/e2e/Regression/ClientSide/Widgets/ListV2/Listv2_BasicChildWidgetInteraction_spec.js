@@ -36,7 +36,7 @@ function deleteAllWidgetsInContainer() {
   cy.get("body").type(`{${modifierKey}}{a}`);
   cy.wait(200);
   cy.get("body").type("{del}");
-  cy.assertPageSave();
+  cy.get(commonlocators.layoutControls).should("be.visible");
 }
 
 function checkSelectedRadioValue(selector, value) {
