@@ -10,7 +10,6 @@ import _, {
   isNumber,
   isObject,
   isString,
-  merge,
   orderBy,
   pickBy,
   union,
@@ -19,13 +18,9 @@ import _, {
   xorWith,
 } from "lodash";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  RenderModes,
-  WIDGET_PADDING,
-  WIDGET_TAGS,
-} from "constants/WidgetConstants";
+import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
@@ -50,7 +45,6 @@ import type {
 } from "../constants";
 import {
   ActionColumnTypes,
-  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   ColumnTypes,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
@@ -65,7 +59,6 @@ import {
 } from "../constants";
 import derivedProperties from "./parseDerivedProperties";
 import {
-  createEditActionColumn,
   deleteLocalTableColumnOrderByWidgetId,
   generateLocalNewColumnOrderFromStickyValue,
   generateNewColumnOrderFromStickyValue,
@@ -83,17 +76,12 @@ import {
   isColumnTypeEditable,
   updateAndSyncTableLocalColumnOrders,
 } from "./utilities";
-import contentConfig from "./propertyConfig/contentConfig";
-import styleConfig from "./propertyConfig/styleConfig";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
-import {
-  DefaultAutocompleteDefinitions,
-  sanitizeKey,
-} from "widgets/WidgetUtils";
+import { sanitizeKey } from "widgets/WidgetUtils";
 import PlainTextCell from "../component/cellComponents/PlainTextCell";
 import { ButtonCell } from "../component/cellComponents/ButtonCell";
 import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
@@ -107,7 +95,7 @@ import { SwitchCell } from "../component/cellComponents/SwitchCell";
 import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
-import type { SetterConfig, Stylesheet } from "entities/AppTheming";
+import type { Stylesheet } from "entities/AppTheming";
 import { DateCell } from "../component/cellComponents/DateCell";
 import type { MenuItem } from "widgets/MenuButtonWidget/constants";
 import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
@@ -119,26 +107,10 @@ import type {
   transformDataWithEditableCell,
 } from "./reactTableUtils/transformDataPureFn";
 import { getMemoiseTransformDataWithEditableCell } from "./reactTableUtils/transformDataPureFn";
-import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
-import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-  FlattenedWidgetProps,
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/constants";
-import type {
-  WidgetQueryConfig,
-  WidgetQueryGenerationFormConfig,
-} from "WidgetQueryGenerators/types";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import * as config from "../config";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -171,209 +143,27 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   static preloadConfig = true;
 
   static getConfig() {
-    return {
-      name: "Table",
-      iconSVG: IconSVG,
-      thumbnailSVG: ThumbnailSVG,
-      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.DISPLAY],
-      needsMeta: true,
-      needsHeightForContent: true,
-    };
+    return config.metaConfig;
   }
 
   static getDefaults() {
-    return {
-      responsiveBehavior: ResponsiveBehavior.Fill,
-      canFreezeColumn: true,
-      columnUpdatedAt: Date.now(),
-      animateLoading: true,
-      defaultSelectedRowIndex: 0,
-      defaultSelectedRowIndices: [0],
-      label: "Data",
-      widgetName: "Table",
-      searchKey: "",
-      textSize: "0.875rem",
-      horizontalAlignment: "LEFT",
-      verticalAlignment: "CENTER",
-      totalRecordsCount: 0,
-      defaultPageSize: 0,
-      dynamicPropertyPathList: [],
-      borderColor: Colors.GREY_5,
-      borderWidth: "1",
-      dynamicBindingPathList: [],
-      primaryColumns: {},
-      tableData: "",
-      columnWidthMap: {},
-      columnOrder: [],
-      enableClientSideSearch: true,
-      isVisibleSearch: true,
-      isVisibleFilters: true,
-      isVisibleDownload: true,
-      isVisiblePagination: true,
-      isSortable: true,
-      delimiter: ",",
-      version: 2,
-      inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
-      enableServerSideFiltering: WDSTableWidget.getFeatureFlag(
-        ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-      )
-        ? false
-        : undefined,
-    } as unknown as WidgetDefaultProps;
+    return config.defaultsConfig;
   }
 
   static getMethods() {
-    return {
-      getQueryGenerationConfig: (widget: WidgetProps) => {
-        return {
-          select: {
-            limit: `${widget.widgetName}.pageSize`,
-            where: `${widget.widgetName}.searchText`,
-            offset: `${widget.widgetName}.pageOffset`,
-            orderBy: `${widget.widgetName}.sortOrder.column`,
-            sortOrder: `${widget.widgetName}.sortOrder.order !== "desc"`,
-          },
-          create: {
-            value: `(${widget.widgetName}.newRow || {})`,
-          },
-          update: {
-            value: `${widget.widgetName}.updatedRow`,
-            where: `${widget.widgetName}.updatedRow`,
-          },
-          totalRecord: true,
-        };
-      },
-      getPropertyUpdatesForQueryBinding: (
-        queryConfig: WidgetQueryConfig,
-        _widget: WidgetProps,
-        formConfig: WidgetQueryGenerationFormConfig,
-      ) => {
-        const widget = _widget as TableWidgetProps;
-
-        let modify = {};
-        const dynamicPropertyPathList: DynamicPath[] = [];
-
-        if (queryConfig.select) {
-          modify = merge(modify, {
-            tableData: queryConfig.select.data,
-            onPageChange: queryConfig.select.run,
-            serverSidePaginationEnabled: true,
-            onSearchTextChanged: formConfig.searchableColumn
-              ? queryConfig.select.run
-              : undefined,
-            onSort: queryConfig.select.run,
-            enableClientSideSearch: !formConfig.searchableColumn,
-            primaryColumnId: formConfig.primaryColumn,
-            isVisibleDownload: false,
-          });
-        }
-
-        if (queryConfig.create) {
-          modify = merge(modify, {
-            onAddNewRowSave: queryConfig.create.run,
-            allowAddNewRow: true,
-            ...Object.keys(widget.primaryColumns).reduce(
-              (prev: Record<string, boolean>, curr) => {
-                if (formConfig.primaryColumn !== curr) {
-                  prev[`primaryColumns.${curr}.isEditable`] = true;
-                  prev[`primaryColumns.${curr}.isCellEditable`] = true;
-                }
-
-                prev[`showInlineEditingOptionDropdown`] = true;
-
-                return prev;
-              },
-              {},
-            ),
-          });
-        }
-
-        if (queryConfig.update) {
-          let editAction = {};
-
-          if (
-            !Object.values(widget.primaryColumns).some(
-              (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
-            )
-          ) {
-            editAction = Object.values(createEditActionColumn(widget)).reduce(
-              (
-                prev: Record<string, unknown>,
-                curr: {
-                  propertyPath: string;
-                  propertyValue: unknown;
-                  isDynamicPropertyPath?: boolean;
-                },
-              ) => {
-                prev[curr.propertyPath] = curr.propertyValue;
-
-                if (curr.isDynamicPropertyPath) {
-                  dynamicPropertyPathList.push({ key: curr.propertyPath });
-                }
-
-                return prev;
-              },
-              {},
-            );
-          }
-
-          modify = merge(modify, {
-            ...editAction,
-            [`primaryColumns.EditActions1.onSave`]: queryConfig.update.run,
-          });
-        }
-
-        if (queryConfig.total_record) {
-          modify = merge(modify, {
-            totalRecordsCount: queryConfig.total_record.data,
-          });
-        }
-
-        return {
-          modify,
-          dynamicUpdates: {
-            dynamicPropertyPathList,
-          },
-        };
-      },
-      getSnipingModeUpdates: (
-        propValueMap: SnipingModeProperty,
-      ): PropertyUpdates[] => {
-        return [
-          {
-            propertyPath: "tableData",
-            propertyValue: propValueMap.data,
-            isDynamicPropertyPath: !!propValueMap.isDynamicPropertyPath,
-          },
-        ];
-      },
-      getOneClickBindingConnectableWidgetConfig: (widget: WidgetProps) => {
-        return {
-          widgetBindPath: `${widget.widgetName}.selectedRow`,
-          message: `Make sure ${widget.widgetName} is bound to the same data source`,
-        };
-      },
-    };
+    return config.methodsConfig;
   }
 
-  static getAnvilConfig(): AnvilConfig | null {
-    return {
-      isLargeWidget: true,
-      widgetSize: {
-        minWidth: {
-          base: "100%",
-          [`280px`]: "sizing-70",
-        },
-      },
-    };
+  static getAnvilConfig() {
+    return config.anvilConfig;
   }
 
   static getPropertyPaneContentConfig() {
-    return contentConfig;
+    return config.contentConfig;
   }
 
   static getPropertyPaneStyleConfig() {
-    return styleConfig;
+    return config.styleConfig;
   }
 
   constructor(props: TableWidgetProps) {
@@ -411,45 +201,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     };
   }
 
-  static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return (widget: TableWidgetProps, extraDefsToDefine?: ExtraDef) => {
-      const config: AutocompletionDefinitions = {
-        "!doc":
-          "The Table is the hero widget of Appsmith. You can display data from an API in a table, trigger an action when a user selects a row and even work with large paginated data sets",
-        "!url": "https://docs.appsmith.com/widget-reference/table",
-        selectedRow: generateTypeDef(widget.selectedRow, extraDefsToDefine),
-        selectedRows: generateTypeDef(widget.selectedRows, extraDefsToDefine),
-        selectedRowIndices: generateTypeDef(widget.selectedRowIndices),
-        triggeredRow: generateTypeDef(widget.triggeredRow),
-        updatedRow: generateTypeDef(widget.updatedRow),
-        selectedRowIndex: "number",
-        tableData: generateTypeDef(widget.tableData, extraDefsToDefine),
-        pageNo: "number",
-        pageSize: "number",
-        isVisible: DefaultAutocompleteDefinitions.isVisible,
-        searchText: "string",
-        totalRecordsCount: "number",
-        sortOrder: {
-          column: "string",
-          order: ["asc", "desc"],
-        },
-        updatedRows: generateTypeDef(widget.updatedRows, extraDefsToDefine),
-        updatedRowIndices: generateTypeDef(widget.updatedRowIndices),
-        triggeredRowIndex: generateTypeDef(widget.triggeredRowIndex),
-        pageOffset: generateTypeDef(widget.pageOffset),
-        tableHeaders: generateTypeDef(widget.tableHeaders),
-        newRow: generateTypeDef(widget.newRow),
-        isAddRowInProgress: "bool",
-        previousPageVisited: generateTypeDef(widget.previousPageVisited),
-        nextPageVisited: generateTypeDef(widget.nextPageButtonClicked),
-      };
-
-      if (this.getFeatureFlag(ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING)) {
-        config["filters"] = generateTypeDef(widget.filters);
-      }
-
-      return config;
-    };
+  static getAutocompleteDefinitions() {
+    return config.autocompleteConfig;
   }
 
   static getDerivedPropertiesMap() {
@@ -487,29 +240,8 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return {};
   }
 
-  static getSetterConfig(): SetterConfig {
-    return {
-      __setters: {
-        setVisibility: {
-          path: "isVisible",
-          type: "string",
-        },
-        setSelectedRowIndex: {
-          path: "defaultSelectedRowIndex",
-          type: "number",
-          disabled: "return options.entity.multiRowSelection",
-        },
-        setSelectedRowIndices: {
-          path: "defaultSelectedRowIndices",
-          type: "array",
-          disabled: "return !options.entity.multiRowSelection",
-        },
-        setData: {
-          path: "tableData",
-          type: "array",
-        },
-      },
-    };
+  static getSetterConfig() {
+    return config.settersConfig;
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */

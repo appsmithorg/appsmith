@@ -1,7 +1,7 @@
 export * from "./propertyPaneConfig";
-export { autocompleteConfig } from "./autocompleteConfig";
 export { anvilConfig } from "./anvilConfig";
-export { defaultsConfig } from "./defaultsConfig";
 export { metaConfig } from "./metaConfig";
+export { defaultsConfig } from "./defaultsConfig";
 export { methodsConfig } from "./methodsConfig";
+export { autocompleteConfig } from "./autocompleteConfig";
 export { settersConfig } from "./settersConfig";
