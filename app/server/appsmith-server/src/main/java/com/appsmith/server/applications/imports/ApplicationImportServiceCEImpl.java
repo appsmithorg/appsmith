@@ -485,14 +485,18 @@ public class ApplicationImportServiceCEImpl
                 .flatMap(application -> {
                     return Flux.fromIterable(application.getPages())
                             .map(ApplicationPage::getId)
-                            .flatMap(updateLayoutService::updatePageLayoutsByPageId)
-                            .onErrorResume(throwable -> {
-                                // the error would most probably arise because of update layout error,
-                                // this shouldn't stop the application from getting imported.
-                                String errorMessage = ImportExportUtils.getErrorMessage(throwable);
-                                log.error("Error while updating layout. Error: {}", errorMessage, throwable);
-                                // continuing the execution
-                                return Mono.just("");
+                            .flatMap(pageId -> {
+                                return updateLayoutService
+                                        .updatePageLayoutsByPageId(pageId)
+                                        .onErrorResume(throwable -> {
+                                            // the error would most probably arise because of update layout error,
+                                            // this shouldn't stop the application from getting imported.
+                                            String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                                            log.error(
+                                                    "Error while updating layout. Error: {}", errorMessage, throwable);
+                                            // continuing the execution
+                                            return Mono.just("");
+                                        });
                             })
                             .collectList()
                             .thenReturn(application);
