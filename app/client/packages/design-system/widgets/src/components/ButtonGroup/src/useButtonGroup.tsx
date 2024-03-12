@@ -88,7 +88,7 @@ export function useButtonGroup<T>(
         orientation: orientation,
       };
     });
-  }, [ref, setOrientation, props.orientation]);
+  }, [ref, state.collection, setOrientation, props.orientation]);
 
   const parentRef = useMemo(
     () => ({
