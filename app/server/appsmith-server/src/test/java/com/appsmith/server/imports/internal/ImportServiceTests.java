@@ -108,6 +108,9 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -5194,8 +5197,8 @@ public class ImportServiceTests {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void importApplication_WhenUpdateLayoutFailures_Success() {
-        FilePart filePart = createFilePart("com/appsmith/server/imports/internal/faulty-dsl.json");
+    public void importApplication_WhenUpdateLayoutFailures_Success() throws URISyntaxException {
+        FilePart filePart = createFilePartWithIdenticalPackageStructure("faulty-dsl.json");
 
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
@@ -5315,5 +5318,19 @@ public class ImportServiceTests {
                     assertThat(defaultPageDTO).isNotNull();
                 })
                 .verifyComplete();
+    }
+
+    // this would be the newer way to create the fileParts
+    private FilePart createFilePartWithIdenticalPackageStructure(String filePath) throws URISyntaxException {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        URL resource = this.getClass().getResource(filePath);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
+                        Path.of(resource.toURI()), new DefaultDataBufferFactory(), 4096)
+                .cache();
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
+
+        return filepart;
     }
 }
