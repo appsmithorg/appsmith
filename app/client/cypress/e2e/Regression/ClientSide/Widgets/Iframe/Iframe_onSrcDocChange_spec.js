@@ -33,13 +33,13 @@ describe(
       agHelper.RefreshPage();
       cy.wait(2000);
       PageList.ShowList();
-      cy.get(`.t--entity .page`).first().should("have.class", "activePage");
+      PageList.VerifyIsCurrentPage("Page1");
       cy.openPropertyPane("iframewidget");
       cy.testJsontext("srcdoc", "<h1>Hello World!</h1>");
       cy.wait(2000);
-      cy.get(`.t--entity .page`).last().should("have.class", "activePage");
+      PageList.VerifyIsCurrentPage("Page2");
       EditorNavigation.SelectEntityByName(page1, EntityType.Page);
-      cy.get(`.t--entity .page`).first().should("have.class", "activePage");
+      PageList.VerifyIsCurrentPage("Page1");
     });
   },
 );
