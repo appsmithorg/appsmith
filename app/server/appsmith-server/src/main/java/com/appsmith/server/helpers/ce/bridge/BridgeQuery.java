@@ -88,13 +88,16 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
-    public BridgeQuery<T> or(BridgeQuery... items) {
-        checks.add(new Criteria().orOperator(items));
-        return this;
+    /**
+     * Please use {@code Bridge.or} instead. This API looks and reads very confusing and unintuitive, so is explicitly
+     * disabled.
+     */
+    public BridgeQuery<T> or(BridgeQuery<T> ignoredUnused) {
+        throw new UnsupportedOperationException("Not supported");
     }
 
-    public BridgeQuery<T> and(BridgeQuery... items) {
-        checks.add(new Criteria().andOperator(items));
+    public BridgeQuery<T> and(BridgeQuery<T> item) {
+        checks.add(new Criteria().andOperator(item));
         return this;
     }
 
