@@ -19,6 +19,7 @@ import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import history, { NavigationMethod } from "utils/history";
 import { includes } from "lodash";
 import ListButton from "./ListButton";
+import { Announcement } from "../EditorPane/components/Announcement";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -63,6 +64,7 @@ const SplitScreenTabs = () => {
       />
       <FileTabs navigateToTab={onClick} tabs={files} />
       <ListButton items={overflowList} navigateToTab={onClick} />
+      <Announcement />
     </Container>
   ) : null;
 };
