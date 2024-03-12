@@ -35,16 +35,24 @@ public class Bridge {
         return Bridge.<T>query().equal(key, value);
     }
 
+    private static <T extends BaseDomain> BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
+        return Bridge.<T>query().notEqual(key, value);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull Enum<?> value) {
+        return equal(key, value.name());
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> notEqual(@NonNull String key, @NonNull Enum<?> value) {
+        return notEqual(key, value.name());
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> equalIgnoreCase(@NonNull String key, @NonNull String value) {
         return Bridge.<T>query().equalIgnoreCase(key, value);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull ObjectId value) {
         throw new UnsupportedOperationException("Won't be supported");
-    }
-
-    public static <T extends BaseDomain> BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
-        return Bridge.<T>query().notEqual(key, value);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> in(

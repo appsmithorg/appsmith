@@ -17,12 +17,12 @@ import java.util.stream.Stream;
 
 public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
     final List<Check> checks = new ArrayList<>();
+    final List<BridgeQuery<T>> ands = new ArrayList<>();
 
     protected BridgeQuery() {}
 
     @Override
-    public Predicate toPredicate(
-            @NonNull Root<T> root, @NonNull CriteriaQuery<?> ignored, @NonNull CriteriaBuilder cb) {
+    public Predicate toPredicate(@NonNull Root<T> root, @NonNull CriteriaQuery<?> cq, @NonNull CriteriaBuilder cb) {
         final List<Predicate> predicates = new ArrayList<>();
 
         for (Check check : checks) {
@@ -63,6 +63,9 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
                 } else if (op == Op.IS_NULL) {
                     predicate = cb.isNull(keyToExpression(String.class, root, cb, key));
 
+                } else if (op == Op.IS_NOT_NULL) {
+                    predicate = cb.isNotNull(keyToExpression(String.class, root, cb, key));
+
                 } else if (op == Op.IN) {
                     final CriteriaBuilder.In<Object> inCluse = cb.in(keyToExpression(String.class, root, cb, key));
                     for (Object item : (Collection<?>) value) {
@@ -90,12 +93,12 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
 
             } else if (check instanceof Check.Or<? extends BaseDomain> orCheck) {
                 predicate = cb.or(Stream.of(((Check.Or<T>) orCheck).items())
-                        .map(s -> s.toPredicate(root, ignored, cb))
+                        .map(s -> s.toPredicate(root, cq, cb))
                         .toArray(Predicate[]::new));
 
             } else if (check instanceof Check.And<? extends BaseDomain> orCheck) {
                 predicate = cb.and(Stream.of(((Check.And<T>) orCheck).items())
-                        .map(s -> s.toPredicate(root, ignored, cb))
+                        .map(s -> s.toPredicate(root, cq, cb))
                         .toArray(Predicate[]::new));
 
             } else {
@@ -103,6 +106,10 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
             }
 
             predicates.add(predicate);
+        }
+
+        for (BridgeQuery<T> and : ands) {
+            predicates.add(and.toPredicate(root, cq, cb));
         }
 
         return cb.and(predicates.toArray(new Predicate[0]));
@@ -118,13 +125,36 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
+    public BridgeQuery<T> equal(@NonNull String key, @NonNull Enum<?> value) {
+        return equal(key, value.name());
+    }
+
+    public BridgeQuery<T> notEqual(@NonNull String key, @NonNull Enum<?> value) {
+        return notEqual(key, value.name());
+    }
+
     public BridgeQuery<T> equalIgnoreCase(String key, String value) {
         checks.add(new Check.Unit(Op.EQ_IGNORE_CASE, key, value));
         return this;
     }
 
+    public BridgeQuery<T> in(@NonNull String needle, @NonNull Collection<String> haystack) {
+        checks.add(new Check.Unit(Op.IN, needle, haystack));
+        return this;
+    }
+
+    public BridgeQuery<T> exists(String key) {
+        checks.add(new Check.Unit(Op.EXISTS, key, null));
+        return this;
+    }
+
     public BridgeQuery<T> isNull(String field) {
         checks.add(new Check.Unit(Op.IS_NULL, field, null));
+        return this;
+    }
+
+    public BridgeQuery<T> isNotNull(String field) {
+        checks.add(new Check.Unit(Op.IS_NOT_NULL, field, null));
         return this;
     }
 
@@ -138,13 +168,8 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
-    public BridgeQuery<T> in(@NonNull String needle, @NonNull Collection<String> haystack) {
-        checks.add(new Check.Unit(Op.IN, needle, haystack));
-        return this;
-    }
-
-    public BridgeQuery<T> exists(String key) {
-        checks.add(new Check.Unit(Op.EXISTS, key, null));
+    public final BridgeQuery<T> and(BridgeQuery<T> item) {
+        ands.add(item);
         return this;
     }
 

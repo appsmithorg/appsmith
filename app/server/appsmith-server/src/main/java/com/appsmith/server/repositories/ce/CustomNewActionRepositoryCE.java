@@ -29,14 +29,8 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     List<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
             String pageId, AclPermission permission);
 
-    List<NewAction> findUnpublishedActionsForRestApiOnLoad(
-            Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad, AclPermission aclPermission);
-
     List<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort);
-
-    List<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
-            Set<String> names, String pageId, AclPermission permission);
 
     List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort);
 
@@ -48,13 +42,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     Optional<NewAction> findByBranchNameAndDefaultActionId(
             String branchName, String defaultActionId, AclPermission permission);
 
-    Optional<NewAction> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission);
-
     List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
-
-    Optional<NewAction> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
     List<NewAction> findByPageIds(List<String> pageIds, AclPermission permission);
 
