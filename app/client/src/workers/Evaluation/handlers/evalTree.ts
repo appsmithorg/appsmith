@@ -9,6 +9,7 @@ import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 import {
   CrashingError,
   getSafeToRenderDataTree,
@@ -76,6 +77,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
   canvasWidgets = widgets;
   canvasWidgetsMeta = widgetsMeta;
   metaWidgetsCache = metaWidgets;
+  let isNewTree = false;
 
   try {
     if (!dataTreeEvaluator) {
@@ -111,6 +113,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
           dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
+      isNewTree = true;
     } else if (dataTreeEvaluator.hasCyclicalDependency || forceEvaluation) {
       if (dataTreeEvaluator && !isEmpty(allActionValidationConfig)) {
         //allActionValidationConfigs may not be set in dataTreeEvaluator. Therefore, set it explicitly via setter method
@@ -236,14 +239,28 @@ export function evalTree(request: EvalWorkerSyncRequest) {
       configTree,
     );
     unEvalUpdates = [];
+    isNewTree = true;
   }
 
   const jsVarsCreatedEvent = getJSVariableCreatedEvents(jsUpdates);
 
-  const updates = generateOptimisedUpdatesAndSetPrevState(
-    dataTree,
-    dataTreeEvaluator,
-  );
+  let updates;
+  if (isNewTree) {
+    try {
+      //for new tree send the whole thing, don't diff at all
+      updates = serialiseToBigInt([{ kind: "newTree", rhs: dataTree }]);
+      dataTreeEvaluator?.setPrevState(dataTree);
+    } catch (e) {
+      updates = "[]";
+    }
+    isNewTree = false;
+  } else {
+    updates = generateOptimisedUpdatesAndSetPrevState(
+      dataTree,
+      dataTreeEvaluator,
+      evalOrder,
+    );
+  }
 
   const evalTreeResponse: EvalTreeResponseData = {
     updates,
