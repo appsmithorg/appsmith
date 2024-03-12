@@ -13,7 +13,6 @@ import {
   table,
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
-import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Validate Mongo CRUD with JSON Form",
@@ -78,7 +77,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(1, 0, "v2");
       //Delete the test data
-      PageLeftPane.expandCollapseItem("Pages");
+      PageList.ShowList();
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "CoffeeCafe",
         action: "Delete",
