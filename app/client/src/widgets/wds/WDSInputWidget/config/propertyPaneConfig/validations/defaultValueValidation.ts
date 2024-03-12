@@ -1,6 +1,6 @@
 import type { LoDashStatic } from "lodash";
 
-import type { InputWidgetProps } from "../../types";
+import type { InputWidgetProps } from "../../../widget/types";
 
 export function defaultValueValidation(
   value: unknown,

@@ -1,4 +1,4 @@
-import type { InputWidgetProps } from "../../types";
+import type { InputWidgetProps } from "../../../widget/types";
 
 export function minValueValidation(min: any, props: InputWidgetProps, _?: any) {
   const max = props.maxNum;

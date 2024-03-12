@@ -7,8 +7,8 @@ import {
   inputTypeUpdateHook,
   isInputTypeEmailOrPassword,
   isInputTypeSingleLineOrMultiLine,
-} from "../helper";
-import type { InputWidgetProps } from "../types";
+} from "../../widget/helper";
+import type { InputWidgetProps } from "../../widget/types";
 
 export const propertyPaneContentConfig = [
   {

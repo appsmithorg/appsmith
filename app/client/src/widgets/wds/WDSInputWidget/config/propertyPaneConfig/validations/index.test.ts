@@ -5,7 +5,7 @@ import {
   maxValueValidation,
   defaultValueValidation,
 } from ".";
-import type { InputWidgetProps } from "../../types";
+import type { InputWidgetProps } from "../../../widget/types";
 
 describe("defaultValueValidation", () => {
   let result: ReturnType<typeof defaultValueValidation>;

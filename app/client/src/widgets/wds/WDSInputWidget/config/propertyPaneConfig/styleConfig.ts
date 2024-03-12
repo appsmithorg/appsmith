@@ -1,7 +1,7 @@
 import { InputTypes } from "components/constants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
-import type { InputWidgetProps } from "../types";
+import type { InputWidgetProps } from "../../widget/types";
 import { ICONS } from "@design-system/widgets";
 
 export const propertyPaneStyleConfig = [
