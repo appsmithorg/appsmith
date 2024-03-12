@@ -196,11 +196,18 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
+
+        // defaultAppIdCriteria
         final BridgeQuery<NewPage> q =
-                // defaultAppIdCriteria
-                Bridge.<NewPage>equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId)
-                        // gitSyncIdCriteria
-                        .equal(FieldName.GIT_SYNC_ID, gitSyncId);
+                Bridge.equal(defaultResources + "." + NewPage.Fields.applicationId, defaultApplicationId);
+
+        if (gitSyncId != null) {
+            // gitSyncIdCriteria
+            q.equal(NewPage.Fields.gitSyncId, gitSyncId);
+        } else {
+            q.isNull(NewPage.Fields.gitSyncId);
+        }
+
         return queryBuilder().criteria(q).permission(permission.orElse(null)).first();
     }
 
