@@ -40,9 +40,6 @@ export type TMessage<TBody> =
  * TODO: Add support for window postMessage options
  * TODO: Add support for transferable objects.
  */
-export function sendMessage(
-  this: Worker | typeof globalThis,
-  message: TMessage<unknown>,
-) {
+export function sendMessage(this: Worker, message: TMessage<unknown>) {
   this.postMessage(message);
 }
