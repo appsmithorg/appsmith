@@ -28,6 +28,8 @@ import type { AppState } from "@appsmith/reducers";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import { getAllModules } from "@appsmith/selectors/modulesSelector";
 import { resolveIcon } from "pages/Editor/utils";
+import { Icon } from "design-system";
+import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -103,11 +105,19 @@ export const getQueryIcon = (
   if (query.config.hasOwnProperty("type")) {
     const q = query as ModuleInstanceData;
     const module = modules[q.config.sourceModuleId];
-    return resolveIcon({
+    const icon = resolveIcon({
       iconLocation: pluginImages[module.pluginId] || "",
       pluginType: module.pluginType,
       moduleType: module.type,
     });
+
+    return (
+      icon || (
+        <EntityIcon>
+          <Icon name="module" />
+        </EntityIcon>
+      )
+    );
   } else {
     const action = query as ActionData;
     return (
