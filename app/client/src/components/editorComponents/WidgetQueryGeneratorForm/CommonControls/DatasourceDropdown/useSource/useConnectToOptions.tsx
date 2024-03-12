@@ -18,8 +18,6 @@ import type {
   ActionData,
   ActionDataState,
 } from "@appsmith/reducers/entityReducers/actionsReducer";
-import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { Icon } from "design-system";
 import type {
   ModuleInstanceData,
   ModuleInstanceDataState,
@@ -27,6 +25,9 @@ import type {
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { AppState } from "@appsmith/reducers";
+import type { Module } from "@appsmith/constants/ModuleConstants";
+import { getAllModules } from "@appsmith/selectors/modulesSelector";
+import { resolveIcon } from "pages/Editor/utils";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -97,13 +98,16 @@ interface ConnectToOptionsProps {
 export const getQueryIcon = (
   query: ActionData | ModuleInstanceData,
   pluginImages: Record<string, string>,
+  modules: Record<string, Module>,
 ) => {
   if (query.config.hasOwnProperty("type")) {
-    return (
-      <EntityIcon>
-        <Icon name="module" />
-      </EntityIcon>
-    );
+    const q = query as ModuleInstanceData;
+    const module = modules[q.config.sourceModuleId];
+    return resolveIcon({
+      iconLocation: pluginImages[module.pluginId] || "",
+      pluginType: module.pluginType,
+      moduleType: module.type,
+    });
   } else {
     const action = query as ActionData;
     return (
@@ -172,6 +176,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
   const { pluginImages, widget } = props;
 
   const queryModuleInstances = useSelector(getQueryModuleInstances);
+  const modules = useSelector(getAllModules);
   let filteredQueries: ActionData[] | ModuleInstanceData[] = queries;
 
   /* Exclude Gsheets from query options till this gets resolved https://github.com/appsmithorg/appsmith/issues/27102*/
@@ -193,7 +198,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
       id: query.config.id,
       label: query.config.name,
       value: getBindingValue(widget, query),
-      icon: getQueryIcon(query, pluginImages),
+      icon: getQueryIcon(query, pluginImages, modules),
       onSelect: function (value?: string, valueOption?: DropdownOptionType) {
         addBinding(
           valueOption?.value,
