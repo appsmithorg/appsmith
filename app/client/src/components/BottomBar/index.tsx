@@ -23,14 +23,12 @@ export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   return (
     <Container>
       <Wrapper>
-        {!viewMode && (
-          <SwitchEnvironment
-            editorId={appId}
-            onChangeEnv={onChangeEnv}
-            startSwitchEnvMessage={START_SWITCH_ENVIRONMENT}
-            viewMode={viewMode}
-          />
-        )}
+        <SwitchEnvironment
+          editorId={appId}
+          onChangeEnv={onChangeEnv}
+          startSwitchEnvMessage={START_SWITCH_ENVIRONMENT}
+          viewMode={viewMode}
+        />
         {!viewMode && <QuickGitActions />}
       </Wrapper>
       {!viewMode && (
