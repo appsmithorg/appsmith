@@ -63,11 +63,6 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
-    public BridgeQuery<T> notExists(@NonNull String key) {
-        checks.add(Criteria.where(key).exists(false));
-        return this;
-    }
-
     public BridgeQuery<T> isNull(@NonNull String key) {
         checks.add(Criteria.where(key).isNull());
         return this;
@@ -86,14 +81,6 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
     public BridgeQuery<T> isFalse(@NonNull String key) {
         checks.add(Criteria.where(key).is(false));
         return this;
-    }
-
-    /**
-     * Please use {@code Bridge.or} instead. This API looks and reads very confusing and unintuitive, so is explicitly
-     * disabled.
-     */
-    public BridgeQuery<T> or(BridgeQuery<T> ignoredUnused) {
-        throw new UnsupportedOperationException("Not supported");
     }
 
     public BridgeQuery<T> and(BridgeQuery<T> item) {
