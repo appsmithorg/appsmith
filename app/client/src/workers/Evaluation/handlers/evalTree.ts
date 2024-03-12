@@ -255,10 +255,14 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     }
     isNewTree = false;
   } else {
+    const allUnevalUpdates = unEvalUpdates.map(
+      (update) => update.payload.propertyPath,
+    );
+    const completeEvalOrder = [...allUnevalUpdates, ...evalOrder];
     updates = generateOptimisedUpdatesAndSetPrevState(
       dataTree,
       dataTreeEvaluator,
-      evalOrder,
+      completeEvalOrder,
     );
   }
 
