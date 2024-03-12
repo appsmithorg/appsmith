@@ -5,6 +5,8 @@ import {
   SPLITPANE_ANNOUNCEMENT,
   createMessage,
 } from "@appsmith/constants/messages";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 const Announcement = () => {
   const localStorageFlag =
@@ -36,7 +38,7 @@ const Announcement = () => {
 
   return (
     <AnnouncementModal
-      banner="https://assets.appsmith.com/splitpane-banner.svg"
+      banner={getAssetUrl(`${ASSETS_CDN_URL}/splitpane-banner.svg`)}
       description={createMessage(SPLITPANE_ANNOUNCEMENT.DESCRIPTION)}
       footer={modalFooter()}
       isOpen={show}
