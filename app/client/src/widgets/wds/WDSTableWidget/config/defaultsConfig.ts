@@ -1,9 +1,5 @@
-import {
-  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-  InlineEditingSaveOptions,
-} from "../constants";
+import { InlineEditingSaveOptions } from "../constants";
 import { Colors } from "constants/Colors";
-import { WDSTableWidget } from "../widget";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
@@ -39,9 +35,4 @@ export const defaultsConfig = {
   delimiter: ",",
   version: 2,
   inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
-  enableServerSideFiltering: WDSTableWidget.getFeatureFlag(
-    ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-  )
-    ? false
-    : undefined,
 } as unknown as WidgetDefaultProps;

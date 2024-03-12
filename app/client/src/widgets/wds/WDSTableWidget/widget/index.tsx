@@ -45,6 +45,7 @@ import type {
 } from "../constants";
 import {
   ActionColumnTypes,
+  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   ColumnTypes,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
@@ -147,7 +148,17 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
   }
 
   static getDefaults() {
-    return config.defaultsConfig;
+    const defaultsConfig = config.defaultsConfig;
+
+    // Note: Doing this so that unit tests don't fail. Most likely because of cyclic imports
+    // This is a temporary fix and should be removed once we have a better solution
+    defaultsConfig["enableServerSideFiltering"] = WDSTableWidget.getFeatureFlag(
+      ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
+    )
+      ? false
+      : undefined;
+
+    return defaultsConfig;
   }
 
   static getMethods() {
