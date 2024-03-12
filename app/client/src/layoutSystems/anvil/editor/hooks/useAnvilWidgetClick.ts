@@ -3,7 +3,6 @@ import { useCallback, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
 import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
-import { getAltBlockWidgetSelection } from "selectors/ui";
 
 export const useAnvilWidgetClick = (
   widgetId: string,
@@ -12,7 +11,6 @@ export const useAnvilWidgetClick = (
   // Retrieve state from the Redux store
   const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isWidgetSelectionBlocked = useSelector(getAltBlockWidgetSelection);
   const allowSelectionRef = useRef(false);
   useEffect(() => {
     allowSelectionRef.current = isFocused;
@@ -21,7 +19,7 @@ export const useAnvilWidgetClick = (
   // Note: Sniping mode is irrelevant to the Anvil however it becomes relevant if we decide to make Anvil the default editor
   const onClickFn = useCallback(
     (e: MouseEvent) => {
-      (!isSnipingMode || isWidgetSelectionBlocked) && e.stopPropagation();
+      !isSnipingMode && e.stopPropagation();
     },
     [isSnipingMode],
   );
