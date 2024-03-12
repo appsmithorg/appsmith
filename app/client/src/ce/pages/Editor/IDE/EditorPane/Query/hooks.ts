@@ -60,7 +60,6 @@ export const useQueryAdd = () => {
 
   return addButtonClickHandler;
 };
-//history.push(location.pathname.replace(`${ADD_PATH}`, ""));
 
 export type GroupedAddOperations = Array<{
   title?: string;
