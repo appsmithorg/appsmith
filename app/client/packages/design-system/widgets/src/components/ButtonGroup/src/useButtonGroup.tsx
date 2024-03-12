@@ -12,7 +12,6 @@ import {
 
 export interface ButtonGroupAria {
   buttonGroupProps: DOMAttributes;
-  isMeasuring: boolean;
   orientation: ButtonGroupProps<object>["orientation"];
 }
 
@@ -47,9 +46,8 @@ export function useButtonGroup<T>(
     }
   };
 
-  const [{ isMeasuring, orientation }, setOrientation] = useValueEffect({
+  const [{ orientation }, setOrientation] = useValueEffect({
     orientation: props.orientation,
-    isMeasuring: false,
   });
 
   const updateOverflow = useCallback(() => {
@@ -82,24 +80,15 @@ export function useButtonGroup<T>(
     setOrientation(function* () {
       yield {
         orientation: "horizontal",
-        isMeasuring: true,
       };
 
       const orientation = computeOrientation();
 
       yield {
         orientation: orientation,
-        isMeasuring: true,
       };
-
-      if (isMeasuring) {
-        yield {
-          orientation: orientation,
-          isMeasuring: false,
-        };
-      }
     });
-  }, [ref, state.collection, setOrientation, props.orientation]);
+  }, [ref, setOrientation, props.orientation]);
 
   const parentRef = useMemo(
     () => ({
@@ -121,7 +110,6 @@ export function useButtonGroup<T>(
       "aria-orientation": orientation,
       onKeyDown,
     },
-    isMeasuring,
     orientation,
   };
 }
