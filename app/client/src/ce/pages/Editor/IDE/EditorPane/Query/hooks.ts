@@ -214,7 +214,7 @@ export const useAddQueryListItems = () => {
           fileOperation.entityExplorerTitle ||
           fileOperation.dsName ||
           fileOperation.title,
-        description: "",
+        description: !!fileOperation.isBeta ? "Beta" : "",
         descriptionType: "inline",
         onClick: onCreateItemClick.bind(null, fileOperation),
       } as ListItemProps;
