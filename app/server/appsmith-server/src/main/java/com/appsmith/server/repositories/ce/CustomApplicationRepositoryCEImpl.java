@@ -281,15 +281,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Mono<Integer> protectBranchedApplications(
             String applicationId, List<String> branchNames, AclPermission permission) {
-        BridgeQuery<Application> defaultApplicationIdCriteria = Bridge.<Application>equal(
+        final BridgeQuery<Application> q = Bridge.<Application>equal(
                         Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId)
                 .in(Application.Fields.gitApplicationMetadata_branchName, branchNames);
 
         Update setProtected = new Update().set(Application.Fields.gitApplicationMetadata_isProtectedBranch, true);
 
-        return queryBuilder()
-                .criteria(defaultApplicationIdCriteria)
-                .permission(permission)
-                .updateAll(setProtected);
+        return queryBuilder().criteria(q).permission(permission).updateAll(setProtected);
     }
 }
