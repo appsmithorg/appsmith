@@ -167,9 +167,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         BridgeQuery<NewAction> q = Bridge.equal(NewAction.Fields.unpublishedAction_pageId, pageId);
 
         if (names != null) {
-            q.or(
+            q.and(Bridge.or(
                     Bridge.in(NewAction.Fields.unpublishedAction_name, names),
-                    Bridge.in(NewAction.Fields.unpublishedAction_fullyQualifiedName, names));
+                    Bridge.in(NewAction.Fields.unpublishedAction_fullyQualifiedName, names)));
         }
 
         // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would

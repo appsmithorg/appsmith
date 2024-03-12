@@ -27,8 +27,17 @@ const StyledModalContent = styled(ModalContent)`
   width: 640px;
 `;
 
-function ImportedApplicationSuccessModal() {
-  const importedAppSuccess = localStorage.getItem("importApplicationSuccess");
+interface ImportSuccessModalProps {
+  title?: string;
+  description?: string;
+}
+
+function ImportSuccessModal(props: ImportSuccessModalProps) {
+  const {
+    description = createMessage(APPLICATION_IMPORT_SUCCESS_DESCRIPTION),
+    title = createMessage(APPLICATION_IMPORT_SUCCESS),
+  } = props;
+  const importedAppSuccess = localStorage.getItem("importSuccess");
   // const isOpen = importedAppSuccess === "true";
   const [isOpen, setIsOpen] = useState(importedAppSuccess === "true");
 
@@ -40,7 +49,7 @@ function ImportedApplicationSuccessModal() {
 
   const close = () => {
     setIsOpen(false);
-    localStorage.setItem("importApplicationSuccess", "false");
+    localStorage.setItem("importSuccess", "false");
   };
 
   return (
@@ -54,10 +63,8 @@ function ImportedApplicationSuccessModal() {
               name="success"
               size={"lg"}
             />
-            <Text kind="heading-m">
-              {createMessage(APPLICATION_IMPORT_SUCCESS)}
-            </Text>
-            <Text>{createMessage(APPLICATION_IMPORT_SUCCESS_DESCRIPTION)}</Text>
+            <Text kind="heading-m">{title}</Text>
+            <Text>{description}</Text>
           </BodyContainer>
         </ModalBody>
         <ModalFooter>
@@ -76,4 +83,4 @@ function ImportedApplicationSuccessModal() {
   );
 }
 
-export default ImportedApplicationSuccessModal;
+export default ImportSuccessModal;
