@@ -239,6 +239,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
       configTree,
     );
     unEvalUpdates = [];
+    isNewTree = true;
   }
 
   const jsVarsCreatedEvent = getJSVariableCreatedEvents(jsUpdates);
