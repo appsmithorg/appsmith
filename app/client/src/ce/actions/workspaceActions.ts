@@ -129,3 +129,7 @@ export const fetchEntitiesOfWorkspace = (payload: { workspaceId?: string }) => {
     payload,
   };
 };
+
+export const resetImportData = () => ({
+  type: ReduxActionTypes.RESET_IMPORT_DATA,
+});
