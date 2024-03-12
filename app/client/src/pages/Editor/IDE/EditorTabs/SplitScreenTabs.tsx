@@ -54,19 +54,23 @@ const SplitScreenTabs = () => {
   if (!isSideBySideEnabled) return null;
   if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
-  return files.length > 0 ? (
-    <Container>
-      <ToggleButton
-        icon="add-line"
-        isSelected={segmentMode === EditorEntityTabState.Add}
-        onClick={onAddClick}
-        size="md"
-      />
-      <FileTabs navigateToTab={onClick} tabs={files} />
-      <ListButton items={overflowList} navigateToTab={onClick} />
+  return (
+    <>
+      {files.length > 0 ? (
+        <Container>
+          <ToggleButton
+            icon="add-line"
+            isSelected={segmentMode === EditorEntityTabState.Add}
+            onClick={onAddClick}
+            size="md"
+          />
+          <FileTabs navigateToTab={onClick} tabs={files} />
+          <ListButton items={overflowList} navigateToTab={onClick} />
+        </Container>
+      ) : null}
       <Announcement />
-    </Container>
-  ) : null;
+    </>
+  );
 };
 
 export default SplitScreenTabs;
