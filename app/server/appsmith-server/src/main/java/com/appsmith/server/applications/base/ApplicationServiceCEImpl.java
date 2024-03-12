@@ -350,26 +350,20 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             }
             return applicationIdMono.flatMap(appId -> repository
                     .updateById(appId, application, applicationPermission.getEditPermission())
-                    .onErrorResume(error -> {
-                        log.error("failed to update application {}", appId, error);
-                        if (error instanceof DuplicateKeyException) {
-                            // Error message : E11000 duplicate key error collection: appsmith.application index:
-                            // workspace_app_deleted_gitApplicationMetadata dup key:
-                            // { organizationId: "******", name: "AppName", deletedAt: null }
-                            if (error.getCause()
-                                    .getMessage()
-                                    .contains("workspace_app_deleted_gitApplicationMetadata")) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME));
-                            }
-                            return Mono.error(new AppsmithException(
-                                    AppsmithError.DUPLICATE_KEY,
-                                    DuplicateKeyExceptionUtils.extractConflictingObjectName(
-                                            ((DuplicateKeyException) error)
-                                                    .getCause()
-                                                    .getMessage())));
+                    .onErrorMap(DuplicateKeyException.class, error -> {
+                        // Error message : E11000 duplicate key error collection: appsmith.application index:
+                        // workspace_app_deleted_gitApplicationMetadata dup key:
+                        // { organizationId: "******", name: "AppName", deletedAt: null }
+                        final String message = error.getCause().getMessage();
+                        if (message.contains("workspace_app_deleted_gitApplicationMetadata")) {
+                            return new AppsmithException(
+                                    AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME);
                         }
-                        return Mono.error(error);
+                        // Only log the stacktrace if it's something we don't recognize.
+                        log.error("failed to update application {}", appId, error);
+                        return new AppsmithException(
+                                AppsmithError.DUPLICATE_KEY,
+                                DuplicateKeyExceptionUtils.extractConflictingObjectName(message));
                     })
                     .flatMap(application1 -> this.setTransientFields(application1))
                     .flatMap(application1 -> {
