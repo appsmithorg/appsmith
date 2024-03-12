@@ -88,16 +88,8 @@ public class AppsmithAiPlugin extends BasePlugin {
                             triggerResultDTO.setTrigger(response);
                             return Mono.just(triggerResultDTO);
                         })
-                        .onErrorResume(error -> {
-                            log.error(
-                                    "An error has occurred while trying to upload files. Error: {}",
-                                    error.getMessage());
-                            if (!(error instanceof AppsmithPluginException)) {
-                                error = new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
-                            }
-                            return Mono.error(error);
-                        });
+                        .onErrorResume(
+                                error -> handleError("An error has occurred while trying to upload files", error));
             } else if (LIST_FILES.equals(requestType)) {
                 List<String> fileIds = getFileIds(datasourceConfiguration);
                 if (fileIds.isEmpty()) {
@@ -130,18 +122,18 @@ public class AppsmithAiPlugin extends BasePlugin {
                             triggerResultDTO.setTrigger(response);
                             return Mono.just(triggerResultDTO);
                         })
-                        .onErrorResume(error -> {
-                            log.error(
-                                    "An error has occurred while trying to list uploaded files. Error: {}",
-                                    error.getMessage());
-                            if (!(error instanceof AppsmithPluginException)) {
-                                error = new AppsmithPluginException(
-                                        AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
-                            }
-                            return Mono.error(error);
-                        });
+                        .onErrorResume(error ->
+                                handleError("An error has occurred while trying to list uploaded files", error));
             }
             return super.trigger(connection, datasourceConfiguration, request);
+        }
+
+        private Mono<TriggerResultDTO> handleError(String message, Throwable error) {
+            log.error("{}. Error: {}", message, error.getMessage());
+            if (!(error instanceof AppsmithPluginException)) {
+                error = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
+            }
+            return Mono.error(error);
         }
 
         @Override
