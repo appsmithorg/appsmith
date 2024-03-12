@@ -570,7 +570,7 @@ function ReconnectDatasourceModal() {
   return (
     <Modal open={isModalOpen}>
       <ModalContentWrapper
-        data-testId="reconnect-datasource-modal"
+        data-testid="reconnect-datasource-modal"
         onClick={handleClose}
         onEscapeKeyDown={onClose}
         onInteractOutside={handleClose}
