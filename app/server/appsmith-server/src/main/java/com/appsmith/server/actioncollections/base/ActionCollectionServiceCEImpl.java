@@ -17,7 +17,6 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionViewDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.DefaultResourcesUtils;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -63,6 +62,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     private final ApplicationPermission applicationPermission;
     private final ActionPermission actionPermission;
     private final DefaultResourcesService<ActionCollection> defaultResourcesService;
+    private final DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService;
+    private final DefaultResourcesService<NewAction> newActionDefaultResourcesService;
+    private final DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService;
 
     @Autowired
     public ActionCollectionServiceCEImpl(
@@ -75,7 +77,10 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ActionPermission actionPermission,
-            DefaultResourcesService<ActionCollection> defaultResourcesService) {
+            DefaultResourcesService<ActionCollection> defaultResourcesService,
+            DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService,
+            DefaultResourcesService<NewAction> newActionDefaultResourcesService,
+            DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService) {
 
         super(validator, repository, analyticsService);
         this.newActionService = newActionService;
@@ -85,6 +90,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         this.applicationPermission = applicationPermission;
         this.actionPermission = actionPermission;
         this.defaultResourcesService = defaultResourcesService;
+        this.dtoDefaultResourcesService = dtoDefaultResourcesService;
+        this.newActionDefaultResourcesService = newActionDefaultResourcesService;
+        this.actionDTODefaultResourcesService = actionDTODefaultResourcesService;
     }
 
     @Override
@@ -674,6 +682,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         action.setPageId(collectionDTO.getPageId());
         action.setPluginType(collectionDTO.getPluginType());
         action.setDefaultResources(collectionDTO.getDefaultResources());
+        action.getDefaultResources()
+                .setCollectionId(actionCollection.getDefaultResources().getCollectionId());
         action.setApplicationId(actionCollection.getApplicationId());
 
         // Action doesn't exist. Create now.
@@ -692,7 +702,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
         newAction.setPolicies(actionCollectionPolicies);
         newActionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
-        newActionService.updateDefaultResourcesInAction(newAction);
+        newAction.setDefaultResources(actionCollection.getDefaultResources());
+        newActionDefaultResourcesService.initialize(
+                newAction, newAction.getDefaultResources().getBranchName(), false);
+        actionDTODefaultResourcesService.initialize(
+                action, newAction.getDefaultResources().getBranchName(), false);
 
         Mono<NewAction> sendAnalyticsMono =
                 analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction));
@@ -705,20 +719,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     @Override
     public Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection) {
         ActionCollectionDTO collectionDTO = actionCollection.getUnpublishedCollection();
-        final Set<String> validationMessages = collectionDTO.validate();
-        if (!validationMessages.isEmpty()) {
-            return Mono.error(new AppsmithException(
-                    AppsmithError.INVALID_ACTION_COLLECTION, collectionDTO.getName(), validationMessages.toString()));
-        }
 
-        DefaultResources defaultResources = collectionDTO.getDefaultResources();
-
-        if (defaultResources == null) {
-            DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds(collectionDTO, null);
-            actionCollection.setDefaultResources(collectionDTO.getDefaultResources());
-        }
-
-        return Mono.justOrEmpty(collectionDTO.getActions())
+        return validateActionCollection(actionCollection)
+                .thenReturn(collectionDTO.getActions())
                 .defaultIfEmpty(List.of())
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(action -> {
@@ -775,6 +778,45 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                                 actionCollection1.getUnpublishedCollection(), actionDTOList, false));
                             });
                 });
+    }
+
+    private Mono<ActionCollection> validateActionCollection(ActionCollection actionCollection) {
+        ActionCollectionDTO collectionDTO = actionCollection.getUnpublishedCollection();
+
+        collectionDTO.populateTransientFields(actionCollection);
+
+        final Set<String> validationMessages = collectionDTO.validate();
+        if (!validationMessages.isEmpty()) {
+            return Mono.error(new AppsmithException(
+                    AppsmithError.INVALID_ACTION_COLLECTION, collectionDTO.getName(), validationMessages.toString()));
+        }
+
+        String branchName = null;
+
+        if (actionCollection.getDefaultResources() != null) {
+            branchName = actionCollection.getDefaultResources().getBranchName();
+        }
+
+        defaultResourcesService.initialize(actionCollection, branchName, false);
+        dtoDefaultResourcesService.initialize(collectionDTO, branchName, false);
+
+        return Mono.just(actionCollection);
+    }
+
+    @Override
+    public Mono<Void> bulkValidateAndInsertActionCollectionInRepository(List<ActionCollection> actionCollectionList) {
+        return Flux.fromIterable(actionCollectionList)
+                .flatMap(this::validateActionCollection)
+                .collectList()
+                .flatMap(repository::bulkInsert);
+    }
+
+    @Override
+    public Mono<Void> bulkValidateAndUpdateActionCollectionInRepository(List<ActionCollection> actionCollectionList) {
+        return Flux.fromIterable(actionCollectionList)
+                .flatMap(this::validateActionCollection)
+                .collectList()
+                .flatMap(repository::bulkUpdate);
     }
 
     protected void populateDefaultResources(

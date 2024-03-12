@@ -190,7 +190,10 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         AclPermission executePermission = getPermission(executeActionMetaDTO, actionPermission.getExecutePermission());
         Mono<NewAction> newActionMono = newActionService
                 .findByBranchNameAndDefaultActionId(
-                        executeActionMetaDTO.getBranchName(), executeActionDTO.getActionId(), executePermission)
+                        executeActionMetaDTO.getBranchName(),
+                        executeActionDTO.getActionId(),
+                        executeActionDTO.getViewMode(),
+                        executePermission)
                 .cache();
 
         Mono<ExecuteActionDTO> populatedExecuteActionDTOMono =

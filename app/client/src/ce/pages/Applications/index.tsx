@@ -12,7 +12,6 @@ import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
-  NO_WORKSPACE_DESCRIPTION,
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
@@ -565,11 +564,14 @@ export function ApplicationsSection(props: any) {
     setSelectedWorkspaceIdForImportApplication,
   ]);
 
-  const leaveWS = (workspaceId: string) => {
-    setWarnLeavingWorkspace(false);
-    setWorkspaceToOpenMenu(null);
-    dispatch(leaveWorkspace(workspaceId));
-  };
+  const leaveWS = useCallback(
+    (workspaceId: string) => {
+      setWarnLeavingWorkspace(false);
+      setWorkspaceToOpenMenu(null);
+      dispatch(leaveWorkspace(workspaceId));
+    },
+    [dispatch],
+  );
 
   const handleDeleteWorkspace = useCallback(
     (workspaceId: string) => {
@@ -656,9 +658,6 @@ export function ApplicationsSection(props: any) {
         />
         <NewText className="!mb-3 !font-semibold" kind="heading-s">
           {createMessage(NO_WORKSPACE_HEADING)}
-        </NewText>
-        <NewText className="w-[328px]" kind="heading-xs">
-          {createMessage(NO_WORKSPACE_DESCRIPTION)}
         </NewText>
       </div>
     );
