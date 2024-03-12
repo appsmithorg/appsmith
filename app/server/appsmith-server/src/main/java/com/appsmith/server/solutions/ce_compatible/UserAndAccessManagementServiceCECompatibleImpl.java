@@ -34,6 +34,7 @@ public class UserAndAccessManagementServiceCECompatibleImpl extends UserAndAcces
                 userService,
                 permissionGroupPermission,
                 emailService,
-                commonConfig);
+                commonConfig,
+                captchaService);
     }
 }

@@ -11,6 +11,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -20,6 +21,7 @@ import com.appsmith.server.solutions.PermissionGroupPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -47,6 +49,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final EmailService emailService;
     private final CommonConfig commonConfig;
 
+    private final CaptchaService captchaService;
+
     public UserAndAccessManagementServiceCEImpl(
             SessionUserService sessionUserService,
             PermissionGroupService permissionGroupService,
@@ -56,7 +60,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
             UserService userService,
             PermissionGroupPermission permissionGroupPermission,
             EmailService emailService,
-            CommonConfig commonConfig) {
+            CommonConfig commonConfig,
+            CaptchaService captchaService) {
 
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -67,6 +72,19 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.emailService = emailService;
         this.permissionGroupPermission = permissionGroupPermission;
         this.commonConfig = commonConfig;
+        this.captchaService = captchaService;
+    }
+
+    @Override
+    public Mono<List<User>> inviteUsers(ServerWebExchange serverWebExchange, String originHeader) {
+        String recaptchaToken = serverWebExchange.getRequest().getQueryParams().getFirst("recaptchaToken");
+        return captchaService.verify(recaptchaToken).flatMap(captchaVerified -> {
+            if (TRUE.equals(captchaVerified)) {
+                return inviteUsers((InviteUsersDTO) serverWebExchange.getAttribute("inviteUsersDTO"), originHeader);
+            } else {
+                return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_FAILED));
+            }
+        });
     }
 
     /**
