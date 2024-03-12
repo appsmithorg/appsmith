@@ -63,6 +63,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     private final ActionPermission actionPermission;
     private final DefaultResourcesService<ActionCollection> defaultResourcesService;
     private final DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService;
+    private final DefaultResourcesService<NewAction> newActionDefaultResourcesService;
+    private final DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService;
 
     @Autowired
     public ActionCollectionServiceCEImpl(
@@ -76,7 +78,9 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
             ApplicationPermission applicationPermission,
             ActionPermission actionPermission,
             DefaultResourcesService<ActionCollection> defaultResourcesService,
-            DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService) {
+            DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService,
+            DefaultResourcesService<NewAction> newActionDefaultResourcesService,
+            DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService) {
 
         super(validator, repository, analyticsService);
         this.newActionService = newActionService;
@@ -87,6 +91,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         this.actionPermission = actionPermission;
         this.defaultResourcesService = defaultResourcesService;
         this.dtoDefaultResourcesService = dtoDefaultResourcesService;
+        this.newActionDefaultResourcesService = newActionDefaultResourcesService;
+        this.actionDTODefaultResourcesService = actionDTODefaultResourcesService;
     }
 
     @Override
@@ -672,6 +678,8 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         action.setPageId(collectionDTO.getPageId());
         action.setPluginType(collectionDTO.getPluginType());
         action.setDefaultResources(collectionDTO.getDefaultResources());
+        action.getDefaultResources()
+                .setCollectionId(actionCollection.getDefaultResources().getCollectionId());
         action.setApplicationId(actionCollection.getApplicationId());
 
         // Action doesn't exist. Create now.
@@ -690,7 +698,11 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
         newAction.setPolicies(actionCollectionPolicies);
         newActionService.setCommonFieldsFromActionDTOIntoNewAction(action, newAction);
-        newActionService.updateDefaultResourcesInAction(newAction);
+        newAction.setDefaultResources(actionCollection.getDefaultResources());
+        newActionDefaultResourcesService.initialize(
+                newAction, newAction.getDefaultResources().getBranchName(), false);
+        actionDTODefaultResourcesService.initialize(
+                action, newAction.getDefaultResources().getBranchName(), false);
 
         Mono<NewAction> sendAnalyticsMono =
                 analyticsService.sendCreateEvent(newAction, newActionService.getAnalyticsProperties(newAction));
