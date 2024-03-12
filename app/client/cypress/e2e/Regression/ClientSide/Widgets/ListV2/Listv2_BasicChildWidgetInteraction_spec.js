@@ -69,7 +69,7 @@ describe(
       cy.get(publishLocators.inputWidget).should("exist");
 
       // Type value
-      cy.get(publishLocators.inputWidget).find("input").type("abcd");
+      cy.get(publishLocators.inputWidget).find("input").first().type("abcd");
 
       // Verify if the value got typed
       cy.get(publishLocators.inputWidget)
