@@ -322,11 +322,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
                     final Root<T> root = cq.from(genericDomain);
 
-                    final List<Specification<T>> specifications = new ArrayList<>(params.getSpecifications());
+                    final List<Specification<T>> specifications = params.getSpecifications();
+                    Predicate predicate = root.get(BaseDomain.Fields.deletedAt).isNull();
 
-                    Predicate predicate = cb.and(
-                            Specification.allOf(specifications).toPredicate(root, cq, cb),
-                            root.get(FieldName.DELETED_AT).isNull());
+                    if (!specifications.isEmpty()) {
+                        predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
+                    }
 
                     if (!permissionGroups.isEmpty()) {
                         Map<String, String> fnVars = new HashMap<>();
