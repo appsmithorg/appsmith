@@ -82,6 +82,10 @@ import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Root;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
@@ -100,8 +104,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
@@ -158,13 +160,13 @@ import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.dtos.CustomJSLibContextDTO.getDTOFromCustomJSLib;
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 import static com.appsmith.server.services.ApplicationPageServiceImpl.EVALUATION_VERSION;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.doReturn;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -251,7 +253,7 @@ public class ApplicationServiceCETest {
     PluginExecutor pluginExecutor;
 
     @Autowired
-    ReactiveMongoOperations mongoOperations;
+    private EntityManager entityManager;
 
     @Autowired
     PermissionGroupRepositoryCake permissionGroupRepository;
@@ -416,8 +418,17 @@ public class ApplicationServiceCETest {
         Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
     }
 
-    private Mono<? extends BaseDomain> getArchivedResource(String id, Class<? extends BaseDomain> domainClass) {
-        return mongoOperations.findOne(new Query(where("id").is(id)), domainClass);
+    private <T extends BaseDomain> Mono<T> getArchivedResource(String id, Class<T> domainClass) {
+        return asMono(() -> {
+            final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+            final CriteriaQuery<T> cq = cb.createQuery(domainClass);
+            final Root<T> root = cq.from(domainClass);
+            return Optional.ofNullable(entityManager
+                    .createQuery(cq.where(
+                            cb.equal(root.get(BaseDomain.Fields.id), id),
+                            cb.isNotNull(root.get(BaseDomain.Fields.deletedAt))))
+                    .getSingleResult());
+        });
     }
 
     @Test

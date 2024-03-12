@@ -24,7 +24,6 @@ import com.appsmith.server.dtos.GitDeployKeyDTO;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
 import com.appsmith.server.helpers.GitDeployKeyGenerator;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -50,7 +49,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DataIntegrityViolationException;
-import org.springframework.dao.DuplicateKeyException;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
@@ -356,22 +354,19 @@ public class ApplicationServiceCEImpl
                     .updateById(appId, application, applicationPermission.getEditPermission())
                     .onErrorResume(error -> {
                         log.error("failed to update application {}", appId, error);
-                        if (error instanceof DuplicateKeyException) {
+                        if (error instanceof DataIntegrityViolationException) {
                             // Error message : E11000 duplicate key error collection: appsmith.application index:
-                            // workspace_app_deleted_gitApplicationMetadata dup key:
+                            // workspace_app_deleted_git_application_metadata dup key:
                             // { organizationId: "******", name: "AppName", deletedAt: null }
                             if (error.getCause()
                                     .getMessage()
-                                    .contains("workspace_app_deleted_gitApplicationMetadata")) {
+                                    .contains("workspace_app_deleted_git_application_metadata")) {
                                 return Mono.error(new AppsmithException(
                                         AppsmithError.DUPLICATE_KEY_USER_ERROR, FieldName.APPLICATION, FieldName.NAME));
                             }
                             return Mono.error(new AppsmithException(
                                     AppsmithError.DUPLICATE_KEY,
-                                    DuplicateKeyExceptionUtils.extractConflictingObjectName(
-                                            ((DuplicateKeyException) error)
-                                                    .getCause()
-                                                    .getMessage())));
+                                    error.getCause().getMessage()));
                         }
                         return Mono.error(error);
                     })

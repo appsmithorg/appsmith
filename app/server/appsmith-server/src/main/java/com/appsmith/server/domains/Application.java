@@ -77,7 +77,7 @@ public class Application extends BaseDomain implements Artifact {
     long unreadCommentThreads;
 
     @JsonView(Views.Internal.class)
-    String clonedFromApplicationId; // todo: turn this into foreign key as well?
+    String clonedFromApplicationId;
 
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
