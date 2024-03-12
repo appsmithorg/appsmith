@@ -242,7 +242,7 @@ export function useWidgetSelectionBlockListener() {
       window.removeEventListener("keydown", handleKeyDown);
       window.removeEventListener("keyup", handleKeyUp);
     };
-  });
+  }, [isAltFocused, widgetSelectionIsBlocked]);
   const handleKeyDown = (e: KeyboardEvent) => {
     if (!isAltFocused && widgetSelectionIsBlocked && e.metaKey) {
       dispatch(altFocusWidget(e.metaKey));
