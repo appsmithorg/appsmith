@@ -52,7 +52,7 @@ export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password between 6 and 256 characters`;
+  `Please provide a password between 8 and 48 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
@@ -2459,3 +2459,8 @@ export const CREATE_A_NEW_ITEM = (item: string) => `Create a new ${item}`;
 export const MAXIMIZE_BUTTON_TOOLTIP = () =>
   `Expand code editor to full-screen`;
 export const MINIMIZE_BUTTON_TOOLTIP = () => `Open code editor next to the UI`;
+export const SPLITPANE_ANNOUNCEMENT = {
+  TITLE: () => "Code and UI side-by-side",
+  DESCRIPTION: () =>
+    "You can now write queries & JS functions as you refer to your UI on the side. This is a beta version that we will continue to improve with your feedback.",
+};

@@ -7,20 +7,31 @@ import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import type { UseRoutes } from "@appsmith/entities/IDE/constants";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import {
+  EditorEntityTabState,
+  EditorViewMode,
+} from "@appsmith/entities/IDE/constants";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import JSEditor from "pages/Editor/JSEditor";
 import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
 import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
 import ListJS from "pages/Editor/IDE/EditorPane/JS/List";
 import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/JS/BlankStateContainer";
+import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
+  const { segmentMode } = useCurrentEditorState();
+
   return useCallback(() => {
-    dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
-  }, [dispatch, pageId]);
+    if (segmentMode === EditorEntityTabState.Add) {
+      // since js don't have a add mode in CE
+      return;
+    } else {
+      dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
+    }
+  }, [dispatch, pageId, segmentMode]);
 };
 
 export const useGroupedAddJsOperations = (): GroupedAddOperations => {

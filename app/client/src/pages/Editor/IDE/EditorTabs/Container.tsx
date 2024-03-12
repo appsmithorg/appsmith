@@ -6,7 +6,7 @@ const Container = (props: { children: ReactNode }) => {
   return (
     <Flex
       alignItems="center"
-      backgroundColor="#F8FAFC"
+      backgroundColor="#FFFFFF"
       borderBottom="1px solid var(--ads-v2-color-border)"
       gap="spaces-2"
       maxHeight="32px"

@@ -41,6 +41,7 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     @JsonView(Views.Public.class)
+    @ToString.Exclude
     private String password;
 
     @JsonView(Views.Internal.class)
