@@ -56,7 +56,7 @@ export const useQueryAdd = () => {
       url = getQueryUrl(currentEntityInfo);
     }
     history.push(url);
-  }, [currentEntityInfo.id, segmentMode]);
+  }, [currentEntityInfo, segmentMode]);
 
   return addButtonClickHandler;
 };

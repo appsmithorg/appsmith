@@ -37,7 +37,7 @@ export const useJSAdd = () => {
     } else {
       dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
     }
-  }, [dispatch, pageId, segmentMode]);
+  }, [dispatch, pageId, segmentMode, currentEntityInfo]);
 };
 
 export const useGroupedAddJsOperations = (): GroupedAddOperations => {
