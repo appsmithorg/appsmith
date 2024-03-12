@@ -17,9 +17,6 @@ describe("GitChangesList", () => {
         modifiedDatasources: 1,
         modifiedJSLibs: 1,
         discardDocUrl: "string",
-        modifiedPackages: 1,
-        modifiedModules: 3,
-        modifiedModuleInstances: 4,
       };
       const actual = gitChangeListData(status);
       expect(Array.isArray(actual)).toBeTruthy();
