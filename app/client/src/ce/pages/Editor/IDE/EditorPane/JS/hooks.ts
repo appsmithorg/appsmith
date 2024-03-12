@@ -18,15 +18,21 @@ import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
 import ListJS from "pages/Editor/IDE/EditorPane/JS/List";
 import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/JS/BlankStateContainer";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
+import history from "utils/history";
+import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { getJSUrl } from "./utils";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
+  const currentEntityInfo = identifyEntityFromPath(location.pathname);
   const { segmentMode } = useCurrentEditorState();
 
   return useCallback(() => {
     if (segmentMode === EditorEntityTabState.Add) {
       // since js don't have a add mode in CE
+      const url = getJSUrl(currentEntityInfo, false);
+      history.push(url);
       return;
     } else {
       dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
