@@ -60,9 +60,17 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
-        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).is(applicationId);
+        criteria.add(applicationCriteria);
+
+        Criteria deletedCriteria =
+                where(NewAction.Fields.unpublishedAction_deletedAt).is(null);
+        criteria.add(deletedCriteria);
+
         return queryBuilder()
-                .criteria(applicationIdCriteria)
+                .criteria(criteria)
                 .permission(aclPermission.orElse(null))
                 .sort(sort.orElse(null))
                 .all();
@@ -351,16 +359,27 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, AclPermission permission) {
+            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission) {
+        List<Criteria> criteriaList = new ArrayList<>();
+
         final String defaultResources = NewAction.Fields.defaultResources;
         Criteria defaultActionIdCriteria =
                 where(defaultResources + "." + FieldName.ACTION_ID).is(defaultActionId);
+        criteriaList.add(defaultActionIdCriteria);
+
         Criteria branchCriteria =
                 where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
-        return queryBuilder()
-                .criteria(defaultActionIdCriteria, branchCriteria)
-                .permission(permission)
-                .one();
+        criteriaList.add(branchCriteria);
+
+        if (Boolean.FALSE.equals(viewMode)) {
+            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
+            // would exist. To handle this, only fetch non-deleted actions
+            Criteria deletedCriterion =
+                    where(NewAction.Fields.unpublishedAction_deletedAt).is(null);
+
+            criteriaList.add(deletedCriterion);
+        }
+        return queryBuilder().criteria(criteriaList).permission(permission).one();
     }
 
     @Override
@@ -493,9 +512,17 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
+        List<Criteria> criteria = new ArrayList<>();
+
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        criteria.add(defaultAppIdCriteria);
+
+        Criteria deletedCriteria =
+                where(NewAction.Fields.unpublishedAction_deletedAt).is(null);
+        criteria.add(deletedCriteria);
+
         return queryBuilder()
                 .criteria(defaultAppIdCriteria)
                 .permission(permission.orElse(null))

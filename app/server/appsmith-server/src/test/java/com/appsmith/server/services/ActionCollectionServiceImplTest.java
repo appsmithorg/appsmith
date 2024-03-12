@@ -125,6 +125,9 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     private DefaultResourcesService<ActionCollection> actionCollectionDefaultResourcesService;
 
+    @MockBean
+    private DefaultResourcesService<ActionCollectionDTO> actionCollectionDtoDefaultResourcesService;
+
     @BeforeEach
     public void setUp() {
         applicationPermission = new ApplicationPermissionImpl();
@@ -140,7 +143,8 @@ public class ActionCollectionServiceImplTest {
                 responseUtils,
                 applicationPermission,
                 actionPermission,
-                actionCollectionDefaultResourcesService);
+                actionCollectionDefaultResourcesService,
+                actionCollectionDtoDefaultResourcesService);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
