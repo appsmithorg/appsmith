@@ -68,6 +68,13 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       payload = [],
       selectionRequestType,
     } = action.payload;
+    /**
+     * Apart from the normal selection request by a user on canvas, there are other ways which can trigger selection
+     * e.g. when a modal closes in the editor -> we select the main container.
+     * One way modal closes is because user navigates to home page using the appsmith icon. In this case, we don't want the selection process to trigger.
+     * This also safeguards against the case where the selection process is triggered by a non-canvas click where user moves out of editor.
+     * */
+
     const isOnEditorURL = !!getAppViewerPageIdFromPath(
       window.location.pathname,
     );
