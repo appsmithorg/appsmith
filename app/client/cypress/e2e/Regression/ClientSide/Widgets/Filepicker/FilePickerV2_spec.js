@@ -80,5 +80,61 @@ describe(
       cy.wait(1000);
       cy.validateEvaluatedValue("[]");
     });
+
+    it("5. Check removed file", function () {
+      // Go back to widgets page
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+
+      cy.openPropertyPane("textwidget");
+      cy.updateCodeInput(".t--property-control-text", `{{FilePicker1.files}}`);
+
+      cy.get(widgetsPage.filepickerwidgetv2).click();
+      cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
+
+      // Set the maximum number of files allowed to be selected in the file picker.
+      cy.get(commonlocators.filePickerMaxNoOfFiles).type("2");
+
+      // Set the 'dataFormat' dropdown of our file picker to Base64.
+      cy.selectDropdownValue(commonlocators.filePickerDataFormat, "Base64");
+
+      // Upload a new file
+      cy.get(widgetsPage.filepickerwidgetv2).click();
+      cy.get(commonlocators.filePickerInput)
+        .first()
+        .selectFile("cypress/fixtures/testRemoveFile1.json", {
+          force: true,
+        });
+      cy.get(commonlocators.filePickerUploadButton).click();
+      //eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(500);
+
+      // Upload a new file
+      cy.get(widgetsPage.filepickerwidgetv2).click();
+      cy.get(commonlocators.AddMoreFiles).click();
+      cy.get(commonlocators.filePickerInput)
+        .first()
+        .selectFile("cypress/fixtures/testRemoveFile2.json", {
+          force: true,
+        });
+      cy.get(commonlocators.filePickerUploadButton).click();
+      //eslint-disable-next-line cypress/no-unnecessary-waiting
+      cy.wait(500);
+
+      // Check file data
+      cy.get(".t--widget-textwidget").should(
+        "contain",
+        "data:application/json;base64",
+      );
+
+      cy.get(widgetsPage.filepickerwidgetv2).click();
+      cy.get(commonlocators.filePickerRemoveButton).first().click();
+      cy.get(widgetsPage.filepickerwidgetv2CloseModalBtn).click();
+
+      // Check file data
+      cy.get(".t--widget-textwidget").should(
+        "contain",
+        "data:application/json;base64",
+      );
+    });
   },
 );
