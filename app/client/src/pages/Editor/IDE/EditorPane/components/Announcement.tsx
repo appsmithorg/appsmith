@@ -41,6 +41,7 @@ const Announcement = () => {
       banner={getAssetUrl(`${ASSETS_CDN_URL}/splitpane-banner.svg`)}
       description={createMessage(SPLITPANE_ANNOUNCEMENT.DESCRIPTION)}
       footer={modalFooter()}
+      isBeta
       isOpen={show}
       title={createMessage(SPLITPANE_ANNOUNCEMENT.TITLE)}
     />
