@@ -220,6 +220,7 @@ const Header = () => {
         <AppsmithLink />
         <Divider orientation="vertical" />
         <TitleComponent />
+        <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
       </Flex>
       <Flex
         alignItems={"center"}
@@ -274,7 +275,6 @@ const Header = () => {
         height={"100%"}
         justifyContent={"right"}
       >
-        <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
         <HelpBar />
         <StyledDivider orientation={"vertical"} />
         <ToggleModeButton />
