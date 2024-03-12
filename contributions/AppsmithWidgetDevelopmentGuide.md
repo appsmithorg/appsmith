@@ -391,7 +391,7 @@ Type of `BlueprintOperation`:
 - The operations to add action trigger handlers `BlueprintOperationTypes.ADD_ACTION`
 - The operations to be performed, if a child widget is added to this widget. `BlueprintOperationTypes.CHILD_OPERATIONS`
 - The operations to trigger before a widget is finalized in a new position after being dragged and dropped. `BlueprintOperationTypes.BEFORE_DROP`
-- The operations to trigger triggered before a widget or a group of widgets is pasted into a destination widget. `BlueprintOperationTypes.BEFORE_PASE`
+- The operations to be triggered before a widget or a group of widgets is pasted into a destination widget. `BlueprintOperationTypes.BEFORE_PASE`
 - The operations to trigger before a child widget is added to a parent widget. `BlueprintOperationTypes.BEFORE_ADD`
 - The operations to update and create parameters before adding the new widget. `BlueprintOperationTypes.UPDATE_CREATE_PARAMS_BEFORE_ADD`
 
