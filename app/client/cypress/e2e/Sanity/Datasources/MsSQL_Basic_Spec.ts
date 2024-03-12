@@ -16,7 +16,6 @@ import oneClickBindingLocator from "../../../locators/OneClickBindingLocator";
 import { OneClickBinding } from "../../Regression/ClientSide/OneClickBinding/spec_utility";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../support/Pages/EditorNavigation";
 import PageList from "../../../support/Pages/PageList";
 
@@ -308,7 +307,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad();
       //Delete the test data
-      PageLeftPane.expandCollapseItem("Pages");
+      PageList.ShowList();
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Page2",
         action: "Delete",
