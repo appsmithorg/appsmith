@@ -65,6 +65,7 @@ export default function EchartComponent(props: MapChartComponentProps) {
       chartContainer.current!,
       {},
       {
+        renderer: "svg",
         width: props.width,
         height: props.height,
       },
