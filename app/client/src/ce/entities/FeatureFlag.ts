@@ -46,8 +46,6 @@ export const FEATURE_FLAG = {
   ab_start_with_data_default_enabled: "ab_start_with_data_default_enabled",
   release_actions_redesign_enabled: "release_actions_redesign_enabled",
   rollout_editor_pane_segments_enabled: "rollout_editor_pane_segments_enabled",
-  release_show_create_app_from_templates_enabled:
-    "release_show_create_app_from_templates_enabled",
   rollout_remove_feature_walkthrough_enabled:
     "rollout_remove_feature_walkthrough_enabled",
   release_drag_drop_building_blocks_enabled:
@@ -93,7 +91,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   ab_start_with_data_default_enabled: false,
   release_actions_redesign_enabled: false,
   rollout_editor_pane_segments_enabled: false,
-  release_show_create_app_from_templates_enabled: false,
   rollout_remove_feature_walkthrough_enabled: false,
   rollout_js_enabled_one_click_binding_enabled: false,
 };
