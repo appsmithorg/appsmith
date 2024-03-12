@@ -5195,7 +5195,7 @@ public class ImportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplication_WhenUpdateLayoutFailures_Success() {
-        FilePart filePart = createFilePart("com.appsmith.server.imports.internal/faulty-dsl.json");
+        FilePart filePart = createFilePart("com/appsmith/server/imports/internal/faulty-dsl.json");
 
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
