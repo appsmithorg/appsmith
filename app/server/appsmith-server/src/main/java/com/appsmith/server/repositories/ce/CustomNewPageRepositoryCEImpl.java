@@ -107,7 +107,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Mono<NewPage> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission aclPermission, Boolean viewMode) {
-        BridgeQuery<NewPage> q = Bridge.equal(NewPage.Fields.applicationId, applicationId);
+        BridgeQuery<NewPage> q = getNameCriterion(name, viewMode).equal(NewPage.Fields.applicationId, applicationId);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case a page has been deleted in edit mode, but still exists in deployed mode, NewPage object would
