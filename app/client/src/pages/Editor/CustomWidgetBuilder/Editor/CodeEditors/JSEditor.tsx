@@ -3,7 +3,6 @@ import type { ContentProps } from "./types";
 import styles from "./styles.module.css";
 import {
   CodeEditorBorder,
-  EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
@@ -25,6 +24,7 @@ import type { LintError } from "widgets/types";
 import { PropertyEvaluationErrorType } from "widgets/types";
 import { Severity } from "widgets/types";
 import { isUndefined } from "lodash";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 export default function JSEditor(props: ContentProps) {
   const [loading, setLoading] = useState(true);

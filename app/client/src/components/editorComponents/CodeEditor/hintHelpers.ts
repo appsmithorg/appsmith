@@ -3,7 +3,7 @@ import CodeMirror from "codemirror";
 import CodemirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import KeyboardShortcuts from "constants/KeyboardShortcuts";
 import type { HintHelper } from "components/editorComponents/CodeEditor/EditorConfig";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 import {
   checkIfCursorInsideBinding,
   isCursorOnEmptyToken,

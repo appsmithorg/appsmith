@@ -1,11 +1,10 @@
 import CodeMirror from "codemirror";
-import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 import "codemirror/addon/mode/multiplex";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/sql/sql";
 import "codemirror/addon/hint/sql-hint";
-import type { TEditorSqlModes } from "./sql/config";
+import type { TEditorModes, TEditorSqlModes } from "./sql/config";
 import { sqlModesConfig } from "./sql/config";
 
 export const BINDING_OPEN = "{{",

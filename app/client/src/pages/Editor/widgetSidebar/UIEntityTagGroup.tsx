@@ -1,4 +1,4 @@
-import type { WidgetTags } from "constants/WidgetConstants";
+import type { WidgetCardProps, WidgetTags } from "constants/WidgetConstants";
 import {
   SUGGESTED_WIDGETS_ORDER,
   WIDGET_TAGS,
@@ -13,7 +13,6 @@ import {
 } from "design-system";
 import { sortBy } from "lodash";
 import React from "react";
-import type { WidgetCardProps } from "widgets/BaseWidget";
 import SeeMoreButton from "./SeeMoreButton";
 import WidgetCard from "./WidgetCard";
 import styled from "styled-components";

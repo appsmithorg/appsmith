@@ -8,12 +8,12 @@ import {
   DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
   DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
   WIDGET_TAGS,
+  type WidgetCardProps,
 } from "constants/WidgetConstants";
 import Fuse from "fuse.js";
 import type { Filter } from "pages/Templates/TemplateFilters";
 import { TEMPLATE_BUILDING_BLOCKS_FILTER_FUNCTION_VALUE } from "pages/Templates/constants";
 import { createSelector } from "reselect";
-import type { WidgetCardProps } from "widgets/BaseWidget";
 
 const fuzzySearchOptions = {
   keys: ["title", "id", "datasources", "widgets"],
