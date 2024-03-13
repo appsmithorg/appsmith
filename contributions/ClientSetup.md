@@ -57,6 +57,13 @@ On your development machine, please ensure that:
     - The backend server can be run in two ways
         1.  Use Appsmith's staging server hosted at `https://release.app.appsmith.com` for development purposes. <b>(Recommended)</b>
         1.  Run the backend server locally. To setup the backend server locally, refer [here](#running-backend-locally).
+    - To start the RTS server for communication between a server and clients, use these commands below,
+      ```bash
+          cd app/client/packages/rts
+          cp .env.example .env
+          yarn install
+          yarn start
+          ```
     -  Run the script `start-https.sh` to start the nginx container that will proxy the frontend requests to the backend server.
         - Pass the server name as an argument to this command to use that server as backend.
 
