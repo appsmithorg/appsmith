@@ -57,7 +57,6 @@ describe("GlobalSearch", function () {
 
   it("3. navigatesToApi", () => {
     cy.CreateAPI("SomeApi");
-
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);

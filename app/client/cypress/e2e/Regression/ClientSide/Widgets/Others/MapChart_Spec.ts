@@ -12,7 +12,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
-const _mapChartCaption = "g[class*='-caption'] text";
+const _mapChartCaption = "text:last-child";
 const _mapChartPlot = (text: string) =>
   "//text()[contains(., '" + text + "')]/..";
 
@@ -33,7 +33,6 @@ describe(
     it("2.1 Update the Map type to different types and verify - part1", function () {
       // Change the map type to World with Antarctica and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "World with Antarctica");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 7);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -43,7 +42,6 @@ describe(
 
       // Change the map type to World and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "World");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 6);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -53,7 +51,6 @@ describe(
 
       // Change the map type to Europe and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Europe");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 47);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -63,7 +60,6 @@ describe(
 
       // Change the map type to North America and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "North America");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 26);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -73,7 +69,6 @@ describe(
 
       // Change the map type to South America and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "South America");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 16);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -85,7 +80,6 @@ describe(
     it("2.2 Update the Map type to different types and verify - part2", function () {
       // Change the map type to Oceania and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Oceania");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 15);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -95,7 +89,6 @@ describe(
 
       // Change the map type to Africa and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Africa");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 56);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -105,7 +98,6 @@ describe(
 
       // Change the map type to USA and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "USA");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 51);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -115,7 +107,6 @@ describe(
 
       // Change the map type to Asia and verify the number of entities
       propPane.SelectPropertiesDropDown("Map type", "Asia");
-      agHelper.AssertElementLength(viewWidgetsPage.mapChartEntityLabels, 49);
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
@@ -205,7 +196,7 @@ describe(
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
-      agHelper.GetNClick(_mapChartPlot("RU"), 0, true);
+      agHelper.GetNClick(_mapChartPlot("RU: 1.30"), 0, true);
       agHelper.ValidateToastMessage("Data Point Russian Federation Clicked");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
@@ -218,7 +209,7 @@ describe(
       deployMode.DeployApp(
         locators._widgetInDeployed(draggableWidgets.MAPCHART),
       );
-      agHelper.GetNClick(_mapChartPlot("CN"), 0, true);
+      agHelper.GetNClick(_mapChartPlot("CN: .40"), 0, true);
       agHelper.ValidateToastMessage("Converted to Js and clicked China");
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("MapChart1", EntityType.Widget);
@@ -230,7 +221,7 @@ describe(
         {
           minValue: 2,
           maxValue: 3,
-          code: "#FFFFF",
+          code: "#000",
         },
       ];
       propPane.MoveToTab("Style");

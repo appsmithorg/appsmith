@@ -19,9 +19,7 @@ import {
   RECONNECT_DATASOURCE_SUCCESS_MESSAGE1,
   RECONNECT_DATASOURCE_SUCCESS_MESSAGE2,
   RECONNECT_MISSING_DATASOURCE_CREDENTIALS,
-  RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
   SKIP_CONFIGURATION,
-  SKIP_TO_APPLICATION,
   SKIP_TO_APPLICATION_TOOLTIP_DESCRIPTION,
 } from "@appsmith/constants/messages";
 import {
@@ -51,7 +49,6 @@ import {
   getOAuthAccessToken,
   loadFilePickerAction,
 } from "actions/datasourceActions";
-import { builderURL } from "@appsmith/RouteBuilder";
 import localStorage from "utils/localStorage";
 import {
   Modal,
@@ -76,6 +73,9 @@ import {
 import type { AppState } from "@appsmith/reducers";
 import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import useReconnectModalData from "@appsmith/pages/Editor/gitSync/useReconnectModalData";
+import { resetImportData } from "@appsmith/actions/workspaceActions";
+import history from "utils/history";
 
 const Section = styled.div`
   display: flex;
@@ -289,7 +289,6 @@ function ReconnectDatasourceModal() {
   >(queryDatasourceId);
   const [pageId, setPageId] = useState<string | null>(queryPageId);
   const [appId, setAppId] = useState<string | null>(queryAppId);
-  const [appURL, setAppURL] = useState("");
   const [datasource, setDatasource] = useState<Datasource | null>(null);
   const [isImport, setIsImport] = useState(queryIsImport);
   const [isTesting, setIsTesting] = useState(false);
@@ -312,6 +311,21 @@ function ReconnectDatasourceModal() {
     return output;
   };
 
+  /**
+   * The role of useReconnectModalData is to provide editorId (appId or packageId), parentEntityId (pageId or moduleId)
+   * and any differentiating elements when a app vs package is imported.
+   * Right now it takes the pageId and appId and returns editorId/parentEntityId to reduces the changes required to
+   * refactor this for packages. Ideally the hook should calculate everything and return the necessary values.
+   */
+  const {
+    editorId,
+    editorType,
+    editorURL,
+    missingDsCredentialsDescription, // pageId or moduleId
+    parentEntityId, // appId or packageId from query params
+    skipMessage,
+  } = useReconnectModalData({ pageId, appId });
+
   // when redirecting from oauth, processing the status
   if (isImport) {
     setIsImport(false);
@@ -333,6 +347,7 @@ function ReconnectDatasourceModal() {
         workspaceId: orgId,
         datasourceName: dsName,
         pluginName: plugins[datasource?.pluginId || ""]?.name,
+        editorType,
       });
     } else if (queryDatasourceId) {
       dispatch(loadFilePickerAction());
@@ -348,7 +363,7 @@ function ReconnectDatasourceModal() {
         if (app) {
           dispatch(
             setWorkspaceIdForImport({
-              editorId: appId || "",
+              editorId: editorId || "",
               workspaceId: app.workspaceId,
             }),
           );
@@ -363,7 +378,7 @@ function ReconnectDatasourceModal() {
             dispatch({
               type: ReduxActionTypes.FETCH_UNCONFIGURED_DATASOURCE_LIST,
               payload: {
-                applicationId: appId,
+                applicationId: editorId,
                 workspaceId: app.workspaceId,
               },
             });
@@ -428,15 +443,20 @@ function ReconnectDatasourceModal() {
     }
   };
 
+  const clearImportData = () => {
+    dispatch(resetImportData());
+  };
+
   const onClose = () => {
     localStorage.setItem("importedAppPendingInfo", "null");
     dispatch(setIsReconnectingDatasourcesModalOpen({ isOpen: false }));
     dispatch(
-      setWorkspaceIdForImport({ editorId: appId || "", workspaceId: "" }),
+      setWorkspaceIdForImport({ editorId: editorId || "", workspaceId: "" }),
     );
     dispatch(setPageIdForImport(""));
     dispatch(resetDatasourceConfigForImportFetchedFlag());
     setSelectedDatasourceId("");
+    clearImportData();
   };
 
   const onSelectDatasource = useCallback((ds: Datasource) => {
@@ -478,17 +498,6 @@ function ReconnectDatasourceModal() {
     }
   }, [importedApplication, queryIsImport]);
 
-  useEffect(() => {
-    if (pageId) {
-      // TODO: Update route params here
-      setAppURL(
-        builderURL({
-          pageId: pageId,
-        }),
-      );
-    }
-  }, [pageId]);
-
   // checking of full configured
   useEffect(() => {
     if (isModalOpen && !isTesting) {
@@ -524,14 +533,14 @@ function ReconnectDatasourceModal() {
       }
       // When datasources are present and pending datasources are 0,
       // then only we want to update status as success
-      else if (appURL && pending.length === 0 && datasources.length > 0) {
+      else if (editorURL && pending.length === 0 && datasources.length > 0) {
         // open application import successfule
-        localStorage.setItem("importApplicationSuccess", "true");
+        localStorage.setItem("importSuccess", "true");
         localStorage.setItem("importedAppPendingInfo", "null");
-        window.open(appURL, "_self");
+        window.open(editorURL, "_self");
       }
     }
-  }, [datasources, appURL, isModalOpen, isTesting, queryIsImport]);
+  }, [datasources, editorURL, isModalOpen, isTesting, queryIsImport]);
 
   const mappedDataSources = datasources.map((ds: Datasource) => {
     return (
@@ -551,6 +560,13 @@ function ReconnectDatasourceModal() {
   const shouldShowDBForm =
     isConfigFetched && !isLoading && !checkIfDatasourceIsConfigured(datasource);
 
+  const onSkipBtnClick = () => {
+    AnalyticsUtil.logEvent("RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK");
+    localStorage.setItem("importedAppPendingInfo", "null");
+    editorURL && history.push(editorURL);
+    onClose();
+  };
+
   return (
     <Modal open={isModalOpen}>
       <ModalContentWrapper
@@ -567,23 +583,19 @@ function ReconnectDatasourceModal() {
               {createMessage(RECONNECT_MISSING_DATASOURCE_CREDENTIALS)}
             </Title>
 
-            <Text>
-              {createMessage(
-                RECONNECT_MISSING_DATASOURCE_CREDENTIALS_DESCRIPTION,
-              )}
-            </Text>
+            <Text>{missingDsCredentialsDescription}</Text>
             <ContentWrapper>
               <ListContainer>{mappedDataSources}</ListContainer>
 
               <DBFormWrapper>
                 {shouldShowDBForm && (
                   <DatasourceForm
-                    applicationId={appId}
+                    applicationId={editorId}
                     datasourceId={selectedDatasourceId}
                     fromImporting
                     // isInsideReconnectModal: indicates that the datasource form is rendering inside reconnect modal
                     isInsideReconnectModal
-                    pageId={pageId}
+                    pageId={parentEntityId}
                   />
                 )}
                 {checkIfDatasourceIsConfigured(datasource) && SuccessMessages()}
@@ -599,18 +611,12 @@ function ReconnectDatasourceModal() {
                 <Button
                   UNSAFE_width={"100px"}
                   className="t--skip-to-application-btn mt-5"
-                  href={appURL}
                   kind="secondary"
-                  onClick={() => {
-                    AnalyticsUtil.logEvent(
-                      "RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK",
-                    );
-                    localStorage.setItem("importedAppPendingInfo", "null");
-                  }}
+                  onClick={onSkipBtnClick}
                   renderAs="a"
                   size="md"
                 >
-                  {createMessage(SKIP_TO_APPLICATION)}
+                  {skipMessage}
                 </Button>
               </SkipToAppWrapper>
             </ContentWrapper>

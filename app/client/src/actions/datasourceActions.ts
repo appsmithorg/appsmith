@@ -14,6 +14,10 @@ import type {
 import type { PluginType } from "entities/Action";
 import type { ApiResponse, ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  ActionParentEntityType,
+  type ActionParentEntityTypeInterface,
+} from "@appsmith/entities/Engine/actionHelpers";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,
@@ -97,14 +101,16 @@ export const createDatasourceSuccess = (
 });
 
 export const redirectAuthorizationCode = (
-  pageId: string,
+  contextId: string,
   datasourceId: string,
   pluginType: PluginType,
+  contextType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   return {
     type: ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
     payload: {
-      pageId,
+      contextId,
+      contextType,
       datasourceId,
       pluginType,
     },

@@ -34,7 +34,7 @@ export const NameWrapper = styled.div<{ enableFontStyling?: boolean }>`
 }`
       : null}
 
-  & .t--action-name-edit-field, & .t--js-action-name-edit-field {
+  & .t--action-name-edit-field, & .t--js-action-name-edit-field, & .t--module-instance-name-edit-field {
     width: 100%;
 
     & > span {

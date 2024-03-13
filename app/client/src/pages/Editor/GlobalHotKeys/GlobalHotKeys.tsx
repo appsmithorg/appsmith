@@ -47,6 +47,7 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { setPreviewModeInitAction } from "actions/editorActions";
 
 interface Props {
   copySelectedWidget: () => void;
@@ -71,6 +72,7 @@ interface Props {
   appMode?: APP_MODE;
   isPreviewMode: boolean;
   isProtectedMode: boolean;
+  setPreviewModeInitAction: (shouldSet: boolean) => void;
   isSignpostingEnabled: boolean;
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
@@ -328,6 +330,14 @@ class GlobalHotKeys extends React.Component<Props> {
           stopPropagation
         />
         <Hotkey
+          combo="alt + p"
+          global
+          label="Preview Mode"
+          onKeyDown={() => {
+            this.props.setPreviewModeInitAction(!this.props.isPreviewMode);
+          }}
+        />
+        <Hotkey
           combo="ctrl + shift + g"
           global
           label="Show git commit modal"
@@ -383,6 +393,8 @@ const mapDispatchToProps = (dispatch: any) => {
         }),
       ),
     hideInstaller: () => dispatch(toggleInstaller(false)),
+    setPreviewModeInitAction: (shouldSet: boolean) =>
+      dispatch(setPreviewModeInitAction(shouldSet)),
   };
 };
 

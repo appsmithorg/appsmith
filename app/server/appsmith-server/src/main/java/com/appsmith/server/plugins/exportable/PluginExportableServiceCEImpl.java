@@ -1,6 +1,6 @@
 package com.appsmith.server.plugins.exportable;
 
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -37,11 +37,11 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         return workspaceService
-                .getById(artifactExchangeJson.getExportableArtifact().getWorkspaceId())
+                .getById(artifactExchangeJson.getArtifact().getWorkspaceId())
                 .map(workspace -> workspace.getPlugins().stream()
                         .map(WorkspacePlugin::getPluginId)
                         .collect(Collectors.toSet()))
@@ -63,7 +63,7 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
         return exportableArtifactMono.flatMap(exportableArtifact -> {

@@ -56,7 +56,7 @@ public class JsActionRefactoringServiceCEImpl implements EntityRefactoringServic
         // Fetch branched action as client only knows about the default action IDs
         Mono<RefactorEntityNameDTO> branchedActionMono = newActionService
                 .findByBranchNameAndDefaultActionId(
-                        branchName, refactorEntityNameDTO.getActionId(), actionPermission.getEditPermission())
+                        branchName, refactorEntityNameDTO.getActionId(), false, actionPermission.getEditPermission())
                 .map(branchedAction -> {
                     refactorEntityNameDTO.setActionId(branchedAction.getId());
                     defaultActionCollection.setPageId(
