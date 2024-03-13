@@ -49,6 +49,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
 import static com.appsmith.server.exceptions.AppsmithError.INVALID_PARAMETER;
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
 @Slf4j
 public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPageRepositoryCake, NewPage, String>
@@ -621,13 +622,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             if (!StringUtils.hasLength(defaultPageId)) {
                 return Mono.error(new AppsmithException(INVALID_PARAMETER, FieldName.PAGE_ID, defaultPageId));
             }
-            return Mono.error(new ex.Marker("need queryBuilder from service")); /*
-            getPageMono = repository
+            getPageMono = asMono(() -> repositoryDirect
                     .queryBuilder()
                     .byId(defaultPageId)
                     .fields(FieldName.APPLICATION_ID, FieldName.DEFAULT_RESOURCES)
                     .permission(pagePermission.getReadPermission())
-                    .one();//*/
+                    .one());
         } else {
             getPageMono = repository.findPageByBranchNameAndDefaultPageId(
                     branchName, defaultPageId, pagePermission.getReadPermission());
@@ -642,7 +642,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     } else {
                         return newPage.getApplicationId();
                     }
-                }); // */
+                });
     }
 
     // Remove the code
