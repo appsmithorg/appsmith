@@ -1,9 +1,12 @@
 name: Cyclic Dependency Check
 
 on:
-  pull_request:
-    paths:
-      - "app/client/src/**"
+  workflow_call:
+    inputs:
+      pr:
+        description: "This is the PR number in case the workflow is being called in a pull request"
+        required: false
+        type: number
 
 jobs:
   check-cyclic-dependencies:
@@ -24,7 +27,24 @@ jobs:
       - name: Checkout the merged commit from PR and base branch
         uses: actions/checkout@v4
         with:
-          ref: refs/pull/${{ github.event.pull_request.number }}/merge
+          ref: refs/pull/${{ inputs.pr }}/merge
+
+      # In case this is second attempt try restoring status of the prior attempt from cache
+      - name: Restore the previous run result
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/run_result
+          key: ${{ github.run_id }}-${{ github.job }}-client
+
+      # Fetch prior run result
+      - name: Get the previous run result
+        id: run_result
+        run: cat ~/run_result 2>/dev/null || echo 'default'
+
+      # In case of prior failure run the job
+      - if: steps.run_result.outputs.run_result != 'success'
+        run: echo "I'm alive!" && exit 0
 
       - name: Use Node.js
         uses: actions/setup-node@v3
@@ -35,6 +55,7 @@ jobs:
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
+        if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v3
         with:
           path: app/client/.yarn/cache
@@ -44,46 +65,21 @@ jobs:
 
       # Install all the dependencies
       - name: Install dependencies
+        if: steps.run_result.outputs.run_result != 'success'
         run: yarn install --immutable
 
       # Check for cyclic dependencies and save the output
       - name: Check for Cyclic Dependencies
+        if: steps.run_result.outputs.run_result != 'success'
         id: check_cyclic_deps
         run: |
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
-          OUTPUT="${OUTPUT//$'\n'/\\n}"
           PROCESSED_OUTPUT=$(echo "$OUTPUT" | awk '/Processed [0-9]+ files/,0')
-          echo "$PROCESSED_OUTPUT" > cyclic_deps.txt
+          echo "$PROCESSED_OUTPUT"
 
-          if [[ $PROCESSED_OUTPUT =~ Found\ [0-9]+\ circular\ dependencies! ]]; then
-            echo "Cyclic deps found."
+          if [[ $OUTPUT =~ Found\ [0-9]+\ circular\ dependencies! ]]; then
             echo "has_cyclic_deps=true" >> "$GITHUB_OUTPUT"
           fi
-
-      # Check for cyclic dependencies and save the output
-      - name: Debug
-        id: debug
-        run: |
-          ls -la
-
-        # Read the artifact content
-      - name: Read Cyclic Dependencies Result
-        id: read_cyclic_deps
-        run: echo "content=$(<cyclic_deps.txt)" >> "$GITHUB_OUTPUT"
-
-      # Comment on the PR
-      - name: Comment the result on PR
-        uses: actions/github-script@v3
-        with:
-          github-token: ${{secrets.GITHUB_TOKEN}}
-          script: |
-            const output = `${{ steps.read_cyclic_deps.outputs.content }}`;
-            const message = `🔄 Cyclic Dependency Check:\n\n${output}\n`;
-            github.issues.createComment({
-              ...context.repo,
-              issue_number: ${{ github.event.pull_request.number }},
-              body: message
-            });
 
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
@@ -92,11 +88,11 @@ jobs:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
-  fail-on-cyclic-dependencies:
-    needs: check-cyclic-dependencies
-    if: needs.check-cyclic-dependencies.outputs.has_cyclic_deps == 'true'
-    runs-on: ubuntu-latest
-    steps:
-      # Fail the job explicitly
-      - name: Fail the Job
+        # Fail the job explicitly
+      - name: Fail the Job if cyclic dependencies are found
+        if: steps.check_cyclic_deps.outputs.has_cyclic_deps == 'true'
         run: exit 1
+
+      # Set status = success
+      - name: Save the status of the run
+        run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
