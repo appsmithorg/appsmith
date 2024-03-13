@@ -2,17 +2,20 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -69,6 +72,18 @@ public class Layout {
 
     @JsonView(Views.Internal.class)
     Boolean validOnPageLoadActions = TRUE;
+
+    /** @deprecated it's not used today, don't start using it now.
+     * This field only exists here because its removal will cause a huge diff on all entities in git-connected
+     * applications. So, instead, we keep it, deprecated, query-transient (no corresponding field in Q* class),
+     * no getter/setter methods and only use it for reflection-powered services, like the git sync
+     * implementation. For all other practical purposes, this field doesn't exist.
+     */
+    @Deprecated(forRemoval = true)
+    @JsonView(Views.Internal.class)
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    protected Set<Policy> policies = Collections.emptySet();
 
     /**
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)

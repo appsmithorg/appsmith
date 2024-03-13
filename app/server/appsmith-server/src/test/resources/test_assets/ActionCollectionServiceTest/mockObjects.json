@@ -20,7 +20,8 @@
             "MainContainer"
           ],
           "allOnPageLoadActionNames": [],
-          "actionsUsedInDynamicBindings": []
+          "actionsUsedInDynamicBindings": [],
+          "policies": []
         }
       ]
     },
@@ -36,7 +37,8 @@
           },
           "widgetNames": [
             "MainContainer"
-          ]
+          ],
+          "policies": []
         }
       ]
     }
