@@ -356,16 +356,28 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     @Override
     public Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollectionEx(id, Optional.empty());
+        return deleteUnpublishedActionCollectionEx(
+                id, Optional.empty(), Optional.of(actionPermission.getDeletePermission()));
     }
 
     @Override
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id) {
-        return deleteUnpublishedActionCollectionEx(id, Optional.of(actionPermission.getDeletePermission()));
+        return deleteUnpublishedActionCollectionEx(
+                id,
+                Optional.of(actionPermission.getDeletePermission()),
+                Optional.of(actionPermission.getDeletePermission()));
+    }
+
+    @Override
+    public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionWithOptionalPermission(
+            String id,
+            Optional<AclPermission> deleteCollectionPermission,
+            Optional<AclPermission> deleteActionPermission) {
+        return deleteUnpublishedActionCollectionEx(id, deleteCollectionPermission, deleteActionPermission);
     }
 
     public Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionEx(
-            String id, Optional<AclPermission> permission) {
+            String id, Optional<AclPermission> permission, Optional<AclPermission> deleteActionPermission) {
         Mono<ActionCollection> actionCollectionMono = repository
                 .findById(id, permission)
                 .switchIfEmpty(Mono.error(
@@ -381,7 +393,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                         .getDefaultToBranchedActionIdsMap()
                                         .values())
                                 .flatMap(actionId -> newActionService
-                                        .deleteUnpublishedAction(actionId)
+                                        .deleteUnpublishedActionWithOptionalPermission(actionId, deleteActionPermission)
                                         // return an empty action so that the filter can remove it from the list
                                         .onErrorResume(throwable -> {
                                             log.debug(
