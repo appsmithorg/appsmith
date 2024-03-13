@@ -896,7 +896,7 @@ export class AggregateHelper {
     force = false,
   ) {
     this.ClearTextField(selector, force, index);
-    this.TypeText(selector, totype, index);
+    return this.TypeText(selector, totype, index);
   }
 
   public TypeText(

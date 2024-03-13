@@ -59,13 +59,16 @@ import StartWithTemplatesWrapper from "./StartWithTemplatesWrapper";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import type { Template } from "api/TemplatesApi";
+import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
 
-const SectionWrapper = styled.div`
+const SectionWrapper = styled.div<{ isBannerVisible: boolean }>`
   display: flex;
   flex-direction: column;
   padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-7);
   ${(props) => `
-    margin-top: ${props.theme.homePage.header}px;
+    margin-top: ${
+      props.theme.homePage.header + (props.isBannerVisible ? 40 : 0)
+    }px;
   `}
   background: var(--ads-v2-color-gray-50);
   ${(props) => `
@@ -73,12 +76,12 @@ const SectionWrapper = styled.div`
   `}
 `;
 
-const BackWrapper = styled.div<{ hidden?: boolean }>`
+const BackWrapper = styled.div<{ hidden?: boolean; isBannerVisible: boolean }>`
   position: sticky;
   display: flex;
   justify-content: space-between;
   ${(props) => `
-    top: ${props.theme.homePage.header}px;
+    top: ${props.theme.homePage.header + (props.isBannerVisible ? 40 : 0)}px;
     `}
   background: inherit;
   padding: var(--ads-v2-spaces-3);
@@ -201,6 +204,8 @@ const CreateNewAppsOption = ({
   const isEnabledForStartWithDataDefault = useFeatureFlag(
     FEATURE_FLAG.ab_start_with_data_default_enabled,
   );
+
+  const isBannerVisible = useSelector(shouldShowLicenseBanner);
 
   const dispatch = useDispatch();
   const onClickStartFromTemplate = () => {
@@ -496,8 +501,8 @@ const CreateNewAppsOption = ({
   };
 
   return (
-    <SectionWrapper>
-      <BackWrapper hidden={!useType}>
+    <SectionWrapper isBannerVisible={!!isBannerVisible}>
+      <BackWrapper hidden={!useType} isBannerVisible={!!isBannerVisible}>
         <LinkWrapper
           className="t--create-new-app-option-goback"
           data-testid="t--create-new-app-option-goback"

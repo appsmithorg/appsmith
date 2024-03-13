@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useMemo } from "react";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";
 import {
@@ -39,6 +39,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManageDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { resetCurrentPluginIdForCreateNewApp } from "actions/onboardingActions";
+import { getParentEntityDetailsFromParams } from "@appsmith/entities/Engine/actionHelpers";
 
 interface Props {
   datasource: Datasource;
@@ -46,7 +47,7 @@ interface Props {
   getSanitizedFormData: () => Datasource;
   currentEnvironment: string;
   isInvalid: boolean;
-  pageId?: string;
+  parentEntityId?: string;
   formName: string;
   viewMode?: boolean;
   shouldRender?: boolean;
@@ -143,7 +144,7 @@ function DatasourceAuth({
   isSaving,
   isTesting,
   onCancel,
-  pageId: pageIdProp = "",
+  parentEntityId: parentEntityIdProp = "",
   pluginName,
   pluginPackageName,
   pluginType,
@@ -167,10 +168,6 @@ function DatasourceAuth({
 
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
 
-  const isEnabledForTestPrimary = !!useFeatureFlag(
-    FEATURE_FLAG.ab_flip_primary_secondary_ctas_dsform_enabled,
-  );
-
   const canManageDatasource = getHasManageDatasourcePermission(
     isFeatureEnabled,
     datasourcePermissions,
@@ -181,12 +178,18 @@ function DatasourceAuth({
   // hooks
   const dispatch = useDispatch();
   const location = useLocation();
-  const { pageId: pageIdQuery } = useParams<ExplorerURLParams>();
+  const parentEntityIdObject = useParams<ExplorerURLParams>();
   const history = useHistory<AppsmithLocationState>();
 
-  const pageId = isInsideReconnectModal
-    ? pageIdProp
-    : ((pageIdQuery || pageIdProp) as string);
+  const { entityType, parentEntityId } = useMemo(
+    () =>
+      getParentEntityDetailsFromParams(
+        parentEntityIdObject,
+        parentEntityIdProp,
+        isInsideReconnectModal,
+      ),
+    [isInsideReconnectModal, parentEntityIdProp, parentEntityIdObject],
+  );
 
   useEffect(() => {
     if (authType === AuthType.OAUTH2) {
@@ -214,7 +217,7 @@ function DatasourceAuth({
           AnalyticsUtil.logEvent("DATASOURCE_AUTH_COMPLETE", {
             applicationId: applicationId,
             datasourceId: datasourceId,
-            pageId: pageId,
+            pageId: parentEntityId,
             oAuthPassOrFailVerdict: status,
             workspaceId: datasource?.workspaceId,
             datasourceName: datasource?.name,
@@ -258,7 +261,7 @@ function DatasourceAuth({
   // Handles datasource testing
   const handleDatasourceTest = () => {
     AnalyticsUtil.logEvent("TEST_DATA_SOURCE_CLICK", {
-      pageId: pageId,
+      pageId: parentEntityId,
       appId: applicationId,
       datasourceId: datasourceId,
       environmentId: currentEnvironment,
@@ -272,7 +275,7 @@ function DatasourceAuth({
   const handleDefaultAuthDatasourceSave = () => {
     dispatch(toggleSaveActionFlag(true));
     AnalyticsUtil.logEvent("SAVE_DATA_SOURCE_CLICK", {
-      pageId: pageId,
+      pageId: parentEntityId,
       appId: applicationId,
       environmentId: currentEnvironment,
       environmentName: currentEnvDetails.name,
@@ -304,7 +307,12 @@ function DatasourceAuth({
         createDatasourceFromForm(
           getSanitizedFormData(),
           pluginType
-            ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
+            ? redirectAuthorizationCode(
+                parentEntityId,
+                datasourceId,
+                pluginType,
+                entityType,
+              )
             : undefined,
         ),
       );
@@ -314,7 +322,12 @@ function DatasourceAuth({
           getSanitizedFormData(),
           currentEnvironment,
           pluginType
-            ? redirectAuthorizationCode(pageId, datasourceId, pluginType)
+            ? redirectAuthorizationCode(
+                parentEntityId,
+                datasourceId,
+                pluginType,
+                entityType,
+              )
             : undefined,
         ),
       );
@@ -336,11 +349,7 @@ function DatasourceAuth({
           floatLeft={!isInsideReconnectModal}
           isLoading={isTesting}
           key={buttonType}
-          kind={
-            isEnabledForTestPrimary && pluginType === "DB"
-              ? "primary"
-              : "secondary"
-          }
+          kind="secondary"
           onClick={handleDatasourceTest}
           size="md"
         >
@@ -362,7 +371,7 @@ function DatasourceAuth({
                 dispatch(resetCurrentPluginIdForCreateNewApp());
               } else {
                 const URL = integrationEditorURL({
-                  pageId,
+                  pageId: parentEntityId,
                   selectedTab: INTEGRATION_TABS.NEW,
                   params: getQueryParams(),
                 });
@@ -387,11 +396,6 @@ function DatasourceAuth({
           }
           isLoading={isSaving}
           key={buttonType}
-          kind={
-            isEnabledForTestPrimary && pluginType === "DB"
-              ? "secondary"
-              : "primary"
-          }
           onClick={
             authType === AuthType.OAUTH2
               ? handleOauthDatasourceSave

@@ -6,7 +6,10 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { RenderModes } from "constants/WidgetConstants";
+import {
+  BUILDING_BLOCK_EXPLORER_TYPE,
+  RenderModes,
+} from "constants/WidgetConstants";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type {
   CanvasWidgetsReduxState,
@@ -17,7 +20,7 @@ import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { generateWidgetProps } from "utils/WidgetPropsUtils";
-import { getWidget, getWidgets } from "./selectors";
+import { getDragDetails, getWidget, getWidgets } from "./selectors";
 import {
   buildWidgetBlueprint,
   executeWidgetBlueprintBeforeOperations,
@@ -49,6 +52,7 @@ import {
 } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { isFunction } from "lodash";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -476,9 +480,40 @@ function* addNewTabChildSaga(
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 
+function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
+  try {
+    if (addEntityAction.payload.type === BUILDING_BLOCK_EXPLORER_TYPE) {
+      const dragDetails: DragDetails = yield select(getDragDetails);
+      const buildingblockName = dragDetails.newWidget.displayName;
+      const skeletonWidgetName = `loading_${buildingblockName
+        .toLowerCase()
+        .replace(/ /g, "_")}`;
+      const addSkeletonWidgetAction: ReduxAction<WidgetAddChild> = {
+        ...addEntityAction,
+        payload: {
+          ...addEntityAction.payload,
+          type: "SKELETON_WIDGET",
+          widgetName: skeletonWidgetName,
+        },
+      };
+      yield call(addChildSaga, addSkeletonWidgetAction);
+    } else {
+      yield call(addChildSaga, addEntityAction);
+    }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
+      payload: {
+        action: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
+        error,
+      },
+    });
+  }
+}
+
 export default function* widgetAdditionSagas() {
   yield all([
-    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addChildSaga),
+    takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addUIEntitySaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD, addNewTabChildSaga),
   ]);
 }

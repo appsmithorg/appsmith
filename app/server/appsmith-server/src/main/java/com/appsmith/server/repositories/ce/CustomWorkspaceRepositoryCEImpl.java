@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -11,8 +10,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -37,7 +34,7 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<Workspace> findByName(String name, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QWorkspace.workspace.name)).is(name);
+        Criteria nameCriteria = where(Workspace.Fields.name).is(name);
 
         return queryBuilder().criteria(nameCriteria).permission(aclPermission).one();
     }
@@ -45,9 +42,8 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<Workspace> findByIdsIn(
             Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
-        Criteria workspaceIdCriteria = where(fieldName(QWorkspace.workspace.id)).in(workspaceIds);
-        Criteria tenantIdCriteria =
-                where(fieldName(QWorkspace.workspace.tenantId)).is(tenantId);
+        Criteria workspaceIdCriteria = where(Workspace.Fields.id).in(workspaceIds);
+        Criteria tenantIdCriteria = where(Workspace.Fields.tenantId).is(tenantId);
 
         return queryBuilder()
                 .criteria(workspaceIdCriteria, tenantIdCriteria)
@@ -57,25 +53,14 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
-    public Mono<Void> updateUserRoleNames(String userId, String userName) {
-        return mongoOperations
-                .updateMulti(
-                        Query.query(Criteria.where("userRoles.userId").is(userId)),
-                        Update.update("userRoles.$.name", userName),
-                        Workspace.class)
-                .then();
-    }
-
-    @Override
     public Flux<Workspace> findAllWorkspaces() {
-        return mongoOperations.find(new Query(), Workspace.class);
+        return queryBuilder().all();
     }
 
     @Override
     public Flux<Workspace> findAll(AclPermission permission) {
         return sessionUserService.getCurrentUser().flatMapMany(user -> {
-            Criteria tenantIdCriteria =
-                    where(fieldName(QWorkspace.workspace.tenantId)).is(user.getTenantId());
+            Criteria tenantIdCriteria = where(Workspace.Fields.tenantId).is(user.getTenantId());
             return queryBuilder()
                     .criteria(tenantIdCriteria)
                     .permission(permission)

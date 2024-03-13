@@ -27,7 +27,7 @@ public class EmailConstantsCE {
     public static final String FORGOT_PASSWORD_TEMPLATE_CE = "email/ce/forgotPasswordTemplate.html";
     public static final String INSTANCE_ADMIN_INVITE_EMAIL_TEMPLATE = "email/ce/instanceAdminInviteTemplate.html";
     public static final String EMAIL_VERIFICATION_EMAIL_TEMPLATE_CE = "email/ce/emailVerificationTemplate.html";
-    public static final String WORKSPACE_URL = "%s/applications#%s";
+    public static final String WORKSPACE_URL = "%s/applications?workspaceId=%s";
     public static final String INVITER_FIRST_NAME = "inviterFirstName";
     public static final String INVITER_WORKSPACE_NAME = "inviterWorkspaceName";
     public static final String EMAIL_VERIFICATION_URL = "verificationUrl";

@@ -11,6 +11,6 @@ export const defaultsConfig = {
   value: "1500",
   label: "Active Users",
   sublabel: "Since 21 Jan 2022",
-  icon: "user",
+  iconName: "user",
   responsiveBehavior: ResponsiveBehavior.Fill,
 } as unknown as WidgetDefaultProps;

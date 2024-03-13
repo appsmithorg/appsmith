@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -26,18 +25,14 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
 
     @Override
     public Flux<Plugin> findDefaultPluginIcons() {
-        Criteria criteria =
-                Criteria.where(fieldName(QPlugin.plugin.defaultInstall)).is(Boolean.TRUE);
-        List<String> projections = List.of(
-                fieldName(QPlugin.plugin.name),
-                fieldName(QPlugin.plugin.packageName),
-                fieldName(QPlugin.plugin.iconLocation));
+        Criteria criteria = Criteria.where(Plugin.Fields.defaultInstall).is(Boolean.TRUE);
+        List<String> projections = List.of(Plugin.Fields.name, Plugin.Fields.packageName, Plugin.Fields.iconLocation);
         return queryBuilder().criteria(criteria).fields(projections).all();
     }
 
     @Override
     public Flux<Plugin> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
-        Criteria idCriteria = where(fieldName(QPlugin.plugin.id)).in(ids);
+        Criteria idCriteria = where(Plugin.Fields.id).in(ids);
         return queryBuilder().criteria(idCriteria).fields(includeFields).all();
     }
 }

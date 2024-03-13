@@ -2,13 +2,9 @@ package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QBaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.Workspace;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -29,18 +25,16 @@ import java.util.stream.Collectors;
 import static com.appsmith.server.constants.ce.FieldNameCE.ADMINISTRATOR;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEVELOPER;
 import static com.appsmith.server.migrations.db.ce.Migration041TagWorkspacesForGitOperationsPermissionMigration.MIGRATION_FLAG_TAG_WITHOUT_GIT_PERMISSIONS;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
 @ChangeUnit(order = "042", id = "add-permissions-for-git-operations", author = " ")
 public class Migration042AddPermissionsForGitOperations {
 
     private final MongoTemplate mongoTemplate;
-    private static final String policiesFieldPath = fieldName(QBaseDomain.baseDomain.policies);
-    private static final String idFieldPath = fieldName(QBaseDomain.baseDomain.id);
-    private static final String workspaceIdFieldPath = fieldName(QApplication.application.workspaceId);
-    private static final String defaultPermissionGroupsFieldPath =
-            fieldName(QWorkspace.workspace.defaultPermissionGroups);
+    private static final String policiesFieldPath = BaseDomain.Fields.policies;
+    private static final String idFieldPath = BaseDomain.Fields.id;
+    private static final String workspaceIdFieldPath = Application.Fields.workspaceId;
+    private static final String defaultPermissionGroupsFieldPath = Workspace.Fields.defaultPermissionGroups;
 
     public Migration042AddPermissionsForGitOperations(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;
@@ -116,7 +110,7 @@ public class Migration042AddPermissionsForGitOperations {
     private Set<String> getPermissionGroupsForNewPermissions(Workspace workspace) {
         Set<String> defaultPermissionGroups = workspace.getDefaultPermissionGroups();
         Query permissionGroupsQuery = new Query(Criteria.where(idFieldPath).in(defaultPermissionGroups));
-        permissionGroupsQuery.fields().include(fieldName(QPermissionGroup.permissionGroup.name));
+        permissionGroupsQuery.fields().include(PermissionGroup.Fields.name);
 
         List<PermissionGroup> permissionGroups = mongoTemplate.find(permissionGroupsQuery, PermissionGroup.class);
 

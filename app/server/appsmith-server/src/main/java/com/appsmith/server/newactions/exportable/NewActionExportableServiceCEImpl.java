@@ -4,7 +4,7 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -46,7 +46,7 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         ArtifactBasedExportableService<NewAction, ?> artifactBasedExportableService =
@@ -132,20 +132,25 @@ public class NewActionExportableServiceCEImpl implements ExportableServiceCE<New
             newAction.setPluginId(mappedExportableResourcesDTO.getPluginMap().get(newAction.getPluginId()));
             newAction.setWorkspaceId(null);
             newAction.setPolicies(null);
+
+            String publishedDbName = sanitizeDatasourceInActionDTO(
+                    newAction.getPublishedAction(),
+                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                    mappedExportableResourcesDTO.getPluginMap(),
+                    null,
+                    true);
+
+            String unpublishedDbName = sanitizeDatasourceInActionDTO(
+                    newAction.getUnpublishedAction(),
+                    mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
+                    mappedExportableResourcesDTO.getPluginMap(),
+                    null,
+                    true);
+
+            // Only add the datasource for this action to dbNamesUsed if it is not a module action
             if (hasExportableDatasource(newAction)) {
-                // Only add the datasource for this action to dbNamesUsed if it is not a module action
-                dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                        newAction.getPublishedAction(),
-                        mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                        mappedExportableResourcesDTO.getPluginMap(),
-                        null,
-                        true));
-                dbNamesUsedInActions.add(sanitizeDatasourceInActionDTO(
-                        newAction.getUnpublishedAction(),
-                        mappedExportableResourcesDTO.getDatasourceIdToNameMap(),
-                        mappedExportableResourcesDTO.getPluginMap(),
-                        null,
-                        true));
+                dbNamesUsedInActions.add(publishedDbName);
+                dbNamesUsedInActions.add(unpublishedDbName);
             }
 
             // Set unique id for action

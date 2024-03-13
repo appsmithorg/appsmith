@@ -3,6 +3,7 @@ package com.appsmith.external.models;
 import com.appsmith.external.models.ce.DefaultResourcesCE;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.experimental.FieldNameConstants;
 
 /**
  * This class will be used for connecting resources across branches for git connected application
@@ -10,4 +11,7 @@ import lombok.EqualsAndHashCode;
  */
 @EqualsAndHashCode(callSuper = true)
 @Data
-public class DefaultResources extends DefaultResourcesCE {}
+@FieldNameConstants
+public class DefaultResources extends DefaultResourcesCE {
+    public static class Fields extends DefaultResourcesCE.Fields {}
+}

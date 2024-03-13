@@ -743,9 +743,9 @@ public enum AppsmithError {
     GENERIC_JSON_IMPORT_ERROR(
             400,
             AppsmithErrorCode.GENERIC_JSON_IMPORT_ERROR.getCode(),
-            "Unable to import application in workspace {0}. {1}",
+            "Unable to import artifact in workspace {0}. {1}",
             AppsmithErrorAction.DEFAULT,
-            "Unable to import application in workspace",
+            "Unable to import artifact in workspace",
             ErrorType.BAD_REQUEST,
             null),
     FILE_PART_DATA_BUFFER_ERROR(
@@ -1019,6 +1019,14 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Trigger parameters empty.",
             ErrorType.INTERNAL_ERROR,
+            null),
+    INSUFFICIENT_PASSWORD_STRENGTH(
+            400,
+            AppsmithErrorCode.INSUFFICIENT_PASSWORD_STRENGTH.getCode(),
+            "Password must be {0}-{1} characters long and include at least one uppercase letter, one lowercase letter, one number, one symbol, and no whitespaces.",
+            AppsmithErrorAction.DEFAULT,
+            "Insufficient password strength",
+            ErrorType.ARGUMENT_ERROR,
             null),
     ;
 

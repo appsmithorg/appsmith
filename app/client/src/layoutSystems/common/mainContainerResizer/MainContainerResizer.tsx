@@ -75,7 +75,6 @@ export function MainContainerResizer({
     const ele: HTMLElement | null = document.getElementById(CANVAS_VIEWPORT);
 
     if (isPageInitiated && enableMainCanvasResizer) {
-      const buffer = isPreview ? AUTOLAYOUT_RESIZER_WIDTH_BUFFER : 0;
       const fullWidthCSS = `calc(100% - ${AUTOLAYOUT_RESIZER_WIDTH_BUFFER}px)`;
       const wrapperElement: any = document.getElementById("widgets-editor");
 
@@ -107,7 +106,7 @@ export function MainContainerResizer({
           // Calculate the dimension of element
           const styles = window.getComputedStyle(ele);
           dispatch(setAutoCanvasResizing(true));
-          w = parseInt(styles.width, 10) + buffer;
+          w = parseInt(styles.width, 10);
           // h = parseInt(styles.height, 10);
           const mouseMove = (e: any) => mouseMoveHandler(e);
           events.push(mouseMove);

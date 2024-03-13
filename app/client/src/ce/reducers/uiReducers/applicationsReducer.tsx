@@ -247,6 +247,12 @@ export const handlers = {
       importingApplication: false,
     };
   },
+  [ReduxActionTypes.RESET_IMPORT_DATA]: (state: ApplicationsReduxState) => {
+    return {
+      ...state,
+      importedApplication: null,
+    };
+  },
   [ReduxActionTypes.PARTIAL_IMPORT_INIT]: (state: ApplicationsReduxState) => ({
     ...state,
     partialImportExport: {

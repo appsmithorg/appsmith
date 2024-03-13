@@ -1,8 +1,7 @@
 package com.appsmith.server.plugins.exportable;
 
-import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QPlugin;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
@@ -15,8 +14,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin> {
 
@@ -40,17 +37,16 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         return workspaceService
-                .getById(artifactExchangeJson.getExportableArtifact().getWorkspaceId())
+                .getById(artifactExchangeJson.getArtifact().getWorkspaceId())
                 .map(workspace -> workspace.getPlugins().stream()
                         .map(WorkspacePlugin::getPluginId)
                         .collect(Collectors.toSet()))
                 .flatMapMany(pluginIds -> pluginService.findAllByIdsWithoutPermission(
-                        pluginIds,
-                        List.of(fieldName(QPlugin.plugin.pluginName), fieldName(QPlugin.plugin.packageName))))
+                        pluginIds, List.of(Plugin.Fields.pluginName, Plugin.Fields.packageName)))
                 .map(plugin -> {
                     mappedExportableResourcesDTO
                             .getPluginMap()
@@ -67,7 +63,7 @@ public class PluginExportableServiceCEImpl implements ExportableServiceCE<Plugin
     public Mono<Void> getExportableEntities(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedExportableResourcesDTO,
-            Mono<? extends ExportableArtifact> exportableArtifactMono,
+            Mono<? extends Artifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson,
             Boolean isContextAgnostic) {
         return exportableArtifactMono.flatMap(exportableArtifact -> {

@@ -7,8 +7,8 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
@@ -22,6 +22,7 @@ import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
+import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportServiceCE;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -33,8 +34,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.google.gson.Gson;
-import com.google.gson.reflect.TypeToken;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
@@ -44,7 +43,6 @@ import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -71,7 +69,6 @@ public class ApplicationImportServiceCEImpl
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
     private final ActionPermission actionPermission;
-    private final Gson gson;
     private final ImportableService<Theme> themeImportableService;
     private final ImportableService<NewPage> newPageImportableService;
     private final ImportableService<CustomJSLib> customJSLibImportableService;
@@ -85,12 +82,6 @@ public class ApplicationImportServiceCEImpl
      */
     protected final Map<String, String> applicationConstantsMap =
             Map.of(FieldName.ARTIFACT_CONTEXT, FieldName.APPLICATION, FieldName.ID, FieldName.APPLICATION_ID);
-
-    @Override
-    public ApplicationJson extractArtifactExchangeJson(String jsonString) {
-        Type fileType = new TypeToken<ApplicationJson>() {}.getType();
-        return gson.fromJson(jsonString, fileType);
-    }
 
     @Override
     public ImportArtifactPermissionProvider getImportArtifactPermissionProviderForImportingArtifact(
@@ -228,7 +219,7 @@ public class ApplicationImportServiceCEImpl
 
     @Override
     public ApplicationImportDTO getImportableArtifactDTO(
-            ImportableArtifact importableArtifact, List<Datasource> datasourceList, String environmentId) {
+            Artifact importableArtifact, List<Datasource> datasourceList, String environmentId) {
         Application application = (Application) importableArtifact;
         ApplicationImportDTO applicationImportDTO = new ApplicationImportDTO();
         applicationImportDTO.setApplication(application);
@@ -317,6 +308,14 @@ public class ApplicationImportServiceCEImpl
                     .collect(Collectors.toList());
             applicationJson.setActionCollectionList(importedActionCollectionList);
         }
+
+        if (applicationJson.getCustomJSLibList() != null) {
+            List<CustomJSLib> importedCustomJSLibList = applicationJson.getCustomJSLibList().stream()
+                    .peek(customJSLib -> customJSLib.setGitSyncId(
+                            null)) // setting this null so that this custom js lib can be imported again
+                    .collect(Collectors.toList());
+            applicationJson.setCustomJSLibList(importedCustomJSLibList);
+        }
     }
 
     @Override
@@ -345,7 +344,7 @@ public class ApplicationImportServiceCEImpl
 
     @Override
     public Mono<Application> updateAndSaveArtifactInContext(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<User> currentUserMono) {
@@ -407,7 +406,16 @@ public class ApplicationImportServiceCEImpl
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
             if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
-                importApplicationMono = existingApplicationMono;
+                if (!CollectionUtils.isEmpty(mappedImportableResourcesDTO.getInstalledJsLibsList())) {
+                    Application update = new Application();
+                    update.setUnpublishedCustomJSLibs(
+                            new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
+                    importApplicationMono = applicationService
+                            .update(importingMetaDTO.getArtifactId(), update)
+                            .then(existingApplicationMono);
+                } else {
+                    importApplicationMono = existingApplicationMono;
+                }
             } else {
                 importApplicationMono = importApplicationMono
                         .zipWith(existingApplicationMono)
@@ -463,7 +471,7 @@ public class ApplicationImportServiceCEImpl
     }
 
     @Override
-    public Mono<Application> updateImportableArtifact(ImportableArtifact importableArtifact) {
+    public Mono<Application> updateImportableArtifact(Artifact importableArtifact) {
         return Mono.just((Application) importableArtifact)
                 .flatMap(application -> {
                     log.info("Imported application with id {}", application.getId());
@@ -477,7 +485,19 @@ public class ApplicationImportServiceCEImpl
                 .flatMap(application -> {
                     return Flux.fromIterable(application.getPages())
                             .map(ApplicationPage::getId)
-                            .flatMap(updateLayoutService::updatePageLayoutsByPageId)
+                            .flatMap(pageId -> {
+                                return updateLayoutService
+                                        .updatePageLayoutsByPageId(pageId)
+                                        .onErrorResume(throwable -> {
+                                            // the error would most probably arise because of update layout error,
+                                            // this shouldn't stop the application from getting imported.
+                                            String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                                            log.error(
+                                                    "Error while updating layout. Error: {}", errorMessage, throwable);
+                                            // continuing the execution
+                                            return Mono.just("");
+                                        });
+                            })
                             .collectList()
                             .thenReturn(application);
                 });
@@ -485,7 +505,7 @@ public class ApplicationImportServiceCEImpl
 
     @Override
     public Mono<Application> updateImportableEntities(
-            ImportableArtifact importableContext,
+            Artifact importableContext,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             ImportingMetaDTO importingMetaDTO) {
         return Mono.just((Application) importableContext).flatMap(application -> {
@@ -499,7 +519,7 @@ public class ApplicationImportServiceCEImpl
 
     @Override
     public Map<String, Object> createImportAnalyticsData(
-            ArtifactExchangeJson artifactExchangeJson, ImportableArtifact importableArtifact) {
+            ArtifactExchangeJson artifactExchangeJson, Artifact importableArtifact) {
 
         Application application = (Application) importableArtifact;
         ApplicationJson applicationJson = (ApplicationJson) artifactExchangeJson;
@@ -529,7 +549,7 @@ public class ApplicationImportServiceCEImpl
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
         return importableArtifactMono.flatMapMany(importableContext -> {
             Application application = (Application) importableContext;
@@ -562,7 +582,7 @@ public class ApplicationImportServiceCEImpl
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         return importableArtifactMono.flatMapMany(importableContext -> {

@@ -1,5 +1,6 @@
 package com.appsmith.external.models.ce;
 
+import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
@@ -15,14 +16,15 @@ import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.views.ResponseOnly;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -34,6 +36,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @ToString
+@FieldNameConstants
 public class ActionCE_DTO implements Identifiable, Executable {
 
     @Transient
@@ -85,9 +88,8 @@ public class ActionCE_DTO implements Identifiable, Executable {
     ActionConfiguration actionConfiguration;
 
     // this attribute carries error messages while processing the actionCollection
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
     @Transient
-    @JsonView(Views.Public.class)
+    @JsonView(ResponseOnly.class)
     List<ErrorDTO> errorReports;
 
     @JsonView(Views.Public.class)
@@ -103,23 +105,19 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Public.class)
     List<Property> dynamicBindingPathList;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Public.class)
+    @JsonView(ResponseOnly.class)
     Boolean isValid;
 
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Public.class)
+    @JsonView(ResponseOnly.class)
     Set<String> invalids;
 
     @Transient
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Public.class)
+    @JsonView(ResponseOnly.class)
     Set<String> messages = new HashSet<>();
 
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
-    @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Public.class)
+    @JsonView(ResponseOnly.class)
     Set<String> jsonPathKeys;
 
     @JsonView(Views.Internal.class)
@@ -167,6 +165,13 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @JsonView(Views.Internal.class)
     protected Instant updatedAt;
+
+    // Defines what triggered action creation, could be self (user explicitly created action) / generate crud / one
+    // click binding etc
+    // Used in logging create action event
+    @Transient
+    @JsonView(Views.Public.class)
+    ActionCreationSourceTypeEnum source;
 
     @Override
     @JsonView(Views.Public.class)
@@ -303,9 +308,12 @@ public class ActionCE_DTO implements Identifiable, Executable {
         this.setPluginType(null);
         this.setErrorReports(null);
         this.setDocumentation(null);
+        this.setSource(null);
     }
 
     public String calculateContextId() {
         return this.getPageId();
     }
+
+    public static class Fields {}
 }
