@@ -66,7 +66,6 @@ import {
   storeCodeWidgetNavigationUsed,
 } from "../utils/storage";
 
-
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
 // in the entity explorer so that the selected widget is visible
