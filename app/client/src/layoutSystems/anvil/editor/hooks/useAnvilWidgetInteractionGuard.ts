@@ -1,3 +1,4 @@
+import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import { useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { getIsDragging } from "selectors/widgetDragSelectors";
@@ -7,10 +8,11 @@ export const useAnvilWidgetInteractionGuard = (
   ref: React.RefObject<HTMLDivElement>,
 ) => {
   const isDragging = useSelector(getIsDragging);
+  const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
   const allowEventPropagation = useRef(isDragging);
   useEffect(() => {
-    allowEventPropagation.current = isDragging;
-  }, [isDragging]);
+    allowEventPropagation.current = isDragging || isDistributingSpace;
+  }, [isDragging, isDistributingSpace]);
 
   const handleFirstInteraction = (e: any) => {
     if (!(e.altKey || allowEventPropagation.current)) {
