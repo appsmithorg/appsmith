@@ -58,6 +58,9 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import store from "store";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import type { DefaultOptionType } from "rc-select/lib/Select";
+import log from "loglevel";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { AddScriptTo, ScriptStatus, useScript } from "utils/hooks/useScript";
 
 const featureFlags = selectFeatureFlags(store.getState());
 const isFeatureEnabled = isGACEnabled(featureFlags);
@@ -267,6 +270,13 @@ export function CustomRolesRamp() {
   );
 }
 
+declare global {
+  interface Window {
+    grecaptcha: any;
+  }
+}
+const { googleRecaptchaSiteKey } = getAppsmithConfigs();
+
 function InviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
@@ -307,6 +317,11 @@ function InviteUsersForm(props: any) {
 
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
+
+  const recaptchaStatus = useScript(
+    `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
+    AddScriptTo.HEAD,
+  );
 
   useEffect(() => {
     setSelectedOption([]);
@@ -369,29 +384,55 @@ function InviteUsersForm(props: any) {
     }
   };
 
-  return (
-    <StyledForm
-      onSubmit={handleSubmit(async (values: any, dispatch: any) => {
-        const roles = isMultiSelectDropdown
-          ? selectedOption
-              .map((option: DefaultOptionType) => option.value)
-              .join(",")
-          : selectedOption[0].value;
-        validateFormValues({ ...values, role: roles });
-        const usersAsStringsArray = values.users.split(",");
-        // update state to show success message correctly
-        updateNumberOfUsersInvited(usersAsStringsArray.length);
-        const validEmails = usersAsStringsArray.filter((user: string) =>
-          isEmail(user),
-        );
-        const validEmailsString = [...new Set(validEmails)].join(",");
+  const inviteUsersSubmitHandler = handleSubmit(
+    async (values: any, dispatch: any) => {
+      const roles = isMultiSelectDropdown
+        ? selectedOption
+            .map((option: DefaultOptionType) => option.value)
+            .join(",")
+        : selectedOption[0].value;
+      validateFormValues({ ...values, role: roles });
+      const usersAsStringsArray = values.users.split(",");
+      // update state to show success message correctly
+      updateNumberOfUsersInvited(usersAsStringsArray.length);
+      const validEmails = usersAsStringsArray.filter((user: string) =>
+        isEmail(user),
+      );
+      const validEmailsString = [...new Set(validEmails)].join(",");
 
-        AnalyticsUtil.logEvent("INVITE_USER", {
-          ...(!isFeatureEnabled ? { users: usersAsStringsArray } : {}),
-          role: roles,
-          numberOfUsersInvited: usersAsStringsArray.length,
-          orgId: props.workspaceId,
-        });
+      AnalyticsUtil.logEvent("INVITE_USER", {
+        ...(!isFeatureEnabled ? { users: usersAsStringsArray } : {}),
+        role: roles,
+        numberOfUsersInvited: usersAsStringsArray.length,
+        orgId: props.workspaceId,
+      });
+
+      if (
+        googleRecaptchaSiteKey.enabled &&
+        recaptchaStatus === ScriptStatus.READY
+      ) {
+        try {
+          window.grecaptcha
+            .execute(googleRecaptchaSiteKey.apiKey, {
+              action: "submit",
+            })
+            .then(async function (token: any) {
+              return inviteUsersToWorkspace(
+                {
+                  ...(props.workspaceId
+                    ? { workspaceId: props.workspaceId }
+                    : {}),
+                  users: validEmailsString,
+                  permissionGroupId: roles,
+                  recaptchaStatus: token,
+                },
+                dispatch,
+              );
+            });
+        } catch (error) {
+          log.error(error);
+        }
+      } else {
         return inviteUsersToWorkspace(
           {
             ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
@@ -400,8 +441,12 @@ function InviteUsersForm(props: any) {
           },
           dispatch,
         );
-      })}
-    >
+      }
+    },
+  );
+
+  return (
+    <StyledForm onSubmit={inviteUsersSubmitHandler}>
       <StyledInviteFieldGroup>
         <div style={{ width: "60%" }}>
           <TagListField

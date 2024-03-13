@@ -354,6 +354,7 @@ export function* inviteUsers(
       usernames: string[];
       workspaceId: string;
       permissionGroupId: string;
+      recaptchaToken?: string;
     };
   }>,
 ) {
@@ -363,6 +364,7 @@ export function* inviteUsers(
       yield callAPI(UserApi.inviteUser, {
         usernames: data.usernames,
         permissionGroupId: data.permissionGroupId,
+        recaptchaToken: data.recaptchaToken,
       });
     const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse) {
