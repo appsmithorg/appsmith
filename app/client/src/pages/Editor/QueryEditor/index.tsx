@@ -19,6 +19,7 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import {
   getAction,
   getIsActionConverting,
+  getPluginImages,
   getPluginSettingConfigs,
 } from "@appsmith/selectors/entitiesSelector";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
@@ -38,6 +39,8 @@ import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
 import { PluginType } from "entities/Action";
 import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
+import { Icon } from "design-system";
+import { resolveIcon } from "../utils";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -58,6 +61,12 @@ function QueryEditor(props: QueryEditorProps) {
   const isConverting = useSelector((state) =>
     getIsActionConverting(state, actionId || ""),
   );
+  const pluginImages = useSelector(getPluginImages);
+  const icon = resolveIcon({
+    iconLocation: pluginImages[pluginId] || "",
+    pluginType: action?.pluginType || "",
+    moduleType: action?.actionConfiguration?.body?.moduleType,
+  }) || <Icon name="module" />;
 
   const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
@@ -156,7 +165,13 @@ function QueryEditor(props: QueryEditorProps) {
   const notification = useMemo(() => {
     if (!isConverting) return null;
 
-    return <ConvertEntityNotification name={action?.name || ""} withPadding />;
+    return (
+      <ConvertEntityNotification
+        icon={icon}
+        name={action?.name || ""}
+        withPadding
+      />
+    );
   }, [action?.name, isConverting]);
 
   return (

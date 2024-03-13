@@ -2460,7 +2460,7 @@ export const MAXIMIZE_BUTTON_TOOLTIP = () =>
   `Expand code editor to full-screen`;
 export const MINIMIZE_BUTTON_TOOLTIP = () => `Open code editor next to the UI`;
 export const SPLITPANE_ANNOUNCEMENT = {
-  TITLE: () => "Code and UI side-by-side",
+  TITLE: () => "Code and UI, side-by-side",
   DESCRIPTION: () =>
-    "You can now write queries & JS functions as you refer to your UI on the side. This is a beta version that we will continue to improve with your feedback.",
+    "Write queries and JS functions while you refer to the UI on the side! This is a beta version that we will continue to improve with your feedback.",
 };
