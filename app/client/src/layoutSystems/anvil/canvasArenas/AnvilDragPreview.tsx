@@ -1,12 +1,12 @@
 import { useSelector } from "react-redux";
 import { useCanvasActivationStates } from "./hooks/mainCanvas/useCanvasActivationStates";
 import { getWidgetCards } from "selectors/editorSelectors";
-import { WidgetCardComponent } from "pages/Editor/WidgetCard";
 import React, { useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import { AnvilCanvasZIndex } from "./hooks/mainCanvas/useCanvasActivation";
 import styled from "styled-components";
+import { WidgetCardComponent } from "pages/Editor/widgetSidebar/WidgetCard";
 
 const StyledWidgetCardPreviewWrapper = styled.div`
   position: absolute;
