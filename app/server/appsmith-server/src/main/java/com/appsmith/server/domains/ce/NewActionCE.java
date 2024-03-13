@@ -77,10 +77,9 @@ public class NewActionCE extends BranchAwareDomain {
         public static final String unpublishedAction_actionConfiguration_httpMethod = String.join(
                 ".", unpublishedAction, ActionDTO.Fields.actionConfiguration, ActionConfiguration.Fields.httpMethod);
 
-        public static final String publishedAction_name = String.join(".", unpublishedAction, ActionDTO.Fields.name);
-        public static final String publishedAction_pageId =
-                String.join(".", unpublishedAction, ActionDTO.Fields.pageId);
+        public static final String publishedAction_name = String.join(".", publishedAction, ActionDTO.Fields.name);
+        public static final String publishedAction_pageId = String.join(".", publishedAction, ActionDTO.Fields.pageId);
         public static final String publishedAction_contextType =
-                String.join(".", unpublishedAction, ActionDTO.Fields.contextType);
+                String.join(".", publishedAction, ActionDTO.Fields.contextType);
     }
 }
