@@ -2,8 +2,7 @@ import { useSelector } from "react-redux";
 import { useCanvasActivationStates } from "./hooks/mainCanvas/useCanvasActivationStates";
 import { getWidgetCards } from "selectors/editorSelectors";
 import { WidgetCardComponent } from "pages/Editor/WidgetCard";
-import type { Ref } from "react";
-import React, { forwardRef, useEffect } from "react";
+import React, { useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import { AnvilCanvasZIndex } from "./hooks/mainCanvas/useCanvasActivation";
@@ -14,7 +13,10 @@ const StyledWidgetCardPreviewWrapper = styled.div`
   border-radius: 4px;
   background-color: #ffffff;
   box-shadow: 0px 4px 4px 0px #00000040;
+  opacity: 80%;
   pointer-events: none;
+  /* will be enabled by AnvilDragPreview as required */
+  display: none;
 `;
 
 const StyledDraggedWidgetCount = styled.div`
@@ -29,58 +31,45 @@ const StyledDraggedWidgetCount = styled.div`
   text-align: center;
   left: calc(100% - 12px);
 `;
+const BufferDistanceBetweenPreviewAndCursor = 10;
 
-const WidgetCardPreview = forwardRef(
-  (
-    {
-      cardProps,
-      draggedWidgetCount,
-    }: { cardProps: WidgetCardProps; draggedWidgetCount: number },
-    ref: Ref<HTMLDivElement>,
-  ) => {
-    return (
-      <StyledWidgetCardPreviewWrapper ref={ref}>
-        {draggedWidgetCount > 1 && (
-          <StyledDraggedWidgetCount>
-            {draggedWidgetCount}
-          </StyledDraggedWidgetCount>
-        )}
-        <WidgetCardComponent details={cardProps} />
-      </StyledWidgetCardPreviewWrapper>
-    );
-  },
-);
-
-export const AnvilDragPreview = () => {
-  const { dragDetails, draggedBlocks, isDragging, isNewWidget } =
-    useCanvasActivationStates();
-  const cards = useSelector(getWidgetCards);
-
-  const widgetType = isNewWidget
-    ? dragDetails.newWidget.type
-    : dragDetails.draggingGroupCenter?.widgetType || "";
-  const draggedWidgetCount = draggedBlocks.length;
-  const cardProps = cards.find((card) => card.type === widgetType);
+const WidgetCardPreview = ({
+  cardProps,
+  draggedWidgetCount,
+}: {
+  cardProps: WidgetCardProps;
+  draggedWidgetCount: number;
+}) => {
+  const { isDragging } = useCanvasActivationStates();
   const dragPreviewRef = React.useRef<HTMLDivElement>(null);
-  const repositionDragPreview = (e: MouseEvent) => {
-    if (isDragging && dragPreviewRef.current) {
-      dragPreviewRef.current.style.left = `${
-        e.clientX - dragPreviewRef.current.clientWidth / 2
-      }px`;
-      const bufferDistanceBetweenPreviewAndCursor = 10;
-      dragPreviewRef.current.style.top = `${
-        e.clientY -
-        dragPreviewRef.current.clientHeight -
-        bufferDistanceBetweenPreviewAndCursor
-      }px`;
-      if (dragPreviewRef.current.style.zIndex !== AnvilCanvasZIndex.activated) {
-        dragPreviewRef.current.style.zIndex = AnvilCanvasZIndex.activated;
+  const repositionDragPreview = useCallback(
+    (e: MouseEvent) => {
+      if (isDragging && dragPreviewRef.current) {
+        dragPreviewRef.current.style.left = `${
+          e.clientX - dragPreviewRef.current.clientWidth / 2
+        }px`;
+        dragPreviewRef.current.style.top = `${
+          e.clientY -
+          dragPreviewRef.current.clientHeight -
+          BufferDistanceBetweenPreviewAndCursor
+        }px`;
+        if (
+          dragPreviewRef.current.style.zIndex !== AnvilCanvasZIndex.activated
+        ) {
+          dragPreviewRef.current.style.zIndex = AnvilCanvasZIndex.activated;
+          dragPreviewRef.current.style.display = "block";
+        }
       }
-    }
-  };
+    },
+    [isDragging],
+  );
   useEffect(() => {
     if (isDragging) {
       document?.addEventListener("mousemove", repositionDragPreview);
+      if (dragPreviewRef.current) {
+        dragPreviewRef.current.style.zIndex = "-1";
+        dragPreviewRef.current.style.display = "none";
+      }
     }
     return () => {
       if (isDragging) {
@@ -88,13 +77,33 @@ export const AnvilDragPreview = () => {
       }
     };
   }, [isDragging]);
+  return (
+    <StyledWidgetCardPreviewWrapper ref={dragPreviewRef}>
+      {draggedWidgetCount > 1 && (
+        <StyledDraggedWidgetCount>
+          {draggedWidgetCount}
+        </StyledDraggedWidgetCount>
+      )}
+      <WidgetCardComponent details={cardProps} />
+    </StyledWidgetCardPreviewWrapper>
+  );
+};
+
+export const AnvilDragPreview = () => {
+  const { dragDetails, draggedBlocks, isDragging, isNewWidget } =
+    useCanvasActivationStates();
+  const cards = useSelector(getWidgetCards);
+  const widgetType = isNewWidget
+    ? dragDetails.newWidget.type
+    : dragDetails.draggingGroupCenter?.widgetType || "";
+  const draggedWidgetCount = draggedBlocks.length;
+  const cardProps = cards.find((card) => card.type === widgetType);
   const showDragPreview = isDragging && !!cardProps;
   return showDragPreview
     ? createPortal(
         <WidgetCardPreview
           cardProps={cardProps}
           draggedWidgetCount={draggedWidgetCount}
-          ref={dragPreviewRef}
         />,
         document.body,
       )
