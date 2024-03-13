@@ -21,7 +21,6 @@ import com.appsmith.server.solutions.PermissionGroupPermission;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -76,11 +75,10 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     }
 
     @Override
-    public Mono<List<User>> inviteUsers(ServerWebExchange serverWebExchange, String originHeader) {
-        String recaptchaToken = serverWebExchange.getRequest().getQueryParams().getFirst("recaptchaToken");
-        return captchaService.verify(recaptchaToken).flatMap(captchaVerified -> {
+    public Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader, String captchaToken) {
+        return captchaService.verify(captchaToken).flatMap(captchaVerified -> {
             if (TRUE.equals(captchaVerified)) {
-                return inviteUsers((InviteUsersDTO) serverWebExchange.getAttribute("inviteUsersDTO"), originHeader);
+                return inviteUsers(inviteUsersDTO, originHeader);
             } else {
                 return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_FAILED));
             }

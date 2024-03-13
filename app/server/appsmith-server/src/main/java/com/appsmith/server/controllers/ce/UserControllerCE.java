@@ -4,6 +4,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
+import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.ResendEmailVerificationDTO;
 import com.appsmith.server.dtos.ResetUserPasswordDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -178,9 +179,11 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     @JsonView(Views.Public.class)
     @PostMapping("/invite")
     public Mono<ResponseDTO<List<User>>> inviteUsers(
-            ServerWebExchange exchange, @RequestHeader("Origin") String originHeader) {
+            @RequestBody InviteUsersDTO inviteUsersDTO,
+            @RequestHeader("Origin") String originHeader,
+            @RequestParam String captchaToken) {
         return userAndAccessManagementService
-                .inviteUsers(exchange, originHeader)
+                .inviteUsers(inviteUsersDTO, originHeader, captchaToken)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
