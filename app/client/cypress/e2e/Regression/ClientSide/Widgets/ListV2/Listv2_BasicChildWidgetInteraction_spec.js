@@ -11,6 +11,7 @@ const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 function dragAndDropToWidget(widgetType, destinationWidget, { x, y }) {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(800);
+  PageLeftPane.switchToAddNew();
   cy.get(selector)
     .first()
     .scrollIntoView()
@@ -79,7 +80,6 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Select widget
-      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("selectwidget", "containerwidget", {
         x: 250,
         y: 50,
@@ -116,7 +116,6 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Checkbox widget
-      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("checkboxgroupwidget", "containerwidget", {
         x: 250,
         y: 50,
@@ -159,7 +158,6 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Switch widget
-      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("switchwidget", "containerwidget", {
         x: 250,
         y: 50,
@@ -204,7 +202,6 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Radio widget
-      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("radiogroupwidget", "containerwidget", {
         x: 250,
         y: 50,
