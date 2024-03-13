@@ -32,6 +32,7 @@ import type {
 } from "@appsmith/constants/ModuleInstanceConstants";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import type { JSAction } from "entities/JSCollection";
+import { getAllModules } from "@appsmith/selectors/modulesSelector";
 
 class ActionSelectorControl extends BaseControl<ControlProps> {
   componentRef = React.createRef<HTMLDivElement>();
@@ -108,6 +109,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
     const moduleInstances = getModuleInstances(state);
     const queryModuleInstances = [] as ModuleInstanceDataState;
     const jsModuleInstances = getJSModuleInstancesData(state);
+    const modules = getAllModules(state);
 
     if (!!moduleInstances) {
       for (const moduleInstance of Object.values(moduleInstances)) {
@@ -166,6 +168,7 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
       },
       queryModuleInstances,
       jsModuleInstances,
+      modules,
     );
 
     try {
