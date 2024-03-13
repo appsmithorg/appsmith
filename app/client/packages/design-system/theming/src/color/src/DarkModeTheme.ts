@@ -1043,10 +1043,10 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bdNegative.clone();
 
     // Lightness of bdNegative is known, no additional checks like in bdNeutralHover
-    color.oklch.l = color.oklch.l + 0.15;
+    color.oklch.l = color.oklch.l + 0.1;
 
-    if (this.bdNegative.oklch.c < 0.19) {
-      color.oklch.c = 0.19;
+    if (this.bdNegative.oklch.c < 0.1) {
+      color.oklch.c = 0.1;
     }
 
     return color;
