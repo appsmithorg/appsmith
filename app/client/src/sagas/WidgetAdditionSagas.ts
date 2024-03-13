@@ -7,7 +7,7 @@ import {
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
-import { fetchPage, updateAndSaveLayout } from "actions/pageActions";
+import { updateAndSaveLayout } from "actions/pageActions";
 import {
   BUILDING_BLOCK_EXPLORER_TYPE,
   MAIN_CONTAINER_WIDGET_ID,
@@ -26,7 +26,7 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
+import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getCanvasWidth,
@@ -82,6 +82,7 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getTemplateByName } from "selectors/templatesSelectors";
 import { saveCopiedWidgets } from "utils/storage";
 import { validateResponse } from "./ErrorSagas";
+import { postPageAdditionSaga } from "./TemplatesSagas";
 import { SelectionRequestType } from "./WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
@@ -612,8 +613,7 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
           },
         });
         yield put(pasteWidget(false, { x: 0, y: 0 }));
-        yield take(ReduxActionTypes.PASTE_COPIED_WIDGET_SUCCESS);
-        yield put(fetchPage(currentPageId));
+        yield call(postPageAdditionSaga, applicationId);
       }
     } else {
       yield call(addChildSaga, addEntityAction);
