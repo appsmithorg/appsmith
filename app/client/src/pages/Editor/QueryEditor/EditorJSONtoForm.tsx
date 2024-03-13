@@ -1,29 +1,24 @@
-import {
-  DOCUMENTATION,
-  DOCUMENTATION_TOOLTIP,
-  createMessage,
-} from "@appsmith/constants/messages";
 import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import type { AppState } from "@appsmith/reducers";
-import { getPluginNameFromId } from "@appsmith/selectors/entitiesSelector";
-import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
-import type { Plugin, UIComponentTypes } from "api/PluginApi";
 import type { ActionResponse } from "api/actionAPITypes";
-import ActionRightPane, {
-  useEntityDependencies,
-} from "components/editorComponents/ActionRightPane";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import type { FormEvalOutput } from "components/formControls/formControlTypes";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import { Tab, Tabs, TabsList, Tooltip } from "design-system";
+import type { Action, QueryAction, SaaSAction } from "entities/Action";
+import styled from "styled-components";
+import FormRow from "components/editorComponents/FormRow";
 import {
-  PluginName,
-  type Action,
-  type QueryAction,
-  type SaaSAction,
-} from "entities/Action";
+  createMessage,
+  DOCUMENTATION,
+  DOCUMENTATION_TOOLTIP,
+} from "@appsmith/constants/messages";
+import type { AppState } from "@appsmith/reducers";
+import ActionRightPane from "components/editorComponents/ActionRightPane";
+import type { Plugin } from "api/PluginApi";
+import type { UIComponentTypes } from "api/PluginApi";
+import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type { Datasource } from "entities/Datasource";
 import { noop } from "lodash";
@@ -42,7 +37,6 @@ import {
   QueryFormContainer,
   SecondaryWrapper,
   SettingsWrapper,
-  SidebarWrapper,
   TabContainerView,
   TabPanelWrapper,
   TabsListWrapper,
@@ -53,6 +47,22 @@ import QueryDebuggerTabs from "./QueryDebuggerTabs";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryEditorHeader from "./QueryEditorHeader";
 import QueryResponseTab from "./QueryResponseTab";
+
+export const StyledFormRow = styled(FormRow)`
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-5)
+    var(--ads-v2-spaces-7);
+  flex: 0;
+`;
+
+export const SegmentedControlContainer = styled.div`
+  padding: 0 var(--ads-v2-spaces-7);
+  padding-top: var(--ads-v2-spaces-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-4);
+  overflow-y: clip;
+  overflow-x: scroll;
+`;
 
 interface QueryFormProps {
   onDeleteClick: () => void;
@@ -133,13 +143,6 @@ export function EditorJSONtoForm(props: Props) {
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
-  const showRightPane = Boolean(actionRightPaneAdditionSections);
-
-  // get the current action's plugin name
-  const currentActionPluginName = useSelector((state: AppState) =>
-    getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
-  );
-
   const dispatch = useDispatch();
 
   const handleDocumentationClick = () => {
@@ -153,20 +156,11 @@ export function EditorJSONtoForm(props: Props) {
     id: currentActionConfig ? currentActionConfig.id : "",
   };
 
-  const { hasDependencies } = useEntityDependencies(props.actionName);
-
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
   const setSelectedConfigTab = useCallback((selectedIndex: string) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
   }, []);
-
-  // here we check for normal conditions for opening action pane
-  // or if any of the flags are true, We should open the actionpane by default.
-  const shouldOpenActionPaneByDefault =
-    hasDependencies ||
-    !!actionResponse ||
-    currentActionPluginName !== PluginName.SMTP;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -318,14 +312,10 @@ export function EditorJSONtoForm(props: Props) {
               />
             </SecondaryWrapper>
           </div>
-          {showRightPane && (
-            <SidebarWrapper show={shouldOpenActionPaneByDefault}>
-              <ActionRightPane
-                actionRightPaneBackLink={actionRightPaneBackLink}
-                additionalSections={actionRightPaneAdditionSections}
-              />
-            </SidebarWrapper>
-          )}
+          <ActionRightPane
+            actionRightPaneBackLink={actionRightPaneBackLink}
+            additionalSections={actionRightPaneAdditionSections}
+          />
         </Wrapper>
       </QueryFormContainer>
     </>

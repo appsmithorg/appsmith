@@ -87,5 +87,21 @@ describe(
           wdsWidgets.verifyCheckboxWidgetState("Checkbox1", "unchecked");
         });
     });
+    it("4. Click on Canvas to deselect all widgets", () => {
+      // Find the layout component that is the main canvas
+      cy.get(".anvil-canvas > div").click();
+      // Find all widgets within the main canvas
+      cy.get(".anvil-canvas").within(() => {
+        // For each widget check if the border-color is transparent
+        // The border-color changes if a widget is selected or focused.
+        cy.get(".anvil-widget-wrapper").each(($widget) => {
+          cy.wrap($widget).should(
+            "have.css",
+            "border-color",
+            "rgba(0, 0, 0, 0)",
+          );
+        });
+      });
+    });
   },
 );

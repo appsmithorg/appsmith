@@ -58,6 +58,17 @@ const SideBar = styled.div`
   }
 `;
 
+const Wrapper = styled.div`
+  border-left: 1px solid var(--ads-v2-color-border);
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-4);
+  overflow: hidden;
+  border-bottom: 0;
+  display: flex;
+  width: ${(props) => props.theme.actionSidePane.width}px;
+  margin-top: 10px;
+  /* margin-left: var(--ads-v2-spaces-7); */
+`;
+
 export function useEntityDependencies(actionName: string) {
   const deps = useSelector((state: AppState) => state.evaluations.dependencies);
   const entityDependencies = useMemo(
@@ -90,16 +101,18 @@ function ActionSidebar({
   }
 
   return (
-    <SideBar>
-      {actionRightPaneBackLink}
-      <CollapsibleGroupContainer>
-        {additionalSections && (
-          <CollapsibleGroup maxHeight={"50%"}>
-            {additionalSections}
-          </CollapsibleGroup>
-        )}
-      </CollapsibleGroupContainer>
-    </SideBar>
+    <Wrapper>
+      <SideBar>
+        {actionRightPaneBackLink}
+        <CollapsibleGroupContainer>
+          {additionalSections && (
+            <CollapsibleGroup maxHeight={"50%"}>
+              {additionalSections}
+            </CollapsibleGroup>
+          )}
+        </CollapsibleGroupContainer>
+      </SideBar>
+    </Wrapper>
   );
 }
 

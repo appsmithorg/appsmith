@@ -3,7 +3,6 @@ import type {
   DeleteAppThemeAction,
   FetchAppThemesAction,
   FetchSelectedAppThemeAction,
-  SaveAppThemeAction,
   UpdateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import { updateisBetaCardShownAction } from "actions/appThemingActions";
@@ -19,7 +18,6 @@ import {
   CHANGE_APP_THEME,
   createMessage,
   DELETE_APP_THEME,
-  SAVE_APP_THEME,
   SET_DEFAULT_SELECTED_THEME,
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
@@ -226,37 +224,6 @@ export function* changeSelectedTheme(
 }
 
 /**
- * save and create new theme from  selected theme
- *
- * @param action
- */
-export function* saveSelectedTheme(action: ReduxAction<SaveAppThemeAction>) {
-  const { applicationId, name } = action.payload;
-
-  try {
-    const response: ApiResponse<AppTheme[]> = yield ThemingApi.saveTheme(
-      applicationId,
-      { name },
-    );
-
-    yield put({
-      type: ReduxActionTypes.SAVE_APP_THEME_SUCCESS,
-      payload: response.data,
-    });
-
-    // shows toast
-    toast.show(createMessage(SAVE_APP_THEME, name), {
-      kind: "success",
-    });
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.SAVE_APP_THEME_ERROR,
-      payload: { error },
-    });
-  }
-}
-
-/**
  * deletes custom saved theme
  *
  * @param action
@@ -359,7 +326,6 @@ export default function* appThemingSaga() {
       ReduxActionTypes.CHANGE_SELECTED_APP_THEME_INIT,
       changeSelectedTheme,
     ),
-    takeLatest(ReduxActionTypes.SAVE_APP_THEME_INIT, saveSelectedTheme),
     takeLatest(ReduxActionTypes.DELETE_APP_THEME_INIT, deleteTheme),
     takeLatest(ReduxActionTypes.CLOSE_BETA_CARD_SHOWN, closeisBetaCardShown),
     takeLatest(

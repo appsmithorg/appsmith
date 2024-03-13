@@ -9,6 +9,8 @@ import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
@@ -23,7 +25,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -77,9 +78,12 @@ import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.constants.FieldName.DEFAULT;
+import static com.appsmith.server.constants.FieldName.TENANT;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
+import static com.appsmith.server.helpers.ValidationUtils.validateUserPassword;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
@@ -349,6 +353,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
+        Mono<Tenant> tenantMono = tenantService
+                .getDefaultTenant()
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, TENANT)));
+
         return passwordResetTokenRepository
                 .findByEmail(emailTokenDTO.getEmail())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET)))
@@ -365,12 +373,24 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         .findByEmail(emailAddress)
                         .switchIfEmpty(Mono.error(
                                 new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
-                        .flatMap(userFromDb -> {
-                            if (!ValidationUtils.validateLoginPassword(user.getPassword())) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.INVALID_PASSWORD_LENGTH,
-                                        LOGIN_PASSWORD_MIN_LENGTH,
-                                        LOGIN_PASSWORD_MAX_LENGTH));
+                        .zipWith(tenantMono)
+                        .flatMap(tuple -> {
+                            User userFromDb = tuple.getT1();
+                            TenantConfiguration tenantConfiguration =
+                                    tuple.getT2().getTenantConfiguration();
+                            boolean isStrongPasswordPolicyEnabled = tenantConfiguration != null
+                                    && Boolean.TRUE.equals(tenantConfiguration.getIsStrongPasswordPolicyEnabled());
+
+                            if (!validateUserPassword(user.getPassword(), isStrongPasswordPolicyEnabled)) {
+                                return isStrongPasswordPolicyEnabled
+                                        ? Mono.error(new AppsmithException(
+                                                AppsmithError.INSUFFICIENT_PASSWORD_STRENGTH,
+                                                LOGIN_PASSWORD_MIN_LENGTH,
+                                                LOGIN_PASSWORD_MAX_LENGTH))
+                                        : Mono.error(new AppsmithException(
+                                                AppsmithError.INVALID_PASSWORD_LENGTH,
+                                                LOGIN_PASSWORD_MIN_LENGTH,
+                                                LOGIN_PASSWORD_MAX_LENGTH));
                             }
 
                             // User has verified via the forgot password token verfication route. Allow the user to set

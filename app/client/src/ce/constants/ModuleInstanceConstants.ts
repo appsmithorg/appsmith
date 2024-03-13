@@ -15,6 +15,7 @@ export interface ModuleInstance {
   inputs: {
     [key: string]: string;
   };
+  sourceModuleId: ModuleId;
 }
 
 export interface ModuleInstanceData {

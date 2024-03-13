@@ -31,6 +31,8 @@ import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
 import type { SelectedArenaDimensions } from "./CanvasSelectionTypes";
+import { getWidgetSelectionBlock } from "../../../../selectors/ui";
+
 export function CanvasSelectionArena({
   canExtend,
   dropDisabled,
@@ -65,6 +67,7 @@ export function CanvasSelectionArena({
   );
   const appMode = useSelector(getAppMode);
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -495,6 +498,7 @@ export function CanvasSelectionArena({
     !(
       isDragging ||
       isPreviewMode ||
+      isWidgetSelectionBlocked ||
       isAppSettingsPaneWithNavigationTabOpen ||
       dropDisabled
     );

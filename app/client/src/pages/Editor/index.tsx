@@ -30,7 +30,7 @@ import { setupPage, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getSearchQuery } from "utils/helpers";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
-import ImportedApplicationSuccessModal from "./gitSync/ImportedAppSuccessModal";
+import ImportedApplicationSuccessModal from "./gitSync/ImportSuccessModal";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
