@@ -305,7 +305,7 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
                             NewAction branchedNewAction = null;
 
                             if (actionsInBranches.containsKey(newAction.getGitSyncId())) {
-                                branchedNewAction = getExistingActionInCurrentBranchForImportedAction(
+                                branchedNewAction = getExistingActionInOtherBranchForImportedAction(
                                         mappedImportableResourcesDTO, actionsInBranches, newAction);
                             }
 
@@ -457,6 +457,13 @@ public class NewActionImportableServiceCEImpl implements ImportableServiceCE<New
             Map<String, NewAction> actionsInCurrentArtifact,
             NewAction newAction) {
         return actionsInCurrentArtifact.get(newAction.getGitSyncId());
+    }
+
+    protected NewAction getExistingActionInOtherBranchForImportedAction(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, NewAction> actionsInOtherArtifact,
+            NewAction newAction) {
+        return actionsInOtherArtifact.get(newAction.getGitSyncId());
     }
 
     protected boolean existingArtifactContainsAction(

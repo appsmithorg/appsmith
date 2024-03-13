@@ -98,7 +98,13 @@ export const getQueryIcon = (
   query: ActionData | ModuleInstanceData,
   pluginImages: Record<string, string>,
 ) => {
-  if (!query.config.hasOwnProperty("sourceModuleId")) {
+  if (query.config.hasOwnProperty("type")) {
+    return (
+      <EntityIcon>
+        <Icon name="module" />
+      </EntityIcon>
+    );
+  } else {
     const action = query as ActionData;
     return (
       <ImageWrapper>
@@ -108,12 +114,6 @@ export const getQueryIcon = (
           src={pluginImages[action.config.pluginId]}
         />
       </ImageWrapper>
-    );
-  } else {
-    return (
-      <EntityIcon>
-        <Icon name="module" />
-      </EntityIcon>
     );
   }
 };
