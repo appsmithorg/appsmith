@@ -113,7 +113,7 @@ export const APPSMITH_USER_SESSION_TIMEOUT_SETTING: Setting = {
   controlType: SettingTypes.TEXTINPUT,
   label: "Session Timeout",
   subText:
-    "* Default duration is 720 hours, i.e. 30 days. To change, enter the new duration in HH:MM format",
+    "* Default duration is 30 days. To change, enter the new duration in DD:HH:MM format",
   helpText:
     "Users' session will automatically end if there's no activity for the specified duration, requiring them to log in again for security.",
   isFeatureEnabled: false,
