@@ -5,7 +5,6 @@ import { ANVIL_EDITOR_TEST } from "./Constants.js";
 
 import EditorNavigation, {
   EntityType,
-  AppSidebarButton,
   AppSidebar,
   PageLeftPane,
   PagePaneSegment,
@@ -24,7 +23,6 @@ const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
 
-const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
@@ -388,14 +386,6 @@ Cypress.Commands.add("DeleteApp", (appName) => {
     .click({ force: true });
   cy.get(homePage.deleteAppConfirm).should("be.visible").click({ force: true });
   cy.get(homePage.deleteApp).contains("Are you sure?").click({ force: true });
-});
-
-Cypress.Commands.add("DeletepageFromSideBar", () => {
-  cy.xpath(pages.popover).last().click({ force: true });
-  cy.get(pages.deletePage).first().click({ force: true });
-  cy.get(pages.deletePageConfirm).first().click({ force: true });
-  // eslint-disable-next-line cypress/no-unnecessary-waiting
-  cy.wait(2000);
 });
 
 Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
@@ -1951,22 +1941,6 @@ Cypress.Commands.add(
     });
   },
 );
-
-Cypress.Commands.add("CreatePage", () => {
-  AppSidebar.navigate(AppSidebarButton.Editor);
-  cy.get(pages.AddPage).first().click();
-  cy.xpath("//span[text()='New blank page']/parent::div").click();
-});
-
-Cypress.Commands.add("GenerateCRUD", () => {
-  cy.get(pages.AddPage).first().click();
-  cy.xpath("//span[text()='Generate page with data']/parent::div").click();
-});
-
-Cypress.Commands.add("AddPageFromTemplate", () => {
-  cy.get(pages.AddPage).first().click();
-  cy.xpath("//span[text()='Add page from template']/parent::div").click();
-});
 
 Cypress.Commands.add(`verifyCallCount`, (alias, expectedNumberOfCalls) => {
   cy.wait(alias);

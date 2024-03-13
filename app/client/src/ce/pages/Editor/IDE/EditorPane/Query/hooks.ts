@@ -60,7 +60,6 @@ export const useQueryAdd = () => {
 
   return addButtonClickHandler;
 };
-//history.push(location.pathname.replace(`${ADD_PATH}`, ""));
 
 export type GroupedAddOperations = Array<{
   title?: string;
@@ -214,7 +213,7 @@ export const useAddQueryListItems = () => {
           fileOperation.entityExplorerTitle ||
           fileOperation.dsName ||
           fileOperation.title,
-        description: "",
+        description: !!fileOperation.isBeta ? "Beta" : "",
         descriptionType: "inline",
         onClick: onCreateItemClick.bind(null, fileOperation),
       } as ListItemProps;

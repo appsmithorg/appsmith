@@ -8,7 +8,7 @@ import {X509Certificate} from "crypto"
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
 
 // Rate limit, numeric value defining the requests-per-second allowed.
-const RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 15, 10)
+const RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 100, 10)
 
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 

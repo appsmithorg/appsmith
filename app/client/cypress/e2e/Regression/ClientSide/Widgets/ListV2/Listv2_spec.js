@@ -68,7 +68,8 @@ describe(
           entityExplorer.DragDropWidgetNVerify(widget);
           //cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
           agHelper.GetNClick(propPane._deleteWidget);
-          cy.wait("@updateLayout");
+          cy.assertPageSave();
+          cy.wait(800);
         });
       },
     );
@@ -88,7 +89,8 @@ describe(
           cy.assertPageSave();
           cy.get(`.t--draggable-${widget}`).should("exist");
           cy.get(widgetsPage.removeWidget).click({ force: true });
-          cy.wait("@updateLayout");
+          cy.assertPageSave();
+          cy.wait(800);
         });
       },
     );

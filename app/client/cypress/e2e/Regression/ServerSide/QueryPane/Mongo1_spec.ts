@@ -14,7 +14,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -728,7 +727,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
-      PageLeftPane.expandCollapseItem("Pages");
+      PageList.ShowList();
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "AuthorNAwards",
         action: "Delete",

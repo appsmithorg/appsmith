@@ -269,6 +269,7 @@ export interface ActionOperation {
   focusEntityType?: FocusEntity;
   dsName?: string;
   entityExplorerTitle?: string;
+  isBeta?: boolean;
 }
 
 export const actionOperations: ActionOperation[] = [

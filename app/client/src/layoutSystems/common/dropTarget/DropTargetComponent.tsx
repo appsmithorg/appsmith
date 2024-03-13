@@ -32,20 +32,21 @@ import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { calculateDropTargetRows } from "./DropTargetUtils";
 
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { EditorState as IDEAppState } from "@appsmith/entities/IDE/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getWidgetSelectionBlock } from "selectors/ui";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -77,13 +78,23 @@ function Onboarding() {
   const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
   );
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
 
   const shouldShowStarterTemplates = useMemo(
     () =>
       showStarterTemplatesInsteadofBlankCanvas &&
       !isMobileCanvas &&
-      !isAirgappedInstance,
-    [isMobileCanvas, isAirgappedInstance],
+      !isAirgappedInstance &&
+      // This is to hide starter building blocks once building blocks are available in the explorer
+      !releaseDragDropBuildingBlocks,
+    [
+      showStarterTemplatesInsteadofBlankCanvas,
+      isMobileCanvas,
+      isAirgappedInstance,
+      releaseDragDropBuildingBlocks,
+    ],
   );
 
   if (shouldShowStarterTemplates && appState === IDEAppState.EDITOR)
@@ -249,6 +260,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   );
   // Are we changing the auto height limits by dragging the signifiers?
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
+  const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
 
   const dispatch = useDispatch();
 
@@ -317,7 +329,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       (e.target as HTMLDivElement).dataset.testid === selectionDiv ||
       (e.target as HTMLDivElement).dataset.testid === mainCanvasId;
 
-    if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
+    if (
+      !isResizing &&
+      !isDragging &&
+      !isAutoHeightWithLimitsChanging &&
+      !isWidgetSelectionBlocked
+    ) {
       // Check if Target is the MainCanvas
       if (isTargetMainCanvas) {
         goToWidgetAdd();

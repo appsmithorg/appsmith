@@ -57,6 +57,8 @@ export enum Kind {
   JS_LIB = "JS_LIB",
   THEME = "THEME",
   SETTINGS = "SETTINGS",
+  PACKAGES = "PACKAGES",
+  MODULES = "MODULES",
 }
 
 interface GitStatusProps {
@@ -124,6 +126,22 @@ const STATUS_MAP: GitStatusMap = {
     } modified`,
     iconName: "package",
     hasValue: (status?.modifiedJSLibs || 0) > 0,
+  }),
+  [Kind.PACKAGES]: (status) => ({
+    message: `${status?.modifiedPackages || 0} ${
+      (status?.modifiedPackages || 0) <= 1 ? "package" : "packages"
+    } modified`,
+    iconName: "package",
+    hasValue: (status?.modifiedPackages || 0) > 0,
+  }),
+  [Kind.MODULES]: (status) => ({
+    message: `${status?.modifiedModules || 0} ${
+      (status?.modifiedModules || 0) <= 1
+        ? "module configuration"
+        : "module configurations"
+    } modified`,
+    iconName: "package",
+    hasValue: (status?.modifiedModules || 0) > 0,
   }),
 };
 
@@ -193,6 +211,8 @@ export function gitChangeListData(
     Kind.JS_OBJECT,
     Kind.DATA_SOURCE,
     Kind.JS_LIB,
+    Kind.MODULES,
+    Kind.PACKAGES,
   ];
   return changeKind
     .map((type: Kind) => STATUS_MAP[type](status))

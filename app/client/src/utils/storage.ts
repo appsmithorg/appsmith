@@ -38,6 +38,7 @@ export const STORAGE_KEYS: {
   AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
   PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
   IDE_VIEW_MODE: "IDE_VIEW_MODE",
+  CODE_WIDGET_NAVIGATION_USED: "CODE_WIDGET_NAVIGATION_USED",
 };
 
 const store = localforage.createInstance({
@@ -880,5 +881,28 @@ export const retrieveIDEViewMode = async (): Promise<
   } catch (error) {
     log.error("An error occurred while fetching IDE_VIEW_MODE");
     log.error(error);
+  }
+};
+
+export const storeCodeWidgetNavigationUsed = async (count: number) => {
+  try {
+    await store.setItem(STORAGE_KEYS.CODE_WIDGET_NAVIGATION_USED, count);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting CODE_WIDGET_NAVIGATION_USED");
+    log.error(error);
+  }
+};
+
+export const retrieveCodeWidgetNavigationUsed = async (): Promise<number> => {
+  try {
+    const mode = (await store.getItem(
+      STORAGE_KEYS.CODE_WIDGET_NAVIGATION_USED,
+    )) as number;
+    return mode || 0;
+  } catch (error) {
+    log.error("An error occurred while fetching CODE_WIDGET_NAVIGATION_USED");
+    log.error(error);
+    return 0;
   }
 };
