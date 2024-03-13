@@ -65,8 +65,15 @@ export function evalTreeWithChanges(
   const allUnevalUpdates = unEvalUpdates.map(
     (update) => update.payload.propertyPath,
   );
+  const allRemovedPaths = removedPaths.map((ele) => ele?.fullpath);
+
   const completeEvalOrder = Array.from(
-    new Set([...allUnevalUpdates, ...evalOrder]),
+    new Set([
+      ...allUnevalUpdates,
+      ...allRemovedPaths,
+      ...evalOrder,
+      ...updatedValuePaths,
+    ]),
   );
 
   const updates = generateOptimisedUpdatesAndSetPrevState(

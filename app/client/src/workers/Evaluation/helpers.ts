@@ -3,7 +3,7 @@ import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
-import { get, has, isNumber, isObject, set } from "lodash";
+import { get, isNumber, isObject, set } from "lodash";
 import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
@@ -209,9 +209,9 @@ const getDataTree = (data: any, evalOrder: any) => {
     return acc;
   }, {});
   return evalOrder.reduce((acc: any, key: any) => {
-    if (has(data, key)) {
-      set(acc, key, get(data, key));
-    }
+    // if (has(data, key)) {
+    set(acc, key, get(data, key));
+    // }
     return acc;
   }, withErrors);
 };
@@ -219,7 +219,7 @@ const generateDiffUpdates = (
   oldDataTree: any,
   dataTree: any,
   ignoreLargeKeys: any,
-  evalOrder: string[],
+  evalOrder: any,
 ): DiffWithReferenceState[] => {
   const attachDirectly: DiffWithReferenceState[] = [];
   const ignoreLargeKeysHasBeenAttached = new Set();
@@ -321,7 +321,7 @@ export const generateSerialisedUpdates = (
   prevState: any,
   currentState: any,
   identicalEvalPathsPatches: any,
-  evalOrder: string[],
+  evalOrder: any,
 ): {
   serialisedUpdates: string;
   error?: { type: string; message: string };
@@ -356,7 +356,7 @@ export const generateSerialisedUpdates = (
 export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: any,
   dataTreeEvaluator: any,
-  evalOrder: string[],
+  evalOrder: any,
 ) => {
   const identicalEvalPathsPatches =
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
