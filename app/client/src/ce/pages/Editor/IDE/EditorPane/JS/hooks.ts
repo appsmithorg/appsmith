@@ -18,20 +18,43 @@ import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
 import ListJS from "pages/Editor/IDE/EditorPane/JS/List";
 import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/JS/BlankStateContainer";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
+import history from "utils/history";
+import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { getJSUrl } from "./utils";
+import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
+  const currentEntityInfo = identifyEntityFromPath(location.pathname);
   const { segmentMode } = useCurrentEditorState();
+  const moduleCreationOptions = useModuleOptions();
+  const jsModuleCreationOptions = moduleCreationOptions.filter(
+    (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
+  );
 
   return useCallback(() => {
-    if (segmentMode === EditorEntityTabState.Add) {
-      // since js don't have a add mode in CE
-      return;
+    if (jsModuleCreationOptions.length === 0) {
+      if (segmentMode === EditorEntityTabState.Add) {
+        const url = getJSUrl(currentEntityInfo, false);
+        history.push(url);
+      } else {
+        dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
+      }
     } else {
-      dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
+      const url = getJSUrl(
+        currentEntityInfo,
+        !(segmentMode === EditorEntityTabState.Add),
+      );
+      history.push(url);
     }
-  }, [dispatch, pageId, segmentMode]);
+  }, [
+    dispatch,
+    pageId,
+    segmentMode,
+    currentEntityInfo,
+    jsModuleCreationOptions,
+  ]);
 };
 
 export const useGroupedAddJsOperations = (): GroupedAddOperations => {
