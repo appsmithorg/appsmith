@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
@@ -211,7 +212,7 @@ const getDataTree = (data: any, evalOrder: any) => {
   return evalOrder.reduce((acc: any, key: any) => {
     const val = get(data, key);
     if (val === undefined) return acc;
-    set(acc, key, get(data, key));
+    set(acc, key, val);
     return acc;
   }, withErrors);
 };
@@ -307,14 +308,19 @@ export const generateOptimisedUpdates = (
   evalOrder: string[],
   identicalEvalPathsPatches?: Record<string, string>,
 ): DiffWithReferenceState[] => {
-  const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
-  const updates = generateDiffUpdates(
-    oldDataTree,
-    dataTree,
-    ignoreLargeKeys,
-    evalOrder,
-  );
-  return updates;
+  // const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
+  const widgetPaths = Array.from(new Set(evalOrder.map(path => path.split(".")[0])))
+  const allUpdates = evalOrder.map(path => ({ lhs: get(oldDataTree, path), rhs: get(dataTree, path), path }))
+    .filter(({ lhs, rhs }) => !equal(lhs, rhs))
+    .map(v => ({ kind: "N", path: v.path, rhs: v.rhs }))
+  const allWidgetsErrors = widgetPaths.map(path => `${path}.__evaluation__.errors`);
+  const allErrorUpdates = allWidgetsErrors.map(path => ({ lhs: get(oldDataTree, path), rhs: get(dataTree, path), path }))
+  .filter(({ lhs, rhs }) => !equal(lhs, rhs))
+  .map(v => ({ kind: "N", path: v.path, rhs: v.rhs }))
+ 
+  const allDiffUpdates = [...allUpdates, ...allErrorUpdates]
+    .map(v => ({kind: "N", path: v.path.split("."), rhs: v.rhs})) 
+  return allDiffUpdates as any;
 };
 
 export const generateSerialisedUpdates = (
