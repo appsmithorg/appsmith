@@ -24,12 +24,12 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { all, call, put, select, take, takeLatest } from "redux-saga/effects";
 import type { SetSelectionResult } from "sagas/WidgetSelectUtils";
 import {
-  SelectionRequestType,
   assertParentId,
   getWidgetAncestry,
   isInvalidSelectionRequest,
   pushPopWidgetSelection,
   selectAllWidgetsInCanvasSaga,
+  SelectionRequestType,
   selectMultipleWidgets,
   selectOneWidget,
   shiftSelectWidgets,
@@ -41,7 +41,11 @@ import {
   getIsFetchingPage,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
+import {
+  getLastSelectedWidget,
+  getSelectedWidgets,
+  getWidgetSelectionBlock,
+} from "selectors/ui";
 import { areArraysEqual } from "utils/AppsmithUtils";
 import { quickScrollToWidget } from "utils/helpers";
 import history, { NavigationMethod } from "utils/history";
@@ -56,6 +60,11 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
 import { getAppViewerPageIdFromPath } from "@appsmith/pages/Editor/Explorer/helpers";
+import AnalyticsUtil from "../utils/AnalyticsUtil";
+import {
+  retrieveCodeWidgetNavigationUsed,
+  storeCodeWidgetNavigationUsed,
+} from "../utils/storage";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -208,9 +217,16 @@ function* appendSelectedWidgetToUrlSaga(
   invokedBy?: NavigationMethod,
 ) {
   const isSnipingMode: boolean = yield select(snipingModeSelector);
+  const isWidgetSelectionBlocked: boolean = yield select(
+    getWidgetSelectionBlock,
+  );
+  const timesUsedCodeModeWidgetSelection: number = yield call(
+    retrieveCodeWidgetNavigationUsed,
+  );
   const appMode: APP_MODE = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
   if (isSnipingMode || viewMode) return;
+
   const { pathname } = window.location;
   const currentPageId: string = yield select(getCurrentPageId);
   const currentURL = pathname;
@@ -225,6 +241,15 @@ function* appendSelectedWidgetToUrlSaga(
         persistExistingParams: true,
         selectedWidgets: [MAIN_CONTAINER_WIDGET_ID],
       });
+  if (invokedBy === NavigationMethod.CanvasClick && isWidgetSelectionBlocked) {
+    AnalyticsUtil.logEvent("CODE_MODE_WIDGET_SELECTION");
+    if (timesUsedCodeModeWidgetSelection < 2) {
+      yield call(
+        storeCodeWidgetNavigationUsed,
+        timesUsedCodeModeWidgetSelection + 1,
+      );
+    }
+  }
   if (currentURL !== newUrl) {
     history.push(newUrl, { invokedBy });
   }
