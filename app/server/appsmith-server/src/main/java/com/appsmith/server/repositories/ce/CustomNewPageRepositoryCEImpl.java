@@ -164,11 +164,18 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     public Mono<NewPage> findPageByBranchNameAndDefaultPageId(
             String branchName, String defaultPageId, AclPermission permission) {
         final String defaultResources = NewPage.Fields.defaultResources;
+
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
-                Bridge.<NewPage>equal(defaultResources + "." + FieldName.PAGE_ID, defaultPageId)
-                        // branchCriteria
-                        .equal(defaultResources + "." + FieldName.BRANCH_NAME, branchName);
+                Bridge.<NewPage>equal(defaultResources + "." + FieldName.PAGE_ID, defaultPageId);
+
+        if (branchName != null) {
+            // branchCriteria
+            q.equal(defaultResources + "." + FieldName.BRANCH_NAME, branchName);
+        } else {
+            q.isNull(defaultResources + "." + FieldName.BRANCH_NAME);
+        }
+
         return queryBuilder().criteria(q).permission(permission).one();
     }
 

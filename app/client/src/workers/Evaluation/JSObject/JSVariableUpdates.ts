@@ -31,7 +31,7 @@ export function getUpdatedPaths(potentialUpdatedPathsMap: UpdatedPathsMap) {
 
     // if the value is not set, we need to check if the value is different from the global value
     const oldValue = get(dataTreeEvaluator.getEvalTree(), fullPath);
-    const newValue = get(globalThis, fullPath);
+    const newValue = get(self, fullPath);
     // Shallow comparison for dataTypes like weakMap, weakSet and object that cannot be compared
     if (oldValue !== newValue && !isDeepEqualES6(oldValue, newValue)) {
       updatedVariables.push([entityName, propertyPath]);
