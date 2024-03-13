@@ -181,9 +181,9 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     public Mono<ResponseDTO<List<User>>> inviteUsers(
             @RequestBody InviteUsersDTO inviteUsersDTO,
             @RequestHeader("Origin") String originHeader,
-            @RequestParam String captchaToken) {
+            @RequestParam String recaptchaToken) {
         return userAndAccessManagementService
-                .inviteUsers(inviteUsersDTO, originHeader, captchaToken)
+                .inviteUsers(inviteUsersDTO, originHeader, recaptchaToken)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 
