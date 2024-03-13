@@ -40,6 +40,7 @@ import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getWidgetSelectionBlock } from "selectors/ui";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
@@ -259,6 +260,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   );
   // Are we changing the auto height limits by dragging the signifiers?
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
+  const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
 
   const dispatch = useDispatch();
 
@@ -327,7 +329,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       (e.target as HTMLDivElement).dataset.testid === selectionDiv ||
       (e.target as HTMLDivElement).dataset.testid === mainCanvasId;
 
-    if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
+    if (
+      !isResizing &&
+      !isDragging &&
+      !isAutoHeightWithLimitsChanging &&
+      !isWidgetSelectionBlocked
+    ) {
       // Check if Target is the MainCanvas
       if (isTargetMainCanvas) {
         goToWidgetAdd();

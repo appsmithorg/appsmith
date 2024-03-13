@@ -82,5 +82,9 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection);
 
+    Mono<Void> bulkValidateAndInsertActionCollectionInRepository(List<ActionCollection> actionCollectionList);
+
+    Mono<Void> bulkValidateAndUpdateActionCollectionInRepository(List<ActionCollection> actionCollectionList);
+
     Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO);
 }

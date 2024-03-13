@@ -4,14 +4,15 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 
 import * as _ from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Hide / Show page test functionality",
   { tags: ["@tag.IDE"] },
   function () {
     it("1. Hide/Show page test ", function () {
-      cy.CreatePage(); // Page2
-      cy.CreatePage(); // Page3
+      PageList.AddNewPage(); // Page2
+      PageList.AddNewPage(); // Page3
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       _.entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Page2",

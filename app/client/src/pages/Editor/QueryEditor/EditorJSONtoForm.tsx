@@ -3,13 +3,7 @@ import React, { useCallback } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
-import { getPluginNameFromId } from "@appsmith/selectors/entitiesSelector";
-import {
-  PluginName,
-  type Action,
-  type QueryAction,
-  type SaaSAction,
-} from "entities/Action";
+import type { Action, QueryAction, SaaSAction } from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "design-system";
@@ -23,9 +17,7 @@ import {
 import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
 import { thinScrollbar } from "constants/DefaultTheme";
-import ActionRightPane, {
-  useEntityDependencies,
-} from "components/editorComponents/ActionRightPane";
+import ActionRightPane from "components/editorComponents/ActionRightPane";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
@@ -134,17 +126,6 @@ const DocumentationButton = styled(Button)`
   z-index: 6;
 `;
 
-const SidebarWrapper = styled.div<{ show: boolean }>`
-  border-left: 1px solid var(--ads-v2-color-border);
-  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-4);
-  overflow: hidden;
-  border-bottom: 0;
-  display: ${(props) => (props.show ? "flex" : "none")};
-  width: ${(props) => props.theme.actionSidePane.width}px;
-  margin-top: 10px;
-  /* margin-left: var(--ads-v2-spaces-7); */
-`;
-
 export const SegmentedControlContainer = styled.div`
   padding: 0 var(--ads-v2-spaces-7);
   padding-top: var(--ads-v2-spaces-4);
@@ -234,13 +215,6 @@ export function EditorJSONtoForm(props: Props) {
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
-  const showRightPane = Boolean(actionRightPaneAdditionSections);
-
-  // get the current action's plugin name
-  const currentActionPluginName = useSelector((state: AppState) =>
-    getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
-  );
-
   const dispatch = useDispatch();
 
   const handleDocumentationClick = () => {
@@ -254,20 +228,11 @@ export function EditorJSONtoForm(props: Props) {
     id: currentActionConfig ? currentActionConfig.id : "",
   };
 
-  const { hasDependencies } = useEntityDependencies(props.actionName);
-
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
 
   const setSelectedConfigTab = useCallback((selectedIndex: string) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
   }, []);
-
-  // here we check for normal conditions for opening action pane
-  // or if any of the flags are true, We should open the actionpane by default.
-  const shouldOpenActionPaneByDefault =
-    hasDependencies ||
-    !!actionResponse ||
-    currentActionPluginName !== PluginName.SMTP;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -419,14 +384,10 @@ export function EditorJSONtoForm(props: Props) {
               />
             </SecondaryWrapper>
           </div>
-          {showRightPane && (
-            <SidebarWrapper show={shouldOpenActionPaneByDefault}>
-              <ActionRightPane
-                actionRightPaneBackLink={actionRightPaneBackLink}
-                additionalSections={actionRightPaneAdditionSections}
-              />
-            </SidebarWrapper>
-          )}
+          <ActionRightPane
+            actionRightPaneBackLink={actionRightPaneBackLink}
+            additionalSections={actionRightPaneAdditionSections}
+          />
         </Wrapper>
       </QueryFormContainer>
     </>

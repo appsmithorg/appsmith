@@ -7,6 +7,7 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "./EditorNavigation";
+import PageList from "./PageList";
 
 type templateActions =
   | "Find"
@@ -255,6 +256,7 @@ export class EntityExplorer {
     viaMenu = false,
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
+    PageList.ShowList();
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,

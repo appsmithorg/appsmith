@@ -264,20 +264,20 @@ class ActionExecutionSolutionCEImplTest {
     public void testExecuteAPIWithUsualOrderingOfTheParts() {
         String usualOrderOfParts =
                 """
-                --boundary\r
-                Content-Disposition: form-data; name="executeActionDTO"\r
-                \r
-                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string"}}}\r
-                --boundary\r
-                Content-Disposition: form-data; name="parameterMap"\r
-                \r
-                {"Input1.text":"k0"}\r
-                --boundary\r
-                Content-Disposition: form-data; name="k0"; filename="blob"\r
-                Content-Type: text/plain\r
-                \r
-                xyz\r
-                --boundary--""";
+                    --boundary\r
+                    Content-Disposition: form-data; name="executeActionDTO"\r
+                    \r
+                    {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string"}}}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="parameterMap"\r
+                    \r
+                    {"Input1.text":"k0"}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="k0"; filename="blob"\r
+                    Content-Type: text/plain\r
+                    \r
+                    xyz\r
+                    --boundary--""";
 
         MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
@@ -306,7 +306,9 @@ class ActionExecutionSolutionCEImplTest {
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
-        doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
+        doReturn(Mono.just(newAction))
+                .when(newActionService)
+                .findByBranchNameAndDefaultActionId(any(), any(), Mockito.anyBoolean(), any());
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
@@ -322,20 +324,20 @@ class ActionExecutionSolutionCEImplTest {
     public void testExecuteAPIWithParameterMapAsLastPart() {
         String parameterMapAtLast =
                 """
-                --boundary\r
-                Content-Disposition: form-data; name="executeActionDTO"\r
-                \r
-                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string"}}}\r
-                --boundary\r
-                Content-Disposition: form-data; name="k0"; filename="blob"\r
-                Content-Type: text/plain\r
-                \r
-                xyz\r
-                --boundary\r
-                Content-Disposition: form-data; name="parameterMap"\r
-                \r
-                {"Input1.text":"k0"}\r
-                --boundary--""";
+                    --boundary\r
+                    Content-Disposition: form-data; name="executeActionDTO"\r
+                    \r
+                    {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string"}}}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="k0"; filename="blob"\r
+                    Content-Type: text/plain\r
+                    \r
+                    xyz\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="parameterMap"\r
+                    \r
+                    {"Input1.text":"k0"}\r
+                    --boundary--""";
 
         MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
@@ -364,7 +366,9 @@ class ActionExecutionSolutionCEImplTest {
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
         doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
-        doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
+        doReturn(Mono.just(newAction))
+                .when(newActionService)
+                .findByBranchNameAndDefaultActionId(any(), any(), Mockito.anyBoolean(), any());
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
@@ -380,25 +384,25 @@ class ActionExecutionSolutionCEImplTest {
     public void testParsePartsAndGetParamsFlux_withBlobIdentifiers_replacesValueInParam() {
         String partsWithBlobRefs =
                 """
-                --boundary\r
-                Content-Disposition: form-data; name="executeActionDTO"\r
-                \r
-                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string", "blobIdentifiers": ["blob:12345678-1234-1234-1234-123456781234"]}}}\r
-                --boundary\r
-                Content-Disposition: form-data; name="parameterMap"\r
-                \r
-                {"Input1.text":"k0"}\r
-                --boundary\r
-                Content-Disposition: form-data; name="k0"; filename="blob"\r
-                Content-Type: text/plain\r
-                \r
-                {"name": "randomName", "data": "blob:12345678-1234-1234-1234-123456781234"}\r
-                --boundary\r
-                Content-Disposition: form-data; name="blob:12345678-1234-1234-1234-123456781234"; filename="blob"\r
-                Content-Type: text/plain\r
-                \r
-                xy\\nz\r
-                --boundary--""";
+                    --boundary\r
+                    Content-Disposition: form-data; name="executeActionDTO"\r
+                    \r
+                    {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string", "blobIdentifiers": ["blob:12345678-1234-1234-1234-123456781234"]}}}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="parameterMap"\r
+                    \r
+                    {"Input1.text":"k0"}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="k0"; filename="blob"\r
+                    Content-Type: text/plain\r
+                    \r
+                    {"name": "randomName", "data": "blob:12345678-1234-1234-1234-123456781234"}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="blob:12345678-1234-1234-1234-123456781234"; filename="blob"\r
+                    Content-Type: text/plain\r
+                    \r
+                    xy\\nz\r
+                    --boundary--""";
 
         MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
