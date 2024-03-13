@@ -29,10 +29,11 @@ const FileTabs = (props: Props) => {
     leave: { transform: "translateX(100%)", opacity: 0 },
     unique: true,
     trail: 200,
+    keys: (item) => item.key,
   });
 
   return (
-    <Flex data-testid="editor-tabs" flex="1" gap="spaces-2" height="100%">
+    <Flex data-testId="editor-tabs" flex="1" gap="spaces-2" height="100%">
       {transitions((style, tab) => (
         <animated.div style={style}>
           <StyledTab
