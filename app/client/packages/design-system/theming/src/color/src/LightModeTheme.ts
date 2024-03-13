@@ -1011,19 +1011,19 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bdNeutral.clone();
 
     if (this.bdNeutral.oklch.l < 0.06) {
-      color.oklch.l += 0.9;
+      color.oklch.l += 0.95;
     }
 
     if (this.bdNeutral.oklch.l >= 0.06 && this.bdNeutral.oklch.l < 0.25) {
-      color.oklch.l += 0.55;
+      color.oklch.l += 0.75;
     }
 
     if (this.bdNeutral.oklch.l >= 0.25 && this.bdNeutral.oklch.l < 0.5) {
-      color.oklch.l += 0.4;
+      color.oklch.l += 0.5;
     }
 
     if (this.bdNeutral.oklch.l >= 0.5) {
-      color.oklch.l += 0.15;
+      color.oklch.l += 0.3;
     }
 
     return color;

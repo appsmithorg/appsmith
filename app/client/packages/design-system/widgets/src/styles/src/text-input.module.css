@@ -62,7 +62,7 @@
   */
 
   & [data-field-input][data-focused] {
-    background-color: var(--color-bg-neutral-subtle-active);
+    background-color: transparent;
     box-shadow: none;
   }
 

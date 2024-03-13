@@ -980,15 +980,15 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bdNeutral.clone();
 
     if (this.bdNeutral.oklch.l < 0.8) {
-      color.oklch.l += 0.15;
+      color.oklch.l += 0.05;
     }
 
     if (this.bdNeutral.oklch.l >= 0.8 && this.bdNeutral.oklch.l < 0.9) {
-      color.oklch.l += 0.1;
+      color.oklch.l += 0.01;
     }
 
     if (this.bdNeutral.oklch.l >= 0.9) {
-      color.oklch.l -= 0.25;
+      color.oklch.l -= 0.35;
     }
 
     return color;
