@@ -6,7 +6,9 @@ import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 
 export const getIsSideBySideEnabled = createSelector(
   selectFeatureFlags,
-  (flags) => flags.release_side_by_side_ide_enabled,
+  (flags) =>
+    flags.release_side_by_side_ide_enabled ||
+    flags.rollout_side_by_side_enabled,
 );
 
 export const getIDEViewMode = (state: AppState) => state.ui.ide.view;
