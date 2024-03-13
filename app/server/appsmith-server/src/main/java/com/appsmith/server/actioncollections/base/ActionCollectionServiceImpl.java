@@ -1,9 +1,12 @@
 package com.appsmith.server.actioncollections.base;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -17,7 +20,6 @@ import org.springframework.stereotype.Service;
 @Service
 @Slf4j
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
-
     public ActionCollectionServiceImpl(
             Validator validator,
             ActionCollectionRepository repository,
@@ -28,7 +30,10 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ActionPermission actionPermission,
-            DefaultResourcesService<ActionCollection> defaultResourcesService) {
+            DefaultResourcesService<ActionCollection> defaultResourcesService,
+            DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService,
+            DefaultResourcesService<NewAction> newActionDefaultResourcesService,
+            DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService) {
         super(
                 validator,
                 repository,
@@ -39,6 +44,9 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 responseUtils,
                 applicationPermission,
                 actionPermission,
-                defaultResourcesService);
+                defaultResourcesService,
+                dtoDefaultResourcesService,
+                newActionDefaultResourcesService,
+                actionDTODefaultResourcesService);
     }
 }

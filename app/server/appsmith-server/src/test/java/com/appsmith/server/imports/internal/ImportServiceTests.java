@@ -108,6 +108,9 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -5190,5 +5193,144 @@ public class ImportServiceTests {
                     });
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_WhenUpdateLayoutFailures_Success() throws URISyntaxException {
+        FilePart filePart = createFilePartWithIdenticalPackageStructure("faulty-dsl.json");
+
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Workspace");
+
+        Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
+
+        final Mono<ApplicationImportDTO> resultMono = workspaceMono
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
+
+        List<PermissionGroup> permissionGroups = workspaceMono
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst()
+                .get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst()
+                .get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
+                .findFirst()
+                .get();
+
+        Policy manageAppPolicy = Policy.builder()
+                .permission(MANAGE_APPLICATIONS.getValue())
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                .build();
+        Policy readAppPolicy = Policy.builder()
+                .permission(READ_APPLICATIONS.getValue())
+                .permissionGroups(Set.of(
+                        adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                .build();
+
+        StepVerifier.create(resultMono.flatMap(applicationImportDTO -> {
+                    Application application = applicationImportDTO.getApplication();
+                    return Mono.zip(
+                            Mono.just(applicationImportDTO),
+                            datasourceService
+                                    .getAllByWorkspaceIdWithStorages(
+                                            application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
+                                    .collectList(),
+                            newActionService
+                                    .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
+                                    .collectList(),
+                            newPageService
+                                    .findByApplicationId(application.getId(), MANAGE_PAGES, false)
+                                    .collectList(),
+                            actionCollectionService
+                                    .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
+                                    .collectList());
+                }))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1().getApplication();
+                    final List<Datasource> unConfiguredDatasourceList =
+                            tuple.getT1().getUnConfiguredDatasourceList();
+                    final boolean isPartialImport = tuple.getT1().getIsPartialImport();
+                    final List<Datasource> datasourceList = tuple.getT2();
+                    final List<NewAction> actionList = tuple.getT3();
+                    final List<PageDTO> pageList = tuple.getT4();
+                    final List<ActionCollection> actionCollectionList = tuple.getT5();
+
+                    assertThat(application.getName()).isEqualTo("faultDSL");
+                    assertThat(application.getWorkspaceId()).isNotNull();
+                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(application.getPublishedPages()).hasSize(0);
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
+                    assertThat(application.getEditModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
+                    assertThat(unConfiguredDatasourceList.size()).isNotEqualTo(0);
+
+                    assertThat(datasourceList).isNotEmpty();
+                    List<String> datasourceNames = unConfiguredDatasourceList.stream()
+                            .map(Datasource::getName)
+                            .collect(Collectors.toList());
+                    assertThat(datasourceNames).contains("Mock_DB");
+
+                    List<String> collectionIdInAction = new ArrayList<>();
+                    assertThat(actionList).isNotEmpty();
+                    actionList.forEach(newAction -> {
+                        ActionDTO actionDTO = newAction.getUnpublishedAction();
+                        assertThat(actionDTO.getPageId())
+                                .isNotEqualTo(pageList.get(0).getName());
+                        if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
+                            collectionIdInAction.add(actionDTO.getCollectionId());
+                        }
+                    });
+
+                    assertThat(actionCollectionList).isNotEmpty();
+                    assertThat(actionCollectionList).hasSize(1);
+                    assertThat(pageList).hasSize(1);
+
+                    ApplicationPage defaultAppPage = application.getPages().stream()
+                            .filter(ApplicationPage::getIsDefault)
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(defaultAppPage).isNotNull();
+
+                    PageDTO defaultPageDTO = pageList.stream()
+                            .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    assertThat(defaultPageDTO).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    // this would be the newer way to create the fileParts
+    private FilePart createFilePartWithIdenticalPackageStructure(String filePath) throws URISyntaxException {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        URL resource = this.getClass().getResource(filePath);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
+                        Path.of(resource.toURI()), new DefaultDataBufferFactory(), 4096)
+                .cache();
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
+
+        return filepart;
     }
 }

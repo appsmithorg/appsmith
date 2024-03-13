@@ -55,6 +55,7 @@ import { getModalWidgetType } from "selectors/widgetSelectors";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
+import { getAppViewerPageIdFromPath } from "@appsmith/pages/Editor/Explorer/helpers";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -67,8 +68,17 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       payload = [],
       selectionRequestType,
     } = action.payload;
+    /**
+     * Apart from the normal selection request by a user on canvas, there are other ways which can trigger selection
+     * e.g. when a modal closes in the editor -> we select the main container.
+     * One way modal closes is because user navigates to home page using the appsmith icon. In this case, we don't want the selection process to trigger.
+     * This also safeguards against the case where the selection process is triggered by a non-canvas click where user moves out of editor.
+     * */
 
-    if (payload.some(isInvalidSelectionRequest)) {
+    const isOnEditorURL = !!getAppViewerPageIdFromPath(
+      window.location.pathname,
+    );
+    if (payload.some(isInvalidSelectionRequest) || !isOnEditorURL) {
       // Throw error
       return;
     }
