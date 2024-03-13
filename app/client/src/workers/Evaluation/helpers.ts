@@ -3,7 +3,7 @@ import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
-import { get, isNumber, isObject, set } from "lodash";
+import { get, has, isNumber, isObject, set } from "lodash";
 import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
@@ -209,7 +209,9 @@ const getDataTree = (data: any, evalOrder: any) => {
     return acc;
   }, {});
   return evalOrder.reduce((acc: any, key: any) => {
-    set(acc, key, get(data, key));
+    if (has(data, key)) {
+      set(acc, key, get(data, key));
+    }
     return acc;
   }, withErrors);
 };
