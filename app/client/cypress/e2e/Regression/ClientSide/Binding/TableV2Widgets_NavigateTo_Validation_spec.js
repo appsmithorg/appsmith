@@ -12,6 +12,7 @@ import {
   propPane,
   deployMode,
 } from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Table Widget V2 and Navigate to functionality validation",
@@ -34,7 +35,7 @@ describe(
       agHelper.AddDsl("displayWidgetDsl");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(500);
-      PageLeftPane.expandCollapseItem("Pages");
+      PageList.ShowList();
       PageLeftPane.assertPresence(pageid);
       //Table Widget V2 Functionality with multiple page
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);

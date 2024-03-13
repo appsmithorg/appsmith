@@ -85,6 +85,5 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     int unprotectAllBranches(String applicationId, AclPermission permission);
 
-    Optional<Integer> protectBranchedApplications(
-            String applicationId, List<String> branchNames, AclPermission permission);
+    int protectBranchedApplications(String applicationId, List<String> branchNames, AclPermission permission);
 }

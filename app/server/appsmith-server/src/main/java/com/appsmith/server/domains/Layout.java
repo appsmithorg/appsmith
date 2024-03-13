@@ -2,17 +2,23 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import net.minidev.json.JSONObject;
+import org.springframework.data.annotation.Transient;
 
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -23,9 +29,8 @@ import static java.lang.Boolean.TRUE;
 @Setter
 @ToString
 @NoArgsConstructor
+@FieldNameConstants
 public class Layout {
-
-    String id;
 
     @JsonView({Views.Public.class, Views.Export.class})
     ScreenType screen;
@@ -68,6 +73,33 @@ public class Layout {
 
     @JsonView(Views.Internal.class)
     Boolean validOnPageLoadActions = TRUE;
+
+    /*
+     * These fields (except for `id`) only exist here because their removal will cause a huge diff on all layouts in
+     * git-connected applications. So, instead, we keep them, but defunct. For all other practical purposes, these
+     * fields (again, except for `id`) don't exist.
+     */
+    @JsonView({Views.Public.class, Views.Export.class})
+    private String id;
+    // BEGIN DEFUNCT FIELDS
+    @Deprecated(forRemoval = true)
+    @Transient
+    @JsonView(Views.Internal.class)
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    protected Boolean deleted = false;
+
+    @Deprecated(forRemoval = true)
+    @Transient
+    @JsonView(Views.Internal.class)
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    protected Set<Policy> policies = Collections.emptySet();
+
+    @Transient
+    @JsonView(Views.Public.class)
+    public Set<String> userPermissions = new HashSet<>();
+    // END DEFUNCT FIELDS
 
     /**
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)

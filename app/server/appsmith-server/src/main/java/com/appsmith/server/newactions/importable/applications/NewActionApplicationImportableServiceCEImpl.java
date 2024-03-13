@@ -58,7 +58,7 @@ public class NewActionApplicationImportableServiceCEImpl
 
     @Override
     public Flux<NewAction> getExistingResourcesInCurrentArtifactFlux(Artifact artifact) {
-        return repository.findByApplicationId(artifact.getId());
+        return repository.findByApplicationId(artifact.getId(), Optional.empty(), Optional.empty());
     }
 
     @Override

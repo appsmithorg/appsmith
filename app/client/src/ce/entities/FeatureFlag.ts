@@ -54,6 +54,7 @@ export const FEATURE_FLAG = {
     "release_drag_drop_building_blocks_enabled",
   rollout_js_enabled_one_click_binding_enabled:
     "rollout_js_enabled_one_click_binding_enabled",
+  rollout_side_by_side_enabled: "rollout_side_by_side_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -96,6 +97,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_show_create_app_from_templates_enabled: false,
   rollout_remove_feature_walkthrough_enabled: false,
   rollout_js_enabled_one_click_binding_enabled: false,
+  rollout_side_by_side_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

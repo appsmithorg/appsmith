@@ -45,7 +45,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
         return queryBuilder()
-                .criteria(getCriterionForFindByApplicationId(applicationId))
+                .criteria(getCriterionForFindByApplicationId(applicationId)
+                        .isNull(NewAction.Fields.unpublishedAction_deletedAt))
                 .permission(aclPermission.orElse(null))
                 .sort(sort.orElse(null))
                 .all();
@@ -213,11 +214,18 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Optional<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, AclPermission permission) {
+            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission) {
         final String defaultResources = NewAction.Fields.defaultResources;
         final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(
                         defaultResources + "." + FieldName.ACTION_ID, defaultActionId)
                 .equal(defaultResources + "." + FieldName.BRANCH_NAME, branchName);
+
+        if (Boolean.FALSE.equals(viewMode)) {
+            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
+            // would exist. To handle this, only fetch non-deleted actions
+            q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
+        }
+
         return queryBuilder().criteria(q).permission(permission).one();
     }
 
@@ -307,7 +315,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     public List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         return queryBuilder()
-                .criteria(Bridge.equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
+                .criteria(Bridge.equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId)
+                        .isNull(NewAction.Fields.unpublishedAction_deletedAt))
                 .permission(permission.orElse(null))
                 .all();
     }

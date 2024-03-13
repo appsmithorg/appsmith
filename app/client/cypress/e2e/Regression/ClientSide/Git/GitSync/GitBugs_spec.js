@@ -15,6 +15,7 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
 
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
@@ -48,11 +49,10 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
         cy.wait(2000);
         gitSync.CreateGitBranch(tempBranch, false);
         //cy.createGitBranch(tempBranch);
-        cy.CheckAndUnfoldEntityItem("Pages");
         // verify tempBranch should contain this page
         EditorNavigation.SelectEntityByName(pagename, EntityType.Page);
         // delete page from tempBranch and merge to master
-        cy.Deletepage(pagename);
+        PageList.DeletePage(pagename);
         cy.get(homePageLocators.publishButton).click();
         cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
         cy.get(gitSyncLocators.commitButton).click();
@@ -62,12 +62,12 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
         cy.get(gitSyncLocators.closeGitSyncModal).click();
         // verify ChildPage is not on master
         cy.switchGitBranch(mainBranch);
-        PageLeftPane.expandCollapseItem("Pages");
+        PageList.ShowList();
         PageLeftPane.assertAbsence(pagename);
         // create another branch and verify deleted page doesn't exist on it
         //cy.createGitBranch(tempBranch0);
         gitSync.CreateGitBranch(tempBranch0, false);
-        PageLeftPane.expandCollapseItem("Pages");
+        PageList.ShowList();
         PageLeftPane.assertAbsence(pagename);
         gitSync.DeleteTestGithubRepo(repoName);
       });

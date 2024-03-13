@@ -40,7 +40,7 @@ public interface CustomNewActionRepositoryCE extends AppsmithRepository<NewActio
     List<NewAction> findByApplicationIdAndViewMode(String applicationId, Boolean viewMode, AclPermission aclPermission);
 
     Optional<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, AclPermission permission);
+            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission);
 
     List<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
 

@@ -1,5 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.PageDTO;
@@ -97,6 +98,13 @@ class CustomNewPageRepositoryTest {
                         assertThat(publishedPage.getLayouts()).isNull();
                     });
                 })
+                .verifyComplete();
+    }
+
+    @Test
+    void findPageWithoutBranchName() {
+        StepVerifier.create(newPageRepository.findPageByBranchNameAndDefaultPageId(
+                        null, "pageId", AclPermission.PAGE_CREATE_PAGE_ACTIONS))
                 .verifyComplete();
     }
 }

@@ -205,7 +205,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getReadPermission())
+        return this.findByBranchNameAndDefaultActionId(branchName, id, false, actionPermission.getReadPermission())
                 .map(responseUtils::updateNewActionWithDefaultResources);
     }
 
@@ -1457,7 +1457,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
         Mono<NewAction> branchedActionMono =
-                this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getDeletePermission());
+                this.findByBranchNameAndDefaultActionId(branchName, id, false, actionPermission.getDeletePermission());
 
         return branchedActionMono
                 .flatMap(branchedAction -> this.archiveById(branchedAction.getId()))
@@ -1544,7 +1544,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     public Mono<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, AclPermission permission) {
+            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission) {
         log.debug("Going to find action based on branchName and defaultActionId with id: {} ", defaultActionId);
         if (!StringUtils.hasLength(branchName)) {
             return repository
@@ -1553,7 +1553,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId)));
         }
         return repository
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
+                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, viewMode, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName)))
                 .flatMap(this::sanitizeAction);
@@ -1565,7 +1565,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Mono.just(defaultActionId);
         }
         return repository
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
+                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, false, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName)))
                 .map(NewAction::getId);

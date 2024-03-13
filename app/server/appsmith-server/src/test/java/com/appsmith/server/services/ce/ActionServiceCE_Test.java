@@ -315,7 +315,7 @@ public class ActionServiceCE_Test {
         Mono<NewAction> actionMono = layoutActionService
                 .createSingleActionWithBranch(action, branchName)
                 .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(
-                        branchName, createdAction.getId(), READ_ACTIONS));
+                        branchName, createdAction.getId(), false, READ_ACTIONS));
 
         StepVerifier.create(actionMono)
                 .assertNext(newAction -> {

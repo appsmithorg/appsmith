@@ -154,6 +154,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         .is(permission.getValue()));
     }
 
+    /**
+     * @deprecated Consider using {@code queryBuilder().byId(id)} or {@code Bridge.equal(BaseDomain.Fields.id, id)}
+     * instead.
+     */
+    @Deprecated(forRemoval = true)
     protected Criteria getIdCriteria(Object id) {
         return where("id").is(id);
     }

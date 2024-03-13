@@ -48,11 +48,17 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public List<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
 
-        Criteria applicationCriteria =
-                where(ActionCollection.Fields.applicationId).is(applicationId);
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).is(applicationId);
+        criteria.add(applicationCriteria);
+
+        Criteria deletedCriteria =
+                where(ActionCollection.Fields.unpublishedCollection_deletedAt).is(null);
+        criteria.add(deletedCriteria);
 
         return queryBuilder()
-                .criteria(applicationCriteria)
+                .criteria(criteria)
                 .permission(aclPermission.orElse(null))
                 .sort(sort.orElse(null))
                 .all();
@@ -212,8 +218,11 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public List<ActionCollection> findByDefaultApplicationId(
             String defaultApplicationId, Optional<AclPermission> permission) {
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
+
         return queryBuilder()
-                .criteria(Bridge.equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId))
+                .criteria(Bridge.<ActionCollection>equal(
+                                defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId)
+                        .isNull(ActionCollection.Fields.unpublishedCollection_deletedAt))
                 .permission(permission.orElse(null))
                 .all();
     }

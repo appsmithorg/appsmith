@@ -102,6 +102,7 @@ const PagesSection = () => {
       style={springs}
     >
       <PaneHeader
+        className="pages"
         rightIcon={
           canCreatePages ? (
             <AddPageContextMenu

@@ -5,6 +5,7 @@ import { Text } from "design-system";
 interface Props {
   title: string;
   rightIcon?: React.ReactNode;
+  className?: string;
 }
 
 const Container = styled.div`
@@ -22,7 +23,7 @@ const Container = styled.div`
 
 function PaneHeader(props: Props) {
   return (
-    <Container>
+    <Container className={props.className}>
       <Text kind="heading-xs">{props.title}</Text>
       {props.rightIcon ? props.rightIcon : null}
     </Container>
