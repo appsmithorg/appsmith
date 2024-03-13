@@ -16,7 +16,6 @@ import type {
   HintHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  EditorModes,
   TabBehaviour,
   EditorSize,
 } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -60,6 +59,7 @@ import {
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { ValidationTypes } from "constants/types";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 interface ReduxStateProps {
   workspaceId: string;

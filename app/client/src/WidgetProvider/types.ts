@@ -125,7 +125,7 @@ type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];
 
 export interface WidgetCallout {
   message: string;
-  links: [
+  links?: [
     {
       text: string;
       url: string;

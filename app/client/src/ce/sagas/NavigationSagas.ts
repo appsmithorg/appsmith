@@ -19,9 +19,11 @@ import { getSafeCrash } from "selectors/errorSelectors";
 import type { NavigationMethod } from "utils/history";
 import UsagePulse from "usagePulse";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
+import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { updateIDETabsOnRouteChangeSaga } from "sagas/IDESaga";
 import { flushErrors } from "actions/errorActionUtils";
+import { getIDEViewMode } from "selectors/ideSelectors";
 
 let previousPath: string;
 
@@ -110,6 +112,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   const isRecent = recentEntityIds.some(
     (entityId) => entityId === currentEntity.id,
   );
+  const ideViewMode: EditorViewMode = yield select(getIDEViewMode);
   const { height, width } = window.screen;
   AnalyticsUtil.logEvent("ROUTE_CHANGE", {
     toPath: pathname,
@@ -121,6 +124,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
     fromType: previousEntity.entity,
     screenHeight: height,
     screenWidth: width,
+    editorMode: ideViewMode,
   });
 }
 

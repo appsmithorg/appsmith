@@ -5,6 +5,8 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { Plugin } from "api/PluginApi";
 import {
+  ActionCreationSourceTypeEnum,
+  ActionExecutionContext,
   PluginType,
   type Action,
   type QueryActionConfig,
@@ -53,6 +55,9 @@ export function* createActionsForOneClickBindingSaga(
   payload: Partial<Action> & { eventData: unknown; pluginId: string },
 ) {
   try {
+    // Indicates that source of action creation is one click binding
+    payload.source = ActionCreationSourceTypeEnum.ONE_CLICK_BINDING;
+
     const response: ApiResponse<ActionCreateUpdateResponse> | undefined =
       yield ActionAPI.createAction(payload);
 
@@ -219,7 +224,15 @@ function* BindWidgetToDatasource(
 
       //TODO(Balaji): Need to make changes to plugin saga to execute the actions in parallel
       for (const actionToRun of actionsToRun) {
-        yield put(runAction(actionToRun.id, undefined, true));
+        yield put(
+          runAction(
+            actionToRun.id,
+            undefined,
+            true,
+            undefined,
+            ActionExecutionContext.ONE_CLICK_BINDING,
+          ),
+        );
 
         const runResponse: ReduxAction<unknown> = yield take([
           ReduxActionTypes.RUN_ACTION_SUCCESS,

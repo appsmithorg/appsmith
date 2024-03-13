@@ -2,7 +2,6 @@
   "NoApiMsg": "p:contains('No APIs yet.')",
   "NoQueryMsg": "p:contains('No DB Queries yet.')",
   "NoWidgetsMsg": "p:contains('icon above to add widgets')",
-  "AddPage": ".pages .t--entity-add-btn",
   "createQueryMenu": ".file-ops",
   "entityExplorer": ".t--entity-explorer",
   "popover": "//div[contains(@class,'t--entity page')]//*[local-name()='g' and @id='Icon/Outline/more-vertical']",

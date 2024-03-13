@@ -37,6 +37,22 @@ public final class Bridge {
         return Bridge.<T>query().equal(key, value);
     }
 
+    private static <T extends BaseDomain> BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
+        return Bridge.<T>query().notEqual(key, value);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull Enum<?> value) {
+        return equal(key, value.name());
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> notEqual(@NonNull String key, @NonNull Enum<?> value) {
+        return notEqual(key, value.name());
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> equalIgnoreCase(@NonNull String key, @NonNull String value) {
+        return Bridge.<T>query().equalIgnoreCase(key, value);
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull ObjectId value) {
         return Bridge.<T>query().equal(key, value);
     }
@@ -49,7 +65,15 @@ public final class Bridge {
         return Bridge.<T>query().exists(key);
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> isNull(@NonNull String key) {
+        return Bridge.<T>query().isNull(key);
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> isTrue(@NonNull String key) {
         return Bridge.<T>query().isTrue(key);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> isFalse(@NonNull String key) {
+        return Bridge.<T>query().isFalse(key);
     }
 }

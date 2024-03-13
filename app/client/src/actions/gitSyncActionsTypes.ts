@@ -12,6 +12,9 @@ export interface GitStatusData {
   modifiedJSLibs: number;
   discardDocUrl?: string;
   migrationMessage?: string;
+  modifiedPackages?: number;
+  modifiedModules?: number;
+  modifiedModuleInstances?: number;
 }
 
 export interface SSHKeyType {

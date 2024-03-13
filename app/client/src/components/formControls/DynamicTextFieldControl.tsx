@@ -7,7 +7,6 @@ import type { ControlType } from "constants/types";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import {
   EditorSize,
-  EditorModes,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import { QUERY_EDITOR_FORM_NAME } from "@appsmith/constants/forms";
@@ -19,7 +18,10 @@ import {
 } from "@appsmith/selectors/entitiesSelector";
 import { actionPathFromName } from "components/formControls/utils";
 import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
-import { getSqlEditorModeFromPluginName } from "components/editorComponents/CodeEditor/sql/config";
+import {
+  EditorModes,
+  getSqlEditorModeFromPluginName,
+} from "components/editorComponents/CodeEditor/sql/config";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 const Wrapper = styled.div<{ fullWidth: boolean }>`

@@ -31,6 +31,8 @@ export const DOCS_BRANCH_PROTECTION_URL =
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/working-with-branches#branch-protection";
 export const DOCS_DEFAULT_BRANCH_URL =
   "https://docs.appsmith.com/advanced-concepts/version-control-with-git/working-with-branches#default-branch";
+export const PACKAGES_OVERVIEW_DOC =
+  "https://docs.appsmith.com/packages/overview";
 
 export const PRICING_PAGE_URL = (
   URL: string,

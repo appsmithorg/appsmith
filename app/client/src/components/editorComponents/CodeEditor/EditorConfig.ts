@@ -4,25 +4,8 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { EntityNavigationData } from "utils/NavigationSelector/types";
 import type { ExpectedValueExample } from "utils/validation/common";
-
-import { editorSQLModes } from "./sql/config";
+import type { TEditorModes } from "./sql/config";
 import type { WidgetType } from "constants/WidgetConstants";
-
-export const EditorModes = {
-  TEXT: "text/plain",
-  TEXT_WITH_BINDING: "text-js",
-  JSON: "application/json",
-  JSON_WITH_BINDING: "json-js",
-  JAVASCRIPT: "javascript",
-  GRAPHQL: "graphql",
-  GRAPHQL_WITH_BINDING: "graphql-js",
-  HTMLMIXED: "htmlmixed",
-  CSS: "css",
-  ...editorSQLModes,
-} as const;
-
-type ValueOf<T> = T[keyof T];
-export type TEditorModes = ValueOf<typeof EditorModes>;
 
 export enum EditorTheme {
   LIGHT = "LIGHT",

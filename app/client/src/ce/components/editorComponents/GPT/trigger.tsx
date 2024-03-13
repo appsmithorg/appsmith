@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
-import type { TEditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { TEditorModes } from "components/editorComponents/CodeEditor/sql/config";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
 

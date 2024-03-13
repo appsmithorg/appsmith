@@ -14,7 +14,6 @@ import FIELD_VALUES from "constants/FieldExpectedValue";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
-  EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -24,6 +23,7 @@ import type { CodeEditorExpected } from "components/editorComponents/CodeEditor"
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
 import { SegmentedControl } from "design-system";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 const PostBodyContainer = styled.div`
   padding: 12px 0px 0px;

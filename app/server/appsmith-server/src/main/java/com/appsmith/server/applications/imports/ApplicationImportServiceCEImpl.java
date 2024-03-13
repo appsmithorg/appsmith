@@ -22,6 +22,7 @@ import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
+import com.appsmith.server.helpers.ImportExportUtils;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.artifactbased.ArtifactBasedImportServiceCE;
 import com.appsmith.server.layouts.UpdateLayoutService;
@@ -307,6 +308,14 @@ public class ApplicationImportServiceCEImpl
                     .collect(Collectors.toList());
             applicationJson.setActionCollectionList(importedActionCollectionList);
         }
+
+        if (applicationJson.getCustomJSLibList() != null) {
+            List<CustomJSLib> importedCustomJSLibList = applicationJson.getCustomJSLibList().stream()
+                    .peek(customJSLib -> customJSLib.setGitSyncId(
+                            null)) // setting this null so that this custom js lib can be imported again
+                    .collect(Collectors.toList());
+            applicationJson.setCustomJSLibList(importedCustomJSLibList);
+        }
     }
 
     @Override
@@ -397,7 +406,16 @@ public class ApplicationImportServiceCEImpl
 
             // this can be a git sync, import page from template, update app with json, restore snapshot
             if (importingMetaDTO.getAppendToArtifact()) { // we don't need to do anything with the imported application
-                importApplicationMono = existingApplicationMono;
+                if (!CollectionUtils.isEmpty(mappedImportableResourcesDTO.getInstalledJsLibsList())) {
+                    Application update = new Application();
+                    update.setUnpublishedCustomJSLibs(
+                            new HashSet<>(mappedImportableResourcesDTO.getInstalledJsLibsList()));
+                    importApplicationMono = applicationService
+                            .update(importingMetaDTO.getArtifactId(), update)
+                            .then(existingApplicationMono);
+                } else {
+                    importApplicationMono = existingApplicationMono;
+                }
             } else {
                 importApplicationMono = importApplicationMono
                         .zipWith(existingApplicationMono)
@@ -467,7 +485,19 @@ public class ApplicationImportServiceCEImpl
                 .flatMap(application -> {
                     return Flux.fromIterable(application.getPages())
                             .map(ApplicationPage::getId)
-                            .flatMap(updateLayoutService::updatePageLayoutsByPageId)
+                            .flatMap(pageId -> {
+                                return updateLayoutService
+                                        .updatePageLayoutsByPageId(pageId)
+                                        .onErrorResume(throwable -> {
+                                            // the error would most probably arise because of update layout error,
+                                            // this shouldn't stop the application from getting imported.
+                                            String errorMessage = ImportExportUtils.getErrorMessage(throwable);
+                                            log.error(
+                                                    "Error while updating layout. Error: {}", errorMessage, throwable);
+                                            // continuing the execution
+                                            return Mono.just("");
+                                        });
+                            })
                             .collectList()
                             .thenReturn(application);
                 });

@@ -7,7 +7,6 @@ import type { CodeEditorExpected } from "components/editorComponents/CodeEditor"
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
-  EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
@@ -17,6 +16,7 @@ import LazyCodeEditor from "../editorComponents/LazyCodeEditor";
 import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 export function InputText(props: {
   label: string;

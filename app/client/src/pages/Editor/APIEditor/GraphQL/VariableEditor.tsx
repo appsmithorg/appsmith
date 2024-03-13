@@ -2,7 +2,6 @@ import React from "react";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
-  EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -10,6 +9,7 @@ import styled from "styled-components";
 import { Text, TextType } from "design-system-old";
 import DynamicTextField from "components/editorComponents/form/fields/DynamicTextField";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 const VariableWrapper = styled.div`
   display: flex;

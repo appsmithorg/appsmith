@@ -49,7 +49,6 @@ import type {
   MarkHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  EditorModes,
   EditorSize,
   EditorTheme,
   EditorThemes,
@@ -160,6 +159,7 @@ import {
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { EditorModes } from "./sql/config";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;
