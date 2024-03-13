@@ -1,6 +1,10 @@
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
-import { jsCollectionIdURL, jsCollectionListURL } from "@appsmith/RouteBuilder";
-import type { FocusEntityInfo } from "navigation/FocusEntity";
+import {
+  jsCollectionAddURL,
+  jsCollectionIdURL,
+  jsCollectionListURL,
+} from "@appsmith/RouteBuilder";
+import { FocusEntity, type FocusEntityInfo } from "navigation/FocusEntity";
 
 export const getJSEntityItemUrl = (
   item: EntityItem,
@@ -16,14 +20,15 @@ export const getJSUrl = (
   item: FocusEntityInfo,
   add: boolean = true,
 ): string => {
-  if (item.params.collectionId) {
-    if (item.params.collectionId === "add") {
-      return jsCollectionListURL({ pageId: item.params.pageId });
-    }
+  if (item.entity === FocusEntity.JS_OBJECT) {
     return jsCollectionIdURL({
-      collectionId: item.params.collectionId,
+      collectionId: item.id,
       add,
     });
+  } else if (FocusEntity.JS_OBJECT_ADD) {
+    return jsCollectionListURL({ pageId: item.params.pageId });
   }
-  return jsCollectionListURL({ pageId: item.params.pageId });
+  return add
+    ? jsCollectionAddURL({ pageId: item.params.pageId })
+    : jsCollectionListURL({ pageId: item.params.pageId });
 };
