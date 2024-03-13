@@ -74,9 +74,8 @@ jobs:
         id: check_cyclic_deps
         run: |
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
-          OUTPUT="${OUTPUT//$'\n'/\\n}"
           PROCESSED_OUTPUT=$(echo "$OUTPUT" | awk '/Processed [0-9]+ files/,0')
-          echo $PROCESSED_OUTPUT 
+          echo "$PROCESSED_OUTPUT"
 
           if [[ $OUTPUT =~ Found\ [0-9]+\ circular\ dependencies! ]]; then
             echo "has_cyclic_deps=true" >> "$GITHUB_OUTPUT"
