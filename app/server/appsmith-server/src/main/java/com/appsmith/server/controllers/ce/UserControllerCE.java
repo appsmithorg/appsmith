@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -161,10 +162,8 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
 
     @JsonView(Views.Public.class)
     @GetMapping("/me")
-    public Mono<ResponseDTO<UserProfileDTO>> getUserProfile() {
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap(service::buildUserProfileDTO)
+    public Mono<ResponseDTO<UserProfileDTO>> getUserProfile(@AuthenticationPrincipal User user) {
+        return service.buildUserProfileDTO(user)
                 .map(profile -> new ResponseDTO<>(HttpStatus.OK.value(), profile, null));
     }
 
