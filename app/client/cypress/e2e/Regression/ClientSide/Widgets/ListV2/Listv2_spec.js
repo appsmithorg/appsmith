@@ -89,7 +89,8 @@ describe(
           cy.assertPageSave();
           cy.get(`.t--draggable-${widget}`).should("exist");
           cy.get(widgetsPage.removeWidget).click({ force: true });
-          cy.wait("@updateLayout");
+          cy.assertPageSave();
+          cy.wait(800);
         });
       },
     );
