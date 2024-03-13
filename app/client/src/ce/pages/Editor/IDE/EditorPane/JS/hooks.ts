@@ -23,7 +23,7 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { getJSUrl } from "./utils";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 
-export const useJSAdd = () => {
+export const useJSAdd = (_getJSUrl = getJSUrl) => {
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
@@ -36,13 +36,13 @@ export const useJSAdd = () => {
   return useCallback(() => {
     if (jsModuleCreationOptions.length === 0) {
       if (segmentMode === EditorEntityTabState.Add) {
-        const url = getJSUrl(currentEntityInfo, false);
+        const url = _getJSUrl(currentEntityInfo, false);
         history.push(url);
       } else {
         dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
       }
     } else {
-      const url = getJSUrl(
+      const url = _getJSUrl(
         currentEntityInfo,
         !(segmentMode === EditorEntityTabState.Add),
       );
@@ -54,6 +54,7 @@ export const useJSAdd = () => {
     segmentMode,
     currentEntityInfo,
     jsModuleCreationOptions,
+    _getJSUrl,
   ]);
 };
 
