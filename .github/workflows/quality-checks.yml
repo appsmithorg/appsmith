@@ -83,7 +83,7 @@ jobs:
       pr: ${{ github.event.pull_request.number }}
 
   client-check-cyclic-deps:
-    name: client-lint
+    name: client-check-cyclic-deps
     needs: path-filter
     if: needs.path-filter.outputs.client == 'true'
     uses: ./.github/workflows/ci-client-cyclic-deps-check.yml
