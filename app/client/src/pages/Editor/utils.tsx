@@ -396,6 +396,7 @@ export function getModuleIcon(
       iconLocation: pluginImages[module.pluginId] || "",
       pluginType: module.pluginType,
       moduleType: module.type,
+      isLargeIcon,
     })
   ) : (
     <EntityIcon
