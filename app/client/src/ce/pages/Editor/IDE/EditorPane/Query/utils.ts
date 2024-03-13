@@ -46,5 +46,7 @@ export const getQueryUrl = (
       add,
     });
   }
-  return queryAddURL({});
+  return add
+    ? queryAddURL({ pageId: item.params.pageId })
+    : queryListURL({ pageId: item.params.pageId });
 };
