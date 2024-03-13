@@ -211,7 +211,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .map(NewPage::getId);
 
         Mono<NewAction> branchedActionMono = newActionService.findByBranchNameAndDefaultActionId(
-                branchName, actionMoveDTO.getAction().getId(), actionPermission.getEditPermission());
+                branchName, actionMoveDTO.getAction().getId(), false, actionPermission.getEditPermission());
 
         return Mono.zip(toPageMono, branchedActionMono)
                 .flatMap(tuple -> {
@@ -253,7 +253,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     public Mono<ActionDTO> updateSingleActionWithBranchName(
             String defaultActionId, ActionDTO action, String branchName) {
         return newActionService
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
+                .findByBranchNameAndDefaultActionId(
+                        branchName, defaultActionId, false, actionPermission.getEditPermission())
                 .flatMap(newAction -> updateActionBasedOnContextType(newAction, action));
     }
 
@@ -308,7 +309,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String defaultActionId, String branchName, Boolean isExecuteOnLoad) {
         return newActionService
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
+                .findByBranchNameAndDefaultActionId(
+                        branchName, defaultActionId, false, actionPermission.getEditPermission())
                 .flatMap(branchedAction -> setExecuteOnLoad(branchedAction.getId(), isExecuteOnLoad))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
@@ -330,7 +332,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     public Mono<ActionDTO> deleteUnpublishedAction(String defaultActionId, String branchName) {
         return newActionService
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getDeletePermission())
+                .findByBranchNameAndDefaultActionId(
+                        branchName, defaultActionId, false, actionPermission.getDeletePermission())
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
                 .flatMap(actionDTO -> newActionService

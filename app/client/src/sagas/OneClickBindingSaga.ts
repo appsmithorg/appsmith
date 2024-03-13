@@ -6,6 +6,7 @@ import {
 import type { Plugin } from "api/PluginApi";
 import {
   ActionCreationSourceTypeEnum,
+  ActionExecutionContext,
   PluginType,
   type Action,
   type QueryActionConfig,
@@ -223,7 +224,15 @@ function* BindWidgetToDatasource(
 
       //TODO(Balaji): Need to make changes to plugin saga to execute the actions in parallel
       for (const actionToRun of actionsToRun) {
-        yield put(runAction(actionToRun.id, undefined, true));
+        yield put(
+          runAction(
+            actionToRun.id,
+            undefined,
+            true,
+            undefined,
+            ActionExecutionContext.ONE_CLICK_BINDING,
+          ),
+        );
 
         const runResponse: ReduxAction<unknown> = yield take([
           ReduxActionTypes.RUN_ACTION_SUCCESS,
