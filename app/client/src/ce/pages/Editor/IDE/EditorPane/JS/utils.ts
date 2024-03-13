@@ -25,7 +25,7 @@ export const getJSUrl = (
       collectionId: item.id,
       add,
     });
-  } else if (FocusEntity.JS_OBJECT_ADD) {
+  } else if (item.entity === FocusEntity.JS_OBJECT_ADD) {
     return jsCollectionListURL({ pageId: item.params.pageId });
   }
   return add
