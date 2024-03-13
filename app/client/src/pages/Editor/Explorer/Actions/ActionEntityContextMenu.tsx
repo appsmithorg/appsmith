@@ -33,6 +33,7 @@ import {
 import { useConvertToModuleOptions } from "@appsmith/pages/Editor/Explorer/hooks";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { PluginType } from "entities/Action";
+import type { PluginId } from "api/PluginApi";
 
 interface EntityContextMenuProps {
   id: string;
@@ -41,6 +42,7 @@ interface EntityContextMenuProps {
   canManageAction: boolean;
   canDeleteAction: boolean;
   pluginType: PluginType;
+  pluginId: PluginId;
 }
 export function ActionEntityContextMenu(props: EntityContextMenuProps) {
   // Import the context
@@ -85,6 +87,8 @@ export function ActionEntityContextMenu(props: EntityContextMenuProps) {
     id: props.id,
     moduleType: MODULE_TYPE.QUERY,
     canDelete: canDeleteAction,
+    pluginType: props.pluginType,
+    pluginId: props.pluginId,
   });
 
   const menuPages = useSelector(getPageListAsOptions);
