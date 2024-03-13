@@ -42,7 +42,7 @@ const checkIfMousePositionIsInsideBlock = (
 // This buffer will make sure main canvas is not deactivated
 // until its about the below pixel distance from the main canvas border.
 const MAIN_CANVAS_BUFFER = 20;
-const SECTION_BUFFER = 20;
+const SECTION_BUFFER = 10;
 
 /**
  * This hook handles the activation and deactivation of the canvas(Drop targets) while dragging.
@@ -178,8 +178,10 @@ export const useCanvasActivation = () => {
             if (layoutInfo.layoutType === LayoutComponentTypes.SECTION) {
               currentCanvasPositions.top += SECTION_BUFFER;
               currentCanvasPositions.height -= 2 * SECTION_BUFFER;
-              currentCanvasPositions.width += 2 * SECTION_BUFFER;
-              currentCanvasPositions.left -= SECTION_BUFFER;
+              currentCanvasPositions.width +=
+                2 * (SECTION_BUFFER + MAIN_CANVAS_BUFFER);
+              currentCanvasPositions.left -=
+                SECTION_BUFFER + MAIN_CANVAS_BUFFER;
             }
             if (currentCanvasPositions) {
               return checkIfMousePositionIsInsideBlock(
