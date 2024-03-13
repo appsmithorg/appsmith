@@ -104,7 +104,6 @@ export const ExplorerActionEntity = memo((props: ExplorerActionEntityProps) => {
       className={EntityClassNames.CONTEXT_MENU}
       id={action.id}
       name={action.name}
-      pluginId={action.pluginId}
       pluginType={action.pluginType}
     />
   );

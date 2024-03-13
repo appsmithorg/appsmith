@@ -101,8 +101,6 @@ function QueryEditor(props: QueryEditorProps) {
             canDeleteEntity={isDeletePermitted}
             entityId={action?.id || ""}
             moduleType={MODULE_TYPE.QUERY}
-            pluginId={action?.pluginId || ""}
-            pluginType={action?.pluginType}
           />
         )}
       </>

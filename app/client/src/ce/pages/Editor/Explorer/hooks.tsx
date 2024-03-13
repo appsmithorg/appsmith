@@ -3,7 +3,6 @@ import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { compact, get, groupBy } from "lodash";
 import type { Datasource } from "entities/Datasource";
-import type { PluginType } from "entities/Action";
 import { isStoredDatasource } from "entities/Action";
 import type { WidgetProps } from "widgets/BaseWidget";
 import log from "loglevel";
@@ -25,14 +24,11 @@ import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { basePathForActiveAction } from "@appsmith/constants/routes/appRoutes";
 import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
-import type { PluginId } from "api/PluginApi";
 
 export interface UseConvertToModulesOptionsProps {
   id: string;
   moduleType: MODULE_TYPE;
   canDelete: boolean;
-  pluginId: PluginId;
-  pluginType?: PluginType;
 }
 
 const findWidgets = (widgets: CanvasStructure, keyword: string) => {
