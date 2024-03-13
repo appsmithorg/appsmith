@@ -52,21 +52,21 @@ public class ActionCollectionCE extends BranchAwareDomain {
 
     public static class Fields extends BranchAwareDomain.Fields {
         public static final String publishedCollection_name =
-                publishedCollection + "." + ActionCollectionDTO.Fields.name;
+                String.join(".", publishedCollection, ActionCollectionDTO.Fields.name);
         public static final String unpublishedCollection_name =
-                unpublishedCollection + "." + ActionCollectionDTO.Fields.name;
+                String.join(".", unpublishedCollection, ActionCollectionDTO.Fields.name);
 
         public static final String publishedCollection_pageId =
-                publishedCollection + "." + ActionCollectionDTO.Fields.pageId;
+                String.join(".", publishedCollection, ActionCollectionDTO.Fields.pageId);
         public static final String unpublishedCollection_pageId =
-                unpublishedCollection + "." + ActionCollectionDTO.Fields.pageId;
+                String.join(".", unpublishedCollection, ActionCollectionDTO.Fields.pageId);
 
         public static final String publishedCollection_contextType =
-                publishedCollection + "." + ActionCollectionDTO.Fields.contextType;
+                String.join(".", publishedCollection, ActionCollectionDTO.Fields.contextType);
         public static final String unpublishedCollection_contextType =
-                unpublishedCollection + "." + ActionCollectionDTO.Fields.contextType;
+                String.join(".", unpublishedCollection, ActionCollectionDTO.Fields.contextType);
 
         public static final String unpublishedCollection_deletedAt =
-                unpublishedCollection + "." + ActionCollectionDTO.Fields.deletedAt;
+                String.join(".", unpublishedCollection, ActionCollectionDTO.Fields.deletedAt);
     }
 }

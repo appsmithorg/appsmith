@@ -484,14 +484,14 @@ public class Application extends BaseDomain implements Artifact {
 
     public static class Fields extends BaseDomain.Fields {
         public static final String gitApplicationMetadata_gitAuth =
-                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.gitAuth;
+                String.join(".", gitApplicationMetadata, GitArtifactMetadata.Fields.gitAuth);
         public static final String gitApplicationMetadata_defaultApplicationId =
-                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.defaultApplicationId;
+                String.join(".", gitApplicationMetadata, GitArtifactMetadata.Fields.defaultApplicationId);
         public static final String gitApplicationMetadata_branchName =
-                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.branchName;
+                String.join(".", gitApplicationMetadata, GitArtifactMetadata.Fields.branchName);
         public static final String gitApplicationMetadata_isRepoPrivate =
-                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.isRepoPrivate;
+                String.join(".", gitApplicationMetadata, GitArtifactMetadata.Fields.isRepoPrivate);
         public static final String gitApplicationMetadata_isProtectedBranch =
-                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.isProtectedBranch;
+                String.join(".", gitApplicationMetadata, GitArtifactMetadata.Fields.isProtectedBranch);
     }
 }
