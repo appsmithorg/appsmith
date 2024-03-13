@@ -5,16 +5,14 @@ import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Query;
 
 import static org.springframework.data.mongodb.core.aggregation.AggregationUpdate.update;
 
-@Slf4j
-@ChangeUnit(order = "047", id = "remove-layout-base-fields", author = " ")
+@ChangeUnit(order = "049", id = "remove-layout-base-fields")
 @RequiredArgsConstructor
-public class Migration048RemoveLayoutBaseFields {
+public class Migration049RemoveLayoutBaseFields {
     private final MongoTemplate mongoTemplate;
 
     @RollbackExecution
