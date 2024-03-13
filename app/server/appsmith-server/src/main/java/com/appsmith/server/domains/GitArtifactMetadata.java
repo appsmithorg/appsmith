@@ -5,6 +5,7 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.util.StringUtils;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 
 // This class will be used for one-to-one mapping for the DB application and the application present in the git repo.
 @Data
+@FieldNameConstants
 public class GitArtifactMetadata implements AppsmithDomain {
     // Git branch corresponding to this application, we have one to one mapping for application in DB with git-branch
     @JsonView(Views.Public.class)

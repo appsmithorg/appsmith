@@ -92,7 +92,6 @@ function useRoutes(path: string): RouteReturnType[] {
           `${path}${CURL_IMPORT_PAGE_PATH}`,
           `${path}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
           `${path}${SAAS_EDITOR_PATH}`,
-          `${path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
           `${path}${SAAS_EDITOR_API_ID_PATH}`,
           `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
           `${path}${APP_LIBRARIES_EDITOR_PATH}`,
@@ -122,6 +121,12 @@ function useRoutes(path: string): RouteReturnType[] {
         component: DatasourceBlankState,
         exact: true,
         path: `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
+      },
+      {
+        key: "SAASDatasourceEditor",
+        component: DatasourceForm,
+        exact: true,
+        path: `${path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
       },
       {
         key: "GeneratePage",

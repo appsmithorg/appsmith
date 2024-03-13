@@ -11,8 +11,6 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QNewAction;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.migrations.solutions.DatasourceStorageMigrationSolution;
@@ -39,7 +37,6 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -126,9 +123,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
      */
     private Pair<Boolean, Set<String>> getAllApplicationIdsOfDatasourceAndCheckIfAnyAppPublic(String datasourceId) {
         Query newActionsQuery = new Query().addCriteria(newActionCriteria(datasourceId));
-        newActionsQuery
-                .fields()
-                .include(FieldName.ID, FieldName.APPLICATION_ID, fieldName(QNewAction.newAction.policies));
+        newActionsQuery.fields().include(FieldName.ID, FieldName.APPLICATION_ID, NewAction.Fields.policies);
 
         Set<String> allApplicationIds = new HashSet<>();
         AtomicReference<Boolean> isPublic = new AtomicReference<>(false);
@@ -283,9 +278,7 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
 
         Query permissionGroupQuery = new Query()
                 .addCriteria(permissionGroupCriteria(workspace.getDefaultPermissionGroups(), applicationIds));
-        permissionGroupQuery
-                .fields()
-                .include(FieldName.ID, FieldName.NAME, fieldName(QPermissionGroup.permissionGroup.defaultDomainType));
+        permissionGroupQuery.fields().include(FieldName.ID, FieldName.NAME, PermissionGroup.Fields.defaultDomainType);
 
         List<PermissionGroup> permissionGroups = mongoTemplate.find(permissionGroupQuery, PermissionGroup.class);
         if (CollectionUtils.isNullOrEmpty(permissionGroups)) {
@@ -303,10 +296,8 @@ public class Migration047AddMissingFieldsInDefaultAppsmithAiDatasource {
     public static Criteria appShareAndAppDeveloperCriteria(Set<String> applicationIds) {
         return new Criteria()
                 .andOperator(
-                        where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                                .in(applicationIds),
-                        where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                                .is(APPLICATION),
+                        where(PermissionGroup.Fields.defaultDomainId).in(applicationIds),
+                        where(PermissionGroup.Fields.defaultDomainType).is(APPLICATION),
                         olderCheckForDeletedCriteria(),
                         newerCheckForDeletedCriteria());
     }

@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
-import com.appsmith.server.domains.QApplicationSnapshot;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -25,16 +24,15 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
     @Override
     public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
         List<Criteria> criteriaList = new ArrayList<>();
-        criteriaList.add(Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.applicationId))
-                .is(applicationId));
-        criteriaList.add(Criteria.where(fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder))
-                .is(1));
+        criteriaList.add(
+                Criteria.where(ApplicationSnapshot.Fields.applicationId).is(applicationId));
+        criteriaList.add(Criteria.where(ApplicationSnapshot.Fields.chunkOrder).is(1));
 
         List<String> fieldNames = List.of(
-                fieldName(QApplicationSnapshot.applicationSnapshot.applicationId),
-                fieldName(QApplicationSnapshot.applicationSnapshot.chunkOrder),
-                fieldName(QApplicationSnapshot.applicationSnapshot.createdAt),
-                fieldName(QApplicationSnapshot.applicationSnapshot.updatedAt));
+                ApplicationSnapshot.Fields.applicationId,
+                ApplicationSnapshot.Fields.chunkOrder,
+                ApplicationSnapshot.Fields.createdAt,
+                ApplicationSnapshot.Fields.updatedAt);
         return queryBuilder().criteria(criteriaList).fields(fieldNames).one();
     }
 }

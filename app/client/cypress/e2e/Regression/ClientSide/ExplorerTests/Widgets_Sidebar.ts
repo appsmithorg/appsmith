@@ -82,10 +82,6 @@ describe(
       );
     };
 
-    before(() => {
-      featureFlagIntercept({ release_custom_widgets_enabled: true });
-    });
-
     it("1. All widget tags should be visible and open by default.", () => {
       agHelper.AssertElementLength(
         entityExplorer._widgetTagsList,

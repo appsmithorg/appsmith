@@ -9,7 +9,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.filters.CSRFFilter;
 import com.appsmith.server.filters.ConditionalFilter;
-import com.appsmith.server.filters.PreAuth;
+import com.appsmith.server.filters.LoginRateLimitFilter;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
@@ -115,8 +115,8 @@ public class SecurityConfig {
      * hence using RouterFunctions to implement this feature.
      * <p>
      * Future folks: Please check out links:
-     * - https://www.baeldung.com/spring-webflux-static-content
-     * - https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-config-static-resources
+     * - <a href="https://www.baeldung.com/spring-webflux-static-content">...</a>
+     * - <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-config-static-resources">...</a>
      * - Class ResourceHandlerRegistry
      * for details. If you figure out a cleaner approach, please modify this function
      */
@@ -212,7 +212,7 @@ public class SecurityConfig {
                         .authenticated())
                 // Add Pre Auth rate limit filter before authentication filter
                 .addFilterBefore(
-                        new ConditionalFilter(new PreAuth(rateLimitService), Url.LOGIN_URL),
+                        new ConditionalFilter(new LoginRateLimitFilter(rateLimitService), Url.LOGIN_URL),
                         SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
                 .formLogin(formLoginSpec -> formLoginSpec

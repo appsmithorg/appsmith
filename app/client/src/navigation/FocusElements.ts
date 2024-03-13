@@ -26,6 +26,9 @@ export enum FocusElement {
   SelectedJSObject = "SelectedJSObject",
   SelectedSegment = "SelectedSegment",
   IDETabs = "IDETabs",
+  QueryDebugger = "QueryDebugger",
+  ApiDebugger = "ApiDebugger",
+  JSDebugger = "JSDebugger",
 }
 
 export enum FocusElementConfigType {
@@ -39,6 +42,7 @@ interface ConfigOther {
   derive a default value */
   defaultValue?: unknown | ((state: AppState) => unknown);
   subTypes?: Record<string, { defaultValue: unknown }>;
+  persist?: boolean;
 }
 
 type ConfigRedux = {
