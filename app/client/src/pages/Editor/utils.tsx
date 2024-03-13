@@ -214,13 +214,6 @@ const createDragHandler = (
   return dragElement;
 };
 
-// Function to access nested property in an object
-export const getNestedValue = (obj: Record<string, any>, path = "") => {
-  return path.split(".").reduce((prev, cur) => {
-    return prev && prev[cur];
-  }, obj);
-};
-
 export const useQuery = () => {
   const { search } = useLocation();
   return useMemo(() => new URLSearchParams(search), [search]);
