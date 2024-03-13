@@ -200,7 +200,7 @@ describe(
 
       _.deployMode.NavigateBacktoEditor();
       deleteAllWidgetsInContainer();
-
+      cy.wait(800);
       // Drop Radio widget
       dragAndDropToWidget("radiogroupwidget", "containerwidget", {
         x: 250,
