@@ -209,9 +209,9 @@ const getDataTree = (data: any, evalOrder: any) => {
     return acc;
   }, {});
   return evalOrder.reduce((acc: any, key: any) => {
-    // if (has(data, key)) {
+    const val = get(data, key);
+    if (val === undefined) return acc;
     set(acc, key, get(data, key));
-    // }
     return acc;
   }, withErrors);
 };

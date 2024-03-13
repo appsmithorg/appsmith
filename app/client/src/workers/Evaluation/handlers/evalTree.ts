@@ -258,9 +258,8 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     const allUnevalUpdates = unEvalUpdates.map(
       (update) => update.payload.propertyPath,
     );
-    const allRemovedPaths = removedPaths.map((ele) => ele?.fullpath);
     const completeEvalOrder = Array.from(
-      new Set([...allUnevalUpdates, ...allRemovedPaths, ...evalOrder]),
+      new Set([...allUnevalUpdates, ...evalOrder]),
     );
     updates = generateOptimisedUpdatesAndSetPrevState(
       dataTree,
