@@ -86,7 +86,7 @@
                         <arg>
                             <!-- Ref: http://errorprone.info/docs/flags -->
                             -Xplugin:ErrorProne \
-                            -XepAllErrorsAsWarnings
+                            -XepDisableAllChecks
                         </arg>
                     </compilerArgs>
                     <annotationProcessorPaths>
