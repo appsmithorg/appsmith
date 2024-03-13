@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useRef } from "react";
 import { Field } from "@design-system/headless";
 import { useDOMRef } from "@react-spectrum/utils";
 import type { DOMRef } from "@react-types/shared";
@@ -7,6 +7,7 @@ import { useRadioGroupState } from "@react-stately/radio";
 
 import { RadioContext } from "./context";
 import type { RadioGroupProps } from "./types";
+import { useGroupOrientation } from "./useGroupOrientation";
 
 export type RadioGroupRef = DOMRef<HTMLDivElement>;
 
@@ -22,6 +23,10 @@ const _RadioGroup = (props: RadioGroupProps, ref: RadioGroupRef) => {
   const state = useRadioGroupState(props);
   const { descriptionProps, errorMessageProps, labelProps, radioGroupProps } =
     useRadioGroup(props, state);
+  const parentRef = useRef<HTMLDivElement>(null);
+  const output = useGroupOrientation({ orientation }, parentRef);
+
+  console.log({ output });
 
   return (
     <Field
@@ -37,6 +42,7 @@ const _RadioGroup = (props: RadioGroupProps, ref: RadioGroupRef) => {
         {...radioGroupProps}
         data-field-group=""
         data-orientation={orientation}
+        ref={parentRef}
       >
         <RadioContext.Provider
           value={{
