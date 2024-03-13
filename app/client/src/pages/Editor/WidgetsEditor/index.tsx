@@ -204,7 +204,7 @@ function WidgetsEditor() {
           <AnonymousDataPopup />
           <div
             className="relative flex flex-row h-full w-full overflow-hidden"
-            data-testid="widgets-editor"
+            data-testid="t--widgets-editor"
             draggable
             id="widgets-editor"
             onClick={handleWrapperClick}

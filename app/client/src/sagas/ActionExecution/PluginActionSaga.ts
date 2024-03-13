@@ -9,6 +9,7 @@ import {
 } from "redux-saga/effects";
 import * as Sentry from "@sentry/react";
 import type { updateActionDataPayloadType } from "actions/pluginActionActions";
+import { executePageLoadActions } from "actions/pluginActionActions";
 import {
   clearActionResponse,
   executePluginActionError,
@@ -77,6 +78,7 @@ import {
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
+import { ActionExecutionContext } from "entities/Action";
 import { PluginType } from "entities/Action";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
@@ -742,6 +744,7 @@ export function* runActionSaga(
     paginationField?: PaginationField;
     skipOpeningDebugger: boolean;
     action?: Action;
+    actionExecutionContext?: ActionExecutionContext;
   }>,
 ) {
   const span = startRootSpan("runActionSaga");
@@ -956,14 +959,7 @@ export function* runActionSaga(
         show: false,
       },
     });
-    let failureEventName: EventName = "RUN_API_FAILURE";
-    if (actionObject.pluginType === PluginType.DB) {
-      failureEventName = "RUN_QUERY_FAILURE";
-    }
-    if (actionObject.pluginType === PluginType.SAAS) {
-      failureEventName = "RUN_SAAS_API_FAILURE";
-    }
-    AnalyticsUtil.logEvent(failureEventName, {
+    AnalyticsUtil.logEvent("EXECUTE_ACTION_FAILURE", {
       actionId,
       actionName: pluginActionNameToDisplay,
       environmentId: currentEnvDetails.id,
@@ -975,19 +971,12 @@ export function* runActionSaga(
       isMock: !!datasource?.isMock,
       actionConfig: actionAnalyticsPayload,
       ...payload?.pluginErrorDetails,
+      source: reduxAction.payload.actionExecutionContext,
     });
     return;
   }
 
-  let eventName: EventName = "RUN_API";
-  if (actionObject.pluginType === PluginType.DB) {
-    eventName = "RUN_QUERY";
-  }
-  if (actionObject.pluginType === PluginType.SAAS) {
-    eventName = "RUN_SAAS_API";
-  }
-
-  AnalyticsUtil.logEvent(eventName, {
+  AnalyticsUtil.logEvent("EXECUTE_ACTION", {
     actionId,
     actionName: pluginActionNameToDisplay,
     environmentId: currentEnvDetails.id,
@@ -999,6 +988,7 @@ export function* runActionSaga(
     pluginName: plugin?.name,
     isMock: !!datasource?.isMock,
     actionConfig: actionAnalyticsPayload,
+    source: reduxAction.payload.actionExecutionContext,
   });
 
   yield put({
@@ -1100,7 +1090,11 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
   }
 }
 
-function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
+function* executePageLoadAction(
+  pageAction: PageAction,
+  span?: OtlpSpan,
+  actionExecutionContext?: ActionExecutionContext,
+) {
   const currentEnvDetails: { id: string; name: string } = yield select(
     getCurrentEnvironmentDetails,
   );
@@ -1137,6 +1131,9 @@ function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
       isMock: !!datasource?.isMock,
       actionId: pageAction?.id,
       inputParams: 0,
+      source: !!actionExecutionContext
+        ? actionExecutionContext
+        : ActionExecutionContext.PAGE_LOAD,
     });
 
     const actionName = getPluginActionNameToDisplay(
@@ -1247,6 +1244,9 @@ function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
         actionId: pageAction?.id,
         inputParams: 0,
         ...payload.pluginErrorDetails,
+        source: !!actionExecutionContext
+          ? actionExecutionContext
+          : ActionExecutionContext.PAGE_LOAD,
       });
     } else {
       AnalyticsUtil.logEvent("EXECUTE_ACTION_SUCCESS", {
@@ -1265,6 +1265,9 @@ function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
         isMock: !!datasource?.isMock,
         actionId: pageAction?.id,
         inputParams: 0,
+        source: !!actionExecutionContext
+          ? actionExecutionContext
+          : ActionExecutionContext.PAGE_LOAD,
       });
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
@@ -1285,7 +1288,11 @@ function* executePageLoadAction(pageAction: PageAction, span?: OtlpSpan) {
   }
 }
 
-function* executePageLoadActionsSaga() {
+function* executePageLoadActionsSaga(
+  actionPayload: ReduxAction<{
+    actionExecutionContext?: ActionExecutionContext;
+  }>,
+) {
   const span = startRootSpan("executePageLoadActionsSaga");
   try {
     const pageActions: PageAction[][] = yield select(getLayoutOnLoadActions);
@@ -1305,7 +1312,12 @@ function* executePageLoadActionsSaga() {
       // @ts-expect-error: no idea how to type this
       yield* yield all(
         actionSet.map((apiAction) =>
-          call(executePageLoadAction, apiAction, span),
+          call(
+            executePageLoadAction,
+            apiAction,
+            span,
+            actionPayload.payload.actionExecutionContext,
+          ),
         ),
       );
     }
@@ -1626,7 +1638,11 @@ function* softRefreshActionsSaga() {
   // Clear all the action responses on the page
   yield call(clearTriggerActionResponse);
   //Rerun all the page load actions on the page
-  yield call(executePageLoadActionsSaga);
+  yield put(
+    executePageLoadActions(
+      ActionExecutionContext.REFRESH_ACTIONS_ON_ENV_CHANGE,
+    ),
+  );
   try {
     // we fork to prevent the call from blocking
     yield put(softRefreshDatasourceStructure());

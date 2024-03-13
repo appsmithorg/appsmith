@@ -69,16 +69,6 @@ public class ThemeControllerCE extends BaseController<ThemeService, Theme, Strin
     }
 
     @JsonView(Views.Public.class)
-    @PatchMapping("applications/{applicationId}")
-    public Mono<ResponseDTO<Theme>> publishCurrentTheme(
-            @PathVariable String applicationId,
-            @RequestBody Theme resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.persistCurrentTheme(applicationId, branchName, resource)
-                .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
-    }
-
-    @JsonView(Views.Public.class)
     @PatchMapping("{themeId}")
     public Mono<ResponseDTO<Theme>> updateName(@PathVariable String themeId, @Valid @RequestBody Theme resource) {
         return service.updateName(themeId, resource)

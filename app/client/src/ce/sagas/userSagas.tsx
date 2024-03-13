@@ -602,6 +602,7 @@ export function* leaveWorkspaceSaga(
       toast.show(`You have successfully left the workspace`, {
         kind: "success",
       });
+      history.push("/applications");
     }
   } catch (error) {
     // do nothing as it's already handled globally
