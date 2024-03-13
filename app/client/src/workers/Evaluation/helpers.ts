@@ -310,9 +310,15 @@ export const generateOptimisedUpdates = (
 ): DiffWithReferenceState[] => {
   // const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
   const widgetPaths = Array.from(new Set(evalOrder.map(path => path.split(".")[0])))
-  const allUpdates = evalOrder.map(path => ({ lhs: get(oldDataTree, path), rhs: get(dataTree, path), path }))
-    .filter(({ lhs, rhs }) => !equal(lhs, rhs))
-    .map(v => ({ kind: "N", path: v.path, rhs: v.rhs }))
+  const updatedEvalOrder = widgetPaths.reduce((acc: any, key: any) => {
+    if (evalOrder.includes(key)) {
+      return acc.filter((v: string) => !v.startsWith(`${key}.`))
+    }
+    return acc;
+  }, [...evalOrder])
+  const allUpdates = updatedEvalOrder.map((path:any) => ({ lhs: get(oldDataTree, path), rhs: get(dataTree, path), path }))
+    .filter(({ lhs, rhs }:any) => !equal(lhs, rhs))
+    .map((v: { path: any; rhs: any; }) => ({ kind: "N", path: v.path, rhs: v.rhs }))
   const allWidgetsErrors = widgetPaths.map(path => `${path}.__evaluation__.errors`);
   const allErrorUpdates = allWidgetsErrors.map(path => ({ lhs: get(oldDataTree, path), rhs: get(dataTree, path), path }))
   .filter(({ lhs, rhs }) => !equal(lhs, rhs))
