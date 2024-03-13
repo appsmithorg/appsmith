@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import net.minidev.json.JSONObject;
 import org.springframework.data.annotation.Transient;
 
@@ -28,6 +29,7 @@ import static java.lang.Boolean.TRUE;
 @Setter
 @ToString
 @NoArgsConstructor
+@FieldNameConstants
 public class Layout {
 
     @JsonView({Views.Public.class, Views.Export.class})
