@@ -67,19 +67,6 @@ class AppThemingApi extends API {
       theme,
     );
   }
-
-  /**
-   * fires api for deleting theme
-   *
-   * @param applicationId
-   * @param theme
-   * @returns
-   */
-  static async deleteTheme(
-    themeId: string,
-  ): Promise<AxiosPromise<ApiResponse<AppTheme[]>>> {
-    return API.delete(`${AppThemingApi.baseUrl}/themes/${themeId}`);
-  }
 }
 
 export default AppThemingApi;

@@ -1,6 +1,4 @@
 import type {
-  ChangeSelectedAppThemeAction,
-  DeleteAppThemeAction,
   FetchAppThemesAction,
   FetchSelectedAppThemeAction,
   UpdateSelectedAppThemeAction,
@@ -15,9 +13,7 @@ import ThemingApi from "api/AppThemingApi";
 import { all, takeLatest, put, select, call } from "redux-saga/effects";
 import { toast } from "design-system";
 import {
-  CHANGE_APP_THEME,
   createMessage,
-  DELETE_APP_THEME,
   SET_DEFAULT_SELECTED_THEME,
 } from "@appsmith/constants/messages";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
@@ -182,75 +178,6 @@ export function* updateSelectedTheme(
   }
 }
 
-/**
- * changes eelcted theme
- *
- * @param action
- */
-export function* changeSelectedTheme(
-  action: ReduxAction<ChangeSelectedAppThemeAction>,
-) {
-  const { applicationId, shouldReplay = true, theme } = action.payload;
-  const canvasWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
-
-  try {
-    yield ThemingApi.changeTheme(applicationId, theme);
-
-    yield put({
-      type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
-      payload: theme,
-    });
-
-    // shows toast
-    toast.show(createMessage(CHANGE_APP_THEME, theme.displayName), {
-      kind: "success",
-    });
-
-    if (shouldReplay) {
-      yield put(
-        updateReplayEntity(
-          "canvas",
-          { widgets: canvasWidgets, theme },
-          ENTITY_TYPE.WIDGET,
-        ),
-      );
-    }
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.UPDATE_SELECTED_APP_THEME_ERROR,
-      payload: { error },
-    });
-  }
-}
-
-/**
- * deletes custom saved theme
- *
- * @param action
- */
-export function* deleteTheme(action: ReduxAction<DeleteAppThemeAction>) {
-  const { name, themeId } = action.payload;
-
-  try {
-    yield ThemingApi.deleteTheme(themeId);
-
-    yield put({
-      type: ReduxActionTypes.DELETE_APP_THEME_SUCCESS,
-      payload: { themeId },
-    });
-
-    // shows toast
-    toast.show(createMessage(DELETE_APP_THEME, name), {
-      kind: "success",
-    });
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.DELETE_APP_THEME_ERROR,
-      payload: { error },
-    });
-  }
-}
-
 function* closeisBetaCardShown() {
   try {
     const user: User = yield select(getCurrentUser);
@@ -322,11 +249,6 @@ export default function* appThemingSaga() {
       ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT,
       updateSelectedTheme,
     ),
-    takeLatest(
-      ReduxActionTypes.CHANGE_SELECTED_APP_THEME_INIT,
-      changeSelectedTheme,
-    ),
-    takeLatest(ReduxActionTypes.DELETE_APP_THEME_INIT, deleteTheme),
     takeLatest(ReduxActionTypes.CLOSE_BETA_CARD_SHOWN, closeisBetaCardShown),
     takeLatest(
       ReduxActionTypes.SET_DEFAULT_SELECTED_THEME_INIT,

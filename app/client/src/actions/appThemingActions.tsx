@@ -31,15 +31,6 @@ export interface ChangeSelectedAppThemeAction {
   shouldReplay?: boolean;
 }
 
-export interface HydrateSelectedAppThemeAction {
-  theme: AppTheme;
-}
-
-export interface SaveAppThemeAction {
-  applicationId: string;
-  name: string;
-}
-
 export interface DeleteAppThemeAction {
   themeId: string;
   name: string;
@@ -106,52 +97,6 @@ export const updateSelectedAppThemeAction = (
   payload: UpdateSelectedAppThemeAction,
 ) => ({
   type: ReduxActionTypes.UPDATE_SELECTED_APP_THEME_INIT,
-  payload,
-});
-
-/**
- * change selected theme
- *
- * @param payload
- * @returns
- */
-export const changeSelectedAppThemeAction = (
-  payload: ChangeSelectedAppThemeAction,
-) => ({
-  type: ReduxActionTypes.CHANGE_SELECTED_APP_THEME_INIT,
-  payload,
-});
-
-/**
- * set the preview theme
- *
- * @param payload
- * @returns
- */
-export const setPreviewAppThemeAction = (payload?: AppTheme) => ({
-  type: ReduxActionTypes.SET_PREVIEW_APP_THEME,
-  payload,
-});
-
-/**
- * set the preview theme
- *
- * @param payload
- * @returns
- */
-export const saveSelectedThemeAction = (payload?: SaveAppThemeAction) => ({
-  type: ReduxActionTypes.SAVE_APP_THEME_INIT,
-  payload,
-});
-
-/**
- * delete app theme
- *
- * @param payload
- * @returns
- */
-export const deleteAppThemeAction = (payload?: DeleteAppThemeAction) => ({
-  type: ReduxActionTypes.DELETE_APP_THEME_INIT,
   payload,
 });
 

@@ -4,14 +4,9 @@ import { useDispatch, useSelector } from "react-redux";
 import React, { useCallback } from "react";
 
 import ThemeCard from "./ThemeCard";
-import {
-  AppThemingMode,
-  getAppThemingStack,
-  getSelectedAppTheme,
-} from "selectors/appThemingSelectors";
+import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import {
   resetThemeAction,
-  setAppThemingModeStackAction,
   updateSelectedAppThemeAction,
 } from "actions/appThemingActions";
 import SettingSection from "./SettingSection";
@@ -62,7 +57,6 @@ function ThemeEditor() {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const themingStack = useSelector(getAppThemingStack);
 
   /**
    * customizes the current theme
@@ -78,20 +72,6 @@ function ThemeEditor() {
     },
     [updateSelectedAppThemeAction],
   );
-
-  /**
-   * sets the mode to THEME_EDIT
-   */
-  const onClickChangeThemeButton = useCallback(() => {
-    AnalyticsUtil.logEvent("APP_THEMING_CHOOSE_THEME");
-
-    dispatch(
-      setAppThemingModeStackAction([
-        ...themingStack,
-        AppThemingMode.APP_THEME_SELECTION,
-      ]),
-    );
-  }, [setAppThemingModeStackAction]);
 
   /**
    * resets theme
@@ -126,19 +106,7 @@ function ThemeEditor() {
           </div>
         </div>
 
-        <ThemeCard theme={selectedTheme}>
-          <aside
-            className={`absolute left-0 top-0 bottom-0 right-0 items-center justify-center hidden group-hover:flex  backdrop-filter bg-gray-900 bg-opacity-50 backdrop-blur-sm `}
-          >
-            <Button
-              className="t--change-theme-btn"
-              onClick={onClickChangeThemeButton}
-              size="md"
-            >
-              Change theme
-            </Button>
-          </aside>
-        </ThemeCard>
+        <ThemeCard theme={selectedTheme} />
       </header>
       <main className="mt-1">
         {/* FONT  */}
