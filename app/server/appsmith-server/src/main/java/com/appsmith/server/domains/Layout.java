@@ -14,8 +14,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import net.minidev.json.JSONObject;
+import org.springframework.data.annotation.Transient;
 
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -27,9 +29,6 @@ import static java.lang.Boolean.TRUE;
 @ToString
 @NoArgsConstructor
 public class Layout {
-
-    @JsonView({Views.Public.class, Views.Export.class})
-    private String id;
 
     @JsonView({Views.Public.class, Views.Export.class})
     ScreenType screen;
@@ -73,17 +72,32 @@ public class Layout {
     @JsonView(Views.Internal.class)
     Boolean validOnPageLoadActions = TRUE;
 
-    /** @deprecated it's not used today, don't start using it now.
-     * This field only exists here because its removal will cause a huge diff on all entities in git-connected
-     * applications. So, instead, we keep it, deprecated, query-transient (no corresponding field in Q* class),
-     * no getter/setter methods and only use it for reflection-powered services, like the git sync
-     * implementation. For all other practical purposes, this field doesn't exist.
+    /*
+     * These fields (except for `id`) only exist here because their removal will cause a huge diff on all layouts in
+     * git-connected applications. So, instead, we keep them, but defunct. For all other practical purposes, these
+     * fields (again, except for `id`) don't exist.
      */
+    @JsonView({Views.Public.class, Views.Export.class})
+    private String id;
+    // BEGIN DEFUNCT FIELDS
     @Deprecated(forRemoval = true)
+    @Transient
+    @JsonView(Views.Internal.class)
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    protected Boolean deleted = false;
+
+    @Deprecated(forRemoval = true)
+    @Transient
     @JsonView(Views.Internal.class)
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     protected Set<Policy> policies = Collections.emptySet();
+
+    @Transient
+    @JsonView(Views.Public.class)
+    public Set<String> userPermissions = new HashSet<>();
+    // END DEFUNCT FIELDS
 
     /**
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)
