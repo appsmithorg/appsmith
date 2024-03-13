@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 
+import static com.appsmith.server.helpers.StringUtils.dotted;
+
 /**
  * This class represents a collection of actions that may or may not belong to the same plugin.
  * The logic for grouping is agnostic of the handling of this collection
@@ -52,21 +54,21 @@ public class ActionCollectionCE extends BranchAwareDomain {
 
     public static class Fields extends BranchAwareDomain.Fields {
         public static final String publishedCollection_name =
-                String.join(".", publishedCollection, ActionCollectionDTO.Fields.name);
+                dotted(publishedCollection, ActionCollectionDTO.Fields.name);
         public static final String unpublishedCollection_name =
-                String.join(".", unpublishedCollection, ActionCollectionDTO.Fields.name);
+                dotted(unpublishedCollection, ActionCollectionDTO.Fields.name);
 
         public static final String publishedCollection_pageId =
-                String.join(".", publishedCollection, ActionCollectionDTO.Fields.pageId);
+                dotted(publishedCollection, ActionCollectionDTO.Fields.pageId);
         public static final String unpublishedCollection_pageId =
-                String.join(".", unpublishedCollection, ActionCollectionDTO.Fields.pageId);
+                dotted(unpublishedCollection, ActionCollectionDTO.Fields.pageId);
 
         public static final String publishedCollection_contextType =
-                String.join(".", publishedCollection, ActionCollectionDTO.Fields.contextType);
+                dotted(publishedCollection, ActionCollectionDTO.Fields.contextType);
         public static final String unpublishedCollection_contextType =
-                String.join(".", unpublishedCollection, ActionCollectionDTO.Fields.contextType);
+                dotted(unpublishedCollection, ActionCollectionDTO.Fields.contextType);
 
         public static final String unpublishedCollection_deletedAt =
-                String.join(".", unpublishedCollection, ActionCollectionDTO.Fields.deletedAt);
+                dotted(unpublishedCollection, ActionCollectionDTO.Fields.deletedAt);
     }
 }

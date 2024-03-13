@@ -33,9 +33,12 @@ async function processJavaFile(filePath) {
 
       for (const match of innerClassMatch[0].matchAll(/\bpublic\s+static\s+final\s+String\s+(\w+)\s+=\s+(.+?);/gs)) {
         const key = match[1]
-        const valMatcherParts = [`^String\\.join\\(\\s*"."`];
-        for (const field of key.split("_")) {
-          valMatcherParts.push(`\\s*,\\s+(\\w+\\.\\w+\\.)?${field}`);
+        const valMatcherParts = [`^dotted\\(`];
+        for (const [i, field] of key.split("_").entries()) {
+          if (i > 0) {
+            valMatcherParts.push(`\\s*,\\s+`);
+          }
+          valMatcherParts.push(`(\\w+\\.\\w+\\.)?${field}`);
         }
         valMatcherParts.push(`\\s*\\)$`);
         const valMatcher = new RegExp(valMatcherParts.join(''));
