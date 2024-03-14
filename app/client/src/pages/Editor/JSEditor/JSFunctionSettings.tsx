@@ -29,7 +29,10 @@ interface SettingsItemProps {
   action: JSAction;
   disabled?: boolean;
   onUpdateSettings?: (props: OnUpdateSettingsProps) => void;
-  renderAdditionalColumns?: (action: JSAction) => React.ReactNode;
+  renderAdditionalColumns?: (
+    action: JSAction,
+    headingCount: number,
+  ) => React.ReactNode;
 }
 
 export interface JSFunctionSettingsProps {
@@ -253,7 +256,7 @@ function SettingsItem({
           </SwitchWrapper>
         )}
       </SettingColumn>
-      {renderAdditionalColumns?.(action)}
+      {renderAdditionalColumns?.(action, headingCount)}
     </SettingRow>
   );
 }
