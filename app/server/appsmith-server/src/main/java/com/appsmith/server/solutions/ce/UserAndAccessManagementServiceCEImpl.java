@@ -80,7 +80,7 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
             if (TRUE.equals(captchaVerified)) {
                 return inviteUsers(inviteUsersDTO, originHeader);
             } else {
-                return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_FAILED));
+                return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_INVITE_FLOW_FAILED));
             }
         });
     }
