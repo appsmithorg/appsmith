@@ -298,7 +298,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     // Adding setTimeOut to allow property pane to open only after widget is loaded.
     // Not needed for most widgets except for Modal Widget.
     setTimeout(() => {
-      selectWidget(SelectionRequestType.Create, [
+      selectWidget(SelectionRequestType.One, [
         updateWidgetParams.payload.newWidgetId,
       ]);
     }, 100);

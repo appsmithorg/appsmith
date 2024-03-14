@@ -202,7 +202,7 @@ export const useBlocksToBeDraggedOnCanvas = ({
     //Addition of setTimeout to wait for the new widget to be added to the canvas before selecting
     //TODO: this should be moved to the sagas to avoid this setTimeout
     setTimeout(() => {
-      selectWidget(SelectionRequestType.Create, [widgetPayload.newWidgetId]);
+      selectWidget(SelectionRequestType.One, [widgetPayload.newWidgetId]);
     }, 100);
   };
 
