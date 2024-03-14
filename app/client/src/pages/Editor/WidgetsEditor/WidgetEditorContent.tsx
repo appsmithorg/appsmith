@@ -1,0 +1,24 @@
+import React from "react";
+import {
+  WidgetEditorNavigation,
+  useNavigationPreviewHeight,
+} from "./components/WidgetEditorNavigation";
+import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
+import { WidgetEditorContentWrapper } from "./components/WidgetEditorContentWrapper";
+import { NavigationAdjustedPageViewer } from "./components/NavigationAdjustedPageViewer";
+import { LayoutSystemBasedPageViewer } from "./components/LayoutSystemBasedPageViewer";
+
+export const WidgetEditorContent = () => {
+  const { navigationHeight, navigationPreviewRef } =
+    useNavigationPreviewHeight();
+
+  return (
+    <WidgetEditorContentWrapper>
+      <WidgetEditorNavigation ref={navigationPreviewRef} />
+      <NavigationAdjustedPageViewer>
+        <LayoutSystemBasedPageViewer navigationHeight={navigationHeight} />
+      </NavigationAdjustedPageViewer>
+      <CrudInfoModal />
+    </WidgetEditorContentWrapper>
+  );
+};

@@ -18,7 +18,7 @@ import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
-import CodeModeTooltip from "pages/Editor/WidgetsEditor/CodeModeTooltip";
+import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;

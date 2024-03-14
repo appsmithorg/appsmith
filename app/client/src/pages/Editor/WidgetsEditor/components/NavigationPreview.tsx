@@ -4,7 +4,7 @@ import classNames from "classnames";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { Navigation } from "pages/AppViewer/Navigation";
-import { useCurrentAppState } from "../IDE/hooks";
+import { useCurrentAppState } from "../../IDE/hooks";
 import { EditorState } from "@appsmith/entities/IDE/constants";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
