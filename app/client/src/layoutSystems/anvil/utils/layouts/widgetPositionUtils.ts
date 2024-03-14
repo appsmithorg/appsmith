@@ -1,6 +1,6 @@
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import type { BaseLayoutComponent } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { LayoutFactory } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type { WidgetLayoutPositionInfo } from "../paste/types";
 
 export function getWidgetLayoutMetaInfo(

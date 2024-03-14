@@ -6,8 +6,8 @@ import type {
 } from "../../anvilTypes";
 import { generateReactKey } from "utils/generators";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import type { BaseLayoutComponent } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import { LayoutFactory } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import { createZoneAndAddWidgets } from "./zoneUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";

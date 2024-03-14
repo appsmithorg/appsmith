@@ -1,4 +1,4 @@
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { LayoutFactory } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import AlignedLayoutColumn from "layoutSystems/anvil/layoutComponents/components/AlignedLayoutColumn";
 import AlignedWidgetColumn from "layoutSystems/anvil/layoutComponents/components/AlignedWidgetColumn";
 import LayoutColumn from "layoutSystems/anvil/layoutComponents/components/LayoutColumn";

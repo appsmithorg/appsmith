@@ -9,8 +9,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import type { CopiedWidgetData } from "./types";
 import type { LayoutProps, WidgetLayoutProps } from "../anvilTypes";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import type { BaseLayoutComponent } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import { LayoutFactory } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import WidgetFactory from "WidgetProvider/factory";
 
 export function* addPastedWidgets(

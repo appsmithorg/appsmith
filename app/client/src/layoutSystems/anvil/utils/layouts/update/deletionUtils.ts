@@ -1,8 +1,8 @@
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { LayoutFactory } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type { LayoutProps } from "../../anvilTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import type { BaseLayoutComponent } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 
 export function deleteWidgetFromPreset(
   preset: LayoutProps[],

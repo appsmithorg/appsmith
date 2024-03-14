@@ -9,7 +9,7 @@ import type {
 } from "../../anvilTypes";
 import { HIGHLIGHT_SIZE, defaultHighlightPayload } from "../../constants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { LayoutFactory } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type {
   LayoutElementPosition,
   LayoutElementPositions,

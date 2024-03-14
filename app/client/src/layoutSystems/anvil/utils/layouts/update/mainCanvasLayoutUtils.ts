@@ -7,7 +7,7 @@ import type {
 import { addWidgetsToChildTemplate, getAffectedLayout } from "./additionUtils";
 import type { WidgetProps } from "widgets/types";
 import { createSectionAndAddWidget } from "./sectionUtils";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { LayoutFactory } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import { call } from "redux-saga/effects";
 
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";

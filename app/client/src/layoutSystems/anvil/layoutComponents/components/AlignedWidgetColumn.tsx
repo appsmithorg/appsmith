@@ -4,7 +4,7 @@ import {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import type { FlexLayoutProps } from "./FlexLayout";
 import { deriveAlignedColumnHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedColumnHighlights";
-import BaseLayoutComponent from "../BaseLayoutComponent";
+import { BaseLayoutComponent } from "../BaseLayoutComponent";
 
 class AlignedWidgetColumn extends BaseLayoutComponent {
   static type: LayoutComponentTypes =

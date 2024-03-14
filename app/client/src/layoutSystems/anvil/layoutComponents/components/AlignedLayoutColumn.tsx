@@ -1,4 +1,4 @@
-import BaseLayoutComponent from "../BaseLayoutComponent";
+import { BaseLayoutComponent } from "../BaseLayoutComponent";
 import {
   type DeriveHighlightsFn,
   LayoutComponentTypes,

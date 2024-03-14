@@ -4,8 +4,8 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { generateReactKey } from "utils/generators";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import type { BaseLayoutComponent } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import { LayoutFactory } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";
 import { addWidgetsToChildTemplate } from "./additionUtils";

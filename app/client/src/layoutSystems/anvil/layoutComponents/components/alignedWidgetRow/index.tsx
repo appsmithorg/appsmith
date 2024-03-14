@@ -1,5 +1,5 @@
 import React from "react";
-import BaseLayoutComponent from "../../BaseLayoutComponent";
+import { BaseLayoutComponent } from "../../BaseLayoutComponent";
 import {
   type DeriveHighlightsFn,
   LayoutComponentTypes,

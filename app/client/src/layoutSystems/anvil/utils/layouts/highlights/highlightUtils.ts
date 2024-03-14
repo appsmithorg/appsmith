@@ -1,4 +1,4 @@
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { LayoutFactory } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,
@@ -14,7 +14,7 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { HIGHLIGHT_SIZE, defaultHighlightPayload } from "../../constants";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { getRelativeDimensions } from "./dimensionUtils";
-import type BaseLayoutComponent from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
+import type { BaseLayoutComponent } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import { areWidgetsWhitelisted } from "../whitelistUtils";
 
 /**

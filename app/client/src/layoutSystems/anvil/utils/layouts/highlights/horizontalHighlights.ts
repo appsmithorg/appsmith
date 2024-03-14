@@ -1,4 +1,4 @@
-import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
+import { LayoutFactory } from "layoutSystems/anvil/layoutComponents/BaseLayoutComponent";
 import type {
   AnvilHighlightInfo,
   DeriveHighlightsFn,
