@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { getTypographyByKey, Text, TextType } from "design-system-old";
 import { Icon } from "design-system";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
@@ -10,8 +10,7 @@ import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import type { AppState } from "@appsmith/reducers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 const StyledHelpBar = styled.button<{ isSideBySideFlagEnabled?: boolean }>`
   padding: 0 var(--ads-v2-spaces-3);
@@ -54,9 +53,7 @@ interface Props {
 }
 
 function HelpBar({ isProtectedMode, toggleShowModal }: Props) {
-  const isSideBySideFlagEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_side_by_side_ide_enabled,
-  );
+  const isSideBySideFlagEnabled = useSelector(getIsSideBySideEnabled);
 
   return (
     <StyledHelpBar

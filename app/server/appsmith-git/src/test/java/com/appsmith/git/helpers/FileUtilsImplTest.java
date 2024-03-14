@@ -19,7 +19,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -83,18 +82,8 @@ public class FileUtilsImplTest {
         Path pageDirectoryPath = localTestDirectoryPath.resolve(PAGE_DIRECTORY);
 
         // Create random page directories in the file system
-        Set<String> directorySet = new HashSet<String>() {
-            {
-                add("Uneisean");
-                add("Keladia");
-                add("Lothemas");
-                add("Edaemwen");
-                add("Qilabwyn");
-                add("Dreralle");
-                add("Wendadia");
-                add("Lareibeth");
-            }
-        };
+        Set<String> directorySet =
+                Set.of("Uneisean", "Keladia", "Lothemas", "Edaemwen", "Qilabwyn", "Dreralle", "Wendadia", "Lareibeth");
 
         directorySet.forEach(directory -> {
             try {
@@ -127,18 +116,15 @@ public class FileUtilsImplTest {
         Path actionDirectoryPath = localTestDirectoryPath.resolve(ACTION_DIRECTORY);
 
         // Create random action files in the file system
-        Set<String> actionsSet = new HashSet<String>() {
-            {
-                add("uneisean.json");
-                add("keladia.json");
-                add("lothemas.json");
-                add("edaemwen.json");
-                add("qilabwyn.json");
-                add("dreralle.json");
-                add("wendadia.json");
-                add("lareibeth.json");
-            }
-        };
+        Set<String> actionsSet = Set.of(
+                "uneisean.json",
+                "keladia.json",
+                "lothemas.json",
+                "edaemwen.json",
+                "qilabwyn.json",
+                "dreralle.json",
+                "wendadia.json",
+                "lareibeth.json");
 
         try {
             Files.createDirectories(actionDirectoryPath);

@@ -39,8 +39,7 @@ export async function getGeoLocation(
   try {
     response = await executor(successCallback, errorCallback, options);
 
-    // @ts-expect-error: globalThis type is not defined
-    const geolocation = globalThis.appsmith?.geolocation;
+    const geolocation = self.appsmith?.geolocation;
 
     if (geolocation) {
       geolocation.currentPosition = response;

@@ -1,4 +1,3 @@
-import type { ReactNode } from "react";
 import React from "react";
 import {
   getFunctionNameFromJsObjectExpression,
@@ -20,7 +19,7 @@ import { PluginType } from "entities/Action";
 import type { JSAction, Variable } from "entities/JSCollection";
 import keyBy from "lodash/keyBy";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
-import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
+import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type {
@@ -66,11 +65,13 @@ import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelector
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ModuleInstanceDataState } from "@appsmith/constants/ModuleInstanceConstants";
-import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import { setShowCreateNewModal } from "actions/propertyPaneActions";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { resolveIcon } from "pages/Editor/utils";
+import { getAllModules } from "@appsmith/selectors/modulesSelector";
+import type { Module } from "@appsmith/constants/ModuleConstants";
 
 const actionList: {
   label: string;
@@ -393,16 +394,6 @@ export function useModalDropdownList(handleClose: () => void) {
   return finalList;
 }
 
-export const getModuleInstanceIcon = (type: MODULE_TYPE): ReactNode => {
-  if (type === MODULE_TYPE.QUERY || type === MODULE_TYPE.JS) {
-    return (
-      <EntityIcon>
-        <Icon name="module" />
-      </EntityIcon>
-    );
-  }
-};
-
 export function getApiQueriesAndJSActionOptionsWithChildren(
   pageId: string,
   plugins: any,
@@ -412,6 +403,7 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
   handleClose: () => void,
   queryModuleInstances: ModuleInstanceDataState,
   jsModuleInstances: ReturnType<typeof getJSModuleInstancesData>,
+  modules: Record<string, Module>,
 ) {
   // this function gets a list of all the queries/apis and attaches it to actionList
   getApiAndQueryOptions(
@@ -420,6 +412,7 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
     dispatch,
     handleClose,
     queryModuleInstances,
+    modules,
   );
 
   // this function gets a list of all the JS Objects and attaches it to actionList
@@ -434,6 +427,7 @@ function getApiAndQueryOptions(
   dispatch: any,
   handleClose: () => void,
   queryModuleInstances: ModuleInstanceDataState,
+  modules: Record<string, Module>,
 ) {
   const state = store.getState();
   const isSideBySideEnabled = getIsSideBySideEnabled(state);
@@ -499,12 +493,17 @@ function getApiAndQueryOptions(
       } as TreeDropdownOption);
     });
     queryModuleInstances.forEach((instance) => {
+      const module = modules[instance.config.sourceModuleId];
       (queryOptions.children as TreeDropdownOption[]).push({
         label: instance.config.name,
         id: instance.config.id,
         value: instance.config.name,
         type: queryOptions.value,
-        icon: getModuleInstanceIcon(instance.config.type),
+        icon: resolveIcon({
+          iconLocation: plugins[module.pluginId]?.iconLocation || "",
+          pluginType: module.pluginType,
+          moduleType: module.type,
+        }),
       } as TreeDropdownOption);
     });
   }
@@ -587,7 +586,7 @@ export function getJSOptions(
           id: jsModuleInstance.config.id,
           value: jsModuleInstance.name,
           type: jsOption.value,
-          icon: getModuleInstanceIcon(MODULE_TYPE.JS),
+          icon: JsFileIconV2(),
         } as unknown as TreeDropdownOption;
 
         (jsOption.children as unknown as TreeDropdownOption[]).push(jsObject);
@@ -637,6 +636,7 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
     getQueryModuleInstances,
   ) as unknown as ModuleInstanceDataState;
   const jsModuleInstancesData = useSelector(getJSModuleInstancesData);
+  const modules = useSelector(getAllModules);
 
   // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(
@@ -648,5 +648,6 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
     handleClose,
     queryModuleInstances,
     jsModuleInstancesData,
+    modules,
   );
 }

@@ -1,28 +1,20 @@
-import React, { useCallback } from "react";
+import React from "react";
 import { Flex } from "design-system";
-import { useSelector } from "react-redux";
-import { useLocation } from "react-router";
 
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import history from "utils/history";
-import { ADD_PATH } from "constants/routes";
 import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import SegmentAddHeader from "../components/SegmentAddHeader";
 import GroupedList from "../components/GroupedList";
 import {
   useAddQueryListItems,
   useGroupedAddQueryOperations,
+  useQueryAdd,
 } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 
 const AddQuery = () => {
-  const location = useLocation();
-  const pageId = useSelector(getCurrentPageId) as string;
   const { getListItems } = useAddQueryListItems();
   const groupedActionOperations = useGroupedAddQueryOperations();
 
-  const closeButtonClickHandler = useCallback(() => {
-    history.push(location.pathname.replace(`${ADD_PATH}`, ""));
-  }, [pageId]);
+  const closeButtonClickHandler = useQueryAdd();
 
   return (
     <Flex flexDirection="column" gap={"spaces-4"} overflow="hidden">

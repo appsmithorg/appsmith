@@ -14,7 +14,7 @@ interface ResourcesLoaderProps {
 
 const DEFAULT_BACKGROUND_COLOR = "#9747FF1A";
 const DEFAULT_ICON = "book";
-const DEAFULT_RESOURCES = [{ name: "Default Resource" }];
+const DEAFULT_RESOURCES = [{ id: "default", name: "Default Resource" }];
 
 function ResourceListLoader({ isMobile, resources }: ResourcesLoaderProps) {
   const resourcesToUse = resources?.length ? resources : DEAFULT_RESOURCES;
