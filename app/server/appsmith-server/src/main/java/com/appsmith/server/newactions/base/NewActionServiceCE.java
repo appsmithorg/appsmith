@@ -82,6 +82,9 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<ActionDTO> deleteUnpublishedAction(String id);
 
+    Mono<ActionDTO> deleteUnpublishedActionWithOptionalPermission(
+            String id, Optional<AclPermission> newActionDeletePermission);
+
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, Boolean includeJsActions);
 
     Flux<ActionDTO> getUnpublishedActions(
