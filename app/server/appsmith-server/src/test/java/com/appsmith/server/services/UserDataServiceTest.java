@@ -242,7 +242,8 @@ public class UserDataServiceTest {
                     userData.setRecentlyUsedEntityIds(null);
                     return userDataRepository.save(userData);
                 })
-                .then(userDataService.updateLastUsedAppAndWorkspaceList(application));
+                .then(userDataService.updateLastUsedResourceAndWorkspaceList(
+                        application.getId(), sampleWorkspaceId, null));
 
         StepVerifier.create(saveMono)
                 .assertNext(userData -> {
@@ -282,7 +283,8 @@ public class UserDataServiceTest {
                     Application application = new Application();
                     application.setWorkspaceId(sampleWorkspaceId);
                     application.setId("sample-app-id");
-                    return userDataService.updateLastUsedAppAndWorkspaceList(application);
+                    return userDataService.updateLastUsedResourceAndWorkspaceList(
+                            application.getId(), sampleWorkspaceId, null);
                 });
 
         StepVerifier.create(resultMono)
@@ -338,7 +340,8 @@ public class UserDataServiceTest {
                     Application application = new Application();
                     application.setId(sampleAppId);
                     application.setWorkspaceId(sampleWorkspaceId);
-                    return userDataService.updateLastUsedAppAndWorkspaceList(application);
+                    return userDataService.updateLastUsedResourceAndWorkspaceList(
+                            application.getId(), sampleWorkspaceId, null);
                 })
                 .cache();
 
@@ -380,7 +383,7 @@ public class UserDataServiceTest {
             Application application = new Application();
             application.setId(sampleAppId);
             application.setWorkspaceId("org-1");
-            return userDataService.updateLastUsedAppAndWorkspaceList(application);
+            return userDataService.updateLastUsedResourceAndWorkspaceList(application.getId(), "org-1", null);
         });
 
         StepVerifier.create(updateRecentlyUsedEntitiesMono)
