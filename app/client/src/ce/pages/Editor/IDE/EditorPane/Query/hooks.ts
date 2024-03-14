@@ -42,7 +42,7 @@ import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/Query/BlankStat
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 
-export const useQueryAdd = (_getQueryUrl = getQueryUrl) => {
+export const useQueryAdd = () => {
   const location = useLocation();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
   const { segmentMode } = useCurrentEditorState();
@@ -51,12 +51,12 @@ export const useQueryAdd = (_getQueryUrl = getQueryUrl) => {
     let url = "";
     if (segmentMode === EditorEntityTabState.Add) {
       // Already in add mode, back to the previous active item
-      url = _getQueryUrl(currentEntityInfo, false);
+      url = getQueryUrl(currentEntityInfo, false);
     } else {
-      url = _getQueryUrl(currentEntityInfo);
+      url = getQueryUrl(currentEntityInfo);
     }
     history.push(url);
-  }, [currentEntityInfo, segmentMode, _getQueryUrl]);
+  }, [currentEntityInfo, segmentMode]);
 
   return addButtonClickHandler;
 };

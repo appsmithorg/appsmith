@@ -20,10 +20,10 @@ import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/JS/BlankStateCo
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { getJSUrl } from "./utils";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
+import { getJSUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
 
-export const useJSAdd = (_getJSUrl = getJSUrl) => {
+export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
   const dispatch = useDispatch();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
@@ -36,13 +36,13 @@ export const useJSAdd = (_getJSUrl = getJSUrl) => {
   return useCallback(() => {
     if (jsModuleCreationOptions.length === 0) {
       if (segmentMode === EditorEntityTabState.Add) {
-        const url = _getJSUrl(currentEntityInfo, false);
+        const url = getJSUrl(currentEntityInfo, false);
         history.push(url);
       } else {
         dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
       }
     } else {
-      const url = _getJSUrl(
+      const url = getJSUrl(
         currentEntityInfo,
         !(segmentMode === EditorEntityTabState.Add),
       );
@@ -54,7 +54,6 @@ export const useJSAdd = (_getJSUrl = getJSUrl) => {
     segmentMode,
     currentEntityInfo,
     jsModuleCreationOptions,
-    _getJSUrl,
   ]);
 };
 
