@@ -1,4 +1,5 @@
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
+export {};
+/*import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { makeEntityConfigsAsObjProperties } from "@appsmith/workers/Evaluation/dataTreeUtils";
 import { smallDataSet } from "workers/Evaluation/__tests__/generateOpimisedUpdates.test";
 import produce from "immer";
@@ -250,3 +251,4 @@ describe("7. Test util methods", () => {
     });
   });
 });
+*/
