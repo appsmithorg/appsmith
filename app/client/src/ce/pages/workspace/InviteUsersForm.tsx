@@ -407,40 +407,48 @@ function InviteUsersForm(props: any) {
         orgId: props.workspaceId,
       });
 
-      if (
-        googleRecaptchaSiteKey.enabled &&
-        recaptchaStatus === ScriptStatus.READY
-      ) {
-        try {
-          window.grecaptcha
-            .execute(googleRecaptchaSiteKey.apiKey, {
+      try {
+        if (
+          googleRecaptchaSiteKey.enabled &&
+          recaptchaStatus === ScriptStatus.READY
+        ) {
+          const token = await window.grecaptcha.execute(
+            googleRecaptchaSiteKey.apiKey,
+            {
               action: "submit",
-            })
-            .then(async function (token: any) {
-              return inviteUsersToWorkspace(
-                {
-                  ...(props.workspaceId
-                    ? { workspaceId: props.workspaceId }
-                    : {}),
-                  users: validEmailsString,
-                  permissionGroupId: roles,
-                  recaptchaToken: token,
-                },
-                dispatch,
-              );
-            });
-        } catch (error) {
-          log.error(error);
+            },
+          );
+
+          const result = await inviteUsersToWorkspace(
+            {
+              ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
+              users: validEmailsString,
+              permissionGroupId: roles,
+              recaptchaToken: token,
+            },
+            dispatch,
+          );
+
+          if (!result.success) {
+            throw new Error(result.error);
+          }
+        } else {
+          const result = await inviteUsersToWorkspace(
+            {
+              ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
+              users: validEmailsString,
+              permissionGroupId: roles,
+            },
+            dispatch,
+          );
+
+          if (!result.success) {
+            throw new Error(result.error);
+          }
         }
-      } else {
-        return inviteUsersToWorkspace(
-          {
-            ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
-            users: validEmailsString,
-            permissionGroupId: roles,
-          },
-          dispatch,
-        );
+      } catch (error) {
+        log.error(error);
+        throw error; // This will cause the form submission to fail
       }
     },
   );
