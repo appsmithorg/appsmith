@@ -384,29 +384,45 @@ function InviteUsersForm(props: any) {
     }
   };
 
-  const inviteUsersSubmitHandler = handleSubmit(
+  const inviteUsersSubmitHandler = async (
+    values: any,
+    dispatch: any,
+    recaptchaToken?: string,
+  ) => {
+    const roles = isMultiSelectDropdown
+      ? selectedOption
+          .map((option: DefaultOptionType) => option.value)
+          .join(",")
+      : selectedOption[0].value;
+    validateFormValues({ ...values, role: roles });
+    const usersAsStringsArray = values.users.split(",");
+    // update state to show success message correctly
+    updateNumberOfUsersInvited(usersAsStringsArray.length);
+    const validEmails = usersAsStringsArray.filter((user: string) =>
+      isEmail(user),
+    );
+    const validEmailsString = [...new Set(validEmails)].join(",");
+
+    AnalyticsUtil.logEvent("INVITE_USER", {
+      ...(!isFeatureEnabled ? { users: usersAsStringsArray } : {}),
+      role: roles,
+      numberOfUsersInvited: usersAsStringsArray.length,
+      orgId: props.workspaceId,
+    });
+
+    return inviteUsersToWorkspace(
+      {
+        ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
+        users: validEmailsString,
+        permissionGroupId: roles,
+        recaptchaToken,
+      },
+      dispatch,
+    );
+  };
+
+  const captchaWrappedInviteUsersSubmitHandler = handleSubmit(
     async (values: any, dispatch: any) => {
-      const roles = isMultiSelectDropdown
-        ? selectedOption
-            .map((option: DefaultOptionType) => option.value)
-            .join(",")
-        : selectedOption[0].value;
-      validateFormValues({ ...values, role: roles });
-      const usersAsStringsArray = values.users.split(",");
-      // update state to show success message correctly
-      updateNumberOfUsersInvited(usersAsStringsArray.length);
-      const validEmails = usersAsStringsArray.filter((user: string) =>
-        isEmail(user),
-      );
-      const validEmailsString = [...new Set(validEmails)].join(",");
-
-      AnalyticsUtil.logEvent("INVITE_USER", {
-        ...(!isFeatureEnabled ? { users: usersAsStringsArray } : {}),
-        role: roles,
-        numberOfUsersInvited: usersAsStringsArray.length,
-        orgId: props.workspaceId,
-      });
-
       try {
         if (
           googleRecaptchaSiteKey.enabled &&
@@ -419,28 +435,17 @@ function InviteUsersForm(props: any) {
             },
           );
 
-          const result = await inviteUsersToWorkspace(
-            {
-              ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
-              users: validEmailsString,
-              permissionGroupId: roles,
-              recaptchaToken: token,
-            },
+          const result = await inviteUsersSubmitHandler(
+            values,
             dispatch,
+            token,
           );
 
           if (!result.success) {
             throw new Error(result.error);
           }
         } else {
-          const result = await inviteUsersToWorkspace(
-            {
-              ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
-              users: validEmailsString,
-              permissionGroupId: roles,
-            },
-            dispatch,
-          );
+          const result = await inviteUsersSubmitHandler(values, dispatch);
 
           if (!result.success) {
             throw new Error(result.error);
@@ -454,7 +459,7 @@ function InviteUsersForm(props: any) {
   );
 
   return (
-    <StyledForm onSubmit={inviteUsersSubmitHandler}>
+    <StyledForm onSubmit={captchaWrappedInviteUsersSubmitHandler}>
       <StyledInviteFieldGroup>
         <div style={{ width: "60%" }}>
           <TagListField
