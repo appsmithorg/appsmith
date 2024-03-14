@@ -47,7 +47,7 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { importSvg } from "design-system-old";
 import { getVideoConstraints } from "../../utils";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
-import type { SupportedLayouts } from "api/pagetypes";
+import type { SupportedLayouts } from "constants/WidgetConstants";
 
 const CameraOfflineIcon = importSvg(
   async () => import("assets/icons/widget/camera/camera-offline.svg"),

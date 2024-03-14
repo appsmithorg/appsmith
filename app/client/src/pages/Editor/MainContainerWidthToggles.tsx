@@ -9,7 +9,7 @@ import {
   getCurrentApplicationLayout,
 } from "selectors/editorSelectors";
 import { Icon, SegmentedControl, Tooltip } from "design-system";
-import type { SupportedLayouts } from "api/pagetypes";
+import type { SupportedLayouts } from "constants/WidgetConstants";
 
 const StyledSegmentedControl = styled(SegmentedControl)`
   > .ads-v2-segmented-control__segments-container {

@@ -29,7 +29,7 @@ import { usePageVisibility } from "react-page-visibility";
 import { importSvg } from "design-system-old";
 import { getVideoConstraints } from "widgets/utils";
 import { isMobile } from "react-device-detect";
-import type { SupportedLayouts } from "api/pagetypes";
+import type { SupportedLayouts } from "constants/WidgetConstants";
 
 const CameraOfflineIcon = importSvg(
   async () => import("assets/icons/widget/camera/camera-offline.svg"),

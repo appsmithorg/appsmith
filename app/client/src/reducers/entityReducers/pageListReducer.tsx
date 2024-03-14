@@ -12,7 +12,7 @@ import type {
   UpdatePageErrorPayload,
 } from "actions/pageActions";
 import type { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
-import type { SupportedLayouts } from "api/pagetypes";
+import type { SupportedLayouts } from "constants/WidgetConstants";
 import { sortBy } from "lodash";
 import { createReducer } from "utils/ReducerUtils";
 import type { DSL } from "utils/canvasStructureTypes";

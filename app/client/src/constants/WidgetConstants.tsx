@@ -1,7 +1,13 @@
 import type { WidgetType as FactoryWidgetType } from "WidgetProvider/factory";
 import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
-import type { SupportedLayouts } from "api/pagetypes";
 export type WidgetType = FactoryWidgetType;
+
+export type SupportedLayouts =
+  | "DESKTOP"
+  | "TABLET_LARGE"
+  | "TABLET"
+  | "MOBILE"
+  | "FLUID";
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
 

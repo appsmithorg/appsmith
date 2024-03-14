@@ -26,7 +26,7 @@ import {
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { nestDSL } from "@shared/dsl";
-import type { SupportedLayouts } from "api/pagetypes";
+import type { SupportedLayouts } from "constants/WidgetConstants";
 
 /**
  * This method is used to convert from auto-layout to fixed layout

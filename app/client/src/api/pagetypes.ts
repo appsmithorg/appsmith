@@ -4,13 +4,6 @@ import type {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 
-export type SupportedLayouts =
-  | "DESKTOP"
-  | "TABLET_LARGE"
-  | "TABLET"
-  | "MOBILE"
-  | "FLUID";
-
 export interface ClonePageActionPayload {
   id: string;
   blockNavigation?: boolean;
