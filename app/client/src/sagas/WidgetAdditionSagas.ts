@@ -52,7 +52,7 @@ import {
 } from "selectors/editorSelectors";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { isFunction } from "lodash";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import type { DragDetails } from "layoutSystems/anvil/canvasArenas/types";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 

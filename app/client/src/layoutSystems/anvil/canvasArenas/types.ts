@@ -1,5 +1,3 @@
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import type {
   AnvilHighlightInfo,
@@ -23,6 +21,20 @@ export type AnvilDraggedWidgetTypes = keyof typeof AnvilDraggedWidgetTypesEnum;
 export interface AnvilDragMeta {
   draggedOn: AnvilDropTargetType;
   draggedWidgetTypes: AnvilDraggedWidgetTypesEnum;
+}
+
+export interface DraggingGroupCenter {
+  widgetId?: string;
+  top?: number;
+  left?: number;
+}
+
+export interface DragDetails {
+  dragGroupActualParent?: string;
+  draggingGroupCenter?: DraggingGroupCenter;
+  newWidget?: any;
+  draggedOn?: string;
+  dragOffset?: any;
 }
 
 export interface AnvilDnDStates {

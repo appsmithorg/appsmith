@@ -23,7 +23,6 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
@@ -39,6 +38,7 @@ import {
   updateBottomRow as updateBottomRowHelper,
   getDragCenterSpace,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
+import type { DragDetails } from "layoutSystems/anvil/canvasArenas/types";
 
 /**
  * useBlocksToBeDraggedOnCanvas, provides information or functions/methods related to drag n drop,

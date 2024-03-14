@@ -13,7 +13,6 @@ import equal from "fast-deep-equal/es6";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
 import type { AutoCanvasDraggingArenaProps } from "../types";
@@ -30,6 +29,7 @@ import {
   getDragCenterSpace,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
 import type { WidgetDraggingBlock } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import type { DragDetails } from "layoutSystems/anvil/canvasArenas/types";
 
 /**
  * useBlocksToBeDraggedOnCanvas, provides information or functions/methods related to drag n drop,

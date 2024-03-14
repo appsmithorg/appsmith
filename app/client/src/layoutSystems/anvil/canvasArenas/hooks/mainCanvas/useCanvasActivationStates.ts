@@ -2,7 +2,6 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppState } from "@appsmith/reducers";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { useMemo } from "react";
 import { getSelectedWidgets } from "selectors/ui";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
@@ -13,7 +12,7 @@ import {
   getDraggedWidgetHierarchy,
   getDraggedWidgetTypes,
 } from "../utils";
-import type { AnvilDraggedWidgetTypes } from "../../types";
+import type { AnvilDraggedWidgetTypes, DragDetails } from "../../types";
 
 export interface AnvilCanvasActivationStates {
   activateOverlayWidgetDrop: boolean;

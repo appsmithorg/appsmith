@@ -5,7 +5,6 @@ import type {
 import { GridDefaults } from "constants/WidgetConstants";
 import { isEmpty } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { DraggingGroupCenter } from "reducers/uiReducers/dragResizeReducer";
 import type {
   MovementLimitMap,
   ReflowedSpaceMap,
@@ -23,6 +22,7 @@ import {
   noCollision,
 } from "utils/WidgetPropsUtils";
 import type { WidgetDraggingBlock, XYCord } from "../canvasArenas/ArenaTypes";
+import type { DraggingGroupCenter } from "layoutSystems/anvil/canvasArenas/types";
 
 /**
  * Method to get the Direction appropriate to closest edge of the canvas

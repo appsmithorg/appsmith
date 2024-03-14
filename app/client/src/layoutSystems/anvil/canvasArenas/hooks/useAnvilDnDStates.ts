@@ -2,7 +2,6 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppState } from "@appsmith/reducers";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { useMemo } from "react";
 import { getSelectedWidgets } from "selectors/ui";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
@@ -10,7 +9,11 @@ import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selector
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
-import { type AnvilDnDStates, AnvilDropTargetTypesEnum } from "../types";
+import {
+  type AnvilDnDStates,
+  AnvilDropTargetTypesEnum,
+  type DragDetails,
+} from "../types";
 import { getDraggedBlocks, getDraggedWidgetTypes } from "./utils";
 
 interface AnvilDnDStatesProps {

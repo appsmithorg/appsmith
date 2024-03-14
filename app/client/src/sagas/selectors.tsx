@@ -13,9 +13,9 @@ import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReduce
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import { getActions, getPlugins } from "@appsmith/selectors/entitiesSelector";
 import type { Plugin } from "api/PluginApi";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { DataTreeForActionCreator } from "components/editorComponents/ActionCreator/types";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
+import type { DragDetails } from "layoutSystems/anvil/canvasArenas/types";
 
 export const getWidgets = (state: AppState): CanvasWidgetsReduxState => {
   return state.entities.canvasWidgets;
