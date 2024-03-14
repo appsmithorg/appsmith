@@ -41,6 +41,7 @@ import { PluginType } from "entities/Action";
 import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 import { Icon } from "design-system";
 import { resolveIcon } from "../utils";
+import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -66,7 +67,14 @@ function QueryEditor(props: QueryEditorProps) {
     iconLocation: pluginImages[pluginId] || "",
     pluginType: action?.pluginType || "",
     moduleType: action?.actionConfiguration?.body?.moduleType,
-  }) || <Icon name="module" />;
+  }) || (
+    <EntityIcon
+      height={`${ENTITY_ICON_SIZE}px`}
+      width={`${ENTITY_ICON_SIZE}px`}
+    >
+      <Icon name="module" />
+    </EntityIcon>
+  );
 
   const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,

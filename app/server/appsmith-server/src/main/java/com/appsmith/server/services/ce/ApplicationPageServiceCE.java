@@ -1,5 +1,6 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
@@ -7,6 +8,8 @@ import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.PageDTO;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 public interface ApplicationPageServiceCE {
 
@@ -47,9 +50,14 @@ public interface ApplicationPageServiceCE {
 
     Mono<PageDTO> deleteUnpublishedPageByBranchAndDefaultPageId(String defaultPageId, String branchName);
 
-    Mono<PageDTO> deleteUnpublishedPage(String id);
+    Mono<PageDTO> deleteUnpublishedPageWithOptionalPermission(
+            String id,
+            Optional<AclPermission> deletePagePermission,
+            Optional<AclPermission> readApplicationPermission,
+            Optional<AclPermission> deleteCollectionPermission,
+            Optional<AclPermission> deleteActionPermission);
 
-    Mono<PageDTO> deleteWithoutPermissionUnpublishedPage(String id);
+    Mono<PageDTO> deleteUnpublishedPage(String id);
 
     Mono<Application> publish(String applicationId, boolean isPublishedManually);
 

@@ -40,6 +40,7 @@ import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotif
 import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 import { Icon } from "design-system";
 import { resolveIcon } from "../utils";
+import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -72,7 +73,14 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     iconLocation: pluginGroups[pluginId]?.iconLocation || "",
     pluginType: action?.pluginType || "",
     moduleType: action?.actionConfiguration?.body?.moduleType,
-  }) || <Icon name="module" />;
+  }) || (
+    <EntityIcon
+      height={`${ENTITY_ICON_SIZE}px`}
+      width={`${ENTITY_ICON_SIZE}px`}
+    >
+      <Icon name="module" />
+    </EntityIcon>
+  );
 
   const isChangePermitted = getHasManageActionPermission(
     isFeatureEnabled,
