@@ -1,7 +1,7 @@
 import { useSelector } from "react-redux";
 import { useCanvasActivationStates } from "./hooks/mainCanvas/useCanvasActivationStates";
 import { getWidgetCards } from "selectors/editorSelectors";
-import React, { useCallback, useEffect } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import { AnvilCanvasZIndex } from "./hooks/mainCanvas/useCanvasActivation";
@@ -17,6 +17,7 @@ const StyledWidgetCardPreviewWrapper = styled.div`
   pointer-events: none;
   /* will be enabled by AnvilDragPreview as required */
   display: none;
+  z-index: -1;
 `;
 
 const StyledDraggedWidgetCount = styled.div`
@@ -42,9 +43,18 @@ const WidgetCardPreview = ({
 }) => {
   const { isDragging } = useCanvasActivationStates();
   const dragPreviewRef = React.useRef<HTMLDivElement>(null);
+  const initiatePositionStylesOfDragPreview = useRef(true);
   const repositionDragPreview = useCallback(
     (e: MouseEvent) => {
       if (isDragging && dragPreviewRef.current) {
+        if (initiatePositionStylesOfDragPreview.current) {
+          dragPreviewRef.current.style.zIndex = AnvilCanvasZIndex.activated;
+          // hiding the drag preview to and flipping display so that
+          // the drag preview is not visible but its height and width are available
+          // to calculate the position of the drag preview
+          dragPreviewRef.current.style.visibility = "hidden";
+          dragPreviewRef.current.style.display = "block";
+        }
         dragPreviewRef.current.style.left = `${
           e.clientX - dragPreviewRef.current.clientWidth / 2
         }px`;
@@ -53,11 +63,9 @@ const WidgetCardPreview = ({
           dragPreviewRef.current.clientHeight -
           BufferDistanceBetweenPreviewAndCursor
         }px`;
-        if (
-          dragPreviewRef.current.style.zIndex !== AnvilCanvasZIndex.activated
-        ) {
-          dragPreviewRef.current.style.zIndex = AnvilCanvasZIndex.activated;
-          dragPreviewRef.current.style.display = "block";
+        if (initiatePositionStylesOfDragPreview.current) {
+          dragPreviewRef.current.style.visibility = "visible";
+          initiatePositionStylesOfDragPreview.current = false;
         }
       }
     },
@@ -65,11 +73,10 @@ const WidgetCardPreview = ({
   );
   useEffect(() => {
     if (isDragging) {
+      initiatePositionStylesOfDragPreview.current = true;
       document?.addEventListener("mousemove", repositionDragPreview);
-      if (dragPreviewRef.current) {
-        dragPreviewRef.current.style.zIndex = "-1";
-        dragPreviewRef.current.style.display = "none";
-      }
+    } else {
+      initiatePositionStylesOfDragPreview.current = false;
     }
     return () => {
       if (isDragging) {
