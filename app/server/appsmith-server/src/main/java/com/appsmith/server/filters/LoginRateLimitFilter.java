@@ -18,12 +18,12 @@ import java.nio.charset.StandardCharsets;
 import static java.lang.Boolean.FALSE;
 
 @Slf4j
-public class PreAuth implements WebFilter {
+public class LoginRateLimitFilter implements WebFilter {
 
     private final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
     private final RateLimitService rateLimitService;
 
-    public PreAuth(RateLimitService rateLimitService) {
+    public LoginRateLimitFilter(RateLimitService rateLimitService) {
         this.rateLimitService = rateLimitService;
     }
 
@@ -52,7 +52,7 @@ public class PreAuth implements WebFilter {
 
     private Mono<String> getUsername(ServerWebExchange exchange) {
         return exchange.getFormData()
-                .map(formData -> formData.getFirst(FieldName.USERNAME.toString()))
+                .mapNotNull(formData -> formData.getFirst(FieldName.USERNAME.toString()))
                 .defaultIfEmpty("");
     }
 

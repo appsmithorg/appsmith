@@ -47,7 +47,6 @@ export const StyledTab = styled(Flex)`
     border-top: 2px solid var(--ads-v2-color-bg-brand);
     border-left: 1px solid var(--ads-v2-color-border);
     border-right: 1px solid var(--ads-v2-color-border);
-    box-shadow: 0px -2px 4px rgba(0, 0, 0, 0.08);
   }
 `;
 

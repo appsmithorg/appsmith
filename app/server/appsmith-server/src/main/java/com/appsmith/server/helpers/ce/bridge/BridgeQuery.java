@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.regex.Pattern;
 
+@SuppressWarnings("UnusedReturnValue")
 public final class BridgeQuery<T extends BaseDomain> extends Criteria {
     final List<Criteria> checks = new ArrayList<>();
 
@@ -21,12 +22,33 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
+    public BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
+        checks.add(Criteria.where(key).ne(value));
+        return this;
+    }
+
+    public BridgeQuery<T> equal(@NonNull String key, @NonNull Enum<?> value) {
+        return equal(key, value.name());
+    }
+
+    public BridgeQuery<T> notEqual(@NonNull String key, @NonNull Enum<?> value) {
+        return notEqual(key, value.name());
+    }
+
     public BridgeQuery<T> equalIgnoreCase(@NonNull String key, @NonNull String value) {
         checks.add(Criteria.where(key).regex("^" + Pattern.quote(value) + "$", "i"));
         return this;
     }
 
     public BridgeQuery<T> equal(@NonNull String key, @NonNull ObjectId value) {
+        checks.add(Criteria.where(key).is(value));
+        return this;
+    }
+
+    /**
+     * Prefer using `.isTrue()` or `.isFalse()` instead of this method **if possible**.
+     */
+    public BridgeQuery<T> equal(@NonNull String key, boolean value) {
         checks.add(Criteria.where(key).is(value));
         return this;
     }
@@ -41,6 +63,21 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
+    public BridgeQuery<T> notExists(@NonNull String key) {
+        checks.add(Criteria.where(key).exists(false));
+        return this;
+    }
+
+    public BridgeQuery<T> isNull(@NonNull String key) {
+        checks.add(Criteria.where(key).isNull());
+        return this;
+    }
+
+    public BridgeQuery<T> isNotNull(@NonNull String key) {
+        checks.add(Criteria.where(key).ne(null));
+        return this;
+    }
+
     public BridgeQuery<T> isTrue(@NonNull String key) {
         checks.add(Criteria.where(key).is(true));
         return this;
@@ -51,13 +88,8 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
-    public BridgeQuery<T> or(BridgeQuery... items) {
-        checks.add(new Criteria().orOperator(items));
-        return this;
-    }
-
-    public BridgeQuery<T> and(BridgeQuery... items) {
-        checks.add(new Criteria().andOperator(items));
+    public BridgeQuery<T> and(BridgeQuery<T> item) {
+        checks.add(new Criteria().andOperator(item));
         return this;
     }
 

@@ -1,7 +1,8 @@
-import { debounce, random } from "lodash";
-import { useEffect, useMemo, useState } from "react";
+import React from "react";
 import ReactDOM from "react-dom";
+import { useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
+import { debounce, random } from "lodash";
 import type {
   WidgetCardsGroupedByTags,
   WidgetTags,
@@ -19,6 +20,19 @@ import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import type { ActionResponse } from "api/ActionAPI";
+import type { Module } from "@appsmith/constants/ModuleConstants";
+import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
+import {
+  ENTITY_ICON_SIZE,
+  EntityIcon,
+  JsFileIconV2,
+  dbQueryIcon,
+} from "pages/Editor/Explorer/ExplorerIcons";
+import { PluginType } from "entities/Action";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { Plugin } from "api/PluginApi";
+import ImageAlt from "assets/images/placeholder-image.svg";
+import { Icon } from "design-system";
 
 export const draggableElement = (
   id: string,
@@ -336,3 +350,68 @@ export const actionResponseDisplayDataFormats = (
     responseDisplayFormat,
   };
 };
+
+function resolveQueryModuleIcon(
+  iconLocation: string,
+  pluginType: string,
+  isLargeIcon: boolean,
+) {
+  if (iconLocation)
+    return (
+      <EntityIcon
+        height={`${isLargeIcon ? ENTITY_ICON_SIZE * 2 : ENTITY_ICON_SIZE}px`}
+        width={`${isLargeIcon ? ENTITY_ICON_SIZE * 2 : ENTITY_ICON_SIZE}px`}
+      >
+        <img alt="entityIcon" src={getAssetUrl(iconLocation)} />
+      </EntityIcon>
+    );
+  else if (pluginType === PluginType.DB) return dbQueryIcon;
+}
+
+export function resolveIcon({
+  iconLocation,
+  isLargeIcon = false,
+  moduleType,
+  pluginType,
+}: {
+  iconLocation: string;
+  pluginType: string;
+  moduleType: string;
+  isLargeIcon?: boolean;
+}) {
+  if (moduleType === MODULE_TYPE.JS) {
+    return isLargeIcon ? JsFileIconV2(34, 34) : JsFileIconV2(16, 16);
+  } else {
+    return resolveQueryModuleIcon(iconLocation, pluginType, isLargeIcon);
+  }
+}
+
+export function getModuleIcon(
+  module: Module | undefined,
+  pluginImages: Record<string, string>,
+  isLargeIcon = false,
+) {
+  return module ? (
+    resolveIcon({
+      iconLocation: pluginImages[module.pluginId] || "",
+      pluginType: module.pluginType,
+      moduleType: module.type,
+      isLargeIcon,
+    })
+  ) : (
+    <EntityIcon
+      height={`${isLargeIcon ? ENTITY_ICON_SIZE * 2 : ENTITY_ICON_SIZE}px`}
+      width={`${isLargeIcon ? ENTITY_ICON_SIZE * 2 : ENTITY_ICON_SIZE}px`}
+    >
+      <Icon name="module" />
+    </EntityIcon>
+  );
+}
+
+export function getPluginImagesFromPlugins(plugins: Plugin[]) {
+  const pluginImages: Record<string, string> = {};
+  plugins.forEach((plugin) => {
+    pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
+  });
+  return pluginImages;
+}
