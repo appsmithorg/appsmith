@@ -310,22 +310,31 @@ export const generateOptimisedUpdates = (
 ): DiffWithReferenceState[] => {
   // const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
   const widgetPaths = Array.from(new Set(evalOrder.map(path => path.split(".")[0])))
-  const updatedEvalOrder = widgetPaths.reduce((acc: any, key: any) => {
-    if (evalOrder.includes(key)) {
-      return acc.filter((v: string) => !v.startsWith(`${key}.`))
+  const allUniqueEvalOrder = new Set(evalOrder);
+  const {updatedEvalOrder,allUniqueWidgets} = widgetPaths.reduce((acc: any, key: any) => {
+    if (allUniqueEvalOrder.has(key)) {
+      acc.updatedEvalOrder = acc.updatedEvalOrder.filter((v: string) => !v.startsWith(`${key}.`));
+    }
+    else {
+      acc.allUniqueWidgets.push(key);
     }
     return acc;
-  }, [...evalOrder])
+  }, { allUniqueWidgets:[], updatedEvalOrder:[...evalOrder]})
   const allUpdates = updatedEvalOrder.map((path:any) => ({ lhs: get(oldDataTree, path), rhs: get(dataTree, path), path }))
     .filter(({ lhs, rhs }:any) => !equal(lhs, rhs))
     .map((v: { path: any; rhs: any; }) => ({ kind: "N", path: v.path, rhs: v.rhs }))
-  const allWidgetsErrors = widgetPaths.map(path => `${path}.__evaluation__.errors`);
-  const allErrorUpdates = allWidgetsErrors.map(path => ({ lhs: get(oldDataTree, path), rhs: get(dataTree, path), path }))
-  .filter(({ lhs, rhs }) => !equal(lhs, rhs))
-  .map(v => ({ kind: "N", path: v.path, rhs: v.rhs }))
+  const allWidgetsErrors = allUniqueWidgets.map((path:string) => `${path}.__evaluation__.errors`);
+
+  const allErrorUpdates = allWidgetsErrors.map((path:string) => ({ lhs: get(oldDataTree, path), rhs: get(dataTree, path), path }))
+  .filter(({ lhs, rhs }:any) => !equal(lhs, rhs))
+    .map((v:any) => ({ kind: "N", path: v.path, rhs: v.rhs }))
  
   const allDiffUpdates = [...allUpdates, ...allErrorUpdates]
-    .map(v => ({kind: "N", path: v.path.split("."), rhs: v.rhs})) 
+    .map(v => {
+      if(v.rhs === undefined) return { kind: "D", path: v.path.split(".") }
+      return { kind: "N", path: v.path.split("."), rhs: v.rhs }
+    }) 
+
   return allDiffUpdates as any;
 };
 
