@@ -3,7 +3,7 @@ import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
-import { get, isNumber, isObject, set } from "lodash";
+import { get, isNumber, set } from "lodash";
 import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
@@ -71,7 +71,7 @@ export const countOccurrences = (
   return n;
 };
 
-const LARGE_COLLECTION_SIZE = 100;
+// const LARGE_COLLECTION_SIZE = 100;
 // for object paths which have a "." in the object key like "a.['b.c']"
 const REGEX_NESTED_OBJECT_PATH = /(.+)\.\[\'(.*)\'\]/;
 
@@ -161,14 +161,14 @@ const parseFunctionsInObject = (
   return paths;
 };
 
-const isLargeCollection = (val: any) => {
-  if (!Array.isArray(val)) return false;
-  const rowSize = !isObject(val[0]) ? 1 : Object.keys(val[0]).length;
+// const isLargeCollection = (val: any) => {
+//   if (!Array.isArray(val)) return false;
+//   const rowSize = !isObject(val[0]) ? 1 : Object.keys(val[0]).length;
 
-  const size = val.length * rowSize;
+//   const size = val.length * rowSize;
 
-  return size > LARGE_COLLECTION_SIZE;
-};
+//   return size > LARGE_COLLECTION_SIZE;
+// };
 
 const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
   Object.keys(identicalEvalPathsPatches || {}).reduce(
@@ -198,37 +198,72 @@ const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
     {},
   );
 
+// const getDataTree = (data: any, evalOrder: any) => {
+//   const withErrors = Object.keys(data).reduce((acc: any, key) => {
+//     const widgetValue = data[key];
+//     acc[key] = {
+//       __evaluation__: {
+//         errors: widgetValue.__evaluation__?.errors,
+//       },
+//     };
+//     return acc;
+//   }, {});
+//   return evalOrder.reduce((acc: any, key: any) => {
+//     const val = get(data, key);
+//     if (val === undefined) {
+//       return acc;
+//     }
+//     set(acc, key, get(data, key));
+//     return acc;
+//   }, withErrors);
+// };
+
+const getAllPathsToVisit = (evalOrder: any) => {
+  const paths: any = [];
+  for (const key of evalOrder) {
+    const keys = key.split(".");
+    let path = "";
+    for (const key of keys) {
+      path = path ? `${path}.${key}` : key;
+      paths.push(path);
+    }
+  }
+  return paths;
+};
+
+const getWidgetErrorPaths = (data: any) => {
+  const paths: any = [];
+  for (const key in data) {
+    const keys = [key, "__evaluation__", "errors"];
+    let path = "";
+    for (const key of keys) {
+      path = path ? `${path}.${key}` : key;
+      paths.push(path);
+    }
+  }
+  return paths;
+};
 const generateDiffUpdates = (
   oldDataTree: any,
   dataTree: any,
   ignoreLargeKeys: any,
+  evalOrder: string[],
 ): DiffWithReferenceState[] => {
   const attachDirectly: DiffWithReferenceState[] = [];
-  const ignoreLargeKeysHasBeenAttached = new Set();
+  // const ignoreLargeKeysHasBeenAttached = new Set();
   const attachLater: DiffWithReferenceState[] = [];
+  const allPathsToVisit = new Set([
+    ...getAllPathsToVisit(evalOrder),
+    ...getWidgetErrorPaths(dataTree),
+  ]);
+
   const updates =
     diff(oldDataTree, dataTree, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
 
       const { path: setPath, segmentedPath } = generateWithKey(path, key);
+      if (!allPathsToVisit.has(setPath)) return true;
 
-      // if ignore path is present...this segment of code generates the data compression patches
-      if (!!ignoreLargeKeys[setPath]) {
-        const originalStateVal = get(oldDataTree, segmentedPath);
-        const correspondingStatePath = ignoreLargeKeys[setPath];
-        const statePathValue = get(dataTree, correspondingStatePath);
-        if (!equal(originalStateVal, statePathValue)) {
-          //reference state patches are a patch that does not have a patch value but it provides a path which contains the same value
-          //this is helpful in making the payload sent to the main thread small
-          attachLater.push({
-            kind: "referenceState",
-            path: segmentedPath,
-            referencePath: correspondingStatePath,
-          });
-        }
-        ignoreLargeKeysHasBeenAttached.add(setPath);
-        return true;
-      }
       const rhs = get(dataTree, segmentedPath);
 
       const lhs = get(oldDataTree, segmentedPath);
@@ -254,20 +289,6 @@ const generateDiffUpdates = (
         return true;
       }
 
-      const isLhsLarge = isLargeCollection(lhs);
-      const isRhsLarge = isLargeCollection(rhs);
-      if (!isLhsLarge && !isRhsLarge) {
-        //perform diff on this node
-        return false;
-      }
-
-      //if either of values are large just directly attach it don't have to generate very granular updates
-
-      if ((!isLhsLarge && isRhsLarge) || (isLhsLarge && !isRhsLarge)) {
-        attachDirectly.push({ kind: "N", path: segmentedPath, rhs });
-        return true;
-      }
-
       //if the values are different attach the update directly
       !equal(lhs, rhs) &&
         attachDirectly.push({ kind: "N", path: segmentedPath, rhs });
@@ -283,10 +304,16 @@ const generateDiffUpdates = (
 export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
+  evalOrder: string[],
   identicalEvalPathsPatches?: Record<string, string>,
 ): DiffWithReferenceState[] => {
   const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
-  const updates = generateDiffUpdates(oldDataTree, dataTree, ignoreLargeKeys);
+  const updates = generateDiffUpdates(
+    oldDataTree,
+    dataTree,
+    ignoreLargeKeys,
+    evalOrder,
+  );
   return updates;
 };
 
@@ -294,6 +321,7 @@ export const generateSerialisedUpdates = (
   prevState: any,
   currentState: any,
   identicalEvalPathsPatches: any,
+  evalOrder: string[],
 ): {
   serialisedUpdates: string;
   error?: { type: string; message: string };
@@ -301,6 +329,7 @@ export const generateSerialisedUpdates = (
   const updates = generateOptimisedUpdates(
     prevState,
     currentState,
+    evalOrder,
     identicalEvalPathsPatches,
   );
 
@@ -327,6 +356,7 @@ export const generateSerialisedUpdates = (
 export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: any,
   dataTreeEvaluator: any,
+  evalOrder: string[],
 ) => {
   const identicalEvalPathsPatches =
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
@@ -335,6 +365,7 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     dataTreeEvaluator.getPrevState(),
     dataTree,
     identicalEvalPathsPatches,
+    evalOrder,
   );
 
   if (error) {
