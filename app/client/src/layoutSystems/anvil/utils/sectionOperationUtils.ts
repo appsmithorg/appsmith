@@ -11,8 +11,8 @@ import { call, select } from "redux-saga/effects";
 import { getWidgets } from "sagas/selectors";
 import { generateReactKey } from "utils/generators";
 import { addNewChildToDSL } from "../integrations/sagas/anvilDraggingSagas";
-import type { BaseLayoutComponent } from "../layoutComponents/BaseLayoutComponent";
-import { LayoutFactory } from "../layoutComponents/BaseLayoutComponent";
+import type BaseLayoutComponent from "../layoutComponents/BaseLayoutComponent";
+import LayoutFactory from "../layoutComponents/LayoutFactory";
 import { defaultHighlightRenderInfo } from "../utils/constants";
 import { anvilWidgets } from "widgets/anvil/constants";
 
