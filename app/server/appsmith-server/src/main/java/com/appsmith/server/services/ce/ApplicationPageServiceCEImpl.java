@@ -937,7 +937,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             Optional<AclPermission> deleteCollectionPermission,
             Optional<AclPermission> deleteActionPermission) {
         return deleteUnpublishedPageEx(
-                id, Optional.empty(), readApplicationPermission, deleteCollectionPermission, deleteActionPermission);
+                id,
+                deletePagePermission,
+                readApplicationPermission,
+                deleteCollectionPermission,
+                deleteActionPermission);
     }
 
     @Override
