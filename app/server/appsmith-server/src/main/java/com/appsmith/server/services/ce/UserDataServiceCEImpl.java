@@ -260,12 +260,14 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
                     if (!CollectionUtils.isNullOrEmpty(recentlyUsedEntities)) {
                         RecentlyUsedEntityDTO latest = recentlyUsedEntities.get(0);
+                        // Get the correct resource id based on the context
+                        List<String> existingResourceIds = getResourceIds(latest, context);
                         // Add the current applicationId to the list
                         setResourceIds(
                                 latest,
                                 context,
                                 addIdToRecentList(
-                                        latest.getApplicationIds(), resourceId, MAX_RECENT_WORKSPACE_RESOURCE_LIMIT));
+                                        existingResourceIds, resourceId, MAX_RECENT_WORKSPACE_RESOURCE_LIMIT));
                     }
                     userData.setRecentlyUsedEntityIds(recentlyUsedEntities);
                     return Mono.zip(
@@ -279,6 +281,11 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             WorkspaceResourceContext workspaceResourceContext,
             List<String> resourceIds) {
         recentlyUsedEntityDTO.setApplicationIds(resourceIds);
+    }
+
+    protected List<String> getResourceIds(
+            RecentlyUsedEntityDTO recentlyUsedEntityDTO, WorkspaceResourceContext context) {
+        return recentlyUsedEntityDTO.getApplicationIds();
     }
 
     protected List<String> addIdToRecentList(List<String> srcIdList, String newId, int maxSize) {
