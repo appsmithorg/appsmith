@@ -14,7 +14,7 @@ import { getHasCreateActionPermission } from "@appsmith/utils/BusinessFeatures/p
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import { SEARCH_ITEM_TYPES } from "components/editorComponents/GlobalSearch/utils";
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import { getQueryAddUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
+import { getQueryUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import {
   ADD_PATH,
@@ -51,16 +51,15 @@ export const useQueryAdd = () => {
     let url = "";
     if (segmentMode === EditorEntityTabState.Add) {
       // Already in add mode, back to the previous active item
-      url = location.pathname.replace(`${ADD_PATH}`, "");
+      url = getQueryUrl(currentEntityInfo, false);
     } else {
-      url = getQueryAddUrl(currentEntityInfo);
+      url = getQueryUrl(currentEntityInfo);
     }
     history.push(url);
-  }, [currentEntityInfo.id, segmentMode]);
+  }, [currentEntityInfo, segmentMode]);
 
   return addButtonClickHandler;
 };
-//history.push(location.pathname.replace(`${ADD_PATH}`, ""));
 
 export type GroupedAddOperations = Array<{
   title?: string;
@@ -214,7 +213,7 @@ export const useAddQueryListItems = () => {
           fileOperation.entityExplorerTitle ||
           fileOperation.dsName ||
           fileOperation.title,
-        description: "",
+        description: !!fileOperation.isBeta ? "Beta" : "",
         descriptionType: "inline",
         onClick: onCreateItemClick.bind(null, fileOperation),
       } as ListItemProps;

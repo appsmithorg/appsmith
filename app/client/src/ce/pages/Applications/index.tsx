@@ -12,7 +12,6 @@ import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
-  NO_WORKSPACE_DESCRIPTION,
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
@@ -369,7 +368,6 @@ export function WorkspaceMenuItem({
         isFetchingWorkspaces ? 100 : 22
       } /* this is to avoid showing tooltip for loaders */
       icon="group-2-line"
-      key={workspace?.id}
       onSelect={handleWorkspaceClick}
       selected={selected}
       text={workspace?.name}
@@ -386,8 +384,8 @@ export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
 export interface LeftPaneProps {
   isBannerVisible?: boolean;
   isFetchingWorkspaces: boolean;
-  workspaces: any;
-  activeWorkspaceId: string | undefined;
+  workspaces: Workspace[];
+  activeWorkspaceId?: string;
 }
 
 export function LeftPane(props: LeftPaneProps) {
@@ -395,7 +393,7 @@ export function LeftPane(props: LeftPaneProps) {
     activeWorkspaceId,
     isBannerVisible = false,
     isFetchingWorkspaces,
-    workspaces,
+    workspaces = [],
   } = props;
   const isMobile = useIsMobileDevice();
 
@@ -408,18 +406,14 @@ export function LeftPane(props: LeftPaneProps) {
         isFetchingWorkspaces={isFetchingWorkspaces}
       >
         <WorkpsacesNavigator data-testid="t--left-panel">
-          {workspaces &&
-            workspaces.map(
-              (workspace: any) =>
-                workspace && (
-                  <WorkspaceMenuItem
-                    isFetchingWorkspaces={isFetchingWorkspaces}
-                    key={workspace?.id}
-                    selected={workspace?.id === activeWorkspaceId}
-                    workspace={workspace}
-                  />
-                ),
-            )}
+          {workspaces.map((workspace) => (
+            <WorkspaceMenuItem
+              isFetchingWorkspaces={isFetchingWorkspaces}
+              key={workspace.id}
+              selected={workspace.id === activeWorkspaceId}
+              workspace={workspace}
+            />
+          ))}
         </WorkpsacesNavigator>
       </LeftPaneSection>
     </LeftPaneWrapper>
@@ -564,11 +558,14 @@ export function ApplicationsSection(props: any) {
     setSelectedWorkspaceIdForImportApplication,
   ]);
 
-  const leaveWS = (workspaceId: string) => {
-    setWarnLeavingWorkspace(false);
-    setWorkspaceToOpenMenu(null);
-    dispatch(leaveWorkspace(workspaceId));
-  };
+  const leaveWS = useCallback(
+    (workspaceId: string) => {
+      setWarnLeavingWorkspace(false);
+      setWorkspaceToOpenMenu(null);
+      dispatch(leaveWorkspace(workspaceId));
+    },
+    [dispatch],
+  );
 
   const handleDeleteWorkspace = useCallback(
     (workspaceId: string) => {
@@ -655,9 +652,6 @@ export function ApplicationsSection(props: any) {
         />
         <NewText className="!mb-3 !font-semibold" kind="heading-s">
           {createMessage(NO_WORKSPACE_HEADING)}
-        </NewText>
-        <NewText className="w-[328px]" kind="heading-xs">
-          {createMessage(NO_WORKSPACE_DESCRIPTION)}
         </NewText>
       </div>
     );
@@ -895,7 +889,9 @@ export const ApplictionsMainPage = (props: any) => {
   if (!isFetchingWorkspaces) {
     workspaces = fetchedWorkspaces;
   } else {
-    workspaces = loadingUserWorkspaces as any;
+    workspaces = loadingUserWorkspaces.map(
+      (loadingWorkspaces) => loadingWorkspaces.workspace,
+    ) as any;
   }
 
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<

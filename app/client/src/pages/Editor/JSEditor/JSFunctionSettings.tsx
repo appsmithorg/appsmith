@@ -15,6 +15,7 @@ interface SettingsHeadingProps {
   hasInfo?: boolean;
   info?: string;
   grow: boolean;
+  headingCount: number;
 }
 
 export interface OnUpdateSettingsProps {
@@ -24,10 +25,14 @@ export interface OnUpdateSettingsProps {
 }
 
 interface SettingsItemProps {
+  headingCount: number;
   action: JSAction;
   disabled?: boolean;
   onUpdateSettings?: (props: OnUpdateSettingsProps) => void;
-  renderAdditionalColumns?: (action: JSAction) => React.ReactNode;
+  renderAdditionalColumns?: (
+    action: JSAction,
+    headingCount: number,
+  ) => React.ReactNode;
 }
 
 export interface JSFunctionSettingsProps {
@@ -61,6 +66,7 @@ const StyledIcon = styled(Icon)`
 `;
 
 export const SettingColumn = styled.div<{
+  headingCount: number;
   grow?: boolean;
   isHeading?: boolean;
 }>`
@@ -68,13 +74,13 @@ export const SettingColumn = styled.div<{
   align-items: center;
   flex-grow: ${(props) => (props.grow ? 1 : 0)};
   padding: 5px 12px;
-  min-width: 250px;
+  width: ${({ headingCount }) => `calc(100% / ${headingCount})`};
 
   ${(props) =>
     props.isHeading &&
     `
   font-weight: ${props.theme.fontWeights[2]};
-  font-size: ${props.theme.fontSizes[2]}px
+  font-size: ${props.theme.fontSizes[2]}px;
   margin-right: 9px;
   `}
 
@@ -91,8 +97,7 @@ const JSFunctionSettingsWrapper = styled.div`
 const SettingsContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: max-content;
-  min-width: 700px;
+  width: 100%;
   height: 100%;
   & > h3 {
     margin: 20px 0;
@@ -116,9 +121,15 @@ const SettingsBodyWrapper = styled.div`
 const SwitchWrapper = styled.div`
   margin-left: 6ch;
 `;
-function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
+function SettingsHeading({
+  grow,
+  hasInfo,
+  headingCount,
+  info,
+  text,
+}: SettingsHeadingProps) {
   return (
-    <SettingColumn grow={grow} isHeading>
+    <SettingColumn grow={grow} headingCount={headingCount} isHeading>
       <span>{text}</span>
       {hasInfo && info && (
         <Tooltip content={createMessage(() => info)}>
@@ -132,6 +143,7 @@ function SettingsHeading({ grow, hasInfo, info, text }: SettingsHeadingProps) {
 function SettingsItem({
   action,
   disabled,
+  headingCount,
   onUpdateSettings,
   renderAdditionalColumns,
 }: SettingsItemProps) {
@@ -174,10 +186,13 @@ function SettingsItem({
       className="t--async-js-function-settings"
       id={`${action.name}-settings`}
     >
-      <SettingColumn grow>
+      <SettingColumn grow headingCount={headingCount}>
         <span>{action.name}</span>
       </SettingColumn>
-      <SettingColumn className={`${action.name}-on-page-load-setting`}>
+      <SettingColumn
+        className={`${action.name}-on-page-load-setting`}
+        headingCount={headingCount}
+      >
         {RADIO_OPTIONS.length > 2 ? (
           <RadioGroup
             defaultValue={executeOnPageLoad}
@@ -207,7 +222,10 @@ function SettingsItem({
           </SwitchWrapper>
         )}
       </SettingColumn>
-      <SettingColumn className={`${action.name}-confirm-before-execute`}>
+      <SettingColumn
+        className={`${action.name}-confirm-before-execute`}
+        headingCount={headingCount}
+      >
         {RADIO_OPTIONS.length > 2 ? (
           <RadioGroup
             defaultValue={confirmBeforeExecute}
@@ -238,7 +256,7 @@ function SettingsItem({
           </SwitchWrapper>
         )}
       </SettingColumn>
-      {renderAdditionalColumns?.(action)}
+      {renderAdditionalColumns?.(action, headingCount)}
     </SettingRow>
   );
 }
@@ -250,6 +268,7 @@ function JSFunctionSettingsView({
   onUpdateSettings,
   renderAdditionalColumns,
 }: JSFunctionSettingsProps) {
+  const headings = [...SETTINGS_HEADINGS, ...additionalHeadings];
   return (
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
@@ -257,17 +276,16 @@ function JSFunctionSettingsView({
         <SettingsRowWrapper>
           <SettingsHeaderWrapper>
             <SettingRow isHeading>
-              {[...SETTINGS_HEADINGS, ...additionalHeadings].map(
-                (setting, index) => (
-                  <SettingsHeading
-                    grow={index === 0}
-                    hasInfo={setting.hasInfo}
-                    info={setting.info}
-                    key={setting.key}
-                    text={setting.text}
-                  />
-                ),
-              )}
+              {headings.map((setting, index) => (
+                <SettingsHeading
+                  grow={index === 0}
+                  hasInfo={setting.hasInfo}
+                  headingCount={headings.length}
+                  info={setting.info}
+                  key={setting.key}
+                  text={setting.text}
+                />
+              ))}
             </SettingRow>
           </SettingsHeaderWrapper>
           <SettingsBodyWrapper>
@@ -276,6 +294,7 @@ function JSFunctionSettingsView({
                 <SettingsItem
                   action={action}
                   disabled={disabled}
+                  headingCount={headings.length}
                   key={action.id}
                   onUpdateSettings={onUpdateSettings}
                   renderAdditionalColumns={renderAdditionalColumns}
@@ -283,7 +302,9 @@ function JSFunctionSettingsView({
               ))
             ) : (
               <SettingRow noBorder>
-                <SettingColumn>{createMessage(NO_JS_FUNCTIONS)}</SettingColumn>
+                <SettingColumn headingCount={0}>
+                  {createMessage(NO_JS_FUNCTIONS)}
+                </SettingColumn>
               </SettingRow>
             )}
           </SettingsBodyWrapper>

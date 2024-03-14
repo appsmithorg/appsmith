@@ -121,7 +121,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
 
     cy.switchGitBranch(parentBranchKey);
 
-    PageLeftPane.expandCollapseItem("Pages");
+    PageList.ShowList();
     PageLeftPane.assertAbsence("ParentPageRenamed");
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertAbsence("ParentApiRenamed");
@@ -212,7 +212,6 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     cy.generateUUID().then((uuid) => {
       gitSync.CreateGitBranch(childBranchKey, true);
       //cy.createGitBranch(childBranchKey);
-      cy.CheckAndUnfoldEntityItem("Pages");
       PageList.AddNewPage();
       cy.get(gitSyncLocators.branchButton).click({ force: true });
       cy.get(gitSyncLocators.branchSearchInput).type("{selectall}master");

@@ -75,6 +75,18 @@ export enum ActionCreationSourceTypeEnum {
   COPY_ACTION = "COPY_ACTION",
 }
 
+// Used for analytic events
+export enum ActionExecutionContext {
+  SELF = "SELF",
+  ONE_CLICK_BINDING = "ONE_CLICK_BINDING",
+  GENERATE_CRUD_PAGE = "GENERATE_CRUD_PAGE",
+  CLONE_PAGE = "CLONE_PAGE",
+  FORK_TEMPLATE_PAGE = "FORK_TEMPLATE_PAGE",
+  PAGE_LOAD = "PAGE_LOAD",
+  EVALUATION_ACTION_TRIGGER = "EVALUATION_ACTION_TRIGGER",
+  REFRESH_ACTIONS_ON_ENV_CHANGE = "REFRESH_ACTIONS_ON_ENV_CHANGE",
+}
+
 export interface KeyValuePair {
   key?: string;
   value?: unknown;
