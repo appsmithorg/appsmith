@@ -597,7 +597,7 @@ public enum AppsmithError {
             null),
     GOOGLE_RECAPTCHA_INVITE_FLOW_FAILED(
             400,
-            AppsmithErrorCode.GOOGLE_RECAPTCHA_FAILED.getCode(),
+            AppsmithErrorCode.GOOGLE_RECAPTCHA_INVITE_FLOW_FAILED.getCode(),
             "Google recaptcha verification failed. Please try again.",
             AppsmithErrorAction.DEFAULT,
             "Google recaptcha verification failed",
