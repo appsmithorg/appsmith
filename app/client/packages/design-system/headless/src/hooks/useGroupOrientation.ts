@@ -5,23 +5,28 @@ import {
   useResizeObserver,
   useValueEffect,
 } from "@react-aria/utils";
+import type { Orientation } from "@react-types/shared";
+import type { InlineLabelProps } from "../components/Checkbox";
 
 export interface GroupAria {
-  orientation: "horizontal" | "vertical";
+  orientation?: Orientation;
 }
 
 export function useGroupOrientation(
-  props: { orientation: "horizontal" | "vertical" },
+  props: {
+    orientation?: Orientation;
+    optionsLabelPosition?: InlineLabelProps["labelPosition"];
+  },
   ref: RefObject<HTMLDivElement>,
 ): GroupAria {
   const [{ orientation }, setOrientation] = useValueEffect({
-    orientation: props.orientation,
+    orientation: props.orientation ?? "vertical",
   });
 
   const updateOverflow = useCallback(() => {
-    if (props.orientation === "vertical") return;
-
     const computeOrientation = () => {
+      if (props.orientation === "vertical") return "vertical";
+
       if (ref.current) {
         const options = Array.from(ref.current.children) as HTMLLIElement[];
 
@@ -57,7 +62,7 @@ export function useGroupOrientation(
         orientation: orientation,
       };
     });
-  }, [ref, setOrientation, props.orientation]);
+  }, [ref, setOrientation, props.orientation, props.optionsLabelPosition]);
 
   const parentRef = useMemo(
     () => ({

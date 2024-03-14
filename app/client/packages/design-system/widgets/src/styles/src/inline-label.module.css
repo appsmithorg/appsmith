@@ -13,7 +13,7 @@
   * LABEL POSITION
   *-----------------------------------------------------------------------------
   */
-  &[data-label-position="left"] {
+  &[data-label-position="start"] {
     flex-direction: row-reverse;
     justify-content: space-between;
   }

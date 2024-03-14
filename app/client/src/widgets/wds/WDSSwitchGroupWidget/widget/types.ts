@@ -1,3 +1,4 @@
+import type { InlineLabelProps } from "@design-system/headless";
 import type { WidgetProps } from "widgets/BaseWidget";
 
 export interface OptionProps {
@@ -11,7 +12,7 @@ export interface SwitchGroupWidgetProps extends WidgetProps {
   isRequired?: boolean;
   isValid?: boolean;
   isVisible: boolean;
-  labelPosition: "left" | "right";
+  labelPosition: InlineLabelProps["labelPosition"];
   labelText?: string;
   onSelectionChange?: string;
   options: OptionProps[];
