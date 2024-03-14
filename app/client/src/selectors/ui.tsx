@@ -68,3 +68,16 @@ export const getIsImportingCurl = (state: AppState) =>
 
 export const getIsConsolidatedPageLoading = (state: AppState) =>
   state.ui.consolidatedPageLoad.isLoading;
+
+export const getIsAltFocusWidget = (state: AppState) =>
+  state.ui.widgetDragResize.altFocus;
+
+export const getWidgetSelectionBlock = (state: AppState) =>
+  state.ui.widgetDragResize.blockSelection;
+
+export const getAltBlockWidgetSelection = createSelector(
+  [getWidgetSelectionBlock, getIsAltFocusWidget],
+  (isWidgetSelectionBlock, isAltFocusWidget) => {
+    return isWidgetSelectionBlock ? !isAltFocusWidget : false;
+  },
+);

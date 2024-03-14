@@ -30,4 +30,16 @@ public interface ArtifactBasedImportableServiceCE<T extends BaseDomain, U extend
             T resource);
 
     void createNewResource(ImportingMetaDTO importingMetaDTO, T actionCollection, Context defaultContext);
+
+    default T getExistingEntityInCurrentBranchForImportedEntity(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO,
+            Map<String, T> entityInCurrentArtifact,
+            T entity) {
+        return entityInCurrentArtifact.get(entity.getGitSyncId());
+    }
+
+    default T getExistingEntityInOtherBranchForImportedEntity(
+            MappedImportableResourcesDTO mappedImportableResourcesDTO, Map<String, T> entityInOtherArtifact, T entity) {
+        return entityInOtherArtifact.get(entity.getGitSyncId());
+    }
 }

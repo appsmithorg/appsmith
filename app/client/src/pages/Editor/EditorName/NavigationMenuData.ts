@@ -22,8 +22,7 @@ import { redoShortCut, undoShortCut } from "utils/helpers";
 import { toast } from "design-system";
 import type { ThemeProp } from "WidgetProvider/constants";
 import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 export interface NavigationMenuDataProps extends ThemeProp {
   editMode: typeof noop;
@@ -41,9 +40,7 @@ export const GetNavigationMenuData = ({
 
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
 
-  const isSideBySideFlagEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_side_by_side_ide_enabled,
-  );
+  const isSideBySideFlagEnabled = useSelector(getIsSideBySideEnabled);
 
   const currentApplication = useSelector(getCurrentApplication);
   const hasExportPermission = isPermitted(
