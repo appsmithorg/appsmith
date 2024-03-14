@@ -18,7 +18,9 @@ export default async function (request: EvalWorkerASyncRequest) {
 
   ExecutionMetaData.setExecutionMetaData({ triggerMeta, eventType });
 
-  if (triggerMeta.onPageLoad) {
+  const shouldRunSetupUpdateTree = !(triggerMeta.onPageLoad == true);
+
+  if (shouldRunSetupUpdateTree) {
     const { evalOrder, unEvalUpdates } = dataTreeEvaluator.setupUpdateTree(
       unEvalTree.unEvalTree,
       unEvalTree.configTree,
