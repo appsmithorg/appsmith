@@ -69,7 +69,7 @@ export function evalTreeWithChanges(
     ...updatedValuePaths.map((val) => val[0]),
     ...allUnevalUpdates,
     ...evalOrder,
-  ];
+  ].sort((a, b) => a.length - b.length);
 
   const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
