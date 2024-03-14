@@ -246,7 +246,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
     }
 
     @Override
-    public Mono<UserData> updateLastUserResourceAndWorkspaceList(
+    public Mono<UserData> updateLastUsedResourceAndWorkspaceList(
             String resourceId, String workspaceId, WorkspaceResourceContext context) {
         return sessionUserService
                 .getCurrentUser()

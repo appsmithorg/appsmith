@@ -255,7 +255,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     if (markApplicationAsRecentlyAccessed) {
                         // add this application and workspace id to the recently used list in UserData
                         return userDataService
-                                .updateLastUserResourceAndWorkspaceList(
+                                .updateLastUsedResourceAndWorkspaceList(
                                         application.getId(),
                                         application.getWorkspaceId(),
                                         WorkspaceResourceContext.APPLICATIONS)

@@ -43,7 +43,7 @@ public interface UserDataServiceCE {
 
     Mono<Void> makeProfilePhotoResponse(ServerWebExchange exchange);
 
-    Mono<UserData> updateLastUserResourceAndWorkspaceList(
+    Mono<UserData> updateLastUsedResourceAndWorkspaceList(
             String resourceId, String workspaceId, WorkspaceResourceContext context);
 
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
