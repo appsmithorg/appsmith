@@ -2,7 +2,6 @@ package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
-import com.appsmith.external.views.RequestOnly;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -17,6 +16,7 @@ import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.fasterxml.jackson.annotation.JsonView;
+import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -48,25 +48,30 @@ public class ActionControllerCE {
     private final NewActionService newActionService;
     private final RefactoringService refactoringService;
     private final ActionExecutionSolution actionExecutionSolution;
+    private final ObservationRegistry observationRegistry;
 
     @Autowired
     public ActionControllerCE(
             LayoutActionService layoutActionService,
             NewActionService newActionService,
             RefactoringService refactoringService,
-            ActionExecutionSolution actionExecutionSolution) {
+            ActionExecutionSolution actionExecutionSolution,
+            ObservationRegistry observationRegistry) {
         this.layoutActionService = layoutActionService;
         this.newActionService = newActionService;
         this.refactoringService = refactoringService;
         this.actionExecutionSolution = actionExecutionSolution;
+        this.observationRegistry = observationRegistry;
     }
 
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionDTO>> createAction(
-            @Valid @RequestBody @JsonView(RequestOnly.class) ActionDTO resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+            @Valid @RequestBody ActionDTO resource,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
+            @RequestHeader(name = "Origin", required = false) String originHeader,
+            ServerWebExchange exchange) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return layoutActionService
                 .createSingleActionWithBranch(resource, branchName)
@@ -77,7 +82,7 @@ public class ActionControllerCE {
     @PutMapping("/{defaultActionId}")
     public Mono<ResponseDTO<ActionDTO>> updateAction(
             @PathVariable String defaultActionId,
-            @Valid @RequestBody @JsonView(RequestOnly.class) ActionDTO resource,
+            @Valid @RequestBody ActionDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to update resource with defaultActionId: {}, branch: {}", defaultActionId, branchName);
         return layoutActionService
@@ -173,6 +178,9 @@ public class ActionControllerCE {
      * <p>
      * The controller function is primarily used with param applicationId by the client to fetch the actions in edit
      * mode.
+     *
+     * @param params
+     * @return
      */
     @JsonView(Views.Public.class)
     @GetMapping("")

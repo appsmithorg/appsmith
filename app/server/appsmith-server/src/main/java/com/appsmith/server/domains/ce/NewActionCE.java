@@ -13,6 +13,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 
+import static com.appsmith.server.helpers.StringUtils.dotted;
+
 @Getter
 @Setter
 @ToString
@@ -60,26 +62,23 @@ public class NewActionCE extends BranchAwareDomain {
 
     public static class Fields extends BranchAwareDomain.Fields {
         public static final String unpublishedAction_datasource_id =
-                String.join(".", unpublishedAction, ActionDTO.Fields.datasource, Datasource.Fields.id);
-        public static final String unpublishedAction_name = String.join(".", unpublishedAction, ActionDTO.Fields.name);
-        public static final String unpublishedAction_pageId =
-                String.join(".", unpublishedAction, ActionDTO.Fields.pageId);
-        public static final String unpublishedAction_deletedAt =
-                String.join(".", unpublishedAction, ActionDTO.Fields.deletedAt);
+                dotted(unpublishedAction, ActionDTO.Fields.datasource, Datasource.Fields.id);
+        public static final String unpublishedAction_name = dotted(unpublishedAction, ActionDTO.Fields.name);
+        public static final String unpublishedAction_pageId = dotted(unpublishedAction, ActionDTO.Fields.pageId);
+        public static final String unpublishedAction_deletedAt = dotted(unpublishedAction, ActionDTO.Fields.deletedAt);
         public static final String unpublishedAction_contextType =
-                String.join(".", unpublishedAction, ActionDTO.Fields.contextType);
+                dotted(unpublishedAction, ActionDTO.Fields.contextType);
         public static final String unpublishedAction_userSetOnLoad =
-                String.join(".", unpublishedAction, ActionDTO.Fields.userSetOnLoad);
+                dotted(unpublishedAction, ActionDTO.Fields.userSetOnLoad);
         public static final String unpublishedAction_executeOnLoad =
-                String.join(".", unpublishedAction, ActionDTO.Fields.executeOnLoad);
+                dotted(unpublishedAction, ActionDTO.Fields.executeOnLoad);
         public static final String unpublishedAction_fullyQualifiedName =
-                String.join(".", unpublishedAction, ActionDTO.Fields.fullyQualifiedName);
-        public static final String unpublishedAction_actionConfiguration_httpMethod = String.join(
-                ".", unpublishedAction, ActionDTO.Fields.actionConfiguration, ActionConfiguration.Fields.httpMethod);
+                dotted(unpublishedAction, ActionDTO.Fields.fullyQualifiedName);
+        public static final String unpublishedAction_actionConfiguration_httpMethod =
+                dotted(unpublishedAction, ActionDTO.Fields.actionConfiguration, ActionConfiguration.Fields.httpMethod);
 
-        public static final String publishedAction_name = String.join(".", publishedAction, ActionDTO.Fields.name);
-        public static final String publishedAction_pageId = String.join(".", publishedAction, ActionDTO.Fields.pageId);
-        public static final String publishedAction_contextType =
-                String.join(".", publishedAction, ActionDTO.Fields.contextType);
+        public static final String publishedAction_name = dotted(publishedAction, ActionDTO.Fields.name);
+        public static final String publishedAction_pageId = dotted(publishedAction, ActionDTO.Fields.pageId);
+        public static final String publishedAction_contextType = dotted(publishedAction, ActionDTO.Fields.contextType);
     }
 }
