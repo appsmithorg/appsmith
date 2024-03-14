@@ -424,7 +424,7 @@ function InviteUsersForm(props: any) {
                     : {}),
                   users: validEmailsString,
                   permissionGroupId: roles,
-                  recaptchaStatus: token,
+                  recaptchaToken: token,
                 },
                 dispatch,
               );
