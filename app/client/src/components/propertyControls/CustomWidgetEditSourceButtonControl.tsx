@@ -58,34 +58,31 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
     ) {
       CustomWidgetBuilderService.focus(this.props.widgetProperties.widgetId);
     } else {
-      const { onMessage, postMessage } =
-        CustomWidgetBuilderService.createConnection(
-          this.props.widgetProperties.widgetId,
-        );
+      const builder = CustomWidgetBuilderService.createBuilder(
+        this.props.widgetProperties.widgetId,
+      );
 
-      onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.READY, () => {
-        postMessage({
+      builder.onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.READY, () => {
+        builder.postMessage({
           type: CUSTOM_WIDGET_BUILDER_EVENTS.READY_ACK,
           ...this.getPayload(),
         });
       });
 
-      onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC, (data: any) => {
-        this.props.onBatchUpdateProperties?.({
-          srcDoc: data.srcDoc,
-          uncompiledSrcDoc: data.uncompiledSrcDoc,
-        });
+      builder.onMessage(
+        CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC,
+        (data: any) => {
+          this.props.onBatchUpdateProperties?.({
+            srcDoc: data.srcDoc,
+            uncompiledSrcDoc: data.uncompiledSrcDoc,
+          });
+        },
+      );
 
-        postMessage({
-          type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_SRCDOC_ACK,
-          success: true,
-        });
-      });
-
-      onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.DISCONNECTED, () => {
-        CustomWidgetBuilderService.closeConnection(
+      builder.onMessage(CUSTOM_WIDGET_BUILDER_EVENTS.DISCONNECTED, () => {
+        CustomWidgetBuilderService.closeBuilder(
           this.props.widgetProperties.widgetId,
-          true,
+          false,
         );
 
         this.setState({
@@ -100,8 +97,9 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
   };
 
   beforeWindowUnload = () => {
-    CustomWidgetBuilderService.closeConnection(
+    CustomWidgetBuilderService.closeBuilder(
       this.props.widgetProperties.widgetId,
+      true,
     );
   };
 
@@ -113,7 +111,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
         this.props.widgetProperties.widgetId,
       )
     ) {
-      CustomWidgetBuilderService.getConnection(
+      CustomWidgetBuilderService.getBuilder(
         this.props.widgetProperties.widgetId,
       )?.postMessage({
         type: CUSTOM_WIDGET_BUILDER_EVENTS.RESUME,
@@ -123,7 +121,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
   }
 
   componentWillUnmount(): void {
-    CustomWidgetBuilderService.getConnection(
+    CustomWidgetBuilderService.getBuilder(
       this.props.widgetProperties.widgetId,
     )?.postMessage({
       type: CUSTOM_WIDGET_BUILDER_EVENTS.PAUSE,
@@ -157,11 +155,11 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
         this.props.widgetProperties.__evaluation__?.evaluatedValues?.theme !==
           this.props.widgetProperties.__evaluation__?.evaluatedValues?.theme)
     ) {
-      const connection = CustomWidgetBuilderService.getConnection(
+      const builder = CustomWidgetBuilderService.getBuilder(
         this.props.widgetProperties.widgetId,
       );
 
-      connection?.postMessage({
+      builder?.postMessage({
         type: CUSTOM_WIDGET_BUILDER_EVENTS.UPDATE_REFERENCES,
         name: this.props.widgetProperties.widgetName,
         model:
