@@ -683,7 +683,7 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<Optional<AclPermission>>any()))
                 .thenReturn(Mono.just(actionCollection));
 
-        Mockito.when(newActionService.deleteUnpublishedAction(Mockito.any()))
+        Mockito.when(newActionService.deleteUnpublishedActionWithOptionalPermission(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(
                         actionCollection.getUnpublishedCollection().getActions().get(0)));
 
