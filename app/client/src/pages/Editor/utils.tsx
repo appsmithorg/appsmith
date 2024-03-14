@@ -20,6 +20,7 @@ import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import type { ActionResponse } from "api/ActionAPI";
+import type { Module } from "@appsmith/constants/ModuleConstants";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import {
   ENTITY_ICON_SIZE,
@@ -29,6 +30,9 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { PluginType } from "entities/Action";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { Plugin } from "api/PluginApi";
+import ImageAlt from "assets/images/placeholder-image.svg";
+import { Icon } from "design-system";
 
 export const draggableElement = (
   id: string,
@@ -380,4 +384,34 @@ export function resolveIcon({
   } else {
     return resolveQueryModuleIcon(iconLocation, pluginType, isLargeIcon);
   }
+}
+
+export function getModuleIcon(
+  module: Module | undefined,
+  pluginImages: Record<string, string>,
+  isLargeIcon = false,
+) {
+  return module ? (
+    resolveIcon({
+      iconLocation: pluginImages[module.pluginId] || "",
+      pluginType: module.pluginType,
+      moduleType: module.type,
+      isLargeIcon,
+    })
+  ) : (
+    <EntityIcon
+      height={`${isLargeIcon ? ENTITY_ICON_SIZE * 2 : ENTITY_ICON_SIZE}px`}
+      width={`${isLargeIcon ? ENTITY_ICON_SIZE * 2 : ENTITY_ICON_SIZE}px`}
+    >
+      <Icon name="module" />
+    </EntityIcon>
+  );
+}
+
+export function getPluginImagesFromPlugins(plugins: Plugin[]) {
+  const pluginImages: Record<string, string> = {};
+  plugins.forEach((plugin) => {
+    pluginImages[plugin.id] = plugin?.iconLocation ?? ImageAlt;
+  });
+  return pluginImages;
 }
