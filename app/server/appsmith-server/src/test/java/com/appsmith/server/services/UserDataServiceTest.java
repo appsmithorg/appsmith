@@ -40,7 +40,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -238,7 +237,6 @@ public class UserDataServiceTest {
                 .getForCurrentUser()
                 .flatMap(userData -> {
                     // set recently used org ids to null
-                    userData.setRecentlyUsedWorkspaceIds(null);
                     userData.setRecentlyUsedEntityIds(null);
                     return userDataRepository.save(userData);
                 })
@@ -247,11 +245,6 @@ public class UserDataServiceTest {
 
         StepVerifier.create(saveMono)
                 .assertNext(userData -> {
-                    assertEquals(1, userData.getRecentlyUsedWorkspaceIds().size());
-                    assertEquals(
-                            sampleWorkspaceId,
-                            userData.getRecentlyUsedWorkspaceIds().get(0));
-
                     assertThat(userData.getRecentlyUsedEntityIds()).hasSize(1);
                     assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
                             .isEqualTo(sampleWorkspaceId);
@@ -289,11 +282,6 @@ public class UserDataServiceTest {
 
         StepVerifier.create(resultMono)
                 .assertNext(userData -> {
-                    assertEquals(3, userData.getRecentlyUsedWorkspaceIds().size());
-                    assertEquals(
-                            "sample-org-id",
-                            userData.getRecentlyUsedWorkspaceIds().get(0));
-
                     assertThat(userData.getRecentlyUsedEntityIds()).hasSize(3);
                     assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
                             .isEqualTo("sample-org-id");
@@ -347,14 +335,6 @@ public class UserDataServiceTest {
 
         StepVerifier.create(resultMono)
                 .assertNext(userData -> {
-                    assertThat(userData.getRecentlyUsedWorkspaceIds()).hasSize(MAX_RECENT_WORKSPACES_LIMIT);
-                    assertThat(userData.getRecentlyUsedWorkspaceIds().get(0)).isEqualTo(sampleWorkspaceId);
-                    assertThat(userData.getRecentlyUsedWorkspaceIds().get(9)).isEqualTo("org-9");
-
-                    assertThat(userData.getRecentlyUsedAppIds()).hasSize(MAX_RECENT_APPLICATIONS_LIMIT);
-                    assertThat(userData.getRecentlyUsedAppIds().get(0)).isEqualTo(sampleAppId);
-                    assertThat(userData.getRecentlyUsedAppIds().get(19)).isEqualTo("app-19");
-
                     assertThat(userData.getRecentlyUsedEntityIds()).hasSize(MAX_RECENT_WORKSPACES_LIMIT);
                     assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
                             .isEqualTo(sampleWorkspaceId);
