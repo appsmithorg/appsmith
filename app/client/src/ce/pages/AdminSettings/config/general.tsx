@@ -119,6 +119,7 @@ export const APPSMITH_USER_SESSION_TIMEOUT_SETTING: Setting = {
   isFeatureEnabled: false,
   isEnterprise: true,
   isDisabled: () => true,
+  value: "30:00:00",
 };
 
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
