@@ -92,11 +92,7 @@
           "isRequired": false,
           "initialValue": "Appsmith",
           "placeholderText": "Appsmith",
-          "hidden": {
-            "path": "datasourceConfiguration.properties[0].value",
-            "comparison": "NOT_EQUALS",
-            "value": "FORM_PROPERTIES_CONFIGURATION"
-          }
+          "hidden": true
         },
         {
           "label": "JDBC URL",

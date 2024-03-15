@@ -21,15 +21,7 @@ import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import {
-  anvilConfig,
-  autocompleteConfig,
-  defaultsConfig,
-  featuresConfig,
-  metaConfig,
-  settersConfig,
-  propertyPaneContentConfig,
-} from "./config";
+import * as config from "../config";
 import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
@@ -42,32 +34,32 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   static type = "WDS_CURRENCY_INPUT_WIDGET";
 
   static getConfig() {
-    return metaConfig;
+    return config.metaConfig;
   }
 
   static getFeatures() {
-    return featuresConfig;
+    return config.featuresConfig;
   }
 
   static getDefaults() {
-    return defaultsConfig;
+    return config.defaultsConfig;
   }
 
   static getAnvilConfig(): AnvilConfig | null {
-    return anvilConfig;
+    return config.anvilConfig;
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return autocompleteConfig;
+    return config.autocompleteConfig;
   }
 
   static getSetterConfig(): SetterConfig {
-    return settersConfig;
+    return config.settersConfig;
   }
 
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
-      propertyPaneContentConfig,
+      config.propertyPaneContentConfig,
       super.getPropertyPaneContentConfig(),
     );
   }
