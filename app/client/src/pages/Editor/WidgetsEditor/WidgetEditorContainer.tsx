@@ -6,6 +6,7 @@ import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EditorState } from "@appsmith/entities/IDE/constants";
+import { RenderModes } from "constants/WidgetConstants";
 
 /**
  * WidgetEditorContainer
@@ -19,7 +20,7 @@ export const WidgetEditorContainer = (props: { children: ReactNode }) => {
   const isAppSettingsPaneWithNavigationTabOpen =
     appState === EditorState.SETTINGS && isNavigationSelectedInSettings;
   return (
-    <EditorContextProvider renderMode="CANVAS">
+    <EditorContextProvider renderMode={RenderModes.CANVAS}>
       <div className="relative flex flex-row h-full w-full overflow-hidden">
         <div
           className={classNames({
