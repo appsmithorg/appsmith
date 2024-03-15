@@ -1013,6 +1013,7 @@ export function* runActionSaga(
   }
 }
 
+// This gets called for "onPageLoad" JS actions
 function* executeOnPageLoadJSAction(pageAction: PageAction) {
   const collectionId: string = pageAction.collectionId || "";
   const pageId: string | undefined = yield select(getCurrentPageId);

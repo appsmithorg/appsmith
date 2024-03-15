@@ -402,7 +402,7 @@ interface JSFunctionExecutionResponse {
 function* executeAsyncJSFunction(
   action: JSAction,
   collection: JSCollection,
-  onPageLoad = false,
+  onPageLoad: boolean,
 ) {
   const { id: collectionId, name: collectionName } = collection;
   const functionCall = `${collectionName}.${action.name}()`;
@@ -429,7 +429,7 @@ function* executeAsyncJSFunction(
 export function* executeJSFunction(
   action: JSAction,
   collection: JSCollection,
-  onPageLoad = false,
+  onPageLoad: boolean,
 ) {
   const response: {
     errors: unknown[];

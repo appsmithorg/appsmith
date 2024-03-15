@@ -398,14 +398,14 @@ export function* handleExecuteJSFunctionSaga(data: {
   action: JSAction;
   collection: JSCollection;
   isExecuteJSFunc: boolean;
+  onPageLoad: boolean;
   openDebugger?: boolean;
-  onPageLoad?: boolean;
 }) {
   const {
     action,
     collection,
     isExecuteJSFunc,
-    onPageLoad = false,
+    onPageLoad,
     openDebugger = false,
   } = data;
   const { id: collectionId } = collection;
@@ -544,6 +544,7 @@ export function* handleExecuteJSFunctionSaga(data: {
   }
 }
 
+// This gets called on pressing "Run" button in JS code editor
 export function* handleStartExecuteJSFunctionSaga(
   data: ReduxAction<{
     action: JSAction;
@@ -589,6 +590,7 @@ export function* handleStartExecuteJSFunctionSaga(
     action,
     collection,
     isExecuteJSFunc: false,
+    onPageLoad: false,
     openDebugger,
   });
 }
