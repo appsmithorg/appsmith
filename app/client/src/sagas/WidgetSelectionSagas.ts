@@ -61,10 +61,6 @@ import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
 import { getAppViewerPageIdFromPath } from "@appsmith/pages/Editor/Explorer/helpers";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
-import {
-  retrieveCodeWidgetNavigationUsed,
-  storeCodeWidgetNavigationUsed,
-} from "../utils/storage";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -220,9 +216,6 @@ function* appendSelectedWidgetToUrlSaga(
   const isWidgetSelectionBlocked: boolean = yield select(
     getWidgetSelectionBlock,
   );
-  const timesUsedCodeModeWidgetSelection: number = yield call(
-    retrieveCodeWidgetNavigationUsed,
-  );
   const appMode: APP_MODE = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
   if (isSnipingMode || viewMode) return;
@@ -243,12 +236,6 @@ function* appendSelectedWidgetToUrlSaga(
       });
   if (invokedBy === NavigationMethod.CanvasClick && isWidgetSelectionBlocked) {
     AnalyticsUtil.logEvent("CODE_MODE_WIDGET_SELECTION");
-    if (timesUsedCodeModeWidgetSelection < 2) {
-      yield call(
-        storeCodeWidgetNavigationUsed,
-        timesUsedCodeModeWidgetSelection + 1,
-      );
-    }
   }
   if (currentURL !== newUrl) {
     history.push(newUrl, { invokedBy });
