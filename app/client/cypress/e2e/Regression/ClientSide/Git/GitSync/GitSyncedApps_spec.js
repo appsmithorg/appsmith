@@ -50,7 +50,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
 
     cy.contains("Connect new datasource").click({ force: true });
 
-    cy.get(datasource.PostgreSQL).click();
+    agHelper.GetNClick(datasource.PostgreSQL);
 
     cy.fillPostgresDatasourceForm();
 
