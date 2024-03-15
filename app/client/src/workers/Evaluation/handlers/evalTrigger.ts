@@ -33,7 +33,7 @@ export default async function (request: EvalWorkerASyncRequest) {
 
   return dataTreeEvaluator.evaluateTriggers(
     dynamicTrigger,
-    dataTreeEvaluator.evalTree,
+    dataTreeEvaluator.getEvalTree(),
     unEvalTree.configTree,
     callbackData,
     {
