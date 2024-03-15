@@ -26,10 +26,8 @@ const FileTabs = (props: Props) => {
   const transitions = useTransition(tabs, {
     from: { transform: "translateX(-100%)", opacity: 0 },
     enter: { transform: "translateX(0)", opacity: 1 },
-    leave: { transform: "translateX(100%)", opacity: 0 },
-    unique: true,
-    trail: 200,
     keys: (item) => item.key,
+    config: { tension: 210, friction: 20 },
   });
 
   return (
