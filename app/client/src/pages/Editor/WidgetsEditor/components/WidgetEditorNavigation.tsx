@@ -1,7 +1,7 @@
 import React, { forwardRef, useEffect, useRef, useState } from "react";
 import NavigationPreview from "./NavigationPreview";
 import { EditorState } from "@appsmith/entities/IDE/constants";
-import { useCurrentAppState } from "../../IDE/hooks";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import {
   getAppSettingsPaneContext,
   getIsAppSettingsPaneWithNavigationTabOpen,

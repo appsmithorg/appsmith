@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import React from "react";
 import { EditorState } from "@appsmith/entities/IDE/constants";
-import { useCurrentAppState } from "../../IDE/hooks";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { useSelector } from "react-redux";
 import {

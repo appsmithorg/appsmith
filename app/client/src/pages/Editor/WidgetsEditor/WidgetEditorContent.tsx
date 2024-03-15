@@ -3,7 +3,7 @@ import {
   WidgetEditorNavigation,
   useNavigationPreviewHeight,
 } from "./components/WidgetEditorNavigation";
-import CrudInfoModal from "../GeneratePage/components/CrudInfoModal";
+import CrudInfoModal from "pages/Editor/GeneratePage/components/CrudInfoModal";
 import { WidgetEditorContentWrapper } from "./components/WidgetEditorContentWrapper";
 import { NavigationAdjustedPageViewer } from "./components/NavigationAdjustedPageViewer";
 import { LayoutSystemBasedPageViewer } from "./components/LayoutSystemBasedPageViewer";
