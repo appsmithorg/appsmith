@@ -337,3 +337,11 @@ export function AppsmithAIIcon() {
 export function ActionUrlIcon(url: string) {
   return <img src={url} />;
 }
+
+export function DefaultModuleIcon() {
+  return (
+    <EntityIcon>
+      <Icon name="module" size="sm" />
+    </EntityIcon>
+  );
+}

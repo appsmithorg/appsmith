@@ -31,9 +31,6 @@ app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @sbalaji11
 app/client/src/pages/AppViewer/* @appsmithorg/app-viewers
 
 # New Developers Pod
-app/client/src/ce/entities/FeatureFlag.ts @hetunandu
-app/client/src/ee/entities/FeatureFlag.ts @hetunandu
-app/server/appsmith-server/src/main/resources/features/init-flags.xml @hetunandu
 app/server/appsmith-server/src/main/java/com/appsmith/server/featureflags/* @nilanshbansal
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/UserIdentifierService.java @nilanshbansal
 app/server/appsmith-server/src/main/java/com/appsmith/server/services/UserIdentifierServiceImpl.java @nilanshbansal
