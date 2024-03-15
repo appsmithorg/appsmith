@@ -222,9 +222,16 @@ const generateDiffUpdates = (
   const attachDirectly: DiffWithReferenceState[] = [];
   const ignoreLargeKeysHasBeenAttached = new Set();
   const attachLater: DiffWithReferenceState[] = [];
-  const onlyRootWidgets = evalOrder.map((path) => path.split(".")[0]);
-  const oldData = getDataTree(oldDataTree, onlyRootWidgets);
-  const newData = getDataTree(dataTree, onlyRootWidgets);
+  const subPropertyUpdates = Array.from(
+    new Set(
+      evalOrder.map((path) => {
+        const [widgetRootPath, subProperty] = path.split(".");
+        return [widgetRootPath, subProperty].join(".");
+      }),
+    ),
+  );
+  const oldData = getDataTree(oldDataTree, subPropertyUpdates);
+  const newData = getDataTree(dataTree, subPropertyUpdates);
   const updates =
     diff(oldData, newData, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
