@@ -43,7 +43,7 @@ export function getSpecialAreas(map: MapTypes): GeoSpecialAreas {
 /*
  * Function to load the map geojson file and register it with echarts
  */
-export const loadMap = (() => {
+export const loadMapGenerator = () => {
   let abortController: AbortController | null = null;
 
   return async (type: MapTypes) => {
@@ -85,7 +85,7 @@ export const loadMap = (() => {
       return Promise.resolve();
     }
   };
-})();
+};
 
 function getProjection(type: string) {
   switch (type) {
