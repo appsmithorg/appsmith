@@ -9,7 +9,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.filters.CSRFFilter;
 import com.appsmith.server.filters.ConditionalFilter;
-import com.appsmith.server.filters.PreAuth;
+import com.appsmith.server.filters.LoginRateLimitFilter;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
@@ -212,7 +212,7 @@ public class SecurityConfig {
                         .authenticated())
                 // Add Pre Auth rate limit filter before authentication filter
                 .addFilterBefore(
-                        new ConditionalFilter(new PreAuth(rateLimitService), Url.LOGIN_URL),
+                        new ConditionalFilter(new LoginRateLimitFilter(rateLimitService), Url.LOGIN_URL),
                         SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
                 .formLogin(formLoginSpec -> formLoginSpec

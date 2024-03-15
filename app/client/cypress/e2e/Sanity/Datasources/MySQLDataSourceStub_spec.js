@@ -1,5 +1,5 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import { dataSources } from "../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "MySQL datasource test cases",
@@ -8,7 +8,7 @@ describe(
     let datasourceName;
     it("1. Create, test, save then delete a MySQL datasource", function () {
       cy.NavigateToDatasourceEditor();
-      cy.get(datasource.MySQL).click();
+      agHelper.GetNClick(datasource.MySQL);
       cy.fillMySQLDatasourceForm();
       cy.generateUUID().then((UUID) => {
         datasourceName = `MySQL MOCKDS ${UUID}`;
@@ -23,7 +23,7 @@ describe(
 
     it("2. Create with trailing white spaces in host address and database name, test, save then delete a MySQL datasource", function () {
       cy.NavigateToDatasourceEditor();
-      cy.get(datasource.MySQL).click();
+      agHelper.GetNClick(datasource.MySQL);
       cy.fillMySQLDatasourceForm(true);
       cy.intercept("POST", "/api/v1/datasources/test", {
         fixture: "testAction.json",
