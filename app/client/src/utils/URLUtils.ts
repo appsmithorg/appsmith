@@ -13,10 +13,9 @@ export function getQueryParams() {
 }
 
 export function convertObjectToQueryParams(object: any): string {
-  if (!_.isEmpty(object) && !_.isEmpty(object.params)) {
-    const params = object.params;
-    const paramArray: string[] = _.map(_.keys(params), (key) => {
-      return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
+  if (!_.isNil(object)) {
+    const paramArray: string[] = _.map(_.keys(object), (key) => {
+      return encodeURIComponent(key) + "=" + encodeURIComponent(object[key]);
     });
     return "?" + _.join(paramArray, "&");
   } else {

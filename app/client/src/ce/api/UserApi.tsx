@@ -148,12 +148,14 @@ export class UserApi extends Api {
   static async inviteUser(
     request: InviteUserRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
+    const { recaptchaToken, ...requestPayload } = request;
     return Api.post(
       UserApi.inviteUserURL,
-      request,
-      request.recaptchaToken
+      requestPayload,
+      undefined,
+      recaptchaToken
         ? {
-            params: { recaptchaToken: request.recaptchaToken },
+            params: { recaptchaToken },
           }
         : {},
     );
