@@ -1,5 +1,4 @@
-import type { ReactNode } from "react";
-import React, { useCallback } from "react";
+import React, { type ReactNode, useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getIsAutoLayout } from "selectors/editorSelectors";
 import { setCanvasSelectionFromEditor } from "actions/canvasSelectionActions";
@@ -13,7 +12,7 @@ export const WidgetEditorContentWrapper = (props: { children: ReactNode }) => {
   const dispatch = useDispatch();
 
   const handleWrapperClick = useCallback(
-    (e: any) => {
+    (e) => {
       // This is a hack for widget name component clicks on Canvas.
       // For some reason the stopPropagation in the konva event listener isn't working
       // Also, the nodeName is available only for the konva event, so standard type definition
@@ -36,7 +35,7 @@ export const WidgetEditorContentWrapper = (props: { children: ReactNode }) => {
    *  drag event handler for selection drawing
    */
   const onDragStart = useCallback(
-    (e: any) => {
+    (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       e.stopPropagation();
       if (allowDragToSelect) {
@@ -52,6 +51,13 @@ export const WidgetEditorContentWrapper = (props: { children: ReactNode }) => {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const fontFamily = `${selectedTheme.properties.fontFamily.appFont}, sans-serif`;
   const isAutoLayout = useSelector(getIsAutoLayout);
+  const wrapperStyle = useMemo(
+    () => ({
+      fontFamily,
+      contain: isAutoLayout ? "content" : "strict",
+    }),
+    [fontFamily, isAutoLayout],
+  );
   return (
     <div
       className="relative flex flex-row h-full w-full overflow-hidden"
@@ -60,10 +66,7 @@ export const WidgetEditorContentWrapper = (props: { children: ReactNode }) => {
       id="widgets-editor"
       onClick={handleWrapperClick}
       onDragStart={onDragStart}
-      style={{
-        fontFamily: fontFamily,
-        contain: isAutoLayout ? "content" : "strict",
-      }}
+      style={wrapperStyle}
     >
       {props.children}
     </div>

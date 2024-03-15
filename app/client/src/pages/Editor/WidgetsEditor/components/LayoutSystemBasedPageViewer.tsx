@@ -27,6 +27,13 @@ import {
 const BannerWrapper = styled.div`
   z-index: calc(var(--on-canvas-ui-z-index) + 1);
 `;
+
+/**
+ * LayoutSystemBasedPageViewer
+ *
+ * This component is used to provide respective components based on the layout system features(ex: canvas overlay, snapshot banner).
+ * It also provides the main container wrapper for the layout system based editor.
+ */
 export const LayoutSystemBasedPageViewer = ({
   navigationHeight,
 }: {

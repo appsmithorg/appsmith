@@ -7,6 +7,8 @@ import { CreateNewModal } from "../../IDE/RightPane/components/CreateNewModal";
 
 /**
  * OldName: PropertyPaneContainer
+ * This component is used to wrap the property pane sidebar and create new modal.
+ * It is used to handle the width of the property pane sidebar.
  */
 function PropertyPaneWrapper() {
   const dispatch = useDispatch();

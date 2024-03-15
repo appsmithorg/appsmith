@@ -22,6 +22,11 @@ import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
+/**
+ * NavigationAdjustedPageViewer
+ *
+ * This component is used to provide proper layout for the layout system based editor in different modes like preview, published, and settings.
+ */
 export const NavigationAdjustedPageViewer = (props: {
   children: ReactNode;
 }) => {

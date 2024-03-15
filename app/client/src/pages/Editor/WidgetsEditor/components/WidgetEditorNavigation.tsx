@@ -12,6 +12,13 @@ import {
   getCurrentApplication,
 } from "selectors/editorSelectors";
 
+/**
+ * useNavigationPreviewHeight
+ * This hook is used to get the height of the navigation preview and the ref to the navigation preview
+ *
+ * @returns navigationPreviewRef: Ref to the navigation preview
+ * @returns navigationHeight: Height of the navigation preview
+ */
 export const useNavigationPreviewHeight = () => {
   const [navigationHeight, setNavigationHeight] = useState(0);
   const navigationPreviewRef = useRef(null);
@@ -39,6 +46,12 @@ export const useNavigationPreviewHeight = () => {
 };
 
 type DivRef = React.Ref<HTMLDivElement>;
+/**
+ * WidgetEditorNavigation
+ *
+ * This component is used to render the navigation preview in the widget editor.
+ * It is shown when the user is in preview mode or when the navigation tab is selected in the app settings pane.
+ */
 export const WidgetEditorNavigation = forwardRef(
   (props, navigationPreviewRef: DivRef) => {
     const isPreviewMode = useSelector(combinedPreviewModeSelector);

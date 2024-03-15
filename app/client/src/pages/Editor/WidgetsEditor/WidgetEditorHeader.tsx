@@ -8,6 +8,14 @@ import { useCurrentAppState } from "../IDE/hooks";
 import { EditorState } from "@appsmith/entities/IDE/constants";
 import useMissingModuleNotification from "@appsmith/pages/Editor/IDE/MainPane/useMissingModuleNotification";
 
+/**
+ * WidgetEditorHeader
+ * This component provides the header for the widget editor.
+ * It includes the
+ * - empty canvas prompts (for new users, and when there are no widgets)
+ * - anonymous data popup
+ * - missing module notification
+ */
 export const WidgetEditorHeader = () => {
   const isNavigationSelectedInSettings = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,

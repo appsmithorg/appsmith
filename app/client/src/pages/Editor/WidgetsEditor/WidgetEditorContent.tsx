@@ -8,6 +8,11 @@ import { WidgetEditorContentWrapper } from "./components/WidgetEditorContentWrap
 import { NavigationAdjustedPageViewer } from "./components/NavigationAdjustedPageViewer";
 import { LayoutSystemBasedPageViewer } from "./components/LayoutSystemBasedPageViewer";
 
+/**
+ * WidgetEditorContent
+ * This component orchestrates the rendering of the main content area of the widget editor,
+ * which includes navigation, layout based canvas editor, and additional modals like crud generation.
+ */
 export const WidgetEditorContent = () => {
   const { navigationHeight, navigationPreviewRef } =
     useNavigationPreviewHeight();

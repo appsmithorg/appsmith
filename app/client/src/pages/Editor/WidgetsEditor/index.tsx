@@ -10,10 +10,18 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { WidgetEditorSkeleton } from "./WidgetEditorSkeleton";
+import { WidgetEditorContainer } from "./WidgetEditorContainer";
 import { WidgetEditorHeader } from "./WidgetEditorHeader";
 import { WidgetEditorContent } from "./WidgetEditorContent";
-
+/**
+ * WidgetsEditor
+ * This is the main editor component that is used to edit widgets.
+ * It includes the
+ * - skeleton(wrapper)
+ *  - header (empty canvas prompts, anonymous data popup, missing module notification)
+ *  - content (navigation, layout based canvas editor, crud generation modal)
+ *  - footer (debugger)
+ */
 function WidgetsEditor() {
   const currentPageId = useSelector(getCurrentPageId);
   const currentPageName = useSelector(getCurrentPageName);
@@ -23,9 +31,9 @@ function WidgetsEditor() {
     PerformanceTracker.stopTracking(PerformanceTransactionName.CLOSE_SIDE_PANE);
   });
 
-  // log page load
   useEffect(() => {
     if (currentPageName !== undefined && currentPageId !== undefined) {
+      // Logging page load event
       AnalyticsUtil.logEvent("PAGE_LOAD", {
         pageName: currentPageName,
         pageId: currentPageId,
@@ -37,11 +45,11 @@ function WidgetsEditor() {
 
   PerformanceTracker.stopTracking();
   return (
-    <WidgetEditorSkeleton>
+    <WidgetEditorContainer>
       <WidgetEditorHeader />
       <WidgetEditorContent />
       <WidgetEditorFooter />
-    </WidgetEditorSkeleton>
+    </WidgetEditorContainer>
   );
 }
 

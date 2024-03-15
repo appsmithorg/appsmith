@@ -7,7 +7,11 @@ import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { EditorState } from "@appsmith/entities/IDE/constants";
 
-export const WidgetEditorSkeleton = (props: { children: ReactNode }) => {
+/**
+ * WidgetEditorContainer
+ * This component is used to provide proper layout for the widget editor components like header, content, and footer.
+ */
+export const WidgetEditorContainer = (props: { children: ReactNode }) => {
   const isNavigationSelectedInSettings = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
