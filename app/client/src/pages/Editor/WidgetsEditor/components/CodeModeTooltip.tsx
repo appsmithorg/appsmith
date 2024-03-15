@@ -8,7 +8,7 @@ import { retrieveCodeWidgetNavigationUsed } from "utils/storage";
 /**
  * CodeModeTooltip
  *
- * This component os used to display a tooltip when the user hovers over a widget in code mode(when js pane and widgets editor are side by side).
+ * This component is used to display a tooltip when the user hovers over a widget in code mode(when js pane and widgets editor are side by side).
  */
 
 const CodeModeTooltip = (props: { children: React.ReactElement }) => {
