@@ -66,6 +66,7 @@ export function evalTreeWithChanges(
     (update) => update.payload.propertyPath,
   );
   const completeEvalOrder = [
+    ...removedPaths.map((v) => v.fullpath),
     ...updatedValuePaths.map((val) => val[0]),
     ...allUnevalUpdates,
     ...evalOrder,
