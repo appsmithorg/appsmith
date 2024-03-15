@@ -1,4 +1,4 @@
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { get } from "lodash";
 import {
   EVAL_ERROR_PATH,

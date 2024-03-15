@@ -1,6 +1,6 @@
 import React from "react";
 import type { SetterConfig } from "entities/AppTheming";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import {
   metaConfig,
@@ -15,7 +15,7 @@ import type { ButtonGroupWidgetProps } from "./types";
 import { ToolbarButtonsComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import type { AnvilConfig } from "WidgetProvider/constants";
+import type { AnvilConfig } from "WidgetProvider/types";
 
 class WDSToolbarButtonsWidget extends BaseWidget<
   ButtonGroupWidgetProps,

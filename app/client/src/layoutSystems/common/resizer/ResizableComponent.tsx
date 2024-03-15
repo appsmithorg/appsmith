@@ -40,8 +40,8 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import type { WidgetProps, WidgetRowCols } from "widgets/BaseWidget";
-import { WidgetOperations } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetRowCols } from "widgets/types";
+import { WidgetOperations } from "widgets/types";
 import { getSnapColumns } from "utils/WidgetPropsUtils";
 import {
   isAutoHeightEnabledForWidget,

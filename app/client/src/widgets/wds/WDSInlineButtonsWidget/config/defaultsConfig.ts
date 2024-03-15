@@ -1,5 +1,5 @@
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 
 export const defaultsConfig = {
   widgetName: "InlineButtons",

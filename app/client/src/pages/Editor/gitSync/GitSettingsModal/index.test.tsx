@@ -4,8 +4,8 @@ import { render } from "@testing-library/react";
 import type { MockStoreEnhanced } from "redux-mock-store";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 import GitSettingsModal from ".";
+import { GitSettingsTab } from "actions/gitSyncActionsTypes";
 
 const createInitialState = (overrideFn = (o: any) => o) => {
   const initialState = {

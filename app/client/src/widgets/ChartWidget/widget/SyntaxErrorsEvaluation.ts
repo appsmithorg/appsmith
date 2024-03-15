@@ -1,4 +1,4 @@
-import type { WidgetError } from "widgets/BaseWidget";
+import type { WidgetError } from "widgets/types";
 
 import type { ChartWidgetProps } from ".";
 import { isBasicEChart } from "../component/helpers";

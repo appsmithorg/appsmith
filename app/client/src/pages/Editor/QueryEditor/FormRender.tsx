@@ -10,7 +10,6 @@ import styled from "styled-components";
 import { UIComponentTypes } from "api/PluginApi";
 import log from "loglevel";
 import * as Sentry from "@sentry/react";
-import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import {
   checkIfSectionCanRender,
   checkIfSectionIsEnabled,
@@ -24,6 +23,7 @@ import FormControl from "../FormControl";
 import type { ControlProps } from "components/formControls/BaseControl";
 import { Spinner } from "design-system";
 import type { QueryAction, SaaSAction } from "entities/Action";
+import type { FormEvalOutput } from "components/formControls/formControlTypes";
 
 interface Props {
   editorConfig?: any;

@@ -4,8 +4,8 @@ import {
 } from "components/constants";
 import { Colors } from "constants/Colors";
 import { GridDefaults } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { WidgetProps } from "widgets/types";
+import type { DSLWidget } from "WidgetProvider/types";
 
 export const migrateResizableModalWidgetProperties = (
   currentDSL: DSLWidget,

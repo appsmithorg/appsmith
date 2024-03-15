@@ -13,7 +13,7 @@ import { useClickToSelectWidget } from "utils/hooks/useClickToSelectWidget";
 import { usePositionedContainerZIndex } from "utils/hooks/usePositionedContainerZIndex";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
 import { RESIZE_BORDER_BUFFER } from "layoutSystems/common/resizer/common";
-import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
+import { checkIsDropTarget } from "WidgetProvider/factory/utils";
 import type { FlexComponentProps } from "../../autolayout/utils/types";
 
 const FlexWidget = styled.div`

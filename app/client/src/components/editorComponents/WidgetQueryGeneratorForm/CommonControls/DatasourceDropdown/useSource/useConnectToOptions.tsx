@@ -11,7 +11,7 @@ import { DatasourceImage, ImageWrapper } from "../../../styles";
 import { getDatatype } from "utils/AppsmithUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import type { DropdownOptionType } from "../../../types";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
 import { PluginPackageName } from "entities/Action";
 import type {

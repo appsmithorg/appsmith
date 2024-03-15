@@ -3,7 +3,6 @@ import type { InjectedFormProps } from "redux-form";
 import { reduxForm, Form, Field } from "redux-form";
 import styled from "styled-components";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
-import type { curlImportFormValues } from "./helpers";
 import { curlImportSubmitHandler } from "./helpers";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import { Button } from "design-system";
@@ -12,6 +11,7 @@ import Debugger, {
   ResizerContentContainer,
   ResizerMainContainer,
 } from "../DataSourceEditor/Debugger";
+import type { curlImportFormValues } from "./types";
 
 const MainConfiguration = styled.div`
   padding: var(--ads-v2-spaces-4) var(--ads-v2-spaces-7);

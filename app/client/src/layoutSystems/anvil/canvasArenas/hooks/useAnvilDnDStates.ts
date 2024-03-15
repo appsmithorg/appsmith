@@ -2,19 +2,18 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { AppState } from "@appsmith/reducers";
 import { getDragDetails, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { useMemo } from "react";
 import { getSelectedWidgets } from "selectors/ui";
-import {
-  type DraggedWidget,
-  LayoutComponentTypes,
-} from "layoutSystems/anvil/utils/anvilTypes";
+import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
-import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
-import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
+import {
+  type AnvilDnDStates,
+  AnvilDropTargetTypesEnum,
+  type DragDetails,
+} from "../types";
 import { getDraggedBlocks, getDraggedWidgetTypes } from "./utils";
 
 interface AnvilDnDStatesProps {
@@ -22,19 +21,6 @@ interface AnvilDnDStatesProps {
   canvasId: string;
   layoutId: string;
   layoutType: LayoutComponentTypes;
-}
-
-export interface AnvilDnDStates {
-  activateOverlayWidgetDrop: boolean;
-  allowToDrop: boolean;
-  draggedBlocks: DraggedWidget[];
-  dragDetails: DragDetails;
-  isCurrentDraggedCanvas: boolean;
-  isDragging: boolean;
-  isNewWidget: boolean;
-  layoutElementPositions: LayoutElementPositions;
-  dragMeta: AnvilDragMeta;
-  mainCanvasLayoutId: string;
 }
 
 /**

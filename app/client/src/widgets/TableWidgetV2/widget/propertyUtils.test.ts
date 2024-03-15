@@ -11,7 +11,8 @@ import {
   allowedFirstDayOfWeekRange,
 } from "./propertyUtils";
 import _ from "lodash";
-import type { ColumnTypes, TableWidgetProps } from "../constants";
+import type { TableWidgetProps } from "../constants";
+import type { ColumnTypes } from "../types";
 import { StickyType } from "../component/Constants";
 
 describe("PropertyUtils - ", () => {

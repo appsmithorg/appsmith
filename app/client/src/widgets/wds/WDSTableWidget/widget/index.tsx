@@ -19,7 +19,7 @@ import _, {
   xorWith,
 } from "lodash";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import {
   RenderModes,
@@ -51,7 +51,6 @@ import type {
 import {
   ActionColumnTypes,
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-  ColumnTypes,
   DEFAULT_BUTTON_LABEL,
   DEFAULT_COLUMN_WIDTH,
   DEFAULT_MENU_BUTTON_LABEL,
@@ -85,7 +84,6 @@ import {
 } from "./utilities";
 import contentConfig from "./propertyConfig/contentConfig";
 import styleConfig from "./propertyConfig/styleConfig";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import type { IconName } from "@blueprintjs/icons";
 import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
@@ -125,20 +123,22 @@ import type {
   AnvilConfig,
   AutocompletionDefinitions,
   FlattenedWidgetProps,
-  PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "widgets/types";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import ThumbnailSVG from "../thumbnail.svg";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
+import { ColumnTypes } from "../types";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),

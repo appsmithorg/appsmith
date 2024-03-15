@@ -1,6 +1,5 @@
 import React from "react";
-
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
 
 /**

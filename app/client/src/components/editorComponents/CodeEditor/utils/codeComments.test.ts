@@ -1,8 +1,8 @@
 import CodeMirror from "codemirror";
 import "components/editorComponents/CodeEditor/modes";
 import "codemirror/addon/comment/comment";
-import { EditorModes } from "../EditorConfig";
 import { handleCodeComment } from "./codeComment";
+import { EditorModes } from "../sql/config";
 
 const JS_LINE_COMMENT = "//";
 const SQL_LINE_COMMENT = "--";

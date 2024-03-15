@@ -1,8 +1,4 @@
-import type {
-  DataTreeEvaluationProps,
-  EvalError,
-  EvaluationError,
-} from "utils/DynamicBindingUtils";
+import type { EvalError } from "utils/DynamicBindingUtils";
 import {
   EvalErrorTypes,
   getDynamicBindings,
@@ -15,7 +11,6 @@ import {
   isChildPropertyPath,
   isDynamicValue,
   isPathDynamicTrigger,
-  PropertyEvaluationErrorType,
 } from "utils/DynamicBindingUtils";
 import type { WidgetTypeConfigMap } from "WidgetProvider/factory";
 import type {
@@ -34,9 +29,10 @@ import type {
   ConfigTree,
   UnEvalTree,
 } from "entities/DataTree/dataTreeTypes";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { Severity } from "widgets/types";
 
 import {
   addDependantsOfNestedPropertyPaths,
@@ -90,14 +86,10 @@ import evaluateSync, {
   setEvalContext,
 } from "workers/Evaluation/evaluate";
 import { substituteDynamicBindingWithValues } from "workers/Evaluation/evaluationSubstitution";
-import { Severity } from "entities/AppsmithConsole";
 import { error as logError } from "loglevel";
 import type { JSUpdate } from "utils/JSPaneUtils";
 
-import type {
-  ActionValidationConfigMap,
-  ValidationConfig,
-} from "constants/PropertyControlConstants";
+import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import { klona } from "klona/full";
 import { klona as klonaJSON } from "klona/json";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
@@ -128,6 +120,12 @@ import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
 import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
 import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
+import {
+  type DataTreeEvaluationProps,
+  type EvaluationError,
+  PropertyEvaluationErrorType,
+} from "widgets/types";
+import type { ValidationConfig } from "constants/types";
 
 type SortedDependencies = Array<string>;
 export interface EvalProps {

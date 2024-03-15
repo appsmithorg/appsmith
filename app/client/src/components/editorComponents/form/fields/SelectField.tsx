@@ -1,6 +1,7 @@
 import React from "react";
 import type { WrappedFieldMetaProps, WrappedFieldInputProps } from "redux-form";
 import { Field } from "redux-form";
+import type { DropdownOnSelect } from "./DropdownWrapper";
 import DropdownWrapper from "./DropdownWrapper";
 import type { SelectOptionProps } from "design-system";
 
@@ -12,9 +13,6 @@ const renderComponent = (
 ) => {
   return <DropdownWrapper {...componentProps} />;
 };
-
-export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
-
 interface SelectFieldProps {
   allowDeselection?: boolean;
   isMultiSelect?: boolean;

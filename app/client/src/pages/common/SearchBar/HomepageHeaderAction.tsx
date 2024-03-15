@@ -36,7 +36,7 @@ import {
   DropdownOnSelectActions,
   getOnSelectAction,
 } from "../CustomizedDropdown/dropdownHelpers";
-import { IntercomConsent } from "pages/Editor/HelpButton";
+import { IntercomConsent } from "pages/Editor/IntercomConsent";
 import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import styled from "styled-components";

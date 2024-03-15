@@ -1,9 +1,9 @@
 import log from "loglevel";
 import moment from "moment";
 import localforage from "localforage";
-import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
+import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdateTypes";
 import { isNumber } from "lodash";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 export const STORAGE_KEYS: {

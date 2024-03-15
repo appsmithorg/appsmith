@@ -55,7 +55,7 @@ import { getWidget } from "./selectors";
 import AnalyticsUtil, { AnalyticsEventType } from "utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import * as log from "loglevel";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";

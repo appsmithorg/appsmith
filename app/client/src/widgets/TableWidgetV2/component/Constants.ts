@@ -14,9 +14,9 @@ import type {
   MenuItems,
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
-import type { ColumnTypes } from "../constants";
 import type { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
+import type { ColumnTypes } from "../types";
 
 export interface TableSizes {
   COLUMN_HEADER_HEIGHT: number;

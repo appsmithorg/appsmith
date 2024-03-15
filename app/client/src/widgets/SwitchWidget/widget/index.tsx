@@ -1,8 +1,8 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "../../BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "../../BaseWidget";
 import SwitchComponent from "../component";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { LabelPosition } from "components/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
@@ -16,14 +16,12 @@ import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
   static type = "SWITCH_WIDGET";

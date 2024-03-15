@@ -2,9 +2,9 @@ import {
   validate,
   WIDGET_TYPE_VALIDATION_ERROR,
 } from "workers/Evaluation/validations";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { RenderModes } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import moment from "moment";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 

@@ -1,5 +1,5 @@
 import type { Datasource } from "entities/Datasource";
-import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
+import type { CanvasStructure } from "utils/canvasStructureTypes";
 
 export const getAllWidgetIds = (widget: CanvasStructure): string[] =>
   (widget.widgetId ? [widget.widgetId] : []).concat(

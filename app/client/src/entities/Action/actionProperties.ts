@@ -1,10 +1,9 @@
 import type { Action } from "entities/Action/index";
 import _ from "lodash";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import {
   alternateViewTypeInputConfig,
   isHidden,
-  ViewTypes,
 } from "components/formControls/utils";
 import {
   PaginationSubComponent,
@@ -16,7 +15,8 @@ import {
 import formControlTypes from "utils/formControl/formControlTypes";
 import { getAllBindingPathsForGraphqlPagination } from "utils/editor/EditorBindingPaths";
 import EditorControlTypes from "utils/editor/EditorControlTypes";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "widgets/types";
+import { ViewTypes } from "components/formControls/BaseControl";
 
 const dynamicFields = [
   formControlTypes.QUERY_DYNAMIC_TEXT,

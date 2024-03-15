@@ -7,7 +7,7 @@ import FormContext from "../FormContext";
 import Field from "../component/Field";
 import useEvents from "./useBlurAndFocusEvents";
 import useRegisterFieldValidity from "./useRegisterFieldValidity";
-import type { AlignWidget } from "WidgetProvider/constants";
+import type { AlignWidget } from "WidgetProvider/types";
 import type {
   BaseFieldComponentProps,
   FieldComponentBaseProps,

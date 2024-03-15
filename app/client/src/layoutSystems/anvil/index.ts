@@ -1,11 +1,11 @@
 import { RenderModes } from "constants/WidgetConstants";
 import { AnvilEditorWrapper } from "./editor/AnvilEditorWrapper";
 import { AnvilViewerWrapper } from "./viewer/AnvilViewerWrapper";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type { LayoutSystem } from "layoutSystems/types";
 import { AnvilMainCanvas } from "./canvas/AnvilMainCanvas";
 import { AnvilCanvas } from "./canvas/AnvilCanvas";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import type { BaseWidgetProps } from "widgets/types";
 
 /**
  * getAnvilSystemPropsEnhancer

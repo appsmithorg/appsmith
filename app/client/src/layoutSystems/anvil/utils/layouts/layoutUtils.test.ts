@@ -9,8 +9,8 @@ import {
   addChildToLayout,
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
-} from "./layoutUtils";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+} from "./baseLayoutUtils";
+import type { BaseWidgetProps } from "widgets/types";
 import { mockAnvilHighlightInfo } from "mocks/mockHighlightInfo";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";

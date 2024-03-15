@@ -3,7 +3,7 @@ import React from "react";
 import styled from "styled-components";
 import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
@@ -16,7 +16,7 @@ import {
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
 import CodeModeTooltip from "pages/Editor/WidgetsEditor/CodeModeTooltip";
 

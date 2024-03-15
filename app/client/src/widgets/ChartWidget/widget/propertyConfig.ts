@@ -1,12 +1,12 @@
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { ValidationTypes } from "constants/types";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { ChartWidgetProps } from "widgets/ChartWidget/widget";
 import {
   CUSTOM_CHART_TYPES,
   LabelOrientation,
   LABEL_ORIENTATION_COMPATIBLE_CHARTS,
 } from "../constants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export const isLabelOrientationApplicableFor = (chartType: string) =>
   LABEL_ORIENTATION_COMPATIBLE_CHARTS.includes(chartType);

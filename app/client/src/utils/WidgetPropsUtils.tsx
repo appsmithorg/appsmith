@@ -1,7 +1,7 @@
 import type { FetchPageResponse } from "api/PageApi";
-import type { WidgetConfigProps } from "WidgetProvider/constants";
-import type { WidgetOperation, WidgetProps } from "widgets/BaseWidget";
-import { WidgetOperations } from "widgets/BaseWidget";
+import type { WidgetConfigProps } from "WidgetProvider/types";
+import type { WidgetProps } from "widgets/types";
+import { WidgetOperations } from "widgets/types";
 import type { RenderMode } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
@@ -13,7 +13,7 @@ import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import defaultTemplate from "templates/default";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { WidgetType } from "../WidgetProvider/factory";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import type { BlockSpace, GridProps } from "reflow/reflowTypes";
 import type { Rect } from "./boxHelpers";
@@ -22,13 +22,14 @@ import { areIntersecting } from "./boxHelpers";
 import type {
   WidgetDraggingBlock,
   XYCord,
+  WidgetOperationParams,
 } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { migrateDSL } from "@shared/dsl";
 
-export interface WidgetOperationParams {
-  operation: WidgetOperation;
-  widgetId: string;
-  payload: any;
+//WidgetDraggingUpdateParams is an extension of WidgetDraggingBlock,
+// with updateWidgetParams information required to dispatch action for updating DSL
+export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
+  updateWidgetParams: WidgetOperationParams;
 }
 
 const defaultDSL = defaultTemplate;

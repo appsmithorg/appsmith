@@ -1,7 +1,7 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { ValidationTypes } from "constants/types";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { CategorySliderWidgetProps } from "..";

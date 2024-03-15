@@ -5,7 +5,7 @@ import type {
   TableStyles,
   SortOrderTypes,
 } from "./component/Constants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { WithMeta } from "widgets/MetaHOC";
 
 export interface TableWidgetProps extends WidgetProps, WithMeta, TableStyles {

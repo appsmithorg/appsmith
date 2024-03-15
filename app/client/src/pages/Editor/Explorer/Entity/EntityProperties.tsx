@@ -15,7 +15,7 @@ import { EntityClassNames } from ".";
 import { Button } from "design-system";
 import { getEntityProperties } from "@appsmith/pages/Editor/Explorer/Entity/getEntityProperties";
 import store from "store";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 
 const BindingContainerMaxHeight = 300;
 const EntityHeight = 36;

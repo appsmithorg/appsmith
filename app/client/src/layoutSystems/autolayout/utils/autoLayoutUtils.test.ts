@@ -3,9 +3,9 @@ import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
+import { getCanvasDimensions } from "./canvasLayoutUtils";
 import {
   getAlignmentMarginInfo,
-  getCanvasDimensions,
   getFlexLayersForSelectedWidgets,
   getLayerIndexOfWidget,
   getNewFlexLayers,

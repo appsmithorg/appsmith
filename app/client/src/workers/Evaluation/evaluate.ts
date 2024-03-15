@@ -4,10 +4,11 @@ import type {
   DataTree,
   DataTreeEntity,
 } from "entities/DataTree/dataTreeTypes";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType, Severity } from "widgets/types";
+import type { EvaluationError } from "widgets/types";
+
 import unescapeJS from "unescape-js";
-import { Severity } from "entities/AppsmithConsole";
+
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";

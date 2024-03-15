@@ -1,30 +1,25 @@
 import React, { useEffect, useState } from "react";
 
-import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getCurrentUser } from "selectors/usersSelectors";
-import { useDispatch, useSelector } from "react-redux";
-import bootIntercom, { updateIntercomProperties } from "utils/bootIntercom";
+import { getAppsmithConfigs } from "@appsmith/configs";
 import {
   APPSMITH_DISPLAY_VERSION,
-  CONTINUE,
-  createMessage,
   HELP_RESOURCE_TOOLTIP,
-  INTERCOM_CONSENT_MESSAGE,
+  createMessage,
 } from "@appsmith/constants/messages";
+import { showSignpostingModal } from "actions/onboardingActions";
+import { HELP_MODAL_WIDTH } from "constants/HelpConstants";
 import {
   Button,
   Menu,
   MenuContent,
   MenuItem,
+  MenuSeparator,
   MenuTrigger,
   Tooltip,
-  MenuSeparator,
-  Text,
 } from "design-system";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import moment from "moment/moment";
-import styled from "styled-components";
+import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getFirstTimeUserOnboardingModal,
   getIsFirstTimeUserOnboardingEnabled,
@@ -32,11 +27,12 @@ import {
   getSignpostingTooltipVisible,
   getSignpostingUnreadSteps,
 } from "selectors/onboardingSelectors";
-import SignpostingPopup from "pages/Editor/FirstTimeUserOnboarding/Modal";
-import { showSignpostingModal } from "actions/onboardingActions";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled from "styled-components";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import bootIntercom from "utils/bootIntercom";
 import TooltipContent from "./FirstTimeUserOnboarding/TooltipContent";
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
-import { updateIntercomConsent, updateUserDetails } from "actions/userActions";
+import { IntercomConsent } from "./IntercomConsent";
 
 const { appVersion, cloudHosting, intercomAppID } = getAppsmithConfigs();
 
@@ -54,15 +50,6 @@ const UnreadSteps = styled.div`
   top: 10px;
   left: 22px;
   background-color: var(--ads-v2-color-fg-error);
-`;
-const ConsentContainer = styled.div`
-  padding: 10px;
-`;
-const ActionsRow = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 8px;
 `;
 
 interface HelpItem {
@@ -91,58 +78,6 @@ if (intercomAppID && window.Intercom) {
     label: "Chat with us",
     id: "intercom-trigger",
   });
-}
-
-export function IntercomConsent({
-  showIntercomConsent,
-}: {
-  showIntercomConsent: (val: boolean) => void;
-}) {
-  const user = useSelector(getCurrentUser);
-  const instanceId = useSelector(getInstanceId);
-  const dispatch = useDispatch();
-
-  const sendUserDataToIntercom = () => {
-    const { email } = user || {};
-    updateIntercomProperties(instanceId, user);
-    dispatch(
-      updateUserDetails({
-        intercomConsentGiven: true,
-      }),
-    );
-    dispatch(updateIntercomConsent());
-    showIntercomConsent(false);
-
-    if (user?.enableTelemetry) {
-      AnalyticsUtil.identifyUser(user, true);
-      AnalyticsUtil.logEvent("SUPPORT_REQUEST_INITIATED", {
-        email,
-      });
-    }
-
-    window.Intercom("show");
-  };
-  return (
-    <ConsentContainer>
-      <ActionsRow>
-        <Button
-          isIconButton
-          kind="tertiary"
-          onClick={() => showIntercomConsent(false)}
-          size="sm"
-          startIcon="arrow-left"
-        />
-      </ActionsRow>
-      <div className="mb-3" data-testid="t--intercom-consent-text">
-        <Text kind="body-s" renderAs="p">
-          {createMessage(INTERCOM_CONSENT_MESSAGE)}
-        </Text>
-      </div>
-      <Button kind="primary" onClick={sendUserDataToIntercom} size="sm">
-        {createMessage(CONTINUE)}
-      </Button>
-    </ConsentContainer>
-  );
 }
 
 function HelpButtonTooltip(props: {

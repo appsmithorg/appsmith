@@ -6,8 +6,8 @@ import LoginPreview from "./LoginPreview";
 import FaviconPreview from "./FaviconPreview";
 import NotFoundPreview from "./NotFoundPreview";
 import DashboardPreview from "./DashboardPreview";
-import type { brandColorsKeys } from "../BrandingPage";
 import { ContentBox } from "pages/AdminSettings/components";
+import type { brandColorsKeys } from "../types";
 
 export interface PreviewsProps {
   shades: Record<brandColorsKeys, string>;

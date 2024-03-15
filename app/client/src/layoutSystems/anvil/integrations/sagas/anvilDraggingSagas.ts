@@ -24,7 +24,7 @@ import {
   addWidgetsToMainCanvasLayout,
   moveWidgetsToMainCanvas,
 } from "layoutSystems/anvil/utils/layouts/update/mainCanvasLayoutUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,

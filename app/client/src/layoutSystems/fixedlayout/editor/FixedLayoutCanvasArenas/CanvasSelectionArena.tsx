@@ -30,14 +30,9 @@ import { getAbsolutePixels } from "utils/helpers";
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
+import type { SelectedArenaDimensions } from "./CanvasSelectionTypes";
 import { getWidgetSelectionBlock } from "../../../../selectors/ui";
 
-export interface SelectedArenaDimensions {
-  top: number;
-  left: number;
-  width: number;
-  height: number;
-}
 export function CanvasSelectionArena({
   canExtend,
   dropDisabled,

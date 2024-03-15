@@ -5,8 +5,7 @@ import { isFunction } from "lodash";
 import React, { useContext } from "react";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-
+import type { BaseWidgetProps } from "widgets/types";
 /**
  * AutoDimensionObserverLayer
  *

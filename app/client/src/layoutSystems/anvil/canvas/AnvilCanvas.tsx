@@ -1,6 +1,6 @@
 import React, { useMemo } from "react";
 import "./styles.css";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import { getAnvilCanvasId } from "./utils";
 import { LayoutProvider } from "../layoutComponents/LayoutProvider";
 import { useRenderDetachedChildren } from "../common/hooks/detachedWidgetHooks";

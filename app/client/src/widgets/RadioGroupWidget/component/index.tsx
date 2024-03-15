@@ -4,7 +4,7 @@ import type { ComponentProps } from "widgets/BaseComponent";
 import type { Alignment } from "@blueprintjs/core";
 import { RadioGroup, Radio, Classes } from "@blueprintjs/core";
 import type { TextSize } from "constants/WidgetConstants";
-import { BlueprintRadioSwitchGroupTransform } from "constants/DefaultTheme";
+import { BlueprintRadioSwitchGroupTransform } from "widgets/styles";
 import { LabelPosition } from "components/constants";
 import type { RadioOption } from "../constants";
 import LabelWithTooltip, {

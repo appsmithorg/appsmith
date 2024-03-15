@@ -1,12 +1,5 @@
 import type { JSAction } from "entities/JSCollection";
-import { JSResponseState } from "./JSResponseView";
-
-export const isHtml = (str: string) => {
-  const doc = new DOMParser().parseFromString(str, "text/html");
-  return Array.from(doc.body.childNodes).some(
-    (node: any) => node.nodeType === 1,
-  );
-};
+import { JSResponseState } from "./JSResponseViewTypes";
 
 /**
  * Returns state of the JSResponseview editor component

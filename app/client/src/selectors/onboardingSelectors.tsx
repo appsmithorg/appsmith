@@ -7,7 +7,6 @@ import {
 import type { SIGNPOSTING_STEP } from "pages/Editor/FirstTimeUserOnboarding/Utils";
 import { isBoolean, intersection } from "lodash";
 import { getEvaluationInverseDependencyMap } from "./dataTreeSelectors";
-import { getNestedValue } from "pages/Editor/utils";
 import { getDependenciesFromInverseDependencies } from "components/editorComponents/Debugger/helpers";
 
 // Signposting selectors
@@ -56,6 +55,13 @@ export const getSignpostingTooltipVisible = (state: AppState) =>
   state.ui.onBoarding.showSignpostingTooltip;
 export const getIsAnonymousDataPopupVisible = (state: AppState) =>
   state.ui.onBoarding.showAnonymousDataPopup;
+
+const getNestedValue = (obj: Record<string, any>, path = "") => {
+  return path.split(".").reduce((prev, cur) => {
+    return prev && prev[cur];
+  }, obj);
+};
+
 export const isWidgetActionConnectionPresent = createSelector(
   getCanvasWidgets,
   getCurrentActions,

@@ -2,18 +2,18 @@ import React from "react";
 import type { BaseFieldProps } from "redux-form";
 import { Field } from "redux-form";
 import type { EditorStyleProps } from "components/editorComponents/CodeEditor";
-import type {
-  CodeEditorBorder,
-  TEditorModes,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import type { CodeEditorBorder } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
-import { editorSQLModes } from "components/editorComponents/CodeEditor/sql/config";
+import {
+  type TEditorModes,
+  editorSQLModes,
+  EditorModes,
+} from "components/editorComponents/CodeEditor/sql/config";
 
 class DynamicTextField extends React.Component<
   BaseFieldProps &

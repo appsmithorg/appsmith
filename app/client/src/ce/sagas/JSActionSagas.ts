@@ -41,11 +41,7 @@ import {
   JS_ACTION_MOVE_SUCCESS,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "sagas/ErrorSagas";
-import type {
-  FetchPageRequest,
-  FetchPageResponse,
-  PageLayout,
-} from "api/PageApi";
+import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
@@ -72,6 +68,7 @@ import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlags
 import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import type { PageLayout } from "api/pagetypes";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,

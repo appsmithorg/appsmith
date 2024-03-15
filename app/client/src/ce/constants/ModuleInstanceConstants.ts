@@ -1,5 +1,5 @@
 import type { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
-import type { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/actionAPITypes";
 
 export type ModuleId = string;
 export type ModuleInstanceId = string;

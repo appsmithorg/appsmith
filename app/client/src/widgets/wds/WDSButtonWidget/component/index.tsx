@@ -2,9 +2,9 @@ import React from "react";
 
 import { Container } from "./Container";
 import { useRecaptcha } from "./useRecaptcha";
-import type { UseRecaptchaProps } from "./useRecaptcha";
 import { Button, Tooltip } from "@design-system/widgets";
 import type { ButtonProps, IconProps } from "@design-system/widgets";
+import type { UseRecaptchaProps } from "./types";
 
 export interface ButtonComponentProps {
   text?: string;

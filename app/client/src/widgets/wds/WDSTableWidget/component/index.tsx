@@ -12,7 +12,7 @@ import type { Row } from "react-table";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import equal from "fast-deep-equal/es6";
 import type { EditableCell, TableVariant } from "../constants";
-import { ColumnTypes } from "../constants";
+import { ColumnTypes } from "../types";
 import { useCallback } from "react";
 
 interface ReactTableComponentProps {

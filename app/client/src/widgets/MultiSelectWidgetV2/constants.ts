@@ -1,4 +1,4 @@
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export const MY_MULTISELECT_WIDGET_CONSTANT = "";
 

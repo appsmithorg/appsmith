@@ -1,12 +1,12 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import type LOG_TYPE from "./logtype";
-import type { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
 import type { PluginType } from "entities/Action";
 import type { HTTP_METHOD } from "constants/ApiEditorConstants/CommonApiConstants";
 import type {
   ENTITY_TYPE,
   PLATFORM_ERROR,
 } from "@appsmith/entities/AppsmithConsole/utils";
+import type { Severity, PropertyEvaluationErrorType } from "widgets/types";
 
 export type Methods =
   | "log"
@@ -31,19 +31,6 @@ export interface LogObject {
 }
 
 export type ErrorType = PropertyEvaluationErrorType | PLATFORM_ERROR;
-
-export enum Severity {
-  // Everything, irrespective of what the user should see or not
-  // DEBUG = "debug",
-  // Something the dev user should probably know about
-  INFO = "info",
-  // Doesn't break the app, but can cause slowdowns / ux issues/ unexpected behaviour
-  WARNING = "warning",
-  // Can cause an error in some cases/ single widget, app will work in other cases
-  ERROR = "error",
-  // Makes the app unusable, can't progress without fixing this.
-  // CRITICAL = "critical",
-}
 
 export interface UserAction {
   // Label is used to display the

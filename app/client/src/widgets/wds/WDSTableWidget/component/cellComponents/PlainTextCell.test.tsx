@@ -1,5 +1,5 @@
 import { getCellText } from "./PlainTextCell";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/types";
 
 describe("DefaultRendere - ", () => {
   describe("getCellText", () => {

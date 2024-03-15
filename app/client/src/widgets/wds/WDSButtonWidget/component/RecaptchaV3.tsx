@@ -5,9 +5,10 @@ import {
   GOOGLE_RECAPTCHA_DOMAIN_ERROR,
   createMessage,
 } from "@appsmith/constants/messages";
-import type { ButtonComponentProps } from ".";
-import type { RecaptchaProps } from "./useRecaptcha";
 import { useScript, ScriptStatus, AddScriptTo } from "utils/hooks/useScript";
+
+import type { RecaptchaProps } from "./types";
+import type { ButtonComponentProps } from ".";
 
 type RecaptchaV3Props = RecaptchaProps;
 

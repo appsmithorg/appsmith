@@ -20,18 +20,18 @@ import {
   computeMainContainerWidget,
   getChildWidgets,
   getMainCanvasProps,
-  getRenderMode,
   getMetaWidgetChildrenStructure,
   getMetaWidget,
   getIsAutoLayoutMobileBreakPoint,
   getCanvasWidth,
   combinedPreviewModeSelector,
 } from "selectors/editorSelectors";
+import { getRenderMode } from "selectors/modeSelectors";
 import {
   createCanvasWidget,
   createLoadingWidget,
 } from "utils/widgetRenderUtils";
-import type { WidgetProps } from "./BaseWidget";
+import type { WidgetProps } from "./types";
 import type BaseWidget from "./BaseWidget";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
 import { Positioning } from "layoutSystems/common/utils/constants";

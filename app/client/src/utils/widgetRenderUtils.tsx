@@ -7,19 +7,19 @@ import type {
   WidgetEntityConfig,
 } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import { pick } from "lodash";
 import {
   WIDGET_DSL_STRUCTURE_PROPS,
   WIDGET_STATIC_PROPS,
 } from "constants/WidgetConstants";
 import WidgetFactory from "../WidgetProvider/factory";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { LoadingEntitiesState } from "reducers/evaluationReducers/loadingEntitiesReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import type { WidgetError } from "widgets/BaseWidget";
+import type { WidgetError } from "widgets/types";
 import { get } from "lodash";
-import type { DataTreeError } from "utils/DynamicBindingUtils";
+import type { DataTreeError } from "widgets/types";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 
 export const createCanvasWidget = (

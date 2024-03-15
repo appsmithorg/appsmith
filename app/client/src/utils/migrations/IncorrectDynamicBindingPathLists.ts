@@ -1,9 +1,9 @@
 import WidgetFactory from "WidgetProvider/factory";
 import { getAllPathsFromPropertyConfig } from "entities/Widget/utils";
 import _ from "lodash";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "widgets/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 
 export const migrateIncorrectDynamicBindingPathLists = (
   currentDSL: Readonly<DSLWidget>,

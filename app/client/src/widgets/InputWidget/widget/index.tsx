@@ -1,5 +1,5 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
@@ -10,7 +10,7 @@ import InputComponent from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import {
   createMessage,
   FIELD_REQUIRED_ERROR,
@@ -37,10 +37,10 @@ import {
 } from "widgets/WidgetUtils";
 import type {
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 export function defaultValueValidation(
   value: any,

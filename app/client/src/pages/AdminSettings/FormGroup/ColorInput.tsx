@@ -12,8 +12,8 @@ import type { SettingComponentProps } from "./Common";
 import { FormGroup } from "./Common";
 import type { FormTextFieldProps } from "components/utils/ReduxFormTextField";
 import { createBrandColorsFromPrimaryColor } from "utils/BrandingUtils";
-import type { brandColorsKeys } from "../Branding/BrandingPage";
 import { ContentBox } from "../components";
+import type { brandColorsKeys } from "../Branding/types";
 
 export const StyledInputGroup = styled(InputGroup)`
   .${Classes.INPUT} {

@@ -1,6 +1,5 @@
 import { RenderModes } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { CanvasWidgetsReduxState } from "../reducers/entityReducers/canvasWidgetsReducer";
 import { AutocompleteDataType } from "./autocomplete/AutocompleteDataType";
 import {
@@ -17,6 +16,7 @@ import {
 import WidgetFactory from "../WidgetProvider/factory";
 import * as Sentry from "@sentry/react";
 import { Colors } from "constants/Colors";
+import { ValidationTypes } from "constants/types";
 
 describe("flattenObject test", () => {
   it("Check if non nested object is returned correctly", () => {

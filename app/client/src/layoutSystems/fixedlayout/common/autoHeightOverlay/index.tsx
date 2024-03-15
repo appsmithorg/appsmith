@@ -4,7 +4,7 @@ import React, { memo } from "react";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import AutoHeightOverlayWithStateContext from "./AutoHeightOverlayWithStateContext";
 
 export interface MinMaxHeightProps {

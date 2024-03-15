@@ -15,13 +15,11 @@ import {
   VerticalAlignmentTypes,
 } from "../component/Constants";
 import {
-  ColumnTypes,
   DEFAULT_BUTTON_COLOR,
   DEFAULT_COLUMN_WIDTH,
   TABLE_COLUMN_ORDER_KEY,
   ORIGINAL_INDEX_KEY,
 } from "../constants";
-import { SelectColumnOptionsValidations } from "./propertyUtils";
 import type { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -36,6 +34,7 @@ import type { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import log from "loglevel";
 import type React from "react";
+import { ColumnTypes } from "../types";
 
 type TableData = Array<Record<string, unknown>>;
 
@@ -537,15 +536,6 @@ const EdtiableColumnTypes: string[] = [
 
 export function isColumnTypeEditable(columnType: string) {
   return EdtiableColumnTypes.includes(columnType);
-}
-
-/*
- * Nested propeties are not validated when application is refreshed
- * TODO(Balai): Should confirm and create an issue to address this.
- */
-export function getSelectColumnTypeOptions(value: unknown) {
-  const result = SelectColumnOptionsValidations(value, {}, _);
-  return result.parsed;
 }
 
 /**

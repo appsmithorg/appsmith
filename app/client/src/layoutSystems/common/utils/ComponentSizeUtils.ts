@@ -1,7 +1,7 @@
 import { GridDefaults } from "constants/WidgetConstants";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import memo from "micro-memoize";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 
 /**
  * getAutoLayoutComponentDimensions

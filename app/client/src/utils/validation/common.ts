@@ -2,8 +2,8 @@ import {
   createMessage,
   FIELD_REQUIRED_ERROR,
 } from "@appsmith/constants/messages";
-import type { ValidationConfig } from "constants/PropertyControlConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import type { ValidationConfig } from "constants/types";
+import { ValidationTypes } from "constants/types";
 import moment from "moment";
 import { sample } from "lodash";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";

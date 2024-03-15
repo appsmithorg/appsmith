@@ -25,9 +25,9 @@ import {
   getWidgetWidth,
   setDimensions,
 } from "./flexWidgetUtils";
-import { getCanvasDimensions } from "./AutoLayoutUtils";
+import { getCanvasDimensions } from "./canvasLayoutUtils";
 import WidgetFactory from "WidgetProvider/factory";
-import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
+import { checkIsDropTarget } from "WidgetProvider/factory/utils";
 import { isFunction } from "lodash";
 import {
   getComputedHeight,

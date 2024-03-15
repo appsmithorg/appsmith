@@ -1,7 +1,6 @@
 import CodeMirror from "codemirror";
 import { merge } from "lodash";
-import { EditorModes } from "../../EditorConfig";
-import { getSqlMimeFromMode } from "../config";
+import { EditorModes, getSqlMimeFromMode } from "../config";
 import { spaceSeparatedStringToObject } from "./utils";
 
 // @ts-expect-error: No type available

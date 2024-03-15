@@ -1,8 +1,9 @@
 import { find } from "lodash";
-import type { TEditorModes } from "../EditorConfig";
 
 type ValueOf<T> = T[keyof T];
 export type TEditorSqlModes = ValueOf<typeof editorSQLModes>;
+
+export type TEditorModes = ValueOf<typeof EditorModes>;
 
 type SqlModeConfig = Record<
   TEditorSqlModes,
@@ -26,6 +27,19 @@ export const editorSQLModes = {
   MYSQL_WITH_BINDING: "mysql-js",
   MSSQL_WITH_BINDING: "mssql-js",
   PLSQL_WITH_BINDING: "plsql-js",
+} as const;
+
+export const EditorModes = {
+  TEXT: "text/plain",
+  TEXT_WITH_BINDING: "text-js",
+  JSON: "application/json",
+  JSON_WITH_BINDING: "json-js",
+  JAVASCRIPT: "javascript",
+  GRAPHQL: "graphql",
+  GRAPHQL_WITH_BINDING: "graphql-js",
+  HTMLMIXED: "htmlmixed",
+  CSS: "css",
+  ...editorSQLModes,
 } as const;
 
 // Mime available in sql mode https://github.com/codemirror/codemirror5/blob/9974ded36bf01746eb2a00926916fef834d3d0d0/mode/sql/sql.js#L290

@@ -2,8 +2,9 @@ import React, { useCallback, useEffect, useState } from "react";
 import ActionTree from "./ActionTree";
 import { useApisQueriesAndJsActionOptions } from "../../helpers";
 import type { TActionBlock } from "../../types";
-import { actionToCode, codeToAction } from "../../utils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import { actionToCode } from "../../utils";
+import { codeToAction } from "../../codeToActionUtils";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 
 interface TRootActionProps {
   code: string;

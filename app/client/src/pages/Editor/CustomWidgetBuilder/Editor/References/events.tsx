@@ -2,7 +2,6 @@ import React, { useCallback, useContext, useState } from "react";
 import styles from "./styles.module.css";
 import { Icon, Text } from "design-system";
 import {
-  EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
@@ -15,6 +14,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 const StyledLazyCodeEditorWrapper = styled.div`
   .CodeMirror-line.CodeMirror-line {

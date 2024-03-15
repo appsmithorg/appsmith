@@ -18,8 +18,8 @@ import {
 import type { URLBuilderParams } from "@appsmith/entities/URLRedirect/URLAssembly";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import type { WidgetCardProps } from "widgets/BaseWidget";
-import type { ActionResponse } from "api/ActionAPI";
+import type { WidgetCardProps } from "constants/WidgetConstants";
+import type { ActionResponse } from "api/actionAPITypes";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import {
@@ -216,13 +216,6 @@ const createDragHandler = (
     : el.appendChild(dragElement);
   ReactDOM.render(dragHandle(), dragElement);
   return dragElement;
-};
-
-// Function to access nested property in an object
-export const getNestedValue = (obj: Record<string, any>, path = "") => {
-  return path.split(".").reduce((prev, cur) => {
-    return prev && prev[cur];
-  }, obj);
 };
 
 export const useQuery = () => {

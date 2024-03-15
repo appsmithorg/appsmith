@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import type { ControlProps } from "components/formControls/BaseControl";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
+import { PropertyEvaluationErrorType } from "widgets/types";
 import {
   FormLabel,
   FormInputHelperText,
@@ -11,7 +11,7 @@ import {
   FormSubtitleText,
   FormEncrytedSection,
 } from "components/editorComponents/form/fields/StyledFormComponents";
-import type { FormControlProps } from "./FormControl";
+import type { FormControlProps } from "./FormControlTypes";
 import { ToggleComponentToJsonHandler } from "components/editorComponents/form/ToggleComponentToJson";
 import styled from "styled-components";
 import { useDispatch, useSelector } from "react-redux";

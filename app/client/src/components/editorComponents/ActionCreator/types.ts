@@ -8,7 +8,7 @@ import type {
   MetaArgs,
 } from "@appsmith/entities/DataTree/types";
 import type React from "react";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import type { FieldType, ViewTypes, AppsmithFunction } from "./constants";
 import type { APPSMITH_INTEGRATIONS } from "./constants";
 import type { Variants } from "./constants";

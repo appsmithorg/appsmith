@@ -1,5 +1,4 @@
 import React from "react";
-import type { LogItemProps } from "components/editorComponents/Debugger/ErrorLogs/ErrorLogItem";
 import { PluginType } from "entities/Action";
 import WidgetIcon from "pages/Editor/Explorer/Widgets/WidgetIcon";
 import {
@@ -8,7 +7,8 @@ import {
   JsFileIconV2,
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import type { LogItemProps } from "components/editorComponents/Debugger/ErrorLogs/components/types";
 
 export const getIconForEntity: Record<
   string,

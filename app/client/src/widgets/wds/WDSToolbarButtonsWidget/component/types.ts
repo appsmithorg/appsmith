@@ -3,8 +3,8 @@ import type {
   ButtonProps,
   IconProps,
 } from "@design-system/widgets";
-import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
+import type { ButtonsList } from "../widget/types";
 
 export interface ToolbarButtonsComponentProps {
   color?: ButtonGroupProps<object>["color"];

@@ -1,5 +1,5 @@
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { CodeScannerWidgetProps } from "widgets/CodeScannerWidget/constants";
 import { ScannerLayout } from "widgets/CodeScannerWidget/constants";
@@ -10,7 +10,7 @@ import {
   FRONT_CAMERA_LABEL,
   createMessage,
 } from "@appsmith/constants/messages";
-import { DefaultMobileCameraTypes } from "WidgetProvider/constants";
+import { DefaultMobileCameraTypes } from "WidgetProvider/types";
 export default [
   {
     sectionName: "Basic",

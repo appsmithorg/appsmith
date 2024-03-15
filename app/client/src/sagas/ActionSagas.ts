@@ -130,7 +130,7 @@ import { fetchDatasourceStructure } from "actions/datasourceActions";
 import { setAIPromptTriggered } from "utils/storage";
 import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";

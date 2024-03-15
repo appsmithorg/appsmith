@@ -7,10 +7,8 @@ import type {
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
-import {
-  extractWidgetIdsFromLayoutProps,
-  registerLayoutComponents,
-} from "../layoutUtils";
+import { registerLayoutComponents } from "../layoutUtils";
+import { extractWidgetIdsFromLayoutProps } from "../baseLayoutUtils";
 import {
   deleteWidgetFromLayout,
   deleteWidgetFromPreset,

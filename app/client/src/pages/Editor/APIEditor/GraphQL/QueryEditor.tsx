@@ -10,13 +10,13 @@ import QueryWrapper from "./QueryWrapperWithCSS";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
   CodeEditorBorder,
-  EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import styled from "styled-components";
 import { Text, TextType } from "design-system-old";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 const QueryHeader = styled.div`
   display: flex;

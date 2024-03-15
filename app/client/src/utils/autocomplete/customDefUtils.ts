@@ -1,7 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import { isEmpty } from "lodash";
 import { debug } from "loglevel";
-import type { AdditionalDynamicDataTree } from "./customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import { customTreeTypeDefCreator } from "./customTreeTypeDefCreator";
 import CodemirrorTernService from "./CodemirrorTernService";
 

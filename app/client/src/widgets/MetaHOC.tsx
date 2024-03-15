@@ -1,5 +1,5 @@
 import React from "react";
-import type { WidgetProps } from "./BaseWidget";
+import type { WidgetProps } from "./types";
 import { debounce, fromPairs, isEmpty } from "lodash";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
 import AppsmithConsole from "utils/AppsmithConsole";

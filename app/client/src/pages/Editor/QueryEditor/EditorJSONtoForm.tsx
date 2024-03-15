@@ -1,12 +1,12 @@
-import { useContext } from "react";
-import React, { useCallback } from "react";
-import type { InjectedFormProps } from "redux-form";
-import { noop } from "lodash";
-import type { Datasource } from "entities/Datasource";
+import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { ActionResponse } from "api/actionAPITypes";
+import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
+import type { FormEvalOutput } from "components/formControls/formControlTypes";
+import { EDITOR_TABS } from "constants/QueryEditorConstants";
+import { Tab, Tabs, TabsList, Tooltip } from "design-system";
 import type { Action, QueryAction, SaaSAction } from "entities/Action";
-import { useDispatch, useSelector } from "react-redux";
-import ActionSettings from "pages/Editor/ActionSettings";
-import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
 import {
@@ -14,116 +14,44 @@ import {
   DOCUMENTATION,
   DOCUMENTATION_TOOLTIP,
 } from "@appsmith/constants/messages";
-import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
-import { thinScrollbar } from "constants/DefaultTheme";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
-import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
-import { EDITOR_TABS } from "constants/QueryEditorConstants";
-import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
-import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
 import type { SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
-import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
+import type { Datasource } from "entities/Datasource";
+import { noop } from "lodash";
+import ActionSettings from "pages/Editor/ActionSettings";
+import React, { useCallback, useContext } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { useParams } from "react-router";
+import type { InjectedFormProps } from "redux-form";
+import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { QueryEditorContext } from "./QueryEditorContext";
-import QueryDebuggerTabs from "./QueryDebuggerTabs";
-import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
-import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
-import FormRender from "./FormRender";
-import QueryEditorHeader from "./QueryEditorHeader";
+import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import ActionEditor from "../IDE/EditorPane/components/ActionEditor";
-import QueryResponseTab from "./QueryResponseTab";
 import DatasourceSelector from "./DatasourceSelector";
-
-const QueryFormContainer = styled.form`
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  overflow: hidden;
-  padding: var(--ads-v2-spaces-5) 0 0;
-  width: 100%;
-  .statementTextArea {
-    font-size: 14px;
-    line-height: 20px;
-    margin-top: 5px;
-  }
-  .queryInput {
-    max-width: 30%;
-    padding-right: 10px;
-  }
-  .executeOnLoad {
-    display: flex;
-    justify-content: flex-end;
-    margin-top: 10px;
-  }
-`;
-
-const SettingsWrapper = styled.div`
-  ${thinScrollbar};
-  height: 100%;
-`;
-
-const SecondaryWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  overflow: hidden;
-`;
+import {
+  DocumentationButton,
+  QueryFormContainer,
+  SecondaryWrapper,
+  SettingsWrapper,
+  TabContainerView,
+  TabPanelWrapper,
+  TabsListWrapper,
+  Wrapper,
+} from "./EditorJSONtoFormStyles";
+import FormRender from "./FormRender";
+import QueryDebuggerTabs from "./QueryDebuggerTabs";
+import { QueryEditorContext } from "./QueryEditorContext";
+import QueryEditorHeader from "./QueryEditorHeader";
+import QueryResponseTab from "./QueryResponseTab";
 
 export const StyledFormRow = styled(FormRow)`
   padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-5)
     var(--ads-v2-spaces-7);
   flex: 0;
-`;
-
-const TabContainerView = styled.div`
-  display: flex;
-  align-items: start;
-  flex: 1;
-  overflow: auto;
-  ${thinScrollbar}
-  a {
-    font-size: 14px;
-    line-height: 20px;
-    margin-top: 12px;
-  }
-  position: relative;
-
-  & > .ads-v2-tabs {
-    height: 100%;
-
-    & > .ads-v2-tabs__panel {
-      height: calc(100% - 50px);
-      overflow-y: scroll;
-    }
-  }
-`;
-
-const TabsListWrapper = styled.div`
-  padding: 0 var(--ads-v2-spaces-7);
-`;
-
-const TabPanelWrapper = styled(TabPanel)`
-  padding: 0 var(--ads-v2-spaces-7);
-`;
-
-const Wrapper = styled.div`
-  display: flex;
-  flex-direction: row;
-  height: calc(100% - 50px);
-  width: 100%;
-`;
-
-const DocumentationButton = styled(Button)`
-  position: absolute !important;
-  right: 24px;
-  margin: 7px 0 0;
-  z-index: 6;
 `;
 
 export const SegmentedControlContainer = styled.div`

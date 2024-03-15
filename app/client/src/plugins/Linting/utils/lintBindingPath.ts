@@ -1,4 +1,4 @@
-import type { LintError } from "utils/DynamicBindingUtils";
+import type { LintError } from "widgets/types";
 import { getDynamicBindings } from "utils/DynamicBindingUtils";
 import { getScriptToEval, getScriptType } from "workers/Evaluation/evaluate";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";

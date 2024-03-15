@@ -3,7 +3,6 @@ import "codemirror/mode/htmlmixed/htmlmixed";
 import type { ContentProps } from "./types";
 import {
   CodeEditorBorder,
-  EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
@@ -16,6 +15,7 @@ import {
   CUSTOM_WIDGET_FEATURE,
   createMessage,
 } from "@appsmith/constants/messages";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 export default function HTMLEditor(props: ContentProps) {
   const [loading, setLoading] = useState(true);

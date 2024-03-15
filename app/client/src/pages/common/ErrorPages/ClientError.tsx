@@ -1,7 +1,7 @@
 import React from "react";
 import { useDispatch } from "react-redux";
 import { Button } from "design-system";
-import { flushErrors } from "actions/errorActions";
+import { flushErrors } from "actions/errorActionUtils";
 
 import Page from "./Page";
 import {

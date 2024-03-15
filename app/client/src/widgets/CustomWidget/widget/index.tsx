@@ -2,21 +2,21 @@ import React from "react";
 
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 
 import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
 import { WIDGET_PADDING, WIDGET_TAGS } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type {
   AppThemeProperties,
   SetterConfig,
   Stylesheet,
 } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/types";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DEFAULT_MODEL } from "../constants";
 import defaultApp from "./defaultApp";
@@ -32,7 +32,7 @@ import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { DynamicHeight, type WidgetFeatures } from "utils/WidgetFeatures";
+import { DynamicHeight, type WidgetFeatures } from "utils/widgetFeaturesTypes";
 
 const StyledLink = styled(Link)`
   display: inline-block;

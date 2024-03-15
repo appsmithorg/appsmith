@@ -2,7 +2,7 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { InputType } from "components/constants";
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import TextField from "components/editorComponents/form/fields/TextField";
 import styled from "styled-components";
 

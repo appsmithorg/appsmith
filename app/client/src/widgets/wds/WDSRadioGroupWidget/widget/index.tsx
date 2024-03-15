@@ -2,10 +2,10 @@ import React from "react";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import isNumber from "lodash/isNumber";
 import BaseWidget from "widgets/BaseWidget";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import { Radio, RadioGroup } from "@design-system/widgets";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";

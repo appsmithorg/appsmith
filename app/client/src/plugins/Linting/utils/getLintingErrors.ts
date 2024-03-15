@@ -1,5 +1,5 @@
 import type { Position } from "codemirror";
-import type { LintError } from "utils/DynamicBindingUtils";
+import type { LintError } from "widgets/types";
 import { JSHINT as jshint } from "jshint";
 import type { LintError as JSHintError } from "jshint";
 import { get, isEmpty, isNumber, keys } from "lodash";
@@ -12,7 +12,7 @@ import {
   isIdentifierNode,
   isLiteralNode,
 } from "@shared/ast";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "widgets/types";
 import type { EvaluationScriptType } from "workers/Evaluation/evaluate";
 import { EvaluationScripts, ScriptTemplate } from "workers/Evaluation/evaluate";
 import {

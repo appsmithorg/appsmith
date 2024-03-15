@@ -3,7 +3,7 @@ import { useState } from "react";
 import styled from "styled-components";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
-import type { ControlType } from "constants/PropertyControlConstants";
+import type { ControlType } from "constants/types";
 import type { SetProgress } from "design-system-old";
 import { FilePickerV2, FileType } from "design-system-old";
 import type { WrappedFieldInputProps, WrappedFieldMetaProps } from "redux-form";

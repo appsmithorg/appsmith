@@ -33,7 +33,7 @@ import {
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Space } from "./components/StyledComponents";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import { GitSettingsTab } from "actions/gitSyncActionsTypes";
 
 function DisconnectGitModal() {
   const dispatch = useDispatch();

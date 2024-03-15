@@ -6,14 +6,14 @@ import WidgetsMultiSelectBox from "layoutSystems/fixedlayout/common/widgetGroupi
 import React, { useMemo } from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { WidgetProps } from "widgets/types";
+import type { BaseWidgetProps } from "widgets/types";
 import ContainerComponent from "widgets/ContainerWidget/component";
 import { DropTargetComponentWrapper } from "../../common/dropTarget/DropTargetComponentWrapper";
 import { FixedCanvasDraggingArena } from "../editor/FixedLayoutCanvasArenas/FixedCanvasDraggingArena";
 import { compact, sortBy } from "lodash";
 import { Positioning } from "layoutSystems/common/utils/constants";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 
 export type CanvasProps = DSLWidget;
 /**

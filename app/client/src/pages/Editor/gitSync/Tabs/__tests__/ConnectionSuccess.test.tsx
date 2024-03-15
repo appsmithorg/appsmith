@@ -5,7 +5,7 @@ import ConnectionSuccess from "../ConnectionSuccess";
 import configureStore from "redux-mock-store";
 import { Provider } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import { GitSettingsTab } from "actions/gitSyncActionsTypes";
 
 const initialState = {
   ui: {

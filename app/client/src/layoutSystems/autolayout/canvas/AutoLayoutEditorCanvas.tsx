@@ -5,7 +5,7 @@ import { CanvasSelectionArena } from "layoutSystems/fixedlayout/editor/FixedLayo
 import React, { useMemo } from "react";
 import { getSnappedGrid } from "sagas/WidgetOperationUtils";
 import { getCanvasSnapRows } from "utils/WidgetPropsUtils";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import ContainerComponent from "widgets/ContainerWidget/component";
 import { AutoCanvasDraggingArena } from "../editor/AutoLayoutCanvasArenas/AutoCanvasDraggingArena";
 import { AutoLayoutCanvasView } from "./AutoLayoutCanvasView";

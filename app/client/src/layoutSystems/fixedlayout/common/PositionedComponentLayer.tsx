@@ -1,7 +1,6 @@
 import PositionedContainer from "components/designSystems/appsmith/PositionedContainer";
 import React from "react";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-
+import type { BaseWidgetProps } from "widgets/types";
 export const PositionedComponentLayer = (props: BaseWidgetProps) => {
   return (
     <PositionedContainer

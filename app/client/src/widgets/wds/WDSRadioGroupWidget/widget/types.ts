@@ -1,5 +1,5 @@
 import type { RadioGroupProps } from "@design-system/widgets";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 
 export interface RadioOption {
   label: string;

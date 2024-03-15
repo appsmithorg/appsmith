@@ -1,7 +1,7 @@
 import { AutoHeightContainerWrapper } from "layoutSystems/fixedlayout/common/autoHeight/AutoHeightContainerWrapper";
 import ErrorBoundary from "components/editorComponents/ErrorBoundry";
 import React from "react";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import Skeleton from "widgets/Skeleton";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetComponentBoundary from "layoutSystems/common/widgetComponent/WidgetComponentBoundary";

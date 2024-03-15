@@ -1,5 +1,5 @@
 import React from "react";
-import type { WidgetCardProps } from "widgets/BaseWidget";
+import type { WidgetCardProps } from "constants/WidgetConstants";
 import styled from "styled-components";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";

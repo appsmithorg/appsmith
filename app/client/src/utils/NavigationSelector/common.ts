@@ -1,8 +1,5 @@
 import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
-import type {
-  EntityNavigationData,
-  NavigationData,
-} from "selectors/navigationSelectors";
+import type { EntityNavigationData, NavigationData } from "./types";
 
 export const createNavData = (general: {
   name: string;

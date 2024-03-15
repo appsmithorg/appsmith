@@ -1,6 +1,6 @@
 import type { CSSProperties, ReactNode, Ref } from "react";
 import React, { useMemo } from "react";
-import type { BaseStyle } from "widgets/BaseWidget";
+import type { BaseStyle } from "widgets/types";
 import type { WidgetType } from "constants/WidgetConstants";
 import {
   CONTAINER_GRID_PADDING,
@@ -20,7 +20,7 @@ import {
 import { POSITIONED_WIDGET } from "constants/componentClassNameConstants";
 import equal from "fast-deep-equal";
 import { widgetTypeClassname } from "widgets/WidgetUtils";
-import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
+import { checkIsDropTarget } from "WidgetProvider/factory/utils";
 
 const PositionedWidget = styled.div<{
   zIndexOnHover: number;

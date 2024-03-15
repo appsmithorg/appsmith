@@ -1,4 +1,4 @@
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import { RenderModes } from "../../constants/WidgetConstants";
 import { AutoLayoutEditorCanvas } from "./canvas/AutoLayoutEditorCanvas";
 import { AutoLayoutViewerCanvas } from "./canvas/AutoLayoutViewerCanvas";
@@ -12,7 +12,7 @@ import {
   getAutoDimensionsConfig,
   getAutoLayoutWidgetConfig,
 } from "layoutSystems/common/utils/commonUtils";
-import type { AutoDimensionOptions } from "WidgetProvider/constants";
+import type { AutoDimensionOptions } from "WidgetProvider/types";
 
 /**
  * getAutoLayoutDimensionsConfig

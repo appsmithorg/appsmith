@@ -1,7 +1,5 @@
-import type {
-  FieldEntityInformation,
-  TEditorModes,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { TEditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 interface AskAIButtonProps {
   mode: TEditorModes;

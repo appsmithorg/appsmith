@@ -1,6 +1,6 @@
 import { Classes, Switch } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-import { BlueprintControlTransform } from "constants/DefaultTheme";
+import { BlueprintControlTransform } from "widgets/styles";
 import React from "react";
 import styled from "styled-components";
 import type { ComponentProps } from "widgets/BaseComponent";

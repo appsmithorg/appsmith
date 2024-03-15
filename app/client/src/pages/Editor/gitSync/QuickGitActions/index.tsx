@@ -47,7 +47,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import AutocommitStatusbar from "./AutocommitStatusbar";
 import { useHasConnectToGitPermission } from "../hooks/gitPermissionHooks";
-import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
+import { GitSettingsTab } from "actions/gitSyncActionsTypes";
 
 interface QuickActionButtonProps {
   className?: string;

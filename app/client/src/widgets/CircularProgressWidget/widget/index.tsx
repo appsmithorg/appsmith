@@ -1,14 +1,14 @@
 import * as React from "react";
 
-import { ValidationTypes } from "constants/WidgetValidation";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import { ValidationTypes } from "constants/types";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { CircularProgressComponentProps } from "../component";
 import CircularProgressComponent from "../component";
 import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import type { AutocompletionDefinitions } from "WidgetProvider/constants";
+import type { AutocompletionDefinitions } from "WidgetProvider/types";
 import { Colors } from "constants/Colors";
 import IconSVG from "../icon.svg";
 

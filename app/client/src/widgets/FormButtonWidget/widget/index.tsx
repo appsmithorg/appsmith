@@ -1,10 +1,10 @@
 import React from "react";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ButtonType } from "widgets/ButtonWidget/component";
 import ButtonComponent from "widgets/ButtonWidget/component";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import ButtonWidget from "widgets/ButtonWidget";
 import type {
   ButtonBorderRadius,
@@ -23,10 +23,10 @@ import type { Stylesheet } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 class FormButtonWidget extends ButtonWidget {
   constructor(props: FormButtonWidgetProps) {

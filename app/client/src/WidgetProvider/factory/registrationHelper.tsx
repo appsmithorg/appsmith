@@ -1,5 +1,5 @@
 import React from "react";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import type BaseWidget from "widgets/BaseWidget";
 import WidgetFactory from ".";
 import { withBaseWidgetHOC } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";

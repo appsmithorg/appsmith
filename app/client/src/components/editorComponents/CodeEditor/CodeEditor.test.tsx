@@ -7,12 +7,8 @@ import { Provider } from "react-redux";
 import EvaluatedValuePopup from "./EvaluatedValuePopup";
 import { ThemeProvider } from "styled-components";
 import { theme, light } from "constants/DefaultTheme";
-import {
-  EditorSize,
-  EditorTheme,
-  TabBehaviour,
-  EditorModes,
-} from "./EditorConfig";
+import { EditorSize, EditorTheme, TabBehaviour } from "./EditorConfig";
+import { EditorModes } from "./sql/config";
 
 describe("CodeEditor", () => {
   it("should check EvaluatedValuePopup's hideEvaluatedValue  is false when hideEvaluatedValue is passed as false to codeditor", () => {

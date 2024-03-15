@@ -1,6 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { isAutoLayout } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import type { RangeSliderWidgetProps } from "..";

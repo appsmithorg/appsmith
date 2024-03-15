@@ -1,7 +1,7 @@
 import type React from "react";
 import _, { get, some } from "lodash";
 import equal from "fast-deep-equal/es6";
-import type { WidgetProps } from "../../BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
 import { ContainerWidget } from "widgets/ContainerWidget/widget";
 import type { ContainerComponentProps } from "widgets/ContainerWidget/component";
@@ -17,7 +17,7 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type { SetterConfig } from "entities/AppTheming";
 import { ButtonVariantTypes, RecaptchaTypes } from "components/constants";
 import { Colors } from "constants/Colors";
@@ -25,9 +25,9 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { GridDefaults, WIDGET_TAGS } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/widgetFeaturesTypes";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";

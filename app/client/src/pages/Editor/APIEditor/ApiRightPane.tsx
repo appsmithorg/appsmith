@@ -15,7 +15,7 @@ import isUndefined from "lodash/isUndefined";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
 import type { Datasource } from "entities/Datasource";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import type { SuggestedWidget } from "api/ActionAPI";
+import type { SuggestedWidget } from "api/actionAPITypes";
 
 interface ApiRightPaneProps {
   additionalSections?: React.ReactNode;

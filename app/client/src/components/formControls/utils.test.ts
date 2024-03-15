@@ -10,9 +10,8 @@ import {
   isHidden,
   switchViewType,
   updateEvaluatedSectionConfig,
-  ViewTypes,
 } from "./utils";
-import type { HiddenType } from "./BaseControl";
+import { ViewTypes, type HiddenType } from "./BaseControl";
 import { set } from "lodash";
 import { isValidFormConfig } from "reducers/evaluationReducers/formEvaluationReducer";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";

@@ -1,7 +1,8 @@
 import type { SelectOptionProps } from "design-system";
 import { Text, Option, Select } from "design-system";
 import React, { useEffect, useState } from "react";
-import type { DropdownOnSelect } from "./SelectField";
+
+export type DropdownOnSelect = (value?: string, dropdownOption?: any) => void;
 
 interface DropdownWrapperProps {
   allowDeselection?: boolean;

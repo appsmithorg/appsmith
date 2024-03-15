@@ -9,11 +9,12 @@ import {
 import type { ConnectToGitPayload } from "api/GitSyncAPI";
 import type { GitConfig, GitSyncModalTab, MergeStatus } from "entities/GitSync";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
-import {
-  type GitStatusData,
-  GitSettingsTab,
-} from "reducers/uiReducers/gitSyncReducer";
 import type { ResponseMeta } from "api/ApiResponses";
+import { GitSettingsTab } from "./gitSyncActionsTypes";
+import type {
+  GetSSHKeyResponseData,
+  GitStatusData,
+} from "./gitSyncActionsTypes";
 
 export interface GitStatusParams {
   compareRemote?: boolean;
@@ -302,18 +303,6 @@ export const importAppFromGit = ({
 });
 
 type ErrorPayload = string;
-
-export interface SSHKeyType {
-  keySize: number;
-  platFormSupported: string;
-  protocolName: string;
-}
-
-export interface GetSSHKeyResponseData {
-  gitSupportedSSHKeyType: SSHKeyType[];
-  docUrl: string;
-  publicKey?: string;
-}
 
 export interface GenerateSSHKeyPairResponsePayload<T> {
   responseMeta: ResponseMeta;

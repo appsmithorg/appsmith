@@ -1,4 +1,4 @@
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import { AnvilCanvas } from "./AnvilCanvas";
 import React, { useCallback, useEffect, useRef } from "react";
 import { useCanvasActivation } from "../canvasArenas/hooks/mainCanvas/useCanvasActivation";

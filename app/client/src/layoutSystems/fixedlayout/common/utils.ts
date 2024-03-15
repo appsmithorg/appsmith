@@ -1,6 +1,5 @@
 import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-
+import type { BaseWidgetProps } from "widgets/types";
 export const generateDragStateForFixedLayout = (
   e: React.DragEvent<Element>,
   draggableRef: HTMLElement,

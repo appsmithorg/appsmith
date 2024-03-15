@@ -1,5 +1,5 @@
 import { capitalize } from "lodash";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { BUTTON_VARIANTS, COLORS, ICONS } from "@design-system/widgets";
 
 import type { MenuButtonWidgetProps } from "../../widget/types";

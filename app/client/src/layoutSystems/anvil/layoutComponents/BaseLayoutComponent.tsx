@@ -13,7 +13,7 @@ import {
   addChildToLayout,
   extractWidgetIdsFromLayoutProps,
   removeChildFromLayout,
-} from "../utils/layouts/layoutUtils";
+} from "../utils/layouts/baseLayoutUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import LayoutFactory from "./LayoutFactory";
 import { AnvilCanvasDraggingArena } from "../canvasArenas/AnvilCanvasDraggingArena";

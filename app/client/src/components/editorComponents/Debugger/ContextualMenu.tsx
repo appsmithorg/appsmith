@@ -3,7 +3,7 @@ import { Classes as BPClasses } from "@blueprintjs/core";
 import type { Dispatch } from "redux";
 import { useDispatch } from "react-redux";
 import type { Message, SourceEntity } from "entities/AppsmithConsole";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "widgets/types";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import {

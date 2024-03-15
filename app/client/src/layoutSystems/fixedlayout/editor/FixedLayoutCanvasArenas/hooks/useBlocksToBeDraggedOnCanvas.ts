@@ -11,10 +11,11 @@ import type {
   WidgetSpace,
 } from "constants/CanvasEditorConstants";
 import { getDragDetails, getWidgetByID, getWidgets } from "sagas/selectors";
+import type { WidgetDraggingUpdateParams } from "utils/WidgetPropsUtils";
 import { widgetOperationParams } from "utils/WidgetPropsUtils";
 import { DropTargetContext } from "layoutSystems/common/dropTarget/DropTargetComponent";
 import equal from "fast-deep-equal/es6";
-import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArena";
+import type { FixedCanvasDraggingArenaProps } from "../FixedCanvasDraggingArenaTypes";
 import { useDispatch, useSelector } from "react-redux";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { EditorContext } from "components/editorComponents/EditorContextProvider";
@@ -22,13 +23,11 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { snapToGrid } from "utils/helpers";
 import { stopReflowAction } from "actions/reflowActions";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { getIsReflowing } from "selectors/widgetReflowSelectors";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useContext, useEffect, useRef } from "react";
 import type {
   WidgetDraggingBlock,
-  WidgetDraggingUpdateParams,
   XYCord,
 } from "../../../../common/canvasArenas/ArenaTypes";
 import {
@@ -39,6 +38,7 @@ import {
   updateBottomRow as updateBottomRowHelper,
   getDragCenterSpace,
 } from "layoutSystems/common/utils/canvasDraggingUtils";
+import type { DragDetails } from "layoutSystems/anvil/canvasArenas/types";
 
 /**
  * useBlocksToBeDraggedOnCanvas, provides information or functions/methods related to drag n drop,

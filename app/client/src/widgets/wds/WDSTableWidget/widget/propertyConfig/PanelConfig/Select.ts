@@ -1,4 +1,4 @@
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { get } from "lodash";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import {
@@ -6,7 +6,7 @@ import {
   hideByColumnType,
   selectColumnOptionsValidation,
 } from "../../propertyUtils";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "widgets/wds/WDSTableWidget/types";
 
 export default {
   sectionName: "Select properties",

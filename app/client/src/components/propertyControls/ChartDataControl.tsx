@@ -7,7 +7,6 @@ import { ControlWrapper } from "./StyledControls";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -19,6 +18,7 @@ import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import ColorPickerComponent from "./ColorPickerComponentV2";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 const Wrapper = styled.div`
   background-color: var(--ads-v2-color-bg-subtle);

@@ -23,7 +23,7 @@ import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
 import { Text } from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
@@ -48,6 +48,7 @@ import { setJsPaneDebuggerState } from "actions/jsPaneActions";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import ErrorLogs from "./Debugger/Errors";
+import { JSResponseState } from "./JSResponseViewTypes";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
@@ -92,15 +93,6 @@ const NoReturnValueWrapper = styled.div`
   padding-left: ${(props) => props.theme.spaces[12]}px;
   padding-top: ${(props) => props.theme.spaces[6]}px;
 `;
-
-export enum JSResponseState {
-  IsExecuting = "IsExecuting",
-  IsDirty = "IsDirty",
-  IsUpdating = "IsUpdating",
-  NoResponse = "NoResponse",
-  ShowResponse = "ShowResponse",
-  NoReturnValue = "NoReturnValue",
-}
 
 interface ReduxStateProps {
   errorCount: number;

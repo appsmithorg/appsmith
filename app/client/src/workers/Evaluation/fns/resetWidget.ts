@@ -1,6 +1,6 @@
 import { promisify } from "./utils/Promisify";
 
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import {
   canvasWidgets,
   dataTreeEvaluator,

@@ -1,6 +1,6 @@
 import { call, delay, put, select } from "redux-saga/effects";
 import { getWidgetByID } from "sagas/selectors";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import PaneNavigation from "../PaneNavigation";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";

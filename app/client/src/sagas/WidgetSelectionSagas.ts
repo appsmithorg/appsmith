@@ -47,7 +47,6 @@ import {
   getWidgetSelectionBlock,
 } from "selectors/ui";
 import { areArraysEqual } from "utils/AppsmithUtils";
-import { quickScrollToWidget } from "utils/helpers";
 import history, { NavigationMethod } from "utils/history";
 import {
   getWidgetIdsByType,
@@ -59,6 +58,7 @@ import { getModalWidgetType } from "selectors/widgetSelectors";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
+import { quickScrollToWidget } from "widgets/WidgetUtils";
 import { getAppViewerPageIdFromPath } from "@appsmith/pages/Editor/Explorer/helpers";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
 import {

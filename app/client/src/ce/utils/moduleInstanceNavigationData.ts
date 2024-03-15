@@ -1,5 +1,5 @@
 import type { ModuleInstance } from "@appsmith/constants/ModuleInstanceConstants";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
+import type { EntityNavigationData } from "utils/NavigationSelector/types";
 
 export const getModuleInstanceNavigationData = (
   /* eslint-disable @typescript-eslint/no-unused-vars */

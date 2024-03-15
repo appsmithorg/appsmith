@@ -19,6 +19,9 @@ import type { WorkerRequest } from "@appsmith/workers/common/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
 import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
+import type { ActionConfig } from "entities/Action";
+import type { FormConfigType } from "components/formControls/BaseControl";
+import type { DatasourceConfiguration } from "entities/Datasource";
 
 export type EvalWorkerSyncRequest<T = any> = WorkerRequest<
   T,
@@ -65,3 +68,15 @@ export interface EvalTreeResponseData {
 }
 
 export type JSVarMutatedEvents = Record<string, { path: string; type: string }>;
+
+export interface FormEvalActionPayload {
+  formId: string;
+  datasourceId?: string;
+  pluginId?: string;
+  actionConfiguration?: ActionConfig;
+  editorConfig?: FormConfigType[];
+  settingConfig?: FormConfigType[];
+  actionDiffPath?: string;
+  hasRouteChanged?: boolean;
+  datasourceConfiguration?: DatasourceConfiguration;
+}

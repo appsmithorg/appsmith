@@ -12,7 +12,7 @@ import ActionSelector from "./ActionSelector";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getActionTypeLabel } from "../ActionBlockTree/utils";
 import classNames from "classnames";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 
 const CallbackBlockContainer = styled.div<{
   isSelected: boolean;

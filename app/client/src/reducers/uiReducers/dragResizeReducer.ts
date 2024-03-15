@@ -5,6 +5,10 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type { SetSelectedWidgetsPayload } from "../../actions/widgetSelectionActions";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
+import type {
+  DragDetails,
+  DraggingGroupCenter,
+} from "layoutSystems/anvil/canvasArenas/types";
 
 const initialState: WidgetDragResizeState = {
   isDragging: false,
@@ -153,19 +157,6 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     state.anvil.highlightShown = action.payload.highlight;
   },
 });
-
-export interface DraggingGroupCenter {
-  widgetId?: string;
-  top?: number;
-  left?: number;
-}
-export interface DragDetails {
-  dragGroupActualParent?: string;
-  draggingGroupCenter?: DraggingGroupCenter;
-  newWidget?: any;
-  draggedOn?: string;
-  dragOffset?: any;
-}
 
 export interface WidgetDragResizeState {
   isDragging: boolean;

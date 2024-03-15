@@ -1,7 +1,7 @@
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { getAllAsyncFunctions } from "@appsmith/workers/Evaluation/Actions";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorCategory } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
+import { PropertyEvaluationErrorCategory } from "widgets/types";
 import type DependencyMap from "entities/DependencyMap";
 import {
   getAllAsyncJSFunctions,

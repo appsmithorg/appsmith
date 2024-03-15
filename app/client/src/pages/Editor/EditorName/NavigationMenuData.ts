@@ -20,7 +20,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
 import { toast } from "design-system";
-import type { ThemeProp } from "WidgetProvider/constants";
+import type { ThemeProp } from "constants/DefaultTheme";
 import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 

@@ -2,7 +2,7 @@ import Api from "./Api";
 import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
 
-import type { InitConsolidatedApi } from "sagas/InitSagas";
+import type { InitConsolidatedApi } from "api/ApiTypes";
 
 class ConsolidatedPageLoadApi extends Api {
   static url = "/v1/consolidated-api";

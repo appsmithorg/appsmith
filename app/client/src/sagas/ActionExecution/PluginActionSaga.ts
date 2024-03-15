@@ -34,7 +34,6 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type {
   ActionExecutionResponse,
-  ActionResponse,
   ExecuteActionRequest,
   PaginationField,
 } from "api/ActionAPI";
@@ -143,7 +142,6 @@ import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { getFormNames, getFormValues } from "redux-form";
 import { CURL_IMPORT_FORM } from "@appsmith/constants/forms";
 import { submitCurlImportForm } from "actions/importActions";
-import type { curlImportFormValues } from "pages/Editor/APIEditor/helpers";
 import { matchBasePath } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   findDatatype,
@@ -186,6 +184,8 @@ import {
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import { getAllowedActionAnalyticsKeys } from "constants/AppsmithActionConstants/formConfig/ActionAnalyticsConfig";
 import { setApiPaneDebuggerState } from "../../actions/apiPaneActions";
+import type { ActionResponse } from "api/actionAPITypes";
+import type { curlImportFormValues } from "pages/Editor/APIEditor/types";
 
 enum ActionResponseDataTypes {
   BINARY = "BINARY",

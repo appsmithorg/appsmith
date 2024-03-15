@@ -1,6 +1,6 @@
 import type { ColumnProperties, TableStyles } from "../component/Constants";
 import { StickyType } from "../component/Constants";
-import { ColumnTypes } from "../constants";
+import { ColumnTypes } from "../types";
 import {
   convertNumToCompactString,
   escapeString,

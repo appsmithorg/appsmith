@@ -54,7 +54,6 @@ import {
   fetchActions,
 } from "actions/pluginActionActions";
 import { fetchJSCollections } from "actions/jsActionActions";
-import { failFastApiCalls } from "./InitSagas";
 import { fetchDatasources } from "actions/datasourceActions";
 import { fetchPluginFormConfigs } from "actions/pluginActions";
 import { fetchAllPageEntityCompletion, saveLayout } from "actions/pageActions";
@@ -65,6 +64,7 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { fetchJSLibraries } from "actions/JSLibraryActions";
+import { failFastApiCalls } from "entities/Engine/AppEngineUtils";
 
 const isAirgappedInstance = isAirgapped();
 

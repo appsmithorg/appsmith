@@ -14,7 +14,6 @@ import type {
 import { isFunction } from "lodash";
 import { entityDefinitions } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import type { Def } from "tern";
-import type { DataTreeDefEntityInformation } from "utils/autocomplete/CodemirrorTernService";
 import WidgetFactory from "WidgetProvider/factory";
 import {
   addSettersToDefinitions,
@@ -22,6 +21,7 @@ import {
   generateTypeDef,
   flattenDef,
 } from "utils/autocomplete/defCreatorUtils";
+import type { DataTreeDefEntityInformation } from "utils/autocomplete/types";
 
 export type EntityMap = Map<string, DataTreeDefEntityInformation>;
 

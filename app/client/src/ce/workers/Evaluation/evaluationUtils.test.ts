@@ -1,7 +1,7 @@
-import type { DependencyMap, EvaluationError } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import type { DependencyMap } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
+import { PropertyEvaluationErrorType } from "widgets/types";
 import { RenderModes } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
 
 import type {
   WidgetEntity,
@@ -12,7 +12,7 @@ import type {
 import {
   ENTITY_TYPE,
   EvaluationSubstitutionType,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 import type {
   ConfigTree,
   DataTreeEntity,
@@ -42,9 +42,10 @@ import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import TableWidget from "widgets/TableWidget";
 import InputWidget from "widgets/InputWidgetV2";
 import DataTreeEvaluator from "workers/common/DataTreeEvaluator";
-import { Severity } from "entities/AppsmithConsole";
+import { Severity } from "widgets/types";
 import { PluginType } from "entities/Action";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+import { ValidationTypes } from "constants/types";
 
 // to check if logWarn was called.
 // use jest.unmock, if the mock needs to be removed.

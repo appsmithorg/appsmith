@@ -1,6 +1,6 @@
 import * as React from "react";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { TAILWIND_COLORS } from "constants/ThemeConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -13,7 +13,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";

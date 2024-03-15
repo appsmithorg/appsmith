@@ -1,4 +1,4 @@
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type {
   AnvilHighlightInfo,
   LayoutProps,
@@ -12,7 +12,7 @@ import { createZoneAndAddWidgets } from "./zoneUtils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call } from "redux-saga/effects";
 import { severTiesFromParents, transformMovedWidgets } from "./moveUtils";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import {
   addNewWidgetToDsl,
   getCreateWidgetPayload,

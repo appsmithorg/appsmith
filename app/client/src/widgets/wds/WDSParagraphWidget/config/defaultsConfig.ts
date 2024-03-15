@@ -1,10 +1,10 @@
 import { get } from "lodash";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "widgets/types";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
+import type { WidgetDefaultProps } from "WidgetProvider/types";
 
 export const defaultsConfig = {
   text: "Hello {{appsmith.user.name || appsmith.user.email}}",

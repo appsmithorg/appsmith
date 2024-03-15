@@ -13,18 +13,10 @@ import {
   setVersionUpdateState,
 } from "utils/storage";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-
-enum UpdateStateEvent {
-  PROMPT_SHOWN = "PROMPT_SHOWN",
-  UPDATE_REQUESTED = "UPDATE_REQUESTED",
-}
-
-export interface VersionUpdateState {
-  currentVersion: string;
-  upgradeVersion: string;
-  timesShown: number;
-  event: UpdateStateEvent;
-}
+import {
+  UpdateStateEvent,
+  type VersionUpdateState,
+} from "./versionUpdateTypes";
 
 let timesShown = 0;
 

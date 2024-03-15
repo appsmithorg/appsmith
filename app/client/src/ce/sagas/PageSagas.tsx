@@ -8,11 +8,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type {
-  ClonePageActionPayload,
-  CreatePageActionPayload,
-  FetchPageListPayload,
-} from "actions/pageActions";
+import type { FetchPageListPayload } from "actions/pageActions";
 import { createPage, fetchPublishedPage } from "actions/pageActions";
 import {
   clonePageSuccess,
@@ -44,7 +40,6 @@ import type {
   FetchPageResponseData,
   FetchPublishedPageRequest,
   GenerateTemplatePageRequest,
-  PageLayout,
   PageLayoutsRequest,
   SavePageRequest,
   SavePageResponse,
@@ -114,7 +109,6 @@ import {
 
 import WidgetFactory from "WidgetProvider/factory";
 import { builderURL } from "@appsmith/RouteBuilder";
-import { failFastApiCalls, waitForWidgetConfigBuild } from "sagas/InitSagas";
 import { resizePublishedMainCanvasToLowestWidget } from "sagas/WidgetOperationUtils";
 import {
   checkAndLogErrorsIfCyclicDependency,
@@ -132,7 +126,7 @@ import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { nestDSL, flattenDSL, LATEST_DSL_VERSION } from "@shared/dsl";
 import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
@@ -141,10 +135,19 @@ import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/per
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import {
+  waitForWidgetConfigBuild,
+  failFastApiCalls,
+} from "entities/Engine/AppEngineUtils";
+import type {
+  ClonePageActionPayload,
+  CreatePageActionPayload,
+  PageLayout,
+} from "api/pagetypes";
 import { ActionExecutionContext } from "entities/Action";
 
 export const checkIfMigrationIsNeeded = (

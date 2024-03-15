@@ -1,9 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
 import { ternDocsInfo } from "@appsmith/utils/autocomplete/EntityDefinitions";
-import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
 import { CodeEditorColors } from "components/editorComponents/CodeEditor/styledComponents";
 import { Link } from "design-system";
+import type { Completion, TernCompletionResult } from "./types";
 
 export function renderTernTooltipContent(
   element: HTMLElement,

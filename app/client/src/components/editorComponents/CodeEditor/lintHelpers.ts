@@ -1,14 +1,14 @@
 import { last, isNumber, isEmpty } from "lodash";
 import type { Annotation, Position } from "codemirror";
-import type { LintError } from "utils/DynamicBindingUtils";
+import type { LintError } from "widgets/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
-import { Severity } from "entities/AppsmithConsole";
+import { Severity } from "widgets/types";
 import {
   CODE_EDITOR_START_POSITION,
   LintTooltipDirection,
   VALID_JS_OBJECT_BINDING_POSITION,
 } from "./constants";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import {
   CUSTOM_LINT_ERRORS,
   IDENTIFIER_NOT_DEFINED_LINT_ERROR_CODE,

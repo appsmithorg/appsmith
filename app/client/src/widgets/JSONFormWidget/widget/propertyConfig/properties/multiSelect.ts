@@ -1,10 +1,10 @@
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import { FieldType } from "widgets/JSONFormWidget/constants";
 import type { HiddenFnParams } from "../helper";
 import { getSchemaItem, getAutocompleteProperties } from "../helper";
 import type { MultiSelectFieldProps } from "widgets/JSONFormWidget/fields/MultiSelectField";
 import type { ValidationResponse } from "constants/WidgetValidation";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import type { JSONFormWidgetProps } from "../..";
 

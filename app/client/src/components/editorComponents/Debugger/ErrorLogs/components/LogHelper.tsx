@@ -1,4 +1,4 @@
-import type { PluginErrorDetails } from "api/ActionAPI";
+import type { PluginErrorDetails } from "api/actionAPITypes";
 import { Button } from "design-system";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";

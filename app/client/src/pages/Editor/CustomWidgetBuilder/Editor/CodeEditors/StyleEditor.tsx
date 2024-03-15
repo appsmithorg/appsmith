@@ -2,7 +2,6 @@ import React, { useContext, useMemo, useState } from "react";
 import type { ContentProps } from "./types";
 import {
   CodeEditorBorder,
-  EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
@@ -16,6 +15,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import styled from "styled-components";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 const StyledWrapper = styled.div`
   position: relative;

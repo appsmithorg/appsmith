@@ -1,4 +1,4 @@
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
 import { memoize } from "lodash";
 
 export const getErrorCount = memoize(

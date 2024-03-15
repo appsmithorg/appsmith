@@ -2,7 +2,7 @@ import React from "react";
 import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { isFunction } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import { ResizableComponent } from "layoutSystems/common/resizer/ResizableComponent";
 
 /**

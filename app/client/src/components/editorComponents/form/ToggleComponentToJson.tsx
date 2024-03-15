@@ -3,11 +3,13 @@ import {
   alternateViewTypeInputConfig,
   getViewType,
   switchViewType,
-  ViewTypes,
 } from "components/formControls/utils";
 import type { AppState } from "@appsmith/reducers";
 import type { Action } from "entities/Action";
-import type { ControlProps } from "components/formControls/BaseControl";
+import {
+  ViewTypes,
+  type ControlProps,
+} from "components/formControls/BaseControl";
 import { connect, useSelector } from "react-redux";
 import { getFormValues } from "redux-form";
 import type { AnyAction, Dispatch } from "redux";

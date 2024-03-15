@@ -4,14 +4,14 @@ import React from "react";
 import type { TextSize } from "constants/WidgetConstants";
 import { countOccurrences } from "workers/Evaluation/helpers";
 
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
 import { pick } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import type { ContainerStyle } from "widgets/ContainerWidget/component";
 import type { TextAlign } from "../component";

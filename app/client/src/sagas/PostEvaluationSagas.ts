@@ -19,7 +19,7 @@ import {
   isAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
 import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import { find, get, some } from "lodash";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";

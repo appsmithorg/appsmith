@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { PanelConfig } from "constants/PropertyControlConstants";
 import PropertyControlsGenerator from "./PropertyControlsGenerator";
 import {

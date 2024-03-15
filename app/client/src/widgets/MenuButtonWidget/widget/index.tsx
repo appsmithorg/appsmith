@@ -3,7 +3,7 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { isArray, orderBy } from "lodash";
 import { default as React } from "react";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { MinimumPopupWidthInPercentage } from "WidgetProvider/constants";
 import MenuButtonComponent from "../component";
@@ -15,7 +15,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 import { ButtonPlacementTypes, ButtonVariantTypes } from "components/constants";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";

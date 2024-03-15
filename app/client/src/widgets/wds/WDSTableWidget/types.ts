@@ -1,0 +1,16 @@
+export enum ColumnTypes {
+  TEXT = "text",
+  URL = "url",
+  NUMBER = "number",
+  IMAGE = "image",
+  VIDEO = "video",
+  DATE = "date",
+  BUTTON = "button",
+  ICON_BUTTON = "iconButton",
+  MENU_BUTTON = "menuButton",
+  SELECT = "select",
+  EDIT_ACTIONS = "editActions",
+  CHECKBOX = "checkbox",
+  SWITCH = "switch",
+  CURRENCY = "currency",
+}

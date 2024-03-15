@@ -1,17 +1,16 @@
 import React, { memo, useEffect, useMemo, useState } from "react";
-import type { ControlProps } from "components/formControls/BaseControl";
 import {
-  getViewType,
-  isHidden,
   ViewTypes,
-} from "components/formControls/utils";
+  type ControlProps,
+} from "components/formControls/BaseControl";
+import { getViewType, isHidden } from "components/formControls/utils";
 import { useSelector, shallowEqual, useDispatch } from "react-redux";
 import { getFormValues, change } from "redux-form";
 import FormControlFactory from "utils/formControl/FormControlFactory";
 
 import type { AppState } from "@appsmith/reducers";
 import type { Action } from "entities/Action";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
 import { getConfigErrors } from "selectors/formSelectors";
 import ToggleComponentToJson from "components/editorComponents/form/ToggleComponentToJson";
 import FormConfig from "./FormConfig";

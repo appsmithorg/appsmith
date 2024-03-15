@@ -20,7 +20,7 @@ import {
   getPageList,
   getPagePermissions,
 } from "selectors/editorSelectors";
-import type { SuggestedWidget } from "api/ActionAPI";
+import type { SuggestedWidget } from "api/actionAPITypes";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";

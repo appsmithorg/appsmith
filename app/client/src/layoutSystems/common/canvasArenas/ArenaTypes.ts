@@ -1,4 +1,4 @@
-import type { WidgetOperationParams } from "utils/WidgetPropsUtils";
+import type { WidgetOperation } from "widgets/types";
 
 //This File contains all the types that are common types required in layout System's CanvasArenas
 
@@ -18,14 +18,14 @@ export interface WidgetDraggingBlock {
   type: string;
 }
 
-//WidgetDraggingUpdateParams is an extension of WidgetDraggingBlock,
-// with updateWidgetParams information required to dispatch action for updating DSL
-export interface WidgetDraggingUpdateParams extends WidgetDraggingBlock {
-  updateWidgetParams: WidgetOperationParams;
-}
-
 //Simple Type used to define co-ordinates
 export interface XYCord {
   x: number;
   y: number;
+}
+
+export interface WidgetOperationParams {
+  operation: WidgetOperation;
+  widgetId: string;
+  payload: any;
 }

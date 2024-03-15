@@ -2,14 +2,14 @@ import type { ReactNode } from "react";
 import React from "react";
 import type { TextSize } from "constants/WidgetConstants";
 import { countOccurrences } from "workers/Evaluation/helpers";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import WidgetStyleContainer from "components/designSystems/appsmith/WidgetStyleContainer";
 import type { Color } from "constants/Colors";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import { pick } from "lodash";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import type { ContainerStyle } from "widgets/ContainerWidget/component";
 import type { TextAlign } from "../component";
@@ -18,21 +18,19 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { DEFAULT_FONT_SIZE, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { OverflowTypes } from "../constants";
 import IconSVG from "../icon.svg";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/widgetFeaturesTypes";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import type {
-  SnipingModeProperty,
-  PropertyUpdates,
-} from "WidgetProvider/constants";
+import type { SnipingModeProperty } from "WidgetProvider/types";
 import { get } from "lodash";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "widgets/types";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const MAX_HTML_PARSING_LENGTH = 1000;
 class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {

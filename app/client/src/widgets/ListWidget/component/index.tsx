@@ -3,7 +3,7 @@ import type { RefObject, ReactNode } from "react";
 import React, { useMemo } from "react";
 
 import type { ListWidgetProps } from "../constants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { generateClassName, getCanvasClassName } from "utils/generators";
 
 interface ListComponentProps {

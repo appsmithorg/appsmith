@@ -8,11 +8,7 @@ import { GRAPHQL_HTTP_METHOD_OPTIONS } from "constants/ApiEditorConstants/GraphQ
 import styled from "styled-components";
 import FormLabel from "components/editorComponents/FormLabel";
 import FormRow from "components/editorComponents/FormRow";
-import type {
-  ActionResponse,
-  PaginationField,
-  SuggestedWidget,
-} from "api/ActionAPI";
+import type { ActionResponse, SuggestedWidget } from "api/actionAPITypes";
 import type { Action, PaginationType } from "entities/Action";
 import { isGraphqlPlugin } from "entities/Action";
 import KeyValueFieldArray from "components/editorComponents/form/fields/KeyValueFieldArray";
@@ -61,6 +57,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { ApiEditorContext } from "./ApiEditorContext";
 import ActionRightPane from "components/editorComponents/ActionRightPane";
+import type { PaginationField } from "api/ActionAPI";
 
 const Form = styled.form`
   position: relative;

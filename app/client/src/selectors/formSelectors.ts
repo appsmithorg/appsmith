@@ -5,13 +5,13 @@ import type {
   DynamicValues,
   FormEvalOutput,
   FormEvaluationState,
-} from "reducers/evaluationReducers/formEvaluationReducer";
+} from "components/formControls/formControlTypes";
 import { createSelector } from "reselect";
 import { isEmpty, replace } from "lodash";
 import { getDataTree } from "./dataTreeSelectors";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { Action } from "entities/Action";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
 import { getActionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
 import { extractConditionalOutput } from "components/formControls/utils";
 

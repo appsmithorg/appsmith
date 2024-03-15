@@ -1,11 +1,11 @@
 import type { FieldEntityInformation } from "components/editorComponents/CodeEditor/EditorConfig";
 import { AutocompleteSorter } from "../AutocompleteSortRules";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type {
-  Completion,
   DataTreeDefEntityInformation,
+  Completion,
   TernCompletionResult,
-} from "../CodemirrorTernService";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+} from "../types";
 
 describe("Autocomplete Ranking", () => {
   it("Blocks platform functions in data fields", () => {

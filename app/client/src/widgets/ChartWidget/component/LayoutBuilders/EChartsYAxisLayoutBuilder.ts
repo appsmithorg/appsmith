@@ -2,7 +2,7 @@ import type {
   ChartType,
   LongestLabelParams,
 } from "widgets/ChartWidget/constants";
-import { getTextWidth, labelKeyForChart } from "../helpers";
+import { getTextWidth, labelKeyForChart } from "../utils";
 
 interface YAxisLayoutBuilderParams {
   widgetWidth: number;

@@ -16,8 +16,8 @@ import {
 import { Colors } from "constants/Colors";
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import { cloneDeep, isString } from "lodash";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { WidgetProps } from "widgets/types";
+import type { DSLWidget } from "WidgetProvider/types";
 import { getSubstringBetweenTwoWords } from "utils/helpers";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";

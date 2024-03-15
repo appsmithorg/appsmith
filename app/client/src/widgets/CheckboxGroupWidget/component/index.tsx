@@ -19,7 +19,7 @@ import LabelWithTooltip, {
   labelLayoutStyles,
   LABEL_CONTAINER_CLASS,
 } from "widgets/components/LabelWithTooltip";
-import type { ThemeProp } from "WidgetProvider/constants";
+import type { ThemeProp } from "constants/DefaultTheme";
 import { AlignWidgetTypes } from "WidgetProvider/constants";
 
 export interface InputContainerProps {

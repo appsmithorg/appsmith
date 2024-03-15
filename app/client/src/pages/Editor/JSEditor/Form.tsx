@@ -4,7 +4,6 @@ import type { JSAction } from "entities/JSCollection";
 import type { DropdownOnSelect } from "design-system-old";
 import {
   CodeEditorBorder,
-  EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
@@ -31,7 +30,7 @@ import {
   getJSActions,
   getJSCollectionParseErrors,
 } from "@appsmith/selectors/entitiesSelector";
-import type { JSActionDropdownOption } from "./utils";
+import type { JSActionDropdownOption } from "./utilsTypes";
 import {
   convertJSActionsToDropdownOptions,
   convertJSActionToDropdownOption,
@@ -71,6 +70,7 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;

@@ -3,7 +3,7 @@ import { klona } from "klona";
 
 import type { ConstructorProps, GeneratorOptions } from "./MetaWidgetGenerator";
 import MetaWidgetGenerator from "./MetaWidgetGenerator";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { nestedListInput, simpleListInput } from "./testData";
 import { RenderModes } from "constants/WidgetConstants";
 import { ButtonFactory } from "test/factories/Widgets/ButtonFactory";

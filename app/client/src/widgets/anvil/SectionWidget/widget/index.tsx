@@ -5,7 +5,7 @@ import type {
   FlattenedWidgetProps,
   WidgetBaseConfiguration,
   WidgetDefaultProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
@@ -16,7 +16,7 @@ import {
   propertyPaneContent,
   propertyPaneStyle,
 } from "./config";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import BaseWidget from "widgets/BaseWidget";
 import type { ReactNode } from "react";

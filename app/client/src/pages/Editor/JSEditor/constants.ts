@@ -1,6 +1,6 @@
 import type { OptionProps } from "design-system-old";
 import { css } from "styled-components";
-import type { JSActionDropdownOption } from "./utils";
+import type { JSActionDropdownOption } from "./utilsTypes";
 
 export const RUN_BUTTON_DEFAULTS = {
   HEIGHT: "30px",

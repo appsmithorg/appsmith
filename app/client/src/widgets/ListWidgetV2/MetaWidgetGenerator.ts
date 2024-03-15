@@ -12,7 +12,7 @@ import isEqual from "fast-deep-equal/es6";
 
 import Queue from "./Queue";
 import { extractTillNestedListWidget } from "./widget/helper";
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import { generateReactKey } from "utils/generators";
 import {
   GridDefaults,
@@ -28,8 +28,8 @@ import type {
   MetaWidgets,
 } from "./widget";
 import { DEFAULT_TEMPLATE_HEIGHT, DynamicPathType } from "./widget";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { WidgetProps } from "widgets/types";
+import type { DynamicPath } from "widgets/types";
 import {
   combineDynamicBindings,
   getDynamicBindings,

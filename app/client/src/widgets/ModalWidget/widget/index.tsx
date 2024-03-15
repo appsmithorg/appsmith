@@ -2,7 +2,7 @@ import React from "react";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { RenderMode } from "constants/WidgetConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { Stylesheet } from "entities/AppTheming";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import {
@@ -14,7 +14,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { generateClassName } from "utils/generators";
 import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import ModalComponent from "../component";
@@ -29,12 +29,12 @@ import { WIDGET_TAGS } from "constants/WidgetConstants";
 import type {
   AutocompletionDefinitions,
   FlattenedWidgetProps,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/widgetFeaturesTypes";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { modalPreset } from "layoutSystems/autolayout/layoutComponents/presets/ModalPreset";

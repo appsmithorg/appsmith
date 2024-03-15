@@ -1,5 +1,5 @@
 import React from "react";
-import type { WidgetState } from "widgets/BaseWidget";
+import type { WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import CodeScannerComponent from "../component";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
@@ -11,7 +11,7 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import IconSVG from "../icon.svg";
 
 import { ButtonPlacementTypes } from "components/constants";

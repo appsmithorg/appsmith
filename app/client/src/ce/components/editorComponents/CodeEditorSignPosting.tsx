@@ -1,8 +1,6 @@
 import BindingPrompt from "components/editorComponents/CodeEditor/BindingPrompt";
-import type {
-  EditorTheme,
-  TEditorModes,
-} from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { TEditorModes } from "components/editorComponents/CodeEditor/sql/config";
 import React from "react";
 
 export function CodeEditorSignPosting(props: {

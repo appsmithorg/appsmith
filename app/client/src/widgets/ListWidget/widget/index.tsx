@@ -4,7 +4,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { GridDefaults, RenderModes } from "constants/WidgetConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { PrivateWidgets } from "@appsmith/entities/DataTree/types";
 import equal from "fast-deep-equal/es6";
@@ -37,13 +37,9 @@ import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type { ExtraDef } from "utils/autocomplete/defCreatorUtils";
 import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  BlueprintOperationTypes,
-  type FlattenedWidgetProps,
-  type DSLWidget,
-} from "WidgetProvider/constants";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import ListComponent, {
   ListComponentEmpty,
   ListComponentLoading,
@@ -59,14 +55,16 @@ import {
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+  FlattenedWidgetProps,
+  DSLWidget,
+} from "WidgetProvider/types";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import IconSVG from "../icon.svg";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const LIST_WIDGET_PAGINATION_HEIGHT = 36;
 

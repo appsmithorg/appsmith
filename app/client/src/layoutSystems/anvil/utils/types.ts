@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import type { SizeConfig } from "WidgetProvider/constants";
+import type { SizeConfig } from "WidgetProvider/types";
 import type { WidgetType } from "WidgetProvider/factory";
 
 export interface AnvilFlexComponentProps {

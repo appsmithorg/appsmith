@@ -33,7 +33,7 @@ import type { WrappedFieldInputProps } from "redux-form";
 import _, { debounce, isEqual, isNumber } from "lodash";
 import scrollIntoView from "scroll-into-view-if-needed";
 
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { Skin } from "constants/DefaultTheme";
@@ -49,7 +49,6 @@ import type {
   MarkHelper,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  EditorModes,
   EditorSize,
   EditorTheme,
   EditorThemes,
@@ -78,7 +77,7 @@ import "codemirror/addon/fold/brace-fold";
 import "codemirror/addon/fold/foldgutter";
 import "codemirror/addon/fold/foldgutter.css";
 import * as Sentry from "@sentry/react";
-import type { EvaluationError, LintError } from "utils/DynamicBindingUtils";
+import type { EvaluationError, LintError } from "widgets/types";
 import { getEvalErrorPath, isDynamicValue } from "utils/DynamicBindingUtils";
 import {
   addEventToHighlightedElement,
@@ -110,7 +109,7 @@ import {
 } from "./utils/autoIndentUtils";
 import { getMoveCursorLeftKey } from "./utils/cursorLeftMovement";
 import { interactionAnalyticsEvent } from "utils/AppsmithUtils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import {
   getCodeEditorLastCursorPosition,
   getIsInputFieldFocused,
@@ -121,7 +120,7 @@ import { updateCustomDef } from "utils/autocomplete/customDefUtils";
 import { shouldFocusOnPropertyControl } from "utils/editorContextUtils";
 import { getEntityLintErrors } from "selectors/lintingSelectors";
 import { getCodeCommentKeyMap, handleCodeComment } from "./utils/codeComment";
-import type { EntityNavigationData } from "selectors/navigationSelectors";
+import type { EntityNavigationData } from "utils/NavigationSelector/types";
 import { getEntitiesForNavigation } from "selectors/navigationSelectors";
 import history, { NavigationMethod } from "utils/history";
 import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
@@ -160,6 +159,7 @@ import {
 } from "actions/activeFieldActions";
 import CodeMirrorTernService from "utils/autocomplete/CodemirrorTernService";
 import { getEachEntityInformation } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { EditorModes } from "./sql/config";
 
 type ReduxStateProps = ReturnType<typeof mapStateToProps>;
 type ReduxDispatchProps = ReturnType<typeof mapDispatchToProps>;

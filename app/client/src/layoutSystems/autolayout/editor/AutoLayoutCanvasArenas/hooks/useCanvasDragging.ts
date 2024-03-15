@@ -11,10 +11,10 @@ import type { WidgetDraggingBlock } from "../../../../common/canvasArenas/ArenaT
 import { useBlocksToBeDraggedOnCanvas } from "./useBlocksToBeDraggedOnCanvas";
 import { useRenderBlocksOnCanvas } from "./useRenderBlocksOnCanvas";
 import type { HighlightInfo } from "layoutSystems/common/utils/types";
-import type { AutoCanvasDraggingArenaProps } from "../AutoCanvasDraggingArena";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { modifyBlockDimension } from "layoutSystems/common/utils/canvasDraggingUtils";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import type { AutoCanvasDraggingArenaProps } from "../types";
 
 /**
  * useCanvasDragging hook is utilized to handle all drag and drop related functions that are required to give user the sense of dragging and dropping while moving a widget on canvas

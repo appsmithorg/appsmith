@@ -3,7 +3,7 @@ import equal from "fast-deep-equal/es6";
 import { debounce, difference, isEmpty, merge, noop } from "lodash";
 import { klona } from "klona";
 
-import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
+import type { WidgetProps, WidgetState } from "widgets/types";
 import BaseWidget from "widgets/BaseWidget";
 import JSONFormComponent from "../component";
 import { contentConfig, styleConfig } from "./propertyConfig";
@@ -30,15 +30,13 @@ import type {
   SetterConfig,
   Stylesheet,
 } from "entities/AppTheming";
-import type { BatchPropertyUpdatePayload } from "actions/controlActions";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import type {
   AnvilConfig,
   AutocompletionDefinitions,
-  PropertyUpdates,
   SnipingModeProperty,
-} from "WidgetProvider/constants";
+} from "WidgetProvider/types";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { ButtonVariantTypes } from "components/constants";
 import { Colors } from "constants/Colors";
@@ -47,7 +45,7 @@ import {
   FlexVerticalAlignment,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import { DynamicHeight } from "utils/WidgetFeatures";
+import { DynamicHeight } from "utils/widgetFeaturesTypes";
 
 import IconSVG from "../icon.svg";
 
@@ -56,7 +54,7 @@ import type {
   WidgetQueryConfig,
   WidgetQueryGenerationFormConfig,
 } from "WidgetQueryGenerators/types";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
+import type { DynamicPath } from "widgets/types";
 import { toast } from "design-system";
 import {
   ONSUBMIT_NOT_CONFIGURED_ACTION_TEXT,
@@ -64,6 +62,8 @@ import {
   ONSUBMIT_NOT_CONFIGURED_MESSAGE,
 } from "../constants/messages";
 import { createMessage } from "@appsmith/constants/messages";
+import type { BatchPropertyUpdatePayload } from "components/propertyControls/propertyControlTypes";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 const SUBMIT_BUTTON_DEFAULT_STYLES = {
   buttonVariant: ButtonVariantTypes.PRIMARY,

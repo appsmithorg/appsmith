@@ -5,7 +5,6 @@ import { StyledDynamicInput } from "./StyledControls";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -16,12 +15,13 @@ import {
   JSToString,
   stringToJS,
 } from "components/editorComponents/ActionCreator/utils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { getUniqueKeysFromSourceData } from "widgets/MenuButtonWidget/widget/helper";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 const PromptMessage = styled.span`
   line-height: 17px;

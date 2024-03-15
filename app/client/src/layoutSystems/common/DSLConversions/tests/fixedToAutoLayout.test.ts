@@ -2,7 +2,7 @@ import {
   Positioning,
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget } from "WidgetProvider/types";
 import {
   fitChildWidgetsIntoLayers,
   getAutoCanvasWidget,

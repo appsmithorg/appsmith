@@ -1,9 +1,10 @@
-import { Severity, LOG_CATEGORY } from "entities/AppsmithConsole";
+import { LOG_CATEGORY } from "entities/AppsmithConsole";
+import { Severity } from "widgets/types";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "widgets/types";
 import { getFilteredErrors } from "./debuggerSelectors";
 
 describe("getFilteredErrors", () => {

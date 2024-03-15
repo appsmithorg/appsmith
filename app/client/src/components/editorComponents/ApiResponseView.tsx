@@ -3,7 +3,7 @@ import React, { useCallback, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
-import type { ActionResponse } from "api/ActionAPI";
+import type { ActionResponse } from "api/actionAPITypes";
 import { formatBytes } from "utils/helpers";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
@@ -33,7 +33,6 @@ import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import Table from "pages/Editor/QueryEditor/Table";
 import { API_RESPONSE_TYPE_OPTIONS } from "constants/ApiEditorConstants/CommonApiConstants";
 import { setActionResponseDisplayFormat } from "actions/pluginActionActions";
-import { isHtml } from "./utils";
 import { getErrorCount } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import LogAdditionalInfo from "./Debugger/ErrorLogs/components/LogAdditionalInfo";
@@ -44,7 +43,7 @@ import {
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import { getUpdateTimestamp } from "./Debugger/ErrorLogs/ErrorLogItem";
 import type { Action } from "entities/Action";
-import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoForm";
+import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/EditorJSONtoFormStyles";
 import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { EMPTY_RESPONSE } from "./emptyResponse";
@@ -226,6 +225,13 @@ export const ResponseTabErrorContent = styled.div`
 export const ResponseTabErrorDefaultMessage = styled.div`
   flex-shrink: 0;
 `;
+
+export const isHtml = (str: string) => {
+  const doc = new DOMParser().parseFromString(str, "text/html");
+  return Array.from(doc.body.childNodes).some(
+    (node: any) => node.nodeType === 1,
+  );
+};
 
 export const apiReactJsonProps = { ...reactJsonProps, collapsed: 0 };
 

@@ -4,13 +4,13 @@ import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import type { EventOrValueHandler } from "redux-form";
 import {
-  EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 class CodeEditorControl extends BaseControl<ControlProps> {
   render() {

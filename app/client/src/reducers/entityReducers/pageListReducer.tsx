@@ -12,9 +12,10 @@ import type {
   UpdatePageErrorPayload,
 } from "actions/pageActions";
 import type { UpdatePageRequest, UpdatePageResponse } from "api/PageApi";
+import type { SupportedLayouts } from "constants/WidgetConstants";
 import { sortBy } from "lodash";
-import type { DSL } from "reducers/uiReducers/pageCanvasStructureReducer";
 import { createReducer } from "utils/ReducerUtils";
+import type { DSL } from "utils/canvasStructureTypes";
 
 const initialState: PageListReduxState = {
   pages: [],
@@ -244,13 +245,6 @@ export const pageListReducer = createReducer(initialState, {
     return { ...state, pages: sortedPages };
   },
 });
-
-export type SupportedLayouts =
-  | "DESKTOP"
-  | "TABLET_LARGE"
-  | "TABLET"
-  | "MOBILE"
-  | "FLUID";
 
 export interface AppLayoutConfig {
   type: SupportedLayouts;

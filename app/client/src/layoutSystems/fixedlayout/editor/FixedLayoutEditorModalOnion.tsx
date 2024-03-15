@@ -1,4 +1,4 @@
-import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { BaseWidgetProps } from "widgets/types";
 import React from "react";
 import { ClickContentToOpenPropPane } from "utils/hooks/useClickToSelectWidget";
 import { ModalResizableLayer } from "../../common/resizer/ModalResizableLayer";

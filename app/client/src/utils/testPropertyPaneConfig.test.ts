@@ -2,13 +2,13 @@ import type {
   PropertyPaneConfig,
   PropertyPaneControlConfig,
   PropertyPaneSectionConfig,
-  ValidationConfig,
 } from "constants/PropertyControlConstants";
-import { ValidationTypes } from "constants/WidgetValidation";
 import { isFunction } from "lodash";
 import widgets from "widgets";
 import WidgetFactory from "WidgetProvider/factory";
 import { registerWidgets } from "WidgetProvider/factory/registrationHelper";
+import { ValidationTypes } from "constants/types";
+import type { ValidationConfig } from "constants/types";
 
 function validatePropertyPaneConfig(
   config: PropertyPaneConfig[],

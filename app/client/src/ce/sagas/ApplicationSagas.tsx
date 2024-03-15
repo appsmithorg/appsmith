@@ -86,7 +86,6 @@ import {
   fetchDatasources,
   setUnconfiguredDatasourcesDuringImport,
 } from "actions/datasourceActions";
-import { failFastApiCalls } from "sagas/InitSagas";
 import type { Datasource } from "entities/Datasource";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { getDefaultPageId as selectDefaultPageId } from "sagas/selectors";
@@ -123,6 +122,7 @@ import {
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
+import { failFastApiCalls } from "entities/Engine/AppEngineUtils";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],

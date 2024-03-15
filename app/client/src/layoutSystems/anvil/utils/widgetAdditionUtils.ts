@@ -1,4 +1,4 @@
-import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import type { FlattenedWidgetProps } from "WidgetProvider/types";
 import type { WidgetAddChild } from "actions/pageActions";
 import { WidgetReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";

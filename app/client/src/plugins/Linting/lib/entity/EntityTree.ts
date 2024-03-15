@@ -17,7 +17,7 @@ import type { EntityDiffGenerator } from "plugins/Linting/utils/diffGenerator";
 import {
   DefaultDiffGenerator,
   JSLintDiffGenerator,
-} from "plugins/Linting/utils/diffGenerator";
+} from "plugins/Linting/utils/diffGenerator/diffGenerator";
 import { union } from "lodash";
 
 export abstract class EntityTree {

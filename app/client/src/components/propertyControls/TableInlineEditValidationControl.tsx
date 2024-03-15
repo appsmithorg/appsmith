@@ -6,7 +6,6 @@ import { StyledDynamicInput } from "./StyledControls";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import {
-  EditorModes,
   EditorSize,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
@@ -14,7 +13,7 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import styled from "styled-components";
 import { isString } from "utils/helpers";
 import { JSToString, stringToJS } from "./utils";
-import type { AdditionalDynamicDataTree } from "utils/autocomplete/customTreeTypeDefCreator";
+import type { AdditionalDynamicDataTree } from "constants/PropertyControlConstants";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import {
   ORIGINAL_INDEX_KEY,
@@ -26,6 +25,7 @@ import {
 } from "@appsmith/constants/messages";
 import { bindingHintHelper } from "components/editorComponents/CodeEditor/hintHelpers";
 import { slashCommandHintHelper } from "components/editorComponents/CodeEditor/commandsHelper";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 
 export const PromptMessage = styled.span`
   line-height: 17px;

@@ -1,6 +1,6 @@
 import { RecaptchaTypes } from "components/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 
 export const propertyPaneContentConfig = [
   {

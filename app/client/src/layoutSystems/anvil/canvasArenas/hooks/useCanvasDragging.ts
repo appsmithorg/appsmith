@@ -1,6 +1,6 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
-import type { AnvilHighlightingCanvasProps } from "../AnvilHighlightingCanvas";
+import type { AnvilHighlightingCanvasProps } from "../types";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { Colors } from "constants/Colors";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";

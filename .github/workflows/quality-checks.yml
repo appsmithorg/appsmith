@@ -82,6 +82,15 @@ jobs:
     with:
       pr: ${{ github.event.pull_request.number }}
 
+  client-check-cyclic-deps:
+    name: client-check-cyclic-deps
+    needs: path-filter
+    if: needs.path-filter.outputs.client == 'true'
+    uses: ./.github/workflows/ci-client-cyclic-deps-check.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.pull_request.number }}
+
   qc-result:
     name: qc-result
     needs:
@@ -92,6 +101,7 @@ jobs:
         client-prettier,
         client-unit-tests,
         client-lint,
+        client-check-cyclic-deps,
       ]
     if: always()
     runs-on: ubuntu-latest
@@ -106,6 +116,7 @@ jobs:
            "${{ needs.client-build.result }}" == "failure" || \
            "${{ needs.client-prettier.result }}" == "failure" || \
            "${{ needs.client-unit-tests.result }}" == "failure" || \
+           "${{ needs.client-check-cyclic-deps.result }}" == "failure" || \
            "${{ needs.client-lint.result }}" == "failure" ]]; then
             echo "Quality checks failed";
             exit 1;

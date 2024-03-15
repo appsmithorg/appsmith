@@ -4,8 +4,8 @@ import {
 } from "components/propertyControls/SelectDefaultValueControl";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { traverseDSLAndMigrate } from "utils/WidgetMigrationUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { WidgetProps } from "widgets/types";
+import type { DSLWidget } from "WidgetProvider/types";
 
 const SelectTypeWidgets = ["SELECT_WIDGET", "MULTI_SELECT_WIDGET_V2"];
 

@@ -16,7 +16,8 @@ import { RenderOptionWrapper } from "../../../TableStyledWrappers";
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
+import { ReadOnlyColumnTypes } from "../../../../constants";
+import { ColumnTypes } from "../../../../types";
 import { importRemixIcon } from "design-system-old";
 
 const CloseIcon = importRemixIcon(

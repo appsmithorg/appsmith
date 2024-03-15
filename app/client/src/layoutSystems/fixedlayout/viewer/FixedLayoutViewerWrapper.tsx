@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { FixedLayoutViewerWidgetOnion } from "./FixedLayoutViewerWidgetOnion";
 import { FixedLayoutViewerModalOnion } from "./FixedLayoutViewerModalOnion";
 

@@ -20,8 +20,8 @@ import {
 import {
   alterLayoutForDesktop,
   alterLayoutForMobile,
-  getCanvasDimensions,
 } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { getCanvasDimensions } from "layoutSystems/autolayout/utils/canvasLayoutUtils";
 import {
   getCanvasAndMetaWidgets,
   getWidgets,

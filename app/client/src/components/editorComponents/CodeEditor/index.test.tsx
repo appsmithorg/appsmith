@@ -8,12 +8,8 @@ import { lightTheme } from "selectors/themeSelectors";
 import userEvent from "@testing-library/user-event";
 import store from "store";
 import CodeEditor from "./index";
-import {
-  EditorSize,
-  EditorTheme,
-  TabBehaviour,
-  EditorModes,
-} from "./EditorConfig";
+import { EditorSize, EditorTheme, TabBehaviour } from "./EditorConfig";
+import { EditorModes } from "./sql/config";
 
 describe("<CodeEditor /> - Keyboard navigation", () => {
   // To avoid warning "Error: Not implemented: window.focus"

@@ -1,24 +1,21 @@
 import { generateDataTreeAction } from "@appsmith/entities/DataTree/dataTreeAction";
 import { generateDataTreeJSAction } from "@appsmith/entities/DataTree/dataTreeJSAction";
-import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
-import log from "loglevel";
-import {
-  ENTITY_TYPE,
-  EvaluationSubstitutionType,
-} from "@appsmith/entities/DataTree/types";
-import { generateDataTreeModuleInputs } from "@appsmith/entities/DataTree/utils";
+import { generateModuleInstance } from "@appsmith/entities/DataTree/dataTreeModuleInstance";
 import type {
-  DataTreeSeed,
   AppsmithEntity,
+  DataTreeSeed,
   EntityTypeValue,
 } from "@appsmith/entities/DataTree/types";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
+import { generateDataTreeModuleInputs } from "@appsmith/entities/DataTree/utils";
 import type {
-  unEvalAndConfigTree,
   ConfigTree,
   UnEvalTree,
+  unEvalAndConfigTree,
 } from "entities/DataTree/dataTreeTypes";
+import { generateDataTreeWidget } from "entities/DataTree/dataTreeWidget";
 import { isEmpty } from "lodash";
-import { generateModuleInstance } from "@appsmith/entities/DataTree/dataTreeModuleInstance";
+import log from "loglevel";
 export class DataTreeFactory {
   static create({
     actions,
@@ -140,5 +137,4 @@ export class DataTreeFactory {
   }
 }
 
-export { ENTITY_TYPE, EvaluationSubstitutionType };
 export type { EntityTypeValue };

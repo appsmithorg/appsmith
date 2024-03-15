@@ -4,7 +4,7 @@ import type {
   PropertyPaneSectionConfig,
 } from "constants/PropertyControlConstants";
 import { get } from "lodash";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { IMatchedSection, IPanelStack } from "../types";
 import { updateConfigPaths } from "pages/Editor/PropertyPane/helpers";
 

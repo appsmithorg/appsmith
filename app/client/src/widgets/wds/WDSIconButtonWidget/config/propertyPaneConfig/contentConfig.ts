@@ -1,5 +1,5 @@
 import { ICONS } from "@design-system/widgets";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 
 export const propertyPaneContentConfig = [
   {

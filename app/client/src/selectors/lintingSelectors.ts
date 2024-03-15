@@ -1,7 +1,6 @@
 import type { AppState } from "@appsmith/reducers";
 import { get } from "lodash";
-import type { LintError } from "utils/DynamicBindingUtils";
-
+import type { LintError } from "widgets/types";
 const emptyLint: LintError[] = [];
 
 export const getEntityLintErrors = (state: AppState, path?: string) => {

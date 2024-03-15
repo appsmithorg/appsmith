@@ -3,11 +3,12 @@ import React from "react";
 import type { EditorProps } from "components/editorComponents/CodeEditor";
 import {
   CodeEditorBorder,
-  EditorModes,
   EditorSize,
   EditorTheme,
   TabBehaviour,
 } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
+
 import LazyCodeEditor from "./LazyCodeEditor";
 
 interface Props {

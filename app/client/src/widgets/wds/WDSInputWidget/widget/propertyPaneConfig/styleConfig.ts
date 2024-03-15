@@ -1,5 +1,5 @@
 import { InputTypes } from "components/constants";
-import { ValidationTypes } from "constants/WidgetValidation";
+import { ValidationTypes } from "constants/types";
 
 import type { InputWidgetProps } from "../types";
 import { ICONS } from "@design-system/widgets";

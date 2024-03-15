@@ -7,7 +7,7 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import WidgetFactory from "WidgetProvider/factory";
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { TreeDropdownOption } from "pages/Editor/Explorer/ContextMenu";
 import ContextMenu from "pages/Editor/Explorer/ContextMenu";
 const WidgetTypes = WidgetFactory.widgetTypes;

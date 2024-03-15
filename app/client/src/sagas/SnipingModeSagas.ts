@@ -21,7 +21,7 @@ import { setSnipingMode } from "actions/propertyPaneActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
-import type { PropertyUpdates } from "WidgetProvider/constants";
+import type { PropertyUpdates } from "constants/PropertyControlConstants";
 
 export function* bindDataToWidgetSaga(
   action: ReduxAction<{

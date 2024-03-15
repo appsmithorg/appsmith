@@ -8,7 +8,7 @@ import type { FieldEntityInformation } from "components/editorComponents/CodeEdi
 import { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { Placement } from "popper.js";
 import { EvaluatedValueDebugButton } from "components/editorComponents/Debugger/DebugCTA";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
+import { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { IPopoverSharedProps } from "@blueprintjs/core";
 import { Classes, Collapse } from "@blueprintjs/core";
 import { UNDEFINED_VALIDATION } from "utils/validation/common";
@@ -28,7 +28,7 @@ import { modText } from "utils/helpers";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getPathNavigationUrl } from "selectors/navigationSelectors";
 import { Button, Icon, Link, toast, Tooltip } from "design-system";
-import type { EvaluationError } from "utils/DynamicBindingUtils";
+import type { EvaluationError } from "widgets/types";
 import { DEBUGGER_TAB_KEYS } from "../Debugger/helpers";
 
 const modifiers: IPopoverSharedProps["modifiers"] = {

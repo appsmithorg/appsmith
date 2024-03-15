@@ -1,13 +1,13 @@
 import React, { useEffect, useMemo } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
+import type { CanvasWidgetStructure } from "WidgetProvider/types";
 import { useSelector } from "react-redux";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { PageView, PageViewWrapper } from "./AppPage.styled";
 import { APP_MODE } from "entities/App";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";

@@ -1,4 +1,4 @@
-import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
+import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getJSActionForEvalContext } from "workers/Evaluation/getJSActionForEvalContext";
 

@@ -9,7 +9,7 @@ import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   EvaluationSubstitutionType,
   ENTITY_TYPE,
-} from "entities/DataTree/dataTreeFactory";
+} from "@appsmith/entities/DataTree/types";
 
 export const arrayAccessorCyclicDependency: Record<string, DataTree> = {
   initUnEvalTree: {

@@ -5,7 +5,7 @@ import type {
   TableStyles,
   SortOrderTypes,
 } from "./component/Constants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import type { WithMeta } from "widgets/MetaHOC";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { IconNames } from "@blueprintjs/icons";
@@ -14,6 +14,7 @@ import type { Alignment } from "@blueprintjs/core";
 import type { IconName } from "@blueprintjs/icons";
 import type { ButtonVariant } from "components/constants";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { ColumnTypes } from "./types";
 
 export interface EditableCell {
   column: string;
@@ -127,23 +128,6 @@ export const DEFAULT_COLUMN_WIDTH = 150;
 export const COLUMN_MIN_WIDTH = 60;
 
 export const TABLE_COLUMN_ORDER_KEY = "tableWidgetColumnOrder";
-
-export enum ColumnTypes {
-  TEXT = "text",
-  URL = "url",
-  NUMBER = "number",
-  IMAGE = "image",
-  VIDEO = "video",
-  DATE = "date",
-  BUTTON = "button",
-  ICON_BUTTON = "iconButton",
-  MENU_BUTTON = "menuButton",
-  SELECT = "select",
-  EDIT_ACTIONS = "editActions",
-  CHECKBOX = "checkbox",
-  SWITCH = "switch",
-  CURRENCY = "currency",
-}
 
 export enum ReadOnlyColumnTypes {
   TEXT = "text",

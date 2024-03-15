@@ -5,7 +5,7 @@ import type {
   WidgetLayoutProps,
 } from "../../anvilTypes";
 import { addWidgetsToChildTemplate, getAffectedLayout } from "./additionUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { createSectionAndAddWidget } from "./sectionUtils";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
 import { call } from "redux-saga/effects";

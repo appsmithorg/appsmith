@@ -1,5 +1,4 @@
 import type { ErrorActionPayload } from "sagas/ErrorSagas";
-import type { ActionResponse } from "api/ActionAPI";
 import { PluginType } from "entities/Action";
 import queryActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/QuerySettingsConfig";
 import apiActionSettingsConfig from "constants/AppsmithActionConstants/formConfig/ApiSettingsConfig";
@@ -8,6 +7,7 @@ import saasActionSettingsConfig from "constants/AppsmithActionConstants/formConf
 import apiActionDependencyConfig from "constants/AppsmithActionConstants/formConfig/ApiDependencyConfigs";
 import apiActionDatasourceFormButtonConfig from "constants/AppsmithActionConstants/formConfig/ApiDatasourceFormsButtonConfig";
 import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
+import type { ActionResponse } from "api/actionAPITypes";
 
 export interface ExecuteActionPayloadEvent {
   type: EventType;

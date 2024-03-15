@@ -39,7 +39,7 @@ import { focusWidget, showModal } from "actions/widgetActions";
 import log from "loglevel";
 import { flatten } from "lodash";
 import WidgetFactory from "WidgetProvider/factory";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
 import { toast } from "design-system";

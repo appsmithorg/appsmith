@@ -24,12 +24,11 @@ import {
 import { addBranchParam } from "constants/routes";
 import type { APP_MODE } from "entities/App";
 import { call, fork, put, select, spawn } from "redux-saga/effects";
-import type { EditConsolidatedApi } from "sagas/InitSagas";
 import {
   failFastApiCalls,
   reportSWStatus,
   waitForWidgetConfigBuild,
-} from "sagas/InitSagas";
+} from "entities/Engine/AppEngineUtils";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -53,7 +52,7 @@ import { getFirstTimeUserOnboardingComplete } from "selectors/onboardingSelector
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getAIPromptTriggered } from "utils/storage";
 import { trackOpenEditorTabs } from "../../utils/editor/browserTabsTracking";
-import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import { EditorModes } from "components/editorComponents/CodeEditor/sql/config";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getPageDependencyActions } from "@appsmith/entities/Engine/actionHelpers";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
@@ -66,6 +65,7 @@ import {
   fetchAppThemesAction,
   fetchSelectedAppThemeAction,
 } from "actions/appThemingActions";
+import type { EditConsolidatedApi } from "api/ApiTypes";
 
 export default class AppEditorEngine extends AppEngine {
   constructor(mode: APP_MODE) {

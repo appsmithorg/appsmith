@@ -1,11 +1,11 @@
 import { RenderModes } from "constants/WidgetConstants";
-import * as editorSelectors from "selectors/editorSelectors";
+import * as modeSelectors from "selectors/modeSelectors";
 import { buildChildren } from "test/factories/WidgetFactoryUtils";
 import { renderAppsmithCanvas } from "./CanvasFactory";
 import { render } from "test/testUtils";
 import React from "react";
 import store from "store";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetProps } from "widgets/types";
 import { LayoutSystemTypes } from "./types";
 import * as layoutSystemSelectors from "selectors/layoutSystemSelectors";
 
@@ -23,7 +23,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
     if (children) {
       const canvasProps = children[0];
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -46,7 +46,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
         editorCanvas.container.getElementsByClassName("t--drop-target")[0];
       expect(editorDropTarget).toBeTruthy();
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       const viewerCanvas = render(<>{renderAppsmithCanvas(canvasProps)}</>, {
         initialState: customState,
@@ -69,7 +69,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
     if (children) {
       const canvasProps = children[0];
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.CANVAS);
       jest
         .spyOn(layoutSystemSelectors, "getLayoutSystemType")
@@ -92,7 +92,7 @@ describe("Layout Based Canvas aka Canvas Widget Test cases", () => {
         editorCanvas.container.getElementsByClassName("t--drop-target")[0];
       expect(editorDropTarget).toBeTruthy();
       jest
-        .spyOn(editorSelectors, "getRenderMode")
+        .spyOn(modeSelectors, "getRenderMode")
         .mockImplementation(() => RenderModes.PAGE);
       const viewerCanvas = render(<>{renderAppsmithCanvas(canvasProps)}</>, {
         initialState: customState,

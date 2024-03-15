@@ -1,6 +1,6 @@
-import type { LintError } from "utils/DynamicBindingUtils";
+import type { LintError } from "widgets/types";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
-import { PropertyEvaluationErrorType } from "utils/DynamicBindingUtils";
+import { PropertyEvaluationErrorType } from "widgets/types";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { CustomLintErrorCode, CUSTOM_LINT_ERRORS } from "../constants";
 import type {
