@@ -66,10 +66,11 @@ export function evalTreeWithChanges(
     (update) => update.payload.propertyPath,
   );
   const completeEvalOrder = [
+    ...removedPaths.map((v) => v.fullpath),
     ...updatedValuePaths.map((val) => val.join(".")),
     ...allUnevalUpdates,
     ...evalOrder,
-  ];
+  ].sort((a, b) => a.length - b.length);
 
   const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
