@@ -3,7 +3,7 @@ import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
-import { get, isNumber, set } from "lodash";
+import { get, isEqual, isNumber, isObject, set } from "lodash";
 import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
@@ -71,7 +71,7 @@ export const countOccurrences = (
   return n;
 };
 
-// const LARGE_COLLECTION_SIZE = 100;
+const LARGE_COLLECTION_SIZE = 100;
 // for object paths which have a "." in the object key like "a.['b.c']"
 const REGEX_NESTED_OBJECT_PATH = /(.+)\.\[\'(.*)\'\]/;
 
@@ -161,15 +161,15 @@ const parseFunctionsInObject = (
   return paths;
 };
 
-// const isLargeCollection = (val: any) => {
-//   if (!Array.isArray(val)) return false;
-//   const rowSize = !isObject(val[0]) ? 1 : Object.keys(val[0]).length;
+const isLargeCollection = (val: any) => {
+  if (!Array.isArray(val)) return false;
+  const rowSize = !isObject(val[0]) ? 1 : Object.keys(val[0]).length;
 
-//   const size = val.length * rowSize;
+  const size = val.length * rowSize;
 
-//   return size > LARGE_COLLECTION_SIZE;
-// };
-
+  return size > LARGE_COLLECTION_SIZE;
+};
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
   Object.keys(identicalEvalPathsPatches || {}).reduce(
     (acc: any, evalPath: string) => {
@@ -218,51 +218,48 @@ const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
 //   }, withErrors);
 // };
 
-const getAllPathsToVisit = (evalOrder: any) => {
-  const paths: any = [];
-  for (const key of evalOrder) {
-    const keys = key.split(".");
-    let path = "";
-    for (const key of keys) {
-      path = path ? `${path}.${key}` : key;
-      paths.push(path);
-    }
-  }
-  return paths;
-};
+// const getAllPathsToVisit = (evalOrder: any) => {
+//   const paths: any = [];
+//   for (const key of evalOrder) {
+//     const keys = key.split(".");
+//     let path = "";
+//     for (const key of keys) {
+//       path = path ? `${path}.${key}` : key;
+//       paths.push(path);
+//     }
+//   }
+//   return paths;
+// };
 
-const getWidgetErrorPaths = (data: any) => {
-  const paths: any = [];
-  for (const key in data) {
-    const keys = [key, "__evaluation__", "errors"];
-    let path = "";
-    for (const key of keys) {
-      path = path ? `${path}.${key}` : key;
-      paths.push(path);
-    }
-  }
-  return paths;
-};
+// const getWidgetErrorPaths = (data: any) => {
+//   const paths: any = [];
+//   for (const key in data) {
+//     const keys = [key, "__evaluation__", "errors"];
+//     let path = "";
+//     for (const key of keys) {
+//       path = path ? `${path}.${key}` : key;
+//       paths.push(path);
+//     }
+//   }
+//   return paths;
+// };
 const generateDiffUpdates = (
   oldDataTree: any,
   dataTree: any,
-  ignoreLargeKeys: any,
-  evalOrder: string[],
 ): DiffWithReferenceState[] => {
   const attachDirectly: DiffWithReferenceState[] = [];
   // const ignoreLargeKeysHasBeenAttached = new Set();
   const attachLater: DiffWithReferenceState[] = [];
-  const allPathsToVisit = new Set([
-    ...getAllPathsToVisit(evalOrder),
-    ...getWidgetErrorPaths(dataTree),
-  ]);
+  // const allPathsToVisit = new Set([
+  //   ...getAllPathsToVisit(evalOrder),
+  //   ...getWidgetErrorPaths(dataTree),
+  // ]);
 
   const updates =
     diff(oldDataTree, dataTree, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
 
-      const { path: setPath, segmentedPath } = generateWithKey(path, key);
-      if (!allPathsToVisit.has(setPath)) return true;
+      const { segmentedPath } = generateWithKey(path, key);
 
       const rhs = get(dataTree, segmentedPath);
 
@@ -289,6 +286,20 @@ const generateDiffUpdates = (
         return true;
       }
 
+      const isLhsLarge = isLargeCollection(lhs);
+      const isRhsLarge = isLargeCollection(rhs);
+      if (!isLhsLarge && !isRhsLarge) {
+        //perform diff on this node
+        return false;
+      }
+
+      //if either of values are large just directly attach it don't have to generate very granular updates
+
+      if ((!isLhsLarge && isRhsLarge) || (isLhsLarge && !isRhsLarge)) {
+        attachDirectly.push({ kind: "N", path: segmentedPath, rhs });
+        return true;
+      }
+
       //if the values are different attach the update directly
       !equal(lhs, rhs) &&
         attachDirectly.push({ kind: "N", path: segmentedPath, rhs });
@@ -304,15 +315,15 @@ const generateDiffUpdates = (
 export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
-  evalOrder: string[],
-  identicalEvalPathsPatches?: Record<string, string>,
+  // evalOrder: string[],
+  // identicalEvalPathsPatches?: Record<string, string>,
 ): DiffWithReferenceState[] => {
-  const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
+  // const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
   const updates = generateDiffUpdates(
     oldDataTree,
     dataTree,
-    ignoreLargeKeys,
-    evalOrder,
+    // ignoreLargeKeys,
+    // evalOrder,
   );
   return updates;
 };
@@ -326,18 +337,34 @@ export const generateSerialisedUpdates = (
   serialisedUpdates: string;
   error?: { type: string; message: string };
 } => {
-  const updates = generateOptimisedUpdates(
-    prevState,
-    currentState,
-    evalOrder,
-    identicalEvalPathsPatches,
-  );
+  // const updates = generateOptimisedUpdates(
+  //   prevState,
+  //   currentState,
+  //   evalOrder,
+  //   identicalEvalPathsPatches,
+  // );
+
+  const diffOnJustEvalOrderPaths = [
+    ...evalOrder,
+    ...Object.keys(currentState).map((p) => `${p}.__evaluation__.errors`),
+  ].flatMap((p) => {
+    const path = p.split(".");
+
+    const lhs = get(prevState, path);
+    const rhs = get(currentState, path);
+    if (rhs === undefined) {
+      return { kind: "D", path };
+    }
+    if (isEqual(lhs, rhs)) {
+      return [];
+    }
+    return { kind: "N", path, rhs };
+  });
 
   //remove lhs from diff to reduce the size of diff upload,
   //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const removedLhs = updates.map(({ lhs, ...rest }: any) => rest);
-
+  const removedLhs = diffOnJustEvalOrderPaths.map((rest: any) => rest);
   try {
     // serialise bigInt values and convert the updates to a string over here to minismise the cost of transfer
     // to the main thread. In the main thread parse this object there.
