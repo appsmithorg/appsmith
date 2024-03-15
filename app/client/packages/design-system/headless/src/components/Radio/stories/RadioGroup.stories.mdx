@@ -27,15 +27,4 @@ Note: The `<input="radio" />` is visually hidden by default. Use the `<span data
   <Story name="RadioGroup">{Template.bind({})}</Story>
 </Canvas>
 
-<Story name="Orientation">
-  <div style={{ width: 100 }}>
-    <RadioGroup orientation="vertical">
-      <Radio value="option-1">Option 1</Radio>
-      <Radio value="option-2">Option 2</Radio>
-      <Radio value="option-3">Option 3</Radio>
-      <Radio value="option-4">Option 4</Radio>
-    </RadioGroup>
-  </div>
-</Story>
-
 <ArgsTable story="RadioGroup" of={RadioGroup} />
