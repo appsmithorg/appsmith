@@ -148,18 +148,9 @@ export class UserApi extends Api {
   static async inviteUser(
     request: InviteUserRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
-    const inviteUserUrl = new URL(
-      `/api/${UserApi.inviteUserURL}`,
-      window.location.origin,
-    );
-    if (request.recaptchaToken) {
-      inviteUserUrl.searchParams.append(
-        "recaptchaToken",
-        request.recaptchaToken!,
-      );
-    }
-    delete request.recaptchaToken;
-    return Api.post(inviteUserUrl.toString(), request);
+    return Api.post(UserApi.inviteUserURL, request, {
+      params: { recaptchaToken: request.recaptchaToken },
+    });
   }
 
   static async verifyUserInvite(

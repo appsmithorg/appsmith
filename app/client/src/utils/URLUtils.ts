@@ -14,8 +14,9 @@ export function getQueryParams() {
 
 export function convertObjectToQueryParams(object: any): string {
   if (!_.isNil(object)) {
-    const paramArray: string[] = _.map(_.keys(object), (key) => {
-      return encodeURIComponent(key) + "=" + encodeURIComponent(object[key]);
+    const params = object.params;
+    const paramArray: string[] = _.map(_.keys(params), (key) => {
+      return encodeURIComponent(key) + "=" + encodeURIComponent(params[key]);
     });
     return "?" + _.join(paramArray, "&");
   } else {

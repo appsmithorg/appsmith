@@ -270,11 +270,6 @@ export function CustomRolesRamp() {
   );
 }
 
-declare global {
-  interface Window {
-    grecaptcha: any;
-  }
-}
 const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 function InviteUsersForm(props: any) {
