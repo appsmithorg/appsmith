@@ -7,7 +7,6 @@ import { useAnvilWidgetStyles } from "./hooks/useAnvilWidgetStyles";
 import { useAnvilWidgetClick } from "./hooks/useAnvilWidgetClick";
 import { useAnvilWidgetDrag } from "./hooks/useAnvilWidgetDrag";
 import { useAnvilWidgetHover } from "./hooks/useAnvilWidgetHover";
-import { useAnvilWidgetInteractionGuard } from "./hooks/useAnvilWidgetInteractionGuard";
 
 export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   // Create a ref for the AnvilFlexComponent
@@ -44,7 +43,6 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   useAnvilWidgetStyles(props.widgetId, props.widgetName, props.isVisible, ref);
   useAnvilWidgetDrag(props.widgetId, props.widgetType, props.layoutId, ref);
   useAnvilWidgetHover(props.widgetId, ref);
-  useAnvilWidgetInteractionGuard(ref);
   // Note: For some reason native click callback listeners are somehow hindering with events required for toggle-able widgets like checkbox, switch, etc.
   // Hence supplying click and click capture callbacks to the AnvilFlexComponent
   const { onClickCaptureFn, onClickFn } = useAnvilWidgetClick(
