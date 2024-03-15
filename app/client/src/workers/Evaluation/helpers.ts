@@ -226,6 +226,7 @@ const generateDiffUpdates = (
     new Set(
       evalOrder.map((path) => {
         const [widgetRootPath, subProperty] = path.split(".");
+        if (subProperty === undefined) return widgetRootPath;
         return [widgetRootPath, subProperty].join(".");
       }),
     ),

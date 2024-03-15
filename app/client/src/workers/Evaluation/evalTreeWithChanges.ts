@@ -66,7 +66,9 @@ export function evalTreeWithChanges(
     (update) => update.payload.propertyPath,
   );
   const completeEvalOrder = [
-    ...updatedValuePaths.map((val) => val[0]),
+    ...updatedValuePaths.map((val) =>
+      val[1] === undefined ? val[0] : [val[0], val[1]].join("."),
+    ),
     ...allUnevalUpdates,
     ...evalOrder,
   ];
