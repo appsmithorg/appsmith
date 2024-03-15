@@ -64,6 +64,7 @@ import { AddScriptTo, ScriptStatus, useScript } from "utils/hooks/useScript";
 
 const featureFlags = selectFeatureFlags(store.getState());
 const isFeatureEnabled = isGACEnabled(featureFlags);
+const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 export const StyledForm = styled.form`
   width: 100%;
@@ -269,8 +270,6 @@ export function CustomRolesRamp() {
     </CustomRoleRampTooltip>
   );
 }
-
-const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 function InviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
