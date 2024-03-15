@@ -333,6 +333,7 @@ export const generateSerialisedUpdates = (
   currentState: any,
   identicalEvalPathsPatches: any,
   evalOrder: string[],
+  removedUpdates: any,
 ): {
   serialisedUpdates: string;
   error?: { type: string; message: string };
@@ -364,7 +365,10 @@ export const generateSerialisedUpdates = (
   //remove lhs from diff to reduce the size of diff upload,
   //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const removedLhs = diffOnJustEvalOrderPaths.map((rest: any) => rest);
+  const removedLhs = [
+    ...diffOnJustEvalOrderPaths.map((rest: any) => rest),
+    ...removedUpdates,
+  ];
   try {
     // serialise bigInt values and convert the updates to a string over here to minismise the cost of transfer
     // to the main thread. In the main thread parse this object there.
@@ -384,6 +388,7 @@ export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: any,
   dataTreeEvaluator: any,
   evalOrder: string[],
+  removedUpdates: any,
 ) => {
   const identicalEvalPathsPatches =
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
@@ -393,6 +398,7 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     dataTree,
     identicalEvalPathsPatches,
     evalOrder,
+    removedUpdates,
   );
 
   if (error) {
