@@ -62,6 +62,8 @@ import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { setWidgetBindingAccelerator } from "actions/widgetBindingAcceleratorActions";
+import { WidgetBindingAccelerator } from "reducers/uiReducers/widgetBindingAcceleratorsReducer";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -270,6 +272,7 @@ const PropertyControl = memo((props: Props) => {
     },
     [dispatch],
   );
+
   const {
     isTriggerProperty,
     postUpdateAction,
@@ -555,6 +558,16 @@ const PropertyControl = memo((props: Props) => {
           propertyName,
           propertyValue,
         );
+
+      if (isUpdatedViaKeyboard) {
+        dispatch(
+          setWidgetBindingAccelerator(
+            widgetProperties.widgetId,
+            propertyName,
+            WidgetBindingAccelerator.SELF,
+          ),
+        );
+      }
 
       if (allPropertiesToUpdates && allPropertiesToUpdates.length) {
         const update = allPropertiesToUpdates[0];

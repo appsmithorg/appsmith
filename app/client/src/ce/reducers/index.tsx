@@ -80,6 +80,7 @@ import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integ
 import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
+import type { WidgetBindingAccelerators } from "reducers/uiReducers/widgetBindingAcceleratorsReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -144,6 +145,7 @@ export interface AppState {
     oneClickBinding: OneClickBindingState;
     activeField: ActiveField;
     ide: IDEState;
+    widgetBindingAccelerators: WidgetBindingAccelerators;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;

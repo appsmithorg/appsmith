@@ -1523,3 +1523,6 @@ export const getJSSegmentItems = createSelector(
 
 export const getSelectedTableName = (state: AppState) =>
   state.ui.datasourcePane.selectedTableName;
+
+export const getWidgetBindingAccelerators = (state: AppState) =>
+  state.ui.widgetBindingAccelerators;

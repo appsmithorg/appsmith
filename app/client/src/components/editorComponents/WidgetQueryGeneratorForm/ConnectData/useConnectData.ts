@@ -9,6 +9,8 @@ import { useContext, useMemo } from "react";
 import { WidgetQueryGeneratorFormContext } from "../index";
 import { PluginPackageName } from "../../../../entities/Action";
 import { useFormConfig } from "../common/useFormConfig";
+import { setWidgetBindingAccelerator } from "actions/widgetBindingAcceleratorActions";
+import { WidgetBindingAccelerator } from "reducers/uiReducers/widgetBindingAcceleratorsReducer";
 
 export function useConnectData() {
   const dispatch = useDispatch();
@@ -30,6 +32,14 @@ export function useConnectData() {
       type: ReduxActionTypes.BIND_WIDGET_TO_DATASOURCE,
       payload: formConfig, // Use the formConfig payload directly
     });
+
+    dispatch(
+      setWidgetBindingAccelerator(
+        widget.widgetId,
+        propertyName,
+        WidgetBindingAccelerator.ONE_CLICK_BINDING,
+      ),
+    );
 
     AnalyticsUtil.logEvent(`GENERATE_QUERY_CONNECT_DATA_CLICK`, {
       widgetName: widget.widgetName,

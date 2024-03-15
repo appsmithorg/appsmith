@@ -50,6 +50,12 @@ import type {
 } from "workers/Evaluation/types";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import { getCollectionNameToDisplay } from "@appsmith/utils/actionExecutionUtils";
+import { getWidgetBindingAccelerators } from "@appsmith/selectors/entitiesSelector";
+import type {
+  WidgetBindingAcceleratorType,
+  WidgetBindingAccelerators,
+} from "reducers/uiReducers/widgetBindingAcceleratorsReducer";
+import { resetWidgetBindingAccelerator } from "actions/widgetBindingAcceleratorActions";
 
 let successfulBindingsMap: SuccessfulBindingMap | undefined;
 
@@ -97,6 +103,9 @@ export function* logSuccessfulBindings(
   undefinedEvalValuesMap: Record<string, boolean>,
 ) {
   const appMode: APP_MODE | undefined = yield select(getAppMode);
+  const accelerators: WidgetBindingAccelerators = yield select(
+    getWidgetBindingAccelerators,
+  );
   if (appMode === APP_MODE.PUBLISHED) return;
   if (!evaluationOrder) return;
 
@@ -106,6 +115,10 @@ export function* logSuccessfulBindings(
 
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const instanceId: string = yield select(getInstanceId);
+  const resetWidgetBindingAccelerators: {
+    widgetId: string;
+    propertyName: string;
+  }[] = [];
 
   evaluationOrder.forEach((evaluatedPath) => {
     const { entityName, propertyPath } =
@@ -160,6 +173,22 @@ export function* logSuccessfulBindings(
             (successfulBindingPaths[evaluatedPath] &&
               successfulBindingPaths[evaluatedPath] !== unevalValue)
           ) {
+            const analyticsParams: {
+              isWidget: boolean;
+              accelerator?: WidgetBindingAcceleratorType;
+            } = {
+              isWidget: isWidget(entity),
+            };
+            if (isWidget(entity)) {
+              if (accelerators[entity.widgetId]?.[propertyPath]) {
+                analyticsParams.accelerator =
+                  accelerators[entity.widgetId]?.[propertyPath].accelerator;
+                resetWidgetBindingAccelerators.push({
+                  widgetId: entity.widgetId,
+                  propertyName: propertyPath,
+                });
+              }
+            }
             AnalyticsUtil.logEvent("ENTITY_BINDING_SUCCESS", {
               unevalValue,
               entityType,
@@ -167,6 +196,7 @@ export function* logSuccessfulBindings(
               isUndefined,
               orgId: workspaceId,
               instanceId,
+              ...analyticsParams,
             });
           }
         }
@@ -179,6 +209,12 @@ export function* logSuccessfulBindings(
         }
       }
     }
+  });
+
+  resetWidgetBindingAccelerators.forEach(function* (payload) {
+    yield put(
+      resetWidgetBindingAccelerator(payload.widgetId, payload.propertyName),
+    );
   });
 
   if (!successfulBindingsMap) {

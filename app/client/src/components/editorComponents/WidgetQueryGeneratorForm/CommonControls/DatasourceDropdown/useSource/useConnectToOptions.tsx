@@ -1,5 +1,5 @@
 import React, { useContext, useMemo } from "react";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import {
   getCurrentActions,
   getCurrentPageWidgets,
@@ -28,6 +28,8 @@ import type { AppState } from "@appsmith/reducers";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import { getAllModules } from "@appsmith/selectors/modulesSelector";
 import { getModuleIcon } from "pages/Editor/utils";
+import { setWidgetBindingAccelerator } from "actions/widgetBindingAcceleratorActions";
+import { WidgetBindingAccelerator } from "reducers/uiReducers/widgetBindingAcceleratorsReducer";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -159,6 +161,7 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
     propertyName,
     updateConfig,
   } = useContext(WidgetQueryGeneratorFormContext);
+  const dispatch = useDispatch();
 
   const queries = useSelector(getCurrentActions);
   const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);
@@ -209,6 +212,14 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
           datasourceConnectionMode: "",
         });
 
+        dispatch(
+          setWidgetBindingAccelerator(
+            widget.widgetId,
+            propertyName,
+            WidgetBindingAccelerator.ONE_CLICK_BINDING,
+          ),
+        );
+
         AnalyticsUtil.logEvent(
           "BIND_EXISTING_DATA_TO_WIDGET",
           getAnalyticsInfo(query, widget, propertyName),
@@ -257,6 +268,13 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
                 datasourceConnectionMode: "",
               });
 
+              dispatch(
+                setWidgetBindingAccelerator(
+                  widget.widgetId,
+                  propertyName,
+                  WidgetBindingAccelerator.ONE_CLICK_BINDING,
+                ),
+              );
               AnalyticsUtil.logEvent("BIND_EXISTING_DATA_TO_WIDGET", {
                 widgetName: widget.widgetName,
                 widgetType: widget.type,
