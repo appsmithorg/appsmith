@@ -2,14 +2,8 @@
 import {
   agHelper,
   entityExplorer,
-  propPane,
   draggableWidgets,
-  deployMode,
-  locators,
 } from "../../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  EntityType,
-} from "../../../../../support/Pages/EditorNavigation";
 
 describe(
   "Map chart Widget",
