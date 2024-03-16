@@ -74,7 +74,7 @@ export const inviteUsersToWorkspace = async (
   values: any,
   dispatch: any,
 ): Promise<any> => {
-  const data: unknown = {
+  const data = {
     permissionGroupId: values.permissionGroupId,
     usernames: values.users ? values.users.split(",") : [],
     workspaceId: values.workspaceId,
