@@ -65,11 +65,13 @@ export function evalTreeWithChanges(
   const allUnevalUpdates = unEvalUpdates.map(
     (update) => update.payload.propertyPath,
   );
-  const completeEvalOrder = [
-    ...updatedValuePaths.map((val) => val[0]),
-    ...allUnevalUpdates,
-    ...evalOrder,
-  ].sort((a, b) => a.length - b.length);
+  const completeEvalOrder = Array.from(
+    new Set([
+      ...updatedValuePaths.map((val) => val[0]),
+      ...allUnevalUpdates,
+      ...evalOrder,
+    ]),
+  ).sort((a, b) => b.length - a.length);
 
   const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
