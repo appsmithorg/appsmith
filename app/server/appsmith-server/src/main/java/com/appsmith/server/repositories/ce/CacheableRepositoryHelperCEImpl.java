@@ -19,7 +19,6 @@ import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.stereotype.Component;
@@ -35,7 +34,6 @@ import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 @Component
 @RequiredArgsConstructor
 public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelperCE {
-    private final ReactiveMongoOperations mongoOperations;
     private final EntityManager entityManager;
     private final InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper;
 
@@ -136,11 +134,23 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         Query query = new Query();
         query.addCriteria(defaultTenantCriteria);
 
-        return mongoOperations.findOne(query, Tenant.class).map(defaultTenant -> {
-            String newDefaultTenantId = defaultTenant.getId();
-            inMemoryCacheableRepositoryHelper.setDefaultTenantId(newDefaultTenantId);
-            return newDefaultTenantId;
-        });
+
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<Tenant> cq = cb.createQuery(Tenant.class);
+        final Root<Tenant> root = cq.from(Tenant.class);
+
+        cq.where(cb.equal(root.get(Tenant.Fields.slug), FieldName.DEFAULT));
+        cq.select(root.get(Tenant.Fields.id));
+
+        final Tenant defaultTenant = entityManager.createQuery(cq).getSingleResult();
+
+        if (defaultTenant != null) {
+            final String id = defaultTenant.getId();
+            inMemoryCacheableRepositoryHelper.setDefaultTenantId(id);
+            return Mono.just(id);
+        }
+
+        return Mono.empty();
     }
 
     @Override

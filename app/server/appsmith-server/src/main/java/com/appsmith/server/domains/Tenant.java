@@ -35,4 +35,6 @@ public class Tenant extends BaseDomain {
     TenantConfiguration tenantConfiguration;
 
     // TODO add SSO and other configurations here after migrating from environment variables to database configuration
+
+    public static final class Fields extends BaseDomain.Fields {}
 }
