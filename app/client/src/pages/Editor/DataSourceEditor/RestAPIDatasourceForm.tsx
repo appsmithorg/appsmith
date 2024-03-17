@@ -800,6 +800,124 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
 
+  renderOauth2CommonForAuthorizationCode = () => {
+    const { formData } = this.props;
+    return (
+      <>
+        <FormInputContainer
+          data-location-id={btoa("authentication.isTokenHeader")}
+        >
+          {this.renderDropdownControlViaFormControl(
+            "authentication.isTokenHeader",
+            [
+              {
+                label: "Request Header",
+                value: true,
+              },
+              {
+                label: "Request URL",
+                value: false,
+              },
+            ],
+            "Add Access Token To",
+            "",
+            false,
+            "",
+            !!_.get(formData.authentication, "isTokenHeader"),
+          )}
+        </FormInputContainer>
+        {_.get(formData.authentication, "isTokenHeader") && (
+          <FormInputContainer
+            data-location-id={btoa("authentication.headerPrefix")}
+          >
+            {this.renderInputTextControlViaFormControl({
+              configProperty: "authentication.headerPrefix",
+              label: "Header prefix",
+              placeholderText: "eg: Bearer ",
+              dataType: "TEXT",
+              encrypted: false,
+              isRequired: false,
+            })}
+          </FormInputContainer>
+        )}
+        <FormInputContainer
+          data-location-id={btoa("authentication.accessTokenUrl")}
+        >
+          {this.renderInputTextControlViaFormControl({
+            configProperty: "authentication.accessTokenUrl",
+            label: "Access token URL",
+            placeholderText: "https://example.com/login/oauth/access_token",
+            dataType: "TEXT",
+            encrypted: false,
+            isRequired: false,
+            fieldValidator: this.urlValidator,
+          })}
+        </FormInputContainer>
+        <FormInputContainer data-location-id={btoa("authentication.clientId")}>
+          {this.renderInputTextControlViaFormControl({
+            configProperty: "authentication.clientId",
+            label: "Client ID",
+            placeholderText: "Client ID",
+            dataType: "TEXT",
+            encrypted: false,
+            isRequired: false,
+          })}
+        </FormInputContainer>
+        <FormInputContainer data-location-id={btoa("authentication.clientSecret")}>
+          {this.renderInputTextControlViaFormControl({
+            configProperty: "authentication.clientSecret",
+            label: "Client secret",
+            placeholderText: "Client secret",
+            dataType: "PASSWORD",
+            encrypted: true,
+            isRequired: false,
+            isSecretExistsPath: "authentication.secretExists.clientSecret",
+          })}
+        </FormInputContainer>
+        <FormInputContainer data-location-id={btoa("authentication.scopeString")}>
+          {this.renderInputTextControlViaFormControl({
+            configProperty: "authentication.scopeString",
+            label: "Scope(s)",
+            placeholderText: "e.g. read, write",
+            dataType: "TEXT",
+            encrypted: false,
+            isRequired: false,
+          })}
+        </FormInputContainer>
+        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
+          {this.renderInputTextControlViaFormControl({
+            configProperty: "authentication.expiresIn",
+            label: "Authorization expires in (seconds)",
+            placeholderText: "3600",
+            dataType: "NUMBER",
+            encrypted: false,
+            isRequired: false,
+          })}
+        </FormInputContainer>
+        <FormInputContainer data-location-id={btoa("authentication.isAuthorizationHeader")}>
+          {this.renderDropdownControlViaFormControl(
+            "authentication.isAuthorizationHeader",
+            [
+              {
+                label: "Send as Basic Auth header",
+                value: true,
+              },
+              {
+                label: "Send client credentials in body",
+                value: false,
+              },
+            ],
+            "Client Authentication",
+            "",
+            false,
+            "",
+            !!_.get(formData.authentication, "isAuthorizationHeader"),
+          )}
+        </FormInputContainer>
+      </>
+    );
+  };
+
   renderOauth2AuthorizationCode = () => {
     const { formData } = this.props;
 
@@ -807,10 +925,8 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       window.location.origin + "/api/v1/datasources/authorize";
     return (
       <>
-        {this.renderOauth2Common()}
-        <FormInputContainer
-          data-location-id={btoa("authentication.authorizationUrl")}
-        >
+        {this.renderOauth2CommonForAuthorizationCode()}
+        <FormInputContainer data-location-id={btoa("authentication.authorizationUrl")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.authorizationUrl",
             label: "Authorization URL",
@@ -843,16 +959,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
             false,
           )}
-        </FormInputContainer>
-        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
-          {this.renderInputTextControlViaFormControl({
-            configProperty: "authentication.expiresIn",
-            label: "Authorization expires in (seconds)",
-            placeholderText: "3600",
-            dataType: "NUMBER",
-            encrypted: false,
-            isRequired: false,
-          })}
         </FormInputContainer>
 
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
