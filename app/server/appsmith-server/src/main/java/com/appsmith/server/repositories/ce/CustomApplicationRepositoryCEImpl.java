@@ -17,14 +17,11 @@ import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-import lombok.NonNull;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
@@ -45,11 +42,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Autowired
     public CustomApplicationRepositoryCEImpl(
-            @NonNull ReactiveMongoOperations mongoOperations,
-            @NonNull MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper,
-            ApplicationPermission applicationPermission) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+            CacheableRepositoryHelper cacheableRepositoryHelper, ApplicationPermission applicationPermission) {
+        super(cacheableRepositoryHelper);
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.applicationPermission = applicationPermission;
     }

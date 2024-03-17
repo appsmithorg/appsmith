@@ -12,8 +12,6 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -23,11 +21,8 @@ import java.util.Optional;
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {
 
-    public CustomUserDataRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+    public CustomUserDataRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(cacheableRepositoryHelper);
     }
 
     @Modifying

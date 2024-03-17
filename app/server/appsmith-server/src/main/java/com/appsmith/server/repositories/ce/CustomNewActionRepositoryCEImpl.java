@@ -14,8 +14,6 @@ import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 
 import java.time.Instant;
 import java.util.List;
@@ -26,11 +24,8 @@ import java.util.Set;
 public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepositoryCE {
 
-    public CustomNewActionRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+    public CustomNewActionRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(cacheableRepositoryHelper);
     }
 
     @Override

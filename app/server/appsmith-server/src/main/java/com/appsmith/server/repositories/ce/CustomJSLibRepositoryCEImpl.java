@@ -5,8 +5,6 @@ import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 
 import java.util.List;
 import java.util.Optional;
@@ -16,11 +14,8 @@ import java.util.stream.Collectors;
 public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<CustomJSLib>
         implements CustomJSLibRepositoryCE {
 
-    public CustomJSLibRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+    public CustomJSLibRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(cacheableRepositoryHelper);
     }
 
     @Override

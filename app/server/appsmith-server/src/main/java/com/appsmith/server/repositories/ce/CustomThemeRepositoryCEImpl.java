@@ -10,8 +10,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Component;
 
 import java.time.Instant;
@@ -21,11 +19,8 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Theme> implements CustomThemeRepositoryCE {
-    public CustomThemeRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+    public CustomThemeRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(cacheableRepositoryHelper);
     }
 
     @Override

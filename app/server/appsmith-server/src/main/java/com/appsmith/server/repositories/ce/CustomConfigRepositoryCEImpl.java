@@ -7,8 +7,6 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 
 import java.util.Optional;
 import java.util.Set;
@@ -16,11 +14,8 @@ import java.util.Set;
 public class CustomConfigRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Config>
         implements CustomConfigRepositoryCE {
 
-    public CustomConfigRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+    public CustomConfigRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(cacheableRepositoryHelper);
     }
 
     @Override

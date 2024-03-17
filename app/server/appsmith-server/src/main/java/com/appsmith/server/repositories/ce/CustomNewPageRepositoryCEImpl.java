@@ -18,8 +18,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -34,11 +32,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     private final MongoTemplate mongoTemplate;
 
     public CustomNewPageRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper,
-            MongoTemplate mongoTemplate) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+            CacheableRepositoryHelper cacheableRepositoryHelper, MongoTemplate mongoTemplate) {
+        super(cacheableRepositoryHelper);
         this.mongoTemplate = mongoTemplate;
     }
 

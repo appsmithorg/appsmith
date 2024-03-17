@@ -9,8 +9,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.List;
@@ -27,11 +25,8 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     private final SessionUserService sessionUserService;
 
     public CustomWorkspaceRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            SessionUserService sessionUserService,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+            SessionUserService sessionUserService, CacheableRepositoryHelper cacheableRepositoryHelper) {
+        super(cacheableRepositoryHelper);
         this.sessionUserService = sessionUserService;
     }
 
