@@ -14,6 +14,6 @@ public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> extends B
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
 
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        super(cacheableRepositoryHelper);
     }
 }

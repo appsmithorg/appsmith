@@ -24,9 +24,11 @@ import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.Transient;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.CriteriaUpdate;
+import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
@@ -40,11 +42,8 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -58,7 +57,6 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 
@@ -90,11 +88,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @Getter
     private EntityManager entityManager;
 
-    protected final ReactiveMongoOperations mongoOperations;
-
     protected final Class<T> genericDomain;
-
-    protected final MongoConverter mongoConverter;
 
     protected final CacheableRepositoryHelper cacheableRepositoryHelper;
 
@@ -104,12 +98,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     @Autowired
     @SuppressWarnings("unchecked")
-    public BaseAppsmithRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        this.mongoOperations = mongoOperations;
-        this.mongoConverter = mongoConverter;
+    public BaseAppsmithRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.genericDomain =
                 (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
@@ -203,6 +192,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return findById(id, permission.orElse(null));
     }
 
+    /**
+     * @deprecated This isn't as intuitive as with MongoDB, and isn't the best way with Hibernate. Just calling the
+     * setter methods directly on the persistent object should serve better.
+     */
     @Deprecated
     @Transactional
     @Modifying
@@ -362,15 +355,32 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
                     cq.where(predicate);
 
-                    // TODO: Projections
+                    // TODO: Projection support
+                    // cq.multiselect(params.getFields().stream().map(f -> (Selection<T>) root.<T>get(f)).toList());
 
-                    // TODO: Limits
-
-                    // TODO: Sorting
                     // cq.orderBy(cb.desc(root.get(FieldName.CREATED_AT)));
+                    if (params.getSort() != null) {
+                        // TODO: untested
+                        cq.orderBy(params.getSort()
+                                .map(order -> {
+                                    Expression<?> expression = root.get(order.getProperty());
+                                    if (order.isIgnoreCase()) {
+                                        // TODO: untested
+                                        expression = cb.function("lower", String.class, expression);
+                                    }
+                                    return order.isAscending() ? cb.asc(expression) : cb.desc(expression);
+                                })
+                                .toList());
+                    }
+
+                    final TypedQuery<T> query = entityManager.createQuery(cq);
+
+                    if (params.getLimit() > 0) {
+                        query.setMaxResults(params.getLimit());
+                    }
 
                     // All public access is via a single permission group. Fetch the same and set the cache with it.
-                    return Mono.fromSupplier(entityManager.createQuery(cq)::getResultList)
+                    return Mono.fromSupplier(query::getResultList)
                             .onErrorResume(NoResultException.class, e -> Mono.empty())
                             .map(items -> items.stream()
                                     .map(item -> setUserPermissionsInObject(item, permissionGroups))
@@ -514,6 +524,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         throw new RuntimeException("Not implemented yet!"); //*/
     }
 
+    /*
     public Mono<Integer> updateExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
         Objects.requireNonNull(params.getCriteria());
 
@@ -549,7 +560,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         } else {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
         }
-    }
+    } //*/
 
     /**
      * This method will try to ensure that permission groups are present in the params. If they're already there, don't
