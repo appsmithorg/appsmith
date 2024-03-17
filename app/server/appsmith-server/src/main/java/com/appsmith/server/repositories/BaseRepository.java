@@ -18,11 +18,11 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
         extends CrudRepository<T, ID>, QuerydslPredicateExecutor<T>, JpaSpecificationExecutor<T> {
 
     @Override
-    @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt IS NULL AND e.id = :id")
+    @Query("FROM #{#entityName} e WHERE e.deletedAt IS NULL AND e.id = :id")
     Optional<T> findById(ID id);
 
     @Override
-    @Query("SELECT e FROM #{#entityName} e WHERE e.deletedAt IS NULL")
+    @Query("FROM #{#entityName} e WHERE e.deletedAt IS NULL")
     Iterable<T> findAll();
 
     /**
@@ -45,7 +45,7 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
      * @return
      */
     @Modifying
-    @Query("UPDATE #{#entityName} e SET e.deletedAt = instant WHERE e.id = :id")
+    @Query("UPDATE #{#entityName} e SET e.deletedAt = instant WHERE e.deletedAt IS NULL AND e.id = :id")
     /*no-cake*/ int archiveById(String id);
 
     /**
@@ -56,6 +56,6 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
      * @return
      */
     @Modifying
-    @Query("UPDATE #{#entityName} e SET e.deletedAt = instant WHERE e.id IN :ids")
+    @Query("UPDATE #{#entityName} e SET e.deletedAt = instant WHERE e.deletedAt IS NULL AND e.id IN :ids")
     /*no-cake*/ Optional<Boolean> archiveAllById(Collection<ID> ids);
 }

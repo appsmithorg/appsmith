@@ -80,6 +80,13 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
                         predicate = cb.isNotNull(keyToExpression(Object.class, root, cb, key));
                     }
 
+                } else if (op == Op.NOT_EXISTS) {
+                    if (key.contains(".")) {
+                        predicate = cb.isFalse(keyToExpressionExists(root, cb, key));
+                    } else {
+                        predicate = cb.isNull(keyToExpression(Object.class, root, cb, key));
+                    }
+
                 } else if (op == Op.JSON_IN) {
                     predicate = cb.isTrue(cb.function(
                             "jsonb_path_exists",
@@ -145,6 +152,11 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
 
     public BridgeQuery<T> exists(String key) {
         checks.add(new Check.Unit(Op.EXISTS, key, null));
+        return this;
+    }
+
+    public BridgeQuery<T> notExists(String key) {
+        checks.add(new Check.Unit(Op.NOT_EXISTS, key, null));
         return this;
     }
 

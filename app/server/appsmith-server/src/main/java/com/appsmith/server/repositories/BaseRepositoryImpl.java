@@ -2,19 +2,25 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.blasphemy.DBConnection;
+import com.appsmith.server.constants.FieldName;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.google.errorprone.annotations.DoNotCall;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.repository.support.SimpleReactiveMongoRepository;
 
 import java.io.Serializable;
 import java.util.List;
 import java.util.Optional;
+
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 /**
  * This repository implementation is the base class that will be used by Spring Data running all the default JPA queries.
@@ -64,55 +70,22 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         this.dbConnection = DBConnection.getInstance();
     }
 
-    private Criteria getIdCriteria(Object id) {
-        return null; /*
-                     return where(entityInformation.getIdAttribute()).is(id); //*/
+    @Override
+    public Optional<T> findById(@NonNull ID id) {
+        final CriteriaQuery<T> cq = entityManager.getCriteriaBuilder().createQuery(entityInformation.getJavaType());
+
+        cq.where((Predicate) Bridge.<T>and(notDeleted(), Bridge.equal(FieldName.ID, (String) id)));
+
+        return Optional.ofNullable(entityManager.createQuery(cq).getSingleResult());
     }
 
+    /**
+     * We don't use this today, it doesn't use our `notDeleted` criteria, and since we don't use it, we're not porting
+     * it to Postgres. Querying with `queryBuilder` or anything else is arguably more readable than this.
+     */
+    @DoNotCall
     @Override
-    public Optional<T> findById(ID id) {
-        throw new ex.Marker("findById"); /*
-        Assert.notNull(id, "The given id must not be null!");
-        Query query = new Query(getIdCriteria(id));
-        query.addCriteria(notDeleted());
-
-        return mongoOperations
-                .query(entityInformation.getJavaType())
-                .inCollection(entityInformation.getCollectionName())
-                .matching(query)
-                .one(); //*/
-    }
-
-    @Override
-    public List<T> findAll(Example example, Sort sort) {
-        throw new ex.Marker("findAll"); /*
-        Assert.notNull(example, "Sample must not be null!");
-        Assert.notNull(sort, "Sort must not be null!");
-
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMapMany(principal -> {
-                    Criteria criteria = new Criteria()
-                            .andOperator(
-                                    // Older check for deleted
-                                    new Criteria()
-                                            .orOperator(
-                                                    where(FieldName.DELETED).exists(false),
-                                                    where(FieldName.DELETED).is(false)),
-                                    // New check for deleted
-                                    new Criteria()
-                                            .orOperator(
-                                                    where(FieldName.DELETED_AT).exists(false),
-                                                    where(FieldName.DELETED_AT).is(null)),
-                                    // Set the criteria as the example
-                                    new Criteria().alike(example));
-
-                    Query query = new Query(criteria)
-                            .collation(entityInformation.getCollation()) //
-                            .with(sort);
-
-                    return mongoOperations.find(query, example.getProbeType(), entityInformation.getCollectionName());
-                }); //*/
+    public <S extends T> List<S> findAll(Example<S> example, Sort sort) {
+        throw new UnsupportedOperationException("This method is not supported!");
     }
 }

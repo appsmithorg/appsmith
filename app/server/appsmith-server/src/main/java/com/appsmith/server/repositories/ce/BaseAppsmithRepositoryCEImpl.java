@@ -119,16 +119,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return sb.toString();
     }
 
-    public static Criteria notDeleted() {
-        return new Criteria()
-                .andOperator(
+    public static <T extends BaseDomain> BridgeQuery<T> notDeleted() {
+        return Bridge.and(
                         // Older check for deleted
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED).exists(false),
-                                        where(FieldName.DELETED).is(false)),
+                        Bridge.or(
+                                        Bridge.notExists(FieldName.DELETED),
+                                        Bridge.isFalse(FieldName.DELETED)),
                         // New check for deleted
-                        where(FieldName.DELETED_AT).isNull());
+                        Bridge.isNull(FieldName.DELETED_AT));
     }
 
     public static Criteria userAcl(Set<String> permissionGroups, AclPermission permission) {
@@ -278,6 +276,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return permissionGroups == null ? Collections.emptySet() : permissionGroups;
     }
 
+    /*
     protected Query createQueryWithPermission(
             List<Criteria> criterias, Set<String> permissionGroups, AclPermission aclPermission) {
         return createQueryWithPermission(criterias, null, permissionGroups, aclPermission);
@@ -303,7 +302,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         }
 
         return query;
-    }
+    }//*/
 
     public QueryAllParams<T> queryBuilder() {
         return new QueryAllParams<>(this);

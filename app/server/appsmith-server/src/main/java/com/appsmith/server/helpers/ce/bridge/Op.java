@@ -11,5 +11,6 @@ public enum Op {
     IN,
     JSON_IN,
     EXISTS,
+    NOT_EXISTS,
     AND,
 }

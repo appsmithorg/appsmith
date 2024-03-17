@@ -64,6 +64,10 @@ public class Bridge {
         return Bridge.<T>query().exists(key);
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> notExists(@NonNull String key) {
+        return Bridge.<T>query().notExists(key);
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> isNull(@NonNull String key) {
         return Bridge.<T>query().isNull(key);
     }
