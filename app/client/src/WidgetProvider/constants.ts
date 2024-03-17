@@ -74,6 +74,7 @@ export interface AnvilConfig {
 export interface WidgetBaseConfiguration {
   name: string;
   iconSVG?: string;
+  thumbnailSVG?: string;
   hideCard?: boolean;
   eagerRender?: boolean;
   isDeprecated?: boolean;
@@ -130,7 +131,7 @@ type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];
 
 export interface WidgetCallout {
   message: string;
-  links: [
+  links?: [
     {
       text: string;
       url: string;

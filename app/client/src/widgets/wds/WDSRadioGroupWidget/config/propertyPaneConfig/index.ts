@@ -1,0 +1,1 @@
+export { propertyPaneContentConfig } from "./contentConfig";

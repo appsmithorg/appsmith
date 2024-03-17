@@ -7,7 +7,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Entity explorer tests related to widgets and validation",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.Widget"] },
   function () {
     // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
     const WIDGET_TAGS: Record<string, string> = {
@@ -81,10 +81,6 @@ describe(
         0,
       );
     };
-
-    before(() => {
-      featureFlagIntercept({ release_custom_widgets_enabled: true });
-    });
 
     it("1. All widget tags should be visible and open by default.", () => {
       agHelper.AssertElementLength(

@@ -1,8 +1,12 @@
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { call, put, select } from "redux-saga/effects";
+import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
-import { setJSTabs, setQueryTabs } from "actions/ideActions";
+import {
+  setIdeEditorViewMode,
+  setJSTabs,
+  setQueryTabs,
+} from "actions/ideActions";
 import history from "../utils/history";
 import { jsCollectionAddURL, queryAddURL } from "@appsmith/RouteBuilder";
 import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
@@ -16,15 +20,25 @@ import {
 import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
 import { getJSEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
 import log from "loglevel";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { retrieveIDEViewMode, storeIDEViewMode } from "utils/storage";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   const { entity, id } = entityInfo;
-  if (entity === FocusEntity.JS_OBJECT) {
+  if (
+    entity === FocusEntity.JS_OBJECT ||
+    entity === FocusEntity.JS_MODULE_INSTANCE
+  ) {
     const jsTabs: string[] = yield select(getJSTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, jsTabs);
     yield put(setJSTabs(newTabs));
   }
-  if (entity === FocusEntity.QUERY) {
+  if (
+    entity === FocusEntity.QUERY ||
+    entity === FocusEntity.QUERY_MODULE_INSTANCE
+  ) {
     const queryTabs: string[] = yield select(getQueryTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, queryTabs);
     yield put(setQueryTabs(newTabs));
@@ -46,12 +60,12 @@ export function* handleJSEntityRedirect(deletedId: string) {
   const redirectAction = getNextEntityAfterDelete(deletedId, allJsItems);
   switch (redirectAction.action) {
     case RedirectAction.CREATE:
-      history.push(jsCollectionAddURL({}));
+      history.push(jsCollectionAddURL({ pageId }));
       break;
     case RedirectAction.ITEM:
       if (!redirectAction.payload) {
         log.error("Redirect item does not have a payload");
-        history.push(jsCollectionAddURL({}));
+        history.push(jsCollectionAddURL({ pageId }));
         break;
       }
       const { payload } = redirectAction;
@@ -66,11 +80,11 @@ export function* handleQueryEntityRedirect(deletedId: string) {
   const redirectAction = getNextEntityAfterDelete(deletedId, allQueryItems);
   switch (redirectAction.action) {
     case RedirectAction.CREATE:
-      history.push(queryAddURL({}));
+      history.push(queryAddURL({ pageId }));
       break;
     case RedirectAction.ITEM:
       if (!redirectAction.payload) {
-        history.push(queryAddURL({}));
+        history.push(queryAddURL({ pageId }));
         log.error("Redirect item does not have a payload");
         break;
       }
@@ -145,4 +159,30 @@ function getNextEntityAfterDelete(
       payload: remainingGroupEntities[0],
     };
   }
+}
+
+function* storeIDEViewChangeSaga(
+  action: ReduxAction<{ view: EditorViewMode }>,
+) {
+  yield call(storeIDEViewMode, action.payload.view);
+}
+
+function* restoreIDEViewModeSaga() {
+  const storedState: EditorViewMode = yield call(retrieveIDEViewMode);
+  if (storedState) {
+    yield put(setIdeEditorViewMode(storedState));
+  }
+}
+
+export default function* root() {
+  yield all([
+    takeEvery(
+      ReduxActionTypes.SET_IDE_EDITOR_VIEW_MODE,
+      storeIDEViewChangeSaga,
+    ),
+    takeEvery(
+      ReduxActionTypes.RESTORE_IDE_EDITOR_VIEW_MODE,
+      restoreIDEViewModeSaga,
+    ),
+  ]);
 }

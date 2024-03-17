@@ -557,6 +557,7 @@ export interface WidgetCardProps {
   key?: string;
   displayName: string;
   icon: string;
+  thumbnail?: string;
   isBeta?: boolean;
   tags?: WidgetTags[];
   isSearchWildcard?: boolean;

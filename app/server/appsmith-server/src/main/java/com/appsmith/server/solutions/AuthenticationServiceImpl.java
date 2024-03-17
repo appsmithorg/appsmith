@@ -3,6 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.helpers.InstanceConfigHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -25,7 +26,8 @@ public class AuthenticationServiceImpl extends AuthenticationServiceCEImpl imple
             DatasourcePermission datasourcePermission,
             PagePermission pagePermission,
             PluginExecutorHelper pluginExecutorHelper,
-            DatasourceStorageService datasourceStorageService) {
+            DatasourceStorageService datasourceStorageService,
+            InstanceConfigHelper instanceConfigHelper) {
         super(
                 datasourceService,
                 pluginService,
@@ -36,6 +38,7 @@ public class AuthenticationServiceImpl extends AuthenticationServiceCEImpl imple
                 datasourcePermission,
                 pagePermission,
                 pluginExecutorHelper,
-                datasourceStorageService);
+                datasourceStorageService,
+                instanceConfigHelper);
     }
 }

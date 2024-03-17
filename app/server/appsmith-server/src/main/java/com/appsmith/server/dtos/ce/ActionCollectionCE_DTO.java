@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -31,6 +32,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValues
 @Setter
 @NoArgsConstructor
 @ToString
+@FieldNameConstants
 public class ActionCollectionCE_DTO {
 
     @Transient
@@ -168,4 +170,10 @@ public class ActionCollectionCE_DTO {
         this.setActions(List.of());
         this.setArchivedActions(List.of());
     }
+
+    public String calculateContextId() {
+        return this.getPageId();
+    }
+
+    public static class Fields {}
 }

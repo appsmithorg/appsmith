@@ -145,15 +145,15 @@
       "type": "color"
     },
     "shadow-elevation-1": {
-      "value": "rgb(10.027% 0% 19.009% / 0.35)",
+      "value": "rgb(0% 5.9131% 57.625% / 0.1)",
       "type": "color"
     },
     "shadow-elevation-2": {
-      "value": "rgb(4.6079% 0% 43.546% / 0.3)",
+      "value": "rgb(0% 15.277% 63.167% / 0.12)",
       "type": "color"
     },
     "shadow-elevation-3": {
-      "value": "rgb(0% 5.9131% 57.625% / 0.25)",
+      "value": "rgb(0% 16.799% 64.298% / 0.15)",
       "type": "color"
     },
     "fg": {
@@ -285,15 +285,15 @@
   },
   "boxShadow": {
     "1": {
-      "value": "0 4px 8px 0 var(--color-shadow-elevation-1)",
+      "value": "0 var(--inner-spacing-2) var(--inner-spacing-3) 0 var(--color-shadow-elevation-1)",
       "type": "boxShadow"
     },
     "2": {
-      "value": "0 2px 4px 0 var(--color-shadow-elevation-2)",
+      "value": "0 var(--inner-spacing-1) var(--inner-spacing-3) 0 var(--color-shadow-elevation-2)",
       "type": "boxShadow"
     },
     "3": {
-      "value": "0 1px 2px 0 var(--color-shadow-elevation-3)",
+      "value": "0 calc(var(--inner-spacing-1)/2) var(--inner-spacing-3) 0 var(--color-shadow-elevation-3)",
       "type": "boxShadow"
     }
   },
@@ -337,6 +337,10 @@
       "type": "strokeWidth"
     },
     "2": {
+      "value": "1.5px",
+      "type": "strokeWidth"
+    },
+    "3": {
       "value": "2px",
       "type": "strokeWidth"
     }

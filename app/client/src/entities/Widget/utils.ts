@@ -69,14 +69,14 @@ const childHasPanelConfig = (
   widget: WidgetProps,
   basePath: string,
   originalWidget: WidgetProps,
+  bindingPaths: BindingPaths,
+  reactivePaths: ReactivePaths,
+  triggerPaths: Record<string, true>,
+  validationPaths: Record<any, ValidationConfig>,
 ) => {
   const panelPropertyPath = config.propertyName;
   const widgetPanelPropertyValues = get(widget, panelPropertyPath);
 
-  let bindingPaths: BindingPaths = {};
-  let reactivePaths: ReactivePaths = {};
-  let triggerPaths: Record<string, true> = {};
-  let validationPaths: Record<any, ValidationConfig> = {};
   if (widgetPanelPropertyValues) {
     Object.values(widgetPanelPropertyValues).forEach(
       (widgetPanelPropertyValue: any) => {
@@ -125,22 +125,11 @@ const childHasPanelConfig = (
                           panelColumnControlConfig,
                           panelPropertyConfigPath,
                         );
-                        bindingPaths = {
-                          ...configBindingPaths,
-                          ...bindingPaths,
-                        };
-                        reactivePaths = {
-                          ...configReactivePaths,
-                          ...reactivePaths,
-                        };
-                        triggerPaths = {
-                          ...configTriggerPaths,
-                          ...triggerPaths,
-                        };
-                        validationPaths = {
-                          ...configValidationPaths,
-                          ...validationPaths,
-                        };
+                        Object.assign(bindingPaths, configBindingPaths);
+                        Object.assign(reactivePaths, configReactivePaths);
+                        Object.assign(triggerPaths, configTriggerPaths);
+                        Object.assign(validationPaths, configValidationPaths);
+
                         // Has child Panel Config
                         if (panelColumnControlConfig.panelConfig) {
                           const {
@@ -148,28 +137,21 @@ const childHasPanelConfig = (
                             reactivePaths: panelReactivePaths,
                             triggerPaths: panelTriggerPaths,
                             validationPaths: panelValidationPaths,
-                          } = childHasPanelConfig(
+                          } = memoizedChildHasPanelConfig(
                             panelColumnControlConfig,
                             widgetPanelPropertyValue,
                             panelPropertyConfigPath,
                             originalWidget,
+                            bindingPaths,
+                            reactivePaths,
+                            triggerPaths,
+                            validationPaths,
                           );
-                          bindingPaths = {
-                            ...panelBindingPaths,
-                            ...bindingPaths,
-                          };
-                          reactivePaths = {
-                            ...panelReactivePaths,
-                            ...reactivePaths,
-                          };
-                          triggerPaths = {
-                            ...panelTriggerPaths,
-                            ...triggerPaths,
-                          };
-                          validationPaths = {
-                            ...panelValidationPaths,
-                            ...validationPaths,
-                          };
+
+                          Object.assign(bindingPaths, panelBindingPaths);
+                          Object.assign(reactivePaths, panelReactivePaths);
+                          Object.assign(triggerPaths, panelTriggerPaths);
+                          Object.assign(validationPaths, panelValidationPaths);
                         }
                       }
                     },
@@ -193,19 +175,12 @@ const childHasPanelConfig = (
                       panelColumnControlOrSectionConfig,
                       panelPropertyConfigPath,
                     );
-                    bindingPaths = {
-                      ...configBindingPaths,
-                      ...bindingPaths,
-                    };
-                    reactivePaths = {
-                      ...configReactivePaths,
-                      ...reactivePaths,
-                    };
-                    triggerPaths = { ...configTriggerPaths, ...triggerPaths };
-                    validationPaths = {
-                      ...configValidationPaths,
-                      ...validationPaths,
-                    };
+
+                    Object.assign(bindingPaths, configBindingPaths);
+                    Object.assign(reactivePaths, configReactivePaths);
+                    Object.assign(triggerPaths, configTriggerPaths);
+                    Object.assign(validationPaths, configValidationPaths);
+
                     // Has child Panel Config
                     if (panelColumnControlOrSectionConfig.panelConfig) {
                       const {
@@ -213,25 +188,21 @@ const childHasPanelConfig = (
                         reactivePaths: panelReactivePaths,
                         triggerPaths: panelTriggerPaths,
                         validationPaths: panelValidationPaths,
-                      } = childHasPanelConfig(
+                      } = memoizedChildHasPanelConfig(
                         panelColumnControlOrSectionConfig,
                         widgetPanelPropertyValue,
                         panelPropertyConfigPath,
                         originalWidget,
+                        bindingPaths,
+                        reactivePaths,
+                        triggerPaths,
+                        validationPaths,
                       );
-                      bindingPaths = {
-                        ...panelBindingPaths,
-                        ...bindingPaths,
-                      };
-                      reactivePaths = {
-                        ...panelReactivePaths,
-                        ...reactivePaths,
-                      };
-                      triggerPaths = { ...panelTriggerPaths, ...triggerPaths };
-                      validationPaths = {
-                        ...panelValidationPaths,
-                        ...validationPaths,
-                      };
+
+                      Object.assign(bindingPaths, panelBindingPaths);
+                      Object.assign(reactivePaths, panelReactivePaths);
+                      Object.assign(triggerPaths, panelTriggerPaths);
+                      Object.assign(validationPaths, panelValidationPaths);
                     }
                   }
                 }
@@ -243,8 +214,15 @@ const childHasPanelConfig = (
     );
   }
 
-  return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
+  return {
+    reactivePaths: reactivePaths,
+    triggerPaths: triggerPaths,
+    validationPaths: validationPaths,
+    bindingPaths: bindingPaths,
+  };
 };
+
+const memoizedChildHasPanelConfig = memoize(childHasPanelConfig);
 
 const getAllPathsFromPropertyConfigWithoutMemo = (
   widget: WidgetProps,
@@ -256,13 +234,13 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
   triggerPaths: Record<string, true>;
   validationPaths: Record<string, ValidationConfig>;
 } => {
-  let bindingPaths: BindingPaths = {};
-  let reactivePaths: ReactivePaths = {};
+  const bindingPaths: BindingPaths = {};
+  const reactivePaths: ReactivePaths = {};
   Object.keys(defaultProperties).forEach((property) => {
     reactivePaths[property] = EvaluationSubstitutionType.TEMPLATE;
   });
-  let triggerPaths: Record<string, true> = {};
-  let validationPaths: Record<any, ValidationConfig> = {};
+  const triggerPaths: Record<string, true> = {};
+  const validationPaths: Record<any, ValidationConfig> = {};
 
   widgetConfig.forEach((config) => {
     if (config.children) {
@@ -280,39 +258,27 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
             configTriggerPaths,
             configValidationPaths,
           } = checkPathsInConfig(controlConfig, path);
-          bindingPaths = {
-            ...bindingPaths,
-            ...configBindingPaths,
-          };
-          // Update default path configs with the ones in the property config
-          reactivePaths = {
-            ...reactivePaths,
-            ...configReactivePaths,
-          };
-          triggerPaths = { ...triggerPaths, ...configTriggerPaths };
-          validationPaths = { ...validationPaths, ...configValidationPaths };
+          Object.assign(bindingPaths, configBindingPaths);
+          Object.assign(reactivePaths, configReactivePaths);
+          Object.assign(triggerPaths, configTriggerPaths);
+          Object.assign(validationPaths, configValidationPaths);
         }
         // Has child Panel Config
         if (controlConfig.panelConfig) {
-          const resultingPaths = childHasPanelConfig(
+          const resultingPaths = memoizedChildHasPanelConfig(
             controlConfig,
             widget,
             basePath,
             widget,
+            {},
+            {},
+            {},
+            {},
           );
-          bindingPaths = {
-            ...bindingPaths,
-            ...resultingPaths.bindingPaths,
-          };
-          reactivePaths = {
-            ...reactivePaths,
-            ...resultingPaths.reactivePaths,
-          };
-          triggerPaths = { ...triggerPaths, ...resultingPaths.triggerPaths };
-          validationPaths = {
-            ...validationPaths,
-            ...resultingPaths.validationPaths,
-          };
+          Object.assign(bindingPaths, resultingPaths.bindingPaths);
+          Object.assign(reactivePaths, resultingPaths.reactivePaths);
+          Object.assign(triggerPaths, resultingPaths.triggerPaths);
+          Object.assign(validationPaths, resultingPaths.validationPaths);
         }
         if (controlConfig.children) {
           const basePropertyPath = controlConfig.propertyName;
@@ -335,19 +301,11 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
                   childPropertyConfig,
                   childArrayPropertyPath,
                 );
-                bindingPaths = {
-                  ...bindingPaths,
-                  ...configBindingPaths,
-                };
-                reactivePaths = {
-                  ...reactivePaths,
-                  ...configReactivePaths,
-                };
-                triggerPaths = { ...triggerPaths, ...configTriggerPaths };
-                validationPaths = {
-                  ...validationPaths,
-                  ...configValidationPaths,
-                };
+
+                Object.assign(bindingPaths, configBindingPaths);
+                Object.assign(reactivePaths, configReactivePaths);
+                Object.assign(triggerPaths, configTriggerPaths);
+                Object.assign(validationPaths, configValidationPaths);
               });
             });
           }
@@ -356,7 +314,12 @@ const getAllPathsFromPropertyConfigWithoutMemo = (
     }
   });
 
-  return { reactivePaths, triggerPaths, validationPaths, bindingPaths };
+  return {
+    reactivePaths: reactivePaths,
+    triggerPaths: triggerPaths,
+    validationPaths: validationPaths,
+    bindingPaths: bindingPaths,
+  };
 };
 
 export const getAllPathsFromPropertyConfig = memoize(

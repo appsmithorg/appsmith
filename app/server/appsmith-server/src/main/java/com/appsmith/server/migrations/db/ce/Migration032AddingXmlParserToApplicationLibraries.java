@@ -3,7 +3,6 @@ package com.appsmith.server.migrations.db.ce;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -18,7 +17,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import static com.appsmith.server.constants.ApplicationConstants.XML_PARSER_LIBRARY_UID;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 /**
@@ -36,9 +34,8 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 public class Migration032AddingXmlParserToApplicationLibraries {
 
     private final MongoTemplate mongoTemplate;
-    private static final String UNPUBLISHED_CUSTOM_JS_LIBS =
-            fieldName(QApplication.application.unpublishedCustomJSLibs);
-    private static final String PUBLISHED_CUSTOM_JS_LIBS = fieldName(QApplication.application.publishedCustomJSLibs);
+    private static final String UNPUBLISHED_CUSTOM_JS_LIBS = Application.Fields.unpublishedCustomJSLibs;
+    private static final String PUBLISHED_CUSTOM_JS_LIBS = Application.Fields.publishedCustomJSLibs;
 
     public Migration032AddingXmlParserToApplicationLibraries(MongoTemplate mongoTemplate) {
         this.mongoTemplate = mongoTemplate;

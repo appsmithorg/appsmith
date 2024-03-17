@@ -1,5 +1,5 @@
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { get, isObject, set, unset } from "lodash";
+import { get, isObject, set } from "lodash";
 import { klona } from "klona/json";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 
@@ -49,30 +49,12 @@ export function makeEntityConfigsAsObjProperties(
     },
   );
 
-  const alreadySanitisedDataSet = {} as EvalProps;
-  Object.keys(identicalEvalPathsPatches || {}).forEach((evalPath) => {
-    const val = get(evalProps, evalPath);
-    //serialised already
-    alreadySanitisedDataSet[evalPath] = val;
-    //we are seperating it from evalProps because we don't want to serialise this identical data unecessarily again
-    unset(evalProps, evalPath);
-  });
-
-  const sanitizedEvalProps = klona(evalProps) as EvalProps;
-  Object.entries(alreadySanitisedDataSet).forEach(([path, val]) => {
-    // add it to sanitised Eval props
-    set(sanitizedEvalProps, path, val);
-    //restore it to evalProps
-    set(evalProps, path, val);
-  });
-  for (const [entityName, entityEvalProps] of Object.entries(
-    sanitizedEvalProps,
-  )) {
+  for (const [entityName, entityEvalProps] of Object.entries(evalProps)) {
     if (!entityEvalProps.__evaluation__) continue;
     set(
       dataTreeToReturn[entityName],
       "__evaluation__",
-      entityEvalProps.__evaluation__,
+      klona({ errors: entityEvalProps.__evaluation__.errors }),
     );
   }
 

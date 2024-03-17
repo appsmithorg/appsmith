@@ -9,7 +9,7 @@ import type { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { AlignmentIndexMap } from "../constants";
 import AlignedLayoutColumn from "layoutSystems/anvil/layoutComponents/components/AlignedLayoutColumn";
 import AlignedWidgetColumn from "layoutSystems/anvil/layoutComponents/components/AlignedWidgetColumn";
-import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/AlignedWidgetRow";
+import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/alignedWidgetRow";
 import LayoutColumn from "layoutSystems/anvil/layoutComponents/components/LayoutColumn";
 import LayoutRow from "layoutSystems/anvil/layoutComponents/components/LayoutRow";
 import WidgetColumn from "layoutSystems/anvil/layoutComponents/components/WidgetColumn";

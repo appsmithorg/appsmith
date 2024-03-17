@@ -6,7 +6,11 @@ import {
   EntityIcon,
   ENTITY_ICON_SIZE,
 } from "../ExplorerIcons";
-import { isGraphqlPlugin, PluginType } from "entities/Action";
+import {
+  isGraphqlPlugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Action";
 import { generateReactKey } from "utils/generators";
 
 import type { Plugin } from "api/PluginApi";
@@ -48,13 +52,13 @@ export interface ResolveActionURLProps {
 export const resolveActionURL = ({
   id,
   parentEntityId,
-  plugin,
   pluginType,
 }: ResolveActionURLProps) => {
-  if (!!plugin && pluginType === PluginType.SAAS) {
+  if (pluginType === PluginType.SAAS) {
     return saasEditorApiIdURL({
       parentEntityId,
-      pluginPackageName: plugin.packageName,
+      // It is safe to assume at this date, that only Google Sheets uses and will use PluginType.SAAS
+      pluginPackageName: PluginPackageName.GOOGLE_SHEETS,
       apiId: id,
     });
   } else if (

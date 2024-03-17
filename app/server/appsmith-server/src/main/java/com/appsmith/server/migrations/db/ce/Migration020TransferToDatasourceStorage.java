@@ -1,9 +1,8 @@
 package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.QDatasource;
-import com.appsmith.external.models.QDatasourceConfiguration;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.migrations.solutions.DatasourceStorageMigrationSolution;
 import com.appsmith.server.migrations.utils.CompatibilityUtils;
@@ -20,7 +19,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import java.util.Map;
 
 import static com.appsmith.server.constants.FieldName.PASSWORD;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -38,10 +36,8 @@ public class Migration020TransferToDatasourceStorage {
     private final MongoTemplate mongoTemplate;
 
     private final String migrationFlag = "hasDatasourceStorage";
-    private static final String datasourceConfigurationFieldName =
-            fieldName(QDatasource.datasource.datasourceConfiguration);
-    private static final String authenticationFieldName =
-            fieldName(QDatasourceConfiguration.datasourceConfiguration.authentication);
+    private static final String datasourceConfigurationFieldName = Datasource.Fields.datasourceConfiguration;
+    private static final String authenticationFieldName = DatasourceConfiguration.Fields.authentication;
     private static final String delimiter = ".";
 
     private final DatasourceStorageMigrationSolution solution = new DatasourceStorageMigrationSolution();
@@ -67,13 +63,13 @@ public class Migration020TransferToDatasourceStorage {
         datasourcesToUpdateQuery
                 .fields()
                 .include(
-                        fieldName(QDatasource.datasource.id),
-                        fieldName(QDatasource.datasource.workspaceId),
-                        fieldName(QDatasource.datasource.isConfigured),
-                        fieldName(QDatasource.datasource.gitSyncId),
-                        fieldName(QDatasource.datasource.invalids),
-                        fieldName(QDatasource.datasource.hasDatasourceStorage),
-                        fieldName(QDatasource.datasource.datasourceConfiguration));
+                        Datasource.Fields.id,
+                        Datasource.Fields.workspaceId,
+                        Datasource.Fields.isConfigured,
+                        Datasource.Fields.gitSyncId,
+                        Datasource.Fields.invalids,
+                        Datasource.Fields.hasDatasourceStorage,
+                        Datasource.Fields.datasourceConfiguration);
 
         final Query performanceOptimizedUpdateQuery = CompatibilityUtils.optimizeQueryForNoCursorTimeout(
                 mongoTemplate, datasourcesToUpdateQuery, Datasource.class);
@@ -113,14 +109,12 @@ public class Migration020TransferToDatasourceStorage {
             // Once the datasource storage exists, delete the older config inside datasource
             // And set `hasDatasourceStorage` value to true
             mongoTemplate.updateFirst(
-                    new Query()
-                            .addCriteria(
-                                    where(fieldName(QDatasource.datasource.id)).is(datasource.getId())),
+                    new Query().addCriteria(where(Datasource.Fields.id).is(datasource.getId())),
                     new Update()
                             .set(migrationFlag, true)
-                            .unset(fieldName(QDatasource.datasource.datasourceConfiguration))
-                            .unset(fieldName(QDatasource.datasource.invalids))
-                            .unset(fieldName(QDatasource.datasource.isConfigured)),
+                            .unset(Datasource.Fields.datasourceConfiguration)
+                            .unset(Datasource.Fields.invalids)
+                            .unset(Datasource.Fields.isConfigured),
                     Datasource.class);
         });
     }
@@ -145,8 +139,8 @@ public class Migration020TransferToDatasourceStorage {
                                         where(FieldName.DELETED_AT).is(null)),
                         // these checks are placed because we are getting values which are empty and while decrypting
                         // those values, we are getting ArrayOutOfBoundException because password is set to ""
-                        where(fieldName(QDatasource.datasource.workspaceId)).exists(true),
-                        where(fieldName(QDatasource.datasource.workspaceId)).ne(null),
+                        where(Datasource.Fields.workspaceId).exists(true),
+                        where(Datasource.Fields.workspaceId).ne(null),
                         where(datasourceConfigurationFieldName
                                         + delimiter
                                         + authenticationFieldName

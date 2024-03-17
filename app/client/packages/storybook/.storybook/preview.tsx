@@ -3,7 +3,6 @@ import "@blueprintjs/icons/lib/css/blueprint-icons.css";
 import "@blueprintjs/core/lib/css/blueprint.css";
 import "./styles.css";
 import { DocsContainer } from "@storybook/addon-docs";
-import { Unstyled } from "@storybook/blocks";
 import { StoryThemeProvider } from "../src";
 
 export const decorators = [theming];
@@ -67,11 +66,9 @@ const preview = {
     docs: {
       container: ({ children, context }) => (
         <DocsContainer context={context}>
-          <Unstyled>
-            <StoryThemeProvider theme={context.store.globals.globals}>
-              {children}
-            </StoryThemeProvider>
-          </Unstyled>
+          <StoryThemeProvider theme={context.store.globals.globals}>
+            {children}
+          </StoryThemeProvider>
         </DocsContainer>
       ),
     },

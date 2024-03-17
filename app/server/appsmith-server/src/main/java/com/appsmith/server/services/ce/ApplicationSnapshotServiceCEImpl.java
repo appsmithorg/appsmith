@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
@@ -11,7 +11,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
@@ -46,9 +46,7 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
                 */
                 .flatMap(branchedAppId -> Mono.zip(
                         exportService.exportByArtifactId(
-                                branchedAppId,
-                                SerialiseArtifactObjective.VERSION_CONTROL,
-                                ArtifactJsonType.APPLICATION),
+                                branchedAppId, SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION),
                         Mono.just(branchedAppId)))
                 .flatMapMany(objects -> {
                     String branchedAppId = objects.getT2();

@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -13,6 +14,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -27,6 +29,7 @@ import java.util.Set;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
+import static com.appsmith.server.helpers.StringUtils.dotted;
 
 @Getter
 @Setter
@@ -34,7 +37,8 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @NoArgsConstructor
 @QueryEntity
 @Document
-public class Application extends BaseDomain implements ImportableArtifact, ExportableArtifact {
+@FieldNameConstants
+public class Application extends BaseDomain implements Artifact {
 
     @NotNull @JsonView(Views.Public.class)
     String name;
@@ -274,9 +278,30 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
         return this.gitApplicationMetadata;
     }
 
+    @JsonView(Views.Internal.class)
+    @Override
+    public void setGitArtifactMetadata(GitArtifactMetadata gitArtifactMetadata) {
+        this.gitApplicationMetadata = gitArtifactMetadata;
+    }
+
     @Override
     public String getUnpublishedThemeId() {
         return this.getEditModeThemeId();
+    }
+
+    @Override
+    public void setUnpublishedThemeId(String themeId) {
+        this.setEditModeThemeId(themeId);
+    }
+
+    @Override
+    public String getPublishedThemeId() {
+        return this.getPublishedModeThemeId();
+    }
+
+    @Override
+    public void setPublishedThemeId(String themeId) {
+        this.setPublishedModeThemeId(themeId);
     }
 
     @Override
@@ -325,6 +350,12 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
         } else {
             unpublishedApplicationDetail = applicationDetail;
         }
+    }
+
+    @Override
+    @JsonView(Views.Internal.class)
+    public ArtifactType getArtifactType() {
+        return ArtifactType.APPLICATION;
     }
 
     @Data
@@ -450,5 +481,18 @@ public class Application extends BaseDomain implements ImportableArtifact, Expor
             OUTLINED,
             FILLED
         }
+    }
+
+    public static class Fields extends BaseDomain.Fields {
+        public static final String gitApplicationMetadata_gitAuth =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.gitAuth);
+        public static final String gitApplicationMetadata_defaultApplicationId =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultApplicationId);
+        public static final String gitApplicationMetadata_branchName =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.branchName);
+        public static final String gitApplicationMetadata_isRepoPrivate =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isRepoPrivate);
+        public static final String gitApplicationMetadata_isProtectedBranch =
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isProtectedBranch);
     }
 }

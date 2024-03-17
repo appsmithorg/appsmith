@@ -20,7 +20,6 @@ import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -114,7 +113,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                         new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change role of a member")));
 
         // the user is being removed from the workspace. Remove the workspace from recent workspace list of UserData
-        Mono<UpdateResult> updateUserDataMono =
+        Mono<Void> updateUserDataMono =
                 userMono.flatMap(user -> userDataService.removeRecentWorkspaceAndApps(user.getId(), workspaceId));
 
         Mono<Boolean> removeUserFromOldPermissionGroupMono = oldDefaultPermissionGroupsMono.flatMap(

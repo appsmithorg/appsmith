@@ -10291,25 +10291,25 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@testing-library/react-hooks@npm:^7.0.2":
-  version: 7.0.2
-  resolution: "@testing-library/react-hooks@npm:7.0.2"
+"@testing-library/react-hooks@npm:^8.0.1":
+  version: 8.0.1
+  resolution: "@testing-library/react-hooks@npm:8.0.1"
   dependencies:
     "@babel/runtime": ^7.12.5
-    "@types/react": ">=16.9.0"
-    "@types/react-dom": ">=16.9.0"
-    "@types/react-test-renderer": ">=16.9.0"
     react-error-boundary: ^3.1.0
   peerDependencies:
-    react: ">=16.9.0"
-    react-dom: ">=16.9.0"
-    react-test-renderer: ">=16.9.0"
+    "@types/react": ^16.9.0 || ^17.0.0
+    react: ^16.9.0 || ^17.0.0
+    react-dom: ^16.9.0 || ^17.0.0
+    react-test-renderer: ^16.9.0 || ^17.0.0
   peerDependenciesMeta:
+    "@types/react":
+      optional: true
     react-dom:
       optional: true
     react-test-renderer:
       optional: true
-  checksum: 27c6169b5c9832bd02dcea232e6a0a3cd8d4504e13ecb49d57eb5ab6bea5e2f1bff65f3102068b7e57eec3cbd671326dc0b277335014b0edfbdedf11a1fe6db5
+  checksum: 7fe44352e920deb5cb1876f80d64e48615232072c9d5382f1e0284b3aab46bb1c659a040b774c45cdf084a5257b8fe463f7e08695ad8480d8a15635d4d3d1f6d
   languageName: node
   linkType: hard
 
@@ -10570,6 +10570,15 @@ __metadata:
   languageName: node
   linkType: hard
 
+"@types/d3-geo@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "@types/d3-geo@npm:3.1.0"
+  dependencies:
+    "@types/geojson": "*"
+  checksum: a4b2daa8a64012912ce7186891e8554af123925dca344c111b771e168a37477e02d504c6c94ee698440380e8c4f3f373d6755be97935da30eae0904f6745ce40
+  languageName: node
+  linkType: hard
+
 "@types/deep-diff@npm:^1.0.0":
   version: 1.0.0
   resolution: "@types/deep-diff@npm:1.0.0"
@@ -10751,6 +10760,13 @@ __metadata:
     "@types/jsonfile": "*"
     "@types/node": "*"
   checksum: 242cb84157631f057f76495c8220707541882c00a00195b603d937fb55e471afecebcb089bab50233ed3a59c69fd68bf65c1f69dd7fafe2347e139cc15b9b0e5
+  languageName: node
+  linkType: hard
+
+"@types/geojson@npm:*":
+  version: 7946.0.14
+  resolution: "@types/geojson@npm:7946.0.14"
+  checksum: ae511bee6488ae3bd5a3a3347aedb0371e997b14225b8983679284e22fa4ebd88627c6e3ff8b08bf4cc35068cb29310c89427311ffc9322c255615821a922e71
   languageName: node
   linkType: hard
 
@@ -11186,7 +11202,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-dom@npm:*, @types/react-dom@npm:>=16.9.0":
+"@types/react-dom@npm:*":
   version: 18.2.6
   resolution: "@types/react-dom@npm:18.2.6"
   dependencies:
@@ -11358,7 +11374,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/react-test-renderer@npm:>=16.9.0, @types/react-test-renderer@npm:^17.0.1":
+"@types/react-test-renderer@npm:^17.0.1":
   version: 17.0.1
   resolution: "@types/react-test-renderer@npm:17.0.1"
   dependencies:
@@ -13105,11 +13121,12 @@ __metadata:
     "@tanstack/virtual-core": ^3.0.0-beta.18
     "@testing-library/jest-dom": 5.16.1
     "@testing-library/react": 12.1.2
-    "@testing-library/react-hooks": ^7.0.2
+    "@testing-library/react-hooks": ^8.0.1
     "@testing-library/user-event": 13.5.0
     "@tinymce/tinymce-react": ^3.13.0
     "@types/babel__standalone": ^7.1.7
     "@types/codemirror": ^0.0.96
+    "@types/d3-geo": ^3.1.0
     "@types/deep-diff": ^1.0.0
     "@types/dom-mediacapture-record": ^1.0.11
     "@types/downloadjs": ^1.4.2
@@ -13200,10 +13217,11 @@ __metadata:
     cypress-terminal-report: ^5.3.6
     cypress-wait-until: ^1.7.2
     cypress-xpath: ^1.6.0
+    d3-geo: ^3.1.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "npm:@appsmithorg/design-system@2.1.32"
-    design-system-old: "npm:@appsmithorg/design-system-old@1.1.14"
+    design-system: "npm:@appsmithorg/design-system@2.1.36"
+    design-system-old: "npm:@appsmithorg/design-system-old@1.1.16"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -13228,7 +13246,6 @@ __metadata:
     focus-trap-react: ^8.9.2
     fuse.js: ^3.4.5
     fusioncharts: ^3.18.0
-    fusionmaps: ^3.18.0
     graphql: ^16.8.1
     history: ^4.10.1
     http-proxy: ^1.18.1
@@ -13301,7 +13318,6 @@ __metadata:
     react-documents: ^1.0.4
     react-dom: ^17.0.2
     react-full-screen: ^1.1.0
-    react-fusioncharts: ^3.1.2
     react-google-recaptcha: ^2.1.0
     react-helmet: ^5.2.1
     react-hook-form: ^7.28.0
@@ -16798,6 +16814,24 @@ __metadata:
   languageName: node
   linkType: hard
 
+"d3-array@npm:2.5.0 - 3":
+  version: 3.2.4
+  resolution: "d3-array@npm:3.2.4"
+  dependencies:
+    internmap: 1 - 2
+  checksum: a5976a6d6205f69208478bb44920dd7ce3e788c9dceb86b304dbe401a4bfb42ecc8b04c20facde486e9adcb488b5d1800d49393a3f81a23902b68158e12cddd0
+  languageName: node
+  linkType: hard
+
+"d3-geo@npm:^3.1.0":
+  version: 3.1.0
+  resolution: "d3-geo@npm:3.1.0"
+  dependencies:
+    d3-array: 2.5.0 - 3
+  checksum: adf82b0c105c0c5951ae0a833d4dfc479a563791ad7938579fa14e1cffd623b469d8aa7a37dc413a327fb6ac56880f3da3f6c43d4abe3c923972dd98f34f37d1
+  languageName: node
+  linkType: hard
+
 "damerau-levenshtein@npm:^1.0.7":
   version: 1.0.8
   resolution: "damerau-levenshtein@npm:1.0.8"
@@ -17176,9 +17210,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.14":
-  version: 1.1.14
-  resolution: "@appsmithorg/design-system-old@npm:1.1.14"
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.16":
+  version: 1.1.16
+  resolution: "@appsmithorg/design-system-old@npm:1.1.16"
   dependencies:
     emoji-mart: 3.0.1
   peerDependencies:
@@ -17198,13 +17232,13 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  checksum: d03121f726fd9a2b61305f52caaa450ea61af8cd394c1af51926cf2b3cba3a98296496ae22eb69c5b6ed72f561814ff426a4e7ee645aa72e18ed5955e5d3a993
+  checksum: 8fbfba86e54bdcbbb30b8e8b1902408ba0cb13f4d33d36c794f3bc0e281d0e2db8f716c10c6e0a3118f010db24f97c72606885bff4c320f41f5df9564ab6b214
   languageName: node
   linkType: hard
 
-"design-system@npm:@appsmithorg/design-system@2.1.32":
-  version: 2.1.32
-  resolution: "@appsmithorg/design-system@npm:2.1.32"
+"design-system@npm:@appsmithorg/design-system@2.1.36":
+  version: 2.1.36
+  resolution: "@appsmithorg/design-system@npm:2.1.36"
   dependencies:
     "@radix-ui/react-dialog": ^1.0.2
     "@radix-ui/react-dropdown-menu": ^2.0.4
@@ -17234,7 +17268,7 @@ __metadata:
     react-dom: ^17.0.2
     react-router-dom: ^5.0.0
     styled-components: ^5.3.6
-  checksum: b7c4b8e9ce0c70bf1d53082a42f7efeac4f7e913d445aee79a310c9904351c8640b42fdf17d75cb8a1bcec3635a5fce4badd1f60085408044019cd38c9080997
+  checksum: 410db12c576560c6195d5b9ed776f1172c00985966b39d75fbfff119694f2227c94521e5e6d1c3068dd2d49fbac37975c2bc05b1284a09ef434ac7bd551bf84c
   languageName: node
   linkType: hard
 
@@ -20017,28 +20051,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"fusionmaps@npm:^3.18.0":
-  version: 3.18.0
-  resolution: "fusionmaps@npm:3.18.0"
-  dependencies:
-    "@babel/runtime": ^7.9.2
-    "@fusioncharts/accessibility": ^1.5.0
-    "@fusioncharts/charts": ^3.18.0
-    "@fusioncharts/constructor": ^1.5.0
-    "@fusioncharts/core": ^1.5.0
-    "@fusioncharts/datatable": ^1.5.0
-    "@fusioncharts/features": ^1.5.0
-    "@fusioncharts/fusiontime": ^2.6.0
-    "@fusioncharts/maps": ^3.18.0
-    "@fusioncharts/powercharts": ^3.18.0
-    "@fusioncharts/utils": ^1.5.0
-    "@fusioncharts/widgets": ^3.18.0
-    mutationobserver-shim: ^0.3.5
-    promise-polyfill: ^8.1.3
-  checksum: 0d9de18e59f04a671a076de27cb0e1a1e15d7a8ef655a42c1f5f26b9f4110d02ed0dfee6d09703896767259f262c400c402daec80ca495c73dfcbe5ae06d50fa
-  languageName: node
-  linkType: hard
-
 "gauge@npm:^4.0.3":
   version: 4.0.4
   resolution: "gauge@npm:4.0.4"
@@ -21391,6 +21403,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"internmap@npm:1 - 2":
+  version: 2.0.3
+  resolution: "internmap@npm:2.0.3"
+  checksum: 7ca41ec6aba8f0072fc32fa8a023450a9f44503e2d8e403583c55714b25efd6390c38a87161ec456bf42d7bc83aab62eb28f5aef34876b1ac4e60693d5e1d241
+  languageName: node
+  linkType: hard
+
 "interpret@npm:^2.2.0":
   version: 2.2.0
   resolution: "interpret@npm:2.2.0"
@@ -21441,9 +21460,9 @@ __metadata:
   linkType: hard
 
 "ip@npm:^2.0.0":
-  version: 2.0.0
-  resolution: "ip@npm:2.0.0"
-  checksum: cfcfac6b873b701996d71ec82a7dd27ba92450afdb421e356f44044ed688df04567344c36cbacea7d01b1c39a4c732dc012570ebe9bebfb06f27314bca625349
+  version: 2.0.1
+  resolution: "ip@npm:2.0.1"
+  checksum: d765c9fd212b8a99023a4cde6a558a054c298d640fec1020567494d257afd78ca77e37126b1a3ef0e053646ced79a816bf50621d38d5e768cdde0431fa3b0d35
   languageName: node
   linkType: hard
 
@@ -29000,17 +29019,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"react-fusioncharts@npm:^3.1.2":
-  version: 3.1.2
-  resolution: "react-fusioncharts@npm:3.1.2"
-  dependencies:
-    uuid: ^3.2.1
-  peerDependencies:
-    react: ^0.14.0 || ^15.0.0 || ^16.0.0
-  checksum: a3df0368e580b48c614fcb955e212750b6532c59b7991c0a33298330c21bd75c8b871efa658b1e1b3479d241da6d20f4bde31c2ce7a69d426d07d9a3a6a3ba48
-  languageName: node
-  linkType: hard
-
 "react-google-recaptcha@npm:^2.1.0":
   version: 2.1.0
   resolution: "react-google-recaptcha@npm:2.1.0"
@@ -33852,15 +33860,6 @@ __metadata:
   version: 1.0.1
   resolution: "utils-merge@npm:1.0.1"
   checksum: c81095493225ecfc28add49c106ca4f09cdf56bc66731aa8dabc2edbbccb1e1bfe2de6a115e5c6a380d3ea166d1636410b62ef216bb07b3feb1cfde1d95d5080
-  languageName: node
-  linkType: hard
-
-"uuid@npm:^3.2.1":
-  version: 3.4.0
-  resolution: "uuid@npm:3.4.0"
-  bin:
-    uuid: ./bin/uuid
-  checksum: 58de2feed61c59060b40f8203c0e4ed7fd6f99d42534a499f1741218a1dd0c129f4aa1de797bcf822c8ea5da7e4137aa3673431a96dae729047f7aca7b27866f
   languageName: node
   linkType: hard
 

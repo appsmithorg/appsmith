@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
 import { calculateScales } from "./calculateScales";
 
-import type { TokenObj } from "../../token";
-import type { ScaleConfig } from "./types";
+import type { TokenObj, TokenScaleConfig } from "../../token";
 
 export const getSpacing = (
-  spacing: ScaleConfig,
+  spacing: TokenScaleConfig,
   userDensity = 1,
   userSizing = 1,
 ) => {
@@ -32,8 +31,8 @@ export const getSpacing = (
 };
 
 export const useSpacing = (
-  outerSpacingConfig: ScaleConfig,
-  innerSpacingConfig: ScaleConfig,
+  outerSpacingConfig: TokenScaleConfig,
+  innerSpacingConfig: TokenScaleConfig,
   userDensity = 1,
   userSizing = 1,
 ) => {

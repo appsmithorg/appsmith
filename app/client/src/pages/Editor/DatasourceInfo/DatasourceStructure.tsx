@@ -1,4 +1,4 @@
-import React, { memo, useEffect, useMemo, useRef, useState } from "react";
+import React, { memo, useMemo, useRef, useState } from "react";
 import Entity, { EntityClassNames } from "../Explorer/Entity";
 import { datasourceTableIcon } from "../Explorer/ExplorerIcons";
 import QueryTemplates from "./QueryTemplates";
@@ -22,7 +22,6 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { hasCreateDSActionPermissionInApp } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { useEditorType } from "@appsmith/hooks";
 import history from "utils/history";
-import ResizeObserver from "resize-observer-polyfill";
 
 interface DatasourceStructureItemProps {
   dbStructure: DatasourceTable;
@@ -45,6 +44,7 @@ const StructureWrapper = styled.div`
   display: flex;
   flex-direction: column;
   flex-grow: 1;
+  height: 100%;
 `;
 
 const DatasourceStructureItem = memo((props: DatasourceStructureItemProps) => {
@@ -160,33 +160,6 @@ type DatasourceStructureProps = Partial<DatasourceStructureItemProps> & {
 };
 
 const DatasourceStructure = (props: DatasourceStructureProps) => {
-  const [containerHeight, setContainerHeight] = useState<number>();
-  const containerRef = useRef<HTMLDivElement>(null);
-
-  const updateContainerHeight = () => {
-    if (containerRef.current?.offsetHeight) {
-      setContainerHeight(containerRef.current?.offsetHeight);
-    }
-  };
-
-  const resizeObserver = useRef(
-    new ResizeObserver(() => {
-      updateContainerHeight();
-    }),
-  );
-
-  useEffect(() => {
-    updateContainerHeight();
-    if (containerRef.current) {
-      resizeObserver.current.observe(containerRef.current);
-    }
-    return () => {
-      if (containerRef.current) {
-        resizeObserver.current.unobserve(containerRef.current);
-      }
-    };
-  }, []);
-
   const Row = (index: number) => {
     const structure = props.tables[index];
 
@@ -201,15 +174,12 @@ const DatasourceStructure = (props: DatasourceStructureProps) => {
   };
 
   return (
-    <StructureWrapper ref={containerRef}>
-      {containerHeight && (
-        <Virtuoso
-          className="t--schema-virtuoso-container"
-          itemContent={Row}
-          style={{ height: `${containerHeight}px` }}
-          totalCount={props.tables.length}
-        />
-      )}
+    <StructureWrapper>
+      <Virtuoso
+        className="t--schema-virtuoso-container"
+        itemContent={Row}
+        totalCount={props.tables.length}
+      />
     </StructureWrapper>
   );
 };

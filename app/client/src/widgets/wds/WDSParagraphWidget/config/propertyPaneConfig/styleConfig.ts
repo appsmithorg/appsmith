@@ -17,12 +17,12 @@ export const propertyPaneStyleConfig = [
             value: "footnote",
           },
           {
-            label: "Body",
-            value: "body",
-          },
-          {
             label: "Caption",
             value: "caption",
+          },
+          {
+            label: "Body",
+            value: "body",
           },
           {
             label: "Subtitle",

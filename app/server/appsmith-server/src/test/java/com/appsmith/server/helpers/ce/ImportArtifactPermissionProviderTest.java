@@ -126,7 +126,7 @@ class ImportArtifactPermissionProviderTest {
         ImportArtifactPermissionProvider.Builder builder = ImportArtifactPermissionProvider.builder(
                 applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
 
-        assertThat(builder.requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
+        assertThat(builder.requiredPermissionOnTargetArtifact(applicationPermission.getEditPermission())
                         .build()
                         .getRequiredPermissionOnTargetApplication())
                 .isEqualTo(applicationPermission.getEditPermission());

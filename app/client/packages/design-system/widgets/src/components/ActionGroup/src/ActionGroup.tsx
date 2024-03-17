@@ -6,13 +6,13 @@ import { Item, Menu, MenuList } from "../../Menu";
 import { useListState } from "@react-stately/list";
 
 import styles from "./styles.module.css";
-import type { ActionGroupProps } from "./types";
+import type { ButtonGroupProps } from "../../../index";
 import { useActionGroup } from "./useActionGroup";
 import { IconButton } from "../../IconButton";
 import { ActionGroupItem } from "./ActionGroupItem";
 
 const _ActionGroup = <T extends object>(
-  props: ActionGroupProps<T>,
+  props: ButtonGroupProps<T>,
   ref: DOMRef<HTMLDivElement>,
 ) => {
   const {
@@ -52,7 +52,7 @@ const _ActionGroup = <T extends object>(
       >
         <div
           className={styles.actionGroup}
-          data-density={density ? density : undefined}
+          data-density={Boolean(density) ? density : undefined}
           data-orientation={orientation}
           data-overflow={overflowMode}
           ref={domRef}
@@ -60,8 +60,9 @@ const _ActionGroup = <T extends object>(
           {...others}
         >
           {children.map((item) => {
-            if (Boolean(item.props.isSeparator))
-              return <div data-separator="" />;
+            if (Boolean(item.props.isSeparator)) {
+              return <div data-separator="" key={item.key} />;
+            }
 
             return (
               <ActionGroupItem

@@ -20,13 +20,13 @@ import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 
-const DraggableWrapper = styled.div`
+const DraggableWrapper = styled.div<{ draggable: boolean }>`
   display: block;
   flex-direction: column;
   width: 100%;
   height: 100%;
   user-select: none;
-  cursor: grab;
+  cursor: ${(props) => (props.draggable ? "grab" : "unset")};
 `;
 
 export interface DraggableComponentProps {
@@ -37,7 +37,7 @@ export interface DraggableComponentProps {
   type: string;
   children: ReactNode;
   generateDragState: (
-    e: React.DragEvent<Element>,
+    e: React.DragEvent,
     draggableRef: HTMLElement,
   ) => SetDraggingStateActionPayload;
   dragDisabled: boolean;
@@ -53,7 +53,6 @@ const WidgetBoundaries = styled.div`
     ${(props) => getColorWithOpacity(props.theme.colors.textAnchor, 0.5)};
   pointer-events: none;
   top: 0;
-  position: absolute;
   left: 0;
 `;
 
@@ -100,14 +99,14 @@ function DraggableComponent(props: DraggableComponentProps) {
     !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
 
   // When mouse is over this draggable
-  const handleMouseOver = (e: any) => {
+  const handleMouseOver = (e: React.MouseEvent) => {
     focusWidget &&
       !isResizingOrDragging &&
       !isFocused &&
       !isDistributingSpace &&
       !props.resizeDisabled &&
       !isPreviewMode &&
-      focusWidget(props.widgetId);
+      focusWidget(props.widgetId, e.metaKey);
     e.stopPropagation();
   };
 

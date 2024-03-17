@@ -10,20 +10,14 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.PagePermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Service
 @Slf4j
 public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageService {
 
     public NewPageServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             NewPageRepository repository,
             AnalyticsService analyticsService,
             ApplicationService applicationService,
@@ -34,10 +28,7 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
             ApplicationSnapshotRepository applicationSnapshotRepository) {
 
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 applicationService,

@@ -53,6 +53,7 @@ public class DatabricksPlugin extends BasePlugin {
     private static final int JDBC_URL_INDEX = 5;
     private static final long DEFAULT_PORT = 443L;
     private static final int HTTP_PATH_INDEX = 1;
+    private static final int USER_AGENT_TAG = 4;
     private static final String FORM_PROPERTIES_CONFIGURATION = "FORM_PROPERTIES_CONFIGURATION";
     private static final String JDBC_URL_CONFIGURATION = "JDBC_URL_CONFIGURATION";
 
@@ -225,6 +226,17 @@ public class DatabricksPlugin extends BasePlugin {
 
                 // Always enable SSL for Databricks connections.
                 p.put("SSL", "1");
+
+                // Add user agent tag. Default to Appsmith if not provided.
+                String userAgentTag = (String) datasourceConfiguration
+                        .getProperties()
+                        .get(USER_AGENT_TAG)
+                        .getValue();
+                if (!StringUtils.hasText(userAgentTag)) {
+                    userAgentTag = "Appsmith";
+                }
+
+                p.put("UserAgentEntry", userAgentTag);
             } else {
                 url = "";
             }

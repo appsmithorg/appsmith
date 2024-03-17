@@ -12,7 +12,6 @@ import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
-  NO_WORKSPACE_DESCRIPTION,
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
@@ -115,20 +114,19 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { resetEditorRequest } from "actions/initActions";
-import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 import { setHeaderMeta } from "actions/themeActions";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
 import { Indices } from "constants/Layers";
+import ImportModal from "pages/common/ImportModal";
 import SharedUserList from "pages/common/SharedUserList";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import ImportModal from "pages/common/ImportModal";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -370,7 +368,6 @@ export function WorkspaceMenuItem({
         isFetchingWorkspaces ? 100 : 22
       } /* this is to avoid showing tooltip for loaders */
       icon="group-2-line"
-      key={workspace?.id}
       onSelect={handleWorkspaceClick}
       selected={selected}
       text={workspace?.name}
@@ -387,8 +384,8 @@ export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
 export interface LeftPaneProps {
   isBannerVisible?: boolean;
   isFetchingWorkspaces: boolean;
-  workspaces: any;
-  activeWorkspaceId: string | undefined;
+  workspaces: Workspace[];
+  activeWorkspaceId?: string;
 }
 
 export function LeftPane(props: LeftPaneProps) {
@@ -396,7 +393,7 @@ export function LeftPane(props: LeftPaneProps) {
     activeWorkspaceId,
     isBannerVisible = false,
     isFetchingWorkspaces,
-    workspaces,
+    workspaces = [],
   } = props;
   const isMobile = useIsMobileDevice();
 
@@ -409,18 +406,14 @@ export function LeftPane(props: LeftPaneProps) {
         isFetchingWorkspaces={isFetchingWorkspaces}
       >
         <WorkpsacesNavigator data-testid="t--left-panel">
-          {workspaces &&
-            workspaces.map(
-              (workspace: any) =>
-                workspace && (
-                  <WorkspaceMenuItem
-                    isFetchingWorkspaces={isFetchingWorkspaces}
-                    key={workspace?.id}
-                    selected={workspace?.id === activeWorkspaceId}
-                    workspace={workspace}
-                  />
-                ),
-            )}
+          {workspaces.map((workspace) => (
+            <WorkspaceMenuItem
+              isFetchingWorkspaces={isFetchingWorkspaces}
+              key={workspace.id}
+              selected={workspace.id === activeWorkspaceId}
+              workspace={workspace}
+            />
+          ))}
         </WorkpsacesNavigator>
       </LeftPaneSection>
     </LeftPaneWrapper>
@@ -494,14 +487,8 @@ export const WorkspaceSelectorWrapper = styled.div`
 `;
 
 export function ApplicationsSection(props: any) {
-  const {
-    activeWorkspaceId,
-    applications,
-    onStartFromTemplateClick,
-    packages,
-    workflows,
-    workspaces,
-  } = props;
+  const { activeWorkspaceId, applications, packages, workflows, workspaces } =
+    props;
   const enableImportExport = true;
   const dispatch = useDispatch();
   const theme = useContext(ThemeContext);
@@ -542,6 +529,10 @@ export function ApplicationsSection(props: any) {
   const isLoadingResources =
     isFetchingWorkspaces || isFetchingApplications || isFetchingPackages;
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const [
+    isCreateAppFromTemplateModalOpen,
+    setIsCreateAppFromTemplateModalOpen,
+  ] = useState(false);
 
   useEffect(() => {
     // Clears URL params cache
@@ -567,11 +558,14 @@ export function ApplicationsSection(props: any) {
     setSelectedWorkspaceIdForImportApplication,
   ]);
 
-  const leaveWS = (workspaceId: string) => {
-    setWarnLeavingWorkspace(false);
-    setWorkspaceToOpenMenu(null);
-    dispatch(leaveWorkspace(workspaceId));
-  };
+  const leaveWS = useCallback(
+    (workspaceId: string) => {
+      setWarnLeavingWorkspace(false);
+      setWorkspaceToOpenMenu(null);
+      dispatch(leaveWorkspace(workspaceId));
+    },
+    [dispatch],
+  );
 
   const handleDeleteWorkspace = useCallback(
     (workspaceId: string) => {
@@ -640,10 +634,14 @@ export function ApplicationsSection(props: any) {
     });
   };
 
-  const onCreateNewApplicationFromTemplate = () => {
+  const onCreateNewApplicationFromTemplate = useCallback(() => {
     AnalyticsUtil.logEvent("TEMPLATE_DROPDOWN_CLICK");
-    onStartFromTemplateClick();
-  };
+    setIsCreateAppFromTemplateModalOpen(true);
+  }, [setIsCreateAppFromTemplateModalOpen]);
+
+  const onCreateAppFromTemplatesModalClose = useCallback(() => {
+    setIsCreateAppFromTemplateModalOpen(false);
+  }, [setIsCreateAppFromTemplateModalOpen]);
 
   function NoWorkspaceFound() {
     return (
@@ -654,9 +652,6 @@ export function ApplicationsSection(props: any) {
         />
         <NewText className="!mb-3 !font-semibold" kind="heading-s">
           {createMessage(NO_WORKSPACE_HEADING)}
-        </NewText>
-        <NewText className="w-[328px]" kind="heading-xs">
-          {createMessage(NO_WORKSPACE_DESCRIPTION)}
         </NewText>
       </div>
     );
@@ -758,6 +753,11 @@ export function ApplicationsSection(props: any) {
                 workspaceId={selectedWorkspaceIdForImportApplication}
               />
             )}
+            <CreateNewAppFromTemplatesWrapper
+              currentWorkspaceId={activeWorkspaceId}
+              isOpen={isCreateAppFromTemplateModalOpen}
+              onModalClose={onCreateAppFromTemplatesModalClose}
+            />
             {!isLoadingResources && (
               <WorkspaceShareUsers>
                 <SharedUserList />
@@ -889,7 +889,9 @@ export const ApplictionsMainPage = (props: any) => {
   if (!isFetchingWorkspaces) {
     workspaces = fetchedWorkspaces;
   } else {
-    workspaces = loadingUserWorkspaces as any;
+    workspaces = loadingUserWorkspaces.map(
+      (loadingWorkspaces) => loadingWorkspaces.workspace,
+    ) as any;
   }
 
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<
@@ -969,7 +971,6 @@ export const ApplictionsMainPage = (props: any) => {
             <ApplicationsSection
               activeWorkspaceId={activeWorkspaceId}
               applications={fetchedApplications}
-              onStartFromTemplateClick={props.onStartFromTemplateClick}
               packages={packagesOfWorkspace}
               searchKeyword={searchKeyword}
               workflows={workflowsOfWorkspace}
@@ -1006,14 +1007,11 @@ export interface ApplicationProps {
   queryModuleFeatureFlagEnabled: boolean;
   resetCurrentWorkspace: () => void;
   currentApplicationIdForCreateNewApp?: string;
-  resetCurrentApplicationIdForCreateNewApp: () => void;
   currentWorkspaceId: string;
   isReconnectModalOpen: boolean;
 }
 
-export interface ApplicationState {
-  startFromTemplate: boolean;
-}
+export interface ApplicationState {}
 
 export class Applications<
   Props extends ApplicationProps,
@@ -1021,19 +1019,6 @@ export class Applications<
 > extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    this.state = {
-      startFromTemplate: false,
-    } as State;
-  }
-
-  componentDidUpdate(prevProps: Readonly<Props>): void {
-    if (
-      prevProps.isReconnectModalOpen !== this.props.isReconnectModalOpen &&
-      this.props.isReconnectModalOpen
-    ) {
-      this.setState({ startFromTemplate: false });
-    }
   }
 
   componentDidMount() {
@@ -1069,27 +1054,14 @@ export class Applications<
           currentApplicationIdForCreateNewApp={
             this.props.currentApplicationIdForCreateNewApp
           }
-          onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
         />
       );
     } else {
       return (
-        <>
-          <ApplictionsMainPage
-            onStartFromTemplateClick={() => {
-              this.setState({ startFromTemplate: true });
-            }}
-            searchApplications={this.props.searchApplications}
-            searchKeyword={this.props.searchKeyword}
-          />
-          <CreateNewAppFromTemplatesWrapper
-            currentWorkspaceId={this.props.currentWorkspaceId}
-            handleClose={() => {
-              this.setState({ startFromTemplate: false });
-            }}
-            isOpen={this.state.startFromTemplate}
-          />
-        </>
+        <ApplictionsMainPage
+          searchApplications={this.props.searchApplications}
+          searchKeyword={this.props.searchKeyword}
+        />
       );
     }
   }
@@ -1138,8 +1110,6 @@ export const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
   resetCurrentWorkspace: () => dispatch(resetCurrentWorkspace()),
-  resetCurrentApplicationIdForCreateNewApp: () =>
-    dispatch(resetCurrentApplicationIdForCreateNewApp()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);

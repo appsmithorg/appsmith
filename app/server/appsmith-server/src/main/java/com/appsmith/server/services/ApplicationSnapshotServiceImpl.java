@@ -3,7 +3,7 @@ package com.appsmith.server.services;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ce.ApplicationSnapshotServiceCEImpl;
 import com.appsmith.server.solutions.ApplicationPermission;

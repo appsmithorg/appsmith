@@ -7,6 +7,26 @@ import {
 } from "../constants";
 
 /**
+ * Utility function to convert flex-grow values of zone space distribution to flex-basis.
+ *
+ * Why use flex-basis instead of flex-grow?
+ *
+ * we used flex basis values instead of flex grow to achieve zones of same flex grow values to have same width in pixels
+ * irrespective of number of zones in the section. This will enable us to align zones of different sections.
+ *
+ * Why not just store flex basis values?
+ *
+ * This is because when representing on the UI, we show column values which add up to SectionColumns
+ * Also space distribution algorithm(redistributeSpaceWithDynamicMinWidth) works with the flex-grow values.
+ */
+export const convertFlexGrowToFlexBasis = (
+  flexGrow: number,
+  columns = SectionColumns,
+) => {
+  return `${(flexGrow / columns) * 100}%`;
+};
+
+/**
  * Utility function to convert pixel values to numbers.
  */
 const convertPixelValuesToNumber = (value: string) => {
@@ -139,10 +159,10 @@ export const resetCSSOnZones = (spaceDistributed: {
     const zoneDom = document.getElementById(getAnvilWidgetDOMId(zoneId));
     const zonePropDom = document.getElementById(getPropertyPaneZoneId(zoneId));
     if (zoneDom) {
-      zoneDom.style.flexGrow = "";
+      zoneDom.style.flexBasis = "";
       zoneDom.style.transition = "all 0.3s ease";
       if (zonePropDom) {
-        zonePropDom.style.flexGrow = "";
+        zonePropDom.style.flexBasis = "";
         zonePropDom.style.transition = "all 0.3s ease";
       }
       setTimeout(() => {

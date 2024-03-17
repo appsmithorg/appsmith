@@ -1,5 +1,6 @@
 package com.appsmith.server;
 
+import com.appsmith.server.annotations.ConditionalOnMicrometerMetricsEnabled;
 import com.appsmith.server.configurations.ProjectProperties;
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -64,16 +65,19 @@ public class ServerApplication {
     }
 
     @Bean
+    @ConditionalOnMicrometerMetricsEnabled
     public TimedAspect timedAspect(MeterRegistry registry) {
         return new TimedAspect(registry);
     }
 
     @Bean
+    @ConditionalOnMicrometerMetricsEnabled
     public MeterRegistry meterRegistry(OpenTelemetry openTelemetry) {
         return OpenTelemetryMeterRegistry.builder(openTelemetry).build();
     }
 
     @Bean
+    @ConditionalOnMicrometerMetricsEnabled
     public OpenTelemetry openTelemetry() {
         return OpenTelemetrySdk.builder()
                 .setMeterProvider(SdkMeterProvider.builder()

@@ -1,51 +1,34 @@
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import { LayoutComponentTypes } from "../../utils/anvilTypes";
 import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
 import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import {
-  type AnvilDraggedWidgetTypes,
-  AnvilDraggedWidgetTypesEnum,
-} from "../types";
+import { AnvilDraggedWidgetTypesEnum } from "../types";
 import { anvilWidgets } from "widgets/anvil/constants";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
+import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 
 /**
  * Determines whether a canvas can be activated for a dragged widget based on specific conditions.
  * @param draggedWidgetTypes - Type of widget being dragged (e.g., SECTION, ZONE).
- * @param mainCanvasLayoutId - Id of the main canvas layout.
- * @param layoutType - Type of the current layout (e.g., SECTION, ZONE).
- * @param layoutId - Id of the current layout.
+ * @param widgetId: string : Id of the target widget over which the dragged widgets may be dropped.
+ * @param widgetType: string: Type of the target widget over which the dragged widgets may be dropped.
  * @returns {boolean} - True if the canvas can be activated, false otherwise.
  */
 export const canActivateCanvasForDraggedWidget = (
-  draggedWidgetTypes: AnvilDraggedWidgetTypes,
-  mainCanvasLayoutId: string,
-  layoutType: LayoutComponentTypes,
-  layoutId: string,
+  draggedWidgetHierarchy: number,
+  widgetId: string,
+  widgetType: string,
 ) => {
-  // Checking if sections or zones are being dragged
-  const areSectionsDragged =
-    draggedWidgetTypes === AnvilDraggedWidgetTypesEnum.SECTION;
-  const areZonesDragged =
-    draggedWidgetTypes === AnvilDraggedWidgetTypesEnum.ZONE;
-
-  // Checking if the dragged widget is a section and the canvas is the main canvas
-  const isMainCanvas = mainCanvasLayoutId === layoutId;
-
-  // If sections are being dragged, allow activation only for the main canvas
-  if (areSectionsDragged) {
-    return isMainCanvas;
-  }
-
-  // If zones are being dragged, allow activation for sections or the main canvas
-  if (areZonesDragged) {
-    return layoutType === LayoutComponentTypes.SECTION || isMainCanvas;
-  }
-
-  // Allow activation for other widget types
-  return true;
+  /**
+   * Get hierarchy of the drop target widget.
+   */
+  const dropTargetHierarchy: number = getWidgetHierarchy(widgetType, widgetId);
+  /**
+   * If drop target widget is of higher hierarchy than dragged widget, return true.
+   * Higher hierarchy means the widget is closer to the main canvas and hierarchy index is closer to 0.
+   */
+  return dropTargetHierarchy < draggedWidgetHierarchy;
 };
 
 /**
@@ -79,6 +62,20 @@ export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
   // Returning the final dragged widget type
   return draggedWidgetTypes;
 };
+
+/**
+ *
+ * @param draggedWidgets : DraggedWidget[]
+ * @returns : number - Highest hierarchy of the dragged widgets
+ */
+export function getDraggedWidgetHierarchy(
+  draggedWidgets: DraggedWidget[],
+): number {
+  return draggedWidgets.reduce((acc: number, each: DraggedWidget) => {
+    const order: number = getWidgetHierarchy(each.type, each.widgetId);
+    return order < acc ? order : acc;
+  }, 1000);
+}
 
 /**
  * getDraggedBlocks function returns an array of DraggedWidget.

@@ -1,9 +1,12 @@
 package com.appsmith.server.actioncollections.base;
 
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -12,20 +15,13 @@ import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Service
 @Slf4j
 public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl implements ActionCollectionService {
-
     public ActionCollectionServiceImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ActionCollectionRepository repository,
             AnalyticsService analyticsService,
             NewActionService newActionService,
@@ -34,12 +30,12 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
             ActionPermission actionPermission,
-            DefaultResourcesService<ActionCollection> defaultResourcesService) {
+            DefaultResourcesService<ActionCollection> defaultResourcesService,
+            DefaultResourcesService<ActionCollectionDTO> dtoDefaultResourcesService,
+            DefaultResourcesService<NewAction> newActionDefaultResourcesService,
+            DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 newActionService,
@@ -48,6 +44,9 @@ public class ActionCollectionServiceImpl extends ActionCollectionServiceCEImpl i
                 responseUtils,
                 applicationPermission,
                 actionPermission,
-                defaultResourcesService);
+                defaultResourcesService,
+                dtoDefaultResourcesService,
+                newActionDefaultResourcesService,
+                actionDTODefaultResourcesService);
     }
 }

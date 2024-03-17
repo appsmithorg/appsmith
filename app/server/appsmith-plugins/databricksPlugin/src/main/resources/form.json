@@ -86,6 +86,15 @@
           }
         },
         {
+          "label": "UserAgent Tag",
+          "configProperty": "datasourceConfiguration.properties[4].value",
+          "controlType": "INPUT_TEXT",
+          "isRequired": false,
+          "initialValue": "Appsmith",
+          "placeholderText": "Appsmith",
+          "hidden": true
+        },
+        {
           "label": "JDBC URL",
           "configProperty": "datasourceConfiguration.properties[5].value",
           "controlType": "INPUT_TEXT",

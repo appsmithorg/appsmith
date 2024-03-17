@@ -1,11 +1,9 @@
 import type { MouseEvent } from "react";
 import type { AppState } from "@appsmith/reducers";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
-
 /**
  * Custom hook to handle click events for clearing widget selections.
  * @param {string} widgetId - ID of the widget associated with the click event.
@@ -29,21 +27,14 @@ export const useClickToClearSelections = (widgetId: string) => {
 
   // Click event handler function
   return (e: MouseEvent<HTMLElement>) => {
-    const isTargetMainCanvas = widgetId === MAIN_CONTAINER_WIDGET_ID;
-
     // Checking if there is no ongoing dragging, canvas resizing, or space distribution
     if (!(isDragging || isCanvasResizing || isDistributingSpace)) {
       // Check if the target is the MainCanvas
-      if (isTargetMainCanvas) {
-        // Deselect all widgets, focus on the clicked widget, show the property pane, and prevent the default click behavior
-        goToWidgetAdd();
-        focusWidget && focusWidget(widgetId);
-        showPropertyPane && showPropertyPane();
-        e.preventDefault();
-      } else {
-        // Prevent onClick from bubbling out of the canvas to the WidgetEditor for any other widget except the MainCanvas
-        e.stopPropagation();
-      }
+      // Deselect all widgets, focus on the clicked widget, show the property pane, and prevent the default click behavior
+      goToWidgetAdd();
+      focusWidget && focusWidget(widgetId);
+      showPropertyPane && showPropertyPane();
+      e.preventDefault();
     }
   };
 };

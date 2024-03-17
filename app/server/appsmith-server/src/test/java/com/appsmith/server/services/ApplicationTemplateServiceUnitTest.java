@@ -6,7 +6,7 @@ import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.fasterxml.jackson.core.JsonProcessingException;

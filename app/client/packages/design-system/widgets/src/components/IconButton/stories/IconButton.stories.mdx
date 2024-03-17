@@ -53,7 +53,7 @@ Just like Button component, There are 3 variants of the icon button component.
   <Flex gap="spacing-2" wrap="wrap">
     {["filled", "outlined", "ghost"].map((variant) =>
       ["accent", "neutral", "positive", "negative", "warning"].map((color) => (
-        <div key={`${variant}-${color}`} style={{ marginBottom: 10 }}>
+        <div key={`${variant}-${color}`}>
           <IconButton variant={variant} color={color} icon="plus" />
         </div>
       )),
@@ -67,11 +67,13 @@ Just like Button component, There are 3 variants of the icon button component.
 
 <Story name="Size">
   <Flex gap="spacing-2">
-    {Object.keys(SIZES).map((size) => (
-      <div key={size} style={{ marginBottom: 10 }}>
-        <IconButton size={size} icon="plus" />
-      </div>
-    ))}
+    {Object.keys(SIZES)
+      .filter((size) => !["large"].includes(size))
+      .map((size) => (
+        <div key={size}>
+          <IconButton size={size} icon="plus" />
+        </div>
+      ))}
   </Flex>
 </Story>
 

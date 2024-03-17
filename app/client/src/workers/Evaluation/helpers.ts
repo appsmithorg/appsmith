@@ -197,42 +197,6 @@ const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
     },
     {},
   );
-//completely new updates which the diff will not traverse through needs to be attached
-const generateMissingSetPathsUpdates = (
-  ignoreLargeKeys: any,
-  ignoreLargeKeysHasBeenAttached: any,
-  dataTree: any,
-): DiffWithReferenceState[] =>
-  Object.keys(ignoreLargeKeys)
-    .filter((evalPath) => !ignoreLargeKeysHasBeenAttached.has(evalPath))
-    .map((evalPath) => {
-      const statePath = ignoreLargeKeys[evalPath];
-      //for object paths which have a "." in the object key like "a.['b.c']", we need to extract these
-      // paths and break them to appropriate patch paths
-
-      //get the matching value from the widget properies in the data tree
-      const val = get(dataTree, statePath);
-
-      const matches = evalPath.match(REGEX_NESTED_OBJECT_PATH);
-      if (!matches || !matches.length) {
-        //regular paths like "a.b.c"
-
-        return {
-          kind: "N",
-          path: evalPath.split("."),
-          rhs: val,
-        };
-      }
-      // object paths which have a "." like "a.['b.c']"
-      const [, firstSeg, nestedPathSeg] = matches;
-      const segmentedPath = [...firstSeg.split("."), nestedPathSeg];
-
-      return {
-        kind: "N",
-        path: segmentedPath,
-        rhs: val,
-      };
-    });
 
 const generateDiffUpdates = (
   oldDataTree: any,
@@ -312,17 +276,7 @@ const generateDiffUpdates = (
       return true;
     }) || [];
 
-  const missingSetPaths = generateMissingSetPathsUpdates(
-    ignoreLargeKeys,
-    ignoreLargeKeysHasBeenAttached,
-    dataTree,
-  );
-
-  const largeDataSetUpdates = [
-    ...attachDirectly,
-    ...missingSetPaths,
-    ...attachLater,
-  ];
+  const largeDataSetUpdates = [...attachDirectly, ...attachLater];
   return [...updates, ...largeDataSetUpdates];
 };
 

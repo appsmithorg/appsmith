@@ -17,7 +17,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
@@ -39,7 +39,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -263,7 +263,7 @@ public class ActionServiceCE_Test {
                     application2.getGitApplicationMetadata().setDefaultApplicationId(application2.getId());
                     return applicationService.save(application2).zipWhen(application1 -> exportService
                             .exportByArtifactIdAndBranchName(
-                                    application1.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION)
+                                    application1.getId(), gitData.getBranchName(), ArtifactType.APPLICATION)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application
@@ -315,7 +315,7 @@ public class ActionServiceCE_Test {
         Mono<NewAction> actionMono = layoutActionService
                 .createSingleActionWithBranch(action, branchName)
                 .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(
-                        branchName, createdAction.getId(), READ_ACTIONS));
+                        branchName, createdAction.getId(), false, READ_ACTIONS));
 
         StepVerifier.create(actionMono)
                 .assertNext(newAction -> {

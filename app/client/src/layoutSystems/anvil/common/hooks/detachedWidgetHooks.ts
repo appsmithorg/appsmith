@@ -42,7 +42,12 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
         element?.dispatchEvent(
           new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
             bubbles: true,
-            detail: { widgetId: widgetId },
+            detail: {
+              widgetId,
+              metaKey: e.metaKey,
+              ctrlKey: e.ctrlKey,
+              shiftKey: e.shiftKey,
+            },
           }),
         );
       }
@@ -94,22 +99,8 @@ export function useAddBordersToDetachedWidgets(widgetId: string) {
     `.${className}`,
   );
 
-  // Apply the styles to the element
-  // If the style is not present, set it to none
   if (element) {
-    if (borderStyled.border) element.style.border = borderStyled.border;
-    else element.style.border = "none";
-    if (borderStyled.outline) element.style.outline = borderStyled.outline;
-    else element.style.outline = "none";
-    if (borderStyled.outlineOffset)
-      element.style.outlineOffset = borderStyled.outlineOffset;
-    else element.style.outlineOffset = "none";
-    if (borderStyled.boxShadow)
-      element.style.boxShadow = borderStyled.boxShadow;
-    else element.style.boxShadow = "none";
-    if (borderStyled.borderRadius)
-      element.style.borderRadius = borderStyled.borderRadius;
-    else element.style.borderRadius = "none";
+    element.style.border = borderStyled.border ?? "none";
   }
 }
 

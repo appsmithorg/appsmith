@@ -1,6 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import type { ListItemProps } from "design-system";
+import type { FlexProps, ListItemProps } from "design-system";
 import { Flex, List, Text } from "design-system";
 
 const StyledList = styled(List)`
@@ -16,6 +16,7 @@ export type GroupedListProps = Array<{
 
 interface Props {
   groups: GroupedListProps;
+  flexProps?: FlexProps;
 }
 
 const GroupedList = (props: Props) => {
@@ -25,8 +26,7 @@ const GroupedList = (props: Props) => {
       flexDirection="column"
       gap="spaces-4"
       overflowY="auto"
-      pr="spaces-2"
-      px="spaces-3"
+      {...props.flexProps}
     >
       {props.groups.map((group) => (
         <Flex flexDirection="column" key={group.groupTitle}>
