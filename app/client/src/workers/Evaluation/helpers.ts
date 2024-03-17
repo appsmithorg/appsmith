@@ -312,7 +312,22 @@ export const generateOptimisedUpdates = (
     ignoreLargeKeys,
     evalOrder,
   );
-  return updates;
+  const rootArrayUpdates = updates
+    .filter((v) => v.kind === "D")
+    .map((v) => v.path)
+    .reduce((acc, path: any) => {
+      if (typeof path[path.length - 1] === "number") {
+        path.pop();
+        acc.push({
+          kind: "E",
+          path: path,
+          rhs: get(dataTree, path),
+        }); //push the parent path
+      }
+      return acc;
+    }, [] as any);
+
+  return [...updates, ...rootArrayUpdates];
 };
 
 export const generateSerialisedUpdates = (
