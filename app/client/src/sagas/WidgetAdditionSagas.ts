@@ -84,6 +84,7 @@ import {
   getWidgetByName,
   getWidgets,
 } from "./selectors";
+import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -570,12 +571,7 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
         const flattenedBlockWidgets = buildingBlockWidgets.map(
           (widget: WidgetProps) => flattenDSL(widget),
         );
-        const widgetsToPasteInCanvas: {
-          widgetId: string;
-          parentId: string;
-          list: FlattenedWidgetProps[];
-          hierarchy: number;
-        }[] = yield all(
+        const widgetsToPasteInCanvas: CopiedWidgetData[] = yield all(
           flattenedBlockWidgets.map(
             (widget: FlattenedWidgetProps, index: number) => {
               let widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
