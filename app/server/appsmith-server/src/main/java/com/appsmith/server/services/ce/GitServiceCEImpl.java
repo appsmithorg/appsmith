@@ -32,7 +32,6 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
-import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.dtos.GitCommitDTO;
 import com.appsmith.server.dtos.GitConnectDTO;
@@ -1895,18 +1894,15 @@ public class GitServiceCEImpl implements GitServiceCE {
            1. Copy resources from DB to local repo
            2. Fetch the current status from local repo
         */
-        Mono<GitStatusDTO> statusMono = Mono.zip(getGitApplicationMetadata(defaultApplicationId), branchedAppMono)
+        Mono<GitStatusDTO> statusMono = getGitApplicationMetadata(defaultApplicationId)
+                .zipWhen(gitArtifactMetadata -> branchedAppMono)
                 .flatMap(tuple2 -> {
                     GitArtifactMetadata gitArtifactMetadata = tuple2.getT1();
                     Application branchedApplication = tuple2.getT2();
                     Mono<ApplicationJson> exportAppMono = exportService
                             .exportByArtifactId(branchedApplication.getId(), VERSION_CONTROL, APPLICATION)
-                            .elapsed()
-                            .map(longTuple2 -> {
-                                log.debug("export took: {}", longTuple2.getT1());
-                                ArtifactExchangeJson artifactExchangeJson = longTuple2.getT2();
-                                return (ApplicationJson) artifactExchangeJson;
-                            });
+                            .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
+
                     return Mono.zip(Mono.just(gitArtifactMetadata), Mono.just(branchedApplication), exportAppMono);
                 })
                 .flatMap(tuple3 -> {
@@ -1957,19 +1953,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "status", e.getMessage()));
                     }
                 })
-                .elapsed()
-                .flatMap(tuple -> {
-                    log.debug("saveApplicationToLocalRepo took: {}", tuple.getT1());
+                .flatMap(tuple3 -> {
                     return gitExecutor
-                            .getStatus(tuple.getT2().getT1(), finalBranchName)
-                            .elapsed()
-                            .flatMap(tuple2 -> {
-                                log.debug("git status took: {}", tuple2.getT1());
+                            .getStatus(tuple3.getT1(), finalBranchName)
+                            .flatMap(result -> {
                                 // Remove any files which are copied by hard resetting the repo
                                 try {
-                                    GitStatusDTO result = tuple2.getT2();
                                     return gitExecutor
-                                            .resetToLastCommit(tuple.getT2().getT2(), branchName)
+                                            .resetToLastCommit(tuple3.getT2(), branchName)
                                             .thenReturn(result);
                                 } catch (Exception e) {
                                     log.error(
