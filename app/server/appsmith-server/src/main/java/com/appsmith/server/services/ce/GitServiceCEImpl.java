@@ -1967,8 +1967,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 log.debug("git status took: {}", tuple2.getT1());
                                 // Remove any files which are copied by hard resetting the repo
                                 try {
-                                    // TODO: Why are we doing reset to last commit always???
-                                    // TODO: We can get rid of that - Anagh
                                     GitStatusDTO result = tuple2.getT2();
                                     return gitExecutor
                                             .resetToLastCommit(tuple.getT2().getT2(), branchName)
