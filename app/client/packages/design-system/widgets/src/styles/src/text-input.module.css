@@ -46,6 +46,7 @@
   *-----------------------------------------------------------------------------
   */
   & [data-readonly][data-field-input] {
+    background-color: transparent;
     box-shadow: none;
     padding-inline: 0;
   }
