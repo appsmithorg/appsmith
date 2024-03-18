@@ -1390,6 +1390,7 @@ export default class DataTreeEvaluator {
                   name: getEntityName(entity, entityConfig) || "",
                 },
                 triggerPropertyName: fullPropertyPath?.split(".")[1] || "",
+                onPageLoad: false,
               },
             });
           }

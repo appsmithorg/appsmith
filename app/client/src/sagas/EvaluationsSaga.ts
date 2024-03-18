@@ -399,7 +399,11 @@ interface JSFunctionExecutionResponse {
   logs?: LogObject[];
 }
 
-function* executeAsyncJSFunction(action: JSAction, collection: JSCollection) {
+function* executeAsyncJSFunction(
+  action: JSAction,
+  collection: JSCollection,
+  onPageLoad: boolean,
+) {
   const { id: collectionId, name: collectionName } = collection;
   const functionCall = `${collectionName}.${action.name}()`;
   const triggerMeta = {
@@ -410,6 +414,7 @@ function* executeAsyncJSFunction(action: JSAction, collection: JSCollection) {
     },
     triggerPropertyName: `${collectionName}.${action.name}`,
     triggerKind: TriggerKind.JS_FUNCTION_EXECUTION,
+    onPageLoad: onPageLoad,
   };
   const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
   const response: JSFunctionExecutionResponse = yield call(
@@ -421,12 +426,16 @@ function* executeAsyncJSFunction(action: JSAction, collection: JSCollection) {
   return response;
 }
 
-export function* executeJSFunction(action: JSAction, collection: JSCollection) {
+export function* executeJSFunction(
+  action: JSAction,
+  collection: JSCollection,
+  onPageLoad: boolean,
+) {
   const response: {
     errors: unknown[];
     result: unknown;
     logs?: LogObject[];
-  } = yield call(executeAsyncJSFunction, action, collection);
+  } = yield call(executeAsyncJSFunction, action, collection, onPageLoad);
   const { errors, result } = response;
   const isDirty = !!errors.length;
 
