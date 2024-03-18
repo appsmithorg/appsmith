@@ -13,9 +13,6 @@ import type {
   LayerChild,
 } from "layoutSystems/autolayout/utils/types";
 
-export const getIsCurrentlyConvertingLayout = (state: AppState) =>
-  state.ui.layoutConversion.isConverting;
-
 export const getFlexLayers = (parentId: string) => {
   return createSelector(getCanvasAndMetaWidgets, (widgets): FlexLayer[] => {
     const parent = widgets[parentId];
@@ -23,9 +20,6 @@ export const getFlexLayers = (parentId: string) => {
     return parent?.flexLayers || [];
   });
 };
-
-export const getSnapshotUpdatedTime = (state: AppState) =>
-  state.ui.layoutConversion.snapshotDetails?.lastUpdatedTime;
 
 export const getLayerIndex = (widgetId: string, parentId: string) => {
   return createSelector(

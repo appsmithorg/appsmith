@@ -1,7 +1,6 @@
 import * as Sentry from "@sentry/react";
 
 import React from "react";
-import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
 import styled from "styled-components";
 import {
   LayoutSystemFeatures,
@@ -17,11 +16,9 @@ const MainHeading = styled.h3`
 `;
 export function CanvasPropertyPane() {
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enableLayoutControl, enableLayoutConversion] =
-    checkLayoutSystemFeatures([
-      LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL,
-      LayoutSystemFeatures.ENABLE_LAYOUT_CONVERSION,
-    ]);
+  const [enableLayoutControl] = checkLayoutSystemFeatures([
+    LayoutSystemFeatures.ENABLE_CANVAS_LAYOUT_CONTROL,
+  ]);
 
   return (
     <div className="relative ">
@@ -37,7 +34,6 @@ export function CanvasPropertyPane() {
               <MainContainerWidthToggles />
             </>
           )}
-          {enableLayoutConversion && <ConversionButton />}
         </div>
       </div>
     </div>

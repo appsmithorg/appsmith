@@ -1,5 +1,4 @@
 import { LayoutSystemTypes } from "layoutSystems/types";
-import { autoLayoutDSLTransformer } from "layoutSystems/autolayout/utils/AutoLayoutDSLTransformer";
 import { anvilDSLTransformer } from "layoutSystems/anvil/utils/AnvilDSLTransformer";
 import type { DSLWidget } from "WidgetProvider/constants";
 
@@ -11,13 +10,12 @@ import type { DSLWidget } from "WidgetProvider/constants";
  */
 export function getLayoutSystemDSLTransformer(
   layoutSystemType: LayoutSystemTypes,
-  mainCanvasWidth: number,
 ) {
   switch (layoutSystemType) {
     case LayoutSystemTypes.FIXED:
       return (dsl: DSLWidget) => dsl;
     case LayoutSystemTypes.AUTO:
-      return autoLayoutDSLTransformer(mainCanvasWidth);
+      return (dsl: DSLWidget) => dsl;
     case LayoutSystemTypes.ANVIL:
       return anvilDSLTransformer;
   }

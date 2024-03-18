@@ -40,8 +40,6 @@ import {
 } from "selectors/editorSelectors";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { updateLayoutForMobileBreakpointAction } from "actions/autoLayoutActions";
-import convertDSLtoAuto from "layoutSystems/common/DSLConversions/fixedToAutoLayout";
-import { convertNormalizedDSLToFixed } from "layoutSystems/common/DSLConversions/autoToFixedLayout";
 import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUtils";
 import { getCanvasWidth as getMainCanvasWidth } from "selectors/editorSelectors";
 import {
@@ -58,11 +56,9 @@ import {
 import { isEmpty } from "lodash";
 import { mutation_setPropertiesToUpdate } from "./autoHeightSagas/helpers";
 import { updateApplication } from "@appsmith/actions/applicationActions";
-import { getIsCurrentlyConvertingLayout } from "selectors/autoLayoutSelectors";
 import { getIsResizing } from "selectors/widgetSelectors";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { AppState } from "@appsmith/reducers";
-import { nestDSL, flattenDSL } from "@shared/dsl";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 // Saga check : if layout system is not anvil, then run the saga
@@ -95,11 +91,6 @@ export function* updateLayoutForMobileCheckpoint(
     const start = performance.now();
     const isAutoLayout: boolean = yield select(getIsAutoLayout);
     if (!isAutoLayout) return;
-    //Do not recalculate columns and update layout while converting layout
-    const isCurrentlyConvertingLayout: boolean = yield select(
-      getIsCurrentlyConvertingLayout,
-    );
-    if (isCurrentlyConvertingLayout) return;
 
     const {
       canvasWidth,
@@ -140,54 +131,6 @@ export function* updateLayoutForMobileCheckpoint(
       performance.now() - start,
       "ms",
     );
-  } catch (error) {
-    yield put({
-      type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
-      payload: {
-        action: ReduxActionTypes.RECALCULATE_COLUMNS,
-        error,
-      },
-    });
-  }
-}
-
-/**
- * This Method is called when fixed and Auto are switched between each other using the Switch button on the right Pane
- * @param actionPayload
- * @returns
- */
-export function* updateLayoutSystemTypeSaga(
-  actionPayload: ReduxAction<LayoutSystemTypes>,
-) {
-  try {
-    const currLayoutSystemType: LayoutSystemTypes =
-      yield select(getLayoutSystemType);
-    const payloadLayoutSystemType = actionPayload.payload;
-
-    if (currLayoutSystemType === payloadLayoutSystemType) return;
-
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
-
-    //Convert fixed layout to auto-layout
-    if (payloadLayoutSystemType === LayoutSystemTypes.AUTO) {
-      const nestedDSL = nestDSL(allWidgets);
-
-      const autoDSL = convertDSLtoAuto(nestedDSL);
-      log.debug("autoDSL", autoDSL);
-
-      const flattenedDSL = flattenDSL(autoDSL);
-      yield put(updateAndSaveLayout(flattenedDSL));
-
-      yield call(recalculateAutoLayoutColumnsAndSave);
-    }
-    // Convert auto-layout to fixed
-    else {
-      yield put(
-        updateAndSaveLayout(convertNormalizedDSLToFixed(allWidgets, "DESKTOP")),
-      );
-    }
-
-    yield call(updateApplicationLayoutType, payloadLayoutSystemType);
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_OPERATION_ERROR,
@@ -505,11 +448,6 @@ export default function* layoutUpdateSagas() {
       ReduxActionTypes.RECALCULATE_COLUMNS,
       preventForAnvil,
       updateLayoutForMobileCheckpoint,
-    ),
-    takeLatest(
-      ReduxActionTypes.UPDATE_LAYOUT_SYSTEM_TYPE,
-      preventForAnvil,
-      updateLayoutSystemTypeSaga,
     ),
     takeLatest(
       ReduxActionTypes.UPDATE_WIDGET_DIMENSIONS,

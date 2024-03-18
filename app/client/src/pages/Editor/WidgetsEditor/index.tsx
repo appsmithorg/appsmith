@@ -1,8 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-
 import Debugger from "components/editorComponents/Debugger";
-
 import {
   getCanvasWidth,
   getCurrentPageId,
@@ -10,7 +8,6 @@ import {
   getIsAutoLayout,
   previewModeSelector,
 } from "selectors/editorSelectors";
-import styled from "styled-components";
 import { CANVAS_VIEWPORT } from "../../../constants/componentClassNameConstants";
 import { LayoutSystemTypes } from "../../../layoutSystems/types";
 import { getLayoutSystemType } from "../../../selectors/layoutSystemSelectors";
@@ -39,13 +36,10 @@ import {
   getIsAppSettingsPaneWithNavigationTabOpen,
 } from "selectors/appSettingsPaneSelectors";
 import { AppSettingsTabs } from "../AppSettingsPane/AppSettings";
-import SnapShotBannerCTA from "../CanvasLayoutConversion/SnapShotBannerCTA";
 import { APP_MODE } from "entities/App";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import classNames from "classnames";
-import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
-import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import AnonymousDataPopup from "../FirstTimeUserOnboarding/AnonymousDataPopup";
 import {
   LayoutSystemFeatures,
@@ -57,10 +51,6 @@ import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { EditorState } from "@appsmith/entities/IDE/constants";
 import useMissingModuleNotification from "@appsmith/pages/Editor/IDE/MainPane/useMissingModuleNotification";
 
-const BannerWrapper = styled.div`
-  z-index: calc(var(--on-canvas-ui-z-index) + 1);
-`;
-
 function WidgetsEditor() {
   const dispatch = useDispatch();
   const currentPageId = useSelector(getCurrentPageId);
@@ -68,8 +58,6 @@ function WidgetsEditor() {
   const currentApp = useSelector(getCurrentApplication);
   const isPreviewMode = useSelector(previewModeSelector);
   const isProtectedMode = useSelector(protectedModeSelector);
-  const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
-  const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
   const isAutoLayout = useSelector(getIsAutoLayout);
 
   const currentApplicationDetails = useSelector(getCurrentApplication);
@@ -93,9 +81,6 @@ function WidgetsEditor() {
   const isMobile = useIsMobileDevice();
   const isPreviewingNavigation =
     isPreviewMode || isProtectedMode || isAppSettingsPaneWithNavigationTabOpen;
-
-  const shouldShowSnapShotBanner =
-    !!readableSnapShotDetails && !isPreviewingNavigation;
   const missingModuleNotification = useMissingModuleNotification();
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
@@ -242,11 +227,6 @@ function WidgetsEditor() {
                   : {}
               }
             >
-              {shouldShowSnapShotBanner && (
-                <BannerWrapper className="absolute top-0 w-full">
-                  <SnapShotBannerCTA />
-                </BannerWrapper>
-              )}
               <MainContainerWrapper
                 canvasWidth={canvasWidth}
                 currentPageId={currentPageId}
@@ -256,7 +236,6 @@ function WidgetsEditor() {
                 isPreviewMode={isPreviewMode}
                 isProtectedMode={isProtectedMode}
                 navigationHeight={navigationHeight}
-                shouldShowSnapShotBanner={shouldShowSnapShotBanner}
               />
               {enableOverlayCanvas && (
                 <OverlayCanvasContainer canvasWidth={canvasWidth} />
