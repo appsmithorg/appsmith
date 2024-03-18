@@ -4,10 +4,16 @@ import classNames from "classnames";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { Navigation } from "pages/AppViewer/Navigation";
-import { useCurrentAppState } from "../IDE/hooks";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { EditorState } from "@appsmith/entities/IDE/constants";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 
+/**
+ * NavigationPreview
+ *
+ * This component is used to provide a preview of the navigation in the widget editor.
+ * It is shown when the user is in the preview mode or the app settings pane with the navigation tab open.
+ */
 const NavigationPreview = forwardRef(
   (props: unknown, ref: LegacyRef<HTMLDivElement> | undefined) => {
     const isNavigationSelectedInSettings = useSelector(
