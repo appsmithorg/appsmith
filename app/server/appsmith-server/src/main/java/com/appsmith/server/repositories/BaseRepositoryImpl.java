@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.blasphemy.DBConnection;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.google.errorprone.annotations.DoNotCall;
@@ -60,14 +59,11 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     protected final @NonNull JpaEntityInformation<T, ID> entityInformation;
     protected final @NonNull EntityManager entityManager;
 
-    protected final DBConnection dbConnection;
-
     public BaseRepositoryImpl(
             @NonNull JpaEntityInformation<T, ID> entityInformation, @NonNull EntityManager entityManager) {
         super(entityInformation, entityManager);
         this.entityInformation = entityInformation;
         this.entityManager = entityManager;
-        this.dbConnection = DBConnection.getInstance();
     }
 
     @Override
