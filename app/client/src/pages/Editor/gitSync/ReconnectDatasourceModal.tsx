@@ -75,7 +75,6 @@ import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
 import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import useReconnectModalData from "@appsmith/pages/Editor/gitSync/useReconnectModalData";
 import { resetImportData } from "@appsmith/actions/workspaceActions";
-import history from "utils/history";
 
 const Section = styled.div`
   display: flex;
@@ -439,6 +438,11 @@ function ReconnectDatasourceModal() {
       // If either the close button or the overlay was clicked close the modal
       if (shouldClose) {
         onClose();
+        const isInsideApplication =
+          window.location.pathname.split("/")[1] === "app";
+        if (isInsideApplication && editorURL) {
+          window.location.href = editorURL;
+        }
       }
     }
   };
@@ -563,7 +567,10 @@ function ReconnectDatasourceModal() {
   const onSkipBtnClick = () => {
     AnalyticsUtil.logEvent("RECONNECTING_SKIP_TO_APPLICATION_BUTTON_CLICK");
     localStorage.setItem("importedAppPendingInfo", "null");
-    editorURL && history.push(editorURL);
+    if (editorURL) {
+      // window location because history push changes routes shallowly and some side effects needed for page loading might not run
+      window.location.href = editorURL;
+    }
     onClose();
   };
 
