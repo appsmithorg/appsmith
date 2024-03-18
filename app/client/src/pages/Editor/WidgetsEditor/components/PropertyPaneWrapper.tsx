@@ -6,7 +6,8 @@ import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { CreateNewModal } from "pages/Editor/IDE/RightPane/components/CreateNewModal";
 
 /**
- * OldName: PropertyPaneContainer
+ * PropertyPaneWrapper
+ *
  * This component is used to wrap the property pane sidebar and create new modal.
  * It is used to handle the width of the property pane sidebar.
  */
