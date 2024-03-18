@@ -56,6 +56,8 @@ export interface FormTextFieldProps {
   hideErrorMessage?: boolean;
   isRequired?: boolean;
   defaultValue?: string;
+  format?: (value: any) => any;
+  parse?: (value: any) => any;
 }
 
 function ReduxFormTextField(props: FormTextFieldProps) {
