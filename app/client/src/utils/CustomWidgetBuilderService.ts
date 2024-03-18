@@ -1,9 +1,9 @@
 export class Builder {
-  private builderWindow: Window | null;
+  builderWindow: Window | null;
 
-  private onMessageMap: Map<string, ((data: unknown) => void)[]> = new Map();
+  onMessageMap: Map<string, ((data: unknown) => void)[]> = new Map();
 
-  private handleMessageBound = this.handleMessage.bind(this);
+  handleMessageBound = this.handleMessage.bind(this);
 
   constructor() {
     this.builderWindow = window.open(
@@ -14,7 +14,7 @@ export class Builder {
     window?.addEventListener("message", this.handleMessageBound);
   }
 
-  private handleMessage(event: MessageEvent) {
+  handleMessage(event: MessageEvent) {
     if (event.source === this.builderWindow) {
       const handlerList = this.onMessageMap.get(event.data.type);
 

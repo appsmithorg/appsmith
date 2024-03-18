@@ -26,7 +26,7 @@ class ButtonControl extends BaseControl<ControlProps, ButtonControlState> {
     isSourceEditorOpen: false,
   };
 
-  private onMessageCancelFunctions: () => void[] = [];
+  private onMessageCancelFunctions: Array<() => void> = [];
 
   getPayload = () => {
     return {

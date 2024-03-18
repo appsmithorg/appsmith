@@ -77,24 +77,22 @@ describe("Builder - ", () => {
   let builder: Builder;
   let closed = false;
 
-  let closeWindow = jest.fn().mockImplementation(() => {
-    // @ts-ignore
+  const closeWindow = jest.fn().mockImplementation(() => {
     if (builder?.builderWindow) {
-      // @ts-ignore
       builder.builderWindow.closed = true;
     }
   });
 
-  let focus = jest.fn();
+  const focus = jest.fn();
 
-  let open = jest.fn().mockImplementation(() => {
+  const open = jest.fn().mockImplementation(() => {
     closed = false;
 
     return { postMessage, close: closeWindow, closed, focus };
   });
 
-  let addEventListener = jest.fn();
-  let removeEventListener = jest.fn();
+  const addEventListener = jest.fn();
+  const removeEventListener = jest.fn();
 
   beforeAll(() => {
     window.open = open;
@@ -122,7 +120,6 @@ describe("Builder - ", () => {
 
       const cancel = builder.onMessage(type, callback);
 
-      // @ts-ignore
       const listener = builder.onMessageMap.get(type);
 
       expect(listener).toBeDefined();
@@ -131,17 +128,17 @@ describe("Builder - ", () => {
 
       expect(listener?.[0]).toEqual(callback);
 
-      const cancel2 = builder.onMessage(type, callback);
+      const cancel2 = builder.onMessage(type, callback2);
 
       expect(listener?.length).toBe(2);
 
-      expect(listener?.[1]).toEqual(callback);
+      expect(listener?.[1]).toEqual(callback2);
 
       cancel();
 
       expect(listener?.length).toBe(1);
 
-      expect(listener?.[0]).toEqual(callback);
+      expect(listener?.[0]).toEqual(callback2);
 
       cancel2();
 
@@ -181,10 +178,9 @@ describe("Builder - ", () => {
     it("should test that its closing the builder", () => {
       let handler;
 
-      // @ts-ignore
-      window.addEventListener = (type: string, fn: () => void) => {
+      window.addEventListener = ((type: string, fn: () => void) => {
         handler = fn;
-      };
+      }) as typeof window.addEventListener;
 
       const builder = new Builder();
 
