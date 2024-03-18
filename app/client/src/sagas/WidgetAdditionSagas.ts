@@ -570,7 +570,7 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
         const flattenedBlockWidgets = buildingBlockWidgets.map(
           (widget: WidgetProps) => flattenDSL(widget),
         );
-        const widgetListsToStore: {
+        const widgetsToPasteInCanvas: {
           widgetId: string;
           parentId: string;
           list: FlattenedWidgetProps[];
@@ -606,7 +606,7 @@ function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
         const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
         yield saveCopiedWidgets(
           JSON.stringify({
-            widgets: widgetListsToStore,
+            widgets: widgetsToPasteInCanvas,
             flexLayers: [],
           }),
         );
