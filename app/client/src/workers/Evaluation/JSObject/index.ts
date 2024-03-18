@@ -85,10 +85,16 @@ export function saveResolvedFunctionsAndJSUpdates(
   entityName: string,
 ) {
   jsPropertiesState.delete(entityName);
-  const correctFormat = entity.body && validJSBodyRegex.test(entity.body);
-  const isEmptyBody = entity.body ? entity?.body.trim() === "" : entity.body;
+  const correctFormat =
+    entity.hasOwnProperty("body") &&
+    !isUndefined(entity.body) &&
+    validJSBodyRegex.test(entity.body);
+  const isEmptyBody =
+    entity.hasOwnProperty("body") &&
+    !isUndefined(entity.body) &&
+    entity?.body.trim() === "";
 
-  if (!!entity.body && (correctFormat || isEmptyBody)) {
+  if (!isUndefined(entity.body) && (correctFormat || isEmptyBody)) {
     try {
       JSObjectCollection.deleteResolvedFunction(entityName);
       JSObjectCollection.deleteUnEvalState(entityName);
@@ -196,6 +202,16 @@ export function saveResolvedFunctionsAndJSUpdates(
     } catch (e) {
       //if we need to push error as popup in case
     }
+  } else {
+    const parsedBody = {
+      body: entity.body,
+      actions: [],
+      variables: [],
+    };
+    set(jsUpdates, `${entityName}`, {
+      parsedBody: parsedBody,
+      id: entity.actionId,
+    });
   }
 
   if (!correctFormat && !isUndefined(entity.body)) {
