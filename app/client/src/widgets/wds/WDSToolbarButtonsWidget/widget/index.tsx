@@ -2,15 +2,7 @@ import React from "react";
 import type { SetterConfig } from "entities/AppTheming";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import {
-  metaConfig,
-  defaultsConfig,
-  autocompleteConfig,
-  propertyPaneContentConfig,
-  propertyPaneStyleConfig,
-  settersConfig,
-  anvilConfig,
-} from "./../config";
+import * as config from "../config";
 import type { ButtonGroupWidgetProps } from "./types";
 import { ToolbarButtonsComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
@@ -28,31 +20,31 @@ class WDSToolbarButtonsWidget extends BaseWidget<
   static type = "WDS_TOOLBAR_BUTTONS_WIDGET";
 
   static getConfig() {
-    return metaConfig;
+    return config.metaConfig;
   }
 
   static getDefaults() {
-    return defaultsConfig;
+    return config.defaultsConfig;
   }
 
   static getAutocompleteDefinitions() {
-    return autocompleteConfig;
+    return config.autocompleteConfig;
   }
 
   static getPropertyPaneContentConfig() {
-    return propertyPaneContentConfig;
+    return config.propertyPaneContentConfig;
   }
 
   static getPropertyPaneStyleConfig() {
-    return propertyPaneStyleConfig;
+    return config.propertyPaneStyleConfig;
   }
 
   static getSetterConfig(): SetterConfig {
-    return settersConfig;
+    return config.settersConfig;
   }
 
   static getAnvilConfig(): AnvilConfig | null {
-    return anvilConfig;
+    return config.anvilConfig;
   }
 
   onButtonClick = (

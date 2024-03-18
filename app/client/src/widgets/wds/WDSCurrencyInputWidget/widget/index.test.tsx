@@ -1,5 +1,5 @@
 import type { CurrencyInputWidgetProps } from "./types";
-import { defaultValueValidation } from "./config/propertyPaneConfig/validations";
+import { defaultValueValidation } from "../config/propertyPaneConfig/validations";
 import _ from "lodash";
 
 describe("defaultValueValidation", () => {

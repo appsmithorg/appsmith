@@ -8,12 +8,19 @@
   cursor: pointer;
   width: fit-content;
 
+  & span {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
+  }
+
   /**
   * ----------------------------------------------------------------------------
   * LABEL POSITION
   *-----------------------------------------------------------------------------
   */
-  &[data-label-position="left"] {
+  &[data-label-position="start"] {
     flex-direction: row-reverse;
     justify-content: space-between;
   }

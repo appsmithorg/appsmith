@@ -17,7 +17,6 @@ import {
   executeTriggerRequestSaga,
   updateDataTreeHandler,
 } from "../sagas/EvaluationsSaga";
-import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
 import type {
   EvalTreeResponseData,
@@ -126,10 +125,6 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {
       yield call(handleStoreOperations, data);
-      break;
-    }
-    case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
-      yield call(logJSFunctionExecution, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {
