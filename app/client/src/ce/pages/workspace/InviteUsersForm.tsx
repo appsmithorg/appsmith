@@ -429,21 +429,9 @@ function InviteUsersForm(props: any) {
             },
           );
 
-          const result = await inviteUsersSubmitHandler(
-            values,
-            dispatch,
-            token,
-          );
-
-          if (!result.success) {
-            throw new Error(result.error);
-          }
+          return inviteUsersSubmitHandler(values, dispatch, token);
         } else {
-          const result = await inviteUsersSubmitHandler(values, dispatch);
-
-          if (!result.success) {
-            throw new Error(result.error);
-          }
+          return inviteUsersSubmitHandler(values, dispatch);
         }
       } catch (error) {
         log.error(error);
