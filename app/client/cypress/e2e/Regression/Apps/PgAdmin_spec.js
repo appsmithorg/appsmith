@@ -63,6 +63,7 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
   });
 
   it("2. Add new table from app page, View and Delete table", function () {
+    cy.wait(2000);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     // adding new table
     agHelper.GetNClick(appPage.addNewtable, 0, true);
