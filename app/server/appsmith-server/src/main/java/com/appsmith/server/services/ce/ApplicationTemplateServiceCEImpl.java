@@ -4,7 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
@@ -211,7 +211,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     return applicationService.save(application).thenReturn(application);
                 })
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, ArtifactType.APPLICATION))
                 .flatMap(importableArtifactDTO -> {
                     ApplicationImportDTO applicationImportDTO = (ApplicationImportDTO) importableArtifactDTO;
                     Application application = applicationImportDTO.getApplication();
@@ -299,7 +299,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                             .map(importableArtifact -> (Application) importableArtifact);
                 })
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, ArtifactType.APPLICATION))
                 .flatMap(importableArtifactDTO -> {
                     ApplicationImportDTO applicationImportDTO = (ApplicationImportDTO) importableArtifactDTO;
                     responseUtils.updateApplicationWithDefaultResources(applicationImportDTO.getApplication());
@@ -410,7 +410,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @NotNull private Mono<Application> exportAppAndUpload(TemplateDTO resource, boolean isCommunityTemplate) {
         return exportService
                 .exportByArtifactIdAndBranchName(
-                        resource.getApplicationId(), resource.getBranchName(), ArtifactJsonType.APPLICATION)
+                        resource.getApplicationId(), resource.getBranchName(), ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(appJson -> {
                     TemplateUploadDTO communityTemplate =

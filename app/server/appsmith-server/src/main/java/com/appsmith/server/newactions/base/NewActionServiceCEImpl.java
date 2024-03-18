@@ -3,8 +3,6 @@ package com.appsmith.server.newactions.base;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.helpers.AppsmithEventContext;
-import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
@@ -214,7 +212,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<NewAction> findByIdAndBranchName(String id, String branchName) {
-        return this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getReadPermission())
+        return this.findByBranchNameAndDefaultActionId(branchName, id, false, actionPermission.getReadPermission())
                 .map(responseUtils::updateNewActionWithDefaultResources);
     }
 
@@ -534,12 +532,9 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     Set<String> datasourceKeys = datasourceBindings.stream()
                             .map(token -> token.getValue())
                             .collect(Collectors.toSet());
-                    Set<String> keys = new HashSet<>() {
-                        {
-                            addAll(actionKeys);
-                            addAll(datasourceKeys);
-                        }
-                    };
+                    Set<String> keys = new HashSet<>();
+                    keys.addAll(actionKeys);
+                    keys.addAll(datasourceKeys);
 
                     action.setJsonPathKeys(keys);
                     return newAction;
@@ -847,8 +842,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
+        return deleteUnpublishedActionWithOptionalPermission(id, Optional.of(actionPermission.getDeletePermission()));
+    }
+
+    @Override
+    public Mono<ActionDTO> deleteUnpublishedActionWithOptionalPermission(
+            String id, Optional<AclPermission> newActionDeletePermission) {
         Mono<NewAction> actionMono = repository
-                .findById(id, actionPermission.getDeletePermission())
+                .findById(id, newActionDeletePermission)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono
@@ -1478,7 +1479,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     @Override
     public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
         Mono<NewAction> branchedActionMono =
-                this.findByBranchNameAndDefaultActionId(branchName, id, actionPermission.getDeletePermission());
+                this.findByBranchNameAndDefaultActionId(branchName, id, false, actionPermission.getDeletePermission());
 
         return branchedActionMono
                 .flatMap(branchedAction -> this.archiveById(branchedAction.getId()))
@@ -1565,7 +1566,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     public Mono<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, AclPermission permission) {
+            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission) {
         log.debug("Going to find action based on branchName and defaultActionId with id: {} ", defaultActionId);
         if (!StringUtils.hasLength(branchName)) {
             return repository
@@ -1574,7 +1575,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                             new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId)));
         }
         return repository
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
+                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, viewMode, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName)))
                 .flatMap(this::sanitizeAction);
@@ -1586,7 +1587,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
             return Mono.just(defaultActionId);
         }
         return repository
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, permission)
+                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, false, permission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION, defaultActionId + "," + branchName)))
                 .map(NewAction::getId);
@@ -1599,15 +1600,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
         if (!StringUtils.hasLength(savedAction.getUnpublishedAction().getPluginName())) {
             savedAction.getUnpublishedAction().setPluginName(datasource.getPluginName());
         }
-        Map<String, Object> analyticsProperties =
-                this.getAnalyticsProperties(savedAction, new AppsmithEventContext(AppsmithEventContextType.DEFAULT));
+        Map<String, Object> analyticsProperties = this.getAnalyticsProperties(savedAction);
         Map<String, Object> eventData = Map.of(FieldName.DATASOURCE, datasource);
         analyticsProperties.put(FieldName.EVENT_DATA, eventData);
         return analyticsProperties;
     }
 
     @Override
-    public Map<String, Object> getAnalyticsProperties(NewAction savedAction, AppsmithEventContext eventContext) {
+    public Map<String, Object> getAnalyticsProperties(NewAction savedAction) {
         ActionDTO unpublishedAction = savedAction.getUnpublishedAction();
         Map<String, Object> analyticsProperties = new HashMap<>();
         analyticsProperties.put("actionName", ObjectUtils.defaultIfNull(unpublishedAction.getValidName(), ""));
@@ -1632,14 +1632,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     ObjectUtils.defaultIfNull(unpublishedAction.getDatasource().getIsMock(), ""));
         }
 
-        if (eventContext != null) {
-            if (AppsmithEventContextType.GENERATE_PAGE.equals(eventContext.getAppsmithEventContextType())) {
-                analyticsProperties.put("isUserCreated", false);
-                analyticsProperties.put("accelerator", "generate-crud");
-            } else if (AppsmithEventContextType.DEFAULT.equals(eventContext.getAppsmithEventContextType())) {
-                analyticsProperties.put("isUserCreated", true);
-            }
-        }
+        analyticsProperties.put("source", ObjectUtils.defaultIfNull(unpublishedAction.getSource(), null));
         return analyticsProperties;
     }
 

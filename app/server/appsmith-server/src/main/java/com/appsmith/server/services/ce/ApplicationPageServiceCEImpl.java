@@ -640,6 +640,10 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             return page;
                         }));
 
+        final Flux<ActionCollection> sourceActionCollectionsFlux = getCloneableActionCollections(pageId);
+
+        Flux<NewAction> sourceActionFlux = getCloneableActions(pageId);
+
         return sourcePageMono
                 .flatMap(page -> {
                     clonePageMetaDTO.setBranchedSourcePageId(page.getId());
@@ -736,6 +740,26 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             })
                             .thenReturn(savedPage);
                 }));
+    }
+
+    protected Flux<ActionCollection> getCloneableActionCollections(String pageId) {
+        final Flux<ActionCollection> sourceActionCollectionsFlux = actionCollectionService.findByPageId(pageId);
+        return sourceActionCollectionsFlux;
+    }
+
+    protected Flux<NewAction> getCloneableActions(String pageId) {
+        Flux<NewAction> sourceActionFlux = newActionService
+                .findByPageId(pageId, actionPermission.getEditPermission())
+                // Set collection reference in actions to null to reset to the new application's collections later
+                .map(newAction -> {
+                    if (newAction.getUnpublishedAction() != null) {
+                        newAction.getUnpublishedAction().setCollectionId(null);
+                    }
+                    return newAction;
+                })
+                // In case there are no actions in the page being cloned, return empty
+                .switchIfEmpty(Flux.empty());
+        return sourceActionFlux;
     }
 
     private Mono<PageDTO> clonePageGivenApplicationId(String pageId, String applicationId) {
@@ -901,17 +925,38 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * In this scenario, if we were to delete all actions associated with the page, we would end up deleting an action
      * which is currently in published state and is being used.
      *
-     * @param id The pageId which needs to be archived.
+     * @param id                   The pageId which needs to be archived.
+     * @param deletePagePermission
      * @return
      */
     @Override
-    public Mono<PageDTO> deleteWithoutPermissionUnpublishedPage(String id) {
-        return deleteUnpublishedPageEx(id, Optional.empty());
+    public Mono<PageDTO> deleteUnpublishedPageWithOptionalPermission(
+            String id,
+            Optional<AclPermission> deletePagePermission,
+            Optional<AclPermission> readApplicationPermission,
+            Optional<AclPermission> deleteCollectionPermission,
+            Optional<AclPermission> deleteActionPermission) {
+        return deleteUnpublishedPageEx(
+                id,
+                deletePagePermission,
+                readApplicationPermission,
+                deleteCollectionPermission,
+                deleteActionPermission);
     }
 
     @Override
     public Mono<PageDTO> deleteUnpublishedPage(String id) {
-        return deleteUnpublishedPageEx(id, Optional.of(pagePermission.getDeletePermission()));
+
+        Optional<AclPermission> deletePagePermission = Optional.of(pagePermission.getDeletePermission());
+        Optional<AclPermission> readApplicationPermission = Optional.of(applicationPermission.getReadPermission());
+        Optional<AclPermission> deleteCollectionPermission = Optional.of(actionPermission.getDeletePermission());
+        Optional<AclPermission> deleteActionPermission = Optional.of(actionPermission.getDeletePermission());
+        return deleteUnpublishedPageEx(
+                id,
+                deletePagePermission,
+                readApplicationPermission,
+                deleteCollectionPermission,
+                deleteActionPermission);
     }
 
     /**
@@ -923,23 +968,36 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
      * In this scenario, if we were to delete all actions associated with the page, we would end up deleting an action
      * which is currently in published state and is being used.
      *
-     * @param id The pageId which needs to be archived.
+     * @param id                         The pageId which needs to be archived.
+     * @param readApplicationPermission
+     * @param deleteCollectionPermission
+     * @param deleteActionPermission
      * @return
      */
-    private Mono<PageDTO> deleteUnpublishedPageEx(String id, Optional<AclPermission> permission) {
+    private Mono<PageDTO> deleteUnpublishedPageEx(
+            String id,
+            Optional<AclPermission> deletePagePermission,
+            Optional<AclPermission> readApplicationPermission,
+            Optional<AclPermission> deleteCollectionPermission,
+            Optional<AclPermission> deleteActionPermission) {
 
         return newPageService
-                .findById(id, permission)
+                .findById(id, deletePagePermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PAGE, id)))
                 .flatMap(page -> {
                     log.debug(
                             "Going to archive pageId: {} for applicationId: {}", page.getId(), page.getApplicationId());
+                    // Application is accessed without any application permission over here.
+                    // previously it was getting accessed only with read permission.
                     Mono<Application> applicationMono = applicationService
-                            .getById(page.getApplicationId())
+                            .findById(page.getApplicationId(), readApplicationPermission)
+                            .switchIfEmpty(Mono.error(
+                                    new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                             .flatMap(application -> {
                                 application.getPages().removeIf(p -> p.getId().equals(page.getId()));
                                 return applicationService.save(application);
                             });
+
                     Mono<NewPage> newPageMono;
                     if (page.getPublishedPage() != null) {
                         PageDTO unpublishedPage = page.getUnpublishedPage();
@@ -966,12 +1024,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                      *  condition for delete action
                      */
                     Mono<List<ActionDTO>> archivedActionsMono = newActionService
-                            .findByPageId(page.getId(), actionPermission.getDeletePermission())
+                            .findByPageId(page.getId(), deleteActionPermission)
                             .filter(newAction -> !StringUtils.hasLength(
                                     newAction.getUnpublishedAction().getCollectionId()))
                             .flatMap(action -> {
                                 log.debug("Going to archive actionId: {} for applicationId: {}", action.getId(), id);
-                                return newActionService.deleteUnpublishedAction(action.getId());
+                                return newActionService.deleteUnpublishedActionWithOptionalPermission(
+                                        action.getId(), deleteActionPermission);
                             })
                             .collectList();
 
@@ -985,8 +1044,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                         "Going to archive actionCollectionId: {} for applicationId: {}",
                                         actionCollection.getId(),
                                         id);
-                                return actionCollectionService.deleteUnpublishedActionCollection(
-                                        actionCollection.getId());
+                                return actionCollectionService.deleteUnpublishedActionCollectionWithOptionalPermission(
+                                        actionCollection.getId(), deleteCollectionPermission, deleteActionPermission);
                             })
                             .collectList();
 

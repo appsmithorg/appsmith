@@ -1,4 +1,5 @@
 import type { Action } from "entities/Action";
+import { ActionExecutionContext } from "entities/Action";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import store from "store";
@@ -65,6 +66,7 @@ export function getActionExecutionAnalytics(
     isMock: !!datasource?.isMock,
     actionId: action?.id,
     inputParams: Object.keys(params).length,
+    source: ActionExecutionContext.EVALUATION_ACTION_TRIGGER, // Used in analytic events to understand who triggered action execution
   };
 
   if (!!currentApp) {

@@ -25,7 +25,6 @@ import NewQueryScreen from "./NewQuery";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import history from "utils/history";
 import { showDebuggerFlag } from "selectors/debuggerSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   createMessage,
   CREATE_NEW_DATASOURCE_DATABASE_HEADER,
@@ -246,7 +245,6 @@ interface CreateNewDatasourceScreenProps {
   canCreateDatasource?: boolean;
   showDebugger: boolean;
   pageId: string;
-  isEnabledForCreateNew: boolean;
   isOnboardingScreen?: boolean;
 }
 
@@ -278,7 +276,6 @@ class CreateNewDatasourceTab extends React.Component<
       canCreateDatasource = false,
       dataSources,
       isCreating,
-      isEnabledForCreateNew,
       isOnboardingScreen,
       pageId,
       showDebugger,
@@ -302,21 +299,17 @@ class CreateNewDatasourceTab extends React.Component<
                 <StyledDivider />
               </>
             )}
-          {isEnabledForCreateNew && (
-            <>
-              <CreateNewDatasource
-                active={false}
-                history={history}
-                isCreating={isCreating}
-                isOnboardingScreen={!!isOnboardingScreen}
-                location={location}
-                pageId={pageId}
-                showMostPopularPlugins
-                showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-              />
-              <StyledDivider />
-            </>
-          )}
+          <CreateNewDatasource
+            active={false}
+            history={history}
+            isCreating={isCreating}
+            isOnboardingScreen={!!isOnboardingScreen}
+            location={location}
+            pageId={pageId}
+            showMostPopularPlugins
+            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+          />
+          <StyledDivider />
           <CreateNewAPI
             active={false}
             history={history}
@@ -383,8 +376,6 @@ const mapStateToProps = (state: AppState) => {
     userWorkspacePermissions,
   );
 
-  const isEnabledForCreateNew =
-    !!featureFlags[FEATURE_FLAG.ab_create_new_apps_enabled];
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
@@ -393,7 +384,6 @@ const mapStateToProps = (state: AppState) => {
     canCreateDatasource,
     showDebugger,
     pageId,
-    isEnabledForCreateNew,
   };
 };
 

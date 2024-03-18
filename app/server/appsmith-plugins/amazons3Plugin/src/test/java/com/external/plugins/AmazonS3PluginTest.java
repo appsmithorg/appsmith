@@ -1027,11 +1027,7 @@ public class AmazonS3PluginTest {
                             PluginUtils.getDataValueSafelyFromFormData(
                                     listFilesConfig, LIST_UNSIGNED_URL, STRING_TYPE));
                     assertEquals(
-                            new HashMap<String, Object>() {
-                                {
-                                    put("condition", "AND");
-                                }
-                            },
+                            Map.of("condition", "AND"),
                             PluginUtils.getDataValueSafelyFromFormData(
                                     listFilesConfig, LIST_WHERE, new TypeReference<HashMap<String, Object>>() {}));
 
