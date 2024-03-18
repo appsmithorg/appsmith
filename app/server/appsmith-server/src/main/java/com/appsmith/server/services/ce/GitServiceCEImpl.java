@@ -2009,7 +2009,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .elapsed()
                 .flatMap(objects -> {
                     Long elapsedTime = objects.getT1();
-                    log.debug("Multi mono took: {}", elapsedTime);
                     GitStatusDTO gitStatusDTO = objects.getT2().getT1();
                     User currentUser = objects.getT2().getT2();
                     Application app = objects.getT2().getT3();
