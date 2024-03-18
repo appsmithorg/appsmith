@@ -1,5 +1,5 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
-import { dataSources } from "../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 describe(
   "MySQL datasource test cases",
@@ -8,7 +8,7 @@ describe(
     let datasourceName;
     it("1. Create, test, save then delete a MySQL datasource", function () {
       cy.NavigateToDatasourceEditor();
-      cy.get(datasource.MySQL).click();
+      agHelper.GetNClick(datasource.MySQL);
       cy.fillMySQLDatasourceForm();
       cy.generateUUID().then((UUID) => {
         datasourceName = `MySQL MOCKDS ${UUID}`;
@@ -23,7 +23,7 @@ describe(
 
     it("2. Create with trailing white spaces in host address and database name, test, save then delete a MySQL datasource", function () {
       cy.NavigateToDatasourceEditor();
-      cy.get(datasource.MySQL).click();
+      agHelper.GetNClick(datasource.MySQL);
       cy.fillMySQLDatasourceForm(true);
       cy.intercept("POST", "/api/v1/datasources/test", {
         fixture: "testAction.json",
@@ -38,11 +38,12 @@ describe(
 
     it("3. Create a new query from the datasource editor", function () {
       dataSources.CreateQueryAfterDSSaved();
-      cy.wait("@createNewApi").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        201,
-      );
+      cy.wait("@createNewApi").then((interception) => {
+        // Validates the value of source for action creation -
+        // should be self here as the user explicitly triggered create action
+        expect(interception.request.body.source).to.equal("SELF");
+        expect(interception.response.body.responseMeta.status).to.equal(201);
+      });
       cy.deleteQueryUsingContext();
       cy.deleteDatasource(datasourceName);
     });

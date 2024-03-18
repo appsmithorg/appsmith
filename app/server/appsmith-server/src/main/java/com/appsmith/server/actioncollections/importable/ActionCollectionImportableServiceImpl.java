@@ -1,5 +1,6 @@
 package com.appsmith.server.actioncollections.importable;
 
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.imports.importable.ImportableService;
@@ -12,8 +13,9 @@ public class ActionCollectionImportableServiceImpl extends ActionCollectionImpor
         implements ImportableService<ActionCollection> {
 
     public ActionCollectionImportableServiceImpl(
+            ActionCollectionService actionCollectionService,
             ActionCollectionRepository repository,
             ArtifactBasedImportableService<ActionCollection, Application> applicationImportableService) {
-        super(repository, applicationImportableService);
+        super(actionCollectionService, repository, applicationImportableService);
     }
 }

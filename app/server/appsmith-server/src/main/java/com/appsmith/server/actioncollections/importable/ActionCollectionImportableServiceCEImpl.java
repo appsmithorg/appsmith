@@ -1,10 +1,11 @@
 package com.appsmith.server.actioncollections.importable;
 
 import com.appsmith.external.models.Policy;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Context;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
@@ -33,6 +34,8 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 @Service
 @RequiredArgsConstructor
 public class ActionCollectionImportableServiceCEImpl implements ImportableServiceCE<ActionCollection> {
+
+    private final ActionCollectionService actionCollectionService;
     private final ActionCollectionRepository repository;
     protected final ArtifactBasedImportableService<ActionCollection, Application> applicationImportableService;
 
@@ -51,7 +54,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Mono<Workspace> workspaceMono,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson) {
 
         Mono<List<ActionCollection>> importedActionCollectionListMono = getImportableEntities(artifactExchangeJson);
@@ -68,11 +71,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
     private Mono<ImportActionCollectionResultDTO> createImportActionCollectionMono(
             List<ActionCollection> importedActionCollectionList,
-            Mono<? extends ImportableArtifact> importableArtifactMono,
+            Mono<? extends Artifact> importableArtifactMono,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
-        ArtifactBasedImportableService<ActionCollection, ?> artifactBasedExportableService =
+        ArtifactBasedImportableService<ActionCollection, ?> artifactBasedImportableService =
                 getArtifactBasedImportableService(importingMetaDTO);
 
         Mono<List<ActionCollection>> importedActionCollectionMono = Mono.just(importedActionCollectionList);
@@ -80,14 +83,14 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         if (importingMetaDTO.getAppendToArtifact()) {
             importedActionCollectionMono = importedActionCollectionMono.map(importedActionCollections -> {
                 List<String> importedContextNames =
-                        artifactBasedExportableService.getImportedContextNames(mappedImportableResourcesDTO);
+                        artifactBasedImportableService.getImportedContextNames(mappedImportableResourcesDTO);
                 Map<String, String> newToOldNameMap = mappedImportableResourcesDTO.getContextNewNameToOldName();
 
                 for (String newContextName : importedContextNames) {
                     String oldContextName = newToOldNameMap.get(newContextName);
 
                     if (!newContextName.equals(oldContextName)) {
-                        artifactBasedExportableService.renameContextInImportableResources(
+                        artifactBasedImportableService.renameContextInImportableResources(
                                 importedActionCollections, oldContextName, newContextName);
                     }
                 }
@@ -117,12 +120,12 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
      * @return tuple of imported actionCollectionId and saved actionCollection in DB
      */
     private Mono<ImportActionCollectionResultDTO> importActionCollections(
-            ImportableArtifact importableArtifact,
+            Artifact importableArtifact,
             List<ActionCollection> importedActionCollectionList,
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
 
-        ArtifactBasedImportableService<ActionCollection, ?> artifactBasedExportableService =
+        ArtifactBasedImportableService<ActionCollection, ?> artifactBasedImportableService =
                 getArtifactBasedImportableService(importingMetaDTO);
 
         /* Mono.just(importableArtifact) is created to avoid the eagerly fetching of existing actionCollections
@@ -135,7 +138,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
                     // Map of gitSyncId to actionCollection of the existing records in DB
                     Mono<Map<String, ActionCollection>> actionCollectionsInCurrentArtifactMono =
-                            artifactBasedExportableService
+                            artifactBasedImportableService
                                     .getExistingResourcesInCurrentArtifactFlux(artifact)
                                     .filter(collection -> collection.getGitSyncId() != null)
                                     .collectMap(ActionCollection::getGitSyncId);
@@ -144,7 +147,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                     if (artifact.getGitArtifactMetadata() != null) {
                         final String defaultArtifactId =
                                 artifact.getGitArtifactMetadata().getDefaultArtifactId();
-                        actionCollectionsInBranchesMono = artifactBasedExportableService
+                        actionCollectionsInBranchesMono = artifactBasedImportableService
                                 .getExistingResourcesInOtherBranchesFlux(defaultArtifactId, artifact.getId())
                                 .filter(actionCollection -> actionCollection.getGitSyncId() != null)
                                 .collectMap(ActionCollection::getGitSyncId);
@@ -187,10 +190,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
                                     if (actionsCollectionsInBranches.containsKey(actionCollection.getGitSyncId())) {
                                         branchedActionCollection =
-                                                getExistingCollectionInOtherBranchesForImportedCollection(
-                                                        mappedImportableResourcesDTO,
-                                                        actionsCollectionsInBranches,
-                                                        actionCollection);
+                                                artifactBasedImportableService
+                                                        .getExistingEntityInOtherBranchForImportedEntity(
+                                                                mappedImportableResourcesDTO,
+                                                                actionsCollectionsInBranches,
+                                                                actionCollection);
                                     }
 
                                     Context defaultContext = populateIdReferencesAndReturnDefaultContext(
@@ -206,10 +210,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
 
                                         // Since the resource is already present in DB, just update resource
                                         ActionCollection existingActionCollection =
-                                                getExistingCollectionInCurrentBranchForImportedCollection(
-                                                        mappedImportableResourcesDTO,
-                                                        actionsCollectionsInCurrentArtifact,
-                                                        actionCollection);
+                                                artifactBasedImportableService
+                                                        .getExistingEntityInCurrentBranchForImportedEntity(
+                                                                mappedImportableResourcesDTO,
+                                                                actionsCollectionsInCurrentArtifact,
+                                                                actionCollection);
 
                                         updateExistingCollection(
                                                 importingMetaDTO,
@@ -223,7 +228,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                                 .getSavedActionCollectionMap()
                                                 .put(idFromJsonFile, existingActionCollection);
                                     } else {
-                                        artifactBasedExportableService.createNewResource(
+                                        artifactBasedImportableService.createNewResource(
                                                 importingMetaDTO, actionCollection, defaultContext);
 
                                         populateDomainMappedReferences(mappedImportableResourcesDTO, actionCollection);
@@ -238,9 +243,13 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
                                         "Saving action collections in bulk. New: {}, Updated: {}",
                                         newActionCollections.size(),
                                         existingActionCollections.size());
-                                return repository
-                                        .bulkInsert(newActionCollections)
-                                        .then(repository.bulkUpdate(existingActionCollections))
+                                return Mono.when(
+                                                actionCollectionService
+                                                        .bulkValidateAndInsertActionCollectionInRepository(
+                                                                newActionCollections),
+                                                actionCollectionService
+                                                        .bulkValidateAndUpdateActionCollectionInRepository(
+                                                                existingActionCollections))
                                         .thenReturn(resultDTO);
                             });
                 })
@@ -253,11 +262,11 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
     private Context populateIdReferencesAndReturnDefaultContext(
             ImportingMetaDTO importingMetaDTO,
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            ImportableArtifact artifact,
+            Artifact artifact,
             ActionCollection branchedActionCollection,
             ActionCollection actionCollection) {
 
-        ArtifactBasedImportableService<ActionCollection, ?> artifactBasedExportableService =
+        ArtifactBasedImportableService<ActionCollection, ?> artifactBasedImportableService =
                 this.getArtifactBasedImportableService(importingMetaDTO);
 
         String idFromJsonFile = actionCollection.getId();
@@ -277,7 +286,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             unpublishedCollection.setPluginId(
                     mappedImportableResourcesDTO.getPluginMap().get(unpublishedCollection.getPluginId()));
 
-            parentContext = artifactBasedExportableService.updateContextInResource(
+            parentContext = artifactBasedImportableService.updateContextInResource(
                     unpublishedCollection, mappedImportableResourcesDTO.getContextMap(), fallbackDefaultContextId);
         }
 
@@ -289,7 +298,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
             publishedCollection.setPluginId(
                     mappedImportableResourcesDTO.getPluginMap().get(publishedCollection.getPluginId()));
 
-            Context publishedCollectionContext = artifactBasedExportableService.updateContextInResource(
+            Context publishedCollectionContext = artifactBasedImportableService.updateContextInResource(
                     publishedCollection, mappedImportableResourcesDTO.getContextMap(), fallbackDefaultContextId);
             parentContext = parentContext == null ? publishedCollectionContext : parentContext;
         }
@@ -297,7 +306,7 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
         actionCollection.makePristine();
         actionCollection.setWorkspaceId(workspaceId);
 
-        artifactBasedExportableService.populateDefaultResources(
+        artifactBasedImportableService.populateDefaultResources(
                 importingMetaDTO, mappedImportableResourcesDTO, artifact, branchedActionCollection, actionCollection);
         return parentContext;
     }
@@ -361,13 +370,6 @@ public class ActionCollectionImportableServiceCEImpl implements ImportableServic
     }
 
     protected ActionCollection getExistingCollectionInCurrentBranchForImportedCollection(
-            MappedImportableResourcesDTO mappedImportableResourcesDTO,
-            Map<String, ActionCollection> actionsCollectionsInCurrentArtifact,
-            ActionCollection actionCollection) {
-        return actionsCollectionsInCurrentArtifact.get(actionCollection.getGitSyncId());
-    }
-
-    protected ActionCollection getExistingCollectionInOtherBranchesForImportedCollection(
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Map<String, ActionCollection> actionsCollectionsInCurrentArtifact,
             ActionCollection actionCollection) {

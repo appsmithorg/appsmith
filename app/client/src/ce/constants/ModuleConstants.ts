@@ -1,3 +1,5 @@
+import type { PluginType } from "entities/Action";
+
 type ID = string;
 
 export enum MODULE_TYPE {
@@ -15,9 +17,17 @@ export interface ModuleInputSection {
   children?: ModuleInput[];
 }
 
-export interface Module {
+export interface Module extends ModuleMetadata {
   id: ID;
   name: string;
   packageId: ID;
   inputsForm: ModuleInputSection[];
+  type: MODULE_TYPE;
+}
+
+export interface ModuleMetadata {
+  moduleId: string;
+  datasourceId?: string;
+  pluginId: string;
+  pluginType: PluginType;
 }

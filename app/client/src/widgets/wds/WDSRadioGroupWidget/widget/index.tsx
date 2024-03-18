@@ -19,7 +19,7 @@ import {
   methodsConfig,
   propertyPaneContentConfig,
   settersConfig,
-} from "./config";
+} from "../config";
 import { validateInput } from "./helpers";
 import type { RadioGroupWidgetProps } from "./types";
 

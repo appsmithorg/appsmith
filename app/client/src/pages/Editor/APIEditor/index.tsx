@@ -28,7 +28,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { ApiEditorContextProvider } from "./ApiEditorContext";
 import type { PaginationField } from "api/ActionAPI";
-import { get } from "lodash";
+import { get, keyBy } from "lodash";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -38,6 +38,9 @@ import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import Disabler from "pages/common/Disabler";
 import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
 import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
+import { Icon } from "design-system";
+import { resolveIcon } from "../utils";
+import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
 
@@ -64,6 +67,19 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
   const isConverting = useSelector((state) =>
     getIsActionConverting(state, action?.id || ""),
+  );
+  const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
+  const icon = resolveIcon({
+    iconLocation: pluginGroups[pluginId]?.iconLocation || "",
+    pluginType: action?.pluginType || "",
+    moduleType: action?.actionConfiguration?.body?.moduleType,
+  }) || (
+    <EntityIcon
+      height={`${ENTITY_ICON_SIZE}px`}
+      width={`${ENTITY_ICON_SIZE}px`}
+    >
+      <Icon name="module" />
+    </EntityIcon>
   );
 
   const isChangePermitted = getHasManageActionPermission(
@@ -150,7 +166,7 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const notification = useMemo(() => {
     if (!isConverting) return null;
 
-    return <ConvertEntityNotification name={action?.name || ""} />;
+    return <ConvertEntityNotification icon={icon} name={action?.name || ""} />;
   }, [action?.name, isConverting]);
 
   return (
