@@ -1909,27 +1909,18 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                     return Mono.zip(Mono.just(gitArtifactMetadata), Mono.just(branchedApplication), exportAppMono);
                 })
-                .elapsed()
-                .flatMap(tuple -> {
-                    log.debug("fetch, export and repo call took : {}", tuple.getT1());
+                .flatMap(tuple3 -> {
                     Mono<Boolean> fileLockMono = Mono.empty();
                     if (isFileLock) {
                         fileLockMono = Mono.defer(() -> addFileLock(defaultApplicationId));
                     }
 
-                    GitArtifactMetadata gitArtifactMetadata = tuple.getT2().getT1();
-                    Application application = tuple.getT2().getT2();
-                    ApplicationJson applicationJson = tuple.getT2().getT3();
-                    return fileLockMono.then(Mono.zip(
-                            Mono.just(gitArtifactMetadata), Mono.just(application), Mono.just(applicationJson)));
+                    return fileLockMono.thenReturn(tuple3);
                 })
-                .elapsed()
-                .flatMap(tuple -> {
-                    log.debug("file lock took: {}", tuple.getT1());
-                    GitArtifactMetadata defaultApplicationMetadata =
-                            tuple.getT2().getT1();
-                    Application application = tuple.getT2().getT2();
-                    ApplicationJson applicationJson = tuple.getT2().getT3();
+                .flatMap(tuple3 -> {
+                    GitArtifactMetadata defaultApplicationMetadata = tuple3.getT1();
+                    Application application = tuple3.getT2();
+                    ApplicationJson applicationJson = tuple3.getT3();
 
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     gitData.setGitAuth(defaultApplicationMetadata.getGitAuth());
@@ -1938,7 +1929,6 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     try {
                         // Create a Mono to fetch the status from remote
-                        // TODO: Check why do we check out to remote?
                         Path repoSuffixForFetchRemote = Paths.get(
                                 application.getWorkspaceId(), gitData.getDefaultApplicationId(), gitData.getRepoName());
                         GitAuth gitAuth = gitData.getGitAuth();
@@ -1994,10 +1984,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 }
                             });
                 })
-                .elapsed()
-                .flatMap(tuple2 -> {
-                    log.debug("reset to last commit took: {}", tuple2.getT1());
-                    GitStatusDTO result = tuple2.getT2();
+                .flatMap(result -> {
                     // release the lock if there's a successful response
                     if (isFileLock) {
                         return releaseFileLock(defaultApplicationId).thenReturn(result);
