@@ -67,7 +67,7 @@ export function evalTreeWithChanges(
   );
   const completeEvalOrder = Array.from(
     new Set([
-      ...updatedValuePaths.map((val) => val[0]),
+      ...updatedValuePaths.map((val) => val.join(".")),
       ...allUnevalUpdates,
       ...evalOrder,
     ]),
