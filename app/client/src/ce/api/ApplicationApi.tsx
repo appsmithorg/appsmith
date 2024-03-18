@@ -489,7 +489,7 @@ export class ApplicationApi extends Api {
 
   static async importBuildingBlockToApplication(
     request: ImportBuildingBlockToApplicationRequest,
-  ) {
+  ): Promise<AxiosPromise<ApiResponse>> {
     return Api.post(`${ApplicationApi.baseURL}/import/partial/block`, request);
   }
 }
