@@ -264,6 +264,7 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
       <div className="flex flex-col w-full gap-1">
         <DraggableListControl
           deleteOption={this.onDeleteOption}
+          fixedHeight={197}
           focusedIndex={this.state.focusedIndex}
           itemHeight={45}
           items={draggableComponentColumns}

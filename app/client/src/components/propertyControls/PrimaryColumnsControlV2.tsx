@@ -216,7 +216,7 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             <DraggableListControl
               className={LIST_CLASSNAME}
               deleteOption={this.deleteOption}
-              fixedHeight={370}
+              fixedHeight={197}
               focusedIndex={this.state.focusedIndex}
               itemHeight={45}
               items={draggableComponentColumns}
