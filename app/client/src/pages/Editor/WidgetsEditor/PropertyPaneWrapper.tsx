@@ -3,6 +3,7 @@ import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
+import { CreateNewModal } from "../IDE/RightPane/components/CreateNewModal";
 
 /**
  * OldName: PropertyPaneContainer
@@ -28,11 +29,14 @@ function PropertyPaneWrapper() {
   }, []);
 
   return (
-    <PropertyPaneSidebar
-      onDragEnd={onRightSidebarDragEnd}
-      onWidthChange={onRightSidebarWidthChange}
-      width={propertyPaneWidth}
-    />
+    <>
+      <PropertyPaneSidebar
+        onDragEnd={onRightSidebarDragEnd}
+        onWidthChange={onRightSidebarWidthChange}
+        width={propertyPaneWidth}
+      />
+      <CreateNewModal />
+    </>
   );
 }
 

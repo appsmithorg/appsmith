@@ -1,5 +1,6 @@
 package com.appsmith.external.models.ce;
 
+import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
@@ -23,6 +24,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -34,6 +36,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @ToString
+@FieldNameConstants
 public class ActionCE_DTO implements Identifiable, Executable {
 
     @Transient
@@ -167,6 +170,13 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     @JsonView(Views.Internal.class)
     protected Instant updatedAt;
+
+    // Defines what triggered action creation, could be self (user explicitly created action) / generate crud / one
+    // click binding etc
+    // Used in logging create action event
+    @Transient
+    @JsonView(Views.Public.class)
+    ActionCreationSourceTypeEnum source;
 
     @Override
     @JsonView(Views.Public.class)
@@ -303,9 +313,12 @@ public class ActionCE_DTO implements Identifiable, Executable {
         this.setPluginType(null);
         this.setErrorReports(null);
         this.setDocumentation(null);
+        this.setSource(null);
     }
 
     public String calculateContextId() {
         return this.getPageId();
     }
+
+    public static class Fields {}
 }

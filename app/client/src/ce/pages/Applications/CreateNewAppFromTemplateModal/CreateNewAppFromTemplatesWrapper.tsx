@@ -1,5 +1,7 @@
-import React from "react";
+import React, { useEffect } from "react";
 import CreateNewAppFromTemplatesModal from ".";
+import { getIsReconnectingDatasourcesModalOpen } from "@appsmith/selectors/entitiesSelector";
+import { useSelector } from "react-redux";
 
 interface Props {
   currentWorkspaceId: string;
@@ -12,6 +14,16 @@ const CreateNewAppFromTemplatesWrapper = ({
   isOpen,
   onModalClose,
 }: Props) => {
+  const isReconnectingModalOpen = useSelector(
+    getIsReconnectingDatasourcesModalOpen,
+  );
+
+  useEffect(() => {
+    if (isReconnectingModalOpen) {
+      onModalClose();
+    }
+  }, [isReconnectingModalOpen]);
+
   return (
     <CreateNewAppFromTemplatesModal
       currentWorkSpaceId={currentWorkspaceId}

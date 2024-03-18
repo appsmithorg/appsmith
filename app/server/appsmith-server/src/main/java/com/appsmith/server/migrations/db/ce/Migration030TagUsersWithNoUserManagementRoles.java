@@ -1,6 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import io.mongock.api.annotations.ChangeUnit;
@@ -14,8 +14,6 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 
 import java.util.List;
-
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -49,11 +47,11 @@ public class Migration030TagUsersWithNoUserManagementRoles {
                 .toList();
 
         Criteria criteriaUsersWithNoUserManagementRoles =
-                Criteria.where(fieldName(QBaseDomain.baseDomain.id)).nin(userIdsWithUserManagementRoles);
+                Criteria.where(BaseDomain.Fields.id).nin(userIdsWithUserManagementRoles);
         Criteria criteriaUsersPoliciesExists =
-                Criteria.where(fieldName(QBaseDomain.baseDomain.policies)).exists(true);
+                Criteria.where(BaseDomain.Fields.policies).exists(true);
         Criteria criteriaUsersPoliciesNotEmpty =
-                Criteria.where(fieldName(QBaseDomain.baseDomain.policies)).not().size(0);
+                Criteria.where(BaseDomain.Fields.policies).not().size(0);
         Criteria criteriaUsersWithNoUserManagementRolesAndUserPoliciesExists = new Criteria()
                 .andOperator(
                         criteriaUsersWithNoUserManagementRoles,

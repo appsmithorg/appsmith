@@ -8,15 +8,10 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import type { TriggerSource } from "constants/AppsmithActionConstants/ActionConstants";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import {
-  getAppMode,
-  getJSActionFromName,
-} from "@appsmith/selectors/entitiesSelector";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
 
@@ -138,92 +133,4 @@ export function* logDynamicTriggerExecution({
       isJSToggled,
     },
   );
-}
-
-export function* logJSActionExecution(
-  executionData: {
-    jsFnFullName: string;
-    isSuccess: boolean;
-    triggerMeta: {
-      source: TriggerSource;
-      triggerPropertyName: string | undefined;
-      triggerKind: TriggerKind | undefined;
-    };
-  }[],
-) {
-  const {
-    appId,
-    appMode,
-    appName,
-    email,
-    instanceId,
-    isExampleApp,
-    pageId,
-    source,
-    userId,
-  }: UserAndAppDetails = yield call(getUserAndAppDetails);
-  for (const { isSuccess, jsFnFullName, triggerMeta } of executionData) {
-    const { entityName: JSObjectName, propertyPath: functionName } =
-      getEntityNameAndPropertyPath(jsFnFullName);
-    const jsAction: ReturnType<typeof getJSActionFromName> = yield select(
-      (state: AppState) =>
-        getJSActionFromName(state, JSObjectName, functionName),
-    );
-    const triggeredWidget: ReturnType<typeof getWidget> | undefined =
-      yield select((state: AppState) =>
-        getWidget(state, triggerMeta.source?.id || ""),
-      );
-    const dynamicPropertyPathList = triggeredWidget?.dynamicPropertyPathList;
-    const isJSToggled = !!dynamicPropertyPathList?.find(
-      (property) => property.key === triggerMeta.triggerPropertyName,
-    );
-    AnalyticsUtil.logEvent("EXECUTE_ACTION", {
-      type: "JS",
-      name: functionName,
-      JSObjectName,
-      pageId,
-      appId,
-      appMode,
-      appName,
-      isExampleApp,
-      actionId: jsAction?.id,
-      userData: {
-        userId,
-        email,
-        appId,
-        source,
-      },
-      widgetName: triggeredWidget?.widgetName,
-      widgetType: triggeredWidget?.type,
-      propertyName: triggerMeta.triggerPropertyName,
-      isJSToggled,
-      instanceId,
-    });
-
-    AnalyticsUtil.logEvent(
-      isSuccess ? "EXECUTE_ACTION_SUCCESS" : "EXECUTE_ACTION_FAILURE",
-      {
-        type: "JS",
-        name: functionName,
-        JSObjectName,
-        pageId,
-        appId,
-        appMode,
-        appName,
-        isExampleApp,
-        actionId: jsAction?.id,
-        userData: {
-          userId,
-          email,
-          appId,
-          source,
-        },
-        widgetName: triggeredWidget?.widgetName,
-        widgetType: triggeredWidget?.type,
-        propertyName: triggerMeta.triggerPropertyName,
-        isJSToggled,
-        instanceId,
-      },
-    );
-  }
 }

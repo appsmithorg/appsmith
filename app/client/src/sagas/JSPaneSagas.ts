@@ -16,6 +16,7 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getCurrentPageName,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
 import {
@@ -53,6 +54,7 @@ import {
   updateJSCollectionBodySuccess,
   updateJSFunction,
   executeJSFunctionInit,
+  setJsPaneDebuggerState,
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -91,14 +93,15 @@ import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
-import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import {
   getJSActionNameToDisplay,
   getJSActionPathNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
+import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
+import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
+import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -395,9 +398,16 @@ export function* handleExecuteJSFunctionSaga(data: {
   action: JSAction;
   collection: JSCollection;
   isExecuteJSFunc: boolean;
+  onPageLoad: boolean;
   openDebugger?: boolean;
 }) {
-  const { action, collection, isExecuteJSFunc, openDebugger = false } = data;
+  const {
+    action,
+    collection,
+    isExecuteJSFunc,
+    onPageLoad,
+    openDebugger = false,
+  } = data;
   const { id: collectionId } = collection;
   const actionId = action.id;
   const appMode: APP_MODE = yield select(getAppMode);
@@ -430,19 +440,21 @@ export function* handleExecuteJSFunctionSaga(data: {
       executeJSFunction,
       action,
       collection,
+      onPageLoad,
     );
     // open response tab in debugger on runnning or page load js action.
 
     if (doesURLPathContainCollectionId || openDebugger) {
-      yield put(showDebugger(true));
+      yield put(setJsPaneDebuggerState({ open: true }));
 
-      const debuggerSelectedTab: ReturnType<typeof getDebuggerSelectedTab> =
-        yield select(getDebuggerSelectedTab);
+      const { selectedTab: debuggerSelectedTab } = yield select(
+        getJsPaneDebuggerState,
+      );
 
       yield put(
-        setDebuggerSelectedTab(
-          debuggerSelectedTab || DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-        ),
+        setJsPaneDebuggerState({
+          selectedTab: debuggerSelectedTab || DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        }),
       );
     }
     yield put({
@@ -454,7 +466,21 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
     });
 
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, true, collectionId, isDirty);
+
+    yield put(
+      logActionExecutionForAudit({
+        actionName: action.name,
+        actionId: action.id,
+        collectionId: collectionId,
+        pageId: action.pageId,
+        pageName: yield select(getCurrentPageName),
+      }),
+    );
+
     const jsActionNameToDisplay = getJSActionNameToDisplay(action);
+
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
       source: {
@@ -481,9 +507,17 @@ export function* handleExecuteJSFunctionSaga(data: {
   } catch (error) {
     // open response tab in debugger on runnning js action.
     if (doesURLPathContainCollectionId) {
-      yield put(showDebugger(true));
-      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+      yield put(
+        setJsPaneDebuggerState({
+          open: true,
+          selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        }),
+      );
     }
+
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, false, collectionId, false);
+
     AppsmithConsole.addErrors([
       {
         payload: {
@@ -510,6 +544,7 @@ export function* handleExecuteJSFunctionSaga(data: {
   }
 }
 
+// This gets called on pressing "Run" button in JS code editor
 export function* handleStartExecuteJSFunctionSaga(
   data: ReduxAction<{
     action: JSAction;
@@ -555,6 +590,7 @@ export function* handleStartExecuteJSFunctionSaga(
     action,
     collection,
     isExecuteJSFunc: false,
+    onPageLoad: false,
     openDebugger,
   });
 }

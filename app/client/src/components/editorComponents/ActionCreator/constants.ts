@@ -1,3 +1,5 @@
+import { APPSMITH_NAMESPACED_FUNCTIONS as EE_APPSMITH_NAMESPACED_FUNCTIONS } from "@appsmith/entities/Engine/actionHelpers";
+
 export enum APPSMITH_GLOBAL_FUNCTIONS {
   navigateTo = "navigateTo",
   showAlert = "showAlert",
@@ -30,6 +32,7 @@ export const AppsmithFunction = {
   ...APPSMITH_INTEGRATIONS,
   ...APPSMITH_GLOBAL_FUNCTIONS,
   ...APPSMITH_NAMESPACED_FUNCTIONS,
+  ...EE_APPSMITH_NAMESPACED_FUNCTIONS,
 };
 
 export const AppsmithFunctionsWithFields = [

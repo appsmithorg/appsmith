@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { Button } from "design-system";
+import { ToggleButton } from "design-system";
 
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
@@ -19,6 +19,7 @@ import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import history, { NavigationMethod } from "utils/history";
 import { includes } from "lodash";
 import ListButton from "./ListButton";
+import { Announcement } from "../EditorPane/components/Announcement";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -28,7 +29,6 @@ const SplitScreenTabs = () => {
   const onJSAddClick = useJSAdd();
   const onQueryAddClick = useQueryAdd();
   const onAddClick = useCallback(() => {
-    if (segmentMode === EditorEntityTabState.Add) return;
     if (segment === EditorEntityTab.JS) onJSAddClick();
     if (segment === EditorEntityTab.QUERIES) onQueryAddClick();
   }, [segment, segmentMode, onQueryAddClick, onJSAddClick]);
@@ -46,7 +46,7 @@ const SplitScreenTabs = () => {
         invokedBy: NavigationMethod.EditorTabs,
       });
     },
-    [segment],
+    [segment, pageId],
   );
 
   const overflowList = allFilesList.filter((item) => !includes(files, item));
@@ -55,16 +55,21 @@ const SplitScreenTabs = () => {
   if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
   return (
-    <Container>
-      <Button
-        isIconButton
-        kind={"secondary"}
-        onClick={onAddClick}
-        startIcon={"add-line"}
-      />
-      <FileTabs navigateToTab={onClick} tabs={files} />
-      <ListButton items={overflowList} navigateToTab={onClick} />
-    </Container>
+    <>
+      {files.length > 0 ? (
+        <Container>
+          <ToggleButton
+            icon="add-line"
+            isSelected={segmentMode === EditorEntityTabState.Add}
+            onClick={onAddClick}
+            size="md"
+          />
+          <FileTabs navigateToTab={onClick} tabs={files} />
+          <ListButton items={overflowList} navigateToTab={onClick} />
+        </Container>
+      ) : null}
+      <Announcement />
+    </>
   );
 };
 

@@ -33,15 +33,15 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
 
     //Api 1
     apiPage.CreateAndFillApi(
-      "https://api.thecatapi.com/v1/images/search",
-      "CatImage",
+      dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl1,
+      "FlowerImage1",
     );
     agHelper.PressEscape();
 
     //Api 2
     apiPage.CreateAndFillApi(
-      "https://dog.ceo/api/breeds/image/random",
-      "DogImage",
+      dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl2,
+      "FlowerImage2",
     );
     agHelper.PressEscape();
 
@@ -60,7 +60,7 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.ClickButton("Invoke APIs!");
     cy.wait(12000); // for all api calls to complete!
 
-    //Cat Image
+    //Flower1 Image
     cy.xpath("//img/parent::div")
       .eq(0)
       .find("img")
@@ -80,7 +80,7 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     //   expect(response.body.data.body.message.length).to.be.above(0); //Dog Image
     // });
 
-    //Dog Image
+    //Flower2 Image
     cy.xpath("//img/parent::div")
       .eq(1)
       .find("img")
@@ -109,7 +109,6 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     // });
 
     //Cocktail DB
-
     cy.xpath("//img/parent::div")
       .eq(2)
       .find("img")
@@ -142,7 +141,7 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     PageList.AddNewPage();
     //Api 1
     apiPage.CreateAndFillApi(
-      "https://api.thecatapi.com/v1/images/search",
+      dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl1,
       "InternalServerErrorApi",
     );
     apiPage.RunAPI(false);
@@ -189,9 +188,8 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
 
   it("4. Bug 13515: API Response gets garbled if encoded with gzip", function () {
     apiPage.CreateAndFillApi(
-      "https://postman-echo.com/gzip",
+      dataManager.dsValues[dataManager.defaultEnviorment].mockGzipApi,
       "GarbledResponseAPI",
-      30000,
     );
     apiPage.RunAPI(false);
     apiPage.SelectPaneTab("Response");
@@ -204,7 +202,10 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
 
   // this test applies to other fields as well - params and body formdata
   it("5. Bug 25817: Assert that header fields are correctly updated.", function () {
-    apiPage.CreateAndFillApi("https://postman-echo.com/gzip", "HeaderTest");
+    apiPage.CreateAndFillApi(
+      dataManager.dsValues[dataManager.defaultEnviorment].mockGzipApi,
+      "HeaderTest",
+    );
     apiPage.EnterHeader("hello", "world", 0);
     apiPage.EnterHeader("", "", 1);
     agHelper.GetNClick(apiPage._addMoreHeaderFieldButton);

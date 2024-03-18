@@ -3,18 +3,15 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -38,12 +35,12 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission) {
-        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
-                .in(userId);
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                .is(workspaceId);
-        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                .is(Workspace.class.getSimpleName());
+        Criteria assignedToUserIdCriteria =
+                where(PermissionGroup.Fields.assignedToUserIds).in(userId);
+        Criteria defaultWorkspaceIdCriteria =
+                where(PermissionGroup.Fields.defaultDomainId).is(workspaceId);
+        Criteria defaultDomainTypeCriteria =
+                where(PermissionGroup.Fields.defaultDomainType).is(Workspace.class.getSimpleName());
         return queryBuilder()
                 .criteria(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
@@ -51,20 +48,19 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     }
 
     @Override
-    public Mono<UpdateResult> updateById(String id, Update updateObj) {
+    public Mono<Integer> updateById(String id, Update updateObj) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        Query query = new Query(Criteria.where("id").is(id));
-        return mongoOperations.updateFirst(query, updateObj, this.genericDomain);
+        return queryBuilder().byId(id).updateFirst(updateObj);
     }
 
     @Override
     public Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                .is(workspaceId);
-        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                .is(Workspace.class.getSimpleName());
+        Criteria defaultWorkspaceIdCriteria =
+                where(PermissionGroup.Fields.defaultDomainId).is(workspaceId);
+        Criteria defaultDomainTypeCriteria =
+                where(PermissionGroup.Fields.defaultDomainType).is(Workspace.class.getSimpleName());
         return queryBuilder()
                 .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
@@ -73,10 +69,10 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public Flux<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
-        Criteria defaultWorkspaceIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainId))
-                .in(workspaceIds);
-        Criteria defaultDomainTypeCriteria = where(fieldName(QPermissionGroup.permissionGroup.defaultDomainType))
-                .is(Workspace.class.getSimpleName());
+        Criteria defaultWorkspaceIdCriteria =
+                where(PermissionGroup.Fields.defaultDomainId).in(workspaceIds);
+        Criteria defaultDomainTypeCriteria =
+                where(PermissionGroup.Fields.defaultDomainType).is(Workspace.class.getSimpleName());
         return queryBuilder()
                 .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
                 .permission(permission)
@@ -106,8 +102,8 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
-        Criteria assignedToUserIdCriteria = where(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds))
-                .in(userIds);
+        Criteria assignedToUserIdCriteria =
+                where(PermissionGroup.Fields.assignedToUserIds).in(userIds);
         return queryBuilder()
                 .criteria(assignedToUserIdCriteria)
                 .fields(includeFields.orElse(null))

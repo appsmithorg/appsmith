@@ -7,6 +7,7 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "./EditorNavigation";
+import PageList from "./PageList";
 
 type templateActions =
   | "Find"
@@ -171,8 +172,14 @@ export class EntityExplorer {
         : this.locator._dropHere,
     )
       .first()
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" })
-      .trigger("mousemove", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      })
+      .trigger("mousemove", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      });
     this.agHelper.Sleep(200);
     cy.get(
       parentWidgetType
@@ -182,7 +189,10 @@ export class EntityExplorer {
         : this.locator._dropHere,
     )
       .first()
-      .trigger("mouseup", x, y, { eventConstructor: "MouseEvent" });
+      .trigger("mouseup", x, y, {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      });
   }
 
   public DragDropWidgetNVerify(
@@ -246,6 +256,7 @@ export class EntityExplorer {
     viaMenu = false,
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
+    PageList.ShowList();
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,

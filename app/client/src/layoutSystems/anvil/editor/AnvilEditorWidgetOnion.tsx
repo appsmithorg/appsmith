@@ -7,6 +7,7 @@ import { getWidgetSizeConfiguration } from "../utils/widgetUtils";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { AnvilEditorFlexComponent } from "./AnvilEditorFlexComponent";
+import { AnvilFlexComponent } from "../common/AnvilFlexComponent";
 
 /**
  * AnvilEditorWidgetOnion
@@ -29,10 +30,12 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
     () => getWidgetSizeConfiguration(props.type, props, isPreviewMode),
     [isPreviewMode, props.type],
   );
+  const WidgetWrapper = useMemo(() => {
+    return isPreviewMode ? AnvilFlexComponent : AnvilEditorFlexComponent;
+  }, [isPreviewMode]);
   return (
-    <AnvilEditorFlexComponent
+    <WidgetWrapper
       flexGrow={props.flexGrow}
-      isResizeDisabled={props.resizeDisabled}
       isVisible={!!props.isVisible}
       layoutId={props.layoutId}
       parentId={props.parentId}
@@ -43,6 +46,6 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
       widgetType={props.type}
     >
       <AnvilWidgetComponent {...props}>{props.children}</AnvilWidgetComponent>
-    </AnvilEditorFlexComponent>
+    </WidgetWrapper>
   );
 };

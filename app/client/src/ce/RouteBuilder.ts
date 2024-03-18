@@ -152,11 +152,13 @@ export const globalAddURL = (props: URLBuilderParams): string => {
 };
 
 export const widgetURL = (
-  props: URLBuilderParams & { selectedWidgets: string[] },
+  props: URLBuilderParams & WithAddView & { selectedWidgets: string[] },
 ) => {
   return urlBuilder.build({
     ...props,
-    suffix: `widgets/${props.selectedWidgets.join(",")}`,
+    suffix: `widgets/${props.selectedWidgets.join(",")}${
+      props.add ? ADD_PATH : ""
+    }`,
   });
 };
 

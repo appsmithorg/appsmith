@@ -72,14 +72,15 @@ export function useTheme(props: UseThemeProps = {}) {
 
   useEffect(() => {
     if (borderRadius != null) {
-      tokensAccessor.updateBorderRadius({
-        1: borderRadius,
+      tokensAccessor.updateBorderRadiusElevation({
+        ...defaultTokens.borderRadiusElevation,
+        base: borderRadius,
       });
 
       setTheme((prevState) => {
         return {
           ...prevState,
-          ...tokensAccessor.getBorderRadius(),
+          ...tokensAccessor.getBorderRadiusElevation(),
         };
       });
     }

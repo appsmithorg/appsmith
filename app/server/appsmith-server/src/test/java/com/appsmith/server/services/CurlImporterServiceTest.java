@@ -482,7 +482,7 @@ public class CurlImporterServiceTest {
         // fetch branched action
         Mono<NewAction> branchedSavedActionMono =
                 branchedResultMono.flatMap(actionDTO -> newActionService.findByBranchNameAndDefaultActionId(
-                        "testBranch", actionDTO.getId(), AclPermission.MANAGE_ACTIONS));
+                        "testBranch", actionDTO.getId(), false, AclPermission.MANAGE_ACTIONS));
 
         StepVerifier.create(Mono.zip(branchedResultMono, branchedPageMono, branchedSavedActionMono))
                 .assertNext(tuple -> {

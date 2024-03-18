@@ -72,5 +72,9 @@ export interface ColorModeTheme {
     bdOnPositive: string;
     bdOnNegative: string;
     bdOnWarning: string;
+    // Elevation
+    bdElevation1: string;
+    bdElevation2: string;
+    bdElevation3: string;
   };
 }

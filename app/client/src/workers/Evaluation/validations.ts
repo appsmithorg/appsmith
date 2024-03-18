@@ -1107,7 +1107,7 @@ export const VALIDATORS: Record<ValidationTypes, Validator> = {
           "propertyPath",
           "config",
           fnBody,
-        )(value, props, globalThis._, globalThis.moment, propertyPath, config);
+        )(value, props, self._, self.moment, propertyPath, config);
 
         return result;
       } catch (e) {

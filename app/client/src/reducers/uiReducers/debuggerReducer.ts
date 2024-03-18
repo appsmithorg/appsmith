@@ -160,6 +160,26 @@ const debuggerReducer = createImmerReducer(initialState, {
   ) => {
     state.context = action.context;
   },
+  [ReduxActionTypes.SET_CANVAS_DEBUGGER_STATE]: (
+    state: DebuggerReduxState,
+    action: { payload: Partial<CanvasDebuggerState> },
+  ): DebuggerReduxState => {
+    return {
+      ...state,
+      isOpen: "open" in action.payload ? !!action.payload.open : state.isOpen,
+      context: {
+        ...state.context,
+        responseTabHeight:
+          "responseTabHeight" in action.payload
+            ? Number(action.payload.responseTabHeight)
+            : state.context.responseTabHeight,
+        selectedDebuggerTab:
+          "selectedTab" in action.payload
+            ? String(action.payload.selectedTab)
+            : state.context.selectedDebuggerTab,
+      },
+    };
+  },
   // Resetting debugger state after env switch
   [ReduxActionTypes.SWITCH_ENVIRONMENT_SUCCESS]: () => {
     return klona(initialState);
@@ -181,6 +201,12 @@ export interface DebuggerContext {
   selectedDebuggerTab: string;
   responseTabHeight: number;
   selectedDebuggerFilter: string;
+}
+
+export interface CanvasDebuggerState {
+  open: boolean;
+  responseTabHeight: number;
+  selectedTab?: string;
 }
 
 export default debuggerReducer;

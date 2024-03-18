@@ -19,17 +19,24 @@ const StyledContainerComponent = styled.div<
   outline: none;
   border: none;
   position: relative;
-
-  ${(props) =>
-    props.elevatedBackground
-      ? `background: var(--color-bg-elevation-${props.elevation}); `
-      : ""}
-
   border-radius: var(--border-radius-1);
-  padding-block: var(--outer-spacing-0);
-  padding-inline: var(--outer-spacing-0);
+  /* If the elevatedBackground is true, then apply the elevation styles */
+  ${(props) => {
+    if (props.elevatedBackground) {
+      return `
+      background-color: var(--color-bg-elevation-${props.elevation});
+      border-radius: var(--border-radius-elevation-${props.elevation})};
+      border-color: var(--color-bd-elevation-${props.elevation});
+      border-width: var(--border-width-1);
+      border-style: solid;
 
-  border-width: var(--border-width-1);
+      /* Add padding to the container to maintain the visual spacing rhythm */
+      /* This is based on the hypothesis of asymmetric padding */
+      padding-block: var(--inner-spacing-1);
+      padding-inline: var(--inner-spacing-1);
+      `;
+    }
+  }}
 `;
 
 export function ContainerComponent(props: ContainerComponentProps) {

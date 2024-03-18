@@ -108,7 +108,7 @@ import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.external.constants.GitConstants.GIT_PROFILE_ERROR;
 import static com.appsmith.external.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_USERNAME;
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
@@ -545,7 +545,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     result.append("Commit Result : ");
                     Mono<String> gitCommitMono = gitExecutor
-                            .commitApplication(
+                            .commitArtifact(
                                     baseRepoPath,
                                     commitMessage,
                                     authorProfile.getAuthorName(),
@@ -752,7 +752,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         String repoName = GitUtils.getRepoName(gitConnectDTO.getRemoteUrl());
                         Path repoSuffix = Paths.get(application.getWorkspaceId(), defaultApplicationId, repoName);
                         Mono<String> defaultBranchMono = gitExecutor
-                                .cloneApplication(
+                                .cloneRemoteIntoArtifactRepo(
                                         repoSuffix,
                                         gitConnectDTO.getRemoteUrl(),
                                         gitArtifactMetadata.getGitAuth().getPrivateKey(),
@@ -911,7 +911,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                         profile = userData.getGitProfileByKey(DEFAULT);
                                     }
-                                    return gitExecutor.commitApplication(
+                                    return gitExecutor.commitArtifact(
                                             tuple.getT1(),
                                             DEFAULT_COMMIT_MESSAGE + GitDefaultCommitMessage.CONNECT_FLOW.getReason(),
                                             profile.getAuthorName(),
@@ -1682,7 +1682,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             application.getWorkspaceId(), application.getId(), gitArtifactMetadata.getRepoName());
                     GitAuth gitAuth = gitArtifactMetadata.getGitAuth();
                     return gitExecutor
-                            .cloneApplication(
+                            .cloneRemoteIntoArtifactRepo(
                                     repoPath,
                                     gitArtifactMetadata.getRemoteUrl(),
                                     gitAuth.getPrivateKey(),
@@ -2588,7 +2588,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             updateOrCreateGitProfileForCurrentUser(gitConnectDTO.getGitProfile(), application.getId());
 
                     Mono<String> defaultBranchMono = gitExecutor
-                            .cloneApplication(
+                            .cloneRemoteIntoArtifactRepo(
                                     repoSuffix,
                                     gitConnectDTO.getRemoteUrl(),
                                     gitAuth.getPrivateKey(),
@@ -3030,7 +3030,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     private Mono<String> commitAndPushWithDefaultCommit(
             Path repoSuffix, GitAuth auth, GitArtifactMetadata gitArtifactMetadata, GitDefaultCommitMessage reason) {
         return gitExecutor
-                .commitApplication(
+                .commitArtifact(
                         repoSuffix,
                         DEFAULT_COMMIT_MESSAGE + reason.getReason(),
                         APPSMITH_BOT_USERNAME,
