@@ -242,7 +242,7 @@ function WidgetsEditor() {
                   : {}
               }
             >
-              {shouldShowSnapShotBanner && (
+              {shouldShowSnapShotBanner && isAutoLayout && (
                 <BannerWrapper className="absolute top-0 w-full">
                   <SnapShotBannerCTA />
                 </BannerWrapper>
@@ -256,7 +256,9 @@ function WidgetsEditor() {
                 isPreviewMode={isPreviewMode}
                 isProtectedMode={isProtectedMode}
                 navigationHeight={navigationHeight}
-                shouldShowSnapShotBanner={shouldShowSnapShotBanner}
+                shouldShowSnapShotBanner={
+                  shouldShowSnapShotBanner && isAutoLayout
+                }
               />
               {enableOverlayCanvas && (
                 <OverlayCanvasContainer canvasWidth={canvasWidth} />
