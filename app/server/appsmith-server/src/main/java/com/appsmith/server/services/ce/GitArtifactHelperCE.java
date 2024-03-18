@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Artifact;
+import com.appsmith.server.dtos.GitAuthDTO;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -11,6 +12,8 @@ import java.util.List;
 
 public interface GitArtifactHelperCE<T extends Artifact> {
 
+    AclPermission getArtifactReadPermission();
+
     AclPermission getArtifactEditPermission();
 
     AclPermission getArtifactGitConnectPermission();
@@ -19,6 +22,10 @@ public interface GitArtifactHelperCE<T extends Artifact> {
 
     Mono<T> getArtifactByDefaultIdAndBranchName(
             String defaultArtifactId, String branchName, AclPermission aclPermission);
+
+    Mono<GitAuthDTO> getSshKeys(String defaultArtifactId);
+
+    Mono<T> createNewArtifactForCheckout(Artifact sourceArtifact, String branchName);
 
     Mono<T> saveArtifact(Artifact artifact);
 

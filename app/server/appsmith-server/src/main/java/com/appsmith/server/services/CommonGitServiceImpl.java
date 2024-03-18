@@ -8,6 +8,7 @@ import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.ce_compatible.CommonGitServiceCECompatibleImpl;
 import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 public class CommonGitServiceImpl extends CommonGitServiceCECompatibleImpl implements CommonGitService {
 
     public CommonGitServiceImpl(
+            GitDeployKeysRepository gitDeployKeysRepository,
             GitPrivateRepoHelper gitPrivateRepoHelper,
             CommonGitFileUtils commonGitFileUtils,
             RedisUtils redisUtils,
@@ -33,6 +35,7 @@ public class CommonGitServiceImpl extends CommonGitServiceCECompatibleImpl imple
             GitExecutor gitExecutor,
             GitArtifactHelper<Application> gitApplicationHelper) {
         super(
+                gitDeployKeysRepository,
                 gitPrivateRepoHelper,
                 commonGitFileUtils,
                 redisUtils,
