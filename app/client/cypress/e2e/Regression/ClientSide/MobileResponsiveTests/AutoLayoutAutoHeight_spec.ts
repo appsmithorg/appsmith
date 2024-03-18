@@ -1,7 +1,6 @@
 import { getWidgetSelector } from "../../../../locators/WidgetLocators";
 import {
   agHelper,
-  entityExplorer,
   propPane,
   autoLayout,
   draggableWidgets,
