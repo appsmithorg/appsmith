@@ -1,6 +1,6 @@
 import * as Sentry from "@sentry/react";
 
-import React from "react";
+import React, { useRef } from "react";
 import ConversionButton from "../CanvasLayoutConversion/ConversionButton";
 import styled from "styled-components";
 import {
@@ -8,6 +8,8 @@ import {
   useLayoutSystemFeatures,
 } from "../../../layoutSystems/common/useLayoutSystemFeatures";
 import { MainContainerWidthToggles } from "../MainContainerWidthToggles";
+import { getIsAutoLayout } from "selectors/canvasSelectors";
+import store from "store";
 
 const Title = styled.p`
   color: var(--ads-v2-color-fg);
@@ -23,6 +25,8 @@ export function CanvasPropertyPane() {
       LayoutSystemFeatures.ENABLE_LAYOUT_CONVERSION,
     ]);
 
+  const isAutoLayout = useRef(getIsAutoLayout(store.getState()));
+
   return (
     <div className="relative ">
       <MainHeading className="px-4 py-3 text-sm font-medium">
@@ -37,7 +41,9 @@ export function CanvasPropertyPane() {
               <MainContainerWidthToggles />
             </>
           )}
-          {enableLayoutConversion && <ConversionButton />}
+          {enableLayoutConversion && !!isAutoLayout?.current && (
+            <ConversionButton />
+          )}
         </div>
       </div>
     </div>
