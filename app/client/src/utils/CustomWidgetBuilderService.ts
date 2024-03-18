@@ -1,4 +1,4 @@
-class Builder {
+export class Builder {
   private builderWindow: Window | null;
 
   private onMessageMap: Map<string, ((data: unknown) => void)[]> = new Map();
@@ -14,7 +14,7 @@ class Builder {
     window?.addEventListener("message", this.handleMessageBound);
   }
 
-  handleMessage(event: MessageEvent) {
+  private handleMessage(event: MessageEvent) {
     if (event.source === this.builderWindow) {
       const handlerList = this.onMessageMap.get(event.data.type);
 
@@ -69,8 +69,16 @@ class Builder {
 export default class CustomWidgetBuilderService {
   private static builderWindowConnections: Map<string, Builder> = new Map();
 
+  // For unit testing purposes
+  private static builderFactory = Builder;
+
+  // For unit testing purposes
+  static setBuilderFactory(builder: typeof Builder) {
+    this.builderFactory = builder;
+  }
+
   static createBuilder(widgetId: string) {
-    const builder = new Builder();
+    const builder = new this.builderFactory();
 
     this.builderWindowConnections.set(widgetId, builder);
 
@@ -78,9 +86,9 @@ export default class CustomWidgetBuilderService {
   }
 
   static isConnected(widgetId: string) {
-    const connection = this.builderWindowConnections.get(widgetId);
+    const builder = this.builderWindowConnections.get(widgetId);
 
-    return connection?.isConnected();
+    return builder?.isConnected();
   }
 
   static focus(widgetId: string) {
