@@ -6,7 +6,7 @@
     align-items: center;
     gap: var(--inner-spacing-1);
     border-radius: var(--border-radius-elevation-3);
-    box-shadow: inset 0 0 0 1px var(--color-bd-neutral);
+    background-color: var(--color-bg-neutral-subtle);
     padding-inline: var(--inner-spacing-1);
     flex: 1;
     max-inline-size: 100%;
@@ -35,12 +35,18 @@
     }
   }
 
+  & [data-field-input][data-hovered] {
+    background-color: var(--color-bg-neutral-subtle-hover);
+    box-shadow: inset 0 0 0 1px var(--color-bd-neutral-hover);
+  }
+
   /**
   * ----------------------------------------------------------------------------
   * READONLY
   *-----------------------------------------------------------------------------
   */
   & [data-readonly][data-field-input] {
+    background-color: transparent;
     box-shadow: none;
     padding-inline: 0;
   }
@@ -55,6 +61,12 @@
   * We use an absolutely positioned pseudo element because
   * we need to make the focus state in read mode a bit wider than the component width
   */
+
+  & [data-field-input][data-focused] {
+    background-color: transparent;
+    box-shadow: none;
+  }
+
   & [data-field-input][data-focused]:before {
     content: "";
     left: 0;
@@ -80,8 +92,8 @@
     box-shadow: 0 0 0 1px var(--color-bd-negative);
   }
 
-  & [data-field-input][data-invalid][data-focused] {
-    box-shadow: 0 0 0 2px var(--color-bd-negative);
+  & [data-field-input][data-invalid][data-hovered] {
+    box-shadow: 0 0 0 1px var(--color-bd-negative-hover);
   }
 
   /**
