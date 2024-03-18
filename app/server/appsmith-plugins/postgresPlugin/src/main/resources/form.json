@@ -103,6 +103,135 @@
             {
               "label": "Disable",
               "value": "DISABLE"
+            },
+            {
+              "label": "Verify CA",
+              "value": "VERIFY_CA"
+            },
+            {
+              "label": "Verify Full",
+              "value": "VERIFY_FULL"
+            }
+          ]
+        },
+        {
+          "sectionStyles": { "display": "flex" },
+          "children": [
+            {
+              "sectionStyles": { "flex": 1 },
+              "children": [
+                {
+                  "label": "Use Client CA Certificate",
+                  "configProperty":
+                  "datasourceConfiguration.connection.ssl.caCertificateType",
+                  "controlType": "DROP_DOWN",
+                  "initialValue": "NONE",
+                  "options": [
+                    {
+                      "label": "Disabled",
+                      "value": "NONE"
+                    },
+                    {
+                      "label": "Upload File",
+                      "value": "FILE"
+                    },
+                    {
+                      "label": "Base64 String",
+                      "value": "BASE64_STRING"
+                    }
+                  ],
+                  "hidden": {
+                    "path": "datasourceConfiguration.connection.ssl.authType",
+                    "comparison": "NOT_EQUALS",
+                    "value": "ENABLED"
+                  }
+                },
+                {
+                  "label": "Client CA Certificate File",
+                  "configProperty":
+                  "datasourceConfiguration.connection.ssl.caCertificateFile",
+                  "controlType": "FILE_PICKER",
+                  "encrypted": true,
+                  "hidden": {
+                    "path": "datasourceConfiguration.connection.ssl.caCertificateType",
+                    "comparison": "NOT_EQUALS",
+                    "value": "FILE"
+                  }
+                },
+                {
+                  "label": "Base64 Encoded Client CA Certificate String",
+                  "configProperty":
+                  "datasourceConfiguration.connection.ssl.caCertificateFile.base64Content",
+                  "controlType": "INPUT_TEXT",
+                  "dataType": "PASSWORD",
+                  "encrypted": true,
+                  "hidden": {
+                    "path": "datasourceConfiguration.connection.ssl.caCertificateType",
+                    "comparison": "NOT_EQUALS",
+                    "value": "BASE64_STRING"
+                  }
+                }
+              ]
+            },
+            {
+              "sectionStyles": { "flex": 1 , "marginLeft": "20px"},
+              "children": [
+                {
+                  "label": "Use Server CA Certificate",
+                  "configProperty":
+                  "datasourceConfiguration.connection.ssl.caServerCertificateType",
+                  "controlType": "DROP_DOWN",
+                  "initialValue": "NONE",
+                  "options": [
+                    {
+                      "label": "Disabled",
+                      "value": "NONE"
+                    },
+                    {
+                      "label": "Upload File",
+                      "value": "FILE"
+                    },
+                    {
+                      "label": "Base64 String",
+                      "value": "BASE64_STRING"
+                    }
+                  ],
+                  "hidden": {
+                    "path": "datasourceConfiguration.connection.ssl.authType",
+                    "comparison": "NOT_EQUALS",
+                    "value": "ENABLED"
+                  }
+                },
+                {
+                  "label": "Client CA Certificate File",
+                  "configProperty":
+                  "datasourceConfiguration.connection.ssl.caServerCertificateFile",
+                  "controlType": "FILE_PICKER",
+                  "encrypted": true,
+                  "hidden": {
+                    "path": "datasourceConfiguration.connection.ssl.caServerCertificateType",
+                    "comparison": "NOT_EQUALS",
+                    "value": "FILE"
+                  }
+                },
+                {
+                  "label": "Base64 Encoded Client CA Certificate String",
+                  "configProperty":
+                  "datasourceConfiguration.connection.ssl.caServerCertificateFile.Base64Content",
+                  "controlType": "INPUT_TEXT",
+                  "dataType": "PASSWORD",
+                  "encrypted": true,
+                  "hidden": {
+                    "path": "datasourceConfiguration.connection.ssl.caServerCertificateType",
+                    "comparison": "NOT_EQUALS",
+                    "value": "BASE64_STRING"
+                  }
+                }
+              ]
+            },
+            {
+              "sectionStyles": { "flex": 1 },
+              "children": []
             }
           ]
         }
