@@ -3690,7 +3690,7 @@ public class ImportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplication_invalidPluginReferenceForDatasource_throwException() {
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.anySet(), Mockito.anyList()))
                 .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         Workspace newWorkspace = new Workspace();
