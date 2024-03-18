@@ -14,7 +14,7 @@ import { inlineLabelStyles } from "../../../styles";
 export type SwitchProps = Omit<HeadlessSwitchProps, "icon" | "isIndeterminate">;
 
 const _Switch = (props: SwitchProps, ref: HeadlessSwitchRef) => {
-  const { children, labelPosition = "right", ...rest } = props;
+  const { children, labelPosition, ...rest } = props;
 
   return (
     <HeadlessSwitch
