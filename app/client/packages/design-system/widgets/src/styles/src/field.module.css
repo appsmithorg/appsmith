@@ -64,6 +64,7 @@
   & [data-field-group] {
     gap: var(--inner-spacing-2);
     display: flex;
+    flex-wrap: wrap;
     flex-direction: column;
   }
 
