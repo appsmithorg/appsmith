@@ -5,8 +5,9 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.google.errorprone.annotations.DoNotCall;
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -67,10 +68,13 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
     }
 
     @Override
-    public Optional<T> findById(@NonNull ID id) {
-        final CriteriaQuery<T> cq = entityManager.getCriteriaBuilder().createQuery(entityInformation.getJavaType());
+    public @NonNull Optional<T> findById(@NonNull ID id) {
+        final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
+        final CriteriaQuery<T> cq = cb.createQuery(entityInformation.getJavaType());
+        final Root<T> root = cq.from(entityInformation.getJavaType());
 
-        cq.where((Predicate) Bridge.<T>and(notDeleted(), Bridge.equal(FieldName.ID, (String) id)));
+        cq.where(Bridge.<T>and(notDeleted(), Bridge.equal(FieldName.ID, (String) id))
+                .toPredicate(root, cq, cb));
 
         return Optional.ofNullable(entityManager.createQuery(cq).getSingleResult());
     }

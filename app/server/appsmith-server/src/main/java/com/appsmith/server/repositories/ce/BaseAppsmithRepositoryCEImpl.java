@@ -43,7 +43,6 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -60,7 +59,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
@@ -121,12 +119,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     public static <T extends BaseDomain> BridgeQuery<T> notDeleted() {
         return Bridge.and(
-                        // Older check for deleted
-                        Bridge.or(
-                                        Bridge.notExists(FieldName.DELETED),
-                                        Bridge.isFalse(FieldName.DELETED)),
-                        // New check for deleted
-                        Bridge.isNull(FieldName.DELETED_AT));
+                // Older check for deleted
+                // Bridge.or(Bridge.notExists(FieldName.DELETED), Bridge.isFalse(FieldName.DELETED)),
+                // New check for deleted
+                Bridge.isNull(FieldName.DELETED_AT));
     }
 
     public static Criteria userAcl(Set<String> permissionGroups, AclPermission permission) {
