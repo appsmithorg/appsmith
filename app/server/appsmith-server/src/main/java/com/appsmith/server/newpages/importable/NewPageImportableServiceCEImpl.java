@@ -358,7 +358,14 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                         // Delete the pages which were removed during git merge operation
                         // This does not apply to the traditional import via file approach
                         return Flux.fromIterable(invalidPageIds)
-                                .flatMap(applicationPageService::deleteWithoutPermissionUnpublishedPage)
+                                .flatMap(pageId -> {
+                                    return applicationPageService.deleteUnpublishedPageWithOptionalPermission(
+                                            pageId,
+                                            Optional.empty(),
+                                            Optional.empty(),
+                                            Optional.empty(),
+                                            Optional.empty());
+                                })
                                 .flatMap(page -> newPageService
                                         .archiveWithoutPermissionById(page.getId())
                                         .onErrorResume(e -> {

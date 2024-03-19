@@ -39,7 +39,18 @@ export const ComplexForm = () => {
   const submitRef = useRef(null);
 
   return (
-    <Flex direction="column" gap="spacing-6">
+    <Flex
+      direction="column"
+      gap="spacing-6"
+      style={{
+        background: "var(--color-bg-elevation-1)",
+        borderColor: "var(--color-bd-elevation-1)",
+        borderRadius: "var(--border-radius-elevation-1)",
+        borderStyle: "solid",
+        borderWidth: 1,
+        padding: "var(--outer-spacing-6)",
+      }}
+    >
       <Flex direction="column" gap="spacing-3">
         <Text variant="heading">Your order</Text>
         <Text>Choose your favorite dishes and place an order.</Text>

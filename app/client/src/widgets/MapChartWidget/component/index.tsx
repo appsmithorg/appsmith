@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from "react";
 import styled from "styled-components";
 import type { MapColorObject, MapTypes } from "../constants";
 import type { MapData } from "./types";
-import { getChartOption, loadMap } from "./utilities";
+import { getChartOption, loadMapGenerator } from "./utilities";
 import * as echarts from "echarts";
 import countryDetails from "./countryDetails";
 import clsx from "clsx";
@@ -26,6 +26,8 @@ const MapChartContainer = styled.div<{
 
 export default function EchartComponent(props: MapChartComponentProps) {
   const [isLoading, setIsLoading] = useState(false);
+
+  const loadMap = useMemo(loadMapGenerator, []);
 
   const [key, setKey] = useState(0);
 

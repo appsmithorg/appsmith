@@ -50,7 +50,9 @@ describe("Tests for interval functions", () => {
     self["$isDataField"] = false;
     self["$cloudHosting"] = false;
     ExecutionMetaData.setExecutionMetaData({
-      triggerMeta: {},
+      triggerMeta: {
+        onPageLoad: false,
+      },
       eventType: EventType.ON_PAGE_LOAD,
     });
     overrideWebAPIs(evalContext);

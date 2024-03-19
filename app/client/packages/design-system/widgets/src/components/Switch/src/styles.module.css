@@ -1,5 +1,5 @@
 .switch {
-  &[data-label-position="left"] {
+  &[data-label-position="start"] {
     width: 100%;
   }
 
