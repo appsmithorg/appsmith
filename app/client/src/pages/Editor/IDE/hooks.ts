@@ -7,7 +7,7 @@ import {
 } from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
@@ -28,6 +28,8 @@ import {
 } from "constants/AppConstants";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
+import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -215,3 +217,41 @@ export const useIsEditorPaneSegmentsEnabled = () => {
 
   return isEditorSegmentsReleaseEnabled || isEditorSegmentsRolloutEnabled;
 };
+
+export function useWidgetSelectionBlockListener() {
+  const { pathname } = useLocation();
+  const dispatch = useDispatch();
+  const currentFocus = identifyEntityFromPath(pathname);
+  const isAltFocused = useSelector(getIsAltFocusWidget);
+  const widgetSelectionIsBlocked = useSelector(getWidgetSelectionBlock);
+
+  useEffect(() => {
+    const inUIMode = [
+      FocusEntity.CANVAS,
+      FocusEntity.PROPERTY_PANE,
+      FocusEntity.WIDGET_LIST,
+    ].includes(currentFocus.entity);
+    dispatch(setWidgetSelectionBlock(!inUIMode));
+  }, [currentFocus]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [isAltFocused, widgetSelectionIsBlocked]);
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!isAltFocused && widgetSelectionIsBlocked && e.metaKey) {
+      dispatch(altFocusWidget(e.metaKey));
+    }
+  };
+
+  const handleKeyUp = (e: KeyboardEvent) => {
+    if (!e.metaKey && widgetSelectionIsBlocked) {
+      dispatch(altFocusWidget(e.metaKey));
+    }
+  };
+}

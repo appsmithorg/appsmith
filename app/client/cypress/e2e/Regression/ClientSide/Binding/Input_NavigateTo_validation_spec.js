@@ -11,6 +11,7 @@ const publish = require("../../../../locators/publishWidgetspage.json");
 const testdata = require("../../../../fixtures/testdata.json");
 const pageid = "MyPage";
 import { agHelper, propPane } from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "Binding the multiple Widgets and validating NavigateTo Page",
@@ -33,7 +34,7 @@ describe(
       agHelper.AddDsl("displayWidgetDsl");
       // eslint-disable-next-line cypress/no-unnecessary-waiting
       cy.wait(3000);
-      cy.CheckAndUnfoldEntityItem("Pages");
+      PageList.ShowList();
       PageLeftPane.assertPresence(pageid);
     });
 

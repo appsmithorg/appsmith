@@ -78,6 +78,7 @@ describe("Add functions", () => {
           triggerMeta: {
             source: {},
             triggerPropertyName: undefined,
+            onPageLoad: false,
           },
         },
         method: "PROCESS_TRIGGER",
@@ -110,6 +111,7 @@ describe("Add functions", () => {
           triggerMeta: {
             source: {},
             triggerPropertyName: undefined,
+            onPageLoad: false,
           },
         },
         method: "PROCESS_TRIGGER",
@@ -137,6 +139,7 @@ describe("Add functions", () => {
           triggerMeta: {
             source: {},
             triggerPropertyName: undefined,
+            onPageLoad: false,
           },
         },
         method: "PROCESS_TRIGGER",
@@ -163,6 +166,7 @@ describe("Add functions", () => {
           triggerMeta: {
             source: {},
             triggerPropertyName: undefined,
+            onPageLoad: false,
           },
         },
         method: "PROCESS_TRIGGER",
@@ -188,6 +192,7 @@ describe("Add functions", () => {
           triggerMeta: {
             source: {},
             triggerPropertyName: undefined,
+            onPageLoad: false,
           },
         },
         method: "PROCESS_TRIGGER",
@@ -273,6 +278,7 @@ describe("Add functions", () => {
           triggerMeta: {
             source: {},
             triggerPropertyName: undefined,
+            onPageLoad: false,
           },
         },
         method: "PROCESS_TRIGGER",
@@ -299,6 +305,7 @@ describe("Add functions", () => {
           triggerMeta: {
             source: {},
             triggerPropertyName: undefined,
+            onPageLoad: false,
           },
         },
         method: "PROCESS_TRIGGER",
@@ -329,6 +336,7 @@ describe("Add functions", () => {
           triggerMeta: {
             source: {},
             triggerPropertyName: undefined,
+            onPageLoad: false,
           },
         },
         method: "PROCESS_TRIGGER",

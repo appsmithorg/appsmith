@@ -1,4 +1,4 @@
-import { focusWidget } from "actions/widgetActions";
+import { altFocusWidget, focusWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 
 import { useCallback } from "react";
@@ -23,7 +23,8 @@ export const useWidgetSelection = () => {
       [dispatch],
     ),
     focusWidget: useCallback(
-      (widgetId?: string) => dispatch(focusWidget(widgetId)),
+      (widgetId?: string, altFocus?: boolean) =>
+        dispatch(focusWidget(widgetId, altFocus)),
       [dispatch],
     ),
     deselectAll: useCallback(
@@ -38,5 +39,8 @@ export const useWidgetSelection = () => {
       [dispatch],
     ),
     goToWidgetAdd: useCallback(() => history.push(builderURL({})), []),
+    altFocus: useCallback((alt: boolean) => {
+      dispatch(altFocusWidget(alt));
+    }, []),
   };
 };

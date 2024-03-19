@@ -1,4 +1,4 @@
-import React, { forwardRef } from "react";
+import React, { forwardRef, useRef } from "react";
 import { Field } from "@design-system/headless";
 import { useDOMRef } from "@react-spectrum/utils";
 import type { DOMRef } from "@react-types/shared";
@@ -7,6 +7,7 @@ import { useCheckboxGroupState } from "@react-stately/checkbox";
 
 import { CheckboxGroupContext } from "./context";
 import type { CheckboxGroupProps } from "./types";
+import { useGroupOrientation } from "../../../hooks";
 
 export type CheckboxGroupRef = DOMRef<HTMLDivElement>;
 
@@ -15,12 +16,20 @@ const _CheckboxGroup = (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
     children,
     fieldClassName,
     isDisabled = false,
-    orientation = "vertical",
+    optionsLabelPosition = "end",
   } = props;
   const domRef = useDOMRef(ref);
   const state = useCheckboxGroupState(props);
   const { descriptionProps, errorMessageProps, groupProps, labelProps } =
     useCheckboxGroup(props, state);
+  const containerRef = useRef<HTMLDivElement>(null);
+  const { orientation } = useGroupOrientation(
+    {
+      orientation: props.orientation,
+      optionsLabelPosition: optionsLabelPosition,
+    },
+    containerRef,
+  );
 
   return (
     <Field
@@ -37,11 +46,13 @@ const _CheckboxGroup = (props: CheckboxGroupProps, ref: CheckboxGroupRef) => {
         data-disabled={isDisabled ? "" : undefined}
         data-field-group=""
         data-orientation={orientation}
+        ref={containerRef}
       >
         <CheckboxGroupContext.Provider
           value={{
             state,
             isDisabled,
+            optionsLabelPosition,
           }}
         >
           {children}

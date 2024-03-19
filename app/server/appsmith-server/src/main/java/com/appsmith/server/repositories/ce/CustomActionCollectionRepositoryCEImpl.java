@@ -51,11 +51,17 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public Flux<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
 
-        Criteria applicationCriteria =
-                where(ActionCollection.Fields.applicationId).is(applicationId);
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).is(applicationId);
+        criteria.add(applicationCriteria);
+
+        Criteria deletedCriteria =
+                where(ActionCollection.Fields.unpublishedCollection_deletedAt).is(null);
+        criteria.add(deletedCriteria);
 
         return queryBuilder()
-                .criteria(applicationCriteria)
+                .criteria(criteria)
                 .permission(aclPermission.orElse(null))
                 .sort(sort.orElse(null))
                 .all();
@@ -219,11 +225,19 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public Flux<ActionCollection> findByDefaultApplicationId(
             String defaultApplicationId, Optional<AclPermission> permission) {
+        List<Criteria> criteria = new ArrayList<>();
+
         final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         Criteria defaultAppIdCriteria =
                 where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        criteria.add(defaultAppIdCriteria);
+
+        Criteria deletedCriteria =
+                where(ActionCollection.Fields.unpublishedCollection_deletedAt).is(null);
+        criteria.add(deletedCriteria);
+
         return queryBuilder()
-                .criteria(defaultAppIdCriteria)
+                .criteria(criteria)
                 .permission(permission.orElse(null))
                 .all();
     }
@@ -247,7 +261,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields) {
+
         Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
+
         return queryBuilder()
                 .criteria(applicationCriteria)
                 .fields(includeFields)
