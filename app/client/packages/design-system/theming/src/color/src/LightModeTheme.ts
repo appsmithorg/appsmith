@@ -993,6 +993,7 @@ export class LightModeTheme implements ColorModeTheme {
 
   private get bdNeutral() {
     // Desatured version of the seed for harmonious combination with backgrounds and accents.
+    // Used in checkbox, radio button
     const color = this.bdAccent.clone();
 
     color.oklch.c = 0.001;
