@@ -1123,7 +1123,17 @@ class CodeEditor extends Component<Props, State> {
         .forEach(
           (hinter) =>
             hinter.showHint &&
-            hinter.showHint(cm, entityInformation, blockCompletions),
+            hinter.showHint(cm, entityInformation, {
+              blockCompletions,
+              datasources: this.props.datasources.list,
+              pluginIdToImageLocation: this.props.pluginIdToImageLocation,
+              recentEntities: this.props.recentEntities,
+              featureFlags: this.props.featureFlags,
+              enableAIAssistance: this.AIEnabled,
+              focusEditor: this.focusEditor,
+              executeCommand: this.props.executeCommand,
+              isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
+            }),
         );
     }
 

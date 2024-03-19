@@ -7,6 +7,7 @@ import type {
 import { trim } from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { EditorSize } from "./EditorConfig";
+import { SlashCommandMenuOnFocusWidgetProps } from "../ActionCreator/constants";
 
 export const removeNewLineChars = (inputValue: any) => {
   return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
@@ -136,4 +137,16 @@ export function isCursorOnEmptyToken(editor: CodeMirror.Editor) {
   );
 
   return isEmptyString;
+}
+
+// This function tells us whether to show slash command menu on focus or not
+// Based on widget type and the property path
+export function shouldShowSlashCommandMenu(
+  widgetType: string = "",
+  propertyPath: string = "",
+) {
+  return (
+    !!SlashCommandMenuOnFocusWidgetProps[widgetType] &&
+    SlashCommandMenuOnFocusWidgetProps[widgetType].includes(propertyPath)
+  );
 }
