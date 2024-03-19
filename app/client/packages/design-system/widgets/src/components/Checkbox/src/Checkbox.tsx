@@ -13,7 +13,7 @@ import { inlineLabelStyles } from "../../../styles";
 export type CheckboxProps = HeadlessCheckboxProps;
 
 const _Checkbox = (props: CheckboxProps, ref: HeadlessCheckboxRef) => {
-  const { children, labelPosition = "right", ...rest } = props;
+  const { children, labelPosition = "end", ...rest } = props;
 
   return (
     <HeadlessCheckbox

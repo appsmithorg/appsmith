@@ -117,7 +117,8 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         newSelection = payload;
         break;
       }
-      case SelectionRequestType.One: {
+      case SelectionRequestType.One:
+      case SelectionRequestType.Create: {
         assertParentId(parentId);
         newSelection = selectOneWidget(payload);
         break;
@@ -189,7 +190,13 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       yield put(setSelectedWidgets(newSelection));
       return;
     }
-    yield call(appendSelectedWidgetToUrlSaga, newSelection, pageId, invokedBy);
+    yield call(
+      appendSelectedWidgetToUrlSaga,
+      newSelection,
+      selectionRequestType,
+      pageId,
+      invokedBy,
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
@@ -204,11 +211,13 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
 /**
  * Append Selected widgetId as hash to the url path
  * @param selectedWidgets
+ * @param type
  * @param pageId
  * @param invokedBy
  */
 function* appendSelectedWidgetToUrlSaga(
   selectedWidgets: string[],
+  type: SelectionRequestType,
   pageId?: string,
   invokedBy?: NavigationMethod,
 ) {
@@ -227,6 +236,7 @@ function* appendSelectedWidgetToUrlSaga(
     ? widgetURL({
         pageId: pageId ?? currentPageId,
         persistExistingParams: true,
+        add: type === SelectionRequestType.Create,
         selectedWidgets,
       })
     : widgetURL({
