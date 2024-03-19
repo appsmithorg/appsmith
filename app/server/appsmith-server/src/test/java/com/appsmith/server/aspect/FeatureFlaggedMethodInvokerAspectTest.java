@@ -1,6 +1,7 @@
 package com.appsmith.server.aspect;
 
 import com.appsmith.server.aspect.component.TestComponent;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.FeatureFlagService;
@@ -119,5 +120,35 @@ class FeatureFlaggedMethodInvokerAspectTest {
     void ceEeSyncMethod_ceImplTest() {
         String result = testComponent.ceEeSyncMethod("arg_");
         assertEquals("arg_ce_impl_method", result);
+    }
+
+    @Test
+    void ceEeThrowAppsmithException_eeImplTest() {
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE.name(), Boolean.TRUE));
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        try {
+            testComponent.ceEeThrowAppsmithException("arg_");
+        } catch (Exception e) {
+            assertEquals(AppsmithError.GENERIC_BAD_REQUEST.getMessage("This is a test exception"), e.getMessage());
+        }
+    }
+
+    @Test
+    void ceEeThrowNonAppsmithException_eeImplTest_throwExceptionFromAspect() {
+        CachedFeatures cachedFeatures = new CachedFeatures();
+        cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE.name(), Boolean.TRUE));
+        Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
+        try {
+            testComponent.ceEeThrowNonAppsmithException("arg_");
+        } catch (Exception e) {
+            assertEquals(
+                    AppsmithError.INVALID_METHOD_LEVEL_ANNOTATION_USAGE.getMessage(
+                            "FeatureFlagged",
+                            "TestComponentImpl",
+                            "ceEeThrowNonAppsmithException",
+                            "Exception while invoking super class method"),
+                    e.getMessage());
+        }
     }
 }
