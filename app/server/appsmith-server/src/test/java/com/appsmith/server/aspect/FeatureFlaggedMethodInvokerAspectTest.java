@@ -2,6 +2,7 @@ package com.appsmith.server.aspect;
 
 import com.appsmith.server.aspect.component.TestComponent;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.FeatureFlagService;
@@ -20,6 +21,7 @@ import reactor.test.StepVerifier;
 import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.eq;
 
 @SpringBootTest
@@ -127,11 +129,10 @@ class FeatureFlaggedMethodInvokerAspectTest {
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE.name(), Boolean.TRUE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
-        try {
-            testComponent.ceEeThrowAppsmithException("arg_");
-        } catch (Exception e) {
-            assertEquals(AppsmithError.GENERIC_BAD_REQUEST.getMessage("This is a test exception"), e.getMessage());
-        }
+        assertThrows(
+                AppsmithException.class,
+                () -> testComponent.ceEeThrowAppsmithException("arg_"),
+                AppsmithError.GENERIC_BAD_REQUEST.getMessage("This is a test exception"));
     }
 
     @Test
@@ -139,16 +140,13 @@ class FeatureFlaggedMethodInvokerAspectTest {
         CachedFeatures cachedFeatures = new CachedFeatures();
         cachedFeatures.setFeatures(Map.of(FeatureFlagEnum.TENANT_TEST_FEATURE.name(), Boolean.TRUE));
         Mockito.when(featureFlagService.getCachedTenantFeatureFlags()).thenReturn(cachedFeatures);
-        try {
-            testComponent.ceEeThrowNonAppsmithException("arg_");
-        } catch (Exception e) {
-            assertEquals(
-                    AppsmithError.INVALID_METHOD_LEVEL_ANNOTATION_USAGE.getMessage(
-                            "FeatureFlagged",
-                            "TestComponentImpl",
-                            "ceEeThrowNonAppsmithException",
-                            "Exception while invoking super class method"),
-                    e.getMessage());
-        }
+        assertThrows(
+                AppsmithException.class,
+                () -> testComponent.ceEeThrowNonAppsmithException("arg_"),
+                AppsmithError.INVALID_METHOD_LEVEL_ANNOTATION_USAGE.getMessage(
+                        "FeatureFlagged",
+                        "TestComponentImpl",
+                        "ceEeThrowNonAppsmithException",
+                        "Exception while invoking super class method"));
     }
 }
