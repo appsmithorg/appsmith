@@ -115,6 +115,7 @@ export class LightModeTheme implements ColorModeTheme {
 
       bdOnAccent: this.bdOnAccent.to("sRGB").toString(),
       bdOnNeutral: this.bdOnNeutral.to("sRGB").toString(),
+      bdOnNeutralHover: this.bdOnNeutralHover.to("sRGB").toString(),
       bdOnPositive: this.bdOnPositive.to("sRGB").toString(),
       bdOnNegative: this.bdOnNegative.to("sRGB").toString(),
       bdOnWarning: this.bdOnWarning.to("sRGB").toString(),
@@ -1178,6 +1179,29 @@ export class LightModeTheme implements ColorModeTheme {
 
     if (this.bgNeutral.oklch.l < 0.15) {
       color.oklch.l += 0.47;
+    }
+
+    return color;
+  }
+
+  private get bdOnNeutralHover() {
+    // Outline on the input field shown on hover
+    const color = this.bdNeutral.clone();
+
+    if (this.bdNeutral.oklch.l < 0.06) {
+      color.oklch.l += 0.95;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.06 && this.bdNeutral.oklch.l < 0.25) {
+      color.oklch.l += 0.75;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.25 && this.bdNeutral.oklch.l < 0.5) {
+      color.oklch.l += 0.5;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.5) {
+      color.oklch.l += 0.3;
     }
 
     return color;
