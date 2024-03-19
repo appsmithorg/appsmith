@@ -95,6 +95,7 @@ const SegmentedHeader = () => {
       segment !== EditorEntityTab.UI ? (
         <Tooltip content={createMessage(MAXIMIZE_BUTTON_TOOLTIP)}>
           <Button
+            data-testid="t--ide-maximize"
             id="editor-mode-maximize"
             isIconButton
             kind="tertiary"
