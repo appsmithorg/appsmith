@@ -25,7 +25,7 @@ import { Icon } from "design-system";
 import {
   LayoutSystemFeatures,
   useLayoutSystemFeatures,
-} from "../../../layoutSystems/common/useLayoutSystemFeatures";
+} from "layoutSystems/common/useLayoutSystemFeatures";
 
 const Wrapper = styled.div`
   margin: ${(props) =>

@@ -13,6 +13,7 @@ export const defaultsConfig = {
   isDisabled: false,
   isInline: true,
   widgetName: "RadioGroup",
+  orientation: "vertical",
   version: 1,
   responsiveBehavior: ResponsiveBehavior.Fill,
 } as unknown as WidgetDefaultProps;
