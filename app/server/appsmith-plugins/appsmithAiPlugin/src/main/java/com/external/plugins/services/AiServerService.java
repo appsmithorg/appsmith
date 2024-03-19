@@ -14,6 +14,10 @@ public interface AiServerService {
      * Notify AI server about new datasource creation along with file context if provided
      */
     Mono<Void> associateDatasource(AssociateDTO associateDTO);
+    /**
+     * Notify AI server about datasource deletion along with file context if provided
+     */
+    Mono<Void> disassociateDatasource(AssociateDTO associateDTO);
 
     Mono<FileStatusDTO> getFilesStatus(List<String> fileIds, SourceDetails sourceDetails);
 
