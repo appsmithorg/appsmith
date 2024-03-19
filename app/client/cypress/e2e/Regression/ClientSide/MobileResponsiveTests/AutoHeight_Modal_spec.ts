@@ -8,6 +8,7 @@ import {
   autoLayout,
   draggableWidgets,
   entityExplorer,
+  homePage,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
 import {
@@ -24,11 +25,18 @@ describe(
   "validate auto height for modal widget on auto layout canvas",
   { tags: ["@tag.MobileResponsive"] },
   () => {
+    /**
+     * Convert app to AutoLayout
+     */
+    before(() => {
+      homePage.NavigateToHome();
+      homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      homePage.AssertImportToast();
+    });
     it("1. modal widget height should update on adding or deleting child widgets", () => {
       /**
        * Convert app to AutoLayout
        */
-      autoLayout.ConvertToAutoLayoutAndVerify(false);
       agHelper.Sleep();
       /**
        * Add widget.

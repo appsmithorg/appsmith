@@ -23,8 +23,12 @@ describe(
   "Validating Mobile Views for Auto Fill Widgets",
   { tags: ["@tag.MobileResponsive"] },
   function () {
+    before(() => {
+      _.homePage.NavigateToHome();
+      _.homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      _.homePage.AssertImportToast();
+    });
     it("1. To capture the height and width of various autofill / Hug widgets in webview", function () {
-      _.autoLayout.ConvertToAutoLayoutAndVerify(false);
       cy.dragAndDropToCanvas("codescannerwidget", { x: 100, y: 200 });
       cy.dragAndDropToCanvas("listwidgetv2", { x: 620, y: 820 });
       cy.dragAndDropToCanvas("tablewidgetv2", { x: 620, y: 820 });

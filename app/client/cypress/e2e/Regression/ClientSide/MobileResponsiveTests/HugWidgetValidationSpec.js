@@ -4,8 +4,12 @@ describe(
   "Validating Mobile Views for Hug Widget",
   { tags: ["@tag.MobileResponsive"] },
   function () {
+    before(() => {
+      _.homePage.NavigateToHome();
+      _.homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      _.homePage.AssertImportToast();
+    });
     it("1. Validate change with height width for hug widget - image widget", function () {
-      _.autoLayout.ConvertToAutoLayoutAndVerify(false);
       cy.dragAndDropToCanvas("imagewidget", { x: 300, y: 600 });
       _.deployMode.DeployApp();
       cy.get(".t--widget-imagewidget").first().should("be.visible");

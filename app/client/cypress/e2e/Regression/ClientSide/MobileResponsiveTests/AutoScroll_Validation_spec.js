@@ -7,8 +7,12 @@ describe(
   "Validating Mobile View related usecases for Autoscroll",
   { tags: ["@tag.MobileResponsive"] },
   function () {
+    before(() => {
+      _.homePage.NavigateToHome();
+      _.homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      _.homePage.AssertImportToast();
+    });
     it("1. Capture the height/width of autofill widgets in webview", function () {
-      _.autoLayout.ConvertToAutoLayoutAndVerify(false);
 
       cy.dragAndDropToCanvas("listwidgetv2", { x: 100, y: 200 });
       cy.dragAndDropToCanvas("containerwidget", { x: 620, y: 820 });

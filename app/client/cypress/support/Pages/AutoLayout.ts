@@ -17,7 +17,6 @@ export class AutoLayout {
   private propPane = ObjectsRegistry.PropertyPane;
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locators = ObjectsRegistry.CommonLocators;
-  private assertHelper = ObjectsRegistry.AssertHelper;
 
   _buttonWidgetSelector = this.locators._widgetInDeployed(WIDGET.BUTTON);
   _buttonComponentSelector =
@@ -29,101 +28,6 @@ export class AutoLayout {
 
   _flexComponentClass = `*[class^="flex-container"]`;
   private _flexLayerClass = ".auto-layout-layer";
-
-  private autoConvertButton = "#t--layout-conversion-cta";
-
-  private useSnapshotBannerButton = "span:contains('Use snapshot')";
-  private discardSnapshotBannerButton = "span:contains('Discard snapshot')";
-
-  private convertDialogButton = "button:contains('Convert layout')";
-  private refreshAppDialogButton = "button:contains('Refresh the app')";
-  private useSnapshotDialogButton = "button:contains('Use snapshot')";
-  private convertAnywaysDialogButton = "button:contains('Convert anyways')";
-  private discardDialogButton = "button:contains('Discard')";
-
-  private fixedModeConversionOptionButton = (option: FixedConversionOptions) =>
-    `//span[@data-value = '${option}']`;
-
-  private flexMainContainer = ".flex-container-0";
-
-  public ConvertToAutoLayoutAndVerify(isNotNewApp = true) {
-    this.VerifyIsFixedLayout();
-
-    this.agHelper.GetNClick(this.autoConvertButton, 0, true);
-
-    this.agHelper.GetNClick(this.convertDialogButton, 0, true);
-
-    this.assertHelper.AssertNetworkStatus("@updateApplication");
-    if (isNotNewApp) {
-      this.assertHelper.AssertNetworkStatus("@snapshotSuccess", 201);
-    }
-
-    this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
-    this.agHelper.Sleep(2000); //for page to refresh & all elements to load- trial fix for CI failure
-    this.assertHelper.AssertNetworkStatus("@getWorkspace"); //getWorkspace for Edit page!
-
-    this.VerifyIsAutoLayout();
-  }
-
-  public ConvertToFixedLayoutAndVerify(
-    fixedConversionOption: FixedConversionOptions,
-  ) {
-    this.VerifyIsAutoLayout();
-
-    this.agHelper.GetNClick(this.autoConvertButton, 0, true);
-
-    this.agHelper.GetNClick(
-      this.fixedModeConversionOptionButton(fixedConversionOption),
-      0,
-      true,
-    );
-
-    this.agHelper.GetNClick(this.convertDialogButton, 0, true);
-
-    cy.get("body").then(($body) => {
-      if ($body.find(this.convertAnywaysDialogButton).length) {
-        this.agHelper.GetNClick(this.convertAnywaysDialogButton, 0, true);
-      }
-    });
-
-    this.assertHelper.AssertNetworkStatus("@updateApplication");
-    this.assertHelper.AssertNetworkStatus("@snapshotSuccess", 201);
-
-    this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
-    cy.wait(2000);
-
-    this.VerifyIsFixedLayout();
-  }
-
-  public UseSnapshotFromBanner() {
-    this.agHelper.GetNClick(this.useSnapshotBannerButton, 0, true);
-    this.agHelper.GetNClick(this.useSnapshotDialogButton, 0, true);
-
-    cy.wait(2000);
-
-    this.agHelper.GetNClick(this.refreshAppDialogButton, 0, true);
-
-    cy.wait(2000);
-  }
-
-  public DiscardSnapshot() {
-    this.agHelper.GetNClick(this.discardSnapshotBannerButton, 0, true);
-    this.agHelper.GetNClick(this.discardDialogButton, 0, true);
-  }
-
-  public VerifyIsAutoLayout() {
-    AppSidebar.navigate(AppSidebarButton.Editor);
-    this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
-    this.agHelper.GetNAssertContains(this.autoConvertButton, "fixed layout");
-    this.agHelper.AssertElementExist(this.flexMainContainer);
-  }
-
-  public VerifyIsFixedLayout() {
-    AppSidebar.navigate(AppSidebarButton.Editor);
-    this.agHelper.GetNClick(this.locators._selectionCanvas("0"), 0, true);
-    cy.get(this.autoConvertButton).should("contain", "auto-layout");
-    cy.get(this.flexMainContainer).should("not.exist");
-  }
 
   public VerifyCurrentWidgetIsAutolayout(widgetTypeName: string) {
     if (widgetTypeName === WIDGET.MODAL) {

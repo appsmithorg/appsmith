@@ -3,6 +3,7 @@ import {
   autoLayout,
   draggableWidgets,
   entityExplorer,
+  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -15,7 +16,11 @@ describe(
   { tags: ["@tag.MobileResponsive"] },
   () => {
     before(() => {
-      autoLayout.ConvertToAutoLayoutAndVerify(false);
+      before(() => {
+        homePage.NavigateToHome();
+        homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+        homePage.AssertImportToast();
+      });
     });
 
     beforeEach(() => {

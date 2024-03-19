@@ -11,6 +11,11 @@ describe(
   "Add widget - Postgress DataSource",
   { tags: ["@tag.MobileResponsive"] },
   function () {
+    before(() => {
+      _.homePage.NavigateToHome();
+      _.homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      _.homePage.AssertImportToast();
+    });
     beforeEach(() => {
       _.dataSources.CreateDataSource("Postgres");
       cy.get("@dsName").then(($dsName) => {
@@ -20,7 +25,6 @@ describe(
     });
 
     it("1. Validate Snipping with query and table widget on canvas", () => {
-      _.autoLayout.ConvertToAutoLayoutAndVerify(false);
       _.dataSources.CreateQueryForDS(
         datasourceName,
         "select * from public.configs",

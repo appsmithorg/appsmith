@@ -9,7 +9,9 @@ describe(
   { tags: ["@tag.MobileResponsive"] },
   () => {
     before(() => {
-      _.autoLayout.ConvertToAutoLayoutAndVerify(false);
+      _.homePage.NavigateToHome();
+      _.homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      _.homePage.AssertImportToast();
       _.entityExplorer.DragDropWidgetNVerify(
         _.draggableWidgets.INPUT_V2,
         100,
