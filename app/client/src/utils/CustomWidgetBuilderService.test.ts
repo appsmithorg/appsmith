@@ -79,7 +79,7 @@ describe("Builder - ", () => {
 
   const closeWindow = jest.fn().mockImplementation(() => {
     if (builder?.builderWindow) {
-      builder.builderWindow.closed = true;
+      (builder.builderWindow as any).closed = true;
     }
   });
 
