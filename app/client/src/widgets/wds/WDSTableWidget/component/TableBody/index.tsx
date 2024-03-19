@@ -110,7 +110,11 @@ const TableVirtualBodyComponent = React.forwardRef(
 
 const TableBodyComponent = (props: BodyPropsType) => {
   return (
-    <div {...props.getTableBodyProps()} className="tbody body">
+    <div
+      {...props.getTableBodyProps()}
+      className="tbody body"
+      style={{ height: props.height }}
+    >
       {props.rows.map((row, index) => {
         return <Row index={index} key={index} row={row} />;
       })}
