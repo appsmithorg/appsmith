@@ -14,6 +14,7 @@ import {
   BUILDER_PATCH_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH,
   CUSTOM_WIDGETS_EDITOR_ID_PATH,
   CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM,
   PROFILE,
@@ -113,6 +114,11 @@ export function Routes() {
         component={SettingsLoader}
         exact
         path={ADMIN_SETTINGS_CATEGORY_PATH}
+      />
+      <SentryRoute
+        component={CustomWidgetBuilderLoader}
+        exact
+        path={CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH}
       />
       <SentryRoute component={EditorLoader} path={BUILDER_PATH_DEPRECATED} />
       <SentryRoute component={AppViewerLoader} path={VIEWER_PATH_DEPRECATED} />
