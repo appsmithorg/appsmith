@@ -11,7 +11,7 @@ import adminSettings from "../locators/AdminsSettings";
 import { ObjectsRegistry } from "./Objects/Registry";
 
 let agHelper = ObjectsRegistry.AggregateHelper;
-let adminSettings = ObjectsRegistry.AdminSettings;
+let adminSettingsHelper = ObjectsRegistry.AdminSettings;
 const BASE_URL = Cypress.config().baseUrl;
 
 Cypress.Commands.add("fillGoogleFormPartly", () => {
@@ -66,10 +66,10 @@ Cypress.Commands.add("fillGithubForm", () => {
 Cypress.Commands.add("openAuthentication", () => {
   cy.get(".admin-settings-menu-option").should("be.visible");
   cy.get(".admin-settings-menu-option").click();
-  cy.url().should("contain", adminSettings.routes.GENERAL);
+  cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
   // click authentication tab
   cy.get(adminSettings.authenticationTab).click();
-  cy.url().should("contain", adminSettings.routes.AUTHENTICATION);
+  cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);
 });
 
 Cypress.Commands.add("waitForServerRestart", () => {

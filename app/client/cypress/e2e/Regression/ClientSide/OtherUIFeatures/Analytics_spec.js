@@ -15,7 +15,7 @@ describe(
       cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").uncheck({
         force: true,
       }); //disabling sharing of anonymous data
-      agHelper.GetNClick(adminSettings.saveButton);
+      agHelper.GetNClick(adminSettings._saveButton);
       cy.wait(2000);
       cy.get(".t--admin-settings-restart-notice", { timeout: 180000 }).should(
         "not.exist",
