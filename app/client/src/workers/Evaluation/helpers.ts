@@ -3,7 +3,7 @@ import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import equal from "fast-deep-equal";
-import { get, isNumber, isObject, set } from "lodash";
+import { get, isObject, set } from "lodash";
 import { isMoment } from "moment";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
@@ -85,26 +85,10 @@ export const countOccurrences = (
 };
 
 const LARGE_COLLECTION_SIZE = 100;
-// for object paths which have a "." in the object key like "a.['b.c']"
-const REGEX_NESTED_OBJECT_PATH = /(.+)\.\[\'(.*)\'\]/;
 
 const generateWithKey = (basePath: any, key: any) => {
   const segmentedPath = [...basePath, key];
-
-  if (isNumber(key)) {
-    return {
-      path: basePath.join(".") + ".[" + key + "]",
-      segmentedPath,
-    };
-  }
-  if (key.includes(".")) {
-    return {
-      path: basePath.join(".") + ".['" + key + "']",
-      segmentedPath,
-    };
-  }
   return {
-    path: basePath.join(".") + "." + key,
     segmentedPath,
   };
 };
@@ -183,34 +167,6 @@ const isLargeCollection = (val: any) => {
   return size > LARGE_COLLECTION_SIZE;
 };
 
-const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
-  Object.keys(identicalEvalPathsPatches || {}).reduce(
-    (acc: any, evalPath: string) => {
-      //for object paths which have a "." in the object key like "a.['b.c']", we need to extract these
-      // paths and break them to appropriate patch paths
-
-      const matches = evalPath.match(REGEX_NESTED_OBJECT_PATH);
-      if (!matches || !matches.length) {
-        //regular paths like "a.b.c"
-        acc[evalPath] = identicalEvalPathsPatches[evalPath];
-        return acc;
-      }
-
-      const [, firstSeg, nestedPathSeg] = matches;
-      // normalise non nested paths like "a.['b']"
-      if (!nestedPathSeg.includes(".")) {
-        const key = [firstSeg, nestedPathSeg].join(".");
-        acc[key] = identicalEvalPathsPatches[evalPath];
-        return acc;
-      }
-      // object paths which have a "." like "a.['b.c']"
-      const key = [firstSeg, `['${nestedPathSeg}']`].join(".");
-      acc[key] = identicalEvalPathsPatches[evalPath];
-      return acc;
-    },
-    {},
-  );
-
 const getReducedDataTree = (data: any, evalOrder: any) => {
   const withErrors = Object.keys(data).reduce((acc: any, key) => {
     const widgetValue = data[key];
@@ -229,11 +185,9 @@ const getReducedDataTree = (data: any, evalOrder: any) => {
 const generateDiffUpdates = (
   oldDataTree: any,
   dataTree: any,
-  ignoreLargeKeys: any,
   evalOrder: string[],
 ): DiffWithReferenceState[] => {
   const attachDirectly: DiffWithReferenceState[] = [];
-  const ignoreLargeKeysHasBeenAttached = new Set();
   const attachLater: DiffWithReferenceState[] = [];
 
   const oldData = getReducedDataTree(oldDataTree, evalOrder);
@@ -242,25 +196,8 @@ const generateDiffUpdates = (
     diff(oldData, newData, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
 
-      const { path: setPath, segmentedPath } = generateWithKey(path, key);
+      const { segmentedPath } = generateWithKey(path, key);
 
-      // if ignore path is present...this segment of code generates the data compression patches
-      if (!!ignoreLargeKeys[setPath]) {
-        const originalStateVal = get(oldDataTree, segmentedPath);
-        const correspondingStatePath = ignoreLargeKeys[setPath];
-        const statePathValue = get(dataTree, correspondingStatePath);
-        if (!equal(originalStateVal, statePathValue)) {
-          //reference state patches are a patch that does not have a patch value but it provides a path which contains the same value
-          //this is helpful in making the payload sent to the main thread small
-          attachLater.push({
-            kind: "referenceState",
-            path: segmentedPath,
-            referencePath: correspondingStatePath,
-          });
-        }
-        ignoreLargeKeysHasBeenAttached.add(setPath);
-        return true;
-      }
       const rhs = get(dataTree, segmentedPath);
 
       const lhs = get(oldDataTree, segmentedPath);
@@ -316,15 +253,8 @@ export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
   evalOrder: string[],
-  identicalEvalPathsPatches?: Record<string, string>,
 ): DiffWithReferenceState[] => {
-  const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
-  const updates = generateDiffUpdates(
-    oldDataTree,
-    dataTree,
-    ignoreLargeKeys,
-    evalOrder,
-  );
+  const updates = generateDiffUpdates(oldDataTree, dataTree, evalOrder);
   const rootArrayUpdates = updates
     .filter((v) => v.kind === "D")
     .map((v) => v.path)
@@ -346,19 +276,13 @@ export const generateOptimisedUpdates = (
 export const generateSerialisedUpdates = (
   prevState: any,
   currentState: any,
-  identicalEvalPathsPatches: any,
   evalOrder: string[],
   mergeAdditionalUpdates?: any,
 ): {
   serialisedUpdates: string;
   error?: { type: string; message: string };
 } => {
-  const updates = generateOptimisedUpdates(
-    prevState,
-    currentState,
-    evalOrder,
-    identicalEvalPathsPatches,
-  );
+  const updates = generateOptimisedUpdates(prevState, currentState, evalOrder);
 
   //remove lhs from diff to reduce the size of diff upload,
   //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
@@ -387,13 +311,9 @@ export const generateOptimisedUpdatesAndSetPrevState = (
   evalOrder: string[],
   mergeAdditionalUpdates?: any,
 ) => {
-  const identicalEvalPathsPatches =
-    dataTreeEvaluator?.getEvalPathsIdenticalToState();
-
   const { error, serialisedUpdates } = generateSerialisedUpdates(
     dataTreeEvaluator.getPrevState(),
     dataTree,
-    identicalEvalPathsPatches,
     evalOrder,
     mergeAdditionalUpdates,
   );

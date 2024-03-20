@@ -112,8 +112,6 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
-        identicalEvalPathsPatches:
-          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
       isNewTree = true;
@@ -156,8 +154,6 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
-        identicalEvalPathsPatches:
-          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
       staleMetaIds = dataTreeResponse.staleMetaIds;
     } else {
@@ -199,8 +195,6 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,
-        identicalEvalPathsPatches:
-          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       });
 
       evalMetaUpdates = JSON.parse(
@@ -235,8 +229,6 @@ export function evalTree(request: EvalWorkerSyncRequest) {
       makeEntityConfigsAsObjProperties(unevalTree, {
         sanitizeDataTree: false,
         evalProps: dataTreeEvaluator?.evalProps,
-        identicalEvalPathsPatches:
-          dataTreeEvaluator?.getEvalPathsIdenticalToState(),
       }),
       widgetTypeConfigMap,
       configTree,
