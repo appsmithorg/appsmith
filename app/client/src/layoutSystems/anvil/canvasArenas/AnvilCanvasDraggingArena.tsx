@@ -9,6 +9,7 @@ import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
 import { DetachedWidgetsDropArena } from "./DetachedWidgetsDropArena";
+import { EmptyModalDropArena } from "./EmptyModalDropArena";
 
 // Props interface for AnvilCanvasDraggingArena component
 interface AnvilCanvasDraggingArenaProps {
@@ -59,6 +60,10 @@ export const AnvilCanvasDraggingArena = (
           onDrop={onDrop}
         />
       )}
+      <EmptyModalDropArena
+        anvilDragStates={anvilDragStates}
+        canvasId={canvasId}
+      />
     </>
   );
 };
