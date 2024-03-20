@@ -24,39 +24,41 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
 
   it("2. should test that all business and enterprise general settings should have resp. tag and should be disabled", () => {
     cy.visit("/settings/general", { timeout: 60000 });
-    cy.get(".t--admin-settings-hideWatermark").within(() => {
-      cy.get(adminsSettings.businessTag)
-        .should("exist")
-        .should("contain", "Business");
-      cy.get("[data-testid='hideWatermark']").should("have.attr", "disabled");
-    });
-    cy.get(".t--admin-settings-showRolesAndGroups").within(() => {
-      cy.get(adminsSettings.businessTag)
-        .should("exist")
-        .should("contain", "Business");
-      cy.get("[data-testid='showRolesAndGroups']").should(
-        "have.attr",
-        "disabled",
-      );
-    });
-    cy.get(".t--admin-settings-singleSessionPerUserEnabled").within(() => {
-      cy.get(adminsSettings.businessTag)
-        .should("exist")
-        .should("contain", "Business");
-      cy.get("[data-testid='singleSessionPerUserEnabled']").should(
-        "have.attr",
-        "disabled",
-      );
-    });
-    cy.get(".t--admin-settings-userSessionTimeoutInMinutes").within(() => {
-      cy.get(adminsSettings.enterpriseTag)
-        .should("exist")
-        .should("contain", "Enterprise");
-      cy.get("[name='userSessionTimeoutInMinutes']").should(
-        "have.attr",
-        "disabled",
-      );
-    });
+    if (CURRENT_REPO === REPO.CE) {
+      cy.get(".t--admin-settings-hideWatermark").within(() => {
+        cy.get(adminsSettings.businessTag)
+          .should("exist")
+          .should("contain", "Business");
+        cy.get("[data-testid='hideWatermark']").should("have.attr", "disabled");
+      });
+      cy.get(".t--admin-settings-showRolesAndGroups").within(() => {
+        cy.get(adminsSettings.businessTag)
+          .should("exist")
+          .should("contain", "Business");
+        cy.get("[data-testid='showRolesAndGroups']").should(
+          "have.attr",
+          "disabled",
+        );
+      });
+      cy.get(".t--admin-settings-singleSessionPerUserEnabled").within(() => {
+        cy.get(adminsSettings.businessTag)
+          .should("exist")
+          .should("contain", "Business");
+        cy.get("[data-testid='singleSessionPerUserEnabled']").should(
+          "have.attr",
+          "disabled",
+        );
+      });
+      cy.get(".t--admin-settings-userSessionTimeoutInMinutes").within(() => {
+        cy.get(adminsSettings.enterpriseTag)
+          .should("exist")
+          .should("contain", "Enterprise");
+        cy.get("[name='userSessionTimeoutInMinutes']").should(
+          "have.attr",
+          "disabled",
+        );
+      });
+    }
   });
 
   it("3. should test that authentication and branding page shows upgrade button and redirects to pricing page", () => {
