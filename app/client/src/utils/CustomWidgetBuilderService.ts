@@ -1,26 +1,39 @@
-interface Connection {
-  onMessage: (type: string, fn: (data: unknown) => void) => () => void;
-  postMessage: (message: unknown) => void;
-  window: Window | null;
-}
+export class Builder {
+  builderWindow: Window | null;
 
-const createChannel = (): Connection => {
-  const builderWindow = window.open(
-    `${window.location.pathname}/builder`,
-    "_blank",
-  );
+  onMessageMap: Map<string, ((data: unknown) => void)[]> = new Map();
 
-  const onMessageMap = new Map<string, ((data: unknown) => void)[]>();
+  handleMessageBound = this.handleMessage.bind(this);
 
-  function onMessage(type: string, fn: (data: unknown) => void) {
-    let eventHandlerList = onMessageMap.get(type);
+  constructor() {
+    this.builderWindow = window.open(
+      `${window.location.pathname}/builder`,
+      "_blank",
+    );
+
+    window?.addEventListener("message", this.handleMessageBound);
+  }
+
+  handleMessage(event: MessageEvent) {
+    if (event.source === this.builderWindow) {
+      const handlerList = this.onMessageMap.get(event.data.type);
+
+      if (handlerList) {
+        handlerList.forEach((fn) => fn?.(event.data));
+      }
+    }
+  }
+
+  onMessage(type: string, fn: (data: unknown) => void) {
+    let eventHandlerList = this.onMessageMap.get(type);
 
     if (eventHandlerList && eventHandlerList instanceof Array) {
       eventHandlerList.push(fn);
     } else {
       eventHandlerList = [fn];
-      onMessageMap.set(type, eventHandlerList);
+      this.onMessageMap.set(type, eventHandlerList);
     }
+
     return () => {
       if (eventHandlerList) {
         const index = eventHandlerList.indexOf(fn);
@@ -32,77 +45,73 @@ const createChannel = (): Connection => {
     };
   }
 
-  window?.addEventListener("message", (event) => {
-    if (event.source === builderWindow) {
-      const handlerList = onMessageMap.get(event.data.type);
-      if (handlerList) {
-        handlerList.forEach((fn) => fn(event.data));
-      }
+  postMessage(message: unknown) {
+    this.builderWindow?.postMessage(message, "*");
+  }
+
+  isConnected() {
+    return !this.builderWindow?.closed;
+  }
+
+  focus() {
+    this.builderWindow?.focus();
+  }
+
+  close(closeWindow: boolean) {
+    if (closeWindow) {
+      this.builderWindow?.close();
     }
-  });
 
-  const postMessage = (message: unknown) => {
-    builderWindow?.postMessage(message, "*");
-  };
-
-  return {
-    window: builderWindow,
-    postMessage,
-    onMessage,
-  };
-};
+    window?.removeEventListener("message", this.handleMessageBound);
+  }
+}
 
 export default class CustomWidgetBuilderService {
-  private static builderWindowConnections: Map<string, Connection> = new Map();
+  private static builderWindowConnections: Map<string, Builder> = new Map();
 
-  static createConnection(widgetId: string) {
-    const channel = createChannel();
-    this.builderWindowConnections.set(widgetId, channel);
-    return channel;
+  // For unit testing purposes
+  private static builderFactory = Builder;
+
+  // For unit testing purposes
+  static setBuilderFactory(builder: typeof Builder) {
+    this.builderFactory = builder;
+  }
+
+  static createBuilder(widgetId: string) {
+    const builder = new this.builderFactory();
+
+    this.builderWindowConnections.set(widgetId, builder);
+
+    return builder;
   }
 
   static isConnected(widgetId: string) {
-    const connection = this.builderWindowConnections.get(widgetId);
+    const builder = this.builderWindowConnections.get(widgetId);
 
-    return connection && connection.window && !connection.window.closed;
+    return builder?.isConnected();
   }
 
   static focus(widgetId: string) {
     if (this.isConnected(widgetId)) {
-      this.builderWindowConnections.get(widgetId)?.window?.focus();
+      this.builderWindowConnections.get(widgetId)?.focus();
     }
   }
 
-  static getConnection(widgetId: string) {
+  static getBuilder(widgetId: string) {
     if (this.isConnected(widgetId)) {
-      const { onMessage, postMessage } = this.builderWindowConnections.get(
-        widgetId,
-      ) as Connection;
+      const builder = this.builderWindowConnections.get(widgetId) as Builder;
 
-      return {
-        onMessage,
-        postMessage,
-      };
+      return builder;
     }
   }
 
-  static closeConnection(widgetId: string, skipClosing?: boolean) {
+  static closeBuilder(widgetId: string, closeWindow: boolean) {
     if (this.builderWindowConnections.has(widgetId)) {
-      if (!skipClosing) {
-        const connection = this.builderWindowConnections.get(widgetId);
+      const builder = this.builderWindowConnections.get(widgetId);
 
-        connection?.window?.close();
-      }
+      builder?.close(closeWindow);
 
       this.builderWindowConnections.delete(widgetId);
     }
-  }
-
-  static closeAllConnections() {
-    this.builderWindowConnections.forEach((connection) => {
-      connection?.window?.close();
-    });
-
-    this.builderWindowConnections.clear();
   }
 }

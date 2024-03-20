@@ -297,3 +297,10 @@ export const getBindingTemplate = (widgetName: string) => {
 
   return { prefixTemplate, suffixTemplate };
 };
+
+export const itemHeight = 45;
+
+export const noOfItemsToDisplay = 4;
+
+// 12px for the (noOfItemsToDisplay+ 1) item to let the user know there are more items to scroll
+export const extraSpace = 12;

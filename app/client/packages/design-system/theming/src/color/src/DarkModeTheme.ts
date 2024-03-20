@@ -388,12 +388,12 @@ export class DarkModeTheme implements ColorModeTheme {
     }
 
     // If the color is too dark it won't be visible against bg.
-    if (this.seedLightness < 0.2) {
-      color.oklch.l = 0.2;
+    if (this.seedLightness < 0.22) {
+      color.oklch.l = 0.22;
     }
 
-    if (this.seedChroma > 0.025) {
-      color.oklch.c = 0.025;
+    if (this.seedChroma > 0.015) {
+      color.oklch.c = 0.015;
     }
 
     if (this.seedIsAchromatic) {
@@ -980,15 +980,15 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bdNeutral.clone();
 
     if (this.bdNeutral.oklch.l < 0.8) {
-      color.oklch.l += 0.15;
+      color.oklch.l += 0.05;
     }
 
     if (this.bdNeutral.oklch.l >= 0.8 && this.bdNeutral.oklch.l < 0.9) {
-      color.oklch.l += 0.1;
+      color.oklch.l += 0.01;
     }
 
     if (this.bdNeutral.oklch.l >= 0.9) {
-      color.oklch.l -= 0.25;
+      color.oklch.l -= 0.35;
     }
 
     return color;
@@ -1043,10 +1043,10 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bdNegative.clone();
 
     // Lightness of bdNegative is known, no additional checks like in bdNeutralHover
-    color.oklch.l = color.oklch.l + 0.15;
+    color.oklch.l = color.oklch.l + 0.1;
 
-    if (this.bdNegative.oklch.c < 0.19) {
-      color.oklch.c = 0.19;
+    if (this.bdNegative.oklch.c < 0.1) {
+      color.oklch.c = 0.1;
     }
 
     return color;
