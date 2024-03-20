@@ -229,7 +229,9 @@ function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
 
     // Select the newly added widget
     yield put(
-      selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
+      selectWidgetInitAction(SelectionRequestType.Create, [
+        newWidget.newWidgetId,
+      ]),
     );
 
     log.debug("Anvil: add new widget took", performance.now() - start, "ms");
