@@ -61,15 +61,16 @@ async function run() {
         }
     }
     else {
+      logger.backup_info('Finished creating a backup archive at ' + archivePath);
       console.log('********************************************************* IMPORTANT!!! *************************************************************');
       console.log('*** Please ensure you have saved the APPSMITH_ENCRYPTION_SALT and APPSMITH_ENCRYPTION_PASSWORD variables from the docker.env file **')
       console.log('*** These values are not included in the backup export.                                                                           **');
       console.log('************************************************************************************************************************************');
-      logger.backup_info('Finished creating a backup archive at ' + archivePath);
     }
-  }
 
     await fsPromises.rm(backupRootPath, { recursive: true, force: true });
+
+    logger.backup_info('Finished taking a backup at ' + archivePath);
 
   } catch (err) {
     errorCode = 1;
@@ -95,6 +96,7 @@ async function run() {
     await postBackupCleanup();
     process.exit(errorCode);
   }
+}
 
 async function encryptBackupArchive(archivePath, encryptionPassword){
   const encryptedArchivePath = archivePath + '.enc';
@@ -147,6 +149,10 @@ async function exportDockerEnvFile(destFolder, encryptArchive) {
   console.log('Exporting docker environment file');
   const content = await fsPromises.readFile('/appsmith-stacks/configuration/docker.env', { encoding: 'utf8' });
   let cleaned_content = removeSensitiveEnvData(content);
+  if (encryptArchive){
+    cleaned_content += '\nAPPSMITH_ENCRYPTION_SALT=' + process.env.APPSMITH_ENCRYPTION_SALT +
+    '\nAPPSMITH_ENCRYPTION_PASSWORD=' + process.env.APPSMITH_ENCRYPTION_PASSWORD
+  }
   await fsPromises.writeFile(destFolder + '/docker.env', cleaned_content);
   console.log('Exporting docker environment file done.');
 }
