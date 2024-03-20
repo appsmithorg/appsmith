@@ -324,6 +324,11 @@ export function Table(props: TableProps) {
         isHeaderVisible={isHeaderVisible}
         isResizingColumn={isResizingColumn.current}
         multiRowSelection={props.multiRowSelection}
+        style={
+          {
+            "--total-columns-width": `${totalColumnsWidth}px`,
+          } as React.CSSProperties
+        }
         tableSizes={tableSizes}
         triggerRowSelection={props.triggerRowSelection}
         variant={props.variant}

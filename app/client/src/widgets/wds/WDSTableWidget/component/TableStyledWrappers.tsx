@@ -15,12 +15,10 @@ import {
   TABLE_SIZES,
   ImageSizes,
   MULTISELECT_CHECKBOX_WIDTH,
-  TABLE_SCROLLBAR_HEIGHT,
-  TABLE_SCROLLBAR_WIDTH,
 } from "./Constants";
 import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
-import { hideScrollbar, invisible } from "constants/DefaultTheme";
+import { invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
@@ -63,34 +61,7 @@ export const TableWrapper = styled.div<{
   overflow: hidden;
 
   /* wriiten exclusively for safari */
-  position: sticky;
-
-  .simplebar-track {
-    opacity: 0.7;
-    &.simplebar-horizontal {
-      height: ${TABLE_SCROLLBAR_HEIGHT}px;
-      .simplebar-scrollbar {
-        height: 5px;
-      }
-      &.simplebar-hover {
-        height: 10px;
-        & .simplebar-scrollbar {
-          height: 8px;
-        }
-      }
-    }
-
-    &.simplebar-vertical {
-      direction: rtl;
-      top: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT - 10}px;
-      width: ${TABLE_SCROLLBAR_WIDTH}px;
-      &.simplebar-hover {
-        width: 10px;
-        & .simplebar-scrollbar {
-          width: 11px;
-        }
-      }
-    }
+  position: sticky; 
   }
   .tableWrap {
     height: 100%;
@@ -98,8 +69,11 @@ export const TableWrapper = styled.div<{
     position: relative;
     width: 100%;
     overflow: auto hidden;
+    scrollbar-color: initial;
+
     &.virtual {
-      ${hideScrollbar};
+      container: table / inline-size;
+      overflow: hidden;
     }
   }
   .table {
@@ -108,8 +82,7 @@ export const TableWrapper = styled.div<{
     position: relative;
     display: table;
     width: 100%;
-    ${hideScrollbar};
-    .tbody {
+    tab .tbody {
       height: fit-content;
       width: fit-content;
     }
@@ -202,10 +175,6 @@ export const TableWrapper = styled.div<{
       z-index: 1;
       width: fit-content;
     }
-  }
-
-  .virtual-list {
-    ${hideScrollbar};
   }
 
   .column-freeze {

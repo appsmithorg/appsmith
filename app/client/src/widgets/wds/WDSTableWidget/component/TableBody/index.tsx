@@ -1,5 +1,4 @@
-import type { Ref } from "react";
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
@@ -7,11 +6,9 @@ import type {
 } from "react-table";
 import type { ListChildComponentProps, ReactElementType } from "react-window";
 import { FixedSizeList, areEqual } from "react-window";
-import { WIDGET_PADDING } from "constants/WidgetConstants";
 import { EmptyRows, EmptyRow, Row } from "./Row";
 import type { ReactTableColumnProps, TableSizes } from "../Constants";
 import type { HeaderComponentProps } from "../Table";
-import type SimpleBar from "simplebar-react";
 
 export type BodyContextType = {
   accentColor: string;
@@ -81,32 +78,45 @@ interface BodyPropsType {
   innerElementType?: ReactElementType;
 }
 
-const TableVirtualBodyComponent = React.forwardRef(
-  (props: BodyPropsType, ref: Ref<SimpleBar>) => {
-    return (
-      <div className="simplebar-content-wrapper">
-        <FixedSizeList
-          className="virtual-list simplebar-content"
-          height={
-            props.height -
-            props.tableSizes.TABLE_HEADER_HEIGHT -
-            2 * WIDGET_PADDING
-          }
-          innerElementType={props.innerElementType}
-          itemCount={Math.max(props.rows.length, props.pageSize)}
-          itemData={props.rows}
-          itemSize={
-            props.tableSizes.ROW_HEIGHT + props.tableSizes.ROW_VIRTUAL_OFFSET
-          }
-          outerRef={ref}
-          width={`calc(100% + ${2 * WIDGET_PADDING}px)`}
-        >
-          {rowRenderer}
-        </FixedSizeList>
-      </div>
-    );
-  },
-);
+const TableVirtualBodyComponent = React.forwardRef((props: BodyPropsType) => {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const [horizontalScrollbarHeight, setHorizontalScrollbarHeight] =
+    React.useState(0);
+
+  useLayoutEffect(() => {
+    if (ref.current) {
+      const horizontalScrollbar = ref.current;
+      if (horizontalScrollbar) {
+        setHorizontalScrollbarHeight(
+          horizontalScrollbar.offsetHeight - horizontalScrollbar.clientHeight,
+        );
+      }
+    }
+  }, [ref.current]);
+
+  return (
+    <FixedSizeList
+      data-virtual-list=""
+      height={
+        props.height +
+        props.tableSizes.COLUMN_HEADER_HEIGHT +
+        horizontalScrollbarHeight
+      }
+      innerElementType={props.innerElementType}
+      itemCount={Math.max(props.rows.length, props.pageSize)}
+      itemData={props.rows}
+      itemSize={props.tableSizes.ROW_HEIGHT}
+      outerRef={ref}
+      style={{
+        overflow: "auto",
+        scrollbarColor: "initial",
+      }}
+      width="100cqw"
+    >
+      {rowRenderer}
+    </FixedSizeList>
+  );
+});
 
 const TableBodyComponent = (props: BodyPropsType) => {
   return (
@@ -126,10 +136,7 @@ const TableBodyComponent = (props: BodyPropsType) => {
 };
 
 export const TableBody = React.forwardRef(
-  (
-    props: BodyPropsType & BodyContextType & { useVirtual: boolean },
-    ref: Ref<SimpleBar>,
-  ) => {
+  (props: BodyPropsType & BodyContextType & { useVirtual: boolean }) => {
     const {
       accentColor,
       borderRadius,
@@ -196,7 +203,6 @@ export const TableBody = React.forwardRef(
       >
         {useVirtual ? (
           <TableVirtualBodyComponent
-            ref={ref}
             rows={rows}
             width={width}
             {...restOfProps}
