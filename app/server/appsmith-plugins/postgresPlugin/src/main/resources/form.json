@@ -143,7 +143,7 @@
                   "hidden": {
                     "path": "datasourceConfiguration.connection.ssl.authType",
                     "comparison": "NOT_EQUALS",
-                    "value": "ENABLED"
+                    "value": "VERIFY_CA"
                   }
                 },
                 {
@@ -199,7 +199,7 @@
                   "hidden": {
                     "path": "datasourceConfiguration.connection.ssl.authType",
                     "comparison": "NOT_EQUALS",
-                    "value": "ENABLED"
+                    "value": "VERIFY_CA"
                   }
                 },
                 {
@@ -228,10 +228,6 @@
                   }
                 }
               ]
-            },
-            {
-              "sectionStyles": { "flex": 1 },
-              "children": []
             }
           ]
         }
