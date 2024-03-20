@@ -147,6 +147,15 @@ export const contentConfig = [
     sectionName: "Pagination",
     children: [
       {
+        propertyName: "pageSize",
+        helpText: "Number of rows to be displayed at a time",
+        label: "Page size",
+        controlType: "NUMERIC_INPUT",
+        defaultValue: 10,
+        isBindProperty: true,
+        isTriggerProperty: false,
+      },
+      {
         propertyName: "isVisiblePagination",
         helpText: "Toggle visibility of the pagination",
         label: "Show pagination",
