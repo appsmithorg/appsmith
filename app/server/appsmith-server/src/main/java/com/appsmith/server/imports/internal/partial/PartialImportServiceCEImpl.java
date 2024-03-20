@@ -88,7 +88,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         return importService
                 .extractArtifactExchangeJson(file)
                 .flatMap(artifactExchangeJson -> {
-                    if (artifactExchangeJson instanceof ApplicationJson) {
+                    if (artifactExchangeJson instanceof ApplicationJson
+                            && isImportableResource((ApplicationJson) artifactExchangeJson)) {
                         return importResourceInPage(
                                 workspaceId, applicationId, pageId, branchName, (ApplicationJson) artifactExchangeJson);
                     } else {
