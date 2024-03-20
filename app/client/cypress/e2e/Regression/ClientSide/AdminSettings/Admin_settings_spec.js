@@ -34,10 +34,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   it("2. Should test that settings page is not accessible to normal users", () => {
     cy.LoginFromAPI(Cypress.env("TESTUSERNAME3"), Cypress.env("TESTPASSWORD3"));
     cy.get(".admin-settings-menu-option").should("not.exist");
-    agHelper.VisitNAssert(
-      adminSettingsHelper.routes.GENERAL,
-      "getEnvVariables",
-    );
+    agHelper.VisitNAssert(adminSettingsHelper.routes.GENERAL);
     // non super users are redirected to home page
     cy.url().should("contain", "/applications");
     cy.LogOut(false);
