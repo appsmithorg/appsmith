@@ -245,6 +245,8 @@ export function* evaluateTreeSaga(
   forceEvaluation = false,
   requiresLogging = false,
 ) {
+  const funStart = performance.now()
+
   const allActionValidationConfig: ReturnType<
     typeof getAllActionValidationConfig
   > = yield select(getAllActionValidationConfig);
@@ -275,17 +277,21 @@ export function* evaluateTreeSaga(
     widgetsMeta,
   };
 
+  
+  const evalStart = performance.now()
   const workerResponse: EvalTreeResponseData = yield call(
     evalWorker.request,
     EVAL_WORKER_ACTIONS.EVAL_TREE,
     evalTreeRequestData,
   );
+  console.log("***", "time taken for eval tree is ", performance.now() - evalStart)
 
   yield call(
     updateDataTreeHandler,
     { evalTreeResponse: workerResponse, unevalTree, requiresLogging },
     postEvalActions,
   );
+  // console.log("***", "whole evaluateTreeSaga time taken is ", performance.now() - funStart)
 }
 
 export function* evaluateActionBindings(
@@ -542,6 +548,8 @@ function* evalAndLintingHandler(
     requiresLogging: boolean;
   }>,
 ) {
+  const start = performance.now()
+
   const span = startRootSpan("evalAndLintingHandler");
   const { forceEvaluation, requiresLogging, shouldReplay } = options;
 
@@ -555,6 +563,7 @@ function* evalAndLintingHandler(
   });
 
   if (!requiresEval && !requiresLinting) {
+    console.log("***", "doesn't require linting")
     endSpan(span);
     return;
   }
@@ -584,7 +593,9 @@ function* evalAndLintingHandler(
     effects.push(fn(initiateLinting, unEvalAndConfigTree, forceEvaluation));
   }
 
+  // console.log("***", "all effects to yield are ", effects)
   yield all(effects);
+  // console.log("***", "eval and linting handler timing is ", performance.now() - start)
   endSpan(span);
 }
 

@@ -45,6 +45,7 @@ export function createDependencyMap(
     false,
   );
 
+  const start1 = performance.now()
   Object.keys(configTree).forEach((entityName) => {
     const entity = unEvalTree[entityName];
     const entityConfig = configTree[entityName];
@@ -64,6 +65,8 @@ export function createDependencyMap(
       dataTreeEvalRef.errors.push(...errors);
     }
   });
+
+  // console.log("***", "time taken 1 is ", performance.now() - start1)
 
   DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
 
@@ -137,6 +140,9 @@ export const updateDependencyMap = ({
               if (!isEmpty(entityDependencyMap)) {
                 // The entity might already have some dependencies,
                 // so we just want to update those
+                // console.log("***", "time taken 2")
+                const start2 = performance.now()
+
                 Object.entries(entityDependencyMap).forEach(
                   ([path, pathDependencies]) => {
                     const { errors: extractDependencyErrors, references } =
@@ -148,6 +154,7 @@ export const updateDependencyMap = ({
                     );
                   },
                 );
+                // console.log("***", "perf 2 is ", performance.now() - start2)
               }
             } else {
               const entityPathDependencies = getEntityPathDependencies(
@@ -156,6 +163,9 @@ export const updateDependencyMap = ({
                 fullPropertyPath,
                 allKeys,
               );
+              // console.log("***", "time taken 3")
+              const start3 = performance.now()
+
               const { errors: extractDependencyErrors, references } =
                 extractInfoFromBindings(entityPathDependencies, allKeys);
               dependencyMap.addDependency(fullPropertyPath, references);
@@ -163,6 +173,7 @@ export const updateDependencyMap = ({
               dataTreeEvalErrors = dataTreeEvalErrors.concat(
                 extractDependencyErrors,
               );
+              // console.log("***", "perf 3 is ", performance.now() - start3)
             }
           }
           break;
@@ -216,6 +227,9 @@ export const updateDependencyMap = ({
               fullPropertyPath,
               allKeys,
             );
+            // console.log("***", "time taken 4")
+            
+            const start4 = performance.now()
             const { errors: extractDependencyErrors, references } =
               extractInfoFromBindings(entityPathDependencies, allKeys);
             dependencyMap.addDependency(fullPropertyPath, references);
@@ -223,6 +237,7 @@ export const updateDependencyMap = ({
             dataTreeEvalErrors = dataTreeEvalErrors.concat(
               extractDependencyErrors,
             );
+            // console.log("***", "perf4 is ", performance.now() - start4)
           }
           break;
         }

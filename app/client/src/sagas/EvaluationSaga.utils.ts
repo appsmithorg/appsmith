@@ -12,6 +12,7 @@ export const parseUpdatesAndDeleteUndefinedUpdates = (
     log.error("Failed to parse updates", e, updates);
     return [];
   }
+  console.log("***", "parsed updates is ", parsedUpdates)
   //delete all undefined properties from the state
   const { deleteUpdates, regularUpdates } = parsedUpdates.reduce(
     (acc: any, curr: any) => {

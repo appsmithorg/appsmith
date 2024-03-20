@@ -35,12 +35,18 @@ export const extractInfoFromBinding = (
   script: string,
   allKeys: Record<string, true>,
 ) => {
+  
+  
   const { references } = extractIdentifierInfoFromCode(
     script,
     self.evaluationVersion,
     invalidEntityIdentifiers,
   );
-  return getPrunedReferences(references, allKeys);
+  const output = getPrunedReferences(references, allKeys);
+  
+  
+  
+  return output
 };
 
 export const getPrunedReferences = (
@@ -84,7 +90,10 @@ export const extractInfoFromBindings = (
   bindings: string[],
   allKeys: Record<string, true>,
 ) => {
-  return bindings.reduce(
+  // console.log("***", "extract info from bindings called")
+  
+  // const start = performance.now()
+  const output = bindings.reduce(
     (bindingsInfo: BindingsInfo, binding) => {
       try {
         const references = extractInfoFromBinding(binding, allKeys);
@@ -108,6 +117,11 @@ export const extractInfoFromBindings = (
     },
     { references: [], errors: [] },
   );
+
+  // const perf = performance.now() - start
+  // console.log("***", "time taken for ast parsing is ", perf)
+
+  return output
 };
 
 /**This function returns a unique array containing a merge of both arrays
