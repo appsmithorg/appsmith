@@ -39,7 +39,7 @@ export const DetachedWidgetsDropArena = (props: {
       size="large"
     >
       <ModalContent className="detached-widgets-drop-overlay-content">
-        <div onMouseUp={onMouseUp}>Drop The Modal here</div>
+        <div onMouseUp={onMouseUp}>Drop the Modal here</div>
       </ModalContent>
     </Modal>
   );

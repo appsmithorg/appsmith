@@ -18,4 +18,8 @@
   flex: fit-content;
   justify-content: center;
   align-items: center;
+  font-size: 14px;
+  font-weight: 510;
+  line-height: 19.6px;
+  color: #2a002b;
 }
