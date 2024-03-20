@@ -10,7 +10,7 @@ import {
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
 import { APIFactory } from "test/factories/Actions/API";
-import { screen } from "@testing-library/react";
+import localStorage from "utils/localStorage";
 
 /**
  * In Full screen
@@ -21,6 +21,7 @@ import { screen } from "@testing-library/react";
  */
 
 describe("IDE URL rendering of Queries", () => {
+  localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
   describe("Query Blank State", () => {
     it("Renders Fullscreen Blank State", () => {
       const { getByRole, getByText } = render(
@@ -112,7 +113,7 @@ describe("IDE URL rendering of Queries", () => {
 
     it("Renders Split Screen Add in Blank State", () => {
       const state = store.getState();
-      const { getByTestId, getByText } = render(
+      const { getByRole, getByTestId, getByText } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -147,7 +148,7 @@ describe("IDE URL rendering of Queries", () => {
       getByText("New datasource");
       getByText("REST API");
       // Close button is rendered
-      // getByRole("button", { name: "Close pane" });
+      getByRole("button", { name: "Close pane" });
     });
   });
 
@@ -304,7 +305,7 @@ describe("IDE URL rendering of Queries", () => {
         },
       ];
 
-      const { container, getAllByText, getByTestId } = render(
+      const { getAllByText, getByRole, getByTestId } = render(
         <Route path={BUILDER_PATH}>
           <IDE />
         </Route>,
@@ -347,8 +348,6 @@ describe("IDE URL rendering of Queries", () => {
         },
       );
 
-      screen.logTestingPlaygroundURL(container);
-
       // Check if editor is in split screen
       getByTestId("t--ide-maximize");
       getByTestId("t--widgets-editor");
@@ -362,7 +361,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if the form is rendered
       getByTestId("t--action-form-API");
       // Check if run button is visible
-      // getByRole("button", { name: /run/i });
+      getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
       getByTestId("t--ide-split-screen-add-button");
     });
