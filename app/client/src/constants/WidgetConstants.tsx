@@ -1,7 +1,7 @@
-import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import type { WidgetType as FactoryWidgetType } from "WidgetProvider/factory";
-import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
+import type { SupportedLayouts } from "reducers/entityReducers/pageListReducer";
 import type { WidgetCardProps } from "widgets/BaseWidget";
+import { THEMEING_TEXT_SIZES } from "./ThemeConstants";
 export type WidgetType = FactoryWidgetType;
 
 export const SKELETON_WIDGET_TYPE = "SKELETON_WIDGET";
@@ -265,6 +265,6 @@ export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
 // Constant key to show walkthrough for a widget -> stores widget id
 export const WIDGET_ID_SHOW_WALKTHROUGH = "WIDGET_ID_SHOW_WALKTHROUGH";
 
-export const DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS = 30;
-export const DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS = 30;
+export const DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS = 60;
+export const DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS = 60;
 export const BUILDING_BLOCK_EXPLORER_TYPE = "BUILDING_BLOCK";

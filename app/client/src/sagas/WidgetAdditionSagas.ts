@@ -48,7 +48,7 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { all, call, put, select, takeEvery } from "redux-saga/effects";
+import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getCanvasWidth,
@@ -512,10 +512,10 @@ function* addNewTabChildSaga(
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 
-export function* addBuildingBlockWidgetsToCanvas(
+export function* addBuildingBlockToApplication(
   buildingBlockWidget: WidgetAddChild,
+  skeletonLoaderId: string,
 ) {
-  let skeletonWidget: FlattenedWidgetProps | undefined;
   const { leftColumn, topRow } = buildingBlockWidget;
   try {
     const dragDetails: DragDetails = yield select(getDragDetails);
@@ -525,6 +525,7 @@ export function* addBuildingBlockWidgetsToCanvas(
     const currentPageId: string = yield select(getCurrentPageId);
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
+    const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
     const canvasWidgets: CanvasWidgetsReduxState =
       yield select(getCanvasWidgets);
     const selectedBuildingBlock = buildingBlocks.find(
@@ -532,23 +533,6 @@ export function* addBuildingBlockWidgetsToCanvas(
     ) as Template;
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
-    const skeletonWidgetName = `loading_${buildingblockName
-      .toLowerCase()
-      .replace(/ /g, "_")}`;
-
-    const addSkeletonWidgetAction: ReduxAction<WidgetAddChild> = {
-      type: WidgetReduxActionTypes.WIDGET_ADD_CHILD,
-      payload: {
-        ...buildingBlockWidget,
-        topRow: buildingBlockWidget.topRow + 1,
-        leftColumn: buildingBlockWidget.leftColumn + 1,
-        type: "SKELETON_WIDGET",
-        widgetName: skeletonWidgetName,
-        widgetId: MAIN_CONTAINER_WIDGET_ID,
-      },
-    };
-    yield call(addChildSaga, addSkeletonWidgetAction);
-    skeletonWidget = yield select(getWidgetByName, skeletonWidgetName);
 
     const body: ImportBuildingBlockToApplicationRequest = {
       pageId: currentPageId,
@@ -557,10 +541,15 @@ export function* addBuildingBlockWidgetsToCanvas(
       templateId: selectedBuildingBlock.id,
     };
 
+    // makes sure updateAndSaveLayout completes first for skeletonWidget addition
+    yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
+
+    // api call adds DS, queries and JS to page and returns new page dsl with building block
     const response: ApiResponse = yield call(
       ApplicationApi.importBuildingBlockToApplication,
       body,
     );
+
     const isValid: boolean = yield validateResponse(response);
 
     if (isValid) {
@@ -569,6 +558,7 @@ export function* addBuildingBlockWidgetsToCanvas(
       const flattenedBlockWidgets = buildingBlockWidgets.map(
         (widget: WidgetProps) => flattenDSL(widget),
       );
+
       const widgetsToPasteInCanvas: CopiedWidgetData[] = yield all(
         flattenedBlockWidgets.map(
           (widget: FlattenedWidgetProps, index: number) => {
@@ -597,7 +587,6 @@ export function* addBuildingBlockWidgetsToCanvas(
           },
         ),
       );
-      const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
       yield saveCopiedWidgets(
         JSON.stringify({
           widgets: widgetsToPasteInCanvas,
@@ -606,6 +595,7 @@ export function* addBuildingBlockWidgetsToCanvas(
       );
       let mousePosition = { x: 0, y: 0 };
 
+      // convert grid position to mouse position for paste functionality
       const { canvasDOM, canvasId, containerWidget } =
         getDefaultCanvas(canvasWidgets);
       if (!canvasDOM || !containerWidget || !canvasId) {
@@ -616,7 +606,6 @@ export function* addBuildingBlockWidgetsToCanvas(
           containerWidget,
           canvasRect.width,
         );
-
         mousePosition = getMousePositionFromGridPosition(
           topRow,
           leftColumn,
@@ -625,36 +614,30 @@ export function* addBuildingBlockWidgetsToCanvas(
           canvasId as string,
         );
       }
+
+      // remove skeleton loader just before pasting the building block
       yield put({
         type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
         payload: {
-          widgetId: skeletonWidget?.widgetId,
+          widgetId: skeletonLoaderId,
           parentId: MAIN_CONTAINER_WIDGET_ID,
           disallowUndo: true,
           isShortcut: false,
         },
       });
+
       yield put(pasteWidget(false, mousePosition || { x: 0, y: 0 }));
       yield call(postPageAdditionSaga, applicationId);
+
       if (existingCopiedWidgets) {
         yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
       }
-    } else {
-      yield put({
-        type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
-        payload: {
-          widgetId: skeletonWidget?.widgetId,
-          parentId: MAIN_CONTAINER_WIDGET_ID,
-          disallowUndo: true,
-          isShortcut: false,
-        },
-      });
     }
   } catch (error) {
     yield put({
       type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
       payload: {
-        widgetId: skeletonWidget?.widgetId,
+        widgetId: skeletonLoaderId,
         parentId: MAIN_CONTAINER_WIDGET_ID,
         disallowUndo: true,
         isShortcut: false,
@@ -663,13 +646,40 @@ export function* addBuildingBlockWidgetsToCanvas(
   }
 }
 
+function* addBuildingBlockSaga(addEntityAction: ReduxAction<WidgetAddChild>) {
+  const dragDetails: DragDetails = yield select(getDragDetails);
+  const buildingblockName = dragDetails.newWidget.displayName;
+  const skeletonWidgetName = `loading_${buildingblockName
+    .toLowerCase()
+    .replace(/ /g, "_")}`;
+  const addSkeletonWidgetAction: ReduxAction<WidgetAddChild> = {
+    ...addEntityAction,
+    payload: {
+      ...addEntityAction.payload,
+      type: "SKELETON_WIDGET",
+      widgetName: skeletonWidgetName,
+      widgetId: MAIN_CONTAINER_WIDGET_ID,
+    },
+  };
+  yield call(addChildSaga, addSkeletonWidgetAction);
+  const skeletonWidget: FlattenedWidgetProps = yield select(
+    getWidgetByName,
+    skeletonWidgetName,
+  );
+  yield call(
+    addBuildingBlockToApplication,
+    addEntityAction.payload,
+    skeletonWidget.widgetId,
+  );
+}
+
 function* addUIEntitySaga(addEntityAction: ReduxAction<WidgetAddChild>) {
   try {
     const { payload } = addEntityAction;
     const { type } = payload;
 
     if (type === BUILDING_BLOCK_EXPLORER_TYPE) {
-      yield call(addBuildingBlockWidgetsToCanvas, addEntityAction.payload);
+      yield call(addBuildingBlockSaga, addEntityAction);
     } else {
       yield call(addChildSaga, addEntityAction);
     }
