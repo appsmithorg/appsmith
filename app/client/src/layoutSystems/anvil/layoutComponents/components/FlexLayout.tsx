@@ -25,7 +25,7 @@ import {
   getAnvilHighlightShown,
   getShouldHighLightCellSelector,
 } from "layoutSystems/anvil/integrations/selectors";
-import { Colors } from "constants/Colors";
+import { AnvilEditorColors } from "layoutSystems/anvil/utils/constants";
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -158,7 +158,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     return {
       position: position || "relative",
       ...(shouldHighlightCell
-        ? { background: Colors.HIGHLIGHT_FILL_CELL }
+        ? { background: AnvilEditorColors.cellHighlight }
         : {}),
     };
   }, [border, isDropTarget, position, renderMode, shouldHighlightCell]);

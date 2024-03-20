@@ -13,6 +13,7 @@ import { AnvilCanvasZIndex } from "./mainCanvas/useCanvasActivation";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
+import { AnvilEditorColors } from "layoutSystems/anvil/utils/constants";
 
 const setHighlightsDrawn = (highlight?: AnvilHighlightInfo) => {
   return {
@@ -68,30 +69,14 @@ const renderBlocksOnCanvas = (
 
   // Clearing previous drawings on the canvas
   canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
-  canvasCtx.stroke();
   canvasCtx.beginPath();
-
-  // Styling the rectangle
-  canvasCtx.fillStyle = Colors.HIGHLIGHT_FILL;
-  canvasCtx.lineWidth = 1;
-  canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
-  canvasCtx.setLineDash([]);
-
   // Extracting dimensions of the block to render
   const { height, posX, posY, width } = blockToRender;
-
-  // Drawing a rectangle on the canvas
-  if (canvasCtx.roundRect) {
-    // Using roundRect method if available (not supported in Firefox)
-    canvasCtx.roundRect(posX - leftOffset, posY - topOffset, width, height, 4);
-  } else {
-    // Using rect method as a fallback
-    canvasCtx.rect(posX - leftOffset, posY - topOffset, width, height);
-  }
-
-  // Filling and stroking the rectangle
+  // Drawing a rounder rectangle on the canvas
+  canvasCtx.roundRect(posX - leftOffset, posY - topOffset, width, height, 2);
+  canvasCtx.fillStyle = AnvilEditorColors.dropIndicator;
   canvasCtx.fill();
-  canvasCtx.stroke();
+  canvasCtx.closePath();
 };
 
 /**

@@ -39,3 +39,10 @@ export const widgetHierarchy: Record<string, number> = {
   [anvilWidgets.ZONE_WIDGET]: 3,
   OTHER: 4,
 };
+
+export const AnvilEditorColors = {
+  dropIndicator: "#CE01D3",
+  cellHighlight: "rgba(206,1,211, 0.2)",
+  spaceDistributionHandle: "#3075FF",
+  spaceDistributionHandleActive: "#0045C6",
+};
