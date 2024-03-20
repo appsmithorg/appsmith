@@ -29,6 +29,11 @@
           "configProperty": "actionConfiguration.timeoutInMillisecond",
           "controlType": "INPUT_TEXT",
           "dataType": "NUMBER"
+        },
+        {
+          "label": "Override Host",
+          "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
+          "controlType": "QUERY_DYNAMIC_INPUT_TEXT"
         }
       ]
     }

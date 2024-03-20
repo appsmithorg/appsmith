@@ -168,6 +168,7 @@ public class MySqlPlugin extends BasePlugin {
             implements PluginExecutor<ConnectionContext<ConnectionPool>>, SmartSubstitutionInterface {
 
         private static final int PREPARED_STATEMENT_INDEX = 0;
+        private static final int OVERRIDE_DATABASE_HOST_INDEX = 1;
         private final Scheduler scheduler = Schedulers.boundedElastic();
 
         /**
@@ -297,6 +298,13 @@ public class MySqlPlugin extends BasePlugin {
             ConnectionPool connectionPool = connectionContext.getConnection();
             SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
             String query = actionConfiguration.getBody();
+
+            //TODO: This. Check like PREPARED_STATEMENT_INDEX.
+            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
+            String overrideDatabaseHost = properties.get(OVERRIDE_DATABASE_HOST_INDEX).getValue();
+
+            // Override database host
+            connectionPool.setHost(overrideDatabaseHost);
 
             /**
              * TBD: check if this comment is resolved with the new MariaDB driver.
