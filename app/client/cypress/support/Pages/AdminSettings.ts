@@ -17,6 +17,7 @@ export class AdminSettings {
     "')]/parent::div/parent::span/parent::a/parent::td/following-sibling::td[1]";
   public _instanceName = '[name="instanceName"]';
   public rolesTab = ".t--settings-category-roles";
+  public auditLogsTab = ".t--settings-category-audit-logs";
   public routes = {
     APPLICATIONS: "/applications",
     SETTINGS: "/settings",
