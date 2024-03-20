@@ -22,25 +22,37 @@ describe("Tests for git deploy modal", () => {
     );
     store.dispatch(
       fetchGitStatusSuccess({
-        modified: [
+        modified: ["application.json"],
+        added: [
           "jslibs/UUID_https:__cdn.jsdelivr.net_npm_uuidjs@4.2.12_src_uuid.min.js.json",
-          "application.json",
         ],
+        removed: [],
+        pagesModified: [],
+        pagesAdded: [],
+        pagesRemoved: [],
+        queriesModified: [],
+        queriesAdded: [],
+        queriesRemoved: [],
+        jsObjectsModified: [],
+        jsObjectsAdded: [],
+        jsObjectsRemoved: [],
+        datasourcesModified: [],
+        datasourcesAdded: [],
+        datasourcesRemoved: [],
+        jsLibsModified: [],
+        jsLibsAdded: ["UUID"],
+        jsLibsRemoved: [],
         conflicting: [],
-        isClean: false,
-        modifiedJSLibs: 1,
-        modifiedPages: 0,
-        modifiedQueries: 0,
-        modifiedJSObjects: 0,
-        modifiedDatasources: 0,
+        isClean: true,
         aheadCount: 0,
         behindCount: 0,
         remoteBranch: "refs/remotes/origin/master",
         discardDocUrl:
           "https://docs.appsmith.com/core-concepts/version-control-with-git/pull-and-sync#discard-and-pull-changes",
+        migrationMessage: "",
       }),
     );
-    const diffText = component.getByText("1 library modified");
+    const diffText = component.getByText("1 js lib added");
     expect(diffText).toBeDefined();
     store.dispatch(
       commitToRepoInit({
