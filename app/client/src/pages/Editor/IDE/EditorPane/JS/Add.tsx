@@ -32,7 +32,7 @@ const AddJS = () => {
     return {
       startIcon: data.icon,
       title: data.entityExplorerTitle || data.title,
-      description: "",
+      description: !!data.isBeta ? "Beta" : "",
       descriptionType: "inline",
       onClick: onCreateItemClick.bind(null, data),
     } as ListItemProps;
