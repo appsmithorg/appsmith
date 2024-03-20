@@ -483,7 +483,6 @@ setup-custom-ca-certificates
 check_redis_compatible_page_size
 
 safe_init_postgres
-setup_custom_log_dir
 
 configure_supervisord
 
