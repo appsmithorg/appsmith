@@ -7,32 +7,34 @@ import {
   getIsFetchingGitStatus,
 } from "selectors/gitSyncSelectors";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-// import {
-//   CHANGES_APP_SETTINGS,
-//   CHANGES_FROM_APPSMITH,
-//   CHANGES_THEME,
-//   createMessage,
-//   NOT_PUSHED_YET,
-//   TRY_TO_PULL,
-// } from "@appsmith/constants/messages";
-// import { getCurrentApplication } from "selectors/editorSelectors";
-// import { changeInfoSinceLastCommit } from "../utils";
 import { Callout, Icon, Text } from "design-system";
+import {
+  NOT_PUSHED_YET,
+  TRY_TO_PULL,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 const DummyChange = styled.div`
   width: 50%;
-  height: ${(props) => props.theme.spaces[9]}px;
+  height: 18px;
   background: linear-gradient(
     90deg,
     ${Colors.GREY_2} 0%,
     rgba(240, 240, 240, 0) 100%
   );
-  margin-top: ${(props) => props.theme.spaces[7]}px;
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  margin-top: 16px;
+  margin-bottom: 16px;
 `;
 
 const ChangeContainer = styled.div`
   margin-bottom: 8px;
+`;
+
+const StaticWrapper = styled.div`
+  display: flex;
+  gap: 6px;
+  font-weight: 600;
+  margin-bottom: 6px;
 `;
 
 const Wrapper = styled.div`
@@ -55,55 +57,103 @@ const ContentSubItem = styled.div`
 `;
 
 const CalloutContainer = styled.div`
-  margin-top: ${(props) => props.theme.spaces[7]}px;
+  margin-top: 16px;
 `;
 
 const Changes = styled.div`
-  margin-top: ${(props) => props.theme.spaces[7]}px;
-  margin-bottom: ${(props) => props.theme.spaces[7]}px;
+  margin-top: 16px;
+  margin-bottom: 16px;
 `;
 
+enum StaticChangeKind {
+  SETTINGS = "SETTINGS",
+  THEME = "THEME",
+  PACKAGES = "PACKAGES",
+  MODULES = "MODULES",
+  REMOTE_AHEAD = "REMOTE_AHEAD",
+  REMOTE_BEHIND = "REMOTE_BEHIND",
+}
+
+interface StaticChangeDef {
+  condition: boolean;
+  message: string;
+  iconName: string;
+}
+
+const allStaticChangeDefs: Record<
+  StaticChangeKind,
+  (status: GitStatusData) => StaticChangeDef
+> = {
+  [StaticChangeKind.REMOTE_AHEAD]: (status: GitStatusData) => ({
+    condition: (status.aheadCount ?? 0) > 0,
+    message: `${status.aheadCount ?? 0} ${
+      (status.aheadCount ?? 0) > 0 ? "commits" : "commit"
+    } ahead. ${createMessage(NOT_PUSHED_YET)}`,
+    iconName: "git-commit",
+  }),
+
+  [StaticChangeKind.REMOTE_BEHIND]: (status: GitStatusData) => ({
+    condition: (status.behindCount ?? 0) > 0,
+    message: `${status.behindCount ?? 0} ${
+      (status.behindCount ?? 0) > 0 ? "commits" : "commit"
+    } behind. ${createMessage(TRY_TO_PULL)}`,
+    iconName: "git-commit",
+  }),
+  [StaticChangeKind.SETTINGS]: (status: GitStatusData) => ({
+    condition: status.modified.includes("application.json"),
+    message: "Application settings modified",
+    iconName: "settings-2-line",
+  }),
+  [StaticChangeKind.THEME]: (status: GitStatusData) => ({
+    condition: status.modified.includes("theme.json"),
+    message: "Theme modified",
+    iconName: "sip-line",
+  }),
+  [StaticChangeKind.PACKAGES]: (status: GitStatusData) => ({
+    condition: (status.modifiedPackages ?? 0) > 0,
+    message: `${status.modifiedPackages ?? 0} ${
+      (status.modifiedPackages ?? 0) > 0 ? "packages" : "package"
+    } modified`,
+    iconName: "package",
+  }),
+  [StaticChangeKind.MODULES]: (status: GitStatusData) => ({
+    condition: (status.modifiedModules ?? 0) > 0,
+    message: `${status.modifiedModules ?? 0} ${
+      (status.modifiedModules ?? 0) > 0 ? "modules" : "module"
+    } modified`,
+    iconName: "package",
+  }),
+};
+
+interface StaticChageProps {
+  kind: StaticChangeKind;
+  status: GitStatusData;
+}
+
+function StaticChage({ kind, status }: StaticChageProps) {
+  const { condition, iconName, message } = allStaticChangeDefs[kind](status);
+  if (!condition) {
+    return null;
+  }
+  return (
+    <StaticWrapper data-testid={`t--status-change-${kind}`}>
+      {iconName && (
+        <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+      )}
+      <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
+        {message}
+      </Text>
+    </StaticWrapper>
+  );
+}
+
 export enum ChangeKind {
-  // AHEAD_COMMIT = "AHEAD_COMMIT",
-  // BEHIND_COMMIT = "BEHIND_COMMIT",
   DATASOURCES = "DATASOURCES",
   JSOBJECTS = "JSOBJECTS",
   PAGES = "PAGES",
   QUERIES = "QUERIES",
   JSLIBS = "JSLIBS",
-  // THEME = "THEME",
-  // SETTINGS = "SETTINGS",
-  // PACKAGES = "PACKAGES",
-  // MODULES = "MODULES",
 }
-
-// const defaultStatus: GitStatusData = {
-//   modified: [],
-//   added: [],
-//   removed: [],
-//   pagesModified: [],
-//   pagesAdded: [],
-//   pagesRemoved: [],
-//   queriesModified: [],
-//   queriesAdded: [],
-//   queriesRemoved: [],
-//   jsObjectsModified: [],
-//   jsObjectsAdded: [],
-//   jsObjectsRemoved: [],
-//   datasourcesModified: [],
-//   datasourcesAdded: [],
-//   datasourcesRemoved: [],
-//   jsLibsModified: [],
-//   jsLibsAdded: [],
-//   jsLibsRemoved: [],
-//   conflicting: [],
-//   isClean: false,
-//   aheadCount: 0,
-//   behindCount: 0,
-//   remoteBranch: "",
-//   discardDocUrl: "",
-//   migrationMessage: "",
-// };
 
 interface ChangeDef {
   modified: string[];
@@ -120,40 +170,40 @@ const allChangeDefs: Record<ChangeKind, (status: GitStatusData) => ChangeDef> =
       modified: status.pagesModified,
       added: status.pagesAdded,
       removed: status.pagesRemoved,
-      singular: "Page",
-      plural: "Pages",
+      singular: "page",
+      plural: "pages",
       iconName: "widget",
     }),
     [ChangeKind.DATASOURCES]: (status: GitStatusData) => ({
       modified: status.datasourcesModified,
       added: status.datasourcesAdded,
       removed: status.datasourcesRemoved,
-      singular: "Datasource",
-      plural: "Datasources",
+      singular: "datasource",
+      plural: "datasources",
       iconName: "database-2-line",
     }),
     [ChangeKind.QUERIES]: (status: GitStatusData) => ({
       modified: status.queriesModified,
       added: status.queriesAdded,
       removed: status.queriesRemoved,
-      singular: "Query",
-      plural: "Queries",
+      singular: "query",
+      plural: "queries",
       iconName: "query",
     }),
     [ChangeKind.JSOBJECTS]: (status: GitStatusData) => ({
       modified: status.jsObjectsModified,
       added: status.jsObjectsAdded,
       removed: status.jsObjectsRemoved,
-      singular: "JS Object",
-      plural: "JS Objects",
+      singular: "js object",
+      plural: "js objects",
       iconName: "js",
     }),
     [ChangeKind.JSLIBS]: (status: GitStatusData) => ({
       modified: status.jsLibsModified,
       added: status.jsLibsAdded,
       removed: status.jsLibsRemoved,
-      singular: "JS Lib",
-      plural: "JS Libs",
+      singular: "js lib",
+      plural: "js libs",
       iconName: "package",
     }),
   };
@@ -180,7 +230,7 @@ export function Change({ kind, status }: ChangeProps) {
   const totalChanges = modified.length + added.length + removed.length;
 
   const getMessage = (count: number, action: string) =>
-    `${count} ${count === 1 ? `${singular} was` : `${plural} were`} ${action}`;
+    `${count} ${count === 1 ? `${singular}` : `${plural}`} ${action}`;
 
   const getTitleMessage = () => {
     let action = "";
@@ -209,7 +259,7 @@ export function Change({ kind, status }: ChangeProps) {
 
   return (
     <ChangeContainer>
-      <Wrapper onClick={handleClick}>
+      <Wrapper data-testid={`t--status-change-${kind}`} onClick={handleClick}>
         <Icon
           color={"var(--ads-v2-color-fg)"}
           name={!isCollapsed ? "arrow-down-s-line" : "arrow-right-s-line"}
@@ -288,7 +338,7 @@ export function ChangeSubList({
           />
         )}
         <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
-          {`${entityName} was ${action}`}
+          {`${entityName} ${action}`}
         </Text>
       </ContentSubItem>
     );
@@ -296,198 +346,12 @@ export function ChangeSubList({
   return <div>{sublist}</div>;
 }
 
-// interface GitStatusProps {
-//   iconName: string;
-//   message: string;
-//   hasValue: boolean;
-// }
-
-// const changeKind = [
-//   Kind.SETTINGS,
-//   Kind.THEME,
-//   Kind.PAGE,
-//   Kind.QUERY,
-//   Kind.JS_OBJECT,
-//   Kind.DATA_SOURCE,
-//   Kind.JS_LIB,
-//   Kind.MODULES,
-//   Kind.PACKAGES,
-// ];
-
-// type GitStatusMap = {
-//   [key in Kind]: (status: Partial<GitStatusData>) => GitStatusProps;
-// };
-
-// const STATUS_MAP: GitStatusMap = {
-//   [Kind.AHEAD_COMMIT]: (status) => ({
-//     message: aheadCommitMessage(status),
-//     iconName: "git-commit",
-//     hasValue: (status?.aheadCount || 0) > 0,
-//   }),
-//   [Kind.BEHIND_COMMIT]: (status) => ({
-//     message: behindCommitMessage(status),
-//     iconName: "git-commit",
-//     hasValue: (status?.behindCount || 0) > 0,
-//   }),
-//   [Kind.SETTINGS]: (status) => ({
-//     message: createMessage(CHANGES_APP_SETTINGS),
-//     iconName: "settings-2-line",
-//     hasValue: (status?.modified || []).includes("application.json"),
-//   }),
-//   [Kind.THEME]: (status) => ({
-//     message: createMessage(CHANGES_THEME),
-//     iconName: "sip-line",
-//     hasValue: (status?.modified || []).includes("theme.json"),
-//   }),
-//   [Kind.DATA_SOURCE]: (status) => ({
-//     message: `${status?.modifiedDatasources || 0} ${
-//       status?.modifiedDatasources || 0 ? "datasource" : "datasources"
-//     } modified`,
-//     iconName: "database-2-line",
-//     hasValue: (status?.modifiedDatasources || 0) > 0,
-//   }),
-//   [Kind.JS_OBJECT]: (status) => ({
-//     message: `${status?.modifiedJSObjects || 0} JS ${
-//       (status?.modifiedJSObjects || 0) <= 1 ? "Object" : "Objects"
-//     } modified`,
-//     iconName: "js",
-//     hasValue: (status?.modifiedJSObjects || 0) > 0,
-//   }),
-//   [Kind.PAGE]: (status) => ({
-//     message: `${status?.modifiedPages || 0} ${
-//       (status?.modifiedPages || 0) <= 1 ? "page" : "pages"
-//     } modified`,
-//     iconName: "widget",
-//     hasValue: (status?.modifiedPages || 0) > 0,
-//   }),
-//   [Kind.QUERY]: (status) => ({
-//     message: `${status?.modifiedQueries || 0} ${
-//       (status?.modifiedQueries || 0) <= 1 ? "query" : "queries"
-//     } modified`,
-//     iconName: "query",
-//     hasValue: (status?.modifiedQueries || 0) > 0,
-//   }),
-//   [Kind.JS_LIB]: (status) => ({
-//     message: `${status?.modifiedJSLibs || 0} ${
-//       (status?.modifiedJSLibs || 0) <= 1 ? "library" : "libraries"
-//     } modified`,
-//     iconName: "package",
-//     hasValue: (status?.modifiedJSLibs || 0) > 0,
-//   }),
-//   [Kind.PACKAGES]: (status) => ({
-//     message: `${status?.modifiedPackages || 0} ${
-//       (status?.modifiedPackages || 0) <= 1 ? "package" : "packages"
-//     } modified`,
-//     iconName: "package",
-//     hasValue: (status?.modifiedPackages || 0) > 0,
-//   }),
-//   [Kind.MODULES]: (status) => ({
-//     message: `${status?.modifiedModules || 0} ${
-//       (status?.modifiedModules || 0) <= 1
-//         ? "module configuration"
-//         : "module configurations"
-//     } modified`,
-//     iconName: "package",
-//     hasValue: (status?.modifiedModules || 0) > 0,
-//   }),
-// };
-
-// function behindCommitMessage(status: Partial<GitStatusData>) {
-//   const behindCount = status?.behindCount || 0;
-//   let behindMessage =
-//     (behindCount || 0) === 1
-//       ? `${behindCount || 0} commit`
-//       : `${behindCount || 0} commits`;
-//   behindMessage += ` behind. ${createMessage(TRY_TO_PULL)}`;
-//   return behindMessage;
-// }
-
-// function aheadCommitMessage(status: Partial<GitStatusData>) {
-//   const aheadCount = status?.aheadCount || 0;
-//   let aheadMessage =
-//     (aheadCount || 0) === 1
-//       ? `${aheadCount || 0} commit`
-//       : `${aheadCount || 0} commits`;
-//   aheadMessage += ` ahead. ${createMessage(NOT_PUSHED_YET)}`;
-//   return aheadMessage;
-// }
-
-// export function Change(props: Partial<GitStatusProps>) {
-//   const { iconName = "git-commit", message } = props;
-
-//   return (
-//     <Wrapper>
-//       {iconName && (
-//         <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
-//       )}
-//       <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
-//         {message}
-//       </Text>
-//     </Wrapper>
-//   );
-// }
-
-// /**
-//  * gitChangeListData: accepts a git status
-//  * @param status {GitStatusData} status object that contains git-status call result from backend
-//  * @returns {JSX.Element[]}
-//  */
-// export function gitChangeListData(
-//   status: Partial<GitStatusData> = defaultStatus,
-// ): JSX.Element[] {
-
-//   return changeKind
-//     .map((type: Kind) => STATUS_MAP[type](status))
-//     .filter((s: GitStatusProps) => s.hasValue)
-//     .map((s) => <Change {...s} key={`change-status-${s.iconName}`} />)
-//     .filter((s) => !!s);
-// }
-
-// /**
-//  * gitRemoteChangeListData: accepts a git status
-//  * @param status {GitStatusData} status object that contains git-status call result from backend
-//  * @returns {JSX.Element[]}
-//  */
-// export function gitRemoteChangeListData(
-//   status: Partial<GitStatusData> = defaultStatus,
-// ): JSX.Element[] {
-//   const changeKind = [Kind.AHEAD_COMMIT, Kind.BEHIND_COMMIT];
-//   return changeKind
-//     .map((type: Kind) => STATUS_MAP[type](status))
-//     .filter((s: GitStatusProps) => s.hasValue)
-//     .map((s) => <Change {...s} key={`change-status-${s.iconName}`} />)
-//     .filter((s) => !!s);
-// }
-
 export default function GitChangesList() {
   const status = useSelector(getGitStatus);
   const statusLoading = useSelector(getIsFetchingGitStatus);
 
-  // const derivedStatus: Partial<GitStatusData> = {
-  //   ...status,
-  //   aheadCount: status?.aheadCount,
-  //   behindCount: status?.behindCount,
-  //   remoteBranch: status?.remoteBranch,
-  // };
-
-  // const statusChanges = gitChangeListData(derivedStatus);
-  // const remoteStatusChanges = gitRemoteChangeListData(derivedStatus);
-
-  // const currentApplication = useSelector(getCurrentApplication);
-  // const { isAutoUpdate } = changeInfoSinceLastCommit(currentApplication);
-  // if (isAutoUpdate && !status?.isClean) {
-  //   statusChanges.push(
-  //     <Change
-  //       hasValue={isAutoUpdate}
-  //       iconName="info"
-  //       key="change-status-auto-update"
-  //       message={createMessage(CHANGES_FROM_APPSMITH)}
-  //     />,
-  //   );
-  // }
-
   if (statusLoading) {
-    return <DummyChange data-testid={"t--git-change-loading-dummy"} />;
+    return <DummyChange data-testid="t--status-change-skeleton-loading" />;
   }
 
   if (!status) {
@@ -495,13 +359,18 @@ export default function GitChangesList() {
   }
 
   return (
-    <Changes data-testid={"t--git-change-statuses"}>
+    <Changes data-testid={"t--status-changes"}>
+      <StaticChage kind={StaticChangeKind.REMOTE_BEHIND} status={status} />
+      <StaticChage kind={StaticChangeKind.REMOTE_AHEAD} status={status} />
       <Change kind={ChangeKind.PAGES} status={status} />
       <Change kind={ChangeKind.JSOBJECTS} status={status} />
       <Change kind={ChangeKind.DATASOURCES} status={status} />
       <Change kind={ChangeKind.QUERIES} status={status} />
       <Change kind={ChangeKind.JSLIBS} status={status} />
-      {/* {remoteStatusChanges} */}
+      <StaticChage kind={StaticChangeKind.SETTINGS} status={status} />
+      <StaticChage kind={StaticChangeKind.THEME} status={status} />
+      <StaticChage kind={StaticChangeKind.PACKAGES} status={status} />
+      <StaticChage kind={StaticChangeKind.MODULES} status={status} />
       {status?.migrationMessage ? (
         <CalloutContainer>
           <Callout kind="info">{status.migrationMessage}</Callout>

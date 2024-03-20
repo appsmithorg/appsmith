@@ -1,35 +1,351 @@
+import React from "react";
+import { render } from "@testing-library/react";
+import { Provider } from "react-redux";
+import configureStore from "redux-mock-store";
+import GitChangesList from "./GitChangesList";
+import { merge } from "lodash";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import { gitChangeListData } from "./GitChangesList";
+import "@testing-library/jest-dom";
+
+const getMockStore = (
+  override: {
+    gitStatus?: Partial<GitStatusData>;
+    isFetchingGitStatus?: boolean;
+  } = {},
+) => {
+  const statusSlice = {
+    isFetchingGitStatus: false,
+    gitStatus: {
+      modified: [],
+      added: [],
+      removed: [],
+      pagesModified: [],
+      pagesAdded: [],
+      pagesRemoved: [],
+      queriesModified: [],
+      queriesAdded: [],
+      queriesRemoved: [],
+      jsObjectsModified: [],
+      jsObjectsAdded: [],
+      jsObjectsRemoved: [],
+      datasourcesModified: [],
+      datasourcesAdded: [],
+      datasourcesRemoved: [],
+      jsLibsModified: [],
+      jsLibsAdded: [],
+      jsLibsRemoved: [],
+      conflicting: [],
+      isClean: true,
+      aheadCount: 0,
+      behindCount: 0,
+      remoteBranch: "",
+      discardDocUrl: "",
+      migrationMessage: "",
+    },
+  };
+  const mockStore = configureStore([]);
+  const newStatusSlice = merge(statusSlice, override);
+  return mockStore({
+    ui: {
+      gitSync: {
+        ...newStatusSlice,
+      },
+    },
+  });
+};
 
 describe("GitChangesList", () => {
-  describe("gitChangesListData", () => {
-    it("returns proper data", () => {
-      const status: GitStatusData = {
-        conflicting: [],
-        aheadCount: 1,
-        behindCount: 1,
-        isClean: false,
-        modified: [],
-        modifiedPages: 1,
-        modifiedQueries: 1,
-        remoteBranch: "string",
-        modifiedJSObjects: 1,
-        modifiedDatasources: 1,
-        modifiedJSLibs: 1,
-        discardDocUrl: "string",
-      };
-      const actual = gitChangeListData(status);
-      expect(Array.isArray(actual)).toBeTruthy();
-      const actualJSON = JSON.stringify(actual);
-      expect(actualJSON.length).toBeGreaterThan(0);
-      const expectedJSON =
-        '[{"key":"change-status-widget","ref":null,"props":{"message":"1 page modified","iconName":"widget","hasValue":true},"_owner":null,"_store":{}},{"key":"change-status-query","ref":null,"props":{"message":"1 query modified","iconName":"query","hasValue":true},"_owner":null,"_store":{}},{"key":"change-status-js","ref":null,"props":{"message":"1 JS Object modified","iconName":"js","hasValue":true},"_owner":null,"_store":{}},{"key":"change-status-database-2-line","ref":null,"props":{"message":"1 datasource modified","iconName":"database-2-line","hasValue":true},"_owner":null,"_store":{}},{"key":"change-status-package","ref":null,"props":{"message":"1 library modified","iconName":"package","hasValue":true},"_owner":null,"_store":{}}]';
-      expect(actualJSON).toEqual(expectedJSON);
+  it("should render loading state when fetching git status", () => {
+    const store = getMockStore({ isFetchingGitStatus: true });
+
+    const { getByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(
+      getByTestId("t--status-change-skeleton-loading"),
+    ).toBeInTheDocument();
+  });
+
+  it("should render the component with empty status data", () => {
+    const store = getMockStore({});
+
+    const { queryByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-DATASOURCES"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_AHEAD"),
+    ).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_BEHIND"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-PACKAGES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-MODULES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-SETTINGS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
+  });
+
+  it("should render Page related changes", () => {
+    const store = getMockStore({
+      gitStatus: {
+        pagesModified: ["Page 1", "Page 2"],
+        pagesAdded: ["Page 3"],
+        pagesRemoved: ["Page 4"],
+      },
     });
-    it("returns empty array", () => {
-      const actual = gitChangeListData();
-      const expected: JSX.Element[] = [];
-      expect(actual).toEqual(expected);
+
+    const { getByTestId, queryByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(getByTestId("t--status-change-PAGES")).toBeInTheDocument();
+
+    expect(
+      queryByTestId("t--status-change-DATASOURCES"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_AHEAD"),
+    ).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_BEHIND"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-PACKAGES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-MODULES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-SETTINGS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
+  });
+
+  it("should render Datasource related changes", () => {
+    const store = getMockStore({
+      gitStatus: {
+        datasourcesModified: ["Datasource 1", "Datasource 2"],
+        datasourcesAdded: ["Datasource 3"],
+        datasourcesRemoved: ["Datasource 4"],
+      },
     });
+
+    const { getByTestId, queryByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
+    expect(getByTestId("t--status-change-DATASOURCES")).toBeInTheDocument();
+    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_AHEAD"),
+    ).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_BEHIND"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-PACKAGES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-MODULES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-SETTINGS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
+  });
+
+  it("should render Query related changes", () => {
+    const store = getMockStore({
+      gitStatus: {
+        queriesModified: ["Query 1", "Query 2"],
+        queriesAdded: ["Query 3"],
+        queriesRemoved: ["Query 4"],
+      },
+    });
+
+    const { getByTestId, queryByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-DATASOURCES"),
+    ).not.toBeInTheDocument();
+    expect(getByTestId("t--status-change-QUERIES")).toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_AHEAD"),
+    ).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_BEHIND"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-PACKAGES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-MODULES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-SETTINGS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
+  });
+
+  it("should render JSObject related changes", () => {
+    const store = getMockStore({
+      gitStatus: {
+        jsObjectsModified: ["JSObject 1", "JSObject 2"],
+        jsObjectsAdded: ["JSObject 3"],
+        jsObjectsRemoved: ["JSObject 4"],
+      },
+    });
+
+    const { getByTestId, queryByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-DATASOURCES"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
+    expect(getByTestId("t--status-change-JSOBJECTS")).toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_AHEAD"),
+    ).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_BEHIND"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-PACKAGES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-MODULES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-SETTINGS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
+  });
+
+  it("should render JSLib related changes", () => {
+    const store = getMockStore({
+      gitStatus: {
+        jsLibsModified: ["JSLib 1", "JSLib 2"],
+        jsLibsAdded: ["JSLib 3"],
+        jsLibsRemoved: ["JSLib 4"],
+      },
+    });
+
+    const { getByTestId, queryByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-DATASOURCES"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
+    expect(getByTestId("t--status-change-JSLIBS")).toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_AHEAD"),
+    ).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_BEHIND"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-PACKAGES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-MODULES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-SETTINGS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
+  });
+
+  it("should render Remote related changes", () => {
+    const store = getMockStore({
+      gitStatus: {
+        aheadCount: 2,
+        behindCount: 3,
+      },
+    });
+
+    const { getByTestId, queryByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-DATASOURCES"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
+    expect(getByTestId("t--status-change-REMOTE_AHEAD")).toBeInTheDocument();
+    expect(getByTestId("t--status-change-REMOTE_BEHIND")).toBeInTheDocument();
+    expect(queryByTestId("t--status-change-PACKAGES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-MODULES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-SETTINGS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
+  });
+
+  it("should render Package related changes", () => {
+    const store = getMockStore({
+      gitStatus: {
+        modifiedPackages: 2,
+      },
+    });
+
+    const { getByTestId, queryByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-DATASOURCES"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_AHEAD"),
+    ).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_BEHIND"),
+    ).not.toBeInTheDocument();
+    expect(getByTestId("t--status-change-PACKAGES")).toBeInTheDocument();
+    expect(queryByTestId("t--status-change-MODULES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-SETTINGS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
+  });
+
+  it("should render Module related changes", () => {
+    const store = getMockStore({
+      gitStatus: {
+        modifiedModules: 2,
+      },
+    });
+
+    const { getByTestId, queryByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-DATASOURCES"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_AHEAD"),
+    ).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_BEHIND"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-PACKAGES")).not.toBeInTheDocument();
+    expect(getByTestId("t--status-change-MODULES")).toBeInTheDocument();
+    expect(queryByTestId("t--status-change-SETTINGS")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
   });
 });
