@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -12,8 +13,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<CustomJSLib>
         implements CustomJSLibRepositoryCE {
@@ -27,7 +26,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
 
     @Override
     public Mono<CustomJSLib> findUniqueCustomJsLib(CustomJSLib customJSLib) {
-        Criteria criteria = where(CustomJSLib.Fields.uidString).is(customJSLib.getUidString());
+        Criteria criteria = Bridge.equal(CustomJSLib.Fields.uidString, customJSLib.getUidString());
 
         return queryBuilder().criteria(criteria).one();
     }
@@ -39,7 +38,7 @@ public class CustomJSLibRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Cust
                 .map(CustomJSLibContextDTO::getUidString)
                 .collect(Collectors.toSet());
 
-        Criteria criteria = Criteria.where(CustomJSLib.Fields.uidString).in(uidStrings);
+        Criteria criteria = Bridge.in(CustomJSLib.Fields.uidString, uidStrings);
 
         return queryBuilder().criteria(criteria).all();
     }
