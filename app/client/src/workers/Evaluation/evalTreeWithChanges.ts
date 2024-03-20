@@ -14,6 +14,7 @@ import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActio
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import { generateOptimisedUpdatesAndSetPrevState } from "./helpers";
+import { get } from "lodash";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
@@ -66,18 +67,26 @@ export function evalTreeWithChanges(
     (update) => update.payload.propertyPath,
   );
   const completeEvalOrder = Array.from(
-    new Set([
-      ...updatedValuePaths.map((val) => val.join(".")),
-      ...allUnevalUpdates,
-      ...evalOrder,
-    ]),
+    new Set([...allUnevalUpdates, ...evalOrder]),
   ).sort((a, b) => b.length - a.length);
+
+  const setterAndLocalStorageUpdates = Array.from(
+    new Set(updatedValuePaths.map((val) => val.join("."))),
+  )
+    .sort((a, b) => b.length - a.length)
+    .map((path) => ({
+      kind: "N",
+      path: path.split("."),
+      rhs: get(dataTree, path.split(".")),
+    }));
 
   const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
     dataTreeEvaluator,
     completeEvalOrder,
+    setterAndLocalStorageUpdates,
   );
+
   const evalTreeResponse: EvalTreeResponseData = {
     updates,
     dependencies,
