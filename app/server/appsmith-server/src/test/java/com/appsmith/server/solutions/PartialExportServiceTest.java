@@ -240,7 +240,7 @@ public class PartialExportServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     void testGetPartialExport_nonGitConnectedApp_success() {
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.anySet(), Mockito.anyList()))
                 .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         // Create an application with all resources
@@ -284,7 +284,7 @@ public class PartialExportServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetPartialExport_gitConnectedApp_branchResourceExported() {
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.anySet(), Mockito.anyList()))
                 .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         Application application = createGitConnectedApp("testGetPartialExport_gitConnectedApp_branchResourceExported");
@@ -348,7 +348,7 @@ public class PartialExportServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetPartialExport_gitConnectedApp_featureBranchResourceExported() {
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.anySet(), Mockito.anyList()))
                 .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         Application application =
