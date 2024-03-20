@@ -18,7 +18,7 @@ export const getJsChildrenNavData = (
   let childNavData: EntityNavigationData = {};
 
   const dataTreeAction = dataTree[jsAction.config.name] as JSActionEntity;
-
+  const jsActionVariables = jsAction.config.variables || [];
   if (dataTreeAction) {
     let children: NavigationData[] = jsAction.config.actions.map((jsChild) => {
       return createNavData({
@@ -36,7 +36,7 @@ export const getJsChildrenNavData = (
       });
     });
 
-    const variableChildren: NavigationData[] = jsAction.config.variables.map(
+    const variableChildren: NavigationData[] = jsActionVariables.map(
       (jsChild) => {
         return createNavData({
           id: `${jsAction.config.name}.${jsChild.name}`,
