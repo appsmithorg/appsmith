@@ -141,9 +141,19 @@
                     }
                   ],
                   "hidden": {
-                    "path": "datasourceConfiguration.connection.ssl.authType",
-                    "comparison": "NOT_EQUALS",
-                    "value": "VERIFY_CA"
+                    "conditionType": "AND",
+                    "conditions": [
+                      {
+                        "path": "datasourceConfiguration.connection.ssl.authType",
+                        "comparison": "NOT_EQUALS",
+                        "value": "VERIFY_CA"
+                      },
+                      {
+                        "path": "datasourceConfiguration.connection.ssl.authType",
+                        "comparison": "NOT_EQUALS",
+                        "value": "VERIFY_FULL"
+                      }
+                    ]
                   }
                 },
                 {
@@ -197,9 +207,19 @@
                     }
                   ],
                   "hidden": {
-                    "path": "datasourceConfiguration.connection.ssl.authType",
-                    "comparison": "NOT_EQUALS",
-                    "value": "VERIFY_CA"
+                    "conditionType": "AND",
+                    "conditions": [
+                      {
+                        "path": "datasourceConfiguration.connection.ssl.authType",
+                        "comparison": "NOT_EQUALS",
+                        "value": "VERIFY_CA"
+                      },
+                      {
+                        "path": "datasourceConfiguration.connection.ssl.authType",
+                        "comparison": "NOT_EQUALS",
+                        "value": "VERIFY_FULL"
+                      }
+                    ]
                   }
                 },
                 {
