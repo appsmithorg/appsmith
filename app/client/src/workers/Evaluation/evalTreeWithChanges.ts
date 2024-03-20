@@ -13,8 +13,11 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
-import { generateOptimisedUpdatesAndSetPrevState } from "./helpers";
-import { get } from "lodash";
+import {
+  generateOptimisedUpdatesAndSetPrevState,
+  getNewDataTreeUpdates,
+  uniqueOrderUpdatePaths,
+} from "./helpers";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
@@ -66,19 +69,15 @@ export function evalTreeWithChanges(
   const allUnevalUpdates = unEvalUpdates.map(
     (update) => update.payload.propertyPath,
   );
-  const completeEvalOrder = Array.from(
-    new Set([...allUnevalUpdates, ...evalOrder]),
-  ).sort((a, b) => b.length - a.length);
+  const completeEvalOrder = uniqueOrderUpdatePaths([
+    ...allUnevalUpdates,
+    ...evalOrder,
+  ]);
 
-  const setterAndLocalStorageUpdates = Array.from(
-    new Set(updatedValuePaths.map((val) => val.join("."))),
-  )
-    .sort((a, b) => b.length - a.length)
-    .map((path) => ({
-      kind: "N",
-      path: path.split("."),
-      rhs: get(dataTree, path.split(".")),
-    }));
+  const setterAndLocalStorageUpdates = getNewDataTreeUpdates(
+    uniqueOrderUpdatePaths(updatedValuePaths.map((val) => val.join("."))),
+    dataTree,
+  );
 
   const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,

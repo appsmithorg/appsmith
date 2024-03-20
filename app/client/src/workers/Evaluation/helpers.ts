@@ -9,6 +9,19 @@ import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
 export const fn_keys: string = "__fn_keys__";
 
+export const uniqueOrderUpdatePaths = (updatePaths: string[]) =>
+  Array.from(new Set(updatePaths)).sort((a, b) => b.length - a.length);
+
+export const getNewDataTreeUpdates = (paths: string[], dataTree: object) =>
+  paths.map((path) => {
+    const segmentedPath = path.split(".");
+    return {
+      kind: "N",
+      path: segmentedPath,
+      rhs: get(dataTree, segmentedPath),
+    };
+  });
+
 export interface DiffReferenceState {
   kind: "referenceState";
   path: any[];
@@ -198,7 +211,7 @@ const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
     {},
   );
 
-const getDataTree = (data: any, evalOrder: any) => {
+const getReducedDataTree = (data: any, evalOrder: any) => {
   const withErrors = Object.keys(data).reduce((acc: any, key) => {
     const widgetValue = data[key];
     acc[key] = {
@@ -223,8 +236,8 @@ const generateDiffUpdates = (
   const ignoreLargeKeysHasBeenAttached = new Set();
   const attachLater: DiffWithReferenceState[] = [];
 
-  const oldData = getDataTree(oldDataTree, evalOrder);
-  const newData = getDataTree(dataTree, evalOrder);
+  const oldData = getReducedDataTree(oldDataTree, evalOrder);
+  const newData = getReducedDataTree(dataTree, evalOrder);
   const updates =
     diff(oldData, newData, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;

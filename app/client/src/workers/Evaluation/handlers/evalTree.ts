@@ -23,7 +23,10 @@ import { clearAllIntervals } from "../fns/overrides/interval";
 import JSObjectCollection from "workers/Evaluation/JSObject/Collection";
 import { getJSVariableCreatedEvents } from "../JSObject/JSVariableEvents";
 import { errorModifier } from "../errorModifier";
-import { generateOptimisedUpdatesAndSetPrevState } from "../helpers";
+import {
+  generateOptimisedUpdatesAndSetPrevState,
+  uniqueOrderUpdatePaths,
+} from "../helpers";
 import DataStore from "../dataStore";
 import type { TransmissionErrorHandler } from "../fns/utils/Messenger";
 import { MessageType, sendMessage } from "utils/MessageUtil";
@@ -258,9 +261,12 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     const allUnevalUpdates = unEvalUpdates.map(
       (update) => update.payload.propertyPath,
     );
-    const completeEvalOrder = Array.from(
-      new Set([...allUnevalUpdates, ...evalOrder]),
-    ).sort((a, b) => b.length - a.length);
+
+    const completeEvalOrder = uniqueOrderUpdatePaths([
+      ...allUnevalUpdates,
+      ...evalOrder,
+    ]);
+
     updates = generateOptimisedUpdatesAndSetPrevState(
       dataTree,
       dataTreeEvaluator,
