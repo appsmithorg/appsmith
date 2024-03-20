@@ -458,17 +458,6 @@ function setup_auto_heal(){
    fi
 }
 
-function setup_custom_log_dir(){
-  if [[ -z "${APPSMITH_CUSTOM_LOG_DIR}" ]]; then
-    export CUSTOM_LOG_DIR="/appsmith-stacks/logs"
-  else
-    echo "**********creating custom log path***************"
-    echo "${APPSMITH_CUSTOM_LOG_DIR}/{backend,rts,editor}"
-    mkdir -p "/${APPSMITH_CUSTOM_LOG_DIR}/"{backend,rts,editor}
-    export CUSTOM_LOG_DIR="${APPSMITH_CUSTOM_LOG_DIR}"
-  fi
-}
-
 # Main Section
 init_loading_pages
 init_env_file
@@ -502,7 +491,8 @@ configure_supervisord
 mkdir -p /appsmith-stacks/data/{backup,restore} /appsmith-stacks/ssl
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
+mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
 
