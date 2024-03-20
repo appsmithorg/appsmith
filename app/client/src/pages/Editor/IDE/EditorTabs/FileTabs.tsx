@@ -24,8 +24,8 @@ const FileTabs = (props: Props) => {
   const currentEntity = identifyEntityFromPath(location.pathname);
 
   const transitions = useTransition(tabs, {
-    from: { transform: "translateX(-100%)", opacity: 0 },
-    enter: { transform: "translateX(0)", opacity: 1 },
+    from: { maxWidth: 0, opacity: 0 },
+    enter: { maxWidth: 105, opacity: 1 },
     keys: (item) => item.key,
     config: { tension: 210, friction: 20 },
   });
