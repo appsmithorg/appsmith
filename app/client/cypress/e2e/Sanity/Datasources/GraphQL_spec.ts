@@ -20,11 +20,11 @@ const GRAPHQL_QUERY = `query ($myid: Int!) {
   }
 }`;
 
-let POST_ID = 4;
+const POST_ID = 4;
 
-let GRAPHQL_VARIABLES = `{
-    "myid": ${POST_ID}
-  }`;
+const GRAPHQL_VARIABLES = `{
+  "myid": ${POST_ID}
+}`;
 
 const GRAPHQL_LIMIT_QUERY = `query($offsetz:Int, $firstz:Int){
           allPosts(offset:$offsetz, first:$firstz) {
