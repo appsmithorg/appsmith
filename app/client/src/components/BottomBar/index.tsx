@@ -11,6 +11,7 @@ import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useDispatch } from "react-redux";
 import { softRefreshActions } from "actions/pluginActionActions";
 import { START_SWITCH_ENVIRONMENT } from "@appsmith/constants/messages";
+import { FeedbackButton } from "./FeedbackButton";
 
 export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   const appId = useSelector(getCurrentApplicationId) || "";
@@ -44,6 +45,7 @@ export default function BottomBar({ viewMode }: { viewMode: boolean }) {
               startIcon="upgrade"
             />
           </ManualUpgrades>
+          {!viewMode && <FeedbackButton />}
           <DebuggerTrigger />
           <HelpButton />
         </Wrapper>
