@@ -710,7 +710,7 @@ function getStickyCanvasDOM(canvasId: string) {
  * @param canvasPosition position in canvas rows and columns
  * @returns
  */
-export function getMousePositionFromGridPosition(
+export function getMousePositionFromCanvasGridPosition(
   top: number,
   left: number,
   snapGrid: { snapRowSpace: number; snapColumnSpace: number },

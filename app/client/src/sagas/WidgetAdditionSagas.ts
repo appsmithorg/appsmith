@@ -77,7 +77,7 @@ import {
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import {
   getDefaultCanvas,
-  getMousePositionFromGridPosition,
+  getMousePositionFromCanvasGridPosition,
   getSnappedGrid,
 } from "./WidgetOperationUtils";
 import {
@@ -606,7 +606,7 @@ export function* addBuildingBlockToApplication(
           containerWidget,
           canvasRect.width,
         );
-        mousePosition = getMousePositionFromGridPosition(
+        mousePosition = getMousePositionFromCanvasGridPosition(
           topRow,
           leftColumn,
           snapGrid,
@@ -626,7 +626,7 @@ export function* addBuildingBlockToApplication(
         },
       });
 
-      yield put(pasteWidget(false, mousePosition || { x: 0, y: 0 }));
+      yield put(pasteWidget(false, mousePosition));
       yield call(postPageAdditionSaga, applicationId);
 
       if (existingCopiedWidgets) {

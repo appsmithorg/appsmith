@@ -2,7 +2,6 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-  WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
@@ -151,7 +150,7 @@ const getBottomMostRowAfterMove = (
   return widgetBottomRow;
 };
 
-function* addBuildingBlockAndMoveSaga(
+function* addBuildingBlockAndMoveWidgetsSaga(
   actionPayload: ReduxAction<{
     newWidget: WidgetAddChild;
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
@@ -186,16 +185,6 @@ function* addBuildingBlockAndMoveSaga(
     actionPayload.payload.newWidget,
     skeletonWidget.widgetId,
   );
-
-  yield put({
-    type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
-    payload: {
-      widgetId: skeletonWidget?.widgetId,
-      parentId: MAIN_CONTAINER_WIDGET_ID,
-      disallowUndo: true,
-      isShortcut: false,
-    },
-  });
 }
 
 function* addAndMoveUIEntitySaga(
@@ -206,7 +195,7 @@ function* addAndMoveUIEntitySaga(
   }>,
 ) {
   if (actionPayload.payload.newWidget.type === BUILDING_BLOCK_EXPLORER_TYPE) {
-    yield call(addBuildingBlockAndMoveSaga, actionPayload);
+    yield call(addBuildingBlockAndMoveWidgetsSaga, actionPayload);
   } else {
     yield call(addWidgetAndMoveWidgetsSaga, actionPayload);
   }
@@ -266,10 +255,7 @@ function* addWidgetAndMoveWidgets(
   const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
   const updatedWidgetsOnAddition: CanvasWidgetsReduxState = yield call(
     getUpdateDslAfterCreatingChild,
-    {
-      ...newWidget,
-      widgetId: canvasId,
-    },
+    { ...newWidget, widgetId: canvasId },
   );
   const bottomMostRowOnAddition = updatedWidgetsOnAddition[canvasId]
     ? updatedWidgetsOnAddition[canvasId].bottomRow
