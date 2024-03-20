@@ -8,6 +8,7 @@ import type {
 import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
+import { DetachedWidgetsDropArena } from "./DetachedWidgetsDropArena";
 
 // Props interface for AnvilCanvasDraggingArena component
 interface AnvilCanvasDraggingArenaProps {
@@ -42,13 +43,22 @@ export const AnvilCanvasDraggingArena = (
 
   // Using the useAnvilWidgetDrop hook to handle widget dropping
   const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
-
+  const isMainCanvasDropArena =
+    anvilDragStates.mainCanvasLayoutId === props.layoutId;
   return (
-    <AnvilHighlightingCanvas
-      anvilDragStates={anvilDragStates}
-      deriveAllHighlightsFn={deriveAllHighlightsFn}
-      layoutId={layoutId}
-      onDrop={onDrop}
-    />
+    <>
+      <AnvilHighlightingCanvas
+        anvilDragStates={anvilDragStates}
+        deriveAllHighlightsFn={deriveAllHighlightsFn}
+        layoutId={layoutId}
+        onDrop={onDrop}
+      />
+      {isMainCanvasDropArena && (
+        <DetachedWidgetsDropArena
+          anvilDragStates={anvilDragStates}
+          onDrop={onDrop}
+        />
+      )}
+    </>
   );
 };

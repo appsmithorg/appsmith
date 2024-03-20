@@ -2,11 +2,8 @@ import type React from "react";
 import { useEffect, useRef } from "react";
 import type { AnvilHighlightingCanvasProps } from "../AnvilHighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
-import { Colors } from "constants/Colors";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { getAbsolutePixels } from "utils/helpers";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { getClosestHighlight } from "./utils";
 import { AnvilCanvasZIndex } from "./mainCanvas/useCanvasActivation";
@@ -37,20 +34,6 @@ const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
 };
 
 /**
- * Function to render UX to denote that the widget can only be dropped on the main canvas
- * and also there would be no highlights for AnvilOverlayWidgetTypes widgets
- */
-const renderOverlayWidgetDropLayer = (slidingArena: HTMLDivElement) => {
-  slidingArena.style.backgroundColor = Colors.HIGHLIGHT_FILL;
-  slidingArena.style.opacity = "70%";
-  slidingArena.style.color = "white";
-  slidingArena.innerText = "Please drop the widget here";
-  slidingArena.style.display = "flex";
-  slidingArena.style.alignItems = "center";
-  slidingArena.style.justifyContent = "center";
-};
-
-/**
  * Function to stroke a rectangle on the canvas that looks like a highlight/drop area.
  */
 const renderBlocksOnCanvas = (
@@ -77,22 +60,6 @@ const renderBlocksOnCanvas = (
   canvasCtx.fillStyle = AnvilEditorColors.dropIndicator;
   canvasCtx.fill();
   canvasCtx.closePath();
-};
-
-/**
- * Default highlight passed for AnvilOverlayWidgetTypes widgets
- */
-const overlayWidgetHighlight: AnvilHighlightInfo = {
-  layoutId: "",
-  alignment: FlexLayerAlignment.Center,
-  canvasId: MAIN_CONTAINER_WIDGET_ID,
-  height: 0,
-  isVertical: false,
-  layoutOrder: [],
-  posX: 0,
-  posY: 0,
-  rowIndex: 0,
-  width: 0,
 };
 
 /**
@@ -213,20 +180,12 @@ export const useCanvasDragging = (
           if (
             isDragging &&
             canvasIsDragging.current &&
-            ((currentRectanglesToDraw &&
-              !currentRectanglesToDraw.existingPositionHighlight) ||
-              activateOverlayWidgetDrop) &&
+            currentRectanglesToDraw &&
+            !currentRectanglesToDraw.existingPositionHighlight &&
             allowToDrop
           ) {
             // Invoke onDrop callback with the appropriate highlight info
-            onDrop(
-              activateOverlayWidgetDrop
-                ? {
-                    ...overlayWidgetHighlight,
-                    layoutOrder: [mainCanvasLayoutId],
-                  }
-                : currentRectanglesToDraw,
-            );
+            onDrop(currentRectanglesToDraw);
           }
           resetCanvasState();
         };
@@ -278,11 +237,6 @@ export const useCanvasDragging = (
             if (!allowToDrop) {
               // Render disallow message if dropping is not allowed
               renderDisallowOnCanvas(slidingArenaRef.current);
-              return;
-            }
-            if (activateOverlayWidgetDrop) {
-              // Render overlay widget drop layer if applicable
-              renderOverlayWidgetDropLayer(slidingArenaRef.current);
               return;
             }
             // Get the closest highlight based on the mouse position
@@ -370,7 +324,6 @@ export const useCanvasDragging = (
     }
   }, [
     isDragging,
-    activateOverlayWidgetDrop,
     allowToDrop,
     draggedBlocks,
     isCurrentDraggedCanvas,
@@ -380,6 +333,6 @@ export const useCanvasDragging = (
   ]);
 
   return {
-    showCanvas: isDragging,
+    showCanvas: isDragging && !activateOverlayWidgetDrop,
   };
 };
