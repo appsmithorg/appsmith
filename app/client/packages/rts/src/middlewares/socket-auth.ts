@@ -46,10 +46,10 @@ export async function tryAuth(socket: Socket) {
     } else if (error.response) {
       log.error(
         "Error response received while authentication: ",
-        error.response,
+        JSON.stringify(error.response.data), // this is so the message shows up in one line.
       );
     } else {
-      log.error("Error authenticating", error);
+      log.error("Error authenticating", error.cause?.toString());
     }
     return false;
   }

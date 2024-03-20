@@ -1,0 +1,81 @@
+import type { ReactNode } from "react";
+import React from "react";
+import { EditorState } from "@appsmith/entities/IDE/constants";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
+import { useSelector } from "react-redux";
+import {
+  combinedPreviewModeSelector,
+  getCurrentApplication,
+} from "selectors/editorSelectors";
+import { PageViewWrapper } from "pages/AppViewer/AppPage.styled";
+import classNames from "classnames";
+import { APP_MODE } from "entities/App";
+import { getAppMode } from "@appsmith/selectors/entitiesSelector";
+import {
+  getAppSidebarPinned,
+  getSidebarWidth,
+} from "@appsmith/selectors/applicationSelectors";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+
+/**
+ * NavigationAdjustedPageViewer
+ *
+ * This component is used to provide proper layout for the layout system based editor in different modes like preview, published, and settings.
+ */
+export const NavigationAdjustedPageViewer = (props: {
+  children: ReactNode;
+}) => {
+  const isPreview = useSelector(combinedPreviewModeSelector);
+  const currentApplicationDetails = useSelector(getCurrentApplication);
+  const isAppSidebarPinned = useSelector(getAppSidebarPinned);
+  const sidebarWidth = useSelector(getSidebarWidth);
+  const isNavigationSelectedInSettings = useSelector(
+    getIsAppSettingsPaneWithNavigationTabOpen,
+  );
+  const appState = useCurrentAppState();
+  const isAppSettingsPaneWithNavigationTabOpen =
+    appState === EditorState.SETTINGS && isNavigationSelectedInSettings;
+
+  const appMode = useSelector(getAppMode);
+  const isPublished = appMode === APP_MODE.PUBLISHED;
+  const isMobile = useIsMobileDevice();
+  const isPreviewingNavigation =
+    isPreview || isAppSettingsPaneWithNavigationTabOpen;
+  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
+  const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
+  return (
+    <PageViewWrapper
+      className={classNames({
+        "relative flex flex-row w-full justify-center": true,
+        "select-none pointer-events-none":
+          isAppSettingsPaneWithNavigationTabOpen,
+      })}
+      hasPinnedSidebar={
+        isPreviewingNavigation && !isMobile
+          ? currentApplicationDetails?.applicationDetail?.navigationSetting
+              ?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+            isAppSidebarPinned
+          : false
+      }
+      id={CANVAS_VIEWPORT}
+      isPreview={isPreview}
+      isPublished={isPublished}
+      sidebarWidth={isPreviewingNavigation ? sidebarWidth : 0}
+      style={
+        isAnvilLayout
+          ? {
+              //This is necessary in order to place WDS modal with position: fixed; relatively to the canvas.
+              transform: "scale(1)",
+            }
+          : {}
+      }
+    >
+      {props.children}
+    </PageViewWrapper>
+  );
+};

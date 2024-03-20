@@ -15,6 +15,7 @@ import {
   BASE_URL,
   CUSTOM_WIDGETS_EDITOR_ID_PATH,
   CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM,
+  CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH,
 } from "constants/routes";
 import Navigation from "pages/AppViewer/Navigation";
 import type { RouteComponentProps } from "react-router";
@@ -36,6 +37,11 @@ export const Routes = () => {
         component={undefined}
         exact
         path={CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM}
+      />
+      <Route
+        component={undefined}
+        exact
+        path={CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH}
       />
       <Route component={AppIDEHeader} path={BUILDER_PATH_DEPRECATED} />
       <Route component={Navigation} path={VIEWER_PATH_DEPRECATED} />
