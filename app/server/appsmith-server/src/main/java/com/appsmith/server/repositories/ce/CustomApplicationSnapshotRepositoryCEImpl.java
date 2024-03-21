@@ -2,14 +2,13 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ApplicationSnapshot>
@@ -24,15 +23,15 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
 
     @Override
     public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
-        List<Criteria> criteriaList = new ArrayList<>();
-        criteriaList.add(Bridge.equal(ApplicationSnapshot.Fields.applicationId, applicationId));
-        criteriaList.add(Bridge.equal(ApplicationSnapshot.Fields.chunkOrder, 1));
+        BridgeQuery<ApplicationSnapshot> query = Bridge.query();
+        query.equal(ApplicationSnapshot.Fields.applicationId, applicationId)
+                .equal(ApplicationSnapshot.Fields.chunkOrder, 1);
 
         List<String> fieldNames = List.of(
                 ApplicationSnapshot.Fields.applicationId,
                 ApplicationSnapshot.Fields.chunkOrder,
                 ApplicationSnapshot.Fields.createdAt,
                 ApplicationSnapshot.Fields.updatedAt);
-        return queryBuilder().criteria(criteriaList).fields(fieldNames).one();
+        return queryBuilder().criteria(query).fields(fieldNames).one();
     }
 }
