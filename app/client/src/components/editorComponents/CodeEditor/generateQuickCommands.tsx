@@ -1,5 +1,6 @@
 import type { Datasource } from "entities/Datasource";
-import React from "react";
+import type { MouseEventHandler } from "react";
+import React, { useCallback } from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import ReactDOM from "react-dom";
 import type { SlashCommandPayload } from "entities/Action";
@@ -8,7 +9,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { Icon } from "design-system";
+import { Icon, Tooltip } from "design-system";
 import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -16,6 +17,10 @@ import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
 import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
 import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import history, { NavigationMethod } from "utils/history";
 
 export enum Shortcuts {
   PLUS = "PLUS",
@@ -97,21 +102,63 @@ export function Command(props: {
   name: string;
   desc?: string;
   isBeta?: boolean;
+  bindingText?: string;
+  url?: string;
+  eventParams?: Record<string, string>;
 }) {
-  return (
-    <div className="command-container">
-      <div className="command flex">
-        <div className="self-center">{props.icon}</div>
-        <div className="flex flex-col gap-1">
-          <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)]">
-            {props.name}
-            {props.isBeta && <BetaCard />}
+  const switchToAction: MouseEventHandler<HTMLElement> = useCallback(
+    (event) => {
+      event.stopPropagation();
+      if (!props.url) return;
+      PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
+        url: props.url,
+      });
+      history.push(props.url, { invokedBy: NavigationMethod.SlashCommandHint });
+      AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
+        ...(props.eventParams || {}),
+        from: "Slash_Command_Hint",
+      });
+    },
+    [props.url],
+  );
+
+  const optionElement = (
+    <div className="command-container relative group cursor-pointer">
+      <div className="flex items-center justify-center absolute hidden">
+        {props.bindingText}
+      </div>
+      <div className="command flex w-full">
+        <div className="self-center shrink-0">{props.icon}</div>
+        <div className="flex grow">
+          <div className="flex flex-col gap-1 grow">
+            <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)]">
+              {props.name}
+              {props.isBeta && <BetaCard />}
+            </div>
+            {props.desc ? (
+              <div className="command-desc">{props.desc}</div>
+            ) : null}
           </div>
-          {props.desc ? <div className="command-desc">{props.desc}</div> : null}
+          {props.url ? (
+            <span
+              className="hidden group-hover:inline self-center h-full px-2 text-xs"
+              onClick={switchToAction}
+            >
+              Edit
+            </span>
+          ) : null}
         </div>
       </div>
     </div>
   );
+
+  if (props.bindingText)
+    return (
+      <Tooltip content={props.bindingText} placement="left" trigger="hover">
+        {optionElement}
+      </Tooltip>
+    );
+  return optionElement;
 }
 
 export const generateQuickCommands = (
@@ -156,15 +203,17 @@ export const generateQuickCommands = (
     },
     shortcut: Shortcuts.PLUS,
   });
+
   const suggestions = entitiesForSuggestions.map((suggestion) => {
     const name = suggestion.name;
+    const bindingText =
+      suggestion.type === ENTITY_TYPE.ACTION
+        ? `{{${name}.data}}`
+        : suggestion.type === ENTITY_TYPE.JSACTION
+        ? `{{${name}.}}`
+        : `{{${name}}}`;
     return {
-      text:
-        suggestion.type === ENTITY_TYPE.ACTION
-          ? `{{${name}.data}}`
-          : suggestion.type === ENTITY_TYPE.JSACTION
-          ? `{{${name}.}}`
-          : `{{${name}}}`,
+      text: bindingText,
       displayText: `${name}`,
       className: "CodeMirror-commands",
       data: suggestion,
@@ -189,7 +238,18 @@ export const generateQuickCommands = (
           );
         }
         ReactDOM.render(
-          <Command icon={icon} name={data.displayText as string} />,
+          <Command
+            bindingText={bindingText}
+            eventParams={{
+              actionId: suggestion.id,
+              actionName: suggestion.name,
+              datasourceId: suggestion.datasourceId || "",
+              pluginName: suggestion.pluginName || "",
+            }}
+            icon={icon}
+            name={data.displayText as string}
+            url={suggestion.url}
+          />,
           element,
         );
       },
