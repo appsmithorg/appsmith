@@ -91,13 +91,10 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
     cy.xpath(appPage.closeButton).click({ force: true });
     cy.xpath(appPage.addNewtable).should("be.visible");
     // viewing the table's columns by clicking on view button
-    cy.wait(2000);
     cy.xpath(appPage.viewButton).first().click({ force: true });
     // deleting the table through modal
     cy.xpath(appPage.deleteButton).last().click({ force: true });
-    cy.wait(2000);
     cy.xpath(appPage.confirmButton).click({ force: true });
-    cy.wait(2000);
     cy.xpath(appPage.closeButton).click({ force: true });
   });
 });
