@@ -70,9 +70,9 @@ export const TableWrapper = styled.div<{
     width: 100%;
     overflow: auto hidden;
     scrollbar-color: initial;
+    container-type: inline-size;
 
     &.virtual {
-      container: table / inline-size;
       overflow: hidden;
     }
   }

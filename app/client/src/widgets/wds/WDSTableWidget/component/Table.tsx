@@ -377,13 +377,13 @@ export function Table(props: TableProps) {
           </Flex>
         )}
         <div
-          className={
+          className={`tableWrap ${
             props.isLoading
               ? Classes.SKELETON
               : shouldUseVirtual
-              ? "tableWrap virtual"
-              : "tableWrap"
-          }
+              ? " virtual"
+              : ""
+          }`}
         >
           <div {...getTableProps()} className="table column-freeze">
             {!shouldUseVirtual && (
