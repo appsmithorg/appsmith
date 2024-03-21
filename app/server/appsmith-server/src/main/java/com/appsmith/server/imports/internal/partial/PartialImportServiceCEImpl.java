@@ -438,6 +438,13 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 .flatMap(branchedPageId -> newPageService
                                         .findById(branchedPageId, Optional.empty())
                                         .map(newPage -> {
+                                            if (newPage.getUnpublishedPage()
+                                                            .getLayouts()
+                                                            .get(0)
+                                                            .getLayoutOnLoadActions()
+                                                    == null) {
+                                                return buildingBlockResponseDTO;
+                                            }
                                             newPage.getUnpublishedPage()
                                                     .getLayouts()
                                                     .get(0)
