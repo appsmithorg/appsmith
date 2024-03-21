@@ -3,7 +3,6 @@ import type {
   EvaluationReduxAction,
   AnyReduxAction,
   ReduxAction,
-  ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import {
@@ -11,6 +10,7 @@ import {
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { Action, ActionViewMode } from "entities/Action";
+import { ActionExecutionContext } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
@@ -107,6 +107,8 @@ export const runAction = (
   id: string,
   paginationField?: PaginationField,
   skipOpeningDebugger = false,
+  action = undefined,
+  actionExecutionContext = ActionExecutionContext.SELF,
 ) => {
   return {
     type: ReduxActionTypes.RUN_ACTION_REQUEST,
@@ -114,6 +116,8 @@ export const runAction = (
       id,
       paginationField,
       skipOpeningDebugger,
+      action,
+      actionExecutionContext,
     },
   };
 };
@@ -314,9 +318,16 @@ export const updateActionProperty = (
   });
 };
 
-export const executePageLoadActions = (): ReduxActionWithoutPayload => ({
-  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-});
+export const executePageLoadActions = (
+  actionExecutionContext?: ActionExecutionContext,
+) => {
+  return {
+    type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+    payload: {
+      actionExecutionContext,
+    },
+  };
+};
 
 export const executeJSUpdates = (
   payload: Record<string, JSUpdate>,

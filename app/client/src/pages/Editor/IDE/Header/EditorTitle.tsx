@@ -32,6 +32,7 @@ const EditorTitle = ({ title }: { title: string }) => {
       <Flex
         alignItems={"center"}
         className={"t--pages-switcher"}
+        data-active={active}
         gap={"spaces-1"}
         height={"100%"}
         justifyContent={"center"}

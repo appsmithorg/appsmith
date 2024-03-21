@@ -145,6 +145,7 @@ import type { DSLWidget } from "WidgetProvider/constants";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { ActionExecutionContext } from "entities/Action";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -977,7 +978,11 @@ export function* clonePageSaga(
       }
 
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+      yield put(
+        fetchAllPageEntityCompletion([
+          executePageLoadActions(ActionExecutionContext.CLONE_PAGE),
+        ]),
+      );
 
       // TODO: Update URL params here.
 
@@ -1374,7 +1379,11 @@ export function* generateTemplatePageSaga(
       if (!afterActionsFetch) {
         throw new Error("Failed generating template");
       }
-      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+      yield put(
+        fetchAllPageEntityCompletion([
+          executePageLoadActions(ActionExecutionContext.GENERATE_CRUD_PAGE),
+        ]),
+      );
 
       history.replace(
         builderURL({

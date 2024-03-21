@@ -1,126 +1,51 @@
 import React from "react";
 import { isNumber, merge, toString } from "lodash";
 
-import {
-  propertyPaneContentConfig,
-  propertyPaneStyleConfig,
-} from "./propertyPaneConfig";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
-import type {
-  AnvilConfig,
-  AutocompletionDefinitions,
-  PropertyUpdates,
-  SnipingModeProperty,
-} from "WidgetProvider/constants";
+import * as config from "../config";
 import InputComponent from "../component";
 import { INPUT_TYPES } from "../constants";
 import type { InputWidgetProps } from "./types";
 import { mergeWidgetConfig } from "utils/helpers";
 import { parseText, validateInput } from "./helper";
-import { DynamicHeight } from "utils/WidgetFeatures";
 import type { WidgetState } from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
 import derivedProperties from "./parsedDerivedProperties";
 import { WDSBaseInputWidget } from "../../WDSBaseInputWidget";
 import type { DerivedPropertiesMap } from "WidgetProvider/factory";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
-import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 
 class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   static getConfig() {
-    return {
-      name: "Input",
-      iconSVG: IconSVG,
-      thumbnailSVG: ThumbnailSVG,
-      tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.INPUTS],
-      needsMeta: true,
-      searchTags: ["form", "text input", "number", "textarea"],
-    };
-  }
-
-  static getFeatures() {
-    return {
-      dynamicHeight: {
-        sectionIndex: 3,
-        defaultValue: DynamicHeight.FIXED,
-        active: true,
-      },
-    };
+    return config.metaConfig;
   }
 
   static getDefaults() {
-    return {
-      ...WDSBaseInputWidget.getDefaults(),
-      labelPosition: "top",
-      inputType: "TEXT",
-      widgetName: "Input",
-      version: 2,
-      showStepArrows: false,
-      responsiveBehavior: ResponsiveBehavior.Fill,
-    };
+    return config.defaultsConfig;
   }
 
   static getMethods() {
-    return {
-      getSnipingModeUpdates: (
-        propValueMap: SnipingModeProperty,
-      ): PropertyUpdates[] => {
-        return [
-          {
-            propertyPath: "defaultText",
-            propertyValue: propValueMap.data,
-            isDynamicPropertyPath: true,
-          },
-        ];
-      },
-    };
+    return config.methodsConfig;
   }
 
-  static getAnvilConfig(): AnvilConfig | null {
-    return {
-      isLargeWidget: false,
-      widgetSize: {
-        minWidth: {
-          base: "100%",
-          "180px": "sizing-30",
-        },
-      },
-    };
+  static getAnvilConfig() {
+    return config.anvilConfig;
   }
 
-  static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    const definitions: AutocompletionDefinitions = {
-      "!doc":
-        "An input text field is used to capture a users textual input such as their names, numbers, emails etc. Inputs are used in forms and can have custom validations.",
-      "!url": "https://docs.appsmith.com/widget-reference/input",
-      parsedText: {
-        "!type": "string",
-        "!doc": "The text value of the input",
-        "!url": "https://docs.appsmith.com/widget-reference/input",
-      },
-      isValid: "bool",
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-      isDisabled: "bool",
-      isReadOnly: "bool",
-    };
-
-    return definitions;
+  static getAutocompleteDefinitions() {
+    return config.autocompleteConfig;
   }
 
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
-      propertyPaneContentConfig,
+      config.propertyPaneContentConfig,
       super.getPropertyPaneContentConfig(),
     );
   }
 
   static getPropertyPaneStyleConfig() {
     return mergeWidgetConfig(
-      propertyPaneStyleConfig,
+      config.propertyPaneStyleConfig,
       super.getPropertyPaneStyleConfig(),
     );
   }
@@ -146,31 +71,7 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   static getSetterConfig(): SetterConfig {
-    return {
-      __setters: {
-        setVisibility: {
-          path: "isVisible",
-          type: "boolean",
-        },
-        setDisabled: {
-          path: "isDisabled",
-          type: "boolean",
-        },
-        setReadOnly: {
-          path: "isReadOnly",
-          type: "boolean",
-        },
-        setRequired: {
-          path: "isRequired",
-          type: "boolean",
-        },
-        setValue: {
-          path: "defaultText",
-          type: "string",
-          accessor: "parsedText",
-        },
-      },
-    };
+    return config.settersConfig;
   }
 
   static getStylesheetConfig() {

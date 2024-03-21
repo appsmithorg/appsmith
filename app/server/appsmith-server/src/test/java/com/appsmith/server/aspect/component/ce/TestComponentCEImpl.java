@@ -30,4 +30,10 @@ public class TestComponentCEImpl implements TestComponentCE {
     public String ceEeSyncMethod(String arg) {
         return arg + "ce_impl_method";
     }
+
+    @Override
+    public void ceEeThrowAppsmithException(String arg) {}
+
+    @Override
+    public void ceEeThrowNonAppsmithException(String arg) {}
 }

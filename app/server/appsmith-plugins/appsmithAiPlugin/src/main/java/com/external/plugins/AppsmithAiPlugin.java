@@ -87,7 +87,9 @@ public class AppsmithAiPlugin extends BasePlugin {
                             TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
                             triggerResultDTO.setTrigger(response);
                             return Mono.just(triggerResultDTO);
-                        });
+                        })
+                        .onErrorResume(
+                                error -> handleError("An error has occurred while trying to upload files", error));
             } else if (LIST_FILES.equals(requestType)) {
                 List<String> fileIds = getFileIds(datasourceConfiguration);
                 if (fileIds.isEmpty()) {
@@ -101,25 +103,37 @@ public class AppsmithAiPlugin extends BasePlugin {
                             "NO_FILES_AVAILABLE")));
                     return Mono.just(triggerResultDTO);
                 }
-                return aiServerService.getFilesStatus(fileIds, sourceDetails).flatMap(fileStatusDTO -> {
-                    List<Map<String, Object>> response = new ArrayList<>();
-                    fileStatusDTO.getFiles().forEach(file -> {
-                        Map<String, Object> dropdownOption = new HashMap<>();
-                        if (!file.isProcessed()) {
-                            dropdownOption.put(LABEL, "(Processing...) " + file.getName());
-                        } else {
-                            dropdownOption.put(LABEL, file.getName());
-                        }
-                        dropdownOption.put(VALUE, file.getId());
-                        dropdownOption.put(DISABLED, !file.isProcessed());
-                        response.add(dropdownOption);
-                    });
-                    TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
-                    triggerResultDTO.setTrigger(response);
-                    return Mono.just(triggerResultDTO);
-                });
+                return aiServerService
+                        .getFilesStatus(fileIds, sourceDetails)
+                        .flatMap(fileStatusDTO -> {
+                            List<Map<String, Object>> response = new ArrayList<>();
+                            fileStatusDTO.getFiles().forEach(file -> {
+                                Map<String, Object> dropdownOption = new HashMap<>();
+                                if (!file.isProcessed()) {
+                                    dropdownOption.put(LABEL, "(Processing...) " + file.getName());
+                                } else {
+                                    dropdownOption.put(LABEL, file.getName());
+                                }
+                                dropdownOption.put(VALUE, file.getId());
+                                dropdownOption.put(DISABLED, !file.isProcessed());
+                                response.add(dropdownOption);
+                            });
+                            TriggerResultDTO triggerResultDTO = new TriggerResultDTO();
+                            triggerResultDTO.setTrigger(response);
+                            return Mono.just(triggerResultDTO);
+                        })
+                        .onErrorResume(error ->
+                                handleError("An error has occurred while trying to list uploaded files", error));
             }
             return super.trigger(connection, datasourceConfiguration, request);
+        }
+
+        private Mono<TriggerResultDTO> handleError(String message, Throwable error) {
+            log.error("{}. Error: {}", message, error.getMessage());
+            if (!(error instanceof AppsmithPluginException)) {
+                error = new AppsmithPluginException(AppsmithPluginError.PLUGIN_ERROR, error.getMessage(), error);
+            }
+            return Mono.error(error);
         }
 
         @Override
@@ -190,17 +204,31 @@ public class AppsmithAiPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStorage> preSaveHook(DatasourceStorage datasourceStorage) {
+            return aiServerService
+                    .associateDatasource(createAssociateDTO(datasourceStorage))
+                    .thenReturn(datasourceStorage);
+        }
+
+        @Override
+        public Mono<DatasourceStorage> preDeleteHook(DatasourceStorage datasourceStorage) {
+            DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+            if (hasFiles(datasourceConfiguration)) {
+                return aiServerService
+                        .disassociateDatasource(createAssociateDTO(datasourceStorage))
+                        .thenReturn(datasourceStorage);
+            }
+            return super.preDeleteHook(datasourceStorage);
+        }
+
+        private AssociateDTO createAssociateDTO(DatasourceStorage datasourceStorage) {
             DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
             String datasourceId = datasourceStorage.getDatasourceId();
             String workspaceId = datasourceStorage.getWorkspaceId();
-            if (hasFiles(datasourceConfiguration)) {
-                AssociateDTO associateDTO = new AssociateDTO();
-                associateDTO.setWorkspaceId(workspaceId);
-                associateDTO.setDatasourceId(datasourceId);
-                associateDTO.setFileIds(getFileIds(datasourceConfiguration));
-                return aiServerService.associateDatasource(associateDTO).thenReturn(datasourceStorage);
-            }
-            return super.preSaveHook(datasourceStorage);
+            AssociateDTO associateDTO = new AssociateDTO();
+            associateDTO.setWorkspaceId(workspaceId);
+            associateDTO.setDatasourceId(datasourceId);
+            associateDTO.setFileIds(getFileIds(datasourceConfiguration));
+            return associateDTO;
         }
     }
 }
