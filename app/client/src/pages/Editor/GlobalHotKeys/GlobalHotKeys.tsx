@@ -19,7 +19,6 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
-import { setCanvasDebuggerState } from "actions/debuggerActions";
 
 import { runActionViaShortcut } from "actions/pluginActionActions";
 import type { SearchCategory } from "components/editorComponents/GlobalSearch/utils";
@@ -43,19 +42,11 @@ import { matchBuilderPath } from "constants/routes";
 import { toggleInstaller } from "actions/JSLibraryActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
-import {
-  getDebuggerContext,
-  showDebuggerFlag,
-} from "selectors/debuggerSelectors";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import { setPreviewModeInitAction } from "actions/editorActions";
-import type {
-  CanvasDebuggerState,
-  DebuggerContext,
-} from "reducers/uiReducers/debuggerReducer";
-import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 
 interface Props {
   copySelectedWidget: () => void;
@@ -73,8 +64,6 @@ interface Props {
   selectedWidget?: string;
   selectedWidgets: string[];
   isDebuggerOpen: boolean;
-  debuggerContext: DebuggerContext;
-  setCanvasDebuggerState: (debuggerState: Partial<CanvasDebuggerState>) => void;
   children: React.ReactNode;
   undo: () => void;
   redo: () => void;
@@ -86,6 +75,7 @@ interface Props {
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
   hideInstaller: () => void;
+  toggleDebugger: () => void;
 }
 
 @HotkeysTarget
@@ -178,20 +168,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Open Debugger"
-          onKeyDown={() => {
-            const dState: Partial<CanvasDebuggerState> = {
-              open: !this.props.isDebuggerOpen,
-            };
-            if (!this.props.debuggerContext.selectedDebuggerTab) {
-              dState["selectedTab"] = DEBUGGER_TAB_KEYS.ERROR_TAB;
-            }
-            this.props.setCanvasDebuggerState(dState);
-            if (this.props.isDebuggerOpen) {
-              AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-                source: "CANVAS",
-              });
-            }
-          }}
+          onKeyDown={this.props.toggleDebugger}
           preventDefault
         />
         <Hotkey
@@ -373,7 +350,6 @@ const mapStateToProps = (state: AppState) => ({
   selectedWidget: getLastSelectedWidget(state),
   selectedWidgets: getSelectedWidgets(state),
   isDebuggerOpen: showDebuggerFlag(state),
-  debuggerContext: getDebuggerContext(state),
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
   isProtectedMode: protectedModeSelector(state),
@@ -391,8 +367,6 @@ const mapDispatchToProps = (dispatch: any) => {
     setGlobalSearchCategory: (category: SearchCategory) =>
       dispatch(setGlobalSearchCategory(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
-    setCanvasDebuggerState: (debuggerState: Partial<CanvasDebuggerState>) =>
-      dispatch(setCanvasDebuggerState(debuggerState)),
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () =>
