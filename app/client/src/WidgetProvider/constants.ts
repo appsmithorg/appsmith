@@ -2,6 +2,7 @@
  * TODO: (Balaji) Move all the types to different file
  */
 import { IconNames } from "@blueprintjs/icons";
+import type { SpacingDimension } from "@design-system/widgets";
 import type { Responsive, SizingDimension } from "@design-system/widgets";
 import type { Theme } from "constants/DefaultTheme";
 import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
@@ -61,6 +62,8 @@ export interface SizeConfig {
   maxWidth?: Responsive<SizingDimension>;
   minHeight?: Responsive<SizingDimension>;
   minWidth?: Responsive<SizingDimension>;
+  paddingTop?: Responsive<SpacingDimension>;
+  paddingBottom?: Responsive<SpacingDimension>;
 }
 
 export interface AnvilConfig {

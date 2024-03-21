@@ -15,11 +15,12 @@
   }
 
   &[data-orientation="vertical"] :is([data-button]) {
-    min-inline-size: 100%;
+    min-inline-size: 100% !important;
     max-inline-size: none;
   }
 
   & :is([data-separator]) {
-    flex-grow: 1;
+    inline-size: var(--sizing-5);
+    block-size: var(--sizing-5);
   }
 }
