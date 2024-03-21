@@ -9,6 +9,7 @@ import {
   TabTextContainer,
 } from "./StyledComponents";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { animated, useTransition } from "react-spring";
 
 interface Props {
   tabs: EntityItem[];
@@ -22,22 +23,31 @@ const FileTabs = (props: Props) => {
 
   const currentEntity = identifyEntityFromPath(location.pathname);
 
+  const transitions = useTransition(tabs, {
+    from: { maxWidth: 0, opacity: 0 },
+    enter: { maxWidth: 105, opacity: 1 },
+    keys: (item) => item.key,
+    config: { tension: 210, friction: 20 },
+  });
+
   return (
-    <Flex data-testid="editor-tabs" flex="1" gap="spaces-2" height="100%">
-      {tabs.map((tab: EntityItem) => (
-        <StyledTab
-          className={clsx(
-            "editor-tab",
-            currentEntity.id === tab.key && "active",
-          )}
-          key={tab.key}
-          onClick={() => navigateToTab(tab)}
-        >
-          <TabIconContainer>{tab.icon}</TabIconContainer>
-          <Tooltip content={tab.title} mouseEnterDelay={1}>
-            <TabTextContainer>{tab.title}</TabTextContainer>
-          </Tooltip>
-        </StyledTab>
+    <Flex data-testId="editor-tabs" flex="1" gap="spaces-2" height="100%">
+      {transitions((style, tab) => (
+        <animated.div style={style}>
+          <StyledTab
+            className={clsx(
+              "editor-tab",
+              currentEntity.id === tab.key && "active",
+            )}
+            key={tab.key}
+            onClick={() => navigateToTab(tab)}
+          >
+            <TabIconContainer>{tab.icon}</TabIconContainer>
+            <Tooltip content={tab.title} mouseEnterDelay={1}>
+              <TabTextContainer>{tab.title}</TabTextContainer>
+            </Tooltip>
+          </StyledTab>
+        </animated.div>
       ))}
     </Flex>
   );
