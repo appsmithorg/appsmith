@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
@@ -24,9 +25,8 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
     @Override
     public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
         List<Criteria> criteriaList = new ArrayList<>();
-        criteriaList.add(
-                Criteria.where(ApplicationSnapshot.Fields.applicationId).is(applicationId));
-        criteriaList.add(Criteria.where(ApplicationSnapshot.Fields.chunkOrder).is(1));
+        criteriaList.add(Bridge.equal(ApplicationSnapshot.Fields.applicationId, applicationId));
+        criteriaList.add(Bridge.equal(ApplicationSnapshot.Fields.chunkOrder, 1));
 
         List<String> fieldNames = List.of(
                 ApplicationSnapshot.Fields.applicationId,
