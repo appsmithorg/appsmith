@@ -78,7 +78,7 @@ interface BodyPropsType {
   innerElementType?: ReactElementType;
 }
 
-const TableVirtualBodyComponent = React.forwardRef((props: BodyPropsType) => {
+const TableVirtualBodyComponent = (props: BodyPropsType) => {
   const ref = React.useRef<HTMLDivElement>(null);
   const [horizontalScrollbarHeight, setHorizontalScrollbarHeight] =
     React.useState(0);
@@ -116,7 +116,7 @@ const TableVirtualBodyComponent = React.forwardRef((props: BodyPropsType) => {
       {rowRenderer}
     </FixedSizeList>
   );
-});
+};
 
 const TableBodyComponent = (props: BodyPropsType) => {
   return (
@@ -135,82 +135,78 @@ const TableBodyComponent = (props: BodyPropsType) => {
   );
 };
 
-export const TableBody = React.forwardRef(
-  (props: BodyPropsType & BodyContextType & { useVirtual: boolean }) => {
-    const {
-      accentColor,
-      borderRadius,
-      canFreezeColumn,
-      columns,
-      disableDrag,
-      editMode,
-      enableDrag,
-      handleAllRowSelectClick,
-      handleColumnFreeze,
-      handleReorderColumn,
-      headerGroups,
-      isAddRowInProgress,
-      isResizingColumn,
-      isSortable,
-      multiRowSelection,
-      prepareRow,
-      primaryColumnId,
-      rows,
-      rowSelectionState,
-      selectedRowIndex,
-      selectedRowIndices,
-      selectTableRow,
-      sortTableColumn,
-      subPage,
-      useVirtual,
-      widgetId,
-      width,
-      ...restOfProps
-    } = props;
+export const TableBody = (
+  props: BodyPropsType & BodyContextType & { useVirtual: boolean },
+) => {
+  const {
+    accentColor,
+    borderRadius,
+    canFreezeColumn,
+    columns,
+    disableDrag,
+    editMode,
+    enableDrag,
+    handleAllRowSelectClick,
+    handleColumnFreeze,
+    handleReorderColumn,
+    headerGroups,
+    isAddRowInProgress,
+    isResizingColumn,
+    isSortable,
+    multiRowSelection,
+    prepareRow,
+    primaryColumnId,
+    rows,
+    rowSelectionState,
+    selectedRowIndex,
+    selectedRowIndices,
+    selectTableRow,
+    sortTableColumn,
+    subPage,
+    useVirtual,
+    widgetId,
+    width,
+    ...restOfProps
+  } = props;
 
-    return (
-      <BodyContext.Provider
-        value={{
-          accentColor,
-          canFreezeColumn,
-          disableDrag,
-          editMode,
-          enableDrag,
-          handleAllRowSelectClick,
-          handleColumnFreeze,
-          handleReorderColumn,
-          headerGroups,
-          isResizingColumn,
-          isSortable,
-          rowSelectionState,
-          sortTableColumn,
-          subPage,
-          widgetId,
-          isAddRowInProgress,
-          borderRadius,
-          multiRowSelection,
-          prepareRow,
-          primaryColumnId,
-          selectedRowIndex,
-          selectedRowIndices,
-          selectTableRow,
-          columns,
-          width,
-          rows,
-          getTableBodyProps: props.getTableBodyProps,
-          totalColumnsWidth: props.totalColumnsWidth,
-        }}
-      >
-        {useVirtual ? (
-          <TableVirtualBodyComponent
-            rows={rows}
-            width={width}
-            {...restOfProps}
-          />
-        ) : (
-          <TableBodyComponent rows={rows} {...restOfProps} />
-        )}
-      </BodyContext.Provider>
-    );
-  },
-);
+  return (
+    <BodyContext.Provider
+      value={{
+        accentColor,
+        canFreezeColumn,
+        disableDrag,
+        editMode,
+        enableDrag,
+        handleAllRowSelectClick,
+        handleColumnFreeze,
+        handleReorderColumn,
+        headerGroups,
+        isResizingColumn,
+        isSortable,
+        rowSelectionState,
+        sortTableColumn,
+        subPage,
+        widgetId,
+        isAddRowInProgress,
+        borderRadius,
+        multiRowSelection,
+        prepareRow,
+        primaryColumnId,
+        selectedRowIndex,
+        selectedRowIndices,
+        selectTableRow,
+        columns,
+        width,
+        rows,
+        getTableBodyProps: props.getTableBodyProps,
+        totalColumnsWidth: props.totalColumnsWidth,
+      }}
+    >
+      {useVirtual ? (
+        <TableVirtualBodyComponent rows={rows} width={width} {...restOfProps} />
+      ) : (
+        <TableBodyComponent rows={rows} {...restOfProps} />
+      )}
+    </BodyContext.Provider>
+  );
+};
