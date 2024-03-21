@@ -16,7 +16,7 @@ import {
   TRY_TO_PULL,
 } from "@appsmith/constants/messages";
 import { getCurrentApplication } from "selectors/editorSelectors";
-import { changeInfoSinceLastCommit } from "../../../utils";
+import { changeInfoSinceLastCommit } from "../../utils";
 import { Callout, Icon, Text } from "design-system";
 
 const DummyChange = styled.div`
@@ -85,12 +85,18 @@ const STATUS_MAP: GitStatusMap = {
   [Kind.SETTINGS]: (status) => ({
     message: createMessage(CHANGES_APP_SETTINGS),
     iconName: "settings-2-line",
-    hasValue: (status?.modified || []).includes("application.json"),
+    hasValue:
+      (status?.modified || []).includes("application.json") ||
+      (status?.added || []).includes("application.json") ||
+      (status?.removed || []).includes("application.json"),
   }),
   [Kind.THEME]: (status) => ({
     message: createMessage(CHANGES_THEME),
     iconName: "sip-line",
-    hasValue: (status?.modified || []).includes("theme.json"),
+    hasValue:
+      (status?.modified || []).includes("theme.json") ||
+      (status?.added || []).includes("theme.json") ||
+      (status?.removed || []).includes("theme.json"),
   }),
   [Kind.DATA_SOURCE]: (status) => ({
     message: `${status?.modifiedDatasources || 0} ${
