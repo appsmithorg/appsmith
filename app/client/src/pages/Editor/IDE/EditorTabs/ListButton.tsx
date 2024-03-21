@@ -28,6 +28,7 @@ const ListButton = (props: Props) => {
       <MenuTrigger>
         <Button
           endIcon="arrow-down-s-line"
+          id="tabs-overflow-trigger"
           kind="tertiary"
           onClick={() => setOpen(true)}
         >

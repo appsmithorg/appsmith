@@ -33,7 +33,7 @@ export const StyledTab = styled(Flex)`
   max-width: calc((${DEFAULT_SPLIT_SCREEN_WIDTH} - 151px) / 5);
 
   // After element - the seperator in between tabs
-  &:not(&.active):not(:has(+ .active)):not(:last-child):after {
+  &:not(&.active):not(:has(+ .active)):after {
     content: "";
     position: absolute;
     right: 0;

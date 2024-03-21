@@ -74,6 +74,7 @@ const SplitScreenTabs = () => {
         <Container>
           <ToggleButton
             icon="add-line"
+            id="tabs-add-toggle"
             isSelected={segmentMode === EditorEntityTabState.Add}
             onClick={onAddClick}
             size="md"
