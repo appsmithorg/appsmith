@@ -6,6 +6,7 @@ import { SpaceDistributorHandleDimensions } from "./constants";
 import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
 import { useSpaceDistributionEvents } from "./useSpaceDistributionEvents";
 import { getDistributionHandleId } from "./utils/spaceDistributionEditorUtils";
+import { AnvilEditorColors } from "../utils/constants";
 
 interface SpaceDistributionNodeProps {
   columnPosition: number;
@@ -16,6 +17,7 @@ interface SpaceDistributionNodeProps {
   spaceToWorkWith: number;
   spaceDistributed: { [key: string]: number };
   zoneIds: string[];
+  zoneGap: number;
 }
 const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   display: inline;
@@ -25,28 +27,37 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   top: ${SpaceDistributorHandleDimensions.offsetTop}px;
   border-radius: ${SpaceDistributorHandleDimensions.borderRadius}px;
   padding: 0px ${SpaceDistributorHandleDimensions.padding}px;
-  border: ${SpaceDistributorHandleDimensions.border}px solid;
-  border-color: white;
-  background: var(--ads-v2-color-bg-brand);
-  opacity: 0%;
   z-index: 1000;
   left: ${({ left }) => left}px;
+  &:hover {
+    background: ${AnvilEditorColors.spaceDistributionHandle};
+  }
+  &.active {
+    background: ${AnvilEditorColors.spaceDistributionHandleActive};
+  }
   &:hover,
   &.active {
     cursor: col-resize;
-    opacity: 100%;
   }
 `;
 
 const updateDistributionHandlePosition = (
   entries: ResizeObserverEntry[],
   ref: React.RefObject<HTMLDivElement>,
+  zoneGap: number,
 ) => {
   if (ref.current && entries.length) {
     const target = entries[0].target as HTMLElement;
-    const updatedLeft =
-      target.offsetLeft - SpaceDistributorHandleDimensions.width * 0.5;
-    ref.current.style.left = updatedLeft + "px";
+    if (target && target.parentElement) {
+      // making this change to compute offset left coz offsetLeft of the dom api does not provide decimal values
+      // which is causing the handle to jump on clicking it the first time
+      const parentLeft = target.parentElement.getBoundingClientRect().left;
+      const targetLeft = target.getBoundingClientRect().left;
+      const offsetLeft = targetLeft - parentLeft;
+      const updatedLeft =
+        offsetLeft - (SpaceDistributorHandleDimensions.width + zoneGap) * 0.5;
+      ref.current.style.left = updatedLeft + "px";
+    }
   }
 };
 
@@ -58,6 +69,7 @@ export const SpaceDistributionHandle = ({
   sectionWidgetId,
   spaceDistributed,
   spaceToWorkWith,
+  zoneGap,
   zoneIds,
 }: SpaceDistributionNodeProps) => {
   // Create a ref for the distribution handle DOM element
@@ -71,7 +83,7 @@ export const SpaceDistributionHandle = ({
 
   // Calculate the left position of the distribution handle
   const leftPositionOfHandle =
-    left - SpaceDistributorHandleDimensions.width * 0.5;
+    left - (SpaceDistributorHandleDimensions.width + zoneGap) * 0.5;
 
   // Destructure the parent zones array of zone ids
   const [leftZone, rightZone] = parentZones;
@@ -80,7 +92,7 @@ export const SpaceDistributionHandle = ({
   const resizeObserverRef = useRef<ResizeObserver>();
   resizeObserverRef.current = new ResizeObserver((entries) => {
     // Update the position of the distribution handle on resize
-    updateDistributionHandlePosition(entries, ref);
+    updateDistributionHandlePosition(entries, ref, zoneGap);
   });
 
   // Use a custom hook to handle space distribution events
