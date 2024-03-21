@@ -151,9 +151,11 @@ export const contentConfig = [
         helpText: "Number of rows to be displayed at a time",
         label: "Page size",
         controlType: "NUMERIC_INPUT",
+        isJSConvertible: true,
         defaultValue: 10,
         isBindProperty: true,
         isTriggerProperty: false,
+        validation: { type: ValidationTypes.NUMBER },
       },
       {
         propertyName: "isVisiblePagination",
