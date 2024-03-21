@@ -24,7 +24,7 @@ const UpgradePage = {
   ...Carousel,
 };
 
-const locators = { ...Access, ...UpgradePage };
+const locators = { ...UpgradePage };
 
 describe("Audit logs", { tags: ["@tag.Settings"] }, () => {
   it("1. Super user can access audit logs page", () => {
