@@ -58,10 +58,10 @@ function ConfirmationModal(props: {
           </Text>
         </ModalBody>
         <ModalFooter>
-          <Button kind="secondary" onClick={props.onCancel} size="sm">
+          <Button kind="secondary" onClick={props.onCancel} size="md">
             {createMessage(CUSTOM_WIDGET_FEATURE.template.modal.cancelCTA)}
           </Button>
-          <Button onClick={props.onReplace} size="sm">
+          <Button onClick={props.onReplace} size="md">
             {createMessage(CUSTOM_WIDGET_FEATURE.template.modal.successCTA)}
           </Button>
         </ModalFooter>
