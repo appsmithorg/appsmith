@@ -559,6 +559,8 @@ export function* fetchFeatureFlags(action?: {
         fetchFeatureFlagsSuccess({
           ...DEFAULT_FEATURE_FLAG_VALUE,
           ...response.data,
+          release_anvil_enabled: true,
+          ab_wds_enabled: true,
         }),
       );
     }
