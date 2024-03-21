@@ -20,6 +20,11 @@ module.exports = {
   eslint: {
     enable: false,
   },
+  typescript: {
+    enableTypeChecking:
+      process.env.ENABLE_TYPE_CHECKING === "true" ||
+      process.env.ENABLE_TYPE_CHECKING === undefined,
+  },
   webpack: {
     configure: {
       resolve: {
