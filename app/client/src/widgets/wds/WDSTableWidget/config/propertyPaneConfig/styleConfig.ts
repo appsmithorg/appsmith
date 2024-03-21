@@ -3,35 +3,6 @@ import { updateColumnStyles } from "../../widget/propertyUtils";
 
 export const styleConfig = [
   {
-    sectionName: "General",
-    children: [
-      {
-        propertyName: "compactMode",
-        helpText: "Selects row height",
-        label: "Default row height",
-        controlType: "ICON_TABS",
-        fullWidth: true,
-        defaultValue: "DEFAULT",
-        isBindProperty: true,
-        isTriggerProperty: false,
-        options: [
-          {
-            label: "Short",
-            value: "SHORT",
-          },
-          {
-            label: "Default",
-            value: "DEFAULT",
-          },
-          {
-            label: "Tall",
-            value: "TALL",
-          },
-        ],
-      },
-    ],
-  },
-  {
     sectionName: "Text formatting",
     children: [
       {
