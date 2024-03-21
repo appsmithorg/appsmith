@@ -19,7 +19,6 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
-import { showDebugger } from "actions/debuggerActions";
 
 import { runActionViaShortcut } from "actions/pluginActionActions";
 import type { SearchCategory } from "components/editorComponents/GlobalSearch/utils";
@@ -57,7 +56,6 @@ interface Props {
   groupSelectedWidget: () => void;
   setGlobalSearchCategory: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
-  openDebugger: () => void;
   closeProppane: () => void;
   closeTableFilterProppane: () => void;
   executeAction: () => void;
@@ -77,6 +75,7 @@ interface Props {
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
   hideInstaller: () => void;
+  toggleDebugger: () => void;
 }
 
 @HotkeysTarget
@@ -169,14 +168,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Open Debugger"
-          onKeyDown={() => {
-            this.props.openDebugger();
-            if (this.props.isDebuggerOpen) {
-              AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-                source: "CANVAS",
-              });
-            }
-          }}
+          onKeyDown={this.props.toggleDebugger}
           preventDefault
         />
         <Hotkey
@@ -375,7 +367,6 @@ const mapDispatchToProps = (dispatch: any) => {
     setGlobalSearchCategory: (category: SearchCategory) =>
       dispatch(setGlobalSearchCategory(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
-    openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () =>

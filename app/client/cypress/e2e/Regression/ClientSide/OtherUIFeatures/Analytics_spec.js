@@ -1,4 +1,8 @@
-import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
+import {
+  agHelper,
+  homePage,
+  adminSettings,
+} from "../../../../support/Objects/ObjectsCore";
 
 describe(
   "Checks for analytics for enableTelemtry",
@@ -6,12 +10,12 @@ describe(
   function () {
     before(() => {
       homePage.NavigateToHome();
-      cy.get(".admin-settings-menu-option").click();
+      agHelper.GetNClick(adminSettings._adminSettingsBtn);
       cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").should("be.checked"); //Bug 21191
       cy.get("[data-testid='APPSMITH_DISABLE_TELEMETRY']").uncheck({
         force: true,
       }); //disabling sharing of anonymous data
-      cy.get(".t--admin-settings-save-button").click();
+      agHelper.GetNClick(adminSettings._saveButton);
       cy.wait(2000);
       cy.get(".t--admin-settings-restart-notice", { timeout: 180000 }).should(
         "not.exist",
