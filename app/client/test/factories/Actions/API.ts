@@ -1,8 +1,15 @@
 import * as Factory from "factory.ts";
-import type { ApiAction } from "../../../src/entities/Action";
-import { PaginationType, PluginType } from "../../../src/entities/Action";
+import type { ApiAction } from "entities/Action";
+import { PaginationType, PluginPackageName, PluginType } from "entities/Action";
+import { PluginIDs } from "test/factories/MockPluginsState";
 
 export const APIFactory = Factory.Sync.makeFactory<ApiAction>({
+  name: Factory.each((i) => `Api${i + 1}`),
+  id: "api_id",
+  pageId: "page_id",
+  pluginId: PluginIDs[PluginPackageName.REST_API],
+  pluginType: PluginType.API,
+  workspaceId: "workspaceId",
   actionConfiguration: {
     timeoutInMillisecond: 10000,
     paginationType: PaginationType.NONE,
@@ -44,7 +51,7 @@ export const APIFactory = Factory.Sync.makeFactory<ApiAction>({
   datasource: {
     userPermissions: [],
     name: "DEFAULT_REST_DATASOURCE",
-    pluginId: "ApiPluginID",
+    pluginId: PluginIDs[PluginPackageName.REST_API],
     workspaceId: "workspaceId",
     invalids: [],
     messages: [],
@@ -53,16 +60,10 @@ export const APIFactory = Factory.Sync.makeFactory<ApiAction>({
   },
   dynamicBindingPathList: [],
   executeOnLoad: false,
-  id: "api_id",
   invalids: [],
   isValid: true,
   jsonPathKeys: [],
   messages: [],
-  name: Factory.each((i) => `Api${i + 1}`),
-  pageId: "page_id",
-  pluginId: "ApiPluginID",
-  pluginType: PluginType.API,
-  workspaceId: "workspaceId",
   userPermissions: [
     "read:actions",
     "delete:actions",
