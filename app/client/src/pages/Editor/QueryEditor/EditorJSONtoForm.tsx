@@ -333,7 +333,9 @@ export function EditorJSONtoForm(props: Props) {
                     className="tab-panel"
                     value={EDITOR_TABS.QUERY}
                   >
-                    <SettingsWrapper>
+                    <SettingsWrapper
+                      data-testid={`t--action-form-${plugin?.type}`}
+                    >
                       <FormRender
                         editorConfig={editorConfig}
                         formData={props.formData}
