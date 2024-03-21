@@ -595,6 +595,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         response.setPagesModified(pagesModified);
         response.setPagesAdded(pagesAdded);
         response.setPagesRemoved(pagesRemoved);
+        response.setModifiedPages(pagesModified.size() + pagesAdded.size() + pagesRemoved.size());
     }
 
     protected void populateQueryChanges(GitStatusDTO response) {
@@ -622,6 +623,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         response.setQueriesModified(queriesModified);
         response.setQueriesAdded(queriesAdded);
         response.setQueriesRemoved(queriesRemoved);
+        response.setModifiedQueries(queriesModified.size() + queriesAdded.size() + queriesRemoved.size());
     }
 
     protected void populateJsObjectChanges(GitStatusDTO response) {
@@ -646,6 +648,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         response.setJsObjectsModified(jsObjectsModified);
         response.setJsObjectsAdded(jsObjectsAdded);
         response.setJsObjectsRemoved(jsObjectsRemoved);
+        response.setModifiedJSObjects(jsObjectsModified.size() + jsObjectsAdded.size() + jsObjectsRemoved.size());
     }
 
     protected void populateDatasourceChanges(GitStatusDTO response) {
@@ -665,6 +668,8 @@ public class GitExecutorCEImpl implements GitExecutor {
         response.setDatasourcesModified(datasourcesModified);
         response.setDatasourcesAdded(datasourcesAdded);
         response.setDatasourcesRemoved(datasourcesRemoved);
+        response.setModifiedDatasources(
+                datasourcesModified.size() + datasourcesAdded.size() + datasourcesRemoved.size());
     }
 
     protected void populateJsLibsChanges(GitStatusDTO response) {
@@ -683,6 +688,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         response.setJsLibsModified(jsLibsModified);
         response.setJsLibsAdded(jsLibsAdded);
         response.setJsLibsRemoved(jsLibsRemoved);
+        response.setModifiedJSLibs(jsLibsModified.size() + jsLibsAdded.size() + jsLibsRemoved.size());
     }
 
     protected void legacyPopulateJsLibMigrationMessage(GitStatusDTO response) {

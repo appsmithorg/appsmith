@@ -68,21 +68,41 @@ public class GitStatusCE_DTO {
     // Name of the conflicting resources
     Set<String> conflicting;
 
+    // number of modified custom JS libs
+    @Deprecated
+    int modifiedJSLibs;
+
+    // number of modified pages
+    @Deprecated
+    int modifiedPages;
+
+    // number of modified actions
+    @Deprecated
+    int modifiedQueries;
+
+    // number of modified JSObjects
+    @Deprecated
+    int modifiedJSObjects;
+
+    // number of modified JSObjects
+    @Deprecated
+    int modifiedDatasources;
+
     // bool to check if the branch is clean
     Boolean isClean;
 
-    // Number of local commits which are not present in remote repo
+    // number of local commits which are not present in remote repo
     Integer aheadCount;
 
-    // Number of remote commits which are not present in local repo
+    // number of remote commits which are not present in local repo
     Integer behindCount;
 
-    // Remote tracking branch name
+    // remote tracking branch name
     String remoteBranch;
 
-    // Documentation url for discard and pull functionality
+    // documentation url for discard and pull functionality
     String discardDocUrl = Assets.GIT_DISCARD_DOC_URL;
 
-    // File Format migration
+    // file Format migration
     String migrationMessage = "";
 }
