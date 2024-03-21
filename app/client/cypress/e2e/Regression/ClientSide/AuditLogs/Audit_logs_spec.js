@@ -32,10 +32,10 @@ describe("Audit logs", { tags: ["@tag.Settings"] }, () => {
       cy.LogOut();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
       cy.get(adminSettingsHelper._adminSettingsBtn).should("be.visible");
-      cy.get(locators.AdminSettingsEntryLink).click();
+      cy.get(adminSettingsHelper._adminSettingsBtn).click();
       cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
       cy.get(adminsSettings.auditLogs).should("be.visible");
-      agHelper.GetNClick(locators.LeftPaneAuditLogsLink);
+      agHelper.GetNClick(adminsSettings.auditLogs);
       agHelper.AssertElementVisibility(locators.UpgradeContainer);
       cy.get(locators.HeaderContainer).should("be.visible");
       cy.get(locators.CarouselContainer).should("be.visible");
