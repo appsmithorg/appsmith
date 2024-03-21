@@ -682,7 +682,11 @@ export interface GitStatusData {
   remoteBranch: string;
   discardDocUrl: string;
   migrationMessage: string;
-  //
+  modifiedPages: number;
+  modifiedDatasources: number;
+  modifiedJSObjects: number;
+  modifiedQueries: number;
+  modifiedJSLibs: number;
   modifiedPackages?: number;
   modifiedModules?: number;
   modifiedModuleInstances?: number;

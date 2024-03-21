@@ -30,6 +30,7 @@ export const FEATURE_FLAG = {
     "release_git_continuous_delivery_enabled",
   release_git_autocommit_feature_enabled:
     "release_git_autocommit_feature_enabled",
+  release_git_status_granular_enabled: "release_git_status_granular_enabled",
   license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
   release_show_partial_import_export_enabled:
     "release_show_partial_import_export_enabled",
@@ -94,6 +95,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   rollout_remove_feature_walkthrough_enabled: false,
   rollout_js_enabled_one_click_binding_enabled: false,
   rollout_side_by_side_enabled: false,
+  release_git_status_granular_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

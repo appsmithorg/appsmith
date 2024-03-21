@@ -346,7 +346,7 @@ export function ChangeSubList({
   return <div>{sublist}</div>;
 }
 
-export default function GitChangesList() {
+export default function NewChangesList() {
   const status = useSelector(getGitStatus);
   const statusLoading = useSelector(getIsFetchingGitStatus);
 
