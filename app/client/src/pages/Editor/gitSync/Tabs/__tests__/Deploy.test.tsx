@@ -43,7 +43,7 @@ describe("Tests for git deploy modal", () => {
         jsLibsAdded: ["UUID"],
         jsLibsRemoved: [],
         conflicting: [],
-        isClean: true,
+        isClean: false,
         aheadCount: 0,
         behindCount: 0,
         remoteBranch: "refs/remotes/origin/master",
