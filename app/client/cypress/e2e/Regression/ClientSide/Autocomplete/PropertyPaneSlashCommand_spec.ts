@@ -1,3 +1,4 @@
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
   locators,
@@ -11,6 +12,9 @@ import EditorNavigation, {
 
 describe("Property Pane Suggestions", { tags: ["@tag.JS"] }, () => {
   before(() => {
+    featureFlagIntercept({
+      ab_learnability_ease_of_initial_use_enabled: true,
+    });
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
   });
 
