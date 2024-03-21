@@ -1,4 +1,4 @@
-import { useGroupedAddJsOperations } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+import { useGroupedAddJsOperations } from "../../JS/hooks";
 
 describe("useGroupedAddJsOperations", () => {
   it("returns an array of grouped operations", () => {
