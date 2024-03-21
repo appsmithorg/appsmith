@@ -49,26 +49,24 @@ export const AnvilCanvasDraggingArena = (
   const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
   const isMainCanvasDropArena =
     anvilDragStates.mainCanvasLayoutId === props.layoutId;
-  return (
-    !isPreviewMode && (
-      <>
-        <AnvilHighlightingCanvas
+  return !isPreviewMode ? (
+    <>
+      <AnvilHighlightingCanvas
+        anvilDragStates={anvilDragStates}
+        deriveAllHighlightsFn={deriveAllHighlightsFn}
+        layoutId={layoutId}
+        onDrop={onDrop}
+      />
+      {isMainCanvasDropArena && (
+        <DetachedWidgetsDropArena
           anvilDragStates={anvilDragStates}
-          deriveAllHighlightsFn={deriveAllHighlightsFn}
-          layoutId={layoutId}
           onDrop={onDrop}
         />
-        {isMainCanvasDropArena && (
-          <DetachedWidgetsDropArena
-            anvilDragStates={anvilDragStates}
-            onDrop={onDrop}
-          />
-        )}
-        <EmptyModalDropArena
-          anvilDragStates={anvilDragStates}
-          canvasId={canvasId}
-        />
-      </>
-    )
-  );
+      )}
+      <EmptyModalDropArena
+        anvilDragStates={anvilDragStates}
+        canvasId={canvasId}
+      />
+    </>
+  ) : null;
 };
