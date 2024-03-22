@@ -18,6 +18,10 @@ const StyledEmptyModalDropArena = styled.div<{ isActive: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
+  color: #001040;
+  font-size: 14px;
+  font-weight: 510;
+  line-height: 19.6px;
 `;
 export const EmptyModalDropArena = (props: {
   canvasId: string;

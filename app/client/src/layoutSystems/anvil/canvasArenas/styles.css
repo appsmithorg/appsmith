@@ -5,11 +5,14 @@
 .detached-widgets-drop-overlay-content {
   background-color: #ffe5fe !important;
   height: clamp(40vh, 60vh, 80vh);
+  width: clamp(40vw, 60vw, 80vw);
   padding: 0px !important;
-}
-.detached-widgets-drop-overlay-content:hover {
-  border: 1px dotted #ce01d3;
-  border-radius: 6px;
+  outline: 1px dashed #ce01d3 !important;
+  outline-offset: -2px;
+  box-shadow: unset !important;
+  padding: 2px 0px 0px 0px;
+  gap: 10px;
+  border-radius: 4px !important;
 }
 .detached-widgets-drop-overlay-content > div {
   width: 100%;
