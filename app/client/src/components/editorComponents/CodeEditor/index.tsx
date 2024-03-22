@@ -85,6 +85,7 @@ import {
   getInputValue,
   removeEventFromHighlightedElement,
   removeNewLineCharsIfRequired,
+  shouldShowSlashCommandMenu,
 } from "./codeEditorUtils";
 import { slashCommandHintHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -1123,7 +1124,17 @@ class CodeEditor extends Component<Props, State> {
         .forEach(
           (hinter) =>
             hinter.showHint &&
-            hinter.showHint(cm, entityInformation, blockCompletions),
+            hinter.showHint(cm, entityInformation, {
+              blockCompletions,
+              datasources: this.props.datasources.list,
+              pluginIdToImageLocation: this.props.pluginIdToImageLocation,
+              recentEntities: this.props.recentEntities,
+              featureFlags: this.props.featureFlags,
+              enableAIAssistance: this.AIEnabled,
+              focusEditor: this.focusEditor,
+              executeCommand: this.props.executeCommand,
+              isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
+            }),
         );
     }
 
@@ -1257,6 +1268,16 @@ class CodeEditor extends Component<Props, State> {
     }
 
     this.peekOverlayExpressionIdentifier.clearScript();
+
+    // This will always open autocomplete dialog for table and json widgets' data properties
+    if (!!instance) {
+      const { propertyPath, widgetType } = this.getEntityInformation();
+      if (shouldShowSlashCommandMenu(widgetType, propertyPath)) {
+        setTimeout(() => {
+          this.handleAutocompleteVisibility(instance);
+        }, 10);
+      }
+    }
   };
 
   handleDebouncedChange = _.debounce(this.handleChange, 600);
