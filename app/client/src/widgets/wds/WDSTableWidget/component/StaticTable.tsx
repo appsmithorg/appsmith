@@ -5,7 +5,6 @@ import type {
   Row as ReactTableRowType,
 } from "react-table";
 import type { ReactElementType } from "react-window";
-import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import type { ReactTableColumnProps, TableSizes } from "./Constants";
 import { MULTISELECT_CHECKBOX_WIDTH, TABLE_SCROLLBAR_WIDTH } from "./Constants";
@@ -37,14 +36,13 @@ type StaticTableProps = TableColumnHeaderProps & {
   isAddRowInProgress: boolean;
   headerProps?: TableColumnHeaderProps | Record<string, never>;
   totalColumnsWidth?: number;
-  scrollContainerStyles: any;
   useVirtual: boolean;
   tableBodyRef?: React.MutableRefObject<HTMLDivElement | null>;
 };
 
-const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
+const StaticTable = (props: StaticTableProps) => {
   return (
-    <SimpleBar ref={ref} style={props.scrollContainerStyles}>
+    <>
       <TableColumnHeader
         accentColor={props.accentColor}
         borderRadius={props.borderRadius}
@@ -77,7 +75,7 @@ const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
         borderRadius={props.borderRadius}
         columns={props.columns}
         getTableBodyProps={props.getTableBodyProps}
-        height={props.height}
+        height={props.pageSize * props.tableSizes.ROW_HEIGHT}
         isAddRowInProgress={props.isAddRowInProgress}
         multiRowSelection={!!props.multiRowSelection}
         pageSize={props.pageSize}
@@ -91,7 +89,7 @@ const StaticTable = (props: StaticTableProps, ref: React.Ref<SimpleBar>) => {
         useVirtual={props.useVirtual}
         width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
       />
-    </SimpleBar>
+    </>
   );
 };
 
