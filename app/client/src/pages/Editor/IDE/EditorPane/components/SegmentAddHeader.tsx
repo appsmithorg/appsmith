@@ -26,6 +26,7 @@ const SegmentAddHeader = (props: Props) => {
         {createMessage(props.titleMessage)}
       </Text>
       <Button
+        aria-label="Close pane"
         isIconButton
         kind={"tertiary"}
         onClick={props.onCloseClick}

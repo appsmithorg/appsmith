@@ -221,7 +221,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       selectedRow: `{{(()=>{${derivedProperties.getSelectedRow}})()}}`,
       triggeredRow: `{{(()=>{${derivedProperties.getTriggeredRow}})()}}`,
       selectedRows: `{{(()=>{${derivedProperties.getSelectedRows}})()}}`,
-      pageSize: `{{(()=>{${derivedProperties.getPageSize}})()}}`,
       triggerRowSelection: "{{!!this.onRowSelected}}",
       processedTableData: `{{(()=>{${derivedProperties.getProcessedTableData}})()}}`,
       orderedTableColumns: `{{(()=>{${derivedProperties.getOrderedTableColumns}})()}}`,
