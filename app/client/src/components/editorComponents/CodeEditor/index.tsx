@@ -1127,7 +1127,7 @@ class CodeEditor extends Component<Props, State> {
             hinter.showHint(cm, entityInformation, {
               blockCompletions,
               datasources: this.props.datasources.list,
-              pluginIdToImageLocation: this.props.pluginIdToImageLocation,
+              pluginIdToPlugin: this.props.pluginIdToPlugin,
               recentEntities: this.props.recentEntities,
               featureFlags: this.props.featureFlags,
               enableAIAssistance: this.AIEnabled,
