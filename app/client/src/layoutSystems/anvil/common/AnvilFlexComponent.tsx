@@ -55,7 +55,7 @@ export const AnvilFlexComponent = forwardRef(
 
     const widgetConfigProps = useMemo(() => {
       const widgetConfig:
-        | (Partial<WidgetProps> & WidgetConfigProps & { type: null })
+        | (Partial<WidgetProps> & WidgetConfigProps & { type: string })
         | undefined = WidgetFactory.getConfig(widgetType);
       const isFillWidget =
         widgetConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
