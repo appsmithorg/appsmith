@@ -15,6 +15,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  pointer-events: all !important;
 `;
 
 const Container = styled.div`

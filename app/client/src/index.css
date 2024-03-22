@@ -261,7 +261,7 @@ div.bp3-popover-arrow {
 }
 
 /* making sure widgets on the editor are not intractable */
-.anvil-editor .anvil-widget-wrapper > :first-child {
+.anvil-editor .anvil-widget-wrapper > * {
   pointer-events: none;
 }
 
@@ -276,7 +276,7 @@ div.bp3-popover-arrow {
 }
 
 /* making sure widgets inside modal widgets on the editor are not intractable */
-.anvil-detached-widget .anvil-widget-wrapper > :first-child {
+.anvil-detached-widget .anvil-widget-wrapper > * {
   pointer-events: none;
 }
 
