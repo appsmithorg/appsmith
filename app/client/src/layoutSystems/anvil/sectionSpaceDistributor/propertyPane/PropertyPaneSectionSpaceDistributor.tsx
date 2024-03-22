@@ -14,6 +14,7 @@ import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { PropertyPaneSpaceDistributionHandle } from "./PropertyPaneSpaceDistributionHandle";
 
 const MockedSection = styled.div`
+  --outer-spacing-4: 4px;
   background-color: var(--ads-v2-color-bg-emphasis);
   border-radius: 5px;
   display: flex;

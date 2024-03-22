@@ -13,6 +13,7 @@ import { AnvilCanvasZIndex } from "./mainCanvas/useCanvasActivation";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
+import type { LayoutElementPosition } from "layoutSystems/common/types";
 
 const setHighlightsDrawn = (highlight?: AnvilHighlightInfo) => {
   return {
@@ -56,6 +57,7 @@ const renderBlocksOnCanvas = (
   stickyCanvas: HTMLCanvasElement,
   blockToRender: AnvilHighlightInfo,
   shouldDraw: boolean,
+  canvasToLayoutGap: { left: number; top: number },
 ) => {
   if (!shouldDraw) {
     return;
@@ -63,7 +65,6 @@ const renderBlocksOnCanvas = (
   // Calculating offset based on the position of the canvas
   const topOffset = getAbsolutePixels(stickyCanvas.style.top);
   const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
-
   const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
 
   // Clearing previous drawings on the canvas
@@ -79,14 +80,15 @@ const renderBlocksOnCanvas = (
 
   // Extracting dimensions of the block to render
   const { height, posX, posY, width } = blockToRender;
-
+  const left = posX - leftOffset + canvasToLayoutGap.left;
+  const top = posY - topOffset + canvasToLayoutGap.top;
   // Drawing a rectangle on the canvas
   if (canvasCtx.roundRect) {
     // Using roundRect method if available (not supported in Firefox)
-    canvasCtx.roundRect(posX - leftOffset, posY - topOffset, width, height, 4);
+    canvasCtx.roundRect(left, top, width, height, 4);
   } else {
     // Using rect method as a fallback
-    canvasCtx.rect(posX - leftOffset, posY - topOffset, width, height);
+    canvasCtx.rect(left, top, width, height);
   }
 
   // Filling and stroking the rectangle
@@ -110,6 +112,17 @@ const overlayWidgetHighlight: AnvilHighlightInfo = {
   width: 0,
 };
 
+const computeCanvasToLayoutGap = (
+  layoutPositions: LayoutElementPosition,
+  slidingArena: HTMLDivElement,
+) => {
+  const { height, width } = slidingArena.getBoundingClientRect();
+  return {
+    top: (height - layoutPositions.height) * 0.5,
+    left: (width - layoutPositions.width) * 0.5,
+  };
+};
+
 /**
  *
  *  This hook is written to accumulate all logic that is needed to
@@ -126,7 +139,7 @@ export const useCanvasDragging = (
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
   props: AnvilHighlightingCanvasProps,
 ) => {
-  const { anvilDragStates, deriveAllHighlightsFn, onDrop } = props;
+  const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop } = props;
   const {
     activateOverlayWidgetDrop,
     allowToDrop,
@@ -137,6 +150,7 @@ export const useCanvasDragging = (
     mainCanvasLayoutId,
   } = anvilDragStates;
   const dispatch = useDispatch();
+  const canvasToLayoutGap = useRef({ left: 0, top: 0 });
   /**
    * Provides auto-scroll functionality
    */
@@ -165,7 +179,7 @@ export const useCanvasDragging = (
     }
   };
   const canvasIsDragging = useRef(false);
-
+  const currentLayoutPositions = layoutElementPositions[layoutId];
   useEffect(() => {
     // Effect to handle changes in isCurrentDraggedCanvas
     if (stickyCanvasRef.current && slidingArenaRef.current) {
@@ -256,7 +270,13 @@ export const useCanvasDragging = (
             // Calculate highlights when the mouse enters the canvas
             calculateHighlights();
             canvasIsDragging.current = true;
-            onMouseMove(e);
+            if (currentLayoutPositions) {
+              canvasToLayoutGap.current = computeCanvasToLayoutGap(
+                currentLayoutPositions,
+                slidingArenaRef.current,
+              );
+            }
+            requestAnimationFrame(() => onMouseMove(e));
           }
         };
         // make sure rendering highlights on canvas and highlighting cell happens once every 50ms
@@ -273,6 +293,7 @@ export const useCanvasDragging = (
                 stickyCanvasRef.current,
                 currentRectanglesToDraw,
                 canvasIsDragging.current,
+                canvasToLayoutGap.current,
               );
             }
           },
@@ -302,7 +323,10 @@ export const useCanvasDragging = (
             }
             // Get the closest highlight based on the mouse position
             const processedHighlight = getClosestHighlight(
-              e,
+              {
+                x: e.offsetX - canvasToLayoutGap.current.left,
+                y: e.offsetY - canvasToLayoutGap.current.top,
+              },
               allHighlightsRef.current,
             );
             if (processedHighlight) {
@@ -392,6 +416,7 @@ export const useCanvasDragging = (
     isDragging,
     layoutElementPositions,
     mainCanvasLayoutId,
+    currentLayoutPositions,
   ]);
 
   return {

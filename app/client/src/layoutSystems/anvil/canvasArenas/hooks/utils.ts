@@ -119,16 +119,10 @@ export const getDraggedBlocks = (
 };
 
 export const getClosestHighlight = (
-  e: MouseEvent,
+  pos: XYCord,
   highlights: AnvilHighlightInfo[],
 ) => {
   if (!highlights || !highlights.length) return;
-
-  // Current mouse coordinates.
-  const pos: XYCord = {
-    x: e.offsetX,
-    y: e.offsetY,
-  };
   /**
    * Filter highlights that  span the current mouse position.
    */

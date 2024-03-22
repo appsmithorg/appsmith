@@ -26,6 +26,8 @@ interface StickyCanvasArenaRef {
 
 const StickyCanvas = styled.canvas`
   position: absolute;
+  width: 0px;
+  height: 0px;
   pointer-events: none;
 `;
 
@@ -140,9 +142,10 @@ export const StickyCanvasArena = forwardRef(
     const rescaleSliderCanvas = (entry: IntersectionObserverEntry) => {
       const canvasCtx: CanvasRenderingContext2D =
         stickyCanvasRef.current.getContext("2d");
-      stickyCanvasRef.current.height = entry.intersectionRect.height * scale;
-      stickyCanvasRef.current.width = entry.intersectionRect.width * scale;
-      canvasCtx.scale(scale, scale);
+      stickyCanvasRef.current.height =
+        entry.intersectionRect.height * scale * 4;
+      stickyCanvasRef.current.width = entry.intersectionRect.width * scale * 4;
+      canvasCtx.scale(scale * 4, scale * 4);
     };
 
     const updateCanvasStylesIntersection = (
