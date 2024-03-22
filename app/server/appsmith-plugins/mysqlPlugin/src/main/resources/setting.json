@@ -31,7 +31,8 @@
           "dataType": "NUMBER"
         },
         {
-          "label": "Override Host",
+          "label": "Override Database Host",
+          "subtitle": "When the query gets exuceted the Database Host will get replaced with this value",
           "configProperty": "actionConfiguration.pluginSpecifiedTemplates[1].value",
           "controlType": "QUERY_DYNAMIC_INPUT_TEXT"
         }

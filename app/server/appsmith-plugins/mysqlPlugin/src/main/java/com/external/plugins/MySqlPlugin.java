@@ -299,9 +299,10 @@ public class MySqlPlugin extends BasePlugin {
             SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
             String query = actionConfiguration.getBody();
 
-            //TODO: This. Check like PREPARED_STATEMENT_INDEX.
+            // TODO: This. Check like PREPARED_STATEMENT_INDEX.
             final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            String overrideDatabaseHost = properties.get(OVERRIDE_DATABASE_HOST_INDEX).getValue();
+            String overrideDatabaseHost =
+                    (String) properties.get(OVERRIDE_DATABASE_HOST_INDEX).getValue();
 
             // Override database host
             connectionPool.setHost(overrideDatabaseHost);
