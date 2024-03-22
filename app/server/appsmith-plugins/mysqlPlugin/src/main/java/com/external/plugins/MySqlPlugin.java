@@ -45,11 +45,12 @@ import io.r2dbc.spi.RowMetadata;
 import io.r2dbc.spi.Statement;
 import io.r2dbc.spi.ValidationDepth;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.mariadb.r2dbc.message.server.ColumnDefinitionPacket;
 import org.pf4j.Extension;
 import org.pf4j.PluginWrapper;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
@@ -86,15 +87,12 @@ import static com.appsmith.external.helpers.SSHUtils.getConnectionContext;
 import static com.appsmith.external.helpers.SSHUtils.isSSHTunnelConnected;
 import static com.appsmith.external.helpers.SmartSubstitutionHelper.replaceQuestionMarkWithDollarIndex;
 import static com.external.plugins.exceptions.MySQLErrorMessages.CONNECTION_VALIDITY_CHECK_FAILED_ERROR_MSG;
-import static com.external.utils.MySqlDatasourceUtils.getNewConnectionPool;
 import static com.external.utils.MySqlGetStructureUtils.getKeyInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTableInfo;
 import static com.external.utils.MySqlGetStructureUtils.getTemplates;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.util.CollectionUtils.isEmpty;
 
 @Slf4j
 public class MySqlPlugin extends BasePlugin {
@@ -217,7 +215,7 @@ public class MySqlPlugin extends BasePlugin {
 
             String query = actionConfiguration.getBody();
             // Check for query parameter before performing the probably expensive fetch connection from the pool op.
-            if (!StringUtils.hasLength(query)) {
+            if (!StringUtils.isNotBlank(query)) {
                 ActionExecutionResult errorResult = new ActionExecutionResult();
                 errorResult.setIsExecutionSuccess(false);
                 errorResult.setErrorInfo(new AppsmithPluginException(
@@ -231,9 +229,24 @@ public class MySqlPlugin extends BasePlugin {
 
             actionConfiguration.setBody(query.trim());
 
+            // TODO: This. Check like PREPARED_STATEMENT_INDEX.
+            String overrideDatabaseHost =
+                    (String) properties.get(OVERRIDE_DATABASE_HOST_INDEX).getValue();
+
+            if (StringUtils.isNotBlank(overrideDatabaseHost)) {
+                // TODO: This.
+                List<Endpoint> endpoints = datasourceConfiguration.getEndpoints();
+                endpoints.get(0).setHost(overrideDatabaseHost);
+                datasourceConfiguration.setEndpoints(endpoints);
+                ConnectionPool newConnectionPool =
+                        MySqlDatasourceUtils.getNewConnectionPool(datasourceConfiguration, connectionContext);
+                connectionContext.setConnection(newConnectionPool);
+            }
+
             // In case of non prepared statement, simply do binding replacement and execute
             if (FALSE.equals(isPreparedStatement)) {
                 prepareConfigurationsForExecution(executeActionDTO, actionConfiguration, datasourceConfiguration);
+
                 return executeCommon(connectionContext, actionConfiguration, FALSE, null, null, requestData);
             }
 
@@ -273,7 +286,7 @@ public class MySqlPlugin extends BasePlugin {
             // This ensures rate limiting will only be applied if hostname is present
             if (endpoints.size() > 0) {
                 String hostName = endpoints.get(0).getHost();
-                if (!isBlank(hostName)) {
+                if (!StringUtils.isBlank(hostName)) {
                     identifier = hostName + "_"
                             + SSHUtils.getDBPortFromConfigOrDefault(datasourceConfiguration, MYSQL_DEFAULT_PORT);
                 }
@@ -281,7 +294,7 @@ public class MySqlPlugin extends BasePlugin {
 
             if (SSHUtils.isSSHEnabled(datasourceConfiguration, CONNECTION_METHOD_INDEX)
                     && sshProxy != null
-                    && !isBlank(sshProxy.getHost())) {
+                    && !StringUtils.isBlank(sshProxy.getHost())) {
                 identifier += "_" + sshProxy.getHost() + "_"
                         + SSHUtils.getSSHPortFromConfigOrDefault(datasourceConfiguration);
             }
@@ -295,17 +308,10 @@ public class MySqlPlugin extends BasePlugin {
                 List<MustacheBindingToken> mustacheValuesInOrder,
                 ExecuteActionDTO executeActionDTO,
                 Map<String, Object> requestData) {
+
             ConnectionPool connectionPool = connectionContext.getConnection();
             SSHTunnelContext sshTunnelContext = connectionContext.getSshTunnelContext();
             String query = actionConfiguration.getBody();
-
-            // TODO: This. Check like PREPARED_STATEMENT_INDEX.
-            final List<Property> properties = actionConfiguration.getPluginSpecifiedTemplates();
-            String overrideDatabaseHost =
-                    (String) properties.get(OVERRIDE_DATABASE_HOST_INDEX).getValue();
-
-            // Override database host
-            connectionPool.setHost(overrideDatabaseHost);
 
             /**
              * TBD: check if this comment is resolved with the new MariaDB driver.
@@ -558,7 +564,7 @@ public class MySqlPlugin extends BasePlugin {
             Set<String> messages = new HashSet<>();
 
             List<String> identicalColumns = getIdenticalColumns(columnNames);
-            if (!isEmpty(identicalColumns)) {
+            if (!CollectionUtils.isEmpty(identicalColumns)) {
                 messages.add("Your MySQL query result may not have all the columns because duplicate column names "
                         + "were found for the column(s): "
                         + String.join(", ", identicalColumns) + ". You may use the "
@@ -657,7 +663,8 @@ public class MySqlPlugin extends BasePlugin {
                 try {
                     connectionContext = getConnectionContext(
                             datasourceConfiguration, CONNECTION_METHOD_INDEX, MYSQL_DEFAULT_PORT, ConnectionPool.class);
-                    ConnectionPool pool = getNewConnectionPool(datasourceConfiguration, connectionContext);
+                    ConnectionPool pool =
+                            MySqlDatasourceUtils.getNewConnectionPool(datasourceConfiguration, connectionContext);
                     connectionContext.setConnection(pool);
                     return Mono.just(connectionContext);
                 } catch (AppsmithPluginException e) {
