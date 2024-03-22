@@ -4,7 +4,7 @@ import React, { useCallback } from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import ReactDOM from "react-dom";
 import type { SlashCommandPayload } from "entities/Action";
-import { SlashCommand } from "entities/Action";
+import { PluginType, SlashCommand } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
@@ -21,6 +21,7 @@ import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
 import history, { NavigationMethod } from "utils/history";
+import type { Plugin } from "api/PluginApi";
 
 export enum Shortcuts {
   PLUS = "PLUS",
@@ -104,7 +105,7 @@ export function Command(props: {
   isBeta?: boolean;
   bindingText?: string;
   url?: string;
-  eventParams?: Record<string, string>;
+  eventParams?: Record<string, string | boolean>;
 }) {
   const switchToAction: MouseEventHandler<HTMLElement> = useCallback(
     (event) => {
@@ -170,12 +171,12 @@ export const generateQuickCommands = (
     datasources,
     enableAIAssistance,
     executeCommand,
-    pluginIdToImageLocation,
+    pluginIdToPlugin,
   }: {
     aiContext: AIEditorContext;
     datasources: Datasource[];
     executeCommand: (payload: SlashCommandPayload) => void;
-    pluginIdToImageLocation: Record<string, string>;
+    pluginIdToPlugin: Record<string, Plugin>;
     recentEntities: string[];
     featureFlags: FeatureFlags;
     enableAIAssistance: boolean;
@@ -221,19 +222,13 @@ export const generateQuickCommands = (
       render: (element: HTMLElement, _: unknown, data: CommandsCompletion) => {
         let icon = null;
         const completionData = data.data as NavigationData;
+        const plugin = pluginIdToPlugin[completionData.pluginId || ""];
         if (completionData.type === ENTITY_TYPE.JSACTION) {
           icon = JsFileIconV2(16, 16);
-        } else if (
-          completionData.pluginId &&
-          pluginIdToImageLocation[completionData.pluginId]
-        ) {
+        } else if (plugin?.iconLocation) {
           icon = (
             <EntityIcon height="16px" width="16px">
-              <img
-                src={getAssetUrl(
-                  pluginIdToImageLocation[completionData.pluginId],
-                )}
-              />
+              <img src={getAssetUrl(plugin.iconLocation)} />
             </EntityIcon>
           );
         }
@@ -242,9 +237,11 @@ export const generateQuickCommands = (
             bindingText={bindingText}
             eventParams={{
               actionId: suggestion.id,
-              actionName: suggestion.name,
               datasourceId: suggestion.datasourceId || "",
               pluginName: suggestion.pluginName || "",
+              actionType: plugin?.type === PluginType.DB ? "Query" : "API",
+              isMock: !!suggestion?.isMock,
+              from: NavigationMethod.CommandClick,
             }}
             icon={icon}
             name={data.displayText as string}
@@ -273,7 +270,7 @@ export const generateQuickCommands = (
           <EntityIcon height="16px" width="16px">
             <img
               src={getAssetUrl(
-                pluginIdToImageLocation[completionData.pluginId],
+                pluginIdToPlugin[completionData.pluginId].iconLocation,
               )}
             />
           </EntityIcon>

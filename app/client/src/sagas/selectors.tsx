@@ -233,3 +233,10 @@ export const getWidgetImmediateChildren = createSelector(
     return childrenIds;
   },
 );
+
+export const getPluginIdToPlugin = createSelector(getPlugins, (plugins) =>
+  plugins.reduce((acc: any, p: Plugin) => {
+    acc[p.id] = p;
+    return acc;
+  }, {}),
+);
