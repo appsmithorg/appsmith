@@ -88,6 +88,9 @@ export interface WidgetBaseConfiguration {
   // Flag to tell platform to disaplay this widget when search key
   // is not matching any widget.
   isSearchWildcard?: boolean;
+
+  // Flag to tell withWidgetProps HOC to inject evaluation errors into the widget
+  needsErrorInfo?: boolean;
 }
 
 export type WidgetDefaultProps = Partial<WidgetProps> & WidgetConfigProps;
