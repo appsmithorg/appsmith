@@ -2,8 +2,6 @@
 .inline-label {
   display: flex;
   align-items: center;
-  gap: var(--inner-spacing-2);
-  min-height: var(--sizing-4);
   position: relative;
   cursor: pointer;
   width: fit-content;
@@ -13,16 +11,6 @@
     display: -webkit-box;
     -webkit-line-clamp: 1;
     -webkit-box-orient: vertical;
-  }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * LABEL POSITION
-  *-----------------------------------------------------------------------------
-  */
-  &[data-label-position="start"] {
-    flex-direction: row-reverse;
-    justify-content: space-between;
   }
 
   /**

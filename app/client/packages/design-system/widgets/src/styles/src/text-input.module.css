@@ -7,10 +7,11 @@
     gap: var(--inner-spacing-1);
     border-radius: var(--border-radius-elevation-3);
     background-color: var(--color-bg-neutral-subtle);
-    padding-inline: var(--inner-spacing-1);
+    padding-inline: var(--inner-spacing-2);
     flex: 1;
     max-inline-size: 100%;
     isolation: isolate;
+    padding-block: var(--inner-spacing-3);
   }
 
   & [data-field-input] :is(input, textarea) {
@@ -22,6 +23,8 @@
     text-overflow: ellipsis;
     padding: 0;
     max-inline-size: 100%;
+    margin-block-start: var(--body-margin-start);
+    margin-block-end: var(--body-margin-end);
 
     &:autofill,
     &:autofill:hover,
@@ -167,7 +170,7 @@
   *-----------------------------------------------------------------------------
   */
   &:has(input[data-size="small"]) [data-field-input] {
-    block-size: var(--sizing-7);
+    padding-block: var(--inner-spacing-2);
 
     & [data-icon] {
       inline-size: var(--sizing-5);
@@ -176,8 +179,6 @@
   }
 
   &:has(input[data-size="medium"]) [data-field-input] {
-    block-size: var(--sizing-9);
-
     & [data-icon] {
       inline-size: var(--sizing-7);
       aspect-ratio: 1;
