@@ -136,10 +136,3 @@ export const Variants = {
   callbackBlock: "callbackBlock",
   hoverBorder: "hoverBorder",
 };
-
-// For now we want to enable this functionality only for table and json widget for data property
-// In future we can modify this object for other widgets and props too
-export const SlashCommandMenuOnFocusWidgetProps: { [key: string]: string[] } = {
-  TABLE_WIDGET_V2: ["tableData"],
-  JSON_FORM_WIDGET: ["sourceData"],
-};

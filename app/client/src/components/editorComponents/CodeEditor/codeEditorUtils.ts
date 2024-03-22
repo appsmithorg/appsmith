@@ -7,10 +7,10 @@ import type {
 import { trim } from "lodash";
 import { getDynamicStringSegments } from "utils/DynamicBindingUtils";
 import { EditorSize } from "./EditorConfig";
-import { SlashCommandMenuOnFocusWidgetProps } from "../ActionCreator/constants";
 import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
 import store from "store";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { SlashCommandMenuOnFocusWidgetProps } from "./constants";
 
 export const removeNewLineChars = (inputValue: any) => {
   return inputValue && inputValue.replace(/(\r\n|\n|\r)/gm, "");
