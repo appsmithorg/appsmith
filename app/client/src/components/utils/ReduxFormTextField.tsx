@@ -14,6 +14,7 @@ const renderComponent = (
     input: Partial<WrappedFieldInputProps>;
   },
 ) => {
+  const value = componentProps.input.value || componentProps.defaultValue;
   const showError = componentProps.meta.touched && !componentProps.meta.active;
   return componentProps.type === SettingSubtype.NUMBER ? (
     <NumberInput
@@ -24,6 +25,7 @@ const renderComponent = (
       }
       isDisabled={componentProps.disabled}
       label={componentProps.label as string}
+      value={value}
     />
   ) : (
     <Input
@@ -37,6 +39,7 @@ const renderComponent = (
       isDisabled={componentProps.disabled}
       renderAs={"input"}
       size="md"
+      value={value}
     />
   );
 };
@@ -52,6 +55,9 @@ export interface FormTextFieldProps {
   autoFocus?: boolean;
   hideErrorMessage?: boolean;
   isRequired?: boolean;
+  defaultValue?: string;
+  format?: (value: any) => any;
+  parse?: (value: any) => any;
 }
 
 function ReduxFormTextField(props: FormTextFieldProps) {
