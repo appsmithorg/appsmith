@@ -157,7 +157,7 @@ const isLargeCollection = (val: any) => {
   return size > LARGE_COLLECTION_SIZE;
 };
 
-const getReducedDataTree = (data: any, constrainedDiffPaths: any) => {
+const getReducedDataTree = (data: any, constrainedDiffPaths: string[]) => {
   const withErrors = Object.keys(data).reduce((acc: any, key) => {
     const widgetValue = data[key];
     acc[key] = {
@@ -236,6 +236,7 @@ const generateDiffUpdates = (
   const largeDataSetUpdates = [...attachDirectly, ...attachLater];
   return [...updates, ...largeDataSetUpdates];
 };
+
 const correctUndefinedUpdatesToDeletesOrNew = (
   updates: DiffWithNewTreeState[],
 ) =>
@@ -257,29 +258,23 @@ const correctUndefinedUpdatesToDeletesOrNew = (
     return acc;
   }, [] as DiffWithNewTreeState[]);
 
-const generateRootWidgetUpdates = (
-  updates: DiffWithNewTreeState[],
-  newDataTree: any,
-) => {
-  try {
-    return updates
-      .filter(
-        (v: any) =>
-          v.kind === "D" && typeof v.path[v.path.length - 1] === "number",
-      )
-      .map(({ path }: any) => {
-        const pathCopy = [...path];
-        pathCopy.pop();
-        return {
-          kind: "E",
-          path: pathCopy,
-          rhs: get(newDataTree, pathCopy),
-        }; //push the parent path
-      }, [] as DiffWithNewTreeState[]);
-  } catch (e) {
-    return [];
-  }
-};
+// const generateRootWidgetUpdates = (
+//   updates: DiffWithNewTreeState[],
+//   newDataTree: any,
+// ) => updates
+//       .filter(
+//         (v) =>
+//           v.kind === "D" && v.path && typeof v.path[v.path.length - 1] === "number",
+//       )
+//       .map(({ path }: any) => {
+//         const pathCopy = [...path];
+//         pathCopy.pop();
+//         return {
+//           kind: "E",
+//           path: pathCopy,
+//           rhs: get(newDataTree, pathCopy),
+//         }; //push the parent path
+//       }, [] as DiffWithNewTreeState[]);
 
 export const generateOptimisedUpdates = (
   oldDataTree: any,
@@ -292,12 +287,12 @@ export const generateOptimisedUpdates = (
     constrainedDiffPaths,
   );
   const scrubedOutUpates = correctUndefinedUpdatesToDeletesOrNew(updates);
-  const rootArrayUpdates = generateRootWidgetUpdates(
-    scrubedOutUpates,
-    dataTree,
-  );
+  // const rootArrayUpdates = generateRootWidgetUpdates(
+  //   scrubedOutUpates,
+  //   dataTree,
+  // );
 
-  return [...scrubedOutUpates, ...rootArrayUpdates] as DiffWithNewTreeState[];
+  return [...scrubedOutUpates] as DiffWithNewTreeState[];
 };
 
 export const generateSerialisedUpdates = (

@@ -1,6 +1,7 @@
 import { applyChange } from "deep-diff";
 import produce from "immer";
 import { klona } from "klona/full";
+import { range } from "lodash";
 import moment from "moment";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "sagas/EvaluationSaga.utils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
@@ -25,6 +26,7 @@ export const smallDataSet = [
   },
 ];
 //size of about 300 elements
+const largeDataSet = range(100).flatMap(() => smallDataSet) as any;
 
 const oldState = {
   Table1: {
@@ -119,21 +121,21 @@ describe("generateOptimisedUpdates", () => {
         },
       ]);
     });
-    // test.skip("should generate a root collection update whenever an element in a collection is deleted", () => {
-    //   const newState = produce(oldState, (draft) => {
-    //     // delete second element in an array
-    //     draft.Table1.filteredTableData = draft.Table1.filteredTableData.filter((el,index) => index !== 1);;
-    //   });
-    //   const updates = generateOptimisedUpdates(oldState, newState, ["Table1.filteredTableData[1]"]);
-    //   // update should be a root collection update
-    //   expect(updates).toEqual([
-    //     {
-    //       kind: "E",
-    //       path: ["Table1","filteredTableData"],
-    //       rhs: [oldState.Table1.filteredTableData[0],oldState.Table1.filteredTableData[2]],
-    //     },
-    //   ]);
-    // })
+    test("should generate a replace collection patch when the size of the collection exceeds 100 instead of generating granular updates", () => {
+      const newState = produce(oldState, (draft) => {
+        draft.Table1.tableData = largeDataSet as any;
+      });
+      const updates = generateOptimisedUpdates(oldState, newState, [
+        "Table1.tableData",
+      ]);
+      expect(updates).toEqual([
+        {
+          kind: "N",
+          path: ["Table1", "tableData"],
+          rhs: largeDataSet,
+        },
+      ]);
+    });
   });
 
   //we are testing the flow of serialised updates generated from the worker thread and subsequently applied to the main thread state
