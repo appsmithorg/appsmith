@@ -10,6 +10,7 @@
     padding-inline: var(--inner-spacing-2);
     flex: 1;
     max-inline-size: 100%;
+    isolation: isolate;
     padding-block: var(--inner-spacing-3);
   }
 
