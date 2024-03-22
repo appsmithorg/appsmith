@@ -39,7 +39,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Deprecated
     public Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
         final BridgeQuery<ActionCollection> bridgeQuery =
-                Bridge.<ActionCollection>equal(ActionCollection.Fields.applicationId, applicationId);
+                Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
 
         return queryBuilder()
                 .criteria(bridgeQuery)
@@ -66,7 +66,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     protected BridgeQuery<ActionCollection> getBridgeQueryForFindByApplicationIdAndViewMode(
             String applicationId, boolean viewMode) {
         final BridgeQuery<ActionCollection> bridgeQuery =
-                Bridge.<ActionCollection>equal(ActionCollection.Fields.applicationId, applicationId);
+                Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
@@ -94,7 +94,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
          * all possible fields
          */
-        BridgeQuery<ActionCollection> bridgeQuery = Bridge.<ActionCollection>query();
+        BridgeQuery<ActionCollection> bridgeQuery = Bridge.query();
         if (!StringUtils.isEmpty(branchName)) {
             bridgeQuery.equal(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME, branchName);
         }
@@ -162,9 +162,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         String unpublishedPage = ActionCollection.Fields.unpublishedCollection_pageId;
         String publishedPage = ActionCollection.Fields.publishedCollection_pageId;
 
-        BridgeQuery<ActionCollection> bridgeQuery = Bridge.or(
-                Bridge.<ActionCollection>equal(unpublishedPage, pageId),
-                Bridge.<ActionCollection>equal(publishedPage, pageId));
+        BridgeQuery<ActionCollection> bridgeQuery =
+                Bridge.or(Bridge.equal(unpublishedPage, pageId), Bridge.equal(publishedPage, pageId));
 
         return queryBuilder().criteria(bridgeQuery).permission(aclPermission).all();
     }
