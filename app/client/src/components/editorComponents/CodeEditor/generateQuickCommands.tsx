@@ -22,6 +22,7 @@ import PerformanceTracker, {
 } from "utils/PerformanceTracker";
 import history, { NavigationMethod } from "utils/history";
 import type { Plugin } from "api/PluginApi";
+import { EDIT, createMessage } from "@appsmith/constants/messages";
 
 export enum Shortcuts {
   PLUS = "PLUS",
@@ -130,7 +131,7 @@ export function Command(props: {
       </div>
       <div className="command flex w-full">
         <div className="self-center shrink-0">{props.icon}</div>
-        <div className="flex grow">
+        <div className="flex grow relative">
           <div className="flex flex-col gap-1 grow">
             <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)]">
               {props.name}
@@ -142,10 +143,10 @@ export function Command(props: {
           </div>
           {props.url ? (
             <span
-              className="hidden group-hover:inline self-center h-full px-2 text-xs"
+              className="hidden group-hover:inline self-center h-full px-2 text-xs absolute right-0 command-suggestion-edit"
               onClick={switchToAction}
             >
-              Edit
+              {createMessage(EDIT)}
             </span>
           ) : null}
         </div>
