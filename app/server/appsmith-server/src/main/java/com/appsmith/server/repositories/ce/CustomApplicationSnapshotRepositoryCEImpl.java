@@ -23,8 +23,8 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
 
     @Override
     public Mono<ApplicationSnapshot> findWithoutData(String applicationId) {
-        BridgeQuery<ApplicationSnapshot> query = Bridge.query();
-        query.equal(ApplicationSnapshot.Fields.applicationId, applicationId)
+        BridgeQuery<ApplicationSnapshot> query = Bridge.<ApplicationSnapshot>equal(
+                        ApplicationSnapshot.Fields.applicationId, applicationId)
                 .equal(ApplicationSnapshot.Fields.chunkOrder, 1);
 
         List<String> fieldNames = List.of(
