@@ -25,7 +25,7 @@ const _ButtonGroup = <T extends object>(
   } = props;
   const domRef = useDOMRef(ref);
   const state = useListState({ ...props, suppressTextValueWarning: true });
-  const { buttonGroupProps, isMeasuring, orientation } = useButtonGroup(
+  const { buttonGroupProps, orientation } = useButtonGroup(
     props,
     state,
     domRef,
@@ -34,7 +34,7 @@ const _ButtonGroup = <T extends object>(
   const children = [...state.collection];
 
   const style = {
-    flexBasis: isMeasuring ? "100%" : undefined,
+    flexBasis: "100%",
     display: "flex",
   };
 

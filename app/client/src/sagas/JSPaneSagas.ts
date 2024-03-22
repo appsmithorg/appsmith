@@ -398,9 +398,16 @@ export function* handleExecuteJSFunctionSaga(data: {
   action: JSAction;
   collection: JSCollection;
   isExecuteJSFunc: boolean;
+  onPageLoad: boolean;
   openDebugger?: boolean;
 }) {
-  const { action, collection, isExecuteJSFunc, openDebugger = false } = data;
+  const {
+    action,
+    collection,
+    isExecuteJSFunc,
+    onPageLoad,
+    openDebugger = false,
+  } = data;
   const { id: collectionId } = collection;
   const actionId = action.id;
   const appMode: APP_MODE = yield select(getAppMode);
@@ -433,6 +440,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       executeJSFunction,
       action,
       collection,
+      onPageLoad,
     );
     // open response tab in debugger on runnning or page load js action.
 
@@ -536,6 +544,7 @@ export function* handleExecuteJSFunctionSaga(data: {
   }
 }
 
+// This gets called on pressing "Run" button in JS code editor
 export function* handleStartExecuteJSFunctionSaga(
   data: ReduxAction<{
     action: JSAction;
@@ -581,6 +590,7 @@ export function* handleStartExecuteJSFunctionSaga(
     action,
     collection,
     isExecuteJSFunc: false,
+    onPageLoad: false,
     openDebugger,
   });
 }

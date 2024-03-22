@@ -22,7 +22,6 @@ export const StatBoxComponent = (props: StatBoxComponentProps) => {
       direction={iconAlign === "end" ? "row-reverse" : "row"}
       gap="spacing-2"
       isInner
-      padding="spacing-3 "
     >
       {iconName && iconName !== "(none)" && (
         <Icon name={iconName} size="large" />

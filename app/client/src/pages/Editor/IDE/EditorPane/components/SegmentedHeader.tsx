@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 import { Button, Flex, SegmentedControl, Tooltip } from "design-system";
 import {
   createMessage,
@@ -18,6 +18,7 @@ import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { setIdeEditorViewMode } from "actions/ideActions";
 
 const Container = styled(Flex)`
@@ -44,6 +45,13 @@ const SegmentedHeader = () => {
   };
   const { segment } = useCurrentEditorState();
   const { onSegmentChange } = useSegmentNavigation();
+
+  const handleMaximizeButtonClick = useCallback(() => {
+    AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
+      to: EditorViewMode.FullScreen,
+    });
+    dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen));
+  }, []);
 
   return (
     <Container
@@ -88,12 +96,11 @@ const SegmentedHeader = () => {
       segment !== EditorEntityTab.UI ? (
         <Tooltip content={createMessage(MAXIMIZE_BUTTON_TOOLTIP)}>
           <Button
+            data-testid="t--ide-maximize"
             id="editor-mode-maximize"
             isIconButton
             kind="tertiary"
-            onClick={() =>
-              dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen))
-            }
+            onClick={handleMaximizeButtonClick}
             startIcon="maximize-v3"
           />
         </Tooltip>

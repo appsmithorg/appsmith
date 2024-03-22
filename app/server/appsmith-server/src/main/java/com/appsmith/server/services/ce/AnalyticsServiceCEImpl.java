@@ -272,6 +272,12 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             return Mono.just(object);
         }
 
+        // Get the event name tag based on the event and object
+        // Event tag is of the form `eventName_objectClassName` or just `eventName` if the event is not associated with
+        // any object.
+        // Example of form eventName_objectClassName: `create_user`, `update_page`, `delete_action`
+        // Example of form eventName: `execute_ACTION_TRIGGERED`, `Authentication Method Configured`
+        // For more info on this, refer to the `getEventTag` method and `getNonResourceEvents` method
         final String eventTag = getEventTag(event, object);
 
         // We will create an anonymous user object for event tracking if no user is present

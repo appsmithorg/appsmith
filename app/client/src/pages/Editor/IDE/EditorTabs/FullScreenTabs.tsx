@@ -18,6 +18,7 @@ import {
   MINIMIZE_BUTTON_TOOLTIP,
   createMessage,
 } from "@appsmith/constants/messages";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 const FullScreenTabs = () => {
   const dispatch = useDispatch();
@@ -26,6 +27,9 @@ const FullScreenTabs = () => {
   const { segment } = useCurrentEditorState();
   const setSplitScreenMode = useCallback(() => {
     dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+    AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
+      to: EditorViewMode.SplitScreen,
+    });
   }, []);
   const tabsConfig = TabSelectors[segment];
   const pageId = useSelector(getCurrentPageId);
@@ -53,6 +57,8 @@ const FullScreenTabs = () => {
         placement="bottomRight"
       >
         <Button
+          className="ml-auto"
+          data-testid="t--ide-minimize"
           id="editor-mode-minimize"
           isIconButton
           kind="tertiary"

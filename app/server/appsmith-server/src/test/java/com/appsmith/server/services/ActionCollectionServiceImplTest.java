@@ -125,6 +125,15 @@ public class ActionCollectionServiceImplTest {
     @MockBean
     private DefaultResourcesService<ActionCollection> actionCollectionDefaultResourcesService;
 
+    @MockBean
+    private DefaultResourcesService<ActionCollectionDTO> actionCollectionDtoDefaultResourcesService;
+
+    @MockBean
+    private DefaultResourcesService<NewAction> newActionDefaultResourcesService;
+
+    @MockBean
+    private DefaultResourcesService<ActionDTO> actionDTODefaultResourcesService;
+
     @BeforeEach
     public void setUp() {
         applicationPermission = new ApplicationPermissionImpl();
@@ -140,7 +149,10 @@ public class ActionCollectionServiceImplTest {
                 responseUtils,
                 applicationPermission,
                 actionPermission,
-                actionCollectionDefaultResourcesService);
+                actionCollectionDefaultResourcesService,
+                actionCollectionDtoDefaultResourcesService,
+                newActionDefaultResourcesService,
+                actionDTODefaultResourcesService);
 
         layoutCollectionService = new LayoutCollectionServiceImpl(
                 newPageService,
@@ -671,7 +683,7 @@ public class ActionCollectionServiceImplTest {
         Mockito.when(actionCollectionRepository.findById(Mockito.any(), Mockito.<Optional<AclPermission>>any()))
                 .thenReturn(Mono.just(actionCollection));
 
-        Mockito.when(newActionService.deleteUnpublishedAction(Mockito.any()))
+        Mockito.when(newActionService.deleteUnpublishedActionWithOptionalPermission(Mockito.any(), Mockito.any()))
                 .thenReturn(Mono.just(
                         actionCollection.getUnpublishedCollection().getActions().get(0)));
 
