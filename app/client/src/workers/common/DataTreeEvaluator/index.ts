@@ -1170,8 +1170,7 @@ export default class DataTreeEvaluator {
             /** Variables defined in a JS object are not reactive.
              * Their evaluated values need to be reset only when the variable is modified by the user.
              * When uneval value of a js variable hasn't changed, it means that the previously evaluated values are in both trees already  */
-            if (skipVariableValueAssignment) {
-            } else {
+            if (!skipVariableValueAssignment) {
               const valueForSafeTree = klona(evalValue);
               set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);

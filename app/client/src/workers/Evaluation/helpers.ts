@@ -22,14 +22,11 @@ export const getNewDataTreeUpdates = (paths: string[], dataTree: object) =>
     };
   });
 
-export interface DiffReferenceState {
-  kind: "referenceState";
-  path: any[];
-  referencePath: string;
+export interface DiffNewTreeState {
+  kind: "newTree";
+  rhs: any;
 }
-export type DiffWithReferenceState =
-  | Diff<DataTree, DataTree>
-  | DiffReferenceState;
+export type DiffWithNewTreeState = Diff<DataTree, DataTree> | DiffNewTreeState;
 // Finds the first index which is a duplicate value
 // Returns -1 if there are no duplicates
 // Returns the index of the first duplicate entry it finds
@@ -85,13 +82,6 @@ export const countOccurrences = (
 };
 
 const LARGE_COLLECTION_SIZE = 100;
-
-const generateWithKey = (basePath: any, key: any) => {
-  const segmentedPath = [...basePath, key];
-  return {
-    segmentedPath,
-  };
-};
 
 export const stringifyFnsInObject = (
   userObject: Record<string, unknown>,
@@ -167,7 +157,7 @@ const isLargeCollection = (val: any) => {
   return size > LARGE_COLLECTION_SIZE;
 };
 
-const getReducedDataTree = (data: any, evalOrder: any) => {
+const getReducedDataTree = (data: any, constrainedDiffPaths: any) => {
   const withErrors = Object.keys(data).reduce((acc: any, key) => {
     const widgetValue = data[key];
     acc[key] = {
@@ -177,7 +167,7 @@ const getReducedDataTree = (data: any, evalOrder: any) => {
     };
     return acc;
   }, {});
-  return evalOrder.reduce((acc: any, key: any) => {
+  return constrainedDiffPaths.reduce((acc: any, key: any) => {
     set(acc, key, get(data, key));
     return acc;
   }, withErrors);
@@ -185,19 +175,18 @@ const getReducedDataTree = (data: any, evalOrder: any) => {
 const generateDiffUpdates = (
   oldDataTree: any,
   dataTree: any,
-  evalOrder: string[],
-): DiffWithReferenceState[] => {
-  const attachDirectly: DiffWithReferenceState[] = [];
-  const attachLater: DiffWithReferenceState[] = [];
+  constrainedDiffPaths: string[],
+): DiffWithNewTreeState[] => {
+  const attachDirectly: DiffWithNewTreeState[] = [];
+  const attachLater: DiffWithNewTreeState[] = [];
 
-  const oldData = getReducedDataTree(oldDataTree, evalOrder);
-  const newData = getReducedDataTree(dataTree, evalOrder);
+  const oldData = getReducedDataTree(oldDataTree, constrainedDiffPaths);
+  const newData = getReducedDataTree(dataTree, constrainedDiffPaths);
   const updates =
     diff(oldData, newData, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
 
-      const { segmentedPath } = generateWithKey(path, key);
-
+      const segmentedPath = [...path, key];
       const rhs = get(dataTree, segmentedPath);
 
       const lhs = get(oldDataTree, segmentedPath);
@@ -219,7 +208,6 @@ const generateDiffUpdates = (
         if (lhs !== undefined) {
           attachDirectly.push({ kind: "D", lhs, path: segmentedPath });
         }
-        // if the lhs is also undefined ignore diff on this node
         return true;
       }
 
@@ -248,41 +236,84 @@ const generateDiffUpdates = (
   const largeDataSetUpdates = [...attachDirectly, ...attachLater];
   return [...updates, ...largeDataSetUpdates];
 };
+const correctUndefinedUpdatesToDeletesOrNew = (
+  updates: DiffWithNewTreeState[],
+) =>
+  updates.reduce((acc, update) => {
+    const { kind, lhs, path, rhs } = update as any;
+    if (kind === "E") {
+      if (lhs === undefined && rhs !== undefined) {
+        acc.push({ kind: "N", path, rhs });
+      }
+      if (lhs !== undefined && rhs === undefined) {
+        acc.push({ path, lhs, kind: "D" });
+      }
+      if (lhs !== undefined && rhs !== undefined) {
+        acc.push(update);
+      }
+      return acc;
+    }
+    acc.push(update);
+    return acc;
+  }, [] as DiffWithNewTreeState[]);
+
+const generateRootWidgetUpdates = (
+  updates: DiffWithNewTreeState[],
+  newDataTree: any,
+) => {
+  try {
+    return updates
+      .filter(
+        (v: any) =>
+          v.kind === "D" && typeof v.path[v.path.length - 1] === "number",
+      )
+      .map(({ path }: any) => {
+        const pathCopy = [...path];
+        pathCopy.pop();
+        return {
+          kind: "E",
+          path: pathCopy,
+          rhs: get(newDataTree, pathCopy),
+        }; //push the parent path
+      }, [] as DiffWithNewTreeState[]);
+  } catch (e) {
+    return [];
+  }
+};
 
 export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
-  evalOrder: string[],
-): DiffWithReferenceState[] => {
-  const updates = generateDiffUpdates(oldDataTree, dataTree, evalOrder);
-  const rootArrayUpdates = updates
-    .filter((v) => v.kind === "D")
-    .map((v) => v.path)
-    .reduce((acc, path: any) => {
-      if (typeof path[path.length - 1] === "number") {
-        path.pop();
-        acc.push({
-          kind: "E",
-          path: path,
-          rhs: get(dataTree, path),
-        }); //push the parent path
-      }
-      return acc;
-    }, [] as any);
+  constrainedDiffPaths: string[],
+): DiffWithNewTreeState[] => {
+  const updates = generateDiffUpdates(
+    oldDataTree,
+    dataTree,
+    constrainedDiffPaths,
+  );
+  const scrubedOutUpates = correctUndefinedUpdatesToDeletesOrNew(updates);
+  const rootArrayUpdates = generateRootWidgetUpdates(
+    scrubedOutUpates,
+    dataTree,
+  );
 
-  return [...updates, ...rootArrayUpdates];
+  return [...scrubedOutUpates, ...rootArrayUpdates] as DiffWithNewTreeState[];
 };
 
 export const generateSerialisedUpdates = (
   prevState: any,
   currentState: any,
-  evalOrder: string[],
+  constrainedDiffPaths: string[],
   mergeAdditionalUpdates?: any,
 ): {
   serialisedUpdates: string;
   error?: { type: string; message: string };
 } => {
-  const updates = generateOptimisedUpdates(prevState, currentState, evalOrder);
+  const updates = generateOptimisedUpdates(
+    prevState,
+    currentState,
+    constrainedDiffPaths,
+  );
 
   //remove lhs from diff to reduce the size of diff upload,
   //it is not necessary to send lhs and we can make the payload to transfer to the main thread smaller for quicker transfer
@@ -308,13 +339,13 @@ export const generateSerialisedUpdates = (
 export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: any,
   dataTreeEvaluator: any,
-  evalOrder: string[],
+  constrainedDiffPaths: string[],
   mergeAdditionalUpdates?: any,
 ) => {
   const { error, serialisedUpdates } = generateSerialisedUpdates(
     dataTreeEvaluator.getPrevState(),
     dataTree,
-    evalOrder,
+    constrainedDiffPaths,
     mergeAdditionalUpdates,
   );
 
