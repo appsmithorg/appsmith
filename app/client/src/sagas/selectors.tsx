@@ -235,7 +235,7 @@ export const getWidgetImmediateChildren = createSelector(
 );
 
 export const getPluginIdToPlugin = createSelector(getPlugins, (plugins) =>
-  plugins.reduce((acc: any, p: Plugin) => {
+  plugins.reduce((acc: Record<string, Plugin>, p: Plugin) => {
     acc[p.id] = p;
     return acc;
   }, {}),
