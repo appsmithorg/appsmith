@@ -61,6 +61,7 @@ describe("IDE URL rendering of Queries", () => {
       );
 
       // Check if editor is in split screen
+      getByTestId("t--ide-maximize");
       getByTestId("t--widgets-editor");
 
       // Left pane text
@@ -109,6 +110,7 @@ describe("IDE URL rendering of Queries", () => {
       );
 
       // Check if editor is in split screen
+      getByTestId("t--ide-maximize");
       getByTestId("t--widgets-editor");
 
       // Left pane header
