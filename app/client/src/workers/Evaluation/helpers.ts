@@ -258,23 +258,27 @@ const correctUndefinedUpdatesToDeletesOrNew = (
     return acc;
   }, [] as DiffWithNewTreeState[]);
 
-// const generateRootWidgetUpdates = (
-//   updates: DiffWithNewTreeState[],
-//   newDataTree: any,
-// ) => updates
-//       .filter(
-//         (v) =>
-//           v.kind === "D" && v.path && typeof v.path[v.path.length - 1] === "number",
-//       )
-//       .map(({ path }: any) => {
-//         const pathCopy = [...path];
-//         pathCopy.pop();
-//         return {
-//           kind: "E",
-//           path: pathCopy,
-//           rhs: get(newDataTree, pathCopy),
-//         }; //push the parent path
-//       }, [] as DiffWithNewTreeState[]);
+// whenever an element in a collection is deleted, we need to send the entire as an update
+const generateRootWidgetUpdates = (
+  updates: DiffWithNewTreeState[],
+  newDataTree: any,
+) =>
+  updates
+    .filter(
+      (v) =>
+        v.kind === "D" &&
+        v.path &&
+        typeof v.path[v.path.length - 1] === "number",
+    )
+    .map(({ path }: any) => {
+      const pathCopy = [...path];
+      pathCopy.pop();
+      return {
+        kind: "E",
+        path: pathCopy,
+        rhs: get(newDataTree, pathCopy),
+      }; //push the parent path
+    }, [] as DiffWithNewTreeState[]);
 
 export const generateOptimisedUpdates = (
   oldDataTree: any,
@@ -286,13 +290,13 @@ export const generateOptimisedUpdates = (
     dataTree,
     constrainedDiffPaths,
   );
-  const scrubedOutUpates = correctUndefinedUpdatesToDeletesOrNew(updates);
-  // const rootArrayUpdates = generateRootWidgetUpdates(
-  //   scrubedOutUpates,
-  //   dataTree,
-  // );
+  const correctedUpdates = correctUndefinedUpdatesToDeletesOrNew(updates);
+  const rootArrayUpdates = generateRootWidgetUpdates(
+    correctedUpdates,
+    dataTree,
+  );
 
-  return [...scrubedOutUpates] as DiffWithNewTreeState[];
+  return [...correctedUpdates, ...rootArrayUpdates] as DiffWithNewTreeState[];
 };
 
 export const generateSerialisedUpdates = (
