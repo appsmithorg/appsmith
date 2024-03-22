@@ -21,17 +21,21 @@ export const StyledFormGroup = styled.div`
       width: 100%;
     }
   }
-  & svg:hover {
-    cursor: default;
-    path {
-    }
-  }
 `;
 
 export const StyledLabel = styled.div`
   margin-bottom: 4px;
   display: flex;
   align-items: center;
+
+  .admin-settings-form-group-label {
+    font-weight: var(--ads-v2-h5-font-weight);
+  }
+
+  .help-icon {
+    margin-left: 8px;
+    cursor: pointer;
+  }
 `;
 
 export const StyledSubtext = styled(Text)`
@@ -70,10 +74,11 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
         {setting.helpText && (
           <Tooltip content={createMessage(() => setting.helpText || "")}>
             <Icon
-              color="white"
+              className={"help-icon"}
+              color="var(--ads-v2-color-fg)"
               data-testid="admin-settings-form-group-helptext"
-              name="help"
-              size="sm"
+              name="question-line"
+              size="md"
             />
           </Tooltip>
         )}

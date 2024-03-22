@@ -87,9 +87,25 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             String workspaceId, String applicationId, String pageId, String branchName, Part file) {
         return importService
                 .extractArtifactExchangeJson(file)
-                .flatMap(artifactExchangeJson -> importResourceInPage(
-                        workspaceId, applicationId, pageId, branchName, (ApplicationJson) artifactExchangeJson))
+                .flatMap(artifactExchangeJson -> {
+                    if (artifactExchangeJson instanceof ApplicationJson
+                            && isImportableResource((ApplicationJson) artifactExchangeJson)) {
+                        return importResourceInPage(
+                                workspaceId, applicationId, pageId, branchName, (ApplicationJson) artifactExchangeJson);
+                    } else {
+                        return Mono.error(
+                                new AppsmithException(
+                                        AppsmithError.GENERIC_JSON_IMPORT_ERROR,
+                                        "The file is not compatible with the current partial import operation. Please check the file and try again."));
+                    }
+                })
                 .map(BuildingBlockImportDTO::getApplication);
+    }
+
+    private boolean isImportableResource(ApplicationJson artifactExchangeJson) {
+        return artifactExchangeJson.getExportedApplication() == null
+                && artifactExchangeJson.getPageList() == null
+                && artifactExchangeJson.getModifiedResources() == null;
     }
 
     private Mono<BuildingBlockImportDTO> importResourceInPage(

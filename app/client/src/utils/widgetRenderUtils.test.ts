@@ -8,9 +8,29 @@ import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsR
 import { buildChildWidgetTree, createCanvasWidget } from "./widgetRenderUtils";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 
+jest.mock("../WidgetProvider/factory", () => {
+  const originalModule = jest.requireActual("react-redux");
+  return {
+    ...originalModule,
+    default: {
+      ...originalModule.default,
+      getConfig: (type: string) => {
+        return {
+          needsErrorInfo: type === "CHART_WIDGET",
+        };
+      },
+      widgetTypes: {
+        SKELETON_WIDGET: "SKELETON_WIDGET",
+      },
+    },
+  };
+});
+
 describe("createCanvasWidget functionality", () => {
   it("returns an empty errors if no evaluations are present", function () {
-    const canvasWidget = {} as unknown as FlattenedWidgetProps;
+    const canvasWidget = {
+      type: "CHART_WIDGET",
+    } as unknown as FlattenedWidgetProps;
     const dataTree = {} as unknown as WidgetEntity;
 
     const response = createCanvasWidget(
@@ -22,7 +42,9 @@ describe("createCanvasWidget functionality", () => {
   });
 
   it("returns an empty errors if no evaluation errors are present", () => {
-    const canvasWidget = {} as unknown as FlattenedWidgetProps;
+    const canvasWidget = {
+      type: "CHART_WIDGET",
+    } as unknown as FlattenedWidgetProps;
     const dataTree = {
       __evaluation__: {},
     } as unknown as WidgetEntity;
@@ -35,8 +57,10 @@ describe("createCanvasWidget functionality", () => {
     expect(response.errors.length).toEqual(0);
   });
 
-  it("populates __evaluation__ errors inside widget error property", () => {
-    const canvasWidget = {} as unknown as FlattenedWidgetProps;
+  it("populates __evaluation__ errors inside widget error property for widgets that has opt in", () => {
+    const canvasWidget = {
+      type: "CHART_WIDGET",
+    } as unknown as FlattenedWidgetProps;
 
     const dataTree = {
       __evaluation__: {
@@ -65,6 +89,35 @@ describe("createCanvasWidget functionality", () => {
     expect(response.errors[0].stack).toStrictEqual("Error Message Stack");
     expect(response.errors[0].type).toStrictEqual("property");
     expect(response.errors[0].path).toStrictEqual("propertyPath");
+  });
+
+  it("doesn't populates __evaluation__ errors inside widget error property for widget has not opt in", () => {
+    const canvasWidget = {
+      type: "TEXT_WIDGET",
+    } as unknown as FlattenedWidgetProps;
+
+    const dataTree = {
+      __evaluation__: {
+        errors: {
+          propertyPath: [
+            {
+              errorMessage: {
+                name: "Validation Error",
+                message: "Error Message",
+              },
+              raw: "Error Message Stack",
+            },
+          ],
+        },
+      },
+    } as unknown as WidgetEntity;
+
+    const response = createCanvasWidget(
+      canvasWidget,
+      dataTree,
+      {} as WidgetEntityConfig,
+    );
+    expect(response.errors.length).toEqual(0);
   });
 });
 
@@ -388,7 +441,7 @@ describe("test EditorUtils methods", () => {
               reactivePaths: {},
               topRow: 4,
               triggerPaths: {},
-              type: undefined,
+              type: "SKELETON_WIDGET",
               validationPaths: {},
               widgetId: "3",
               widgetName: "three",
@@ -408,7 +461,7 @@ describe("test EditorUtils methods", () => {
               reactivePaths: {},
               topRow: 6,
               triggerPaths: {},
-              type: undefined,
+              type: "SKELETON_WIDGET",
               validationPaths: {},
               widgetId: "4",
               widgetName: "four",
@@ -427,7 +480,7 @@ describe("test EditorUtils methods", () => {
               reactivePaths: {},
               topRow: 0,
               triggerPaths: {},
-              type: undefined,
+              type: "SKELETON_WIDGET",
               validationPaths: {},
               widgetId: "1_meta",
               widgetName: "meta_one",
@@ -447,7 +500,7 @@ describe("test EditorUtils methods", () => {
                   reactivePaths: {},
                   topRow: 0,
                   triggerPaths: {},
-                  type: undefined,
+                  type: "SKELETON_WIDGET",
                   validationPaths: {},
                   widgetId: "2_meta",
                   widgetName: "meta_two",
@@ -465,7 +518,7 @@ describe("test EditorUtils methods", () => {
           reactivePaths: {},
           topRow: 0,
           triggerPaths: {},
-          type: undefined,
+          type: "SKELETON_WIDGET",
           validationPaths: {},
           widgetId: "2",
           widgetName: "two",
