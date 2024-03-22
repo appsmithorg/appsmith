@@ -291,12 +291,27 @@ export const generateOptimisedUpdates = (
     constrainedDiffPaths,
   );
   const correctedUpdates = correctUndefinedUpdatesToDeletesOrNew(updates);
-  const rootArrayUpdates = generateRootWidgetUpdates(
+
+  const rootCollectionUpdates = generateRootWidgetUpdates(
     correctedUpdates,
     dataTree,
   );
+  const rootCollectionPaths = rootCollectionUpdates.map((update) =>
+    update.path.join("."),
+  );
+  const scrubedOutUpdates = correctedUpdates
+    .map((update: any) => ({ update, condensedPath: update.path.join(".") }))
+    .filter(
+      ({ condensedPath }) =>
+        !rootCollectionPaths.some((p) => condensedPath.startsWith(p)),
+    )
+    // remove the condensedPath from the update
+    .map(({ update }) => update);
 
-  return [...correctedUpdates, ...rootArrayUpdates] as DiffWithNewTreeState[];
+  return [
+    ...scrubedOutUpdates,
+    ...rootCollectionUpdates,
+  ] as DiffWithNewTreeState[];
 };
 
 export const generateSerialisedUpdates = (
