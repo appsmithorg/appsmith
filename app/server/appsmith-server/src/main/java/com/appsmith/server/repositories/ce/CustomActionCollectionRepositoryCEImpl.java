@@ -7,8 +7,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang3.StringUtils;
@@ -38,11 +36,12 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     @Deprecated
     public Flux<ActionCollection> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
-        final BridgeQuery<ActionCollection> bridgeQuery =
-                Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
+
+        Criteria applicationCriteria =
+                where(ActionCollection.Fields.applicationId).is(applicationId);
 
         return queryBuilder()
-                .criteria(bridgeQuery)
+                .criteria(applicationCriteria)
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
@@ -52,58 +51,69 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public Flux<ActionCollection> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
 
-        final BridgeQuery<ActionCollection> bridgeQuery = Bridge.<ActionCollection>equal(
-                        ActionCollection.Fields.applicationId, applicationId)
-                .isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).is(applicationId);
+        criteria.add(applicationCriteria);
+
+        Criteria deletedCriteria =
+                where(ActionCollection.Fields.unpublishedCollection_deletedAt).is(null);
+        criteria.add(deletedCriteria);
 
         return queryBuilder()
-                .criteria(bridgeQuery)
+                .criteria(criteria)
                 .permission(aclPermission.orElse(null))
                 .sort(sort.orElse(null))
                 .all();
     }
 
-    protected BridgeQuery<ActionCollection> getBridgeQueryForFindByApplicationIdAndViewMode(
-            String applicationId, boolean viewMode) {
-        final BridgeQuery<ActionCollection> bridgeQuery =
-                Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
+    protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, boolean viewMode) {
+        List<Criteria> criteria = new ArrayList<>();
+
+        Criteria applicationCriterion =
+                where(ActionCollection.Fields.applicationId).is(applicationId);
+        criteria.add(applicationCriterion);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            bridgeQuery.isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
+            Criteria deletedCriterion = where(ActionCollection.Fields.unpublishedCollection_deletedAt)
+                    .is(null);
+            criteria.add(deletedCriterion);
         }
-
-        return bridgeQuery;
+        return criteria;
     }
 
     @Override
     public Flux<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission) {
-        BridgeQuery<ActionCollection> bridgeQuery =
-                getBridgeQueryForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
-        return queryBuilder().criteria(bridgeQuery).permission(aclPermission).all();
+        List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
+
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
-    protected BridgeQuery<ActionCollection>
-            getBridgeQueryForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-                    String branchName, boolean viewMode, String name, List<String> pageIds) {
+    protected List<Criteria> getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+            String branchName, boolean viewMode, String name, List<String> pageIds) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
          * all possible fields
          */
-        BridgeQuery<ActionCollection> bridgeQuery = Bridge.query();
+        List<Criteria> criteriaList = new ArrayList<>();
+
         if (!StringUtils.isEmpty(branchName)) {
-            bridgeQuery.equal(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME, branchName);
+            criteriaList.add(where(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME)
+                    .is(branchName));
         }
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
 
             if (name != null) {
-                bridgeQuery.equal(ActionCollection.Fields.publishedCollection_name, name);
+                Criteria nameCriteria =
+                        where(ActionCollection.Fields.publishedCollection_name).is(name);
+                criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
@@ -112,13 +122,17 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                         ActionCollection.Fields.publishedCollection,
                         ActionCollectionDTO.Fields.defaultResources,
                         DefaultResources.Fields.pageId);
-                bridgeQuery.in(pageIdFieldPath, pageIds);
+                Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
+                criteriaList.add(pageCriteria);
             }
         }
         // Fetch unpublished actions
         else {
+
             if (name != null) {
-                bridgeQuery.equal(ActionCollection.Fields.unpublishedCollection_name, name);
+                Criteria nameCriteria = where(ActionCollection.Fields.unpublishedCollection_name)
+                        .is(name);
+                criteriaList.add(nameCriteria);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
@@ -127,15 +141,17 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                         ActionCollection.Fields.unpublishedCollection,
                         ActionCollectionDTO.Fields.defaultResources,
                         DefaultResources.Fields.pageId);
-                bridgeQuery.in(pageIdFieldPath, pageIds);
+                Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
+                criteriaList.add(pageCriteria);
             }
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            bridgeQuery.isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
+            Criteria deletedCriteria = where(ActionCollection.Fields.unpublishedCollection_deletedAt)
+                    .is(null);
+            criteriaList.add(deletedCriteria);
         }
-
-        return bridgeQuery;
+        return criteriaList;
     }
 
     @Override
@@ -146,9 +162,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             String branchName,
             AclPermission aclPermission,
             Sort sort) {
-        BridgeQuery<ActionCollection> criteriaList =
-                this.getBridgeQueryForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-                        branchName, viewMode, name, pageIds);
+        List<Criteria> criteriaList = this.getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+                branchName, viewMode, name, pageIds);
 
         return queryBuilder()
                 .criteria(criteriaList)
@@ -162,10 +177,11 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         String unpublishedPage = ActionCollection.Fields.unpublishedCollection_pageId;
         String publishedPage = ActionCollection.Fields.publishedCollection_pageId;
 
-        BridgeQuery<ActionCollection> bridgeQuery =
-                Bridge.or(Bridge.equal(unpublishedPage, pageId), Bridge.equal(publishedPage, pageId));
+        Criteria pageCriteria = new Criteria()
+                .orOperator(
+                        where(unpublishedPage).is(pageId), where(publishedPage).is(pageId));
 
-        return queryBuilder().criteria(bridgeQuery).permission(aclPermission).all();
+        return queryBuilder().criteria(pageCriteria).permission(aclPermission).all();
     }
 
     @Override
