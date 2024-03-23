@@ -281,9 +281,13 @@ export default class DataTreeEvaluator {
     this.dependencies = dependencies;
     this.inverseDependencies = inverseDependencies;
 
+    console.log("***", "dependencies is ", dependencies, "inverse dependencies is ", inverseDependencies, "time taken is ", createDependencyMapEndTime - createDependencyMapStartTime)
+
     const sortDependenciesStartTime = performance.now();
     this.sortedDependencies = this.sortDependencies(this.dependencyMap);
     const sortDependenciesEndTime = performance.now();
+
+    console.log("***", "sorting dependencies time is ", sortDependenciesEndTime - sortDependenciesStartTime)
 
     const secondCloneStartTime = performance.now();
     this.oldUnEvalTree = klona(localUnEvalTree);

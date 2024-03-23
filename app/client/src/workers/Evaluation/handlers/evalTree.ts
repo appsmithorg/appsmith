@@ -88,22 +88,31 @@ export function evalTree(request: EvalWorkerSyncRequest) {
         allActionValidationConfig,
       );
 
+      const startSetupFirstTree = performance.now()
       const setupFirstTreeResponse = profileFn(
         "setupFirstTree",
         { description: "during initialisation" },
         webworkerTelemetry,
         () => dataTreeEvaluator?.setupFirstTree(unevalTree, configTree),
       );
+      const endSetupFirstTree = performance.now()
+      
+      console.log("***", "time taken for setup first tree is ", endSetupFirstTree - startSetupFirstTree)
 
       evalOrder = setupFirstTreeResponse.evalOrder;
+      console.log("***", "setup first tree eval order is ", evalOrder)
       jsUpdates = setupFirstTreeResponse.jsUpdates;
 
+      const evalAndValidateStart = performance.now()
       const dataTreeResponse = profileFn(
         "evalAndValidateFirstTree",
         { description: "during initialisation" },
         webworkerTelemetry,
         () => dataTreeEvaluator?.evalAndValidateFirstTree(),
       );
+      const evalAndValidateEnd = performance.now()
+
+      console.log("***", "eval and validate time taken is ", evalAndValidateEnd - evalAndValidateStart)
 
       dataTree = makeEntityConfigsAsObjProperties(dataTreeResponse.evalTree, {
         evalProps: dataTreeEvaluator.evalProps,

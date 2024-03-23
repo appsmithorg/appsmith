@@ -136,8 +136,38 @@ export class DataTreeFactory {
     };
 
     log.debug("### Create unevalTree timing", out);
+    console.log("***", "num nodes is ", countKeyValuePairs(dataTree), dataTree)
     return { unEvalTree: dataTree, configTree };
   }
+}
+
+function countKeyValuePairs(obj : any) {
+  let count = 0;
+
+  // Iterate over each key in the object
+  for (let key in obj) {
+      if (obj.hasOwnProperty(key)) {
+          // If the value is an array, count its length and recursively count key-value pairs for each element
+          if (Array.isArray(obj[key])) {
+              count += obj[key].length;
+              obj[key].forEach((element : any) => {
+                  if (typeof element === 'object' && element !== null) {
+                      count += countKeyValuePairs(element);
+                  } else {
+                      count++;
+                  }
+              });
+          } else if (typeof obj[key] === 'object' && obj[key] !== null) {
+              // If the value is another object, recursively count its key-value pairs
+              count += countKeyValuePairs(obj[key]);
+          } else {
+              // If the value is neither an object nor an array, increment the count
+              count++;
+          }
+      }
+  }
+
+  return count;
 }
 
 export { ENTITY_TYPE, EvaluationSubstitutionType };
