@@ -204,7 +204,7 @@ const generateDiffUpdates = (
         return true;
       }
       //non collection related updates
-      if (rhs === undefined && typeof key === "number") {
+      if (rhs === undefined && typeof key !== "number") {
         //if an undefined value is being set it should be a delete
         if (lhs !== undefined) {
           attachDirectly.push({ kind: "D", lhs, path: segmentedPath });
