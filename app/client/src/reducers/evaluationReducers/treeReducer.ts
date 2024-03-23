@@ -15,7 +15,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
     state: EvaluatedTreeState,
     action: ReduxAction<{
       dataTree: DataTree;
-      updates: DiffWithNewTreeState[] | any;
+      updates: DiffWithNewTreeState[];
       removedPaths: [string];
     }>,
   ) => {
@@ -28,7 +28,7 @@ const evaluatedTreeReducer = createImmerReducer(initialState, {
         if (update.kind === "newTree") {
           return update.rhs;
         } else {
-          if (update.path.length === 0) {
+          if (!update.path || update.path.length === 0) {
             continue;
           }
           applyChange(state, undefined, update);
