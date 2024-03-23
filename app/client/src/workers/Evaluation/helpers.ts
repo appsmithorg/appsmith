@@ -258,7 +258,7 @@ const correctUndefinedUpdatesToDeletesOrNew = (
     return acc;
   }, [] as DiffWithNewTreeState[]);
 
-// whenever an element in a collection is deleted, we need to send the entire as an update
+// whenever an element in a collection is set to undefined, we need to send the entire as an update
 const generateRootWidgetUpdates = (
   updates: DiffWithNewTreeState[],
   newDataTree: any,
@@ -280,6 +280,23 @@ const generateRootWidgetUpdates = (
       }; //push the parent path
     }, [] as DiffWithNewTreeState[]);
 
+  // when a root collection is updated, we need to scrub out updates that are inside the root collection
+const getScrubbedOutUpdatesWhenRootCollectionIsUpdated = (updates:DiffWithNewTreeState[] , rootCollectionUpdates: DiffWithNewTreeState[] ) => {
+      const rootCollectionPaths = rootCollectionUpdates
+          .filter((update:any )=> update?.path?.length)
+          .map((update:any) =>
+          (update.path as string[]).join(".")
+    );
+    return  updates
+      .map((update: any) => ({ update, condensedPath: update.path.join(".") }))
+      .filter(
+        ({ condensedPath }) =>
+          !rootCollectionPaths.some((p) => condensedPath.startsWith(p)),
+      )
+      // remove the condensedPath from the update
+      .map(({ update }) => update);
+  }
+    
 export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
@@ -296,18 +313,7 @@ export const generateOptimisedUpdates = (
     correctedUpdates,
     dataTree,
   );
-  const rootCollectionPaths = rootCollectionUpdates.map((update) =>
-    update.path.join("."),
-  );
-  const scrubedOutUpdates = correctedUpdates
-    .map((update: any) => ({ update, condensedPath: update.path.join(".") }))
-    .filter(
-      ({ condensedPath }) =>
-        !rootCollectionPaths.some((p) => condensedPath.startsWith(p)),
-    )
-    // remove the condensedPath from the update
-    .map(({ update }) => update);
-
+  const scrubedOutUpdates = getScrubbedOutUpdatesWhenRootCollectionIsUpdated(correctedUpdates, rootCollectionUpdates);
   return [
     ...scrubedOutUpdates,
     ...rootCollectionUpdates,

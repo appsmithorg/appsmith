@@ -136,6 +136,34 @@ describe("generateOptimisedUpdates", () => {
         },
       ]);
     });
+    describe("undefined value updates in a collection", () => { 
+    test("should generate replace patch when a single node is set to undefined in a collection", () => {
+      const statWithLargeCollection = produce(oldState, (draft) => {
+        draft.Table1.tableData = ["a", "b"] as any;
+      });
+      const newStateWithAnElementDeleted = produce(statWithLargeCollection, (draft) => {
+        draft.Table1.tableData=  ["a", undefined] as any;
+      });
+      const updates = generateOptimisedUpdates(statWithLargeCollection, newStateWithAnElementDeleted,
+        ["Table1.tableData[1]"],
+      );
+     
+      expect(updates).toEqual([{"kind": "E", "path": ["Table1", "tableData"], "rhs": ["a", undefined]}]);
+    });
+    test("should generate generate regular diff updates for non undefined updates in a collection", () => {
+      const statWithLargeCollection = produce(oldState, (draft) => {
+        draft.Table1.tableData = ["a", "b"] as any;
+      });
+      const newStateWithAnElementDeleted = produce(statWithLargeCollection, (draft) => {
+        draft.Table1.tableData=  ["a", "e"] as any;
+      });
+      const updates = generateOptimisedUpdates(statWithLargeCollection, newStateWithAnElementDeleted,
+        ["Table1.tableData[1]"],
+      );
+     
+      expect(updates).toEqual([{"kind": "E", "path": ["Table1", "tableData",1], "lhs": "b", "rhs": "e"}]);
+    });
+  })
   });
 
   //we are testing the flow of serialised updates generated from the worker thread and subsequently applied to the main thread state
