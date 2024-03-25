@@ -109,6 +109,7 @@ export class DarkModeTheme implements ColorModeTheme {
       bdFocus: this.bdFocus.to("sRGB").toString(),
       bdNeutral: this.bdNeutral.to("sRGB").toString(),
       bdNeutralHover: this.bdNeutralHover.to("sRGB").toString(),
+      bdOnNeutralHover: this.bdOnNeutralHover.to("sRGB").toString(),
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
       bdNegative: this.bdNegative.to("sRGB").toString(),
@@ -388,12 +389,12 @@ export class DarkModeTheme implements ColorModeTheme {
     }
 
     // If the color is too dark it won't be visible against bg.
-    if (this.seedLightness < 0.2) {
-      color.oklch.l = 0.2;
+    if (this.seedLightness < 0.22) {
+      color.oklch.l = 0.22;
     }
 
-    if (this.seedChroma > 0.025) {
-      color.oklch.c = 0.025;
+    if (this.seedChroma > 0.015) {
+      color.oklch.c = 0.015;
     }
 
     if (this.seedIsAchromatic) {
@@ -957,6 +958,7 @@ export class DarkModeTheme implements ColorModeTheme {
 
   private get bdNeutral() {
     // Desatured version of the seed for harmonious combination with backgrounds and accents.
+    // Used in checkbox, radio button
     const color = this.bdAccent.clone();
 
     color.oklch.c = 0.012;
@@ -1043,10 +1045,10 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bdNegative.clone();
 
     // Lightness of bdNegative is known, no additional checks like in bdNeutralHover
-    color.oklch.l = color.oklch.l + 0.15;
+    color.oklch.l = color.oklch.l + 0.1;
 
-    if (this.bdNegative.oklch.c < 0.19) {
-      color.oklch.c = 0.19;
+    if (this.bdNegative.oklch.c < 0.1) {
+      color.oklch.c = 0.1;
     }
 
     return color;
@@ -1129,6 +1131,25 @@ export class DarkModeTheme implements ColorModeTheme {
 
     if (this.bgNeutral.oklch.l < 0.4) {
       color.oklch.l -= 0.36;
+    }
+
+    return color;
+  }
+
+  private get bdOnNeutralHover() {
+    // Outline on the input field shown on hover
+    const color = this.bdNeutral.clone();
+
+    if (this.bdNeutral.oklch.l < 0.8) {
+      color.oklch.l += 0.05;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.8 && this.bdNeutral.oklch.l < 0.9) {
+      color.oklch.l += 0.01;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.9) {
+      color.oklch.l -= 0.35;
     }
 
     return color;

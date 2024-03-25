@@ -1,6 +1,6 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.domains.Application;
+import com.appsmith.external.enums.WorkspaceResourceContext;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -43,7 +43,8 @@ public interface UserDataServiceCE {
 
     Mono<Void> makeProfilePhotoResponse(ServerWebExchange exchange);
 
-    Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application);
+    Mono<UserData> updateLastUsedResourceAndWorkspaceList(
+            String resourceId, String workspaceId, WorkspaceResourceContext context);
 
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 

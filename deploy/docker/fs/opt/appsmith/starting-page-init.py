@@ -1,7 +1,7 @@
 import atexit
 import logging
 import os
-import shutil
+import os.path
 import subprocess
 import time
 import urllib.error
@@ -10,7 +10,7 @@ import urllib.request
 
 LOADING_PAGE_EDITOR = os.getenv("WWW_PATH") + '/loading.html'
 BACKEND_HEALTH_ENDPOINT = "http://localhost:8080/api/v1/health"
-LOG_FILE = r'/appsmith-stacks/logs/backend/starting_page_init.log'
+LOG_FILE = os.path.join(os.getenv("APPSMITH_LOG_DIR"), "backend", "starting_page_init.log")
 LOG_FORMAT = '%(asctime)s - %(name)s - %(levelname)s -  %(message)s'
 
 logging.basicConfig(filename = LOG_FILE, level = logging.NOTSET, format = LOG_FORMAT)

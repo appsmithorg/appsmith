@@ -15,20 +15,12 @@ import type {
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 
-import {
-  anvilConfig,
-  autocompleteConfig,
-  defaultsConfig,
-  featuresConfig,
-  propertyPaneContentConfig,
-  settersConfig,
-} from "./config";
-import { metaConfig } from "./config/metaConfig";
+import * as config from "../config";
 import { PhoneInputComponent } from "../component";
 import type { PhoneInputWidgetProps } from "./types";
 import { getCountryCode, validateInput } from "./helpers";
-import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 
 class WDSPhoneInputWidget extends WDSBaseInputWidget<
   PhoneInputWidgetProps,
@@ -37,30 +29,30 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   static type = "WDS_PHONE_INPUT_WIDGET";
 
   static getConfig() {
-    return metaConfig;
+    return config.metaConfig;
   }
 
   static getFeatures() {
-    return featuresConfig;
+    return config.featuresConfig;
   }
 
   static getDefaults() {
-    return defaultsConfig;
+    return config.defaultsConfig;
   }
 
   static getAnvilConfig(): AnvilConfig | null {
-    return anvilConfig;
+    return config.anvilConfig;
   }
 
   static getPropertyPaneContentConfig() {
     return mergeWidgetConfig(
-      propertyPaneContentConfig,
+      config.propertyPaneContentConfig,
       super.getPropertyPaneContentConfig(),
     );
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return autocompleteConfig;
+    return config.autocompleteConfig;
   }
 
   static getPropertyPaneStyleConfig() {
@@ -91,7 +83,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   }
 
   static getSetterConfig(): SetterConfig {
-    return settersConfig;
+    return config.settersConfig;
   }
 
   getFormattedPhoneNumber(value: string) {

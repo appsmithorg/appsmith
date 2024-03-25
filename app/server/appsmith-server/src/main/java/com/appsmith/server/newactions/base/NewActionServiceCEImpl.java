@@ -842,8 +842,14 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     @Override
     public Mono<ActionDTO> deleteUnpublishedAction(String id) {
+        return deleteUnpublishedActionWithOptionalPermission(id, Optional.of(actionPermission.getDeletePermission()));
+    }
+
+    @Override
+    public Mono<ActionDTO> deleteUnpublishedActionWithOptionalPermission(
+            String id, Optional<AclPermission> newActionDeletePermission) {
         Mono<NewAction> actionMono = repository
-                .findById(id, actionPermission.getDeletePermission())
+                .findById(id, newActionDeletePermission)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono

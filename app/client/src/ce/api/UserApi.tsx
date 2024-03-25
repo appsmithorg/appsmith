@@ -50,6 +50,7 @@ export interface InviteUserRequest {
   email: string;
   groupIds: string[];
   status?: string;
+  recaptchaToken?: string;
 }
 
 export interface UpdateUserRequest {
@@ -147,7 +148,17 @@ export class UserApi extends Api {
   static async inviteUser(
     request: InviteUserRequest,
   ): Promise<AxiosPromise<ApiResponse>> {
-    return Api.post(UserApi.inviteUserURL, request);
+    const { recaptchaToken, ...requestPayload } = request;
+    return Api.post(
+      UserApi.inviteUserURL,
+      requestPayload,
+      undefined,
+      recaptchaToken
+        ? {
+            params: { recaptchaToken },
+          }
+        : {},
+    );
   }
 
   static async verifyUserInvite(

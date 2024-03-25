@@ -56,10 +56,11 @@ function checkForWarnings(compiledResult: CompiledResult) {
 
   if (code?.length > 0) {
     /*
+     * Check whether the code has an onReady function.
      * We are keeping this check as a simple string check instead of using AST
      * because we want to keep the custom widget compile process as simple as possible.
      */
-    !code.includes("appsmith.onReady(") &&
+    !code.match(/appsmith[\n\t\s]*\.[\n\t\s]*onReady[\n\t\s]*\(/) &&
       compiledResult.warnings.push({
         message: createMessage(
           CUSTOM_WIDGET_FEATURE.debugger.noOnReadyWarning,

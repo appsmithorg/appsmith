@@ -18,6 +18,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.BuildingBlockDTO;
+import com.appsmith.server.dtos.BuildingBlockResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -462,8 +463,13 @@ public class PartialImportServiceTest {
         ApplicationJson applicationJson = (ApplicationJson)
                 importService.extractArtifactExchangeJson(filePart).block();
         // Mock the call to fetch the json file from CS
-        Mockito.when(applicationTemplateService.getApplicationJsonFromTemplate(Mockito.anyString()))
+        Mockito.when(applicationTemplateService.getApplicationJsonFromTemplate("templatedId"))
                 .thenReturn(Mono.just(applicationJson));
+
+        ApplicationJson applicationJson1 = (ApplicationJson)
+                importService.extractArtifactExchangeJson(filePart).block();
+        Mockito.when(applicationTemplateService.getApplicationJsonFromTemplate("templatedId1"))
+                .thenReturn(Mono.just(applicationJson1));
 
         // Create an application with all resources
         Application testApplication = new Application();
@@ -484,16 +490,22 @@ public class PartialImportServiceTest {
         buildingBlockDTO.setWorkspaceId(workspaceId);
         buildingBlockDTO.setTemplateId("templatedId");
 
-        Mono<String> result = partialImportService
-                .importResourceInPage(workspaceId, testApplication.getId(), pageId, null, filePart)
-                .then(partialImportService.importBuildingBlock(buildingBlockDTO, null));
+        BuildingBlockDTO buildingBlockDTO1 = new BuildingBlockDTO();
+        buildingBlockDTO1.setApplicationId(testApplication.getId());
+        buildingBlockDTO1.setPageId(pageId);
+        buildingBlockDTO1.setWorkspaceId(workspaceId);
+        buildingBlockDTO1.setTemplateId("templatedId1");
+
+        Mono<BuildingBlockResponseDTO> result = partialImportService
+                .importBuildingBlock(buildingBlockDTO, null)
+                .flatMap(s -> partialImportService.importBuildingBlock(buildingBlockDTO1, null));
 
         StepVerifier.create(result)
-                .assertNext(dsl -> {
-                    assertThat(dsl).isNotNull();
+                .assertNext(BuildingBlockResponseDTO1 -> {
+                    assertThat(BuildingBlockResponseDTO1.getWidgetDsl()).isNotNull();
                     // Compare the json string of widget DSL,
                     // the binding names will be updated, and hence the json will be different
-                    assertThat(dsl)
+                    assertThat(BuildingBlockResponseDTO1.getWidgetDsl())
                             .isNotEqualTo(applicationJson
                                     .getPageList()
                                     .get(0)

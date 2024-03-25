@@ -57,6 +57,8 @@ const FullScreenTabs = () => {
         placement="bottomRight"
       >
         <Button
+          className="ml-auto"
+          data-testid="t--ide-minimize"
           id="editor-mode-minimize"
           isIconButton
           kind="tertiary"

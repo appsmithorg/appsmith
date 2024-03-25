@@ -22,6 +22,11 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
+    public BridgeQuery<T> equal(@NonNull String key, @NonNull int value) {
+        checks.add(Criteria.where(key).is(value));
+        return this;
+    }
+
     public BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
         checks.add(Criteria.where(key).ne(value));
         return this;

@@ -61,10 +61,6 @@ import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
 import { getAppViewerPageIdFromPath } from "@appsmith/pages/Editor/Explorer/helpers";
 import AnalyticsUtil from "../utils/AnalyticsUtil";
-import {
-  retrieveCodeWidgetNavigationUsed,
-  storeCodeWidgetNavigationUsed,
-} from "../utils/storage";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -121,7 +117,8 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
         newSelection = payload;
         break;
       }
-      case SelectionRequestType.One: {
+      case SelectionRequestType.One:
+      case SelectionRequestType.Create: {
         assertParentId(parentId);
         newSelection = selectOneWidget(payload);
         break;
@@ -193,7 +190,13 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
       yield put(setSelectedWidgets(newSelection));
       return;
     }
-    yield call(appendSelectedWidgetToUrlSaga, newSelection, pageId, invokedBy);
+    yield call(
+      appendSelectedWidgetToUrlSaga,
+      newSelection,
+      selectionRequestType,
+      pageId,
+      invokedBy,
+    );
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.WIDGET_SELECTION_ERROR,
@@ -208,20 +211,19 @@ function* selectWidgetSaga(action: ReduxAction<WidgetSelectionRequestPayload>) {
 /**
  * Append Selected widgetId as hash to the url path
  * @param selectedWidgets
+ * @param type
  * @param pageId
  * @param invokedBy
  */
 function* appendSelectedWidgetToUrlSaga(
   selectedWidgets: string[],
+  type: SelectionRequestType,
   pageId?: string,
   invokedBy?: NavigationMethod,
 ) {
   const isSnipingMode: boolean = yield select(snipingModeSelector);
   const isWidgetSelectionBlocked: boolean = yield select(
     getWidgetSelectionBlock,
-  );
-  const timesUsedCodeModeWidgetSelection: number = yield call(
-    retrieveCodeWidgetNavigationUsed,
   );
   const appMode: APP_MODE = yield select(getAppMode);
   const viewMode = appMode === APP_MODE.PUBLISHED;
@@ -234,6 +236,7 @@ function* appendSelectedWidgetToUrlSaga(
     ? widgetURL({
         pageId: pageId ?? currentPageId,
         persistExistingParams: true,
+        add: type === SelectionRequestType.Create,
         selectedWidgets,
       })
     : widgetURL({
@@ -243,12 +246,6 @@ function* appendSelectedWidgetToUrlSaga(
       });
   if (invokedBy === NavigationMethod.CanvasClick && isWidgetSelectionBlocked) {
     AnalyticsUtil.logEvent("CODE_MODE_WIDGET_SELECTION");
-    if (timesUsedCodeModeWidgetSelection < 2) {
-      yield call(
-        storeCodeWidgetNavigationUsed,
-        timesUsedCodeModeWidgetSelection + 1,
-      );
-    }
   }
   if (currentURL !== newUrl) {
     history.push(newUrl, { invokedBy });
