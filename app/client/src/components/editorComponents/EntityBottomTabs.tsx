@@ -65,6 +65,7 @@ function EntityBottomTabs(
           return (
             <Tab
               data-testid={"t--tab-" + tab.key}
+              id={`debugger-tab-${tab.key}`}
               key={tab.key}
               notificationCount={tab.count}
               value={tab.key}

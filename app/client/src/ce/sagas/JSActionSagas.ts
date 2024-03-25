@@ -51,7 +51,7 @@ import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import * as log from "loglevel";
@@ -68,9 +68,10 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getWidgets } from "sagas/selectors";
 import { removeFocusHistoryRequest } from "actions/focusHistoryActions";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "../entities/FeatureFlag";
+import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
+import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
+import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -282,23 +283,23 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
+    const currentUrl = window.location.pathname;
     const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
+    const ideType = getIDETypeByUrl(currentUrl);
 
     if (isValidResponse) {
       // @ts-expect-error: response.data is of type unknown
       toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
         kind: "success",
       });
-      const currentUrl = window.location.pathname;
-      const isPagePaneSegmentsEnabled: boolean = yield select(
-        selectFeatureFlagCheck,
-        FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+      const isEditorPaneSegmentsEnabled: boolean = yield select(
+        getIsEditorPaneSegmentsEnabled,
       );
-      if (isPagePaneSegmentsEnabled) {
+      if (isEditorPaneSegmentsEnabled && ideType === IDE_TYPE.App) {
         yield call(handleJSEntityRedirect, id);
-      } else if (pageId) {
+      } else {
         history.push(builderURL({ pageId }));
       }
       yield put(removeFocusHistoryRequest(currentUrl));

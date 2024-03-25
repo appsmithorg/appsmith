@@ -1,10 +1,9 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.server.domains.Application;
+import com.appsmith.external.enums.WorkspaceResourceContext;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
-import com.mongodb.client.result.UpdateResult;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -44,11 +43,12 @@ public interface UserDataServiceCE {
 
     Mono<Void> makeProfilePhotoResponse(ServerWebExchange exchange);
 
-    Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application);
+    Mono<UserData> updateLastUsedResourceAndWorkspaceList(
+            String resourceId, String workspaceId, WorkspaceResourceContext context);
 
     Mono<Map<String, Boolean>> getFeatureFlagsForCurrentUser();
 
-    Mono<UpdateResult> removeRecentWorkspaceAndApps(String userId, String workspaceId);
+    Mono<Void> removeRecentWorkspaceAndApps(String userId, String workspaceId);
 
     Mono<GitProfile> getGitProfileForCurrentUser(String defaultApplicationId);
 }

@@ -14,6 +14,11 @@ import type { CodeEditorExpected } from "components/editorComponents/CodeEditor"
 import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 import {
+  itemHeight,
+  noOfItemsToDisplay,
+  extraSpace,
+} from "widgets/TableWidgetV2/component/Constants";
+import {
   createColumn,
   isColumnTypeEditable,
   reorderColumns,
@@ -24,7 +29,7 @@ import {
   getPathEvalErrors,
 } from "selectors/dataTreeSelectors";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
-import { getEvalValuePath, isDynamicValue } from "utils/DynamicBindingUtils";
+import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
@@ -80,6 +85,8 @@ const getOriginalColumn = (
   ).find((column: ColumnProperties) => column.index === index);
   return column;
 };
+
+const fixedHeight = itemHeight * noOfItemsToDisplay + extraSpace;
 
 interface State {
   focusedIndex: number | null;
@@ -216,9 +223,9 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             <DraggableListControl
               className={LIST_CLASSNAME}
               deleteOption={this.deleteOption}
-              fixedHeight={370}
+              fixedHeight={fixedHeight}
               focusedIndex={this.state.focusedIndex}
-              itemHeight={45}
+              itemHeight={itemHeight}
               items={draggableComponentColumns}
               keyAccessor="id"
               onEdit={this.onEdit}
@@ -496,7 +503,7 @@ class EvaluatedValuePopupWrapperClass extends Component<EvaluatedValuePopupWrapp
       };
     }
 
-    const pathEvaluatedValue = _.get(dataTree, getEvalValuePath(dataTreePath));
+    const pathEvaluatedValue = _.get(dataTree, dataTreePath);
 
     return {
       isInvalid: errors.length > 0,

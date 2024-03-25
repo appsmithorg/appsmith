@@ -39,18 +39,16 @@ jest.mock("react-redux", () => {
 describe("Connection Success Modal", () => {
   it("is rendered properly", () => {
     const store = mockStore(initialState);
-    const { queryByTestId } = render(
+    const { getByTestId } = render(
       <Provider store={store}>
         <ConnectionSuccess />
       </Provider>,
     );
-    expect(queryByTestId("t--git-success-modal-body")).toBeTruthy();
+    expect(getByTestId("t--git-success-modal-body")).toBeTruthy();
     expect(
-      queryByTestId("t--git-success-modal-start-using-git-cta"),
+      getByTestId("t--git-success-modal-start-using-git-cta"),
     ).toBeTruthy();
-    expect(
-      queryByTestId("t--git-success-modal-open-settings-cta"),
-    ).toBeTruthy();
+    expect(getByTestId("t--git-success-modal-open-settings-cta")).toBeTruthy();
   });
 
   it("go to settings cta button is working", () => {

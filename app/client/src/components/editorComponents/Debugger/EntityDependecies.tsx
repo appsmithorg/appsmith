@@ -17,7 +17,7 @@ import { getDependenciesFromInverseDependencies } from "./helpers";
 import { useSelectedEntity, useEntityLink } from "./hooks/debuggerHooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { thinScrollbar } from "constants/DefaultTheme";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { useGetEntityInfo } from "./hooks/useGetEntityInfo";
 import { Button, Icon, Tooltip } from "design-system";
 import { importSvg } from "design-system-old";

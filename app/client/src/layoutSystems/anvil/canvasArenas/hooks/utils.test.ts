@@ -46,9 +46,12 @@ describe("Highlight selection algos", () => {
     ];
 
     it("returns only horizontal highlights if pos of mouse is near the upper/lower end of the cell/layout", () => {
-      const pos: XYCord = { x: 10, y: 3 };
-      const result = getViableDropPositions(highlights, pos);
-      expect(result).toEqual([highlights[0], highlights[2]]);
+      const pos1: XYCord = { x: 10, y: 3 };
+      const result1 = getViableDropPositions(highlights, pos1);
+      expect(result1).toEqual([highlights[0]]);
+      const pos2: XYCord = { x: 10, y: 55 };
+      const result2 = getViableDropPositions(highlights, pos2);
+      expect(result2).toEqual([highlights[2]]);
     });
 
     it("returns only vertical highlights if pos of mouse is within the cell and not in horizontal highlights limit radar", () => {

@@ -1,6 +1,7 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
+import type { QueryPaneDebuggerState } from "@appsmith/reducers/uiReducers/queryPaneReducer";
 
 export interface ChangeQueryPayload {
   id: string;
@@ -26,3 +27,12 @@ export const setQueryPaneConfigSelectedTabIndex: (
   type: ReduxActionTypes.SET_QUERY_PANE_CONFIG_SELECTED_TAB,
   payload: { selectedTabIndex: payload },
 });
+
+export const setQueryPaneDebuggerState = (
+  payload: Partial<QueryPaneDebuggerState>,
+) => {
+  return {
+    type: ReduxActionTypes.SET_QUERY_PANE_DEBUGGER_STATE,
+    payload,
+  };
+};

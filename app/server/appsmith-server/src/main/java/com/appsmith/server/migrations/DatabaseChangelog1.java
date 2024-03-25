@@ -14,10 +14,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QActionCollection;
-import com.appsmith.server.domains.QNewAction;
-import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
@@ -57,7 +53,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -357,9 +352,9 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "029", id = "use-png-logos", author = "")
     public void usePngLogos(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
-                query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
+                query(where(Plugin.Fields.packageName).is("elasticsearch-plugin")),
                 update(
-                        fieldName(QPlugin.plugin.iconLocation),
+                        Plugin.Fields.iconLocation,
                         "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.png"),
                 Plugin.class);
     }
@@ -1023,15 +1018,15 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "113", id = "use-assets-cdn-for-plugin-icons", author = "")
     public void useAssetsCDNForPluginIcons(MongoTemplate mongoTemplate) {
         final Query query = query(new Criteria());
-        query.fields().include(fieldName(QPlugin.plugin.iconLocation));
+        query.fields().include(Plugin.Fields.iconLocation);
         List<Plugin> plugins = mongoTemplate.find(query, Plugin.class);
         for (final Plugin plugin : plugins) {
             if (plugin.getIconLocation() != null
                     && plugin.getIconLocation().startsWith("https://s3.us-east-2.amazonaws.com/assets.appsmith.com")) {
                 final String cdnUrl = plugin.getIconLocation().replace("s3.us-east-2.amazonaws.com/", "");
                 mongoTemplate.updateFirst(
-                        query(where(fieldName(QPlugin.plugin.id)).is(plugin.getId())),
-                        update(fieldName(QPlugin.plugin.iconLocation), cdnUrl),
+                        query(where(Plugin.Fields.id).is(plugin.getId())),
+                        update(Plugin.Fields.iconLocation, cdnUrl),
                         Plugin.class);
             }
         }
@@ -1051,7 +1046,7 @@ public class DatabaseChangelog1 {
         ensureIndexes(
                 mongoTemplate,
                 UserData.class,
-                makeIndex(fieldName(QUserData.userData.userId)).unique().named("userId"));
+                makeIndex(UserData.Fields.userId).unique().named("userId"));
     }
 
     @ChangeSet(order = "115", id = "mark-mssql-crud-unavailable", author = "")
@@ -1072,33 +1067,25 @@ public class DatabaseChangelog1 {
         ensureIndexes(
                 mongoTemplate,
                 NewAction.class,
-                makeIndex(
-                                fieldName(QNewAction.newAction.unpublishedAction) + "." + FieldName.PAGE_ID,
-                                FieldName.DELETED)
+                makeIndex(NewAction.Fields.unpublishedAction + "." + FieldName.PAGE_ID, FieldName.DELETED)
                         .named("unpublishedActionPageId_deleted_compound_index"));
 
         ensureIndexes(
                 mongoTemplate,
                 NewAction.class,
-                makeIndex(fieldName(QNewAction.newAction.publishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                makeIndex(NewAction.Fields.publishedAction + "." + FieldName.PAGE_ID, FieldName.DELETED)
                         .named("publishedActionPageId_deleted_compound_index"));
 
         ensureIndexes(
                 mongoTemplate,
                 ActionCollection.class,
-                makeIndex(
-                                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                                        + FieldName.PAGE_ID,
-                                FieldName.DELETED)
+                makeIndex(ActionCollection.Fields.unpublishedCollection + "." + FieldName.PAGE_ID, FieldName.DELETED)
                         .named("unpublishedCollectionPageId_deleted"));
 
         ensureIndexes(
                 mongoTemplate,
                 ActionCollection.class,
-                makeIndex(
-                                fieldName(QActionCollection.actionCollection.publishedCollection) + "."
-                                        + FieldName.PAGE_ID,
-                                FieldName.DELETED)
+                makeIndex(ActionCollection.Fields.publishedCollection + "." + FieldName.PAGE_ID, FieldName.DELETED)
                         .named("publishedCollectionPageId_deleted"));
     }
 }

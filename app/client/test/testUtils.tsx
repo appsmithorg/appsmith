@@ -15,6 +15,9 @@ import createSagaMiddleware from "redux-saga";
 import store, { testStore } from "store";
 import { sagasToRunForTests } from "./sagas";
 import { all, call, spawn } from "redux-saga/effects";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { fetchFeatureFlagsSuccess } from "../src/actions/userActions";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
 
 const testSagaMiddleware = createSagaMiddleware();
 
@@ -44,13 +47,22 @@ const customRender = (
     url?: string;
     initialState?: Partial<AppState>;
     sagasToRun?: typeof sagasToRunForTests;
+    featureFlags?: Partial<FeatureFlags>;
   },
   options?: Omit<RenderOptions, "queries">,
 ) => {
   let reduxStore = store;
   window.history.pushState({}, "Appsmith", state?.url || "/");
-  if (state && state.initialState) {
+  if (state && (state.initialState || state.featureFlags)) {
     reduxStore = testStore(state.initialState || {});
+    if (state.featureFlags) {
+      reduxStore.dispatch(
+        fetchFeatureFlagsSuccess({
+          ...DEFAULT_FEATURE_FLAG_VALUE,
+          ...state.featureFlags,
+        }),
+      );
+    }
   }
   if (state && state.sagasToRun) {
     reduxStore = testStoreWithTestMiddleWare(reduxStore.getState());

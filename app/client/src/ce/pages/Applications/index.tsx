@@ -1,20 +1,25 @@
-import React, {
-  Component,
-  useCallback,
-  useContext,
-  useEffect,
-  useState,
-} from "react";
-import styled, { ThemeContext } from "styled-components";
-import { connect, useDispatch, useSelector } from "react-redux";
-import MediaQuery from "react-responsive";
-import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
-import type { AppState } from "@appsmith/reducers";
-import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import { updateApplication } from "@appsmith/actions/applicationActions";
 import {
-  thinScrollbar,
-  truncateTextUsingEllipsis,
-} from "constants/DefaultTheme";
+  deleteWorkspace,
+  fetchAllWorkspaces,
+  fetchEntitiesOfWorkspace,
+  resetCurrentWorkspace,
+  saveWorkspace,
+} from "@appsmith/actions/workspaceActions";
+import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
+import {
+  CREATE_A_NEW_WORKSPACE,
+  createMessage,
+  INVITE_USERS_PLACEHOLDER,
+  NO_APPS_FOUND,
+  NO_WORKSPACE_HEADING,
+  WORKSPACES_HEADING,
+} from "@appsmith/constants/messages";
+import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
+import type { AppState } from "@appsmith/reducers";
+import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
 import {
   getApplicationList,
   getApplicationSearchKeyword,
@@ -23,20 +28,16 @@ import {
   getIsCreatingApplication,
   getIsDeletingApplication,
 } from "@appsmith/selectors/applicationSelectors";
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import PageWrapper from "pages/common/PageWrapper";
-import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
-import type { User } from "constants/userConstants";
-import { getCurrentUser } from "selectors/usersSelectors";
+import { Classes as BlueprintClasses } from "@blueprintjs/core";
+import { Position } from "@blueprintjs/core/lib/esm/common/position";
+import { leaveWorkspace } from "actions/userActions";
+import NoSearchImage from "assets/images/NoSearchResult.svg";
+import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
 import {
-  AppIconCollection,
-  Classes,
-  EditableText,
-  MenuItem as ListItem,
-  Text,
-  TextType,
-} from "design-system-old";
+  thinScrollbar,
+  truncateTextUsingEllipsis,
+} from "constants/DefaultTheme";
+import type { User } from "constants/userConstants";
 import {
   Button,
   Icon,
@@ -45,47 +46,66 @@ import {
   Select,
   Tooltip,
 } from "design-system";
-import { updateApplication } from "@appsmith/actions/applicationActions";
-import { Position } from "@blueprintjs/core/lib/esm/common/position";
-import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
+import {
+  AppIconCollection,
+  Classes,
+  EditableText,
+  MenuItem as ListItem,
+  Text,
+  TextType,
+} from "design-system-old";
+import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
+import PageWrapper from "pages/common/PageWrapper";
+import WorkspaceInviteUsersForm from "pages/workspace/WorkspaceInviteUsersForm";
+import React, {
+  Component,
+  useCallback,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
+import { connect, useDispatch, useSelector } from "react-redux";
+import MediaQuery from "react-responsive";
+import { useHistory, useLocation, useRouteMatch } from "react-router-dom";
+import { getCurrentUser } from "selectors/usersSelectors";
+import styled, { ThemeContext } from "styled-components";
+import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import { loadingUserWorkspaces } from "pages/Applications/ApplicationLoaders";
-import type { creatingApplicationMap } from "@appsmith/reducers/uiReducers/applicationsReducer";
-import {
-  deleteWorkspace,
-  fetchAllWorkspaces,
-  fetchEntitiesOfWorkspace,
-  resetCurrentWorkspace,
-  saveWorkspace,
-} from "@appsmith/actions/workspaceActions";
-import { leaveWorkspace } from "actions/userActions";
-import CenteredWrapper from "components/designSystems/appsmith/CenteredWrapper";
-import NoSearchImage from "assets/images/NoSearchResult.svg";
-import { getNextEntityName, getRandomPaletteColor } from "utils/AppsmithUtils";
-import { createWorkspaceSubmitHandler } from "@appsmith/pages/workspace/helpers";
-import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
-import {
-  CREATE_A_NEW_WORKSPACE,
-  createMessage,
-  INVITE_USERS_PLACEHOLDER,
-  NO_APPS_FOUND,
-  NO_WORKSPACE_DESCRIPTION,
-  NO_WORKSPACE_HEADING,
-  WORKSPACES_HEADING,
-} from "@appsmith/constants/messages";
 
-import { setHeaderMeta } from "actions/themeActions";
-import SharedUserList from "pages/common/SharedUserList";
-import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
-import { Indices } from "constants/Layers";
-import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
-import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
-import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
-import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
-import { resetEditorRequest } from "actions/initActions";
+import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardList";
+import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
+import { usePackage } from "@appsmith/pages/Applications/helpers";
+import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
+import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
+import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
+import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
+import WorkspaceMenu from "@appsmith/pages/Applications/WorkspaceMenu";
+import { getIsReconnectingDatasourcesModalOpen } from "@appsmith/selectors/entitiesSelector";
+import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
+import { getPackagesList } from "@appsmith/selectors/packageSelectors";
+import {
+  getApplicationsOfWorkspace,
+  getCurrentWorkspaceId,
+  getIsFetchingApplications,
+} from "@appsmith/selectors/selectedWorkspaceSelectors";
+import {
+  getTenantPermissions,
+  shouldShowLicenseBanner,
+} from "@appsmith/selectors/tenantSelectors";
+import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
+import {
+  getFetchedWorkspaces,
+  getIsDeletingWorkspace,
+  getIsFetchingWorkspaces,
+  getIsSavingWorkspaceInfo,
+} from "@appsmith/selectors/workspaceSelectors";
+import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import {
   hasCreateNewAppPermission,
   hasDeleteWorkspacePermission,
@@ -93,37 +113,20 @@ import {
   isPermitted,
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
-import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
-import { getAppsmithConfigs } from "@appsmith/configs";
+import { resetEditorRequest } from "actions/initActions";
+import { setHeaderMeta } from "actions/themeActions";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
-import WorkspaceMenu from "@appsmith/pages/Applications/WorkspaceMenu";
-import ApplicationCardList from "@appsmith/pages/Applications/ApplicationCardList";
-import { usePackage } from "@appsmith/pages/Applications/helpers";
-import PackageCardList from "@appsmith/pages/Applications/PackageCardList";
-import WorkspaceAction from "@appsmith/pages/Applications/WorkspaceAction";
-import ResourceListLoader from "@appsmith/pages/Applications/ResourceListLoader";
+import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
+import { Indices } from "constants/Layers";
+import ImportModal from "pages/common/ImportModal";
+import SharedUserList from "pages/common/SharedUserList";
+import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
+import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
+import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { getHasCreateWorkspacePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import WorkflowCardList from "@appsmith/pages/Applications/WorkflowCardList";
-import { allowManageEnvironmentAccessForUser } from "@appsmith/selectors/environmentSelectors";
-import CreateNewAppsOption from "@appsmith/pages/Applications/CreateNewAppsOption";
-import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
-import {
-  getFetchedWorkspaces,
-  getIsDeletingWorkspace,
-  getIsFetchingWorkspaces,
-  getIsSavingWorkspaceInfo,
-} from "@appsmith/selectors/workspaceSelectors";
-import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import { getPackagesList } from "@appsmith/selectors/packageSelectors";
-import {
-  getApplicationsOfWorkspace,
-  getIsFetchingApplications,
-  getCurrentWorkspaceId,
-} from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { shouldShowLicenseBanner } from "@appsmith/selectors/tenantSelectors";
-import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
+import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -365,7 +368,6 @@ export function WorkspaceMenuItem({
         isFetchingWorkspaces ? 100 : 22
       } /* this is to avoid showing tooltip for loaders */
       icon="group-2-line"
-      key={workspace?.id}
       onSelect={handleWorkspaceClick}
       selected={selected}
       text={workspace?.name}
@@ -382,8 +384,8 @@ export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
 export interface LeftPaneProps {
   isBannerVisible?: boolean;
   isFetchingWorkspaces: boolean;
-  workspaces: any;
-  activeWorkspaceId: string | undefined;
+  workspaces: Workspace[];
+  activeWorkspaceId?: string;
 }
 
 export function LeftPane(props: LeftPaneProps) {
@@ -391,7 +393,7 @@ export function LeftPane(props: LeftPaneProps) {
     activeWorkspaceId,
     isBannerVisible = false,
     isFetchingWorkspaces,
-    workspaces,
+    workspaces = [],
   } = props;
   const isMobile = useIsMobileDevice();
 
@@ -404,18 +406,14 @@ export function LeftPane(props: LeftPaneProps) {
         isFetchingWorkspaces={isFetchingWorkspaces}
       >
         <WorkpsacesNavigator data-testid="t--left-panel">
-          {workspaces &&
-            workspaces.map(
-              (workspace: any) =>
-                workspace && (
-                  <WorkspaceMenuItem
-                    isFetchingWorkspaces={isFetchingWorkspaces}
-                    key={workspace?.id}
-                    selected={workspace?.id === activeWorkspaceId}
-                    workspace={workspace}
-                  />
-                ),
-            )}
+          {workspaces.map((workspace) => (
+            <WorkspaceMenuItem
+              isFetchingWorkspaces={isFetchingWorkspaces}
+              key={workspace.id}
+              selected={workspace.id === activeWorkspaceId}
+              workspace={workspace}
+            />
+          ))}
         </WorkpsacesNavigator>
       </LeftPaneSection>
     </LeftPaneWrapper>
@@ -502,6 +500,8 @@ export function ApplicationsSection(props: any) {
   const creatingApplicationMap = useSelector(getIsCreatingApplication);
   const currentUser = useSelector(getCurrentUser);
   const isMobile = useIsMobileDevice();
+  const urlParams = new URLSearchParams(location.search);
+  const openImportModal = urlParams.get("openImportModal");
   const deleteApplication = (applicationId: string) => {
     if (applicationId && applicationId.length > 0) {
       dispatch({
@@ -529,6 +529,10 @@ export function ApplicationsSection(props: any) {
   const isLoadingResources =
     isFetchingWorkspaces || isFetchingApplications || isFetchingPackages;
   const isGACEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  const [
+    isCreateAppFromTemplateModalOpen,
+    setIsCreateAppFromTemplateModalOpen,
+  ] = useState(false);
 
   useEffect(() => {
     // Clears URL params cache
@@ -540,11 +544,28 @@ export function ApplicationsSection(props: any) {
     setSelectedWorkspaceIdForImportApplication,
   ] = useState<string | undefined>();
 
-  const leaveWS = (workspaceId: string) => {
-    setWarnLeavingWorkspace(false);
-    setWorkspaceToOpenMenu(null);
-    dispatch(leaveWorkspace(workspaceId));
-  };
+  useEffect(() => {
+    if (openImportModal && activeWorkspaceId) {
+      const shouldOpenImportModal = openImportModal.toLowerCase() === "true";
+
+      if (shouldOpenImportModal) {
+        setSelectedWorkspaceIdForImportApplication(activeWorkspaceId);
+      }
+    }
+  }, [
+    openImportModal,
+    activeWorkspaceId,
+    setSelectedWorkspaceIdForImportApplication,
+  ]);
+
+  const leaveWS = useCallback(
+    (workspaceId: string) => {
+      setWarnLeavingWorkspace(false);
+      setWorkspaceToOpenMenu(null);
+      dispatch(leaveWorkspace(workspaceId));
+    },
+    [dispatch],
+  );
 
   const handleDeleteWorkspace = useCallback(
     (workspaceId: string) => {
@@ -613,6 +634,15 @@ export function ApplicationsSection(props: any) {
     });
   };
 
+  const onCreateNewApplicationFromTemplate = useCallback(() => {
+    AnalyticsUtil.logEvent("TEMPLATE_DROPDOWN_CLICK");
+    setIsCreateAppFromTemplateModalOpen(true);
+  }, [setIsCreateAppFromTemplateModalOpen]);
+
+  const onCreateAppFromTemplatesModalClose = useCallback(() => {
+    setIsCreateAppFromTemplateModalOpen(false);
+  }, [setIsCreateAppFromTemplateModalOpen]);
+
   function NoWorkspaceFound() {
     return (
       <div className="flex flex-col items-center justify-center mt-[180px]">
@@ -622,9 +652,6 @@ export function ApplicationsSection(props: any) {
         />
         <NewText className="!mb-3 !font-semibold" kind="heading-s">
           {createMessage(NO_WORKSPACE_HEADING)}
-        </NewText>
-        <NewText className="w-[328px]" kind="heading-xs">
-          {createMessage(NO_WORKSPACE_DESCRIPTION)}
         </NewText>
       </div>
     );
@@ -674,6 +701,7 @@ export function ApplicationsSection(props: any) {
     const renderManageEnvironmentMenu =
       isManageEnvironmentEnabled &&
       hasManageWorkspaceEnvironmentPermission(activeWorkspace.userPermissions);
+
     const onClickAddNewAppButton = (workspaceId: string) => {
       if (
         Object.entries(creatingApplicationMap).length === 0 ||
@@ -717,7 +745,7 @@ export function ApplicationsSection(props: any) {
                 workspaceSlug: activeWorkspace.id,
               })}
             {selectedWorkspaceIdForImportApplication && (
-              <ImportApplicationModal
+              <ImportModal
                 isModalOpen={
                   selectedWorkspaceIdForImportApplication === activeWorkspace.id
                 }
@@ -725,6 +753,11 @@ export function ApplicationsSection(props: any) {
                 workspaceId={selectedWorkspaceIdForImportApplication}
               />
             )}
+            <CreateNewAppFromTemplatesWrapper
+              currentWorkspaceId={activeWorkspaceId}
+              isOpen={isCreateAppFromTemplateModalOpen}
+              onModalClose={onCreateAppFromTemplatesModalClose}
+            />
             {!isLoadingResources && (
               <WorkspaceShareUsers>
                 <SharedUserList />
@@ -742,6 +775,7 @@ export function ApplicationsSection(props: any) {
                   enableImportExport={enableImportExport}
                   isMobile={isMobile}
                   onCreateNewApplication={onClickAddNewAppButton}
+                  onStartFromTemplate={onCreateNewApplicationFromTemplate}
                   setSelectedWorkspaceIdForImportApplication={
                     setSelectedWorkspaceIdForImportApplication
                   }
@@ -855,7 +889,9 @@ export const ApplictionsMainPage = (props: any) => {
   if (!isFetchingWorkspaces) {
     workspaces = fetchedWorkspaces;
   } else {
-    workspaces = loadingUserWorkspaces as any;
+    workspaces = loadingUserWorkspaces.map(
+      (loadingWorkspaces) => loadingWorkspaces.workspace,
+    ) as any;
   }
 
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<
@@ -971,14 +1007,11 @@ export interface ApplicationProps {
   queryModuleFeatureFlagEnabled: boolean;
   resetCurrentWorkspace: () => void;
   currentApplicationIdForCreateNewApp?: string;
-  resetCurrentApplicationIdForCreateNewApp: () => void;
   currentWorkspaceId: string;
+  isReconnectModalOpen: boolean;
 }
 
-export interface ApplicationState {
-  selectedWorkspaceId: string;
-  showOnboardingForm: boolean;
-}
+export interface ApplicationState {}
 
 export class Applications<
   Props extends ApplicationProps,
@@ -986,11 +1019,6 @@ export class Applications<
 > extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-
-    this.state = {
-      selectedWorkspaceId: "",
-      showOnboardingForm: false,
-    } as State;
   }
 
   componentDidMount() {
@@ -1015,23 +1043,27 @@ export class Applications<
   }
 
   public render() {
-    return this.props.currentApplicationIdForCreateNewApp ? (
+    if (this.props.currentApplicationIdForCreateNewApp) {
+      // FOR NEW USER
       // Workspace id condition is added to ensure that we have workspace id present before we show 3 options
       // as workspace id is required to fetch plugins
-      !!this.props.currentWorkspaceId ? (
+      if (!this.props.currentWorkspaceId) return null;
+
+      return (
         <CreateNewAppsOption
           currentApplicationIdForCreateNewApp={
             this.props.currentApplicationIdForCreateNewApp
           }
-          onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
         />
-      ) : null
-    ) : (
-      <ApplictionsMainPage
-        searchApplications={this.props.searchApplications}
-        searchKeyword={this.props.searchKeyword}
-      />
-    );
+      );
+    } else {
+      return (
+        <ApplictionsMainPage
+          searchApplications={this.props.searchApplications}
+          searchKeyword={this.props.searchKeyword}
+        />
+      );
+    }
   }
 }
 
@@ -1047,6 +1079,7 @@ export const mapStateToProps = (state: AppState) => ({
   currentApplicationIdForCreateNewApp:
     getCurrentApplicationIdForCreateNewApp(state),
   currentWorkspaceId: getCurrentWorkspaceId(state),
+  isReconnectModalOpen: getIsReconnectingDatasourcesModalOpen(state),
 });
 
 export const mapDispatchToProps = (dispatch: any) => ({
@@ -1077,8 +1110,6 @@ export const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
   resetCurrentWorkspace: () => dispatch(resetCurrentWorkspace()),
-  resetCurrentApplicationIdForCreateNewApp: () =>
-    dispatch(resetCurrentApplicationIdForCreateNewApp()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);

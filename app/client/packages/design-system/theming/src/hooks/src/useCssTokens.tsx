@@ -36,6 +36,9 @@ const getTypographyCss = (typography: Typography) => {
             margin-top: ${after.marginTop};
           }
         }
+        --${currentKey}-line-height: ${lineHeight};
+        --${currentKey}-margin-start: ${after.marginTop};
+        --${currentKey}-margin-end: ${before.marginBottom};
       `
       );
     }, "")}
@@ -50,19 +53,13 @@ const getColorCss = (color: ThemeToken["color"]) => {
   `;
 };
 
-interface UseCssTokensProps extends Theme {
-  width: number | null;
-}
-
-export function useCssTokens(props: UseCssTokensProps) {
-  const { color, colorMode, fontFamily, typography, width, ...restTokens } =
-    props;
+export function useCssTokens(props: Theme) {
+  const { color, colorMode, fontFamily, typography, ...restTokens } = props;
 
   const [colorClassName, setColorClassName] = useState<string>();
   const [colorModeClassName, setColorModeClassName] = useState<string>();
   const [fontFamilyClassName, setFontFamilyClassName] = useState<string>();
   const [typographyClassName, setTypographyClassName] = useState<string>();
-  const [widthClassName, setWidthClassName] = useState<string>();
   const [providerClassName, setProviderClassName] = useState<string>();
 
   useEffect(() => {
@@ -94,14 +91,6 @@ export function useCssTokens(props: UseCssTokensProps) {
   }, [restTokens]);
 
   useEffect(() => {
-    if (width != null) {
-      setWidthClassName(css`
-        --provider-width: ${width}px;
-      `);
-    }
-  }, [width]);
-
-  useEffect(() => {
     if (colorMode != null) {
       setColorModeClassName(css`
         color-scheme: ${colorMode};
@@ -114,7 +103,6 @@ export function useCssTokens(props: UseCssTokensProps) {
     colorModeClassName,
     fontFamilyClassName,
     typographyClassName,
-    widthClassName,
     providerClassName,
   };
 }

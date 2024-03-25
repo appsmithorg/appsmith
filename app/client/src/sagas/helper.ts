@@ -7,12 +7,11 @@ import type {
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import {
   ENTITY_TYPE,
-  LOG_CATEGORY,
   PLATFORM_ERROR,
-  Severity,
-} from "entities/AppsmithConsole";
+} from "@appsmith/entities/AppsmithConsole/utils";
 import { toast } from "design-system";
 import {
   ReduxActionTypes,

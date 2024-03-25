@@ -12,7 +12,7 @@ const LoaderWrapper = styled.div`
 
 function StatusLoader({ loaderMsg }: { loaderMsg: string }) {
   return (
-    <LoaderWrapper>
+    <LoaderWrapper data-testId="t--git-merge-loader">
       <SpinnerLoader size="md" />
       <Text kind={"body-m"} style={{ marginLeft: 8 }}>
         {loaderMsg}

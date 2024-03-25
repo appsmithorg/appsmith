@@ -16,19 +16,13 @@ import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
 import jakarta.validation.Validator;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.stereotype.Service;
-import reactor.core.scheduler.Scheduler;
 
 @Service
 public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
         implements ApplicationServiceCECompatible {
     public ApplicationServiceCECompatibleImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ApplicationRepository repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
@@ -44,10 +38,7 @@ public class ApplicationServiceCECompatibleImpl extends ApplicationServiceCEImpl
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission) {
         super(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 repository,
                 analyticsService,
                 policySolution,

@@ -16,7 +16,7 @@ import type {
   WidgetType,
 } from "constants/WidgetConstants";
 import { RenderModes } from "constants/WidgetConstants";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { SetterConfig, Stylesheet } from "entities/AppTheming";
 import type { Context, ReactNode, RefObject } from "react";
 import { Component } from "react";
@@ -557,6 +557,7 @@ export interface WidgetCardProps {
   key?: string;
   displayName: string;
   icon: string;
+  thumbnail?: string;
   isBeta?: boolean;
   tags?: WidgetTags[];
   isSearchWildcard?: boolean;

@@ -46,17 +46,12 @@ import {
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
-import history from "utils/history";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { addItemsInContextMenu } from "@appsmith/utils";
 import { getCurrentUser } from "actions/authActions";
 import Card, { ContextMenuTrigger } from "components/common/Card";
 import { generateEditedByText } from "./helpers";
 import { noop } from "lodash";
-
-const { cloudHosting } = getAppsmithConfigs();
 
 interface ApplicationCardProps {
   application: ApplicationPayload;
@@ -161,18 +156,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
         "data-testid": "t--export-app",
       });
     }
-    const updatedMoreActionItems: ModifiedMenuItemProps[] =
-      addItemsInContextMenu(
-        [
-          props.permissions?.hasManageWorkspacePermissions || false,
-          props.permissions?.canInviteToWorkspace || false,
-          !cloudHosting,
-        ],
-        history,
-        props.workspaceId,
-        moreActionItems,
-      );
-    setMoreActionItems(updatedMoreActionItems);
+    setMoreActionItems(moreActionItems);
     addDeleteOption();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -446,25 +430,13 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const launchApp = useCallback(() => {
     setURLParams();
-    history.push(
-      viewerURL({
-        pageId: props.application.defaultPageId,
-        params,
-      }),
-    );
     dispatch(getCurrentUser());
-  }, [props.application.defaultPageId]);
+  }, []);
 
   const editApp = useCallback(() => {
     setURLParams();
-    history.push(
-      builderURL({
-        pageId: props.application.defaultPageId,
-        params,
-      }),
-    );
     dispatch(getCurrentUser());
-  }, [props.application.defaultPageId]);
+  }, []);
 
   return (
     <Card
@@ -491,6 +463,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           className="t--application-edit-link"
           href={editModeURL}
           onClick={editApp}
+          renderAs="a"
           size="md"
           startIcon={"pencil-line"}
         >
@@ -503,6 +476,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
           href={viewModeURL}
           kind="secondary"
           onClick={launchApp}
+          renderAs="a"
           size="md"
           startIcon={"rocket"}
         >

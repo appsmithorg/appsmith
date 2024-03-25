@@ -65,7 +65,6 @@ class WDSParagraphWidget extends BaseWidget<TextWidgetProps, WidgetState> {
   getWidgetView() {
     return (
       <Text
-        color="neutral"
         isBold={this.props?.fontStyle?.includes("bold")}
         isItalic={this.props?.fontStyle?.includes("italic")}
         lineClamp={this.props.lineClamp ? this.props.lineClamp : undefined}

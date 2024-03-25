@@ -15,6 +15,7 @@ export const getEntityPayloadInfo: Record<
     iconId: string;
     id: string;
     pluginType?: PluginType | string;
+    entityName?: string;
   }
 > = {
   [ENTITY_TYPE.WIDGET]: (entityConfig) => {

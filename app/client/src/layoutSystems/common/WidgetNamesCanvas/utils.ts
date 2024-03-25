@@ -12,8 +12,8 @@ import {
   WIDGET_NAME_TEXT_COLOR,
   WIDGET_NAME_VERTICAL_PADDING,
   WIDGET_OUTLINE_OFFSET,
+  WIDGET_NAME_OFFSET,
 } from "./WidgetNameConstants";
-import { Colors } from "constants/Colors";
 
 /**
  * used to get the Konva Group Element that is a group of all the elements
@@ -72,8 +72,8 @@ export const getWidgetNameComponent = (
     scrollTop,
   );
   const left: number =
-    widgetLeft + widgetNameData.position.width - componentWidth;
-  const top: number = widgetTop - WIDGET_NAME_HEIGHT;
+    widgetLeft + widgetNameData.position.width - componentWidth - 1;
+  const top: number = widgetTop - WIDGET_NAME_HEIGHT + 1;
 
   //Store the widget name positions for future use
   const widgetNamePosition: WidgetNamePositionData = {
@@ -83,16 +83,6 @@ export const getWidgetNameComponent = (
     height: WIDGET_NAME_HEIGHT,
     widgetNameData: widgetNameData,
   };
-
-  //rectangle border encompassing the widget name
-  const rectBorderEl = new Konva.Rect({
-    cornerRadius: [4, 4, 0, 0],
-    fill: Colors.GREY_1,
-    height: WIDGET_NAME_HEIGHT,
-    width: componentWidth + WIDGET_OUTLINE_OFFSET * 2.25,
-    x: -WIDGET_OUTLINE_OFFSET,
-    y: -WIDGET_OUTLINE_OFFSET,
-  });
 
   //rectangle encompassing the widget name
   const rectEl = new Konva.Rect({
@@ -120,9 +110,9 @@ export const getWidgetNameComponent = (
     width: componentWidth,
     x: left,
     y: top,
+    offsetY: WIDGET_NAME_OFFSET,
   });
 
-  groupEl.add(rectBorderEl);
   groupEl.add(rectEl);
   groupEl.add(textEl);
   showIcon && groupEl.add(iconEl);

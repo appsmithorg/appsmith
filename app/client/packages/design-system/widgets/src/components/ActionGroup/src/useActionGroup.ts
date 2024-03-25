@@ -3,7 +3,7 @@ import type { ListState } from "@react-stately/list";
 import { useCallback, type RefObject, useMemo } from "react";
 import type { DOMAttributes, FocusableElement } from "@react-types/shared";
 
-import type { ActionGroupProps } from "./types";
+import type { ButtonGroupProps } from "../../../";
 import {
   useLayoutEffect,
   useResizeObserver,
@@ -17,7 +17,7 @@ export interface ActionGroupAria {
 }
 
 export function useActionGroup<T>(
-  props: ActionGroupProps<T>,
+  props: ButtonGroupProps<T>,
   state: ListState<T>,
   ref: RefObject<FocusableElement>,
 ): ActionGroupAria {
@@ -96,8 +96,13 @@ export function useActionGroup<T>(
           if (calculatedSize <= containerSize) {
             newVisibleItems++;
           } else {
+            const isSeparator = item.hasAttribute("data-separator");
+
             // check whether the truncated button will fit container
-            if (calculatedSize - itemWidth + minInlineSize <= containerSize) {
+            if (
+              !isSeparator &&
+              calculatedSize - itemWidth + minInlineSize <= containerSize
+            ) {
               newVisibleItems++;
             }
             break;

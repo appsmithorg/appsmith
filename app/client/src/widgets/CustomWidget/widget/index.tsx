@@ -8,7 +8,7 @@ import BaseWidget from "widgets/BaseWidget";
 import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
-import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { WIDGET_PADDING, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type {
   AppThemeProperties,
@@ -17,7 +17,6 @@ import type {
 } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DEFAULT_MODEL } from "../constants";
 import defaultApp from "./defaultApp";
@@ -26,12 +25,14 @@ import { generateTypeDef } from "utils/autocomplete/defCreatorUtils";
 import {
   CUSTOM_WIDGET_DEFAULT_MODEL_DOC_URL,
   CUSTOM_WIDGET_DOC_URL,
+  CUSTOM_WIDGET_HEIGHT_DOC_URL,
 } from "pages/Editor/CustomWidgetBuilder/constants";
 import { Link } from "design-system";
 import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { DynamicHeight, type WidgetFeatures } from "utils/WidgetFeatures";
 
 const StyledLink = styled(Link)`
   display: inline-block;
@@ -46,9 +47,6 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   static getConfig() {
     return {
       name: "Custom",
-      hideCard: !super.getFeatureFlag(
-        FEATURE_FLAG.release_custom_widgets_enabled,
-      ),
       iconSVG: IconSVG,
       needsMeta: true,
       isCanvas: false,
@@ -72,9 +70,65 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       uncompiledSrcDoc: defaultApp.uncompiledSrcDoc,
       theme: "{{appsmith.theme}}",
       dynamicBindingPathList: [{ key: "theme" }],
+      dynamicTriggerPathList: [{ key: "onResetClick" }],
       borderColor: Colors.GREY_5,
       borderWidth: "1",
       backgroundColor: "#FFFFFF",
+    };
+  }
+
+  static getFeatures(): WidgetFeatures {
+    return {
+      dynamicHeight: {
+        sectionIndex: 2,
+        active: true,
+        defaultValue: DynamicHeight.FIXED,
+        helperText: (props) => {
+          if (props?.dynamicHeight !== DynamicHeight.FIXED) {
+            return (
+              <div className="leading-5 mt-[10px]">
+                For the auto-height feature to function correctly, the custom
+                widget&apos;s container should not have a fixed height set.{" "}
+                <StyledLink
+                  kind="secondary"
+                  rel="noopener noreferrer"
+                  target="_blank"
+                  to={CUSTOM_WIDGET_HEIGHT_DOC_URL}
+                >
+                  Read more
+                </StyledLink>
+              </div>
+            );
+          } else {
+            return null;
+          }
+        },
+      },
+    };
+  }
+
+  static getAutoLayoutConfig() {
+    return {
+      autoDimension: {
+        height: true,
+      },
+      disabledPropsDefaults: {
+        dynamicHeight: DynamicHeight.AUTO_HEIGHT,
+      },
+      widgetSize: [
+        {
+          viewportMinWidth: 0,
+          configuration: () => {
+            return {
+              minWidth: "120px",
+              minHeight: "40px",
+            };
+          },
+        },
+      ],
+      disableResizeHandles: {
+        vertical: true,
+      },
     };
   }
 
@@ -192,7 +246,8 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
             controlConfig: {
               allowEdit: true,
               onEdit: (widget: CustomWidgetProps, newLabel: string) => {
-                return {
+                const triggerPaths = [];
+                const updatedProperties = {
                   events: widget.events.map((e) => {
                     if (e === event) {
                       return newLabel;
@@ -200,6 +255,19 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
 
                     return e;
                   }),
+                };
+
+                if (
+                  widget.dynamicTriggerPathList
+                    ?.map((d) => d.key)
+                    .includes(event)
+                ) {
+                  triggerPaths.push(newLabel);
+                }
+
+                return {
+                  modify: updatedProperties,
+                  triggerPaths,
                 };
               },
               allowDelete: true,
@@ -209,7 +277,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
                 };
               },
             },
-            dependencies: ["events"],
+            dependencies: ["events", "dynamicTriggerPathList"],
             helpText: "when the event is triggered from custom widget",
           }));
         },
@@ -369,15 +437,18 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         borderRadius={this.props.borderRadius}
         borderWidth={this.props.borderWidth}
         boxShadow={this.props.boxShadow}
+        dynamicHeight={this.props.dynamicHeight}
         execute={this.execute}
-        height={this.props.componentHeight}
+        height={this.props.componentHeight - WIDGET_PADDING * 2}
+        layoutSystemType={this.props.layoutSystemType}
+        minDynamicHeight={this.props.minDynamicHeight}
         model={this.props.model || {}}
         renderMode={this.getRenderMode()}
         srcDoc={this.props.srcDoc}
         theme={this.props.theme}
         update={this.update}
         widgetId={this.props.widgetId}
-        width={this.props.componentWidth}
+        width={this.props.componentWidth - WIDGET_PADDING * 2}
       />
     );
   }

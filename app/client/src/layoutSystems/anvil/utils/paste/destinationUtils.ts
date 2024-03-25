@@ -70,6 +70,10 @@ function getPastingInfo(
     };
   }
   const layout: LayoutProps = parent.layout[0];
+  /**
+   * If parentOrder.length === 1 => add the copied widgets at the end of the layout.
+   * Else find index of the child (usually selected widget) in the layout, and add the copied widgets after it.
+   */
   const info: Omit<PasteDestinationInfo, "parentOrder"> =
     parentOrder.length === 1
       ? getLastIndexInLayout(parent)
@@ -105,6 +109,10 @@ function getChildIndexInLayout(
   const Comp: typeof BaseLayoutComponent = LayoutFactory.get(layout.layoutType);
 
   if (Comp.rendersWidgets) {
+    /**
+     * if layout renders widgets, then find the index of the child in the layout.
+     * => If child is not found, then return -1.
+     */
     const index = (layout.layout as WidgetLayoutProps[]).findIndex(
       (w: WidgetLayoutProps) => w.widgetId === childId,
     );
@@ -120,6 +128,9 @@ function getChildIndexInLayout(
       rowIndex: [...rowIndex, index + 1],
     };
   } else {
+    /**
+     * If layout renders other layouts, then find the index of the child in the nested layouts.
+     */
     let res: Omit<PasteDestinationInfo, "parentOrder"> = {
       alignment: FlexLayerAlignment.Start,
       layoutOrder,
@@ -134,6 +145,9 @@ function getChildIndexInLayout(
             [...layoutOrder, each],
             [...rowIndex, index + 1],
           );
+        /**
+         * Acknowledge the result only if the child is found in the layout.
+         */
         if (temp.rowIndex[temp.rowIndex.length - 1] !== -1) res = temp;
       },
     );

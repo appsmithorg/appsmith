@@ -16,6 +16,7 @@ interface WidgetFeatureConfig {
   active: boolean;
   defaultValue?: DynamicHeight;
   sectionIndex: number;
+  helperText?: (props?: WidgetProps) => PropertyPaneControlConfig["helperText"];
 }
 
 export type WidgetFeatures = Record<
@@ -299,9 +300,9 @@ const CONTAINER_SCROLL_HELPER_TEXT =
 
 export const PropertyPaneConfigTemplates: Record<
   RegisteredWidgetFeatures,
-  PropertyPaneConfig[]
+  (featureConfig: WidgetFeatureConfig) => PropertyPaneConfig[]
 > = {
-  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: [
+  [RegisteredWidgetFeatures.DYNAMIC_HEIGHT]: (featureConfig) => [
     {
       helpText:
         "Auto Height: Configure the way the widget height reacts to content changes.",
@@ -321,11 +322,13 @@ export const PropertyPaneConfigTemplates: Record<
         "isCanvas",
       ],
       updateHook: updateMinMaxDynamicHeight,
+      //TODO: Canvas widgets should also use the helper text config of dynamic height feature
+      // instead of using a hardcoded string
       helperText: (props: WidgetProps) => {
         return props.isCanvas &&
           props.dynamicHeight === DynamicHeight.AUTO_HEIGHT
           ? CONTAINER_SCROLL_HELPER_TEXT
-          : "";
+          : featureConfig.helperText?.(props) || "";
       },
       options: [
         {

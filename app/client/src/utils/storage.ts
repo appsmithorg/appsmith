@@ -4,6 +4,7 @@ import localforage from "localforage";
 import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePrompt";
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
+import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -36,6 +37,8 @@ export const STORAGE_KEYS: {
   CURRENT_ENV: "CURRENT_ENV",
   AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
   PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
+  IDE_VIEW_MODE: "IDE_VIEW_MODE",
+  CODE_WIDGET_NAVIGATION_USED: "CODE_WIDGET_NAVIGATION_USED",
 };
 
 const store = localforage.createInstance({
@@ -857,24 +860,49 @@ export const getPartnerProgramCalloutShown = async () => {
   }
 };
 
-export const setUsersFirstApplicationId = async (appId: string) => {
+export const storeIDEViewMode = async (mode: EditorViewMode) => {
   try {
-    await store.setItem(STORAGE_KEYS.USERS_FIRST_APPLICATION_ID, appId);
+    await store.setItem(STORAGE_KEYS.IDE_VIEW_MODE, mode);
     return true;
   } catch (error) {
-    log.error("An error occurred while setting USERS_FIRST_APPLICATION_ID");
+    log.error("An error occurred while setting IDE_VIEW_MODE");
     log.error(error);
   }
 };
 
-export const getUsersFirstApplicationId = async () => {
+export const retrieveIDEViewMode = async (): Promise<
+  EditorViewMode | undefined
+> => {
   try {
-    const firstApplicationId: string | null = await store.getItem(
-      STORAGE_KEYS.USERS_FIRST_APPLICATION_ID,
-    );
-    return firstApplicationId;
+    const mode = (await store.getItem(
+      STORAGE_KEYS.IDE_VIEW_MODE,
+    )) as EditorViewMode;
+    return mode;
   } catch (error) {
-    log.error("An error occurred while fetching USERS_FIRST_APPLICATION_ID");
+    log.error("An error occurred while fetching IDE_VIEW_MODE");
     log.error(error);
+  }
+};
+
+export const storeCodeWidgetNavigationUsed = async (count: number) => {
+  try {
+    await store.setItem(STORAGE_KEYS.CODE_WIDGET_NAVIGATION_USED, count);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting CODE_WIDGET_NAVIGATION_USED");
+    log.error(error);
+  }
+};
+
+export const retrieveCodeWidgetNavigationUsed = async (): Promise<number> => {
+  try {
+    const mode = (await store.getItem(
+      STORAGE_KEYS.CODE_WIDGET_NAVIGATION_USED,
+    )) as number;
+    return mode || 0;
+  } catch (error) {
+    log.error("An error occurred while fetching CODE_WIDGET_NAVIGATION_USED");
+    log.error(error);
+    return 0;
   }
 };

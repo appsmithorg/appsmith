@@ -2,19 +2,15 @@
 .inline-label {
   display: flex;
   align-items: center;
-  gap: var(--inner-spacing-1);
-  min-height: var(--sizing-4);
   position: relative;
   cursor: pointer;
+  width: fit-content;
 
-  /**
-  * ----------------------------------------------------------------------------
-  * LABEL POSITION
-  *-----------------------------------------------------------------------------
-  */
-  &[data-label-position="left"] {
-    flex-direction: row-reverse;
-    justify-content: space-between;
+  & span {
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 1;
+    -webkit-box-orient: vertical;
   }
 
   /**

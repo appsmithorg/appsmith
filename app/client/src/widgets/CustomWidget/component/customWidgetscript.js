@@ -9,6 +9,7 @@ export const EVENTS = {
   CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK: "CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK",
   CUSTOM_WIDGET_CONSOLE_EVENT: "CUSTOM_WIDGET_CONSOLE_EVENT",
   CUSTOM_WIDGET_THEME_UPDATE: "CUSTOM_WIDGET_THEME_UPDATE",
+  CUSTOM_WIDGET_UPDATE_HEIGHT: "CUSTOM_WIDGET_UPDATE_HEIGHT",
 };
 
 // Function to create a communication channel to the parent
@@ -119,25 +120,21 @@ export function main() {
   let isReady = false;
   let isReadyCalled = false;
 
-  // const heightObserver = new ResizeObserver((entries) => {
-  //   const height = entries[0].contentRect.height;
-  //   window.parent.postMessage(
-  //     {
-  //       type: "UPDATE_HEIGHT",
-  //       data: {
-  //         height,
-  //       },
-  //     },
-  //     "*",
-  //   );
-  // });
+  const heightObserver = new ResizeObserver(() => {
+    const height = document.body.clientHeight;
+
+    channel.postMessage(EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT, {
+      height,
+    });
+  });
+
   // Callback for when the READY_ACK message is received
   channel.onMessage(EVENTS.CUSTOM_WIDGET_READY_ACK, (event) => {
     window.appsmith.model = event.model;
     window.appsmith.ui = event.ui;
     window.appsmith.theme = event.theme;
     window.appsmith.mode = event.mode;
-    // heightObserver.observe(window.document.body);
+    heightObserver.observe(window.document.body);
 
     // Subscribe to model and UI changes
     window.appsmith.onModelChange(generateAppsmithCssVariables("model"));
@@ -285,10 +282,6 @@ export function main() {
             isReadyCalled = true;
           }
         },
-        // observeHeight: (element) => {
-        //   heightObserver.disconnect();
-        //   heightObserver.observe(element);
-        // },
       },
     });
   }

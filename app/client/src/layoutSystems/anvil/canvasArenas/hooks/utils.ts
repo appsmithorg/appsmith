@@ -1,50 +1,34 @@
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import { LayoutComponentTypes } from "../../utils/anvilTypes";
 import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
 import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import {
-  type AnvilDraggedWidgetTypes,
-  AnvilDraggedWidgetTypesEnum,
-} from "../types";
+import { AnvilDraggedWidgetTypesEnum } from "../types";
 import { anvilWidgets } from "widgets/anvil/constants";
+import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
+import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 
 /**
  * Determines whether a canvas can be activated for a dragged widget based on specific conditions.
  * @param draggedWidgetTypes - Type of widget being dragged (e.g., SECTION, ZONE).
- * @param mainCanvasLayoutId - Id of the main canvas layout.
- * @param layoutType - Type of the current layout (e.g., SECTION, ZONE).
- * @param layoutId - Id of the current layout.
+ * @param widgetId: string : Id of the target widget over which the dragged widgets may be dropped.
+ * @param widgetType: string: Type of the target widget over which the dragged widgets may be dropped.
  * @returns {boolean} - True if the canvas can be activated, false otherwise.
  */
 export const canActivateCanvasForDraggedWidget = (
-  draggedWidgetTypes: AnvilDraggedWidgetTypes,
-  mainCanvasLayoutId: string,
-  layoutType: LayoutComponentTypes,
-  layoutId: string,
+  draggedWidgetHierarchy: number,
+  widgetId: string,
+  widgetType: string,
 ) => {
-  // Checking if sections or zones are being dragged
-  const areSectionsDragged =
-    draggedWidgetTypes === AnvilDraggedWidgetTypesEnum.SECTION;
-  const areZonesDragged =
-    draggedWidgetTypes === AnvilDraggedWidgetTypesEnum.ZONE;
-
-  // Checking if the dragged widget is a section and the canvas is the main canvas
-  const isMainCanvas = mainCanvasLayoutId === layoutId;
-
-  // If sections are being dragged, allow activation only for the main canvas
-  if (areSectionsDragged) {
-    return isMainCanvas;
-  }
-
-  // If zones are being dragged, allow activation for sections or the main canvas
-  if (areZonesDragged) {
-    return layoutType === LayoutComponentTypes.SECTION || isMainCanvas;
-  }
-
-  // Allow activation for other widget types
-  return true;
+  /**
+   * Get hierarchy of the drop target widget.
+   */
+  const dropTargetHierarchy: number = getWidgetHierarchy(widgetType, widgetId);
+  /**
+   * If drop target widget is of higher hierarchy than dragged widget, return true.
+   * Higher hierarchy means the widget is closer to the main canvas and hierarchy index is closer to 0.
+   */
+  return dropTargetHierarchy < draggedWidgetHierarchy;
 };
 
 /**
@@ -78,6 +62,20 @@ export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
   // Returning the final dragged widget type
   return draggedWidgetTypes;
 };
+
+/**
+ *
+ * @param draggedWidgets : DraggedWidget[]
+ * @returns : number - Highest hierarchy of the dragged widgets
+ */
+export function getDraggedWidgetHierarchy(
+  draggedWidgets: DraggedWidget[],
+): number {
+  return draggedWidgets.reduce((acc: number, each: DraggedWidget) => {
+    const order: number = getWidgetHierarchy(each.type, each.widgetId);
+    return order < acc ? order : acc;
+  }, 1000);
+}
 
 /**
  * getDraggedBlocks function returns an array of DraggedWidget.
@@ -158,58 +156,151 @@ export const getClosestHighlight = (
   return sortedHighlights[0];
 };
 const PaddingForHorizontalDropZone = 8;
-export function getViableDropPositions(
-  arr: AnvilHighlightInfo[],
-  pos: XYCord,
-): AnvilHighlightInfo[] {
-  if (!arr) return [];
 
-  // Filter out vertical highlights.
-  const verticalSelection = arr.filter(
+/**
+ * Determines whether to show horizontal highlights based on specific conditions.
+ * @param horizontalSelection - Array of horizontal highlights
+ * @param closestVerticalHighlight - Closest vertical highlight to the mouse position
+ * @param pos - Mouse position (X, Y coordinates)
+ * @returns Boolean indicating whether to show horizontal highlights
+ */
+const shouldShowHorizontalHighlights = (
+  horizontalSelection: AnvilHighlightInfo[],
+  closestVerticalHighlight: AnvilHighlightInfo,
+  pos: XYCord,
+): boolean => {
+  // Calculate the top position and height of the cell indicated by the closest vertical highlight
+  const computedCellTopPosition = closestVerticalHighlight.posY;
+  const computedCellHeight = closestVerticalHighlight.height;
+
+  // Filter horizontal highlights that are close to the top of the computed cell
+  const topHorizontalHighlights = horizontalSelection.filter(
     (highlight: AnvilHighlightInfo) =>
-      highlight.isVertical &&
-      pos.y >= highlight.posY &&
-      pos.y <= highlight.posY + highlight.height,
+      computedCellTopPosition - HIGHLIGHT_SIZE <= highlight.posY &&
+      computedCellTopPosition + HIGHLIGHT_SIZE >= highlight.posY,
   );
-  const isInsideACell = verticalSelection.length > 0;
-  const shouldShowHorizontalHighlights =
-    isInsideACell &&
-    verticalSelection[0].posY + PaddingForHorizontalDropZone < pos.y &&
-    pos.y <
-      verticalSelection[0].posY +
-        verticalSelection[0].height -
+
+  // Filter horizontal highlights that are close to the bottom of the computed cell
+  const bottomHorizontalHighlights = horizontalSelection.filter(
+    (highlight: AnvilHighlightInfo) =>
+      computedCellTopPosition + computedCellHeight - HIGHLIGHT_SIZE <=
+        highlight.posY &&
+      computedCellTopPosition + computedCellHeight + HIGHLIGHT_SIZE >=
+        highlight.posY,
+  );
+
+  // Check if bottom highlights should be shown based on specific conditions
+  const showBottomHighlights =
+    !!bottomHorizontalHighlights.length &&
+    pos.y >
+      computedCellTopPosition +
+        computedCellHeight -
         PaddingForHorizontalDropZone;
 
-  /**
-   * Each horizontal highlight has a drop zone on the top and bottom.
-   *
-   *   ^
-   *   |
-   *  top
-   *   |
-   *  ---- <- highlight
-   *   |
-   * bottom
-   *   |
-   *   ^
-   *
-   *
-   * If the mouse is within the drop zone, the highlight is a viable drop position.
-   *
-   * If there are also some contending vertical highlights sharing a drop zone,
-   * then vertical highlights get priority and the a fraction of the drop zone of horizontal highlights is considered.
-   */
-  const horizontalSelection = shouldShowHorizontalHighlights
-    ? []
-    : arr.filter((highlight: AnvilHighlightInfo) => {
-        return (
-          !highlight.isVertical &&
-          pos.x >= highlight.posX &&
-          pos.x <= highlight.posX + highlight.width
-        );
-      });
+  // Check if top highlights should be shown based on specific conditions
+  const showTopHighlights =
+    !!topHorizontalHighlights.length &&
+    pos.y < computedCellTopPosition + PaddingForHorizontalDropZone;
 
-  return [...verticalSelection, ...horizontalSelection];
+  // Return true if either top or bottom highlights should be shown
+  return showBottomHighlights || showTopHighlights;
+};
+
+// Function to find the highlight(s) with the closest Y position to the given mouse position
+const closestHighlightByY = (
+  highlights: AnvilHighlightInfo[],
+  position: XYCord,
+): AnvilHighlightInfo[] => {
+  // Find the closest highlight based on Y position
+  const closestHighlight = highlights.reduce(
+    (prev: AnvilHighlightInfo, curr: AnvilHighlightInfo) =>
+      Math.abs(curr.posY - position.y) < Math.abs(prev.posY - position.y)
+        ? curr
+        : prev,
+    highlights[0],
+  );
+  // Filter highlights that share the closest Y position
+  const allClosestHighlights = highlights.filter(
+    (highlight: AnvilHighlightInfo) => highlight.posY === closestHighlight.posY,
+  );
+  return allClosestHighlights;
+};
+
+// Main function to get viable drop positions based on mouse position and highlights
+export function getViableDropPositions(
+  highlights: AnvilHighlightInfo[],
+  position: XYCord,
+): AnvilHighlightInfo[] {
+  // If there are no highlights, return an empty array
+  if (!highlights) return [];
+
+  // Filter highlights that span the current mouse position vertically
+  const verticalSelection = highlights.filter(
+    (highlight: AnvilHighlightInfo) => {
+      return (
+        highlight.isVertical &&
+        position.y >= highlight.posY + PaddingForHorizontalDropZone &&
+        position.y <=
+          highlight.posY + highlight.height - PaddingForHorizontalDropZone
+      );
+    },
+  );
+
+  // Filter highlights that span the current mouse position horizontally
+  const horizontalSelection = highlights.filter(
+    (highlight: AnvilHighlightInfo) => {
+      const isInsideVerticalRange =
+        position.y >= highlight.posY &&
+        position.y <= highlight.posY + highlight.height;
+
+      const isInsideHorizontalRange =
+        position.x >= highlight.posX &&
+        position.x <= highlight.posX + highlight.width;
+
+      const isInsidePaddedHorizontalRange =
+        position.y <=
+          highlight.posY + highlight.height - PaddingForHorizontalDropZone &&
+        position.y >= highlight.posY + PaddingForHorizontalDropZone;
+
+      return (
+        !highlight.isVertical &&
+        (isInsideVerticalRange || isInsidePaddedHorizontalRange) &&
+        isInsideHorizontalRange
+      );
+    },
+  );
+
+  // If no highlights are found, return the closest highlights by mouse position Y
+  if (horizontalSelection.length === 0 && verticalSelection.length === 0) {
+    return closestHighlightByY(highlights, position);
+  }
+
+  // Determine whether to show vertical or horizontal highlights based on mouse position
+  const isMouseInsideCell = verticalSelection.length > 0;
+  let shouldShowVerticalHighlights = horizontalSelection.length === 0;
+
+  // If inside a cell and not showing vertical highlights, further check for horizontal highlights
+  if (isMouseInsideCell && !shouldShowVerticalHighlights) {
+    // Find the closest vertical highlight based on Y position
+    const closestVerticalHighlight = verticalSelection.reduce(
+      (prev: AnvilHighlightInfo, curr: AnvilHighlightInfo) =>
+        Math.abs(curr.posY - position.y) < Math.abs(prev.posY - position.y)
+          ? curr
+          : prev,
+      verticalSelection[0],
+    );
+    // Check if horizontal highlights should be shown based on specific conditions
+    const showHorizontalHighlights = shouldShowHorizontalHighlights(
+      horizontalSelection,
+      closestVerticalHighlight,
+      position,
+    );
+    shouldShowVerticalHighlights =
+      isMouseInsideCell && !showHorizontalHighlights;
+  }
+
+  // Return either vertical or horizontal highlights based on the determined conditions
+  return shouldShowVerticalHighlights ? verticalSelection : horizontalSelection;
 }
 
 function calculateDistance(a: AnvilHighlightInfo, b: XYCord): number {

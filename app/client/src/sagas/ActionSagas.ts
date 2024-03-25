@@ -56,7 +56,7 @@ import type {
   CreateActionDefaultsParams,
   SlashCommandPayload,
 } from "entities/Action";
-import { isGraphqlPlugin } from "entities/Action";
+import { isGraphqlPlugin, ActionCreationSourceTypeEnum } from "entities/Action";
 import {
   isAPIAction,
   PluginPackageName,
@@ -95,7 +95,7 @@ import {
   getConfigInitialValues,
 } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   createNewApiAction,
@@ -134,10 +134,11 @@ import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
+import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -306,6 +307,8 @@ export function* createActionSaga(
   >,
 ) {
   try {
+    // Indicates that source of action creation is self
+    actionPayload.payload.source = ActionCreationSourceTypeEnum.SELF;
     const payload = actionPayload.payload;
 
     const response: ApiResponse<ActionCreateUpdateResponse> =
@@ -576,7 +579,9 @@ export function* deleteActionSaga(
   try {
     const id = actionPayload.payload.id;
     const name = actionPayload.payload.name;
+    const currentUrl = window.location.pathname;
     const action: Action | undefined = yield select(getAction, id);
+    const ideType = getIDETypeByUrl(currentUrl);
 
     if (!action) return;
 
@@ -611,13 +616,11 @@ export function* deleteActionSaga(
         queryName: name,
       });
     }
-    const currentUrl = window.location.pathname;
-    const isPagePaneSegmentsEnabled: boolean = yield select(
-      selectFeatureFlagCheck,
-      FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+    const isEditorPaneSegmentsEnabled: boolean = yield select(
+      getIsEditorPaneSegmentsEnabled,
     );
 
-    if (isPagePaneSegmentsEnabled) {
+    if (isEditorPaneSegmentsEnabled && ideType === IDE_TYPE.App) {
       yield call(handleQueryEntityRedirect, action.id);
     } else {
       if (!!actionPayload.payload.onSuccess) {
@@ -734,6 +737,9 @@ function* copyActionSaga(
       name: action.payload.name,
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
+
+    // Indicates that source of action creation is copy action
+    copyAction.source = ActionCreationSourceTypeEnum.COPY_ACTION;
 
     delete copyAction.id;
     const response: ApiResponse<ActionCreateUpdateResponse> =

@@ -27,7 +27,7 @@ describe("@design-system/widgets/Checkbox", () => {
     expect(screen.getByText("Click me")).toBeInTheDocument();
   });
 
-  it("should render uncontrolled checkbox", () => {
+  it("should render uncontrolled checkbox", async () => {
     render(
       <Checkbox defaultSelected onChange={onChangeSpy}>
         Checkbox
@@ -36,7 +36,7 @@ describe("@design-system/widgets/Checkbox", () => {
 
     const checkbox = screen.getByRole("checkbox");
     expect(checkbox).toBeChecked();
-    userEvent.click(checkbox);
+    await userEvent.click(checkbox);
     expect(onChangeSpy).toHaveBeenCalled();
     expect(screen.getByRole("checkbox")).not.toBeChecked();
   });
@@ -64,6 +64,7 @@ describe("@design-system/widgets/Checkbox", () => {
 
   it("should render indeterminate checkbox", () => {
     const { container } = render(<Checkbox isIndeterminate>Checkbox</Checkbox>);
+    // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const label = container.querySelector("label") as HTMLElement;
     const checkbox = screen.getByRole("checkbox") as HTMLInputElement;
 
@@ -74,6 +75,7 @@ describe("@design-system/widgets/Checkbox", () => {
   it("should be able to render custom icon", () => {
     const { container } = render(<Checkbox icon={EmotionHappyLineIcon} />);
 
+    // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const icon = container.querySelector("label [data-icon]") as HTMLElement;
     expect(icon).toBeInTheDocument();
   });

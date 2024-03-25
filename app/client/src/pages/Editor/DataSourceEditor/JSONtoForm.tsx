@@ -7,7 +7,6 @@ import type { ControlProps } from "components/formControls/BaseControl";
 import type { Datasource } from "entities/Datasource";
 import { isHidden, isKVArray } from "components/formControls/utils";
 import log from "loglevel";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export const FormContainer = styled.div`
@@ -49,20 +48,9 @@ export class JSONtoForm<
   SS = any,
 > extends React.Component<JSONtoFormProps & P, S, SS> {
   renderForm = (formContent: any) => {
-    const { featureFlags } = this.props;
-    const isSidebarEnabled =
-      featureFlags?.release_app_sidebar_enabled === true ||
-      featureFlags?.rollout_app_sidebar_enabled === true;
-    const isPagePaneSegmentsEnabled =
-      featureFlags?.release_show_new_sidebar_pages_pane_enabled;
     return (
       // <MainContainer>
       <FormContainer className="t--json-to-form-wrapper">
-        {isSidebarEnabled ||
-        isPagePaneSegmentsEnabled ||
-        !!this.props.isOnboardingFlow ? null : (
-          <CloseEditor />
-        )}
         <FormContainerBody className="t--json-to-form-body">
           {formContent}
         </FormContainerBody>
@@ -147,7 +135,10 @@ export class JSONtoForm<
 
   renderEachConfig = (section: any) => {
     return (
-      <div key={section.sectionName}>
+      <div
+        key={section.sectionName}
+        style={{ ...(section.sectionStyles || {}) }}
+      >
         {_.map(section.children, (propertyControlOrSection: ControlProps) => {
           // If the section is hidden, skip rendering
           // hides features/configs that are hidden behind feature flag

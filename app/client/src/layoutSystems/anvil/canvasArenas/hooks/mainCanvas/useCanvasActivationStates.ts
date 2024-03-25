@@ -8,12 +8,17 @@ import { getSelectedWidgets } from "selectors/ui";
 import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
 import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
-import { getDraggedBlocks, getDraggedWidgetTypes } from "../utils";
+import {
+  getDraggedBlocks,
+  getDraggedWidgetHierarchy,
+  getDraggedWidgetTypes,
+} from "../utils";
 import type { AnvilDraggedWidgetTypes } from "../../types";
 
 export interface AnvilCanvasActivationStates {
   activateOverlayWidgetDrop: boolean;
   dragDetails: DragDetails;
+  draggedWidgetHierarchy: number;
   draggedWidgetTypes: AnvilDraggedWidgetTypes;
   isDragging: boolean;
   isNewWidget: boolean;
@@ -21,8 +26,6 @@ export interface AnvilCanvasActivationStates {
   mainCanvasLayoutId: string;
   selectedWidgets: string[];
 }
-
-const AnvilOverlayWidgetTypes = ["MODAL_WIDGET"];
 
 export const useCanvasActivationStates = (): AnvilCanvasActivationStates => {
   const mainCanvasLayoutId: string = useSelector((state) =>
@@ -63,16 +66,17 @@ export const useCanvasActivationStates = (): AnvilCanvasActivationStates => {
   /**
    * boolean that indicates if the widget being dragged in an overlay widget like the Modal widget.
    */
-  const activateOverlayWidgetDrop =
-    isNewWidget && AnvilOverlayWidgetTypes.includes(newWidget.type);
+  const activateOverlayWidgetDrop = isNewWidget && !!newWidget.detachFromLayout;
   const draggedWidgetTypes = useMemo(
     () => getDraggedWidgetTypes(draggedBlocks),
     [draggedBlocks],
   );
+  const draggedWidgetHierarchy = getDraggedWidgetHierarchy(draggedBlocks);
 
   return {
     activateOverlayWidgetDrop,
     dragDetails,
+    draggedWidgetHierarchy,
     draggedWidgetTypes,
     isDragging,
     isNewWidget,

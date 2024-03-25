@@ -13,16 +13,8 @@ export const propertyPaneStyleConfig = [
         defaultValue: "body",
         options: [
           {
-            label: "Footnote",
-            value: "footnote",
-          },
-          {
             label: "Body",
             value: "body",
-          },
-          {
-            label: "Caption",
-            value: "caption",
           },
           {
             label: "Subtitle",

@@ -14,8 +14,9 @@ import { Tooltip, Icon } from "design-system";
 import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
 import CollapseToggle from "./CollapseToggle";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import type { EntityProperty as EntityPropertyType } from "@appsmith/pages/Editor/Explorer/Entity/getEntityProperties";
 
-const Wrapper = styled.div<{ step: number }>`
+const Wrapper = styled.div`
   &&&& {
     padding: ${(props) => props.theme.spaces[0]}px;
 
@@ -56,8 +57,7 @@ const Wrapper = styled.div<{ step: number }>`
         font-size: 11px;
         overflow-wrap: break-word;
         text-shadow: none;
-        padding-left: ${(props) =>
-          props.step * props.theme.spaces[2] + props.theme.spaces[3]}px;
+        padding-left: ${(props) => props.theme.spaces[3]}px;
         padding-right: 20px;
         & span.token.property {
           overflow: hidden;
@@ -105,19 +105,15 @@ const StyledHighlightedCode = styled(HighlightedCode)`
   padding-bottom: 4px;
 `;
 
-export interface EntityPropertyProps {
-  propertyName: string;
-  entityName: string;
-  value: string;
-  step?: number;
+export interface EntityPropertyProps extends EntityPropertyType {
+  index: number;
 }
 
-/* eslint-disable react/display-name */
-export const EntityProperty = memo((props: any) => {
+export const EntityProperty = memo((props: EntityPropertyProps) => {
   const propertyRef: MutableRefObject<HTMLDivElement | null> = useRef(null);
   const write = useClipboard(propertyRef);
-  // const popoverContentRef = React.createRef<HTMLDivElement>();
-  const [isOpen, setIsOpen] = React.useState(false);
+
+  const [isOpen, setIsOpen] = React.useState(props.index === 0);
 
   const codeText = `{{${props.entityName}.${props.propertyName}}}`;
 
@@ -140,7 +136,7 @@ export const EntityProperty = memo((props: any) => {
   );
 
   return (
-    <Wrapper className={`${EntityClassNames.PROPERTY}`} step={props.step}>
+    <Wrapper className={`${EntityClassNames.PROPERTY}`}>
       <CopyBox>
         <div className="flex flex-grow items-center">
           <CollapseToggle

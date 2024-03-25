@@ -72,7 +72,7 @@ public class GitExecutorTest {
 
     private void commitToRepo() {
         gitExecutor
-                .commitApplication(path, "Test commit", "test", "test@test.com", false, false)
+                .commitArtifact(path, "Test commit", "test", "test@test.com", false, false)
                 .block();
     }
 
@@ -80,7 +80,7 @@ public class GitExecutorTest {
     public void commit_validChange_Success() throws IOException {
         createFileInThePath("TestFIle2");
         String commitStatus = gitExecutor
-                .commitApplication(path, "Test commit", "test", "test@test.com", false, false)
+                .commitArtifact(path, "Test commit", "test", "test@test.com", false, false)
                 .block();
         Mono<List<GitLogDTO>> commitList = gitExecutor.getCommitHistory(path);
 
@@ -406,7 +406,7 @@ public class GitExecutorTest {
         StepVerifier.create(mergeStatusDTOMono)
                 .assertNext(mergeStatusDTO -> {
                     assertThat(mergeStatusDTO.isMergeAble()).isEqualTo(Boolean.FALSE);
-                    assertThat(mergeStatusDTO.getConflictingFiles().size()).isEqualTo(1);
+                    assertThat(mergeStatusDTO.getConflictingFiles()).hasSize(1);
                     assertThat(mergeStatusDTO.getConflictingFiles().get(0)).isEqualTo("TestFIle4");
                 })
                 .verifyComplete();
@@ -429,7 +429,7 @@ public class GitExecutorTest {
 
         StepVerifier.create(status)
                 .assertNext(gitLogDTOS -> {
-                    assertThat(gitLogDTOS.size()).isEqualTo(1);
+                    assertThat(gitLogDTOS).hasSize(1);
                     assertThat(gitLogDTOS.get(0).getCommitMessage()).isEqualTo("Test commit");
                     assertThat(gitLogDTOS.get(0).getAuthorName()).isEqualTo("test");
                     assertThat(gitLogDTOS.get(0).getAuthorEmail()).isEqualTo("test@test.com");
@@ -501,7 +501,7 @@ public class GitExecutorTest {
                     assertThat(gitStatusDTO.getIsClean()).isEqualTo(Boolean.FALSE);
                     assertThat(gitStatusDTO.getAheadCount()).isEqualTo(0);
                     assertThat(gitStatusDTO.getBehindCount()).isEqualTo(0);
-                    assertThat(gitStatusDTO.getModified().size()).isEqualTo(1);
+                    assertThat(gitStatusDTO.getModified()).hasSize(1);
                 })
                 .verifyComplete();
     }

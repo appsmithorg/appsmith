@@ -1,6 +1,7 @@
 import { PluginType } from "entities/Action";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import { getPropsForJSActionEntity } from "@appsmith/utils/autocomplete/EntityDefinitions";
+import { getPropsForJSActionEntity } from "@appsmith/pages/Editor/Explorer/Entity/getEntityProperties";
+import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 
 const jsObject: JSCollectionData = {
   isLoading: false,
@@ -121,6 +122,26 @@ const jsObject: JSCollectionData = {
   isExecuting: {},
 };
 
+jest.mock("store", () => {
+  return {
+    getState: () => ({
+      entities: {
+        jsActions: [jsObject],
+      },
+    }),
+  };
+});
+
+jest.mock("utils/configTree", () => {
+  return {
+    getConfigTree: () => ({
+      JSObject3: {
+        variables: ["myVar1", "myVar2"],
+      },
+    }),
+  };
+});
+
 describe("getPropsForJSActionEntity", () => {
   it("get properties from js collection to show bindings", () => {
     const expectedProperties = {
@@ -131,7 +152,21 @@ describe("getPropsForJSActionEntity", () => {
       "myFun1.data": {},
       "myFun2.data": [],
     };
-    const result = getPropsForJSActionEntity(jsObject);
+
+    const jsObjectEntity = {
+      myVar1: [],
+      myVar2: {},
+      myFun2: "async function () {}",
+      myFun1: 'function () {\n  return "hellonsljns";\n}',
+      body: "export default {\n\tmyVar1: [],\n\tmyVar2: {},\n\tmyFun1 () {\n\t\t//\twrite code here\n\t\t//\tJSObject1.myVar1 = [1,2,3]\n\t\treturn \"hellonsljns\"\n\t},\n\tasync myFun2 () {\n\t\t//\tuse async-await or promises\n\t\t//\tawait storeValue('varName', 'hello world')\n\t}\n}",
+      ENTITY_TYPE: "JSACTION",
+      actionId: "1234",
+    };
+
+    const result = getPropsForJSActionEntity(
+      jsObjectEntity as JSActionEntity,
+      "JSObject3",
+    );
     expect(expectedProperties).toStrictEqual(result);
   });
 });

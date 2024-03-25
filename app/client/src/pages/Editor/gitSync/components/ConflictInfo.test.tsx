@@ -13,15 +13,15 @@ describe("ConflictInfo", () => {
 
     // check for existence
     [
-      await screen.queryByTestId("t--conflict-info-container"),
-      await screen.queryByTestId("t--conflict-info-error-warning"),
+      screen.queryByTestId("t--conflict-info-container"),
+      screen.queryByTestId("t--conflict-info-error-warning"),
     ].every((query) => {
       expect(query).not.toBeNull();
       return true;
     });
 
     //check for text
-    const container = await screen.getByTestId("t--conflict-info-container");
+    const container = screen.getByTestId("t--conflict-info-container");
     const html = container.innerHTML.toString();
     expect(html.includes("Learn more")).toBeTruthy();
     expect(html.includes("Open repository")).toBeTruthy();

@@ -7,7 +7,7 @@ import { MenuIcons } from "icons/MenuIcons";
 import React, { useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { Icon } from "design-system";
+import { Flex, Icon } from "design-system";
 
 const DefaultPageIcon = MenuIcons.DEFAULT_HOMEPAGE_ICON;
 const PageIcon = MenuIcons.PAGE_ICON;
@@ -84,6 +84,7 @@ function DraggablePageList(props: {
   pages: Page[];
   selectedPage?: string;
   onPageSelect: (pageId: string) => void;
+  heightTobeReduced?: string;
 }) {
   const dispatch = useDispatch();
   const applicationId = useSelector(getCurrentApplicationId);
@@ -99,20 +100,31 @@ function DraggablePageList(props: {
   };
 
   return (
-    <DraggableList
-      ItemRenderer={({ item }: { item: Page }) => (
-        <PageListHeader
-          onPageSelect={props.onPageSelect}
-          page={item}
-          selectedPage={props.selectedPage}
-        />
-      )}
-      itemHeight={37}
-      items={props.pages}
-      keyAccessor={"pageId"}
-      onUpdate={onListOrderUpdate}
-      shouldReRender={false}
-    />
+    <Flex
+      flexDirection="column"
+      height={
+        props.heightTobeReduced
+          ? `calc(100% - ${props.heightTobeReduced})`
+          : `100%`
+      }
+      overflowX="auto"
+      px="spaces-3"
+    >
+      <DraggableList
+        ItemRenderer={({ item }: { item: Page }) => (
+          <PageListHeader
+            onPageSelect={props.onPageSelect}
+            page={item}
+            selectedPage={props.selectedPage}
+          />
+        )}
+        itemHeight={37}
+        items={props.pages}
+        keyAccessor={"pageId"}
+        onUpdate={onListOrderUpdate}
+        shouldReRender={false}
+      />
+    </Flex>
   );
 }
 

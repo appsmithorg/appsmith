@@ -7,6 +7,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
 import org.springframework.data.mongodb.MongoTransactionException;
@@ -161,6 +162,15 @@ public class ImportExportUtils {
             return false;
         }
         return pageName != null && modifiedResources.isResourceUpdated(FieldName.PAGE_LIST, pageName);
+    }
+
+    public static boolean isContextNameInUpdatedList(
+            ArtifactExchangeJson artifactExchangeJson, String contextName, String contextPath) {
+        ModifiedResources modifiedResources = artifactExchangeJson.getModifiedResources();
+        if (modifiedResources == null) {
+            return false;
+        }
+        return contextName != null && modifiedResources.isResourceUpdated(contextPath, contextName);
     }
 
     public static boolean isDatasourceUpdatedSinceLastCommit(

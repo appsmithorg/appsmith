@@ -117,7 +117,7 @@ import {
   OAUTH_AUTHORIZATION_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
@@ -170,11 +170,12 @@ import {
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
+import { executeGoogleApi } from "./loadGoogleApi";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -449,12 +450,11 @@ export function* deleteDatasourceSaga(
           datasourceId: id,
         }),
       );
-      const isPagePaneSegmentsEnabled: boolean = yield select(
-        selectFeatureFlagCheck,
-        FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+      const isEditorPaneSegmentsEnabled: boolean = yield select(
+        getIsEditorPaneSegmentsEnabled,
       );
       const currentUrl = `${window.location.pathname}`;
-      if (isPagePaneSegmentsEnabled) {
+      if (isEditorPaneSegmentsEnabled) {
         yield call(handleDatasourceDeleteRedirect, id);
       } else if (
         currentUrl === datasourcePathWithoutQuery ||
@@ -712,12 +712,14 @@ function* updateDatasourceSaga(
 
 function* redirectAuthorizationCodeSaga(
   actionPayload: ReduxAction<{
+    contextId: string;
+    contextType: ActionParentEntityTypeInterface;
     datasourceId: string;
-    pageId: string;
     pluginType: PluginType;
   }>,
 ) {
-  const { datasourceId, pageId, pluginType } = actionPayload.payload;
+  const { contextId, contextType, datasourceId, pluginType } =
+    actionPayload.payload;
   const isImport: string = yield select(getWorkspaceIdForImport);
   const branchName: string | undefined = yield select(getCurrentGitBranch);
 
@@ -725,7 +727,7 @@ function* redirectAuthorizationCodeSaga(
     const currentEnvironment: string = yield select(
       getCurrentEditingEnvironmentId,
     );
-    let windowLocation = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
+    let windowLocation = `/api/v1/datasources/${datasourceId}/pages/${contextId}/code?environmentId=${currentEnvironment}`;
     if (!!branchName) {
       windowLocation = windowLocation + `&branchName=` + branchName;
     }
@@ -735,7 +737,8 @@ function* redirectAuthorizationCodeSaga(
       // Get an "appsmith token" from the server
       const response: ApiResponse<string> = yield OAuthApi.getAppsmithToken(
         datasourceId,
-        pageId,
+        contextId,
+        contextType,
         !!isImport,
       );
 
@@ -2031,6 +2034,7 @@ function* loadFilePickerSaga() {
   // This adds overlay on document body
   // This is done for google sheets file picker, as file picker needs to be shown on blank page
   // when overlay needs to be shown, we get showPicker search param in redirect url
+  yield executeGoogleApi();
   const appsmithToken = localStorage.getItem(APPSMITH_TOKEN_STORAGE_KEY);
   const search = new URLSearchParams(window.location.search);
   const isShowFilePicker = search.get(SHOW_FILE_PICKER_KEY);

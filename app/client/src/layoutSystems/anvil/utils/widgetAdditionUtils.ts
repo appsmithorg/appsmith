@@ -2,7 +2,7 @@ import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { WidgetAddChild } from "actions/pageActions";
 import { WidgetReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { GridDefaults } from "constants/WidgetConstants";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { call, put } from "redux-saga/effects";
 import {

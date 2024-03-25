@@ -779,8 +779,8 @@ public class ThemeServiceTest {
                     long systemThemesCount = availableThemes.stream()
                             .filter(availableTheme -> availableTheme.isSystemTheme())
                             .count();
-                    assertThat(availableThemes.size())
-                            .isEqualTo(systemThemesCount + 1); // one custom theme + existing system themes
+                    assertThat(availableThemes)
+                            .hasSize((int) systemThemesCount + 1); // one custom theme + existing system themes
 
                     // assert permissions by asserting that the themes have been found.
                     assertThat(persistedThemeWithReadPermission.getId()).isNotNull();

@@ -11,7 +11,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { HIGHLIGHT_SIZE } from "../../constants";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/AlignedWidgetRow";
+import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/alignedWidgetRow";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { getAlignmentLayoutId } from "../layoutUtils";

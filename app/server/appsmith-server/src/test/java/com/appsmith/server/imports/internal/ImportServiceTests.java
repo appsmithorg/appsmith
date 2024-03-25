@@ -28,7 +28,7 @@ import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -42,15 +42,15 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
-import com.appsmith.server.dtos.ImportableArtifactDTO;
+import com.appsmith.server.dtos.ArtifactImportDTO;
+import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.exportable.ExportService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
@@ -82,7 +82,6 @@ import net.minidev.json.JSONObject;
 import org.apache.commons.lang.StringUtils;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -109,6 +108,9 @@ import reactor.test.StepVerifier;
 import reactor.util.function.Tuple3;
 import reactor.util.function.Tuple4;
 
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -131,7 +133,7 @@ import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
 import static com.appsmith.server.acl.AclPermission.READ_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PAGE_LAYOUT;
 import static com.appsmith.server.dtos.ce.CustomJSLibContextCE_DTO.getDTOFromCustomJSLib;
@@ -160,9 +162,6 @@ public class ImportServiceTests {
 
     @Autowired
     ExportService exportService;
-
-    //    @Autowired
-    //    ExportApplicationService exportApplicationService;
 
     @Autowired
     Gson gson;
@@ -268,7 +267,7 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Application.ThemeSetting themeSettings = getThemeSetting();
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
@@ -838,8 +837,8 @@ public class ImportServiceTests {
         Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.IMAGE_PNG);
 
-        Mono<? extends ImportableArtifactDTO> resultMono =
-                importService.extractArtifactExchangeJsonAndSaveArtifact(filepart, workspaceId, null, APPLICATION);
+        Mono<? extends ArtifactImportDTO> resultMono =
+                importService.extractArtifactExchangeJsonAndSaveArtifact(filepart, workspaceId, null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(error -> error instanceof AppsmithException)
@@ -851,8 +850,8 @@ public class ImportServiceTests {
     public void importArtifactWithNullWorkspaceIdTest() {
         FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
 
-        Mono<? extends ImportableArtifactDTO> resultMono =
-                importService.extractArtifactExchangeJsonAndSaveArtifact(filepart, null, null, APPLICATION);
+        Mono<? extends ArtifactImportDTO> resultMono =
+                importService.extractArtifactExchangeJsonAndSaveArtifact(filepart, null, null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -868,8 +867,8 @@ public class ImportServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-pages.json");
 
-        Mono<? extends ImportableArtifactDTO> resultMono =
-                importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null, APPLICATION);
+        Mono<? extends ArtifactImportDTO> resultMono =
+                importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
@@ -885,8 +884,8 @@ public class ImportServiceTests {
     public void importArtifactFromInvalidJsonFileWithoutArtifactTest() {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/invalid-json-without-app.json");
-        Mono<? extends ImportableArtifactDTO> resultMono =
-                importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null, APPLICATION);
+        Mono<? extends ArtifactImportDTO> resultMono =
+                importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null);
 
         StepVerifier.create(resultMono)
                 .expectErrorMatches(
@@ -916,9 +915,8 @@ public class ImportServiceTests {
                         workspace.getId(), environmentPermission.getExecutePermission()))
                 .block();
 
-        final Mono<? extends ImportableArtifactDTO> resultMono =
-                workspaceMono.flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION));
+        final Mono<? extends ArtifactImportDTO> resultMono = workspaceMono.flatMap(workspace ->
+                importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null));
 
         List<PermissionGroup> permissionGroups = workspaceMono
                 .flatMapMany(savedWorkspace -> {
@@ -1092,7 +1090,7 @@ public class ImportServiceTests {
         newWorkspace = workspaceService.create(newWorkspace).block();
 
         importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, newWorkspace.getId(), null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, newWorkspace.getId(), null)
                 .timeout(Duration.ofMillis(10))
                 .subscribe();
 
@@ -1117,7 +1115,6 @@ public class ImportServiceTests {
     }
 
     @Test
-    @Disabled
     @WithUserDetails(value = "api_user")
     public void importApplicationInWorkspace_WhenCustomizedThemes_ThemesCreated() {
         FilePart filePart =
@@ -1128,8 +1125,8 @@ public class ImportServiceTests {
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService
                 .create(newWorkspace)
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(resultMono.flatMap(applicationImportDTO -> Mono.zip(
@@ -1169,8 +1166,8 @@ public class ImportServiceTests {
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         List<PermissionGroup> permissionGroups = workspaceMono
@@ -1287,8 +1284,8 @@ public class ImportServiceTests {
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService
                 .create(newWorkspace)
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1313,8 +1310,8 @@ public class ImportServiceTests {
 
         final Mono<ApplicationImportDTO> resultMono = workspaceService
                 .create(newWorkspace)
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono.flatMap(applicationImportDTO -> Mono.zip(
@@ -1364,8 +1361,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -1437,7 +1434,7 @@ public class ImportServiceTests {
     public void importApplication_incompatibleJsonFile_throwException() {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/incompatible_version.json");
         Mono<ApplicationImportDTO> resultMono = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null)
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1458,8 +1455,8 @@ public class ImportServiceTests {
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
-                .flatMap(workspace -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspace.getId(), null, APPLICATION))
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         List<PermissionGroup> permissionGroups = workspaceMono
@@ -1579,8 +1576,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -1634,8 +1631,8 @@ public class ImportServiceTests {
                     assertThat(applicationPageIdsBeforeImport).hasSize(2);
                     assertThat(applicationPageIdsBeforeImport).contains(savedPage.getId());
 
-                    assertThat(newPages.size()).isEqualTo(1);
-                    assertThat(importedApplication.getPages().size()).isEqualTo(1);
+                    assertThat(newPages).hasSize(1);
+                    assertThat(importedApplication.getPages()).hasSize(1);
                     assertThat(importedApplication.getPages().get(0).getId())
                             .isEqualTo(newPages.get(0).getId());
                     assertThat(newPages.get(0).getPublishedPage().getName()).isEqualTo("importedPage");
@@ -1653,8 +1650,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -1701,7 +1698,7 @@ public class ImportServiceTests {
                 .assertNext(newPages -> {
                     // Check before import we had both the pages
                     assertThat(applicationPageIdsBeforeImport).hasSize(1);
-                    assertThat(newPages.size()).isEqualTo(3);
+                    assertThat(newPages).hasSize(3);
                     List<String> pageNames = newPages.stream()
                             .map(newPage -> newPage.getUnpublishedPage().getName())
                             .collect(Collectors.toList());
@@ -1751,8 +1748,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -1885,7 +1882,7 @@ public class ImportServiceTests {
         // Import the same application again to find if the added page is deleted
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
                     importedApplication
                             .getGitApplicationMetadata()
                             .setDefaultApplicationId(importedApplication.getId());
@@ -1986,7 +1983,7 @@ public class ImportServiceTests {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
                     importedApplication
                             .getGitApplicationMetadata()
                             .setDefaultApplicationId(importedApplication.getId());
@@ -2103,7 +2100,7 @@ public class ImportServiceTests {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
                     importedApplication
                             .getGitApplicationMetadata()
                             .setDefaultApplicationId(importedApplication.getId());
@@ -2208,7 +2205,7 @@ public class ImportServiceTests {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
                     importedApplication
                             .getGitApplicationMetadata()
                             .setDefaultApplicationId(importedApplication.getId());
@@ -2291,7 +2288,7 @@ public class ImportServiceTests {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
                     importedApplication
                             .getGitApplicationMetadata()
                             .setDefaultApplicationId(importedApplication.getId());
@@ -2380,7 +2377,7 @@ public class ImportServiceTests {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
                     importedApplication
                             .getGitApplicationMetadata()
                             .setDefaultApplicationId(importedApplication.getId());
@@ -2486,7 +2483,7 @@ public class ImportServiceTests {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
                     importedApplication
                             .getGitApplicationMetadata()
                             .setDefaultApplicationId(importedApplication.getId());
@@ -2562,7 +2559,7 @@ public class ImportServiceTests {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
                     importedApplication
                             .getGitApplicationMetadata()
                             .setDefaultApplicationId(importedApplication.getId());
@@ -2666,7 +2663,7 @@ public class ImportServiceTests {
         // Import the same application again
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation.flatMap(
                 importedApplication -> applicationJsonMono.flatMap(applicationJson -> {
-                    importedApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+                    importedApplication.setGitApplicationMetadata(new GitArtifactMetadata());
                     importedApplication
                             .getGitApplicationMetadata()
                             .setDefaultApplicationId(importedApplication.getId());
@@ -3273,8 +3270,8 @@ public class ImportServiceTests {
         appNavigationSetting.setOrientation("top");
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
@@ -3331,8 +3328,8 @@ public class ImportServiceTests {
         testApplication.setName(
                 "importApplicationInWorkspaceFromGit_WithAppLayoutInEditMode_ImportedAppHasAppLayoutInEditAndViewMode");
         testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
@@ -3600,14 +3597,14 @@ public class ImportServiceTests {
                             .isFalse();
                     assertThat(applicationPagesDTO.getApplication().getForkingEnabled())
                             .isFalse();
-                    assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+                    assertThat(applicationPagesDTO.getPages()).hasSize(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream()
                             .map(PageNameIdDTO::getName)
                             .collect(Collectors.toList());
                     assertThat(pageNames).contains("Home", "Home2", "About");
-                    assertThat(newActionList.size()).isEqualTo(2); // we imported two pages and each page has one action
-                    assertThat(actionCollectionList.size())
-                            .isEqualTo(2); // we imported two pages and each page has one Collection
+                    assertThat(newActionList).hasSize(2); // we imported two pages and each page has one action
+                    assertThat(actionCollectionList)
+                            .hasSize(2); // we imported two pages and each page has one Collection
                 })
                 .verifyComplete();
     }
@@ -3648,7 +3645,7 @@ public class ImportServiceTests {
 
         StepVerifier.create(applicationPagesDTOMono)
                 .assertNext(applicationPagesDTO -> {
-                    assertThat(applicationPagesDTO.getPages().size()).isEqualTo(4);
+                    assertThat(applicationPagesDTO.getPages()).hasSize(4);
                     List<String> pageNames = applicationPagesDTO.getPages().stream()
                             .map(PageNameIdDTO::getName)
                             .collect(Collectors.toList());
@@ -3693,7 +3690,7 @@ public class ImportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplication_invalidPluginReferenceForDatasource_throwException() {
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.anySet(), Mockito.anyList()))
                 .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         Workspace newWorkspace = new Workspace();
@@ -3797,8 +3794,8 @@ public class ImportServiceTests {
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3840,8 +3837,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
@@ -3888,8 +3885,8 @@ public class ImportServiceTests {
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -3931,8 +3928,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
@@ -3952,8 +3949,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData1 = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData1 = new GitArtifactMetadata();
         gitData1.setBranchName("feature");
         gitData1.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData1);
@@ -3998,8 +3995,8 @@ public class ImportServiceTests {
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application3.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application3.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application3.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -4041,8 +4038,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
@@ -4063,8 +4060,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData1 = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData1 = new GitArtifactMetadata();
         gitData1.setBranchName("feature");
         gitData1.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData1);
@@ -4109,8 +4106,8 @@ public class ImportServiceTests {
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application3.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application3.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application3.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -4152,8 +4149,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
@@ -4174,8 +4171,8 @@ public class ImportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData1 = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData1 = new GitArtifactMetadata();
         gitData1.setBranchName("feature");
         gitData1.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData1);
@@ -4220,8 +4217,8 @@ public class ImportServiceTests {
                     assertThat(application3.getId()).isNotEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application3.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application3.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application3.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -4293,11 +4290,21 @@ public class ImportServiceTests {
                     List<NewAction> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
+                    assertThat(application1.getUnpublishedCustomJSLibs().size()).isEqualTo(2);
+                    List<String> uidNameList = application1.getUnpublishedCustomJSLibs().stream()
+                            .map(CustomJSLibContextDTO::getUidString)
+                            .toList();
+                    assertThat(uidNameList)
+                            .containsAll(
+                                    List.of(
+                                            "accessor1_url",
+                                            "xmlParser_https://cdnjs.cloudflare.com/ajax/libs/fast-xml-parser/3.17.5/parser.min.js"));
+
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -4376,8 +4383,8 @@ public class ImportServiceTests {
                     assertThat(application1.getId()).isEqualTo(finalApplication.getId());
                     assertThat(finalApplication.getPages().size())
                             .isLessThan(application1.getPages().size());
-                    assertThat(finalApplication.getPages().size())
-                            .isEqualTo(application1.getPublishedPages().size());
+                    assertThat(finalApplication.getPages())
+                            .hasSize(application1.getPublishedPages().size());
 
                     // Verify the pages after merging the template
                     pageList.forEach(newPage -> {
@@ -4419,7 +4426,7 @@ public class ImportServiceTests {
                 .block();
 
         Mono<ApplicationImportDTO> resultMono = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null)
                 .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
 
         StepVerifier.create(resultMono)
@@ -4435,7 +4442,7 @@ public class ImportServiceTests {
                         .findAllApplicationsByWorkspaceId(workspaceId)
                         .collectList())
                 .assertNext(applications -> {
-                    assertThat(applicationList.size()).isEqualTo(applications.size());
+                    assertThat(applicationList).hasSize(applications.size());
                 })
                 .verifyComplete();
     }
@@ -4590,7 +4597,7 @@ public class ImportServiceTests {
         StepVerifier.create(resultMono)
                 .assertNext(applicationJson -> {
                     List<NewPage> pages = applicationJson.getPageList();
-                    assertThat(pages.size()).isEqualTo(2);
+                    assertThat(pages).hasSize(2);
                     assertThat(pages.get(1).getUnpublishedPage().getName()).isEqualTo("page_" + randomId);
                     assertThat(pages.get(1).getUnpublishedPage().getIcon()).isEqualTo("flight");
                 })
@@ -4620,11 +4627,7 @@ public class ImportServiceTests {
                         })
                         .zipWith(applicationJson)
                         .flatMap(objects -> importService
-                                .restoreSnapshot(
-                                        workspaceId,
-                                        objects.getT2(),
-                                        objects.getT1().getId(),
-                                        null)
+                                .restoreSnapshot(workspaceId, objects.getT1().getId(), null, objects.getT2())
                                 .map(importableArtifact -> (Application) importableArtifact)
                                 .zipWith(Mono.just(objects.getT1())))
                         .flatMap(objects -> {
@@ -4651,8 +4654,8 @@ public class ImportServiceTests {
                     List<NewAction> actionList = tuple.getT3();
                     List<ActionCollection> actionCollectionList = tuple.getT4();
 
-                    assertThat(pageList.size()).isEqualTo(2);
-                    assertThat(actionList.size()).isEqualTo(3);
+                    assertThat(pageList).hasSize(2);
+                    assertThat(actionList).hasSize(3);
 
                     List<String> pageNames = pageList.stream()
                             .map(p -> p.getUnpublishedPage().getName())
@@ -4702,7 +4705,7 @@ public class ImportServiceTests {
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         String workspaceId = createTemplateWorkspace().getId();
         final Mono<Application> resultMonoWithoutDiscardOperation = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null, APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, null)
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .flatMap(applicationImportDTO -> {
                     PageDTO page = new PageDTO();
@@ -4758,7 +4761,7 @@ public class ImportServiceTests {
         final Mono<Application> resultMonoWithDiscardOperation = resultMonoWithoutDiscardOperation
                 .flatMap(importedApplication -> applicationService.save(importedApplication))
                 .flatMap(savedApplication -> importService.extractArtifactExchangeJsonAndSaveArtifact(
-                        filePart, workspaceId, savedApplication.getId(), APPLICATION))
+                        filePart, workspaceId, savedApplication.getId()))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO)
                 .map(ApplicationImportDTO::getApplication);
 
@@ -4800,7 +4803,7 @@ public class ImportServiceTests {
         testApplication.setWorkspaceId(workspaceId);
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setRemoteUrl("git@example.com:username/git-repo.git");
         testApplication.setGitApplicationMetadata(gitData);
         Application application = applicationPageService
@@ -4813,7 +4816,7 @@ public class ImportServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         final Mono<ApplicationImportDTO> resultMono = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, application.getId(), APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, application.getId())
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -4901,7 +4904,7 @@ public class ImportServiceTests {
 
         FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
         final Mono<ApplicationImportDTO> resultMono = importService
-                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, application.getId(), APPLICATION)
+                .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, application.getId())
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -4936,7 +4939,7 @@ public class ImportServiceTests {
                 .flatMap(application -> {
                     FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
                     return importService
-                            .extractArtifactExchangeJson(filePart, APPLICATION)
+                            .extractArtifactExchangeJson(filePart)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                             .flatMap(applicationJson -> importService.mergeArtifactExchangeJsonWithImportableArtifact(
                                     workspaceId, application.getId(), null, applicationJson, null))
@@ -4971,8 +4974,7 @@ public class ImportServiceTests {
                 .flatMap(application -> {
                     FilePart filePart = createFilePart("test_assets/ImportExportServiceTest/valid-application.json");
                     return importService
-                            .extractArtifactExchangeJsonAndSaveArtifact(
-                                    filePart, workspaceId, application.getId(), APPLICATION)
+                            .extractArtifactExchangeJsonAndSaveArtifact(filePart, workspaceId, application.getId())
                             .map(artifactImportDTO -> (ApplicationImportDTO) artifactImportDTO);
                 });
 
@@ -5052,10 +5054,10 @@ public class ImportServiceTests {
                 })
                 .flatMap(application -> {
                     // set git meta data for the application and set a last commit date
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
-                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    gitArtifactMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application);
                 })
                 .delayElement(Duration.ofMillis(
@@ -5089,18 +5091,18 @@ public class ImportServiceTests {
                     assertThat(updatedActionCollectionNames).isNotNull();
 
                     // only the first page should be present in the updated resources
-                    assertThat(updatedPageNames.size()).isEqualTo(1);
+                    assertThat(updatedPageNames).hasSize(1);
                     assertThat(updatedPageNames).contains(renamedPageName);
 
                     // only actions from first page should be present in the updated resources
                     // 1 query + 1 method from action collection
-                    assertThat(updatedActionNames.size()).isEqualTo(2);
+                    assertThat(updatedActionNames).hasSize(2);
                     assertThat(updatedActionNames).contains("first_page_action" + NAME_SEPARATOR + renamedPageName);
                     assertThat(updatedActionNames)
                             .contains("TestJsObject.testMethod" + NAME_SEPARATOR + renamedPageName);
 
                     // only action collections from first page should be present in the updated resources
-                    assertThat(updatedActionCollectionNames.size()).isEqualTo(1);
+                    assertThat(updatedActionCollectionNames).hasSize(1);
                     assertThat(updatedActionCollectionNames)
                             .contains("TestJsObject" + NAME_SEPARATOR + renamedPageName);
                 })
@@ -5156,10 +5158,10 @@ public class ImportServiceTests {
                 .flatMap(objects -> {
                     Application application = objects.getT2();
                     // set git meta data for the application and set a last commit date
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
-                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    gitArtifactMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application).thenReturn(objects);
                 })
                 .delayElement(Duration.ofMillis(
@@ -5185,11 +5187,150 @@ public class ImportServiceTests {
                     assertThat(updatedActionNames).isNotNull();
 
                     // action should be present in the updated resources although action not updated but datasource is
-                    assertThat(updatedActionNames.size()).isEqualTo(1);
+                    assertThat(updatedActionNames).hasSize(1);
                     updatedActionNames.forEach(actionName -> {
                         assertThat(actionName).contains("MyAction");
                     });
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void importApplication_WhenUpdateLayoutFailures_Success() throws URISyntaxException {
+        FilePart filePart = createFilePartWithIdenticalPackageStructure("faulty-dsl.json");
+
+        Workspace newWorkspace = new Workspace();
+        newWorkspace.setName("Template Workspace");
+
+        Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
+
+        final Mono<ApplicationImportDTO> resultMono = workspaceMono
+                .flatMap(workspace ->
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(filePart, workspace.getId(), null))
+                .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
+
+        List<PermissionGroup> permissionGroups = workspaceMono
+                .flatMapMany(savedWorkspace -> {
+                    Set<String> defaultPermissionGroups = savedWorkspace.getDefaultPermissionGroups();
+                    return permissionGroupRepository.findAllById(defaultPermissionGroups);
+                })
+                .collectList()
+                .block();
+
+        PermissionGroup adminPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.ADMINISTRATOR))
+                .findFirst()
+                .get();
+
+        PermissionGroup developerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.DEVELOPER))
+                .findFirst()
+                .get();
+
+        PermissionGroup viewerPermissionGroup = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(FieldName.VIEWER))
+                .findFirst()
+                .get();
+
+        Policy manageAppPolicy = Policy.builder()
+                .permission(MANAGE_APPLICATIONS.getValue())
+                .permissionGroups(Set.of(adminPermissionGroup.getId(), developerPermissionGroup.getId()))
+                .build();
+        Policy readAppPolicy = Policy.builder()
+                .permission(READ_APPLICATIONS.getValue())
+                .permissionGroups(Set.of(
+                        adminPermissionGroup.getId(), developerPermissionGroup.getId(), viewerPermissionGroup.getId()))
+                .build();
+
+        StepVerifier.create(resultMono.flatMap(applicationImportDTO -> {
+                    Application application = applicationImportDTO.getApplication();
+                    return Mono.zip(
+                            Mono.just(applicationImportDTO),
+                            datasourceService
+                                    .getAllByWorkspaceIdWithStorages(
+                                            application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
+                                    .collectList(),
+                            newActionService
+                                    .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
+                                    .collectList(),
+                            newPageService
+                                    .findByApplicationId(application.getId(), MANAGE_PAGES, false)
+                                    .collectList(),
+                            actionCollectionService
+                                    .findAllByApplicationIdAndViewMode(application.getId(), false, MANAGE_ACTIONS, null)
+                                    .collectList());
+                }))
+                .assertNext(tuple -> {
+                    final Application application = tuple.getT1().getApplication();
+                    final List<Datasource> unConfiguredDatasourceList =
+                            tuple.getT1().getUnConfiguredDatasourceList();
+                    final boolean isPartialImport = tuple.getT1().getIsPartialImport();
+                    final List<Datasource> datasourceList = tuple.getT2();
+                    final List<NewAction> actionList = tuple.getT3();
+                    final List<PageDTO> pageList = tuple.getT4();
+                    final List<ActionCollection> actionCollectionList = tuple.getT5();
+
+                    assertThat(application.getName()).isEqualTo("faultDSL");
+                    assertThat(application.getWorkspaceId()).isNotNull();
+                    assertThat(application.getPages()).hasSize(1);
+                    assertThat(application.getPolicies()).containsAll(Set.of(manageAppPolicy, readAppPolicy));
+                    assertThat(application.getPublishedPages()).hasSize(0);
+                    assertThat(application.getModifiedBy()).isEqualTo("api_user");
+                    assertThat(application.getUpdatedAt()).isNotNull();
+                    assertThat(application.getEditModeThemeId()).isNotNull();
+                    assertThat(application.getPublishedModeThemeId()).isNotNull();
+                    assertThat(isPartialImport).isEqualTo(Boolean.TRUE);
+                    assertThat(unConfiguredDatasourceList.size()).isNotEqualTo(0);
+
+                    assertThat(datasourceList).isNotEmpty();
+                    List<String> datasourceNames = unConfiguredDatasourceList.stream()
+                            .map(Datasource::getName)
+                            .collect(Collectors.toList());
+                    assertThat(datasourceNames).contains("Mock_DB");
+
+                    List<String> collectionIdInAction = new ArrayList<>();
+                    assertThat(actionList).isNotEmpty();
+                    actionList.forEach(newAction -> {
+                        ActionDTO actionDTO = newAction.getUnpublishedAction();
+                        assertThat(actionDTO.getPageId())
+                                .isNotEqualTo(pageList.get(0).getName());
+                        if (!StringUtils.isEmpty(actionDTO.getCollectionId())) {
+                            collectionIdInAction.add(actionDTO.getCollectionId());
+                        }
+                    });
+
+                    assertThat(actionCollectionList).isNotEmpty();
+                    assertThat(actionCollectionList).hasSize(1);
+                    assertThat(pageList).hasSize(1);
+
+                    ApplicationPage defaultAppPage = application.getPages().stream()
+                            .filter(ApplicationPage::getIsDefault)
+                            .findFirst()
+                            .orElse(null);
+                    assertThat(defaultAppPage).isNotNull();
+
+                    PageDTO defaultPageDTO = pageList.stream()
+                            .filter(pageDTO -> pageDTO.getId().equals(defaultAppPage.getId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    assertThat(defaultPageDTO).isNotNull();
+                })
+                .verifyComplete();
+    }
+
+    // this would be the newer way to create the fileParts
+    private FilePart createFilePartWithIdenticalPackageStructure(String filePath) throws URISyntaxException {
+        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        URL resource = this.getClass().getResource(filePath);
+        Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
+                        Path.of(resource.toURI()), new DefaultDataBufferFactory(), 4096)
+                .cache();
+
+        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
+
+        return filepart;
     }
 }

@@ -24,7 +24,6 @@ import {
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
-import IntegrationEditor from "pages/Editor/IntegrationEditor";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import ApiEditor from "pages/Editor/APIEditor";
 import QueryEditor from "pages/Editor/QueryEditor";
@@ -42,7 +41,6 @@ import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
-import { useIsAppSidebarEnabled } from "navigation/featureFlagHooks";
 import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 import { useSelector } from "react-redux";
@@ -59,7 +57,6 @@ export interface RouteReturnType extends RouteProps {
  */
 
 function useRoutes(path: string): RouteReturnType[] {
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
 
@@ -95,7 +92,6 @@ function useRoutes(path: string): RouteReturnType[] {
           `${path}${CURL_IMPORT_PAGE_PATH}`,
           `${path}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
           `${path}${SAAS_EDITOR_PATH}`,
-          `${path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
           `${path}${SAAS_EDITOR_API_ID_PATH}`,
           `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
           `${path}${APP_LIBRARIES_EDITOR_PATH}`,
@@ -104,9 +100,7 @@ function useRoutes(path: string): RouteReturnType[] {
       },
       {
         key: "Datasource Create and Active",
-        component: isAppSidebarEnabled
-          ? CreateNewDatasourceTab
-          : IntegrationEditor,
+        component: CreateNewDatasourceTab,
         exact: true,
         path: `${path}${INTEGRATION_EDITOR_PATH}`,
       },
@@ -127,6 +121,12 @@ function useRoutes(path: string): RouteReturnType[] {
         component: DatasourceBlankState,
         exact: true,
         path: `${path}${DATA_SOURCES_EDITOR_LIST_PATH}`,
+      },
+      {
+        key: "SAASDatasourceEditor",
+        component: DatasourceForm,
+        exact: true,
+        path: `${path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
       },
       {
         key: "GeneratePage",
@@ -159,9 +159,7 @@ function useRoutes(path: string): RouteReturnType[] {
     },
     {
       key: "Datasource Create and Active",
-      component: isAppSidebarEnabled
-        ? CreateNewDatasourceTab
-        : IntegrationEditor,
+      component: CreateNewDatasourceTab,
       exact: true,
       path: `${path}${INTEGRATION_EDITOR_PATH}`,
     },

@@ -88,6 +88,7 @@ import * as m84 from "../migrations/084-migrate-select-widget-add-source-data-pr
 import * as m85 from "../migrations/085-migrate-default-values-for-custom-echart";
 import * as m86 from "../migrations/086-migrate-table-server-side-filtering";
 import * as m87 from "../migrations/087-migrate-chart-widget-customechartdata";
+import * as m88 from "../migrations/088-migrate-custom-widget-dynamic-height";
 
 interface Migration {
   functionLookup: {
@@ -909,6 +910,15 @@ const migrations: Migration[] = [
       },
     ],
     version: 87,
+  },
+  {
+    functionLookup: [
+      {
+        moduleObj: m88,
+        functionName: "migrateCustomWidgetDynamicHeight",
+      },
+    ],
+    version: 88,
   },
 ];
 

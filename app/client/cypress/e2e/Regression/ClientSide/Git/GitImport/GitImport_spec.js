@@ -80,15 +80,12 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
   it("2. Import the previous app connected to Git and reconnect Postgres, MySQL and Mongo db ", () => {
     homePage.NavigateToHome();
     cy.createWorkspace();
+    let newWorkspaceName;
     cy.wait("@createWorkspace").then((interception) => {
-      const newWorkspaceName = interception.response.body.data.name;
+      newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, "gitImport");
     });
-    cy.get(homePageLocators.homeIcon).click();
-    agHelper.GetNClick(homePageLocators.createNew, 0);
-    cy.get(homePageLocators.workspaceImportAppOption).click({ force: true });
-    cy.get(".t--import-json-card").next().click();
-    cy.importAppFromGit(repoName);
+    gitSync.ImportAppFromGit(newWorkspaceName, repoName);
     cy.wait(5000);
     cy.get(reconnectDatasourceModal.Modal).should("be.visible");
     cy.ReconnectDatasource("TEDPostgres");

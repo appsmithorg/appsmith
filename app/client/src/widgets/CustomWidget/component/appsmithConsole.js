@@ -25,7 +25,7 @@
       },
     });
 
-  ["log", "warn", "info", "error"].forEach((method) => {
+  ["log", "warn", "info"].forEach((method) => {
     nativeConsole[method] = createProxy(method);
   });
 

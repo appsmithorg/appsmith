@@ -7,7 +7,7 @@ import {
 } from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
@@ -22,7 +22,14 @@ import isEmpty from "lodash/isEmpty";
 import pickBy from "lodash/pickBy";
 import { getFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { DEFAULT_EDITOR_PANE_WIDTH } from "constants/AppConstants";
+import {
+  DEFAULT_EDITOR_PANE_WIDTH,
+  DEFAULT_SPLIT_SCREEN_WIDTH,
+} from "constants/AppConstants";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
+import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -116,7 +123,7 @@ export const useEditorPaneWidth = (): string => {
       segment !== EditorEntityTab.UI
     ) {
       // 1px is propertypane border width
-      setWidth("40.4vw");
+      setWidth(DEFAULT_SPLIT_SCREEN_WIDTH);
     } else {
       setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
     }
@@ -198,3 +205,53 @@ export const useGetPageFocusUrl = (pageId: string): string => {
 
   return focusPageUrl;
 };
+
+export const useIsEditorPaneSegmentsEnabled = () => {
+  const isEditorSegmentsReleaseEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_show_new_sidebar_pages_pane_enabled,
+  );
+
+  const isEditorSegmentsRolloutEnabled = useFeatureFlag(
+    FEATURE_FLAG.rollout_editor_pane_segments_enabled,
+  );
+
+  return isEditorSegmentsReleaseEnabled || isEditorSegmentsRolloutEnabled;
+};
+
+export function useWidgetSelectionBlockListener() {
+  const { pathname } = useLocation();
+  const dispatch = useDispatch();
+  const currentFocus = identifyEntityFromPath(pathname);
+  const isAltFocused = useSelector(getIsAltFocusWidget);
+  const widgetSelectionIsBlocked = useSelector(getWidgetSelectionBlock);
+
+  useEffect(() => {
+    const inUIMode = [
+      FocusEntity.CANVAS,
+      FocusEntity.PROPERTY_PANE,
+      FocusEntity.WIDGET_LIST,
+    ].includes(currentFocus.entity);
+    dispatch(setWidgetSelectionBlock(!inUIMode));
+  }, [currentFocus]);
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyDown);
+    window.addEventListener("keyup", handleKeyUp);
+
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+      window.removeEventListener("keyup", handleKeyUp);
+    };
+  }, [isAltFocused, widgetSelectionIsBlocked]);
+  const handleKeyDown = (e: KeyboardEvent) => {
+    if (!isAltFocused && widgetSelectionIsBlocked && e.metaKey) {
+      dispatch(altFocusWidget(e.metaKey));
+    }
+  };
+
+  const handleKeyUp = (e: KeyboardEvent) => {
+    if (!e.metaKey && widgetSelectionIsBlocked) {
+      dispatch(altFocusWidget(e.metaKey));
+    }
+  };
+}

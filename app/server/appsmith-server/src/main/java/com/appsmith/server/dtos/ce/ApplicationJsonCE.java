@@ -6,16 +6,14 @@ import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.ExportableArtifact;
-import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -31,7 +29,10 @@ import java.util.Set;
  */
 @Getter
 @Setter
-public class ApplicationJsonCE implements ArtifactExchangeJson {
+public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
+
+    @JsonView({Views.Public.class, Views.Export.class})
+    ArtifactType artifactJsonType = ArtifactType.APPLICATION;
 
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
@@ -118,22 +119,18 @@ public class ApplicationJsonCE implements ArtifactExchangeJson {
     String widgets;
 
     @Override
-    public ArtifactJsonType getArtifactJsonType() {
-        return ArtifactJsonType.APPLICATION;
-    }
-
-    @Override
-    public ImportableArtifact getImportableArtifact() {
+    public Artifact getArtifact() {
         return this.getExportedApplication();
     }
 
     @Override
-    public ExportableArtifact getExportableArtifact() {
-        return this.getExportedApplication();
+    public void setThemes(Theme unpublishedTheme, Theme publishedTheme) {
+        this.setEditModeTheme(unpublishedTheme);
+        this.setPublishedTheme(publishedTheme);
     }
 
     @Override
-    public List<CustomJSLib> getCustomJsLibFromArtifact() {
-        return this.getCustomJSLibList();
+    public Theme getUnpublishedTheme() {
+        return this.getEditModeTheme();
     }
 }

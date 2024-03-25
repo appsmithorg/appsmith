@@ -9,7 +9,6 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
-import type { FontFamily } from "@design-system/theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
@@ -19,6 +18,7 @@ import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
+import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -51,21 +51,18 @@ const Canvas = (props: CanvasProps) => {
   const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
 
   const themeSetting = useSelector(getAppThemeSettings);
-  const themeProps = {
-    borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
-    seedColor: selectedTheme.properties.colors.primaryColor,
-    fontFamily: selectedTheme.properties.fontFamily.appFont as FontFamily,
-  };
   const wdsThemeProps = {
     borderRadius: themeSetting.borderRadius,
     seedColor: themeSetting.accentColor,
     colorMode: themeSetting.colorMode.toLowerCase(),
-    fontFamily: themeSetting.fontFamily as FontFamily,
+    fontFamily: themeSetting.fontFamily,
     userSizing: themeSetting.sizing,
     userDensity: themeSetting.density,
     iconStyle: themeSetting.iconStyle.toLowerCase(),
-  };
-  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
+  } as Parameters<typeof useTheme>[0];
+  // in case of non-WDS theme, we will pass an empty object to useTheme hook
+  // so that fixedLayout theme does not break because of calculations done in useTheme
+  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : {});
 
   /**
    * background for canvas
@@ -87,20 +84,22 @@ const Canvas = (props: CanvasProps) => {
 
   const renderChildren = () => {
     return (
-      <Wrapper
-        $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
-        background={isWDSEnabled ? "" : backgroundForCanvas}
-        className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
-          canvasWidth,
-        )}`}
-        data-testid={"t--canvas-artboard"}
-        id={CANVAS_ART_BOARD}
-        ref={isWDSEnabled ? undefined : focusRef}
-        width={canvasWidth}
-      >
-        {props.widgetsStructure.widgetId &&
-          renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
-      </Wrapper>
+      <CodeModeTooltip>
+        <Wrapper
+          $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
+          background={isWDSEnabled ? "" : backgroundForCanvas}
+          className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
+            canvasWidth,
+          )}`}
+          data-testid={"t--canvas-artboard"}
+          id={CANVAS_ART_BOARD}
+          ref={isWDSEnabled ? undefined : focusRef}
+          width={canvasWidth}
+        >
+          {props.widgetsStructure.widgetId &&
+            renderAppsmithCanvas(props.widgetsStructure as WidgetProps)}
+        </Wrapper>
+      </CodeModeTooltip>
     );
   };
 

@@ -51,7 +51,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         StepVerifier.create(actionCollectionFlux.collectList())
                 .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList.size()).isEqualTo(5);
+                    assertThat(actionCollectionList).hasSize(5);
                     actionCollectionList.forEach(newAction -> {
                         assertThat(newAction.getWorkspaceId()).isEqualTo("workspace-" + newAction.getId());
                     });
@@ -97,7 +97,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         StepVerifier.create(actionCollectionsMono)
                 .assertNext(actionCollections -> {
-                    assertThat(actionCollections.size()).isEqualTo(5);
+                    assertThat(actionCollections).hasSize(5);
                     actionCollections.forEach(newAction -> {
                         assertThat(newAction.getWorkspaceId()).isEqualTo("workspace-" + newAction.getId());
                     });
@@ -135,7 +135,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         StepVerifier.create(actionCollectionListMono)
                 .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList.size()).isEqualTo(1);
+                    assertThat(actionCollectionList).hasSize(1);
                 })
                 .verifyComplete();
 
@@ -147,7 +147,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         StepVerifier.create(actionCollectionListMono2)
                 .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList.size()).isEqualTo(0);
+                    assertThat(actionCollectionList).hasSize(0);
                 })
                 .verifyComplete();
 
@@ -159,7 +159,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         StepVerifier.create(actionCollectionListMono3)
                 .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList.size()).isEqualTo(0);
+                    assertThat(actionCollectionList).hasSize(0);
                 })
                 .verifyComplete();
     }

@@ -5,6 +5,7 @@ import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.appsmith.server.services.CrudService;
 import jakarta.validation.constraints.NotNull;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -30,4 +31,7 @@ public interface CustomJSLibServiceCE extends CrudService<CustomJSLib, String> {
 
     Mono<CustomJSLibContextDTO> persistCustomJSLibMetaDataIfDoesNotExistAndGetDTO(
             CustomJSLib jsLib, Boolean isForceInstall);
+
+    Flux<CustomJSLib> getAllVisibleJSLibsInContext(
+            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode);
 }

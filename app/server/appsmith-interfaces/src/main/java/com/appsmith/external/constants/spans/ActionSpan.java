@@ -2,6 +2,10 @@ package com.appsmith.external.constants.spans;
 
 import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
 
+/**
+ * Please make sure that all span names start with `appsmith.` because span with any other naming format would get
+ * dropped / ignored as defined in TracingConfig.java
+ */
 public final class ActionSpan {
 
     // Action execution spans

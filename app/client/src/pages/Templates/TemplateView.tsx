@@ -32,9 +32,11 @@ const Wrapper = styled.div`
   width: 100%;
 `;
 
-const TemplateViewWrapper = styled.div`
-  padding-right: 132px;
-  padding-left: 132px;
+const TemplateViewWrapper = styled.div<{ isModalLayout?: boolean }>`
+  ${(props) =>
+    props.isModalLayout
+      ? `padding-right: 12px; padding-left: 12px;`
+      : `padding-right: 132px; padding-left: 132px;`}
   padding-top: var(--ads-v2-spaces-7);
   padding-bottom: 80px;
   background-color: var(--ads-v2-color-bg);
@@ -88,7 +90,8 @@ const PageWrapper = styled.div`
 `;
 
 const LoadingWrapper = styled.div`
-  width: calc(100vw);
+  height: 100vh;
+  width: 100%;
   .title-placeholder {
     margin-top: ${(props) => props.theme.spaces[11]}px;
     height: 28px;
@@ -117,16 +120,24 @@ function TemplateNotFound() {
 }
 
 interface TemplateViewProps {
+  isModalLayout?: boolean;
   onClickUseTemplate?: (id: string) => void;
   showBack?: boolean;
   showSimilarTemplate?: boolean;
   templateId: string;
+  handleBackPress?: () => void;
+  handleSimilarTemplateClick?: (templateId: TemplateInterface) => void;
+  similarTemplatesClassName?: string;
 }
 
 export function TemplateView({
+  handleBackPress,
+  handleSimilarTemplateClick,
+  isModalLayout = false,
   onClickUseTemplate,
   showBack = true,
   showSimilarTemplate = true,
+  similarTemplatesClassName = "",
   templateId,
 }: TemplateViewProps) {
   const dispatch = useDispatch();
@@ -139,7 +150,7 @@ export function TemplateView({
   const containerRef = useRef<HTMLDivElement>(null);
 
   const goToTemplateListView = () => {
-    history.push(TEMPLATES_PATH);
+    handleBackPress ? handleBackPress() : history.push(TEMPLATES_PATH);
   };
 
   useEffect(() => {
@@ -164,7 +175,9 @@ export function TemplateView({
         name: template.title,
       },
     });
-    history.push(templateIdUrl({ id: template.id }));
+    handleSimilarTemplateClick
+      ? handleSimilarTemplateClick(template)
+      : history.push(templateIdUrl({ id: template.id }));
   };
 
   return isFetchingTemplate ? (
@@ -174,8 +187,9 @@ export function TemplateView({
   ) : (
     <Wrapper ref={containerRef}>
       <ReconnectDatasourceModal />
-      <TemplateViewWrapper>
+      <TemplateViewWrapper isModalLayout={isModalLayout}>
         <TemplateViewHeader
+          handleBackPress={handleBackPress}
           onClickUseTemplate={onClickUseTemplate}
           showBack={showBack}
           templateId={templateId}
@@ -192,6 +206,7 @@ export function TemplateView({
       </TemplateViewWrapper>
       {showSimilarTemplate && (
         <SimilarTemplates
+          className={similarTemplatesClassName}
           isForkingEnabled={!!workspaceList.length}
           onBackPress={goToTemplateListView}
           onClick={onSimilarTemplateClick}

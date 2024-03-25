@@ -22,10 +22,21 @@ import type { AppState } from "@appsmith/reducers";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { EVENTS } from "./customWidgetscript";
+import { DynamicHeight } from "utils/WidgetFeatures";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
+import { GridDefaults } from "constants/WidgetConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
-const StyledIframe = styled.iframe<{ width: number; height: number }>`
-  width: ${(props) => props.width - 8}px;
-  height: ${(props) => props.height - 8}px;
+const StyledIframe = styled.iframe<{
+  componentWidth: number;
+  componentHeight: number;
+  componentMinHeight: number;
+}>`
+  width: ${(props) => props.componentWidth}px;
+  height: ${(props) => props.componentHeight}px;
+  min-height: ${(props) => props.componentMinHeight}px;
 `;
 
 const OverlayDiv = styled.div`
@@ -36,19 +47,12 @@ const OverlayDiv = styled.div`
   height: 100%;
 `;
 
-const EVENTS = {
-  CUSTOM_WIDGET_READY: "CUSTOM_WIDGET_READY",
-  CUSTOM_WIDGET_READY_ACK: "CUSTOM_WIDGET_READY_ACK",
-  CUSTOM_WIDGET_UPDATE_MODEL: "CUSTOM_WIDGET_UPDATE_MODEL",
-  CUSTOM_WIDGET_TRIGGER_EVENT: "CUSTOM_WIDGET_TRIGGER_EVENT",
-  CUSTOM_WIDGET_MODEL_CHANGE: "CUSTOM_WIDGET_MODEL_CHANGE",
-  CUSTOM_WIDGET_UI_CHANGE: "CUSTOM_WIDGET_UI_CHANGE",
-  CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK: "CUSTOM_WIDGET_MESSAGE_RECEIVED_ACK",
-  CUSTOM_WIDGET_THEME_UPDATE: "CUSTOM_WIDGET_THEME_UPDATE",
-};
+const Container = styled.div`
+  height: 100%;
+  width: 100%;
+`;
 
-// this is the padding set by the canvas
-const WIDGET_PADDING = 8;
+const { disableIframeWidgetSandbox } = getAppsmithConfigs();
 
 function CustomComponent(props: CustomComponentProps) {
   const iframe = useRef<HTMLIFrameElement>(null);
@@ -56,6 +60,8 @@ function CustomComponent(props: CustomComponentProps) {
   const [loading, setLoading] = React.useState(true);
 
   const [isIframeReady, setIsIframeReady] = useState(false);
+
+  const [height, setHeight] = useState(props.height);
 
   const theme = useMemo(() => {
     return {
@@ -92,8 +98,8 @@ function CustomComponent(props: CustomComponentProps) {
                 type: EVENTS.CUSTOM_WIDGET_READY_ACK,
                 model: props.model,
                 ui: {
-                  width: props.width - WIDGET_PADDING,
-                  height: props.height - WIDGET_PADDING,
+                  width: props.width,
+                  height: props.height,
                 },
                 mode: props.renderMode,
                 theme,
@@ -117,11 +123,17 @@ function CustomComponent(props: CustomComponentProps) {
           case EVENTS.CUSTOM_WIDGET_TRIGGER_EVENT:
             props.execute(message.data.eventName, message.data.contextObj);
             break;
-          case "UPDATE_HEIGHT":
+          case EVENTS.CUSTOM_WIDGET_UPDATE_HEIGHT:
             const height = message.data.height;
 
-            if (height) {
-              iframe.current!.style.height = `${height}px`;
+            if (
+              props.renderMode !== "BUILDER" &&
+              height &&
+              (props.dynamicHeight !== DynamicHeight.FIXED ||
+                props.layoutSystemType === LayoutSystemTypes.AUTO)
+            ) {
+              iframe.current?.style.setProperty("height", `${height}px`);
+              setHeight(height);
             }
             break;
           case "CUSTOM_WIDGET_CONSOLE_EVENT":
@@ -135,7 +147,13 @@ function CustomComponent(props: CustomComponentProps) {
     window.addEventListener("message", handler, false);
 
     return () => window.removeEventListener("message", handler, false);
-  }, [props.model, props.width, props.height]);
+  }, [
+    props.model,
+    props.width,
+    props.height,
+    props.layoutSystemType,
+    props.dynamicHeight,
+  ]);
 
   useEffect(() => {
     if (iframe.current && iframe.current.contentWindow && isIframeReady) {
@@ -155,14 +173,14 @@ function CustomComponent(props: CustomComponentProps) {
         {
           type: EVENTS.CUSTOM_WIDGET_UI_CHANGE,
           ui: {
-            width: props.width - 8,
-            height: props.height - 8,
+            width: props.width,
+            height: height,
           },
         },
         "*",
       );
     }
-  }, [props.width, props.height]);
+  }, [props.width, height]);
 
   useEffect(() => {
     if (iframe.current && iframe.current.contentWindow && isIframeReady) {
@@ -175,6 +193,21 @@ function CustomComponent(props: CustomComponentProps) {
       );
     }
   }, [theme]);
+
+  useEffect(() => {
+    if (
+      props.dynamicHeight === DynamicHeight.FIXED &&
+      props.layoutSystemType === LayoutSystemTypes.FIXED
+    ) {
+      iframe.current?.style.setProperty("height", `${props.height}px`);
+      setHeight(props.height);
+    }
+  }, [
+    props.dynamicHeight,
+    props.height,
+    iframe.current,
+    props.layoutSystemType,
+  ]);
 
   const srcDoc = `
     <html>
@@ -203,7 +236,7 @@ function CustomComponent(props: CustomComponentProps) {
   }, [srcDoc]);
 
   return (
-    <div
+    <Container
       className={clsx({
         "bp3-skeleton": loading,
       })}
@@ -218,18 +251,27 @@ function CustomComponent(props: CustomComponentProps) {
         widgetId={props.widgetId}
       >
         <StyledIframe
-          height={props.height}
+          componentHeight={height}
+          componentMinHeight={
+            props.dynamicHeight === DynamicHeight.AUTO_HEIGHT_WITH_LIMITS
+              ? props.minDynamicHeight * GridDefaults.DEFAULT_GRID_ROW_HEIGHT
+              : 0
+          }
+          componentWidth={props.width}
           loading="lazy"
           onLoad={() => {
             setLoading(false);
           }}
           ref={iframe}
-          sandbox="allow-scripts allow-downloads"
+          sandbox={
+            disableIframeWidgetSandbox
+              ? undefined
+              : "allow-forms allow-modals allow-orientation-lock allow-pointer-lock allow-popups allow-scripts"
+          }
           srcDoc={srcDoc}
-          width={props.width}
         />
       </WidgetStyleContainer>
-    </div>
+    </Container>
   );
 }
 
@@ -255,6 +297,9 @@ export interface CustomComponentProps {
   borderRadius?: number;
   boxShadow?: BoxShadow;
   widgetId: string;
+  dynamicHeight: DynamicHeight;
+  minDynamicHeight: number;
+  layoutSystemType?: LayoutSystemTypes;
 }
 
 /**
@@ -268,9 +313,10 @@ export const mapStateToProps = (
 
   return {
     needsOverlay:
-      ownProps.renderMode === "EDITOR" &&
-      !isPreviewMode &&
-      ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId,
+      (ownProps.renderMode === "EDITOR" &&
+        !isPreviewMode &&
+        ownProps.widgetId !== getWidgetPropsForPropertyPane(state)?.widgetId) ||
+      getIsAutoHeightWithLimitsChanging(state),
   };
 };
 

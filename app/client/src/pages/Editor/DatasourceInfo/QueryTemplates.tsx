@@ -9,7 +9,7 @@ import {
 import type { QueryAction } from "entities/Action";
 import history from "utils/history";
 import type { Datasource, QueryTemplate } from "entities/Datasource";
-import { DatasourceStructureContext } from "entities/Datasource";
+import type { DatasourceStructureContext } from "entities/Datasource";
 import { INTEGRATION_TABS } from "constants/routes";
 import {
   getAction,
@@ -41,7 +41,6 @@ interface QueryTemplatesProps {
 }
 
 enum QueryTemplatesEvent {
-  EXPLORER_TEMPLATE = "explorer-template",
   QUERY_EDITOR_TEMPLATE = "query-editor-template",
 }
 
@@ -98,10 +97,7 @@ export function QueryTemplates(props: QueryTemplatesProps) {
           },
           eventData: {
             actionType: "Query",
-            from:
-              props?.context === DatasourceStructureContext.EXPLORER
-                ? QueryTemplatesEvent.EXPLORER_TEMPLATE
-                : QueryTemplatesEvent.QUERY_EDITOR_TEMPLATE,
+            from: QueryTemplatesEvent.QUERY_EDITOR_TEMPLATE,
             dataSource: dataSource?.name,
             datasourceId: props.datasourceId,
             pluginName: plugin?.name,

@@ -3,7 +3,6 @@ import { ThemeProvider } from "styled-components";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import {
-  combinedPreviewModeSelector,
   getCurrentApplicationId,
   getCurrentPageId,
   getIsPageSaving,
@@ -65,7 +64,6 @@ import {
 import { viewerURL } from "@appsmith/RouteBuilder";
 import { useHref } from "./utils";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import type { NavigationSetting } from "constants/AppConstants";
 import CommunityTemplatesPublishInfo from "./CommunityTemplates/Modals/CommunityTemplatesPublishInfo";
 import PublishCommunityTemplateModal from "./CommunityTemplates/Modals/PublishCommunityTemplate";
@@ -73,14 +71,11 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getEmbedSnippetForm } from "@appsmith/utils/BusinessFeatures/privateEmbedHelpers";
 import { HeaderSection, HeaderWrapper } from "./commons/EditorHeaderComponents";
-import { LockEntityExplorer } from "./commons/LockEntityExplorer";
 import { Omnibar } from "./commons/Omnibar";
 import { EditorShareButton } from "./EditorShareButton";
 import { HelperBarInHeader } from "./HelpBarInHeader";
 import { AppsmithLink } from "./AppsmithLink";
-import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import { GetNavigationMenuData } from "./EditorName/NavigationMenuData";
-import { useIsAppSidebarEnabled } from "../../navigation/featureFlagHooks";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -93,8 +88,6 @@ export function EditorHeader() {
   const isGitConnected = useSelector(getIsGitConnected);
   const isErroredSavingName = useSelector(getIsErroredSavingAppName);
   const applicationList = useSelector(getApplicationList);
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
-  const signpostingEnabled = useSelector(getIsFirstTimeUserOnboardingEnabled);
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const currentWorkspace = useSelector(getCurrentAppWorkspace);
   const applicationId = useSelector(getCurrentApplicationId);
@@ -107,11 +100,6 @@ export function EditorHeader() {
   const isProtectedMode = useSelector(protectedModeSelector);
 
   const deployLink = useHref(viewerURL, { pageId });
-  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
-    getIsAppSettingsPaneWithNavigationTabOpen,
-  );
-  const isPreviewingApp =
-    isPreviewMode || isAppSettingsPaneWithNavigationTabOpen;
 
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
   const [showModal, setShowModal] = useState(false);
@@ -119,10 +107,6 @@ export function EditorHeader() {
     showPublishCommunityTemplateModal,
     setShowPublishCommunityTemplateModal,
   ] = useState(false);
-
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
-
-  const showEntityExplorerLock = !isAppSidebarEnabled && !signpostingEnabled;
 
   const handlePublish = () => {
     if (applicationId) {
@@ -204,11 +188,7 @@ export function EditorHeader() {
         data-testid="t--appsmith-editor-header"
       >
         <HeaderSection className="space-x-2">
-          {showEntityExplorerLock ? (
-            <LockEntityExplorer isPreviewingApp={isPreviewingApp} />
-          ) : (
-            <div />
-          )}
+          <div />
 
           <AppsmithLink />
 

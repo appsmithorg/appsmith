@@ -2,6 +2,7 @@ import {
   agHelper,
   apiPage,
   assertHelper,
+  dataManager,
   deployMode,
   entityExplorer,
   entityItems,
@@ -42,16 +43,14 @@ describe(
     it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
       agHelper.AddDsl("onPageLoadActionsDsl", locators._imageWidget);
       apiPage.CreateAndFillApi(
-        "https://source.unsplash.com/collection/1599413",
+        dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl1,
         "RandomFlora",
-        30000,
       );
       //apiPage.RunAPI();
 
       apiPage.CreateAndFillApi(
-        "https://randomuser.me/api/",
+        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
         "RandomUser",
-        30000,
       );
       //apiPage.RunAPI();
 
@@ -192,13 +191,20 @@ describe(
         "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
         "Genderize",
         30000,
+        "GET",
+        false,
+        false,
       );
       apiPage.ValidateQueryParams({
         key: "name",
         value: "{{RandomUser.data.results[0].name.first}}",
       }); // verifies Bug 10055
 
-      deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
+      deployMode.DeployApp(
+        locators._widgetInDeployed("textwidget"),
+        false,
+        false,
+      );
       assertHelper.AssertNetworkStatus("@getConsolidatedData");
 
       cy.get("@getConsolidatedData").then(($response: any) => {
