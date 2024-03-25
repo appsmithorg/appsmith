@@ -63,4 +63,24 @@ describe("Property Controls Generator", () => {
     const result = shouldSectionBeExpanded(config[1], false);
     expect(result).toEqual(true);
   });
+
+  it("Should return true when feature flag is enabled and expandedByDefault property is missing", () => {
+    const configWithoutExpandedByDefault: PropertyPaneSectionConfig = {
+      sectionName: "Styling",
+      children: [
+        {
+          label: "Background Color",
+          propertyName: "backgroundColor",
+          controlType: "CONTROL_TYPE",
+          isBindProperty: false,
+          isTriggerProperty: false,
+        },
+      ],
+    };
+    const result = shouldSectionBeExpanded(
+      configWithoutExpandedByDefault,
+      true,
+    );
+    expect(result).toEqual(true);
+  });
 });
