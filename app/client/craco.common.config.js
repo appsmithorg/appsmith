@@ -21,9 +21,7 @@ module.exports = {
     enable: false,
   },
   typescript: {
-    enableTypeChecking:
-      process.env.ENABLE_TYPE_CHECKING === "true" ||
-      process.env.ENABLE_TYPE_CHECKING === undefined,
+    enableTypeChecking: process.env.ENABLE_TYPE_CHECKING !== "false",
   },
   webpack: {
     configure: {
