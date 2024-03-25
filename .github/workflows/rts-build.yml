@@ -114,7 +114,7 @@ jobs:
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         run: |
-          npm install -g yarn
+          corepack enable
           yarn install --immutable
 
       # Run the Jest tests only if the workflow has been invoked in a PR
