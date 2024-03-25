@@ -3,7 +3,7 @@ export const anvilConfig = {
   widgetSize: {
     minWidth: {
       base: "100%",
-      [`280px`]: "sizing-70",
+      [`280px`]: "sizing-60",
     },
   },
 };

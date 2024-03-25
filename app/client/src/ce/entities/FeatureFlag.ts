@@ -51,6 +51,8 @@ export const FEATURE_FLAG = {
   rollout_js_enabled_one_click_binding_enabled:
     "rollout_js_enabled_one_click_binding_enabled",
   rollout_side_by_side_enabled: "rollout_side_by_side_enabled",
+  ab_learnability_ease_of_initial_use_enabled:
+    "ab_learnability_ease_of_initial_use_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
@@ -91,6 +93,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   rollout_remove_feature_walkthrough_enabled: false,
   rollout_js_enabled_one_click_binding_enabled: false,
   rollout_side_by_side_enabled: false,
+  ab_learnability_ease_of_initial_use_enabled: false,
 };
 
 export const AB_TESTING_EVENT_KEYS = {

@@ -18,8 +18,8 @@ import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { setIdeEditorViewMode } from "actions/ideActions";
-import AnalyticsUtil from "../../../../../utils/AnalyticsUtil";
 
 const Container = styled(Flex)`
   #editor-pane-segment-control {
@@ -45,6 +45,7 @@ const SegmentedHeader = () => {
   };
   const { segment } = useCurrentEditorState();
   const { onSegmentChange } = useSegmentNavigation();
+
   const handleMaximizeButtonClick = useCallback(() => {
     AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
       to: EditorViewMode.FullScreen,
