@@ -443,7 +443,6 @@ function DatasourceAuth({
   return (
     <>
       {authType === AuthType.OAUTH2 &&
-        authorizationCodeGrantType === GrantType.AuthorizationCode &&
         !isAuthorized &&
         shouldDisplayAuthMessage && (
           <StyledAuthMessage>Datasource not authorized</StyledAuthMessage>
