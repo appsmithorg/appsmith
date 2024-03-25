@@ -165,7 +165,7 @@ function DatasourceAuth({
         formData?.datasourceStorages[currentEnvironment]
           ?.datasourceConfiguration?.authentication?.authenticationType;
 
-  const clientCredentialsGrantType: GrantType | undefined = (
+  const authGrantType: GrantType | undefined = (
     formData &&
     (formData as ApiDatasourceForm)?.authentication &&
     ((formData as ApiDatasourceForm)?.authentication as ClientCredentials)
@@ -204,7 +204,7 @@ function DatasourceAuth({
   useEffect(() => {
     if (
       authType === AuthType.OAUTH2 &&
-      clientCredentialsGrantType !== GrantType.ClientCredentials // Client Credentials grant type does not require authorization
+      authGrantType !== GrantType.ClientCredentials // Client Credentials grant type does not require authorization
     ) {
       // When the authorization server redirects a user to the datasource form page, the url contains the "response_status" query parameter .
       // Get the access token if response_status is successful else show a toast error
@@ -411,14 +411,14 @@ function DatasourceAuth({
           key={buttonType}
           onClick={
             authType === AuthType.OAUTH2 &&
-            clientCredentialsGrantType !== GrantType.ClientCredentials // Client Credentials grant type does not require oauth authorization
+            authGrantType !== GrantType.ClientCredentials // Client Credentials grant type does not require oauth authorization
               ? handleOauthDatasourceSave
               : handleDefaultAuthDatasourceSave
           }
           size="md"
         >
           {authType === AuthType.OAUTH2 &&
-          clientCredentialsGrantType !== GrantType.ClientCredentials
+          authGrantType !== GrantType.ClientCredentials
             ? isAuthorized
               ? createMessage(SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT)
               : createMessage(SAVE_AND_AUTHORIZE_BUTTON_TEXT)
