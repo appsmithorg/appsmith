@@ -40,9 +40,9 @@ import com.appsmith.server.services.WorkspaceService;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.WWWFormCodec;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -266,7 +266,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     List<NameValuePair> nameValuePairs = new ArrayList<>(2);
                     nameValuePairs.add(new BasicNameValuePair("email", passwordResetToken.getEmail()));
                     nameValuePairs.add(new BasicNameValuePair("token", token));
-                    String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
+                    String urlParams = WWWFormCodec.format(nameValuePairs, StandardCharsets.UTF_8);
                     String resetUrl = String.format(
                             FORGOT_PASSWORD_CLIENT_URL_FORMAT,
                             resetUserPasswordDTO.getBaseUrl(),
@@ -747,7 +747,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
         String decryptString = encryptionService.decryptString(encryptedToken);
-        List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(decryptString, StandardCharsets.UTF_8);
+        List<NameValuePair> nameValuePairs = WWWFormCodec.parse(decryptString, StandardCharsets.UTF_8);
         Map<String, String> params = new HashMap<>();
 
         for (NameValuePair nameValuePair : nameValuePairs) {
@@ -823,7 +823,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     List<NameValuePair> nameValuePairs = new ArrayList<>(2);
                     nameValuePairs.add(new BasicNameValuePair("email", emailVerificationToken.getEmail()));
                     nameValuePairs.add(new BasicNameValuePair("token", token));
-                    String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
+                    String urlParams = WWWFormCodec.format(nameValuePairs, StandardCharsets.UTF_8);
                     String redirectUrlCopy = redirectUrl;
                     if (redirectUrlCopy == null) {
                         redirectUrlCopy = String.format("%s/applications", resendEmailVerificationDTO.getBaseUrl());
