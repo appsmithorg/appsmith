@@ -43,7 +43,7 @@ const _TextArea = (props: TextAreaProps, ref: HeadlessTextAreaRef) => {
       inputClassName={getTypographyClassName("body")}
       isRequired={isRequired}
       label={label}
-      labelClassName={getTypographyClassName("body")}
+      labelClassName={getTypographyClassName("caption")}
       ref={ref}
       {...rest}
     />

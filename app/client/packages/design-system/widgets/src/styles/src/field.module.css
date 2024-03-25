@@ -68,13 +68,27 @@
     flex-direction: column;
   }
 
-  &[data-disabled] [data-field-group] [data-label] {
+  & [data-field-group] [data-icon] {
+    /** In the group components, the checkbox, radio and switch icons are positioned relatively */
+    position: relative;
+  }
+
+  & [data-field-group] [data-label] {
+    padding: 0;
+    gap: var(--inner-spacing-2);
+  }
+
+  &[data-disabled] [data-field-group] {
     cursor: default;
   }
 
   & [data-field-group][data-orientation="horizontal"] {
     gap: var(--inner-spacing-4);
     flex-direction: row;
+  }
+
+  & [data-field-group] [data-label-position="start"] {
+    flex-direction: row-reverse;
   }
 
   /**
