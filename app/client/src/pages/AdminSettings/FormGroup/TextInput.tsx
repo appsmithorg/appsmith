@@ -12,9 +12,12 @@ export default function TextInput({ setting }: SettingComponentProps) {
       setting={setting}
     >
       <FormTextField
+        defaultValue={setting.value}
         disabled={setting.isFeatureEnabled === false}
+        format={setting.format}
         isRequired={setting.isRequired}
         name={setting.name || setting.id || ""}
+        parse={setting.parse}
         placeholder={createMessage(() => setting.placeholder || "")}
         type={setting.controlSubType}
       />
