@@ -1,4 +1,7 @@
-import type { ImportBuildingBlockToApplicationRequest } from "@appsmith/api/ApplicationApi";
+import type {
+  ImportBuildingBlockToApplicationRequest,
+  ImportBuildingBlockToApplicationResponse,
+} from "@appsmith/api/ApplicationApi";
 import ApplicationApi from "@appsmith/api/ApplicationApi";
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
@@ -86,6 +89,7 @@ import {
   getWidgetByName,
   getWidgets,
 } from "./selectors";
+import { runAction } from "actions/pluginActionActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -545,15 +549,13 @@ export function* addBuildingBlockToApplication(
     yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
 
     // api call adds DS, queries and JS to page and returns new page dsl with building block
-    const response: ApiResponse = yield call(
-      ApplicationApi.importBuildingBlockToApplication,
-      body,
-    );
+    const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
+      yield call(ApplicationApi.importBuildingBlockToApplication, body);
 
     const isValid: boolean = yield validateResponse(response);
 
     if (isValid) {
-      const buildingBlockDsl = JSON.parse(response.data as string);
+      const buildingBlockDsl = JSON.parse(response.data.widgetDsl);
       const buildingBlockWidgets = buildingBlockDsl.children;
       const flattenedBlockWidgets = buildingBlockWidgets.map(
         (widget: WidgetProps) => flattenDSL(widget),
@@ -628,6 +630,13 @@ export function* addBuildingBlockToApplication(
 
       yield put(pasteWidget(false, mousePosition));
       yield call(postPageAdditionSaga, applicationId);
+
+      // run all actions in the building block to populate the page with data
+      yield all(
+        response.data.onPageLoadActions.map(function* (action) {
+          yield put(runAction(action.id));
+        }),
+      );
 
       if (existingCopiedWidgets) {
         yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
