@@ -4,6 +4,7 @@ import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.querydsl.core.annotations.QueryTransient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
@@ -65,6 +66,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
      */
     @Deprecated(forRemoval = true)
     @JsonView(Views.Internal.class)
+    @QueryTransient
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     protected Boolean deleted = false;
@@ -81,6 +83,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         return this.getId() == null;
     }
 
+    @QueryTransient
     @JsonView(Views.Internal.class)
     public boolean isDeleted() {
         return deletedAt != null;
