@@ -9,7 +9,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { Icon, Tooltip } from "design-system";
+import { Icon } from "design-system";
 import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -124,18 +124,32 @@ export function Command(props: {
     [props.url],
   );
 
-  const optionElement = (
-    <div className="command-container relative group cursor-pointer">
-      <div className="flex items-center justify-center absolute hidden">
-        {props.bindingText}
-      </div>
+  const isBindingAvailable = !!props.bindingText;
+
+  return (
+    <div className="command-container relative group cursor-pointer w-full">
       <div className="command flex w-full">
         <div className="self-center shrink-0">{props.icon}</div>
-        <div className="flex grow relative">
-          <div className="flex flex-col gap-1 grow">
-            <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)]">
-              {props.name}
-              {props.isBeta && <BetaCard />}
+        <div className="flex grow relative overflow-hidden">
+          <div className="flex flex-col gap-1 grow w-full">
+            <div className="whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)] relative">
+              <span
+                className={`flex items-center overflow-hidden overflow-ellipsis ${
+                  isBindingAvailable ? "group-hover:invisible" : ""
+                }`}
+              >
+                {props.name}
+              </span>
+              {isBindingAvailable && (
+                <span className="absolute h-full w-10/12 left-0 top-0 hidden group-hover:inline-block overflow-hidden overflow-ellipsis">
+                  {props.bindingText}
+                </span>
+              )}
+              {props.isBeta && (
+                <BetaCard
+                  className={isBindingAvailable ? "group-hover:invisible" : ""}
+                />
+              )}
             </div>
             {props.desc ? (
               <div className="command-desc">{props.desc}</div>
@@ -153,14 +167,6 @@ export function Command(props: {
       </div>
     </div>
   );
-
-  if (props.bindingText)
-    return (
-      <Tooltip content={props.bindingText} placement="left" trigger="hover">
-        {optionElement}
-      </Tooltip>
-    );
-  return optionElement;
 }
 
 export const generateQuickCommands = (

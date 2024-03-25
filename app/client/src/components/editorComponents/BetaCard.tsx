@@ -1,9 +1,9 @@
 import React from "react";
 import { Tag } from "design-system";
 
-function BetaCard() {
+function BetaCard({ className = "" }: { className?: string }) {
   return (
-    <Tag isClosable={false} size="md">
+    <Tag className={className} isClosable={false} size="md">
       Beta
     </Tag>
   );
