@@ -27,6 +27,7 @@
 
     <properties>
         <deploy.disabled>true</deploy.disabled>
+        <error-prone.version>2.26.1</error-prone.version>
         <java.version>17</java.version>
         <javadoc.disabled>true</javadoc.disabled>
         <logback.version>1.4.14</logback.version>
@@ -73,6 +74,34 @@
             <plugin>
                 <artifactId>maven-dependency-plugin</artifactId>
                 <version>3.4.0</version>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${maven-compiler-plugin.version}</version>
+                <configuration>
+                    <showWarnings>true</showWarnings>
+                    <compilerArgs>
+                        <arg>-XDcompilePolicy=simple</arg>
+                        <arg>
+                            <!-- Ref: http://errorprone.info/docs/flags -->
+                            -Xplugin:ErrorProne \
+                            -XepDisableAllChecks
+                        </arg>
+                    </compilerArgs>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>${lombok.version}</version>
+                        </path>
+                        <path>
+                            <groupId>com.google.errorprone</groupId>
+                            <artifactId>error_prone_core</artifactId>
+                            <version>${error-prone.version}</version>
+                        </path>
+                    </annotationProcessorPaths>
+                </configuration>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

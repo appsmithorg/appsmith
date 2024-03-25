@@ -18,6 +18,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.BuildingBlockDTO;
 import com.appsmith.server.dtos.BuildingBlockImportDTO;
+import com.appsmith.server.dtos.BuildingBlockResponseDTO;
 import com.appsmith.server.dtos.ImportingMetaDTO;
 import com.appsmith.server.dtos.MappedImportableResourcesDTO;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -51,6 +52,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -397,17 +399,69 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     }
 
     @Override
-    public Mono<String> importBuildingBlock(BuildingBlockDTO buildingBlockDTO, String branchName) {
+    public Mono<BuildingBlockResponseDTO> importBuildingBlock(BuildingBlockDTO buildingBlockDTO, String branchName) {
         Mono<ApplicationJson> applicationJsonMono =
                 applicationTemplateService.getApplicationJsonFromTemplate(buildingBlockDTO.getTemplateId());
 
-        return applicationJsonMono
-                .flatMap(applicationJson -> this.importResourceInPage(
-                        buildingBlockDTO.getWorkspaceId(),
-                        buildingBlockDTO.getApplicationId(),
-                        buildingBlockDTO.getPageId(),
-                        branchName,
-                        applicationJson))
-                .map(BuildingBlockImportDTO::getWidgetDsl);
+        return applicationJsonMono.flatMap(applicationJson -> {
+            return this.importResourceInPage(
+                            buildingBlockDTO.getWorkspaceId(),
+                            buildingBlockDTO.getApplicationId(),
+                            buildingBlockDTO.getPageId(),
+                            branchName,
+                            applicationJson)
+                    .flatMap(buildingBlockImportDTO -> {
+                        // Fetch layout and get new onPageLoadActions
+                        // This data is not present in a client, since these are created
+                        // after importing the block
+                        Set<String> newOnPageLoadActionNames = new HashSet<>();
+                        applicationJson
+                                .getPageList()
+                                .get(0)
+                                .getPublishedPage()
+                                .getLayouts()
+                                .get(0)
+                                .getLayoutOnLoadActions()
+                                .forEach(dslExecutableDTOS -> {
+                                    dslExecutableDTOS.forEach(dslExecutableDTO -> {
+                                        if (dslExecutableDTO.getName() != null) {
+                                            newOnPageLoadActionNames.add(dslExecutableDTO.getName());
+                                        }
+                                    });
+                                });
+
+                        BuildingBlockResponseDTO buildingBlockResponseDTO = new BuildingBlockResponseDTO();
+                        buildingBlockResponseDTO.setWidgetDsl(buildingBlockImportDTO.getWidgetDsl());
+                        return newPageService
+                                .findBranchedPageId(
+                                        branchName, buildingBlockDTO.getPageId(), AclPermission.MANAGE_PAGES)
+                                .flatMap(branchedPageId -> newPageService
+                                        .findById(branchedPageId, Optional.empty())
+                                        .map(newPage -> {
+                                            if (newPage.getUnpublishedPage()
+                                                            .getLayouts()
+                                                            .get(0)
+                                                            .getLayoutOnLoadActions()
+                                                    == null) {
+                                                return buildingBlockResponseDTO;
+                                            }
+                                            newPage.getUnpublishedPage()
+                                                    .getLayouts()
+                                                    .get(0)
+                                                    .getLayoutOnLoadActions()
+                                                    .forEach(dslExecutableDTOS -> {
+                                                        // Filter the onPageLoadActions based on the json file
+                                                        buildingBlockResponseDTO
+                                                                .getOnPageLoadActions()
+                                                                .addAll(dslExecutableDTOS.stream()
+                                                                        .filter(dslExecutableDTO ->
+                                                                                newOnPageLoadActionNames.contains(
+                                                                                        dslExecutableDTO.getName()))
+                                                                        .toList());
+                                                    });
+                                            return buildingBlockResponseDTO;
+                                        }));
+                    });
+        });
     }
 }

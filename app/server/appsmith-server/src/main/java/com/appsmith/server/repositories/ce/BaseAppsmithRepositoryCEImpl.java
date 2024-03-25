@@ -13,8 +13,6 @@ import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
-import com.querydsl.core.types.Path;
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -90,21 +88,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.genericDomain =
                 (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
-    }
-
-    public static String fieldName(Path<?> path) {
-        return Optional.ofNullable(path).map(p -> p.getMetadata().getName()).orElse("");
-    }
-
-    public static String completeFieldName(@NotNull Path<?> path) {
-        StringBuilder sb = new StringBuilder();
-
-        while (!path.getMetadata().isRoot()) {
-            sb.insert(0, "." + fieldName(path));
-            path = path.getMetadata().getParent();
-        }
-        sb.deleteCharAt(0);
-        return sb.toString();
     }
 
     public static Criteria notDeleted() {
