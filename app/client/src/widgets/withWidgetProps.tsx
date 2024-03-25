@@ -66,6 +66,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     } = props;
 
     const isPreviewMode = useSelector(combinedPreviewModeSelector);
+
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
@@ -229,7 +230,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       const needsErrorInfo =
         !isPreviewMode &&
         renderMode === RenderModes.CANVAS &&
-        !!WidgetFactory.getConfig(canvasWidget.type)?.needsErrorInfo;
+        !!WidgetFactory.getConfig(evaluatedWidget?.type)?.needsErrorInfo;
 
       widgetProps.errors = needsErrorInfo
         ? widgetErrorsFromStaticProps(evaluatedWidget)
