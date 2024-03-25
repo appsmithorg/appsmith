@@ -12,9 +12,8 @@ import { DEFAULT_SPLIT_SCREEN_WIDTH } from "constants/AppConstants";
  *      there will be 5 gaps)
  * 26px Add button width
  * 62px show more list button(considering 3 digit width as max)
- * 24px width of maximize button
  * ======================================
- * 151px
+ * 127px
  *
  */
 export const StyledTab = styled(Flex)`
@@ -30,7 +29,7 @@ export const StyledTab = styled(Flex)`
   border-top-right-radius: var(--ads-v2-border-radius);
   align-items: center;
   justify-content: center;
-  max-width: calc((${DEFAULT_SPLIT_SCREEN_WIDTH} - 151px) / 5);
+  max-width: calc((${DEFAULT_SPLIT_SCREEN_WIDTH} - 127px) / 5);
 
   // After element - the seperator in between tabs
   &:not(&.active):not(:has(+ .active)):after {

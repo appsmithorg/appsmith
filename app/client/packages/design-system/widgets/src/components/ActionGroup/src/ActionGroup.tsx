@@ -28,7 +28,7 @@ const _ActionGroup = <T extends object>(
   } = props;
   const domRef = useDOMRef(ref);
   const state = useListState({ ...props, suppressTextValueWarning: true });
-  const { actionGroupProps, isMeasuring, visibleItems } = useActionGroup(
+  const { actionGroupProps, visibleItems } = useActionGroup(
     props,
     state,
     domRef,
@@ -38,63 +38,52 @@ const _ActionGroup = <T extends object>(
   const menuChildren = children.slice(visibleItems);
   children = children.slice(0, visibleItems);
 
-  const style = {
-    flexBasis: isMeasuring ? "100%" : undefined,
-    display: "flex",
-  };
-
   return (
     <FocusScope>
       <div
-        style={{
-          ...style,
-        }}
+        className={styles.actionGroup}
+        data-density={Boolean(density) ? density : undefined}
+        data-orientation={orientation}
+        data-overflow={overflowMode}
+        ref={domRef}
+        {...actionGroupProps}
+        {...others}
       >
-        <div
-          className={styles.actionGroup}
-          data-density={Boolean(density) ? density : undefined}
-          data-orientation={orientation}
-          data-overflow={overflowMode}
-          ref={domRef}
-          {...actionGroupProps}
-          {...others}
-        >
-          {children.map((item) => {
-            if (Boolean(item.props.isSeparator)) {
-              return <div data-separator="" key={item.key} />;
-            }
+        {children.map((item) => {
+          if (Boolean(item.props.isSeparator)) {
+            return <div data-separator="" key={item.key} />;
+          }
 
-            return (
-              <ActionGroupItem
-                color={color}
-                icon={item.props.icon}
-                iconPosition={item.props.iconPosition}
-                isDisabled={
-                  Boolean(state.disabledKeys.has(item.key)) || isDisabled
-                }
-                isLoading={item.props.isLoading}
-                item={item}
-                key={item.key}
-                onPress={() => onAction?.(item.key)}
-                size={Boolean(size) ? size : undefined}
-                state={state}
-                variant={variant}
-              />
-            );
-          })}
-          {menuChildren?.length > 0 && (
-            <Menu onAction={onAction}>
-              <IconButton color={color} icon="dots" variant={variant} />
-              <MenuList>
-                {menuChildren.map((item) => (
-                  <Item isSeparator={item.props.isSeparator} key={item.key}>
-                    {item.rendered}
-                  </Item>
-                ))}
-              </MenuList>
-            </Menu>
-          )}
-        </div>
+          return (
+            <ActionGroupItem
+              color={color}
+              icon={item.props.icon}
+              iconPosition={item.props.iconPosition}
+              isDisabled={
+                Boolean(state.disabledKeys.has(item.key)) || isDisabled
+              }
+              isLoading={item.props.isLoading}
+              item={item}
+              key={item.key}
+              onPress={() => onAction?.(item.key)}
+              size={Boolean(size) ? size : undefined}
+              state={state}
+              variant={variant}
+            />
+          );
+        })}
+        {menuChildren?.length > 0 && (
+          <Menu onAction={onAction}>
+            <IconButton color={color} icon="dots" variant={variant} />
+            <MenuList>
+              {menuChildren.map((item) => (
+                <Item isSeparator={item.props.isSeparator} key={item.key}>
+                  {item.rendered}
+                </Item>
+              ))}
+            </MenuList>
+          </Menu>
+        )}
       </div>
     </FocusScope>
   );

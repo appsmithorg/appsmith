@@ -1,6 +1,6 @@
 export const anvilConfig = {
   isLargeWidget: false,
   widgetSize: {
-    minWidth: "sizing-10",
+    minWidth: "sizing-9",
   },
 };
