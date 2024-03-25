@@ -20,7 +20,6 @@ import type { JSAction, Variable } from "entities/JSCollection";
 import keyBy from "lodash/keyBy";
 import { getActionConfig } from "pages/Editor/Explorer/Actions/helpers";
 import { JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
-import { useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type {
   ActionData,
@@ -69,9 +68,10 @@ import { setShowCreateNewModal } from "actions/propertyPaneActions";
 import { setIdeEditorViewMode } from "actions/ideActions";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { resolveIcon } from "pages/Editor/utils";
+import { getModuleIcon, getPluginImagesFromPlugins } from "pages/Editor/utils";
 import { getAllModules } from "@appsmith/selectors/modulesSelector";
 import type { Module } from "@appsmith/constants/ModuleConstants";
+import type { Plugin } from "api/PluginApi";
 
 const actionList: {
   label: string;
@@ -396,7 +396,7 @@ export function useModalDropdownList(handleClose: () => void) {
 
 export function getApiQueriesAndJSActionOptionsWithChildren(
   pageId: string,
-  plugins: any,
+  plugins: Plugin[],
   actions: ActionDataState,
   jsActions: Array<JSCollectionData>,
   dispatch: any,
@@ -422,7 +422,7 @@ export function getApiQueriesAndJSActionOptionsWithChildren(
 }
 
 function getApiAndQueryOptions(
-  plugins: any,
+  plugins: Plugin[],
   actions: ActionDataState,
   dispatch: any,
   handleClose: () => void,
@@ -431,6 +431,8 @@ function getApiAndQueryOptions(
 ) {
   const state = store.getState();
   const isSideBySideEnabled = getIsSideBySideEnabled(state);
+  const pluginImages = getPluginImagesFromPlugins(plugins);
+  const pluginGroups: any = keyBy(plugins, "id");
 
   const createQueryObject: TreeDropdownOption = {
     label: "New query",
@@ -474,7 +476,7 @@ function getApiAndQueryOptions(
         type: queryOptions.value,
         icon: getActionConfig(api.config.pluginType)?.getIcon(
           api.config,
-          plugins[(api as any).config.datasource.pluginId],
+          pluginGroups[(api as any).config.datasource.pluginId],
           api.config.pluginType === PluginType.API,
         ),
       } as TreeDropdownOption);
@@ -488,7 +490,7 @@ function getApiAndQueryOptions(
         type: queryOptions.value,
         icon: getActionConfig(query.config.pluginType)?.getIcon(
           query.config,
-          plugins[(query as any).config.datasource.pluginId],
+          pluginGroups[(query as any).config.datasource.pluginId],
         ),
       } as TreeDropdownOption);
     });
@@ -499,11 +501,7 @@ function getApiAndQueryOptions(
         id: instance.config.id,
         value: instance.config.name,
         type: queryOptions.value,
-        icon: resolveIcon({
-          iconLocation: plugins[module.pluginId]?.iconLocation || "",
-          pluginType: module.pluginType,
-          moduleType: module.type,
-        }),
+        icon: getModuleIcon(module, pluginImages),
       } as TreeDropdownOption);
     });
   }
@@ -629,7 +627,6 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   const plugins = useSelector((state: AppState) => {
     return state.entities.plugins.list;
   });
-  const pluginGroups: any = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const actions = useSelector(getCurrentActions);
   const jsActions = useSelector(getCurrentJSCollections);
   const queryModuleInstances = useSelector(
@@ -641,7 +638,7 @@ export function useApisQueriesAndJsActionOptions(handleClose: () => void) {
   // this function gets all the Queries/API's/JS Objects and attaches it to actionList
   return getApiQueriesAndJSActionOptionsWithChildren(
     pageId,
-    pluginGroups,
+    plugins,
     actions,
     jsActions,
     dispatch,

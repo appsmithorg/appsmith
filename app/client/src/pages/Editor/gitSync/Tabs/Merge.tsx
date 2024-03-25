@@ -30,7 +30,6 @@ import {
 import type { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
   fetchBranchesInit,
-  fetchGitStatusInit,
   fetchMergeStatusInit,
   mergeBranchInit,
   resetMergeStatus,
@@ -177,7 +176,6 @@ export default function Merge() {
   }, [currentBranch, selectedBranchOption?.value, dispatch]);
 
   useEffect(() => {
-    dispatch(fetchGitStatusInit({ compareRemote: true }));
     dispatch(fetchBranchesInit());
     return () => {
       dispatch(resetMergeStatus());

@@ -16,8 +16,8 @@ export interface JSCollection {
   pluginId: string;
   pluginType: PluginType.JS;
   actions: Array<JSAction>;
-  body: string;
-  variables: Array<Variable>;
+  body?: string;
+  variables?: Array<Variable>;
   userPermissions?: string[];
   errorReports?: Array<LayoutOnLoadActionErrors>;
   isPublic?: boolean;
@@ -33,9 +33,9 @@ export interface JSCollection {
 }
 
 export interface JSActionConfig {
-  body: string;
+  body?: string;
   timeoutInMillisecond: number;
-  jsArguments: Array<Variable>;
+  jsArguments?: Array<Variable>;
 }
 export interface JSAction extends BaseAction {
   actionConfiguration: JSActionConfig;

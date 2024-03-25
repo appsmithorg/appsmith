@@ -115,6 +115,7 @@ export class LightModeTheme implements ColorModeTheme {
 
       bdOnAccent: this.bdOnAccent.to("sRGB").toString(),
       bdOnNeutral: this.bdOnNeutral.to("sRGB").toString(),
+      bdOnNeutralHover: this.bdOnNeutralHover.to("sRGB").toString(),
       bdOnPositive: this.bdOnPositive.to("sRGB").toString(),
       bdOnNegative: this.bdOnNegative.to("sRGB").toString(),
       bdOnWarning: this.bdOnWarning.to("sRGB").toString(),
@@ -356,23 +357,23 @@ export class LightModeTheme implements ColorModeTheme {
     // Simplified and adjusted version of bgAccentHover algorithm (bgNeutral has very low or no chroma)
 
     if (this.bgNeutral.oklch.l < 0.06) {
-      color.oklch.l += 0.24;
+      color.oklch.l += 0.21;
     }
 
     if (this.bgNeutral.oklch.l > 0.06 && this.bgNeutral.oklch.l < 0.14) {
-      color.oklch.l += 0.14;
+      color.oklch.l += 0.12;
     }
 
     if (this.bgNeutral.oklch.l >= 0.14 && this.bgNeutral.oklch.l < 0.21) {
-      color.oklch.l += 0.07;
+      color.oklch.l += 0.06;
     }
 
     if (this.bgNeutral.oklch.l >= 0.21 && this.bgNeutral.oklch.l < 0.7) {
-      color.oklch.l += 0.05;
+      color.oklch.l += 0.04;
     }
 
     if (this.bgNeutral.oklch.l >= 0.7 && this.bgNeutral.oklch.l < 0.955) {
-      color.oklch.l += 0.03;
+      color.oklch.l += 0.02;
     }
 
     if (this.bgNeutral.oklch.l >= 0.955) {
@@ -406,11 +407,11 @@ export class LightModeTheme implements ColorModeTheme {
 
     // Adjusted version of bgAccentSubtle (less or no chroma)
     if (this.seedIsVeryLight) {
-      color.oklch.l = 0.955;
+      color.oklch.l = 0.985;
     }
 
     if (!this.seedIsVeryLight) {
-      color.oklch.l = 0.93;
+      color.oklch.l = 0.935;
     }
 
     if (this.seedChroma > 0.001) {
@@ -992,6 +993,7 @@ export class LightModeTheme implements ColorModeTheme {
 
   private get bdNeutral() {
     // Desatured version of the seed for harmonious combination with backgrounds and accents.
+    // Used in checkbox, radio button
     const color = this.bdAccent.clone();
 
     color.oklch.c = 0.001;
@@ -1096,7 +1098,7 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bdNegative.clone();
 
     // Lightness of bdNegative is known, no additional checks like in bdNeutralHover
-    color.oklch.l += 0.1;
+    color.oklch.l += 0.08;
 
     return color;
   }
@@ -1178,6 +1180,29 @@ export class LightModeTheme implements ColorModeTheme {
 
     if (this.bgNeutral.oklch.l < 0.15) {
       color.oklch.l += 0.47;
+    }
+
+    return color;
+  }
+
+  private get bdOnNeutralHover() {
+    // Outline on the input field shown on hover
+    const color = this.bdNeutral.clone();
+
+    if (this.bdNeutral.oklch.l < 0.06) {
+      color.oklch.l += 0.95;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.06 && this.bdNeutral.oklch.l < 0.25) {
+      color.oklch.l += 0.75;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.25 && this.bdNeutral.oklch.l < 0.5) {
+      color.oklch.l += 0.5;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.5) {
+      color.oklch.l += 0.3;
     }
 
     return color;

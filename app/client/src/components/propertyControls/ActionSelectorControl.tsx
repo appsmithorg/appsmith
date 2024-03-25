@@ -22,7 +22,6 @@ import {
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import store from "store";
-import keyBy from "lodash/keyBy";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getApiQueriesAndJSActionOptionsWithChildren } from "components/editorComponents/ActionCreator/helpers";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
@@ -152,12 +151,11 @@ class ActionSelectorControl extends BaseControl<ControlProps> {
 
     const pageId = getCurrentPageId(state);
     const plugins = getPlugins(state);
-    const pluginGroups: any = keyBy(plugins, "id");
 
     // this function gets all the Queries/API's/JS Objects and attaches it to actionList
     const fieldOptions = getApiQueriesAndJSActionOptionsWithChildren(
       pageId,
-      pluginGroups,
+      plugins,
       actions,
       jsCollections,
       () => {
