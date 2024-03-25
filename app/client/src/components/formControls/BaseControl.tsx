@@ -88,6 +88,7 @@ export interface ControlData {
   comparisonTypes?: string[];
   nestedLevels?: number;
   customStyles?: any;
+  sectionStyles?: any;
   propertyName?: string;
   identifier?: string;
   sectionName?: string;

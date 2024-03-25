@@ -1,0 +1,73 @@
+import * as Factory from "factory.ts";
+import type { SaaSAction } from "entities/Action";
+import { PluginPackageName, PluginType } from "entities/Action";
+import { PluginIDs } from "test/factories/MockPluginsState";
+
+export const GoogleSheetFactory = Factory.Sync.makeFactory<SaaSAction>({
+  dynamicBindingPathList: [],
+  id: "api_id",
+  workspaceId: "workspaceID",
+  pluginType: PluginType.SAAS,
+  pluginId: PluginIDs[PluginPackageName.GOOGLE_SHEETS],
+  name: Factory.each((i) => `Api${i + 1}`),
+  datasource: {
+    id: "GoogleSheetsDatasourceID",
+    name: "SheetsExampleDatabase",
+    pluginId: PluginIDs[PluginPackageName.GOOGLE_SHEETS],
+  },
+  pageId: "page_id",
+  actionConfiguration: {
+    timeoutInMillisecond: 10000,
+    paginationType: "NONE",
+    encodeParamsToggle: true,
+    selfReferencingDataPaths: [],
+    formData: {
+      command: {
+        data: "FETCH_MANY",
+      },
+      entityType: {
+        data: "ROWS",
+      },
+      tableHeaderIndex: {
+        data: "1",
+      },
+      projection: {
+        data: [],
+      },
+      queryFormat: {
+        data: "ROWS",
+      },
+      range: {
+        data: "",
+      },
+      where: {
+        data: {
+          condition: "AND",
+        },
+      },
+      pagination: {
+        data: {
+          limit: "20",
+          offset: "0",
+        },
+      },
+      smartSubstitution: {
+        data: true,
+      },
+    },
+  },
+  executeOnLoad: false,
+  isValid: true,
+  invalids: [],
+  messages: [],
+  jsonPathKeys: [],
+  confirmBeforeExecute: false,
+  userPermissions: [
+    "read:actions",
+    "delete:actions",
+    "execute:actions",
+    "manage:actions",
+  ],
+  eventData: {},
+  cacheResponse: "",
+});

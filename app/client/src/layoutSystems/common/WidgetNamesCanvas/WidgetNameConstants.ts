@@ -6,8 +6,9 @@ export const WIDGET_NAME_FONT_SIZE = 14;
 export const WIDGET_NAME_LINE_HEIGHT = Math.floor(WIDGET_NAME_FONT_SIZE * 1.2);
 export const WIDGET_NAME_VERTICAL_PADDING = 4;
 export const WIDGET_NAME_HORIZONTAL_PADDING = 6;
-export const WIDGET_OUTLINE_OFFSET = 1;
+export const WIDGET_OUTLINE_OFFSET = 7;
 export const WIDGET_NAME_ICON_PADDING = 16;
+export const WIDGET_NAME_OFFSET = 6; // 4px — outline-offset and 2px outline-width of selection border
 
 export const DEFAULT_WIDGET_NAME_CANVAS_HEIGHT = 600;
 export const WIDGET_NAME_CANVAS_PADDING = 20;
