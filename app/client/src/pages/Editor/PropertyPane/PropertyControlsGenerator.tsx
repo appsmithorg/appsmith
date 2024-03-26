@@ -18,8 +18,7 @@ import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import equal from "fast-deep-equal/es6";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import type { AppState } from "@appsmith/reducers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export interface PropertyControlsGeneratorProps {
   id: string;
@@ -36,11 +35,14 @@ export const shouldSectionBeExpanded = (
   sectionConfig: PropertyPaneSectionConfig,
   isFlagEnabled: boolean,
 ) => {
-  return isFlagEnabled && "expandedByDefault" in sectionConfig
-    ? !!sectionConfig.expandedByDefault
-    : !!sectionConfig.isDefaultOpen
-    ? sectionConfig.isDefaultOpen
-    : true;
+  if (isFlagEnabled && "expandedByDefault" in sectionConfig) {
+    return !!sectionConfig.expandedByDefault;
+  } else {
+    if (!!sectionConfig.isDefaultOpen) {
+      return sectionConfig.isDefaultOpen;
+    }
+    return true;
+  }
 };
 
 const generatePropertyControl = (
@@ -101,12 +103,8 @@ const generatePropertyControl = (
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
 
-  const isCollapseAllExceptDataEnabled: boolean = useSelector(
-    (state: AppState) =>
-      selectFeatureFlagCheck(
-        state,
-        FEATURE_FLAG.ab_learnability_discoverability_collapse_all_except_data_enabled,
-      ),
+  const isCollapseAllExceptDataEnabled: boolean = useFeatureFlag(
+    FEATURE_FLAG.ab_learnability_discoverability_collapse_all_except_data_enabled,
   );
 
   const enhancementSelector = getWidgetEnhancementSelector(
