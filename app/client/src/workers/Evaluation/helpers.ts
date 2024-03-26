@@ -311,6 +311,7 @@ const getScrubbedOutUpdatesWhenRootCollectionIsUpdated = (
 export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
+  // these are the paths that the diff is limited to, this is a performance optimisation and through this we don't have to diff the entire data tree
   constrainedDiffPaths: string[],
 ): Diff<DataTree, DataTree>[] => {
   const updates = generateDiffUpdates(

@@ -82,7 +82,7 @@ describe("generateOptimisedUpdates", () => {
       // no diff should be generated
       expect(updates).toEqual([]);
     });
-    test("should not generate any diff when theconstrainedDiffPaths nodes are the same ", () => {
+    test("should not generate any diff when the constrainedDiffPaths nodes are the same ", () => {
       const newState = produce(oldState, (draft) => {
         //making an unrelated change
         draft.Table1.triggerRowSelection = true as any;

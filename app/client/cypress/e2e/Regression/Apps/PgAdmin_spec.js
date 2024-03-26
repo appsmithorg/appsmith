@@ -98,4 +98,3 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
     cy.xpath(appPage.closeButton).click({ force: true });
   });
 });
-
