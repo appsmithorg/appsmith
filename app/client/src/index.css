@@ -255,6 +255,31 @@ div.bp3-popover-arrow {
   z-index: 9 !important;
 }
 
+/* making sure widgets on the editor are editable */
+.anvil-editor .anvil-widget-wrapper {
+  pointer-events: all;
+}
+
+/* making sure widgets on the editor are not intractable */
+.anvil-editor .anvil-widget-wrapper > * {
+  pointer-events: none;
+}
+
+/* making sure modal widgets on the editor are not intractable */
+.anvil-detached-widget {
+  pointer-events: none;
+}
+
+/* making sure widgets inside modal widgets on the editor are editable */
+.anvil-detached-widget .anvil-widget-wrapper {
+  pointer-events: all;
+}
+
+/* making sure widgets inside modal widgets on the editor are not intractable */
+.anvil-detached-widget .anvil-widget-wrapper > * {
+  pointer-events: none;
+}
+
 /** Conditional vertical margin applied to widgets.
     If in a row of widgets (.aligned-widget-row), one of the widgets has a label ([data-field-label-wrapper]), then
     all widgets (.anvil-widget-wrapper) in the row other than the widget with the label, will shift down using the
