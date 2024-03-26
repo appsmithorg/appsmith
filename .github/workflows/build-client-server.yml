@@ -186,9 +186,9 @@ jobs:
     steps:
       - name: Setup node
         if: needs.ci-test-limited.result != 'success'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: app/client/package.json
 
       - name: install pg
         if: needs.ci-test-limited.result != 'success'
@@ -303,9 +303,9 @@ jobs:
     steps:
       - name: Setup node
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: app/client/package.json
 
       - name: install pg
         if: needs.ci-test-limited-existing-docker-image.result != 'success'

@@ -6,7 +6,6 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.querydsl.core.annotations.QueryEntity;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -35,7 +34,6 @@ import static com.appsmith.server.helpers.StringUtils.dotted;
 @Setter
 @ToString
 @NoArgsConstructor
-@QueryEntity
 @Document
 @FieldNameConstants
 public class Application extends BaseDomain implements Artifact {
