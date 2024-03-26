@@ -198,7 +198,7 @@ describe("IDE Render: JS", () => {
       getByTestId("t--ide-maximize");
       getByTestId("t--widgets-editor");
 
-      // Check if api is rendered in side by side
+      // Check if js is rendered in side by side
       expect(getAllByText("JSObject2").length).toBe(2);
       // Tabs active state
       expect(
@@ -243,7 +243,7 @@ describe("IDE Render: JS", () => {
           },
         );
 
-      // There will be 2 Api1 text (editor tab and Editor form)
+      // There will be 2 JSObject3 text (editor tab and Editor form)
       expect(getAllByText("JSObject3").length).toEqual(2);
       // Tabs active state
       expect(
