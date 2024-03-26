@@ -24,7 +24,7 @@ export interface PaginationProps {
   widgetName: string;
   widgetId: string;
   searchKey: string;
-  searchTableData: (searchKey: any) => void;
+  onSearch: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
