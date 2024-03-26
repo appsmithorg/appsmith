@@ -35,14 +35,12 @@ export const shouldSectionBeExpanded = (
   sectionConfig: PropertyPaneSectionConfig,
   isFlagEnabled: boolean,
 ) => {
-  if (isFlagEnabled && "expandedByDefault" in sectionConfig) {
+  if (isFlagEnabled && "expandedByDefault" in sectionConfig)
     return !!sectionConfig.expandedByDefault;
-  } else {
-    if (!!sectionConfig.isDefaultOpen) {
-      return sectionConfig.isDefaultOpen;
-    }
-    return true;
-  }
+
+  if ("isDefaultOpen" in sectionConfig) return sectionConfig.isDefaultOpen;
+
+  return true;
 };
 
 const generatePropertyControl = (
