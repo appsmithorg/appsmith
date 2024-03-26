@@ -6,17 +6,20 @@ import type { Page } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import type { IDETabs } from "reducers/uiReducers/ideReducer";
 import { IDETabsDefaultValue } from "reducers/uiReducers/ideReducer";
+import type { JSCollection } from "entities/JSCollection";
 
 interface IDEStateArgs {
   ideView?: EditorViewMode;
   pages?: Page[];
   actions?: Action[];
+  js?: JSCollection[];
   tabs?: IDETabs;
 }
 
 export const getIDETestState = ({
   actions = [],
   ideView = EditorViewMode.FullScreen,
+  js = [],
   pages = [],
   tabs = IDETabsDefaultValue,
 }: IDEStateArgs): AppState => {
@@ -33,6 +36,8 @@ export const getIDETestState = ({
 
   const actionData = actions.map((a) => ({ isLoading: false, config: a }));
 
+  const jsData = js.map((a) => ({ isLoading: false, config: a }));
+
   return {
     ...initialState,
     entities: {
@@ -40,6 +45,7 @@ export const getIDETestState = ({
       plugins: MockPluginsState,
       pageList: pageList,
       actions: actionData,
+      jsActions: jsData,
     },
     ui: {
       ...initialState.ui,
