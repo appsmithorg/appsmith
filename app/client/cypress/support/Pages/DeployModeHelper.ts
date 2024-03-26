@@ -46,7 +46,7 @@ export class DeployMode {
     toValidateSavedState && this.agHelper.AssertAutoSave();
     this.assertHelper.AssertDocumentReady();
     this.StubbingDeployPage(addDebugFlag);
-    cy.wait("@getConsolidatedData")
+    cy.wait(2000)
     this.agHelper.ClickButton("Deploy");
     this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 10000);
     this.assertHelper.AssertDocumentReady();
