@@ -6,7 +6,7 @@
     "./lib/*": "./lib/*.js"
   },
   "engines": {
-    "node": "^18.17.1",
+    "node": "^20.11.1",
     "yarn": "^3.5.1"
   },
   "packageManager": "yarn@3.5.1",
