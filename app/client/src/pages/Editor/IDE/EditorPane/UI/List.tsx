@@ -81,7 +81,13 @@ const ListWidgets = () => {
         </Flex>
       ) : null}
       {widgetsExist ? (
-        <Flex flex="1" flexDirection={"column"} overflowY="auto" px="spaces-3">
+        <Flex
+          data-testid="t--ui-widget-listing"
+          flex="1"
+          flexDirection={"column"}
+          overflowY="auto"
+          px="spaces-3"
+        >
           {widgets?.children?.map((child) => (
             <WidgetEntity
               childWidgets={child.children}

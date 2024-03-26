@@ -1,0 +1,7 @@
+{
+  "UiAddPane": "t--widget-sidebar",
+  "UiCloseButton": "t--widget-add-pane-close-icon",
+  "UiWidgetListing": "t--ui-widget-listing",
+  "UiCanvas": "t--canvas-artboard",
+  "BlankStateAddBtn": "t--empty-state-add-btn"
+}

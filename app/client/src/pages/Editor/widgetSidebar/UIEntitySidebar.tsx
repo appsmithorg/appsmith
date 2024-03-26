@@ -86,6 +86,7 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
       className={`flex flex-col t--widget-sidebar overflow-hidden ${
         isActive ? "" : "hidden"
       }`}
+      data-testid="t--widget-sidebar"
     >
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
