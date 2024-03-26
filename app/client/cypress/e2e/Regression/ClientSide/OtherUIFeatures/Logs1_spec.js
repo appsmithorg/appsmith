@@ -25,7 +25,7 @@ describe("Debugger logs", function () {
   this.beforeEach(() => {
     logString = generateTestLogString();
   });
-  
+
   it("3. Console log on button click with normal moustache binding", function () {
     ee.DragDropWidgetNVerify("buttonwidget", 200, 200);
     // Testing with normal log in moustache binding
