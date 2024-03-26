@@ -14,9 +14,6 @@ export function useWidgetBorderStyles(widgetId: string) {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const isCanvasResizing: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  );
   const isDistributingSpace: boolean = useSelector(
     getAnvilSpaceDistributionStatus,
   );
@@ -33,8 +30,7 @@ export function useWidgetBorderStyles(widgetId: string) {
   if (isSelected) {
     borderColor = "#F86A2B";
   }
-  const shouldHideBorder =
-    isDragging || isCanvasResizing || isDistributingSpace;
+  const shouldHideBorder = isDragging || isDistributingSpace;
   const canShowBorder = !shouldHideBorder && (isFocused || isSelected);
 
   return {

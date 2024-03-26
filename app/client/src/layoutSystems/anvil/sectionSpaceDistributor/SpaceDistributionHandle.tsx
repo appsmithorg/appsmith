@@ -6,6 +6,7 @@ import { SpaceDistributorHandleDimensions } from "./constants";
 import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
 import { useSpaceDistributionEvents } from "./useSpaceDistributionEvents";
 import { getDistributionHandleId } from "./utils/spaceDistributionEditorUtils";
+import { stopEventPropagation } from "utils/AppsmithUtils";
 
 interface SpaceDistributionNodeProps {
   columnPosition: number;
@@ -126,6 +127,8 @@ export const SpaceDistributionHandle = ({
     <StyledSpaceDistributionHandle
       id={getDistributionHandleId(leftZone)}
       left={leftPositionOfHandle}
+      // adding this so that section/zones do not enter hover state when hovering over the handle
+      onMouseOverCapture={stopEventPropagation}
       ref={ref}
     />
   );

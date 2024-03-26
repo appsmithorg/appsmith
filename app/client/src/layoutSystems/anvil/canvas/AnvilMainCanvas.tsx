@@ -4,6 +4,7 @@ import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useCanvasActivation } from "../canvasArenas/hooks/mainCanvas/useCanvasActivation";
 import { useSelectWidgetListener } from "../common/hooks/useSelectWidgetListener";
 import { useClickToClearSelections } from "./useClickToClearSelections";
+import { AnvilDragPreview } from "../canvasArenas/AnvilDragPreview";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 
@@ -55,5 +56,10 @@ export const AnvilMainCanvas = (props: BaseWidgetProps) => {
     () => (isPreviewMode ? [] : ["anvil-editor"]),
     [isPreviewMode],
   );
-  return <AnvilCanvas {...props} classList={classList} ref={canvasRef} />;
+  return (
+    <>
+      <AnvilCanvas {...props} classList={classList} ref={canvasRef} />
+      <AnvilDragPreview />
+    </>
+  );
 };

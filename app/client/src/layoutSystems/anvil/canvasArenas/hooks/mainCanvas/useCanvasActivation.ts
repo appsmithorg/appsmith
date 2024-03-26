@@ -42,7 +42,7 @@ const checkIfMousePositionIsInsideBlock = (
 // This buffer will make sure main canvas is not deactivated
 // until its about the below pixel distance from the main canvas border.
 const MAIN_CANVAS_BUFFER = 20;
-const SECTION_BUFFER = 20;
+const SECTION_BUFFER = 10;
 
 /**
  * This hook handles the activation and deactivation of the canvas(Drop targets) while dragging.
@@ -59,6 +59,7 @@ export const useCanvasActivation = () => {
     mainCanvasLayoutId,
     selectedWidgets,
   } = useCanvasActivationStates();
+
   const allWidgets: CanvasWidgetsReduxState = useSelector(getWidgets);
   // Getting the main canvas DOM node
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
@@ -177,8 +178,10 @@ export const useCanvasActivation = () => {
             if (layoutInfo.layoutType === LayoutComponentTypes.SECTION) {
               currentCanvasPositions.top += SECTION_BUFFER;
               currentCanvasPositions.height -= 2 * SECTION_BUFFER;
-              currentCanvasPositions.width += 2 * SECTION_BUFFER;
-              currentCanvasPositions.left -= SECTION_BUFFER;
+              currentCanvasPositions.width +=
+                2 * (SECTION_BUFFER + MAIN_CANVAS_BUFFER);
+              currentCanvasPositions.left -=
+                SECTION_BUFFER + MAIN_CANVAS_BUFFER;
             }
             if (currentCanvasPositions) {
               return checkIfMousePositionIsInsideBlock(
@@ -220,11 +223,10 @@ export const useCanvasActivation = () => {
       document?.addEventListener("mousemove", onMouseMoveWhileDragging);
       document.body.addEventListener("mouseup", onMouseUp, false);
       window.addEventListener("mouseup", onMouseUp, false);
-
       // Removing event listeners when the component unmounts or when dragging ends
       return () => {
         document?.removeEventListener("mousemove", onMouseMoveWhileDragging);
-        document.body.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener("mouseup", onMouseUp);
         window.removeEventListener("mouseup", onMouseUp);
       };
     }
