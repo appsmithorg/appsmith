@@ -43,6 +43,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -237,25 +238,30 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     protected Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(
             ActionCollection actionCollection, AclPermission aclPermission, boolean viewMode) {
-        if (actionCollection.getPublishedCollection() == null) {
+        ActionCollectionDTO actionCollectionDTO = null;
+        if (viewMode) {
+            actionCollectionDTO = actionCollection.getPublishedCollection();
+        } else {
+            actionCollectionDTO = actionCollection.getUnpublishedCollection();
+        }
+        if (Objects.isNull(actionCollectionDTO)) {
             return Mono.empty();
         }
         ActionCollectionViewDTO actionCollectionViewDTO = new ActionCollectionViewDTO();
-        final ActionCollectionDTO publishedCollection = actionCollection.getPublishedCollection();
         actionCollectionViewDTO.setId(actionCollection.getId());
-        actionCollectionViewDTO.setName(publishedCollection.getName());
-        actionCollectionViewDTO.setPageId(publishedCollection.getPageId());
+        actionCollectionViewDTO.setName(actionCollectionDTO.getName());
+        actionCollectionViewDTO.setPageId(actionCollectionDTO.getPageId());
         actionCollectionViewDTO.setApplicationId(actionCollection.getApplicationId());
-        actionCollectionViewDTO.setVariables(publishedCollection.getVariables());
-        actionCollectionViewDTO.setBody(publishedCollection.getBody());
+        actionCollectionViewDTO.setVariables(actionCollectionDTO.getVariables());
+        actionCollectionViewDTO.setBody(actionCollectionDTO.getBody());
         // Update default resources :
         // actionCollection.defaultResources contains appId, collectionId and branch(optional).
         // Default pageId will be taken from publishedCollection.defaultResources
         DefaultResources defaults = actionCollection.getDefaultResources();
         // Consider a situation when collection is not published but user is viewing in deployed
         // mode
-        if (publishedCollection.getDefaultResources() != null && defaults != null) {
-            defaults.setPageId(publishedCollection.getDefaultResources().getPageId());
+        if (actionCollectionDTO.getDefaultResources() != null && defaults != null) {
+            defaults.setPageId(actionCollectionDTO.getDefaultResources().getPageId());
         } else {
             log.debug(
                     "Unreachable state, unable to find default ids for actionCollection: {}", actionCollection.getId());
@@ -268,7 +274,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         }
         actionCollectionViewDTO.setDefaultResources(defaults);
         return Flux.fromIterable(
-                        publishedCollection.getDefaultToBranchedActionIdsMap().values())
+                        actionCollectionDTO.getDefaultToBranchedActionIdsMap().values())
                 .flatMap(actionId -> newActionService.findActionDTObyIdAndViewMode(actionId, viewMode, aclPermission))
                 .collectList()
                 .map(actionDTOList -> {

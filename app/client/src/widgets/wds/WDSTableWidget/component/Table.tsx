@@ -28,7 +28,6 @@ import {
 import { Colors } from "constants/Colors";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { EditableCell, TableVariant } from "../constants";
-import SimpleBar from "simplebar-react";
 import "simplebar-react/dist/simplebar.min.css";
 import { createGlobalStyle } from "styled-components";
 import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
@@ -335,63 +334,56 @@ export function Table(props: TableProps) {
           widgetId={props.widgetId}
         />
         {isHeaderVisible && (
-          <SimpleBar
+          <Flex
+            gap="spacing-1"
+            padding="spacing-1"
             style={{
-              maxHeight: tableSizes.TABLE_HEADER_HEIGHT,
+              borderBottom: "var(--border-width-1) solid var(--color-bd)",
             }}
           >
-            <Flex
-              gap="spacing-1"
-              minWidth="910px"
-              padding="spacing-1"
-              style={{
-                borderBottom: "var(--border-width-1) solid var(--color-bd)",
-              }}
-            >
-              <TableHeader
-                allowAddNewRow={props.allowAddNewRow}
-                applyFilter={props.applyFilter}
-                columns={tableHeadercolumns}
-                currentPageIndex={currentPageIndex}
-                delimiter={props.delimiter}
-                disableAddNewRow={!!props.editableCell?.column}
-                disabledAddNewRowSave={props.disabledAddNewRowSave}
-                filters={props.filters}
-                isAddRowInProgress={props.isAddRowInProgress}
-                isVisibleDownload={props.isVisibleDownload}
-                isVisibleFilters={props.isVisibleFilters}
-                isVisiblePagination={props.isVisiblePagination}
-                isVisibleSearch={props.isVisibleSearch}
-                nextPageClick={props.nextPageClick}
-                onAddNewRow={props.onAddNewRow}
-                onAddNewRowAction={props.onAddNewRowAction}
-                pageCount={pageCount}
-                pageNo={props.pageNo}
-                pageOptions={pageOptions}
-                prevPageClick={props.prevPageClick}
-                searchKey={props.searchKey}
-                searchTableData={props.searchTableData}
-                serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-                tableColumns={columns}
-                tableData={data}
-                tableSizes={tableSizes}
-                totalRecordsCount={props.totalRecordsCount}
-                updatePageNo={props.updatePageNo}
-                widgetId={props.widgetId}
-                widgetName={props.widgetName}
-                width={props.width}
-              />
-            </Flex>
-          </SimpleBar>
+            <TableHeader
+              allowAddNewRow={props.allowAddNewRow}
+              applyFilter={props.applyFilter}
+              columns={tableHeadercolumns}
+              currentPageIndex={currentPageIndex}
+              delimiter={props.delimiter}
+              disableAddNewRow={!!props.editableCell?.column}
+              disabledAddNewRowSave={props.disabledAddNewRowSave}
+              filters={props.filters}
+              isAddRowInProgress={props.isAddRowInProgress}
+              isVisibleDownload={props.isVisibleDownload}
+              isVisibleFilters={props.isVisibleFilters}
+              isVisiblePagination={props.isVisiblePagination}
+              isVisibleSearch={props.isVisibleSearch}
+              nextPageClick={props.nextPageClick}
+              onAddNewRow={props.onAddNewRow}
+              onAddNewRowAction={props.onAddNewRowAction}
+              pageCount={pageCount}
+              pageNo={props.pageNo}
+              pageOptions={pageOptions}
+              prevPageClick={props.prevPageClick}
+              searchKey={props.searchKey}
+              searchTableData={props.searchTableData}
+              serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+              tableColumns={columns}
+              tableData={data}
+              tableSizes={tableSizes}
+              totalRecordsCount={props.totalRecordsCount}
+              updatePageNo={props.updatePageNo}
+              widgetId={props.widgetId}
+              widgetName={props.widgetName}
+              width={props.width}
+            />
+          </Flex>
         )}
         <div
-          className={
+          className={`tableWrap ${
             props.isLoading
               ? Classes.SKELETON
               : shouldUseVirtual
-              ? "tableWrap virtual"
-              : "tableWrap"
-          }
+              ? " virtual"
+              : ""
+          }`}
         >
           <div {...getTableProps()} className="table column-freeze">
             {!shouldUseVirtual && (
@@ -417,7 +409,6 @@ export function Table(props: TableProps) {
                 prepareRow={prepareRow}
                 primaryColumnId={props.primaryColumnId}
                 rowSelectionState={rowSelectionState}
-                scrollContainerStyles={scrollContainerStyles}
                 selectTableRow={props.selectTableRow}
                 selectedRowIndex={props.selectedRowIndex}
                 selectedRowIndices={props.selectedRowIndices}

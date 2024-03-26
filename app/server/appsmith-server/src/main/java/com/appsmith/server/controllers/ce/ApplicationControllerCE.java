@@ -15,6 +15,7 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ArtifactImportDTO;
 import com.appsmith.server.dtos.BuildingBlockDTO;
+import com.appsmith.server.dtos.BuildingBlockResponseDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
@@ -409,7 +410,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @PostMapping("/import/partial/block")
-    public Mono<ResponseDTO<String>> importBlock(
+    public Mono<ResponseDTO<BuildingBlockResponseDTO>> importBlock(
             @RequestBody BuildingBlockDTO buildingBlockDTO,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return partialImportService

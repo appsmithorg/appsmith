@@ -775,7 +775,7 @@ describe("bdNeutralHover", () => {
     const { bdNeutralHover } = new DarkModeTheme(
       "oklch(0.45 0.03 60)",
     ).getColors();
-    expect(bdNeutralHover).toEqual("rgb(51.374% 51.374% 51.374%)");
+    expect(bdNeutralHover).toEqual("rgb(63.258% 63.258% 63.258%)");
   });
 });
 
