@@ -11,7 +11,7 @@ import {
 } from "react-table";
 import { useSticky } from "react-table-sticky";
 import { TableWrapper } from "./TableStyledWrappers";
-import TableHeader from "./header";
+import { TableHeader } from "./header";
 import { Classes } from "@blueprintjs/core";
 import type {
   ReactTableColumnProps,
@@ -96,7 +96,7 @@ export interface TableProps {
     pageData: ReactTableRowType<Record<string, unknown>>[],
   ) => void;
   triggerRowSelection: boolean;
-  searchTableData: (searchKey: any) => void;
+  onSearch: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
@@ -358,12 +358,12 @@ export function Table(props: TableProps) {
               nextPageClick={props.nextPageClick}
               onAddNewRow={props.onAddNewRow}
               onAddNewRowAction={props.onAddNewRowAction}
+              onSearch={props.onSearch}
               pageCount={pageCount}
               pageNo={props.pageNo}
               pageOptions={pageOptions}
               prevPageClick={props.prevPageClick}
               searchKey={props.searchKey}
-              searchTableData={props.searchTableData}
               serverSidePaginationEnabled={props.serverSidePaginationEnabled}
               tableColumns={columns}
               tableData={data}
