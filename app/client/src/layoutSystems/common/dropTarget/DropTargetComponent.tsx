@@ -47,6 +47,7 @@ import {
 } from "widgets/WidgetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
+import BuildingBlockExplorerDropTarget from "./buildingBlockExplorerDropTarget";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -97,15 +98,21 @@ function Onboarding() {
     ],
   );
 
-  if (shouldShowStarterTemplates && appState === IDEAppState.EDITOR)
+  if (shouldShowStarterTemplates && appState === IDEAppState.EDITOR) {
     return <StarterBuildingBlocks />;
-  else if (!shouldShowStarterTemplates && appState === IDEAppState.EDITOR)
-    return (
-      <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
-        Drag and drop a widget here
-      </h2>
-    );
-  else return null;
+  } else if (!shouldShowStarterTemplates && appState === IDEAppState.EDITOR) {
+    if (releaseDragDropBuildingBlocks) {
+      return <BuildingBlockExplorerDropTarget />;
+    } else {
+      return (
+        <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
+          Drag and drop a widget here
+        </h2>
+      );
+    }
+  } else {
+    return null;
+  }
 }
 
 /*
