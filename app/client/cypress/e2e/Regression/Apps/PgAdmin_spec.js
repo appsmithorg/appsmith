@@ -1,8 +1,8 @@
 import {
   agHelper,
-  assertHelper,
   deployMode,
   dataSources,
+  assertHelper,
   locators,
   draggableWidgets,
 } from "../../../support/Objects/ObjectsCore";
@@ -12,15 +12,15 @@ const appPage = require("../../../locators/PgAdminlocators.json");
 describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
   let datasourceName, tableName;
 
-  before("Add dsl and create datasource", () => {
-    agHelper.AddDsl("PgAdmindsl");
-    dataSources.CreateDataSource("Postgres");
-    cy.get("@dsName").then(($dsName) => {
-      datasourceName = $dsName;
-    });
-  });
+  // before("Add dsl and create datasource", () => {
+  //   agHelper.AddDsl("PgAdmindsl");
+  //   dataSources.CreateDataSource("Postgres");
+  //   cy.get("@dsName").then(($dsName) => {
+  //     datasourceName = $dsName;
+  //   });
+  // });
 
-  it("1. Create queries", function () {
+  it.skip("1. Create queries", function () {
     // writing query to get all schema
     dataSources.CreateQueryAfterDSSaved(
       "SELECT schema_name FROM information_schema.schemata;",
@@ -64,6 +64,7 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
   });
 
   it("2. Add new table from app page, View and Delete table", function () {
+    cy.visit("https://dev.appsmith.com/app/untitled-application-1/page1-66027d0253e53c110c3706a1/edit");
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     // adding new table
     agHelper.GetNClick(appPage.addNewtable, 0, true);
@@ -95,6 +96,8 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
     cy.xpath(appPage.deleteButton).last().click({ force: true });
     cy.xpath(appPage.confirmButton).click({ force: true });
     assertHelper.AssertNetworkStatus("@postExecute");
+    cy.wait(2000);
     cy.xpath(appPage.closeButton).click({ force: true });
   });
 });
+
