@@ -1,17 +1,20 @@
-import { TextInput, Text, Flex, IconButton } from "@design-system/widgets";
+import {
+  TextInput,
+  Text,
+  Flex,
+  IconButton,
+  Icon,
+  ActionGroup,
+  Item,
+} from "@design-system/widgets";
 import React from "react";
-import { TableFilters } from "./filter";
 import type {
   ReactTableColumnProps,
   TableSizes,
   ReactTableFilter,
 } from "../../Constants";
-import TableDataDownload from "./Download";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { PageNumberInput } from "./PageNumberInput";
-import { Icon as BIcon } from "@blueprintjs/core";
-
-import { Button, Tooltip } from "@design-system/widgets";
 
 const MIN_WIDTH_TO_SHOW_PAGE_ITEMS = 676;
 
@@ -31,7 +34,7 @@ export interface ActionsPropsType {
   widgetName: string;
   widgetId: string;
   searchKey: string;
-  searchTableData: (searchKey: any) => void;
+  onSearch: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -48,64 +51,33 @@ export interface ActionsPropsType {
 }
 
 export const Actions = (props: ActionsPropsType) => {
+  const { isVisibleSearch, onSearch } = props;
+
   const pageCount = `${props.pageNo + 1}${
     props.totalRecordsCount ? ` of ${props.pageCount}` : ``
   }`;
 
   return (
     <>
-      {props.isVisibleSearch && (
+      {isVisibleSearch && (
         <TextInput
-          onChange={props.searchTableData}
+          onChange={onSearch}
           placeholder="Search..."
-          startIcon={<BIcon icon="search" />}
+          size="small"
+          startIcon={<Icon name="search" />}
           value={props.searchKey}
         />
       )}
-      {(props.isVisibleFilters ||
-        props.isVisibleDownload ||
-        props.allowAddNewRow) &&
-        !!props.columns.length && (
-          <>
-            {props.isVisibleFilters && (
-              <TableFilters
-                applyFilter={props.applyFilter}
-                columns={props.columns}
-                filters={props.filters}
-                widgetId={props.widgetId}
-              />
-            )}
 
-            {props.isVisibleDownload && (
-              <TableDataDownload
-                columns={props.tableColumns}
-                data={props.tableData}
-                delimiter={props.delimiter}
-                widgetName={props.widgetName}
-              />
-            )}
-
-            {props.allowAddNewRow && (
-              <Tooltip
-                tooltip={
-                  props.disableAddNewRow
-                    ? "Save or discard the unsaved row to add a new row"
-                    : ""
-                }
-              >
-                <Button
-                  data-testid="t--add-new-row"
-                  icon="plus"
-                  isDisabled={props.disableAddNewRow}
-                  onPress={props.onAddNewRow}
-                  variant="ghost"
-                >
-                  Add new row
-                </Button>
-              </Tooltip>
-            )}
-          </>
-        )}
+      <ActionGroup size="small" variant="ghost">
+        <Item>Hello</Item>
+        <Item icon="download" key="download">
+          Download
+        </Item>
+        <Item icon="plus" key="add-row">
+          Add Row
+        </Item>
+      </ActionGroup>
 
       {!!props.columns.length &&
         props.isVisiblePagination &&
