@@ -55,7 +55,7 @@ export type Setting = ControlType & {
   id: string;
   category?: string;
   controlSubType?: SettingSubtype;
-  format?: (value: any) => any;
+  format?: (value: string) => any;
   parse?: (value: any) => any;
   helpText?: string;
   label?: React.ReactNode;
@@ -65,7 +65,7 @@ export type Setting = ControlType & {
   url?: string;
   children?: any;
   subCategory?: string;
-  value?: any;
+  value?: string;
   text?: string;
   textSuffix?: React.ReactElement;
   action?: (

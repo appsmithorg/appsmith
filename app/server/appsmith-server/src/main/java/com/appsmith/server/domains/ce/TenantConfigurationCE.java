@@ -51,8 +51,6 @@ public class TenantConfigurationCE {
     // is complete.
     Boolean isRestartRequired;
 
-    Boolean isStrongPasswordPolicyEnabled;
-
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
@@ -76,7 +74,6 @@ public class TenantConfigurationCE {
 
         featuresWithPendingMigration = tenantConfiguration.getFeaturesWithPendingMigration();
         migrationStatus = tenantConfiguration.getMigrationStatus();
-        isStrongPasswordPolicyEnabled = tenantConfiguration.getIsStrongPasswordPolicyEnabled();
     }
 
     public Boolean isEmailVerificationEnabled() {

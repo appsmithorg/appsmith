@@ -30,7 +30,6 @@ import {
 import {
   createCanvasWidget,
   createLoadingWidget,
-  widgetErrorsFromStaticProps,
 } from "utils/widgetRenderUtils";
 import type { WidgetProps } from "./BaseWidget";
 import type BaseWidget from "./BaseWidget";
@@ -47,7 +46,6 @@ import { getFlattenedChildCanvasWidgets } from "selectors/flattenedChildCanvasSe
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { isWidgetSelectedForPropertyPane } from "selectors/propertyPaneSelectors";
-import WidgetFactory from "WidgetProvider/factory";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -66,7 +64,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     } = props;
 
     const isPreviewMode = useSelector(combinedPreviewModeSelector);
-
     const canvasWidget = useSelector((state: AppState) =>
       getWidget(state, widgetId),
     );
@@ -222,19 +219,6 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       widgetProps.isLoading = isLoading;
       widgetProps.childWidgets = childWidgets;
       widgetProps.flattenedChildCanvasWidgets = flattenedChildCanvasWidgets;
-
-      /*
-       * In Editor, Widgets can ask for error info to be passed to them
-       * so they can show them on the UI
-       */
-      const needsErrorInfo =
-        !isPreviewMode &&
-        renderMode === RenderModes.CANVAS &&
-        !!WidgetFactory.getConfig(evaluatedWidget?.type)?.needsErrorInfo;
-
-      widgetProps.errors = needsErrorInfo
-        ? widgetErrorsFromStaticProps(evaluatedWidget)
-        : [];
     }
     //merging with original props
     widgetProps = {

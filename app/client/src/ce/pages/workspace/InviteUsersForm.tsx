@@ -1,4 +1,4 @@
-import React, { useEffect, useState, useMemo } from "react";
+import React, { useEffect, useState, useMemo, useRef } from "react";
 import styled from "styled-components";
 import TagListField from "components/editorComponents/form/fields/TagListField";
 import { reduxForm, SubmissionError } from "redux-form";
@@ -58,13 +58,9 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import store from "store";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import type { DefaultOptionType } from "rc-select/lib/Select";
-import log from "loglevel";
-import { getAppsmithConfigs } from "@appsmith/configs";
-import { AddScriptTo, ScriptStatus, useScript } from "utils/hooks/useScript";
 
 const featureFlags = selectFeatureFlags(store.getState());
 const isFeatureEnabled = isGACEnabled(featureFlags);
-const { googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 export const StyledForm = styled.form`
   width: 100%;
@@ -207,7 +203,7 @@ export function InviteUserText({
   return (
     <Text
       color="var(--ads-v2-color-fg)"
-      data-testid="t--helper-message"
+      data-testid="helper-message"
       kind="action-m"
     >
       {canShowRamp && isApplicationPage ? (
@@ -312,10 +308,7 @@ function InviteUsersForm(props: any) {
   // set state for checking number of users invited
   const [numberOfUsersInvited, updateNumberOfUsersInvited] = useState(0);
 
-  const recaptchaStatus = useScript(
-    `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
-    AddScriptTo.HEAD,
-  );
+  const invitedEmails = useRef<undefined | string[]>();
 
   useEffect(() => {
     setSelectedOption([]);
@@ -344,8 +337,10 @@ function InviteUsersForm(props: any) {
           : createMessage(INVITE_USER_SUBMIT_SUCCESS),
         { kind: "success" },
       );
+
+      props?.checkIfInvitedUsersFromDifferentDomain?.(invitedEmails.current);
     }
-  }, [submitSucceeded]);
+  }, [submitSucceeded, invitedEmails.current]);
 
   const styledRoles =
     props.options && props.options.length > 0
@@ -378,70 +373,40 @@ function InviteUsersForm(props: any) {
     }
   };
 
-  const inviteUsersSubmitHandler = async (
-    values: any,
-    dispatch: any,
-    recaptchaToken?: string,
-  ) => {
-    const roles = isMultiSelectDropdown
-      ? selectedOption
-          .map((option: DefaultOptionType) => option.value)
-          .join(",")
-      : selectedOption[0].value;
-    validateFormValues({ ...values, role: roles });
-    const usersAsStringsArray = values.users.split(",");
-    // update state to show success message correctly
-    updateNumberOfUsersInvited(usersAsStringsArray.length);
-    const validEmails = usersAsStringsArray.filter((user: string) =>
-      isEmail(user),
-    );
-    const validEmailsString = [...new Set(validEmails)].join(",");
-
-    AnalyticsUtil.logEvent("INVITE_USER", {
-      ...(!isFeatureEnabled ? { users: usersAsStringsArray } : {}),
-      role: roles,
-      numberOfUsersInvited: usersAsStringsArray.length,
-      orgId: props.workspaceId,
-    });
-
-    return inviteUsersToWorkspace(
-      {
-        ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
-        users: validEmailsString,
-        permissionGroupId: roles,
-        recaptchaToken,
-      },
-      dispatch,
-    );
-  };
-
-  const captchaWrappedInviteUsersSubmitHandler = handleSubmit(
-    async (values: any, dispatch: any) => {
-      try {
-        if (
-          googleRecaptchaSiteKey.enabled &&
-          recaptchaStatus === ScriptStatus.READY
-        ) {
-          const token = await window.grecaptcha.execute(
-            googleRecaptchaSiteKey.apiKey,
-            {
-              action: "submit",
-            },
-          );
-
-          return inviteUsersSubmitHandler(values, dispatch, token);
-        } else {
-          return inviteUsersSubmitHandler(values, dispatch);
-        }
-      } catch (error) {
-        log.error(error);
-        throw error; // This will cause the form submission to fail
-      }
-    },
-  );
-
   return (
-    <StyledForm onSubmit={captchaWrappedInviteUsersSubmitHandler}>
+    <StyledForm
+      onSubmit={handleSubmit(async (values: any, dispatch: any) => {
+        const roles = isMultiSelectDropdown
+          ? selectedOption
+              .map((option: DefaultOptionType) => option.value)
+              .join(",")
+          : selectedOption[0].value;
+        validateFormValues({ ...values, role: roles });
+        const usersAsStringsArray = values.users.split(",");
+        // update state to show success message correctly
+        updateNumberOfUsersInvited(usersAsStringsArray.length);
+        const validEmails = usersAsStringsArray.filter((user: string) =>
+          isEmail(user),
+        );
+        const validEmailsString = [...new Set(validEmails)].join(",");
+        invitedEmails.current = validEmails;
+
+        AnalyticsUtil.logEvent("INVITE_USER", {
+          ...(!isFeatureEnabled ? { users: usersAsStringsArray } : {}),
+          role: roles,
+          numberOfUsersInvited: usersAsStringsArray.length,
+          orgId: props.workspaceId,
+        });
+        return inviteUsersToWorkspace(
+          {
+            ...(props.workspaceId ? { workspaceId: props.workspaceId } : {}),
+            users: validEmailsString,
+            permissionGroupId: roles,
+          },
+          dispatch,
+        );
+      })}
+    >
       <StyledInviteFieldGroup>
         <div style={{ width: "60%" }}>
           <TagListField

@@ -5,6 +5,7 @@ import {
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import Canvas from "../../../../support/Pages/Canvas";
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
@@ -93,9 +94,12 @@ describe(
       );
       deployMode.NavigateBacktoEditor();
 
-      entityExplorer.DeleteWidgetFromEntityExplorer("Input1");
-      entityExplorer.DeleteWidgetFromEntityExplorer("Select1");
-      entityExplorer.DeleteWidgetFromEntityExplorer("Text3");
+      // Verify multiple widgets selected groups into single container
+      Canvas.selectMultipleWidgets(["Input1", "Select1", "Text3"]);
+      agHelper.GetElement("body").type(`{${agHelper._modifierKey}}{g}`);
+      agHelper.Sleep(1000);
+      PageLeftPane.assertPresence("Container3");
+      entityExplorer.DeleteWidgetFromEntityExplorer("Container3");
     });
 
     it("4. Validate visible toggle", () => {

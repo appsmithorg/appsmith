@@ -21,13 +21,12 @@ public class FileUtils {
     public static List<String> getFileIds(DatasourceConfiguration datasourceConfiguration) {
         if (datasourceConfiguration.getProperties() != null
                 && datasourceConfiguration.getProperties().size() > 0) {
-            for (Property property : datasourceConfiguration.getProperties()) {
-                if (property.getKey().equalsIgnoreCase(FILES)
-                        && property.getValue() != null
-                        && property.getValue() instanceof List) {
-                    List<FileMetadataDTO> files = convertIntoFiles((List<Map<String, Object>>) property.getValue());
-                    return files.stream().map(FileMetadataDTO::getId).toList();
-                }
+            Property fileProperty = datasourceConfiguration.getProperties().get(0);
+            if (fileProperty.getKey().equalsIgnoreCase(FILES)
+                    && fileProperty.getValue() != null
+                    && fileProperty.getValue() instanceof List) {
+                List<FileMetadataDTO> files = convertIntoFiles((List<Map<String, Object>>) fileProperty.getValue());
+                return files.stream().map(FileMetadataDTO::getId).toList();
             }
         }
         return List.of();

@@ -2,7 +2,6 @@ import Api from "./Api";
 import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Datasource } from "entities/Datasource";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 class OAuthApi extends Api {
   static url = "v1/saas";
@@ -10,15 +9,13 @@ class OAuthApi extends Api {
   // Api endpoint to get "Appsmith token" from server
   static async getAppsmithToken(
     datasourceId: string,
-    contextId: string,
-    contextType: ActionParentEntityTypeInterface,
+    pageId: string,
     isImport?: boolean,
   ): Promise<AxiosPromise<ApiResponse<string>>> {
     const isImportQuery = isImport ? "?importForGit=true" : "";
-    return Api.post(`${OAuthApi.url}/${datasourceId}/oauth${isImportQuery}`, {
-      contextId,
-      contextType,
-    });
+    return Api.post(
+      `${OAuthApi.url}/${datasourceId}/pages/${pageId}/oauth${isImportQuery}`,
+    );
   }
 
   // Api endpoint to get access token for datasource authorization

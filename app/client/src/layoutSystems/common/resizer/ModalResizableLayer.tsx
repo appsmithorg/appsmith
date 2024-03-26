@@ -23,7 +23,6 @@ import {
   combinedPreviewModeSelector,
   snipingModeSelector,
 } from "selectors/editorSelectors";
-import { getWidgetSelectionBlock } from "../../../selectors/ui";
 const minSize = 100;
 
 /**
@@ -102,9 +101,7 @@ export const ModalResizableLayer = ({
   };
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isSnipingMode = useSelector(snipingModeSelector);
-  const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
-  const enableResizing =
-    !isSnipingMode && !isPreviewMode && !isWidgetSelectionBlocked;
+  const enableResizing = !isSnipingMode && !isPreviewMode;
   return (
     <ModalResizable
       allowResize

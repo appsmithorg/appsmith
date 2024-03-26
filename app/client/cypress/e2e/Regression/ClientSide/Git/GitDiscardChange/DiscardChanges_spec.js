@@ -95,7 +95,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
   });
 
   it("4. Delete page2 and trigger discard flow, page2 should be available again", () => {
-    PageList.DeletePage(page2);
+    cy.Deletepage(page2);
     // verify page is deleted
     //entityExplorer.ExpandCollapseEntity("Pages");
     PageLeftPane.assertAbsence(page2);
@@ -161,7 +161,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     // discard changes
     gitSync.DiscardChanges();
     // verify page3 is removed
-    PageList.ShowList();
+    PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.assertAbsence(page3);
   });
 

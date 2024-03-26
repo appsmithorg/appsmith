@@ -14,6 +14,21 @@ export const propertyPaneContentConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      {
+        helpText: "Sets the label position of the widget",
+        propertyName: "labelPosition",
+        label: "Position",
+        controlType: "ICON_TABS",
+        fullWidth: true,
+        options: [
+          { label: "Left", value: "left" },
+          { label: "Right", value: "right" },
+        ],
+        defaultValue: "left",
+        isBindProperty: false,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.TEXT },
+      },
     ],
   },
   {

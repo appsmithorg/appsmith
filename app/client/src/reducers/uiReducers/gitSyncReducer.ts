@@ -670,9 +670,6 @@ export interface GitStatusData {
   modifiedJSLibs: number;
   discardDocUrl?: string;
   migrationMessage?: string;
-  modifiedPackages?: number;
-  modifiedModules?: number;
-  modifiedModuleInstances?: number;
 }
 
 interface GitErrorPayloadType {

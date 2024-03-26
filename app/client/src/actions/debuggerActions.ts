@@ -1,10 +1,11 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
-import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type {
-  CanvasDebuggerState,
-  DebuggerContext,
-} from "reducers/uiReducers/debuggerReducer";
+  ENTITY_TYPE,
+  Log,
+  Message,
+  SourceEntity,
+} from "entities/AppsmithConsole";
+import type { DebuggerContext } from "reducers/uiReducers/debuggerReducer";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import type { APP_MODE } from "entities/App";
 
@@ -127,14 +128,5 @@ export const setDebuggerContext = (context: DebuggerContext) => {
   return {
     type: ReduxActionTypes.SET_DEBUGGER_CONTEXT,
     payload: { context },
-  };
-};
-
-export const setCanvasDebuggerState = (
-  payload: Partial<CanvasDebuggerState>,
-) => {
-  return {
-    type: ReduxActionTypes.SET_CANVAS_DEBUGGER_STATE,
-    payload,
   };
 };

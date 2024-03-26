@@ -107,7 +107,7 @@ class WDSSwitchGroupWidget extends BaseWidget<
       labelPosition,
       labelTooltip,
       options,
-      selectedValues,
+      selectedOptionValue,
       widgetId,
       ...rest
     } = this.props;
@@ -120,12 +120,15 @@ class WDSSwitchGroupWidget extends BaseWidget<
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
         onChange={this.onChange}
-        optionsLabelPosition={labelPosition}
         validationState={validation.validationStatus}
-        value={selectedValues}
+        value={selectedOptionValue}
       >
         {options.map((option, index) => (
-          <Switch key={`${widgetId}-option-${index}`} value={option.value}>
+          <Switch
+            key={`${widgetId}-option-${index}`}
+            labelPosition={labelPosition}
+            value={option.value}
+          >
             {option.label}
           </Switch>
         ))}

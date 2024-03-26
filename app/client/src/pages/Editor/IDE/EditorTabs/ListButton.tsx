@@ -28,11 +28,10 @@ const ListButton = (props: Props) => {
       <MenuTrigger>
         <Button
           endIcon="arrow-down-s-line"
-          id="tabs-overflow-trigger"
           kind="tertiary"
           onClick={() => setOpen(true)}
         >
-          <Text kind="action-m">+ {items.length}</Text>
+          <Text kind="action-m">{items.length}</Text>
         </Button>
       </MenuTrigger>
       <MenuContent
@@ -40,7 +39,6 @@ const ListButton = (props: Props) => {
         data-testId={"t--page-selection"}
         height={items.length <= 6 ? "fit-content" : "186px"}
         side={"bottom"}
-        width="216px"
       >
         {items.map((item) => (
           <MenuItem key={item.key} onClick={() => navigateToTab(item)}>
@@ -48,6 +46,7 @@ const ListButton = (props: Props) => {
               alignItems="center"
               className={"text-ellipsis whitespace-nowrap overflow-hidden"}
               gap="spaces-2"
+              width="10rem"
             >
               <ListIconContainer>{item.icon}</ListIconContainer>
               <TabTextContainer>{item.title}</TabTextContainer>

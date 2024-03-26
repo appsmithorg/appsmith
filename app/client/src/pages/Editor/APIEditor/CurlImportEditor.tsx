@@ -12,7 +12,6 @@ import CloseEditor from "components/editorComponents/CloseEditor";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 import { DEFAULT_PREFIX } from "sagas/ActionSagas";
 import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
-import { ActionParentEntityType } from "@appsmith/entities/Engine/actionHelpers";
 
 type CurlImportEditorProps = RouteComponentProps<BuilderRouteParams>;
 
@@ -30,8 +29,7 @@ function CurlImportEditor(props: CurlImportEditorProps) {
   const isImportingCurl = useSelector(getIsImportingCurl);
 
   const initialFormValues = {
-    contextId: pageId,
-    contextType: ActionParentEntityType.PAGE,
+    pageId,
     name: actionName,
   };
   const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();

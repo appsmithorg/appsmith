@@ -16,7 +16,6 @@ export default class ExecutionMetaData {
     enableJSFnPostProcessors?: boolean;
     enableJSVarUpdateTracking?: boolean;
   }) {
-    // triggerMeta.onPageLoad is not used in this function. A default value, false, is passed to it to comply with TriggerMeta interface
     const metaDataEntries = Object.entries(metaData);
     for (const [key, value] of metaDataEntries) {
       // @ts-expect-error: type unknown
@@ -31,9 +30,6 @@ export default class ExecutionMetaData {
         source: { ...source } as TriggerSource,
         triggerPropertyName,
         triggerKind,
-
-        // triggerMeta.onPageLoad is not used in this function. A default value, false, is passed to it to comply with TriggerMeta interface
-        onPageLoad: false,
       },
       eventType: ExecutionMetaData.eventType,
       enableJSVarUpdateTracking: ExecutionMetaData.enableJSVarUpdateTracking,

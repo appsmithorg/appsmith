@@ -12,7 +12,6 @@ import { useSelector } from "react-redux";
 import {
   getActiveTemplateSelector,
   getForkableWorkspaces,
-  isImportingTemplateSelector,
   isImportingTemplateToAppSelector,
 } from "selectors/templatesSelectors";
 import styled from "styled-components";
@@ -32,7 +31,6 @@ const Title = styled(Text)`
 `;
 
 interface Props {
-  handleBackPress?: () => void;
   templateId: string;
   onClickUseTemplate?: (id: string) => void;
   showBack: boolean;
@@ -40,7 +38,6 @@ interface Props {
 const SHOW_FORK_MODAL_PARAM = "showForkTemplateModal";
 
 function TemplateViewHeader({
-  handleBackPress,
   onClickUseTemplate,
   showBack,
   templateId,
@@ -51,13 +48,8 @@ function TemplateViewHeader({
   const isImportingTemplateToApp = useSelector(
     isImportingTemplateToAppSelector,
   );
-  const isImportingTemplate = useSelector(isImportingTemplateSelector);
   const goBack = () => {
-    if (handleBackPress) {
-      handleBackPress();
-    } else {
-      history.goBack();
-    }
+    history.goBack();
   };
   const onForkModalClose = () => {
     history.replace(`${templateIdUrl({ id: templateId })}`);
@@ -102,10 +94,7 @@ function TemplateViewHeader({
             <Button
               className="template-fork-button"
               data-testid="template-fork-button"
-              isLoading={
-                onClickUseTemplate &&
-                (isImportingTemplateToApp || isImportingTemplate)
-              }
+              isLoading={onClickUseTemplate && isImportingTemplateToApp}
               onClick={onForkButtonTrigger}
               size="md"
               startIcon="fork-2"

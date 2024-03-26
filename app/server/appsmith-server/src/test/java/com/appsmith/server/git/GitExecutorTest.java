@@ -72,7 +72,7 @@ public class GitExecutorTest {
 
     private void commitToRepo() {
         gitExecutor
-                .commitArtifact(path, "Test commit", "test", "test@test.com", false, false)
+                .commitApplication(path, "Test commit", "test", "test@test.com", false, false)
                 .block();
     }
 
@@ -80,7 +80,7 @@ public class GitExecutorTest {
     public void commit_validChange_Success() throws IOException {
         createFileInThePath("TestFIle2");
         String commitStatus = gitExecutor
-                .commitArtifact(path, "Test commit", "test", "test@test.com", false, false)
+                .commitApplication(path, "Test commit", "test", "test@test.com", false, false)
                 .block();
         Mono<List<GitLogDTO>> commitList = gitExecutor.getCommitHistory(path);
 

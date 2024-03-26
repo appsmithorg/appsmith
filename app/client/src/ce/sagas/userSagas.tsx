@@ -354,7 +354,6 @@ export function* inviteUsers(
       usernames: string[];
       workspaceId: string;
       permissionGroupId: string;
-      recaptchaToken?: string;
     };
   }>,
 ) {
@@ -364,7 +363,6 @@ export function* inviteUsers(
       yield callAPI(UserApi.inviteUser, {
         usernames: data.usernames,
         permissionGroupId: data.permissionGroupId,
-        recaptchaToken: data.recaptchaToken,
       });
     const isValidResponse: boolean = yield validateResponse(response, false);
     if (!isValidResponse) {
@@ -604,7 +602,6 @@ export function* leaveWorkspaceSaga(
       toast.show(`You have successfully left the workspace`, {
         kind: "success",
       });
-      history.push("/applications");
     }
   } catch (error) {
     // do nothing as it's already handled globally

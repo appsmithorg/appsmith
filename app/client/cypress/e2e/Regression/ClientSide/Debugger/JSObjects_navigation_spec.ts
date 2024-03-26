@@ -8,7 +8,27 @@ import {
 import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
 describe("JSObjects", () => {
-  it("1. Focus and position cursor on the ch,line having an error", () => {
+  it(
+    "1. Switch to settings pane when clicked on update logs",
+    { tags: ["@tag.JS", " @tag.excludeForAirgap"] },
+    () => {
+      jsEditor.NavigateToNewJSEditor();
+      jsEditor.EnableDisableAsyncFuncSettings("myFun2");
+      agHelper.GetNClick(jsEditor._codeTab);
+      EditorNavigation.ShowCanvas();
+      debuggerHelper.ClickDebuggerIcon();
+      debuggerHelper.ClickLogsTab();
+      debuggerHelper.ClicklogEntityLink(true);
+
+      agHelper.AssertElementVisibility(jsEditor._asyncJSFunctionSettings);
+      entityExplorer.ActionContextMenuByEntityName({
+        entityNameinLeftSidebar: "JSObject1",
+        entityType: entityItems.JSObject,
+      });
+    },
+  );
+
+  it("2. Focus and position cursor on the ch,line having an error", () => {
     const JS_OBJECT_BODY = `export default {
         myVar1: [],
         myVar2: {},
@@ -40,7 +60,7 @@ describe("JSObjects", () => {
     });
   });
 
-  it("2. Bug 24990 Clears logs filter using backspace", function () {
+  it("3. Bug 24990 Clears logs filter using backspace", function () {
     const JS_OBJECT_BODY = `export default {
       myVar1: [],
       myVar2: {},

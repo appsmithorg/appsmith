@@ -1,9 +1,11 @@
 import React from "react";
 import { Flex } from "design-system";
 import styled from "styled-components";
-import { Switch, useRouteMatch } from "react-router";
-import { SentryRoute } from "@appsmith/AppRouter";
-import { useQuerySegmentRoutes } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
+import { useSelector } from "react-redux";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import SplitScreenRoutes from "./SplitScreenRoutes";
+import FullScreenRoutes from "./FullScreenRoutes";
 
 const QueriesContainer = styled(Flex)`
   & .t--entity-item {
@@ -17,8 +19,8 @@ const QueriesContainer = styled(Flex)`
 `;
 
 const QueriesSegment = () => {
-  const { path } = useRouteMatch();
-  const routes = useQuerySegmentRoutes(path);
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
   return (
     <QueriesContainer
       className="ide-editor-left-pane__content-queries"
@@ -26,16 +28,15 @@ const QueriesSegment = () => {
       height="100%"
       overflow="hidden"
     >
-      <Switch>
-        {routes.map((route) => (
-          <SentryRoute
-            component={route.component}
-            exact={route.exact}
-            key={route.key}
-            path={route.path}
-          />
-        ))}
-      </Switch>
+      {isSideBySideEnabled ? (
+        editorMode === EditorViewMode.SplitScreen ? (
+          <SplitScreenRoutes />
+        ) : (
+          <FullScreenRoutes />
+        )
+      ) : (
+        <FullScreenRoutes />
+      )}
     </QueriesContainer>
   );
 };

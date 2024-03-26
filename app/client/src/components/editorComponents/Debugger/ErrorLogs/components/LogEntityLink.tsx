@@ -8,7 +8,7 @@ import { getPlugins } from "@appsmith/selectors/entitiesSelector";
 import EntityLink from "../../EntityLink";
 import { DebuggerLinkUI } from "components/editorComponents/Debugger/DebuggerEntityLink";
 import { getIconForEntity } from "@appsmith/components/editorComponents/Debugger/ErrorLogs/getLogIconForEntity";
-import { getPluginImagesFromPlugins } from "pages/Editor/utils";
+import type { Plugin } from "api/PluginApi";
 
 const EntityLinkWrapper = styled.div`
   display: flex;
@@ -30,11 +30,11 @@ const IconWrapper = styled.span`
 `;
 
 // This function is used to fetch the icon component for the entity link.
-const getIcon = (props: LogItemProps, pluginImages: Record<string, string>) => {
+const getIcon = (props: LogItemProps, pluginGroups: Record<string, Plugin>) => {
   const entityType = props.source?.type;
   let icon = null;
   if (entityType) {
-    icon = getIconForEntity[entityType](props, pluginImages);
+    icon = getIconForEntity[entityType](props, pluginGroups);
   }
   return icon || <img alt="icon" src={undefined} />;
 };
@@ -43,7 +43,6 @@ const getIcon = (props: LogItemProps, pluginImages: Record<string, string>) => {
 export default function LogEntityLink(props: LogItemProps) {
   const plugins = useSelector(getPlugins);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
-  const pluginImages = getPluginImagesFromPlugins(plugins);
 
   const plugin = props.iconId ? pluginGroups[props.iconId] : undefined;
   return (
@@ -56,7 +55,7 @@ export default function LogEntityLink(props: LogItemProps) {
             lineHeight: "14px",
           }}
         >
-          <IconWrapper>{getIcon(props, pluginImages)}</IconWrapper>
+          <IconWrapper>{getIcon(props, pluginGroups)}</IconWrapper>
           <EntityLink
             appsmithErrorCode={props.pluginErrorDetails?.appsmithErrorCode}
             errorSubType={props.messages && props.messages[0].message.name}

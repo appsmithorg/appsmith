@@ -16,7 +16,6 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getCurrentPageName,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
 import {
@@ -54,7 +53,6 @@ import {
   updateJSCollectionBodySuccess,
   updateJSFunction,
   executeJSFunctionInit,
-  setJsPaneDebuggerState,
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -66,14 +64,12 @@ import {
   JS_EXECUTION_FAILURE,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
+  JS_FUNCTION_UPDATE_SUCCESS,
   JS_EXECUTION_SUCCESS_TOASTER,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
-import {
-  ENTITY_TYPE,
-  PLATFORM_ERROR,
-} from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE, PLATFORM_ERROR } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
@@ -82,6 +78,7 @@ import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { ApiResponse } from "api/ApiResponses";
+import { shouldBeDefined } from "utils/helpers";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
@@ -91,15 +88,14 @@ import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
+import { getDebuggerSelectedTab } from "selectors/debuggerSelectors";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import {
   getJSActionNameToDisplay,
   getJSActionPathNameToDisplay,
 } from "@appsmith/utils/actionExecutionUtils";
-import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
-import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
-import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -308,7 +304,7 @@ function* updateJSCollection(data: {
     jsAction = yield select(getJSCollection, jsActionId);
   }
   try {
-    const { deletedActions, jsCollection, newActions } = data;
+    const { deletedActions, jsCollection, newActions, updatedActions } = data;
     if (jsCollection) {
       const response: JSCollectionCreateUpdateResponse =
         yield JSActionAPI.updateJSCollection(jsCollection);
@@ -319,6 +315,13 @@ function* updateJSCollection(data: {
             newActions,
             jsCollection,
             createMessage(JS_FUNCTION_CREATE_SUCCESS),
+          );
+        }
+        if (updatedActions && updatedActions.length) {
+          pushLogsForObjectUpdate(
+            updatedActions,
+            jsCollection,
+            createMessage(JS_FUNCTION_UPDATE_SUCCESS),
           );
         }
         if (deletedActions && deletedActions.length) {
@@ -389,16 +392,9 @@ export function* handleExecuteJSFunctionSaga(data: {
   action: JSAction;
   collection: JSCollection;
   isExecuteJSFunc: boolean;
-  onPageLoad: boolean;
   openDebugger?: boolean;
 }) {
-  const {
-    action,
-    collection,
-    isExecuteJSFunc,
-    onPageLoad,
-    openDebugger = false,
-  } = data;
+  const { action, collection, isExecuteJSFunc, openDebugger = false } = data;
   const { id: collectionId } = collection;
   const actionId = action.id;
   const appMode: APP_MODE = yield select(getAppMode);
@@ -431,21 +427,19 @@ export function* handleExecuteJSFunctionSaga(data: {
       executeJSFunction,
       action,
       collection,
-      onPageLoad,
     );
     // open response tab in debugger on runnning or page load js action.
 
     if (doesURLPathContainCollectionId || openDebugger) {
-      yield put(setJsPaneDebuggerState({ open: true }));
+      yield put(showDebugger(true));
 
-      const { selectedTab: debuggerSelectedTab } = yield select(
-        getJsPaneDebuggerState,
-      );
+      const debuggerSelectedTab: ReturnType<typeof getDebuggerSelectedTab> =
+        yield select(getDebuggerSelectedTab);
 
       yield put(
-        setJsPaneDebuggerState({
-          selectedTab: debuggerSelectedTab || DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-        }),
+        setDebuggerSelectedTab(
+          debuggerSelectedTab || DEBUGGER_TAB_KEYS.RESPONSE_TAB,
+        ),
       );
     }
     yield put({
@@ -457,21 +451,7 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
     });
 
-    if (!!collection.isMainJSCollection)
-      logMainJsActionExecution(actionId, true, collectionId, isDirty);
-
-    yield put(
-      logActionExecutionForAudit({
-        actionName: action.name,
-        actionId: action.id,
-        collectionId: collectionId,
-        pageId: action.pageId,
-        pageName: yield select(getCurrentPageName),
-      }),
-    );
-
     const jsActionNameToDisplay = getJSActionNameToDisplay(action);
-
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
       source: {
@@ -498,17 +478,9 @@ export function* handleExecuteJSFunctionSaga(data: {
   } catch (error) {
     // open response tab in debugger on runnning js action.
     if (doesURLPathContainCollectionId) {
-      yield put(
-        setJsPaneDebuggerState({
-          open: true,
-          selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-        }),
-      );
+      yield put(showDebugger(true));
+      yield put(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
     }
-
-    if (!!collection.isMainJSCollection)
-      logMainJsActionExecution(actionId, false, collectionId, false);
-
     AppsmithConsole.addErrors([
       {
         payload: {
@@ -535,7 +507,6 @@ export function* handleExecuteJSFunctionSaga(data: {
   }
 }
 
-// This gets called on pressing "Run" button in JS code editor
 export function* handleStartExecuteJSFunctionSaga(
   data: ReduxAction<{
     action: JSAction;
@@ -581,7 +552,6 @@ export function* handleStartExecuteJSFunctionSaga(
     action,
     collection,
     isExecuteJSFunc: false,
-    onPageLoad: false,
     openDebugger,
   });
 }
@@ -740,6 +710,23 @@ function* handleUpdateJSFunctionPropertySaga(
         yield JSActionAPI.updateJSCollection(collection);
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
+        const fieldToBeUpdated = propertyName.replace(
+          "actionConfiguration",
+          "config",
+        );
+        AppsmithConsole.info({
+          logType: LOG_TYPE.ACTION_UPDATE,
+          text: "Configuration updated",
+          source: {
+            type: ENTITY_TYPE.JSACTION,
+            name: collection.name + "." + action.name,
+            id: action.collectionId,
+            propertyPath: fieldToBeUpdated,
+          },
+          state: {
+            [fieldToBeUpdated]: value,
+          },
+        });
         yield put({
           type: ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_SUCCESS,
           payload: {
@@ -765,6 +752,13 @@ function* toggleFunctionExecuteOnLoadSaga(
 ) {
   try {
     const { actionId, collectionId, shouldExecute } = action.payload;
+    const collection = shouldBeDefined<JSCollection>(
+      yield select(getJSCollection, collectionId),
+      `JS Collection not found for id - ${collectionId}`,
+    );
+    const jsAction = collection.actions.find(
+      (action: JSAction) => actionId === action.id,
+    );
     const response: ApiResponse = yield call(
       ActionAPI.toggleActionExecuteOnLoad,
       actionId,
@@ -772,6 +766,19 @@ function* toggleFunctionExecuteOnLoadSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
+      AppsmithConsole.info({
+        logType: LOG_TYPE.ACTION_UPDATE,
+        text: "Configuration updated",
+        source: {
+          type: ENTITY_TYPE.JSACTION,
+          name: collection.name + "." + jsAction?.name,
+          id: collectionId,
+          propertyPath: "executeOnLoad",
+        },
+        state: {
+          ["executeOnLoad"]: shouldExecute,
+        },
+      });
       yield put({
         type: ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS,
         payload: {

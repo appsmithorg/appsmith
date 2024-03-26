@@ -33,7 +33,7 @@ import {
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
@@ -633,36 +633,21 @@ const PropertyControl = memo((props: Props) => {
     if (hasRenamingError()) {
       return;
     } else if (editedName.trim() && editedName !== props.propertyName) {
-      let modify = {
+      let update = {
         [editedName]: widgetProperties[props.propertyName],
       };
-
-      let triggerPaths: string[] = [];
 
       if (
         props.controlConfig &&
         typeof props.controlConfig.onEdit === "function"
       ) {
-        const updates = props.controlConfig.onEdit(
-          widgetProperties,
-          editedName,
-        );
-
-        modify = {
-          ...modify,
-          ...updates.modify,
+        update = {
+          ...update,
+          ...props.controlConfig.onEdit(widgetProperties, editedName),
         };
-
-        triggerPaths = updates.triggerPaths;
       }
 
-      dispatch(
-        batchUpdateWidgetProperty(widgetProperties.widgetId, {
-          modify,
-          triggerPaths,
-        }),
-      );
-
+      onBatchUpdateProperties(update);
       onDeleteProperties([props.propertyName]);
     }
     resetEditing();
@@ -672,7 +657,7 @@ const PropertyControl = memo((props: Props) => {
     });
   }, [
     props,
-    batchUpdateWidgetProperty,
+    onBatchUpdateProperties,
     onDeleteProperties,
     props.propertyName,
     editedName,

@@ -42,8 +42,4 @@ public class ApplicationTemplate extends BaseDomain {
     // null if the template is a community template
     @Email
     private String authorEmail;
-
-    private int templateGridRowSize;
-
-    private int templateGridColumnSize;
 }

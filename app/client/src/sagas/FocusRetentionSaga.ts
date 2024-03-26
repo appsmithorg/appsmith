@@ -42,10 +42,7 @@ export interface FocusStrategy {
     state: AppsmithLocationState,
   ) => Generator<any, Array<FocusPath>, any>;
   /** based on the route change, what states need to be stored for the previous route **/
-  getEntitiesForStore: (
-    path: string,
-    currentPath: string,
-  ) => Generator<any, Array<FocusPath>, any>;
+  getEntitiesForStore: (path: string) => Generator<any, Array<FocusPath>, any>;
   /** For entities with hierarchy, return the parent entity path for storing its state  **/
   getEntityParentUrl: (
     entityInfo: FocusEntityInfo,
@@ -93,7 +90,6 @@ class FocusRetention {
       const toStore: Array<FocusPath> = yield call(
         this.focusStrategy.getEntitiesForStore,
         previousPath,
-        currentPath,
       );
       for (const storePath of toStore) {
         yield call(this.storeStateOfPath, storePath, previousPath);
@@ -150,13 +146,6 @@ class FocusRetention {
         selectorInfo,
         fromPath,
       );
-      if (selectorInfo.persist) {
-        this.persistState(
-          focusPath.key,
-          selectorInfo,
-          state[selectorInfo.name],
-        );
-      }
     }
     yield put(
       storeFocusHistory(focusPath.key, {
@@ -186,11 +175,8 @@ class FocusRetention {
         entityInfo,
       );
       for (const selectorInfo of selectors) {
-        const { defaultValue, persist, subTypes } = selectorInfo;
-        const persistedState = this.retrievePersistState(key, selectorInfo);
-        if (persist && persistedState) {
-          yield call(this.setState, selectorInfo, persistedState);
-        } else if (subType && subTypes && subType in subTypes) {
+        const { defaultValue, subTypes } = selectorInfo;
+        if (subType && subTypes && subType in subTypes) {
           yield call(
             this.setState,
             selectorInfo,
@@ -232,20 +218,6 @@ class FocusRetention {
       yield put(config.setter(value));
     } else if (config.type === FocusElementConfigType.URL) {
       config.setter(value);
-    }
-  }
-
-  persistState(key: string, config: FocusElementConfig, value: unknown) {
-    localStorage.setItem(
-      `FocusHistory.${key}.${config.name}`,
-      JSON.stringify(value),
-    );
-  }
-
-  retrievePersistState(key: string, config: FocusElementConfig) {
-    const state = localStorage.getItem(`FocusHistory.${key}.${config.name}`);
-    if (state) {
-      return JSON.parse(state);
     }
   }
 }

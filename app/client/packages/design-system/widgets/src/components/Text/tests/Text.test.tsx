@@ -12,10 +12,9 @@ describe("@design-system/widgets/Text", () => {
   });
 
   it("should support custom props", () => {
-    const { container } = render(<Text data-testid="t--text">My Text</Text>);
+    const { container } = render(<Text data-testid="text">My Text</Text>);
 
-    // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const text = container.querySelector("div") as HTMLElement;
-    expect(text).toHaveAttribute("data-testid", "t--text");
+    expect(text).toHaveAttribute("data-testid", "text");
   });
 });

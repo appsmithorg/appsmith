@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { calculateScales } from "./calculateScales";
 
-import type { TokenObj, TokenScaleConfig } from "../../token";
+import type { TokenObj } from "../../token";
+import type { ScaleConfig } from "./types";
 
 export const getSizing = (
-  sizing: TokenScaleConfig,
+  sizing: ScaleConfig,
   userDensity = 1,
   userSizing = 1,
   count = 200,
@@ -31,7 +32,7 @@ export const getSizing = (
 };
 
 export const useSizing = (
-  config: TokenScaleConfig,
+  config: ScaleConfig,
   userDensity = 1,
   userSizing = 1,
 ) => {

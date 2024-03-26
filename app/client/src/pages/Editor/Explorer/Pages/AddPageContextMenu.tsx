@@ -17,7 +17,6 @@ import {
   GENERATE_PAGE_ACTION_TITLE,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import type { ButtonSizes } from "design-system";
 import {
   Menu,
   MenuContent,
@@ -46,11 +45,9 @@ interface SubMenuProps {
   openMenu: boolean;
   onMenuClose: () => void;
   createPageCallback: () => void;
-  buttonSize?: ButtonSizes;
 }
 
 function AddPageContextMenu({
-  buttonSize,
   className,
   createPageCallback,
   onMenuClose,
@@ -62,11 +59,9 @@ function AddPageContextMenu({
   const isAirgappedInstance = isAirgapped();
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enableForkingFromTemplates, enableGenerateCrud] =
-    checkLayoutSystemFeatures([
-      LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
-      LayoutSystemFeatures.ENABLE_GENERATE_CRUD_APP,
-    ]);
+  const [enableForkingFromTemplates] = checkLayoutSystemFeatures([
+    LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
+  ]);
 
   const ContextMenuItems = useMemo(() => {
     const items = [
@@ -77,16 +72,14 @@ function AddPageContextMenu({
         "data-testid": "add-page",
         key: "CREATE_PAGE",
       },
-    ];
-    if (enableGenerateCrud) {
-      items.push({
+      {
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
         icon: "database-2-line",
         onClick: () => history.push(generateTemplateFormURL({ pageId })),
         "data-testid": "generate-page",
         key: "GENERATE_PAGE",
-      });
-    }
+      },
+    ];
 
     if (enableForkingFromTemplates && !isAirgappedInstance) {
       items.push({
@@ -100,7 +93,7 @@ function AddPageContextMenu({
     }
 
     return items;
-  }, [pageId, enableGenerateCrud]);
+  }, [pageId]);
 
   const handleOpenChange = (open: boolean) => {
     if (open) {
@@ -131,7 +124,6 @@ function AddPageContextMenu({
         >
           <AddButtonWrapper>
             <EntityAddButton
-              buttonSize={buttonSize}
               className={`${className} ${show ? "selected" : ""}`}
               onClick={() => handleOpenChange(true)}
             />

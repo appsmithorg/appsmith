@@ -117,7 +117,7 @@ import {
   OAUTH_AUTHORIZATION_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import localStorage from "utils/localStorage";
 import log from "loglevel";
 import { APPSMITH_TOKEN_STORAGE_KEY } from "pages/Editor/SaaSEditor/constants";
@@ -175,7 +175,6 @@ import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 import { executeGoogleApi } from "./loadGoogleApi";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -712,14 +711,12 @@ function* updateDatasourceSaga(
 
 function* redirectAuthorizationCodeSaga(
   actionPayload: ReduxAction<{
-    contextId: string;
-    contextType: ActionParentEntityTypeInterface;
     datasourceId: string;
+    pageId: string;
     pluginType: PluginType;
   }>,
 ) {
-  const { contextId, contextType, datasourceId, pluginType } =
-    actionPayload.payload;
+  const { datasourceId, pageId, pluginType } = actionPayload.payload;
   const isImport: string = yield select(getWorkspaceIdForImport);
   const branchName: string | undefined = yield select(getCurrentGitBranch);
 
@@ -727,7 +724,7 @@ function* redirectAuthorizationCodeSaga(
     const currentEnvironment: string = yield select(
       getCurrentEditingEnvironmentId,
     );
-    let windowLocation = `/api/v1/datasources/${datasourceId}/pages/${contextId}/code?environmentId=${currentEnvironment}`;
+    let windowLocation = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
     if (!!branchName) {
       windowLocation = windowLocation + `&branchName=` + branchName;
     }
@@ -737,8 +734,7 @@ function* redirectAuthorizationCodeSaga(
       // Get an "appsmith token" from the server
       const response: ApiResponse<string> = yield OAuthApi.getAppsmithToken(
         datasourceId,
-        contextId,
-        contextType,
+        pageId,
         !!isImport,
       );
 

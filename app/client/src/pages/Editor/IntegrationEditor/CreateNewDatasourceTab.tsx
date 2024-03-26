@@ -24,7 +24,8 @@ import NewApiScreen from "./NewApi";
 import NewQueryScreen from "./NewQuery";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import history from "utils/history";
-import { showDebuggerFlag } from "selectors/debuggerSelectors";
+import { showDebuggerFlag } from "../../../selectors/debuggerSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   createMessage,
   CREATE_NEW_DATASOURCE_DATABASE_HEADER,
@@ -39,7 +40,6 @@ import {
 import { useEditorType } from "@appsmith/hooks";
 import { useParentEntityInfo } from "@appsmith/hooks/datasourceEditorHooks";
 import AIDataSources from "./AIDataSources";
-import Debugger from "../DataSourceEditor/Debugger";
 
 const NewIntegrationsContainer = styled.div`
   ${thinScrollbar};
@@ -197,7 +197,7 @@ function CreateNewSaasIntegration({
     <>
       <StyledDivider />
       <div id="new-saas-api" ref={newSaasAPIRef}>
-        <Text kind="heading-m">SaaS integrations</Text>
+        <Text kind="heading-m">SaaS Integrations</Text>
         <NewApiScreen
           history={history}
           isCreating={isCreating}
@@ -223,7 +223,7 @@ function CreateNewAIIntegration({
     <>
       <StyledDivider />
       <div id="new-ai-query">
-        <Text kind="heading-m">AI integrations</Text>
+        <Text kind="heading-m">AI Integrations</Text>
         <AIDataSources
           history={history}
           isCreating={isCreating}
@@ -245,6 +245,7 @@ interface CreateNewDatasourceScreenProps {
   canCreateDatasource?: boolean;
   showDebugger: boolean;
   pageId: string;
+  isEnabledForCreateNew: boolean;
   isOnboardingScreen?: boolean;
 }
 
@@ -276,9 +277,9 @@ class CreateNewDatasourceTab extends React.Component<
       canCreateDatasource = false,
       dataSources,
       isCreating,
+      isEnabledForCreateNew,
       isOnboardingScreen,
       pageId,
-      showDebugger,
     } = this.props;
     if (!canCreateDatasource) return null;
     const mockDataSection =
@@ -289,68 +290,68 @@ class CreateNewDatasourceTab extends React.Component<
         />
       ) : null;
     return (
-      <>
-        <NewIntegrationsContainer className="p-4" id="new-integrations-wrapper">
-          {dataSources.length === 0 && <AddDatasourceSecurely />}
-          {dataSources.length === 0 &&
-            this.props.mockDatasources.length > 0 && (
-              <>
-                {mockDataSection}
-                <StyledDivider />
-              </>
-            )}
-          <CreateNewDatasource
-            active={false}
-            history={history}
-            isCreating={isCreating}
-            isOnboardingScreen={!!isOnboardingScreen}
-            location={location}
-            pageId={pageId}
-            showMostPopularPlugins
-            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-          />
-          <StyledDivider />
-          <CreateNewAPI
-            active={false}
-            history={history}
-            isCreating={isCreating}
-            isOnboardingScreen={!!isOnboardingScreen}
-            location={location}
-            pageId={pageId}
-            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-          />
-          <StyledDivider />
-          <CreateNewDatasource
-            active={false}
-            history={history}
-            isCreating={isCreating}
-            location={location}
-            pageId={pageId}
-            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-          />
-          <CreateNewSaasIntegration
-            active={false}
-            history={history}
-            isCreating={isCreating}
-            location={location}
-            pageId={pageId}
-            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-          />
-          <CreateNewAIIntegration
-            history={history}
-            isCreating={isCreating}
-            pageId={pageId}
-            showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
-          />
-          {dataSources.length > 0 && this.props.mockDatasources.length > 0 && (
-            <>
-              <StyledDivider />
-              {mockDataSection}
-            </>
-          )}
-        </NewIntegrationsContainer>
-        {showDebugger && <Debugger />}
-      </>
+      <NewIntegrationsContainer className="p-4" id="new-integrations-wrapper">
+        {dataSources.length === 0 && <AddDatasourceSecurely />}
+        {dataSources.length === 0 && this.props.mockDatasources.length > 0 && (
+          <>
+            {mockDataSection}
+            <StyledDivider />
+          </>
+        )}
+        {isEnabledForCreateNew && (
+          <>
+            <CreateNewDatasource
+              active={false}
+              history={history}
+              isCreating={isCreating}
+              isOnboardingScreen={!!isOnboardingScreen}
+              location={location}
+              pageId={pageId}
+              showMostPopularPlugins
+              showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+            />
+            <StyledDivider />
+          </>
+        )}
+        <CreateNewAPI
+          active={false}
+          history={history}
+          isCreating={isCreating}
+          isOnboardingScreen={!!isOnboardingScreen}
+          location={location}
+          pageId={pageId}
+          showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+        />
+        <StyledDivider />
+        <CreateNewDatasource
+          active={false}
+          history={history}
+          isCreating={isCreating}
+          location={location}
+          pageId={pageId}
+          showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+        />
+        <CreateNewSaasIntegration
+          active={false}
+          history={history}
+          isCreating={isCreating}
+          location={location}
+          pageId={pageId}
+          showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+        />
+        <CreateNewAIIntegration
+          history={history}
+          isCreating={isCreating}
+          pageId={pageId}
+          showUnsupportedPluginDialog={this.showUnsupportedPluginDialog}
+        />
+        {dataSources.length > 0 && this.props.mockDatasources.length > 0 && (
+          <>
+            <StyledDivider />
+            {mockDataSection}
+          </>
+        )}
+      </NewIntegrationsContainer>
     );
   }
 }
@@ -376,6 +377,8 @@ const mapStateToProps = (state: AppState) => {
     userWorkspacePermissions,
   );
 
+  const isEnabledForCreateNew =
+    !!featureFlags[FEATURE_FLAG.ab_create_new_apps_enabled];
   return {
     dataSources: getDatasources(state),
     mockDatasources: getMockDatasources(state),
@@ -384,6 +387,7 @@ const mapStateToProps = (state: AppState) => {
     canCreateDatasource,
     showDebugger,
     pageId,
+    isEnabledForCreateNew,
   };
 };
 

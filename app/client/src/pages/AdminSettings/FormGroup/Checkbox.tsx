@@ -80,12 +80,7 @@ export function CheckboxComponent({ setting }: SettingComponentProps) {
 
   return (
     <StyledFieldCheckboxGroup>
-      <FormGroup
-        className={`t--admin-settings-checkbox t--admin-settings-${
-          setting.name || setting.id
-        }`}
-        setting={setting}
-      >
+      <FormGroup setting={setting}>
         <Field
           component={FieldCheckboxWithCheckboxText({
             label: setting.label,

@@ -20,9 +20,7 @@ export const getJsActionPeekData = (
       }
     });
 
-    const variables = jsAction.config.variables || [];
-
-    variables.forEach((jsChild) => {
+    jsAction.config.variables.forEach((jsChild) => {
       if (dataTreeAction) peekData[jsChild.name] = dataTreeAction[jsChild.name];
     });
 

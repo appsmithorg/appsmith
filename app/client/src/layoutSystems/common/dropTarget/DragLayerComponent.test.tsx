@@ -40,7 +40,6 @@ describe("DragLayerComponent", () => {
     );
     const testInstance = testRenderer.root;
 
-    // eslint-disable-next-line testing-library/await-async-queries
     expect(testInstance.findByType(DragLayerComponent).props.noPad).toBe(true);
   });
 });

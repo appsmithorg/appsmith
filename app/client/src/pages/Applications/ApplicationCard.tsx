@@ -46,6 +46,7 @@ import {
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import history from "utils/history";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
 import { getCurrentUser } from "actions/authActions";
@@ -430,13 +431,25 @@ export function ApplicationCard(props: ApplicationCardProps) {
 
   const launchApp = useCallback(() => {
     setURLParams();
+    history.push(
+      viewerURL({
+        pageId: props.application.defaultPageId,
+        params,
+      }),
+    );
     dispatch(getCurrentUser());
-  }, []);
+  }, [props.application.defaultPageId]);
 
   const editApp = useCallback(() => {
     setURLParams();
+    history.push(
+      builderURL({
+        pageId: props.application.defaultPageId,
+        params,
+      }),
+    );
     dispatch(getCurrentUser());
-  }, []);
+  }, [props.application.defaultPageId]);
 
   return (
     <Card
@@ -463,7 +476,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
           className="t--application-edit-link"
           href={editModeURL}
           onClick={editApp}
-          renderAs="a"
           size="md"
           startIcon={"pencil-line"}
         >
@@ -476,7 +488,6 @@ export function ApplicationCard(props: ApplicationCardProps) {
           href={viewModeURL}
           kind="secondary"
           onClick={launchApp}
-          renderAs="a"
           size="md"
           startIcon={"rocket"}
         >

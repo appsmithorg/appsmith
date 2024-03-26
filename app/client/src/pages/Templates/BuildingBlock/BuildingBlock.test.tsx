@@ -64,9 +64,8 @@ describe("<BuildingBlock />", () => {
 
   it("triggers onForkTemplateClick when the fork button is clicked", async () => {
     render(BaseBuildingBlockRender());
-    expect(screen.getByTestId("t--fork-building-block")).toBeInTheDocument();
-    // fireEvent.click(screen.getByTestId("t--fork-building-block"));
-    // expect(onForkTemplateClick).toHaveBeenCalledWith(unitTestMockBuildingBlock);
+    fireEvent.click(screen.getByTestId("t--fork-building-block"));
+    expect(onForkTemplateClick).toHaveBeenCalledWith(unitTestMockBuildingBlock);
   });
 
   it("does not trigger onForkTemplateClick when the button is hidden", () => {

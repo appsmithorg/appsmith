@@ -465,9 +465,11 @@ public class FirestorePlugin extends BasePlugin {
                              */
                             if (targetKeyValuePair.get(key) == null) {
                                 String nextKey = singlePathList.get(i + 1);
-                                final Map<String, ?> pair = new HashMap<>();
-                                pair.put(nextKey, null);
-                                targetKeyValuePair.put(key, pair);
+                                targetKeyValuePair.put(key, new HashMap<>() {
+                                    {
+                                        put(nextKey, null);
+                                    }
+                                });
                             }
 
                             /*

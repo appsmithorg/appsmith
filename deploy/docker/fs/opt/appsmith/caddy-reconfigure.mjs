@@ -7,9 +7,6 @@ import {X509Certificate} from "crypto"
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
 
-// Rate limit, numeric value defining the requests-per-second allowed.
-const RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 100, 10)
-
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
 let certLocation = null
@@ -47,7 +44,6 @@ parts.push(`
   servers {
     trusted_proxies static 0.0.0.0/0
   }
-  order rate_limit before basicauth
 }
 
 (file_server) {
@@ -77,7 +73,7 @@ parts.push(`
   }
 
   request_body {
-    max_size ${process.env.APPSMITH_CODEC_SIZE || 150}MB
+    max_size 150MB
   }
 
   handle {
@@ -115,14 +111,6 @@ parts.push(`
   redir /supervisor /supervisor/
   handle_path /supervisor/* {
     import reverse_proxy 9001
-  }
-
-  rate_limit {
-    zone dynamic_zone {
-      key {http.request.remote_ip}
-      events ${RATE_LIMIT}
-      window 1s
-    }
   }
 
   handle_errors {
@@ -174,18 +162,11 @@ spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
 spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
 
 function finalizeIndexHtml() {
-  let info = null;
-  try {
-    info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
-  } catch(e) {
-    // info will be empty, that's okay.
-    console.error("Error reading info.json", e)
-  }
-
+  const info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
   const extraEnv = {
-    APPSMITH_VERSION_ID: info?.version ?? "",
-    APPSMITH_VERSION_SHA: info?.commitSha ?? "",
-    APPSMITH_VERSION_RELEASE_DATE: info?.imageBuiltAt ?? "",
+    APPSMITH_VERSION_ID: info.version ?? "",
+    APPSMITH_VERSION_SHA: info.commitSha ?? "",
+    APPSMITH_VERSION_RELEASE_DATE: info.imageBuiltAt ?? "",
   }
 
   const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replace(

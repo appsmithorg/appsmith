@@ -59,7 +59,6 @@ public class SSLDetails implements AppsmithDomain {
 
     AuthType authType;
 
-    // For Mutual TLS of datasource integration
     CACertificateType caCertificateType;
 
     UploadedFile keyFile;

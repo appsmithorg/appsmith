@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -23,7 +22,6 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
-@FieldNameConstants
 public class Datasource extends BranchAwareDomain {
 
     @Transient
@@ -152,6 +150,4 @@ public class Datasource extends BranchAwareDomain {
         this.setIsConfigured(null);
         this.setMessages(null);
     }
-
-    public static class Fields extends BranchAwareDomain.Fields {}
 }

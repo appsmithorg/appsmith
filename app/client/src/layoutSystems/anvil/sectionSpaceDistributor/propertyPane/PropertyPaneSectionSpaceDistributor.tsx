@@ -1,7 +1,6 @@
 import React from "react";
 import styled from "styled-components";
 import {
-  convertFlexGrowToFlexBasis,
   getDistributionHandleId,
   getPropertyPaneDistributionHandleId,
   getPropertyPaneZoneId,
@@ -18,21 +17,20 @@ const MockedSection = styled.div`
   border-radius: 5px;
   display: flex;
   flex-direction: row;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
   height: 34px;
   justify-content: flex-start;
   border: 2px solid var(--ads-v2-color-bg-emphasis);
 `;
 
-const MockedZone = styled.div<{ flexBasis: string }>`
+const MockedZone = styled.div<{ flexGrow: number }>`
   display: flex;
   border-radius: 3px;
   background-color: var(--ads-v2-color-bg);
   flex-shrink: 1;
   align-items: center;
   justify-content: center;
-  flex-grow: 1;
-  flex-basis: ${(props) => props.flexBasis};
+  flex-grow: ${(props) => props.flexGrow};
 `;
 
 export const PropertyPaneSectionSpaceDistributor = ({
@@ -66,12 +64,11 @@ export const PropertyPaneSectionSpaceDistributor = ({
         const distributionHandleId = getDistributionHandleId(zoneId);
         const propPaneZoneId = getPropertyPaneZoneId(zoneId);
         const propPaneHandleId = getPropertyPaneDistributionHandleId(zoneId);
-        const flexBasisValue = convertFlexGrowToFlexBasis(zoneValue);
         return (
           // Render mocked zone and distribution handle for each zone
           <>
             <MockedZone
-              flexBasis={flexBasisValue}
+              flexGrow={zoneValue}
               id={propPaneZoneId}
               key={propPaneZoneId}
             >

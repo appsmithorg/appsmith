@@ -1,4 +1,4 @@
-import React, { forwardRef, useMemo } from "react";
+import React, { forwardRef, useEffect, useMemo, useState } from "react";
 import type { CSSProperties } from "react";
 import { Flex } from "@design-system/widgets";
 import {
@@ -11,15 +11,11 @@ import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { Layers } from "constants/Layers";
-import { noop } from "utils/AppsmithUtils";
-import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
-  zIndex: Layers.positionedWidget,
-  // add transition ease-in animation when there is a flexgrow value change
-  transition: "flex-grow 0.1s ease-in",
+  // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
+  overflow: "hidden",
 };
 
 /**
@@ -40,81 +36,64 @@ export const AnvilFlexComponent = forwardRef(
       children,
       className,
       flexGrow,
-      onClick = noop,
-      onClickCapture = noop,
       widgetId,
       widgetSize,
       widgetType,
     }: AnvilFlexComponentProps,
     ref: any,
   ) => {
-    // The `anvil-widget-wrapper` className is necessary for the following features
-    // "Vertical Alignment" and "Asymmetric Padding". The code for the same can be found in `src/index.css`
-    // Please do not remove this class.
-    const _className = `${className} anvil-widget-wrapper`;
+    // State to manage whether the widget is a fill widget
+    const [isFillWidget, setIsFillWidget] = useState<boolean>(false);
 
-    const widgetConfigProps = useMemo(() => {
+    // State to manage vertical alignment of the widget
+    const [verticalAlignment, setVerticalAlignment] =
+      useState<FlexVerticalAlignment>(FlexVerticalAlignment.Top);
+
+    // Effect to update state based on widget type
+    useEffect(() => {
       const widgetConfig:
         | (Partial<WidgetProps> & WidgetConfigProps & { type: string })
         | undefined = WidgetFactory.getConfig(widgetType);
-      const isFillWidget =
-        widgetConfig?.responsiveBehavior === ResponsiveBehavior.Fill;
-      const verticalAlignment =
-        widgetConfig?.flexVerticalAlignment || FlexVerticalAlignment.Top;
-      return { isFillWidget, verticalAlignment };
+      if (!widgetConfig) return;
+      setIsFillWidget(
+        widgetConfig?.responsiveBehavior === ResponsiveBehavior.Fill,
+      );
+      setVerticalAlignment(
+        widgetConfig?.flexVerticalAlignment || FlexVerticalAlignment.Top,
+      );
     }, [widgetType]);
+
     // Memoize flex props to be passed to the WDS Flex component.
     // If the widget is being resized => update width and height to auto.
     const flexProps: FlexProps = useMemo(() => {
-      const { isFillWidget, verticalAlignment } = widgetConfigProps;
-      let flexBasis = "auto";
-      if (flexGrow) {
-        // flexGrow is a widget property present only for zone widgets which represents the number of columns the zone occupies in a section.
-        // pls refer to convertFlexGrowToFlexBasis for more details.
-        flexBasis = convertFlexGrowToFlexBasis(flexGrow);
-      } else if (isFillWidget) {
-        flexBasis = "0%";
-      }
       const data: FlexProps = {
         alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
-        flexGrow: isFillWidget ? 1 : 0,
+        flexGrow: flexGrow ? flexGrow : isFillWidget ? 1 : 0,
         flexShrink: isFillWidget ? 1 : 0,
-        flexBasis,
+        flexBasis: isFillWidget ? "0%" : "auto",
+        padding: "spacing-1",
         alignItems: "center",
-        width: "max-content",
       };
       if (widgetSize) {
-        const {
-          maxHeight,
-          maxWidth,
-          minHeight,
-          minWidth,
-          paddingBottom,
-          paddingTop,
-        } = widgetSize;
+        const { maxHeight, maxWidth, minHeight, minWidth } = widgetSize;
         data.maxHeight = maxHeight;
         data.maxWidth = maxWidth;
-        data.minHeight = minHeight;
+        data.minHeight = minHeight ?? { base: "sizing-12" };
         data.minWidth = minWidth;
-        data.paddingTop = paddingTop;
-        data.paddingBottom = paddingBottom;
       }
       return data;
-    }, [widgetConfigProps, widgetSize, flexGrow]);
+    }, [isFillWidget, widgetSize, verticalAlignment, flexGrow]);
 
     // Render the Anvil Flex Component using the Flex component from WDS
     return (
       <Flex
-        isInner
         {...flexProps}
-        className={_className}
+        className={className}
         id={getAnvilWidgetDOMId(widgetId)}
-        onClick={onClick}
-        onClickCapture={onClickCapture}
         ref={ref}
         style={anvilWidgetStyleProps}
       >
-        {children}
+        <div className="h-full w-full">{children}</div>
       </Flex>
     );
   },

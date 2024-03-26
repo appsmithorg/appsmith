@@ -11,6 +11,7 @@ import type {
 } from "../../utils/anvilTypes";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
+import { moveWidgets } from "../../utils/layouts/update/moveUtils";
 import type {
   AnvilMoveWidgetsPayload,
   AnvilNewWidgetsPayload,
@@ -40,7 +41,6 @@ import {
   getCreateWidgetPayload,
 } from "layoutSystems/anvil/utils/widgetAdditionUtils";
 import { updateAndSaveAnvilLayout } from "../../utils/anvilChecksUtils";
-import { moveWidgetsToZone } from "layoutSystems/anvil/utils/layouts/update/zoneUtils";
 
 // Function to retrieve highlighting information for the last row in the main canvas layout
 export function* getMainCanvasLastRowHighlight() {
@@ -363,14 +363,8 @@ export function* handleWidgetMovement(
       highlight,
     );
   } else {
-    updatedWidgets = yield call(
-      moveWidgetsToZone,
-      allWidgets,
-      movedWidgetIds,
-      highlight,
-    );
+    updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
   }
-
   return updatedWidgets;
 }
 

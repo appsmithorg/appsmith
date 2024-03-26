@@ -661,15 +661,4 @@ export class PropertyPane {
       this.SetZoomLevel(zoom);
     });
   }
-
-  public FocusIntoTextField(endp: string) {
-    this.agHelper
-      .GetElement(this.locator._propertyInputField(endp))
-      .first()
-      .then((el: any) => {
-        cy.get(el).focus();
-      });
-
-    this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
-  }
 }

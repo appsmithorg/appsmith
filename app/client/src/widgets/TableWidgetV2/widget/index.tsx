@@ -138,7 +138,6 @@ import {
   ResponsiveBehavior,
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -267,13 +266,6 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
             primaryColumnId: formConfig.primaryColumn,
             isVisibleDownload: false,
           });
-
-          if (
-            !!TableWidgetV2.getFeatureFlag(
-              FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
-            )
-          )
-            dynamicPropertyPathList.push({ key: "tableData" });
         }
 
         if (queryConfig.create) {
@@ -942,7 +934,10 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     //check if necessary we are batching now updates
     // Check if tableData is modifed
-    const isTableDataModified = this.props.tableData !== prevProps.tableData;
+    const isTableDataModified = !equal(
+      this.props.tableData,
+      prevProps.tableData,
+    );
 
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     // If the user has changed the tableData OR

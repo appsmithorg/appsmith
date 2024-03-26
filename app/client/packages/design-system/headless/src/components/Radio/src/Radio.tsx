@@ -26,7 +26,7 @@ const _Radio = (props: RadioProps, ref: RadioRef) => {
     children,
     className,
     isDisabled: isDisabledProp = false,
-    labelPosition = "end",
+    labelPosition = "right",
   } = props;
   const inputRef = useRef<HTMLInputElement>(null);
   const domRef = useFocusableRef(ref, inputRef);

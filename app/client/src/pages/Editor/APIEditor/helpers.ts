@@ -1,11 +1,9 @@
 import { submitCurlImportForm } from "actions/importActions";
-import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export interface curlImportFormValues {
   curl: string;
-  contextId: string;
+  pageId: string;
   name: string;
-  contextType: ActionParentEntityTypeInterface;
 }
 
 export const curlImportSubmitHandler = (

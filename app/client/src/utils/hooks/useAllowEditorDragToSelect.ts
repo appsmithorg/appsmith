@@ -7,7 +7,6 @@ import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import { getWidgetSelectionBlock } from "../../selectors/ui";
 
 export const useAllowEditorDragToSelect = () => {
   // This state tells us whether a `ResizableComponent` is resizing
@@ -47,8 +46,6 @@ export const useAllowEditorDragToSelect = () => {
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
 
-  const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
-
   return (
     isFixedLayout &&
     !isAutoCanvasResizing &&
@@ -56,7 +53,6 @@ export const useAllowEditorDragToSelect = () => {
     !isDraggingDisabled &&
     !isSnipingMode &&
     !isPreviewMode &&
-    !isAppSettingsPaneWithNavigationTabOpen &&
-    !isWidgetSelectionBlocked
+    !isAppSettingsPaneWithNavigationTabOpen
   );
 };

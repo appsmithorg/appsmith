@@ -5,7 +5,6 @@ import {
   apiEditorIdURL,
   queryAddURL,
   queryEditorIdURL,
-  queryListURL,
   saasEditorApiIdURL,
 } from "@appsmith/RouteBuilder";
 
@@ -20,33 +19,25 @@ export const getQueryEntityItemUrl = (
   return config.getURL(pageId, item.key, item.type);
 };
 
-export const getQueryUrl = (
-  item: FocusEntityInfo,
-  add: boolean = true,
-): string => {
+export const getQueryAddUrl = (item: FocusEntityInfo): string => {
   if (item.params.apiId) {
     if (item.params.pluginPackageName) {
       return saasEditorApiIdURL({
         pluginPackageName: item.params.pluginPackageName,
         apiId: item.params.apiId,
-        add,
+        add: true,
       });
     } else {
       return apiEditorIdURL({
         apiId: item.params.apiId,
-        add,
+        add: true,
       });
     }
   } else if (item.params.queryId) {
-    if (item.params.queryId === "add") {
-      return queryListURL({ pageId: item.params.pageId });
-    }
     return queryEditorIdURL({
       queryId: item.params.queryId,
-      add,
+      add: true,
     });
   }
-  return add
-    ? queryAddURL({ pageId: item.params.pageId })
-    : queryListURL({ pageId: item.params.pageId });
+  return queryAddURL({});
 };

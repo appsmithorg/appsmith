@@ -1,4 +1,4 @@
-import { get, isEmpty, isUndefined, set } from "lodash";
+import { get, isEmpty, set } from "lodash";
 import type { JSActionEntity } from "@appsmith/entities/DataTree/types";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import { EvalErrorTypes, getEvalValuePath } from "utils/DynamicBindingUtils";
@@ -85,16 +85,10 @@ export function saveResolvedFunctionsAndJSUpdates(
   entityName: string,
 ) {
   jsPropertiesState.delete(entityName);
-  const correctFormat =
-    entity.hasOwnProperty("body") &&
-    !isUndefined(entity.body) &&
-    validJSBodyRegex.test(entity.body);
-  const isEmptyBody =
-    entity.hasOwnProperty("body") &&
-    !isUndefined(entity.body) &&
-    entity?.body.trim() === "";
+  const correctFormat = validJSBodyRegex.test(entity.body);
+  const isEmptyBody = entity.body.trim() === "";
 
-  if (!isUndefined(entity.body) && (correctFormat || isEmptyBody)) {
+  if (correctFormat || isEmptyBody) {
     try {
       JSObjectCollection.deleteResolvedFunction(entityName);
       JSObjectCollection.deleteUnEvalState(entityName);
@@ -202,19 +196,9 @@ export function saveResolvedFunctionsAndJSUpdates(
     } catch (e) {
       //if we need to push error as popup in case
     }
-  } else {
-    const parsedBody = {
-      body: entity.body,
-      actions: [],
-      variables: [],
-    };
-    set(jsUpdates, `${entityName}`, {
-      parsedBody: parsedBody,
-      id: entity.actionId,
-    });
   }
 
-  if (!correctFormat && !isUndefined(entity.body)) {
+  if (!correctFormat) {
     const errors = {
       type: EvalErrorTypes.PARSE_JS_ERROR,
       context: {

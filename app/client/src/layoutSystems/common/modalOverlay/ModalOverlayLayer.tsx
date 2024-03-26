@@ -11,7 +11,6 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useMaxModalWidth } from "widgets/ModalWidget/component/useModalWidth";
-import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
 const Container = styled.div<{
   width?: number;
   height?: number;
@@ -25,7 +24,6 @@ const Container = styled.div<{
   isEditMode?: boolean;
   headerHeight?: number;
   smallHeaderHeight?: string;
-  leftSidebarWidth?: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -33,16 +31,18 @@ const Container = styled.div<{
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: 0;
+      top: ${(props) =>
+        `calc(${props.headerHeight}px + ${
+          props.isEditMode ? props.smallHeaderHeight : "0px"
+        })`};
       right: 0;
       bottom: 0;
-      left: ${(props) => props.leftSidebarWidth || 0}px;
-      height: 100%;
+      height: ${(props) =>
+        `calc(100vh - (${props.headerHeight}px + ${
+          props.isEditMode ? props.smallHeaderHeight : "0px"
+        }))`};
       z-index: ${(props) => props.zIndex};
-      width: ${(props) =>
-        props.leftSidebarWidth !== "0"
-          ? `calc(100% - ${props.leftSidebarWidth})`
-          : "100%"};
+      width: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
@@ -129,7 +129,6 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
   };
 
   const maxModalWidth = useMaxModalWidth();
-  const { hasSidebarPinned, sidebarWidth } = useAppViewerSidebarProperties();
 
   return (
     <ComponentContainerWrapper isEditMode={props.isEditMode}>
@@ -149,7 +148,6 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
           height={props.height}
           isEditMode={props.isEditMode}
           left={props.left}
-          leftSidebarWidth={hasSidebarPinned ? sidebarWidth.toString() : "0"}
           maxWidth={maxModalWidth}
           minSize={props.minSize}
           right={props.bottom}

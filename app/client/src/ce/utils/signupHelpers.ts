@@ -20,7 +20,7 @@ export const redirectUserAfterSignup = (
   shouldEnableFirstTimeUserOnboarding: string | null,
   _validLicense?: boolean,
   dispatch?: any,
-  isEnabledForCreateNew?: boolean, // is Enabled for only non-invited users
+  isEnabledForCreateNew?: boolean,
 ): any => {
   if (redirectUrl) {
     try {

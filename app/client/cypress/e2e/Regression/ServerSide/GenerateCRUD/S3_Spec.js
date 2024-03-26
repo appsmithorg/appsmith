@@ -142,10 +142,20 @@ describe(
       // });
 
       //Create Dummy Page2 :
-      PageList.AddNewPage();
+      cy.CreatePage();
+      cy.wait("@createPage").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
 
       //Creating CRUD Page3
-      PageList.AddNewPage();
+      cy.CreatePage();
+      cy.wait("@createPage").should(
+        "have.nested.property",
+        "response.body.responseMeta.status",
+        201,
+      );
 
       cy.get("@dSName").then((dbName) => {
         PageList.AddNewPage("Generate page with data");
@@ -217,7 +227,7 @@ describe(
     });
 
     it("4. Generate CRUD page from the page menu", function () {
-      PageList.AddNewPage("Generate page with data");
+      cy.GenerateCRUD();
       cy.NavigateToDSGeneratePage(datasourceName);
       // fetch bucket
       cy.wait("@getDatasourceStructure").should(

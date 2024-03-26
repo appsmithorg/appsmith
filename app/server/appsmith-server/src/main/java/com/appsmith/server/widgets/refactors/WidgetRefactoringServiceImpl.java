@@ -11,10 +11,7 @@ import org.springframework.stereotype.Service;
 public class WidgetRefactoringServiceImpl extends WidgetRefactoringServiceCEImpl
         implements EntityRefactoringService<Layout> {
     public WidgetRefactoringServiceImpl(
-            NewPageService newPageService,
-            AstService astService,
-            ObjectMapper objectMapper,
-            WidgetRefactorUtil widgetRefactorUtil) {
-        super(newPageService, astService, objectMapper, widgetRefactorUtil);
+            NewPageService newPageService, AstService astService, ObjectMapper objectMapper) {
+        super(newPageService, astService, objectMapper);
     }
 }

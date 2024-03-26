@@ -5,7 +5,6 @@ export const tenantConfigConnection: string[] = [
   "singleSessionPerUserEnabled",
   "showRolesAndGroups",
   "hideWatermark",
-  "userSessionTimeoutInMinutes",
 ];
 
 export const RESTART_POLL_TIMEOUT = 2 * 150 * 1000;

@@ -38,9 +38,9 @@ describe("<CodeEditor /> - Keyboard navigation", () => {
     </Provider>
   );
 
-  it("Pressing tab should focus the component", async () => {
+  it("Pressing tab should focus the component", () => {
     render(getTestComponent());
-    await userEvent.tab();
+    userEvent.tab();
     expect(screen.getByTestId("code-editor-target")).toHaveFocus();
   });
 });

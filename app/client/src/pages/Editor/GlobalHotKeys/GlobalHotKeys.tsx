@@ -19,6 +19,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
+import { showDebugger } from "actions/debuggerActions";
 
 import { runActionViaShortcut } from "actions/pluginActionActions";
 import type { SearchCategory } from "components/editorComponents/GlobalSearch/utils";
@@ -46,7 +47,6 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import { setPreviewModeInitAction } from "actions/editorActions";
 
 interface Props {
   copySelectedWidget: () => void;
@@ -56,6 +56,7 @@ interface Props {
   groupSelectedWidget: () => void;
   setGlobalSearchCategory: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
+  openDebugger: () => void;
   closeProppane: () => void;
   closeTableFilterProppane: () => void;
   executeAction: () => void;
@@ -70,12 +71,10 @@ interface Props {
   appMode?: APP_MODE;
   isPreviewMode: boolean;
   isProtectedMode: boolean;
-  setPreviewModeInitAction: (shouldSet: boolean) => void;
   isSignpostingEnabled: boolean;
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
   hideInstaller: () => void;
-  toggleDebugger: () => void;
 }
 
 @HotkeysTarget
@@ -168,7 +167,14 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Open Debugger"
-          onKeyDown={this.props.toggleDebugger}
+          onKeyDown={() => {
+            this.props.openDebugger();
+            if (this.props.isDebuggerOpen) {
+              AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
+                source: "CANVAS",
+              });
+            }
+          }}
           preventDefault
         />
         <Hotkey
@@ -322,14 +328,6 @@ class GlobalHotKeys extends React.Component<Props> {
           stopPropagation
         />
         <Hotkey
-          combo="alt + p"
-          global
-          label="Preview Mode"
-          onKeyDown={() => {
-            this.props.setPreviewModeInitAction(!this.props.isPreviewMode);
-          }}
-        />
-        <Hotkey
           combo="ctrl + shift + g"
           global
           label="Show git commit modal"
@@ -367,6 +365,7 @@ const mapDispatchToProps = (dispatch: any) => {
     setGlobalSearchCategory: (category: SearchCategory) =>
       dispatch(setGlobalSearchCategory(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
+    openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () =>
@@ -384,8 +383,6 @@ const mapDispatchToProps = (dispatch: any) => {
         }),
       ),
     hideInstaller: () => dispatch(toggleInstaller(false)),
-    setPreviewModeInitAction: (shouldSet: boolean) =>
-      dispatch(setPreviewModeInitAction(shouldSet)),
   };
 };
 

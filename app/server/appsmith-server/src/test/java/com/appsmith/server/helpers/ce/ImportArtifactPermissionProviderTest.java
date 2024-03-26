@@ -9,7 +9,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Workspace;
-import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
@@ -126,7 +125,7 @@ class ImportArtifactPermissionProviderTest {
         ImportArtifactPermissionProvider.Builder builder = ImportArtifactPermissionProvider.builder(
                 applicationPermission, pagePermission, actionPermission, datasourcePermission, workspacePermission);
 
-        assertThat(builder.requiredPermissionOnTargetArtifact(applicationPermission.getEditPermission())
+        assertThat(builder.requiredPermissionOnTargetApplication(applicationPermission.getEditPermission())
                         .build()
                         .getRequiredPermissionOnTargetApplication())
                 .isEqualTo(applicationPermission.getEditPermission());
@@ -141,7 +140,7 @@ class ImportArtifactPermissionProviderTest {
         assertTrue(builder.permissionRequiredToCreateAction(true).build().isPermissionRequiredToCreateAction());
 
         assertTrue(builder.permissionRequiredToEditDatasource(true).build().isPermissionRequiredToEditDatasource());
-        assertTrue(builder.permissionRequiredToEditContext(true).build().isPermissionRequiredToEditContext());
+        assertTrue(builder.permissionRequiredToEditPage(true).build().isPermissionRequiredToEditPage());
         assertTrue(builder.permissionRequiredToEditAction(true).build().isPermissionRequiredToEditAction());
     }
 
@@ -160,7 +159,7 @@ class ImportArtifactPermissionProviderTest {
         assertTrue(provider.isPermissionRequiredToCreatePage());
         assertTrue(provider.isPermissionRequiredToCreateAction());
         assertTrue(provider.isPermissionRequiredToEditDatasource());
-        assertTrue(provider.isPermissionRequiredToEditContext());
+        assertTrue(provider.isPermissionRequiredToEditPage());
         assertTrue(provider.isPermissionRequiredToEditAction());
     }
 
@@ -189,7 +188,7 @@ class ImportArtifactPermissionProviderTest {
                 .currentUserPermissionGroups(Set.of());
 
         if (baseDomain instanceof NewPage) {
-            builder.permissionRequiredToEditContext(true);
+            builder.permissionRequiredToEditPage(true);
         } else if (baseDomain instanceof NewAction) {
             builder.permissionRequiredToEditAction(true);
         } else if (baseDomain instanceof Datasource) {

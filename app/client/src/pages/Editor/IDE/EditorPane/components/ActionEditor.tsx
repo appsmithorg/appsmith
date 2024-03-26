@@ -2,6 +2,7 @@ import { Flex } from "design-system";
 import React, { useCallback, useState } from "react";
 import ActionToolbar from "./ActionToolbar";
 import ActionDrawer from "./ActionDrawer";
+import { setResponsePaneHeight } from "actions/debuggerActions";
 import { useDispatch } from "react-redux";
 import type { BottomTab } from "components/editorComponents/EntityBottomTabs";
 
@@ -13,16 +14,12 @@ interface Props {
   tabs: BottomTab[];
   runOptionsSelector?: React.ReactNode;
   settingsRender: React.ReactNode;
-  height?: number;
-  onSetHeight?: (height: number) => void;
 }
 
 const ActionEditor = (props: Props) => {
   const dispatch = useDispatch();
   const setDrawerHeight = useCallback((height: number) => {
-    if (props.onSetHeight) {
-      dispatch(props.onSetHeight(height));
-    }
+    dispatch(setResponsePaneHeight(height));
   }, []);
   const [settingsOpen, setSettingsOpen] = useState(false);
 
@@ -45,7 +42,6 @@ const ActionEditor = (props: Props) => {
         />
       </Flex>
       <ActionDrawer
-        height={props.height}
         isRunning={props.isRunning}
         onResizeComplete={setDrawerHeight}
         tabs={props.tabs}

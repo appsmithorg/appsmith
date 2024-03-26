@@ -1,11 +1,18 @@
 import React from "react";
-import BaseWidget from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-
-import * as config from "./../config";
-import { IconButtonComponent } from "../component";
+import BaseWidget from "widgets/BaseWidget";
+import {
+  metaConfig,
+  defaultsConfig,
+  autocompleteConfig,
+  propertyPaneContentConfig,
+  propertyPaneStyleConfig,
+  settersConfig,
+} from "./../config";
 import type { IconButtonWidgetProps, IconButtonWidgetState } from "./types";
+import { IconButtonComponent } from "../component";
+import type { AnvilConfig } from "WidgetProvider/constants";
 
 class WDSIconButtonWidget extends BaseWidget<
   IconButtonWidgetProps,
@@ -22,31 +29,36 @@ class WDSIconButtonWidget extends BaseWidget<
   static type = "WDS_ICON_BUTTON_WIDGET";
 
   static getConfig() {
-    return config.metaConfig;
+    return metaConfig;
   }
 
   static getDefaults() {
-    return config.defaultsConfig;
+    return defaultsConfig;
   }
 
-  static getAnvilConfig() {
-    return config.anvilConfig;
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        minWidth: "sizing-10",
+      },
+    };
   }
 
   static getAutocompleteDefinitions() {
-    return config.autocompleteConfig;
+    return autocompleteConfig;
   }
 
   static getPropertyPaneContentConfig() {
-    return config.propertyPaneContentConfig;
+    return propertyPaneContentConfig;
   }
 
   static getPropertyPaneStyleConfig() {
-    return config.propertyPaneStyleConfig;
+    return propertyPaneStyleConfig;
   }
 
   static getSetterConfig(): SetterConfig {
-    return config.settersConfig;
+    return settersConfig;
   }
 
   hasOnClickAction = () => {

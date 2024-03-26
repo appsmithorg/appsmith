@@ -204,7 +204,7 @@ export function DraggableListCard(props: RenderComponentProps) {
             startIcon="settings-2-line"
           />
         )}
-        {showDelete && !isSeparator && (
+        {showDelete && (
           <Button
             className="t--delete-column-btn"
             isIconButton
@@ -216,10 +216,7 @@ export function DraggableListCard(props: RenderComponentProps) {
             startIcon="delete-bin-line"
           />
         )}
-        {!showDelete &&
-          !isSeparator &&
-          toggleVisibility &&
-          renderVisibilityIcon()}
+        {!showDelete && toggleVisibility && renderVisibilityIcon()}
         {/*
          * Used in Table_Widget_V2's primary columns to enable/disable cell editability.
          * Using a common name `showCheckbox` instead of showEditable or isEditable,

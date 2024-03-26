@@ -252,7 +252,7 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
     // if connection cannot be made, redirect to editor
     connectionTimeout = setTimeout(() => {
       history.replace(window.location.pathname.replace("/builder", ""));
-    }, 4000);
+    }, 20000);
   }, []);
 
   return [context, loading];

@@ -1,3 +1,7 @@
+.wrapper {
+  position: relative;
+}
+
 .loader {
   position: absolute;
   top: 0;

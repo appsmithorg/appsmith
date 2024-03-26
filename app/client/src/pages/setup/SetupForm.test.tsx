@@ -9,17 +9,17 @@ function renderComponent() {
 }
 
 describe("SetupForm", () => {
-  it("If the form is in invalid state pressing enter should not submit the form", async () => {
+  it("If the form is in invalid state pressing enter should not submit the form", () => {
     renderComponent();
     const verifyPassword = screen.getByTestId("verifyPassword");
     const formPage = screen.getByTestId("formPage");
     expect(verifyPassword).toHaveAttribute("name");
-    await userEvent.keyboard("{enter}");
+    userEvent.keyboard("{enter}");
     // This attribute is removed in onsubmit
     expect(verifyPassword).toHaveAttribute("name");
     expect(formPage).toHaveClass("block");
   });
-  it("If the form is in valid state pressing enter should nagivate to next page", async () => {
+  it("If the form is in valid state pressing enter should nagivate to next page", () => {
     renderComponent();
     const formPage = screen.getByTestId("formPage");
     expect(formPage).toHaveClass("block");
@@ -33,7 +33,7 @@ describe("SetupForm", () => {
     fireEvent.change(password, { target: { value: "Test@123" } });
     const verifyPassword = screen.getByTestId("verifyPassword");
     fireEvent.change(verifyPassword, { target: { value: "Test@123" } });
-    await userEvent.keyboard("{enter}");
+    userEvent.keyboard("{enter}");
     expect(formPage).toHaveClass("hidden");
   });
 });

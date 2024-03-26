@@ -8,33 +8,29 @@ import { omit } from "lodash";
 import type { Action } from "entities/Action";
 import type { ActionResponse } from "api/ActionAPI";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
 
 export const initialState: QueryPaneReduxState = {
+  isFetching: false,
+  isCreating: false,
   isRunning: {},
   isSaving: {},
   isDeleting: {},
   runErrorMessage: {},
-  debugger: {
-    open: false,
-    responseTabHeight: ActionExecutionResizerHeight,
-  },
+  lastUsed: "", // NR
+  responseTabHeight: ActionExecutionResizerHeight,
   selectedConfigTabIndex: "0",
 };
 
-export interface QueryPaneDebuggerState {
-  open: boolean;
-  responseTabHeight: number;
-  selectedTab?: string;
-}
-
 export interface QueryPaneReduxState {
+  isFetching: boolean; // RR
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>; // RR
   isDeleting: Record<string, boolean>;
   runErrorMessage: Record<string, string>;
+  lastUsed: string; // NR
+  isCreating: boolean; // RR
   selectedConfigTabIndex: string;
-  debugger: QueryPaneDebuggerState;
+  responseTabHeight: number;
 }
 
 export const handlers = {
@@ -126,17 +122,12 @@ export const handlers = {
   [ReduxActionTypes.RUN_ACTION_REQUEST]: (
     state: any,
     action: ReduxAction<{ id: string }>,
-  ): QueryPaneReduxState => {
+  ) => {
     return {
       ...state,
       isRunning: {
         ...state.isRunning,
         [action.payload.id]: true,
-      },
-      debugger: {
-        ...state.debugger,
-        selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-        open: true,
       },
     };
   },
@@ -194,18 +185,6 @@ export const handlers = {
     return {
       ...state,
       selectedConfigTabIndex: selectedTabIndex,
-    };
-  },
-  [ReduxActionTypes.SET_QUERY_PANE_DEBUGGER_STATE]: (
-    state: QueryPaneReduxState,
-    action: ReduxAction<Partial<QueryPaneDebuggerState>>,
-  ) => {
-    return {
-      ...state,
-      debugger: {
-        ...state.debugger,
-        ...action.payload,
-      },
     };
   },
 };

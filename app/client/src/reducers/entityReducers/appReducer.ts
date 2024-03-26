@@ -32,7 +32,6 @@ export interface AppDataState {
     canBeRequested: boolean;
     currentPosition?: Partial<GeolocationPosition>;
   };
-  workflows: Record<string, any>;
 }
 
 const initialState: AppDataState = {
@@ -56,7 +55,6 @@ const initialState: AppDataState = {
     canBeRequested: "geolocation" in navigator,
     currentPosition: {},
   },
-  workflows: {},
 };
 
 const appReducer = createReducer(initialState, {

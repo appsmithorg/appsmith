@@ -5,7 +5,7 @@ export const defaultsConfig = {
   label: "Label",
   defaultSwitchState: true,
   widgetName: "Switch",
-  labelPosition: "start",
+  labelPosition: "left",
   version: 1,
   isDisabled: false,
   animateLoading: true,

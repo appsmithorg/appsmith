@@ -16,11 +16,6 @@ const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
   color: var(--ads-v2-color-fg);
-
-  .title-text {
-    font-weight: var(--ads-v2-h5-font-weight);
-  }
-
   .help-icon {
     margin-left: 8px;
     cursor: pointer;

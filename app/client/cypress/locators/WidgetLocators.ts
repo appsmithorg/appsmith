@@ -8,8 +8,6 @@ export const WIDGET = {
   WDSBUTTON: "wdsbuttonwidget",
   WDSTABLE: "wdstablewidget",
   WDSINPUT: "wdsinputwidget",
-  WDSSWITCH: "wdsswitchwidget",
-  WDSCHECKBOX: "wdscheckboxwidget",
   BUTTONNAME: (index: string) => `Button${index}`,
   CODESCANNER: "codescannerwidget",
   CONTAINER: "containerwidget",
@@ -171,7 +169,7 @@ export const buttongroupwidgetlocators = {
   buttongroup: ".t--buttongroup-widget",
   buttonSettingInPropPane: ".t--property-control-buttons .t--edit-column-btn",
   menuSettingInPropPane: ".t--edit-column-btn",
-  newButton: "//*[text()='Add button']",
+  newButton: "//*[text()='Add new button']",
   groupButtonValue: "//input[contains(@value,'Group Button')]",
   buttonText: (value: string) =>
     `//*[@class="bp3-button-text" and text()='${value}']`,

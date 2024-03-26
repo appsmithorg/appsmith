@@ -1,6 +1,6 @@
 import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { Datasource, QueryTemplate } from "entities/Datasource";
-import { useCallback, useState } from "react";
+import { useState, useCallback } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";

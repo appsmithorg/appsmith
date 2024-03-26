@@ -3,7 +3,7 @@ import type { ListState } from "@react-stately/list";
 import { useCallback, type RefObject, useMemo } from "react";
 import type { DOMAttributes, FocusableElement } from "@react-types/shared";
 
-import type { ButtonGroupProps } from "../../../";
+import type { ActionGroupProps } from "./types";
 import {
   useLayoutEffect,
   useResizeObserver,
@@ -17,7 +17,7 @@ export interface ActionGroupAria {
 }
 
 export function useActionGroup<T>(
-  props: ButtonGroupProps<T>,
+  props: ActionGroupProps<T>,
   state: ListState<T>,
   ref: RefObject<FocusableElement>,
 ): ActionGroupAria {

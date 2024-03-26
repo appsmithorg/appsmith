@@ -5,6 +5,7 @@ import { ANVIL_EDITOR_TEST } from "./Constants.js";
 
 import EditorNavigation, {
   EntityType,
+  AppSidebarButton,
   AppSidebar,
   PageLeftPane,
   PagePaneSegment,
@@ -23,6 +24,7 @@ const loginPage = require("../locators/LoginPage.json");
 const signupPage = require("../locators/SignupPage.json");
 import homePage from "../locators/HomePage";
 
+const pages = require("../locators/Pages.json");
 const commonlocators = require("../locators/commonlocators.json");
 const widgetsPage = require("../locators/Widgets.json");
 import ApiEditor from "../locators/ApiEditor";
@@ -280,7 +282,7 @@ Cypress.Commands.add("LoginUser", (uname, pword, goToLoginPage = true) => {
   goToLoginPage && cy.visit("/user/login", { timeout: 60000 });
   cy.wait(3000); //for login page to load fully for CI runs
   cy.wait("@getConsolidatedData");
-  agHelper.AssertElementVisibility(loginPage.username);
+  cy.get(loginPage.username).should("be.visible");
   cy.get(loginPage.username).type(uname);
   cy.get(loginPage.password).type(pword, { log: false });
   cy.get(loginPage.submitBtn).click();
@@ -386,6 +388,14 @@ Cypress.Commands.add("DeleteApp", (appName) => {
     .click({ force: true });
   cy.get(homePage.deleteAppConfirm).should("be.visible").click({ force: true });
   cy.get(homePage.deleteApp).contains("Are you sure?").click({ force: true });
+});
+
+Cypress.Commands.add("DeletepageFromSideBar", () => {
+  cy.xpath(pages.popover).last().click({ force: true });
+  cy.get(pages.deletePage).first().click({ force: true });
+  cy.get(pages.deletePageConfirm).first().click({ force: true });
+  // eslint-disable-next-line cypress/no-unnecessary-waiting
+  cy.wait(2000);
 });
 
 Cypress.Commands.add("LogOut", (toCheckgetPluginForm = true) => {
@@ -721,7 +731,7 @@ Cypress.Commands.add("dragAndDropToCanvas", (widgetType, { x, y }) => {
     .trigger("dragstart", { force: true })
     .trigger("mousemove", x, y, { force: true });
 
-  const option = { eventConstructor: "MouseEvent", scrollBehavior: false };
+  const option = { eventConstructor: "MouseEvent" };
 
   cy.get(explorer.dropHere)
     .trigger("mousemove", x, y, option)
@@ -947,7 +957,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   cy.intercept("PUT", "/api/v1/actions/executeOnLoad/*").as("setExecuteOnLoad");
 
   cy.intercept("POST", "/api/v1/actions").as("createNewApi");
-  cy.intercept("POST", "/api/v1/import?type=CURL&contextId=*&name=*").as(
+  cy.intercept("POST", "/api/v1/import?type=CURL&pageId=*&name=*").as(
     "curlImport",
   );
   cy.intercept("DELETE", "/api/v1/actions/*").as("deleteAction");
@@ -1327,8 +1337,6 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.wait(2000);
 
   if (CURRENT_REPO === REPO.CE) {
-    agHelper.WaitUntilEleAppear(onboarding.locators.skipStartFromData);
-    agHelper.GetNClick(onboarding.locators.skipStartFromData);
     cy.get("#loading").should("not.exist");
     AppSidebar.assertVisible();
   }
@@ -1943,6 +1951,22 @@ Cypress.Commands.add(
     });
   },
 );
+
+Cypress.Commands.add("CreatePage", () => {
+  AppSidebar.navigate(AppSidebarButton.Editor);
+  cy.get(pages.AddPage).first().click();
+  cy.xpath("//span[text()='New blank page']/parent::div").click();
+});
+
+Cypress.Commands.add("GenerateCRUD", () => {
+  cy.get(pages.AddPage).first().click();
+  cy.xpath("//span[text()='Generate page with data']/parent::div").click();
+});
+
+Cypress.Commands.add("AddPageFromTemplate", () => {
+  cy.get(pages.AddPage).first().click();
+  cy.xpath("//span[text()='Add page from template']/parent::div").click();
+});
 
 Cypress.Commands.add(`verifyCallCount`, (alias, expectedNumberOfCalls) => {
   cy.wait(alias);

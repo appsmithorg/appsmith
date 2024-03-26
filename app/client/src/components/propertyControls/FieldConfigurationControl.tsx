@@ -20,12 +20,6 @@ import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListCon
 import styled from "styled-components";
 import { NO_FIELDS_ADDED, createMessage } from "@appsmith/constants/messages";
 
-import {
-  itemHeight,
-  noOfItemsToDisplay,
-  extraSpace,
-} from "widgets/JSONFormWidget/constants";
-
 type DroppableItem = BaseItemProps & {
   index: number;
   isCustomField: boolean;
@@ -36,8 +30,6 @@ interface State {
 }
 
 const DEFAULT_FIELD_NAME = "customField";
-
-const fixedHeight = itemHeight * noOfItemsToDisplay + extraSpace;
 
 const FlexContainer = styled.div`
   display: flex;
@@ -272,9 +264,8 @@ class FieldConfigurationControl extends BaseControl<ControlProps, State> {
       <div className="flex flex-col w-full gap-1">
         <DraggableListControl
           deleteOption={this.onDeleteOption}
-          fixedHeight={fixedHeight}
           focusedIndex={this.state.focusedIndex}
-          itemHeight={itemHeight}
+          itemHeight={45}
           items={draggableComponentColumns}
           onEdit={this.onEdit}
           propertyPath={this.props.dataTreePath}

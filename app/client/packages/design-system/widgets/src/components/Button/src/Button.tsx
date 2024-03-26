@@ -1,8 +1,9 @@
+import clsx from "clsx";
 import React, { forwardRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
+import { getTypographyClassName } from "@design-system/theming";
 import { Button as HeadlessButton } from "@design-system/headless";
 import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
-import type { SIZES } from "../../../shared";
 
 import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
@@ -33,22 +34,12 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
     return (
       <>
         <span aria-hidden={isLoading ? true : undefined} data-content="">
-          {icon && <Icon name={icon} size={size as keyof typeof SIZES} />}
+          {icon && <Icon name={icon} />}
           {Boolean(children) && (
-            <Text
-              data-text=""
-              fontWeight={600}
-              lineClamp={1}
-              textAlign="center"
-            >
+            <Text fontWeight={600} lineClamp={1} textAlign="center">
               {children}
             </Text>
           )}
-          {/*
-            To align buttons in the case when we don't have text content, we create an empty block with the appropriate size.
-            See the styles for data-empty-text attribute.
-           */}
-          {!Boolean(children) && <Text data-empty-text="">&#8203;</Text>}
         </span>
 
         {isLoading && (
@@ -67,7 +58,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       aria-disabled={
         visuallyDisabled || isLoading || isDisabled ? true : undefined
       }
-      className={styles.button}
+      className={clsx(styles.button, getTypographyClassName("body"))}
       data-button=""
       data-color={color}
       data-icon-position={iconPosition === "start" ? "start" : "end"}

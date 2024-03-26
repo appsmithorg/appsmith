@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 
@@ -26,7 +25,6 @@ import static com.appsmith.server.constants.FieldName.DEFAULT;
 @Setter
 @ToString
 @Document
-@FieldNameConstants
 @NoArgsConstructor
 public class UserData extends BaseDomain {
 
@@ -104,6 +102,4 @@ public class UserData extends BaseDomain {
     public UserData(String userId) {
         this.userId = userId;
     }
-
-    public static class Fields extends BaseDomain.Fields {}
 }

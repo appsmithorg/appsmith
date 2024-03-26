@@ -3,14 +3,21 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { useSelector } from "react-redux";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import {
+  getCurrentApplication,
+  getAppSidebarPinned,
+  getSidebarWidth,
+  getAppMode,
+} from "@appsmith/selectors/applicationSelectors";
+import { NAVIGATION_SETTINGS } from "constants/AppConstants";
 import { PageView, PageViewWrapper } from "./AppPage.styled";
+import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { APP_MODE } from "entities/App";
+import { useLocation } from "react-router";
 import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
 
 interface AppPageProps {
   appName?: string;
@@ -21,11 +28,19 @@ interface AppPageProps {
 }
 
 export function AppPage(props: AppPageProps) {
+  const currentApplicationDetails = useSelector(getCurrentApplication);
+  const isAppSidebarPinned = useSelector(getAppSidebarPinned);
+  const sidebarWidth = useSelector(getSidebarWidth);
+  const isMobile = useIsMobileDevice();
   const appMode = useSelector(getAppMode);
   const isPublished = appMode === APP_MODE.PUBLISHED;
+  const { search } = useLocation();
+  const queryParams = new URLSearchParams(search);
+  const isEmbed = queryParams.get("embed");
+  const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
+  const isEmbeddedAppWithNavVisible = isEmbed && isNavbarVisibleInEmbeddedApp;
   const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
   const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
-  const { hasSidebarPinned, sidebarWidth } = useAppViewerSidebarProperties();
 
   const width: string = useMemo(() => {
     return isAnvilLayout ? "100%" : `${props.canvasWidth}px`;
@@ -44,9 +59,15 @@ export function AppPage(props: AppPageProps) {
 
   return (
     <PageViewWrapper
-      hasPinnedSidebar={hasSidebarPinned}
+      hasPinnedSidebar={
+        currentApplicationDetails?.applicationDetail?.navigationSetting
+          ?.orientation === NAVIGATION_SETTINGS.ORIENTATION.SIDE &&
+        isAppSidebarPinned
+      }
       isPublished={isPublished}
-      sidebarWidth={sidebarWidth}
+      sidebarWidth={
+        isMobile || (isEmbed && !isEmbeddedAppWithNavVisible) ? 0 : sidebarWidth
+      }
     >
       <PageView className="t--app-viewer-page" width={width}>
         {props.widgetsStructure.widgetId &&

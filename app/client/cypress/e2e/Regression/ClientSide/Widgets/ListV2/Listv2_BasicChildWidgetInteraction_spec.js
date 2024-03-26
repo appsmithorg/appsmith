@@ -11,7 +11,6 @@ const containerWidgetSelector = `[type="CONTAINER_WIDGET"]`;
 function dragAndDropToWidget(widgetType, destinationWidget, { x, y }) {
   const selector = `.t--widget-card-draggable-${widgetType}`;
   cy.wait(800);
-  PageLeftPane.switchToAddNew();
   cy.get(selector)
     .first()
     .scrollIntoView()
@@ -35,9 +34,9 @@ function deleteAllWidgetsInContainer() {
       force: true,
     });
   cy.get("body").type(`{${modifierKey}}{a}`);
-  cy.wait(200);
   cy.get("body").type("{del}");
-  cy.get(commonlocators.layoutControls).should("be.visible");
+
+  cy.wait(200);
 }
 
 function checkSelectedRadioValue(selector, value) {
@@ -64,13 +63,12 @@ describe(
         x: 250,
         y: 50,
       });
-      cy.assertPageSave();
 
       // Verify drop
       cy.get(publishLocators.inputWidget).should("exist");
 
       // Type value
-      cy.get(publishLocators.inputWidget).find("input").first().type("abcd");
+      cy.get(publishLocators.inputWidget).find("input").type("abcd");
 
       // Verify if the value got typed
       cy.get(publishLocators.inputWidget)
@@ -80,6 +78,7 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Select widget
+      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("selectwidget", "containerwidget", {
         x: 250,
         y: 50,
@@ -116,6 +115,7 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Checkbox widget
+      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("checkboxgroupwidget", "containerwidget", {
         x: 250,
         y: 50,
@@ -158,6 +158,7 @@ describe(
       deleteAllWidgetsInContainer();
 
       // Drop Switch widget
+      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("switchwidget", "containerwidget", {
         x: 250,
         y: 50,
@@ -200,8 +201,9 @@ describe(
 
       _.deployMode.NavigateBacktoEditor();
       deleteAllWidgetsInContainer();
-      cy.wait(800);
+
       // Drop Radio widget
+      PageLeftPane.switchToAddNew();
       dragAndDropToWidget("radiogroupwidget", "containerwidget", {
         x: 250,
         y: 50,

@@ -1,10 +1,6 @@
 const EnterpriseAdminSettingsLocators = require("../../../../locators/EnterpriseAdminSettingsLocators.json");
 import adminsSettings from "../../../../locators/AdminsSettings";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-import {
-  agHelper,
-  adminSettings as adminSettingsHelper,
-} from "../../../../support/Objects/ObjectsCore";
 
 describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
   beforeEach(() => {
@@ -23,61 +19,13 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
     //cy.wait(3000);
     cy.visit("/settings", { timeout: 60000 });
-    cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
+    cy.url().should("contain", "/settings/general");
   });
 
-  it("2. should test that all business and enterprise general settings should have resp. tag and should be disabled", () => {
-    agHelper.VisitNAssert(
-      adminSettingsHelper.routes.GENERAL,
-      "getEnvVariables",
-    );
-    if (CURRENT_REPO === REPO.CE) {
-      cy.get(adminsSettings.hideWatermarkWrapper).within(() => {
-        cy.get(adminsSettings.businessTag)
-          .should("exist")
-          .should("contain", "Business");
-      });
-      cy.get(adminsSettings.hideWatermarkInput).should("have.attr", "disabled");
-
-      cy.get(adminsSettings.showRolesAndGroupsWrapper).within(() => {
-        cy.get(adminsSettings.businessTag)
-          .should("exist")
-          .should("contain", "Business");
-      });
-      cy.get(adminsSettings.showRolesAndGroupsInput).should(
-        "have.attr",
-        "disabled",
-      );
-
-      cy.get(adminsSettings.singleSessionPerUserWrapper).within(() => {
-        cy.get(adminsSettings.businessTag)
-          .should("exist")
-          .should("contain", "Business");
-      });
-      cy.get(adminsSettings.singleSessionPerUserInput).should(
-        "have.attr",
-        "disabled",
-      );
-
-      cy.get(adminsSettings.sessionTimeoutWrapper).within(() => {
-        cy.get(adminsSettings.enterpriseTag)
-          .should("exist")
-          .should("contain", "Enterprise");
-      });
-      cy.get(adminsSettings.sessionTimeoutInput).should(
-        "have.attr",
-        "disabled",
-      );
-    }
-  });
-
-  it("3. should test that authentication and branding page shows upgrade button and redirects to pricing page", () => {
-    agHelper.VisitNAssert(
-      adminSettingsHelper.routes.GENERAL,
-      "getEnvVariables",
-    );
+  it("2. should test that authentication and branding page shows upgrade button and redirects to pricing page", () => {
+    cy.visit("/settings/general", { timeout: 60000 });
     cy.get(adminsSettings.authenticationTab).click();
-    cy.url().should("contain", adminSettingsHelper.routes.AUTHENTICATION);
+    cy.url().should("contain", "/settings/authentication");
     if (CURRENT_REPO === REPO.CE) {
       cy.stubPricingPage();
       cy.get(EnterpriseAdminSettingsLocators.upgradeOidcButton)
@@ -96,8 +44,8 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.wait(2000);
       cy.go(-1);
       cy.stubPricingPage();
-      cy.get(adminsSettings.branding).click();
-      cy.url().should("contain", adminSettingsHelper.routes.BRANDING);
+      cy.get(".t--settings-category-branding").click();
+      cy.url().should("contain", "/settings/branding");
       cy.get(adminsSettings.brandingSubmitButton).should("be.disabled");
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@pricingPage").should("be.called");
@@ -106,11 +54,8 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
     }
   });
 
-  it("4. should test that Business features shows upgrade button and direct to pricing page", () => {
-    agHelper.VisitNAssert(
-      adminSettingsHelper.routes.GENERAL,
-      "getEnvVariables",
-    );
+  it("3. should test that Business features shows upgrade button and direct to pricing page", () => {
+    cy.visit("/settings/general", { timeout: 60000 });
     if (CURRENT_REPO === REPO.CE) {
       cy.get(adminsSettings.accessControl).within(() => {
         cy.get(adminsSettings.businessTag)
@@ -118,7 +63,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
           .should("contain", "Business");
       });
       cy.get(adminsSettings.accessControl).click();
-      cy.url().should("contain", adminSettingsHelper.routes.ACCESS_CONTROL);
+      cy.url().should("contain", "/settings/access-control");
       cy.stubPricingPage();
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@pricingPage").should("be.called");
@@ -130,7 +75,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
           .should("contain", "Business");
       });
       cy.get(adminsSettings.auditLogs).click();
-      cy.url().should("contain", adminSettingsHelper.routes.AUDIT_LOGS);
+      cy.url().should("contain", "/settings/audit-logs");
       cy.stubPricingPage();
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@pricingPage").should("be.called");
@@ -142,7 +87,7 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
           .should("contain", "Enterprise");
       });
       cy.get(adminsSettings.provisioning).click();
-      cy.url().should("contain", adminSettingsHelper.routes.PROVISIONING);
+      cy.url().should("contain", "/settings/provisioning");
       cy.stubPricingPage();
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@pricingPage").should("be.called");

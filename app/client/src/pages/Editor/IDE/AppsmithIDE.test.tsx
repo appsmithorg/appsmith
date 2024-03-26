@@ -14,6 +14,7 @@ import { sagasToRunForTests } from "test/sagas";
 import {
   MockApplication,
   mockCreateCanvasWidget,
+  mockGetCanvasWidgetDsl,
   mockGetPagePermissions,
   mockGetWidgetEvalValues,
   syntheticTestMouseEvent,
@@ -93,6 +94,7 @@ const renderNestedComponent = () => {
 
 describe("Drag and Drop widgets into Main container", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+  const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
 
   jest
     .spyOn(widgetRenderUtils, "createCanvasWidget")
@@ -151,6 +153,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
@@ -254,6 +257,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
@@ -362,6 +366,7 @@ describe("Drag and Drop widgets into Main container", () => {
   //   const dsl: any = widgetCanvasFactory.build({
   //     children,
   //   });
+  //   spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
   //   mockGetIsFetchingPage.mockImplementation(() => false);
 
   //   const component = render(
@@ -471,6 +476,7 @@ describe("Drag and Drop widgets into Main container", () => {
     });
     dsl.bottomRow = 250;
 
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
@@ -576,6 +582,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
     jest
       .spyOn(utilities, "getPagePermissions")
@@ -684,6 +691,7 @@ describe("Drag and Drop widgets into Main container", () => {
       children: containerChildren,
     });
 
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = render(
@@ -776,6 +784,7 @@ describe("Drag and Drop widgets into Main container", () => {
 
 describe("Drag in a nested container", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+  const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
 
   // These need to be at the top to avoid imports not being mocked. ideally should be in setup.ts but will override for all other tests
   beforeAll(() => {
@@ -802,6 +811,7 @@ describe("Drag in a nested container", () => {
   });
 
   it("container drags when focused on", () => {
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = renderNestedComponent();
@@ -873,6 +883,7 @@ describe("Drag in a nested container", () => {
   });
 
   it("nested widget drags when focused on", () => {
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = renderNestedComponent();
@@ -942,6 +953,7 @@ describe("Drag in a nested container", () => {
   });
 
   it("does not let disabledWidget drag and parent widget position stays same", () => {
+    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
 
     const component = renderNestedComponent();

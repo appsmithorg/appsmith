@@ -30,7 +30,6 @@ export interface PropertyPaneSectionConfig {
   generateDynamicProperties?: (
     widget: WidgetProps,
   ) => PropertyPaneControlConfig[];
-  expandedByDefault?: boolean;
 }
 
 export interface PanelConfig {

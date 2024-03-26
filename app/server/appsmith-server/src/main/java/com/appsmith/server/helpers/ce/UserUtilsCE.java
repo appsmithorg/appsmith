@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -30,6 +31,7 @@ import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBER
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.INSTANCE_CONFIG;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 public class UserUtilsCE {
 
@@ -73,7 +75,7 @@ public class UserUtilsCE {
                     }
                     assignedToUserIds.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
                     Update updateObj = new Update();
-                    String path = PermissionGroup.Fields.assignedToUserIds;
+                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
 
                     updateObj.set(path, assignedToUserIds);
                     // Make Super User is called before the first administrator is created.

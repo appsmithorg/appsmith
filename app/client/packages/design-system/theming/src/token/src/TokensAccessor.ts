@@ -15,7 +15,7 @@ import type {
 export class TokensAccessor {
   private seedColor?: ColorTypes;
   private colorMode?: ColorMode;
-  private borderRadiusElevation?: TokenObj;
+  private borderRadius?: TokenObj;
   private boxShadow?: TokenObj;
   private borderWidth?: TokenObj;
   private opacity?: TokenObj;
@@ -30,7 +30,7 @@ export class TokensAccessor {
   private iconSize?: TokenObj;
 
   constructor({
-    borderRadiusElevation,
+    borderRadius,
     borderWidth,
     boxShadow,
     colorMode,
@@ -48,7 +48,7 @@ export class TokensAccessor {
   }: TokenSource) {
     this.seedColor = seedColor;
     this.colorMode = colorMode;
-    this.borderRadiusElevation = borderRadiusElevation;
+    this.borderRadius = borderRadius;
     this.boxShadow = boxShadow;
     this.borderWidth = borderWidth;
     this.opacity = opacity;
@@ -79,17 +79,8 @@ export class TokensAccessor {
     this.colorMode = colorMode;
   };
 
-  updateBorderRadiusElevation = (borderRadiusElevation: TokenObj) => {
-    // when the border-radius base is 0px, we set all other border-radius to 0px
-    if (borderRadiusElevation["base"] == "0px") {
-      Object.keys(borderRadiusElevation).forEach((key) => {
-        if (key !== "base") {
-          borderRadiusElevation[key] = "0px";
-        }
-      });
-    }
-
-    this.borderRadiusElevation = borderRadiusElevation;
+  updateBorderRadius = (borderRadius: TokenObj) => {
+    this.borderRadius = borderRadius;
   };
 
   updateBoxShadow = (boxShadow: TokenObj) => {
@@ -140,7 +131,7 @@ export class TokensAccessor {
       ...this.getInnerSpacing(),
       ...this.getSizing(),
       ...this.getColors(),
-      ...this.getBorderRadiusElevation(),
+      ...this.getBorderRadius(),
       ...this.getBoxShadow(),
       ...this.getBorderWidth(),
       ...this.getOpacity(),
@@ -200,13 +191,10 @@ export class TokensAccessor {
     return this.createTokenObject(this.sizing, "sizing");
   };
 
-  getBorderRadiusElevation = () => {
-    if (this.borderRadiusElevation == null) return {} as ThemeToken;
+  getBorderRadius = () => {
+    if (this.borderRadius == null) return {} as ThemeToken;
 
-    return this.createTokenObject(
-      this.borderRadiusElevation,
-      "borderRadiusElevation",
-    );
+    return this.createTokenObject(this.borderRadius, "borderRadius");
   };
 
   getBoxShadow = () => {

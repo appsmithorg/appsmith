@@ -86,14 +86,14 @@ describe("<DividerWidget />", () => {
   }
 
   test("should render Divider widget horizontal by default", async () => {
-    const { getByTestId } = renderDividerWidget();
+    const { queryByTestId } = renderDividerWidget();
 
-    expect(getByTestId("dividerHorizontal")).toBeTruthy();
+    expect(queryByTestId("dividerHorizontal")).toBeTruthy();
   });
 
   test("should render Divider vertical", async () => {
-    const { getByTestId } = renderDividerWidget({ orientation: "vertical" });
+    const { queryByTestId } = renderDividerWidget({ orientation: "vertical" });
 
-    expect(getByTestId("dividerVertical")).toBeTruthy();
+    expect(queryByTestId("dividerVertical")).toBeTruthy();
   });
 });

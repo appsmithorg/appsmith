@@ -139,7 +139,6 @@ public class FieldNameCE {
     public static final String INSTANCE_CONFIG = "instanceConfig";
     public static final String INSTANCE_ADMIN_ROLE = "Instance Administrator Role";
     public static final String DEFAULT_PERMISSION_GROUP = "defaultPermissionGroup";
-    public static final String DEFAULT_PERMISSION_GROUPS = "defaultPermissionGroups";
     public static final String PUBLIC_PERMISSION_GROUP = "publicPermissionGroup";
     public static final String EVENT_DATA = "eventData";
     public static final String CLOUD_HOSTED_EXTRA_PROPS = "cloudHostedExtraProps";
@@ -199,5 +198,4 @@ public class FieldNameCE {
     public static final String PUBLISHED = "published";
     public static final String UNPUBLISHED = "unpublished";
     public static final String ARTIFACT_CONTEXT = "artifactContext";
-    public static final String ARTIFACT_ID = "artifactId";
 }

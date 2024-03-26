@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicensePlan;
+import com.appsmith.server.domains.QTenant;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -40,6 +41,7 @@ import static com.appsmith.server.constants.MigrationStatus.IN_PROGRESS;
 import static com.appsmith.server.exceptions.AppsmithErrorCode.FEATURE_FLAG_MIGRATION_FAILURE;
 import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATURE;
 import static com.appsmith.server.featureflags.FeatureFlagEnum.TEST_FEATURE_2;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -76,7 +78,7 @@ class TenantServiceCETest {
         originalTenantConfiguration = tenant.getTenantConfiguration();
         mongoOperations.updateFirst(
                 Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
-                Update.update(Tenant.Fields.tenantConfiguration, null),
+                Update.update(fieldName(QTenant.tenant.tenantConfiguration), null),
                 Tenant.class);
 
         // Make api_user super-user to test tenant admin functionality
@@ -92,7 +94,7 @@ class TenantServiceCETest {
         final Tenant tenant = tenantService.getDefaultTenant().block();
         mongoOperations.updateFirst(
                 Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
-                Update.update(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
+                Update.update(fieldName(QTenant.tenant.tenantConfiguration), originalTenantConfiguration),
                 Tenant.class);
     }
 
@@ -315,49 +317,6 @@ class TenantServiceCETest {
                             .hasSize(1);
                     assertThat(updatedTenant.getTenantConfiguration().getMigrationStatus())
                             .isEqualTo(IN_PROGRESS);
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails("api_user")
-    void updateTenantConfiguration_updateStrongPasswordPolicy_success() {
-
-        // Ensure that the default tenant does not have strong password policy setup
-        Mono<Tenant> tenantMono = tenantService.getDefaultTenant();
-        StepVerifier.create(tenantMono)
-                .assertNext(tenant -> {
-                    assertThat(tenant.getTenantConfiguration().getIsStrongPasswordPolicyEnabled())
-                            .isNull();
-                })
-                .verifyComplete();
-
-        // Ensure that the strong password policy is enabled after the update
-        final TenantConfiguration changes = new TenantConfiguration();
-        changes.setIsStrongPasswordPolicyEnabled(TRUE);
-        Mono<TenantConfiguration> resultMono = tenantService
-                .updateDefaultTenantConfiguration(changes)
-                .then(tenantService.getTenantConfiguration())
-                .map(Tenant::getTenantConfiguration);
-
-        StepVerifier.create(resultMono)
-                .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getIsStrongPasswordPolicyEnabled())
-                            .isTrue();
-                })
-                .verifyComplete();
-
-        // Ensure that the strong password policy is disabled after the update
-        changes.setIsStrongPasswordPolicyEnabled(FALSE);
-        resultMono = tenantService
-                .updateDefaultTenantConfiguration(changes)
-                .then(tenantService.getTenantConfiguration())
-                .map(Tenant::getTenantConfiguration);
-
-        StepVerifier.create(resultMono)
-                .assertNext(tenantConfiguration -> {
-                    assertThat(tenantConfiguration.getIsStrongPasswordPolicyEnabled())
-                            .isFalse();
                 })
                 .verifyComplete();
     }

@@ -21,8 +21,8 @@ export const propertyPaneContentConfig = [
         controlType: "ICON_TABS",
         fullWidth: true,
         options: [
-          { label: "Start", value: "start" },
-          { label: "End", value: "end" },
+          { label: "Left", value: "left" },
+          { label: "Right", value: "right" },
         ],
         defaultValue: "left",
         isBindProperty: false,

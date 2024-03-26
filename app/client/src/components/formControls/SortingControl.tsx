@@ -65,7 +65,7 @@ const SortingDropdownContainer = styled.div<{ size: string }>`
   gap: 5px;
   align-items: center;
   > div {
-    width: 250px;
+    width: 270px;
   }
   ${(props) =>
     props.size === "small" &&
@@ -168,9 +168,6 @@ function SortingComponent(props: any) {
                 <FormControl
                   config={{
                     ...columnFieldConfig,
-                    customStyles: {
-                      width: "250px",
-                    },
                     configProperty: `${columnPath}`,
                     nestedFormControl: true,
                   }}
@@ -183,9 +180,9 @@ function SortingComponent(props: any) {
                   configProperty: `${OrderPath}`,
                   nestedFormControl: true,
                   customStyles: {
-                    width: isBreakpointSmall ? "65px" : "250px",
+                    width: isBreakpointSmall ? "65px" : "270px",
                   },
-                  optionWidth: isBreakpointSmall ? "250px" : undefined,
+                  optionWidth: isBreakpointSmall ? "270px" : undefined,
                 }}
                 formName={props.formName}
               />

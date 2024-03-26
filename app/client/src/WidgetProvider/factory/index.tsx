@@ -109,11 +109,9 @@ class WidgetFactory {
       displayName: config.name,
       key: generateReactKey(),
       iconSVG: config.iconSVG,
-      thumbnailSVG: config.thumbnailSVG,
       isCanvas: config.isCanvas,
       needsHeightForContent: config.needsHeightForContent,
       isSearchWildcard: config.isSearchWildcard,
-      needsErrorInfo: !!config.needsErrorInfo,
     };
 
     WidgetFactory.widgetConfigMap.set(widget.type, Object.freeze(_config));

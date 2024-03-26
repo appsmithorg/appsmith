@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Set;
@@ -19,7 +18,6 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Document
-@FieldNameConstants
 public class Workspace extends BaseDomain {
 
     @JsonView(Views.Public.class)
@@ -68,6 +66,4 @@ public class Workspace extends BaseDomain {
     public String getLogoUrl() {
         return Url.ASSET_URL + "/" + logoAssetId;
     }
-
-    public static class Fields extends BaseDomain.Fields {}
 }

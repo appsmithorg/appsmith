@@ -97,10 +97,7 @@ export const handlers = {
                 isMainJSCollection: true,
                 displayName: "Main",
               }
-            : {
-                ...action.payload.data,
-                isMainJSCollection: jsCollection.config.isMainJSCollection,
-              },
+            : action.payload.data,
           activeJSActionId:
             findIndex(jsCollection.config.actions, {
               id: jsCollection.activeJSActionId,
@@ -126,10 +123,7 @@ export const handlers = {
                 isMainJSCollection: true,
                 displayName: "Main",
               }
-            : {
-                ...action.payload.data,
-                isMainJSCollection: a.config.isMainJSCollection,
-              },
+            : action.payload.data,
         };
       return a;
     }),

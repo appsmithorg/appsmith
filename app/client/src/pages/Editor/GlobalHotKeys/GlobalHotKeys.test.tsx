@@ -21,6 +21,7 @@ import {
   dispatchTestKeyboardEventWithCode,
   MockApplication,
   mockCreateCanvasWidget,
+  mockGetCanvasWidgetDsl,
   mockGetWidgetEvalValues,
   MockPageDSL,
   useMockDsl,
@@ -49,6 +50,7 @@ describe("Canvas Hot Keys", () => {
   });
 
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
+  const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
 
   function UpdatedEditor({ dsl }: any) {
     useMockDsl(dsl);
@@ -104,6 +106,7 @@ describe("Canvas Hot Keys", () => {
       const dsl: any = widgetCanvasFactory.build({
         children,
       });
+      spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
       mockGetIsFetchingPage.mockImplementation(() => false);
       const spyWidgetSelection = jest.spyOn(
         widgetSelectionsActions,
@@ -121,7 +124,6 @@ describe("Canvas Hot Keys", () => {
               getMousePosition={() => {
                 return { x: 0, y: 0 };
               }}
-              toggleDebugger={() => {}}
             >
               <UpdatedEditor dsl={dsl} />
             </GlobalHotKeys>
@@ -260,14 +262,13 @@ describe("Cut/Copy/Paste hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          toggleDebugger={() => {}}
         >
           <MockCanvas />
         </GlobalHotKeys>
       </MockPageDSL>,
       { initialState: store.getState(), sagasToRun: sagasToRunForTests },
     );
-    const artBoard: any = component.queryByTestId("t--canvas-artboard");
+    const artBoard: any = await component.queryByTestId("t--canvas-artboard");
     // deselect all other widgets
     fireEvent.click(artBoard);
     act(() => {
@@ -352,13 +353,12 @@ describe("Cut/Copy/Paste hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          toggleDebugger={() => {}}
         >
           <MockCanvas />
         </GlobalHotKeys>
       </MockPageDSL>,
     );
-    const artBoard: any = component.queryByTestId("t--canvas-artboard");
+    const artBoard: any = await component.queryByTestId("t--canvas-artboard");
     // deselect all other widgets
     fireEvent.click(artBoard);
     act(() => {
@@ -410,7 +410,6 @@ describe("Undo/Redo hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          toggleDebugger={() => {}}
         >
           <MockCanvas />
         </GlobalHotKeys>
@@ -441,7 +440,6 @@ describe("Undo/Redo hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          toggleDebugger={() => {}}
         >
           <MockCanvas />
         </GlobalHotKeys>
@@ -472,7 +470,6 @@ describe("Undo/Redo hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          toggleDebugger={() => {}}
         >
           <MockCanvas />
         </GlobalHotKeys>
@@ -506,7 +503,6 @@ describe("cmd + s hotkey", () => {
           getMousePosition={() => {
             return { x: 0, y: 0 };
           }}
-          toggleDebugger={() => {}}
         >
           <div />
         </GlobalHotKeys>

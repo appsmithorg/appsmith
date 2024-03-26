@@ -415,14 +415,14 @@ export const getBasePropertyPath = (
 export const hideByColumnType = (
   props: TableWidgetProps,
   propertyPath: string,
-  columnTypes: Set<ColumnTypes>,
+  columnTypes: ColumnTypes[],
   shouldUsePropertyPath?: boolean,
 ) => {
   const baseProperty = shouldUsePropertyPath
     ? propertyPath
     : getBasePropertyPath(propertyPath);
   const columnType = get(props, `${baseProperty}.columnType`, "");
-  return !columnTypes.has(columnType);
+  return !columnTypes.includes(columnType);
 };
 
 /**

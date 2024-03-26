@@ -8,7 +8,6 @@ import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
-import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
@@ -188,15 +187,13 @@ public class FileUtilsCEImpl implements FileInterface {
      * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
      *
      * @param baseRepoSuffix          path suffix used to create a repo path
-     * @param artifactGitReference application reference object from which entire application can be rehydrated
+     * @param applicationGitReference application reference object from which entire application can be rehydrated
      * @param branchName              name of the branch for the current application
      * @return repo path where the application is stored
      */
     public Mono<Path> saveApplicationToGitRepo(
-            Path baseRepoSuffix, ArtifactGitReference artifactGitReference, String branchName)
+            Path baseRepoSuffix, ApplicationGitReference applicationGitReference, String branchName)
             throws GitAPIException, IOException {
-
-        ApplicationGitReference applicationGitReference = (ApplicationGitReference) artifactGitReference;
 
         // Repo path will be:
         // baseRepo : root/orgId/defaultAppId/repoName/{applicationData}
@@ -300,7 +297,6 @@ public class FileUtilsCEImpl implements FileInterface {
             }
             validPages.add(pageName);
         }
-
         scanAndDeleteDirectoryForDeletedResources(validPages, baseRepo.resolve(PAGE_DIRECTORY));
 
         // Save JS Libs if there's at least one change

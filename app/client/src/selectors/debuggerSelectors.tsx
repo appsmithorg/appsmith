@@ -12,7 +12,6 @@ import {
 } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getDataTree } from "./dataTreeSelectors";
 import { combinedPreviewModeSelector } from "./editorSelectors";
-import type { CanvasDebuggerState } from "reducers/uiReducers/debuggerReducer";
 
 interface ErrorObejct {
   [k: string]: Log;
@@ -149,22 +148,8 @@ export const getScrollPosition = (state: AppState) =>
 export const getDebuggerContext = (state: AppState) =>
   state.ui.debugger.context;
 
-export const getDebuggerOpen = (state: AppState) => state.ui.debugger.isOpen;
-
 export const showDebuggerFlag = createSelector(
-  getDebuggerOpen,
+  (state) => state.ui.debugger.isOpen,
   combinedPreviewModeSelector,
   (isOpen, isPreview) => isOpen && !isPreview,
-);
-
-export const getCanvasDebuggerState = createSelector(
-  showDebuggerFlag,
-  getDebuggerContext,
-  (openState, context): CanvasDebuggerState => {
-    return {
-      open: openState,
-      selectedTab: context.selectedDebuggerTab,
-      responseTabHeight: context.responseTabHeight,
-    };
-  },
 );

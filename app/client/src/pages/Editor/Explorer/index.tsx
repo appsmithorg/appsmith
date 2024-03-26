@@ -14,7 +14,7 @@ import history from "utils/history";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
-import UIEntitySidebar from "../widgetSidebar/UIEntitySidebar";
+import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
 import { ExplorerWrapper } from "./Common/ExplorerWrapper";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
@@ -89,7 +89,7 @@ function ExplorerContent() {
         />
       </div>
 
-      <UIEntitySidebar isActive={activeOption === "widgets"} />
+      <WidgetSidebarWithTags isActive={activeOption === "widgets"} />
 
       <EntityExplorer isActive={activeOption === "explorer"} />
     </ExplorerWrapper>

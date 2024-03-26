@@ -15,14 +15,7 @@ const EditorTitle = ({ title }: { title: string }) => {
   };
 
   return (
-    <Flex
-      alignItems={"center"}
-      borderRadius={"var(--ads-v2-border-radius)"}
-      className={"hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer"}
-      justifyContent={"center"}
-      onClick={onClickHandler}
-      p={"spaces-2"}
-    >
+    <Flex alignItems={"center"} height={"100%"} justifyContent={"center"}>
       <Text
         color={"var(--ads-v2-colors-content-label-inactive-fg)"}
         kind="body-m"
@@ -31,12 +24,14 @@ const EditorTitle = ({ title }: { title: string }) => {
       </Text>
       <Flex
         alignItems={"center"}
-        className={"t--pages-switcher"}
-        data-active={active}
+        className={
+          "hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer t--pages-switcher"
+        }
         gap={"spaces-1"}
         height={"100%"}
         justifyContent={"center"}
-        paddingLeft={"spaces-2"}
+        onClick={onClickHandler}
+        px={"spaces-2"}
       >
         <Text isBold kind={"body-m"}>
           {title}

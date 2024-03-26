@@ -11,8 +11,6 @@ import com.appsmith.server.dtos.PluginWorkspaceDTO;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -31,6 +29,10 @@ import org.pf4j.PluginManager;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.support.PathMatchingResourcePatternResolver;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.redis.core.ReactiveRedisTemplate;
 import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.util.MultiValueMap;
@@ -39,6 +41,7 @@ import org.springframework.util.StringUtils;
 import reactor.core.Exceptions;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Scheduler;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -90,7 +93,10 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
     @Autowired
     public PluginServiceCEImpl(
+            Scheduler scheduler,
             Validator validator,
+            MongoConverter mongoConverter,
+            ReactiveMongoTemplate reactiveMongoTemplate,
             PluginRepository repository,
             AnalyticsService analyticsService,
             WorkspaceService workspaceService,
@@ -98,7 +104,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
             ReactiveRedisTemplate<String, String> reactiveTemplate,
             ChannelTopic topic,
             ObjectMapper objectMapper) {
-        super(validator, repository, analyticsService);
+        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.pluginManager = pluginManager;
         this.reactiveTemplate = reactiveTemplate;
@@ -130,20 +136,20 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
                     List<String> pluginIds = org.getPlugins().stream()
                             .map(WorkspacePlugin::getPluginId)
                             .collect(Collectors.toList());
-                    final BridgeQuery<Plugin> criteria = Bridge.in(FieldName.ID, pluginIds);
+                    Query query = new Query();
+                    query.addCriteria(Criteria.where(FieldName.ID).in(pluginIds));
 
-                    final String typeString = params.getFirst(FieldName.TYPE);
-                    if (typeString != null) {
+                    if (params.getFirst(FieldName.TYPE) != null) {
                         try {
-                            PluginType.valueOf(typeString); // Check if the type is valid
-                            criteria.equal(FieldName.TYPE, typeString);
+                            PluginType pluginType = PluginType.valueOf(params.getFirst(FieldName.TYPE));
+                            query.addCriteria(Criteria.where(FieldName.TYPE).is(pluginType));
                         } catch (IllegalArgumentException e) {
-                            log.error("No plugins for type : {}", typeString);
+                            log.error("No plugins for type : {}", params.getFirst(FieldName.TYPE));
                             return Flux.empty();
                         }
                     }
 
-                    return repository.queryBuilder().criteria(criteria).all();
+                    return mongoTemplate.find(query, Plugin.class);
                 })
                 .flatMap(plugin ->
                         getTemplates(plugin).doOnSuccess(plugin::setTemplates).thenReturn(plugin));

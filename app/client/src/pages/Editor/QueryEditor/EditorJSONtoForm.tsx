@@ -1,14 +1,22 @@
-import { useContext } from "react";
+import { useContext, useEffect, useState } from "react";
 import React, { useCallback } from "react";
 import type { InjectedFormProps } from "redux-form";
 import { noop } from "lodash";
 import type { Datasource } from "entities/Datasource";
-import type { Action, QueryAction, SaaSAction } from "entities/Action";
+import { DatasourceStructureContext } from "entities/Datasource";
+import { getPluginNameFromId } from "@appsmith/selectors/entitiesSelector";
+import {
+  PluginName,
+  type Action,
+  type QueryAction,
+  type SaaSAction,
+} from "entities/Action";
 import { useDispatch, useSelector } from "react-redux";
 import ActionSettings from "pages/Editor/ActionSettings";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tooltip } from "design-system";
 import styled from "styled-components";
 import FormRow from "components/editorComponents/FormRow";
+import { ResizerCSS } from "components/editorComponents/Debugger/Resizer";
 import {
   createMessage,
   DOCUMENTATION,
@@ -17,21 +25,30 @@ import {
 import { useParams } from "react-router";
 import type { AppState } from "@appsmith/reducers";
 import { thinScrollbar } from "constants/DefaultTheme";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
+import ActionRightPane, {
+  useEntityDependencies,
+} from "components/editorComponents/ActionRightPane";
 import type { ActionResponse } from "api/ActionAPI";
 import type { Plugin } from "api/PluginApi";
 import type { UIComponentTypes } from "api/PluginApi";
+import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import type { FormEvalOutput } from "reducers/evaluationReducers/formEvaluationReducer";
 import { getQueryPaneConfigSelectedTabIndex } from "selectors/queryPaneSelectors";
 import { setQueryPaneConfigSelectedTabIndex } from "actions/queryPaneActions";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import {
+  getDebuggerSelectedTab,
+  showDebuggerFlag,
+} from "selectors/debuggerSelectors";
 import type { SourceEntity } from "entities/AppsmithConsole";
-import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE as SOURCE_ENTITY_TYPE } from "entities/AppsmithConsole";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { QueryEditorContext } from "./QueryEditorContext";
 import QueryDebuggerTabs from "./QueryDebuggerTabs";
+import { setDebuggerSelectedTab, showDebugger } from "actions/debuggerActions";
 import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 import { doesPluginRequireDatasource } from "@appsmith/entities/Engine/actionHelpers";
 import FormRender from "./FormRender";
@@ -61,6 +78,16 @@ const QueryFormContainer = styled.form`
     justify-content: flex-end;
     margin-top: 10px;
   }
+`;
+
+export const TabbedViewContainer = styled.div`
+  ${ResizerCSS};
+  height: ${ActionExecutionResizerHeight}px;
+  // Minimum height of bottom tabs as it can be resized
+  min-height: 36px;
+  width: 100%;
+  background-color: var(--ads-v2-color-bg);
+  border-top: 1px solid var(--ads-v2-color-border);
 `;
 
 const SettingsWrapper = styled.div`
@@ -126,6 +153,17 @@ const DocumentationButton = styled(Button)`
   z-index: 6;
 `;
 
+const SidebarWrapper = styled.div<{ show: boolean }>`
+  border-left: 1px solid var(--ads-v2-color-border);
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-4);
+  overflow: hidden;
+  border-bottom: 0;
+  display: ${(props) => (props.show ? "flex" : "none")};
+  width: ${(props) => props.theme.actionSidePane.width}px;
+  margin-top: 10px;
+  /* margin-left: var(--ads-v2-spaces-7); */
+`;
+
 export const SegmentedControlContainer = styled.div`
   padding: 0 var(--ads-v2-spaces-7);
   padding-top: var(--ads-v2-spaces-4);
@@ -184,6 +222,7 @@ export function EditorJSONtoForm(props: Props) {
     onCreateDatasourceClick,
     onRunClick,
     plugin,
+    responseDisplayFormat,
     runErrorMessage,
     settingConfig,
     uiComponent,
@@ -194,6 +233,7 @@ export function EditorJSONtoForm(props: Props) {
     actionRightPaneBackLink,
     closeEditorLink,
     notification,
+    showSuggestedWidgets = true,
   } = useContext(QueryEditorContext);
 
   const params = useParams<{ apiId?: string; queryId?: string }>();
@@ -204,6 +244,8 @@ export function EditorJSONtoForm(props: Props) {
   const currentActionConfig: Action | undefined = actions.find(
     (action) => action.id === params.apiId || action.id === params.queryId,
   );
+  const [showResponseOnFirstLoad, setShowResponseOnFirstLoad] =
+    useState<boolean>(false);
 
   const pluginRequireDatasource = doesPluginRequireDatasource(plugin);
 
@@ -215,7 +257,49 @@ export function EditorJSONtoForm(props: Props) {
     FEATURE_FLAG.release_actions_redesign_enabled,
   );
 
+  const showRightPane =
+    showSchema ||
+    showSuggestedWidgets ||
+    Boolean(actionRightPaneAdditionSections);
+
+  // get the current action's plugin name
+  const currentActionPluginName = useSelector((state: AppState) =>
+    getPluginNameFromId(state, currentActionConfig?.pluginId || ""),
+  );
+
   const dispatch = useDispatch();
+
+  // These useEffects are used to open the response tab by default for page load queries
+  // as for page load queries, query response is available and can be shown in response tab
+  useEffect(() => {
+    // actionResponse and responseDisplayFormat is present only when query has response available
+    if (
+      responseDisplayFormat &&
+      !!responseDisplayFormat?.title &&
+      actionResponse &&
+      actionResponse.isExecutionSuccess &&
+      !showResponseOnFirstLoad
+    ) {
+      dispatch(showDebugger(true));
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.RESPONSE_TAB));
+      setShowResponseOnFirstLoad(true);
+    }
+  }, [responseDisplayFormat, actionResponse, showResponseOnFirstLoad]);
+
+  useEffect(() => {
+    if (showSchema) {
+      dispatch(showDebugger(true));
+      dispatch(setDebuggerSelectedTab(DEBUGGER_TAB_KEYS.SCHEMA_TAB));
+    }
+  }, [showSchema]);
+
+  // When multiple page load queries exist, we want to response tab by default for all of them
+  // Hence this useEffect will reset showResponseOnFirstLoad flag used to track whether to show response tab or not
+  useEffect(() => {
+    if (!!currentActionConfig?.id) {
+      setShowResponseOnFirstLoad(false);
+    }
+  }, [currentActionConfig?.id]);
 
   const handleDocumentationClick = () => {
     openDoc(DocsLink.QUERY, plugin?.documentationLink, plugin?.name);
@@ -228,11 +312,25 @@ export function EditorJSONtoForm(props: Props) {
     id: currentActionConfig ? currentActionConfig.id : "",
   };
 
+  const { hasDependencies } = useEntityDependencies(props.actionName);
+
   const selectedConfigTab = useSelector(getQueryPaneConfigSelectedTabIndex);
+
+  // Debugger render flag
+  const renderDebugger = useSelector(showDebuggerFlag);
 
   const setSelectedConfigTab = useCallback((selectedIndex: string) => {
     dispatch(setQueryPaneConfigSelectedTabIndex(selectedIndex));
   }, []);
+
+  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
+
+  // here we check for normal conditions for opening action pane
+  // or if any of the flags are true, We should open the actionpane by default.
+  const shouldOpenActionPaneByDefault =
+    hasDependencies ||
+    !!actionResponse ||
+    currentActionPluginName !== PluginName.SMTP;
 
   // when switching between different redux forms, make sure this redux form has been initialized before rendering anything.
   // the initialized prop below comes from redux-form.
@@ -333,9 +431,7 @@ export function EditorJSONtoForm(props: Props) {
                     className="tab-panel"
                     value={EDITOR_TABS.QUERY}
                   >
-                    <SettingsWrapper
-                      data-testid={`t--action-form-${plugin?.type}`}
-                    >
+                    <SettingsWrapper>
                       <FormRender
                         editorConfig={editorConfig}
                         formData={props.formData}
@@ -374,22 +470,38 @@ export function EditorJSONtoForm(props: Props) {
                   </Tooltip>
                 )}
               </TabContainerView>
-              <QueryDebuggerTabs
-                actionName={actionName}
-                actionResponse={actionResponse}
-                actionSource={actionSource}
-                currentActionConfig={currentActionConfig}
-                isRunning={isRunning}
-                onRunClick={onRunClick}
-                runErrorMessage={runErrorMessage}
-                showSchema={showSchema}
-              />
+              {renderDebugger &&
+                selectedResponseTab !== DEBUGGER_TAB_KEYS.HEADER_TAB && (
+                  <QueryDebuggerTabs
+                    actionName={actionName}
+                    actionResponse={actionResponse}
+                    actionSource={actionSource}
+                    currentActionConfig={currentActionConfig}
+                    isRunning={isRunning}
+                    onRunClick={onRunClick}
+                    runErrorMessage={runErrorMessage}
+                    showSchema={showSchema}
+                  />
+                )}
             </SecondaryWrapper>
           </div>
-          <ActionRightPane
-            actionRightPaneBackLink={actionRightPaneBackLink}
-            additionalSections={actionRightPaneAdditionSections}
-          />
+          {showRightPane && (
+            <SidebarWrapper show={shouldOpenActionPaneByDefault}>
+              <ActionRightPane
+                actionName={actionName}
+                actionRightPaneBackLink={actionRightPaneBackLink}
+                additionalSections={actionRightPaneAdditionSections}
+                context={DatasourceStructureContext.QUERY_EDITOR}
+                datasourceId={props.datasourceId}
+                hasConnections={hasDependencies}
+                hasResponse={!!actionResponse}
+                pluginId={props.pluginId}
+                showSchema={showSchema}
+                showSuggestedWidgets={showSuggestedWidgets}
+                suggestedWidgets={actionResponse?.suggestedWidgets}
+              />
+            </SidebarWrapper>
+          )}
         </Wrapper>
       </QueryFormContainer>
     </>

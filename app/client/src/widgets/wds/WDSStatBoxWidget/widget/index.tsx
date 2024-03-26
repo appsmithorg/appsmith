@@ -3,7 +3,15 @@ import type { SetterConfig } from "entities/AppTheming";
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
 
-import * as config from "../config";
+import {
+  metaConfig,
+  defaultsConfig,
+  autocompleteConfig,
+  propertyPaneContentConfig,
+  propertyPaneStyleConfig,
+  settersConfig,
+  anvilConfig,
+} from "./../config";
 import { StatBoxComponent } from "../component";
 import type { StatBoxWidgetProps } from "./types";
 import type { AnvilConfig } from "WidgetProvider/constants";
@@ -16,31 +24,31 @@ class WDSStatBoxWidget extends BaseWidget<StatBoxWidgetProps, WidgetState> {
   static type = "WDS_STATBOX_WIDGET";
 
   static getConfig() {
-    return config.metaConfig;
+    return metaConfig;
   }
 
   static getDefaults() {
-    return config.defaultsConfig;
+    return defaultsConfig;
   }
 
   static getAutocompleteDefinitions() {
-    return config.autocompleteConfig;
+    return autocompleteConfig;
   }
 
   static getPropertyPaneContentConfig() {
-    return config.propertyPaneContentConfig;
+    return propertyPaneContentConfig;
   }
 
   static getPropertyPaneStyleConfig() {
-    return config.propertyPaneStyleConfig;
+    return propertyPaneStyleConfig;
   }
 
   static getSetterConfig(): SetterConfig {
-    return config.settersConfig;
+    return settersConfig;
   }
 
   static getAnvilConfig(): AnvilConfig | null {
-    return config.anvilConfig;
+    return anvilConfig;
   }
 
   getWidgetView() {

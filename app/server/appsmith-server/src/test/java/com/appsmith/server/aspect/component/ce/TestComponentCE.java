@@ -14,8 +14,4 @@ public interface TestComponentCE {
     Flux<String> ceEeDiffMethodReturnsFlux();
 
     String ceEeSyncMethod(String arg);
-
-    void ceEeThrowAppsmithException(String arg);
-
-    void ceEeThrowNonAppsmithException(String arg);
 }

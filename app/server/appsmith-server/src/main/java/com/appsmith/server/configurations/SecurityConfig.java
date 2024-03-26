@@ -9,7 +9,7 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.filters.CSRFFilter;
 import com.appsmith.server.filters.ConditionalFilter;
-import com.appsmith.server.filters.LoginRateLimitFilter;
+import com.appsmith.server.filters.PreAuth;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.services.AnalyticsService;
@@ -115,10 +115,12 @@ public class SecurityConfig {
      * hence using RouterFunctions to implement this feature.
      * <p>
      * Future folks: Please check out links:
-     * - <a href="https://www.baeldung.com/spring-webflux-static-content">...</a>
-     * - <a href="https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-config-static-resources">...</a>
+     * - https://www.baeldung.com/spring-webflux-static-content
+     * - https://docs.spring.io/spring/docs/current/spring-framework-reference/web-reactive.html#webflux-config-static-resources
      * - Class ResourceHandlerRegistry
      * for details. If you figure out a cleaner approach, please modify this function
+     *
+     * @return
      */
     @Bean
     public RouterFunction<ServerResponse> publicRouter() {
@@ -134,7 +136,8 @@ public class SecurityConfig {
     @Bean
     public SecurityWebFilterChain internalWebFilterChain(ServerHttpSecurity http) {
         return http.securityMatcher(new PathPatternParserServerWebExchangeMatcher("/actuator/**"))
-                .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationManager(authentication -> {
+                .httpBasic()
+                .authenticationManager(authentication -> {
                     if (INTERNAL_PASSWORD.equals(authentication.getCredentials().toString())) {
                         return Mono.just(UsernamePasswordAuthenticationToken.authenticated(
                                 authentication.getPrincipal(),
@@ -144,75 +147,82 @@ public class SecurityConfig {
                         return Mono.just(UsernamePasswordAuthenticationToken.unauthenticated(
                                 authentication.getPrincipal(), authentication.getCredentials()));
                     }
-                }))
-                .authorizeExchange(authorizeExchangeSpec ->
-                        authorizeExchangeSpec.anyExchange().hasAnyAuthority(INTERNAL))
+                })
+                .and()
+                .authorizeExchange()
+                .anyExchange()
+                .hasAnyAuthority(INTERNAL)
+                .and()
                 .build();
     }
 
     @Bean
-    @SuppressWarnings("Convert2MethodRef") // Helps readability.
     public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
         ServerAuthenticationEntryPointFailureHandler failureHandler =
                 new ServerAuthenticationEntryPointFailureHandler(authenticationEntryPoint);
 
         return http
                 // The native CSRF solution doesn't work with WebFlux, yet, but only for WebMVC. So we make our own.
-                .csrf(csrfSpec -> csrfSpec.disable())
+                .csrf()
+                .disable()
                 .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
                 // Default security headers configuration from
                 // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
-                .headers(headerSpec -> headerSpec
-                        // Disabled here because add it in Caddy instead.
-                        .contentTypeOptions(options -> options.disable())
-                        // Disabled because we use CSP's `frame-ancestors` instead.
-                        .frameOptions(options -> options.disable()))
-                .anonymous(anonymousSpec -> anonymousSpec.principal(createAnonymousUser()))
+                .headers()
+                // Disabled here because add it in NGINX instead.
+                .contentTypeOptions()
+                .disable()
+                // Disabled because we use CSP's `frame-ancestors` instead.
+                .frameOptions()
+                .disable()
+                .and()
+                .anonymous()
+                .principal(createAnonymousUser())
+                .and()
                 // This returns 401 unauthorized for all requests that are not authenticated but authentication is
                 // required
                 // The client will redirect to the login page if we return 401 as Http status response
-                .exceptionHandling(exceptionHandlingSpec -> exceptionHandlingSpec
-                        .authenticationEntryPoint(authenticationEntryPoint)
-                        .accessDeniedHandler(accessDeniedHandler))
-                .authorizeExchange(authorizeExchangeSpec -> authorizeExchangeSpec
-                        // The following endpoints are allowed to be accessed without authentication
-                        .matchers(
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/forgotPassword"),
-                                ServerWebExchangeMatchers.pathMatchers(
-                                        HttpMethod.GET, USER_URL + "/verifyPasswordResetToken"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/resetPassword"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/invite/verify"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/invite/confirm"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/me"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/features"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ASSET_URL + "/*"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_URL + "/**"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_COLLECTION_URL + "/view"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PAGE_URL + "/**"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, THEME_URL + "/**"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
-                                ServerWebExchangeMatchers.pathMatchers(
-                                        HttpMethod.POST, USER_URL + "/resendEmailVerification"),
-                                ServerWebExchangeMatchers.pathMatchers(
-                                        HttpMethod.POST, USER_URL + "/verifyEmailVerificationToken"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"),
-                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONSOLIDATED_API_URL + "/view"))
-                        .permitAll()
-                        .pathMatchers("/public/**", "/oauth2/**")
-                        .permitAll()
-                        .anyExchange()
-                        .authenticated())
+                .exceptionHandling()
+                .authenticationEntryPoint(authenticationEntryPoint)
+                .accessDeniedHandler(accessDeniedHandler)
+                .and()
+                .authorizeExchange()
+                .matchers(
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.LOGIN_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, Url.HEALTH_CHECK),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/super"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/forgotPassword"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/verifyPasswordResetToken"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/resetPassword"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/invite/verify"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/invite/confirm"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/me"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/features"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ASSET_URL + "/*"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_URL + "/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_COLLECTION_URL + "/view"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PAGE_URL + "/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, APPLICATION_URL + "/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, THEME_URL + "/**"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, ACTION_URL + "/execute"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, TENANT_URL + "/current"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USAGE_PULSE_URL),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CUSTOM_JS_LIB_URL + "/*/view"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.POST, USER_URL + "/resendEmailVerification"),
+                        ServerWebExchangeMatchers.pathMatchers(
+                                HttpMethod.POST, USER_URL + "/verifyEmailVerificationToken"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, PRODUCT_ALERT + "/alert"),
+                        ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, CONSOLIDATED_API_URL + "/view"))
+                .permitAll()
+                .pathMatchers("/public/**", "/oauth2/**")
+                .permitAll()
+                .anyExchange()
+                .authenticated()
+                .and()
                 // Add Pre Auth rate limit filter before authentication filter
                 .addFilterBefore(
-                        new ConditionalFilter(new LoginRateLimitFilter(rateLimitService), Url.LOGIN_URL),
+                        new ConditionalFilter(new PreAuth(rateLimitService), Url.LOGIN_URL),
                         SecurityWebFiltersOrder.FORM_LOGIN)
                 .httpBasic(httpBasicSpec -> httpBasicSpec.authenticationFailureHandler(failureHandler))
                 .formLogin(formLoginSpec -> formLoginSpec
@@ -235,14 +245,17 @@ public class SecurityConfig {
                         .authenticationSuccessHandler(authenticationSuccessHandler)
                         .authenticationFailureHandler(authenticationFailureHandler)
                         .authorizedClientRepository(new ClientUserRepository(userService, commonConfig)))
-                .logout(logoutSpec -> logoutSpec
-                        .logoutUrl(Url.LOGOUT_URL)
-                        .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService)))
+                .logout()
+                .logoutUrl(Url.LOGOUT_URL)
+                .logoutSuccessHandler(new LogoutSuccessHandler(objectMapper, analyticsService))
+                .and()
                 .build();
     }
 
     /**
      * This bean configures the parameters that need to be set when a Cookie is created for a logged in user
+     *
+     * @return
      */
     @Bean
     public WebSessionIdResolver webSessionIdResolver() {

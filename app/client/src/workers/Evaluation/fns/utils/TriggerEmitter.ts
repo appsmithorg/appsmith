@@ -4,6 +4,10 @@ import { WorkerMessenger } from "workers/Evaluation/fns/utils/Messenger";
 import type { UpdatedPathsMap } from "workers/Evaluation/JSObject/JSVariableUpdates";
 import { applyJSVariableUpdatesToEvalTree } from "workers/Evaluation/JSObject/JSVariableUpdates";
 import ExecutionMetaData from "./ExecutionMetaData";
+import { get } from "lodash";
+import { getType } from "utils/TypeHelpers";
+import type { JSVarMutatedEvents } from "workers/Evaluation/types";
+import { dataTreeEvaluator } from "workers/Evaluation/handlers/evalTree";
 import type {
   TriggerKind,
   TriggerSource,
@@ -23,6 +27,7 @@ export enum BatchKey {
   process_batched_fn_execution = "process_batched_fn_execution",
   process_js_variable_updates = "process_js_variable_updates",
   process_batched_fn_invoke_log = "process_batched_fn_invoke_log",
+  process_js_var_mutation_events = "process_js_var_mutation_events",
 }
 
 const TriggerEmitter = new EventEmitter();
@@ -144,6 +149,31 @@ TriggerEmitter.on(
   fnExecutionDataHandler,
 );
 
+export const jsVariableMutationEventHandler = deferredBatchedActionHandler(
+  (batchedUpdatesMap: UpdatedPathsMap[]) => {
+    const jsVarMutatedEvents: JSVarMutatedEvents = {};
+    for (const batchedUpdateMap of batchedUpdatesMap) {
+      for (const path in batchedUpdateMap) {
+        const variableValue = get(dataTreeEvaluator?.getEvalTree() || {}, path);
+        jsVarMutatedEvents[path] = {
+          path,
+          type: getType(variableValue),
+        };
+      }
+    }
+
+    WorkerMessenger.ping({
+      method: MAIN_THREAD_ACTION.PROCESS_JS_VAR_MUTATION_EVENTS,
+      data: jsVarMutatedEvents,
+    });
+  },
+);
+
+TriggerEmitter.on(
+  BatchKey.process_js_var_mutation_events,
+  jsVariableMutationEventHandler,
+);
+
 const jsVariableUpdatesHandler = priorityBatchedActionHandler<Patch>(
   (batchedData) => {
     const updatesMap: UpdatedPathsMap = {};
@@ -152,6 +182,10 @@ const jsVariableUpdatesHandler = priorityBatchedActionHandler<Patch>(
     }
 
     applyJSVariableUpdatesToEvalTree(updatesMap);
+
+    TriggerEmitter.emit(BatchKey.process_js_var_mutation_events, {
+      ...updatesMap,
+    });
   },
 );
 

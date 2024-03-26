@@ -139,12 +139,15 @@ describe("7. Test util methods", () => {
       expect(dataTree.Api2).not.toHaveProperty("__evaluation__");
     });
     describe("identicalEvalPathsPatches decompress updates", () => {
-      it("should decompress identicalEvalPathsPatches updates into evalProps and not in state", () => {
+      it("should decompress identicalEvalPathsPatches updates into evalProps and state", () => {
         const state = {
           Table1: {
             filteredTableData: smallDataSet,
             selectedRows: [],
             pageSize: 0,
+            __evaluation__: {
+              evaluatedValues: {},
+            },
           },
         } as any;
 
@@ -158,9 +161,6 @@ describe("7. Test util methods", () => {
               evaluatedValues: {
                 someProp: "abc",
               },
-              errors: {
-                someProp1: "abc",
-              },
             },
           },
         } as any;
@@ -169,9 +169,10 @@ describe("7. Test util methods", () => {
           evalProps,
           identicalEvalPathsPatches,
         });
-        // only errors should be attached to dataTree evaluatedValues should be excluded
         const expectedState = produce(state, (draft: any) => {
-          draft.Table1.__evaluation__ = { errors: { someProp1: "abc" } };
+          draft.Table1.__evaluation__.evaluatedValues.someProp = "abc";
+          draft.Table1.__evaluation__.evaluatedValues.filteredTableData =
+            smallDataSet;
         });
 
         expect(dataTree).toEqual(expectedState);
@@ -189,6 +190,9 @@ describe("7. Test util methods", () => {
             filteredTableData: smallDataSet,
             selectedRows: [],
             pageSize: 0,
+            __evaluation__: {
+              evaluatedValues: {},
+            },
           },
         } as any;
 
@@ -212,6 +216,9 @@ describe("7. Test util methods", () => {
             filteredTableData: smallDataSet,
             selectedRows: [],
             pageSize: 0,
+            __evaluation__: {
+              evaluatedValues: {},
+            },
           },
         } as any;
         //ignore non existent widget state
@@ -226,9 +233,6 @@ describe("7. Test util methods", () => {
               evaluatedValues: {
                 someProp: "abc",
               },
-              errors: {
-                someProp1: "efg",
-              },
             },
           },
         } as any;
@@ -239,8 +243,7 @@ describe("7. Test util methods", () => {
           identicalEvalPathsPatches,
         });
         const expectedState = produce(state, (draft: any) => {
-          // evaluatedValues should not be attached to dataTree only errors should be attached
-          draft.Table1.__evaluation__ = { errors: { someProp1: "efg" } };
+          draft.Table1.__evaluation__.evaluatedValues.someProp = "abc";
         });
 
         expect(dataTree).toEqual(expectedState);

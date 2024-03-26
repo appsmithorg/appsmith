@@ -117,10 +117,6 @@ export const getPluginIcon = (plugin?: Plugin) => {
   return <PluginIcon alt="plugin-placeholder" src={ImageAlt} />;
 };
 
-export const getPluginEntityIcon = (plugin?: Plugin) => {
-  return <EntityIcon>{getPluginIcon(plugin)}</EntityIcon>;
-};
-
 const StyledTag = styled.div<{ color: string }>`
   font-size: 8px;
   width: 40px;
@@ -290,10 +286,11 @@ export function CurlIconV2() {
   );
 }
 
+// TODO (workflows): replace with actual workflow icon
 export function WorkflowIcon() {
   return (
     <EntityIcon>
-      <Icon name="workflows" size="lg" />
+      <Icon name="fork" size="lg" />
     </EntityIcon>
   );
 }
@@ -336,12 +333,4 @@ export function AppsmithAIIcon() {
 
 export function ActionUrlIcon(url: string) {
   return <img src={url} />;
-}
-
-export function DefaultModuleIcon() {
-  return (
-    <EntityIcon>
-      <Icon name="module" size="sm" />
-    </EntityIcon>
-  );
 }

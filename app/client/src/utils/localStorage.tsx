@@ -9,7 +9,6 @@ import { toast } from "design-system";
 
 export const LOCAL_STORAGE_KEYS = {
   CANVAS_CARDS_STATE: "CANVAS_CARDS_STATE",
-  SPLITPANE_ANNOUNCEMENT: "SPLITPANE_ANNOUNCEMENT",
 };
 
 class LocalStorageNotSupportedError extends Error {

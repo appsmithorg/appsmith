@@ -7,7 +7,7 @@ import { CheckboxGroup } from "../";
 import { Checkbox } from "../../Checkbox";
 
 describe("@design-system/widgets/CheckboxGroup", () => {
-  it("should render the checkbox group", async () => {
+  it("should render the checkbox group", () => {
     const { container } = render(
       <CheckboxGroup label="Checkbox Group">
         <Checkbox value="value-1">Value 1</Checkbox>
@@ -18,7 +18,6 @@ describe("@design-system/widgets/CheckboxGroup", () => {
     expect(screen.getByText("Value 1")).toBeInTheDocument();
     expect(screen.getByText("Value 2")).toBeInTheDocument();
 
-    // eslint-disable-next-line testing-library/no-container,testing-library/no-node-access
     const label = container.querySelector("label") as HTMLElement;
     expect(label).toHaveTextContent("Checkbox Group");
 
@@ -33,25 +32,22 @@ describe("@design-system/widgets/CheckboxGroup", () => {
     expect(checkboxes[0]).not.toBeChecked();
     expect(checkboxes[1]).not.toBeChecked();
 
-    await userEvent.click(checkboxes[0]);
+    userEvent.click(checkboxes[0]);
     expect(checkboxes[0]).toBeChecked();
 
-    await userEvent.click(checkboxes[1]);
+    userEvent.click(checkboxes[1]);
     expect(checkboxes[1]).toBeChecked();
   });
 
   it("should support custom props", () => {
     render(
-      <CheckboxGroup
-        data-testid="t--checkbox-group"
-        label="Checkbox Group Label"
-      >
+      <CheckboxGroup data-testid="checkbox-group" label="Checkbox Group Label">
         <Checkbox value="value-1">Value 1</Checkbox>
         <Checkbox value="value-2">Value 2</Checkbox>
       </CheckboxGroup>,
     );
 
-    const checkboxGroup = screen.getByTestId("t--checkbox-group");
+    const checkboxGroup = screen.getByTestId("checkbox-group");
     expect(checkboxGroup).toBeInTheDocument();
   });
 
@@ -71,7 +67,7 @@ describe("@design-system/widgets/CheckboxGroup", () => {
     expect(checkboxes[1]).toBeChecked();
   });
 
-  it("should be able to fire onChange event", async () => {
+  it("should be able to fire onChange event", () => {
     const onChangeSpy = jest.fn();
 
     render(
@@ -82,7 +78,7 @@ describe("@design-system/widgets/CheckboxGroup", () => {
     );
 
     const checkboxes = screen.getAllByRole("checkbox");
-    await userEvent.click(checkboxes[0]);
+    userEvent.click(checkboxes[0]);
     expect(onChangeSpy).toHaveBeenCalled();
   });
 

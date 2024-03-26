@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
+import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Mono;
 
 public interface DatasourceStructureServiceCE {
@@ -10,5 +11,5 @@ public interface DatasourceStructureServiceCE {
 
     Mono<DatasourceStorageStructure> save(DatasourceStorageStructure datasourceStorageStructure);
 
-    Mono<Void> saveStructure(String datasourceId, String environmentId, DatasourceStructure structure);
+    Mono<UpdateResult> saveStructure(String datasourceId, String environmentId, DatasourceStructure structure);
 }

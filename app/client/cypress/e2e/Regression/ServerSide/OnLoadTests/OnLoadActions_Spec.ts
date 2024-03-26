@@ -2,7 +2,6 @@ import {
   agHelper,
   apiPage,
   assertHelper,
-  dataManager,
   deployMode,
   entityExplorer,
   entityItems,
@@ -43,14 +42,16 @@ describe(
     it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
       agHelper.AddDsl("onPageLoadActionsDsl", locators._imageWidget);
       apiPage.CreateAndFillApi(
-        dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl1,
+        "https://source.unsplash.com/collection/1599413",
         "RandomFlora",
+        30000,
       );
       //apiPage.RunAPI();
 
       apiPage.CreateAndFillApi(
-        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
+        "https://randomuser.me/api/",
         "RandomUser",
+        30000,
       );
       //apiPage.RunAPI();
 

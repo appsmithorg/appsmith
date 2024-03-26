@@ -3,10 +3,11 @@ package com.appsmith.server.dtos.ce;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DecryptedSensitiveFields;
-import com.appsmith.server.constants.ArtifactType;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.domains.ActionCollection;
-import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.ExportableArtifact;
+import com.appsmith.server.domains.ImportableArtifact;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Theme;
 
@@ -23,9 +24,11 @@ public interface ArtifactExchangeJsonCE {
 
     void setServerSchemaVersion(Integer serverSchemaVersion);
 
-    ArtifactType getArtifactJsonType();
+    ArtifactJsonType getArtifactJsonType();
 
-    Artifact getArtifact();
+    ImportableArtifact getImportableArtifact();
+
+    ExportableArtifact getExportableArtifact();
 
     default void setThemes(Theme unpublishedTheme, Theme publishedTheme) {}
 
@@ -54,8 +57,4 @@ public interface ArtifactExchangeJsonCE {
     ModifiedResources getModifiedResources();
 
     void setModifiedResources(ModifiedResources modifiedResources);
-
-    Theme getUnpublishedTheme();
-
-    Theme getPublishedTheme();
 }

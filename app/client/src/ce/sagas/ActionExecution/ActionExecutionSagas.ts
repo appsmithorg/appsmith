@@ -49,7 +49,6 @@ export interface TriggerMeta {
   source?: TriggerSource;
   triggerPropertyName?: string;
   triggerKind?: TriggerKind;
-  onPageLoad: boolean;
 }
 
 /**
@@ -138,7 +137,6 @@ export function* executeActionTriggers(
   return response;
 }
 
-// This function gets called when a user clicks on a button on the canvas UI
 export function* executeAppAction(payload: ExecuteTriggerPayload): any {
   const {
     callbackData,
@@ -162,7 +160,6 @@ export function* executeAppAction(payload: ExecuteTriggerPayload): any {
       source,
       triggerPropertyName,
       triggerKind: TriggerKind.EVENT_EXECUTION,
-      onPageLoad: false,
     },
     callbackData,
     globalContext,

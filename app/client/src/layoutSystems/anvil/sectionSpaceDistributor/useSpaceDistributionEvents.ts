@@ -9,7 +9,6 @@ import {
   resetCSSOnZones,
   resetDistributionHandleCSS,
   getPropertyPaneDistributionHandleId,
-  convertFlexGrowToFlexBasis,
 } from "./utils/spaceDistributionEditorUtils";
 import { PropPaneDistributionHandleCustomEvent } from "./constants";
 import { getSelectedWidgets } from "selectors/ui";
@@ -113,10 +112,10 @@ export const useSpaceDistributionEvents = ({
             getPropertyPaneZoneId(zoneId),
           );
           if (zoneDom) {
-            zoneDom.style.flexBasis = convertFlexGrowToFlexBasis(flexGrow);
+            zoneDom.style.flexGrow = flexGrow.toString();
           }
           if (zonePropDom) {
-            zonePropDom.style.flexBasis = convertFlexGrowToFlexBasis(flexGrow);
+            zonePropDom.style.flexGrow = flexGrow.toString();
           }
         });
 

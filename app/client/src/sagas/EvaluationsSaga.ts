@@ -73,7 +73,7 @@ import { REPLAY_DELAY } from "entities/Replay/replayUtils";
 import type { EvaluationVersion } from "@appsmith/api/ApplicationApi";
 
 import type { LogObject } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import { ENTITY_TYPE } from "entities/AppsmithConsole";
 import type { Replayable } from "entities/Replay/ReplayEntity/ReplayEditor";
 import type { FormEvaluationState } from "reducers/evaluationReducers/formEvaluationReducer";
 import type { FormEvalActionPayload } from "./FormEvaluationSaga";
@@ -399,11 +399,7 @@ interface JSFunctionExecutionResponse {
   logs?: LogObject[];
 }
 
-function* executeAsyncJSFunction(
-  action: JSAction,
-  collection: JSCollection,
-  onPageLoad: boolean,
-) {
+function* executeAsyncJSFunction(action: JSAction, collection: JSCollection) {
   const { id: collectionId, name: collectionName } = collection;
   const functionCall = `${collectionName}.${action.name}()`;
   const triggerMeta = {
@@ -414,7 +410,6 @@ function* executeAsyncJSFunction(
     },
     triggerPropertyName: `${collectionName}.${action.name}`,
     triggerKind: TriggerKind.JS_FUNCTION_EXECUTION,
-    onPageLoad: onPageLoad,
   };
   const eventType = EventType.ON_JS_FUNCTION_EXECUTE;
   const response: JSFunctionExecutionResponse = yield call(
@@ -426,16 +421,12 @@ function* executeAsyncJSFunction(
   return response;
 }
 
-export function* executeJSFunction(
-  action: JSAction,
-  collection: JSCollection,
-  onPageLoad: boolean,
-) {
+export function* executeJSFunction(action: JSAction, collection: JSCollection) {
   const response: {
     errors: unknown[];
     result: unknown;
     logs?: LogObject[];
-  } = yield call(executeAsyncJSFunction, action, collection, onPageLoad);
+  } = yield call(executeAsyncJSFunction, action, collection);
   const { errors, result } = response;
   const isDirty = !!errors.length;
 

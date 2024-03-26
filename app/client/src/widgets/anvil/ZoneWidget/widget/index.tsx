@@ -32,7 +32,6 @@ import type {
 import { call } from "redux-saga/effects";
 import { pasteWidgetsInZone } from "layoutSystems/anvil/utils/paste/zonePasteUtils";
 import { SectionColumns } from "layoutSystems/anvil/sectionSpaceDistributor/constants";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   static type = anvilWidgets.ZONE_WIDGET;
@@ -57,20 +56,11 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return {
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-    };
+    return {};
   }
 
   static getSetterConfig(): SetterConfig | null {
-    return {
-      __setters: {
-        setVisibility: {
-          path: "isVisible",
-          type: "boolean",
-        },
-      },
-    };
+    return null;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {

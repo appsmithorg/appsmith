@@ -88,9 +88,6 @@ function GetIconForAction(
 
     case AppsmithFunction.postWindowMessage:
       return () => <Icon name="chat-upload-icon" />;
-
-    default:
-      return () => <Icon name="js" />;
   }
 }
 

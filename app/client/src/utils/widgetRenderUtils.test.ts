@@ -1,48 +1,43 @@
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import type {
+  WidgetEntity,
+  WidgetEntityConfig,
+} from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import {
-  buildChildWidgetTree,
-  widgetErrorsFromStaticProps,
-} from "./widgetRenderUtils";
+import { buildChildWidgetTree, createCanvasWidget } from "./widgetRenderUtils";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 
-jest.mock("../WidgetProvider/factory", () => {
-  const originalModule = jest.requireActual("react-redux");
-  return {
-    ...originalModule,
-    default: {
-      ...originalModule.default,
-      getConfig: (type: string) => {
-        return {
-          needsErrorInfo: type === "CHART_WIDGET",
-        };
-      },
-      widgetTypes: {
-        SKELETON_WIDGET: "SKELETON_WIDGET",
-      },
-    },
-  };
-});
-
-describe("widgetErrorsFromStaticProps functionality", () => {
+describe("createCanvasWidget functionality", () => {
   it("returns an empty errors if no evaluations are present", function () {
+    const canvasWidget = {} as unknown as FlattenedWidgetProps;
     const dataTree = {} as unknown as WidgetEntity;
 
-    const response = widgetErrorsFromStaticProps(dataTree);
-    expect(response.length).toEqual(0);
+    const response = createCanvasWidget(
+      canvasWidget,
+      dataTree,
+      {} as WidgetEntityConfig,
+    );
+    expect(response.errors.length).toEqual(0);
   });
 
   it("returns an empty errors if no evaluation errors are present", () => {
+    const canvasWidget = {} as unknown as FlattenedWidgetProps;
     const dataTree = {
       __evaluation__: {},
     } as unknown as WidgetEntity;
 
-    const response = widgetErrorsFromStaticProps(dataTree);
-    expect(response.length).toEqual(0);
+    const response = createCanvasWidget(
+      canvasWidget,
+      dataTree,
+      {} as WidgetEntityConfig,
+    );
+    expect(response.errors.length).toEqual(0);
   });
 
-  it("populates __evaluation__ errors inside widget error property for widget", () => {
+  it("populates __evaluation__ errors inside widget error property", () => {
+    const canvasWidget = {} as unknown as FlattenedWidgetProps;
+
     const dataTree = {
       __evaluation__: {
         errors: {
@@ -59,13 +54,17 @@ describe("widgetErrorsFromStaticProps functionality", () => {
       },
     } as unknown as WidgetEntity;
 
-    const response = widgetErrorsFromStaticProps(dataTree);
-    expect(response.length).toEqual(1);
-    expect(response[0].name).toStrictEqual("Validation Error");
-    expect(response[0].message).toStrictEqual("Error Message");
-    expect(response[0].stack).toStrictEqual("Error Message Stack");
-    expect(response[0].type).toStrictEqual("property");
-    expect(response[0].path).toStrictEqual("propertyPath");
+    const response = createCanvasWidget(
+      canvasWidget,
+      dataTree,
+      {} as WidgetEntityConfig,
+    );
+    expect(response.errors.length).toEqual(1);
+    expect(response.errors[0].name).toStrictEqual("Validation Error");
+    expect(response.errors[0].message).toStrictEqual("Error Message");
+    expect(response.errors[0].stack).toStrictEqual("Error Message Stack");
+    expect(response.errors[0].type).toStrictEqual("property");
+    expect(response.errors[0].path).toStrictEqual("propertyPath");
   });
 });
 
@@ -223,6 +222,7 @@ describe("test EditorUtils methods", () => {
           value: "test",
           widgetId: "3",
           widgetName: "three",
+          errors: [],
         },
         {
           bottomRow: 18,
@@ -237,6 +237,7 @@ describe("test EditorUtils methods", () => {
           value: "test",
           widgetId: "4",
           widgetName: "four",
+          errors: [],
         },
         {
           type: "CANVAS",
@@ -247,6 +248,7 @@ describe("test EditorUtils methods", () => {
           bottomRow: 100,
           widgetName: "meta_one",
           skipForFormWidget: "test",
+          errors: [],
           children: [
             {
               isDirty: true,
@@ -261,6 +263,7 @@ describe("test EditorUtils methods", () => {
               bottomRow: 10,
               widgetName: "meta_two",
               skipForFormWidget: "test",
+              errors: [],
             },
           ],
         },
@@ -295,6 +298,7 @@ describe("test EditorUtils methods", () => {
               value: "test",
               widgetId: "3",
               widgetName: "three",
+              errors: [],
             },
             {
               bottomRow: 18,
@@ -308,6 +312,7 @@ describe("test EditorUtils methods", () => {
               value: "test",
               widgetId: "4",
               widgetName: "four",
+              errors: [],
             },
             {
               isLoading: false,
@@ -317,6 +322,7 @@ describe("test EditorUtils methods", () => {
               widgetId: "1_meta",
               bottomRow: 100,
               widgetName: "meta_one",
+              errors: [],
               children: [
                 {
                   isDirty: true,
@@ -330,6 +336,7 @@ describe("test EditorUtils methods", () => {
                   topRow: 0,
                   bottomRow: 10,
                   widgetName: "meta_two",
+                  errors: [],
                 },
               ],
             },
@@ -343,6 +350,7 @@ describe("test EditorUtils methods", () => {
           value: "test",
           widgetId: "2",
           widgetName: "two",
+          errors: [],
         },
       ];
 
@@ -380,7 +388,7 @@ describe("test EditorUtils methods", () => {
               reactivePaths: {},
               topRow: 4,
               triggerPaths: {},
-              type: "SKELETON_WIDGET",
+              type: undefined,
               validationPaths: {},
               widgetId: "3",
               widgetName: "three",
@@ -400,7 +408,7 @@ describe("test EditorUtils methods", () => {
               reactivePaths: {},
               topRow: 6,
               triggerPaths: {},
-              type: "SKELETON_WIDGET",
+              type: undefined,
               validationPaths: {},
               widgetId: "4",
               widgetName: "four",
@@ -419,7 +427,7 @@ describe("test EditorUtils methods", () => {
               reactivePaths: {},
               topRow: 0,
               triggerPaths: {},
-              type: "SKELETON_WIDGET",
+              type: undefined,
               validationPaths: {},
               widgetId: "1_meta",
               widgetName: "meta_one",
@@ -439,7 +447,7 @@ describe("test EditorUtils methods", () => {
                   reactivePaths: {},
                   topRow: 0,
                   triggerPaths: {},
-                  type: "SKELETON_WIDGET",
+                  type: undefined,
                   validationPaths: {},
                   widgetId: "2_meta",
                   widgetName: "meta_two",
@@ -457,7 +465,7 @@ describe("test EditorUtils methods", () => {
           reactivePaths: {},
           topRow: 0,
           triggerPaths: {},
-          type: "SKELETON_WIDGET",
+          type: undefined,
           validationPaths: {},
           widgetId: "2",
           widgetName: "two",

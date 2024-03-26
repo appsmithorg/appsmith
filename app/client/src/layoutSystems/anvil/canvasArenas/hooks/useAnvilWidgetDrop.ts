@@ -14,8 +14,7 @@ export const useAnvilWidgetDrop = (
   anvilDragStates: AnvilDnDStates,
 ) => {
   const dispatch = useDispatch();
-  const { dragDetails, dragMeta, isNewWidget, layoutElementPositions } =
-    anvilDragStates;
+  const { dragDetails, dragMeta, isNewWidget } = anvilDragStates;
   const generateNewWidgetBlock = useCallback(() => {
     const { newWidget } = dragDetails;
     const isSectionWidget = newWidget.type === anvilWidgets.SECTION_WIDGET;
@@ -36,19 +35,12 @@ export const useAnvilWidgetDrop = (
         addNewAnvilWidgetAction(newWidgetBlock, renderedBlock, dragMeta),
       );
     } else {
-      const sortDraggedBlocksByPosition = anvilDragStates.draggedBlocks.sort(
-        (a, b) => {
-          const aPos = layoutElementPositions[a.widgetId];
-          const bPos = layoutElementPositions[b.widgetId];
-          // sort by left then top
-          if (aPos.left === bPos.left) {
-            return aPos.top - bPos.top;
-          }
-          return aPos.left - bPos.left;
-        },
-      );
       dispatch(
-        moveAnvilWidgets(renderedBlock, sortDraggedBlocksByPosition, dragMeta),
+        moveAnvilWidgets(
+          renderedBlock,
+          anvilDragStates.draggedBlocks,
+          dragMeta,
+        ),
       );
     }
   };

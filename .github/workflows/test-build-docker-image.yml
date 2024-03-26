@@ -12,11 +12,6 @@ on:
         required: false
         type: string
         default: ""
-      ted_tag:
-        description: TestEventDriver image tag
-        required: false
-        type: string
-        default: latest
 
   # trigger for pushes to master
   push:
@@ -99,7 +94,6 @@ jobs:
       pr: 0
       tags: ${{needs.setup.outputs.tags}}
       matrix: ${{needs.setup.outputs.matrix}}
-      ted_tag: ${{inputs.ted_tag}}
 
   server-unit-tests:
     name: server-unit-tests

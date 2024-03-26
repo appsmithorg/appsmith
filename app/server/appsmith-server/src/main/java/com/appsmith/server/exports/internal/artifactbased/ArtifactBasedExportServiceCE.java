@@ -2,7 +2,7 @@ package com.appsmith.server.exports.internal.artifactbased;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
-import com.appsmith.server.domains.Artifact;
+import com.appsmith.server.domains.ExportableArtifact;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.dtos.ExportingMetaDTO;
 import com.appsmith.server.dtos.MappedExportableResourcesDTO;
@@ -11,7 +11,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Map;
 
-public interface ArtifactBasedExportServiceCE<T extends Artifact, U extends ArtifactExchangeJson> {
+public interface ArtifactBasedExportServiceCE<T extends ExportableArtifact, U extends ArtifactExchangeJson> {
 
     U createNewArtifactExchangeJson();
 
@@ -22,7 +22,9 @@ public interface ArtifactBasedExportServiceCE<T extends Artifact, U extends Arti
     Mono<T> findExistingArtifactForAnalytics(String artifactId);
 
     Mono<Void> getArtifactReadyForExport(
-            Artifact exportableArtifact, ArtifactExchangeJson artifactExchangeJson, ExportingMetaDTO exportingMetaDTO);
+            ExportableArtifact exportableArtifact,
+            ArtifactExchangeJson artifactExchangeJson,
+            ExportingMetaDTO exportingMetaDTO);
 
     Map<String, Object> getExportRelatedArtifactData(ArtifactExchangeJson artifactExchangeJson);
 
@@ -37,12 +39,12 @@ public interface ArtifactBasedExportServiceCE<T extends Artifact, U extends Arti
     Flux<Void> generateArtifactSpecificExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends Artifact> exportableArtifactMono,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson);
 
     Flux<Void> generateArtifactComponentDependentExportables(
             ExportingMetaDTO exportingMetaDTO,
             MappedExportableResourcesDTO mappedResourcesDTO,
-            Mono<? extends Artifact> exportableArtifactMono,
+            Mono<? extends ExportableArtifact> exportableArtifactMono,
             ArtifactExchangeJson artifactExchangeJson);
 }

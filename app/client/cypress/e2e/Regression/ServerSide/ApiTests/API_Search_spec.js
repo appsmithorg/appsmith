@@ -3,7 +3,6 @@ import {
   entityExplorer,
   apiPage,
   entityItems,
-  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,
@@ -11,6 +10,7 @@ import {
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
+let APIName;
 const testUrl1 =
   "http://host.docker.internal:5001/v1/dynamicrecords/generaterecords?records=10";
 const testUrl2 =
@@ -53,11 +53,11 @@ describe(
       apiPage.CreateAndFillApi(testUrl2);
       cy.RunAPI();
       cy.get(ApiEditor.jsonResponseTab).click();
-      dataSources.AssertBindDataVisible();
+      cy.checkIfApiPaneIsVisible();
       cy.get(ApiEditor.rawResponseTab).click();
-      dataSources.AssertBindDataVisible();
+      cy.checkIfApiPaneIsVisible();
       cy.get(ApiEditor.tableResponseTab).click();
-      dataSources.AssertBindDataVisible();
+      cy.checkIfApiPaneIsVisible();
     });
 
     it("3. Bug 14242: Appsmith crash when create an API pointing to Github hosted json", function () {

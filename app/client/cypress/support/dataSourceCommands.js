@@ -6,7 +6,6 @@ import { AppSidebar, AppSidebarButton } from "./Pages/EditorNavigation";
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import { ObjectsRegistry } from "../support/Objects/Registry";
-import { agHelper } from "./Objects/ObjectsCore";
 const datasourceEditor = require("../locators/DatasourcesEditor.json");
 const datasourceFormData = require("../fixtures/datasources.json");
 const apiWidgetslocator = require("../locators/apiWidgetslocator.json");
@@ -259,7 +258,7 @@ Cypress.Commands.add(
 
 Cypress.Commands.add("createPostgresDatasource", () => {
   dataSources.NavigateToDSCreateNew();
-  agHelper.GetNClick(datasourceEditor.PostgreSQL);
+  cy.get(datasourceEditor.PostgreSQL).click({ force: true });
   cy.fillPostgresDatasourceForm();
   cy.testSaveDatasource();
 });
@@ -267,7 +266,7 @@ Cypress.Commands.add("createPostgresDatasource", () => {
 // this can be modified further when google sheets automation is done.
 Cypress.Commands.add("createGoogleSheetsDatasource", () => {
   dataSources.NavigateToDSCreateNew();
-  agHelper.GetNClick(datasourceEditor.GoogleSheets);
+  cy.get(datasourceEditor.GoogleSheets).click();
 });
 
 Cypress.Commands.add("deleteDatasource", (datasourceName) => {

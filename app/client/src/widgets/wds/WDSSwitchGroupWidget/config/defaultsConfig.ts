@@ -12,7 +12,7 @@ export const defaultsConfig = {
   isDisabled: false,
   isRequired: false,
   isVisible: true,
-  labelPosition: "end",
+  labelPosition: "right",
   label: "Label",
   orientation: "vertical",
   version: 1,

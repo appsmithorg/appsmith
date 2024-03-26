@@ -55,7 +55,7 @@ export interface FlexLayoutProps
   overflowX?: OverflowValues;
   overflowY?: OverflowValues;
   position?: PositionValues;
-  gap?: Responsive<SpacingDimension>;
+  rowGap?: Responsive<SpacingDimension>;
   padding?: Responsive<SpacingDimension>;
   width?: Responsive<SizingDimension>;
   className?: string;
@@ -73,7 +73,6 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     flexBasis,
     flexGrow,
     flexShrink,
-    gap,
     height,
     isContainer,
     isDropTarget,
@@ -89,6 +88,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     parentDropTarget,
     position,
     renderMode,
+    rowGap,
     width,
     wrap,
   } = props;
@@ -124,7 +124,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       minHeight: minHeight || "unset",
       minWidth: minWidth || "unset",
       padding: padding || "spacing-0",
-      gap: gap || "spacing-3",
+      rowGap: rowGap || "0px",
       width: width || "auto",
       wrap: wrap || "nowrap",
       className: className || "",
@@ -144,7 +144,7 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     minHeight,
     minWidth,
     padding,
-    gap,
+    rowGap,
     width,
     wrap,
   ]);

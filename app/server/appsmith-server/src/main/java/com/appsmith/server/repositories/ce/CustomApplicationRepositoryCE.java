@@ -3,7 +3,9 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.repositories.AppsmithRepository;
+import com.mongodb.client.result.UpdateResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -33,11 +35,14 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
-    Mono<Integer> addPageToApplication(String applicationId, String pageId, boolean isDefault, String defaultPageId);
+    Mono<UpdateResult> addPageToApplication(
+            String applicationId, String pageId, boolean isDefault, String defaultPageId);
 
-    Mono<Integer> setPages(String applicationId, List<ApplicationPage> pages);
+    Mono<UpdateResult> setPages(String applicationId, List<ApplicationPage> pages);
 
-    Mono<Void> setDefaultPage(String applicationId, String pageId);
+    Mono<UpdateResult> setDefaultPage(String applicationId, String pageId);
+
+    Mono<UpdateResult> setGitAuth(String applicationId, GitAuth gitAuth, AclPermission aclPermission);
 
     Mono<Application> getApplicationByGitBranchAndDefaultApplicationId(
             String defaultApplicationId, String branchName, Optional<AclPermission> permission);
@@ -53,7 +58,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Flux<Application> getApplicationByGitDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
-    Mono<Integer> setAppTheme(
+    Mono<UpdateResult> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission);
 
     Mono<Long> countByWorkspaceId(String workspaceId);
@@ -64,7 +69,7 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
 
     Mono<Application> getApplicationByDefaultApplicationIdAndDefaultBranch(String defaultApplicationId);
 
-    Mono<Integer> updateFieldByDefaultIdAndBranchName(
+    Mono<UpdateResult> updateFieldByDefaultIdAndBranchName(
             String defaultId,
             String defaultIdPath,
             Map<String, Object> fieldNameValueMap,
@@ -80,7 +85,8 @@ public interface CustomApplicationRepositoryCE extends AppsmithRepository<Applic
     Mono<Long> getAllApplicationsCountAccessibleToARoleWithPermission(
             AclPermission permission, String permissionGroupId);
 
-    Mono<Integer> unprotectAllBranches(String applicationId, AclPermission permission);
+    Mono<UpdateResult> unprotectAllBranches(String applicationId, AclPermission permission);
 
-    Mono<Integer> protectBranchedApplications(String applicationId, List<String> branchNames, AclPermission permission);
+    Mono<UpdateResult> protectBranchedApplications(
+            String applicationId, List<String> branchNames, AclPermission permission);
 }

@@ -1,21 +1,26 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.acl.AclPermission;
+import com.appsmith.server.domains.QTheme;
 import com.appsmith.server.domains.Theme;
-import com.appsmith.server.helpers.CollectionUtils;
-import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.domains.User;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
+import java.util.List;
+import java.util.regex.Pattern;
+
+import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Component
 @Slf4j
@@ -29,48 +34,64 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
 
     @Override
     public Flux<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
-        BridgeQuery<Theme> appThemeCriteria = Bridge.equal(Theme.Fields.applicationId, applicationId);
-        BridgeQuery<Theme> systemThemeCriteria = Bridge.isTrue(Theme.Fields.isSystemTheme);
-        return queryBuilder()
-                .criteria(Bridge.or(appThemeCriteria, systemThemeCriteria))
-                .permission(aclPermission)
-                .all();
+        Criteria appThemeCriteria =
+                Criteria.where(fieldName(QTheme.theme.applicationId)).is(applicationId);
+        Criteria systemThemeCriteria =
+                Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
+        Criteria criteria = new Criteria().orOperator(appThemeCriteria, systemThemeCriteria);
+        return queryBuilder().criteria(criteria).permission(aclPermission).all();
     }
 
     @Override
     public Flux<Theme> getSystemThemes() {
+        Criteria systemThemeCriteria =
+                Criteria.where(fieldName(QTheme.theme.isSystemTheme)).is(Boolean.TRUE);
         return queryBuilder()
-                .criteria(Bridge.isTrue(Theme.Fields.isSystemTheme))
+                .criteria(systemThemeCriteria)
                 .permission(AclPermission.READ_THEMES)
                 .all();
     }
 
     @Override
     public Mono<Theme> getSystemThemeByName(String themeName) {
+        String findNameRegex = String.format("^%s$", Pattern.quote(themeName));
+        Criteria criteria = where(fieldName(QTheme.theme.name))
+                .regex(findNameRegex, "i")
+                .and(fieldName(QTheme.theme.isSystemTheme))
+                .is(true);
         return queryBuilder()
-                .criteria(Bridge.equalIgnoreCase(Theme.Fields.name, themeName).isTrue(Theme.Fields.isSystemTheme))
+                .criteria(criteria)
                 .permission(AclPermission.READ_THEMES)
                 .one();
     }
 
-    private Mono<Boolean> archiveThemeByCriteria(BridgeQuery<Theme> criteria) {
-        return queryBuilder()
-                .criteria(criteria)
-                .permission(AclPermission.MANAGE_THEMES)
-                .updateAll(new Update().set(Theme.Fields.deletedAt, Instant.now()))
-                .map(count -> count > 0);
+    private Mono<Boolean> archiveThemeByCriteria(Criteria criteria) {
+        return ReactiveSecurityContextHolder.getContext()
+                .map(ctx -> ctx.getAuthentication())
+                .map(auth -> auth.getPrincipal())
+                .flatMap(principal -> getAllPermissionGroupsForUser((User) principal))
+                .flatMap(permissionGroups -> {
+                    Criteria permissionCriteria = userAcl(permissionGroups, AclPermission.MANAGE_THEMES);
+
+                    Update update = new Update();
+                    update.set(fieldName(QTheme.theme.deletedAt), Instant.now());
+                    return updateByCriteria(List.of(criteria, permissionCriteria), update, null);
+                })
+                .map(updateResult -> updateResult.getModifiedCount() > 0);
     }
 
     @Override
     public Mono<Boolean> archiveByApplicationId(String applicationId) {
-        return archiveThemeByCriteria(Bridge.equal(Theme.Fields.applicationId, applicationId));
+        return archiveThemeByCriteria(
+                where(fieldName(QTheme.theme.applicationId)).is(applicationId));
     }
 
     @Override
     public Mono<Boolean> archiveDraftThemesById(String editModeThemeId, String publishedModeThemeId) {
-        BridgeQuery<Theme> criteria = Bridge.<Theme>in(
-                        Theme.Fields.id, CollectionUtils.ofNonNulls(editModeThemeId, publishedModeThemeId))
-                .isFalse(Theme.Fields.isSystemTheme);
+        Criteria criteria = where(fieldName(QTheme.theme.id))
+                .in(editModeThemeId, publishedModeThemeId)
+                .and(fieldName(QTheme.theme.isSystemTheme))
+                .is(false);
         return archiveThemeByCriteria(criteria);
     }
 }

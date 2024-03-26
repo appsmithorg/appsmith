@@ -382,7 +382,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                                 .findByBranchNameAndDefaultActionId(
                                                         branchName,
                                                         actionDTO.getId(),
-                                                        false,
                                                         actionPermission.getEditPermission())
                                                 .map(NewAction::getId);
                                 actionDTO.setId(null);
@@ -433,7 +432,6 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                                 .findByBranchNameAndDefaultActionId(
                                                         branchName,
                                                         actionDTO.getId(),
-                                                        false,
                                                         actionPermission.getEditPermission())
                                                 .map(NewAction::getId);
                                 actionDTO.setId(null);

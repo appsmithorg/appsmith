@@ -9,6 +9,4 @@ import java.util.List;
 public interface UserAndAccessManagementServiceCE {
 
     Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader);
-
-    Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader, String captchaToken);
 }

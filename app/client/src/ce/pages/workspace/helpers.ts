@@ -78,9 +78,6 @@ export const inviteUsersToWorkspace = async (
     permissionGroupId: values.permissionGroupId,
     usernames: values.users ? values.users.split(",") : [],
     workspaceId: values.workspaceId,
-    ...("recaptchaToken" in values && {
-      recaptchaToken: values.recaptchaToken,
-    }),
   };
   return new Promise((resolve, reject) => {
     dispatch({

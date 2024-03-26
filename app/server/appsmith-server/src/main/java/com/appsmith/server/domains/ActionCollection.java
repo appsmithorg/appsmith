@@ -5,7 +5,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 /**
@@ -17,7 +16,4 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @Document
-@FieldNameConstants
-public class ActionCollection extends ActionCollectionCE {
-    public static class Fields extends ActionCollectionCE.Fields {}
-}
+public class ActionCollection extends ActionCollectionCE {}

@@ -1,10 +1,12 @@
+import widgetsPage from "../../../../../locators/Widgets.json";
+import commonlocators from "../../../../../locators/commonlocators.json";
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
+import homePage from "../../../../../locators/HomePage";
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
-import PageList from "../../../../../support/Pages/PageList";
 
 let tempBranch = "tempBranch",
   tempBranch0 = "tempBranch0",
@@ -55,6 +57,7 @@ describe(
       //cy.switchGitBranch(mainBranch);
       _.gitSync.CreateGitBranch(tempBranch2, true);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
+      cy.CheckAndUnfoldEntityItem("Pages");
       cy.Createpage("NewPage");
       cy.commitAndPush();
       cy.merge(mainBranch);
@@ -76,7 +79,7 @@ describe(
     });
 
     it("3. Checks clean url updates across branches", () => {
-      PageList.DeletePage("NewPage");
+      cy.Deletepage("NewPage");
       cy.wait(1000);
       let legacyPathname = "";
       let newPathname = "";

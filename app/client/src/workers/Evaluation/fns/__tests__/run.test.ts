@@ -26,9 +26,7 @@ describe("Tests for run function in callback styled", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
     ExecutionMetaData.setExecutionMetaData({
-      triggerMeta: {
-        onPageLoad: false,
-      },
+      triggerMeta: {},
       eventType: EventType.ON_PAGE_LOAD,
     });
     addPlatformFunctionsToEvalContext(evalContext);
@@ -65,7 +63,6 @@ describe("Tests for run function in callback styled", () => {
         triggerMeta: {
           source: {},
           triggerPropertyName: undefined,
-          onPageLoad: false,
         },
       },
     });
@@ -100,7 +97,6 @@ describe("Tests for run function in callback styled", () => {
         triggerMeta: {
           source: {},
           triggerPropertyName: undefined,
-          onPageLoad: false,
         },
       },
     });
@@ -150,9 +146,7 @@ describe("Tests for run function in promise styled", () => {
   beforeAll(() => {
     self["$isDataField"] = false;
     ExecutionMetaData.setExecutionMetaData({
-      triggerMeta: {
-        onPageLoad: false,
-      },
+      triggerMeta: {},
       eventType: EventType.ON_PAGE_LOAD,
     });
     addPlatformFunctionsToEvalContext(evalContext);
@@ -183,7 +177,6 @@ describe("Tests for run function in promise styled", () => {
         triggerMeta: {
           source: {},
           triggerPropertyName: undefined,
-          onPageLoad: false,
         },
       },
     });
@@ -216,7 +209,6 @@ describe("Tests for run function in promise styled", () => {
         triggerMeta: {
           source: {},
           triggerPropertyName: undefined,
-          onPageLoad: false,
         },
       },
     });

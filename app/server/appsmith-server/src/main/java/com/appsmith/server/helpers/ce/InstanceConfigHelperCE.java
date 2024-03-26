@@ -9,6 +9,8 @@ public interface InstanceConfigHelperCE {
 
     Mono<Config> checkInstanceSchemaVersion();
 
+    void printReady();
+
     Mono<Void> performRtsHealthCheck();
 
     boolean getIsRtsAccessible();

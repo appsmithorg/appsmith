@@ -14,9 +14,7 @@ import {
   entityItems,
   assertHelper,
   locators,
-  apiPage,
 } from "../../../../support/Objects/ObjectsCore";
-import { Widgets } from "../../../../support/Pages/DataSources";
 
 let datasourceName;
 
@@ -435,8 +433,7 @@ describe(
       dataSources.AssertTableInVirtuosoList(datasourceName, "NonAsciiTest");
 
       //Verifying Suggested Widgets functionality
-      apiPage.SelectPaneTab("Response");
-      dataSources.AddSuggestedWidget(Widgets.Table);
+      cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
       cy.wait("@updateLayout").then(({ response }) => {
         cy.log("1st Response is :" + JSON.stringify(response.body));
         //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
@@ -445,7 +442,7 @@ describe(
       cy.get("@entity").then((entityN) =>
         EditorNavigation.SelectEntityByName(entityN, EntityType.Query),
       );
-      dataSources.AddSuggestedWidget(Widgets.Chart);
+      cy.get(queryLocators.suggestedWidgetChart).click().wait(1000);
       cy.wait("@updateLayout").then(({ response }) => {
         cy.log("2nd Response is :" + JSON.stringify(response.body));
         //expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");

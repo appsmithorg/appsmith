@@ -43,20 +43,16 @@ describe("AlignedColumnHighlights tests", () => {
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
       ]);
-      const highlightWidth: number = HIGHLIGHT_SIZE;
+      const highlightWidth: number = positions[layout.layoutId].width / 3;
       expect(res.length).toEqual(3);
-      // Each highlight should be of equal width.
+      // Each highlight should be of equal width = 1/3 width of the layout.
       expect(res[0].width).toEqual(highlightWidth);
       expect(res[1].width).toEqual(highlightWidth);
       expect(res[2].width).toEqual(highlightWidth);
       // highlights should be placed according to the alignment.
       expect(res[0].posX).toEqual(0);
-      expect(res[1].posX).toEqual(
-        (positions[layout.layoutId].width - highlightWidth) / 2,
-      );
-      expect(res[2].posX).toEqual(
-        positions[layout.layoutId].width - highlightWidth,
-      );
+      expect(res[1].posX).toEqual(highlightWidth);
+      expect(res[2].posX).toEqual(highlightWidth * 2);
     });
     it("should return a single highlight for Fill widget being dragged over an empty layout", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({

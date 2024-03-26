@@ -20,7 +20,6 @@ interface CopyButtonProps {
   onCopy?: () => void;
   tooltipMessage?: string;
   isDisabled?: boolean;
-  testIdSuffix?: string;
 }
 
 export function CopyButton({
@@ -28,7 +27,6 @@ export function CopyButton({
   isDisabled = false,
   onCopy = noop,
   style,
-  testIdSuffix = "generic",
   tooltipMessage,
   value,
 }: CopyButtonProps) {
@@ -63,7 +61,7 @@ export function CopyButton({
         <TooltipWrapper style={style}>
           <Tooltip content={tooltipMessage}>
             <Button
-              data-testid={`t--copy-${testIdSuffix}`}
+              className="t--copy-ssh-key"
               isDisabled={isDisabled}
               isIconButton
               kind="tertiary"

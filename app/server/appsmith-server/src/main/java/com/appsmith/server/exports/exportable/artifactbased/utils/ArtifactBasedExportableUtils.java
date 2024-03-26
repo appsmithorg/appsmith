@@ -1,5 +1,5 @@
 package com.appsmith.server.exports.exportable.artifactbased.utils;
 
-import com.appsmith.server.domains.Artifact;
+import com.appsmith.server.domains.ExportableArtifact;
 
-public interface ArtifactBasedExportableUtils<T extends Artifact> extends ArtifactBasedExportableUtilsCE<T> {}
+public interface ArtifactBasedExportableUtils<T extends ExportableArtifact> extends ArtifactBasedExportableUtilsCE<T> {}

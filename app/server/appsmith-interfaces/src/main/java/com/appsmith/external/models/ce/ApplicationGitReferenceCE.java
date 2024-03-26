@@ -12,7 +12,7 @@ import java.util.Map;
  */
 @Data
 @NoArgsConstructor
-public class ApplicationGitReferenceCE implements ArtifactGitReferenceCE {
+public class ApplicationGitReferenceCE {
 
     Object application;
     Object metadata;

@@ -48,11 +48,11 @@ export const createCanvasWidget = (
     ...evaluatedWidgetConfig,
     ...widgetStaticProps,
   } as any;
-
+  widgetProps.errors = widgetErrorsFromStaticProps(evaluatedStaticProps);
   return widgetProps;
 };
 
-export function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
+function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
   /**
    * Evaluation Error Map
    * {

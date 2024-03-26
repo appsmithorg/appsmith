@@ -50,7 +50,6 @@ import oneClickBindingSaga from "sagas/OneClickBindingSaga";
 import entityNavigationSaga from "sagas/NavigationSagas";
 import communityTemplateSagas from "sagas/CommunityTemplatesSagas";
 import anvilSagas from "layoutSystems/anvil/integrations/sagas";
-import ideSagas from "sagas/IDESaga";
 
 /* Sagas that are registered by a module that is designed to be independent of the core platform */
 import ternSagas from "sagas/TernSaga";
@@ -109,5 +108,4 @@ export const sagas = [
   communityTemplateSagas,
   anvilSagas,
   ternSagas,
-  ideSagas,
 ];

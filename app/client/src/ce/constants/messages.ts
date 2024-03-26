@@ -52,7 +52,7 @@ export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password between 8 and 48 characters`;
+  `Please provide a password between 6 and 256 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
@@ -264,9 +264,8 @@ export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
 export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
-export const WORKSPACE_ACTION_BUTTON = () => "Create new";
-export const NEW_APP = () => "Application";
-export const NEW_APP_FROM_TEMPLATE = () => "Templates";
+export const WORKSPACE_ACTION_BUTTON = () => "Create New";
+export const NEW_APP = () => "New app";
 export const NO_WORKSPACE_HEADING = () => "Oops! No workspace found";
 export const NO_WORKSPACE_DESCRIPTION = () =>
   "You can find workspace list on the left sidebar, try selecting one of them to access a workspace.";
@@ -734,14 +733,14 @@ export const NO_CONNECTIONS = () => "No connections to show here";
 export const BACK_TO_CANVAS = () => "Back to canvas";
 export const SUGGESTED_WIDGET_DESCRIPTION = () =>
   "This will add a new widget to the canvas.";
-export const ADD_NEW_WIDGET = () => "Add a widget";
+export const ADD_NEW_WIDGET = () => "Add new widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
 export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 export const BINDING_SECTION_LABEL = () => "Bindings";
 export const ADD_NEW_WIDGET_SUB_HEADING = () =>
   "Select how you want to display data.";
-export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a widget";
+export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
 export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
   "Replace the data of an existing widget";
 export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
@@ -2353,10 +2352,9 @@ export const CUSTOM_WIDGET_FEATURE = {
       "Connection lost because the custom widget was deselected. Please reselect this widget to continue editing.",
     editor: {
       css: {
-        contextTooltipScss: () => "Supports SCSS syntax.",
-        contextTooltipVariables: () => "You can use following css variables.",
+        contextTooltip: () => "You can use following css variables",
         placeholder: () =>
-          "/* you can access string and number properties of your model using `var(--appsmith-model-<property-name>)`*/",
+          "/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/",
       },
       html: {
         placeholder: () =>
@@ -2453,14 +2451,3 @@ export const HEADER_TITLES = {
 };
 
 export const PASTE_FAILED = (str: string): string => `Paste failed! ${str}`;
-
-export const CREATE_A_NEW_ITEM = (item: string) => `Create a new ${item}`;
-
-export const MAXIMIZE_BUTTON_TOOLTIP = () =>
-  `Expand code editor to full-screen`;
-export const MINIMIZE_BUTTON_TOOLTIP = () => `Open code editor next to the UI`;
-export const SPLITPANE_ANNOUNCEMENT = {
-  TITLE: () => "Code and UI, side-by-side",
-  DESCRIPTION: () =>
-    "Write queries and JS functions while you refer to the UI on the side! This is a beta version that we will continue to improve with your feedback.",
-};

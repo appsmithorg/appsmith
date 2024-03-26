@@ -14,7 +14,6 @@ import JSObjectNameEditor from "./JSObjectNameEditor";
 import {
   setActiveJSAction,
   setJsPaneConfigSelectedTab,
-  setJsPaneDebuggerState,
   startExecutingJSFunction,
   updateJSCollectionBody,
 } from "actions/jsPaneActions";
@@ -61,6 +60,7 @@ import history from "utils/history";
 import { CursorPositionOrigin } from "@appsmith/reducers/uiReducers/editorContextReducer";
 import LazyCodeEditor from "components/editorComponents/LazyCodeEditor";
 import styled from "styled-components";
+import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -70,7 +70,6 @@ import {
   getHasManageActionPermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import { DEBUGGER_TAB_KEYS } from "../../../components/editorComponents/Debugger/helpers";
 
 interface JSFormProps {
   jsCollectionData: JSCollectionData;
@@ -122,6 +121,8 @@ function JSEditorForm({
 
   const [disableRunFunctionality, setDisableRunFunctionality] = useState(false);
 
+  // Currently active response (only changes upon execution)
+  const [activeResponse, setActiveResponse] = useState<JSAction | null>(null);
   const parseErrors = useSelector(
     (state: AppState) =>
       getJSCollectionParseErrors(state, currentJSCollection.name),
@@ -138,10 +139,6 @@ function JSEditorForm({
   const activeJSAction = getActionFromJsCollection(
     activeJSActionId,
     currentJSCollection,
-  );
-  // Currently active response (only changes upon execution)
-  const [activeResponse, setActiveResponse] = useState<JSAction | null>(
-    activeJSAction,
   );
 
   const [selectedJSActionOption, setSelectedJSActionOption] =
@@ -162,24 +159,22 @@ function JSEditorForm({
       // Hash here could mean to navigate (set cursor/focus) to a particular function
       // If the hash has a function name in this JS Object, we will set that
       const actionName = hash.substring(1);
-      if (currentJSCollection.body) {
-        const position = getJSPropertyLineFromName(
-          currentJSCollection.body,
-          actionName,
+      const position = getJSPropertyLineFromName(
+        currentJSCollection.body,
+        actionName,
+      );
+      if (position) {
+        // Resetting the focus and position based on the cmd click navigation
+        dispatch(setFocusableInputField(`${currentJSCollection.name}.body`));
+        dispatch(
+          setCodeEditorCursorAction(
+            `${currentJSCollection.name}.body`,
+            position,
+            CursorPositionOrigin.Navigation,
+          ),
         );
-        if (position) {
-          // Resetting the focus and position based on the cmd click navigation
-          dispatch(setFocusableInputField(`${currentJSCollection.name}.body`));
-          dispatch(
-            setCodeEditorCursorAction(
-              `${currentJSCollection.name}.body`,
-              position,
-              CursorPositionOrigin.Navigation,
-            ),
-          );
-          // Replace to remove the hash and set back the original URL
-          history.replace(window.location.pathname + window.location.search);
-        }
+        // Replace to remove the hash and set back the original URL
+        history.replace(window.location.pathname + window.location.search);
       }
     }
   }, [hash]);
@@ -207,12 +202,6 @@ function JSEditorForm({
 
   // Executes JS action
   const executeJSAction = (jsAction: JSAction, from: EventLocation) => {
-    dispatch(
-      setJsPaneDebuggerState({
-        open: true,
-        selectedTab: DEBUGGER_TAB_KEYS.RESPONSE_TAB,
-      }),
-    );
     setActiveResponse(jsAction);
     if (jsAction.id !== selectedJSActionOption.data?.id)
       setSelectedJSActionOption(convertJSActionToDropdownOption(jsAction));
@@ -313,6 +302,9 @@ function JSEditorForm({
   }, [selectedJSActionOption.label, currentJSCollection.name]);
 
   const selectedConfigTab = useSelector(getJSPaneConfigSelectedTab);
+
+  // Debugger render flag
+  const showDebugger = useSelector(showDebuggerFlag);
 
   const setSelectedConfigTab = useCallback((selectedTab: JSEditorTab) => {
     dispatch(setJsPaneConfigSelectedTab(selectedTab));
@@ -426,21 +418,23 @@ function JSEditorForm({
                     )}
                   </Tabs>
                 </TabbedViewContainer>
-                <JSResponseView
-                  currentFunction={activeResponse}
-                  disabled={disableRunFunctionality || !isExecutePermitted}
-                  errors={parseErrors}
-                  isLoading={isExecutingCurrentJSAction}
-                  jsCollectionData={jsCollectionData}
-                  onButtonClick={(
-                    event:
-                      | React.MouseEvent<HTMLElement, MouseEvent>
-                      | KeyboardEvent,
-                  ) => {
-                    handleRunAction(event, "JS_OBJECT_RESPONSE_RUN_BUTTON");
-                  }}
-                  theme={theme}
-                />
+                {showDebugger ? (
+                  <JSResponseView
+                    currentFunction={activeResponse}
+                    disabled={disableRunFunctionality || !isExecutePermitted}
+                    errors={parseErrors}
+                    isLoading={isExecutingCurrentJSAction}
+                    jsCollectionData={jsCollectionData}
+                    onButtonClick={(
+                      event:
+                        | React.MouseEvent<HTMLElement, MouseEvent>
+                        | KeyboardEvent,
+                    ) => {
+                      handleRunAction(event, "JS_OBJECT_RESPONSE_RUN_BUTTON");
+                    }}
+                    theme={theme}
+                  />
+                ) : null}
               </SecondaryWrapper>
             </div>
           </Wrapper>

@@ -48,7 +48,6 @@ describe("Post window message works", () => {
       triggerMeta: {
         source: {},
         triggerPropertyName: undefined,
-        onPageLoad: false,
       },
       eventType: undefined,
       enableJSFnPostProcessors: true,

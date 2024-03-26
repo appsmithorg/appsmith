@@ -5,7 +5,9 @@ import history from "utils/history";
 import { TabbedViewContainer } from "./CommonEditorForm";
 import get from "lodash/get";
 import { getQueryParams } from "utils/URLUtils";
-import ActionRightPane from "components/editorComponents/ActionRightPane";
+import ActionRightPane, {
+  useEntityDependencies,
+} from "components/editorComponents/ActionRightPane";
 import { sortedDatasourcesHandler } from "./helpers";
 import { datasourcesEditorIdURL } from "@appsmith/RouteBuilder";
 import { setApiRightPaneSelectedTab } from "actions/apiPaneActions";
@@ -14,8 +16,11 @@ import { getApiRightPaneSelectedTab } from "selectors/apiPaneSelectors";
 import isUndefined from "lodash/isUndefined";
 import { Button, Tab, TabPanel, Tabs, TabsList, Tag } from "design-system";
 import type { Datasource } from "entities/Datasource";
+import { DatasourceStructureContext } from "entities/Datasource";
+
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
 import type { SuggestedWidget } from "api/ActionAPI";
+import useShowSchema from "components/editorComponents/ActionRightPane/useShowSchema";
 
 interface ApiRightPaneProps {
   additionalSections?: React.ReactNode;
@@ -201,8 +206,11 @@ const API_RIGHT_PANE_TABS = {
 
 function ApiRightPane(props: ApiRightPaneProps) {
   const dispatch = useDispatch();
+  const { hasDependencies } = useEntityDependencies(props.actionName);
   const selectedTab = useSelector(getApiRightPaneSelectedTab);
   const currentEnvironmentId = useSelector(getCurrentEnvironmentId);
+
+  const showSchema = useShowSchema(props.pluginId);
 
   const setSelectedTab = useCallback((selectedIndex: string) => {
     dispatch(setApiRightPaneSelectedTab(selectedIndex));
@@ -333,7 +341,15 @@ function ApiRightPane(props: ApiRightPaneProps) {
             <TabPanel value={API_RIGHT_PANE_TABS.CONNECTIONS}>
               <ActionRightPaneWrapper>
                 <ActionRightPane
+                  actionName={props.actionName}
                   actionRightPaneBackLink={props.actionRightPaneBackLink}
+                  context={DatasourceStructureContext.API_EDITOR}
+                  datasourceId={props.datasourceId}
+                  hasConnections={hasDependencies}
+                  hasResponse={props.hasResponse}
+                  pluginId={props.pluginId}
+                  showSchema={showSchema}
+                  suggestedWidgets={props.suggestedWidgets}
                 />
               </ActionRightPaneWrapper>
             </TabPanel>

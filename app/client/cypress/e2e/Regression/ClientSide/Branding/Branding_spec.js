@@ -2,14 +2,11 @@ const commonlocators = require("../../../../locators/commonlocators.json");
 const widgetsPage = require("../../../../locators/Widgets.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-import {
-  agHelper,
-  homePage,
-  adminSettings,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 const locators = {
+  AdminSettingsEntryLink: ".admin-settings-menu-option",
   LeftPaneBrandingLink: ".t--settings-category-branding",
   AdminSettingsColorInput: ".t--settings-brand-color-input input[type=text]",
   AdmingSettingsLogoInput: ".t--settings-brand-logo-input input[type=file]",
@@ -57,9 +54,9 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
   it("2. Super user can access branding page", () => {
     cy.LogOut(false);
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.get(adminSettings._adminSettingsBtn).should("be.visible");
-    cy.get(adminSettings._adminSettingsBtn).click();
-    cy.url().should("contain", adminSettings.routes.GENERAL);
+    cy.get(locators.AdminSettingsEntryLink).should("be.visible");
+    cy.get(locators.AdminSettingsEntryLink).click();
+    cy.url().should("contain", "/settings/general");
     agHelper.AssertElementVisibility(locators.LeftPaneBrandingLink);
     agHelper.GetNClick(locators.LeftPaneBrandingLink);
   });
@@ -287,9 +284,9 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
   it("6. Super user sees upgrade option in branding page in free plan", () => {
     cy.LogOut(false);
     cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-    cy.get(adminSettings._adminSettingsBtn).should("be.visible");
-    cy.get(adminSettings._adminSettingsBtn).click();
-    cy.url().should("contain", adminSettings.routes.GENERAL);
+    cy.get(locators.AdminSettingsEntryLink).should("be.visible");
+    cy.get(locators.AdminSettingsEntryLink).click();
+    cy.url().should("contain", "/settings/general");
 
     cy.get(locators.LeftPaneBrandingLink).should("be.visible");
     cy.get(locators.LeftPaneBrandingLink).click();

@@ -7,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.FieldNameConstants;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -18,7 +17,6 @@ import java.util.Set;
 @Setter
 @ToString
 @NoArgsConstructor
-@FieldNameConstants
 public class CustomJSLibCE extends BranchAwareDomain {
     /* Library name */
     String name;
@@ -102,6 +100,4 @@ public class CustomJSLibCE extends BranchAwareDomain {
         this.setCreatedAt(null);
         this.setUpdatedAt(null);
     }
-
-    public static class Fields extends BranchAwareDomain.Fields {}
 }

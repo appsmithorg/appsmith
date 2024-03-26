@@ -8,7 +8,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.MemberInfoDTO;
-import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -165,12 +164,8 @@ public class UserWorkspaceServiceTest {
 
         StepVerifier.create(userDataService.getForCurrentUser())
                 .assertNext(userData -> {
-                    List<RecentlyUsedEntityDTO> recentlyUsedEntityIds = userData.getRecentlyUsedEntityIds();
-                    assertThat(recentlyUsedEntityIds).isNotNull();
-                    Set<String> workspaceIds = recentlyUsedEntityIds.stream()
-                            .map(RecentlyUsedEntityDTO::getWorkspaceId)
-                            .collect(Collectors.toSet());
-                    assertThat(workspaceIds).doesNotContain(testWorkspace.getId());
+                    assertThat(userData.getRecentlyUsedWorkspaceIds()).doesNotContain(testWorkspace.getId());
+                    assertThat(userData.getRecentlyUsedAppIds()).doesNotContain(savedApplication.getId());
                 })
                 .verifyComplete();
     }

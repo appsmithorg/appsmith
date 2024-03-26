@@ -16,7 +16,7 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -55,7 +55,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.constants.ArtifactType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -248,9 +248,9 @@ public class RefactoringServiceTest {
         ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();
         mockActionCollectionDTO.setName("testCollection");
 
-        Mockito.doReturn(Flux.just(mockActionCollectionDTO))
-                .when(actionCollectionService)
-                .getCollectionsByPageIdAndViewMode(Mockito.any(), Mockito.anyBoolean(), Mockito.any());
+        Mockito.when(actionCollectionService.getCollectionsByPageIdAndViewMode(
+                        Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
+                .thenReturn(Flux.just(mockActionCollectionDTO));
 
         Mono<Boolean> nameAllowedMono = refactoringService.isNameAllowed(
                 testPage.getId(),

@@ -14,7 +14,6 @@ import { Icon } from "design-system-old";
 import MenuText from "./MenuText";
 import classNames from "classnames";
 import { StyledMenuItem } from "./MenuItem.styled";
-import { NavigationMethod } from "utils/history";
 
 interface MenuItemProps {
   page: Page;
@@ -58,7 +57,6 @@ const MenuItem = ({
       to={{
         pathname: trimQueryString(pageURL),
         search: query,
-        state: { invokedBy: NavigationMethod.AppNavigation },
       }}
     >
       {navigationSetting?.itemStyle !== NAVIGATION_SETTINGS.ITEM_STYLE.TEXT && (

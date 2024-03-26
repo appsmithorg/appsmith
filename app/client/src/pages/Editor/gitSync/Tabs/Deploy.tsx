@@ -46,6 +46,7 @@ import {
   clearDiscardErrorState,
   commitToRepoInit,
   discardChanges,
+  fetchGitStatusInit,
   gitPullInit,
 } from "actions/gitSyncActions";
 import StatusLoader from "../components/StatusLoader";
@@ -154,6 +155,7 @@ function Deploy() {
   const commitButtonText = createMessage(COMMIT_AND_PUSH);
 
   useEffect(() => {
+    dispatch(fetchGitStatusInit({ compareRemote: true }));
     return () => {
       dispatch(clearCommitSuccessfulState());
     };

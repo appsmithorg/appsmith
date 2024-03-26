@@ -172,18 +172,16 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
      * This function creates an invite for new users to join an Appsmith workspace. We require the Origin header
      * in order to construct client facing URLs that will be sent to the users via email.
      *
-     * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith workspace and the captcha details
+     * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith workspace
      * @param originHeader   Origin header in the request
      * @return List of new users who have been created/existing users who have been added to the workspace.
      */
     @JsonView(Views.Public.class)
     @PostMapping("/invite")
     public Mono<ResponseDTO<List<User>>> inviteUsers(
-            @RequestBody InviteUsersDTO inviteUsersDTO,
-            @RequestHeader("Origin") String originHeader,
-            @RequestParam(required = false) String recaptchaToken) {
+            @RequestBody InviteUsersDTO inviteUsersDTO, @RequestHeader("Origin") String originHeader) {
         return userAndAccessManagementService
-                .inviteUsers(inviteUsersDTO, originHeader, recaptchaToken)
+                .inviteUsers(inviteUsersDTO, originHeader)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 

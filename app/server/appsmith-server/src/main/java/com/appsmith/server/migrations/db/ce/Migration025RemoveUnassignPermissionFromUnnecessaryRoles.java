@@ -2,6 +2,7 @@ package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.Workspace;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -16,6 +17,7 @@ import org.springframework.data.mongodb.core.query.Update;
 import java.util.Optional;
 
 import static com.appsmith.server.migrations.utils.CompatibilityUtils.optimizeQueryForNoCursorTimeout;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -59,7 +61,8 @@ public class Migration025RemoveUnassignPermissionFromUnnecessaryRoles {
                     unAssignPolicy.getPermissionGroups().remove(permissionGroup.getId());
 
                     mongoTemplate.updateFirst(
-                            query(where(PermissionGroup.Fields.id).is(permissionGroup.getId())),
+                            query(where(fieldName(QPermissionGroup.permissionGroup.id))
+                                    .is(permissionGroup.getId())),
                             new Update().set("policies", permissionGroup.getPolicies()),
                             PermissionGroup.class);
                 });

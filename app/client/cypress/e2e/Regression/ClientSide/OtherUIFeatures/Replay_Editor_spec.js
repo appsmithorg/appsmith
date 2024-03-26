@@ -15,7 +15,7 @@ describe("Undo/Redo functionality", function () {
 
   it("1. Checks undo/redo in datasource forms", () => {
     dataSources.NavigateToDSCreateNew();
-    agHelper.GetNClick(datasource.PostgreSQL);
+    cy.get(datasource.PostgreSQL).click({ force: true });
     cy.generateUUID().then((uid) => {
       postgresDatasourceName = uid;
 
@@ -37,7 +37,12 @@ describe("Undo/Redo functionality", function () {
       //cy.get(datasourceEditor.sectionAuthentication).trigger("click").wait(1000);
 
       cy.get("body").type(`{${modifierKey}}z`);
-      cy.get("body").type(`{${modifierKey}}{shift}z`);
+      cy.get(".t--application-name").click({ force: true }).wait(500);
+      cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").click();
+      cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
+        force: true,
+      });
+      cy.get(datasourceEditor.password).should("be.empty").wait(1000);
       cy.get(datasourceEditor.saveBtn).click({ force: true });
       dataSources.AssertDSInActiveList(postgresDatasourceName);
     });
@@ -100,7 +105,12 @@ describe("Undo/Redo functionality", function () {
     );
     cy.get("body").type(`{${modifierKey}}{shift}z`);
     cy.get(".CodeMirror-code span").contains("{{FirstAPI}}");
-    cy.get("body").type(`{${modifierKey}}z`);
+    // undo/edo through app menu
+    cy.get(".t--application-name").click({ force: true });
+    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").click();
+    cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
+      multiple: true,
+    });
     cy.get(".CodeMirror-code span")
       .last()
       .should("not.have.text", "{{FirstAPI}}");
@@ -122,7 +132,12 @@ describe("Undo/Redo functionality", function () {
     );
     // verifying testJSFunction is visible on page after redo
     cy.contains("testJSFunction").should("exist");
-    cy.get("body").type(`{${modifierKey}}z`);
+    // performing undo from app menu
+    cy.get(".t--application-name").click({ force: true });
+    cy.get(".ads-v2-menu__menu-item-children:contains(Edit)").click();
+    cy.get(".ads-v2-menu__menu-item-children:contains(Undo)").click({
+      multiple: true,
+    });
     // cy.get(".function-name").should("not.contain.text", "test");
   });
 

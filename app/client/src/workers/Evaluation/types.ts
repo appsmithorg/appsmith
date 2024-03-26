@@ -63,3 +63,5 @@ export interface EvalTreeResponseData {
   webworkerTelemetry?: Record<string, WebworkerSpanData>;
   updates: string;
 }
+
+export type JSVarMutatedEvents = Record<string, { path: string; type: string }>;

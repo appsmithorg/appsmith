@@ -56,10 +56,7 @@ describe("EditorContextProvider", () => {
     );
     const testInstance = testRenderer.root;
     const result = (
-      Object.keys(
-        // eslint-disable-next-line testing-library/await-async-queries
-        testInstance.findByType(TestChild).props.editorContext,
-      ) || []
+      Object.keys(testInstance.findByType(TestChild).props.editorContext) || []
     ).sort();
 
     expect(result).toEqual(expectedMethods);
@@ -95,10 +92,7 @@ describe("EditorContextProvider", () => {
     );
     const testInstance = testRenderer.root;
     const result = (
-      Object.keys(
-        // eslint-disable-next-line testing-library/await-async-queries
-        testInstance.findByType(TestChild).props.editorContext,
-      ) || []
+      Object.keys(testInstance.findByType(TestChild).props.editorContext) || []
     ).sort();
 
     expect(result).toEqual(expectedMethods);

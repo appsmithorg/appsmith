@@ -135,12 +135,8 @@ export const getMergeError = (state: AppState) => state.ui.gitSync.mergeError;
 
 export const getCountOfChangesToCommit = (state: AppState) => {
   const gitStatus = getGitStatus(state);
-  const {
-    modifiedModules = 0,
-    modifiedPages = 0,
-    modifiedQueries = 0,
-  } = gitStatus || {};
-  return modifiedPages + modifiedQueries + modifiedModules;
+  const { modifiedPages = 0, modifiedQueries = 0 } = gitStatus || {};
+  return modifiedPages + modifiedQueries;
 };
 
 export const getShowRepoLimitErrorModal = (state: AppState) =>

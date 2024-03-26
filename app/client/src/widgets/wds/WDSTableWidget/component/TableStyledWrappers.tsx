@@ -15,10 +15,12 @@ import {
   TABLE_SIZES,
   ImageSizes,
   MULTISELECT_CHECKBOX_WIDTH,
+  TABLE_SCROLLBAR_HEIGHT,
+  TABLE_SCROLLBAR_WIDTH,
 } from "./Constants";
 import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
-import { invisible } from "constants/DefaultTheme";
+import { hideScrollbar, invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
@@ -52,7 +54,7 @@ export const TableWrapper = styled.div<{
   border-style: solid;
   border-width: ${({ borderWidth }) => `${borderWidth}px`};
   border-color: ${({ borderColor }) => borderColor};
-  border-radius: var(--border-radius-elevation-3);
+  border-radius: ${({ borderRadius }) => borderRadius};
   box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
   box-sizing: border-box;
   display: flex;
@@ -61,7 +63,34 @@ export const TableWrapper = styled.div<{
   overflow: hidden;
 
   /* wriiten exclusively for safari */
-  position: sticky; 
+  position: sticky;
+
+  .simplebar-track {
+    opacity: 0.7;
+    &.simplebar-horizontal {
+      height: ${TABLE_SCROLLBAR_HEIGHT}px;
+      .simplebar-scrollbar {
+        height: 5px;
+      }
+      &.simplebar-hover {
+        height: 10px;
+        & .simplebar-scrollbar {
+          height: 8px;
+        }
+      }
+    }
+
+    &.simplebar-vertical {
+      direction: rtl;
+      top: ${(props) => props.tableSizes.TABLE_HEADER_HEIGHT - 10}px;
+      width: ${TABLE_SCROLLBAR_WIDTH}px;
+      &.simplebar-hover {
+        width: 10px;
+        & .simplebar-scrollbar {
+          width: 11px;
+        }
+      }
+    }
   }
   .tableWrap {
     height: 100%;
@@ -69,11 +98,8 @@ export const TableWrapper = styled.div<{
     position: relative;
     width: 100%;
     overflow: auto hidden;
-    scrollbar-color: initial;
-    container-type: inline-size;
-
     &.virtual {
-      overflow: hidden;
+      ${hideScrollbar};
     }
   }
   .table {
@@ -82,7 +108,8 @@ export const TableWrapper = styled.div<{
     position: relative;
     display: table;
     width: 100%;
-    tab .tbody {
+    ${hideScrollbar};
+    .tbody {
       height: fit-content;
       width: fit-content;
     }
@@ -177,6 +204,10 @@ export const TableWrapper = styled.div<{
     }
   }
 
+  .virtual-list {
+    ${hideScrollbar};
+  }
+
   .column-freeze {
     .body {
       position: relative;
@@ -230,6 +261,10 @@ export const TableWrapper = styled.div<{
     & .sticky-right-modifier {
       border-left: 3px solid var(--wds-color-border);
     }
+  }
+
+  .tbody .tr:last-child .td {
+    border-bottom: none;
   }
 
   .draggable-header,

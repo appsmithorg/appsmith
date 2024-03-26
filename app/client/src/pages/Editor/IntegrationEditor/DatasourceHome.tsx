@@ -236,7 +236,6 @@ class DatasourceHomeScreen extends React.Component<Props> {
               !!showMostPopularPlugins ? (
                 <ApiCard
                   className="t--createBlankApiCard create-new-api"
-                  key={`${plugin.id}_${idx}`}
                   onClick={() => this.handleOnClick()}
                 >
                   <CardContentWrapper data-testid="newapi-datasource-content-wrapper">

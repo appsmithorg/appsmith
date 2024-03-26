@@ -6,9 +6,10 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.dtos.ConsolidatedAPIResponseDTO;
 import com.appsmith.server.dtos.ResponseDTO;
+import com.appsmith.server.helpers.OtlpTelemetry;
 import com.appsmith.server.services.ConsolidatedAPIService;
 import com.fasterxml.jackson.annotation.JsonView;
-import io.micrometer.observation.ObservationRegistry;
+import io.opentelemetry.api.trace.Span;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,23 +17,21 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 
-import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_EDIT;
-import static com.appsmith.external.constants.spans.ConsolidatedApiSpanNames.CONSOLIDATED_API_ROOT_VIEW;
+import static com.appsmith.server.constants.OtlpSpanNames.CONSOLIDATED_API_ROOT_EDIT;
+import static com.appsmith.server.constants.OtlpSpanNames.CONSOLIDATED_API_ROOT_VIEW;
 
 @Slf4j
 @RestController
 @RequestMapping(Url.CONSOLIDATED_API_URL)
 public class ConsolidatedAPIController {
     private final ConsolidatedAPIService consolidatedAPIService;
-    private final ObservationRegistry observationRegistry;
+    private final OtlpTelemetry otlpTelemetry;
 
-    public ConsolidatedAPIController(
-            ConsolidatedAPIService consolidatedAPIService, ObservationRegistry observationRegistry) {
+    public ConsolidatedAPIController(ConsolidatedAPIService consolidatedAPIService, OtlpTelemetry otlpTelemetry) {
         this.consolidatedAPIService = consolidatedAPIService;
-        this.observationRegistry = observationRegistry;
+        this.otlpTelemetry = otlpTelemetry;
     }
 
     /**
@@ -54,12 +53,13 @@ public class ConsolidatedAPIController {
                 branchName,
                 ApplicationMode.EDIT);
 
+        Span consolidatedApiOtlpSpan = this.otlpTelemetry.startOTLPSpan(CONSOLIDATED_API_ROOT_EDIT, null, null);
         return consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.EDIT)
+                .getConsolidatedInfoForPageLoad(
+                        defaultPageId, applicationId, branchName, ApplicationMode.EDIT, consolidatedApiOtlpSpan)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
-                .name(CONSOLIDATED_API_ROOT_EDIT)
-                .tap(Micrometer.observation(observationRegistry));
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(consolidatedApiOtlpSpan));
     }
 
     @JsonView(Views.Public.class)
@@ -76,11 +76,12 @@ public class ConsolidatedAPIController {
                 branchName,
                 ApplicationMode.PUBLISHED);
 
+        Span consolidatedApiOtlpSpan = this.otlpTelemetry.startOTLPSpan(CONSOLIDATED_API_ROOT_VIEW, null, null);
         return consolidatedAPIService
-                .getConsolidatedInfoForPageLoad(defaultPageId, applicationId, branchName, ApplicationMode.PUBLISHED)
+                .getConsolidatedInfoForPageLoad(
+                        defaultPageId, applicationId, branchName, ApplicationMode.PUBLISHED, consolidatedApiOtlpSpan)
                 .map(consolidatedAPIResponseDTO ->
                         new ResponseDTO<>(HttpStatus.OK.value(), consolidatedAPIResponseDTO, null))
-                .name(CONSOLIDATED_API_ROOT_VIEW)
-                .tap(Micrometer.observation(observationRegistry));
+                .doFinally(signalType -> this.otlpTelemetry.endOtlpSpanSafely(consolidatedApiOtlpSpan));
     }
 }

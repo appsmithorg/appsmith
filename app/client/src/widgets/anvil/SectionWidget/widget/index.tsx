@@ -32,7 +32,6 @@ import type {
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
 import { pasteWidgetsInSection } from "layoutSystems/anvil/utils/paste/sectionPasteUtils";
-import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 
 class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   static type = anvilWidgets.SECTION_WIDGET;
@@ -57,20 +56,11 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return {
-      isVisible: DefaultAutocompleteDefinitions.isVisible,
-    };
+    return {};
   }
 
   static getSetterConfig(): SetterConfig | null {
-    return {
-      __setters: {
-        setVisibility: {
-          path: "isVisible",
-          type: "boolean",
-        },
-      },
-    };
+    return null;
   }
 
   static getDerivedPropertiesMap(): DerivedPropertiesMap {
@@ -94,7 +84,10 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   }
 
   static getStylesheetConfig(): Stylesheet {
-    return {};
+    return {
+      borderRadius: "{{appsmith.theme.borderRadius.appBorderRadius}}",
+      boxShadow: "{{appsmith.theme.boxShadow.appBoxShadow}}",
+    };
   }
 
   /* eslint-disable @typescript-eslint/no-unused-vars */

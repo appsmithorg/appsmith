@@ -91,6 +91,13 @@ export function MockPageDSL({ children, dsl }: any) {
   return children;
 }
 
+export const mockGetCanvasWidgetDsl = createSelector(
+  getCanvasWidgets,
+  (canvasWidgets: CanvasWidgetsReduxState): DSLWidget => {
+    return nestDSL(canvasWidgets);
+  },
+);
+
 const getChildWidgets = (
   canvasWidgets: CanvasWidgetsReduxState,
   widgetId: string,

@@ -286,7 +286,7 @@ describe(
       //Should check that widget input is not showing any errors on input
       cy.get(widgetInput).type("123456789");
       cy.focused().then(() => {
-        cy.get(".error-tooltip .bp3-popover-content").should("not.exist");
+        expect(Cypress.$(themelocators.popover)).not.to.exist;
       });
     });
   },

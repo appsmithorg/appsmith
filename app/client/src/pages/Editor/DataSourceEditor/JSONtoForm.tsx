@@ -135,10 +135,7 @@ export class JSONtoForm<
 
   renderEachConfig = (section: any) => {
     return (
-      <div
-        key={section.sectionName}
-        style={{ ...(section.sectionStyles || {}) }}
-      >
+      <div key={section.sectionName}>
         {_.map(section.children, (propertyControlOrSection: ControlProps) => {
           // If the section is hidden, skip rendering
           // hides features/configs that are hidden behind feature flag

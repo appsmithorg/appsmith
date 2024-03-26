@@ -8,6 +8,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -45,8 +46,12 @@ class WidgetRefactoringServiceCEImplTest {
     @MockBean
     ActionCollectionRepository actionCollectionRepository;
 
-    @Autowired
-    WidgetRefactorUtil widgetRefactorUtil;
+    WidgetRefactoringServiceCEImpl widgetRefactoringServiceCE;
+
+    @BeforeEach
+    public void setUp() {
+        widgetRefactoringServiceCE = new WidgetRefactoringServiceCEImpl(newPageService, astService, mapper);
+    }
 
     @Test
     void testRefactorNameInDsl_whenRenamingTextWidget_replacesAllReferences() {
@@ -56,7 +61,7 @@ class WidgetRefactoringServiceCEImplTest {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
             final String oldName = "Text";
-            Mono<Set<String>> updatesMono = widgetRefactorUtil.refactorNameInDsl(
+            Mono<Set<String>> updatesMono = widgetRefactoringServiceCE.refactorNameInDsl(
                     dslAsJsonNode, oldName, "newText", 2, Pattern.compile(preWord + oldName + postWord));
 
             StepVerifier.create(updatesMono)
@@ -84,7 +89,7 @@ class WidgetRefactoringServiceCEImplTest {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
             final String oldName = "List1";
-            Mono<Set<String>> updatesMono = widgetRefactorUtil.refactorNameInDsl(
+            Mono<Set<String>> updatesMono = widgetRefactoringServiceCE.refactorNameInDsl(
                     dslAsJsonNode, oldName, "newList", 2, Pattern.compile(preWord + oldName + postWord));
 
             StepVerifier.create(updatesMono)

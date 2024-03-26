@@ -94,9 +94,7 @@ function* updateZonesCountOfSectionSaga(
             currentZoneCount > zoneCount
               ? currentZoneCount - 1
               : currentZoneCount,
-            {
-              addedViaStepper: true,
-            },
+            true,
           );
 
         // Update space distribution for each child widget

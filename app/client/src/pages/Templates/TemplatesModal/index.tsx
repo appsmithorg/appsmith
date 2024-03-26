@@ -84,9 +84,18 @@ function TemplatesModal() {
     >
       <ModalContentWrapper data-testid="t--templates-dialog-component">
         <ModalHeader>
-          <TemplateModalHeader
-            className={!showTemplateDetails ? "modal-header" : ""}
-          />
+          {!!showTemplateDetails ? (
+            <TemplateModalHeader
+              onBackPress={() => setShowTemplateDetails("")}
+              // onClose={() => onClose(false)}
+            />
+          ) : (
+            <TemplateModalHeader
+              className="modal-header"
+              hideBackButton
+              // onClose={() => onClose(false)}
+            />
+          )}
         </ModalHeader>
         <ModalBodyWrapper>
           {!!showTemplateDetails ? (
@@ -98,7 +107,6 @@ function TemplatesModal() {
             />
           ) : (
             <TemplatesListLayoutSwitcher
-              analyticsEventNameForTemplateCardClick="TEMPLATE_ADD_PAGE_FROM_TEMPLATE_FLOW"
               isStartWithTemplateFlow={templatesModalInfo.isOpenFromCanvas}
               onTemplateClick={onTemplateClick}
             />

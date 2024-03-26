@@ -22,8 +22,6 @@ const initialState: WidgetDragResizeState = {
     isDistributingSpace: false,
   },
   isDraggingDisabled: false,
-  blockSelection: false,
-  altFocus: false,
 };
 
 export const widgetDraggingReducer = createImmerReducer(initialState, {
@@ -102,20 +100,9 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.FOCUS_WIDGET]: (
     state: WidgetDragResizeState,
-    action: ReduxAction<{ widgetId?: string; alt?: boolean }>,
+    action: ReduxAction<{ widgetId?: string }>,
   ) => {
-    if (state.focusedWidget !== action.payload.widgetId) {
-      state.focusedWidget = action.payload.widgetId;
-    }
-    if (state.altFocus !== action.payload.alt) {
-      state.altFocus = !!action.payload.alt;
-    }
-  },
-  [ReduxActionTypes.ALT_FOCUS_WIDGET]: (
-    state: WidgetDragResizeState,
-    action: ReduxAction<boolean>,
-  ) => {
-    state.altFocus = action.payload;
+    state.focusedWidget = action.payload.widgetId;
   },
   [ReduxActionTypes.SET_SELECTED_WIDGET_ANCESTRY]: (
     state: WidgetDragResizeState,
@@ -128,12 +115,6 @@ export const widgetDraggingReducer = createImmerReducer(initialState, {
     action: ReduxAction<string[]>,
   ) => {
     state.entityExplorerAncestry = action.payload;
-  },
-  [ReduxActionTypes.SET_WIDGET_SELECTION_BLOCK]: (
-    state: WidgetDragResizeState,
-    action: ReduxAction<boolean>,
-  ) => {
-    state.blockSelection = action.payload;
   },
   //space distribution redux
   [AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START]: (
@@ -183,8 +164,6 @@ export interface WidgetDragResizeState {
   selectedWidgets: string[];
   isAutoCanvasResizing: boolean;
   isDraggingDisabled: boolean;
-  blockSelection: boolean;
-  altFocus: boolean;
 }
 
 export default widgetDraggingReducer;

@@ -28,7 +28,6 @@ describe("Tests for promisify util", () => {
       name: "testName",
     },
     triggerPropertyName: "testProp",
-    onPageLoad: false,
   };
   const eventType = EventType.ON_PAGE_LOAD;
   beforeAll(() => {

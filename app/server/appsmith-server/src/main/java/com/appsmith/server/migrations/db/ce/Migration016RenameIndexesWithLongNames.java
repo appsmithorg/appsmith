@@ -7,6 +7,9 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QActionCollection;
+import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.migrations.DatabaseChangelog1;
 import com.appsmith.server.migrations.DatabaseChangelog2;
 import io.mongock.api.annotations.ChangeUnit;
@@ -19,6 +22,7 @@ import org.springframework.data.mongodb.core.index.Index;
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @ChangeUnit(order = "016", id = "rename-indexes-with-long-names")
 @RequiredArgsConstructor
@@ -64,7 +68,8 @@ public class Migration016RenameIndexesWithLongNames {
                     mongoTemplate,
                     ActionCollection.class,
                     makeIndex(
-                                    ActionCollection.Fields.unpublishedCollection + "." + FieldName.PAGE_ID,
+                                    fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
+                                            + FieldName.PAGE_ID,
                                     FieldName.DELETED)
                             .named("unpublishedCollectionPageId_deleted"));
         }
@@ -75,7 +80,10 @@ public class Migration016RenameIndexesWithLongNames {
             ensureIndexes(
                     mongoTemplate,
                     ActionCollection.class,
-                    makeIndex(ActionCollection.Fields.publishedCollection + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                    makeIndex(
+                                    fieldName(QActionCollection.actionCollection.publishedCollection) + "."
+                                            + FieldName.PAGE_ID,
+                                    FieldName.DELETED)
                             .named("publishedCollectionPageId_deleted"));
         }
 
@@ -95,9 +103,9 @@ public class Migration016RenameIndexesWithLongNames {
                     mongoTemplate,
                     Application.class,
                     makeIndex(
-                                    Application.Fields.workspaceId,
-                                    Application.Fields.name,
-                                    Application.Fields.deletedAt,
+                                    fieldName(QApplication.application.workspaceId),
+                                    fieldName(QApplication.application.name),
+                                    fieldName(QApplication.application.deletedAt),
                                     "gitApplicationMetadata.remoteUrl",
                                     "gitApplicationMetadata.branchName")
                             .unique()
@@ -112,10 +120,10 @@ public class Migration016RenameIndexesWithLongNames {
                 PermissionGroup.class,
                 "permission_group_domainId_domainType_deleted_deleted_compound_index");
         Index newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt = makeIndex(
-                        PermissionGroup.Fields.defaultDomainId,
-                        PermissionGroup.Fields.defaultDomainType,
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
                         FieldName.DELETED,
-                        PermissionGroup.Fields.deletedAt)
+                        fieldName(QPermissionGroup.permissionGroup.deletedAt))
                 .named(
                         Migration011CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId
                                 .newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);

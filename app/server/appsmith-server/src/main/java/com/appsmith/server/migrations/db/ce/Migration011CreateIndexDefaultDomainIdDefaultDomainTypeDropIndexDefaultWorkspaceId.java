@@ -2,6 +2,7 @@ package com.appsmith.server.migrations.db.ce;
 
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.PermissionGroup;
+import com.appsmith.server.domains.QPermissionGroup;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -11,6 +12,7 @@ import org.springframework.data.mongodb.core.index.Index;
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 
 @ChangeUnit(order = "011", id = "create-index-default-domain-id-default-domain-type", author = " ")
 public class Migration011CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDefaultWorkspaceId {
@@ -39,10 +41,10 @@ public class Migration011CreateIndexDefaultDomainIdDefaultDomainTypeDropIndexDef
                 mongoTemplate, PermissionGroup.class, newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);
 
         Index newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt = makeIndex(
-                        PermissionGroup.Fields.defaultDomainId,
-                        PermissionGroup.Fields.defaultDomainType,
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainId),
+                        fieldName(QPermissionGroup.permissionGroup.defaultDomainType),
                         FieldName.DELETED,
-                        PermissionGroup.Fields.deletedAt)
+                        fieldName(QPermissionGroup.permissionGroup.deletedAt))
                 .named(newPermissionGroupIndexNameDefaultDomainIdDefaultDomainType);
 
         ensureIndexes(mongoTemplate, PermissionGroup.class, newIndexDefaultDomainIdDefaultDomainTypeDeletedDeletedAt);

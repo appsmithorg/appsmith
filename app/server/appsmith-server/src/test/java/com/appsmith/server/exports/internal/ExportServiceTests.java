@@ -19,7 +19,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactType;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -45,7 +45,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
@@ -280,7 +280,7 @@ public class ExportServiceTests {
     @WithUserDetails(value = "api_user")
     public void exportApplicationWithNullApplicationIdTest() {
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(null, "", ArtifactType.APPLICATION)
+                .exportByArtifactIdAndBranchName(null, "", ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -313,7 +313,7 @@ public class ExportServiceTests {
                 .block();
 
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactType.APPLICATION)
+                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -330,7 +330,7 @@ public class ExportServiceTests {
     @WithUserDetails(value = "api_user")
     public void exportApplication_withInvalidApplicationId_throwNoResourceFoundException() {
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName("invalidAppId", "", ArtifactType.APPLICATION)
+                .exportByArtifactIdAndBranchName("invalidAppId", "", ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -346,7 +346,7 @@ public class ExportServiceTests {
     @WithUserDetails(value = "api_user")
     public void exportApplicationById_WhenContainsInternalFields_InternalFieldsNotExported() {
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(testAppId, "", ArtifactType.APPLICATION)
+                .exportByArtifactIdAndBranchName(testAppId, "", ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -385,7 +385,7 @@ public class ExportServiceTests {
                     return applicationPageService.createApplication(testApplication, workspaceId);
                 })
                 .flatMap(application -> exportService.exportByArtifactIdAndBranchName(
-                        application.getId(), "", ArtifactType.APPLICATION))
+                        application.getId(), "", ArtifactJsonType.APPLICATION))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -495,7 +495,7 @@ public class ExportServiceTests {
                             .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportService.exportByArtifactIdAndBranchName(
-                                    testApp.getId(), "", ArtifactType.APPLICATION))
+                                    testApp.getId(), "", ArtifactJsonType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 })
                 .cache();
@@ -716,7 +716,7 @@ public class ExportServiceTests {
                             .then(exportService.exportByArtifactId(
                                     testApp.getId(),
                                     SerialiseArtifactObjective.VERSION_CONTROL,
-                                    ArtifactType.APPLICATION))
+                                    ArtifactJsonType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
@@ -856,7 +856,7 @@ public class ExportServiceTests {
                         .exportByArtifactId(
                                 savedApplication.getId(),
                                 SerialiseArtifactObjective.VERSION_CONTROL,
-                                ArtifactType.APPLICATION)
+                                ArtifactJsonType.APPLICATION)
                         .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                         .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
                                 workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())))
@@ -966,7 +966,7 @@ public class ExportServiceTests {
                 .build();
 
         Mono<Application> applicationMono = exportService
-                .exportByArtifactIdAndBranchName(application.getId(), "master", ArtifactType.APPLICATION)
+                .exportByArtifactIdAndBranchName(application.getId(), "master", ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
                         workspaceId, application.getId(), applicationJson, "master"))
@@ -1087,7 +1087,7 @@ public class ExportServiceTests {
                             .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportService.exportByArtifactIdAndBranchName(
-                                    testApp.getId(), "", ArtifactType.APPLICATION))
+                                    testApp.getId(), "", ArtifactJsonType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 })
                 .cache();
@@ -1270,7 +1270,7 @@ public class ExportServiceTests {
     public void exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
         Mono<ApplicationJson> exportApplicationMono = exportService
                 .exportByArtifactId(
-                        exportWithConfigurationAppId, SerialiseArtifactObjective.SHARE, ArtifactType.APPLICATION)
+                        exportWithConfigurationAppId, SerialiseArtifactObjective.SHARE, ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(exportApplicationMono)
@@ -1318,7 +1318,7 @@ public class ExportServiceTests {
         applicationPageService.publish(testApplication.getId(), true).block();
 
         Mono<ApplicationJson> applicationJsonMono = exportService
-                .exportByArtifactIdAndBranchName(testApplication.getId(), "", ArtifactType.APPLICATION)
+                .exportByArtifactIdAndBranchName(testApplication.getId(), "", ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .cache();
 
@@ -1428,7 +1428,9 @@ public class ExportServiceTests {
 
         Mono<Application> result = exportService
                 .exportByArtifactId(
-                        savedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION)
+                        savedApplication.getId(),
+                        SerialiseArtifactObjective.VERSION_CONTROL,
+                        ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
@@ -1487,7 +1489,9 @@ public class ExportServiceTests {
 
         Mono<Application> result = exportService
                 .exportByArtifactId(
-                        savedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION)
+                        savedApplication.getId(),
+                        SerialiseArtifactObjective.VERSION_CONTROL,
+                        ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
@@ -1548,7 +1552,7 @@ public class ExportServiceTests {
                 .block();
 
         Mono<ApplicationJson> applicationJsonMono = exportService
-                .exportByArtifactIdAndBranchName(testApplication.getId(), "", ArtifactType.APPLICATION)
+                .exportByArtifactIdAndBranchName(testApplication.getId(), "", ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .cache();
 
@@ -1647,7 +1651,7 @@ public class ExportServiceTests {
                     return applicationService
                             .save(application)
                             .then(exportService.exportByArtifactIdAndBranchName(
-                                    application.getId(), branchName, ArtifactType.APPLICATION))
+                                    application.getId(), branchName, ArtifactJsonType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
@@ -1738,7 +1742,7 @@ public class ExportServiceTests {
                     return layoutActionService
                             .createSingleAction(action, Boolean.FALSE)
                             .then(exportService.exportByArtifactIdAndBranchName(
-                                    objects.getT1().getId(), "", ArtifactType.APPLICATION))
+                                    objects.getT1().getId(), "", ArtifactJsonType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
@@ -1767,7 +1771,7 @@ public class ExportServiceTests {
                 .block();
 
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactType.APPLICATION)
+                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -1805,7 +1809,8 @@ public class ExportServiceTests {
         PageDTO applicationPageDTO = applicationPageService.createPage(pageDTO).block();
 
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(applicationPageDTO.getApplicationId(), "", ArtifactType.APPLICATION)
+                .exportByArtifactIdAndBranchName(
+                        applicationPageDTO.getApplicationId(), "", ArtifactJsonType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -1833,7 +1838,7 @@ public class ExportServiceTests {
                 })
                 .cache();
         Mono<ApplicationJson> getExportedAppMono = addJSLibMonoCached
-                .then(exportService.exportByArtifactIdAndBranchName(testAppId, "", ArtifactType.APPLICATION))
+                .then(exportService.exportByArtifactIdAndBranchName(testAppId, "", ArtifactJsonType.APPLICATION))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(Mono.zip(addJSLibMonoCached, getExportedAppMono))
@@ -1962,7 +1967,7 @@ public class ExportServiceTests {
                             .then(exportService.exportByArtifactId(
                                     application.getId(),
                                     SerialiseArtifactObjective.VERSION_CONTROL,
-                                    ArtifactType.APPLICATION))
+                                    ArtifactJsonType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
@@ -2066,7 +2071,7 @@ public class ExportServiceTests {
                             .then(exportService.exportByArtifactId(
                                     application.getId(),
                                     SerialiseArtifactObjective.VERSION_CONTROL,
-                                    ArtifactType.APPLICATION))
+                                    ArtifactJsonType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 

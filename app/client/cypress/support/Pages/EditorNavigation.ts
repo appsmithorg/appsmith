@@ -3,7 +3,6 @@ import { ObjectsRegistry as _ } from "../Objects/Registry";
 import ClickOptions = Cypress.ClickOptions;
 import { Sidebar } from "./IDE/Sidebar";
 import { LeftPane } from "./IDE/LeftPane";
-import PageList from "./PageList";
 
 export enum AppSidebarButton {
   Data = "Data",
@@ -80,7 +79,7 @@ class EditorNavigation {
 
   NavigateToPage(name: string, networkCallAlias = false) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageList.ShowList();
+    PageLeftPane.expandCollapseItem("Pages");
     PageLeftPane.selectItem(name, { multiple: true, force: true });
     _.AggregateHelper.Sleep(); //for selection to settle
     networkCallAlias && _.AssertHelper.AssertNetworkStatus("pageSnap");

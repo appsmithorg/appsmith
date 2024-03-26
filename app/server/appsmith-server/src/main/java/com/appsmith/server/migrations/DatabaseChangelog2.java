@@ -2,12 +2,13 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.models.QBaseDomain;
+import com.appsmith.external.models.QBranchAwareDomain;
+import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.configurations.CommonConfig;
@@ -21,6 +22,13 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
+import com.appsmith.server.domains.QApplication;
+import com.appsmith.server.domains.QConfig;
+import com.appsmith.server.domains.QPermissionGroup;
+import com.appsmith.server.domains.QPlugin;
+import com.appsmith.server.domains.QTenant;
+import com.appsmith.server.domains.QTheme;
+import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UsagePulse;
@@ -84,6 +92,7 @@ import static com.appsmith.server.migrations.DatabaseChangelog1.getUpdatedDynami
 import static com.appsmith.server.migrations.DatabaseChangelog1.installPluginToAllWorkspaces;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
+import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -102,18 +111,18 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "001", id = "fix-plugin-title-casing", author = "")
     public void fixPluginTitleCasing(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
-                query(where(Plugin.Fields.packageName).is("mysql-plugin")),
-                update(Plugin.Fields.name, "MySQL"),
+                query(where(fieldName(QPlugin.plugin.packageName)).is("mysql-plugin")),
+                update(fieldName(QPlugin.plugin.name), "MySQL"),
                 Plugin.class);
 
         mongoTemplate.updateFirst(
-                query(where(Plugin.Fields.packageName).is("mssql-plugin")),
-                update(Plugin.Fields.name, "Microsoft SQL Server"),
+                query(where(fieldName(QPlugin.plugin.packageName)).is("mssql-plugin")),
+                update(fieldName(QPlugin.plugin.name), "Microsoft SQL Server"),
                 Plugin.class);
 
         mongoTemplate.updateFirst(
-                query(where(Plugin.Fields.packageName).is("elasticsearch-plugin")),
-                update(Plugin.Fields.name, "Elasticsearch"),
+                query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
+                update(fieldName(QPlugin.plugin.name), "Elasticsearch"),
                 Plugin.class);
     }
 
@@ -597,13 +606,13 @@ public class DatabaseChangelog2 {
     }
 
     public static void doAddIndexesForGit(MongoTemplate mongoTemplate) {
-        String defaultResources = BranchAwareDomain.Fields.defaultResources;
+        String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
         ensureIndexes(
                 mongoTemplate,
                 ActionCollection.class,
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                fieldName(QBaseDomain.baseDomain.gitSyncId),
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
@@ -612,7 +621,7 @@ public class DatabaseChangelog2 {
                 NewAction.class,
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                fieldName(QBaseDomain.baseDomain.gitSyncId),
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
@@ -621,7 +630,7 @@ public class DatabaseChangelog2 {
                 NewPage.class,
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                fieldName(QBaseDomain.baseDomain.gitSyncId),
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
     }
@@ -640,7 +649,7 @@ public class DatabaseChangelog2 {
     public void addDefaultTenant(MongoTemplate mongoTemplate) {
 
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         // if tenant already exists, don't create a new one.
@@ -666,9 +675,9 @@ public class DatabaseChangelog2 {
                 mongoTemplate,
                 Application.class,
                 makeIndex(
-                                Application.Fields.workspaceId,
-                                Application.Fields.name,
-                                Application.Fields.deletedAt,
+                                fieldName(QApplication.application.workspaceId),
+                                fieldName(QApplication.application.name),
+                                fieldName(QApplication.application.deletedAt),
                                 "gitApplicationMetadata.remoteUrl",
                                 "gitApplicationMetadata.branchName")
                         .unique()
@@ -676,7 +685,10 @@ public class DatabaseChangelog2 {
         ensureIndexes(
                 mongoTemplate,
                 Datasource.class,
-                makeIndex(Datasource.Fields.workspaceId, Datasource.Fields.name, Datasource.Fields.deletedAt)
+                makeIndex(
+                                fieldName(QDatasource.datasource.workspaceId),
+                                fieldName(QDatasource.datasource.name),
+                                fieldName(QDatasource.datasource.deletedAt))
                         .unique()
                         .named("workspace_datasource_deleted_compound_index"));
     }
@@ -980,13 +992,13 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "023", id = "add-anonymousUser", author = "")
     public void addAnonymousUser(MongoTemplate mongoTemplate) {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query userQuery = new Query();
         userQuery
-                .addCriteria(where(User.Fields.email).is(FieldName.ANONYMOUS_USER))
-                .addCriteria(where(User.Fields.tenantId).is(tenant.getId()));
+                .addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
         User anonymousUser = mongoTemplate.findOne(userQuery, User.class);
 
         if (anonymousUser == null) {
@@ -1005,7 +1017,8 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "029", id = "add-instance-config-object", author = "")
     public void addInstanceConfigurationPlaceHolder(MongoTemplate mongoTemplate) {
         Query instanceConfigurationQuery = new Query();
-        instanceConfigurationQuery.addCriteria(where(Config.Fields.name).is(FieldName.INSTANCE_CONFIG));
+        instanceConfigurationQuery.addCriteria(
+                where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
         Config instanceAdminConfiguration = mongoTemplate.findOne(instanceConfigurationQuery, Config.class);
 
         if (instanceAdminConfiguration != null) {
@@ -1023,8 +1036,8 @@ public class DatabaseChangelog2 {
                 Set.of(new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)));
 
         Query adminUserQuery = new Query();
-        adminUserQuery.addCriteria(
-                where(BaseDomain.Fields.policies).elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
+        adminUserQuery.addCriteria(where(fieldName(QBaseDomain.baseDomain.policies))
+                .elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
         List<User> adminUsers = mongoTemplate.find(adminUserQuery, User.class);
 
         instanceManagerPermissionGroup.setAssignedToUserIds(
@@ -1075,7 +1088,8 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "030", id = "add-anonymous-user-permission-group", author = "")
     public void addAnonymousUserPermissionGroup(MongoTemplate mongoTemplate) {
         Query anonymousUserPermissionConfig = new Query();
-        anonymousUserPermissionConfig.addCriteria(where(Config.Fields.name).is(FieldName.PUBLIC_PERMISSION_GROUP));
+        anonymousUserPermissionConfig.addCriteria(
+                where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
 
         Config publicPermissionGroupConfig = mongoTemplate.findOne(anonymousUserPermissionConfig, Config.class);
 
@@ -1088,13 +1102,13 @@ public class DatabaseChangelog2 {
         publicPermissionGroup.setDescription("Role for giving accesses for all objects to anonymous users");
 
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query userQuery = new Query();
         userQuery
-                .addCriteria(where(User.Fields.email).is(FieldName.ANONYMOUS_USER))
-                .addCriteria(where(User.Fields.tenantId).is(tenant.getId()));
+                .addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
         User anonymousUser = mongoTemplate.findOne(userQuery, User.class);
 
         // Give access to anonymous user to the permission group.
@@ -1115,12 +1129,12 @@ public class DatabaseChangelog2 {
     public void createThemesIndices(MongoTemplate mongoTemplate) {
 
         Index systemThemeIndex = new Index()
-                .on(Theme.Fields.isSystemTheme, Sort.Direction.ASC)
+                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
                 .named("system_theme_index")
                 .background();
 
         Index applicationIdIndex = new Index()
-                .on(Theme.Fields.applicationId, Sort.Direction.ASC)
+                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
                 .on(FieldName.DELETED, Sort.Direction.ASC)
                 .named("application_id_index")
                 .background();
@@ -1145,7 +1159,8 @@ public class DatabaseChangelog2 {
 
         // Make this theme accessible to anonymous users.
         Query anonymousUserPermissionConfig = new Query();
-        anonymousUserPermissionConfig.addCriteria(where(Config.Fields.name).is(FieldName.PUBLIC_PERMISSION_GROUP));
+        anonymousUserPermissionConfig.addCriteria(
+                where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
         Config publicPermissionGroupConfig = mongoTemplate.findOne(anonymousUserPermissionConfig, Config.class);
 
         String permissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
@@ -1168,9 +1183,9 @@ public class DatabaseChangelog2 {
             theme.setSystemTheme(true);
             theme.setCreatedAt(Instant.now());
             theme.setPolicies(new HashSet<>(Set.of(policyWithCurrentPermission)));
-            Query query = new Query(Criteria.where(Theme.Fields.name)
+            Query query = new Query(Criteria.where(fieldName(QTheme.theme.name))
                     .is(theme.getName())
-                    .and(Theme.Fields.isSystemTheme)
+                    .and(fieldName(QTheme.theme.isSystemTheme))
                     .is(true));
 
             Theme savedTheme = mongoTemplate.findOne(query, Theme.class);
@@ -1218,7 +1233,7 @@ public class DatabaseChangelog2 {
         dropIndexIfExists(mongoTemplate, PermissionGroup.class, "permission_group_assignedUserIds_deleted");
 
         Index assignedToUserIds_deleted_compound_index = makeIndex(
-                        PermissionGroup.Fields.assignedToUserIds, FieldName.DELETED)
+                        fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), FieldName.DELETED)
                 .named("permission_group_assignedUserIds_deleted");
 
         ensureIndexes(mongoTemplate, PermissionGroup.class, assignedToUserIds_deleted_compound_index);
@@ -1243,7 +1258,8 @@ public class DatabaseChangelog2 {
         Set<String> adminEmails = TextUtils.csvToSet(adminEmailsStr);
 
         Query instanceConfigurationQuery = new Query();
-        instanceConfigurationQuery.addCriteria(where(Config.Fields.name).is(FieldName.INSTANCE_CONFIG));
+        instanceConfigurationQuery.addCriteria(
+                where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
         Config instanceAdminConfiguration = mongoTemplate.findOne(instanceConfigurationQuery, Config.class);
 
         String instanceAdminPermissionGroupId =
@@ -1251,13 +1267,14 @@ public class DatabaseChangelog2 {
 
         Query permissionGroupQuery = new Query();
         permissionGroupQuery
-                .addCriteria(where(PermissionGroup.Fields.id).is(instanceAdminPermissionGroupId))
+                .addCriteria(
+                        where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId))
                 .fields()
-                .include(PermissionGroup.Fields.assignedToUserIds);
+                .include(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds));
         PermissionGroup instanceAdminPG = mongoTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
 
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Set<String> userIds = adminEmails.stream()
@@ -1265,7 +1282,7 @@ public class DatabaseChangelog2 {
                 .map(String::toLowerCase)
                 .map(email -> {
                     Query userQuery = new Query();
-                    userQuery.addCriteria(where(User.Fields.email).is(email));
+                    userQuery.addCriteria(where(fieldName(QUser.user.email)).is(email));
                     User user = mongoTemplate.findOne(userQuery, User.class);
 
                     if (user == null) {
@@ -1282,7 +1299,7 @@ public class DatabaseChangelog2 {
         Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
         evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, cacheableRepositoryHelper);
 
-        Update update = new Update().set(PermissionGroup.Fields.assignedToUserIds, userIds);
+        Update update = new Update().set(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), userIds);
         mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
     }
 
@@ -1294,13 +1311,15 @@ public class DatabaseChangelog2 {
         Query query = new Query();
         query.addCriteria(new Criteria()
                 .andOperator(
-                        new Criteria(Theme.Fields.isSystemTheme).is(false), new Criteria(FieldName.DELETED).is(false)));
+                        new Criteria(fieldName(QTheme.theme.isSystemTheme)).is(false),
+                        new Criteria(FieldName.DELETED).is(false)));
 
         mongoTemplate.stream(query, Theme.class).forEach(theme -> {
             Query applicationQuery = new Query();
-            Criteria themeCriteria = new Criteria(Application.Fields.editModeThemeId)
+            Criteria themeCriteria = new Criteria(fieldName(QApplication.application.editModeThemeId))
                     .is(theme.getId())
-                    .orOperator(new Criteria(Application.Fields.publishedModeThemeId).is(theme.getId()));
+                    .orOperator(
+                            new Criteria(fieldName(QApplication.application.publishedModeThemeId)).is(theme.getId()));
 
             List<Application> applications =
                     mongoTemplate.find(applicationQuery.addCriteria(themeCriteria), Application.class);
@@ -1370,18 +1389,20 @@ public class DatabaseChangelog2 {
     public void addTenantAdminPermissionsToInstanceAdmin(
             MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
+        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query instanceConfigurationQuery = new Query();
-        instanceConfigurationQuery.addCriteria(where(Config.Fields.name).is(FieldName.INSTANCE_CONFIG));
+        instanceConfigurationQuery.addCriteria(
+                where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
         Config instanceAdminConfiguration = mongoTemplate.findOne(instanceConfigurationQuery, Config.class);
 
         String instanceAdminPermissionGroupId =
                 (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
 
         Query permissionGroupQuery = new Query();
-        permissionGroupQuery.addCriteria(where(PermissionGroup.Fields.id).is(instanceAdminPermissionGroupId));
+        permissionGroupQuery.addCriteria(
+                where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
 
         PermissionGroup instanceAdminPGBeforeChanges =
                 mongoTemplate.findOne(permissionGroupQuery, PermissionGroup.class);

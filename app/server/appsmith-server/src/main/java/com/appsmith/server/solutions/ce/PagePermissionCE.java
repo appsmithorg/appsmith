@@ -1,3 +1,9 @@
 package com.appsmith.server.solutions.ce;
 
-public interface PagePermissionCE extends ContextPermissionCE {}
+import com.appsmith.server.acl.AclPermission;
+
+public interface PagePermissionCE {
+    AclPermission getDeletePermission();
+
+    AclPermission getActionCreatePermission();
+}

@@ -234,7 +234,7 @@ describe("Chart Widget", () => {
 
     expect(mockCallback.mock.calls.length).toEqual(0);
     const el = await screen.findByText("1000");
-    await userEvent.click(el);
+    userEvent.click(el);
     expect(mockCallback.mock.calls.length).toEqual(1);
   });
 });

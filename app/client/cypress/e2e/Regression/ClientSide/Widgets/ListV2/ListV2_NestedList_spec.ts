@@ -154,7 +154,6 @@ describe(
     it("5. Verify Theme change", () => {
       agHelper.PressEscape();
       appSettings.OpenPaneAndChangeTheme("Pacific");
-      agHelper.WaitUntilToastDisappear("Theme Pacific applied");
       [0, 1, 2].forEach((index) => {
         agHelper.AssertAttribute(
           locators._listText,

@@ -572,14 +572,6 @@ class FilePickerWidget extends BaseWidget<
         const fileCount = this.props.selectedFiles?.length || 0;
 
         /**
-         * We use this.props.selectedFiles to restore the file list that has been read
-         */
-        const fileMap = this.props.selectedFiles!.reduce((acc, cur) => {
-          acc[cur.id] = cur.data;
-          return acc;
-        }, {});
-
-        /**
          * Once the file is removed we update the selectedFiles
          * with the current files present in the uppy's internal state
          */
@@ -588,7 +580,7 @@ class FilePickerWidget extends BaseWidget<
           .map((currentFile: UppyFile, index: number) => ({
             type: currentFile.type,
             id: currentFile.id,
-            data: fileMap[currentFile.id],
+            data: currentFile.data,
             name: currentFile.meta
               ? currentFile.meta.name
               : `File-${index + fileCount}`,

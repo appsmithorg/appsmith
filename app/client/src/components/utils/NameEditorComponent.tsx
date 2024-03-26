@@ -33,22 +33,6 @@ export const NameWrapper = styled.div<{ enableFontStyling?: boolean }>`
   font-weight: ${props.theme.typography.h3.fontWeight};
 }`
       : null}
-
-  & .t--action-name-edit-field, & .t--js-action-name-edit-field, & .t--module-instance-name-edit-field {
-    width: 100%;
-
-    & > span {
-      display: inline-block;
-    }
-  }
-
-  & > div > div:nth-child(2) {
-    width: calc(100% - 42px); // 32px icon width and 8px gap of flex
-  }
-
-  & > div > div:nth-child(2) > :first-child {
-    width: 100%;
-  }
 `;
 
 export const IconWrapper = styled.img`
@@ -62,6 +46,7 @@ export const IconBox = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  margin-right: 8px;
   flex-shrink: 0;
 `;
 

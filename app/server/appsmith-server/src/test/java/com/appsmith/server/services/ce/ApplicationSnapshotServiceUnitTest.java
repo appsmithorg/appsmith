@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactType;
+import com.appsmith.server.constants.ArtifactJsonType;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
@@ -13,7 +13,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exports.internal.ExportService;
-import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.imports.importable.ImportService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -90,7 +90,7 @@ public class ApplicationSnapshotServiceUnitTest {
                 .thenReturn(Mono.just(branchedAppId));
 
         Mockito.when(exportService.exportByArtifactId(
-                        branchedAppId, SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION))
+                        branchedAppId, SerialiseArtifactObjective.VERSION_CONTROL, ArtifactJsonType.APPLICATION))
                 .thenAnswer(getTypeSafeMockAnswer(applicationJson));
 
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))
@@ -276,8 +276,10 @@ public class ApplicationSnapshotServiceUnitTest {
                         eq(application.getWorkspaceId()),
                         eq("branched-app-id"),
                         eq("development"),
-                        argThat(applicationJson1 ->
-                                applicationJson1.getArtifact().getName().equals(application.getName()))))
+                        argThat(applicationJson1 -> applicationJson1
+                                .getExportableArtifact()
+                                .getName()
+                                .equals(application.getName()))))
                 .thenAnswer(getTypeSafeMockAnswer(application));
 
         // mock the delete spanshot to return an empty mono

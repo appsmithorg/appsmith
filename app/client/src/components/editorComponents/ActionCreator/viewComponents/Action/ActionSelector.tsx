@@ -79,7 +79,6 @@ const pathClassList = [
   "evaluated-value-popup",
   "subtree-container",
   "drag-handle-block",
-  "action-creator-create-new-modal",
 ];
 
 const isClassPresentInList = (path: any, className: string) =>

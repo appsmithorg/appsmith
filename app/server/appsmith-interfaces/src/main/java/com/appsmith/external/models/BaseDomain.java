@@ -4,11 +4,11 @@ import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import com.querydsl.core.annotations.QueryTransient;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
-import lombok.experimental.FieldNameConstants;
 import org.bson.types.ObjectId;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
@@ -31,7 +31,6 @@ import java.util.Set;
 @Getter
 @Setter
 @ToString
-@FieldNameConstants
 public abstract class BaseDomain implements Persistable<String>, AppsmithDomain, Serializable, Identifiable {
 
     private static final long serialVersionUID = 7459916000501322517L;
@@ -65,6 +64,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
      */
     @Deprecated(forRemoval = true)
     @JsonView(Views.Internal.class)
+    @QueryTransient
     @Getter(AccessLevel.NONE)
     @Setter(AccessLevel.NONE)
     protected Boolean deleted = false;
@@ -81,6 +81,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         return this.getId() == null;
     }
 
+    @QueryTransient
     @JsonView(Views.Internal.class)
     public boolean isDeleted() {
         return deletedAt != null;
@@ -129,6 +130,4 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         }
         this.setUpdatedAt(Instant.now());
     }
-
-    public static class Fields {}
 }

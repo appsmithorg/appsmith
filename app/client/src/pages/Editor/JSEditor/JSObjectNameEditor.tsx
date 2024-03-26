@@ -16,7 +16,7 @@ import {
 import EditableText, {
   EditInteractionKind,
 } from "components/editorComponents/EditableText";
-import { Flex, Spinner } from "design-system";
+import { Spinner } from "design-system";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import NameEditorComponent, {
   IconBox,
@@ -81,11 +81,11 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
         saveStatus: { isSaving: boolean; error: boolean };
       }) => (
         <NameWrapper enableFontStyling>
-          <Flex
-            alignItems="center"
-            gap="spaces-3"
-            overflow="hidden"
-            width="100%"
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+            }}
           >
             {currentPlugin && (
               <IconBox>
@@ -114,7 +114,7 @@ export function JSObjectNameEditor(props: JSObjectNameEditorProps) {
               valueTransform={removeSpecialChars}
             />
             {saveStatus.isSaving && <Spinner size="md" />}
-          </Flex>
+          </div>
         </NameWrapper>
       )}
     </NameEditorComponent>

@@ -186,7 +186,11 @@ const populateEvaluatedWidgetProperties = (
       evaluatedProperties.errors,
       path,
     );
-    getAndSetPath(evaluatedWidget, evaluatedProperties.evaluatedValues, path);
+    getAndSetPath(
+      evaluatedWidgetPath?.evaluatedValues,
+      evaluatedProperties.evaluatedValues,
+      path,
+    );
   });
 
   return evaluatedProperties;
@@ -331,6 +335,3 @@ export const getShouldFocusPanelPropertySearch = createSelector(
       .includes(widgetName);
   },
 );
-
-export const getShowCreateNewModal = (state: AppState) =>
-  state.ui.propertyPane.showCreateNewModal;

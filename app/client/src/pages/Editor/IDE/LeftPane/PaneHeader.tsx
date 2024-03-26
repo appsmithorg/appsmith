@@ -5,7 +5,6 @@ import { Text } from "design-system";
 interface Props {
   title: string;
   rightIcon?: React.ReactNode;
-  className?: string;
 }
 
 const Container = styled.div`
@@ -15,7 +14,6 @@ const Container = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-  height: 40px;
   span {
     line-height: 20px;
   }
@@ -23,7 +21,7 @@ const Container = styled.div`
 
 function PaneHeader(props: Props) {
   return (
-    <Container className={props.className}>
+    <Container>
       <Text kind="heading-xs">{props.title}</Text>
       {props.rightIcon ? props.rightIcon : null}
     </Container>

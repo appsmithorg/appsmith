@@ -31,10 +31,6 @@ import { getEvalErrorPath } from "utils/DynamicBindingUtils";
 import ConfigTreeActions from "utils/configTree";
 import { DATATREE_INTERNAL_KEYWORDS } from "constants/WidgetValidation";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
-import {
-  getCurrentWorkflowActions,
-  getCurrentWorkflowJSActions,
-} from "@appsmith/selectors/workflowSelectors";
 
 export const getLoadingEntities = (state: AppState) =>
   state.evaluations.loadingEntities;
@@ -58,21 +54,12 @@ const getLayoutSystemPayload = createSelector(
 const getCurrentActionEntities = createSelector(
   getCurrentActions,
   getCurrentModuleActions,
-  getCurrentWorkflowActions,
   getCurrentJSCollections,
   getCurrentModuleJSCollections,
-  getCurrentWorkflowJSActions,
-  (
-    actions,
-    moduleActions,
-    workflowActions,
-    jsActions,
-    moduleJSActions,
-    workflowJsActions,
-  ) => {
+  (actions, moduleActions, jsActions, moduleJSActions) => {
     return {
-      actions: [...actions, ...moduleActions, ...workflowActions],
-      jsActions: [...jsActions, ...moduleJSActions, ...workflowJsActions],
+      actions: [...actions, ...moduleActions],
+      jsActions: [...jsActions, ...moduleJSActions],
     };
   },
 );

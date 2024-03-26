@@ -110,7 +110,7 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
       inputClassName={getTypographyClassName("body")}
       isRequired={isRequired}
       label={label}
-      labelClassName={getTypographyClassName("caption")}
+      labelClassName={getTypographyClassName("body")}
       ref={ref}
       startIcon={renderStartIcon()}
       type={showPassword ? "text" : type}
