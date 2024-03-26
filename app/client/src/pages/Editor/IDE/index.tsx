@@ -2,10 +2,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 
 import BottomBar from "components/BottomBar";
-import {
-  combinedPreviewModeSelector,
-  previewModeSelector,
-} from "selectors/editorSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import EditorWrapperContainer from "../commons/EditorWrapperContainer";
 import Sidebar from "pages/Editor/IDE/Sidebar";
 import LeftPane from "./LeftPane";
@@ -18,7 +15,6 @@ import { tailwindLayers } from "constants/Layers";
  * OldName: MainContainer
  */
 function IDE() {
-  const isPreviewMode = useSelector(previewModeSelector);
   const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
 
   return (
@@ -47,7 +43,7 @@ function IDE() {
           <RightPane />
         </div>
       </EditorWrapperContainer>
-      <BottomBar viewMode={isPreviewMode} />
+      <BottomBar />
     </>
   );
 }
