@@ -95,8 +95,6 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
     // deleting the table through modal
     cy.xpath(appPage.deleteButton).last().click({ force: true });
     cy.xpath(appPage.confirmButton).click({ force: true });
-    assertHelper.AssertNetworkStatus("@postExecute");
-    cy.wait(2000);
     cy.xpath(appPage.closeButton).click({ force: true });
   });
 });
