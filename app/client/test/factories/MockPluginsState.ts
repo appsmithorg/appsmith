@@ -6,6 +6,7 @@ export const PluginIDs = {
   [PluginPackageName.REST_API]: "65e58df196506a506bd7069d",
   [PluginPackageName.MONGO]: "65e58df196506a506bd7069e",
   [PluginPackageName.GOOGLE_SHEETS]: "65e58df296506a506bd706a9",
+  [PluginPackageName.JS]: "65e58df296506a506bd706ad",
 };
 
 export default {
