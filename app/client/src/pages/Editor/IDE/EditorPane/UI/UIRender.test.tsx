@@ -11,8 +11,6 @@ import {
   buildChildren,
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
-import { mockGetCanvasWidgetDsl } from "test/testCommon";
-import * as utilities from "selectors/editorSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 const FeatureFlags = {
@@ -67,8 +65,6 @@ describe("IDE URL rendering: UI", () => {
 
   it("Selected widget in canvas: Render UI list state", async () => {
     const page = PageFactory.build();
-    const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
-    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
 
     const state = getIDETestState({
       pages: [page],

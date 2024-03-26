@@ -49,20 +49,10 @@ export const createCanvasWidget = (
     ...widgetStaticProps,
   } as any;
 
-  /*
-   * Widgets can ask for error info to be passed to them so they can show errors on the UI
-   */
-  const needsErrorInfo = WidgetFactory.getConfig(canvasWidget.type)
-    ?.needsErrorInfo;
-
-  widgetProps.errors = needsErrorInfo
-    ? widgetErrorsFromStaticProps(evaluatedStaticProps)
-    : [];
-
   return widgetProps;
 };
 
-function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
+export function widgetErrorsFromStaticProps(props: Record<string, unknown>) {
   /**
    * Evaluation Error Map
    * {
