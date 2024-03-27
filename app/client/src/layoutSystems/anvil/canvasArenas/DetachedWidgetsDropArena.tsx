@@ -32,7 +32,7 @@ export const DetachedWidgetsDropArena = (props: {
       layoutOrder: [props.anvilDragStates.mainCanvasLayoutId],
     });
   };
-  return (
+  return props.anvilDragStates.activateOverlayWidgetDrop ? (
     <span onMouseUp={onMouseUp}>
       <Modal
         isOpen={props.anvilDragStates.activateOverlayWidgetDrop}
@@ -44,5 +44,5 @@ export const DetachedWidgetsDropArena = (props: {
         </ModalContent>
       </Modal>
     </span>
-  );
+  ) : null;
 };
