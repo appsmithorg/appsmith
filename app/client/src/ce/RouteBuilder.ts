@@ -5,6 +5,7 @@ import {
   GEN_TEMPLATE_URL,
   getViewerCustomPath,
   getViewerPath,
+  NEW_PATH,
   TEMPLATES_PATH,
 } from "constants/routes";
 import { APP_MODE } from "entities/App";
@@ -159,6 +160,13 @@ export const widgetURL = (
     suffix: `widgets/${props.selectedWidgets.join(",")}${
       props.add ? ADD_PATH : ""
     }`,
+  });
+};
+
+export const newWidgetsURL = (props: URLBuilderParams) => {
+  return urlBuilder.build({
+    ...props,
+    suffix: "widgets" + NEW_PATH,
   });
 };
 

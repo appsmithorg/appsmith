@@ -16,6 +16,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
+import { useLocation } from "react-router";
+import { WIDGETS_EDITOR_NEW_PATH } from "constants/routes";
 
 function UIEntitySidebar({ isActive }: { isActive: boolean }) {
   const { cards, entityLoading, groupedCards } = useUIExplorerItems();
@@ -24,6 +26,7 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
   const searchInputRef = useRef<HTMLInputElement | null>(null);
   const [isSearching, setIsSearching] = useState(false);
   const [isEmpty, setIsEmpty] = useState(false);
+  const location = useLocation();
 
   const searchWildcards = useMemo(
     () =>
@@ -81,6 +84,12 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
     setFilteredCards(groupedCards);
   }, [groupedCards]);
 
+  useEffect(() => {
+    if (location.pathname.includes(WIDGETS_EDITOR_NEW_PATH)) {
+      searchInputRef.current?.focus();
+    }
+  }, [location.pathname]);
+
   return (
     <div
       className={`flex flex-col t--widget-sidebar overflow-hidden ${
@@ -90,7 +99,6 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
           autoComplete="off"
-          autoFocus
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
           placeholder="Search widgets"

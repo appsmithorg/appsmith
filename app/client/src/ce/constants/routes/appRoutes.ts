@@ -30,6 +30,7 @@ export const INTEGRATION_EDITOR_PATH = `/datasources/:selectedTab`;
 
 export const WIDGETS_EDITOR_BASE_PATH = `/widgets`;
 export const WIDGETS_EDITOR_ID_PATH = `${WIDGETS_EDITOR_BASE_PATH}/:widgetIds`;
+export const WIDGETS_EDITOR_NEW_PATH = `${WIDGETS_EDITOR_BASE_PATH}/new`;
 
 /*
  * CUSTOM WIDGET BUILDER PATHS
@@ -46,6 +47,7 @@ export const API_EDITOR_PATH_WITH_SELECTED_PAGE_ID = `${API_EDITOR_BASE_PATH}?im
 export const QUERIES_EDITOR_BASE_PATH = `/queries`;
 export const ADD_PATH = `/add`;
 export const LIST_PATH = "/list";
+export const NEW_PATH = "/new";
 
 export const ENTITY_PATH = "/:entity";
 export const QUERIES_EDITOR_ID_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId`;

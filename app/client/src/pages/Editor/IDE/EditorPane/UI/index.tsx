@@ -8,6 +8,7 @@ import {
   BUILDER_CUSTOM_PATH,
   BUILDER_PATH,
   BUILDER_PATH_DEPRECATED,
+  NEW_PATH,
   WIDGETS_EDITOR_BASE_PATH,
   WIDGETS_EDITOR_ID_PATH,
 } from "constants/routes";
@@ -33,6 +34,7 @@ const UISegment = () => {
             BUILDER_PATH,
             BUILDER_CUSTOM_PATH,
             `${path}${WIDGETS_EDITOR_ID_PATH}${ADD_PATH}`,
+            `${path}${WIDGETS_EDITOR_BASE_PATH}${NEW_PATH}`,
           ]}
         />
         <SentryRoute
