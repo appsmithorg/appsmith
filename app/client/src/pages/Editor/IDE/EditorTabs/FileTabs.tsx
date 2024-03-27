@@ -23,7 +23,7 @@ const FileTabs = (props: Props) => {
   const currentEntity = identifyEntityFromPath(location.pathname);
 
   return (
-    <Flex data-testid="t--editor-tabs" flex="1" gap="spaces-2" height="100%">
+    <Flex data-testid="t--editor-tabs" gap="spaces-2" height="100%">
       {tabs.map((tab: EntityItem) => (
         <StyledTab
           className={clsx(

@@ -2,7 +2,6 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 
-const dslWithServerSide = require("../../../../../fixtures/Listv2/listWithServerSideData.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const queryLocators = require("../../../../../locators/QueryEditor.json");
 
@@ -161,7 +160,7 @@ describe(
     });
 
     it("3. should reset page no if higher than max when switched from server side to client side", () => {
-      cy.addDsl(dslWithServerSide);
+      _.agHelper.AddDsl("Listv2/listWithServerSideData");
       // Open Datasource editor
       cy.wait(2000);
       _.dataSources.CreateDataSource("Postgres");

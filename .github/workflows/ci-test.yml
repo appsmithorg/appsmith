@@ -203,7 +203,9 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'
         uses: actions/cache@v4
         with:
-          path: app/client/.yarn/cache
+          path: |
+            app/client/.yarn/cache
+            app/client/node_modules/.cache/webpack/
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
           restore-keys: |
             v1-yarn3-

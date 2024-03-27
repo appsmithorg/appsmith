@@ -17,6 +17,8 @@ import { evaluateHiddenProperty } from "./helpers";
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import { getWidgetEnhancementSelector } from "selectors/widgetEnhancementSelectors";
 import equal from "fast-deep-equal/es6";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export interface PropertyControlsGeneratorProps {
   id: string;
@@ -29,11 +31,24 @@ export interface PropertyControlsGeneratorProps {
   searchQuery?: string;
 }
 
+export const shouldSectionBeExpanded = (
+  sectionConfig: PropertyPaneSectionConfig,
+  isFlagEnabled: boolean,
+) => {
+  if (isFlagEnabled && "expandedByDefault" in sectionConfig)
+    return !!sectionConfig.expandedByDefault;
+
+  if ("isDefaultOpen" in sectionConfig) return sectionConfig.isDefaultOpen;
+
+  return true;
+};
+
 const generatePropertyControl = (
   propertyPaneConfig: readonly PropertyPaneConfig[],
   props: PropertyControlsGeneratorProps,
   isSearchResult: boolean,
   enhancements: EnhancementFns,
+  isCollapseAllExceptDataEnabled: boolean,
 ) => {
   if (!propertyPaneConfig) return null;
   return propertyPaneConfig.map((config: PropertyPaneConfig) => {
@@ -46,7 +61,10 @@ const generatePropertyControl = (
           collapsible={sectionConfig.collapsible ?? true}
           hidden={sectionConfig.hidden}
           id={config.id || sectionConfig.sectionName}
-          isDefaultOpen={sectionConfig.isDefaultOpen}
+          isDefaultOpen={shouldSectionBeExpanded(
+            sectionConfig,
+            isCollapseAllExceptDataEnabled,
+          )}
           key={config.id + props.id}
           name={sectionConfig.sectionName}
           panelPropertyPath={props.panelPropertyPath}
@@ -59,6 +77,7 @@ const generatePropertyControl = (
               props,
               isSearchResult,
               enhancements,
+              isCollapseAllExceptDataEnabled,
             )}
         </PropertySection>
       );
@@ -81,6 +100,10 @@ const generatePropertyControl = (
 
 function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
   const widgetProps: any = useSelector(getWidgetPropsForPropertyPane);
+
+  const isCollapseAllExceptDataEnabled: boolean = useFeatureFlag(
+    FEATURE_FLAG.ab_learnability_discoverability_collapse_all_except_data_enabled,
+  );
 
   const enhancementSelector = getWidgetEnhancementSelector(
     widgetProps?.widgetId,
@@ -112,6 +135,7 @@ function PropertyControlsGenerator(props: PropertyControlsGeneratorProps) {
         props,
         isSearchResult,
         enhancements,
+        isCollapseAllExceptDataEnabled,
       )}
     </>
   );
