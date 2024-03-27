@@ -117,7 +117,7 @@ export function Command(props: {
       history.push(props.url, { invokedBy: NavigationMethod.SlashCommandHint });
       AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", props.eventParams || {});
     },
-    [props.url],
+    [props.url, props.eventParams],
   );
 
   return (
