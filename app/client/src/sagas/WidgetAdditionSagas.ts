@@ -631,12 +631,17 @@ export function* addBuildingBlockToApplication(
       yield put(pasteWidget(false, mousePosition));
       yield call(postPageAdditionSaga, applicationId);
 
-      // run all actions in the building block to populate the page with data
-      yield all(
-        response.data.onPageLoadActions.map(function* (action) {
-          yield put(runAction(action.id));
-        }),
-      );
+      // run all actions in the building block, if any, to populate the page with data
+      if (
+        response.data.onPageLoadActions &&
+        response.data.onPageLoadActions.length > 0
+      ) {
+        yield all(
+          response.data.onPageLoadActions.map(function* (action) {
+            yield put(runAction(action.id));
+          }),
+        );
+      }
 
       if (existingCopiedWidgets) {
         yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
