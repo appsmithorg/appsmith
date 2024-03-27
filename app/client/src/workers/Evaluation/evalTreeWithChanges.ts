@@ -62,10 +62,21 @@ export function evalTreeWithChanges(
     unevalTree = dataTreeEvaluator.getOldUnevalTree();
     configTree = dataTreeEvaluator.oldConfigTree;
   }
+  const allUnevalUpdates = unEvalUpdates.map(
+    (update) => update.payload.propertyPath,
+  );
+  const completeEvalOrder = [
+    ...updatedValuePaths.map((val) =>
+      val[1] === undefined ? val[0] : [val[0], val[1]].join("."),
+    ),
+    ...allUnevalUpdates,
+    ...evalOrder,
+  ];
 
   const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
     dataTreeEvaluator,
+    completeEvalOrder,
   );
   const evalTreeResponse: EvalTreeResponseData = {
     updates,
