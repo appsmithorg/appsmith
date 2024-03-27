@@ -37,18 +37,18 @@ interface NewActionButtonProps {
   isNewQuerySecondaryButton?: boolean;
 }
 
-export const isApiPluginInvalidUrl = (
+export const apiPluginHasUrl = (
   currentEnvironment: string,
   pluginType?: string,
   datasource?: Datasource,
 ) => {
+  if (pluginType !== PluginType.API) {
+    return false;
+  }
   return (
-    pluginType === PluginType.API &&
-    (!datasource ||
-      !datasource.datasourceStorages[currentEnvironment]
-        ?.datasourceConfiguration ||
-      !datasource.datasourceStorages[currentEnvironment]
-        ?.datasourceConfiguration?.url)
+    !datasource ||
+    !datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
+      ?.url
   );
 };
 
@@ -75,7 +75,7 @@ function NewActionButton(props: NewActionButtonProps) {
 
   const createQueryAction = useCallback(
     (pageId: string) => {
-      if (isApiPluginInvalidUrl(currentEnvironment, pluginType, datasource)) {
+      if (apiPluginHasUrl(currentEnvironment, pluginType, datasource)) {
         toast.show(ERROR_ADD_API_INVALID_URL(), {
           kind: "error",
         });
