@@ -109,6 +109,7 @@ export class DarkModeTheme implements ColorModeTheme {
       bdFocus: this.bdFocus.to("sRGB").toString(),
       bdNeutral: this.bdNeutral.to("sRGB").toString(),
       bdNeutralHover: this.bdNeutralHover.to("sRGB").toString(),
+      bdOnNeutralHover: this.bdOnNeutralHover.to("sRGB").toString(),
       bdPositive: this.bdPositive.to("sRGB").toString(),
       bdPositiveHover: this.bdPositiveHover.to("sRGB").toString(),
       bdNegative: this.bdNegative.to("sRGB").toString(),
@@ -957,6 +958,7 @@ export class DarkModeTheme implements ColorModeTheme {
 
   private get bdNeutral() {
     // Desatured version of the seed for harmonious combination with backgrounds and accents.
+    // Used in checkbox, radio button
     const color = this.bdAccent.clone();
 
     color.oklch.c = 0.012;
@@ -980,15 +982,15 @@ export class DarkModeTheme implements ColorModeTheme {
     const color = this.bdNeutral.clone();
 
     if (this.bdNeutral.oklch.l < 0.8) {
-      color.oklch.l += 0.05;
+      color.oklch.l += 0.15;
     }
 
     if (this.bdNeutral.oklch.l >= 0.8 && this.bdNeutral.oklch.l < 0.9) {
-      color.oklch.l += 0.01;
+      color.oklch.l += 0.1;
     }
 
     if (this.bdNeutral.oklch.l >= 0.9) {
-      color.oklch.l -= 0.35;
+      color.oklch.l -= 0.25;
     }
 
     return color;
@@ -1129,6 +1131,25 @@ export class DarkModeTheme implements ColorModeTheme {
 
     if (this.bgNeutral.oklch.l < 0.4) {
       color.oklch.l -= 0.36;
+    }
+
+    return color;
+  }
+
+  private get bdOnNeutralHover() {
+    // Outline on the input field shown on hover
+    const color = this.bdNeutral.clone();
+
+    if (this.bdNeutral.oklch.l < 0.8) {
+      color.oklch.l += 0.05;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.8 && this.bdNeutral.oklch.l < 0.9) {
+      color.oklch.l += 0.01;
+    }
+
+    if (this.bdNeutral.oklch.l >= 0.9) {
+      color.oklch.l -= 0.35;
     }
 
     return color;

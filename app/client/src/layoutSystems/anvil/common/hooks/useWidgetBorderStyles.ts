@@ -38,6 +38,7 @@ export function useWidgetBorderStyles(widgetId: string) {
   const canShowBorder = !shouldHideBorder && (isFocused || isSelected);
 
   return {
-    border: `2px solid ${canShowBorder ? borderColor : "transparent"}`,
+    outline: `2px solid ${canShowBorder ? borderColor : "transparent"}`,
+    outlineOffset: "4px",
   };
 }

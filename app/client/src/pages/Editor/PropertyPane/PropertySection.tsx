@@ -97,7 +97,7 @@ export const CollapseContext: Context<boolean> = createContext<boolean>(false);
 export const PropertySection = memo((props: PropertySectionProps) => {
   const dispatch = useDispatch();
   const currentWidgetId = useSelector(getCurrentWidgetId);
-  const { isDefaultOpen = true } = props;
+  const { isDefaultOpen } = props;
   const isContextOpen = useSelector((state: AppState) =>
     getPropertySectionState(state, {
       key: `${currentWidgetId}.${props.id}`,

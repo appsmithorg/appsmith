@@ -12,3 +12,10 @@ export const VALID_JS_OBJECT_BINDING_POSITION: Position = {
   line: 0,
   ch: JS_OBJECT_START_STATEMENT.length,
 };
+
+// For now we want to enable this functionality only for table and json widget for data property
+// In future we can modify this object for other widgets and props too
+export const SlashCommandMenuOnFocusWidgetProps: { [key: string]: string[] } = {
+  TABLE_WIDGET_V2: ["tableData"],
+  JSON_FORM_WIDGET: ["sourceData"],
+};
