@@ -17,7 +17,12 @@ const AddQuery = () => {
   const closeButtonClickHandler = useQueryAdd();
 
   return (
-    <Flex flexDirection="column" gap={"spaces-4"} overflow="hidden">
+    <Flex
+      data-testid="t--query-add-pane"
+      flexDirection="column"
+      gap={"spaces-4"}
+      overflow="hidden"
+    >
       <SegmentAddHeader
         onCloseClick={closeButtonClickHandler}
         titleMessage={EDITOR_PANE_TEXTS.query_create_tab_title}

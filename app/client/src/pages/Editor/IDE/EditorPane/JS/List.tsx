@@ -60,6 +60,7 @@ const ListJSObjects = () => {
         <Flex flexDirection="column" px="spaces-3">
           <Button
             className="t--add-item"
+            data-testid="t--js-object-add-btn"
             kind={"secondary"}
             onClick={addButtonClickHandler}
             size={"sm"}
@@ -76,6 +77,7 @@ const ListJSObjects = () => {
         parentEntityType={ActionParentEntityType.PAGE}
       >
         <Flex
+          data-testid="t--js-object-listing"
           flex="1"
           flexDirection="column"
           gap="spaces-4"

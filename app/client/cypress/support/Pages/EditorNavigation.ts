@@ -4,6 +4,7 @@ import ClickOptions = Cypress.ClickOptions;
 import { Sidebar } from "./IDE/Sidebar";
 import { LeftPane } from "./IDE/LeftPane";
 import PageList from "./PageList";
+import IDELocators from "../../locators/IdeLocators.json";
 
 export enum AppSidebarButton {
   Data = "Data",
@@ -17,6 +18,11 @@ export enum PagePaneSegment {
   UI = "UI",
   Queries = "Queries",
   JS = "JS",
+}
+
+export enum EditorViewMode {
+  FullScreen = "FullScreen",
+  SplitScreen = "SplitScreen",
 }
 
 const pagePaneListItemSelector = (name: string) =>
@@ -117,6 +123,14 @@ class EditorNavigation {
   ShowCanvas() {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.UI);
+  }
+
+  SwitchScreenMode(mode: EditorViewMode) {
+    if (mode === EditorViewMode.FullScreen) {
+      cy.selectByTestId(IDELocators.MaximizeBtn).click();
+    } else {
+      cy.selectByTestId(IDELocators.MinimizeBtn).click();
+    }
   }
 }
 
