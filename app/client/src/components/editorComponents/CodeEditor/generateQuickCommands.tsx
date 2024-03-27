@@ -115,10 +115,7 @@ export function Command(props: {
         url: props.url,
       });
       history.push(props.url, { invokedBy: NavigationMethod.SlashCommandHint });
-      AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", {
-        ...(props.eventParams || {}),
-        from: "Slash_Command_Hint",
-      });
+      AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", props.eventParams || {});
     },
     [props.url],
   );
@@ -230,7 +227,7 @@ export const generateQuickCommands = (
               pluginName: suggestion.pluginName || "",
               actionType: plugin?.type === PluginType.DB ? "Query" : "API",
               isMock: !!suggestion?.isMock,
-              from: NavigationMethod.CommandClick,
+              from: NavigationMethod.SlashCommandHint,
             }}
             icon={icon}
             name={data.displayText as string}
