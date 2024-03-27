@@ -4,7 +4,7 @@ import { intersection } from "lodash";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { QueryActionConfig } from "entities/Action";
 import type { DatasourceConfiguration } from "entities/Datasource";
-import type { DiffWithReferenceState } from "workers/Evaluation/helpers";
+import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
 import {
   EVALUATE_REDUX_ACTIONS,
   EVAL_AND_LINT_REDUX_ACTIONS,
@@ -57,8 +57,8 @@ export function shouldLog(action: ReduxAction<unknown>) {
 }
 
 export const setEvaluatedTree = (
-  updates: DiffWithReferenceState[],
-): ReduxAction<{ updates: DiffWithReferenceState[] }> => {
+  updates: DiffWithNewTreeState[],
+): ReduxAction<{ updates: DiffWithNewTreeState[] }> => {
   return {
     type: ReduxActionTypes.SET_EVALUATED_TREE,
     payload: { updates },

@@ -1,9 +1,9 @@
 import log from "loglevel";
-import type { DiffWithReferenceState } from "workers/Evaluation/helpers";
+import type { DiffWithNewTreeState } from "workers/Evaluation/helpers";
 
 export const parseUpdatesAndDeleteUndefinedUpdates = (
   updates: string,
-): DiffWithReferenceState[] => {
+): DiffWithNewTreeState[] => {
   let parsedUpdates = [];
   try {
     //Parse updates from a string
@@ -12,6 +12,7 @@ export const parseUpdatesAndDeleteUndefinedUpdates = (
     log.error("Failed to parse updates", e, updates);
     return [];
   }
+
   //delete all undefined properties from the state
   const { deleteUpdates, regularUpdates } = parsedUpdates.reduce(
     (acc: any, curr: any) => {

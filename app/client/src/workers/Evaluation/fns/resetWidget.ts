@@ -87,8 +87,6 @@ function resetWidgetMetaProperty(
   const oldUnEvalTree = dataTreeEvaluator.getOldUnevalTree();
   const configTree = dataTreeEvaluator.getConfigTree();
   const evalProps = dataTreeEvaluator.getEvalProps();
-  const evalPathsIdenticalToState =
-    dataTreeEvaluator.getEvalPathsIdenticalToState();
 
   const evaluatedEntity = evalTree[widget.widgetName];
   const evaluatedEntityConfig = configTree[
@@ -135,7 +133,6 @@ function resetWidgetMetaProperty(
           evalPropertyValue: finalValue,
           unEvalPropertyValue: expressionToEvaluate,
           evalProps,
-          evalPathsIdenticalToState,
         });
 
         evalMetaUpdates.push({

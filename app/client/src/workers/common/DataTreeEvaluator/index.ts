@@ -114,7 +114,6 @@ import {
 import { getFixedTimeDifference, replaceThisDotParams } from "./utils";
 import { isJSObjectFunction } from "workers/Evaluation/JSObject/utils";
 import {
-  setToEvalPathsIdenticalToState,
   validateActionProperty,
   validateAndParseWidgetProperty,
   validateWidgetProperty,
@@ -134,7 +133,6 @@ export interface EvalProps {
   [entityName: string]: DataTreeEvaluationProps;
 }
 
-export type EvalPathsIdenticalToState = Record<string, string>;
 export default class DataTreeEvaluator {
   dependencyMap: DependencyMap = new DependencyMap();
   sortedDependencies: SortedDependencies = [];
@@ -164,9 +162,6 @@ export default class DataTreeEvaluator {
    * Sanitized eval values and errors
    */
   evalProps: EvalProps = {};
-  //when attaching values to __evaluations__ segment of the state there are cases where this value is identical to the widget property
-  //in those cases do not it to the dataTree and update this map. The main thread can decompress these updates and we can minimise the data transfer
-  evalPathsIdenticalToState: EvalPathsIdenticalToState = {};
   undefinedEvalValuesMap: Record<string, boolean> = {};
 
   prevState = {};
@@ -187,9 +182,6 @@ export default class DataTreeEvaluator {
     this.widgetConfigMap = widgetConfigMap;
   }
 
-  getEvalPathsIdenticalToState(): EvalPathsIdenticalToState {
-    return this.evalPathsIdenticalToState || {};
-  }
   getEvalTree() {
     return this.evalTree;
   }
@@ -343,12 +335,11 @@ export default class DataTreeEvaluator {
     dataTree: DataTree,
     option: {
       evalProps: EvalProps;
-      evalPathsIdenticalToState: EvalPathsIdenticalToState;
     },
     configTree: ConfigTree,
   ) {
     const unParsedEvalTree = this.getUnParsedEvalTree();
-    const { evalPathsIdenticalToState, evalProps } = option;
+    const { evalProps } = option;
     for (const [entityName, entity] of Object.entries(dataTree)) {
       if (!isWidget(entity)) continue;
       const entityConfig = configTree[entityName] as WidgetEntityConfig;
@@ -363,32 +354,14 @@ export default class DataTreeEvaluator {
           get(entity, propertyPath),
         );
         // Pass it through parse
-        const { isValid, messages, parsed, transformed } =
-          validateWidgetProperty(validationConfig, value, entity, propertyPath);
+        const { isValid, messages, parsed } = validateWidgetProperty(
+          validationConfig,
+          value,
+          entity,
+          propertyPath,
+        );
 
         set(entity, propertyPath, parsed);
-
-        const evaluatedValue = isValid
-          ? parsed
-          : isUndefined(transformed)
-          ? value
-          : transformed;
-
-        const isParsedValueTheSame = parsed === evaluatedValue;
-
-        const evalPath = getEvalValuePath(fullPropertyPath, {
-          isPopulated: false,
-          fullPath: true,
-        });
-
-        setToEvalPathsIdenticalToState({
-          evalPath,
-          evalPathsIdenticalToState,
-          evalProps,
-          isParsedValueTheSame,
-          fullPropertyPath,
-          value: evaluatedValue,
-        });
 
         resetValidationErrorsForEntityProperty({
           evalProps,
@@ -442,7 +415,6 @@ export default class DataTreeEvaluator {
       evaluatedTree,
       {
         evalProps: this.evalProps,
-        evalPathsIdenticalToState: this.evalPathsIdenticalToState,
       },
       this.oldConfigTree,
     );
@@ -1096,7 +1068,6 @@ export default class DataTreeEvaluator {
               evalPropertyValue,
               unEvalPropertyValue,
               evalProps: this.evalProps,
-              evalPathsIdenticalToState: this.evalPathsIdenticalToState,
             });
 
             parsedValue = this.getParsedValueForWidgetProperty({
@@ -1155,16 +1126,6 @@ export default class DataTreeEvaluator {
 
             if (!propertyPath) continue;
 
-            const evalPath = getEvalValuePath(fullPropertyPath);
-            setToEvalPathsIdenticalToState({
-              evalPath,
-              evalPathsIdenticalToState: this.evalPathsIdenticalToState,
-              evalProps: this.evalProps,
-              isParsedValueTheSame: true,
-              fullPropertyPath,
-              value: evalPropertyValue,
-            });
-
             /**
              * Perf optimization very specific to handling actions
              * Fields like Api1.data doesn't get evaluated since it is not in dynamicBindingPathList
@@ -1206,35 +1167,11 @@ export default class DataTreeEvaluator {
               ? prevEvaluatedValue
               : evalPropertyValue;
 
-            const evalPath = getEvalValuePath(fullPropertyPath, {
-              isPopulated: true,
-              //what is the purpose of this argument
-              fullPath: true,
-            });
-
             /** Variables defined in a JS object are not reactive.
              * Their evaluated values need to be reset only when the variable is modified by the user.
              * When uneval value of a js variable hasn't changed, it means that the previously evaluated values are in both trees already  */
-            if (skipVariableValueAssignment) {
-              setToEvalPathsIdenticalToState({
-                evalPath,
-                evalPathsIdenticalToState: this.evalPathsIdenticalToState,
-                evalProps: this.evalProps,
-                isParsedValueTheSame: true,
-                fullPropertyPath,
-                value: evalValue,
-              });
-            } else {
+            if (!skipVariableValueAssignment) {
               const valueForSafeTree = klona(evalValue);
-              setToEvalPathsIdenticalToState({
-                evalPath,
-                evalPathsIdenticalToState: this.evalPathsIdenticalToState,
-                evalProps: this.evalProps,
-                isParsedValueTheSame: true,
-                fullPropertyPath,
-                value: valueForSafeTree,
-              });
-
               set(contextTree, fullPropertyPath, evalValue);
               set(safeTree, fullPropertyPath, valueForSafeTree);
               JSObjectCollection.setVariableValue(evalValue, fullPropertyPath);
