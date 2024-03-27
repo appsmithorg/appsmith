@@ -23,7 +23,7 @@ import {
   take,
   takeEvery,
 } from "redux-saga/effects";
-import { findIndex, flatten, get, isEmpty, isMatch, set } from "lodash";
+import { findIndex, get, isEmpty, isMatch, set } from "lodash";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import {
   getAction,
@@ -35,21 +35,9 @@ import type { Action } from "entities/Action";
 import { PluginType } from "entities/Action";
 import type { JSCollection } from "entities/JSCollection";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
-import {
-  getConfigTree,
-  getDataTree,
-  getEvaluationInverseDependencyMap,
-} from "selectors/dataTreeSelectors";
-import {
-  createLogTitleString,
-  getDependencyChain,
-} from "components/editorComponents/Debugger/helpers";
-import {
-  ACTION_CONFIGURATION_UPDATED,
-  createMessage,
-  WIDGET_PROPERTIES_UPDATED,
-} from "@appsmith/constants/messages";
+import type { ConfigTree } from "entities/DataTree/dataTreeTypes";
+import { getConfigTree } from "selectors/dataTreeSelectors";
+import { createLogTitleString } from "components/editorComponents/Debugger/helpers";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
 import AnalyticsUtil, { AnalyticsEventType } from "utils/AnalyticsUtil";
@@ -57,18 +45,9 @@ import type { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
 import * as log from "loglevel";
-import type { DependencyMap } from "utils/DynamicBindingUtils";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
-import {
-  getEntityNameAndPropertyPath,
-  isAction,
-  isWidget,
-} from "@appsmith/workers/Evaluation/evaluationUtils";
+import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
-import type {
-  ActionEntity,
-  WidgetEntity,
-} from "@appsmith/entities/DataTree/types";
 import { getActiveEditorField } from "selectors/activeEditorFieldSelectors";
 
 let blockedSource: string | null = null;
@@ -175,78 +154,6 @@ function* onEntityDeleteSaga(payload: Log[]) {
   yield put(debuggerLog(sortedLogs.withSource));
 }
 
-function getLogsFromDependencyChain(
-  dependencyChain: string[],
-  payload: Log,
-  dataTree: DataTree,
-) {
-  return dependencyChain.map((path) => {
-    const entityInfo = getEntityNameAndPropertyPath(path);
-    const entity = dataTree[entityInfo.entityName];
-    let log = {
-      ...payload,
-      state: {
-        [entityInfo.propertyPath]: get(dataTree, path),
-      },
-    };
-
-    if (isAction(entity)) {
-      const actionEntity = entity as ActionEntity;
-      log = {
-        ...log,
-        text: createMessage(ACTION_CONFIGURATION_UPDATED),
-        source: {
-          type: ENTITY_TYPE.ACTION,
-          name: entityInfo.entityName,
-          id: actionEntity.actionId,
-        },
-      };
-    } else if (isWidget(entity)) {
-      const widgetEntity = entity as WidgetEntity;
-      log = {
-        ...log,
-        text: createMessage(WIDGET_PROPERTIES_UPDATED),
-        source: {
-          type: ENTITY_TYPE.WIDGET,
-          name: entityInfo.entityName,
-          id: widgetEntity.widgetId,
-        },
-      };
-    }
-
-    return log;
-  });
-}
-
-function* logDependentEntityProperties(payload: Log[]) {
-  const validLogs = payload.filter((log) => log.state && log.source);
-  if (isEmpty(validLogs)) return;
-
-  yield take(ReduxActionTypes.SET_EVALUATED_TREE);
-  const dataTree: DataTree = yield select(getDataTree);
-  const inverseDependencyMap: DependencyMap = yield select(
-    getEvaluationInverseDependencyMap,
-  );
-  const finalPayload: Log[][] = [];
-
-  for (const log of validLogs) {
-    const propertyPath = `${log.source?.name}.` + log.source?.propertyPath;
-    const dependencyChain = getDependencyChain(
-      propertyPath,
-      inverseDependencyMap,
-    );
-    const payloadValue = getLogsFromDependencyChain(
-      dependencyChain,
-      log,
-      dataTree,
-    );
-    finalPayload.push(payloadValue);
-  }
-
-  //logging them all at once rather than updating them individually
-  yield put(debuggerLog(flatten(finalPayload)));
-}
-
 function* onTriggerPropertyUpdates(payload: Log[]) {
   const configTree: ConfigTree = yield select(getConfigTree);
   const validLogs = payload.filter(
@@ -307,16 +214,10 @@ function* debuggerLogSaga(action: ReduxAction<Log[]>) {
     const payload = sortedLogs[item];
     switch (logType) {
       case LOG_TYPE.WIDGET_UPDATE:
-        yield put(debuggerLog(payload));
-        yield call(logDependentEntityProperties, payload);
         yield call(onTriggerPropertyUpdates, payload);
         return;
       case LOG_TYPE.ACTION_UPDATE:
-        yield put(debuggerLog(payload));
-        yield call(logDependentEntityProperties, payload);
-        return;
       case LOG_TYPE.JS_ACTION_UPDATE:
-        yield put(debuggerLog(payload));
         return;
       case LOG_TYPE.JS_PARSE_ERROR:
         yield put(addErrorLogs(payload));

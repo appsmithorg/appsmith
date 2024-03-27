@@ -9769,7 +9769,7 @@ export const defaultAppState = {
               },
               {
                 label: "Use Prepared Statement",
-                info: "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+                info: "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
                 configProperty:
                   "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 controlType: "SWITCH",
@@ -10085,7 +10085,7 @@ export const defaultAppState = {
               {
                 label: "Use Prepared Statement",
                 subtitle:
-                  "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+                  "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
                 configProperty:
                   "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 controlType: "SWITCH",

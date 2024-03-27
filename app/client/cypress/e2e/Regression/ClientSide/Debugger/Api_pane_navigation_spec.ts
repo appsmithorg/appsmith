@@ -58,23 +58,5 @@ describe(
         entityType: entityItems.Api,
       });
     });
-
-    it("3. Navigation to a grapql settings field", () => {
-      apiPage.CreateGraphqlApi("Api3");
-      apiPage.SelectPaneTab("Settings");
-      dataSources.SetQueryTimeout(20000, "API");
-
-      apiPage.SelectPaneTab("Pagination");
-      EditorNavigation.ShowCanvas();
-      // The Debugger should already be open here as it was opened before
-      debuggerHelper.ClickLogsTab();
-      debuggerHelper.ClicklogEntityLink(true);
-
-      agHelper.AssertElementVisibility(dataSources._queryTimeout);
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Api3",
-        entityType: entityItems.Api,
-      });
-    });
   },
 );
