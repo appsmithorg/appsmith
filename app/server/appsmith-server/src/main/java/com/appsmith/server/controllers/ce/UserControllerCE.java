@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -161,10 +162,8 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
 
     @JsonView(Views.Public.class)
     @GetMapping("/me")
-    public Mono<ResponseDTO<UserProfileDTO>> getUserProfile() {
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap(service::buildUserProfileDTO)
+    public Mono<ResponseDTO<UserProfileDTO>> getUserProfile(@AuthenticationPrincipal User user) {
+        return service.buildUserProfileDTO(user)
                 .map(profile -> new ResponseDTO<>(HttpStatus.OK.value(), profile, null));
     }
 
@@ -172,16 +171,18 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
      * This function creates an invite for new users to join an Appsmith workspace. We require the Origin header
      * in order to construct client facing URLs that will be sent to the users via email.
      *
-     * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith workspace
+     * @param inviteUsersDTO The inviteUserDto object for the new users being invited to the Appsmith workspace and the captcha details
      * @param originHeader   Origin header in the request
      * @return List of new users who have been created/existing users who have been added to the workspace.
      */
     @JsonView(Views.Public.class)
     @PostMapping("/invite")
     public Mono<ResponseDTO<List<User>>> inviteUsers(
-            @RequestBody InviteUsersDTO inviteUsersDTO, @RequestHeader("Origin") String originHeader) {
+            @RequestBody InviteUsersDTO inviteUsersDTO,
+            @RequestHeader("Origin") String originHeader,
+            @RequestParam(required = false) String recaptchaToken) {
         return userAndAccessManagementService
-                .inviteUsers(inviteUsersDTO, originHeader)
+                .inviteUsers(inviteUsersDTO, originHeader, recaptchaToken)
                 .map(users -> new ResponseDTO<>(HttpStatus.OK.value(), users, null));
     }
 

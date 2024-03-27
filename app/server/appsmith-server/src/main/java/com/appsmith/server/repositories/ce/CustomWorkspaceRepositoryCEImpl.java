@@ -10,13 +10,15 @@ import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Workspace>
@@ -41,11 +43,9 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public List<Workspace> findByIdsIn(
             Set<String> workspaceIds, String tenantId, AclPermission aclPermission, Sort sort) {
-        Criteria workspaceIdCriteria = where(Workspace.Fields.id).in(workspaceIds);
-        Criteria tenantIdCriteria = where(Workspace.Fields.tenantId).is(tenantId);
-
         return queryBuilder()
-                .criteria(workspaceIdCriteria, tenantIdCriteria)
+                .criteria(Bridge.<Workspace>in(Workspace.Fields.id, workspaceIds)
+                        .equal(Workspace.Fields.tenantId, tenantId))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
@@ -53,24 +53,9 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<Workspace> findAll(AclPermission permission) {
-        final User user =
-                Objects.requireNonNull(sessionUserService.getCurrentUser().block());
-        return queryBuilder()
+        return sessionUserService.getCurrentUser().flatMapMany(user -> queryBuilder()
                 .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
                 .permission(permission)
-                .all();
-    }
-
-    @Override
-    public Optional<Workspace> findByIdAndPluginsPluginId(String id, String pluginId) {
-        return queryBuilder()
-                .criteria((root, cq, cb) -> cb.and(
-                        cb.equal(root.get(Workspace.Fields.id), id),
-                        cb.isTrue(cb.function(
-                                "jsonb_path_exists",
-                                Boolean.class,
-                                root.get(Workspace.Fields.plugins),
-                                cb.literal("$[*] ? (@.pluginId == \"" + pluginId + "\")")))))
-                .one();
+                .all());
     }
 }

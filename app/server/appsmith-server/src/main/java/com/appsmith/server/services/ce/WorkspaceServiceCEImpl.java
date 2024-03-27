@@ -592,7 +592,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Flux<Workspace> getAll() {
-        return repository.findAllWorkspaces();
+        return repository.findAll();
     }
 
     @Override

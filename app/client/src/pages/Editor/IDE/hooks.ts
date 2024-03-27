@@ -186,9 +186,7 @@ export const useGetPageFocusUrl = (pageId: string): string => {
       return;
     }
 
-    const segment =
-      Object.values(editorState)[0].state?.SelectedSegment ||
-      EditorEntityTab.UI;
+    const segment = Object.values(editorState)[0].state?.SelectedSegment;
 
     switch (segment) {
       case EditorEntityTab.UI:
@@ -200,6 +198,8 @@ export const useGetPageFocusUrl = (pageId: string): string => {
       case EditorEntityTab.QUERIES:
         setFocusPageUrl(queryListURL({ pageId: pageId }));
         break;
+      default:
+        setFocusPageUrl(widgetListURL({ pageId: pageId }));
     }
   }, [focusInfo, branch]);
 

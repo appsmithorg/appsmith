@@ -1013,6 +1013,7 @@ export function* runActionSaga(
   }
 }
 
+// This gets called for "onPageLoad" JS actions
 function* executeOnPageLoadJSAction(pageAction: PageAction) {
   const collectionId: string = pageAction.collectionId || "";
   const pageId: string | undefined = yield select(getCurrentPageId);
@@ -1084,6 +1085,7 @@ function* executeOnPageLoadJSAction(pageAction: PageAction) {
       action: jsAction,
       collection,
       isExecuteJSFunc: true,
+      onPageLoad: true,
     };
 
     yield call(handleExecuteJSFunctionSaga, data);

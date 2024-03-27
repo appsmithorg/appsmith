@@ -14,7 +14,7 @@ import { inlineLabelStyles } from "../../../styles";
 export type RadioProps = HeadlessRadioProps;
 
 const _Radio = (props: RadioProps, ref: HeadlessRadioRef) => {
-  const { children, labelPosition = "right", ...rest } = props;
+  const { children, labelPosition = "end", ...rest } = props;
 
   return (
     <HeadlessRadio

@@ -12,13 +12,9 @@ public interface CustomDatasourceRepositoryCE extends AppsmithRepository<Datasou
 
     List<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission);
 
-    List<Datasource> findAllByWorkspaceId(String workspaceId, Optional<AclPermission> permission);
-
     Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission aclPermission);
 
-    Optional<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
-
-    List<Datasource> findAllByIds(Set<String> ids, AclPermission permission);
+    Optional<Datasource> findById(String id, AclPermission aclPermission);
 
     List<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields);
 }

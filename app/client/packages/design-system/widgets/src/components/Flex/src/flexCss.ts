@@ -138,6 +138,9 @@ export const flexWrapValue = (value: FlexCssProps["wrap"]) => {
   return value;
 };
 
+const sizingRegexp = new RegExp("^sizing");
+const spacingRegexp = new RegExp("^spacing");
+
 const cssVarValue = (
   value: CssVarValues,
   extraProps?: Pick<FlexProps, "isInner">,
@@ -146,15 +149,15 @@ const cssVarValue = (
 
   if (value == null) return;
 
-  if ((value as string).includes("sizing")) {
+  if (sizingRegexp.test(value as string)) {
     return `var(--${value})`;
   }
 
-  if ((value as string).includes("spacing") && !isInner) {
+  if (spacingRegexp.test(value as string) && !isInner) {
     return `var(--outer-${value})`;
   }
 
-  if ((value as string).includes("spacing") && isInner) {
+  if (spacingRegexp.test(value as string) && isInner) {
     return `var(--inner-${value})`;
   }
 

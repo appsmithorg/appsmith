@@ -9,17 +9,22 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.ReactiveMongoOperations;
+import org.springframework.data.mongodb.core.convert.MongoConverter;
+import org.springframework.data.mongodb.core.query.Update;
+import reactor.core.publisher.Flux;
+import reactor.core.publisher.Mono;
 
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<PermissionGroup>
         implements CustomPermissionGroupRepositoryCE {
@@ -38,6 +43,16 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission) {
+        BridgeQuery<PermissionGroup> assignedToUserIdCriteria =
+                Bridge.in(PermissionGroup.Fields.assignedToUserIds, List.of(userId));
+
+        BridgeQuery<PermissionGroup> defaultWorkspaceIdCriteria =
+                Bridge.equal(PermissionGroup.Fields.defaultDomainId, workspaceId);
+
+        BridgeQuery<PermissionGroup> defaultDomainTypeCriteria =
+                Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
+
+        // TODO(Shri): Why manual spec function here?
         return queryBuilder()
                 .criteria((root, cq, cb) -> cb.and(
                         cb.isTrue(cb.function(
@@ -63,6 +78,10 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
+        BridgeQuery<PermissionGroup> defaultWorkspaceIdCriteria =
+                Bridge.equal(PermissionGroup.Fields.defaultDomainId, workspaceId);
+        BridgeQuery<PermissionGroup> defaultDomainTypeCriteria =
+                Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
         return queryBuilder()
                 .criteria(Bridge.equal(PermissionGroup.Fields.defaultDomainId, workspaceId)
                         .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName()))
@@ -72,6 +91,10 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public List<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
+        BridgeQuery<PermissionGroup> defaultWorkspaceIdCriteria =
+                Bridge.in(PermissionGroup.Fields.defaultDomainId, workspaceIds);
+        BridgeQuery<PermissionGroup> defaultDomainTypeCriteria =
+                Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
         return queryBuilder()
                 .criteria(Bridge.query()
                         .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName())
@@ -105,8 +128,8 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findAllByAssignedToUserIn(
             Set<String> userIds, Optional<List<String>> includeFields, Optional<AclPermission> permission) {
-        Criteria assignedToUserIdCriteria =
-                where(PermissionGroup.Fields.assignedToUserIds).in(userIds);
+        BridgeQuery<PermissionGroup> assignedToUserIdCriteria =
+                Bridge.in(PermissionGroup.Fields.assignedToUserIds, userIds);
         return queryBuilder()
                 .criteria(assignedToUserIdCriteria)
                 .fields(includeFields.orElse(null))

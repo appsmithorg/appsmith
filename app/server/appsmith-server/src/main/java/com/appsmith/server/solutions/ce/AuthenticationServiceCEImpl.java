@@ -23,6 +23,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
@@ -30,6 +31,7 @@ import com.appsmith.server.dtos.IntegrationDTO;
 import com.appsmith.server.dtos.RequestAppsmithTokenDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.InstanceConfigHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -42,12 +44,14 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
@@ -92,6 +96,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private final PagePermission pagePermission;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final DatasourceStorageService datasourceStorageService;
+    private final InstanceConfigHelper instanceConfigHelper;
     private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
     private static final String ACCESS_TOKEN_KEY = "access_token";
 
@@ -422,19 +427,55 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                             integrationDTO, context, requestAppsmithTokenDTO.getContextType()));
                         }))
                 .flatMap(integrationDTO -> {
-                    return WebClientUtils.create(
+                    Mono<ClientResponse> clientResponseMono = WebClientUtils.create(
                                     cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/appsmith")
                             .method(HttpMethod.POST)
                             .body(BodyInserters.fromValue(integrationDTO))
-                            .exchange()
+                            .exchange();
+
+                    return clientResponseMono
                             .flatMap(response -> {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     return response.bodyToMono(Map.class);
                                 } else {
-                                    log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.AUTHENTICATION_FAILURE,
-                                            "Unable to retrieve appsmith token with error " + response.statusCode()));
+                                    if (response.statusCode().equals(HttpStatus.FORBIDDEN)) {
+                                        // Instance is not registered with CS, hence re-registering it
+                                        Mono<? extends Config> registerInstanceMono =
+                                                instanceConfigHelper.registerInstance();
+                                        return registerInstanceMono
+                                                .flatMap(config -> clientResponseMono.flatMap(res -> {
+                                                    if (res.statusCode().is2xxSuccessful()) {
+                                                        // After re-registering the instance, the appsmith token request
+                                                        // is successful
+                                                        return res.bodyToMono(Map.class);
+                                                    } else {
+                                                        // After re-registering the instance, the appsmith token request
+                                                        // has failed
+                                                        log.debug(
+                                                                "Unable to retrieve appsmith token with error {}",
+                                                                res.statusCode());
+                                                        return Mono.error(new AppsmithException(
+                                                                AppsmithError.AUTHENTICATION_FAILURE,
+                                                                "Unable to retrieve appsmith token with error "
+                                                                        + res.statusCode()));
+                                                    }
+                                                }))
+                                                .onErrorResume(e -> {
+                                                    log.error("Error while registering instance", e.getMessage());
+                                                    return Mono.error(new AppsmithException(
+                                                            AppsmithError.AUTHENTICATION_FAILURE,
+                                                            "Appsmith Instance Not Registered with Cloud Services "
+                                                                    + response.statusCode()));
+                                                });
+                                    } else {
+                                        log.debug(
+                                                "Unable to retrieve appsmith token with error {}",
+                                                response.statusCode());
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.AUTHENTICATION_FAILURE,
+                                                "Unable to retrieve appsmith token with error "
+                                                        + response.statusCode()));
+                                    }
                                 }
                             })
                             .map(body -> String.valueOf(body.get("data")))

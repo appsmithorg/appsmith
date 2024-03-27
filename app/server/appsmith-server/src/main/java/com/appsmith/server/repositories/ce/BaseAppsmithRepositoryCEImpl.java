@@ -34,6 +34,10 @@ import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
+import com.mongodb.client.model.UpdateOneModel;
+import com.mongodb.client.model.WriteModel;
 import lombok.NonNull;
 import lombok.SneakyThrows;
 import org.hibernate.annotations.Type;
@@ -102,27 +106,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
     }
 
-    public static String fieldName(Path<?> path) {
-        return Optional.ofNullable(path).map(p -> p.getMetadata().getName()).orElse("");
-    }
-
-    public static String completeFieldName(@NotNull Path<?> path) {
-        StringBuilder sb = new StringBuilder();
-
-        while (!path.getMetadata().isRoot()) {
-            sb.insert(0, "." + fieldName(path));
-            path = path.getMetadata().getParent();
-        }
-        sb.deleteCharAt(0);
-        return sb.toString();
-    }
-
     public static <T extends BaseDomain> BridgeQuery<T> notDeleted() {
-        return Bridge.and(
-                // Older check for deleted
-                // Bridge.or(Bridge.notExists(FieldName.DELETED), Bridge.isFalse(FieldName.DELETED)),
-                // New check for deleted
-                Bridge.isNull(FieldName.DELETED_AT));
+        return Bridge.isNull(FieldName.DELETED_AT);
     }
 
     public static Criteria userAcl(Set<String> permissionGroups, AclPermission permission) {

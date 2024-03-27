@@ -20,8 +20,8 @@ import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/JS/BlankStateCo
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
-import { getJSUrl } from "./utils";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
+import { getJSUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);

@@ -195,7 +195,7 @@ Cypress.Commands.add("EnterSourceDetailsWithbody", (baseUrl, v1method) => {
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   dataSources.NavigateToDSCreateNew();
-  cy.get(apiwidget.createapi).click({ force: true });
+  agHelper.GetNClick(apiwidget.createapi);
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
@@ -270,7 +270,7 @@ Cypress.Commands.add("RenameEntity", (value, selectFirst) => {
 
 Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
   dataSources.NavigateToDSCreateNew();
-  cy.get(apiwidget.createapi).click({ force: true });
+  agHelper.GetNClick(apiwidget.createapi);
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
   cy.get(apiwidget.ApiName).click({ force: true });
@@ -347,7 +347,7 @@ Cypress.Commands.add("DeleteAPI", () => {
 });
 
 Cypress.Commands.add("testCreateApiButton", () => {
-  cy.get(ApiEditor.createBlankApiCard).click({ force: true });
+  agHelper.GetNClick(ApiEditor.createBlankApiCard);
   cy.wait("@createNewApi");
   cy.get("@createNewApi")
     .its("response.body.responseMeta.status")

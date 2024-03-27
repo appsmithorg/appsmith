@@ -17,7 +17,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -39,7 +38,7 @@ public class DatasourceForkableServiceCEImpl implements ForkableServiceCE<Dataso
 
     @Override
     public Flux<Datasource> getExistingEntitiesInTarget(String targetWorkspaceId) {
-        return datasourceService.getAllByWorkspaceIdWithStorages(targetWorkspaceId, Optional.empty());
+        return datasourceService.getAllByWorkspaceIdWithStorages(targetWorkspaceId, null);
     }
 
     @Override

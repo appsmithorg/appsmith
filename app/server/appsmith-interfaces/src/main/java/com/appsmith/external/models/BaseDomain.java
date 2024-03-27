@@ -14,6 +14,7 @@ import jakarta.persistence.MappedSuperclass;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.PreUpdate;
 import jakarta.persistence.Transient;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -64,6 +65,18 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Public.class)
     protected String modifiedBy;
 
+    /** @deprecated to rely only on `deletedAt` for all domain models.
+     * This field only exists here because its removal will cause a huge diff on all entities in git-connected
+     * applications. So, instead, we keep it, deprecated, query-transient (no corresponding field in Q* class),
+     * no getter/setter methods and only use it for reflection-powered services, like the git sync
+     * implementation. For all other practical purposes, this field doesn't exist.
+     */
+    @Deprecated(forRemoval = true)
+    @JsonView(Views.Internal.class)
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
+    protected transient Boolean deleted = false;
+
     @JsonView(Views.Public.class)
     protected Instant deletedAt = null;
 
@@ -83,7 +96,6 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
         return this.getId() == null;
     }
 
-    @QueryTransient
     @JsonView(Views.Internal.class)
     public boolean isDeleted() {
         return deletedAt != null;

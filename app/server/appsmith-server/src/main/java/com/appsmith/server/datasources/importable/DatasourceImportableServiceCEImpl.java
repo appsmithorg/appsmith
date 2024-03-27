@@ -37,7 +37,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
@@ -87,7 +86,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
             ArtifactExchangeJson artifactExchangeJson) {
         return workspaceMono.flatMap(workspace -> {
             final Flux<Datasource> existingDatasourceFlux = datasourceService
-                    .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.empty())
+                    .getAllByWorkspaceIdWithStorages(workspace.getId(), null)
                     .cache();
 
             Mono<List<Datasource>> existingDatasourceMono =
@@ -307,7 +306,7 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
                     datasourceStorage.setEnvironmentId(environmentId);
 
                     return datasourceService
-                            .findByNameAndWorkspaceId(datasourceStorage.getName(), workspace.getId(), Optional.empty())
+                            .findByNameAndWorkspaceId(datasourceStorage.getName(), workspace.getId(), null)
                             .flatMap(duplicateNameDatasource ->
                                     getUniqueSuffixForDuplicateNameEntity(duplicateNameDatasource, workspace.getId()))
                             .map(dsName -> {
@@ -385,6 +384,6 @@ public class DatasourceImportableServiceCEImpl implements ImportableServiceCE<Da
 
     @Override
     public Flux<Datasource> getEntitiesPresentInWorkspace(String workspaceId) {
-        return datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, Optional.empty());
+        return datasourceService.getAllByWorkspaceIdWithStorages(workspaceId, null);
     }
 }

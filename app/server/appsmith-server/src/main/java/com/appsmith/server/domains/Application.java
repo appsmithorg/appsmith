@@ -7,7 +7,6 @@ import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import com.querydsl.core.annotations.QueryEntity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
@@ -32,12 +31,12 @@ import java.util.Set;
 import static com.appsmith.server.constants.ResourceModes.EDIT;
 import static com.appsmith.server.constants.ResourceModes.VIEW;
 import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
+import static com.appsmith.server.helpers.StringUtils.dotted;
 
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-@QueryEntity
 @Entity
 @FieldNameConstants
 public class Application extends BaseDomain implements Artifact {
@@ -503,14 +502,14 @@ public class Application extends BaseDomain implements Artifact {
 
     public static class Fields extends BaseDomain.Fields {
         public static final String gitApplicationMetadata_gitAuth =
-                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.gitAuth;
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.gitAuth);
         public static final String gitApplicationMetadata_defaultApplicationId =
-                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.defaultApplicationId;
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.defaultApplicationId);
         public static final String gitApplicationMetadata_branchName =
-                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.branchName;
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.branchName);
         public static final String gitApplicationMetadata_isRepoPrivate =
-                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.isRepoPrivate;
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isRepoPrivate);
         public static final String gitApplicationMetadata_isProtectedBranch =
-                gitApplicationMetadata + "." + GitArtifactMetadata.Fields.isProtectedBranch;
+                dotted(gitApplicationMetadata, GitArtifactMetadata.Fields.isProtectedBranch);
     }
 }

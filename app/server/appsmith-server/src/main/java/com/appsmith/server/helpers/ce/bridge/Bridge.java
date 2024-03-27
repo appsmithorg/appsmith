@@ -35,6 +35,10 @@ public class Bridge {
         return Bridge.<T>query().equal(key, value);
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull int value) {
+        return Bridge.<T>query().equal(key, value);
+    }
+
     private static <T extends BaseDomain> BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
         return Bridge.<T>query().notEqual(key, value);
     }
