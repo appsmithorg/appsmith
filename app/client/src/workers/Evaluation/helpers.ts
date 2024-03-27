@@ -318,26 +318,11 @@ const getScrubbedOutUpdatesWhenRootCollectionIsUpdated = (
 export const generateOptimisedUpdates = (
   oldDataTree: DataTree,
   dataTree: DataTree,
-  // these are the paths that the diff is limited to, this is a performance optimisation and through this we don't have to diff the entire data tree
-  constrainedDiffPaths: string[],
-): Diff<DataTree, DataTree>[] => {
-  const updates = generateDiffUpdates(
-    oldDataTree,
-    dataTree,
-    constrainedDiffPaths,
-  );
-  const correctedUpdates = correctUndefinedUpdatesToDeletesOrNew(updates);
-
-  const rootCollectionUpdates = generateRootWidgetUpdates(
-    correctedUpdates,
-    dataTree,
-    oldDataTree,
-  );
-  const scrubedOutUpdates = getScrubbedOutUpdatesWhenRootCollectionIsUpdated(
-    correctedUpdates,
-    rootCollectionUpdates,
-  );
-  return [...scrubedOutUpdates, ...rootCollectionUpdates];
+  identicalEvalPathsPatches?: Record<string, string>,
+): DiffWithReferenceState[] => {
+  const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
+  const updates = generateDiffUpdates(oldDataTree, dataTree, ignoreLargeKeys);
+  return updates;
 };
 
 export const generateSerialisedUpdates = (
