@@ -1,24 +1,14 @@
-import {
-  TextInput,
-  Text,
-  Flex,
-  IconButton,
-  Icon,
-  ActionGroup,
-  Item,
-} from "@design-system/widgets";
+import { IconButton, Text } from "@design-system/widgets";
+import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import React from "react";
+import { PageNumberInput } from "./PageNumberInput";
 import type {
   ReactTableColumnProps,
-  TableSizes,
   ReactTableFilter,
-} from "../../Constants";
-import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import { PageNumberInput } from "./PageNumberInput";
+  TableSizes,
+} from "../Constants";
 
-const MIN_WIDTH_TO_SHOW_PAGE_ITEMS = 676;
-
-export interface ActionsPropsType {
+export interface PaginationProps {
   updatePageNo: (pageNo: number, event?: EventType) => void;
   nextPageClick: () => void;
   prevPageClick: () => void;
@@ -34,7 +24,7 @@ export interface ActionsPropsType {
   widgetName: string;
   widgetId: string;
   searchKey: string;
-  onSearch: (searchKey: any) => void;
+  searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
@@ -50,50 +40,28 @@ export interface ActionsPropsType {
   width: number;
 }
 
-export const Actions = (props: ActionsPropsType) => {
-  const { isVisibleSearch, onSearch } = props;
-
+export const Pagination = (props: PaginationProps) => {
   const pageCount = `${props.pageNo + 1}${
     props.totalRecordsCount ? ` of ${props.pageCount}` : ``
   }`;
 
   return (
     <>
-      {isVisibleSearch && (
-        <TextInput
-          onChange={onSearch}
-          placeholder="Search..."
-          size="small"
-          startIcon={<Icon name="search" />}
-          value={props.searchKey}
-        />
-      )}
-
-      <ActionGroup size="small" variant="ghost">
-        <Item>Hello</Item>
-        <Item icon="download" key="download">
-          Download
-        </Item>
-        <Item icon="plus" key="add-row">
-          Add Row
-        </Item>
-      </ActionGroup>
-
       {!!props.columns.length &&
         props.isVisiblePagination &&
         props.serverSidePaginationEnabled && (
-          <Flex alignItems="center" gap="spacing-1" marginLeft="auto">
-            {props.totalRecordsCount &&
-              props.width > MIN_WIDTH_TO_SHOW_PAGE_ITEMS && (
-                <Text lineClamp={1} variant="footnote">
-                  {props.totalRecordsCount} Records
-                </Text>
-              )}
+          <div data-table-header-pagination="">
+            {props.totalRecordsCount && (
+              <Text lineClamp={1} variant="footnote">
+                {props.totalRecordsCount} Records
+              </Text>
+            )}
             <IconButton
               icon="chevron-left"
               isDisabled={props.pageNo === 0}
               onPress={props.prevPageClick}
               size="small"
+              variant="outlined"
             />
             <Text lineClamp={1} variant="footnote">
               Page {pageCount}
@@ -106,18 +74,17 @@ export const Actions = (props: ActionsPropsType) => {
               }
               onPress={props.nextPageClick}
               size="small"
+              variant="outlined"
             />
-          </Flex>
+          </div>
         )}
       {!!props.columns.length &&
         props.isVisiblePagination &&
         !props.serverSidePaginationEnabled && (
-          <Flex alignItems="center" gap="spacing-1" marginLeft="auto">
-            {props.width > MIN_WIDTH_TO_SHOW_PAGE_ITEMS && (
-              <Text lineClamp={1} variant="footnote">
-                {props.tableData?.length} Records
-              </Text>
-            )}
+          <div data-table-header-pagination="">
+            <Text lineClamp={1} variant="footnote">
+              {props.tableData?.length} Records
+            </Text>
             <IconButton
               icon="chevron-left"
               isDisabled={props.currentPageIndex === 0}
@@ -128,6 +95,7 @@ export const Actions = (props: ActionsPropsType) => {
                   props.updatePageNo(pageNo + 1, EventType.ON_PREV_PAGE);
               }}
               size="small"
+              variant="outlined"
             />
             <Text lineClamp={1} variant="footnote">
               Page
@@ -153,8 +121,9 @@ export const Actions = (props: ActionsPropsType) => {
                   props.updatePageNo(pageNo + 1, EventType.ON_NEXT_PAGE);
               }}
               size="small"
+              variant="outlined"
             />
-          </Flex>
+          </div>
         )}
     </>
   );

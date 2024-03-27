@@ -7,17 +7,17 @@ import CustomizedDropdown from "pages/common/CustomizedDropdown";
 import { Directions } from "utils/helpers";
 import { Colors } from "constants/Colors";
 import { Skin } from "constants/DefaultTheme";
-import AutoToolTipComponent from "../../../cellComponents/AutoToolTipComponent";
-import type { Condition, Operator, ReactTableFilter } from "../../../Constants";
-import { OperatorTypes } from "../../../Constants";
-import type { DropdownOption } from "./index";
-import { RenderOptionWrapper } from "../../../TableStyledWrappers";
+import AutoToolTipComponent from "../cellComponents/AutoToolTipComponent";
+import type { Condition, Operator, ReactTableFilter } from "../Constants";
+import { OperatorTypes } from "../Constants";
+import { RenderOptionWrapper } from "../TableStyledWrappers";
 
 //TODO(abhinav): Fix this cross import between widgets
 import DatePickerComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
-import { ColumnTypes, ReadOnlyColumnTypes } from "../../../../constants";
+import { ColumnTypes, ReadOnlyColumnTypes } from "../../constants";
 import { importRemixIcon } from "design-system-old";
+import type { DropdownOption } from "./FilterPaneContent";
 
 const CloseIcon = importRemixIcon(
   async () => import("remixicon-react/CloseCircleFillIcon"),

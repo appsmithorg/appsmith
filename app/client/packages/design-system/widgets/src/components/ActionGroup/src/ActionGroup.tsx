@@ -27,7 +27,10 @@ const _ActionGroup = <T extends object>(
     ...others
   } = props;
   const domRef = useDOMRef(ref);
-  const state = useListState({ ...props, suppressTextValueWarning: true });
+  const state = useListState({
+    ...props,
+    suppressTextValueWarning: true,
+  });
   const { actionGroupProps, visibleItems } = useActionGroup(
     props,
     state,
