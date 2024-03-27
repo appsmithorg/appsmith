@@ -13,6 +13,7 @@ interface ItemProps<T> extends HeadlessItemProps<T> {
   iconPosition?: "start" | "end";
   isLoading?: boolean;
   isSeparator?: boolean;
+  isHidden?: boolean;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

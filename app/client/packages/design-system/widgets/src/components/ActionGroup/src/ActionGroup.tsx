@@ -27,7 +27,10 @@ const _ActionGroup = <T extends object>(
     ...others
   } = props;
   const domRef = useDOMRef(ref);
-  const state = useListState({ ...props, suppressTextValueWarning: true });
+  const state = useListState({
+    ...props,
+    suppressTextValueWarning: true,
+  });
   const { actionGroupProps, visibleItems } = useActionGroup(
     props,
     state,
@@ -74,7 +77,12 @@ const _ActionGroup = <T extends object>(
         })}
         {menuChildren?.length > 0 && (
           <Menu onAction={onAction}>
-            <IconButton color={color} icon="dots" variant={variant} />
+            <IconButton
+              color={color}
+              icon="dots"
+              size={size}
+              variant={variant}
+            />
             <MenuList>
               {menuChildren.map((item) => (
                 <Item isSeparator={item.props.isSeparator} key={item.key}>

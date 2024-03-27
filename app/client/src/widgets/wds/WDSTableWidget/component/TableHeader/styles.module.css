@@ -1,0 +1,38 @@
+.table-header {
+  display: flex;
+  gap: var(--outer-spacing-1);
+  padding: var(--outer-spacing-1);
+  border-bottom: var(--border-width-1) solid var(--color-bd);
+  container-type: inline-size;
+  container-name: table-header;
+
+  & [data-field] {
+    width: clamp(var(--sizing-30), 30cqw, var(--sizing-60));
+  }
+
+  & [data-table-actions] {
+    width: auto;
+  }
+
+  & [data-table-header-pagination] {
+    display: flex;
+    justify-content: flex-end;
+    align-items: center;
+    margin-left: auto;
+    gap: var(--outer-spacing-1);
+  }
+
+  & [data-table-header-pagination] > [data-field] {
+    width: 5ch;
+  }
+
+  & [data-table-header-pagination] > [data-field] input {
+    text-align: center;
+  }
+}
+
+@container table-header (inline-size < 600px) {
+  & [data-table-header-pagination] > div {
+    display: none;
+  }
+}
