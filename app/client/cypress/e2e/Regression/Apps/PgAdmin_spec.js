@@ -63,6 +63,7 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
   });
 
   it("2. Add new table from app page, View and Delete table", function () {
+    cy.wait(2000);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
     // adding new table
     agHelper.GetNClick(appPage.addNewtable, 0, true);
@@ -86,13 +87,17 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
     cy.xpath(appPage.submitButton).click({ force: true });
     agHelper.AssertElementVisibility(appPage.addColumn);
     cy.xpath(appPage.submitButton).first().click({ force: true });
+    cy.wait(2000);
     cy.xpath(appPage.closeButton).click({ force: true });
     cy.xpath(appPage.addNewtable).should("be.visible");
     // viewing the table's columns by clicking on view button
+    cy.wait(2000);
     cy.xpath(appPage.viewButton).first().click({ force: true });
     // deleting the table through modal
     cy.xpath(appPage.deleteButton).last().click({ force: true });
+    cy.wait(2000);
     cy.xpath(appPage.confirmButton).click({ force: true });
+    cy.wait(2000);
     cy.xpath(appPage.closeButton).click({ force: true });
   });
 });
