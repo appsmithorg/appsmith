@@ -66,7 +66,6 @@ import {
   JS_EXECUTION_FAILURE,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
-  JS_FUNCTION_UPDATE_SUCCESS,
   JS_EXECUTION_SUCCESS_TOASTER,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
@@ -83,7 +82,6 @@ import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { ApiResponse } from "api/ApiResponses";
-import { shouldBeDefined } from "utils/helpers";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
@@ -310,7 +308,7 @@ function* updateJSCollection(data: {
     jsAction = yield select(getJSCollection, jsActionId);
   }
   try {
-    const { deletedActions, jsCollection, newActions, updatedActions } = data;
+    const { deletedActions, jsCollection, newActions } = data;
     if (jsCollection) {
       const response: JSCollectionCreateUpdateResponse =
         yield JSActionAPI.updateJSCollection(jsCollection);
@@ -321,13 +319,6 @@ function* updateJSCollection(data: {
             newActions,
             jsCollection,
             createMessage(JS_FUNCTION_CREATE_SUCCESS),
-          );
-        }
-        if (updatedActions && updatedActions.length) {
-          pushLogsForObjectUpdate(
-            updatedActions,
-            jsCollection,
-            createMessage(JS_FUNCTION_UPDATE_SUCCESS),
           );
         }
         if (deletedActions && deletedActions.length) {
@@ -749,23 +740,6 @@ function* handleUpdateJSFunctionPropertySaga(
         yield JSActionAPI.updateJSCollection(collection);
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
-        const fieldToBeUpdated = propertyName.replace(
-          "actionConfiguration",
-          "config",
-        );
-        AppsmithConsole.info({
-          logType: LOG_TYPE.ACTION_UPDATE,
-          text: "Configuration updated",
-          source: {
-            type: ENTITY_TYPE.JSACTION,
-            name: collection.name + "." + action.name,
-            id: action.collectionId,
-            propertyPath: fieldToBeUpdated,
-          },
-          state: {
-            [fieldToBeUpdated]: value,
-          },
-        });
         yield put({
           type: ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_SUCCESS,
           payload: {
@@ -791,13 +765,6 @@ function* toggleFunctionExecuteOnLoadSaga(
 ) {
   try {
     const { actionId, collectionId, shouldExecute } = action.payload;
-    const collection = shouldBeDefined<JSCollection>(
-      yield select(getJSCollection, collectionId),
-      `JS Collection not found for id - ${collectionId}`,
-    );
-    const jsAction = collection.actions.find(
-      (action: JSAction) => actionId === action.id,
-    );
     const response: ApiResponse = yield call(
       ActionAPI.toggleActionExecuteOnLoad,
       actionId,
@@ -805,19 +772,6 @@ function* toggleFunctionExecuteOnLoadSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      AppsmithConsole.info({
-        logType: LOG_TYPE.ACTION_UPDATE,
-        text: "Configuration updated",
-        source: {
-          type: ENTITY_TYPE.JSACTION,
-          name: collection.name + "." + jsAction?.name,
-          id: collectionId,
-          propertyPath: "executeOnLoad",
-        },
-        state: {
-          ["executeOnLoad"]: shouldExecute,
-        },
-      });
       yield put({
         type: ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS,
         payload: {

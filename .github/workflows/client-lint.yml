@@ -39,7 +39,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/run_result
@@ -56,16 +56,16 @@ jobs:
 
       - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
 
-      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # actions/setup-node@v4 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
@@ -75,7 +75,9 @@ jobs:
       # Install all the dependencies
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
-        run: yarn install --immutable
+        run: |
+          corepack enable
+          yarn install --immutable
 
         # Run the Lint for client and packages
       - name: Run lint
@@ -84,7 +86,7 @@ jobs:
 
       # Saving the cache to use it in subsequent runs
       - name: Save Yarn cache
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
