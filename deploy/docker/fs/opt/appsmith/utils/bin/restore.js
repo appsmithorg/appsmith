@@ -20,7 +20,7 @@ async function getBackupFileName() {
   console.log('----------------------------------------------------------------');
   console.log('Index\t|\tAppsmith Backup Archive File');
   console.log('----------------------------------------------------------------');
-  for (var i = 0; i < backupFiles.length; i++) {
+  for (let i = 0; i < backupFiles.length; i++) {
     if (i === backupFiles.length - 1)
       console.log(i + '\t|\t' + backupFiles[i] + ' <--Most recent backup');
     else
@@ -28,15 +28,13 @@ async function getBackupFileName() {
   }
   console.log('----------------------------------------------------------------');
 
-  var backupFileIndex = parseInt(readlineSync.question('Please enter the backup file index: '), 10);
+  const backupFileIndex = parseInt(readlineSync.question('Please enter the backup file index: '), 10);
   if (!isNaN(backupFileIndex) && Number.isInteger(backupFileIndex) && (backupFileIndex >= 0) && (backupFileIndex < backupFiles.length)) {
     return backupFiles[parseInt(backupFileIndex, 10)];
   }
   else {
     console.log('Invalid input, please try the command again with a valid option');
-    return;
   }
-
 }
 
 async function decryptArchive(encryptedFilePath, backupFilePath){
@@ -60,19 +58,25 @@ async function extractArchive(backupFilePath, restoreRootPath) {
 }
 
 async function restoreDatabase(restoreContentsPath) {
-  console.log('Restoring database  ....');
-  backup_db_name = await getBackupDatabaseName(restoreContentsPath);
-  new_db_name = utils.getDatabaseNameFromMongoURI(process.env.APPSMITH_MONGODB_URI);
-  console.log('Backup DB: ' + backup_db_name);
-  await utils.execCommand(['mongorestore', `--uri=${process.env.APPSMITH_MONGODB_URI}`, '--drop', `--archive=${restoreContentsPath}/mongodb-data.gz`, '--nsInclude="*"',  `--nsFrom="${backup_db_name}.*"`,  `--nsTo="${new_db_name}.*"`,'--gzip']);
+  console.log('Restoring database...');
+  const cmd = ['mongorestore', `--uri=${process.env.APPSMITH_MONGODB_URI}`, '--drop', `--archive=${restoreContentsPath}/mongodb-data.gz`, '--gzip']
+  try {
+    const fromDbName = await getBackupDatabaseName(restoreContentsPath);
+    const toDbName = utils.getDatabaseNameFromMongoURI(process.env.APPSMITH_MONGODB_URI);
+    console.log("Restoring database from " + fromDbName + " to " + toDbName)
+    cmd.push('--nsInclude=*', `--nsFrom=${fromDbName}.*`, `--nsTo=${toDbName}.*`)
+  } catch (error) {
+    console.warn('Error reading manifest file. Assuming same database name.', error);
+  }
+  await utils.execCommand(cmd);
   console.log('Restoring database completed');
 }
 
 async function restoreDockerEnvFile(restoreContentsPath, backupName, overwriteEncryptionKeys) {
   console.log('Restoring docker environment file');
   const dockerEnvFile = '/appsmith-stacks/configuration/docker.env';
-  var encryptionPwd = process.env.APPSMITH_ENCRYPTION_PASSWORD;
-  var encryptionSalt = process.env.APPSMITH_ENCRYPTION_SALT;
+  let encryptionPwd = process.env.APPSMITH_ENCRYPTION_PASSWORD;
+  let encryptionSalt = process.env.APPSMITH_ENCRYPTION_SALT;
   await utils.execCommand(['mv', dockerEnvFile, dockerEnvFile + '.' + backupName]);
   await utils.execCommand(['cp', restoreContentsPath + '/docker.env', dockerEnvFile]);
   if (overwriteEncryptionKeys){
@@ -168,9 +172,9 @@ async function run() {
   let errorCode = 0;
   let cleanupArchive = false;
   let overwriteEncryptionKeys = true;
+  let backupFilePath;
   try {
-    check_supervisord_status_cmd = '/usr/bin/supervisorctl >/dev/null 2>&1';
-    shell.exec(check_supervisord_status_cmd, function (code) {
+    shell.exec('/usr/bin/supervisorctl >/dev/null 2>&1', function (code) {
       if (code > 0) {
         shell.echo('application is not running, starting supervisord');
         shell.exec('/usr/bin/supervisord');
@@ -183,7 +187,7 @@ async function run() {
     } else {
       backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
       if (isArchiveEncrypted(backupFileName)){
-        const encryptedBackupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);;
+        const encryptedBackupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
         backupFileName = backupFileName.replace('.enc', '');
         backupFilePath = path.join(Constants.BACKUP_PATH, backupFileName);
         cleanupArchive = true;
