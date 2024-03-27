@@ -127,6 +127,8 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
 
     @Override
     public Mono<Boolean> archiveById(ID id) {
+        Assert.notNull(id, "The given id must not be null!");
+
         Query query = new Query(getIdCriteria(id));
         query.addCriteria(notDeleted());
 
