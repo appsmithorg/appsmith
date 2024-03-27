@@ -1,3 +1,4 @@
+/* eslint-disable */
 import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
@@ -198,16 +199,37 @@ const normaliseEvalPath = (identicalEvalPathsPatches: any) =>
     {},
   );
 
+const getDataTree = (data: any, evalOrder: any) => {
+  const withErrors = Object.keys(data).reduce((acc: any, key) => {
+    const widgetValue = data[key];
+    acc[key] = {
+      __evaluation__: {
+        errors: widgetValue.__evaluation__?.errors,
+      },
+    };
+    return acc;
+  }, {});
+  return evalOrder.reduce((acc: any, key: any) => {
+    const val = get(data, key);
+    if (val === undefined) return acc;
+    set(acc, key, val);
+    return acc;
+  }, withErrors);
+};
 const generateDiffUpdates = (
   oldDataTree: any,
   dataTree: any,
   ignoreLargeKeys: any,
+  evalOrder: any,
 ): DiffWithReferenceState[] => {
   const attachDirectly: DiffWithReferenceState[] = [];
   const ignoreLargeKeysHasBeenAttached = new Set();
   const attachLater: DiffWithReferenceState[] = [];
+
+  const oldData = getDataTree(oldDataTree, evalOrder);
+  const newData = getDataTree(dataTree, evalOrder);
   const updates =
-    diff(oldDataTree, dataTree, (path, key) => {
+    diff(oldData, newData, (path, key) => {
       if (!path.length || key === "__evaluation__") return false;
 
       const { path: setPath, segmentedPath } = generateWithKey(path, key);
@@ -283,17 +305,44 @@ const generateDiffUpdates = (
 export const generateOptimisedUpdates = (
   oldDataTree: any,
   dataTree: any,
+  evalOrder: string[],
   identicalEvalPathsPatches?: Record<string, string>,
 ): DiffWithReferenceState[] => {
-  const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
-  const updates = generateDiffUpdates(oldDataTree, dataTree, ignoreLargeKeys);
-  return updates;
+  // const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
+  const widgetPaths = Array.from(new Set(evalOrder.map(path => path.split(".")[0])))
+  const allUniqueEvalOrder = new Set(evalOrder);
+  const {updatedEvalOrder,allUniqueWidgets} = widgetPaths.reduce((acc: any, key: any) => {
+    if (allUniqueEvalOrder.has(key)) {
+      acc.updatedEvalOrder = acc.updatedEvalOrder.filter((v: string) => !v.startsWith(`${key}.`));
+    }
+    else {
+      acc.allUniqueWidgets.push(key);
+    }
+    return acc;
+  }, { allUniqueWidgets:[], updatedEvalOrder:[...evalOrder]})
+  const allUpdates = updatedEvalOrder.map((path:any) => ({ lhs: get(oldDataTree, path), rhs: get(dataTree, path), path }))
+    .filter(({ lhs, rhs }:any) => !equal(lhs, rhs))
+    .map((v: { path: any; rhs: any; }) => ({ kind: "N", path: v.path, rhs: v.rhs }))
+  const allWidgetsErrors = allUniqueWidgets.map((path:string) => `${path}.__evaluation__.errors`);
+
+  const allErrorUpdates = allWidgetsErrors.map((path:string) => ({ lhs: get(oldDataTree, path), rhs: get(dataTree, path), path }))
+  .filter(({ lhs, rhs }:any) => !equal(lhs, rhs))
+    .map((v:any) => ({ kind: "N", path: v.path, rhs: v.rhs }))
+ 
+  const allDiffUpdates = [...allUpdates, ...allErrorUpdates]
+    .map(v => {
+      if(v.rhs === undefined) return { kind: "D", path: v.path.split(".") }
+      return { kind: "N", path: v.path.split("."), rhs: v.rhs }
+    }) 
+
+  return allDiffUpdates as any;
 };
 
 export const generateSerialisedUpdates = (
   prevState: any,
   currentState: any,
   identicalEvalPathsPatches: any,
+  evalOrder: any,
 ): {
   serialisedUpdates: string;
   error?: { type: string; message: string };
@@ -301,6 +350,7 @@ export const generateSerialisedUpdates = (
   const updates = generateOptimisedUpdates(
     prevState,
     currentState,
+    evalOrder,
     identicalEvalPathsPatches,
   );
 
@@ -327,6 +377,7 @@ export const generateSerialisedUpdates = (
 export const generateOptimisedUpdatesAndSetPrevState = (
   dataTree: any,
   dataTreeEvaluator: any,
+  evalOrder: any,
 ) => {
   const identicalEvalPathsPatches =
     dataTreeEvaluator?.getEvalPathsIdenticalToState();
@@ -335,6 +386,7 @@ export const generateOptimisedUpdatesAndSetPrevState = (
     dataTreeEvaluator.getPrevState(),
     dataTree,
     identicalEvalPathsPatches,
+    evalOrder,
   );
 
   if (error) {
