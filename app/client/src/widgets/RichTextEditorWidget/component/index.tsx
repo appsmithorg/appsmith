@@ -404,13 +404,12 @@ function RichtextEditorComponent(props: RichtextEditorComponentProps) {
         isValid={props.isValid}
       >
         <Editor
-          cloudChannel="6"
           disabled={props.isDisabled}
           id={`rte-${props.widgetId}`}
           init={{
             height: isDynamicHeightEnabled ? "auto" : "100%",
             menubar: false,
-            toolbar_mode: "sliding", // missing
+            toolbar_mode: "sliding",
             forced_root_block: "p",
             branding: false,
             resize: false,
