@@ -23,8 +23,8 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   display: inline;
   position: absolute;
   width: ${SpaceDistributorHandleDimensions.width}px;
-  height: calc(100% - ${2 * SpaceDistributorHandleDimensions.offsetTop}px);
-  top: ${SpaceDistributorHandleDimensions.offsetTop}px;
+  height: calc(100% - 2 * ${SpaceDistributorHandleDimensions.offsetTop});
+  top: ${SpaceDistributorHandleDimensions.offsetTop};
   border-radius: ${SpaceDistributorHandleDimensions.borderRadius}px;
   padding: 0px ${SpaceDistributorHandleDimensions.padding}px;
   z-index: 1000;
