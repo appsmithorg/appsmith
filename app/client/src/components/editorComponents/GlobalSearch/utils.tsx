@@ -270,6 +270,7 @@ export interface ActionOperation {
   dsName?: string;
   entityExplorerTitle?: string;
   isBeta?: boolean;
+  tooltip?: string;
 }
 
 export const actionOperations: ActionOperation[] = [

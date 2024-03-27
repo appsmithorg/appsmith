@@ -97,7 +97,7 @@ describe(
         cy.get(".anvil-widget-wrapper").each(($widget) => {
           cy.wrap($widget).should(
             "have.css",
-            "border-color",
+            "outline-color",
             "rgba(0, 0, 0, 0)",
           );
         });

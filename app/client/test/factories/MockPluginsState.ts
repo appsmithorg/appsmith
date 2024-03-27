@@ -6,6 +6,7 @@ export const PluginIDs = {
   [PluginPackageName.REST_API]: "65e58df196506a506bd7069d",
   [PluginPackageName.MONGO]: "65e58df196506a506bd7069e",
   [PluginPackageName.GOOGLE_SHEETS]: "65e58df296506a506bd706a9",
+  [PluginPackageName.JS]: "65e58df296506a506bd706ad",
 };
 
 export default {
@@ -6926,7 +6927,7 @@ export default {
           },
           {
             label: "Use Prepared Statement",
-            info: "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+            info: "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
             configProperty:
               "actionConfiguration.pluginSpecifiedTemplates[0].value",
             controlType: "SWITCH",
@@ -7126,7 +7127,7 @@ export default {
           {
             label: "Use Prepared Statement",
             subtitle:
-              "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+              "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
             configProperty:
               "actionConfiguration.pluginSpecifiedTemplates[0].value",
             controlType: "SWITCH",

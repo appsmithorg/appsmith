@@ -27,7 +27,11 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import { Button, toast } from "design-system";
-import type { ApiDatasourceForm } from "entities/Datasource/RestAPIForm";
+import type { ClientCredentials } from "entities/Datasource/RestAPIForm";
+import {
+  GrantType,
+  type ApiDatasourceForm,
+} from "entities/Datasource/RestAPIForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { INTEGRATION_TABS, SHOW_FILE_PICKER_KEY } from "constants/routes";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
@@ -161,6 +165,12 @@ function DatasourceAuth({
         formData?.datasourceStorages[currentEnvironment]
           ?.datasourceConfiguration?.authentication?.authenticationType;
 
+  const authGrantType: GrantType | undefined = (
+    formData &&
+    (formData as ApiDatasourceForm)?.authentication &&
+    ((formData as ApiDatasourceForm)?.authentication as ClientCredentials)
+  )?.grantType;
+
   const { id: datasourceId } = datasource;
   const applicationId = useSelector(getCurrentApplicationId);
 
@@ -192,7 +202,10 @@ function DatasourceAuth({
   );
 
   useEffect(() => {
-    if (authType === AuthType.OAUTH2) {
+    if (
+      authType === AuthType.OAUTH2 &&
+      authGrantType !== GrantType.ClientCredentials // Client Credentials grant type does not require authorization
+    ) {
       // When the authorization server redirects a user to the datasource form page, the url contains the "response_status" query parameter .
       // Get the access token if response_status is successful else show a toast error
 
@@ -397,13 +410,15 @@ function DatasourceAuth({
           isLoading={isSaving}
           key={buttonType}
           onClick={
-            authType === AuthType.OAUTH2
+            authType === AuthType.OAUTH2 &&
+            authGrantType !== GrantType.ClientCredentials // Client Credentials grant type does not require oauth authorization
               ? handleOauthDatasourceSave
               : handleDefaultAuthDatasourceSave
           }
           size="md"
         >
-          {authType === AuthType.OAUTH2
+          {authType === AuthType.OAUTH2 &&
+          authGrantType !== GrantType.ClientCredentials
             ? isAuthorized
               ? createMessage(SAVE_AND_RE_AUTHORIZE_BUTTON_TEXT)
               : createMessage(SAVE_AND_AUTHORIZE_BUTTON_TEXT)

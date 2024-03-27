@@ -1,8 +1,8 @@
 import React, { useCallback } from "react";
-import { Button, ToggleButton, Tooltip } from "design-system";
+import { ToggleButton } from "design-system";
 
 import FileTabs from "./FileTabs";
-import { useDispatch, useSelector } from "react-redux";
+import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import Container from "./Container";
 import { useCurrentEditorState } from "../hooks";
@@ -20,15 +20,8 @@ import history, { NavigationMethod } from "utils/history";
 import { includes } from "lodash";
 import ListButton from "./ListButton";
 import { Announcement } from "../EditorPane/components/Announcement";
-import {
-  MAXIMIZE_BUTTON_TOOLTIP,
-  createMessage,
-} from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { setIdeEditorViewMode } from "actions/ideActions";
 
 const SplitScreenTabs = () => {
-  const dispatch = useDispatch();
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
   const { segment, segmentMode } = useCurrentEditorState();
@@ -56,13 +49,6 @@ const SplitScreenTabs = () => {
     [segment, pageId],
   );
 
-  const handleMaximizeButtonClick = useCallback(() => {
-    AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
-      to: EditorViewMode.FullScreen,
-    });
-    dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen));
-  }, []);
-
   const overflowList = allFilesList.filter((item) => !includes(files, item));
 
   if (!isSideBySideEnabled) return null;
@@ -82,17 +68,6 @@ const SplitScreenTabs = () => {
           />
           <FileTabs navigateToTab={onClick} tabs={files} />
           <ListButton items={overflowList} navigateToTab={onClick} />
-          <Tooltip content={createMessage(MAXIMIZE_BUTTON_TOOLTIP)}>
-            <Button
-              className="ml-auto"
-              data-testid="t--ide-maximize"
-              id="editor-mode-maximize"
-              isIconButton
-              kind="tertiary"
-              onClick={handleMaximizeButtonClick}
-              startIcon="maximize-v3"
-            />
-          </Tooltip>
         </Container>
       ) : null}
       <Announcement />
