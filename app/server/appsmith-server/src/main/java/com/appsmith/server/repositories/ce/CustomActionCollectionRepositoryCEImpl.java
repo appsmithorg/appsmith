@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
@@ -14,14 +13,10 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.Criteria;
-import reactor.core.publisher.Flux;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
         implements CustomActionCollectionRepositoryCE {
@@ -59,9 +54,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     protected BridgeQuery<ActionCollection> getBridgeQueryForFindByApplicationIdAndViewMode(
-        String applicationId, boolean viewMode) {
+            String applicationId, boolean viewMode) {
         final BridgeQuery<ActionCollection> bridgeQuery =
-            Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
+                Bridge.equal(ActionCollection.Fields.applicationId, applicationId);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
@@ -76,7 +71,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     public List<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission) {
         BridgeQuery<ActionCollection> bridgeQuery =
-            getBridgeQueryForFindByApplicationIdAndViewMode(applicationId, viewMode);
+                getBridgeQueryForFindByApplicationIdAndViewMode(applicationId, viewMode);
 
         return queryBuilder().criteria(bridgeQuery).permission(aclPermission).all();
     }
@@ -86,8 +81,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
      * EE PR.
      */
     protected BridgeQuery<ActionCollection>
-    getBridgeQueryForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-        String branchName, boolean viewMode, String name, List<String> pageIds) {
+            getBridgeQueryForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
+                    String branchName, boolean viewMode, String name, List<String> pageIds) {
         /**
          * TODO : This function is called by get(params) to get all actions by params and hence
          * only covers criteria of few fields like page id, name, etc. Make this generic to cover
@@ -107,10 +102,10 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
             if (pageIds != null && !pageIds.isEmpty()) {
                 String pageIdFieldPath = String.join(
-                    ".",
-                    ActionCollection.Fields.publishedCollection,
-                    ActionCollectionDTO.Fields.defaultResources,
-                    DefaultResources.Fields.pageId);
+                        ".",
+                        ActionCollection.Fields.publishedCollection,
+                        ActionCollectionDTO.Fields.defaultResources,
+                        DefaultResources.Fields.pageId);
                 bridgeQuery.in(pageIdFieldPath, pageIds);
             }
         }
@@ -122,10 +117,10 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
             if (pageIds != null && !pageIds.isEmpty()) {
                 String pageIdFieldPath = String.join(
-                    ".",
-                    ActionCollection.Fields.unpublishedCollection,
-                    ActionCollectionDTO.Fields.defaultResources,
-                    DefaultResources.Fields.pageId);
+                        ".",
+                        ActionCollection.Fields.unpublishedCollection,
+                        ActionCollectionDTO.Fields.defaultResources,
+                        DefaultResources.Fields.pageId);
                 bridgeQuery.in(pageIdFieldPath, pageIds);
             }
 
@@ -225,18 +220,18 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission) {
         BridgeQuery<ActionCollection> pageIdCriteria =
-            Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
+                Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
         return queryBuilder().criteria(pageIdCriteria).permission(permission).all();
     }
 
     @Override
     public List<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
         BridgeQuery<ActionCollection> pageIdCriteria =
-            Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
+                Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
         return queryBuilder()
-            .criteria(pageIdCriteria)
-            .permission(permission.orElse(null))
-            .all();
+                .criteria(pageIdCriteria)
+                .permission(permission.orElse(null))
+                .all();
     }
 
     @Override

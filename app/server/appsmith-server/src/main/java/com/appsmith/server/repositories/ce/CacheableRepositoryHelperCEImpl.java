@@ -134,7 +134,6 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         Query query = new Query();
         query.addCriteria(defaultTenantCriteria);
 
-
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
         final CriteriaQuery<Tenant> cq = cb.createQuery(Tenant.class);
         final Root<Tenant> root = cq.from(Tenant.class);

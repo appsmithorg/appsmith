@@ -8,7 +8,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
-import com.google.errorprone.annotations.DoNotCall;
 import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Example;
@@ -75,7 +74,7 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
         final Root<T> root = cq.from(entityInformation.getJavaType());
 
         cq.where(Bridge.<T>and(notDeleted(), Bridge.equal(FieldName.ID, (String) id))
-            .toPredicate(root, cq, cb));
+                .toPredicate(root, cq, cb));
 
         return Optional.ofNullable(entityManager.createQuery(cq).getSingleResult());
     }
