@@ -79,10 +79,13 @@ test('Test ln command generation', async () => {
 })
 
 it('Checks for the current Appsmith Version.', async () => {
-  fsPromises.readFile =  jest.fn().mockImplementation(async (a) =>
-  `Object.defineProperty(exports, "__esModule", { value: true });
-  exports.VERSION = void 0;
-  exports.VERSION = "v0.0.0-SNAPSHOT";`);
+  fsPromises.readFile = jest.fn().mockImplementation(async (path) => {
+    if (path === "/opt/appsmith/info.json") {
+      return `{"githubRef": "v0.0.0-SNAPSHOT"}`
+    } else {
+      throw new Error("Unexpected file to read: " + path)
+    }
+  });
   const res = await utils.getCurrentAppsmithVersion()
   expect(res).toBe("v0.0.0-SNAPSHOT")
   console.log(res)
