@@ -1,4 +1,5 @@
 import { serialiseToBigInt } from "@appsmith/workers/Evaluation/evaluationUtils";
+import type { WidgetEntity } from "@appsmith//entities/DataTree/types";
 import type { Diff } from "deep-diff";
 import { diff } from "deep-diff";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
@@ -157,9 +158,12 @@ const isLargeCollection = (val: any) => {
   return size > LARGE_COLLECTION_SIZE;
 };
 
-const getReducedDataTree = (data: any, constrainedDiffPaths: string[]) => {
-  const withErrors = Object.keys(data).reduce((acc: any, key) => {
-    const widgetValue = data[key];
+const getReducedDataTree = (
+  dataTree: DataTree,
+  constrainedDiffPaths: string[],
+): DataTree => {
+  const withErrors = Object.keys(dataTree).reduce((acc: any, key: string) => {
+    const widgetValue = dataTree[key] as WidgetEntity;
     acc[key] = {
       __evaluation__: {
         errors: widgetValue.__evaluation__?.errors,
@@ -167,19 +171,21 @@ const getReducedDataTree = (data: any, constrainedDiffPaths: string[]) => {
     };
     return acc;
   }, {});
-  return constrainedDiffPaths.reduce((acc: any, key: any) => {
-    set(acc, key, get(data, key));
+
+  return constrainedDiffPaths.reduce((acc: DataTree, key: string) => {
+    set(acc, key, get(dataTree, key));
     return acc;
   }, withErrors);
 };
 const generateDiffUpdates = (
-  oldDataTree: any,
-  dataTree: any,
+  oldDataTree: DataTree,
+  dataTree: DataTree,
   constrainedDiffPaths: string[],
 ): Diff<DataTree, DataTree>[] => {
   const attachDirectly: Diff<DataTree, DataTree>[] = [];
   const attachLater: Diff<DataTree, DataTree>[] = [];
 
+  // we are reducing the data tree to only the paths that are being diffed
   const oldData = getReducedDataTree(oldDataTree, constrainedDiffPaths);
   const newData = getReducedDataTree(dataTree, constrainedDiffPaths);
   const updates =
@@ -187,9 +193,10 @@ const generateDiffUpdates = (
       if (!path.length || key === "__evaluation__") return false;
 
       const segmentedPath = [...path, key];
-      const rhs = get(dataTree, segmentedPath);
 
-      const lhs = get(oldDataTree, segmentedPath);
+      const rhs = get(dataTree, segmentedPath) as DataTree;
+
+      const lhs = get(oldDataTree, segmentedPath) as DataTree;
 
       //when a moment value changes we do not want the inner moment object updates, we just want the ISO result of it
       // which we get during the serialisation process we perform at latter steps
@@ -261,11 +268,11 @@ const correctUndefinedUpdatesToDeletesOrNew = (
     [] as Diff<DataTree, DataTree>[],
   );
 
-// whenever an element in a collection is set to undefined, we need to send the entire as an update
+// whenever an element in a collection is set to undefined, we need to send the entire collection as an update
 const generateRootWidgetUpdates = (
   updates: Diff<DataTree, DataTree>[],
-  newDataTree: any,
-  oldDataTree: any,
+  newDataTree: DataTree,
+  oldDataTree: DataTree,
 ): Diff<DataTree, DataTree>[] =>
   updates
     .filter(
@@ -281,8 +288,8 @@ const generateRootWidgetUpdates = (
         return {
           kind: "E",
           path: pathCopy,
-          lhs: get(oldDataTree, pathCopy),
-          rhs: get(newDataTree, pathCopy),
+          lhs: get(oldDataTree, pathCopy) as DataTree,
+          rhs: get(newDataTree, pathCopy) as DataTree,
         }; //push the parent path
       },
       [] as Diff<DataTree, DataTree>[],
@@ -309,8 +316,8 @@ const getScrubbedOutUpdatesWhenRootCollectionIsUpdated = (
 };
 
 export const generateOptimisedUpdates = (
-  oldDataTree: any,
-  dataTree: any,
+  oldDataTree: DataTree,
+  dataTree: DataTree,
   // these are the paths that the diff is limited to, this is a performance optimisation and through this we don't have to diff the entire data tree
   constrainedDiffPaths: string[],
 ): Diff<DataTree, DataTree>[] => {
@@ -334,8 +341,8 @@ export const generateOptimisedUpdates = (
 };
 
 export const generateSerialisedUpdates = (
-  prevState: any,
-  currentState: any,
+  prevState: DataTree,
+  currentState: DataTree,
   constrainedDiffPaths: string[],
   mergeAdditionalUpdates?: any,
 ): {
@@ -370,7 +377,7 @@ export const generateSerialisedUpdates = (
 };
 
 export const generateOptimisedUpdatesAndSetPrevState = (
-  dataTree: any,
+  dataTree: DataTree,
   dataTreeEvaluator: any,
   constrainedDiffPaths: string[],
   mergeAdditionalUpdates?: any,

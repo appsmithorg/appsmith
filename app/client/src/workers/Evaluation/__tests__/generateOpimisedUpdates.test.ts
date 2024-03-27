@@ -1,4 +1,5 @@
 import { applyChange } from "deep-diff";
+import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona } from "klona/full";
 import { range } from "lodash";
@@ -26,9 +27,9 @@ export const smallDataSet = [
   },
 ];
 //size of about 300 elements
-const largeDataSet = range(100).flatMap(() => smallDataSet) as any;
+const largeDataSet = range(100).flatMap(() => smallDataSet);
 
-const oldState = {
+const oldState: DataTree = {
   Table1: {
     ENTITY_TYPE: "WIDGET",
     primaryColumns: {
@@ -49,6 +50,18 @@ const oldState = {
         processedTableData: [],
       },
     },
+    meta: {},
+    widgetId: "232",
+    widgetName: "Table",
+    renderMode: "PAGE",
+    version: 1,
+    parentColumnSpace: 121,
+    parentRowSpace: 123,
+    leftColumn: 123,
+    rightColumn: 123,
+    topRow: 0,
+    bottomRow: 0,
+    isLoading: false,
   },
   Select1: {
     value: "",
@@ -69,13 +82,25 @@ const oldState = {
         options: [],
       },
     },
+    meta: {},
+    widgetId: "232",
+    widgetName: "Table",
+    renderMode: "PAGE",
+    version: 1,
+    parentColumnSpace: 121,
+    parentRowSpace: 123,
+    leftColumn: 123,
+    rightColumn: 123,
+    topRow: 0,
+    bottomRow: 0,
+    isLoading: false,
   },
 };
 
 describe("generateOptimisedUpdates", () => {
   describe("regular diff", () => {
     test("should not generate any diff when the constrainedDiffPaths is empty", () => {
-      const newState = produce(oldState, (draft) => {
+      const newState = produce(oldState, (draft: any) => {
         draft.Table1.pageSize = 17;
       });
       const updates = generateOptimisedUpdates(oldState, newState, []);
@@ -83,9 +108,9 @@ describe("generateOptimisedUpdates", () => {
       expect(updates).toEqual([]);
     });
     test("should not generate any diff when the constrainedDiffPaths nodes are the same ", () => {
-      const newState = produce(oldState, (draft) => {
+      const newState = produce(oldState, (draft: any) => {
         //making an unrelated change
-        draft.Table1.triggerRowSelection = true as any;
+        draft.Table1.triggerRowSelection = true;
       });
       const updates = generateOptimisedUpdates(oldState, newState, [
         "Table1.pageSize",
@@ -94,7 +119,7 @@ describe("generateOptimisedUpdates", () => {
       expect(updates).toEqual([]);
     });
     test("should generate regular diff updates when a simple property changes in the widget property segment", () => {
-      const newState = produce(oldState, (draft) => {
+      const newState = produce(oldState, (draft: any) => {
         draft.Table1.pageSize = 17;
       });
       const updates = generateOptimisedUpdates(oldState, newState, [
@@ -106,8 +131,8 @@ describe("generateOptimisedUpdates", () => {
     });
     test("should generate regular diff updates when a simple property changes in the __evaluation__ segment ", () => {
       const validationError = "Some validation error";
-      const newState = produce(oldState, (draft) => {
-        draft.Table1.__evaluation__.errors.tableData = validationError as any;
+      const newState = produce(oldState, (draft: any) => {
+        draft.Table1.__evaluation__.errors.tableData = validationError;
       });
       const updates = generateOptimisedUpdates(oldState, newState, [
         "Table1.__evaluation__.errors.tableData",
@@ -122,8 +147,8 @@ describe("generateOptimisedUpdates", () => {
       ]);
     });
     test("should generate a replace collection patch when the size of the collection exceeds 100 instead of generating granular updates", () => {
-      const newState = produce(oldState, (draft) => {
-        draft.Table1.tableData = largeDataSet as any;
+      const newState = produce(oldState, (draft: any) => {
+        draft.Table1.tableData = largeDataSet;
       });
       const updates = generateOptimisedUpdates(oldState, newState, [
         "Table1.tableData",
@@ -138,13 +163,13 @@ describe("generateOptimisedUpdates", () => {
     });
     describe("undefined value updates in a collection", () => {
       test("should generate replace patch when a single node is set to undefined in a collection", () => {
-        const statWithLargeCollection = produce(oldState, (draft) => {
-          draft.Table1.tableData = ["a", "b"] as any;
+        const statWithLargeCollection = produce(oldState, (draft: any) => {
+          draft.Table1.tableData = ["a", "b"];
         });
         const newStateWithAnElementDeleted = produce(
           statWithLargeCollection,
-          (draft) => {
-            draft.Table1.tableData = ["a", undefined] as any;
+          (draft: any) => {
+            draft.Table1.tableData = ["a", undefined];
           },
         );
         const updates = generateOptimisedUpdates(
@@ -163,13 +188,13 @@ describe("generateOptimisedUpdates", () => {
         ]);
       });
       test("should generate generate regular diff updates for non undefined updates in a collection", () => {
-        const statWithLargeCollection = produce(oldState, (draft) => {
-          draft.Table1.tableData = ["a", "b"] as any;
+        const statWithLargeCollection = produce(oldState, (draft: any) => {
+          draft.Table1.tableData = ["a", "b"];
         });
         const newStateWithAnElementDeleted = produce(
           statWithLargeCollection,
-          (draft) => {
-            draft.Table1.tableData = ["a", "e"] as any;
+          (draft: any) => {
+            draft.Table1.tableData = ["a", "e"];
           },
         );
         const updates = generateOptimisedUpdates(
@@ -431,8 +456,8 @@ describe("generateOptimisedUpdates", () => {
     });
     describe("serialise momement updates directly", () => {
       test("should generate a null update when it sees an invalid moment object", () => {
-        const newState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = moment("invalid value") as any;
+        const newState = produce(oldState, (draft: any) => {
+          draft.Table1.pageSize = moment("invalid value");
         });
         const { serialisedUpdates } = generateSerialisedUpdates(
           oldState,
@@ -446,8 +471,8 @@ describe("generateOptimisedUpdates", () => {
       });
       test("should generate a regular update when it sees a valid moment object", () => {
         const validMoment = moment();
-        const newState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = validMoment as any;
+        const newState = produce(oldState, (draft: any) => {
+          draft.Table1.pageSize = validMoment;
         });
         const { serialisedUpdates } = generateSerialisedUpdates(
           oldState,
@@ -484,8 +509,8 @@ describe("generateOptimisedUpdates", () => {
           largeCollection.push({ i, c: moment(someDate) });
         }
         //attaching a collection to some property in the workerState
-        workerStateWithCollection = produce(oldState, (draft) => {
-          draft.Table1.pageSize = largeCollection as any;
+        workerStateWithCollection = produce(oldState, (draft: any) => {
+          draft.Table1.pageSize = largeCollection;
         });
         //generate serialised diff updates
         const { serialisedUpdates } = generateSerialisedUpdates(
@@ -500,10 +525,8 @@ describe("generateOptimisedUpdates", () => {
             oldState,
           );
 
-        const expectedMainThreadState = produce(oldState, (draft) => {
-          draft.Table1.pageSize = JSON.parse(
-            JSON.stringify(largeCollection),
-          ) as any;
+        const expectedMainThreadState = produce(oldState, (draft: any) => {
+          draft.Table1.pageSize = JSON.parse(JSON.stringify(largeCollection));
         });
         //check first value has the correct date
         expect(mainThreadStateWithCollection.Table1.pageSize[0].c).toEqual(
@@ -518,9 +541,9 @@ describe("generateOptimisedUpdates", () => {
         const updatedWorkerStateWithASingleValue = produce(
           klona(workerStateWithCollection),
           (draft: any) => {
-            draft.Table1.pageSize[0].c = moment(someNewDate) as any;
+            draft.Table1.pageSize[0].c = moment(someNewDate);
           },
-        );
+        ) as any;
 
         //generate serialised diff updates
         const { serialisedUpdates } = generateSerialisedUpdates(
@@ -545,7 +568,7 @@ describe("generateOptimisedUpdates", () => {
           (draft: any) => {
             draft.Table1.pageSize[0].c = JSON.parse(
               JSON.stringify(moment(someNewDate)),
-            ) as any;
+            );
           },
         );
 
@@ -560,7 +583,7 @@ describe("generateOptimisedUpdates", () => {
           (draft: any) => {
             draft.Table1.pageSize[0].c = moment(someNewDate) as any;
           },
-        );
+        ) as any;
 
         //generate serialised diff updates
         const { serialisedUpdates } = generateSerialisedUpdates(
@@ -583,7 +606,7 @@ describe("generateOptimisedUpdates", () => {
           (draft: any) => {
             draft.Table1.pageSize[0].c = JSON.parse(
               JSON.stringify(moment(someNewDate)),
-            ) as any;
+            );
           },
         );
 
