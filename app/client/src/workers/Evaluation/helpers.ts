@@ -316,8 +316,8 @@ const getScrubbedOutUpdatesWhenRootCollectionIsUpdated = (
 };
 
 export const generateOptimisedUpdates = (
-  oldDataTree: DataTree,
-  dataTree: DataTree,
+  oldDataTree: any,
+  dataTree: any,
   identicalEvalPathsPatches?: Record<string, string>,
 ): DiffWithReferenceState[] => {
   const ignoreLargeKeys = normaliseEvalPath(identicalEvalPathsPatches);
