@@ -4,6 +4,7 @@ const os = require('os');
 const fsPromises = require('fs/promises');
 const utils = require('./utils');
 const shell = require('shelljs');
+const readlineSync = require('readline-sync');
 
 describe('Backup Tests', () => {
 
@@ -78,16 +79,18 @@ test('Test ln command generation', async () => {
 })
 
 it('Checks for the current Appsmith Version.', async () => {
+  fsPromises.readFile =  jest.fn().mockImplementation(async (a) =>
+  `Object.defineProperty(exports, "__esModule", { value: true });
+  exports.VERSION = void 0;
+  exports.VERSION = "v0.0.0-SNAPSHOT";`);
+  const res = await utils.getCurrentAppsmithVersion()
+  expect(res).toBe("v0.0.0-SNAPSHOT")
+  console.log(res)
   fsPromises.readFile = jest.fn().mockImplementation(async () => `{"githubRef":"refs/tags/v1.2.3"}`);
   await expect(utils.getCurrentAppsmithVersion()).resolves.toBe("v1.2.3")
 })
 
-test('If Encryption env values are being removed', () => {
-  expect(backup.removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_ENCRYPTION_PASSWORD=dummy-pass\nAPPSMITH_ENCRYPTION_SALT=dummy-salt\nAPPSMITH_INSTANCE_NAME=Appsmith\n
-  `)).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
-});
-
-test('If MONGODB env values are being removed', () => {
+test('If MONGODB and Encryption env values are being removed', () => {
   expect(backup.removeSensitiveEnvData(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_MONGODB_URI=mongodb://appsmith:pass@localhost:27017/appsmith\nAPPSMITH_MONGODB_USER=appsmith\nAPPSMITH_MONGODB_PASSWORD=pass\nAPPSMITH_INSTANCE_NAME=Appsmith\n
   `)).toMatch(`APPSMITH_REDIS_URL=redis://127.0.0.1:6379\nAPPSMITH_INSTANCE_NAME=Appsmith\n`)
 });
@@ -182,5 +185,72 @@ test('Cleanup Backups when limit is 2 and there is no file', async () => {
   console.log(res)
   expect(res).toEqual(expectedBackupFiles)
 })
+
+
+test('Test get encryption password from user prompt whene both passords are the same', async () => {
+  const password = 'password#4321'
+  readlineSync.question = jest.fn().mockImplementation((a) => {return password});
+  const password_res = backup.getEncryptionPasswordFromUser()
+
+  expect(password_res).toEqual(password)
+})
+
+test('Test get encryption password from user prompt when both passords are the different', async () => {
+  const password = 'password#4321'
+  readlineSync.question = jest.fn().mockImplementation((a) => {
+    if (a=='Enter the above password again: '){
+      return 'pass';
+    }
+    return password});
+  const password_res = backup.getEncryptionPasswordFromUser()
+
+  expect(password_res).toEqual(-1)
+})
+
+test('Get encrypted archive path', async () => {
+  const archivePath = '/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z';
+  const encryptionPassword = 'password#4321'
+  utils.execCommand = jest.fn().mockImplementation( async (a) => console.log(a));
+  const encArchivePath = await backup.encryptBackupArchive(archivePath, encryptionPassword)
+
+  expect(encArchivePath).toEqual('/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z' + '.enc')
+})
+
+test('Test backup encryption function', async () => {
+  utils.execCommand= jest.fn().mockImplementation(async (a) => console.log(a));
+  const archivePath = '/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z'
+  const encryptionPassword =  'password#123'
+  const res = await backup.encryptBackupArchive(archivePath,encryptionPassword)
+  console.log(res)
+  expect(res).toEqual('/rootDir/appsmith-backup-0000-00-0T00-00-00.00Z.enc')
+})
 });
+
+test('Get DB name from Mongo URI 1', async () => {
+  var mongodb_uri = "mongodb+srv://admin:password@test.cluster.mongodb.net/my_db_name?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin"
+  var expectedDBName = 'my_db_name'
+  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  expect(dbName).toEqual(expectedDBName)
+})
+
+test('Get DB name from Mongo URI 2', async () => {
+  var mongodb_uri = "mongodb+srv://admin:password@test.cluster.mongodb.net/test123?retryWrites=true&minPoolSize=1&maxPoolSize=10&maxIdleTimeMS=900000&authSource=admin"
+  var expectedDBName = 'test123'
+  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  expect(dbName).toEqual(expectedDBName)
+})
+
+test('Get DB name from Mongo URI 3', async () => {
+  var mongodb_uri = "mongodb+srv://admin:password@test.cluster.mongodb.net/test123"
+  var expectedDBName = 'test123'
+  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  expect(dbName).toEqual(expectedDBName)
+})
+
+test('Get DB name from Mongo URI 4', async () => {
+  var mongodb_uri = "mongodb://appsmith:pAssW0rd!@localhost:27017/appsmith"
+  var expectedDBName = 'appsmith'
+  const dbName = utils.getDatabaseNameFromMongoURI(mongodb_uri)
+  expect(dbName).toEqual(expectedDBName)
+})
 
