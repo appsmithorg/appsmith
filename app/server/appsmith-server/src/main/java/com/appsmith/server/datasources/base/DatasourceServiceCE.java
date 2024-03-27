@@ -11,7 +11,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 public interface DatasourceServiceCE {
@@ -26,7 +25,7 @@ public interface DatasourceServiceCE {
      */
     Mono<DatasourceTestResult> testDatasource(DatasourceStorageDTO datasourceStorageDTO, String activeEnvironmentId);
 
-    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, Optional<AclPermission> permission);
+    Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission);
 
     Mono<Datasource> findById(String id, AclPermission aclPermission);
 
@@ -50,8 +49,6 @@ public interface DatasourceServiceCE {
      */
     Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params);
 
-    Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission);
-
     /**
      * Retrieves all datasources based on workspaceId. The retrieved datasources will contain
      * configurations from all environments.
@@ -60,7 +57,7 @@ public interface DatasourceServiceCE {
      * @param permission  In case permissions are absent, the DB query disregards GAC rules
      * @return
      */
-    Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission);
+    Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, AclPermission permission);
 
     Flux<Datasource> saveAll(List<Datasource> datasourceList);
 

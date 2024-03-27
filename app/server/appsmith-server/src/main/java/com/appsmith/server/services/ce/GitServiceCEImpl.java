@@ -2643,8 +2643,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String defaultBranch = gitArtifactMetadata.getDefaultBranchName();
 
                     Mono<List<Datasource>> datasourceMono = datasourceService
-                            .getAllByWorkspaceIdWithStorages(
-                                    workspaceId, Optional.of(datasourcePermission.getEditPermission()))
+                            .getAllByWorkspaceIdWithStorages(workspaceId, datasourcePermission.getEditPermission())
                             .collectList();
                     Mono<List<Plugin>> pluginMono =
                             pluginService.getDefaultPlugins().collectList();

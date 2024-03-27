@@ -674,8 +674,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Mono<Datasource> findByNameAndWorkspaceId(
-            String name, String workspaceId, Optional<AclPermission> permission) {
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission) {
         return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
     }
 
@@ -759,20 +758,14 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params) {
         String workspaceId = params.getFirst(Datasource.Fields.workspaceId);
         if (workspaceId != null) {
-            return this.getAllByWorkspaceIdWithStorages(
-                    workspaceId, Optional.of(datasourcePermission.getReadPermission()));
+            return this.getAllByWorkspaceIdWithStorages(workspaceId, datasourcePermission.getReadPermission());
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
     }
 
     @Override
-    public Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission) {
-        return repository.findAllByWorkspaceId(workspaceId, permission);
-    }
-
-    @Override
-    public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission) {
+    public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, AclPermission permission) {
 
         return repository
                 .findAllByWorkspaceId(workspaceId, permission)
