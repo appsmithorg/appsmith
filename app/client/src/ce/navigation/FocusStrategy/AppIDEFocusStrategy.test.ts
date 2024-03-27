@@ -2,6 +2,8 @@ import { runSaga } from "redux-saga";
 import { AppIDEFocusStrategy } from "./AppIDEFocusStrategy";
 import { NavigationMethod } from "utils/history";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+import { take } from "redux-saga/effects";
+import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 describe("AppIDEFocusStrategy", () => {
   describe("getEntitiesForSet", () => {
@@ -223,6 +225,28 @@ describe("AppIDEFocusStrategy", () => {
         }),
         key: expect.stringContaining("edit/jsObjects/js_id2#main"),
       });
+    });
+  });
+
+  describe("Wait for Path Load", () => {
+    it("waits for page fetch success when page changes", () => {
+      const pageChangeGen = AppIDEFocusStrategy.waitForPathLoad(
+        "/app/appSlug/pageSlug1-pageId1/edit",
+        "/app/appSlug/pageSlug2-pageId2/edit",
+      );
+
+      expect(pageChangeGen.next().value).toEqual(
+        take(ReduxActionTypes.FETCH_PAGE_SUCCESS),
+      );
+    });
+
+    it("does not wait for page fetch success when page does not change", () => {
+      const pageChangeGen = AppIDEFocusStrategy.waitForPathLoad(
+        "/app/appSlug/pageSlug1-pageId1/edit/widgets/1",
+        "/app/appSlug/pageSlug1-pageId1/edit/widgets/2",
+      );
+
+      expect(pageChangeGen.next().value).toEqual(undefined);
     });
   });
 });
