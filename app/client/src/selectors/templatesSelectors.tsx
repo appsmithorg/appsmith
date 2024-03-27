@@ -264,3 +264,6 @@ export const templatesCountSelector = (state: AppState) =>
 
 export const activeLoadingTemplateId = (state: AppState) =>
   state.ui.templates.activeLoadingTemplateId;
+
+export const isDraggingBuildingBlockToCanvas = (state: AppState) =>
+  state.ui.templates.isDraggingBuildingBlockToCanvas;

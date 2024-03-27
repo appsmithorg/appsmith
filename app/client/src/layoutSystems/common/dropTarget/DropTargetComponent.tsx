@@ -48,6 +48,7 @@ import {
 import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
 import BuildingBlockExplorerDropTarget from "./buildingBlockExplorerDropTarget";
+import { isDraggingBuildingBlockToCanvas } from "selectors/templatesSelectors";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -73,6 +74,9 @@ const StyledDropTarget = styled.div`
 
 function Onboarding() {
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
+  const draggingBuildingBlockToCanvas = useSelector(
+    isDraggingBuildingBlockToCanvas,
+  );
   const appState = useCurrentAppState();
   const isAirgappedInstance = isAirgapped();
 
@@ -98,18 +102,28 @@ function Onboarding() {
     ],
   );
 
+  const shouldShowBuildingBlocksDropTarget = useMemo(
+    () => releaseDragDropBuildingBlocks && !draggingBuildingBlockToCanvas,
+    [releaseDragDropBuildingBlocks, draggingBuildingBlockToCanvas],
+  );
+
   if (shouldShowStarterTemplates && appState === IDEAppState.EDITOR) {
     return <StarterBuildingBlocks />;
-  } else if (!shouldShowStarterTemplates && appState === IDEAppState.EDITOR) {
-    if (releaseDragDropBuildingBlocks) {
-      return <BuildingBlockExplorerDropTarget />;
-    } else {
-      return (
-        <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
-          Drag and drop a widget here
-        </h2>
-      );
-    }
+  } else if (
+    shouldShowBuildingBlocksDropTarget &&
+    appState === IDEAppState.EDITOR
+  ) {
+    return <BuildingBlockExplorerDropTarget />;
+  } else if (
+    !shouldShowBuildingBlocksDropTarget &&
+    !shouldShowStarterTemplates &&
+    !draggingBuildingBlockToCanvas
+  ) {
+    return (
+      <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
+        Drag and drop a widget here
+      </h2>
+    );
   } else {
     return null;
   }

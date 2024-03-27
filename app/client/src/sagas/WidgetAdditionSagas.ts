@@ -22,6 +22,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
+import { runAction } from "actions/pluginActionActions";
 import { pasteWidget } from "actions/widgetActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
@@ -89,7 +90,6 @@ import {
   getWidgetByName,
   getWidgets,
 } from "./selectors";
-import { runAction } from "actions/pluginActionActions";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -545,6 +545,11 @@ export function* addBuildingBlockToApplication(
       templateId: selectedBuildingBlock.id,
     };
 
+    // start loading for dragging building blocks
+    yield put({
+      type: ReduxActionTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_INIT,
+    });
+
     // makes sure updateAndSaveLayout completes first for skeletonWidget addition
     yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
 
@@ -631,6 +636,11 @@ export function* addBuildingBlockToApplication(
       yield put(pasteWidget(false, mousePosition));
       yield call(postPageAdditionSaga, applicationId);
 
+      // stop loading after pasting process is complete
+      yield put({
+        type: ReduxActionTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_SUCCESS,
+      });
+
       // run all actions in the building block, if any, to populate the page with data
       if (
         response.data.onPageLoadActions &&
@@ -656,6 +666,9 @@ export function* addBuildingBlockToApplication(
         disallowUndo: true,
         isShortcut: false,
       },
+    });
+    yield put({
+      type: ReduxActionErrorTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_ERROR,
     });
   }
 }
