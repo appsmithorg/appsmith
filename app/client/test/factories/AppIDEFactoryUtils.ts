@@ -14,10 +14,12 @@ interface IDEStateArgs {
   actions?: Action[];
   js?: JSCollection[];
   tabs?: IDETabs;
+  branch?: string;
 }
 
 export const getIDETestState = ({
   actions = [],
+  branch,
   ideView = EditorViewMode.FullScreen,
   js = [],
   pages = [],
@@ -57,6 +59,17 @@ export const getIDETestState = ({
       editor: {
         ...initialState.ui.editor,
         initialized: true,
+      },
+      applications: {
+        ...initialState.ui.applications,
+        currentApplication: branch
+          ? {
+              ...initialState.ui.applications.currentApplication,
+              gitApplicationMetadata: {
+                branchName: branch || "",
+              },
+            }
+          : { ...initialState.ui.applications.currentApplication },
       },
     },
   };
