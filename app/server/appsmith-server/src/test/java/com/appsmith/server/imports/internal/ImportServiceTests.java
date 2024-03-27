@@ -957,8 +957,7 @@ public class ImportServiceTests {
                     return Mono.zip(
                             Mono.just(applicationImportDTO),
                             datasourceService
-                                    .getAllByWorkspaceIdWithStorages(
-                                            application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
+                                    .getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), MANAGE_DATASOURCES)
                                     .collectList(),
                             newActionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
@@ -1207,8 +1206,7 @@ public class ImportServiceTests {
                         Mono.just(applicationImportDTO),
                         datasourceService
                                 .getAllByWorkspaceIdWithStorages(
-                                        applicationImportDTO.getApplication().getWorkspaceId(),
-                                        Optional.of(MANAGE_DATASOURCES))
+                                        applicationImportDTO.getApplication().getWorkspaceId(), MANAGE_DATASOURCES)
                                 .collectList(),
                         getActionsInApplication(applicationImportDTO.getApplication())
                                 .collectList(),
@@ -1318,8 +1316,7 @@ public class ImportServiceTests {
                         Mono.just(applicationImportDTO),
                         datasourceService
                                 .getAllByWorkspaceIdWithStorages(
-                                        applicationImportDTO.getApplication().getWorkspaceId(),
-                                        Optional.of(MANAGE_DATASOURCES))
+                                        applicationImportDTO.getApplication().getWorkspaceId(), MANAGE_DATASOURCES)
                                 .collectList(),
                         getActionsInApplication(applicationImportDTO.getApplication())
                                 .collectList(),
@@ -1497,8 +1494,7 @@ public class ImportServiceTests {
                     return Mono.zip(
                             Mono.just(applicationImportDTO),
                             datasourceService
-                                    .getAllByWorkspaceIdWithStorages(
-                                            application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
+                                    .getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), MANAGE_DATASOURCES)
                                     .collectList(),
                             newActionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
@@ -3041,8 +3037,7 @@ public class ImportServiceTests {
         StepVerifier.create(resultMono.flatMap(application -> Mono.zip(
                         Mono.just(application),
                         datasourceService
-                                .getAllByWorkspaceIdWithStorages(
-                                        application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
+                                .getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), MANAGE_DATASOURCES)
                                 .collectList(),
                         newActionService
                                 .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
@@ -3105,8 +3100,7 @@ public class ImportServiceTests {
         StepVerifier.create(resultMono.flatMap(application -> Mono.zip(
                         Mono.just(application),
                         datasourceService
-                                .getAllByWorkspaceIdWithStorages(
-                                        application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
+                                .getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), MANAGE_DATASOURCES)
                                 .collectList(),
                         newActionService
                                 .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)
@@ -3690,7 +3684,7 @@ public class ImportServiceTests {
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplication_invalidPluginReferenceForDatasource_throwException() {
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.anySet(), Mockito.anyList()))
                 .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         Workspace newWorkspace = new Workspace();
@@ -5248,8 +5242,7 @@ public class ImportServiceTests {
                     return Mono.zip(
                             Mono.just(applicationImportDTO),
                             datasourceService
-                                    .getAllByWorkspaceIdWithStorages(
-                                            application.getWorkspaceId(), Optional.of(MANAGE_DATASOURCES))
+                                    .getAllByWorkspaceIdWithStorages(application.getWorkspaceId(), MANAGE_DATASOURCES)
                                     .collectList(),
                             newActionService
                                     .findAllByApplicationIdAndViewMode(application.getId(), false, READ_ACTIONS, null)

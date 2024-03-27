@@ -14,6 +14,11 @@ import type { CodeEditorExpected } from "components/editorComponents/CodeEditor"
 import type { ColumnProperties } from "widgets/TableWidgetV2/component/Constants";
 import { StickyType } from "widgets/TableWidgetV2/component/Constants";
 import {
+  itemHeight,
+  noOfItemsToDisplay,
+  extraSpace,
+} from "widgets/TableWidgetV2/component/Constants";
+import {
   createColumn,
   isColumnTypeEditable,
   reorderColumns,
@@ -80,6 +85,8 @@ const getOriginalColumn = (
   ).find((column: ColumnProperties) => column.index === index);
   return column;
 };
+
+const fixedHeight = itemHeight * noOfItemsToDisplay + extraSpace;
 
 interface State {
   focusedIndex: number | null;
@@ -216,9 +223,9 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
             <DraggableListControl
               className={LIST_CLASSNAME}
               deleteOption={this.deleteOption}
-              fixedHeight={370}
+              fixedHeight={fixedHeight}
               focusedIndex={this.state.focusedIndex}
-              itemHeight={45}
+              itemHeight={itemHeight}
               items={draggableComponentColumns}
               keyAccessor="id"
               onEdit={this.onEdit}

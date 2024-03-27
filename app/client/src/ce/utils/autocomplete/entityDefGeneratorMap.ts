@@ -89,10 +89,12 @@ export const entityDefGeneratorMap: EntityDefGeneratorMap = {
       jsPropertiesDef[`${funcName}.data`] = funcTypeDef.data;
     }
 
-    for (let i = 0; i < entityConfig?.variables?.length; i++) {
-      const varKey = entityConfig?.variables[i];
-      const varValue = (entity as JSActionEntity)[varKey];
-      jsPropertiesDef[varKey] = generateTypeDef(varValue, extraDefsToDefine);
+    if (entityConfig.variables) {
+      for (let i = 0; i < entityConfig?.variables?.length; i++) {
+        const varKey = entityConfig?.variables[i];
+        const varValue = (entity as JSActionEntity)[varKey];
+        jsPropertiesDef[varKey] = generateTypeDef(varValue, extraDefsToDefine);
+      }
     }
 
     def[entityName] = jsPropertiesDef;

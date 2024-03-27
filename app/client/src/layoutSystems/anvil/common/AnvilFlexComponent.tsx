@@ -17,8 +17,6 @@ import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spa
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
-  // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
-  overflow: "hidden",
   zIndex: Layers.positionedWidget,
   // add transition ease-in animation when there is a flexgrow value change
   transition: "flex-grow 0.1s ease-in",
@@ -82,16 +80,24 @@ export const AnvilFlexComponent = forwardRef(
         flexGrow: isFillWidget ? 1 : 0,
         flexShrink: isFillWidget ? 1 : 0,
         flexBasis,
-        padding: "spacing-1",
         alignItems: "center",
         width: "max-content",
       };
       if (widgetSize) {
-        const { maxHeight, maxWidth, minHeight, minWidth } = widgetSize;
+        const {
+          maxHeight,
+          maxWidth,
+          minHeight,
+          minWidth,
+          paddingBottom,
+          paddingTop,
+        } = widgetSize;
         data.maxHeight = maxHeight;
         data.maxWidth = maxWidth;
         data.minHeight = minHeight;
         data.minWidth = minWidth;
+        data.paddingTop = paddingTop;
+        data.paddingBottom = paddingBottom;
       }
       return data;
     }, [widgetConfigProps, widgetSize, flexGrow]);
@@ -99,6 +105,7 @@ export const AnvilFlexComponent = forwardRef(
     // Render the Anvil Flex Component using the Flex component from WDS
     return (
       <Flex
+        isInner
         {...flexProps}
         className={_className}
         id={getAnvilWidgetDOMId(widgetId)}

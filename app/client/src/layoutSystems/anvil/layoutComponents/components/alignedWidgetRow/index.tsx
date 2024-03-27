@@ -25,6 +25,7 @@ class AlignedWidgetRow extends BaseLayoutComponent {
       alignSelf: "stretch",
       direction: "row",
       wrap: "wrap",
+      gap: "spacing-3",
       className: "aligned-widget-row",
     };
   }

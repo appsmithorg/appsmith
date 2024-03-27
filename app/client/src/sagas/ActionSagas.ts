@@ -926,10 +926,6 @@ export function* setActionPropertySaga(
   if (propertyName === "name") return;
 
   const actionObj: Action = yield select(getAction, actionId);
-  const fieldToBeUpdated = propertyName.replace(
-    "actionConfiguration",
-    "config",
-  );
 
   if (!actionObj) {
     return;
@@ -943,20 +939,6 @@ export function* setActionPropertySaga(
         : QUERY_EDITOR_FORM_NAME,
     ),
   );
-
-  AppsmithConsole.info({
-    logType: LOG_TYPE.ACTION_UPDATE,
-    text: "Configuration updated",
-    source: {
-      type: ENTITY_TYPE.ACTION,
-      name: actionObj?.name,
-      id: actionId,
-      propertyPath: fieldToBeUpdated,
-    },
-    state: {
-      [fieldToBeUpdated]: value,
-    },
-  });
 
   const effects: Record<string, any> = {};
   // Value change effect

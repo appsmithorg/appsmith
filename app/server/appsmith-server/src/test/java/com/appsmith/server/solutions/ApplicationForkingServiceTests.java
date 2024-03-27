@@ -97,7 +97,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -1360,7 +1359,7 @@ public class ApplicationForkingServiceTests {
                                 .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.of(READ_DATASOURCES))
+                                .getAllByWorkspaceIdWithStorages(workspace.getId(), READ_DATASOURCES)
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace).map(data.actions::add),
                         getActionCollectionsInWorkspace(workspace).map(data.actionCollections::add),

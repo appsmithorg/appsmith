@@ -56,7 +56,7 @@ jobs:
 
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/appsmithctl_run_result
@@ -73,14 +73,14 @@ jobs:
 
       - name: Use Node.js
         if: steps.appsmithctl_run_result.outputs.appsmithctl_run_result != 'success'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
 
       # Install all the dependencies
       - name: Install dependencies
         if: steps.appsmithctl_run_result.outputs.appsmithctl_run_result != 'success'
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       # Run the Jest tests only if the workflow has been invoked in a PR
       - name: Run the jest tests

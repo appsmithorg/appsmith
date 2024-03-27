@@ -942,10 +942,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
 
     //check if necessary we are batching now updates
     // Check if tableData is modifed
-    const isTableDataModified = !equal(
-      this.props.tableData,
-      prevProps.tableData,
-    );
+    const isTableDataModified = this.props.tableData !== prevProps.tableData;
 
     const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
     // If the user has changed the tableData OR

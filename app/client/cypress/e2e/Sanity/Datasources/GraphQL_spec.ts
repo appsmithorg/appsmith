@@ -6,6 +6,7 @@ import {
   locators,
   dataManager,
   propPane,
+  assertHelper,
 } from "../../../support/Objects/ObjectsCore";
 
 let datasourceName = "GraphQL_DS";
@@ -323,6 +324,10 @@ describe(
         "Client Credentials",
         "Authorization Code",
       ]);
+
+      // For Client Credentials Grant Type, the button should be Save
+      // Default first selection from dropdown is Client Credentials
+      assertHelper.AssertContains("Save", "exist", dataSources._saveDs);
 
       propPane.AssertPropertiesDropDownValues("Add Access Token To", [
         "Request Header",

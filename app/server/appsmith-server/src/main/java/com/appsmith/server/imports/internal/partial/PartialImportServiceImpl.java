@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.internal.partial;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.CustomJSLib;
@@ -9,6 +10,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
@@ -56,7 +58,9 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             RefactoringService refactoringService,
             ApplicationTemplateService applicationTemplateService,
             WidgetRefactorUtil widgetRefactorUtil,
-            ApplicationPageService applicationPageService) {
+            ApplicationPageService applicationPageService,
+            NewActionService newActionService,
+            ActionCollectionService actionCollectionService) {
         super(
                 importService,
                 workspaceService,
@@ -80,6 +84,8 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
                 refactoringService,
                 applicationTemplateService,
                 widgetRefactorUtil,
-                applicationPageService);
+                applicationPageService,
+                newActionService,
+                actionCollectionService);
     }
 }
