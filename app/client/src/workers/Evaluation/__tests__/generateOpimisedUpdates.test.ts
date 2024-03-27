@@ -1,6 +1,5 @@
 import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import { applyChange } from "deep-diff";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona } from "klona/full";
 import { range } from "lodash";
@@ -33,7 +32,8 @@ export const smallDataSet = [
 ];
 //size of about 300 elements
 const largeDataSet = range(100).flatMap(() => smallDataSet);
-// In the widgetEntity
+// In the oldState we have provided evaluationProps so we have created a type which states that the entity always has it
+//  and __evaluation__.errors is not optional. So we don't have to keep adding truthy checks when accessing the evaluationProps in this test case.
 interface dataTreeWithWidget {
   [entityName: string]: WidgetEntity & Required<DataTreeEvaluationProps>;
 }
@@ -109,7 +109,7 @@ const oldState: dataTreeWithWidget = {
 describe("generateOptimisedUpdates", () => {
   describe("regular diff", () => {
     test("should not generate any diff when the constrainedDiffPaths is empty", () => {
-      const newState: DataTree = produce(oldState, (draft) => {
+      const newState = produce(oldState, (draft) => {
         draft.Table1.pageSize = 17;
       });
       const updates = generateOptimisedUpdates(oldState, newState, []);
@@ -294,9 +294,7 @@ describe("generateOptimisedUpdates", () => {
       it("should clean out new function properties added to the generated state", () => {
         const newStateWithSomeFnProperty = produce(oldState, (draft) => {
           draft.Table1.someFn = () => {};
-          if (draft.Table1.__evaluation__) {
-            draft.Table1.__evaluation__.errors.someEvalFn = someEvalFn;
-          }
+          draft.Table1.__evaluation__.errors.someEvalFn = someEvalFn;
         });
 
         const { serialisedUpdates } = generateSerialisedUpdates(
@@ -323,9 +321,7 @@ describe("generateOptimisedUpdates", () => {
       it("should delete properties which get updated to a function", () => {
         const newStateWithSomeFnProperty = produce(oldState, (draft) => {
           draft.Table1.pageSize = () => {};
-          if (draft.Table1.__evaluation__) {
-            draft.Table1.__evaluation__.errors.transientTableData = someEvalFn;
-          }
+          draft.Table1.__evaluation__.errors.transientTableData = someEvalFn;
         });
 
         const { serialisedUpdates } = generateSerialisedUpdates(
@@ -359,9 +355,7 @@ describe("generateOptimisedUpdates", () => {
         });
         const expectedState = produce(oldState, (draft) => {
           delete draft.Table1.pageSize;
-          if (draft.Table1.__evaluation__) {
-            delete draft.Table1.__evaluation__.errors.transientTableData;
-          }
+          delete draft.Table1.__evaluation__.errors.transientTableData;
         });
 
         expect(parseAndApplyUpdatesToOldState).toEqual(expectedState);
@@ -370,20 +364,16 @@ describe("generateOptimisedUpdates", () => {
         const oldStateWithSomeFnProperty = produce(oldState, (draft) => {
           // eslint-disable-next-line @typescript-eslint/no-empty-function
           draft.Table1.pageSize = () => {};
-          if (draft.Table1.__evaluation__) {
-            draft.Table1.__evaluation__.errors.transientTableData =
-              // eslint-disable-next-line @typescript-eslint/no-empty-function
-              someEvalFn;
-          }
+          draft.Table1.__evaluation__.errors.transientTableData =
+            // eslint-disable-next-line @typescript-eslint/no-empty-function
+            someEvalFn;
         });
         const newStateWithFnsTransformedToUndefined = produce(
           oldState,
           (draft) => {
             draft.Table1.pageSize = undefined;
-            if (draft.Table1.__evaluation__) {
-              draft.Table1.__evaluation__.errors.transientTableData =
-                undefined as unknown as EvaluationError[];
-            }
+            draft.Table1.__evaluation__.errors.transientTableData =
+              undefined as unknown as EvaluationError[];
           },
         );
 
@@ -418,9 +408,7 @@ describe("generateOptimisedUpdates", () => {
         });
         const expectedState = produce(oldState, (draft) => {
           delete draft.Table1.pageSize;
-          if (draft.Table1.__evaluation__) {
-            delete draft.Table1.__evaluation__.errors.transientTableData;
-          }
+          delete draft.Table1.__evaluation__.errors.transientTableData;
         });
 
         expect(parseAndApplyUpdatesToOldState).toEqual(expectedState);
