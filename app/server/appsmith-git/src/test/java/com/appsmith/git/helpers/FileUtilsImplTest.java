@@ -27,7 +27,6 @@ import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECT
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
-@ExtendWith(SpringExtension.class)
 public class FileUtilsImplTest {
     private FileUtilsImpl fileUtils;
 
