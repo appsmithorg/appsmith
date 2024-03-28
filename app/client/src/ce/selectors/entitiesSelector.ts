@@ -1486,6 +1486,7 @@ export const getNewEntityName = createSelector(
     return getNextEntityName(
       prefixExists ? `${prefix}${suffix}` : prefix,
       entityNames,
+      startWithoutIndex,
     );
   },
 );
