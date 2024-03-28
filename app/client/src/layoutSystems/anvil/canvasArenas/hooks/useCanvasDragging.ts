@@ -2,17 +2,15 @@ import type React from "react";
 import { useEffect, useRef } from "react";
 import type { AnvilHighlightingCanvasProps } from "../AnvilHighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
-import { Colors } from "constants/Colors";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { getAbsolutePixels } from "utils/helpers";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { getNearestParentCanvas } from "utils/generators";
 import { getClosestHighlight } from "./utils";
 import { AnvilCanvasZIndex } from "./mainCanvas/useCanvasActivation";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
+import { AnvilEditorColors } from "layoutSystems/anvil/utils/constants";
 
 const setHighlightsDrawn = (highlight?: AnvilHighlightInfo) => {
   return {
@@ -35,19 +33,89 @@ const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
   slidingArena.style.opacity = "0.8";
 };
 
-/**
- * Function to render UX to denote that the widget can only be dropped on the main canvas
- * and also there would be no highlights for AnvilOverlayWidgetTypes widgets
- */
-const renderOverlayWidgetDropLayer = (slidingArena: HTMLDivElement) => {
-  slidingArena.style.backgroundColor = Colors.HIGHLIGHT_FILL;
-  slidingArena.style.opacity = "70%";
-  slidingArena.style.color = "white";
-  slidingArena.innerText = "Please drop the widget here";
-  slidingArena.style.display = "flex";
-  slidingArena.style.alignItems = "center";
-  slidingArena.style.justifyContent = "center";
-};
+function drawRoundedCorner(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  radius: number,
+  startAngle: number,
+  endAngle: number,
+) {
+  const segments = 10; // Number of segments per quarter circle
+  const angleIncrement = (endAngle - startAngle) / segments;
+
+  for (let i = 1; i <= segments; i++) {
+    const angle = startAngle + angleIncrement * i;
+    const xOffset = x + Math.cos(angle) * radius;
+    const yOffset = y + Math.sin(angle) * radius;
+    ctx.lineTo(xOffset, yOffset);
+  }
+}
+
+function roundRect(
+  ctx: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number,
+  fillStyle?: string,
+  strokeStyle?: string,
+) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+
+  // Top-right corner
+  drawRoundedCorner(
+    ctx,
+    x + width - radius,
+    y + radius,
+    radius,
+    -Math.PI / 2,
+    0,
+  );
+
+  // Bottom-right corner
+  drawRoundedCorner(
+    ctx,
+    x + width - radius,
+    y + height - radius,
+    radius,
+    0,
+    Math.PI / 2,
+  );
+
+  // Bottom-left corner
+  drawRoundedCorner(
+    ctx,
+    x + radius,
+    y + height - radius,
+    radius,
+    Math.PI / 2,
+    Math.PI,
+  );
+
+  // Top-left corner
+  drawRoundedCorner(
+    ctx,
+    x + radius,
+    y + radius,
+    radius,
+    Math.PI,
+    (Math.PI * 3) / 2,
+  );
+
+  ctx.closePath();
+
+  if (fillStyle) {
+    ctx.fillStyle = fillStyle;
+    ctx.fill();
+  }
+  if (strokeStyle) {
+    ctx.strokeStyle = strokeStyle;
+    ctx.stroke();
+  }
+}
 
 /**
  * Function to stroke a rectangle on the canvas that looks like a highlight/drop area.
@@ -68,46 +136,21 @@ const renderBlocksOnCanvas = (
 
   // Clearing previous drawings on the canvas
   canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
-  canvasCtx.stroke();
   canvasCtx.beginPath();
-
-  // Styling the rectangle
-  canvasCtx.fillStyle = Colors.HIGHLIGHT_FILL;
-  canvasCtx.lineWidth = 1;
-  canvasCtx.strokeStyle = Colors.HIGHLIGHT_OUTLINE;
-  canvasCtx.setLineDash([]);
-
   // Extracting dimensions of the block to render
   const { height, posX, posY, width } = blockToRender;
+  // using custom function to draw a rounded rectangle to achieve more sharper rounder corners
 
-  // Drawing a rectangle on the canvas
-  if (canvasCtx.roundRect) {
-    // Using roundRect method if available (not supported in Firefox)
-    canvasCtx.roundRect(posX - leftOffset, posY - topOffset, width, height, 4);
-  } else {
-    // Using rect method as a fallback
-    canvasCtx.rect(posX - leftOffset, posY - topOffset, width, height);
-  }
-
-  // Filling and stroking the rectangle
-  canvasCtx.fill();
-  canvasCtx.stroke();
-};
-
-/**
- * Default highlight passed for AnvilOverlayWidgetTypes widgets
- */
-const overlayWidgetHighlight: AnvilHighlightInfo = {
-  layoutId: "",
-  alignment: FlexLayerAlignment.Center,
-  canvasId: MAIN_CONTAINER_WIDGET_ID,
-  height: 0,
-  isVertical: false,
-  layoutOrder: [],
-  posX: 0,
-  posY: 0,
-  rowIndex: 0,
-  width: 0,
+  roundRect(
+    canvasCtx,
+    posX - leftOffset,
+    posY - topOffset,
+    width,
+    height,
+    2,
+    AnvilEditorColors.dropIndicator,
+  );
+  canvasCtx.closePath();
 };
 
 /**
@@ -228,20 +271,12 @@ export const useCanvasDragging = (
           if (
             isDragging &&
             canvasIsDragging.current &&
-            ((currentRectanglesToDraw &&
-              !currentRectanglesToDraw.existingPositionHighlight) ||
-              activateOverlayWidgetDrop) &&
+            currentRectanglesToDraw &&
+            !currentRectanglesToDraw.existingPositionHighlight &&
             allowToDrop
           ) {
             // Invoke onDrop callback with the appropriate highlight info
-            onDrop(
-              activateOverlayWidgetDrop
-                ? {
-                    ...overlayWidgetHighlight,
-                    layoutOrder: [mainCanvasLayoutId],
-                  }
-                : currentRectanglesToDraw,
-            );
+            onDrop(currentRectanglesToDraw);
           }
           resetCanvasState();
         };
@@ -293,11 +328,6 @@ export const useCanvasDragging = (
             if (!allowToDrop) {
               // Render disallow message if dropping is not allowed
               renderDisallowOnCanvas(slidingArenaRef.current);
-              return;
-            }
-            if (activateOverlayWidgetDrop) {
-              // Render overlay widget drop layer if applicable
-              renderOverlayWidgetDropLayer(slidingArenaRef.current);
               return;
             }
             // Get the closest highlight based on the mouse position
@@ -385,7 +415,6 @@ export const useCanvasDragging = (
     }
   }, [
     isDragging,
-    activateOverlayWidgetDrop,
     allowToDrop,
     draggedBlocks,
     isCurrentDraggedCanvas,
@@ -395,6 +424,6 @@ export const useCanvasDragging = (
   ]);
 
   return {
-    showCanvas: isDragging,
+    showCanvas: isDragging && !activateOverlayWidgetDrop,
   };
 };

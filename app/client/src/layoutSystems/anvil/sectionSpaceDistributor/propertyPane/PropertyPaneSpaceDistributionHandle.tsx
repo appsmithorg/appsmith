@@ -1,6 +1,7 @@
 import styled from "styled-components";
 import { PropPaneDistributionHandleCustomEvent } from "../constants";
 import React from "react";
+import { AnvilEditorColors } from "layoutSystems/anvil/utils/constants";
 
 const DistributionHandle = styled.div`
   display: flex;
@@ -12,9 +13,11 @@ const DistributionHandle = styled.div`
   cursor: col-resize;
   user-select: none;
   -webkit-user-select: none;
-  &:hover,
+  &:hover {
+    background: ${AnvilEditorColors.spaceDistributionHandle};
+  }
   &.active {
-    background: var(--ads-v2-color-bg-brand);
+    background: ${AnvilEditorColors.spaceDistributionHandleActive};
   }
 `;
 

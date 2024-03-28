@@ -1,0 +1,23 @@
+.detached-widgets-drop-overlay {
+  background-color: rgba(245, 222, 245, 0.9);
+}
+
+.detached-widgets-drop-overlay-content {
+  background-color: #ffe5fe !important;
+  outline: 1px dashed #ce01d3 !important;
+  outline-offset: 3px;
+  box-shadow: unset !important;
+  border-radius: 4px !important;
+  width: 100%;
+  aspect-ratio: 1/1;
+}
+.detached-widgets-drop-overlay-content > div {
+  display: flex;
+  flex: fit-content;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 510;
+  line-height: 19.6px;
+  color: #2a002b;
+}

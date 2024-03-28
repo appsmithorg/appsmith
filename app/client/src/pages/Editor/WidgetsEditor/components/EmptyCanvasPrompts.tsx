@@ -129,8 +129,9 @@ function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
   };
 
   const isAirgappedInstance = isAirgapped();
-
-  return (
+  const showCanvasPrompts =
+    (enableForkingFromTemplates && !isAirgappedInstance) || enableGenerateCrud;
+  return showCanvasPrompts ? (
     <Wrapper data-testid="canvas-ctas">
       {enableForkingFromTemplates && !isAirgappedInstance && (
         <Card data-testid="start-from-template" onClick={showTemplatesModal}>
@@ -163,7 +164,7 @@ function EmptyCanvasPrompts(props: EmptyCanvasPromptsProps) {
         </Card>
       )}
     </Wrapper>
-  );
+  ) : null;
 }
 
 export default EmptyCanvasPrompts;
