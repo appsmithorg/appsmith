@@ -14,7 +14,7 @@ import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/per
 import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import { EmptyState } from "../components/EmptyState";
 import history from "utils/history";
-import { newWidgetsURL } from "@appsmith/RouteBuilder";
+import { builderURL } from "@appsmith/RouteBuilder";
 import styled from "styled-components";
 
 const ListContainer = styled(Flex)`
@@ -41,8 +41,8 @@ const ListWidgets = () => {
     return widgets?.children?.map((child) => child.widgetId) || [];
   }, [widgets?.children]);
 
-  const addWidgetButtonClickHandler = useCallback(() => {
-    history.push(newWidgetsURL({}));
+  const addButtonClickHandler = useCallback(() => {
+    history.push(builderURL({}));
   }, []);
 
   const widgetsExist =
@@ -64,7 +64,7 @@ const ListWidgets = () => {
             EDITOR_PANE_TEXTS.widget_blank_state_description,
           )}
           icon={"widgets-v3"}
-          onClick={canManagePages ? addWidgetButtonClickHandler : undefined}
+          onClick={canManagePages ? addButtonClickHandler : undefined}
         />
       ) : canManagePages ? (
         /* We show the List Add button when side by side is not enabled  */
@@ -72,7 +72,7 @@ const ListWidgets = () => {
           <Button
             className="t--add-item"
             kind={"secondary"}
-            onClick={addWidgetButtonClickHandler}
+            onClick={addButtonClickHandler}
             size={"sm"}
             startIcon={"add-line"}
           >
