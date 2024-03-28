@@ -280,6 +280,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             BuildingBlockImportDTO buildingBlockImportDTO = new BuildingBlockImportDTO();
             buildingBlockImportDTO.setApplication(application);
             buildingBlockImportDTO.setWidgetDsl(applicationJson.getWidgets());
+            buildingBlockImportDTO.setRefactoredEntityNameMap(
+                    mappedImportableResourcesDTO.getRefactoringNameReference());
 
             return analyticsService
                     .sendEvent(AnalyticsEvents.PARTIAL_IMPORT.getEventName(), user.getUsername(), data)
@@ -435,6 +437,15 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 .forEach(dslExecutableDTOS -> {
                                     dslExecutableDTOS.forEach(dslExecutableDTO -> {
                                         if (dslExecutableDTO.getName() != null) {
+                                            // Use the refactored names to get the correct ids
+                                            if (buildingBlockImportDTO
+                                                            .getRefactoredEntityNameMap()
+                                                            .get(dslExecutableDTO.getName())
+                                                    != null) {
+                                                dslExecutableDTO.setName(buildingBlockImportDTO
+                                                        .getRefactoredEntityNameMap()
+                                                        .get(dslExecutableDTO.getName()));
+                                            }
                                             newOnPageLoadActionNames.add(dslExecutableDTO.getName());
                                             buildingBlockResponseDTO
                                                     .getOnPageLoadActions()

@@ -9,6 +9,7 @@ import type { Template, TemplateFiltersResponse } from "api/TemplatesApi";
 const initialState: TemplatesReduxState = {
   isImportingTemplate: false,
   isImportingTemplateToApp: false,
+  isDraggingBuildingBlockToCanvas: false,
   isImportingStarterBuildingBlockToApp: false,
   starterBuildingBlockDatasourcePrompt: false,
   loadingFilters: false,
@@ -219,6 +220,30 @@ const templateReducer = createReducer(initialState, {
       isImportingStarterBuildingBlockToApp: false,
     };
   },
+  [ReduxActionTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_INIT]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isDraggingBuildingBlockToCanvas: true,
+    };
+  },
+  [ReduxActionTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_SUCCESS]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isDraggingBuildingBlockToCanvas: false,
+    };
+  },
+  [ReduxActionErrorTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_ERROR]: (
+    state: TemplatesReduxState,
+  ) => {
+    return {
+      ...state,
+      isDraggingBuildingBlockToCanvas: false,
+    };
+  },
   [ReduxActionErrorTypes.GET_TEMPLATE_ERROR]: (state: TemplatesReduxState) => {
     return {
       ...state,
@@ -305,6 +330,7 @@ export interface TemplatesReduxState {
   isImportingTemplate: boolean;
   isImportingTemplateToApp: boolean;
   isImportingStarterBuildingBlockToApp: boolean;
+  isDraggingBuildingBlockToCanvas: boolean;
   starterBuildingBlockDatasourcePrompt: boolean;
   buildingBlockSourcePageId?: string;
   templateNotificationSeen: boolean | null;
