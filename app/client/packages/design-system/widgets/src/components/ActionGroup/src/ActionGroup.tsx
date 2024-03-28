@@ -74,7 +74,12 @@ const _ActionGroup = <T extends object>(
         })}
         {menuChildren?.length > 0 && (
           <Menu onAction={onAction}>
-            <IconButton color={color} icon="dots" variant={variant} />
+            <IconButton
+              color={color}
+              icon="dots"
+              size={size}
+              variant={variant}
+            />
             <MenuList>
               {menuChildren.map((item) => (
                 <Item isSeparator={item.props.isSeparator} key={item.key}>

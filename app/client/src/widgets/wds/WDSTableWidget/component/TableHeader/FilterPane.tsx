@@ -6,10 +6,7 @@ import type { AppState } from "@appsmith/reducers";
 import styled from "styled-components";
 
 import { Colors } from "constants/Colors";
-import type {
-  ReactTableColumnProps,
-  ReactTableFilter,
-} from "../../../Constants";
+import type { ReactTableColumnProps, ReactTableFilter } from "../Constants";
 import TableFilterPaneContent from "./FilterPaneContent";
 import { getCurrentThemeMode, ThemeMode } from "selectors/themeSelectors";
 import { Layers } from "constants/Layers";

@@ -1,5 +1,4 @@
 import React, { useCallback, useMemo } from "react";
-import { Flex } from "@design-system/widgets";
 import { reduce } from "lodash";
 import type { Row as ReactTableRowType } from "react-table";
 import {
@@ -11,7 +10,7 @@ import {
 } from "react-table";
 import { useSticky } from "react-table-sticky";
 import { TableWrapper } from "./TableStyledWrappers";
-import TableHeader from "./header";
+import { TableHeader } from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import type {
   ReactTableColumnProps,
@@ -96,7 +95,7 @@ export interface TableProps {
     pageData: ReactTableRowType<Record<string, unknown>>[],
   ) => void;
   triggerRowSelection: boolean;
-  searchTableData: (searchKey: any) => void;
+  onSearch: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
@@ -334,47 +333,39 @@ export function Table(props: TableProps) {
           widgetId={props.widgetId}
         />
         {isHeaderVisible && (
-          <Flex
-            gap="spacing-1"
-            padding="spacing-1"
-            style={{
-              borderBottom: "var(--border-width-1) solid var(--color-bd)",
-            }}
-          >
-            <TableHeader
-              allowAddNewRow={props.allowAddNewRow}
-              applyFilter={props.applyFilter}
-              columns={tableHeadercolumns}
-              currentPageIndex={currentPageIndex}
-              delimiter={props.delimiter}
-              disableAddNewRow={!!props.editableCell?.column}
-              disabledAddNewRowSave={props.disabledAddNewRowSave}
-              filters={props.filters}
-              isAddRowInProgress={props.isAddRowInProgress}
-              isVisibleDownload={props.isVisibleDownload}
-              isVisibleFilters={props.isVisibleFilters}
-              isVisiblePagination={props.isVisiblePagination}
-              isVisibleSearch={props.isVisibleSearch}
-              nextPageClick={props.nextPageClick}
-              onAddNewRow={props.onAddNewRow}
-              onAddNewRowAction={props.onAddNewRowAction}
-              pageCount={pageCount}
-              pageNo={props.pageNo}
-              pageOptions={pageOptions}
-              prevPageClick={props.prevPageClick}
-              searchKey={props.searchKey}
-              searchTableData={props.searchTableData}
-              serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-              tableColumns={columns}
-              tableData={data}
-              tableSizes={tableSizes}
-              totalRecordsCount={props.totalRecordsCount}
-              updatePageNo={props.updatePageNo}
-              widgetId={props.widgetId}
-              widgetName={props.widgetName}
-              width={props.width}
-            />
-          </Flex>
+          <TableHeader
+            allowAddNewRow={props.allowAddNewRow}
+            applyFilter={props.applyFilter}
+            columns={tableHeadercolumns}
+            currentPageIndex={currentPageIndex}
+            delimiter={props.delimiter}
+            disableAddNewRow={!!props.editableCell?.column}
+            disabledAddNewRowSave={props.disabledAddNewRowSave}
+            filters={props.filters}
+            isAddRowInProgress={props.isAddRowInProgress}
+            isVisibleDownload={props.isVisibleDownload}
+            isVisibleFilters={props.isVisibleFilters}
+            isVisiblePagination={props.isVisiblePagination}
+            isVisibleSearch={props.isVisibleSearch}
+            nextPageClick={props.nextPageClick}
+            onAddNewRow={props.onAddNewRow}
+            onAddNewRowAction={props.onAddNewRowAction}
+            onSearch={props.onSearch}
+            pageCount={pageCount}
+            pageNo={props.pageNo}
+            pageOptions={pageOptions}
+            prevPageClick={props.prevPageClick}
+            searchKey={props.searchKey}
+            serverSidePaginationEnabled={props.serverSidePaginationEnabled}
+            tableColumns={columns}
+            tableData={data}
+            tableSizes={tableSizes}
+            totalRecordsCount={props.totalRecordsCount}
+            updatePageNo={props.updatePageNo}
+            widgetId={props.widgetId}
+            widgetName={props.widgetName}
+            width={props.width}
+          />
         )}
         <div
           className={`tableWrap ${

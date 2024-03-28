@@ -988,6 +988,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           onBulkEditSave={this.onBulkEditSave}
           onConnectData={this.onConnectData}
           onRowClick={this.handleRowClick}
+          onSearch={this.handleSearchTable}
           pageNo={this.props.pageNo}
           pageSize={
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
@@ -995,7 +996,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
           searchKey={this.props.searchText}
-          searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined
