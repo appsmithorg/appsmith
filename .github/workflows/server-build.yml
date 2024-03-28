@@ -75,7 +75,7 @@ jobs:
         id: changed-files-specific
         uses: tj-actions/changed-files@v41
         with:
-          files: 'app/server/**'
+          files: "app/server/**"
 
       - name: Run step if any file(s) in the server folder change
         if: steps.changed-files-specific.outputs.any_changed == 'true'
@@ -128,7 +128,7 @@ jobs:
       # Setup Java
       - name: Set up JDK 17
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: "temurin"
           java-version: "17"
