@@ -12,8 +12,6 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Method;
 
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
-
 @Slf4j
 public class SoftDeletePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
     private ReactivePartTreeMongoQuery reactivePartTreeQuery;

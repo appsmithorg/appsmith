@@ -10,8 +10,7 @@ public class CacheableRepositoryHelperImpl extends CacheableRepositoryHelperCECo
         implements CacheableRepositoryHelper {
 
     public CacheableRepositoryHelperImpl(
-            EntityManager entityManager,
-            InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
+            EntityManager entityManager, InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
         super(entityManager, inMemoryCacheableRepositoryHelper);
     }
 }

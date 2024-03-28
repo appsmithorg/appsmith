@@ -47,9 +47,13 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<Workspace> findAll(AclPermission permission) {
-        return sessionUserService.getCurrentUser().flatMapMany(user -> Flux.fromIterable(queryBuilder()
-                .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
-                .permission(permission)
-                .all())).collectList().block();
+        return sessionUserService
+                .getCurrentUser()
+                .flatMapMany(user -> Flux.fromIterable(queryBuilder()
+                        .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
+                        .permission(permission)
+                        .all()))
+                .collectList()
+                .block();
     }
 }
