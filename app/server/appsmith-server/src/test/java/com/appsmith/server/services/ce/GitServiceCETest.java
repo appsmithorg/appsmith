@@ -1623,8 +1623,8 @@ public class GitServiceCETest {
         StepVerifier.create(applicationMono)
                 .assertNext(gitPullDTO -> {
                     assertThat(gitPullDTO.getMergeStatus().getStatus()).isEqualTo("2 commits pulled");
-                    assertThat(gitPullDTO.getApplication()).isNotNull();
-                    assertThat(gitPullDTO.getApplication().getId()).isEqualTo(application.getId());
+                    assertThat(gitPullDTO.getArtifact()).isNotNull();
+                    assertThat(gitPullDTO.getArtifact().getId()).isEqualTo(application.getId());
                 })
                 .verifyComplete();
     }
