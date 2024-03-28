@@ -73,14 +73,29 @@ const _ActionGroup = <T extends object>(
           );
         })}
         {menuChildren?.length > 0 && (
-          <Menu onAction={onAction}>
+          <Menu
+            disabledKeys={[
+              ...state.disabledKeys,
+              ...menuChildren
+                // filtering out separators so that they can't be clicked or navigated
+                .filter((item) => item.props.isSeparator)
+                .map((item) => item.key),
+            ]}
+            onAction={onAction}
+          >
             <IconButton color={color} icon="dots" variant={variant} />
             <MenuList>
-              {menuChildren.map((item) => (
-                <Item isSeparator={item.props.isSeparator} key={item.key}>
-                  {item.rendered}
-                </Item>
-              ))}
+              {menuChildren.map((item) => {
+                return (
+                  <Item
+                    icon={item.props.icon}
+                    isSeparator={item.props.isSeparator}
+                    key={item.key}
+                  >
+                    {item.rendered}
+                  </Item>
+                );
+              })}
             </MenuList>
           </Menu>
         )}

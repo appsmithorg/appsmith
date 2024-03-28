@@ -17,6 +17,7 @@ export const MenuItem = <T extends object>(props: MenuItemProps<T>) => {
       data-focused={isFocused ? "" : undefined}
       data-hovered={isFocused ? "" : undefined}
       data-selected={isSelected ? "" : undefined}
+      data-separator={Boolean(item.props.isSeparator) ? "" : undefined}
       ref={ref}
     >
       <div data-text>{item.rendered}</div>

@@ -113,9 +113,11 @@ The `ActionGroup` can be `collapse`. By default it is not collapsed. When collpa
 <Story name="OverflowMode">
   <div style={{ maxWidth: 150 }}>
     <ActionGroup overflowMode="collapse" variant="outlined">
-      <Item key="option-1">Option 1</Item>
-      <Item isSeparator />
+      <Item key="option-1" icon="file">
+        Option 1
+      </Item>
       <Item key="option-2">Option 2</Item>
+      <Item isSeparator />
       <Item key="option-3" icon="file">
         {"Option 3"}
       </Item>
