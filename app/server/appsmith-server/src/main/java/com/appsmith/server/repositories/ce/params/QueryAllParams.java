@@ -92,18 +92,19 @@ public class QueryAllParams<T extends BaseDomain> {
         }
     }
 
-    public QueryAllParams<T> criteria(Criteria... criteria) {
+    @SafeVarargs
+    public final QueryAllParams<T> criteria(Specification<T>... criteria) {
         if (criteria == null) {
             return this;
         }
         return criteria(List.of(criteria));
     }
 
-    public QueryAllParams<T> criteria(List<Criteria> criteria) {
+    public QueryAllParams<T> criteria(List<Specification<T>> criteria) {
         if (criteria == null) {
             return this;
         }
-        this.criteria.addAll(criteria);
+        specifications.addAll(criteria);
         return this;
     }
 

@@ -19,7 +19,6 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.querydsl.core.types.Path;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -213,18 +212,16 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             String branchName,
             String branchNamePath,
             AclPermission permission) {
-        final QueryAllParams<T> builder = queryBuilder();
-
-        builder.criteria(Criteria.where(defaultIdPath).is(defaultId));
+        final BridgeQuery<BaseDomain> q = Bridge.equal(defaultIdPath, defaultId);
 
         if (!isBlank(branchName)) {
-            builder.criteria(Criteria.where(branchNamePath).is(branchName));
+            q.equal(branchNamePath, branchName);
         }
 
-        BridgeUpdate update = Bridge.update();
+        final BridgeUpdate update = Bridge.update();
         fieldNameValueMap.forEach(update::set);
 
-        final int count = builder.permission(permission).updateFirst(update);
+        final int count = queryBuilder().criteria(q).permission(permission).updateFirst(update);
         return Optional.of(count);
     }
 
@@ -613,12 +610,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
             Object value = op.value();
 
             if (op.isRawValue()) {
-                if (value instanceof Path<?> valuePath) {
-                    throw new ex.Marker("We're not expecting this anymore");
-                    // value = root.get(fieldName(valuePath));
-                    // cu.set(root.get(key), value);
-
-                } else if (isJsonColumn(genericDomain, key)) {
+                if (isJsonColumn(genericDomain, key)) {
                     try {
                         // The type witness is needed here to pick the right overloaded signature of the set method.
                         // Without it, we see a compile error.
@@ -755,10 +747,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     /*
     Db query methods
      */
-
-    public List<T> queryAllWithoutPermissions(List<Criteria> criterias, List<String> includeFields) {
-        return queryBuilder().criteria(criterias).fields(includeFields).all();
-    }
 
     /**
      * Updates a document in the database that matches the provided query and returns the modified document.

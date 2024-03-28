@@ -10,7 +10,6 @@ import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.querydsl.core.types.Predicate;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -162,28 +161,5 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
 
     public Mono<Long> count() {
         return Mono.fromSupplier(repository::count).subscribeOn(Schedulers.boundedElastic());
-    }
-
-    // ---------------------------------------------------
-    // Wrappers for methods from QuerydslPredicateExecutor
-    // ---------------------------------------------------
-
-    public Mono<T> findOne(Predicate predicate) {
-        return Mono.fromSupplier(() -> repository.findOne(predicate).orElse(null))
-                .subscribeOn(Schedulers.boundedElastic());
-    }
-
-    public Flux<T> findAll(Predicate predicate) {
-        return Mono.fromSupplier(() -> repository.findAll(predicate))
-                .flatMapMany(Flux::fromIterable)
-                .subscribeOn(Schedulers.boundedElastic());
-    }
-
-    // --------------------------------------------------
-    // Wrappers for methods from JpaSpecificationExecutor
-    // --------------------------------------------------
-
-    public Mono<T> findOne(Specification<T> spec) {
-        return Mono.fromSupplier(() -> repository.findOne(spec).orElse(null)).subscribeOn(Schedulers.boundedElastic());
     }
 }

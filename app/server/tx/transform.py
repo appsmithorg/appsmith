@@ -234,7 +234,6 @@ def generate_cake_class(domain):
     import org.springframework.data.mongodb.core.query.Criteria;
     import com.mongodb.bulk.BulkWriteResult;
     import com.mongodb.client.result.InsertManyResult;
-    import com.querydsl.core.types.dsl.StringPath;
     import reactor.core.scheduler.Schedulers;
     {imports_code}
 

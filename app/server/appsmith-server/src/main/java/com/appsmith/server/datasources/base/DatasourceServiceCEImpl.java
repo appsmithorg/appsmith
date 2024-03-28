@@ -761,7 +761,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, AclPermission permission) {
 
         return repository
-                .findAllByWorkspaceId(workspaceId, permission.orElse(null))
+                .findAllByWorkspaceId(workspaceId, permission)
                 .publishOn(Schedulers.boundedElastic())
                 .flatMap(datasource -> datasourceStorageService
                         .findByDatasource(datasource)

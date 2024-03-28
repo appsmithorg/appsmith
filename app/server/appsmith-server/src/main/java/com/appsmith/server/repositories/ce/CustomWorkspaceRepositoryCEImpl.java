@@ -8,6 +8,7 @@ import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,9 +47,9 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public List<Workspace> findAll(AclPermission permission) {
-        return sessionUserService.getCurrentUser().flatMapMany(user -> queryBuilder()
+        return sessionUserService.getCurrentUser().flatMapMany(user -> Flux.fromIterable(queryBuilder()
                 .criteria(Bridge.equal(Workspace.Fields.tenantId, user.getTenantId()))
                 .permission(permission)
-                .all());
+                .all())).collectList().block();
     }
 }

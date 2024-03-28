@@ -12,9 +12,8 @@ import org.springframework.stereotype.Component;
 public class CacheableRepositoryHelperCECompatibleImpl extends CacheableRepositoryHelperCEImpl
         implements CacheableRepositoryHelperCECompatible {
     public CacheableRepositoryHelperCECompatibleImpl(
-            ReactiveMongoOperations mongoOperations,
             EntityManager entityManager,
             InMemoryCacheableRepositoryHelper inMemoryCacheableRepositoryHelper) {
-        super(mongoOperations, entityManager, inMemoryCacheableRepositoryHelper);
+        super(entityManager, inMemoryCacheableRepositoryHelper);
     }
 }

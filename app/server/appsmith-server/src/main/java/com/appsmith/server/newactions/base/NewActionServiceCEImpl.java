@@ -833,7 +833,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     public Mono<ActionDTO> deleteUnpublishedActionWithOptionalPermission(
             String id, Optional<AclPermission> newActionDeletePermission) {
         Mono<NewAction> actionMono = repository
-                .findById(id, newActionDeletePermission)
+                .findById(id, newActionDeletePermission.orElse(null))
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.ACTION, id)));
         return actionMono

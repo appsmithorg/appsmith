@@ -69,6 +69,8 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     private String currentWorkspaceId;
 
     @JsonView(Views.Public.class)
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     private Set<String> workspaceIds;
 
     @JsonView(Views.Public.class)

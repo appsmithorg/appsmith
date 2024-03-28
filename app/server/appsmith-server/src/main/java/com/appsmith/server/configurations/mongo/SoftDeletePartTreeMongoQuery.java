@@ -48,7 +48,7 @@ public class SoftDeletePartTreeMongoQuery extends ReactivePartTreeMongoQuery {
 
     private Mono<Query> withNotDeleted(Mono<Query> queryMono) {
         return queryMono.map(query -> {
-            query.addCriteria(notDeleted());
+            // query.addCriteria(notDeleted());
             return query;
         });
     }

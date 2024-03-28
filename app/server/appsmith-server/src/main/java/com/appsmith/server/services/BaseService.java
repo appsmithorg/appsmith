@@ -88,6 +88,7 @@ public abstract class BaseService<
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
+        throw new ex.Marker("getWithPermission"); /*
         List<Criteria> criterias;
 
         if (params != null && !params.isEmpty()) {
@@ -108,7 +109,7 @@ public abstract class BaseService<
                         .permission(aclPermission)
                         .all())
                 .flatMapMany(Flux::fromIterable)
-                .subscribeOn(Schedulers.boundedElastic());
+                .subscribeOn(Schedulers.boundedElastic());//*/
     }
 
     @Override
@@ -182,6 +183,7 @@ public abstract class BaseService<
             Pageable pageable,
             Sort sort,
             AclPermission permission) {
+        throw new ex.Marker("filterByEntityFields"); /*
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }
@@ -199,7 +201,7 @@ public abstract class BaseService<
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result;
+        return result;//*/
     }
 
     /**
@@ -218,6 +220,7 @@ public abstract class BaseService<
             Pageable pageable,
             Sort sort,
             AclPermission permission) {
+        throw new ex.Marker("filterByEntityFieldsWithoutPublicAccess"); /*
 
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
@@ -238,6 +241,6 @@ public abstract class BaseService<
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result;
+        return result;//*/
     }
 }

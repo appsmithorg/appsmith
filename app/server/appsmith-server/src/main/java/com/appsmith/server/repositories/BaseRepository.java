@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
-import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.querydsl.QuerydslPredicateExecutor;
@@ -15,7 +14,7 @@ import java.util.Optional;
 
 @NoRepositoryBean
 public interface BaseRepository<T extends BaseDomain, ID extends Serializable>
-        extends CrudRepository<T, ID>, QuerydslPredicateExecutor<T>, JpaSpecificationExecutor<T> {
+        extends CrudRepository<T, ID>, QuerydslPredicateExecutor<T> {
 
     @Override
     @Query("FROM #{#entityName} e WHERE e.deletedAt IS NULL AND e.id = :id")

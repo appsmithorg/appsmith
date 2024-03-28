@@ -127,8 +127,8 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
         return this;
     }
 
-    public BridgeQuery<T> equal(@NonNull String key, @NonNull int value) {
-        checks.add(Criteria.where(key).is(value));
+    public BridgeQuery<T> equal(@NonNull String key, int value) {
+        checks.add(new Check.Unit(Op.EQUAL, key, value));
         return this;
     }
 

@@ -13,6 +13,7 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.domain.Specification;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -271,7 +272,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public List<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
-        List<BridgeQuery<ActionCollection>> criteria = new ArrayList<>();
+        List<Specification<ActionCollection>> criteria = new ArrayList<>();
 
         BridgeQuery<ActionCollection> pageCriterion;
 
