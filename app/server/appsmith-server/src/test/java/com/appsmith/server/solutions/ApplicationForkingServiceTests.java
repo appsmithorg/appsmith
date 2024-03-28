@@ -1456,6 +1456,9 @@ public class ApplicationForkingServiceTests {
                                     new UploadedFile("keyFile", "key file content"),
                                     new UploadedFile("certFile", "cert file content"),
                                     new UploadedFile("caCertFile", "caCert file content"),
+                                    new UploadedFile("keyFile", "key file content"),
+                                    new UploadedFile("certFile", "cert file content"),
+                                    new UploadedFile("caCertFile", "caCert file content"),
                                     true,
                                     new PEMCertificate(
                                             new UploadedFile("pemCertFile", "pem cert file content"),
@@ -1682,6 +1685,9 @@ public class ApplicationForkingServiceTests {
                             new SSLDetails(
                                     SSLDetails.AuthType.ALLOW,
                                     SSLDetails.CACertificateType.NONE,
+                                    new UploadedFile("keyFile", "key file content"),
+                                    new UploadedFile("certFile", "cert file content"),
+                                    new UploadedFile("caCertFile", "caCert file content"),
                                     new UploadedFile("keyFile", "key file content"),
                                     new UploadedFile("certFile", "cert file content"),
                                     new UploadedFile("caCertFile", "caCert file content"),
