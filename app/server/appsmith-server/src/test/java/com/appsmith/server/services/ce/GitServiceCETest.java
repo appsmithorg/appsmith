@@ -1679,13 +1679,16 @@ public class GitServiceCETest {
         mergeStatusDTO.setStatus("Nothing to fetch from remote. All changes are upto date.");
         mergeStatusDTO.setMergeAble(true);
 
+        GitStatusDTO statusDTO = new GitStatusDTO();
+        statusDTO.setIsClean(true);
+
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))
                 .thenReturn(Mono.just(Paths.get("")));
         Mockito.when(gitFileUtils.reconstructApplicationJsonFromGitRepoWithAnalytics(
                         Mockito.anyString(), Mockito.anyString(), Mockito.anyString(), Mockito.anyString()))
                 .thenReturn(Mono.justOrEmpty(applicationJson));
-        Mockito.when(gitExecutor.getStatus(any(), any())).thenReturn(Mono.just(new GitStatusDTO()));
+        Mockito.when(gitExecutor.getStatus(any(), any())).thenReturn(Mono.just(statusDTO));
         Mockito.when(gitExecutor.fetchRemote(
                         any(Path.class),
                         Mockito.anyString(),
@@ -1736,6 +1739,7 @@ public class GitServiceCETest {
         GitStatusDTO gitStatusDTO = new GitStatusDTO();
         gitStatusDTO.setAheadCount(0);
         gitStatusDTO.setBehindCount(0);
+        gitStatusDTO.setIsClean(true);
 
         Mockito.when(gitFileUtils.saveApplicationToLocalRepoWithAnalytics(
                         any(Path.class), any(ApplicationJson.class), Mockito.anyString()))

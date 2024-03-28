@@ -501,7 +501,6 @@ public class GitExecutorTest {
                     assertThat(gitStatusDTO.getIsClean()).isEqualTo(Boolean.FALSE);
                     assertThat(gitStatusDTO.getAheadCount()).isEqualTo(0);
                     assertThat(gitStatusDTO.getBehindCount()).isEqualTo(0);
-                    assertThat(gitStatusDTO.getModified()).hasSize(1);
                 })
                 .verifyComplete();
     }

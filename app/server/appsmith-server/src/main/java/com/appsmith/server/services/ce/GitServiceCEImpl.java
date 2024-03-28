@@ -1628,8 +1628,8 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     Application defaultApplication = tuple.getT1();
                     GitStatusDTO status = tuple.getT2();
-                    // Check if the repo is clean
-                    if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
+                    // Check if the repo is not clean
+                    if (!status.getIsClean()) {
                         return Mono.error(
                                 new AppsmithException(
                                         AppsmithError.GIT_ACTION_FAILED,
@@ -2181,7 +2181,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES,
                                             status.getBehindCount(),
                                             sourceBranch));
-                                } else if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
+                                } else if (!status.getIsClean()) {
                                     return Mono.error(new AppsmithException(
                                             AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES, sourceBranch));
                                 }
@@ -2192,7 +2192,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                         AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES,
                                                         status.getBehindCount(),
                                                         destinationBranch));
-                                            } else if (!CollectionUtils.isNullOrEmpty(status.getModified())) {
+                                            } else if (!status.getIsClean()) {
                                                 return Mono.error(new AppsmithException(
                                                         AppsmithError.GIT_MERGE_FAILED_LOCAL_CHANGES,
                                                         destinationBranch));
@@ -2345,7 +2345,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                     AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES,
                                                     srcBranchStatus.getBehindCount(),
                                                     sourceBranch))));
-                                } else if (!CollectionUtils.isNullOrEmpty(srcBranchStatus.getModified())) {
+                                } else if (!srcBranchStatus.getIsClean()) {
                                     return addAnalyticsForGitOperation(
                                                     AnalyticsEvents.GIT_MERGE_CHECK,
                                                     application,
@@ -2380,7 +2380,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                                                 AppsmithError.GIT_MERGE_FAILED_REMOTE_CHANGES,
                                                                 destBranchStatus.getBehindCount(),
                                                                 destinationBranch))));
-                                            } else if (!CollectionUtils.isNullOrEmpty(destBranchStatus.getModified())) {
+                                            } else if (!destBranchStatus.getIsClean()) {
                                                 return addAnalyticsForGitOperation(
                                                                 AnalyticsEvents.GIT_MERGE_CHECK,
                                                                 application,

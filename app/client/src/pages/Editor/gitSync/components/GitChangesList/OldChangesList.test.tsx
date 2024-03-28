@@ -1,10 +1,10 @@
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
-import { gitChangeListData } from "./GitChangesList";
+import { gitChangeListData } from "./OldChangesList";
 
 describe("GitChangesList", () => {
   describe("gitChangesListData", () => {
     it("returns proper data", () => {
-      const status: GitStatusData = {
+      const status: Partial<GitStatusData> = {
         conflicting: [],
         aheadCount: 1,
         behindCount: 1,

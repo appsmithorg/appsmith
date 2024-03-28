@@ -163,12 +163,7 @@ function Deploy() {
     !hasChangesToCommit || !commitMessage || commitMessage.trim().length < 1;
   const commitButtonLoading = isCommittingInProgress;
 
-  const commitRequired =
-    !!gitStatus?.modifiedPages ||
-    !!gitStatus?.modifiedQueries ||
-    !!gitStatus?.modifiedJSObjects ||
-    !!gitStatus?.modifiedDatasources ||
-    !!gitStatus?.modifiedJSLibs;
+  const commitRequired = !gitStatus?.isClean;
   const isConflicting = !isFetchingGitStatus && !!pullFailed;
   const commitInputDisabled =
     isConflicting ||
