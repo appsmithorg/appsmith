@@ -34,19 +34,12 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public Flux<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission) {
-        BridgeQuery<PermissionGroup> assignedToUserIdCriteria =
-                Bridge.in(PermissionGroup.Fields.assignedToUserIds, List.of(userId));
+        BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>in(
+                        PermissionGroup.Fields.assignedToUserIds, List.of(userId))
+                .equal(PermissionGroup.Fields.defaultDomainId, workspaceId)
+                .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
 
-        BridgeQuery<PermissionGroup> defaultWorkspaceIdCriteria =
-                Bridge.equal(PermissionGroup.Fields.defaultDomainId, workspaceId);
-
-        BridgeQuery<PermissionGroup> defaultDomainTypeCriteria =
-                Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
-
-        return queryBuilder()
-                .criteria(assignedToUserIdCriteria, defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
-                .permission(permission)
-                .all();
+        return queryBuilder().criteria(query).permission(permission).all();
     }
 
     @Override
@@ -59,26 +52,18 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
     @Override
     public Flux<PermissionGroup> findByDefaultWorkspaceId(String workspaceId, AclPermission permission) {
-        BridgeQuery<PermissionGroup> defaultWorkspaceIdCriteria =
-                Bridge.equal(PermissionGroup.Fields.defaultDomainId, workspaceId);
-        BridgeQuery<PermissionGroup> defaultDomainTypeCriteria =
-                Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
-        return queryBuilder()
-                .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
-                .permission(permission)
-                .all();
+        BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>equal(
+                        PermissionGroup.Fields.defaultDomainId, workspaceId)
+                .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
+        return queryBuilder().criteria(query).permission(permission).all();
     }
 
     @Override
     public Flux<PermissionGroup> findByDefaultWorkspaceIds(Set<String> workspaceIds, AclPermission permission) {
-        BridgeQuery<PermissionGroup> defaultWorkspaceIdCriteria =
-                Bridge.in(PermissionGroup.Fields.defaultDomainId, workspaceIds);
-        BridgeQuery<PermissionGroup> defaultDomainTypeCriteria =
-                Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
-        return queryBuilder()
-                .criteria(defaultWorkspaceIdCriteria, defaultDomainTypeCriteria)
-                .permission(permission)
-                .all();
+        BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>in(
+                        PermissionGroup.Fields.defaultDomainId, workspaceIds)
+                .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
+        return queryBuilder().criteria(query).permission(permission).all();
     }
 
     @Override

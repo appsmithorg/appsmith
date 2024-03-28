@@ -24,6 +24,8 @@ public abstract class BranchAwareDomain extends BaseDomain {
     }
 
     public static class Fields extends BaseDomain.Fields {
+        public static final String defaultResources_applicationId =
+                dotted(defaultResources, DefaultResources.Fields.applicationId);
         public static final String defaultResources_collectionId =
                 dotted(defaultResources, DefaultResources.Fields.collectionId);
         public static final String defaultResources_branchName =
