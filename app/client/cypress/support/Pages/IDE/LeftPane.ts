@@ -11,17 +11,20 @@ export class LeftPane {
       name +
       "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]",
     addItem: "button.t--add-item",
+    activeItemSelector: "",
     selector: "",
   };
 
   constructor(
     listItemSelector: (name: string) => string,
     selector: string,
+    activeItemSelector: string,
     segments?: string[],
   ) {
     this.listItemSelector = listItemSelector;
     this.segments = segments;
     this.locators.selector = selector;
+    this.locators.activeItemSelector = activeItemSelector;
   }
 
   public assertAbsence(name: string) {
@@ -81,6 +84,11 @@ export class LeftPane {
           );
         }
       });
+  }
+  public selectedItem(): Cypress.Chainable {
+    return ObjectsRegistry.AggregateHelper.GetElement(
+      this.locators.activeItemSelector,
+    );
   }
 
   public assertSelected(name: string) {

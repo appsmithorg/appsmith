@@ -16,7 +16,7 @@ const queryLocators = require("../../../../locators/QueryEditor.json");
 describe("MaintainContext&Focus", { tags: ["@tag.IDE"] }, function () {
   before("Import the test application", () => {
     homePage.CreateNewWorkspace("MaintainContext&Focus", true);
-    homePage.ImportApp("ContextSwitching.json");
+    homePage.ImportApp("ContextSwitching.json", "MaintainContext");
     cy.wait("@importNewApplication").then((interception) => {
       agHelper.Sleep();
       const { isPartialImport } = interception.response.body.data;
