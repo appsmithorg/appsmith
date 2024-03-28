@@ -81,7 +81,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_drag_drop_building_blocks_enabled: false,
   license_git_branch_protection_enabled: false,
   release_git_autocommit_feature_enabled: false,
-  release_git_status_granular_enabled: false,
+  release_git_status_granular_enabled: true,
   license_git_continuous_delivery_enabled: false,
   release_git_continuous_delivery_enabled: false,
   license_widget_rtl_support_enabled: false,
