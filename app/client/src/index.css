@@ -254,7 +254,10 @@ div.bp3-popover-arrow {
 .reconnect-datasource-modal {
   z-index: 9 !important;
 }
-
+.anvil-editor {
+  user-select: none;
+  --webkit-user-select: none;
+}
 /* making sure widgets on the editor are editable */
 .anvil-editor .anvil-widget-wrapper {
   pointer-events: all;
