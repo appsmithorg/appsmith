@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.analytics.UserDataAnalyticsUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.projections.UserDataProfilePhotoProjection;
@@ -270,8 +271,8 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                                         existingResourceIds, resourceId, MAX_RECENT_WORKSPACE_RESOURCE_LIMIT));
                     }
                     userData.setRecentlyUsedEntityIds(recentlyUsedEntities);
-                    return Mono.zip(
-                            analyticsService.identifyUser(user, userData, workspaceId), repository.save(userData));
+                    Map<String, Object> traits = UserDataAnalyticsUtils.getTraitsForIdentifyCall(userData, true);
+                    return Mono.zip(analyticsService.identifyUser(user, traits), repository.save(userData));
                 })
                 .map(Tuple2::getT2);
     }

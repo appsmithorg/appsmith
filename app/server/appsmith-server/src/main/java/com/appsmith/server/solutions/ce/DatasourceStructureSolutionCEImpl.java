@@ -32,7 +32,7 @@ import reactor.core.publisher.Mono;
 import java.time.Duration;
 import java.util.concurrent.TimeoutException;
 
-import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
+import static com.appsmith.server.helpers.analytics.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 import static org.springframework.util.StringUtils.hasText;
 
 @RequiredArgsConstructor

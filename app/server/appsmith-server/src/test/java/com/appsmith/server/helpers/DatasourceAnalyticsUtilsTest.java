@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.server.helpers.analytics.DatasourceAnalyticsUtils;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;

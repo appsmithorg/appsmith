@@ -1,4 +1,4 @@
-package com.appsmith.server.helpers;
+package com.appsmith.server.helpers.analytics;
 
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Datasource;

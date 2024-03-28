@@ -25,6 +25,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.helpers.analytics.UserDataAnalyticsUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -468,7 +469,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .then(Mono.zip(
                         repository.findByEmail(user.getUsername()),
                         userDataService.getForUserEmail(user.getUsername())))
-                .flatMap(tuple -> analyticsService.identifyUser(tuple.getT1(), tuple.getT2()));
+                .flatMap(tuple -> {
+                    User dbUser = tuple.getT1();
+                    UserData userData = tuple.getT2();
+                    Map<String, Object> traits = UserDataAnalyticsUtils.getTraitsForIdentifyCall(userData, true);
+                    return analyticsService.identifyUser(dbUser, traits);
+                });
     }
 
     private Mono<User> addUserPoliciesAndSaveToRepo(User user) {
@@ -695,7 +701,8 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     final UserData userData = tuple.getT2();
-                    return analyticsService.identifyUser(user, userData).thenReturn(user);
+                    Map<String, Object> traits = UserDataAnalyticsUtils.getTraitsForIdentifyCall(userData, true);
+                    return analyticsService.identifyUser(user, traits);
                 });
     }
 

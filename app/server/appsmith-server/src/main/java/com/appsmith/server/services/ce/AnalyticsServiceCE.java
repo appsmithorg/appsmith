@@ -3,7 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserData;
+import lombok.NonNull;
 import reactor.core.publisher.Mono;
 
 import java.util.Map;
@@ -12,18 +12,9 @@ public interface AnalyticsServiceCE {
 
     boolean isActive();
 
-    Mono<User> identifyUser(User user, UserData userData);
+    Mono<User> identifyUser(User user, @NonNull Map<String, ?> traits);
 
-    Mono<User> identifyUser(User user, UserData userData, String recentlyUsedWorkspaceId);
-
-    void identifyInstance(
-            String instanceId,
-            String role,
-            String proficiency,
-            String useCase,
-            String adminEmail,
-            String adminFullName,
-            String ip);
+    void identifyInstance(String instanceId, Map<String, Object> instanceTraits);
 
     Mono<Void> sendEvent(String event, String userId, Map<String, ?> properties);
 

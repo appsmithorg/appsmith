@@ -9,7 +9,6 @@ import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
-import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.ExchangeUtils;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -18,6 +17,7 @@ import com.appsmith.server.services.SessionUserService;
 import com.segment.analytics.Analytics;
 import com.segment.analytics.messages.IdentifyMessage;
 import com.segment.analytics.messages.TrackMessage;
+import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -30,14 +30,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.AnalyticsConstants.EMAIL_DOMAIN_HASH;
-import static com.appsmith.external.constants.AnalyticsConstants.GOAL;
-import static com.appsmith.external.constants.AnalyticsConstants.IP;
-import static com.appsmith.external.constants.AnalyticsConstants.IP_ADDRESS;
-import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
-import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
-import static com.appsmith.server.constants.ce.FieldNameCE.PROFICIENCY;
-import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
+import static com.appsmith.server.constants.AnalyticsConstants.EMAIL_DOMAIN_HASH;
+import static com.appsmith.server.constants.AnalyticsConstants.IS_SUPER_USER;
+import static com.appsmith.server.constants.FieldName.EMAIL;
+import static com.appsmith.server.constants.FieldName.INSTANCE_ID;
+import static com.appsmith.server.constants.FieldName.NAME;
 
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
@@ -88,29 +85,17 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     }
 
     @Override
-    public Mono<User> identifyUser(User user, UserData userData) {
-        return identifyUser(user, userData, null);
-    }
-
-    @Override
-    public Mono<User> identifyUser(User user, UserData userData, String recentlyUsedWorkspaceId) {
+    public Mono<User> identifyUser(User user, @NonNull Map<String, ?> traits) {
         if (!isActive()) {
             return Mono.just(user);
         }
 
         Mono<Boolean> isSuperUserMono = userUtils.isSuperUser(user);
 
-        final Mono<String> recentlyUsedWorkspaceIdMono = StringUtils.isEmpty(recentlyUsedWorkspaceId)
-                ? userDataRepository
-                        .fetchMostRecentlyUsedWorkspaceId(user.getId())
-                        .defaultIfEmpty("")
-                : Mono.just(recentlyUsedWorkspaceId);
-
         return Mono.zip(
                         Mono.just(user),
                         isSuperUserMono,
-                        configService.getInstanceId().defaultIfEmpty("unknown-instance-id"),
-                        recentlyUsedWorkspaceIdMono)
+                        configService.getInstanceId().defaultIfEmpty("unknown-instance-id"))
                 .map(tuple -> {
                     final User savedUser = tuple.getT1();
                     final boolean isSuperUser = tuple.getT2();
@@ -127,54 +112,29 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                         email = hash(email);
                     }
 
+                    // Create a new map to avoid modifying the original map which may result in updating the immutable
+                    // collection error based on the argument passed
+                    Map<String, Object> props = new HashMap<>(traits);
+                    props.put(NAME, name);
+                    props.put(EMAIL, email);
+                    props.put(EMAIL_DOMAIN_HASH, emailDomainHash);
+                    props.put(IS_SUPER_USER, isSuperUser);
+                    props.put(INSTANCE_ID, instanceId);
                     analytics.enqueue(IdentifyMessage.builder()
                             .userId(ObjectUtils.defaultIfNull(username, ""))
-                            .traits(Map.of(
-                                    "name", ObjectUtils.defaultIfNull(name, ""),
-                                    "email", ObjectUtils.defaultIfNull(email, ""),
-                                    "emailDomainHash", emailDomainHash,
-                                    "isSuperUser", isSuperUser,
-                                    "instanceId", instanceId,
-                                    "mostRecentlyUsedWorkspaceId", tuple.getT4(),
-                                    "role", ObjectUtils.defaultIfNull(userData.getRole(), ""),
-                                    "proficiency", ObjectUtils.defaultIfNull(userData.getProficiency(), ""),
-                                    "goal", ObjectUtils.defaultIfNull(userData.getUseCase(), ""))));
+                            .traits(props));
                     analytics.flush();
                     return savedUser;
                 });
     }
 
-    public void identifyInstance(
-            String instanceId,
-            String role,
-            String proficiency,
-            String useCase,
-            String adminEmail,
-            String adminFullName,
-            String ip) {
+    public void identifyInstance(String instanceId, Map<String, Object> instanceTraits) {
         if (!isActive()) {
             return;
         }
-
-        analytics.enqueue(IdentifyMessage.builder()
-                .userId(instanceId)
-                .traits(Map.of(
-                        "isInstance",
-                        true, // Is this "identify" data-point for a user or an instance?
-                        ROLE,
-                        ObjectUtils.defaultIfNull(role, ""),
-                        PROFICIENCY,
-                        ObjectUtils.defaultIfNull(proficiency, ""),
-                        GOAL,
-                        ObjectUtils.defaultIfNull(useCase, ""),
-                        EMAIL,
-                        ObjectUtils.defaultIfNull(adminEmail, ""),
-                        NAME,
-                        ObjectUtils.defaultIfNull(adminFullName, ""),
-                        IP,
-                        ObjectUtils.defaultIfNull(ip, "unknown"),
-                        IP_ADDRESS,
-                        ObjectUtils.defaultIfNull(ip, "unknown"))));
+        Map<String, Object> traits = new HashMap<>(instanceTraits);
+        traits.put("isInstance", true);
+        analytics.enqueue(IdentifyMessage.builder().userId(instanceId).traits(traits));
         analytics.flush();
     }
 

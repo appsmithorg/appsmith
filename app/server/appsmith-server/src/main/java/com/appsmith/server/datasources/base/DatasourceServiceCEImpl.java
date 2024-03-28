@@ -61,8 +61,8 @@ import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
-import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
-import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
+import static com.appsmith.server.helpers.analytics.DatasourceAnalyticsUtils.getAnalyticsProperties;
+import static com.appsmith.server.helpers.analytics.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;

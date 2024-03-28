@@ -16,6 +16,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.NetworkUtils;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.helpers.analytics.UserDataAnalyticsUtils;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
@@ -48,20 +49,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.constants.AnalyticsConstants.DISABLE_TELEMETRY;
-import static com.appsmith.external.constants.AnalyticsConstants.GOAL;
-import static com.appsmith.external.constants.AnalyticsConstants.IP;
-import static com.appsmith.external.constants.AnalyticsConstants.IP_ADDRESS;
-import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKETING;
+import static com.appsmith.server.constants.AnalyticsConstants.DISABLE_TELEMETRY;
+import static com.appsmith.server.constants.AnalyticsConstants.GOAL;
+import static com.appsmith.server.constants.AnalyticsConstants.IP;
+import static com.appsmith.server.constants.AnalyticsConstants.SUBSCRIBE_MARKETING;
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
-import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
-import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
-import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
-import static com.appsmith.server.constants.ce.FieldNameCE.PROFICIENCY;
-import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
-import static com.appsmith.server.constants.ce.FieldNameCE.TENANT;
+import static com.appsmith.server.constants.FieldName.DEFAULT;
+import static com.appsmith.server.constants.FieldName.EMAIL;
+import static com.appsmith.server.constants.FieldName.IP_ADDRESS;
+import static com.appsmith.server.constants.FieldName.NAME;
+import static com.appsmith.server.constants.FieldName.PROFICIENCY;
+import static com.appsmith.server.constants.FieldName.ROLE;
+import static com.appsmith.server.constants.FieldName.TENANT;
+import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_ID;
 import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
@@ -461,14 +463,14 @@ public class UserSignupCEImpl implements UserSignupCE {
                     analyticsProps.put(IP_ADDRESS, ip);
                     analyticsProps.put(NAME, ObjectUtils.defaultIfNull(newsletterSignedUpUserName, ""));
 
-                    analyticsService.identifyInstance(
-                            instanceId,
-                            userData.getRole(),
-                            userData.getProficiency(),
-                            userData.getUseCase(),
-                            newsletterSignedUpUserEmail,
-                            newsletterSignedUpUserName,
-                            ip);
+                    Map<String, Object> instanceTraits =
+                            UserDataAnalyticsUtils.getTraitsForIdentifyCall(userData, false);
+                    instanceTraits.put(IP, ObjectUtils.defaultIfNull(ip, "unknown"));
+                    instanceTraits.put(IP_ADDRESS, ObjectUtils.defaultIfNull(ip, "unknown"));
+                    instanceTraits.put(EMAIL, newsletterSignedUpUserEmail);
+                    instanceTraits.put(NAME, newsletterSignedUpUserName);
+                    instanceTraits.put(INSTANCE_ID, instanceId);
+                    analyticsService.identifyInstance(instanceId, instanceTraits);
 
                     return analyticsService
                             .sendEvent(
