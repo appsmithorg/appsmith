@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers.ce.bridge;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.server.constants.FieldName;
 import lombok.NonNull;
 import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
@@ -79,5 +80,19 @@ public final class Bridge {
 
     public static <T extends BaseDomain> BridgeQuery<T> isFalse(@NonNull String key) {
         return Bridge.<T>query().isFalse(key);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> notExists(@NonNull String key) {
+        return Bridge.<T>query().notExists(key);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> notDeleted() {
+        return Bridge.and(
+            // Older check for deleted
+            Bridge.or(
+                Bridge.notExists(FieldName.DELETED),
+                Bridge.isFalse(FieldName.DELETED)),
+            // New check for deleted
+            Bridge.isNull(FieldName.DELETED_AT));
     }
 }
