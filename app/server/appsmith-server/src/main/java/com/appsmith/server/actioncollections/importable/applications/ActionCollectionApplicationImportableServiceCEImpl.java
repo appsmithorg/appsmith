@@ -65,7 +65,7 @@ public class ActionCollectionApplicationImportableServiceCEImpl
     public Flux<ActionCollection> getExistingResourcesInOtherBranchesFlux(
             String defaultArtifactId, String currentArtifactId) {
         return repository
-                .findByDefaultApplicationId(defaultArtifactId, Optional.empty())
+                .findByDefaultApplicationId(defaultArtifactId, null)
                 .filter(actionCollection -> !Objects.equals(actionCollection.getApplicationId(), currentArtifactId));
     }
 
