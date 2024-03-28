@@ -3,6 +3,7 @@ package com.appsmith.server.filters;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.LogHelper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
@@ -105,13 +106,11 @@ public class MDCFilter implements WebFilter {
     }
 
     private String getOrCreateRequestId(final ServerHttpRequest request) {
-        if (!request.getHeaders().containsKey(REQUEST_ID_HEADER)) {
-            request.mutate()
-                    .header(REQUEST_ID_HEADER, UUID.randomUUID().toString())
-                    .build();
+        final String header = request.getHeaders().getFirst(REQUEST_ID_HEADER);
+        if (!StringUtils.isEmpty(header)) {
+            return header;
         }
 
-        String header = request.getHeaders().get(REQUEST_ID_HEADER).get(0);
-        return header;
+        return UUID.randomUUID().toString();
     }
 }
