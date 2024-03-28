@@ -19,8 +19,8 @@ import com.appsmith.server.solutions.UserAndAccessManagementService;
 import com.appsmith.server.solutions.UserSignup;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
@@ -43,38 +43,21 @@ import java.util.List;
 import java.util.Map;
 
 @RequestMapping(Url.USER_URL)
+@RequiredArgsConstructor
 @Slf4j
-public class UserControllerCE extends BaseController<UserService, User, String> {
+public class UserControllerCE {
 
+    private final UserService service;
     private final SessionUserService sessionUserService;
     private final UserWorkspaceService userWorkspaceService;
     private final UserSignup userSignup;
     private final UserDataService userDataService;
     private final UserAndAccessManagementService userAndAccessManagementService;
 
-    @Autowired
-    public UserControllerCE(
-            UserService service,
-            SessionUserService sessionUserService,
-            UserWorkspaceService userWorkspaceService,
-            UserSignup userSignup,
-            UserDataService userDataService,
-            UserAndAccessManagementService userAndAccessManagementService) {
-        super(service);
-        this.sessionUserService = sessionUserService;
-        this.userWorkspaceService = userWorkspaceService;
-        this.userSignup = userSignup;
-        this.userDataService = userDataService;
-        this.userAndAccessManagementService = userAndAccessManagementService;
-    }
-
     @JsonView(Views.Public.class)
     @PostMapping(consumes = {MediaType.APPLICATION_JSON_VALUE})
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<ResponseDTO<User>> create(
-            @Valid @RequestBody User resource,
-            @RequestHeader(name = "Origin", required = false) String originHeader,
-            ServerWebExchange exchange) {
+    public Mono<ResponseDTO<User>> create(@Valid @RequestBody User resource, ServerWebExchange exchange) {
         return userSignup
                 .signupAndLogin(resource, exchange)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
@@ -127,10 +110,7 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     /**
      * This function initiates the process to reset a user's password. We require the Origin header from the request
      * in order to construct client facing URLs that will be sent to the user over email.
-     *
-     * @param userPasswordDTO
      * @param originHeader    The Origin header in the request. This is a mandatory parameter.
-     * @return
      */
     @JsonView(Views.Public.class)
     @PostMapping("/forgotPassword")
@@ -205,9 +185,7 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     @JsonView(Views.Public.class)
     @DeleteMapping("/photo")
     public Mono<ResponseDTO<Void>> deleteProfilePhoto() {
-        return userDataService
-                .deleteProfilePhoto()
-                .map(ignored -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
+        return userDataService.deleteProfilePhoto().thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 
     @JsonView(Views.Public.class)
@@ -237,9 +215,6 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
     /**
      * This function generates a unique link or magic link for verifying user email and sends an email
      * with the link, on clicking which the user email gets verified and the user gets logged in
-     * @param resendEmailVerificationDTO
-     * @param originHeader
-     * @return
      */
     @JsonView(Views.Public.class)
     @PostMapping("/resendEmailVerification")
@@ -255,8 +230,6 @@ public class UserControllerCE extends BaseController<UserService, User, String> 
      * This function verifies the email verification token received from the magic link sent in the email,
      * it verifies the token and if verified, sets the user to verified true and auto-login the user session.
      * It also redirects to the /signup-success page with the required params.
-     * @param exchange
-     * @return
      */
     @JsonView(Views.Public.class)
     @PostMapping(
