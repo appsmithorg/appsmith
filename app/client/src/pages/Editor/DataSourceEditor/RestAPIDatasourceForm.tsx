@@ -574,11 +574,12 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
 
   renderOauth2Common = () => {
     const { formData } = this.props;
+    const isGrantTypeAuthorizationCode =
+      _.get(formData.authentication, "grantType") === GrantType.AuthorizationCode;
+
     return (
       <>
-        <FormInputContainer
-          data-location-id={btoa("authentication.isTokenHeader")}
-        >
+        <FormInputContainer data-location-id={btoa("authentication.isTokenHeader")}>
           {this.renderDropdownControlViaFormControl(
             "authentication.isTokenHeader",
             [
@@ -599,9 +600,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
           )}
         </FormInputContainer>
         {_.get(formData.authentication, "isTokenHeader") && (
-          <FormInputContainer
-            data-location-id={btoa("authentication.headerPrefix")}
-          >
+          <FormInputContainer data-location-id={btoa("authentication.headerPrefix")}>
             {this.renderInputTextControlViaFormControl({
               configProperty: "authentication.headerPrefix",
               label: "Header prefix",
@@ -612,9 +611,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             })}
           </FormInputContainer>
         )}
-        <FormInputContainer
-          data-location-id={btoa("authentication.accessTokenUrl")}
-        >
+        <FormInputContainer data-location-id={btoa("authentication.accessTokenUrl")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.accessTokenUrl",
             label: "Access token URL",
@@ -635,9 +632,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             isRequired: false,
           })}
         </FormInputContainer>
-        <FormInputContainer
-          data-location-id={btoa("authentication.clientSecret")}
-        >
+        <FormInputContainer data-location-id={btoa("authentication.clientSecret")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.clientSecret",
             label: "Client secret",
@@ -648,9 +643,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             isSecretExistsPath: "authentication.secretExists.clientSecret",
           })}
         </FormInputContainer>
-        <FormInputContainer
-          data-location-id={btoa("authentication.scopeString")}
-        >
+        <FormInputContainer data-location-id={btoa("authentication.scopeString")}>
           {this.renderInputTextControlViaFormControl({
             configProperty: "authentication.scopeString",
             label: "Scope(s)",
@@ -660,9 +653,11 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             isRequired: false,
           })}
         </FormInputContainer>
-        <FormInputContainer
-          data-location-id={btoa("authentication.isAuthorizationHeader")}
-        >
+        {/* Moved the expires_in field here right after scopeString field 
+        so that users can find it together */}
+        { isGrantTypeAuthorizationCode && this.renderOauth2ExpiresInSeconds }
+        
+        <FormInputContainer data-location-id={btoa("authentication.isAuthorizationHeader")}>
           {this.renderDropdownControlViaFormControl(
             "authentication.isAuthorizationHeader",
             [
@@ -800,6 +795,23 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
     );
   };
 
+  renderOauth2ExpiresInSeconds = () => {
+    return (
+      <>
+        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
+                {this.renderInputTextControlViaFormControl({
+                    configProperty: "authentication.expiresIn",
+                    label: "Authorization expires in (seconds)",
+                    placeholderText: "3600",
+                    dataType: "NUMBER",
+                    encrypted: false,
+                    isRequired: false,
+                })}
+        </FormInputContainer>
+      </>
+    );
+  };
+
   renderOauth2AuthorizationCode = () => {
     const { formData } = this.props;
 
@@ -843,16 +855,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "",
             false,
           )}
-        </FormInputContainer>
-        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
-          {this.renderInputTextControlViaFormControl({
-            configProperty: "authentication.expiresIn",
-            label: "Authorization expires in (seconds)",
-            placeholderText: "3600",
-            dataType: "NUMBER",
-            encrypted: false,
-            isRequired: false,
-          })}
         </FormInputContainer>
 
         {!_.get(formData.authentication, "isAuthorizationHeader", true) &&
