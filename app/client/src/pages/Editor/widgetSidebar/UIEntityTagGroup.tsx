@@ -17,6 +17,7 @@ import type { WidgetCardProps } from "widgets/BaseWidget";
 import SeeMoreButton from "./SeeMoreButton";
 import styled from "styled-components";
 import UIEntityCard from "./UIEntityCard";
+import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
 
 const LoadingWrapper = styled.div`
   display: flex;
