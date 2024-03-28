@@ -1,10 +1,14 @@
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
 import { applyChange } from "deep-diff";
-import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona } from "klona/full";
 import { range } from "lodash";
 import moment from "moment";
 import { parseUpdatesAndDeleteUndefinedUpdates } from "sagas/EvaluationSaga.utils";
+import type {
+  DataTreeEvaluationProps,
+  EvaluationError,
+} from "utils/DynamicBindingUtils";
 import { EvalErrorTypes } from "utils/DynamicBindingUtils";
 
 import {
@@ -28,8 +32,13 @@ export const smallDataSet = [
 ];
 //size of about 300 elements
 const largeDataSet = range(100).flatMap(() => smallDataSet);
+// In the oldState we have provided evaluationProps so we have created a type which states that the entity always has it
+//  and __evaluation__.errors is not optional. So we don't have to keep adding truthy checks when accessing the evaluationProps in this test case.
+interface dataTreeWithWidget {
+  [entityName: string]: WidgetEntity & Required<DataTreeEvaluationProps>;
+}
 
-const oldState: DataTree = {
+const oldState: dataTreeWithWidget = {
   Table1: {
     ENTITY_TYPE: "WIDGET",
     primaryColumns: {
@@ -100,7 +109,7 @@ const oldState: DataTree = {
 describe("generateOptimisedUpdates", () => {
   describe("regular diff", () => {
     test("should not generate any diff when the constrainedDiffPaths is empty", () => {
-      const newState = produce(oldState, (draft: any) => {
+      const newState = produce(oldState, (draft) => {
         draft.Table1.pageSize = 17;
       });
       const updates = generateOptimisedUpdates(oldState, newState, []);
@@ -108,7 +117,7 @@ describe("generateOptimisedUpdates", () => {
       expect(updates).toEqual([]);
     });
     test("should not generate any diff when the constrainedDiffPaths nodes are the same ", () => {
-      const newState = produce(oldState, (draft: any) => {
+      const newState = produce(oldState, (draft) => {
         //making an unrelated change
         draft.Table1.triggerRowSelection = true;
       });
@@ -119,7 +128,7 @@ describe("generateOptimisedUpdates", () => {
       expect(updates).toEqual([]);
     });
     test("should generate regular diff updates when a simple property changes in the widget property segment", () => {
-      const newState = produce(oldState, (draft: any) => {
+      const newState = produce(oldState, (draft) => {
         draft.Table1.pageSize = 17;
       });
       const updates = generateOptimisedUpdates(oldState, newState, [
@@ -130,8 +139,9 @@ describe("generateOptimisedUpdates", () => {
       ]);
     });
     test("should generate regular diff updates when a simple property changes in the __evaluation__ segment ", () => {
-      const validationError = "Some validation error";
-      const newState = produce(oldState, (draft: any) => {
+      const validationError =
+        "Some validation error" as unknown as EvaluationError[];
+      const newState = produce(oldState, (draft) => {
         draft.Table1.__evaluation__.errors.tableData = validationError;
       });
       const updates = generateOptimisedUpdates(oldState, newState, [
@@ -147,7 +157,7 @@ describe("generateOptimisedUpdates", () => {
       ]);
     });
     test("should generate a replace collection patch when the size of the collection exceeds 100 instead of generating granular updates", () => {
-      const newState = produce(oldState, (draft: any) => {
+      const newState = produce(oldState, (draft) => {
         draft.Table1.tableData = largeDataSet;
       });
       const updates = generateOptimisedUpdates(oldState, newState, [
@@ -163,12 +173,12 @@ describe("generateOptimisedUpdates", () => {
     });
     describe("undefined value updates in a collection", () => {
       test("should generate replace patch when a single node is set to undefined in a collection", () => {
-        const statWithLargeCollection = produce(oldState, (draft: any) => {
+        const statWithLargeCollection = produce(oldState, (draft) => {
           draft.Table1.tableData = ["a", "b"];
         });
         const newStateWithAnElementDeleted = produce(
           statWithLargeCollection,
-          (draft: any) => {
+          (draft) => {
             draft.Table1.tableData = ["a", undefined];
           },
         );
@@ -188,12 +198,12 @@ describe("generateOptimisedUpdates", () => {
         ]);
       });
       test("should generate generate regular diff updates for non undefined updates in a collection", () => {
-        const statWithLargeCollection = produce(oldState, (draft: any) => {
+        const statWithLargeCollection = produce(oldState, (draft) => {
           draft.Table1.tableData = ["a", "b"];
         });
         const newStateWithAnElementDeleted = produce(
           statWithLargeCollection,
-          (draft: any) => {
+          (draft) => {
             draft.Table1.tableData = ["a", "e"];
           },
         );
@@ -227,7 +237,7 @@ describe("generateOptimisedUpdates", () => {
       expect(serialisedUpdates).toEqual(JSON.stringify(additionalUpdates));
     });
     it("should ignore undefined updates", () => {
-      const oldStateWithUndefinedValues = produce(oldState, (draft: any) => {
+      const oldStateWithUndefinedValues = produce(oldState, (draft) => {
         draft.Table1.pageSize = undefined;
       });
 
@@ -242,7 +252,7 @@ describe("generateOptimisedUpdates", () => {
       expect(serialisedUpdates).toEqual(JSON.stringify(additionalUpdates));
     });
     it("should generate a delete patch when a property is transformed to undefined", () => {
-      const oldStateWithUndefinedValues = produce(oldState, (draft: any) => {
+      const oldStateWithUndefinedValues = produce(oldState, (draft) => {
         draft.Table1.pageSize = undefined;
       });
 
@@ -262,7 +272,7 @@ describe("generateOptimisedUpdates", () => {
       ]);
     });
     it("should generate an error when there is a serialisation error", () => {
-      const oldStateWithUndefinedValues = produce(oldState, (draft: any) => {
+      const oldStateWithUndefinedValues = produce(oldState, (draft) => {
         //generate a cyclical object
         draft.Table1.filteredTableData = draft.Table1;
       });
@@ -280,10 +290,11 @@ describe("generateOptimisedUpdates", () => {
 
     //when functions are serialised they become undefined and these updates should be deleted from the state
     describe("clean out all functions in the generated state", () => {
+      const someEvalFn = (() => {}) as unknown as EvaluationError[];
       it("should clean out new function properties added to the generated state", () => {
-        const newStateWithSomeFnProperty = produce(oldState, (draft: any) => {
+        const newStateWithSomeFnProperty = produce(oldState, (draft) => {
           draft.Table1.someFn = () => {};
-          draft.Table1.__evaluation__.errors.someEvalFn = () => {};
+          draft.Table1.__evaluation__.errors.someEvalFn = someEvalFn;
         });
 
         const { serialisedUpdates } = generateSerialisedUpdates(
@@ -308,9 +319,9 @@ describe("generateOptimisedUpdates", () => {
       });
 
       it("should delete properties which get updated to a function", () => {
-        const newStateWithSomeFnProperty = produce(oldState, (draft: any) => {
+        const newStateWithSomeFnProperty = produce(oldState, (draft) => {
           draft.Table1.pageSize = () => {};
-          draft.Table1.__evaluation__.errors.transientTableData = () => {};
+          draft.Table1.__evaluation__.errors.transientTableData = someEvalFn;
         });
 
         const { serialisedUpdates } = generateSerialisedUpdates(
@@ -342,7 +353,7 @@ describe("generateOptimisedUpdates", () => {
             applyChange(draft, undefined, v);
           });
         });
-        const expectedState = produce(oldState, (draft: any) => {
+        const expectedState = produce(oldState, (draft) => {
           delete draft.Table1.pageSize;
           delete draft.Table1.__evaluation__.errors.transientTableData;
         });
@@ -350,18 +361,19 @@ describe("generateOptimisedUpdates", () => {
         expect(parseAndApplyUpdatesToOldState).toEqual(expectedState);
       });
       it("should delete function properties which get updated to undefined", () => {
-        const oldStateWithSomeFnProperty = produce(oldState, (draft: any) => {
+        const oldStateWithSomeFnProperty = produce(oldState, (draft) => {
           // eslint-disable-next-line @typescript-eslint/no-empty-function
           draft.Table1.pageSize = () => {};
           draft.Table1.__evaluation__.errors.transientTableData =
             // eslint-disable-next-line @typescript-eslint/no-empty-function
-            () => {};
+            someEvalFn;
         });
         const newStateWithFnsTransformedToUndefined = produce(
           oldState,
-          (draft: any) => {
+          (draft) => {
             draft.Table1.pageSize = undefined;
-            draft.Table1.__evaluation__.errors.transientTableData = undefined;
+            draft.Table1.__evaluation__.errors.transientTableData =
+              undefined as unknown as EvaluationError[];
           },
         );
 
@@ -394,7 +406,7 @@ describe("generateOptimisedUpdates", () => {
             applyChange(draft, undefined, v);
           });
         });
-        const expectedState = produce(oldState, (draft: any) => {
+        const expectedState = produce(oldState, (draft) => {
           delete draft.Table1.pageSize;
           delete draft.Table1.__evaluation__.errors.transientTableData;
         });
@@ -413,7 +425,7 @@ describe("generateOptimisedUpdates", () => {
           rhs: { someOtherKey: BigInt(3323232) },
         },
       ];
-      const newStateWithBigInt = produce(oldState, (draft: any) => {
+      const newStateWithBigInt = produce(oldState, (draft) => {
         draft.Table1.pageSize = someBigInt;
       });
       const { serialisedUpdates } = generateSerialisedUpdates(
@@ -447,7 +459,7 @@ describe("generateOptimisedUpdates", () => {
           applyChange(draft, undefined, v);
         });
       });
-      const expectedState = produce(oldState, (draft: any) => {
+      const expectedState = produce(oldState, (draft) => {
         draft.Table1.pageSize = "121221";
         draft.Table1.someNewProp = { someOtherKey: "3323232" };
       });
@@ -456,7 +468,7 @@ describe("generateOptimisedUpdates", () => {
     });
     describe("serialise momement updates directly", () => {
       test("should generate a null update when it sees an invalid moment object", () => {
-        const newState = produce(oldState, (draft: any) => {
+        const newState = produce(oldState, (draft) => {
           draft.Table1.pageSize = moment("invalid value");
         });
         const { serialisedUpdates } = generateSerialisedUpdates(
@@ -471,7 +483,7 @@ describe("generateOptimisedUpdates", () => {
       });
       test("should generate a regular update when it sees a valid moment object", () => {
         const validMoment = moment();
-        const newState = produce(oldState, (draft: any) => {
+        const newState = produce(oldState, (draft) => {
           draft.Table1.pageSize = validMoment;
         });
         const { serialisedUpdates } = generateSerialisedUpdates(
@@ -489,19 +501,19 @@ describe("generateOptimisedUpdates", () => {
     describe("test main thread update flow", () => {
       //this function takes in serialised updates from the webworker and applies it to the main thread's state
       function generateMainThreadStateFromSerialisedUpdates(
-        serialisedUpdates: any,
-        prevState: any,
+        serialisedUpdates: string,
+        prevState: dataTreeWithWidget,
       ) {
         const parsedUpdates =
           parseUpdatesAndDeleteUndefinedUpdates(serialisedUpdates);
-        return produce(prevState, (draft: any) => {
+        return produce(prevState, (draft) => {
           parsedUpdates.forEach((v: any) => {
             applyChange(draft, undefined, v);
           });
         });
       }
-      let workerStateWithCollection: any;
-      let mainThreadStateWithCollection: any;
+      let workerStateWithCollection: dataTreeWithWidget;
+      let mainThreadStateWithCollection: dataTreeWithWidget;
       const someDate = "2023-12-07T19:05:11.830Z";
       test("large moment collection updates should be serialised, we should always see ISO string and no moment object properties", () => {
         const largeCollection = [] as any;
@@ -509,7 +521,7 @@ describe("generateOptimisedUpdates", () => {
           largeCollection.push({ i, c: moment(someDate) });
         }
         //attaching a collection to some property in the workerState
-        workerStateWithCollection = produce(oldState, (draft: any) => {
+        workerStateWithCollection = produce(oldState, (draft) => {
           draft.Table1.pageSize = largeCollection;
         });
         //generate serialised diff updates
@@ -525,7 +537,7 @@ describe("generateOptimisedUpdates", () => {
             oldState,
           );
 
-        const expectedMainThreadState = produce(oldState, (draft: any) => {
+        const expectedMainThreadState = produce(oldState, (draft) => {
           draft.Table1.pageSize = JSON.parse(JSON.stringify(largeCollection));
         });
         //check first value has the correct date
@@ -540,7 +552,7 @@ describe("generateOptimisedUpdates", () => {
         // updating a single value in the prev worker state
         const updatedWorkerStateWithASingleValue = produce(
           klona(workerStateWithCollection),
-          (draft: any) => {
+          (draft) => {
             draft.Table1.pageSize[0].c = moment(someNewDate);
           },
         ) as any;
@@ -565,7 +577,7 @@ describe("generateOptimisedUpdates", () => {
 
         const expectedMainThreadState = produce(
           mainThreadStateWithCollection,
-          (draft: any) => {
+          (draft) => {
             draft.Table1.pageSize[0].c = JSON.parse(
               JSON.stringify(moment(someNewDate)),
             );
@@ -580,7 +592,7 @@ describe("generateOptimisedUpdates", () => {
         // updating a single value in the prev worker state
         const updatedWorkerStateWithASingleValue = produce(
           klona(workerStateWithCollection),
-          (draft: any) => {
+          (draft) => {
             draft.Table1.pageSize[0].c = moment(someNewDate) as any;
           },
         ) as any;
@@ -603,7 +615,7 @@ describe("generateOptimisedUpdates", () => {
 
         const expectedMainThreadState = produce(
           mainThreadStateWithCollection,
-          (draft: any) => {
+          (draft) => {
             draft.Table1.pageSize[0].c = JSON.parse(
               JSON.stringify(moment(someNewDate)),
             );

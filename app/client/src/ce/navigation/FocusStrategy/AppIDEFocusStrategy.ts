@@ -81,6 +81,16 @@ const isPageChange = (prevPath: string, currentPath: string) => {
   );
 };
 
+export const createEditorFocusInfo = (pageId: string, branch?: string) => ({
+  key: `EDITOR_STATE.${pageId}#${branch}`,
+  entityInfo: {
+    id: `EDITOR.${pageId}`,
+    appState: EditorState.EDITOR,
+    entity: FocusEntity.EDITOR,
+    params: {},
+  },
+});
+
 export const AppIDEFocusStrategy: FocusStrategy = {
   focusElements: AppIDEFocusElements,
   getEntitiesForSet: function* (
@@ -102,15 +112,11 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       (prevEntityInfo.params.pageId !== currentEntityInfo.params.pageId ||
         prevEntityInfo.appState !== currentEntityInfo.appState)
     ) {
-      entities.push({
-        key: `EDITOR_STATE.${currentEntityInfo.params.pageId}#${branch}`,
-        entityInfo: {
-          id: `EDITOR.${currentEntityInfo.params.pageId}`,
-          appState: EditorState.EDITOR,
-          entity: FocusEntity.EDITOR,
-          params: {},
-        },
-      });
+      if (currentEntityInfo.params.pageId) {
+        entities.push(
+          createEditorFocusInfo(currentEntityInfo.params.pageId, branch),
+        );
+      }
     }
 
     entities.push({
