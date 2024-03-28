@@ -81,6 +81,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_drag_drop_building_blocks_enabled: false,
   license_git_branch_protection_enabled: false,
   release_git_autocommit_feature_enabled: false,
+  release_git_status_granular_enabled: false,
   license_git_continuous_delivery_enabled: false,
   release_git_continuous_delivery_enabled: false,
   license_widget_rtl_support_enabled: false,
@@ -96,7 +97,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   rollout_remove_feature_walkthrough_enabled: false,
   rollout_js_enabled_one_click_binding_enabled: false,
   rollout_side_by_side_enabled: false,
-  release_git_status_granular_enabled: false,
   ab_learnability_ease_of_initial_use_enabled: false,
   ab_learnability_discoverability_collapse_all_except_data_enabled: false,
 };
