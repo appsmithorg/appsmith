@@ -43,7 +43,6 @@ import libraryReducer from "reducers/uiReducers/libraryReducer";
 import appSettingsPaneReducer from "reducers/uiReducers/appSettingsPaneReducer";
 import autoHeightUIReducer from "reducers/uiReducers/autoHeightReducer";
 import analyticsReducer from "reducers/uiReducers/analyticsReducer";
-import layoutConversionReducer from "reducers/uiReducers/layoutConversionReducer";
 import oneClickBindingReducer from "reducers/uiReducers/oneClickBindingReducer";
 import activeFieldReducer from "reducers/uiReducers/activeFieldEditorReducer";
 import selectedWorkspaceReducer from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
@@ -96,7 +95,6 @@ export const uiReducerObject = {
   editorContext: editorContextReducer,
   libraries: libraryReducer,
   autoHeightUI: autoHeightUIReducer,
-  layoutConversion: layoutConversionReducer,
   actionSelector: actionSelectorReducer,
   oneClickBinding: oneClickBindingReducer,
   activeField: activeFieldReducer,

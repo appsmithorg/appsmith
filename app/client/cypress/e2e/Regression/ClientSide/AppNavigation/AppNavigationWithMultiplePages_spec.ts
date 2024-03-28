@@ -5,6 +5,7 @@ import {
   deployMode,
   draggableWidgets,
   entityExplorer,
+  homePage,
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
@@ -20,6 +21,11 @@ describe(
   "Page orientation and navigation related usecases ",
   { tags: ["@tag.IDE"] },
   function () {
+    before(() => {
+      homePage.NavigateToHome();
+      homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      homePage.AssertImportToast();
+    });
     it("1. Change 'Orientation' to 'Side', sidebar should appear", () => {
       AppSidebar.navigate(AppSidebarButton.Settings);
       agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
@@ -31,7 +37,6 @@ describe(
     });
 
     it("2. Validate change with height width for fill widget - Input widget", function () {
-      autoLayout.ConvertToAutoLayoutAndVerify(false);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 100, 200);
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
       cy.url().then((url) => {

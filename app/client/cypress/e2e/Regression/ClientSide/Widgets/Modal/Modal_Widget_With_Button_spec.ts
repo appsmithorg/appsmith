@@ -4,8 +4,12 @@ describe(
   "Modal Widget with auto-layout usecases",
   { tags: ["@tag.Widget", "@tag.Modal"] },
   function () {
+    before(() => {
+      _.homePage.NavigateToHome();
+      _.homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      _.homePage.AssertImportToast();
+    });
     it("1. Add new Modal widget with other widgets and validate with auto-layout", () => {
-      _.autoLayout.ConvertToAutoLayoutAndVerify(false);
       _.entityExplorer.DragDropWidgetNVerify(
         _.draggableWidgets.MODAL,
         300,

@@ -7,8 +7,12 @@ describe(
   "Validating Mobile Views for Fill Widget",
   { tags: ["@tag.MobileResponsive"] },
   function () {
+    before(() => {
+      _.homePage.NavigateToHome();
+      _.homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      _.homePage.AssertImportToast();
+    });
     it("Validate change with height width for fill widget - Input widget", function () {
-      _.autoLayout.ConvertToAutoLayoutAndVerify(false);
       cy.dragAndDropToCanvas("inputwidgetv2", { x: 100, y: 200 });
       cy.dragAndDropToCanvas("inputwidgetv2", { x: 10, y: 20 });
       _.deployMode.DeployApp();

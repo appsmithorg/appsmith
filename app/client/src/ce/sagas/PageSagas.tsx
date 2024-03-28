@@ -78,7 +78,6 @@ import {
   getCurrentLayoutId,
   getCurrentPageId,
   getCurrentPageName,
-  getMainCanvasProps,
   getPageById,
 } from "selectors/editorSelectors";
 import {
@@ -128,13 +127,11 @@ import { setPreviewModeAction } from "actions/editorActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { toast } from "design-system";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { nestDSL, flattenDSL, LATEST_DSL_VERSION } from "@shared/dsl";
-import { fetchSnapshotDetailsAction } from "actions/autoLayoutActions";
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
@@ -300,12 +297,7 @@ export function* handleFetchedPage({
   isFirstLoad?: boolean;
 }) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
-  const mainCanvasProps: MainCanvasReduxState =
-    yield select(getMainCanvasProps);
-  const dslTransformer = getLayoutSystemDSLTransformer(
-    layoutSystemType,
-    mainCanvasProps.width,
-  );
+  const dslTransformer = getLayoutSystemDSLTransformer(layoutSystemType);
   const isValidResponse: boolean = yield validateResponse(fetchPageResponse);
   const willPageBeMigrated = checkIfMigrationIsNeeded(fetchPageResponse);
   const lastUpdatedTime = getLastUpdateTime(fetchPageResponse);
@@ -330,8 +322,6 @@ export function* handleFetchedPage({
     );
     // Update the canvas
     yield put(initCanvasLayout(canvasWidgetsPayload));
-    // fetch snapshot API
-    yield put(fetchSnapshotDetailsAction());
     // set current page
     yield put(updateCurrentPage(pageId, pageSlug, pagePermissions));
     // dispatch fetch page success
@@ -737,12 +727,7 @@ export function* createNewPageFromEntity(
   try {
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
-    const mainCanvasProps: MainCanvasReduxState =
-      yield select(getMainCanvasProps);
-    const dslTransformer = getLayoutSystemDSLTransformer(
-      layoutSystemType,
-      mainCanvasProps.width,
-    );
+    const dslTransformer = getLayoutSystemDSLTransformer(layoutSystemType);
 
     // This saga is called when creating a new page from the entity explorer
     // In this flow, the server doesn't have a page DSL to return
@@ -791,12 +776,7 @@ export function* createPageSaga(
   try {
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
-    const mainCanvasProps: MainCanvasReduxState =
-      yield select(getMainCanvasProps);
-    const dslTransformer = getLayoutSystemDSLTransformer(
-      layoutSystemType,
-      mainCanvasProps.width,
-    );
+    const dslTransformer = getLayoutSystemDSLTransformer(layoutSystemType);
 
     const request: CreatePageRequest = createPageAction.payload;
     const response: FetchPageResponse = yield call(PageApi.createPage, request);
@@ -1196,12 +1176,7 @@ export function* fetchPageDSLSaga(
   try {
     const layoutSystemType: LayoutSystemTypes =
       yield select(getLayoutSystemType);
-    const mainCanvasProps: MainCanvasReduxState =
-      yield select(getMainCanvasProps);
-    const dslTransformer = getLayoutSystemDSLTransformer(
-      layoutSystemType,
-      mainCanvasProps.width,
-    );
+    const dslTransformer = getLayoutSystemDSLTransformer(layoutSystemType);
     const isServerDSLMigrationsEnabled = select(
       getIsServerDSLMigrationsEnabled,
     );

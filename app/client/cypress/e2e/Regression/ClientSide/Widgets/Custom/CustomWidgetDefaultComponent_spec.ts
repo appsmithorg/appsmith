@@ -3,6 +3,7 @@ import {
   autoLayout,
   deployMode,
   entityExplorer,
+  homePage,
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 
@@ -90,7 +91,9 @@ describe(
     });
 
     it("#31170 - should check that custom widget height is not growing constantly in auto layout", () => {
-      autoLayout.ConvertToAutoLayoutAndVerify(false);
+      homePage.NavigateToHome();
+      homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      homePage.AssertImportToast();
 
       entityExplorer.DragDropWidgetNVerify("customwidget", 550, 100);
 

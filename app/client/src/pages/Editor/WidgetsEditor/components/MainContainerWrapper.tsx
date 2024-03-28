@@ -35,7 +35,6 @@ import { useMainContainerResizer } from "layoutSystems/common/mainContainerResiz
 interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
   isProtectedMode: boolean;
-  shouldShowSnapShotBanner: boolean;
   navigationHeight?: number;
   isAppSettingsPaneWithNavigationTabOpen?: boolean;
   currentPageId: string;
@@ -112,12 +111,7 @@ const Wrapper = styled.section<{
 function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const { isAppSettingsPaneWithNavigationTabOpen, navigationHeight } = props;
   const dispatch = useDispatch();
-  const {
-    currentPageId,
-    isPreviewMode,
-    isProtectedMode,
-    shouldShowSnapShotBanner,
-  } = props;
+  const { currentPageId, isPreviewMode, isProtectedMode } = props;
 
   const isFetchingPage = useSelector(getIsFetchingPage);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
@@ -189,18 +183,14 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         }
         className={classNames({
           [`${getCanvasClassName()} scrollbar-thin`]: true,
-          "mt-0": shouldShowSnapShotBanner || !shouldHaveTopMargin,
-          "mt-4":
-            !shouldShowSnapShotBanner &&
-            (showCanvasTopSection || showAnonymousDataPopup),
+          "mt-0": !shouldHaveTopMargin,
+          "mt-4": showCanvasTopSection || showAnonymousDataPopup,
           "mt-8":
-            !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
             !showCanvasTopSection &&
             !isPreviewingNavigation &&
             !showAnonymousDataPopup &&
             !isAnvilLayout,
-          "mt-24": shouldShowSnapShotBanner,
         })}
         isAppSettingsPaneWithNavigationTabOpen={
           isAppSettingsPaneWithNavigationTabOpen

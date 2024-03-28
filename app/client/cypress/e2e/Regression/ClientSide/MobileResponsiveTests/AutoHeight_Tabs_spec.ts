@@ -8,6 +8,7 @@ import {
   autoLayout,
   draggableWidgets,
   entityExplorer,
+  homePage,
   propPane,
   tabs,
 } from "../../../../support/Objects/ObjectsCore";
@@ -21,11 +22,15 @@ describe(
   "validate auto height for tabs widget on auto layout canvas",
   { tags: ["@tag.MobileResponsive"] },
   () => {
+    /**
+     * Convert app to AutoLayout
+     */
+    before(() => {
+      homePage.NavigateToHome();
+      homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      homePage.AssertImportToast();
+    });
     it("1. tabs widget should maintain a minHeight of 30 rows", () => {
-      /**
-       * Convert app to AutoLayout
-       */
-      autoLayout.ConvertToAutoLayoutAndVerify(false);
       agHelper.Sleep();
 
       /**

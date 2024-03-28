@@ -1,10 +1,5 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { LayoutSystemTypes } from "layoutSystems/types";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import type {
-  CONVERSION_STATES,
-  SnapShotDetails,
-} from "reducers/uiReducers/layoutConversionReducer";
 
 /**
  * Calculate size and position changes owing to minSizes and flex wrap.
@@ -28,31 +23,6 @@ export const updateLayoutForMobileBreakpointAction = (
   };
 };
 
-export const updateLayoutSystemType = (layoutSystemType: LayoutSystemTypes) => {
-  return {
-    type: ReduxActionTypes.UPDATE_LAYOUT_SYSTEM_TYPE,
-    payload: layoutSystemType,
-  };
-};
-
-export const setLayoutConversionStateAction = (
-  conversionState: CONVERSION_STATES,
-  error?: Error,
-) => {
-  return {
-    type: ReduxActionTypes.SET_LAYOUT_CONVERSION_STATE,
-    payload: { conversionState, error },
-  };
-};
-
-export const updateSnapshotDetails = (
-  snapShotDetails: SnapShotDetails | undefined,
-) => {
-  return {
-    type: ReduxActionTypes.UPDATE_SNAPSHOT_DETAILS,
-    payload: snapShotDetails,
-  };
-};
 export function updateWidgetDimensionAction(
   widgetId: string,
   width: number,
@@ -67,25 +37,6 @@ export function updateWidgetDimensionAction(
     },
   };
 }
-
-export const fetchSnapshotDetailsAction = () => {
-  return {
-    type: ReduxActionTypes.FETCH_LAYOUT_SNAPSHOT_DETAILS,
-  };
-};
-
-export const setConversionStart = (conversionState: CONVERSION_STATES) => {
-  return {
-    type: ReduxActionTypes.START_CONVERSION_FLOW,
-    payload: conversionState,
-  };
-};
-
-export const setConversionStop = () => {
-  return {
-    type: ReduxActionTypes.STOP_CONVERSION_FLOW,
-  };
-};
 
 export const setAutoCanvasResizing = (isAutoCanvasResizing: boolean) => {
   return {

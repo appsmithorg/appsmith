@@ -5,7 +5,9 @@ describe(
   { tags: ["@tag.MobileResponsive"] },
   () => {
     before(() => {
-      _.autoLayout.ConvertToAutoLayoutAndVerify(false);
+      _.homePage.NavigateToHome();
+      _.homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      _.homePage.AssertImportToast();
       _.agHelper.Sleep(2000);
       _.agHelper.AddDsl("AutoLayoutTableWidgetDsl");
     });

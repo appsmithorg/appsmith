@@ -3,6 +3,7 @@ import {
   agHelper,
   locators,
   draggableWidgets,
+  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 
 describe(
@@ -10,9 +11,13 @@ describe(
   { tags: ["@tag.MobileResponsive"] },
   () => {
     const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
-
+    /**
+     * Convert app to AutoLayout
+     */
     before(() => {
-      autoLayout.ConvertToAutoLayoutAndVerify(false);
+      homePage.NavigateToHome();
+      homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      homePage.AssertImportToast();
       agHelper.Sleep(2000);
       agHelper.AddDsl("autoLayoutCopyPaste");
     });

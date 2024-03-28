@@ -70,7 +70,6 @@ import lintErrorReducer from "reducers/lintingReducers";
 import type { AutoHeightUIState } from "reducers/uiReducers/autoHeightReducer";
 import type { AnalyticsReduxState } from "reducers/uiReducers/analyticsReducer";
 import type { MetaWidgetsReduxState } from "reducers/entityReducers/metaWidgetsReducer";
-import type { layoutConversionReduxState } from "reducers/uiReducers/layoutConversionReducer";
 import type { OneClickBindingState } from "reducers/uiReducers/oneClickBindingReducer";
 import type { IDEState } from "reducers/uiReducers/ideReducer";
 
@@ -139,7 +138,6 @@ export interface AppState {
     editorContext: EditorContextState;
     libraries: LibraryState;
     autoHeightUI: AutoHeightUIState;
-    layoutConversion: layoutConversionReduxState;
     actionSelector: ActionSelectorReduxState;
     oneClickBinding: OneClickBindingState;
     activeField: ActiveField;

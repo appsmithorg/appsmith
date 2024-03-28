@@ -19,10 +19,9 @@ import {
 } from "layoutSystems/autolayout/utils/positionUtils";
 import { getWidgetWidth } from "./flexWidgetUtils";
 import type { DSLWidget } from "WidgetProvider/constants";
-import { getHumanizedTime, getReadableDateInFormat } from "utils/dayJsUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";
-import { SNAPSHOT_EXPIRY_IN_DAYS, defaultAutoLayoutWidgets } from "./constants";
+import { defaultAutoLayoutWidgets } from "./constants";
 import {
   FlexLayerAlignment,
   Positioning,
@@ -33,12 +32,6 @@ import type {
   AlignmentColumnInfo,
 } from "layoutSystems/autolayout/utils/types";
 import type { FlexLayer, LayerChild } from "./types";
-
-export interface ReadableSnapShotDetails {
-  timeSince: string;
-  timeTillExpiration: string;
-  readableDate: string;
-}
 
 /**
  * Update flex layers of parent canvas upon deleting a child widget.
@@ -700,42 +693,6 @@ export function getAlignmentMarginInfo(
   };
 
   return marginInfo[wrapInfo.map((x) => x.length).join("")](arr);
-}
-
-/**
- * Gets readable values from the date String arguments
- * @param dateString
- * @returns
- */
-export function getReadableSnapShotDetails(
-  dateString: string | undefined,
-): ReadableSnapShotDetails | undefined {
-  if (!dateString) return;
-
-  const lastUpdatedDate = new Date(dateString);
-
-  if (Date.now() - lastUpdatedDate.getTime() <= 0) return;
-
-  const millisecondsPerHour = 60 * 60 * 1000;
-  const ExpirationInMilliseconds =
-    SNAPSHOT_EXPIRY_IN_DAYS * 24 * millisecondsPerHour;
-  const timePassedSince = Date.now() - lastUpdatedDate.getTime();
-
-  const timeSince: string = getHumanizedTime(timePassedSince);
-  const timeTillExpiration: string = getHumanizedTime(
-    ExpirationInMilliseconds - timePassedSince,
-  );
-
-  const readableDate = getReadableDateInFormat(
-    lastUpdatedDate,
-    "Do MMMM, YYYY h:mm a",
-  );
-
-  return {
-    timeSince,
-    timeTillExpiration,
-    readableDate,
-  };
 }
 
 export function isWidgetSizeObserved(widget: FlattenedWidgetProps): boolean {

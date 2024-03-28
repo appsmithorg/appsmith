@@ -1,12 +1,12 @@
 import { getWidgetSelector } from "../../../../locators/WidgetLocators";
 import {
   agHelper,
-  entityExplorer,
   propPane,
   autoLayout,
   draggableWidgets,
   deployMode,
   locators,
+  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -20,7 +20,9 @@ describe(
   { tags: ["@tag.MobileResponsive"] },
   () => {
     before(() => {
-      autoLayout.ConvertToAutoLayoutAndVerify(false);
+      homePage.NavigateToHome();
+      homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      homePage.AssertImportToast();
       agHelper.Sleep(2000);
       agHelper.AddDsl("autoLayoutAutoHeight");
     });

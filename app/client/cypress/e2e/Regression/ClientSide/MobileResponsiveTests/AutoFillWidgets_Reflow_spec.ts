@@ -11,7 +11,9 @@ describe(
   { tags: ["@tag.MobileResponsive"] },
   () => {
     before(() => {
-      autoLayout.ConvertToAutoLayoutAndVerify(false);
+      homePage.NavigateToHome();
+      homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      homePage.AssertImportToast();
       agHelper.Sleep(2000);
       agHelper.AddDsl("autoLayoutReflow");
     });

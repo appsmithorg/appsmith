@@ -11,8 +11,9 @@ describe(
   { tags: ["@tag.MobileResponsive"] },
   function () {
     before(() => {
-      autoLayout.ConvertToAutoLayoutAndVerify(false);
-      agHelper.RefreshPage();
+      _.homePage.NavigateToHome();
+      _.homePage.ImportApp("/AutoLayout/EmptyAutoLayoutApp.json");
+      _.homePage.AssertImportToast();
     });
 
     it("1. Suggested widget", () => {
