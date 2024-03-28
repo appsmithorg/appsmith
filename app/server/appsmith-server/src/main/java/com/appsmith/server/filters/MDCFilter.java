@@ -87,12 +87,8 @@ public class MDCFilter implements WebFilter {
                     final HttpHeaders httpHeaders = response.getHeaders();
                     // Add all the request MDC keys to the response object
                     ctx.<Map<String, String>>get(LogHelper.CONTEXT_MAP).forEach((key, value) -> {
-                        if (!key.equalsIgnoreCase(USER_EMAIL)) {
-                            if (!key.contains(REQUEST_ID_LOG)) {
-                                httpHeaders.add(MDC_HEADER_PREFIX + key, value);
-                            } else {
-                                httpHeaders.add(REQUEST_ID_HEADER, value);
-                            }
+                        if (!key.equalsIgnoreCase(USER_EMAIL) && !key.contains(REQUEST_ID_LOG)) {
+                            httpHeaders.add(MDC_HEADER_PREFIX + key, value);
                         }
                     });
                 })
