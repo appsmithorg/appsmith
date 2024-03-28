@@ -758,7 +758,8 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
                     return Mono.just(action);
                 })
-                .flatMap(this::sanitizeAction);
+                .collectList()
+                .flatMapMany(this::addMissingPluginDetailsIntoAllActions);
     }
 
     @Override
