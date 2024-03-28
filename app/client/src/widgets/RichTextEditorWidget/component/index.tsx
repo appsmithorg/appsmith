@@ -254,6 +254,13 @@ const StyledRTEditor = styled.div<{
   .tox .tox-tbtn--bespoke {
     background: #fff;
   }
+
+  .tox .tox-tbtn--disabled,
+  .tox .tox-tbtn--disabled:hover,
+  .tox .tox-tbtn:disabled,
+  .tox .tox-tbtn:disabled:hover {
+    background: #fff0;
+  }
 `;
 
 const GlobalStyles = createGlobalStyle`
