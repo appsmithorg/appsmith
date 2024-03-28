@@ -6,18 +6,26 @@
 
   & :is([data-separator]) {
     inline-size: var(--sizing-5);
+    block-size: var(--sizing-5);
   }
 
   [data-button]:not(:last-of-type) {
-    min-inline-size: fit-content;
+    /*
+     We use !important here to be sure that button width and the logic of useActionGroup hook will not be changed from the outside
+    */
+    min-inline-size: fit-content !important;
   }
 
   &:has([data-icon-button]) [data-button]:nth-last-child(2) {
-    min-inline-size: var(--sizing-14);
+    min-inline-size: var(--sizing-14) !important;
   }
 
   &[data-orientation="vertical"] {
     flex-direction: column;
+  }
+
+  &[data-orientation="vertical"] :is([data-button]) {
+    max-inline-size: none;
   }
 
   &[data-overflow="collapse"] {
@@ -51,6 +59,10 @@
     * Horizontal orientation
     *-----------------------------------------------------------------------------
     */
+    &[data-orientation="horizontal"] {
+      width: 100%;
+    }
+
     &[data-orientation="horizontal"] [data-button]:not(:last-of-type) {
       border-right-width: var(--border-width-1);
     }

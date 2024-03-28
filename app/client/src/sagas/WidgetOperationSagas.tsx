@@ -187,6 +187,7 @@ import { EMPTY_BINDING } from "components/editorComponents/ActionCreator/constan
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
+import { shouldShowSlashCommandMenu } from "components/editorComponents/CodeEditor/codeEditorUtils";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -608,7 +609,11 @@ export function* setWidgetDynamicPropertySaga(
 
   const propertyValue = get(widget, propertyPath);
   if (!propertyValue && isDynamic) {
-    set(widget, propertyPath, EMPTY_BINDING);
+    // Empty binding should not be set for table and json widgets' data property
+    // As these are getting populated with slash command menu on focus
+    if (!shouldShowSlashCommandMenu(widget.type, propertyPath)) {
+      set(widget, propertyPath, EMPTY_BINDING);
+    }
   }
 
   const stateWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
