@@ -78,7 +78,7 @@ public abstract class BaseService<
         }
         return repository
                 .queryBuilder()
-                .criteria(criterias)
+                .criteria(new Criteria().andOperator(criterias))
                 .permission(aclPermission)
                 .all();
     }

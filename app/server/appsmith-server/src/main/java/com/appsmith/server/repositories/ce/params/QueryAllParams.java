@@ -81,26 +81,17 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.updateExecuteAndFind(this, update);
     }
 
-    public QueryAllParams<T> criteria(Criteria... criteria) {
-        if (criteria == null) {
-            return this;
-        }
-        return criteria(List.of(criteria));
-    }
-
-    public QueryAllParams<T> criteria(List<Criteria> criteria) {
-        if (criteria == null) {
+    public QueryAllParams<T> criteria(Criteria c) {
+        if (c == null) {
             return this;
         }
 
-        for (Criteria c : criteria) {
-            if (c instanceof BridgeQuery<?> b && b.getCriteriaObject().isEmpty()) {
-                throw new IllegalArgumentException(
-                        "Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.");
-            }
-            this.criteria.add(c);
+        if (c instanceof BridgeQuery<?> bq && bq.getCriteriaObject().isEmpty()) {
+            throw new IllegalArgumentException(
+                    "Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.");
         }
 
+        criteria.add(c);
         return this;
     }
 

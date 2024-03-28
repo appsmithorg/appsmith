@@ -262,16 +262,11 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission) {
-        final String defaultResources = ActionCollection.Fields.defaultResources;
-        BridgeQuery<ActionCollection> defaultCollectionIdCriteria =
-                Bridge.equal(defaultResources + "." + FieldName.COLLECTION_ID, defaultCollectionId);
-        BridgeQuery<ActionCollection> branchCriteria =
-                Bridge.equal(defaultResources + "." + FieldName.BRANCH_NAME, branchName);
+        final BridgeQuery<ActionCollection> bq = Bridge.<ActionCollection>equal(
+                        ActionCollection.Fields.defaultResources_collectionId, defaultCollectionId)
+                .equal(ActionCollection.Fields.defaultResources_branchName, branchName);
 
-        return queryBuilder()
-                .criteria(defaultCollectionIdCriteria, branchCriteria)
-                .permission(permission)
-                .one();
+        return queryBuilder().criteria(bq).permission(permission).one();
     }
 
     @Override

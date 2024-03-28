@@ -13,7 +13,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 
-import static com.appsmith.server.helpers.StringUtils.dotted;
+import static com.appsmith.external.helpers.StringUtils.dotted;
 
 @Getter
 @Setter

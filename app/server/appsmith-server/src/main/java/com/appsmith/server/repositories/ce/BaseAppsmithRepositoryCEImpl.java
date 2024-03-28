@@ -439,14 +439,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
     }
 
-    /*
-    Db query methods
-     */
-
-    public Flux<T> queryAllWithoutPermissions(List<Criteria> criterias, List<String> includeFields) {
-        return queryBuilder().criteria(criterias).fields(includeFields).all();
-    }
-
     /**
      * Updates a document in the database that matches the provided query and returns the modified document.
      * This method performs a find-and-modify operation internally to atomically update a document in the database.
