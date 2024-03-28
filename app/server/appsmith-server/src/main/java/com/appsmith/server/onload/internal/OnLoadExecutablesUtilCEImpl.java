@@ -39,7 +39,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -703,11 +702,14 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                     Set<String> vertices = Set.of(source, target);
 
-                    AtomicReference<Boolean> isValidVertex = new AtomicReference<>(true);
+                    boolean isValidVertex = true;
 
                     // Assert that the vertices which are entire property paths have a possible parent which is either
                     // an executable or a widget or a static variable provided by appsmith at page/application level.
-                    vertices.stream().forEach(vertex -> {
+                    for (String vertex : vertices) {
+                        if (!isValidVertex) {
+                            break;
+                        }
                         Optional<String> validEntity = getPossibleParents(vertex).stream()
                                 .filter(parent -> {
                                     if (!executableNames.contains(parent)
@@ -718,17 +720,16 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                     return true;
                                 })
                                 .findFirst();
-
                         // If any of the generated entity names from the path are valid appsmith entity name,
                         // the vertex is considered valid
                         if (validEntity.isPresent()) {
-                            isValidVertex.set(TRUE);
+                            isValidVertex = TRUE;
                         } else {
-                            isValidVertex.set(FALSE);
+                            isValidVertex = FALSE;
                         }
-                    });
+                    }
 
-                    return isValidVertex.get();
+                    return isValidVertex;
                 })
                 .collect(Collectors.toSet());
 
@@ -831,10 +832,10 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
         BreadthFirstIterator<String, DefaultEdge> bfsIterator = new BreadthFirstIterator<>(dag, rootNodes);
 
-        // Implementation of offline scheduler by using level by level traversal. Level i+1 executables would be
-        // dependent
-        // on Level i executables. All executables in a level can run independently and hence would get added to the
-        // same set.
+        // Implementation of offline scheduler by using level by level traversal.
+        // Level i+1 executables would be dependent on Level i executables.
+        // All executables in a level can run independently
+        // and hence would get added to the same set.
         while (bfsIterator.hasNext()) {
 
             String vertex = bfsIterator.next();
