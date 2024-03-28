@@ -31,6 +31,10 @@ export const StyledTab = styled(Flex)`
   justify-content: center;
   max-width: calc((${DEFAULT_SPLIT_SCREEN_WIDTH} - 127px) / 5);
 
+  div[data-testid="editor-tabs"]{
+    flex-grow: 0;
+  }
+
   // After element - the seperator in between tabs
   &:not(&.active):not(:has(+ .active)):after {
     content: "";
