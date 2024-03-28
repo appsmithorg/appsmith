@@ -127,7 +127,7 @@ export function Command(props: {
         <div className="flex grow relative overflow-hidden">
           <div className="flex flex-col gap-1 grow w-full">
             <div className="whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)] relative">
-              <span className="flex items-center overflow-hidden overflow-ellipsis">
+              <span className="flex items-center overflow-hidden overflow-ellipsis slash-command-hint-text">
                 {props.name}
               </span>
               {props.isBeta && <BetaCard />}
