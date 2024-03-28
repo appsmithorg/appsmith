@@ -287,9 +287,6 @@ class ActionExecutionSolutionCEImplTest {
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
-
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("test body");
@@ -309,6 +306,9 @@ class ActionExecutionSolutionCEImplTest {
         doReturn(Mono.just(newAction))
                 .when(newActionService)
                 .findByBranchNameAndDefaultActionId(any(), any(), Mockito.anyBoolean(), any());
+
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
@@ -347,9 +347,6 @@ class ActionExecutionSolutionCEImplTest {
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
-
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("test body");
@@ -369,6 +366,9 @@ class ActionExecutionSolutionCEImplTest {
         doReturn(Mono.just(newAction))
                 .when(newActionService)
                 .findByBranchNameAndDefaultActionId(any(), any(), Mockito.anyBoolean(), any());
+
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
