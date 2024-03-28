@@ -14,18 +14,18 @@ let tokenToAuthorizeGraphQl = "";
 let authoemail = "";
 
 const GRAPHQL_QUERY = `query ($myid: Int!) {
-	postById(id: $myid) {
-	  id,
+  postById(id: $myid) {
+    id,
     title,
     content
   }
 }`;
 
-let POST_ID = 4;
+const POST_ID = 4;
 
-let GRAPHQL_VARIABLES = `{
-    "myid": ${POST_ID}
-  }`;
+const GRAPHQL_VARIABLES = `{
+  "myid": ${POST_ID}
+}`;
 
 const GRAPHQL_LIMIT_QUERY = `query($offsetz:Int, $firstz:Int){
           allPosts(offset:$offsetz, first:$firstz) {
@@ -168,11 +168,15 @@ describe(
 
         dataSources.UpdateGraphqlQueryAndVariable({
           query: `mutation {
-          deletePostById(input: {id: ${POST_ID}}) {
-            clientMutationId
-            deletedPostId
-          }
-        }`,
+            createPost(input: {post: {title: "Brand new post for test 4", content: "Brand new content", published: false, authorId: 1}}) {
+              post {
+                title
+                content
+                published
+                authorId
+              }
+            }
+          }`,
         });
         apiPage.EnterHeader(
           "Authorization",
@@ -184,16 +188,22 @@ describe(
     });
 
     it("5. Authenticated GraphQL from Authenticated GraphQL", () => {
-      //Trying to delete without Autho code to see validation error
+      const mutationQuery = `mutation {
+        createPost(input: {post: {title: "Brand new post for test 5", content: "Brand new content", published: false, authorId: 1}}) {
+          post {
+            title
+            content
+            published
+            authorId
+          }
+        }
+      }`;
+
+      //Trying to delete without Auth code to see validation error
       dataSources.CreateDataSource("UnAuthenticatedGraphQL");
       apiPage.SelectPaneTab("Body");
       dataSources.UpdateGraphqlQueryAndVariable({
-        query: `mutation {
-        deletePostById(input: {id: 7}) {
-          clientMutationId
-          deletedPostId
-        }
-      }`,
+        query: mutationQuery,
       });
       apiPage.RunAPI(false);
       agHelper.Sleep(2000);
@@ -244,12 +254,7 @@ describe(
 
         dataSources.CreateQueryAfterDSSaved();
         dataSources.UpdateGraphqlQueryAndVariable({
-          query: `mutation {
-          deletePostById(input: {id: 7}) {
-            clientMutationId
-            deletedPostId
-          }
-        }`,
+          query: mutationQuery,
         });
         RunNValidateGraphQL();
       });
@@ -259,10 +264,6 @@ describe(
     });
 
     it("6. Validate Authenticated GraphQL with Empty body & then Save as Datasource + Bug #26873", () => {
-      POST_ID = 5;
-      GRAPHQL_VARIABLES = `{
-      "myid": ${POST_ID}
-    }`;
       dataSources.CreateDataSource("UnAuthenticatedGraphQL");
       // cy.get("@dsName").then(($dsName: any) => {
       //   cy.log("DS Name: " + $dsName);
