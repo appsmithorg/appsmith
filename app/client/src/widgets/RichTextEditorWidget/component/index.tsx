@@ -168,8 +168,8 @@ const StyledRTEditor = styled.div<{
     background-size: auto 39px;
   }
 
-  .tox-editor-header {
-    border-bottom: 1px solid var(--wds-color-border) !important;
+  .tox:not(.tox-tinymce-inline) .tox-editor-header {
+    border-bottom: 1px solid var(--wds-color-border);
   }
 
   .tox-tbtn__select-label {
