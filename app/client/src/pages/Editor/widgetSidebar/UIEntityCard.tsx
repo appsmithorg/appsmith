@@ -109,7 +109,7 @@ function UIEntityCard(props: CardProps) {
       onDragStart={onDragStart}
     >
       <EntityIconWrapper height={THUMBNAIL_HEIGHT} width={THUMBNAIL_WIDTH}>
-        <img src={props.details.thumbnail ?? props.details.icon} />
+        <img src={props.details.icon} />
       </EntityIconWrapper>
       <Text kind="body-s">{props.details.displayName}</Text>
       {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
