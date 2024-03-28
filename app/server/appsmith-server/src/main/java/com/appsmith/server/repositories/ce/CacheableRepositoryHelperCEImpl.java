@@ -59,22 +59,19 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         }
 
         Mono<Query> createQueryMono = getInstanceAdminPermissionGroupId().map(instanceAdminPermissionGroupId -> {
-
             BridgeQuery<PermissionGroup> assignedToUserIdsCriteria =
-                Bridge.equal(PermissionGroup.Fields.assignedToUserIds, user.getId());
+                    Bridge.equal(PermissionGroup.Fields.assignedToUserIds, user.getId());
 
             BridgeQuery<PermissionGroup> notDeletedCriteria = Bridge.notDeleted();
 
             // The roles should be either workspace default roles, user management role, or instance admin role
             BridgeQuery<PermissionGroup> ceSupportedRolesCriteria = Bridge.or(
-                Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName()),
-                Bridge.equal(PermissionGroup.Fields.defaultDomainType, User.class.getSimpleName()),
-                Bridge.equal(PermissionGroup.Fields.id, instanceAdminPermissionGroupId)
-            );
+                    Bridge.equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName()),
+                    Bridge.equal(PermissionGroup.Fields.defaultDomainType, User.class.getSimpleName()),
+                    Bridge.equal(PermissionGroup.Fields.id, instanceAdminPermissionGroupId));
 
-            BridgeQuery<PermissionGroup> andCriteria = Bridge.and(
-                assignedToUserIdsCriteria, notDeletedCriteria, ceSupportedRolesCriteria
-            );
+            BridgeQuery<PermissionGroup> andCriteria =
+                    Bridge.and(assignedToUserIdsCriteria, notDeletedCriteria, ceSupportedRolesCriteria);
 
             Query query = new Query();
             query.addCriteria(andCriteria);
@@ -106,9 +103,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         BridgeQuery<Config> query = Bridge.equal(Config.Fields.name, FieldName.PUBLIC_PERMISSION_GROUP);
         // All public access is via a single permission group. Fetch the same and set the cache with it.
         return mongoOperations
-                .findOne(
-                        Query.query(query),
-                        Config.class)
+                .findOne(Query.query(query), Config.class)
                 .map(publicPermissionGroupConfig ->
                         Set.of(publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID)))
                 .doOnSuccess(inMemoryCacheableRepositoryHelper::setAnonymousUserPermissionGroupIds);

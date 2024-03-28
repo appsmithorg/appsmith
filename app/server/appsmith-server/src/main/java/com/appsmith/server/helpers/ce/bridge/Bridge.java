@@ -88,11 +88,9 @@ public final class Bridge {
 
     public static <T extends BaseDomain> BridgeQuery<T> notDeleted() {
         return Bridge.and(
-            // Older check for deleted
-            Bridge.or(
-                Bridge.notExists(FieldName.DELETED),
-                Bridge.isFalse(FieldName.DELETED)),
-            // New check for deleted
-            Bridge.isNull(FieldName.DELETED_AT));
+                // Older check for deleted
+                Bridge.or(Bridge.notExists(FieldName.DELETED), Bridge.isFalse(FieldName.DELETED)),
+                // New check for deleted
+                Bridge.isNull(FieldName.DELETED_AT));
     }
 }
