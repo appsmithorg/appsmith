@@ -34,6 +34,9 @@ Create chart name and version as used by the chart label.
 Common labels
 */}}
 {{- define "appsmith.labels" -}}
+{{- if .Values.commonLabels -}}
+{{ toYaml .Values.commonLabels }}
+{{- end }}
 appsmith.sh/chart: {{ include "appsmith.chart" . }}
 {{ include "appsmith.selectorLabels" . }}
 {{- if .Chart.AppVersion }}
