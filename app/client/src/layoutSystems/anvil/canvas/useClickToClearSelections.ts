@@ -18,9 +18,6 @@ export const useClickToClearSelections = (widgetId: string) => {
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
-  const isCanvasResizing: boolean = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
-  );
   const isDistributingSpace: boolean = useSelector(
     getAnvilSpaceDistributionStatus,
   );
@@ -28,7 +25,7 @@ export const useClickToClearSelections = (widgetId: string) => {
   // Click event handler function
   return (e: MouseEvent<HTMLElement>) => {
     // Checking if there is no ongoing dragging, canvas resizing, or space distribution
-    if (!(isDragging || isCanvasResizing || isDistributingSpace)) {
+    if (!(isDragging || isDistributingSpace)) {
       // Check if the target is the MainCanvas
       // Deselect all widgets, focus on the clicked widget, show the property pane, and prevent the default click behavior
       goToWidgetAdd();

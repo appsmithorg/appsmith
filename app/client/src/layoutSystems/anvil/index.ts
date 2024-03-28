@@ -5,7 +5,6 @@ import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import type { LayoutSystem } from "layoutSystems/types";
 import { AnvilMainCanvas } from "./canvas/AnvilMainCanvas";
 import { AnvilCanvas } from "./canvas/AnvilCanvas";
-import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 /**
  * getAnvilSystemPropsEnhancer
@@ -14,12 +13,6 @@ import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPos
  *
  */
 const getAnvilSystemPropsEnhancer = (props: BaseWidgetProps) => {
-  const _props = { ...props };
-  if (props.detachFromLayout) {
-    // Add className to detached widgets
-    _props.className = getAnvilWidgetDOMId(props.widgetId);
-    return _props;
-  }
   return props;
 };
 
