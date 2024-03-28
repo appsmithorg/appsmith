@@ -929,7 +929,7 @@ export class DataSources {
     }
   }
 
-  private AssertRunButtonVisibility() {
+  public AssertRunButtonVisibility() {
     this.agHelper.AssertElementVisibility(
       this.locator._buttonByText("Run"),
       true,

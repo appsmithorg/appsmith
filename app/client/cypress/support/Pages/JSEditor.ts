@@ -75,8 +75,8 @@ export class JSEditor {
     `//div[contains(@class, '${functionName}-confirm-before-execute')]//label/input`;
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
-  private _jsObjTxt = ".t--js-action-name-edit-field input";
-  private _newJSobj = "span:contains('New JS object')";
+  public _jsObjTxt = ".t--js-action-name-edit-field input";
+  public _newJSobj = "span:contains('New JS Object')";
   private _bindingsClose = ".t--entity-property-close";
   public _propertyList = ".binding";
   private _responseTabAction = (funName: string) =>
