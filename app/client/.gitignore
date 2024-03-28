@@ -54,6 +54,7 @@ build-storybook.log
 TODO
 
 /nginx
+/caddy
 
 /public/static/wds/
 
