@@ -146,10 +146,10 @@
           }
         },
         {
-          "sectionStyles": { "display": "flex" },
+          "sectionStyles": { "display": "flex", "flex-wrap": "wrap" },
           "children": [
             {
-              "sectionStyles": { "flex": 1 },
+              "sectionStyles": { "flex": 1, "marginRight": "20px" },
               "children": [
                 {
                   "label": "Client CA Certificate File",
@@ -177,7 +177,7 @@
               ]
             },
             {
-              "sectionStyles": { "flex": 1, "marginLeft": "20px" },
+              "sectionStyles": { "flex": 1, "marginRight": "20px" },
               "children": [
                 {
                   "label": "Server CA Certificate File",
@@ -205,7 +205,7 @@
               ]
             },
             {
-              "sectionStyles": { "flex": 1, "marginLeft": "20px" },
+              "sectionStyles": { "flex": 1, "marginRight": "20px" },
               "children": [
                 {
                   "label": "Client Key Certificate File",
