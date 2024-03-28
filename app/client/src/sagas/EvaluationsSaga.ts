@@ -487,12 +487,12 @@ function evalQueueBuffer() {
   };
 
   const put = (action: EvaluationReduxAction<unknown | unknown[]>) => {
-    if (!shouldProcessAction(action)) {
+    const postEvalActions = getPostEvalActions(action);
+    if (!shouldProcessAction(action) || postEvalActions.length === 0) {
       return;
     }
     canTake = true;
 
-    const postEvalActions = getPostEvalActions(action);
     collectedPostEvalActions.push(...postEvalActions);
   };
 
