@@ -194,8 +194,8 @@ export const PropertySection = memo((props: PropertySectionProps) => {
         )}
         {props.collapsible && (
           <Icon
-            className={`ml-auto t--chevron-icon ${isOpen ? "rotate-180" : ""}`}
-            name="arrow-up-s-line"
+            className={`ml-auto t--chevron-icon`}
+            name={isOpen ? "expand-less" : "expand-more"}
             size="md"
           />
         )}
