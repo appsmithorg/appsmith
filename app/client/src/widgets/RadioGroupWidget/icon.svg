@@ -1,4 +1,28 @@
-<svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path fill-rule="evenodd" clip-rule="evenodd" d="M12 1C18.0751 1 23 5.92491 23 12C23 18.0752 18.0751 23.0001 12 23.0001C5.92484 23.0001 1 18.0752 1 12C1 5.92491 5.92484 1 12 1ZM12 19.8572C7.66064 19.8572 4.14285 16.3394 4.14285 12C4.14285 7.6606 7.66064 4.14285 12 4.14285C16.3394 4.14285 19.8571 7.6606 19.8571 12C19.8571 16.3394 16.3394 19.8572 12 19.8572Z" fill="#4C5664"/>
-<path d="M11.9996 16.7143C9.39586 16.7143 7.28528 14.6037 7.28528 12C7.28528 9.3964 9.39586 7.28569 11.9996 7.28569C14.6032 7.28569 16.7139 9.3964 16.7139 12C16.7139 14.6037 14.6032 16.7143 11.9996 16.7143Z" fill="#4C5664"/>
+<svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g clip-path="url(#clip0_7044_126797)">
+<rect x="8" y="13" width="12" height="12" rx="6" fill="#FFBFA1"/>
+<g filter="url(#filter0_d_7044_126797)">
+<rect x="10" y="15" width="8" height="8" rx="4" fill="white"/>
+<rect x="10.5" y="15.5" width="7" height="7" rx="3.5" stroke="#CC3D00"/>
+</g>
+</g>
+<rect x="7.5" y="12.5" width="13" height="13" rx="6.5" stroke="#CC3D00"/>
+<rect x="26" y="15" width="20" height="8" rx="1" fill="#CDD5DF"/>
+<rect x="8.5" y="31.5" width="11" height="11" rx="5.5" fill="white" stroke="#CDD5DF"/>
+<rect x="26" y="33" width="22" height="8" rx="1" fill="#CDD5DF"/>
+<defs>
+<filter id="filter0_d_7044_126797" x="2" y="7" width="40" height="40" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
+<feOffset dx="8" dy="8"/>
+<feGaussianBlur stdDeviation="8"/>
+<feComposite in2="hardAlpha" operator="out"/>
+<feColorMatrix type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0.25 0"/>
+<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_7044_126797"/>
+<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_7044_126797" result="shape"/>
+</filter>
+<clipPath id="clip0_7044_126797">
+<rect x="8" y="13" width="12" height="12" rx="6" fill="white"/>
+</clipPath>
+</defs>
 </svg>
