@@ -871,7 +871,7 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
 });
 Cypress.Commands.add("setTinyMceContent", (tinyMceId, content) => {
   cy.window().then((win) => {
-    const editor = win.tinymce.editors[tinyMceId];
+    const editor = win.tinymce.EditorManager.get(tinyMceId);
     editor.setContent(content);
   });
 });

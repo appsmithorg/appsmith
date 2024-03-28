@@ -10337,16 +10337,16 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@tinymce/tinymce-react@npm:^3.13.0":
-  version: 3.13.0
-  resolution: "@tinymce/tinymce-react@npm:3.13.0"
+"@tinymce/tinymce-react@npm:^5.0.0":
+  version: 5.0.0
+  resolution: "@tinymce/tinymce-react@npm:5.0.0"
   dependencies:
     prop-types: ^15.6.2
-    tinymce: ^5.5.1
+    tinymce: ^7.0.0 || ^6.0.0 || ^5.5.1
   peerDependencies:
-    react: ^17.0.1 || ^16.7.0
-    react-dom: ^17.0.1 || ^16.7.0
-  checksum: 684b84a7e7ed320e2666b00568ff665d38bf1d8d4ae96ae0b939e407c26566bbb953bc512043788daf0f849218262a15b065c29db5c6dd6fa804490800b61858
+    react: ^18.0.0 || ^17.0.1 || ^16.7.0
+    react-dom: ^18.0.0 || ^17.0.1 || ^16.7.0
+  checksum: f22d7ab785c39d43174b98d978ce1e665c525b0504c0904922aa11527b7517466dde36af0ca3123a2b7ff24418a5ce403b50ec18b9228c7cf83670d2c8566db4
   languageName: node
   linkType: hard
 
@@ -13123,7 +13123,7 @@ __metadata:
     "@testing-library/react": 12.1.2
     "@testing-library/react-hooks": ^8.0.1
     "@testing-library/user-event": 13.5.0
-    "@tinymce/tinymce-react": ^3.13.0
+    "@tinymce/tinymce-react": ^5.0.0
     "@types/babel__standalone": ^7.1.7
     "@types/codemirror": ^0.0.96
     "@types/d3-geo": ^3.1.0
@@ -32677,10 +32677,10 @@ __metadata:
   languageName: node
   linkType: hard
 
-"tinymce@npm:^5.5.1":
-  version: 5.10.9
-  resolution: "tinymce@npm:5.10.9"
-  checksum: 9927f3132820c183ca1a3ed19b4e650b16276385b4c253e51cf2a399a5981522d4197901b7abd8a7bf7000d783880eda9727b5eee9381b5c4c42c48c48a1d6f5
+"tinymce@npm:^7.0.0 || ^6.0.0 || ^5.5.1":
+  version: 7.0.0
+  resolution: "tinymce@npm:7.0.0"
+  checksum: 1f2dc383c1c6f4efb8d3f4223577a8f2b450f6cc62b2861c80467495d68c2453cbd8b646416a0376282fb0b6341c194c698503149037347133b7b936fb7c717b
   languageName: node
   linkType: hard
 
