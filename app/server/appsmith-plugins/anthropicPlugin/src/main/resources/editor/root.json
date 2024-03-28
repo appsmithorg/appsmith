@@ -15,6 +15,10 @@
             {
               "label": "Chat",
               "value": "CHAT"
+            },
+            {
+              "label": "Vision",
+              "value": "VISION"
             }
           ]
         }
@@ -22,6 +26,7 @@
     }
   ],
   "files": [
-    "chat.json"
+    "chat.json",
+    "vision.json"
   ]
 }

@@ -133,10 +133,6 @@ public class AnthropicPluginTest {
         apiKeyAuth.setValue("apiKey");
         DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
         datasourceConfiguration.setAuthentication(apiKeyAuth);
-        String responseBody = "[\"claude-2.1\",\"claude-2\",\"claude-instant-1.2\",\"claude-instant-1\"]";
-        MockResponse mockResponse = new MockResponse().setBody(responseBody);
-        mockResponse.setResponseCode(200);
-        mockEndpoint.enqueue(mockResponse);
 
         TriggerRequestDTO request = new TriggerRequestDTO();
         request.setRequestType(CHAT_MODELS);
@@ -146,10 +142,16 @@ public class AnthropicPluginTest {
         StepVerifier.create(datasourceTriggerResultMono)
                 .assertNext(result -> {
                     assertTrue(result.getTrigger() instanceof List<?>);
-                    assertEquals(((List) result.getTrigger()).size(), 4);
+                    assertEquals(((List) result.getTrigger()).size(), 6);
                     assertEquals(
                             result.getTrigger(),
-                            getDataToMap(List.of("claude-2.1", "claude-2", "claude-instant-1.2", "claude-instant-1")));
+                            getDataToMap(List.of(
+                                    "claude-2",
+                                    "claude-2.1",
+                                    "claude-instant-1.2",
+                                    "claude-3-opus-20240229",
+                                    "claude-3-sonnet-20240229",
+                                    "claude-3-haiku-20240307")));
                 })
                 .verifyComplete();
     }

@@ -21,6 +21,7 @@ import com.external.plugins.constants.AnthropicConstants;
 import com.external.plugins.models.AnthropicRequestDTO;
 import com.external.plugins.utils.AnthropicMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.gson.Gson;
@@ -137,7 +138,18 @@ public class AnthropicPlugin extends BasePlugin {
                 return Mono.just(apiKeyNotPresentErrorResult);
             }
 
-            return RequestUtils.makeRequest(httpMethod, uri, apiKeyAuth, BodyInserters.fromValue(anthropicRequestDTO))
+            objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+            String requestBody;
+            try {
+                requestBody = objectMapper.writeValueAsString(anthropicRequestDTO);
+            } catch (Exception e) {
+                errorResult.setIsExecutionSuccess(false);
+                errorResult.setErrorInfo(
+                        new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, e.getMessage()));
+                return Mono.just(errorResult);
+            }
+
+            return RequestUtils.makeRequest(httpMethod, uri, apiKeyAuth, BodyInserters.fromValue(requestBody))
                     .flatMap(responseEntity -> {
                         HttpStatusCode statusCode = responseEntity.getStatusCode();
 
