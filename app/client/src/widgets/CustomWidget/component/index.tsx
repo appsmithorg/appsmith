@@ -47,6 +47,11 @@ const OverlayDiv = styled.div`
   height: 100%;
 `;
 
+const Container = styled.div`
+  height: 100%;
+  width: 100%;
+`;
+
 const { disableIframeWidgetSandbox } = getAppsmithConfigs();
 
 function CustomComponent(props: CustomComponentProps) {
@@ -231,7 +236,7 @@ function CustomComponent(props: CustomComponentProps) {
   }, [srcDoc]);
 
   return (
-    <div
+    <Container
       className={clsx({
         "bp3-skeleton": loading,
       })}
@@ -266,7 +271,7 @@ function CustomComponent(props: CustomComponentProps) {
           srcDoc={srcDoc}
         />
       </WidgetStyleContainer>
-    </div>
+    </Container>
   );
 }
 

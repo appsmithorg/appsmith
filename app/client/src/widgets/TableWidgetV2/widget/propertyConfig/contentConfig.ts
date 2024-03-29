@@ -142,6 +142,12 @@ export default [
         validation: { type: ValidationTypes.TEXT },
       },
     ],
+    // Added this prop to indicate that data section needs to be expanded by default
+    // Rest all sections needs to be collapsed
+    // We already have a isDefaultOpen prop configured to keep a section expanded or not
+    // but introducing new prop so that we can control is based on flag
+    // Once we decide to keep this feature, we can go back to using isDefaultOpen and removeexpandedByDefault
+    expandedByDefault: true,
   },
   {
     sectionName: "Pagination",
@@ -210,6 +216,7 @@ export default [
         dependencies: ["serverSidePaginationEnabled"],
       },
     ],
+    expandedByDefault: false,
   },
   {
     sectionName: "Search & filters",
@@ -290,6 +297,7 @@ export default [
         validation: { type: ValidationTypes.BOOLEAN },
       },
     ],
+    expandedByDefault: false,
   },
   {
     sectionName: "Row selection",
@@ -357,6 +365,7 @@ export default [
         isTriggerProperty: true,
       },
     ],
+    expandedByDefault: false,
   },
   {
     sectionName: "Sorting",
@@ -388,6 +397,7 @@ export default [
         dependencies: ["isSortable"],
       },
     ],
+    expandedByDefault: false,
   },
   {
     sectionName: "Adding a row",
@@ -464,6 +474,7 @@ export default [
         },
       },
     ],
+    expandedByDefault: false,
   },
   {
     sectionName: "General",
@@ -528,5 +539,6 @@ export default [
         dependencies: ["isVisibleDownload"],
       },
     ],
+    expandedByDefault: false,
   },
 ] as PropertyPaneConfig[];

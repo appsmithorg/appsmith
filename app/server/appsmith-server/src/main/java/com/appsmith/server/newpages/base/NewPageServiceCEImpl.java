@@ -1,5 +1,6 @@
 package com.appsmith.server.newpages.base;
 
+import com.appsmith.external.enums.WorkspaceResourceContext;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
@@ -254,7 +255,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     if (markApplicationAsRecentlyAccessed) {
                         // add this application and workspace id to the recently used list in UserData
                         return userDataService
-                                .updateLastUsedAppAndWorkspaceList(application)
+                                .updateLastUsedResourceAndWorkspaceList(
+                                        application.getId(),
+                                        application.getWorkspaceId(),
+                                        WorkspaceResourceContext.APPLICATIONS)
                                 .thenReturn(application);
                     } else {
                         return Mono.just(application);

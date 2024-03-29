@@ -50,7 +50,7 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
   // it should be safe in this case since the checkbox is not expected to be added or removed from the group.
   const context = useContext(CheckboxGroupContext) as CheckboxGroupContextType;
   const isDisabled = isDisabledProp || context?.isDisabled;
-  const labelPosition = labelPositionProp ?? context?.optionsLabelPosition;
+  const labelPosition = context?.optionsLabelPosition ?? labelPositionProp;
   const { hoverProps, isHovered } = useHover({ isDisabled });
   const { inputProps } = Boolean(context?.state)
     ? // eslint-disable-next-line react-hooks/rules-of-hooks

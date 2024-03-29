@@ -1,5 +1,5 @@
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { get, isObject, set } from "lodash";
+import { isObject, set } from "lodash";
 import { klona } from "klona/json";
 import type { EvalProps } from "workers/common/DataTreeEvaluator";
 
@@ -12,14 +12,9 @@ export function makeEntityConfigsAsObjProperties(
   option = {} as {
     sanitizeDataTree?: boolean;
     evalProps?: EvalProps;
-    identicalEvalPathsPatches?: Record<string, string>;
   },
 ): DataTree {
-  const {
-    evalProps,
-    identicalEvalPathsPatches,
-    sanitizeDataTree = true,
-  } = option;
+  const { evalProps, sanitizeDataTree = true } = option;
   const newDataTree: DataTree = {};
   for (const entityName of Object.keys(dataTree)) {
     const entity = dataTree[entityName];
@@ -30,24 +25,6 @@ export function makeEntityConfigsAsObjProperties(
   const dataTreeToReturn = sanitizeDataTree ? klona(newDataTree) : newDataTree;
 
   if (!evalProps) return dataTreeToReturn;
-
-  //clean up deletes widget states
-  Object.entries(identicalEvalPathsPatches || {}).forEach(
-    ([evalPath, statePath]) => {
-      const [entity] = statePath.split(".");
-      if (!dataTreeToReturn[entity]) {
-        delete identicalEvalPathsPatches?.[evalPath];
-      }
-    },
-  );
-
-  // decompressIdenticalEvalPaths
-  Object.entries(identicalEvalPathsPatches || {}).forEach(
-    ([evalPath, statePath]) => {
-      const referencePathValue = get(dataTreeToReturn, statePath);
-      set(evalProps, evalPath, referencePathValue);
-    },
-  );
 
   for (const [entityName, entityEvalProps] of Object.entries(evalProps)) {
     if (!entityEvalProps.__evaluation__) continue;
