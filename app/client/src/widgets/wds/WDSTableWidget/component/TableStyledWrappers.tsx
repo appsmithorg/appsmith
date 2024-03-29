@@ -44,33 +44,12 @@ export const TableWrapper = styled.div<{
   isResizingColumn?: boolean;
   variant?: TableVariant;
   isAddRowInProgress: boolean;
-  multiRowSelection?: boolean;
-}>`
-  width: 100%;
-  height: 100%;
-  background: var(--color-bg-secondary);
-  border-style: solid;
-  border-width: ${({ borderWidth }) => `${borderWidth}px`};
-  border-color: ${({ borderColor }) => borderColor};
-  border-radius: var(--border-radius-elevation-3);
-  box-shadow: ${({ boxShadow }) => `${boxShadow}`} !important;
-  box-sizing: border-box;
-  display: flex;
-  justify-content: space-between;
-  flex-direction: column;
-  overflow: hidden;
-
+}>` 
   /* wriiten exclusively for safari */
   position: sticky; 
   }
   .tableWrap {
-    height: 100%;
-    display: block;
-    position: relative;
-    width: 100%;
-    overflow: auto hidden;
-    scrollbar-color: initial;
-    container-type: inline-size;
+   
 
     &.virtual {
       overflow: hidden;

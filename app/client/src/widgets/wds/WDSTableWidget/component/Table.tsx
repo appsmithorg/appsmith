@@ -38,6 +38,7 @@ import {
   createMessage,
   CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
+import styles from "./styles.module.css";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -317,12 +318,12 @@ export function Table(props: TableProps) {
         borderRadius={props.borderRadius}
         borderWidth={props.borderWidth}
         boxShadow={props.boxShadow}
+        className={styles.table}
         height={props.height}
         id={`table${props.widgetId}`}
         isAddRowInProgress={props.isAddRowInProgress}
         isHeaderVisible={isHeaderVisible}
         isResizingColumn={isResizingColumn.current}
-        multiRowSelection={props.multiRowSelection}
         tableSizes={tableSizes}
         triggerRowSelection={props.triggerRowSelection}
         variant={props.variant}
@@ -375,8 +376,9 @@ export function Table(props: TableProps) {
               ? " virtual"
               : ""
           }`}
+          data-table-wrapper=""
         >
-          <div {...getTableProps()} className="table column-freeze">
+          <div {...getTableProps()} className="column-freeze">
             {!shouldUseVirtual && (
               <StaticTable
                 accentColor={props.accentColor}
