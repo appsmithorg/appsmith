@@ -262,51 +262,20 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     @Override
     public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission) {
-        final String defaultResources = ActionCollection.Fields.defaultResources;
-        BridgeQuery<ActionCollection> defaultCollectionIdCriteria =
-                Bridge.equal(defaultResources + "." + FieldName.COLLECTION_ID, defaultCollectionId);
-        BridgeQuery<ActionCollection> branchCriteria =
-                Bridge.equal(defaultResources + "." + FieldName.BRANCH_NAME, branchName);
+        final BridgeQuery<ActionCollection> bq = Bridge.<ActionCollection>equal(
+                        ActionCollection.Fields.defaultResources_collectionId, defaultCollectionId)
+                .equal(ActionCollection.Fields.defaultResources_branchName, branchName);
 
-        return queryBuilder()
-                .criteria(defaultCollectionIdCriteria, branchCriteria)
-                .permission(permission)
-                .one();
+        return queryBuilder().criteria(bq).permission(permission).one();
     }
 
     @Override
-    public Mono<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
-    }
+    public Flux<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission) {
+        BridgeQuery<ActionCollection> query = Bridge.<ActionCollection>equal(
+                        BranchAwareDomain.Fields.defaultResources_applicationId, defaultApplicationId)
+                .isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
 
-    @Override
-    public Mono<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
-        BridgeQuery<ActionCollection> defaultAppIdCriteria =
-                Bridge.equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId);
-        BridgeQuery<ActionCollection> gitSyncIdCriteria = Bridge.equal(FieldName.GIT_SYNC_ID, gitSyncId);
-
-        return queryBuilder()
-                .criteria(defaultAppIdCriteria, gitSyncIdCriteria)
-                .permission(permission.orElse(null))
-                .first();
-    }
-
-    @Override
-    public Flux<ActionCollection> findByDefaultApplicationId(
-            String defaultApplicationId, Optional<AclPermission> permission) {
-        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
-        BridgeQuery<ActionCollection> defaultAppIdCriteria =
-                Bridge.equal(defaultResources + "." + FieldName.APPLICATION_ID, defaultApplicationId);
-        BridgeQuery<ActionCollection> deletedCriteria =
-                Bridge.isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
-
-        return queryBuilder()
-                .criteria(defaultAppIdCriteria, deletedCriteria)
-                .permission(permission.orElse(null))
-                .all();
+        return queryBuilder().criteria(query).permission(permission).all();
     }
 
     @Override
@@ -314,16 +283,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         BridgeQuery<ActionCollection> pageIdCriteria =
                 Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
         return queryBuilder().criteria(pageIdCriteria).permission(permission).all();
-    }
-
-    @Override
-    public Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        BridgeQuery<ActionCollection> pageIdCriteria =
-                Bridge.in(ActionCollection.Fields.unpublishedCollection_pageId, pageIds);
-        return queryBuilder()
-                .criteria(pageIdCriteria)
-                .permission(permission.orElse(null))
-                .all();
     }
 
     @Override
@@ -363,27 +322,22 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
 
     @Override
     public Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
-        List<Criteria> criteria = new ArrayList<>();
+        final BridgeQuery<ActionCollection> query = Bridge.query();
 
-        BridgeQuery<ActionCollection> pageCriterion;
-
-        // Fetch published action collections
         if (Boolean.TRUE.equals(viewMode)) {
-            pageCriterion = Bridge.equal(ActionCollection.Fields.publishedCollection_pageId, pageId);
-            criteria.add(pageCriterion);
-        }
-        // Fetch unpublished action collections
-        else {
-            pageCriterion = Bridge.equal(ActionCollection.Fields.unpublishedCollection_pageId, pageId);
-            criteria.add(pageCriterion);
+            // Fetch published action collections
+            query.equal(ActionCollection.Fields.publishedCollection_pageId, pageId);
+
+        } else {
+            // Fetch unpublished action collections
+            query.equal(ActionCollection.Fields.unpublishedCollection_pageId, pageId);
 
             // In case an action collection has been deleted in edit mode, but still exists in deployed mode,
             // ActionCollection object
             // would exist. To handle this, only fetch non-deleted actions
-            BridgeQuery<ActionCollection> deletedCriteria =
-                    Bridge.isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
-            criteria.add(deletedCriteria);
+            query.isNull(ActionCollection.Fields.unpublishedCollection_deletedAt);
         }
-        return queryBuilder().criteria(criteria).permission(permission).all();
+
+        return queryBuilder().criteria(query).permission(permission).all();
     }
 }
