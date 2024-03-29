@@ -27,6 +27,7 @@ import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.constants.ce.FieldNameCE.ANONYMOUS_USER;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
+import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.notDeleted;
 
 @Slf4j
 @Component
@@ -62,7 +63,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             BridgeQuery<PermissionGroup> assignedToUserIdsCriteria =
                     Bridge.equal(PermissionGroup.Fields.assignedToUserIds, user.getId());
 
-            BridgeQuery<PermissionGroup> notDeletedCriteria = Bridge.notDeleted();
+            BridgeQuery<PermissionGroup> notDeletedCriteria = notDeleted();
 
             // The roles should be either workspace default roles, user management role, or instance admin role
             BridgeQuery<PermissionGroup> ceSupportedRolesCriteria = Bridge.or(
