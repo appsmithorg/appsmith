@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static com.appsmith.server.helpers.ReactorUtils.asFlux;
 import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
 @Slf4j
@@ -85,7 +86,7 @@ public abstract class BaseService<
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
-        final QueryAllParams<T> builder = repository.queryBuilder();
+        final QueryAllParams<T> builder = repositoryDirect.queryBuilder();
 
         if (params != null && !params.isEmpty()) {
             final BridgeQuery<BaseDomain> query = Bridge.query();
@@ -95,7 +96,7 @@ public abstract class BaseService<
             builder.criteria(query);
         }
 
-        return builder.permission(aclPermission).all();
+        return asFlux(() -> builder.permission(aclPermission).all());
     }
 
     @Override

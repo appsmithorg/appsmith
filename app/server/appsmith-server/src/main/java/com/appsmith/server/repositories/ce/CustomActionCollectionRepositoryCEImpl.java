@@ -228,7 +228,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
     }
 
     @Override
-    public Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
+    public List<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission) {
         final BridgeQuery<ActionCollection> query = Bridge.query();
 
         if (Boolean.TRUE.equals(viewMode)) {
