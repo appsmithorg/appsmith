@@ -5,6 +5,7 @@ import type { AnvilHighlightInfo } from "../utils/anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import "./styles.css";
+import styled from "styled-components";
 
 /**
  * Default highlight passed for AnvilOverlayWidgetTypes widgets
@@ -22,6 +23,12 @@ const overlayWidgetHighlight: AnvilHighlightInfo = {
   width: 0,
 };
 
+const DetachedWidgetsDropArenaWrapper = styled.span`
+  /* purpose of this wrapper is to capture the mouse up event which is triggered anywhere on the modal */
+  /* adding this style to make sure gap of layouts is not applied to the wrapper */
+  position: absolute;
+`;
+
 export const DetachedWidgetsDropArena = (props: {
   anvilDragStates: AnvilDnDStates;
   onDrop: (renderedBlock: AnvilHighlightInfo) => void;
@@ -33,7 +40,7 @@ export const DetachedWidgetsDropArena = (props: {
     });
   };
   return props.anvilDragStates.activateOverlayWidgetDrop ? (
-    <span onMouseUp={onMouseUp}>
+    <DetachedWidgetsDropArenaWrapper onMouseUp={onMouseUp}>
       <Modal
         isOpen={props.anvilDragStates.activateOverlayWidgetDrop}
         overlayClassName="detached-widgets-drop-overlay"
@@ -43,6 +50,6 @@ export const DetachedWidgetsDropArena = (props: {
           <div>Drop the Modal here</div>
         </ModalContent>
       </Modal>
-    </span>
+    </DetachedWidgetsDropArenaWrapper>
   ) : null;
 };
