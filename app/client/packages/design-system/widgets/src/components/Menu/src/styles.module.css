@@ -77,7 +77,7 @@
 }
 
 .menuList li[data-separator] {
-  border-top: 1px solid var(--color-bd);
+  border-top: var(--border-width-1) solid var(--color-bd);
   padding: 0;
 }
 
