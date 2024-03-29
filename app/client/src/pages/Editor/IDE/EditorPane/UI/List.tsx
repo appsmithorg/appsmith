@@ -71,7 +71,6 @@ const ListWidgets = () => {
         <Flex flexDirection="column" px="spaces-3">
           <Button
             className="t--add-item"
-            data-testid="t--ui-widget-add-btn"
             kind={"secondary"}
             onClick={addButtonClickHandler}
             size={"sm"}
@@ -83,7 +82,7 @@ const ListWidgets = () => {
       ) : null}
       {widgetsExist ? (
         <Flex
-          data-testid="t--ui-widget-listing"
+          data-testid="t--ide-list"
           flex="1"
           flexDirection={"column"}
           overflowY="auto"
