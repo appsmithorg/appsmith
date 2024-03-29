@@ -655,7 +655,7 @@ export default class DataTreeEvaluator {
       "setupTree",
       undefined,
       webworkerTelemetry,
-      () => {
+      () =>
         this.setupTree(localUnEvalTree, updatedValuePaths, {
           totalUpdateTreeSetupStartTime,
           dependenciesOfRemovedPaths,
@@ -665,8 +665,7 @@ export default class DataTreeEvaluator {
           updateDependencyMapTime,
           configTree,
           isNewWidgetAdded,
-        });
-      },
+        }),
     );
 
     return {
