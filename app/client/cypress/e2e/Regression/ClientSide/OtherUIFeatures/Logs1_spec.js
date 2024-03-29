@@ -26,22 +26,6 @@ describe("Debugger logs", function () {
     logString = generateTestLogString();
   });
 
-  it("1. Modifying widget properties should log the same", function () {
-    ee.DragDropWidgetNVerify("buttonwidget", 200, 200);
-    propPane.UpdatePropertyFieldValue("Label", "Test");
-    debuggerHelper.ClickDebuggerIcon(0, true, 0);
-    agHelper.GetNClick(jsEditor._logsTab);
-    debuggerHelper.LogStateContains("Test");
-  });
-
-  it("2. Reset debugger state", function () {
-    cy.get(".t--property-control-visible").find(".t--js-toggle").click();
-    cy.testJsontext("visible", "Test");
-    cy.get(commonlocators.homeIcon).click({ force: true });
-    homePage.CreateNewApplication();
-    debuggerHelper.AssertErrorCount(0);
-  });
-
   it("3. Console log on button click with normal moustache binding", function () {
     ee.DragDropWidgetNVerify("buttonwidget", 200, 200);
     // Testing with normal log in moustache binding

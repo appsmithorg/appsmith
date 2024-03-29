@@ -204,17 +204,31 @@ public class AppsmithAiPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStorage> preSaveHook(DatasourceStorage datasourceStorage) {
+            return aiServerService
+                    .associateDatasource(createAssociateDTO(datasourceStorage))
+                    .thenReturn(datasourceStorage);
+        }
+
+        @Override
+        public Mono<DatasourceStorage> preDeleteHook(DatasourceStorage datasourceStorage) {
+            DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
+            if (hasFiles(datasourceConfiguration)) {
+                return aiServerService
+                        .disassociateDatasource(createAssociateDTO(datasourceStorage))
+                        .thenReturn(datasourceStorage);
+            }
+            return super.preDeleteHook(datasourceStorage);
+        }
+
+        private AssociateDTO createAssociateDTO(DatasourceStorage datasourceStorage) {
             DatasourceConfiguration datasourceConfiguration = datasourceStorage.getDatasourceConfiguration();
             String datasourceId = datasourceStorage.getDatasourceId();
             String workspaceId = datasourceStorage.getWorkspaceId();
-            if (hasFiles(datasourceConfiguration)) {
-                AssociateDTO associateDTO = new AssociateDTO();
-                associateDTO.setWorkspaceId(workspaceId);
-                associateDTO.setDatasourceId(datasourceId);
-                associateDTO.setFileIds(getFileIds(datasourceConfiguration));
-                return aiServerService.associateDatasource(associateDTO).thenReturn(datasourceStorage);
-            }
-            return super.preSaveHook(datasourceStorage);
+            AssociateDTO associateDTO = new AssociateDTO();
+            associateDTO.setWorkspaceId(workspaceId);
+            associateDTO.setDatasourceId(datasourceId);
+            associateDTO.setFileIds(getFileIds(datasourceConfiguration));
+            return associateDTO;
         }
     }
 }

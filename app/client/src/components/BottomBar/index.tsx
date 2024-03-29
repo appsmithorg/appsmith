@@ -7,12 +7,22 @@ import { Button } from "design-system";
 import SwitchEnvironment from "@appsmith/components/SwitchEnvironment";
 import { Container, Wrapper } from "./components";
 import { useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
+import {
+  getCurrentApplicationId,
+  previewModeSelector,
+} from "selectors/editorSelectors";
 import { useDispatch } from "react-redux";
 import { softRefreshActions } from "actions/pluginActionActions";
 import { START_SWITCH_ENVIRONMENT } from "@appsmith/constants/messages";
+import useShowEnvSwitcher from "@appsmith/hooks/useShowEnvSwitcher";
 
-export default function BottomBar({ viewMode }: { viewMode: boolean }) {
+interface BottomBarProps {
+  viewMode?: boolean;
+}
+
+export default function BottomBar({ viewMode = false }: BottomBarProps) {
+  const isPreviewMode = useSelector(previewModeSelector);
+  const showEnvSwitcher = useShowEnvSwitcher({ viewMode });
   const appId = useSelector(getCurrentApplicationId) || "";
   const dispatch = useDispatch();
 
@@ -23,7 +33,7 @@ export default function BottomBar({ viewMode }: { viewMode: boolean }) {
   return (
     <Container>
       <Wrapper>
-        {!viewMode && (
+        {showEnvSwitcher && (
           <SwitchEnvironment
             editorId={appId}
             onChangeEnv={onChangeEnv}
@@ -31,9 +41,9 @@ export default function BottomBar({ viewMode }: { viewMode: boolean }) {
             viewMode={viewMode}
           />
         )}
-        {!viewMode && <QuickGitActions />}
+        {!viewMode && !isPreviewMode && <QuickGitActions />}
       </Wrapper>
-      {!viewMode && (
+      {!viewMode && !isPreviewMode && (
         <Wrapper>
           <ManualUpgrades showTooltip>
             <Button

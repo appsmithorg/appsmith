@@ -871,7 +871,7 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
 });
 Cypress.Commands.add("setTinyMceContent", (tinyMceId, content) => {
   cy.window().then((win) => {
-    const editor = win.tinymce.editors[tinyMceId];
+    const editor = win.tinymce.EditorManager.get(tinyMceId);
     editor.setContent(content);
   });
 });
@@ -1327,6 +1327,8 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.wait(2000);
 
   if (CURRENT_REPO === REPO.CE) {
+    agHelper.WaitUntilEleAppear(onboarding.locators.skipStartFromData);
+    agHelper.GetNClick(onboarding.locators.skipStartFromData);
     cy.get("#loading").should("not.exist");
     AppSidebar.assertVisible();
   }

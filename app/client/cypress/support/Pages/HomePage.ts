@@ -1,9 +1,8 @@
-import { ObjectsRegistry } from "../Objects/Registry";
-import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
+import { CURRENT_REPO, REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
+import { ObjectsRegistry } from "../Objects/Registry";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
-import { featureFlagIntercept } from "../Objects/FeatureFlags";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -330,9 +329,6 @@ export class HomePage {
   }
 
   public OpenTemplatesDialogInStartFromTemplates() {
-    featureFlagIntercept({
-      release_show_create_app_from_templates_enabled: true,
-    });
     this.agHelper.GetNClick(this._homePageAppCreateBtn, 0, true);
     this.agHelper.GetNClick(this._newButtonCreateApplicationFromTemplates);
     this.agHelper.AssertElementVisibility(this._createAppFromTemplatesDialog);
@@ -441,7 +437,11 @@ export class HomePage {
     }
   }
 
-  public SignUp(uname: string, pswd: string) {
+  public SignUp(
+    uname: string,
+    pswd: string,
+    skipToApplication: boolean = true,
+  ) {
     this.agHelper.VisitNAssert("/user/signup");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
@@ -462,6 +462,13 @@ export class HomePage {
           this.agHelper.ClickButton("Get started");
         }
       });
+
+    if (skipToApplication) {
+      this.agHelper.WaitUntilEleAppear(
+        this.onboarding.locators.skipStartFromData,
+      );
+      this.agHelper.GetNClick(this.onboarding.locators.skipStartFromData);
+    }
     this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
   }
 

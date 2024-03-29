@@ -257,14 +257,14 @@ div.bp3-popover-arrow {
 
 /** Conditional vertical margin applied to widgets.
     If in a row of widgets (.aligned-widget-row), one of the widgets has a label ([data-field-label-wrapper]), then
-    all widgets (.anvil-widget-wrapper) in the row other than the widget with the label, will shift down using the 
+    all widgets (.anvil-widget-wrapper) in the row other than the widget with the label, will shift down using the
     margin-block-start property. This is to ensure that the widgets are aligned vertically.
 
     The value of the margin-block-start property is calculated based on the spacing tokens used by the labels in input like components
 */
 .aligned-widget-row:has(.anvil-widget-wrapper [data-field-label-wrapper])
   .anvil-widget-wrapper:not(:has([data-field-label-wrapper])) {
-  margin-block-start: calc(var(--inner-spacing-2) + var(--sizing-3));
+  margin-block-start: calc(var(--inner-spacing-3) + var(--sizing-3));
 }
 
 /** Asymmetric Padding
@@ -273,7 +273,7 @@ div.bp3-popover-arrow {
     elevation="1" is used to denote that the section has elevation.
 */
 div.anvil-widget-wrapper:has(div[data-elevation="false"][elevation="1"]) {
-  padding: var(--outer-sizing-0);
+  padding: var(--outer-spacing-0);
 }
 
 /** Asymmetric Padding
@@ -287,5 +287,5 @@ div.anvil-widget-wrapper:has(div[data-elevation="false"][elevation="1"]) {
 */
 div.anvil-widget-wrapper:not(:has(div[data-elevation="true"][elevation="2"]))
   div.anvil-widget-wrapper:has(div[data-elevation]) {
-  padding-block: var(--outer-sizing-0);
+  padding-block: var(--outer-spacing-0);
 }

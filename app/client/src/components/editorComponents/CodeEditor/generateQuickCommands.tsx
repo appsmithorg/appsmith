@@ -1,9 +1,10 @@
 import type { Datasource } from "entities/Datasource";
-import React from "react";
+import type { MouseEventHandler } from "react";
+import React, { useCallback } from "react";
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import ReactDOM from "react-dom";
 import type { SlashCommandPayload } from "entities/Action";
-import { SlashCommand } from "entities/Action";
+import { PluginType, SlashCommand } from "entities/Action";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
@@ -16,6 +17,12 @@ import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
 import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
 import type { EntityTypeValue } from "@appsmith/entities/DataTree/types";
+import PerformanceTracker, {
+  PerformanceTransactionName,
+} from "utils/PerformanceTracker";
+import history, { NavigationMethod } from "utils/history";
+import type { Plugin } from "api/PluginApi";
+import { EDIT, createMessage } from "@appsmith/constants/messages";
 
 export enum Shortcuts {
   PLUS = "PLUS",
@@ -97,17 +104,46 @@ export function Command(props: {
   name: string;
   desc?: string;
   isBeta?: boolean;
+  url?: string;
+  eventParams?: Record<string, string | boolean>;
 }) {
+  const switchToAction: MouseEventHandler<HTMLElement> = useCallback(
+    (event) => {
+      event.stopPropagation();
+      if (!props.url) return;
+      PerformanceTracker.startTracking(PerformanceTransactionName.OPEN_ACTION, {
+        url: props.url,
+      });
+      history.push(props.url, { invokedBy: NavigationMethod.SlashCommandHint });
+      AnalyticsUtil.logEvent("EDIT_ACTION_CLICK", props.eventParams || {});
+    },
+    [props.url, props.eventParams],
+  );
+
   return (
-    <div className="command-container">
-      <div className="command flex">
-        <div className="self-center">{props.icon}</div>
-        <div className="flex flex-col gap-1">
-          <div className="overflow-hidden overflow-ellipsis whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)]">
-            {props.name}
-            {props.isBeta && <BetaCard />}
+    <div className="command-container relative group cursor-pointer w-full">
+      <div className="command flex w-full">
+        <div className="self-center shrink-0">{props.icon}</div>
+        <div className="flex grow relative overflow-hidden">
+          <div className="flex flex-col gap-1 grow w-full">
+            <div className="whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)] relative">
+              <span className="flex items-center overflow-hidden overflow-ellipsis slash-command-hint-text">
+                {props.name}
+              </span>
+              {props.isBeta && <BetaCard />}
+            </div>
+            {props.desc ? (
+              <div className="command-desc">{props.desc}</div>
+            ) : null}
           </div>
-          {props.desc ? <div className="command-desc">{props.desc}</div> : null}
+          {props.url ? (
+            <span
+              className="hidden group-hover:inline self-center h-full px-2 text-xs absolute right-0 command-suggestion-edit"
+              onClick={switchToAction}
+            >
+              {createMessage(EDIT)}
+            </span>
+          ) : null}
         </div>
       </div>
     </div>
@@ -123,12 +159,12 @@ export const generateQuickCommands = (
     datasources,
     enableAIAssistance,
     executeCommand,
-    pluginIdToImageLocation,
+    pluginIdToPlugin,
   }: {
     aiContext: AIEditorContext;
     datasources: Datasource[];
     executeCommand: (payload: SlashCommandPayload) => void;
-    pluginIdToImageLocation: Record<string, string>;
+    pluginIdToPlugin: Record<string, Plugin>;
     recentEntities: string[];
     featureFlags: FeatureFlags;
     enableAIAssistance: boolean;
@@ -156,6 +192,7 @@ export const generateQuickCommands = (
     },
     shortcut: Shortcuts.PLUS,
   });
+
   const suggestions = entitiesForSuggestions.map((suggestion) => {
     const name = suggestion.name;
     return {
@@ -172,24 +209,30 @@ export const generateQuickCommands = (
       render: (element: HTMLElement, _: unknown, data: CommandsCompletion) => {
         let icon = null;
         const completionData = data.data as NavigationData;
+        const plugin = pluginIdToPlugin[completionData.pluginId || ""];
         if (completionData.type === ENTITY_TYPE.JSACTION) {
           icon = JsFileIconV2(16, 16);
-        } else if (
-          completionData.pluginId &&
-          pluginIdToImageLocation[completionData.pluginId]
-        ) {
+        } else if (plugin?.iconLocation) {
           icon = (
             <EntityIcon height="16px" width="16px">
-              <img
-                src={getAssetUrl(
-                  pluginIdToImageLocation[completionData.pluginId],
-                )}
-              />
+              <img src={getAssetUrl(plugin.iconLocation)} />
             </EntityIcon>
           );
         }
         ReactDOM.render(
-          <Command icon={icon} name={data.displayText as string} />,
+          <Command
+            eventParams={{
+              actionId: suggestion.id,
+              datasourceId: suggestion.datasourceId || "",
+              pluginName: suggestion.pluginName || "",
+              actionType: plugin?.type === PluginType.DB ? "Query" : "API",
+              isMock: !!suggestion?.isMock,
+              from: NavigationMethod.SlashCommandHint,
+            }}
+            icon={icon}
+            name={data.displayText as string}
+            url={suggestion.url}
+          />,
           element,
         );
       },
@@ -213,7 +256,7 @@ export const generateQuickCommands = (
           <EntityIcon height="16px" width="16px">
             <img
               src={getAssetUrl(
-                pluginIdToImageLocation[completionData.pluginId],
+                pluginIdToPlugin[completionData.pluginId].iconLocation,
               )}
             />
           </EntityIcon>
