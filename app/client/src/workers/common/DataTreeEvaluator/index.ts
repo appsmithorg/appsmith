@@ -248,7 +248,9 @@ export default class DataTreeEvaluator {
       "SetupFirstTree.parseJSActions",
       undefined,
       webworkerTelemetry,
-      () => parseJSActions(this, localUnEvalTree),
+      () => {
+        return parseJSActions(this, localUnEvalTree);
+      },
     );
     const parseJSActionsEndTime = performance.now();
 
@@ -278,7 +280,9 @@ export default class DataTreeEvaluator {
       "createDependencyMap",
       undefined,
       webworkerTelemetry,
-      () => createDependencyMap(this, localUnEvalTree, configTree),
+      () => {
+        return createDependencyMap(this, localUnEvalTree, configTree);
+      },
     );
     const createDependencyMapEndTime = performance.now();
 
@@ -655,8 +659,8 @@ export default class DataTreeEvaluator {
       "setupTree",
       undefined,
       webworkerTelemetry,
-      () =>
-        this.setupTree(localUnEvalTree, updatedValuePaths, {
+      () => {
+        return this.setupTree(localUnEvalTree, updatedValuePaths, {
           totalUpdateTreeSetupStartTime,
           dependenciesOfRemovedPaths,
           removedPaths,
@@ -665,7 +669,8 @@ export default class DataTreeEvaluator {
           updateDependencyMapTime,
           configTree,
           isNewWidgetAdded,
-        }),
+        });
+      },
     );
 
     return {
