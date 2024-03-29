@@ -1,11 +1,12 @@
 import type { CSSProperties } from "react";
 import React, { useCallback } from "react";
-import { shouldShowWidgetNameOnWidget } from "layoutSystems/anvil/integrations/onCanvasUISelectors";
+import { shouldSelectOrFocus } from "layoutSystems/anvil/integrations/onCanvasUISelectors";
 import { useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import styled from "styled-components";
 import WidgetFactory from "WidgetProvider/factory";
+import type { AppState } from "@appsmith/reducers";
 
 function getNearestScrollableAncestor(widgetElement: Element) {
   const nearestScrollableModalBody = widgetElement.closest(
@@ -65,8 +66,8 @@ const SplitButtonWrapper = styled.div<{
     padding-block: 1.25ch;
     padding-inline: 2ch;
 
-    color: var(--ads-color-black-0);
-    outline-color: var(--ads-color-orange-600);
+    color: var(${(props) => props.$ColorCSSVar});
+    outline-color: var(${(props) => props.$BGCSSVar});
     outline-offset: -5px;
     border-start-end-radius: var(--ads-radius-1);
     border-end-end-radius: var(--ads-radius-1);
@@ -74,20 +75,6 @@ const SplitButtonWrapper = styled.div<{
       props.$disableSpan
         ? "border-start-start-radius: var(--ads-radius-1); border-end-start-radius: var(--ads-radius-1);"
         : ""}
-
-    &:is(:hover, :focus-visible) {
-      background: var(--ads-color-orange-700);
-      color: var(--ads-color-bloack-0);
-
-      & > svg {
-        stroke: currentColor;
-        fill: none;
-      }
-    }
-
-    &:active {
-      background: var(--ads-color-orange-800);
-    }
   }
 
   & span {
@@ -103,9 +90,8 @@ const SplitButtonWrapper = styled.div<{
     background: var(${(props) => props.$BGCSSVar});
 
     &:is(:hover, :focus-visible) {
-      background: var(--ads-color-orange-700);
-      color: var(--ads-color-bloack-0);
-
+      filter: brightness(0.8);
+      color: var(${(props) => props.$ColorCSSVar});
       & > svg {
         stroke: currentColor;
         fill: none;
@@ -113,7 +99,7 @@ const SplitButtonWrapper = styled.div<{
     }
 
     &:active {
-      background: var(--ads-color-orange-800);
+      filter: brightness(0.6);
     }
   }
 `;
@@ -127,18 +113,26 @@ export function SplitButton(props: {
   bGCSSVar: string;
   colorCSSVar: string;
   disableParentToggle: boolean;
+  onSpanClick: React.MouseEventHandler;
+  className: string;
 }) {
   return (
     <SplitButtonWrapper
       $BGCSSVar={props.bGCSSVar}
       $ColorCSSVar={props.colorCSSVar}
       $disableSpan={props.disableParentToggle}
+      className={props.className}
       id={props.id}
       onMouseMoveCapture={props.onMouseOverCapture}
       style={props.styles}
     >
       {!props.disableParentToggle && (
-        <span aria-expanded="false" aria-haspopup="true" title="Select Parent">
+        <span
+          aria-expanded="false"
+          aria-haspopup="true"
+          onClick={props.onSpanClick}
+          title="Select Parent"
+        >
           <svg
             aria-hidden="true"
             height="15"
@@ -168,10 +162,21 @@ export function WidgetNameComponent(props: {
   focusColorCSSVar: string;
   disableParentSelection: boolean;
 }) {
-  const shouldShowWidgetName = useSelector(
-    shouldShowWidgetNameOnWidget(props.widgetId),
+  const nameComponentState: "select" | "focus" | "none" = useSelector(
+    shouldSelectOrFocus(props.widgetId),
+  );
+  const parentId: string | undefined = useSelector(
+    (state: AppState) => state.entities.canvasWidgets[props.widgetId]?.parentId,
   );
   const { selectWidget } = useWidgetSelection();
+
+  const handleSelectParent = useCallback(
+    (e: React.MouseEvent) => {
+      parentId && selectWidget(SelectionRequestType.One, [parentId]);
+      e.stopPropagation();
+    },
+    [parentId],
+  );
 
   const handleSelect = useCallback((e: React.MouseEvent) => {
     selectWidget(SelectionRequestType.One, [props.widgetId]);
@@ -183,16 +188,29 @@ export function WidgetNameComponent(props: {
     e.stopPropagation();
   }, []);
 
-  if (!shouldShowWidgetName) return null;
+  if (nameComponentState === "none") return null;
+
+  const bGCSSVar =
+    nameComponentState === "focus"
+      ? props.focusBGCSSVar
+      : props.selectionBGCSSVar;
+  const colorCSSVar =
+    nameComponentState === "focus"
+      ? props.focusColorCSSVar
+      : props.selectionColorCSSVar;
+
+  if (nameComponentState === "focus") widgetNameStyles.zIndex = 9000001;
 
   return (
     <SplitButton
-      bGCSSVar={props.selectionBGCSSVar}
-      colorCSSVar={props.selectionColorCSSVar}
+      bGCSSVar={bGCSSVar}
+      className="on-canvas-ui"
+      colorCSSVar={colorCSSVar}
       disableParentToggle={props.disableParentSelection}
       id={`widget-name-${props.widgetId}`}
       onClick={handleSelect}
       onMouseOverCapture={handleMouseOver}
+      onSpanClick={handleSelectParent}
       styles={widgetNameStyles}
       text={props.name}
     />
@@ -244,8 +262,8 @@ export function OnCanvasUIWidgetNameComponents(
                 Math.floor(entry.boundingClientRect.top)
             ) {
               widgetNameComponent.style.transform = `translate3d(${
-                entry.boundingClientRect.left - (editorRect?.left || 0)
-              }px, ${entry.boundingClientRect.top - 24 - 40}px, 20px)`;
+                entry.boundingClientRect.left - 6 - (editorRect?.left || 0)
+              }px, ${entry.boundingClientRect.top - 30 - 40}px, 20px)`;
               widgetNameComponent.style.opacity = "1";
             } else {
               widgetNameComponent.style.opacity = "0";

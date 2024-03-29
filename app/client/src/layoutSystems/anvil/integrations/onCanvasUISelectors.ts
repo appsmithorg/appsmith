@@ -11,7 +11,7 @@ export const getIsEditorOpen = createSelector(
   },
 );
 
-export function shouldShowWidgetNameOnWidget(widgetId: string) {
+export function shouldSelectOrFocus(widgetId: string) {
   return createSelector(
     getIsEditorOpen,
     getIsDragging,
@@ -25,12 +25,12 @@ export function shouldShowWidgetNameOnWidget(widgetId: string) {
       isWidgetSelected,
       isWidgetFocused,
     ) => {
-      return (
-        isEditorOpen &&
-        !isDragging &&
-        !isResizing &&
-        (isWidgetSelected || isWidgetFocused)
-      );
+      const baseCondition = isEditorOpen && !isDragging && !isResizing;
+      if (baseCondition) {
+        if (isWidgetSelected) return "select";
+        if (isWidgetFocused) return "focus";
+      }
+      return "none";
     },
   );
 }

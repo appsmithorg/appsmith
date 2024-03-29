@@ -32,6 +32,7 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   }
   if (isSelected) {
     borderColor = `var(${onCanvasUI.selectionBGCSSVar}`;
+    borderWidth = "2px";
   }
   const shouldHideBorder =
     isDragging || isCanvasResizing || isDistributingSpace;
