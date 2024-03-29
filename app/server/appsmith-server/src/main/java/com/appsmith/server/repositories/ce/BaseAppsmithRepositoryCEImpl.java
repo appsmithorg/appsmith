@@ -744,10 +744,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
     }
 
-    /*
-    Db query methods
-     */
-
     /**
      * Updates a document in the database that matches the provided query and returns the modified document.
      * This method performs a find-and-modify operation internally to atomically update a document in the database.

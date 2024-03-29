@@ -10,6 +10,8 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 
+import static com.appsmith.external.helpers.StringUtils.dotted;
+
 @Setter
 @Getter
 @MappedSuperclass
@@ -28,5 +30,10 @@ public abstract class BranchAwareDomain extends BaseDomain {
         super.sanitiseToExportDBObject();
     }
 
-    public static class Fields extends BaseDomain.Fields {}
+    public static class Fields extends BaseDomain.Fields {
+        public static final String defaultResources_applicationId =
+                dotted(defaultResources, DefaultResources.Fields.applicationId);
+        public static final String defaultResources_branchName =
+                dotted(defaultResources, DefaultResources.Fields.branchName);
+    }
 }

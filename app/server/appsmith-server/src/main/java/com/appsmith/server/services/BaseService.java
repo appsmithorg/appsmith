@@ -6,9 +6,11 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.cakes.BaseCake;
+import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +26,7 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
@@ -83,28 +86,17 @@ public abstract class BaseService<
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
-        throw new ex.Marker("getWithPermission"); /*
-        List<Criteria> criterias;
+        final QueryAllParams<T> builder = repository.queryBuilder();
 
         if (params != null && !params.isEmpty()) {
-            criterias = params.entrySet().stream()
-                    .map(entry -> {
-                        String key = entry.getKey();
-                        List<String> values = entry.getValue();
-                        return Criteria.where(key).in(values);
-                    })
-                    .collect(Collectors.toList());
-        } else {
-            criterias = new ArrayList<>();
+            final BridgeQuery<BaseDomain> query = Bridge.query();
+            for (String key : params.keySet()) {
+                query.in(key, params.get(key));
+            }
+            builder.criteria(query);
         }
 
-        return Mono.fromSupplier(() -> repositoryDirect
-                        .queryBuilder()
-                        .criteria(criterias)
-                        .permission(aclPermission)
-                        .all())
-                .flatMapMany(Flux::fromIterable)
-                .subscribeOn(Schedulers.boundedElastic());//*/
+        return builder.permission(aclPermission).all();
     }
 
     @Override

@@ -523,12 +523,7 @@ public class ActionCollectionServiceCEImpl
     }
 
     @Override
-    public Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        return repository.findByPageIds(pageIds, permission);
-    }
-
-    @Override
-    public Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, Optional<AclPermission> permission) {
+    public Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, AclPermission permission) {
         return repository.findByPageIds(pageIds, permission).doOnNext(actionCollection -> {
             actionCollection.getUnpublishedCollection().populateTransientFields(actionCollection);
             if (actionCollection.getPublishedCollection() != null
