@@ -26,7 +26,6 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
