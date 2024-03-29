@@ -1,11 +1,5 @@
-import {
-  agHelper,
-  entityExplorer,
-  entityItems,
-} from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EditorViewMode,
-  EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
