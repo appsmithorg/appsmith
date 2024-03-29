@@ -94,10 +94,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public static <T extends BaseDomain> BridgeQuery<T> notDeleted() {
         return Bridge.and(
-            // Older check for deleted
-            Bridge.or(Bridge.notExists(FieldName.DELETED), Bridge.isFalse(FieldName.DELETED)),
-            // New check for deleted
-            Bridge.isNull(FieldName.DELETED_AT));
+                // Older check for deleted
+                Bridge.or(Bridge.notExists(FieldName.DELETED), Bridge.isFalse(FieldName.DELETED)),
+                // New check for deleted
+                Bridge.isNull(FieldName.DELETED_AT));
     }
 
     public static Criteria userAcl(Set<String> permissionGroups, AclPermission permission) {
