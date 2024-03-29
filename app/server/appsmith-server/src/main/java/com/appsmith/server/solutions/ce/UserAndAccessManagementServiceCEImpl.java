@@ -10,7 +10,6 @@ import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ValidationUtils;
-import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
