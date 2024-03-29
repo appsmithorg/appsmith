@@ -60,7 +60,6 @@ const ListJSObjects = () => {
         <Flex flexDirection="column" px="spaces-3">
           <Button
             className="t--add-item"
-            data-testid="t--js-object-add-btn"
             kind={"secondary"}
             onClick={addButtonClickHandler}
             size={"sm"}

@@ -1,5 +1,5 @@
 import datasource from "../../locators/DatasourcesEditor.json";
-import { ObjectsRegistry, ObjectsRegistry as _ } from "../Objects/Registry";
+import { ObjectsRegistry as _ } from "../Objects/Registry";
 import ClickOptions = Cypress.ClickOptions;
 import { Sidebar } from "./IDE/Sidebar";
 import { LeftPane } from "./IDE/LeftPane";
@@ -138,7 +138,7 @@ class EditorNavigation {
       _.AggregateHelper.GetNClick(this.locators.MinimizeBtn);
       cy.get("body").then(($body) => {
         if ($body.find(this.locators.announcementCloseButton).length > 0) {
-          ObjectsRegistry.AggregateHelper.GetNClick(
+          _.AggregateHelper.GetNClick(
             this.locators.announcementCloseButton,
             0,
             true,
