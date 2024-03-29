@@ -10,14 +10,8 @@
           "controlType": "SEGMENTED_CONTROL",
           "initialValue": "READ_WRITE",
           "options": [
-            {
-              "label": "Read / Write",
-              "value": "READ_WRITE"
-            },
-            {
-              "label": "Read only",
-              "value": "READ_ONLY"
-            }
+            { "label": "Read / Write", "value": "READ_WRITE" },
+            { "label": "Read only", "value": "READ_ONLY" }
           ]
         },
         {
@@ -84,50 +78,23 @@
           "controlType": "DROP_DOWN",
           "initialValue": "DEFAULT",
           "options": [
-            {
-              "label": "Default",
-              "value": "DEFAULT"
-            },
-            {
-              "label": "Allow",
-              "value": "ALLOW"
-            },
-            {
-              "label": "Prefer",
-              "value": "PREFER"
-            },
-            {
-              "label": "Require",
-              "value": "REQUIRE"
-            },
-            {
-              "label": "Disable",
-              "value": "DISABLE"
-            },
-            {
-              "label": "Verify CA",
-              "value": "VERIFY_CA"
-            },
-            {
-              "label": "Verify Full",
-              "value": "VERIFY_FULL"
-            }
+            { "label": "Default", "value": "DEFAULT" },
+            { "label": "Allow", "value": "ALLOW" },
+            { "label": "Prefer", "value": "PREFER" },
+            { "label": "Require", "value": "REQUIRE" },
+            { "label": "Disable", "value": "DISABLE" },
+            { "label": "Verify CA", "value": "VERIFY_CA" },
+            { "label": "Verify Full", "value": "VERIFY_FULL" }
           ]
         },
         {
           "label": "Certificate Type",
           "configProperty": "datasourceConfiguration.connection.ssl.certificateType",
           "controlType": "DROP_DOWN",
-          "initialValue": "FILE",
+          "initialValue": "-Select-",
           "options": [
-            {
-              "label": "Upload File",
-              "value": "FILE"
-            },
-            {
-              "label": "Base64 String",
-              "value": "BASE64_STRING"
-            }
+            { "label": "Upload File", "value": "FILE" },
+            { "label": "Base64 String", "value": "BASE64_STRING" }
           ],
           "hidden": {
             "conditionType": "AND",
@@ -149,7 +116,7 @@
           "sectionStyles": { "display": "flex", "flex-wrap": "wrap" },
           "children": [
             {
-              "sectionStyles": { "flex": 1, "marginRight": "20px" },
+              "sectionStyles": { "marginRight": "10px" },
               "children": [
                 {
                   "label": "Client CA Certificate File",
@@ -163,7 +130,7 @@
                   }
                 },
                 {
-                  "label": "Base64 Encoded Client CA Certificate String",
+                  "label": "Client CA Certificate String",
                   "configProperty": "datasourceConfiguration.connection.ssl.clientCACertificateFile.base64Content",
                   "controlType": "INPUT_TEXT",
                   "dataType": "PASSWORD",
@@ -177,7 +144,7 @@
               ]
             },
             {
-              "sectionStyles": { "flex": 1, "marginRight": "20px" },
+              "sectionStyles": { "marginRight": "10px" },
               "children": [
                 {
                   "label": "Server CA Certificate File",
@@ -191,7 +158,7 @@
                   }
                 },
                 {
-                  "label": "Base64 Encoded Server CA Certificate String",
+                  "label": "Server CA Certificate String",
                   "configProperty": "datasourceConfiguration.connection.ssl.serverCACertificateFile.Base64Content",
                   "controlType": "INPUT_TEXT",
                   "dataType": "PASSWORD",
@@ -205,7 +172,7 @@
               ]
             },
             {
-              "sectionStyles": { "flex": 1, "marginRight": "20px" },
+              "sectionStyles": { "marginRight": "10px" },
               "children": [
                 {
                   "label": "Client Key Certificate File",
@@ -219,7 +186,7 @@
                   }
                 },
                 {
-                  "label": "Base64 Encoded Client Key Certificate String",
+                  "label": "Client Key Certificate String",
                   "configProperty": "datasourceConfiguration.connection.ssl.clientKeyCertificateFile.Base64Content",
                   "controlType": "INPUT_TEXT",
                   "dataType": "PASSWORD",
@@ -231,8 +198,35 @@
                   }
                 }
               ]
+            },
+            {
+              "sectionStyles": { "flex": 1 },
+              "children": []
+            },
+            {
+              "sectionStyles": { "flex": 1 },
+              "children": []
+            },
+            {
+              "sectionStyles": { "flex": 1 },
+              "children": []
             }
-          ]
+          ],
+          "hidden": {
+            "conditionType": "AND",
+            "conditions": [
+              {
+                "path": "datasourceConfiguration.connection.ssl.authType",
+                "comparison": "NOT_EQUALS",
+                "value": "VERIFY_CA"
+              },
+              {
+                "path": "datasourceConfiguration.connection.ssl.authType",
+                "comparison": "NOT_EQUALS",
+                "value": "VERIFY_FULL"
+              }
+            ]
+          }
         }
       ]
     }
