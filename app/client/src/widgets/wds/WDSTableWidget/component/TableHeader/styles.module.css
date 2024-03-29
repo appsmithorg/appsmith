@@ -18,8 +18,11 @@
     display: flex;
     justify-content: flex-end;
     align-items: center;
-    margin-left: auto;
+    flex-grow: 1;
+    flex-shrink: 0;
     gap: var(--outer-spacing-1);
+    container-name: table-header-pagination;
+    container-type: inline-size;
   }
 
   & [data-table-header-pagination] > [data-field] {
@@ -31,7 +34,7 @@
   }
 }
 
-@container table-header (inline-size < 600px) {
+@container table-header-pagination (inline-size < 200px) {
   &
     [data-table-header-pagination]
     > :is([class*="wds-footnote-text"], [data-field]) {
