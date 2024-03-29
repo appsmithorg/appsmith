@@ -17,7 +17,13 @@ import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
 
-function UIEntitySidebar({ isActive }: { isActive: boolean }) {
+function UIEntitySidebar({
+  focusSearchInput,
+  isActive,
+}: {
+  isActive: boolean;
+  focusSearchInput?: boolean;
+}) {
   const { cards, entityLoading, groupedCards } = useUIExplorerItems();
   const [filteredCards, setFilteredCards] =
     useState<WidgetCardsGroupedByTags>(groupedCards);
@@ -81,6 +87,10 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
     setFilteredCards(groupedCards);
   }, [groupedCards]);
 
+  useEffect(() => {
+    if (focusSearchInput) searchInputRef.current?.focus();
+  }, [focusSearchInput]);
+
   return (
     <div
       className={`flex flex-col t--widget-sidebar overflow-hidden ${
@@ -90,7 +100,6 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
       <div className="sticky top-0 px-3 mt-0.5">
         <SearchInput
           autoComplete="off"
-          autoFocus
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
           placeholder="Search widgets"

@@ -16,6 +16,7 @@ import AddWidgets from "./Add";
 
 const UISegment = () => {
   const { path } = useRouteMatch();
+  const [focusSearchInput, setFocusSearchInput] = React.useState(false);
 
   return (
     <Flex
@@ -26,7 +27,7 @@ const UISegment = () => {
     >
       <Switch>
         <SentryRoute
-          component={AddWidgets}
+          component={() => <AddWidgets focusSearchInput={focusSearchInput} />}
           exact
           path={[
             BUILDER_PATH_DEPRECATED,
@@ -36,7 +37,9 @@ const UISegment = () => {
           ]}
         />
         <SentryRoute
-          component={ListWidgets}
+          component={() => (
+            <ListWidgets setFocusSearchInput={setFocusSearchInput} />
+          )}
           exact
           path={[
             `${path}${WIDGETS_EDITOR_BASE_PATH}`,
