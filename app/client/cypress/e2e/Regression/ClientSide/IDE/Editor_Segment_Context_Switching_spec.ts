@@ -1,15 +1,12 @@
-import {
-  agHelper,
-  dataSources,
-  homePage,
-} from "../../../../support/Objects/ObjectsCore";
+import { agHelper, homePage } from "../../../../support/Objects/ObjectsCore";
 
 import EditorNavigation, {
+  AppSidebar,
+  AppSidebarButton,
   EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
-import datasourceEditor from "../../../../locators/DatasourcesEditor.json";
 import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 
 describe("Editor Segment Context Switch", { tags: ["@tag.IDE"] }, function () {
@@ -91,5 +88,18 @@ describe("Editor Segment Context Switch", { tags: ["@tag.IDE"] }, function () {
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     // Assumes that selected item is not visible when in add state
     PageLeftPane.selectedItem().should("be.visible");
+  });
+
+  it("will retain segment and selected item on switching IDE state", () => {
+    // Switch to add new in Query
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    // Select a Query item
+    EditorNavigation.SelectEntityByName("updateUsers", EntityType.Query);
+    // Switch to Data state
+    AppSidebar.navigate(AppSidebarButton.Data);
+
+    // Switch back to Editor state
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    PageLeftPane.selectedItem().contains("updateUsers");
   });
 });
