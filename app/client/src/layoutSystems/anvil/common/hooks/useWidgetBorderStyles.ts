@@ -1,16 +1,14 @@
 import type { AppState } from "@appsmith/reducers";
-import { Colors } from "constants/Colors";
+import WidgetFactory from "WidgetProvider/factory";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import {
-  isCurrentWidgetFocused,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
+import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 
-export function useWidgetBorderStyles(widgetId: string) {
-  const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
+export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
+  const isFocused = useSelector(isWidgetFocused(widgetId));
   const isSelected = useSelector(isWidgetSelected(widgetId));
+  const onCanvasUI = WidgetFactory.getConfig(widgetType)?.onCanvasUI;
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
@@ -27,17 +25,21 @@ export function useWidgetBorderStyles(widgetId: string) {
   }
 
   let borderColor = "transparent";
+  let borderWidth = "2px";
   if (isFocused) {
-    borderColor = Colors.WATUSI;
+    borderColor = `var(${onCanvasUI.selectionBGCSSVar}`;
+    borderWidth = "1px";
   }
   if (isSelected) {
-    borderColor = "#F86A2B";
+    borderColor = `var(${onCanvasUI.selectionBGCSSVar}`;
   }
   const shouldHideBorder =
     isDragging || isCanvasResizing || isDistributingSpace;
   const canShowBorder = !shouldHideBorder && (isFocused || isSelected);
 
   return {
-    border: `2px solid ${canShowBorder ? borderColor : "transparent"}`,
+    border: `${borderWidth} solid ${
+      canShowBorder ? borderColor : "transparent"
+    }`,
   };
 }

@@ -18,6 +18,14 @@
      This value makes sure that on-canvas ui is always above editor elements
   */
   --on-canvas-ui-z-index: 999999;
+
+  --ads-widget-selection: #ce01d3;
+  --ads-zone-selection: #954bff;
+  --ads-section-selection: #3075ff;
+
+  --ads-widget-focus: #ffe5fe;
+  --ads-zone-focus: #f0ebff;
+  --ads-section-focus: #e6efff;
 }
 
 body {

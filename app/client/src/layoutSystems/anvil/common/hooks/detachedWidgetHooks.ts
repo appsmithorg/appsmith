@@ -89,9 +89,12 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
  * for the same widgetId
  * @param widgetId The widget ID which needs to be styled
  */
-export function useAddBordersToDetachedWidgets(widgetId: string) {
+export function useAddBordersToDetachedWidgets(
+  widgetId: string,
+  widgetType: string,
+) {
   // Get the styles to be applied
-  const borderStyled = useWidgetBorderStyles(widgetId);
+  const borderStyled = useWidgetBorderStyles(widgetId, widgetType);
 
   // Get the element from the DOM
   const className = getAnvilWidgetDOMId(widgetId);

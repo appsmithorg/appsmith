@@ -41,6 +41,14 @@ import type {
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
 
+const DEFAULT_WIDGET_ON_CANVAS_UI = {
+  selectionBGCSSVar: "--ads-widget-selection",
+  focusBGCSSVar: "--ads-widget-focus",
+  selectionColorCSSVar: "--ads-widget-focus",
+  focusColorCSSVar: "--ads-widget-selection",
+  disableParentSelection: false,
+};
+
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
 export type WidgetType = (typeof WidgetFactory.widgetTypes)[number];
@@ -113,6 +121,7 @@ class WidgetFactory {
       isCanvas: config.isCanvas,
       needsHeightForContent: config.needsHeightForContent,
       isSearchWildcard: config.isSearchWildcard,
+      onCanvasUI: config.onCanvasUI || DEFAULT_WIDGET_ON_CANVAS_UI,
     };
 
     WidgetFactory.widgetConfigMap.set(widget.type, Object.freeze(_config));

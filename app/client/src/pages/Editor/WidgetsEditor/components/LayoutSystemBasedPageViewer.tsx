@@ -2,7 +2,6 @@ import SnapShotBannerCTA from "pages/Editor/CanvasLayoutConversion/SnapShotBanne
 import React from "react";
 import styled from "styled-components";
 import MainContainerWrapper from "./MainContainerWrapper";
-import OverlayCanvasContainer from "layoutSystems/common/WidgetNamesCanvas";
 import { AppSettingsTabs } from "pages/Editor/AppSettingsPane/AppSettings";
 import { useSelector } from "react-redux";
 import {
@@ -19,10 +18,6 @@ import {
 } from "selectors/appSettingsPaneSelectors";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { EditorState } from "@appsmith/entities/IDE/constants";
-import {
-  LayoutSystemFeatures,
-  useLayoutSystemFeatures,
-} from "layoutSystems/common/useLayoutSystemFeatures";
 
 const BannerWrapper = styled.div`
   z-index: calc(var(--on-canvas-ui-z-index) + 1);
@@ -59,12 +54,6 @@ export const LayoutSystemBasedPageViewer = ({
   const shouldShowSnapShotBanner =
     !!readableSnapShotDetails && !isPreviewingNavigation;
 
-  const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-
-  const [enableOverlayCanvas] = checkLayoutSystemFeatures([
-    LayoutSystemFeatures.ENABLE_CANVAS_OVERLAY_FOR_EDITOR_UI,
-  ]);
-
   return (
     <>
       {shouldShowSnapShotBanner && (
@@ -83,9 +72,6 @@ export const LayoutSystemBasedPageViewer = ({
         navigationHeight={navigationHeight}
         shouldShowSnapShotBanner={shouldShowSnapShotBanner}
       />
-      {enableOverlayCanvas && (
-        <OverlayCanvasContainer canvasWidth={canvasWidth} />
-      )}
     </>
   );
 };

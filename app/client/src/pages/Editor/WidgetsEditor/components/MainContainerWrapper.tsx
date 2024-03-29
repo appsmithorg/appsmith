@@ -31,6 +31,8 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
+import { OnCanvasUIWidgetNameComponents } from "layoutSystems/anvil/widgetNameComponent";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 interface MainCanvasWrapperProps {
   isPreviewMode: boolean;
@@ -118,6 +120,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
     isProtectedMode,
     shouldShowSnapShotBanner,
   } = props;
+  const { focusWidget } = useWidgetSelection();
 
   const isFetchingPage = useSelector(getIsFetchingPage);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
@@ -138,6 +141,15 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
   const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
   const headerHeight = "40px";
+
+  const widgets = useSelector((state: AppState) => {
+    // return Object.keys(state.entities.canvasWidgets);
+    return Object.values(state.entities.canvasWidgets).map((widget) => ({
+      widgetId: widget.widgetId,
+      widgetName: widget.widgetName,
+      widgetType: widget.type,
+    }));
+  });
 
   useEffect(() => {
     return () => {
@@ -207,6 +219,8 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         }
         isPreviewingNavigation={isPreviewingNavigation}
         navigationHeight={navigationHeight}
+        onMouseLeave={() => focusWidget()}
+        onMouseOver={() => focusWidget()}
         style={{
           height: isPreviewMode ? `calc(100% - ${headerHeight})` : "auto",
           fontFamily: fontFamily,
@@ -226,6 +240,8 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         )}
         {node}
       </Wrapper>
+      {OnCanvasUIWidgetNameComponents(widgets)}
+
       <MainContainerResizer
         currentPageId={currentPageId}
         enableMainCanvasResizer={enableMainContainerResizer && canShowResizer}
@@ -236,5 +252,4 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
     </>
   );
 }
-
 export default MainContainerWrapper;
