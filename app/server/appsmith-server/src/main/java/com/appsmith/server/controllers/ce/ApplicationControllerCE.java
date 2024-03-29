@@ -64,7 +64,7 @@ import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 @RequiredArgsConstructor
 public class ApplicationControllerCE {
 
-    private final ApplicationService service;
+    protected final ApplicationService service;
     private final ApplicationPageService applicationPageService;
     private final ApplicationFetcher applicationFetcher;
     private final ApplicationForkingService applicationForkingService;
