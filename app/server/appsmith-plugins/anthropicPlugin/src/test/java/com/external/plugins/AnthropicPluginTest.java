@@ -142,11 +142,10 @@ public class AnthropicPluginTest {
         StepVerifier.create(datasourceTriggerResultMono)
                 .assertNext(result -> {
                     assertTrue(result.getTrigger() instanceof List<?>);
-                    assertEquals(((List) result.getTrigger()).size(), 6);
+                    assertEquals(((List) result.getTrigger()).size(), 5);
                     assertEquals(
                             result.getTrigger(),
                             getDataToMap(List.of(
-                                    "claude-2",
                                     "claude-2.1",
                                     "claude-instant-1.2",
                                     "claude-3-opus-20240229",
