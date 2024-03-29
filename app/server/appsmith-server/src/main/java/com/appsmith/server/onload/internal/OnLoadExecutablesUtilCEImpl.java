@@ -702,14 +702,11 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
 
                     Set<String> vertices = Set.of(source, target);
 
-                    boolean isValidVertex = true;
+                    boolean isValidEdge = true;
 
                     // Assert that the vertices which are entire property paths have a possible parent which is either
                     // an executable or a widget or a static variable provided by appsmith at page/application level.
                     for (String vertex : vertices) {
-                        if (!isValidVertex) {
-                            break;
-                        }
                         Optional<String> validEntity = getPossibleParents(vertex).stream()
                                 .filter(parent -> {
                                     if (!executableNames.contains(parent)
@@ -722,14 +719,13 @@ public class OnLoadExecutablesUtilCEImpl implements OnLoadExecutablesUtilCE {
                                 .findFirst();
                         // If any of the generated entity names from the path are valid appsmith entity name,
                         // the vertex is considered valid
-                        if (validEntity.isPresent()) {
-                            isValidVertex = TRUE;
-                        } else {
-                            isValidVertex = FALSE;
+                        if (!validEntity.isPresent()) {
+                            isValidEdge = FALSE;
+                            break;
                         }
                     }
 
-                    return isValidVertex;
+                    return isValidEdge;
                 })
                 .collect(Collectors.toSet());
 
