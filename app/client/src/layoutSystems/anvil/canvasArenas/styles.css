@@ -1,10 +1,24 @@
+:root {
+  --modal-overlay-color: rgba(245, 222, 245, 0.9);
+  --modal-overlay-content-color: #ffe5fe;
+  --modal-overlay-content-outline: 1px dashed #ce01d3;
+  --modal-overlay-content-text-color: #2a002b;
+  --empty-modal-drop-arena-active-bg: #ffe5fe;
+  --empty-modal-drop-arena-bg: #e6efff;
+  --empty-modal-drop-arena-outline-color: #3075ff;
+  --empty-modal-drop-arena-outline-active-color: #ce01d3;
+  --empty-modal-drop-arena-text-color: #001040;
+  --space-distribution-handle-active-bg: #0045c6;
+  --space-distribution-handle-bg: #3075ff;
+}
+
 .detached-widgets-drop-overlay {
-  background-color: rgba(245, 222, 245, 0.9);
+  background-color: var(--modal-overlay-color);
 }
 
 .detached-widgets-drop-overlay-content {
-  background-color: #ffe5fe !important;
-  outline: 1px dashed #ce01d3 !important;
+  background-color: var(--modal-overlay-content-color) !important;
+  outline: var(--modal-overlay-content-outline) !important;
   outline-offset: 3px;
   box-shadow: unset !important;
   border-radius: 4px !important;
@@ -19,5 +33,5 @@
   font-size: 14px;
   font-weight: 510;
   line-height: 19.6px;
-  color: #2a002b;
+  color: var(--modal-overlay-content-text-color);
 }

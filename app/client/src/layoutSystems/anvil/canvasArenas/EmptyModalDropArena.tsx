@@ -5,10 +5,17 @@ import styled from "styled-components";
 import { WDSModalWidget } from "widgets/wds/WDSModalWidget";
 import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
 const StyledEmptyModalDropArena = styled.div<{ isActive: boolean }>`
-  background-color: ${(props) => (props.isActive ? "#ffe5fe" : "#e6efff")};
+  background-color: ${(props) =>
+    props.isActive
+      ? "var(--empty-modal-drop-arena-active-bg)"
+      : "var(--empty-modal-drop-arena-bg)"};
   border-radius: 6px;
   border: 2px solid #fff;
-  outline: 1px dotted ${(props) => (props.isActive ? "#ce01d3" : "#3075ff")};
+  outline: 1px dotted
+    ${(props) =>
+      props.isActive
+        ? "var(--empty-modal-drop-arena-outline-active-color)"
+        : "var(--empty-modal-drop-arena-outline-color)"};
   outline-offset: -1px;
   width: 100%;
   height: 100%;
@@ -18,7 +25,7 @@ const StyledEmptyModalDropArena = styled.div<{ isActive: boolean }>`
   position: absolute;
   top: 0;
   left: 0;
-  color: #001040;
+  color: var(--empty-modal-drop-arena-text-color);
   font-size: 14px;
   font-weight: 510;
   line-height: 19.6px;

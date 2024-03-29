@@ -6,7 +6,6 @@ import { SpaceDistributorHandleDimensions } from "./constants";
 import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
 import { useSpaceDistributionEvents } from "./useSpaceDistributionEvents";
 import { getDistributionHandleId } from "./utils/spaceDistributionEditorUtils";
-import { AnvilEditorColors } from "../utils/constants";
 
 interface SpaceDistributionNodeProps {
   columnPosition: number;
@@ -30,10 +29,10 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   z-index: 1000;
   left: ${({ left }) => left}px;
   &:hover {
-    background: ${AnvilEditorColors.spaceDistributionHandle};
+    background: var(--space-distribution-handle-bg);
   }
   &.active {
-    background: ${AnvilEditorColors.spaceDistributionHandleActive};
+    background: var(--space-distribution-handle-active-bg);
   }
   &:hover,
   &.active {
