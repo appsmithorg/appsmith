@@ -10,7 +10,10 @@ import { AnvilCanvasZIndex } from "./mainCanvas/useCanvasActivation";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
-import { AnvilEditorColors } from "layoutSystems/anvil/utils/constants";
+import {
+  AnvilEditorColors,
+  PADDING_FOR_HORIZONTAL_HIGHLIGHT,
+} from "layoutSystems/anvil/utils/constants";
 
 const setHighlightsDrawn = (highlight?: AnvilHighlightInfo) => {
   return {
@@ -140,12 +143,14 @@ const renderBlocksOnCanvas = (
   // Extracting dimensions of the block to render
   const { height, posX, posY, width } = blockToRender;
   // using custom function to draw a rounded rectangle to achieve more sharper rounder corners
-
+  const padding = blockToRender.isVertical
+    ? 0
+    : PADDING_FOR_HORIZONTAL_HIGHLIGHT;
   roundRect(
     canvasCtx,
-    posX - leftOffset,
+    posX - leftOffset + padding,
     posY - topOffset,
-    width,
+    width - padding * 2,
     height,
     2,
     AnvilEditorColors.dropIndicator,
