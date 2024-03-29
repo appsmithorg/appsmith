@@ -32,7 +32,9 @@
 }
 
 @container table-header (inline-size < 600px) {
-  & [data-table-header-pagination] > div {
+  &
+    [data-table-header-pagination]
+    > :is([class*="wds-footnote-text"], [data-field]) {
     display: none;
   }
 }
