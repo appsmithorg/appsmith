@@ -38,8 +38,9 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   const canShowBorder = !shouldHideBorder && (isFocused || isSelected);
 
   return {
-    border: `${borderWidth} solid ${
+    outline: `${borderWidth} solid ${
       canShowBorder ? borderColor : "transparent"
     }`,
+    outlineOffset: "4px",
   };
 }

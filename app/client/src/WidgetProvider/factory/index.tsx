@@ -122,6 +122,7 @@ class WidgetFactory {
       needsHeightForContent: config.needsHeightForContent,
       isSearchWildcard: config.isSearchWildcard,
       onCanvasUI: config.onCanvasUI || DEFAULT_WIDGET_ON_CANVAS_UI,
+      needsErrorInfo: !!config.needsErrorInfo,
     };
 
     WidgetFactory.widgetConfigMap.set(widget.type, Object.freeze(_config));

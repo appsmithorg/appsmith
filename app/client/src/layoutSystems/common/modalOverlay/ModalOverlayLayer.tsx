@@ -7,8 +7,6 @@ import { Layers } from "constants/Layers";
 import { theme } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useMaxModalWidth } from "widgets/ModalWidget/component/useModalWidth";
 import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
@@ -123,7 +121,6 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
         modalName: props.widgetName,
       },
     });
-    dispatch(selectWidgetInitAction(SelectionRequestType.Empty));
     e.stopPropagation();
     e.preventDefault();
   };

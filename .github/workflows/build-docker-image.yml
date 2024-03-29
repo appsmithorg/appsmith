@@ -18,7 +18,7 @@ jobs:
       github.event_name == 'push' ||
       github.event_name == 'workflow_dispatch' ||
       github.event_name == 'repository_dispatch' ||
-      github.event_name == 'schedule' 
+      github.event_name == 'schedule'
     defaults:
       run:
         shell: bash
@@ -99,7 +99,7 @@ jobs:
           gzip cicontainer.tar
 
       - name: Cache docker image
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: cicontainer.tar.gz
           key: docker-image-${{github.run_id}}

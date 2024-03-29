@@ -2,6 +2,7 @@ import {
   agHelper,
   deployMode,
   dataSources,
+  assertHelper,
   locators,
   draggableWidgets,
 } from "../../../support/Objects/ObjectsCore";
@@ -86,6 +87,7 @@ describe("PgAdmin Clone App", { tags: ["@tag.Datasource"] }, function () {
     cy.xpath(appPage.submitButton).click({ force: true });
     agHelper.AssertElementVisibility(appPage.addColumn);
     cy.xpath(appPage.submitButton).first().click({ force: true });
+    assertHelper.AssertNetworkStatus("@postExecute");
     cy.xpath(appPage.closeButton).click({ force: true });
     cy.xpath(appPage.addNewtable).should("be.visible");
     // viewing the table's columns by clicking on view button

@@ -103,7 +103,8 @@ export function useAddBordersToDetachedWidgets(
   );
 
   if (element) {
-    element.style.border = borderStyled.border ?? "none";
+    element.style.outlineOffset = borderStyled.outlineOffset ?? "unset";
+    element.style.outline = borderStyled.outline ?? "none";
   }
 }
 

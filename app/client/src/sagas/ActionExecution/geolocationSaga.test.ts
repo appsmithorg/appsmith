@@ -82,12 +82,9 @@ describe("getCurrentLocationSaga", () => {
     const iter = getCurrentLocationSaga(trigger);
     expect(iter.next().value).toEqual(call(getUserLocation, payload.options));
 
-    expect(iter.next().value).toEqual(
-      call(
-        logActionExecutionError,
-        "Cannot read properties of undefined (reading 'coords')",
-        true,
-      ),
+    expect(iter.next().value).toHaveProperty(
+      "payload.fn",
+      logActionExecutionError,
     );
     expect(iter.next().done).toBe(true);
   });

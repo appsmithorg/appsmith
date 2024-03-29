@@ -11,13 +11,12 @@ import {
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
 import { sagasToRunForTests } from "test/sagas";
-import { MockApplication, mockGetCanvasWidgetDsl } from "test/testCommon";
+import { MockApplication } from "test/testCommon";
 import { UpdateAppViewer, UpdatedEditor } from "test/testMockedWidgets";
 import { render } from "test/testUtils";
 import { generateReactKey } from "widgets/WidgetUtils";
 describe("ContainerWidget tests", () => {
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
-  const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
   jest
     .spyOn(useDynamicAppLayoutHook, "useDynamicAppLayout")
     .mockImplementation(() => true);
@@ -63,7 +62,6 @@ describe("ContainerWidget tests", () => {
     const dsl: any = widgetCanvasFactory.build({
       children: containerChildren,
     });
-    spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
     mockGetIsFetchingPage.mockImplementation(() => false);
     const spyUseCanvasDragging = jest
       .spyOn(useCanvasDraggingHook, "useCanvasDragging")

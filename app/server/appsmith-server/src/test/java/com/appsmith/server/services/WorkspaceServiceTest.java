@@ -32,6 +32,7 @@ import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -1701,5 +1702,73 @@ public class WorkspaceServiceTest {
         assertThat(userList).hasSize(1);
         User invitedUser = userList.get(0);
         assertThat(invitedUser.getUsername()).isEqualTo(testName + "user@test.com");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteInvalidEmailTooLongLocalPart() {
+        Workspace toCreate = new Workspace();
+        toCreate.setName("inviteInvalidEmail");
+        toCreate.setDomain("example.com");
+        toCreate.setWebsite("https://example.com");
+
+        Workspace workspace = workspaceService.create(toCreate).block();
+
+        // Do the assertions now
+        assertThat(workspace).isNotNull();
+        assertThat(workspace.getName()).isEqualTo("inviteInvalidEmail");
+
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        String viewerPermissionGroupId = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst()
+                .get()
+                .getId();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(List.of(RandomStringUtils.randomAlphanumeric(65) + "@example.com"));
+        inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
+
+        Mono<List<User>> createdUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
+
+        StepVerifier.create(createdUsers).verifyErrorMessage("Please enter a valid parameter usernames.");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteInvalidEmailTooLongDomainPart() {
+        Workspace toCreate = new Workspace();
+        toCreate.setName("inviteInvalidEmail");
+        toCreate.setDomain("example.com");
+        toCreate.setWebsite("https://example.com");
+
+        Workspace workspace = workspaceService.create(toCreate).block();
+
+        // Do the assertions now
+        assertThat(workspace).isNotNull();
+        assertThat(workspace.getName()).isEqualTo("inviteInvalidEmail");
+
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        String viewerPermissionGroupId = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst()
+                .get()
+                .getId();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(List.of("abcd@" + RandomStringUtils.randomAlphanumeric(255) + ".com"));
+        inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
+
+        Mono<List<User>> createdUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
+
+        StepVerifier.create(createdUsers).verifyErrorMessage("Please enter a valid parameter usernames.");
     }
 }

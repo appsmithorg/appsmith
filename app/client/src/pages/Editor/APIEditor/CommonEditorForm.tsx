@@ -579,7 +579,10 @@ function CommonEditorForm(props: CommonFormPropsWithExtraParams) {
   return (
     <MainContainer>
       {closeEditorLink}
-      <Form onSubmit={handleSubmit(noop)}>
+      <Form
+        data-testid={`t--action-form-${plugin?.type}`}
+        onSubmit={handleSubmit(noop)}
+      >
         <MainConfiguration>
           <FormRow className="form-row-header">
             <NameWrapper className="t--nameOfApi">
