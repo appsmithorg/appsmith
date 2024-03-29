@@ -4,7 +4,6 @@ import com.appsmith.external.annotations.documenttype.DocumentTypeMapper;
 import com.appsmith.external.annotations.encryption.EncryptionMongoEventListener;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.services.EncryptionService;
-import com.appsmith.server.configurations.mongo.SoftDeleteMongoRepositoryFactoryBean;
 import com.appsmith.server.converters.StringToInstantConverter;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
 import com.github.cloudyrock.mongock.ChangeLog;
@@ -47,9 +46,6 @@ import java.util.Set;
 /**
  * This configures the JPA Mongo repositories. The default base implementation is defined in {@link BaseRepositoryImpl}.
  * This is required to add default clauses for default JPA queries defined by Spring Data.
- * <p>
- * The factoryBean class is also custom defined in order to add default clauses for soft delete for all custom JPA queries.
- * {@link SoftDeleteMongoRepositoryFactoryBean} for details.
  */
 @Slf4j
 @Component
