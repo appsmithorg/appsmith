@@ -53,6 +53,8 @@ import { getModalWidgetType } from "selectors/widgetSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
+import { getWidgetSelectionBlock } from "selectors/ui";
+
 const WidgetTypes = WidgetFactory.widgetTypes;
 
 export function* createModalSaga(action: ReduxAction<{ modalName: string }>) {
@@ -242,8 +244,13 @@ export function* closeModalSaga(
       );
     }
     if (modalName) {
-      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-      yield put(focusWidget(MAIN_CONTAINER_WIDGET_ID));
+      const isWidgetSelectionBlocked: boolean = yield select(
+        getWidgetSelectionBlock,
+      );
+      if (!isWidgetSelectionBlocked) {
+        yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+        yield put(focusWidget(MAIN_CONTAINER_WIDGET_ID));
+      }
     }
   } catch (error) {
     log.error(error);

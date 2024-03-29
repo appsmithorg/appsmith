@@ -7,6 +7,7 @@ import type { Action } from "entities/Action";
 import type { IDETabs } from "reducers/uiReducers/ideReducer";
 import { IDETabsDefaultValue } from "reducers/uiReducers/ideReducer";
 import type { JSCollection } from "entities/JSCollection";
+import type { FocusHistory } from "reducers/uiReducers/focusHistoryReducer";
 
 interface IDEStateArgs {
   ideView?: EditorViewMode;
@@ -15,11 +16,13 @@ interface IDEStateArgs {
   js?: JSCollection[];
   tabs?: IDETabs;
   branch?: string;
+  focusHistory?: FocusHistory;
 }
 
 export const getIDETestState = ({
   actions = [],
   branch,
+  focusHistory = {},
   ideView = EditorViewMode.FullScreen,
   js = [],
   pages = [],
@@ -55,6 +58,11 @@ export const getIDETestState = ({
         ...initialState.ui.ide,
         view: ideView,
         tabs,
+      },
+      focusHistory: {
+        history: {
+          ...focusHistory,
+        },
       },
       editor: {
         ...initialState.ui.editor,
