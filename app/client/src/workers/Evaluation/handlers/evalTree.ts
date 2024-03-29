@@ -239,32 +239,40 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
   const jsVarsCreatedEvent = getJSVariableCreatedEvents(jsUpdates);
 
-  let updates;
-  if (isNewTree) {
-    try {
-      //for new tree send the whole thing, don't diff at all
-      updates = serialiseToBigInt([{ kind: "newTree", rhs: dataTree }]);
-      dataTreeEvaluator?.setPrevState(dataTree);
-    } catch (e) {
-      updates = "[]";
-    }
-    isNewTree = false;
-  } else {
-    const allUnevalUpdates = unEvalUpdates.map(
-      (update) => update.payload.propertyPath,
-    );
+  const updates = profileFn(
+    "diffAndGenerateSerializeUpdates",
+    undefined,
+    webworkerTelemetry,
+    () => {
+      let updates;
+      if (isNewTree) {
+        try {
+          //for new tree send the whole thing, don't diff at all
+          updates = serialiseToBigInt([{ kind: "newTree", rhs: dataTree }]);
+          dataTreeEvaluator?.setPrevState(dataTree);
+        } catch (e) {
+          updates = "[]";
+        }
+        isNewTree = false;
+      } else {
+        const allUnevalUpdates = unEvalUpdates.map(
+          (update) => update.payload.propertyPath,
+        );
 
-    const completeEvalOrder = uniqueOrderUpdatePaths([
-      ...allUnevalUpdates,
-      ...evalOrder,
-    ]);
+        const completeEvalOrder = uniqueOrderUpdatePaths([
+          ...allUnevalUpdates,
+          ...evalOrder,
+        ]);
 
-    updates = generateOptimisedUpdatesAndSetPrevState(
-      dataTree,
-      dataTreeEvaluator,
-      completeEvalOrder,
-    );
-  }
+        updates = generateOptimisedUpdatesAndSetPrevState(
+          dataTree,
+          dataTreeEvaluator,
+          completeEvalOrder,
+        );
+      }
+      return updates;
+    },
+  );
 
   const evalTreeResponse: EvalTreeResponseData = {
     updates,

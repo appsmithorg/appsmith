@@ -14,7 +14,7 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
 
-import static com.appsmith.server.helpers.StringUtils.dotted;
+import static com.appsmith.external.helpers.StringUtils.dotted;
 
 /**
  * This class represents a collection of actions that may or may not belong to the same plugin.
