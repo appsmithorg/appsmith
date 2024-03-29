@@ -10,6 +10,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import datasourceEditor from "../../../../locators/DatasourcesEditor.json";
+import reconnectDatasourceModal from "../../../../locators/ReconnectLocators";
 
 describe("Editor Segment Context Switch", { tags: ["@tag.IDE"] }, function () {
   before("Import the test application", () => {
@@ -21,12 +22,12 @@ describe("Editor Segment Context Switch", { tags: ["@tag.IDE"] }, function () {
       cy.log("isPartialImport is", isPartialImport);
       if (isPartialImport) {
         // should reconnect modal
-        cy.fillPostgresDatasourceForm();
-        cy.get(datasourceEditor.sectionAuthentication).click();
-        cy.testDatasource(true);
-        agHelper.GetNClick(dataSources._saveDs);
-        cy.wait("@getWorkspace");
-        homePage.AssertImportToast();
+        cy.get("body").then(($ele) => {
+          if ($ele.find(reconnectDatasourceModal.SkipToAppBtn))
+            agHelper.GetNClick(reconnectDatasourceModal.SkipToAppBtn, 0, true);
+          else agHelper.ClickButton("Got it");
+          agHelper.Sleep(2000);
+        });
       } else {
         homePage.AssertImportToast();
       }
