@@ -496,44 +496,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         throw new RuntimeException("Not implemented yet!"); //*/
     }
 
-    /*
-    public Mono<Integer> updateExecute(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
-        Objects.requireNonNull(params.getCriteria());
-
-        if (!isEmpty(params.getFields())) {
-            // Specifying fields to update doesn't make any sense, so explicitly disallow it.
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "fields"));
-        }
-
-        return ensurePermissionGroupsInParams(params)
-                .then(Mono.defer(() -> {
-                    final Query query = createQueryWithPermission(
-                            params.getCriteria(), null, params.getPermissionGroups(), params.getPermission());
-                    if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
-                        return mongoOperations.updateMulti(query, update, genericDomain);
-                    } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
-                        return mongoOperations.updateFirst(query, update, genericDomain);
-                    } else {
-                        return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
-                    }
-                }))
-                .map(updateResult -> Math.toIntExact(updateResult.getMatchedCount()));
-    }
-
-    public Mono<T> updateExecuteAndFind(@NonNull QueryAllParams<T> params, @NonNull UpdateDefinition update) {
-        if (QueryAllParams.Scope.ALL.equals(params.getScope())) {
-            // Not implemented yet, since not needed yet.
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
-
-        } else if (QueryAllParams.Scope.FIRST.equals(params.getScope())) {
-            return updateExecute(params, update)
-                    .then(Mono.fromSupplier(() -> queryOneExecute(params).orElse(null)));
-
-        } else {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "scope"));
-        }
-    } //*/
-
     /**
      * This method will try to ensure that permission groups are present in the params. If they're already there, don't
      * do anything. If not, and if a `permission` is available, then get the permission groups for the current user and
@@ -759,20 +721,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * @see FindAndModifyOptions
      */
     public T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
-        return null; /*
-                                  Query query = new Query(Criteria.where("id").is(id));
-
-                                  FindAndModifyOptions findAndModifyOptions =
-                                          FindAndModifyOptions.options().returnNew(Boolean.TRUE);
-
-                                  if (permission.isEmpty()) {
-                                      return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
-                                  }
-
-                     return Mono.justOrEmpty(getCurrentUserPermissionGroupsIfRequired(permission)).flatMap(permissionGroups -> {
-                         query.addCriteria(new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission.get())));
-                         return mongoOperations.findAndModify(query, updateObj, findAndModifyOptions, this.genericDomain);
-                     });//*/
+        throw new ex.Marker("updateAndReturn WIP");
     }
 
     public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities) {

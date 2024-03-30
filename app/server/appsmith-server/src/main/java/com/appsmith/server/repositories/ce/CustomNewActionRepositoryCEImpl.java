@@ -320,60 +320,14 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Modifying
     @Transactional
     public Optional<Void> publishActions(String applicationId, AclPermission permission) {
-        /*
-        var em = getEntityManager();
-        var cb = em.getCriteriaBuilder();
-        var cu = cb.createCriteriaUpdate(genericDomain);
-        var root = cu.from(genericDomain);
-
-        cu.where(cb.equal(root.get(NewAction.Fields.applicationId), applicationId));
-        cu.<Object>set(
-                root.get(fieldName(NewAction.Fields.publishedAction),
-                root.get(fieldName(NewAction.Fields.unpublishedAction));
-        int count = em.createQuery(cu).executeUpdate(); // */
-
-        // *
-        int count = queryBuilder()
+        queryBuilder()
                 .permission(permission)
                 .criteria(getCriterionForFindByApplicationId(applicationId))
                 .updateAll(Bridge.update()
                         .setToValueFromField(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
 
         return Optional.empty();
-
-        /*
-        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
-        return copyUnpublishedActionToPublishedAction(applicationIdCriteria, permission); //*/
     }
-
-    /*
-    protected Mono<Void> copyUnpublishedActionToPublishedAction(
-            BridgeQuery<NewAction> criteria, AclPermission permission) {
-        Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
-
-        return permissionGroupsMono
-                .flatMapMany(permissionGroups -> {
-                    AggregationOperation matchAggregationWithPermission;
-                    if (permission == null) {
-                        matchAggregationWithPermission = Aggregation.match(new Criteria().andOperator(notDeleted()));
-                    } else {
-                        matchAggregationWithPermission = Aggregation.match(
-                                new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-                    }
-                    AggregationOperation matchAggregation = Aggregation.match(criteria);
-                    AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
-                    AggregationOperation addFieldsOperation = Aggregation.addFields()
-                            .addField(NewAction.Fields.publishedAction)
-                            .withValueOf(Fields.field(NewAction.Fields.unpublishedAction))
-                            .build();
-                    Aggregation combinedAggregation = Aggregation.newAggregation(
-                            matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
-                    return mongoOperations.aggregate(combinedAggregation, NewAction.class, NewAction.class);
-                })
-                .collectList()
-                .flatMap(this::bulkUpdate);
-    }//*/
 
     @Override
     @Modifying

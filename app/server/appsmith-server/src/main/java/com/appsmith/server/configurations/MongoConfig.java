@@ -1,8 +1,6 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.external.annotations.documenttype.DocumentTypeMapper;
 import com.appsmith.external.annotations.encryption.EncryptionMongoEventListener;
-import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.services.EncryptionService;
 import com.appsmith.server.converters.StringToInstantConverter;
 import com.appsmith.server.repositories.BaseRepositoryImpl;
@@ -19,26 +17,17 @@ import io.mongock.runner.springboot.RunnerSpringbootBuilder;
 import io.mongock.runner.springboot.base.MongockInitializingBeanRunner;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.conversions.Bson;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.convert.DefaultTypeMapper;
-import org.springframework.data.convert.SimpleTypeInformationMapper;
-import org.springframework.data.convert.TypeInformationMapper;
 import org.springframework.data.mongodb.MongoDatabaseFactory;
 import org.springframework.data.mongodb.ReactiveMongoDatabaseFactory;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.DefaultMongoTypeMapper;
 import org.springframework.data.mongodb.core.convert.MappingMongoConverter;
 import org.springframework.data.mongodb.core.convert.MongoCustomConversions;
-import org.springframework.data.mongodb.core.convert.MongoTypeMapper;
-import org.springframework.data.mongodb.core.convert.NoOpDbRefResolver;
-import org.springframework.data.mongodb.core.mapping.MongoMappingContext;
 import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
@@ -228,34 +217,9 @@ public class MongoConfig {
         return mongoTemplate;
     }
 
-    // Custom type mapper here includes our annotation based mapper that is meant to ensure correct mapping for
-    // sub-classes
-    // We have currently only included the package which contains the DTOs that need this mapping
-    @Bean
-    public DefaultTypeMapper<Bson> typeMapper() {
-        TypeInformationMapper typeInformationMapper = new DocumentTypeMapper.Builder()
-                .withBasePackages(new String[] {AuthenticationDTO.class.getPackageName()})
-                .build();
-        // This is a hack to include the default mapper as a fallback, because Spring seems to override its list instead
-        // of appending mappers
-        return new DefaultMongoTypeMapper(
-                DefaultMongoTypeMapper.DEFAULT_TYPE_KEY,
-                Arrays.asList(typeInformationMapper, new SimpleTypeInformationMapper()));
-    }
-
     @Bean
     public MongoCustomConversions mongoCustomConversions() {
         return new MongoCustomConversions(Collections.singletonList(new StringToInstantConverter()));
-    }
-
-    @Bean
-    public MappingMongoConverter mappingMongoConverter(
-            DefaultTypeMapper<Bson> typeMapper, MongoMappingContext context) {
-        MappingMongoConverter converter = new MappingMongoConverter(NoOpDbRefResolver.INSTANCE, context);
-        converter.setTypeMapper((MongoTypeMapper) typeMapper);
-        converter.setCustomConversions(mongoCustomConversions());
-        converter.setMapKeyDotReplacement("-APPSMITH-DOT-REPLACEMENT-");
-        return converter;
     }
 
     @Bean
