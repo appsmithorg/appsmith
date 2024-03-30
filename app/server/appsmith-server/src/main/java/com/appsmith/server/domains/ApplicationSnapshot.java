@@ -8,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.Where;
 
 /**
  * This stores a snapshot of an application. If a snapshot is more than 15 MB, we'll break it into smaller chunks.
@@ -18,6 +19,7 @@ import lombok.experimental.FieldNameConstants;
 @Setter
 @NoArgsConstructor
 @Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class ApplicationSnapshot extends BaseDomain {
     private String applicationId;

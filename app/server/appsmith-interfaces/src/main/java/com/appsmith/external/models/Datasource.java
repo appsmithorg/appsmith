@@ -14,6 +14,7 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 import org.springframework.util.CollectionUtils;
 
 import java.util.HashMap;
@@ -26,6 +27,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class Datasource extends BranchAwareDomain {
 

@@ -13,6 +13,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
 
@@ -28,6 +29,7 @@ import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATAS
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class DatasourceStorage extends BaseDomain {
 

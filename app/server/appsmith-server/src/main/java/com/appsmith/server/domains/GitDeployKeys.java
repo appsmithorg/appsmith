@@ -8,11 +8,13 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 @Getter
 @Setter
 @ToString
 @Entity
+@Where(clause = "deleted_at IS NULL")
 public class GitDeployKeys extends BaseDomain {
     String email;
 

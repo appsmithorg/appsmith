@@ -3,11 +3,12 @@ package com.appsmith.server.domains;
 import com.appsmith.server.domains.ce.CustomJSLibCE;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Where;
 
 import java.util.Set;
 
@@ -16,6 +17,7 @@ import java.util.Set;
 @ToString
 @NoArgsConstructor
 @Entity
+@Where(clause = "deleted_at IS NULL")
 public class CustomJSLib extends CustomJSLibCE {
 
     @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)

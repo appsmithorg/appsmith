@@ -5,8 +5,8 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
-import jakarta.persistence.*;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.Getter;
@@ -14,12 +14,14 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import java.util.Map;
 
 @Getter
 @Setter
 @Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class Theme extends BaseDomain {
     public static final String LEGACY_THEME_NAME = "classic";

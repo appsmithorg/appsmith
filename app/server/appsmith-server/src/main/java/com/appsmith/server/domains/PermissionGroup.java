@@ -3,19 +3,21 @@ package com.appsmith.server.domains;
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.dtos.Permission;
-import jakarta.persistence.*;
 import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 @NoArgsConstructor
 @Getter

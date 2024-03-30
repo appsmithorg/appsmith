@@ -18,6 +18,7 @@ import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 import org.hibernate.validator.constraints.Range;
 import org.springframework.http.HttpMethod;
 import reactor.netty.http.HttpProtocol;
@@ -35,6 +36,7 @@ import static com.appsmith.external.constants.ActionConstants.DEFAULT_ACTION_EXE
 @Slf4j
 @NoArgsConstructor
 @Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class ActionConfiguration implements AppsmithDomain, ExecutableConfiguration {
 

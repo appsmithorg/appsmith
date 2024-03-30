@@ -16,6 +16,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 
 import java.util.List;
 import java.util.Map;
@@ -27,6 +28,7 @@ import java.util.Map;
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class Plugin extends BaseDomain {
 

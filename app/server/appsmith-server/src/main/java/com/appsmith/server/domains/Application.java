@@ -18,6 +18,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.Where;
 import org.springframework.data.annotation.Transient;
 
 import java.io.Serializable;
@@ -38,6 +39,7 @@ import static com.appsmith.server.helpers.DateUtils.ISO_FORMATTER;
 @ToString
 @NoArgsConstructor
 @Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class Application extends BaseDomain implements Artifact {
 

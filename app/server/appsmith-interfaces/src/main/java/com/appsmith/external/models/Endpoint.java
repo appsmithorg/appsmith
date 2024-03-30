@@ -10,6 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Where;
 
 @Getter
 @Setter
@@ -18,6 +19,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @EqualsAndHashCode
 @Entity
+@Where(clause = "deleted_at IS NULL")
 public class Endpoint {
 
     @Id

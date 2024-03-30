@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.Where;
 
 /**
  * This class represents a collection of actions that may or may not belong to the same plugin.
@@ -17,6 +18,7 @@ import lombok.experimental.FieldNameConstants;
 @ToString(callSuper = true)
 @NoArgsConstructor
 @Entity
+@Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class ActionCollection extends ActionCollectionCE {
     public static class Fields extends ActionCollectionCE.Fields {}
