@@ -149,6 +149,9 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         if (!hasText(workspaceId)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
         }
+        if (!hasText(datasource.getName())) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, Workspace.Fields.name));
+        }
         if (!hasText(datasource.getPluginId())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.PLUGIN_ID));
         }
@@ -168,15 +171,6 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
         if (!hasText(datasource.getId())) {
             // We need to create the datasource as well
 
-            // Determine valid name for datasource
-            if (!hasText(datasource.getName())) {
-                datasourceMono = sequenceService
-                        .getNextAsSuffix(Datasource.class, " for workspace with _id : " + workspaceId)
-                        .map(sequenceNumber -> {
-                            datasource.setName(Datasource.DEFAULT_NAME_PREFIX + sequenceNumber);
-                            return datasource;
-                        });
-            }
             datasourceMono = datasourceMono
                     .map(datasource1 -> {
                         // Everything we create needs to use configs from storage

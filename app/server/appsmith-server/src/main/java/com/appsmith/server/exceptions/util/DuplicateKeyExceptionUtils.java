@@ -7,12 +7,12 @@ import java.util.regex.Pattern;
 
 @Slf4j
 public class DuplicateKeyExceptionUtils {
-    private static final Pattern pattern = Pattern.compile("dup key: \\{ .*:(.*)}'");
+    private static final Pattern pattern = Pattern.compile("dup key: \\{.*?name:\\s*\"(.+?)\"");
 
     public static String extractConflictingObjectName(String duplicateKeyErrorMessage) {
         Matcher matcher = pattern.matcher(duplicateKeyErrorMessage);
         if (matcher.find()) {
-            return matcher.group(1).trim();
+            return matcher.group(1);
         }
         log.warn(
                 "DuplicateKeyException regex needs attention. It's unable to extract object name from the error message. Possible reason: the underlying library may have changed the format of the error message.");
