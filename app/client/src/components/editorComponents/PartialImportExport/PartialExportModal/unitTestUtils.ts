@@ -12797,7 +12797,6 @@ export const defaultAppState = {
           rollout_datasource_test_rate_limit_enabled: false,
           license_scheduled_backup_enabled: false,
           ab_ai_button_sql_enabled: true,
-          rollout_consolidated_page_load_fetch_enabled: true,
           license_message_listener_enabled: false,
           license_custom_environments_enabled: false,
           license_pac_enabled: false,
