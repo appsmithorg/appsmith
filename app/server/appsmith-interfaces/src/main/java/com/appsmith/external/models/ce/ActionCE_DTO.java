@@ -89,7 +89,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     // this attribute carries error messages while processing the actionCollection
     @Transient
-    @JsonView(Views.Public.class)
+    @JsonView(ToResponse.class)
     List<ErrorDTO> errorReports;
 
     @JsonView(Views.Public.class)
@@ -105,14 +105,14 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Public.class)
     List<Property> dynamicBindingPathList;
 
-    @JsonView(Views.Public.class)
+    @JsonView(ToResponse.class)
     Boolean isValid;
 
-    @JsonView(Views.Public.class)
+    @JsonView(ToResponse.class)
     Set<String> invalids;
 
     @Transient
-    @JsonView(Views.Public.class)
+    @JsonView(ToResponse.class)
     Set<String> messages = new HashSet<>();
 
     // This is a list of keys that the client whose values the client needs to send during action execution.
