@@ -2300,7 +2300,7 @@ export const EDITOR_PANE_TEXTS = {
   widget_blank_state_description: () =>
     "Drag & drop widgets to create your app",
   query_add_button: () => "New query / API",
-  js_add_button: () => "New JS Object",
+  js_add_button: () => "New JS object",
   js_blank_object_item: () => "Blank JS object",
   widget_add_button: () => "New widget",
   query_create_tab_title: () => "Create new query / API",
