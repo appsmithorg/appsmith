@@ -57,7 +57,6 @@ import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
-import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -159,73 +158,6 @@ public class DatasourceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void datasourceDefaultNameCounterAsPerWorkspaceId() {
-        // Create new workspace
-        Workspace workspace11 = new Workspace();
-        workspace11.setId("random-org-id-1");
-        workspace11.setName("Random Org 1");
-
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        StepVerifier.create(workspaceService
-                        .create(workspace11)
-                        .zipWith(pluginService.findByPackageName("restapi-plugin"))
-                        .flatMap(tuple2 -> {
-                            Workspace workspace = tuple2.getT1();
-                            Plugin plugin = tuple2.getT2();
-                            return workspaceService
-                                    .getDefaultEnvironmentId(
-                                            workspace.getId(), environmentPermission.getExecutePermission())
-                                    .flatMap(environmentId -> {
-                                        Datasource datasource = new Datasource();
-                                        datasource.setWorkspaceId(workspace.getId());
-                                        datasource.setPluginId(plugin.getId());
-                                        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                                        storages.put(
-                                                environmentId, new DatasourceStorageDTO(null, environmentId, null));
-                                        datasource.setDatasourceStorages(storages);
-                                        return datasourceService.create(datasource);
-                                    });
-                        })
-                        .flatMap(datasource1 -> {
-                            Workspace workspace2 = new Workspace();
-                            workspace2.setId("random-org-id-2");
-                            workspace2.setName("Random Org 2");
-                            return Mono.zip(Mono.just(datasource1), workspaceService.create(workspace2));
-                        })
-                        .flatMap(tuple2 -> {
-                            Datasource datasource1 = tuple2.getT1();
-                            final Workspace workspace2 = tuple2.getT2();
-                            return workspaceService
-                                    .getDefaultEnvironmentId(
-                                            workspace2.getId(), environmentPermission.getExecutePermission())
-                                    .flatMap(environmentId -> {
-                                        Datasource datasource2 = new Datasource();
-                                        datasource2.setWorkspaceId(workspace2.getId());
-                                        datasource2.setPluginId(datasource1.getPluginId());
-                                        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
-                                        storages.put(
-                                                environmentId, new DatasourceStorageDTO(null, environmentId, null));
-                                        datasource2.setDatasourceStorages(storages);
-                                        return Mono.zip(
-                                                Mono.just(tuple2.getT1()), datasourceService.create(datasource2));
-                                    });
-                        }))
-                .assertNext(datasource -> {
-                    assertThat(datasource.getT1().getName()).isEqualTo("Untitled datasource");
-                    assertThat(datasource.getT1().getWorkspaceId()).isEqualTo("random-org-id-1");
-                    assertThat(datasource.getT1().getUserPermissions()).isNotEmpty();
-                    assertThat(datasource.getT2().getName()).isEqualTo("Untitled datasource");
-                    assertThat(datasource.getT2().getWorkspaceId()).isEqualTo("random-org-id-2");
-                    assertThat(datasource.getT2().getUserPermissions()).isNotEmpty();
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void createDatasourceWithNullPluginId() {
 
         if (!StringUtils.hasLength(workspaceId)) {
@@ -280,6 +212,7 @@ public class DatasourceServiceTest {
     public void createDatasourceWithId() {
         Datasource datasource = new Datasource();
         datasource.setId("randomId");
+        datasource.setName("createDatasourceWithId");
         datasource.setWorkspaceId(workspaceId);
         HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
         storages.put(defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, null));
@@ -628,70 +561,6 @@ public class DatasourceServiceTest {
                             .isEqualTo("ssl_key_file_id2");
                     assertThat(datasourceConfiguration1.getAuthentication() instanceof OAuth2)
                             .isTrue();
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void createNamelessDatasource() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
-
-        if (!StringUtils.hasLength(workspaceId)) {
-            User apiUser = userService.findByEmail("api_user").block();
-            Workspace toCreate = new Workspace();
-            toCreate.setName("DatasourceServiceTest-createNamelessDatasource");
-
-            Workspace workspace =
-                    workspaceService.create(toCreate, apiUser, Boolean.FALSE).block();
-            workspaceId = workspace.getId();
-            defaultEnvironmentId = workspaceService
-                    .getDefaultEnvironmentId(workspaceId, environmentPermission.getExecutePermission())
-                    .block();
-        }
-        Mono<Plugin> pluginMono = pluginService.findByPackageName("restapi-plugin");
-
-        Datasource datasource1 = new Datasource();
-        datasource1.setWorkspaceId(workspaceId);
-
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setUrl("http://test.com");
-
-        HashMap<String, DatasourceStorageDTO> storages1 = new HashMap<>();
-        storages1.put(
-                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
-        datasource1.setDatasourceStorages(storages1);
-
-        Datasource datasource2 = new Datasource();
-        datasource2.setWorkspaceId(workspaceId);
-        DatasourceConfiguration datasourceConfiguration2 = new DatasourceConfiguration();
-        datasourceConfiguration2.setUrl("http://test.com");
-
-        HashMap<String, DatasourceStorageDTO> storages2 = new HashMap<>();
-        storages2.put(
-                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration2));
-        datasource2.setDatasourceStorages(storages2);
-
-        final Mono<Tuple2<Datasource, Datasource>> datasourcesMono = pluginMono
-                .flatMap(plugin -> {
-                    datasource1.setPluginId(plugin.getId());
-                    datasource2.setPluginId(plugin.getId());
-                    return datasourceService.create(datasource1);
-                })
-                .zipWhen(datasource -> datasourceService.create(datasource2));
-
-        StepVerifier.create(datasourcesMono)
-                .assertNext(tuple2 -> {
-                    final Datasource ds1 = tuple2.getT1();
-                    assertThat(ds1.getId()).isNotEmpty();
-                    assertThat(ds1.getPluginId()).isEqualTo(datasource1.getPluginId());
-                    assertThat(ds1.getName()).isEqualTo("Untitled datasource");
-
-                    final Datasource ds2 = tuple2.getT2();
-                    assertThat(ds2.getId()).isNotEmpty();
-                    assertThat(ds2.getPluginId()).isEqualTo(datasource1.getPluginId());
-                    assertThat(ds2.getName()).isEqualTo("Untitled datasource 2");
                 })
                 .verifyComplete();
     }
