@@ -3,6 +3,7 @@ package com.appsmith.server.controllers.ce;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ActionExecutionResult;
 import com.appsmith.external.views.FromRequest;
+import com.appsmith.external.views.ToResponse;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -61,7 +62,7 @@ public class ActionControllerCE {
         this.actionExecutionSolution = actionExecutionSolution;
     }
 
-    @JsonView(Views.Public.class)
+    @JsonView(ToResponse.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<ActionDTO>> createAction(
@@ -73,7 +74,7 @@ public class ActionControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @JsonView(Views.Public.class)
+    @JsonView(ToResponse.class)
     @PutMapping("/{defaultActionId}")
     public Mono<ResponseDTO<ActionDTO>> updateAction(
             @PathVariable String defaultActionId,
