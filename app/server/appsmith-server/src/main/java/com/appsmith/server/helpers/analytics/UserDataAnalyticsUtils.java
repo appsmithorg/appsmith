@@ -2,10 +2,11 @@ package com.appsmith.server.helpers.analytics;
 
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.helpers.CollectionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 public class UserDataAnalyticsUtils {
     private static final String ROLE = "role";
@@ -21,10 +22,10 @@ public class UserDataAnalyticsUtils {
         }
 
         Map<String, Object> traits = new HashMap<>();
-        traits.put(ROLE, userData.getRole());
-        traits.put(PROFICIENCY, userData.getProficiency());
-        traits.put(USE_CASE, userData.getUseCase());
-        traits.put(GOAL, ObjectUtils.defaultIfNull(userData.getUseCase(), ""));
+        traits.put(ROLE, defaultIfNull(userData.getRole(), ""));
+        traits.put(PROFICIENCY, defaultIfNull(userData.getProficiency(), ""));
+        traits.put(USE_CASE, defaultIfNull(userData.getUseCase(), ""));
+        traits.put(GOAL, defaultIfNull(userData.getUseCase(), ""));
 
         if (!shouldAddRecentlyUsedWorkspaceId || CollectionUtils.isNullOrEmpty(userData.getRecentlyUsedEntityIds())) {
             return traits;

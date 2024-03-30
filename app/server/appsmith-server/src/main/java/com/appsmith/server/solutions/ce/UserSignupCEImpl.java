@@ -376,34 +376,35 @@ public class UserSignupCEImpl implements UserSignupCE {
     public Mono<Void> signupAndLoginSuperFromFormData(String originHeader, ServerWebExchange exchange) {
         return exchange.getFormData()
                 .map(formData -> {
-                    final UserSignupRequestDTO user = new UserSignupRequestDTO();
-                    user.setEmail(formData.getFirst(EMAIL));
-                    user.setPassword(formData.getFirst(FieldName.PASSWORD));
-                    user.setSource(LoginSource.FORM);
-                    user.setState(UserState.ACTIVATED);
-                    user.setEnabled(true);
+                    final UserSignupRequestDTO signupRequestDTO = new UserSignupRequestDTO();
+                    signupRequestDTO.setEmail(formData.getFirst(EMAIL));
+                    signupRequestDTO.setPassword(formData.getFirst(FieldName.PASSWORD));
+                    signupRequestDTO.setSource(LoginSource.FORM);
+                    signupRequestDTO.setState(UserState.ACTIVATED);
+                    signupRequestDTO.setEnabled(true);
                     if (formData.containsKey(FieldName.NAME)) {
-                        user.setName(formData.getFirst(FieldName.NAME));
+                        signupRequestDTO.setName(formData.getFirst(FieldName.NAME));
                     }
                     if (formData.containsKey("role")) {
-                        user.setRole(formData.getFirst("role"));
+                        signupRequestDTO.setRole(formData.getFirst("role"));
                     }
                     if (formData.containsKey("proficiency")) {
-                        user.setProficiency(formData.getFirst("proficiency"));
+                        signupRequestDTO.setProficiency(formData.getFirst("proficiency"));
                     }
                     if (formData.containsKey("useCase")) {
-                        user.setUseCase(formData.getFirst("useCase"));
+                        signupRequestDTO.setUseCase(formData.getFirst("useCase"));
                     }
                     if (formData.containsKey("allowCollectingAnonymousData")) {
-                        user.setAllowCollectingAnonymousData(
+                        signupRequestDTO.setAllowCollectingAnonymousData(
                                 "true".equals(formData.getFirst("allowCollectingAnonymousData")));
                     }
                     if (formData.containsKey("signupForNewsletter")) {
-                        user.setSignupForNewsletter("true".equals(formData.getFirst("signupForNewsletter")));
+                        signupRequestDTO.setSignupForNewsletter(
+                                "true".equals(formData.getFirst("signupForNewsletter")));
                     }
-                    return user;
+                    return signupRequestDTO;
                 })
-                .flatMap(user -> signupAndLoginSuper(user, originHeader, exchange))
+                .flatMap(requestDTO -> signupAndLoginSuper(requestDTO, originHeader, exchange))
                 .then()
                 .onErrorResume(error -> {
                     String referer = exchange.getRequest().getHeaders().getFirst("referer");
