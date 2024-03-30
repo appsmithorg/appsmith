@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * In case you are wondering why we have two different repository implementation classes i.e.
@@ -110,15 +109,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         .in(permissionGroups)
                         .and("permission")
                         .is(permission.getValue()));
-    }
-
-    /**
-     * @deprecated Consider using {@code queryBuilder().byId(id)} or {@code Bridge.equal(BaseDomain.Fields.id, id)}
-     * instead.
-     */
-    @Deprecated(forRemoval = true)
-    protected Criteria getIdCriteria(Object id) {
-        return where("id").is(id);
     }
 
     protected DBObject getDbObject(Object o) {
