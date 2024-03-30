@@ -23,7 +23,6 @@ import type {
   WidgetEntityConfig,
   DataTreeEntityConfig,
   ActionEntity,
-  JSActionEntity,
   JSActionEntityConfig,
   PrivateWidgets,
   ActionEntityConfig,
@@ -485,23 +484,18 @@ export default class DataTreeEvaluator {
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
 
-    const jsDifferences: Diff<
-      Record<string, JSActionEntity>,
-      Record<string, JSActionEntity>
-    >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
-    const jsTranslatedDiffs = flatten(
-      jsDifferences.map((diff) =>
-        translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
-      ),
-    );
+    // const jsDifferences: Diff<
+    //   Record<string, JSActionEntity>,
+    //   Record<string, JSActionEntity>
+    // >[] = diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
+    // const jsTranslatedDiffs = flatten(
+    //   jsDifferences.map((diff) =>
+    //     translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
+    //   ),
+    // );
 
     //save parsed functions in resolveJSFunctions, update current state of js collection
-    const parsedCollections = parseJSActions(
-      this,
-      localUnEvalTree,
-      this.oldUnEvalTree,
-      jsTranslatedDiffs,
-    );
+    const parsedCollections = parseJSActions(this, localUnEvalTree);
 
     jsUpdates = parsedCollections.jsUpdates;
     //update local data tree if js body has updated (remove/update/add js functions or variables)
