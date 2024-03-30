@@ -23,7 +23,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.data.mongo.AutoConfigureDataMongo;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -49,7 +48,6 @@ import static org.mockito.ArgumentMatchers.any;
 
 @AutoConfigureDataMongo
 @SpringBootTest
-@EnableAutoConfiguration
 @TestPropertySource(properties = "property=C")
 @DirtiesContext
 public class ImportApplicationTransactionServiceTest {
@@ -60,22 +58,22 @@ public class ImportApplicationTransactionServiceTest {
     @Autowired
     WorkspaceService workspaceService;
 
-    @MockBean
+    @Autowired
     ApplicationRepository applicationRepository;
 
     @MockBean
     NewActionService newActionService;
 
-    @MockBean
+    @Autowired
     NewActionRepository newActionRepository;
 
-    @MockBean
+    @Autowired
     NewPageRepository newPageRepository;
 
     @MockBean
     ActionCollectionService actionCollectionService;
 
-    @MockBean
+    @Autowired
     ActionCollectionRepository actionCollectionRepository;
 
     @MockBean
