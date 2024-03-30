@@ -19,8 +19,8 @@ import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.solutions.ActionExecutionSolution;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.Part;
@@ -43,24 +43,13 @@ import java.util.List;
 
 @Slf4j
 @RequestMapping(Url.ACTION_URL)
+@RequiredArgsConstructor
 public class ActionControllerCE {
 
     private final LayoutActionService layoutActionService;
     private final NewActionService newActionService;
     private final RefactoringService refactoringService;
     private final ActionExecutionSolution actionExecutionSolution;
-
-    @Autowired
-    public ActionControllerCE(
-            LayoutActionService layoutActionService,
-            NewActionService newActionService,
-            RefactoringService refactoringService,
-            ActionExecutionSolution actionExecutionSolution) {
-        this.layoutActionService = layoutActionService;
-        this.newActionService = newActionService;
-        this.refactoringService = refactoringService;
-        this.actionExecutionSolution = actionExecutionSolution;
-    }
 
     @JsonView(ToResponse.class)
     @PostMapping
