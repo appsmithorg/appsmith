@@ -14,7 +14,14 @@ public interface AnalyticsServiceCE {
 
     Mono<User> identifyUser(User user, @NonNull Map<String, ?> traits);
 
-    void identifyInstance(String instanceId, Map<String, Object> instanceTraits);
+    void identifyInstance(
+            String instanceId,
+            String role,
+            String proficiency,
+            String useCase,
+            String adminEmail,
+            String adminFullName,
+            String ip);
 
     Mono<Void> sendEvent(String event, String userId, Map<String, ?> properties);
 

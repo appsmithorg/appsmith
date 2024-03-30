@@ -31,10 +31,15 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.constants.AnalyticsConstants.EMAIL_DOMAIN_HASH;
+import static com.appsmith.server.constants.AnalyticsConstants.GOAL;
+import static com.appsmith.server.constants.AnalyticsConstants.IP;
 import static com.appsmith.server.constants.AnalyticsConstants.IS_SUPER_USER;
 import static com.appsmith.server.constants.FieldName.EMAIL;
 import static com.appsmith.server.constants.FieldName.INSTANCE_ID;
+import static com.appsmith.server.constants.FieldName.IP_ADDRESS;
 import static com.appsmith.server.constants.FieldName.NAME;
+import static com.appsmith.server.constants.FieldName.PROFICIENCY;
+import static com.appsmith.server.constants.FieldName.ROLE;
 
 @Slf4j
 public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
@@ -128,13 +133,37 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                 });
     }
 
-    public void identifyInstance(String instanceId, Map<String, Object> instanceTraits) {
+    public void identifyInstance(
+            String instanceId,
+            String role,
+            String proficiency,
+            String useCase,
+            String adminEmail,
+            String adminFullName,
+            String ip) {
         if (!isActive()) {
             return;
         }
-        Map<String, Object> traits = new HashMap<>(instanceTraits);
-        traits.put("isInstance", true);
-        analytics.enqueue(IdentifyMessage.builder().userId(instanceId).traits(traits));
+
+        analytics.enqueue(IdentifyMessage.builder()
+                .userId(instanceId)
+                .traits(Map.of(
+                        "isInstance",
+                        true, // Is this "identify" data-point for a user or an instance?
+                        ROLE,
+                        ObjectUtils.defaultIfNull(role, ""),
+                        PROFICIENCY,
+                        ObjectUtils.defaultIfNull(proficiency, ""),
+                        GOAL,
+                        ObjectUtils.defaultIfNull(useCase, ""),
+                        EMAIL,
+                        ObjectUtils.defaultIfNull(adminEmail, ""),
+                        NAME,
+                        ObjectUtils.defaultIfNull(adminFullName, ""),
+                        IP,
+                        ObjectUtils.defaultIfNull(ip, "unknown"),
+                        IP_ADDRESS,
+                        ObjectUtils.defaultIfNull(ip, "unknown"))));
         analytics.flush();
     }
 

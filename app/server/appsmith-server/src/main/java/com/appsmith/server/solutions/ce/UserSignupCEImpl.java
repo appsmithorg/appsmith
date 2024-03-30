@@ -471,7 +471,15 @@ public class UserSignupCEImpl implements UserSignupCE {
                     instanceTraits.put(EMAIL, newsletterSignedUpUserEmail);
                     instanceTraits.put(NAME, newsletterSignedUpUserName);
                     instanceTraits.put(INSTANCE_ID, instanceId);
-                    analyticsService.identifyInstance(instanceId, instanceTraits);
+
+                    analyticsService.identifyInstance(
+                            instanceId,
+                            userData.getRole(),
+                            userData.getProficiency(),
+                            userData.getUseCase(),
+                            newsletterSignedUpUserEmail,
+                            newsletterSignedUpUserName,
+                            ip);
 
                     return analyticsService
                             .sendEvent(
