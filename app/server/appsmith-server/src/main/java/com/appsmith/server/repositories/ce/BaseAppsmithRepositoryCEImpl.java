@@ -104,18 +104,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return Bridge.isNull(FieldName.DELETED_AT);
     }
 
-    public static Criteria userAcl(Set<String> permissionGroups, AclPermission permission) {
-        if (permission == null) {
-            return null;
-        }
-        // Check if the permission is being provided by any of the permission groups
-        return Criteria.where(BaseDomain.Fields.policies)
-                .elemMatch(Criteria.where("permissionGroups")
-                        .in(permissionGroups)
-                        .and("permission")
-                        .is(permission.getValue()));
-    }
-
     /**
      * @deprecated Consider using {@code queryBuilder().byId(id)} or {@code Bridge.equal(BaseDomain.Fields.id, id)}
      * instead.
@@ -248,34 +236,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .block();
         return permissionGroups == null ? Collections.emptySet() : permissionGroups;
     }
-
-    /*
-    protected Query createQueryWithPermission(
-            List<Criteria> criterias, Set<String> permissionGroups, AclPermission aclPermission) {
-        return createQueryWithPermission(criterias, null, permissionGroups, aclPermission);
-    }
-
-    protected Query createQueryWithPermission(
-            List<Criteria> criterias,
-            List<String> projectionFieldNames,
-            Set<String> permissionGroups,
-            AclPermission aclPermission) {
-        final ArrayList<Criteria> criteriaList = new ArrayList<>(criterias);
-        criteriaList.add(notDeleted());
-
-        final Criteria permissionCriteria = userAcl(permissionGroups, aclPermission);
-        if (permissionCriteria != null) {
-            criteriaList.add(permissionCriteria);
-        }
-
-        final Query query = new Query(new Criteria().andOperator(criteriaList.toArray(new Criteria[0])));
-
-        if (!isEmpty(projectionFieldNames)) {
-            query.fields().include(projectionFieldNames.toArray(new String[0]));
-        }
-
-        return query;
-    }//*/
 
     public QueryAllParams<T> queryBuilder() {
         return new QueryAllParams<>(this);
