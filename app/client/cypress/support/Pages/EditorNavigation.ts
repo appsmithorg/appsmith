@@ -4,7 +4,6 @@ import ClickOptions = Cypress.ClickOptions;
 import { Sidebar } from "./IDE/Sidebar";
 import { LeftPane } from "./IDE/LeftPane";
 import PageList from "./PageList";
-import IDELocators from "../../locators/IdeLocators.json";
 
 export enum AppSidebarButton {
   Data = "Data",
@@ -44,6 +43,12 @@ export enum EntityType {
   Page = "Page",
 }
 class EditorNavigation {
+  public locators = {
+    MaximizeBtn: "[data-testid='t--ide-maximize']",
+    MinimizeBtn: "[data-testid='t--ide-minimize']",
+    announcementCloseButton: "[data-testid='t--ide-close-announcement']",
+  };
+
   NavigateToDatasource(name: string) {
     AppSidebar.navigate(AppSidebarButton.Data);
     cy.get(datasource.datasourceCard)
@@ -128,9 +133,18 @@ class EditorNavigation {
 
   SwitchScreenMode(mode: EditorViewMode) {
     if (mode === EditorViewMode.FullScreen) {
-      cy.selectByTestId(IDELocators.MaximizeBtn).click();
+      _.AggregateHelper.GetNClick(this.locators.MaximizeBtn);
     } else {
-      cy.selectByTestId(IDELocators.MinimizeBtn).click();
+      _.AggregateHelper.GetNClick(this.locators.MinimizeBtn);
+      cy.get("body").then(($body) => {
+        if ($body.find(this.locators.announcementCloseButton).length > 0) {
+          _.AggregateHelper.GetNClick(
+            this.locators.announcementCloseButton,
+            0,
+            true,
+          );
+        }
+      });
     }
   }
 }

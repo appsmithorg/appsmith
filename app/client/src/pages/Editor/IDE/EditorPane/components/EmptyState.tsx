@@ -46,7 +46,6 @@ const EmptyState = ({
       {onClick && (
         <Button
           className={buttonClassName}
-          data-testid="t--empty-state-add-btn"
           kind={"secondary"}
           onClick={onClick}
           size={"sm"}
