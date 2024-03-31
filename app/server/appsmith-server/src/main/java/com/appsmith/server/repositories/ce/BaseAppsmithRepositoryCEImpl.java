@@ -7,6 +7,8 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.BasicDBObject;
@@ -43,7 +45,6 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * In case you are wondering why we have two different repository implementation classes i.e.
@@ -90,16 +91,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
     }
 
-    public static Criteria notDeleted() {
-        return new Criteria()
-                .andOperator(
-                        // Older check for deleted
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED).exists(false),
-                                        where(FieldName.DELETED).is(false)),
-                        // New check for deleted
-                        where(FieldName.DELETED_AT).isNull());
+    public static <T extends BaseDomain> BridgeQuery<T> notDeleted() {
+        return Bridge.and(
+                // Older check for deleted
+                Bridge.or(Bridge.notExists(FieldName.DELETED), Bridge.isFalse(FieldName.DELETED)),
+                // New check for deleted
+                Bridge.isNull(FieldName.DELETED_AT));
     }
 
     public static Criteria userAcl(Set<String> permissionGroups, AclPermission permission) {
@@ -112,15 +109,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         .in(permissionGroups)
                         .and("permission")
                         .is(permission.getValue()));
-    }
-
-    /**
-     * @deprecated Consider using {@code queryBuilder().byId(id)} or {@code Bridge.equal(BaseDomain.Fields.id, id)}
-     * instead.
-     */
-    @Deprecated(forRemoval = true)
-    protected Criteria getIdCriteria(Object id) {
-        return where("id").is(id);
     }
 
     protected DBObject getDbObject(Object o) {
