@@ -97,9 +97,11 @@ export const setSelectedPropertyPanels = (payload: SelectedPropertyPanel) => {
   };
 };
 
-export const setShowCreateNewModal = (payload: boolean) => {
+export const setPropertyValueCreationCallback = (
+  payload?: (value: string) => void,
+) => {
   return {
-    type: ReduxActionTypes.SET_SHOW_CREATE_NEW_MODAL,
+    type: ReduxActionTypes.SET_PROPERTY_VALUE_CREATION_CALLBACK,
     payload,
   };
 };

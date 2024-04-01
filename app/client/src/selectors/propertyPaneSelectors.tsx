@@ -332,5 +332,5 @@ export const getShouldFocusPanelPropertySearch = createSelector(
   },
 );
 
-export const getShowCreateNewModal = (state: AppState) =>
-  state.ui.propertyPane.showCreateNewModal;
+export const getPropertyValueCreationCallback = (state: AppState) =>
+  state.ui.propertyPane.valueCreationCallback;

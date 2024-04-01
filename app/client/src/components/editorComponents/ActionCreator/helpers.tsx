@@ -64,14 +64,17 @@ import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelector
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ModuleInstanceDataState } from "@appsmith/constants/ModuleInstanceConstants";
-import { setShowCreateNewModal } from "actions/propertyPaneActions";
-import { setIdeEditorViewMode } from "actions/ideActions";
+import {
+  setIdeEditorViewMode,
+  setShowQueryCreateNewModal,
+} from "actions/ideActions";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { getModuleIcon, getPluginImagesFromPlugins } from "pages/Editor/utils";
 import { getAllModules } from "@appsmith/selectors/modulesSelector";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Plugin } from "api/PluginApi";
+import { setPropertyValueCreationCallback } from "actions/propertyPaneActions";
 
 const actionList: {
   label: string;
@@ -440,8 +443,20 @@ function getApiAndQueryOptions(
     id: "create",
     icon: "plus",
     className: "t--create-datasources-query-btn",
-    onSelect: () => {
-      dispatch(setShowCreateNewModal(true));
+    onSelect: (value, setterMethod) => {
+      const createQueryCallback = (name: string) => {
+        if (setterMethod && queryOptions) {
+          setterMethod({
+            label: name,
+            id: name,
+            value: name,
+            type: queryOptions.value,
+          });
+        }
+      };
+      dispatch(setShowQueryCreateNewModal(true));
+      dispatch(setPropertyValueCreationCallback(createQueryCallback));
+
       if (isSideBySideEnabled) {
         dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
       }

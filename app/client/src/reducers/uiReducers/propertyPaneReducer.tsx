@@ -17,7 +17,6 @@ const initialState: PropertyPaneReduxState = {
   isNew: false,
   width: DEFAULT_PROPERTY_PANE_WIDTH,
   selectedPropertyPanel: {},
-  showCreateNewModal: false,
 };
 
 const propertyPaneReducer = createImmerReducer(initialState, {
@@ -113,13 +112,13 @@ const propertyPaneReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedPropertyPanel = action.payload;
   },
-  [ReduxActionTypes.SET_SHOW_CREATE_NEW_MODAL]: (
+  [ReduxActionTypes.SET_PROPERTY_VALUE_CREATION_CALLBACK]: (
     state: PropertyPaneReduxState,
     action: {
-      payload: boolean;
+      payload?: (value: string) => void;
     },
   ) => {
-    state.showCreateNewModal = action.payload;
+    state.valueCreationCallback = action.payload;
   },
 });
 
@@ -134,7 +133,7 @@ export interface PropertyPaneReduxState {
   widgetChildProperty?: string;
   width: number;
   focusedProperty?: string;
-  showCreateNewModal?: boolean;
+  valueCreationCallback?: (value: string) => void;
 }
 
 export default propertyPaneReducer;

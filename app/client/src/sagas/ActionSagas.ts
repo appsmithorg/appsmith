@@ -117,7 +117,10 @@ import {
   enhanceRequestPayloadWithEventData,
   getFromServerWhenNoPrefetchedResult,
 } from "./helper";
-import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
+import {
+  setPropertyValueCreationCallback,
+  setSnipingMode as setSnipingModeAction,
+} from "actions/propertyPaneActions";
 import { toast } from "design-system";
 import { getFormValues } from "redux-form";
 import {
@@ -139,6 +142,7 @@ import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
+import { getPropertyValueCreationCallback } from "selectors/propertyPaneSelectors";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -344,6 +348,20 @@ export function* createActionSaga(
 
       // we fork to prevent the call from blocking
       yield fork(fetchActionDatasourceStructure, newAction);
+
+      try {
+        const onCreateCallback: (name: string) => void = yield select(
+          getPropertyValueCreationCallback,
+        );
+
+        if (onCreateCallback) {
+          onCreateCallback(payload.name || "");
+        }
+      } catch (e) {
+        log.error("Failed to call the property create callback");
+      } finally {
+        yield put(setPropertyValueCreationCallback(undefined));
+      }
     }
   } catch (error) {
     yield put({
