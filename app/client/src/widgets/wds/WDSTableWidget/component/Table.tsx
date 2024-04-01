@@ -319,6 +319,8 @@ export function Table(props: TableProps) {
         borderWidth={props.borderWidth}
         boxShadow={props.boxShadow}
         className={styles.table}
+        data-status={props.isAddRowInProgress ? "add-row-in-progress" : ""}
+        data-type={shouldUseVirtual ? "virtualized" : "static"}
         height={props.height}
         id={`table${props.widgetId}`}
         isAddRowInProgress={props.isAddRowInProgress}
@@ -378,7 +380,7 @@ export function Table(props: TableProps) {
           }`}
           data-table-wrapper=""
         >
-          <div {...getTableProps()} className="column-freeze">
+          <div {...getTableProps()} className="table column-freeze">
             {!shouldUseVirtual && (
               <StaticTable
                 accentColor={props.accentColor}

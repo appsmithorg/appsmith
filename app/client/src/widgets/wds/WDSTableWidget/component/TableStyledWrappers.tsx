@@ -44,52 +44,8 @@ export const TableWrapper = styled.div<{
   isResizingColumn?: boolean;
   variant?: TableVariant;
   isAddRowInProgress: boolean;
-}>` 
-  /* wriiten exclusively for safari */
-  position: sticky; 
-  }
-  .tableWrap {
-   
-
-    &.virtual {
-      overflow: hidden;
-    }
-  }
+}>`
   .table {
-    border-spacing: 0;
-    color: ${Colors.THUNDER};
-    position: relative;
-    display: table;
-    width: 100%;
-    tab .tbody {
-      height: fit-content;
-      width: fit-content;
-    }
-    .tr {
-      cursor: ${(props) => props.triggerRowSelection && "pointer"};
-      background: ${Colors.WHITE};
-      &.selected-row {
-        background: ${({ accentColor }) =>
-          `${lightenColor(accentColor)}`} !important;
-
-        &:hover {
-          background: ${({ accentColor }) =>
-            `${lightenColor(accentColor, "0.9")}`} !important;
-        }
-      }
-
-      ${(props) => {
-        if (!props.isAddRowInProgress) {
-          return `&:hover {
-            background: var(--wds-color-bg-hover) !important;
-          }`;
-        }
-      }}
-      &.new-row {
-        background: ${({ accentColor }) =>
-          `${lightenColor(accentColor)}`} !important;
-      }
-    }
     .th,
     .td {
       margin: 0;
@@ -131,28 +87,9 @@ export const TableWrapper = styled.div<{
       }
     }
 
-    .th {
-      font-size: 14px;
-    }
-
-    .th {
-      padding: 0 10px 0 0;
-      height: ${(props) =>
-        props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
-      line-height: ${(props) =>
-        props.isHeaderVisible ? props.tableSizes.COLUMN_HEADER_HEIGHT : 40}px;
-      background: var(--wds-color-bg);
-      font-weight: bold;
-    }
     .td {
       min-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
       padding: 0;
-    }
-    .thead {
-      position: sticky;
-      top: 0;
-      z-index: 1;
-      width: fit-content;
     }
   }
 
@@ -160,10 +97,6 @@ export const TableWrapper = styled.div<{
     .body {
       position: relative;
       z-index: 0;
-    }
-
-    [role="columnheader"] {
-      background-color: var(--wds-color-bg) !important;
     }
 
     [data-sticky-td] {
@@ -211,27 +144,14 @@ export const TableWrapper = styled.div<{
     }
   }
 
-  .draggable-header,
-  .hidden-header {
-    width: 100%;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    color: ${Colors.OXFORD_BLUE};
-    padding-left: 10px;
-    &.sorted {
-      padding-left: 5px;
-    }
-  }
   .draggable-header {
     cursor: grab;
-    display: inline-block;
-    width: 100%;
-    height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT};
     &.reorder-line {
       width: 1px;
       height: 100%;
     }
   }
+
   .hidden-header {
     opacity: 0.6;
 

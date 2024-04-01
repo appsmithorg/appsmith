@@ -1,11 +1,5 @@
-import React, {
-  createRef,
-  useCallback,
-  useEffect,
-  useState,
-  memo,
-} from "react";
-import { MenuItem, Tooltip, Menu } from "@blueprintjs/core";
+import React, { useCallback, useState, memo } from "react";
+import { MenuItem, Menu } from "@blueprintjs/core";
 
 import { Colors } from "constants/Colors";
 import styled from "styled-components";
@@ -19,12 +13,12 @@ import {
   POPOVER_ITEMS_TEXT_MAP,
   StickyType,
 } from "../Constants";
-import { TooltipContentWrapper } from "../TableStyledWrappers";
 import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
 import { Popover2 } from "@blueprintjs/popover2";
 import { MenuDivider } from "@design-system/widgets-old";
 import { importRemixIcon, importSvg } from "@design-system/widgets-old";
 import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
+import { Icon, Text } from "@design-system/widgets";
 
 const Check = importRemixIcon(
   async () => import("remixicon-react/CheckFillIcon"),
@@ -76,55 +70,6 @@ const StyledEditIcon = styled(EditIcon)`
   margin-right: 3px;
 `;
 
-const TitleWrapper = styled.div`
-  &,
-  span {
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
-`;
-
-interface TitleProps {
-  children: React.ReactNode;
-  tableWidth?: number;
-  width?: number;
-}
-
-function Title(props: TitleProps) {
-  const ref = createRef<HTMLDivElement>();
-  const [useToolTip, updateToolTip] = useState(false);
-  useEffect(() => {
-    const element = ref.current;
-    if (element && element.offsetWidth < element.scrollWidth) {
-      updateToolTip(true);
-    } else {
-      updateToolTip(false);
-    }
-  }, [ref.current, props.width, props.children]);
-
-  return (
-    <TitleWrapper ref={ref}>
-      {useToolTip && props.children ? (
-        <Tooltip
-          autoFocus={false}
-          content={
-            <TooltipContentWrapper width={(props.tableWidth || 300) - 32}>
-              {props.children}
-            </TooltipContentWrapper>
-          }
-          hoverOpenDelay={1000}
-          position="top"
-        >
-          {props.children}
-        </Tooltip>
-      ) : (
-        props.children
-      )}
-    </TitleWrapper>
-  );
-}
-
 const ICON_SIZE = 16;
 
 interface HeaderProps {
@@ -167,6 +112,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
   const headerProps = { ...column.getHeaderProps() };
   headerProps["style"] = {
     ...headerProps.style,
+    display: "flex",
     left:
       column.sticky === StickyType.LEFT && props.multiRowSelection
         ? MULTISELECT_CHECKBOX_WIDTH + column.totalLeft
@@ -240,7 +186,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
   );
 
   return (
-    <div
+    <th
       {...headerProps}
       className={`th header-reorder ${props.stickyRightModifier}`}
       data-header={props.columnName}
@@ -264,9 +210,14 @@ const HeaderCellComponent = (props: HeaderProps) => {
           horizontalAlignment={column.columnProperties.horizontalAlignment}
         >
           {isColumnEditable && <StyledEditIcon />}
-          <Title width={props.width}>
+          <Text
+            lineClamp={1}
+            style={{ width: props.width }}
+            title={props.columnName.replace(/\s/g, "\u00a0")}
+            variant="body"
+          >
             {props.columnName.replace(/\s/g, "\u00a0")}
-          </Title>
+          </Text>
         </ColumnNameContainer>
       </div>
       <div
@@ -336,15 +287,9 @@ const HeaderCellComponent = (props: HeaderProps) => {
           <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
         </Popover2>
       </div>
-      {props.isAscOrder !== undefined ? (
-        <div>
-          {props.isAscOrder ? (
-            <AscendingIcon height={ICON_SIZE} width={ICON_SIZE} />
-          ) : (
-            <DescendingIcon height={ICON_SIZE} width={ICON_SIZE} />
-          )}
-        </div>
-      ) : null}
+      {props.isAscOrder !== undefined && (
+        <Icon name={props.isAscOrder ? "arrow-up" : "arrow-down"} />
+      )}
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}
@@ -353,7 +298,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
           e.stopPropagation();
         }}
       />
-    </div>
+    </th>
   );
 };
 export const HeaderCell = memo(HeaderCellComponent);
