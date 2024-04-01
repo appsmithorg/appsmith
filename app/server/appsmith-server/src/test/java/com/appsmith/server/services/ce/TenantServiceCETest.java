@@ -8,6 +8,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.cakes.UserRepositoryCake;
 import com.appsmith.server.services.TenantService;
@@ -41,7 +42,6 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
-import static org.springframework.data.mongodb.core.query.Update.update;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -73,9 +73,8 @@ class TenantServiceCETest {
         assert tenant != null;
         originalTenantConfiguration = tenant.getTenantConfiguration();
 
-        tenantRepository
-                .updateAndReturn(tenant.getId(), update(Tenant.Fields.tenantConfiguration, null), Optional.empty())
-                .block();
+        tenantRepository.updateAndReturn(
+                tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), Optional.empty());
 
         // Make api_user super-user to test tenant admin functionality
         // Todo change this to tenant admin once we introduce multitenancy
@@ -89,9 +88,9 @@ class TenantServiceCETest {
     public void cleanup() {
         tenantService
                 .getDefaultTenant()
-                .flatMap(tenant -> tenantRepository.updateAndReturn(
+                .map(tenant -> tenantRepository.updateAndReturn(
                         tenant.getId(),
-                        update(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
+                        Bridge.update().set(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
                         Optional.empty()))
                 .block();
     }

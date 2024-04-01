@@ -1,6 +1,5 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.annotations.documenttype.DocumentType;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,7 +16,6 @@ import lombok.ToString;
 @ToString
 @NoArgsConstructor
 @AllArgsConstructor
-@DocumentType(Authentication.API_KEY)
 public class ApiKeyAuth extends AuthenticationDTO {
 
     public enum Type {
