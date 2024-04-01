@@ -12,7 +12,6 @@ import {
   IMAGE_HORIZONTAL_ALIGN,
   IMAGE_VERTICAL_ALIGN,
   TEXT_ALIGN,
-  TABLE_SIZES,
   ImageSizes,
   MULTISELECT_CHECKBOX_WIDTH,
   TABLE_SCROLLBAR_HEIGHT,
@@ -136,13 +135,8 @@ export const TableWrapper = styled.div<{
     }
     .th,
     .td {
+      position: relative;
       margin: 0;
-      border-bottom: ${(props) =>
-        props.variant === TableVariantTypes.DEFAULT ||
-        props.variant === undefined ||
-        props.variant === TableVariantTypes.VARIANT3
-          ? "1px solid var(--wds-color-border-onaccent)"
-          : "none"};
       border-right: ${(props) =>
         props.variant === TableVariantTypes.DEFAULT ||
         props.variant === undefined ||
@@ -172,6 +166,21 @@ export const TableWrapper = styled.div<{
         &.isResizing {
           cursor: isResizing;
         }
+      }
+
+      &:after {
+        content: "";
+        display: block;
+        position: absolute;
+        right: 0;
+        bottom: 0;
+        width: 100%;
+        border-bottom: ${(props) =>
+          props.variant === TableVariantTypes.DEFAULT ||
+          props.variant === undefined ||
+          props.variant === TableVariantTypes.VARIANT3
+            ? "1px solid var(--wds-color-border-onaccent)"
+            : "none"};
       }
     }
 
@@ -510,6 +519,7 @@ export const CellWrapper = styled.div<{
   disablePadding?: boolean;
   imageSize?: ImageSize;
   isCellDisabled?: boolean;
+  tableDimensions: TableSizes;
 }>`
   display: ${(props) => (props.isCellVisible !== false ? "flex" : "none")};
   align-items: center;
@@ -557,7 +567,7 @@ export const CellWrapper = styled.div<{
       ? 0
       : `${
           props.compactMode
-            ? `${TABLE_SIZES[props.compactMode].VERTICAL_PADDING}px 10px`
+            ? `${props.tableDimensions.VERTICAL_PADDING}px 10px`
             : `${0}px 10px`
         }`};
   line-height: ${CELL_WRAPPER_LINE_HEIGHT}px;

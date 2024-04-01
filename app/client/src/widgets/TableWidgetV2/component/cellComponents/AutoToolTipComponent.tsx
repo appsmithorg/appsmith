@@ -1,10 +1,11 @@
-import React, { createRef, useEffect, useState } from "react";
+import React, { createRef, useContext, useEffect, useState } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
 import type { CellAlignment, VerticalAlignment } from "../Constants";
 import styled from "styled-components";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { importSvg } from "design-system-old";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 const OpenNewTabIcon = importSvg(
   async () => import("assets/icons/control/open-new-tab.svg"),
@@ -130,6 +131,8 @@ interface Props {
 function LinkWrapper(props: Props) {
   const content = useToolTip(props.children, props.tableWidth, props.title);
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   return (
     <CellWrapper
       allowCellWrapping={props.allowCellWrapping}
@@ -147,6 +150,7 @@ function LinkWrapper(props: Props) {
         e.stopPropagation();
         window.open(props.url, "_blank");
       }}
+      tableDimensions={tableDimensions}
       textColor={props.textColor}
       textSize={props.textSize}
       verticalAlignment={props.verticalAlignment}
@@ -161,6 +165,8 @@ function LinkWrapper(props: Props) {
 
 function AutoToolTipComponent(props: Props) {
   const content = useToolTip(props.children, props.tableWidth, props.title);
+
+  const tableDimensions = useContext(TableContext).tableDimensions;
 
   if (props.columnType === ColumnTypes.URL && props.title) {
     return <LinkWrapper {...props} />;
@@ -180,6 +186,7 @@ function AutoToolTipComponent(props: Props) {
         isCellVisible={props.isCellVisible}
         isHidden={props.isHidden}
         isTextType
+        tableDimensions={tableDimensions}
         textColor={props.textColor}
         textSize={props.textSize}
         verticalAlignment={props.verticalAlignment}

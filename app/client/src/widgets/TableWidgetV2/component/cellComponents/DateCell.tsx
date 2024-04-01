@@ -1,10 +1,6 @@
-import React, { useMemo, useRef, useState } from "react";
-import type { VerticalAlignment } from "../Constants";
-import {
-  ALIGN_ITEMS,
-  EDITABLE_CELL_PADDING_OFFSET,
-  TABLE_SIZES,
-} from "../Constants";
+import React, { useContext, useMemo, useRef, useState } from "react";
+import type { TableSizes, VerticalAlignment } from "../Constants";
+import { ALIGN_ITEMS, EDITABLE_CELL_PADDING_OFFSET } from "../Constants";
 import DateComponent from "widgets/DatePickerWidget2/component";
 import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import type { RenderDefaultPropsType } from "./PlainTextCell";
@@ -19,6 +15,7 @@ import {
   createMessage,
   INPUT_WIDGET_DEFAULT_VALIDATION_ERROR,
 } from "@appsmith/constants/messages";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 type DateComponentProps = RenderDefaultPropsType &
   editPropertyType & {
@@ -85,6 +82,7 @@ const Wrapper = styled.div<{
   textSize?: string;
   isEditableCellValid: boolean;
   paddedInput: boolean;
+  tableDimensions: TableSizes;
 }>`
   padding: 1px;
   border: 1px solid
@@ -107,11 +105,8 @@ const Wrapper = styled.div<{
         : "100%";
     } else {
       return props.paddedInput
-        ? `${
-            TABLE_SIZES[props.compactMode].ROW_HEIGHT -
-            EDITABLE_CELL_PADDING_OFFSET
-          }px`
-        : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`;
+        ? `${props.tableDimensions.ROW_HEIGHT - EDITABLE_CELL_PADDING_OFFSET}px`
+        : `${props.tableDimensions.ROW_HEIGHT}px`;
     }
   }};
   ${(props) => {
@@ -122,7 +117,7 @@ const Wrapper = styled.div<{
         return `bottom: 0;`;
       case "CENTER":
         return `
-            top: calc(50% - (${TABLE_SIZES[props.compactMode].ROW_HEIGHT}/2)px);
+            top: calc(50% - (${props.tableDimensions.ROW_HEIGHT}/2)px);
           `;
     }
   }}
@@ -264,6 +259,8 @@ export const DateCell = (props: DateComponentProps) => {
     }
   };
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   let editor;
 
   if (isCellEditMode) {
@@ -277,6 +274,7 @@ export const DateCell = (props: DateComponentProps) => {
         compactMode={compactMode}
         isEditableCellValid={isValid}
         paddedInput
+        tableDimensions={tableDimensions}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
       >

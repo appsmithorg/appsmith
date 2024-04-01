@@ -4,7 +4,7 @@ import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
 import { BodyContext } from ".";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
-import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
+import { RenderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 
 interface RowType {
@@ -62,8 +62,14 @@ export function Row(props: RowType) {
         e.stopPropagation();
       }}
     >
-      {multiRowSelection &&
-        renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
+      {multiRowSelection && (
+        <RenderBodyCheckBoxCell
+          accentColor={accentColor}
+          borderRadius={borderRadius}
+          isChecked={isRowSelected}
+        />
+      )}
+
       {props.row.cells.map((cell, cellIndex) => {
         const cellProperties = cell.getCellProps();
         cellProperties["style"] = {

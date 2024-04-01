@@ -5,7 +5,7 @@ import type { Cell, Row } from "react-table";
 import type { ReactTableColumnProps } from "../Constants";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { EmptyCell, EmptyRow } from "../TableStyledWrappers";
-import { renderBodyCheckBoxCell } from "./SelectionCheckboxCell";
+import { RenderBodyCheckBoxCell } from "./SelectionCheckboxCell";
 
 const addStickyModifierClass = (
   columns: ReactTableColumnProps[],
@@ -46,8 +46,13 @@ export const renderEmptyRows = (
       };
       return (
         <div {...rowProps} className="tr" key={index}>
-          {multiRowSelection &&
-            renderBodyCheckBoxCell(false, accentColor, borderRadius)}
+          {multiRowSelection && (
+            <RenderBodyCheckBoxCell
+              accentColor={accentColor}
+              borderRadius={borderRadius}
+              isChecked={false}
+            />
+          )}
           {row.cells.map(
             (cell: Cell<Record<string, unknown>>, cellIndex: number) => {
               const cellProps = cell.getCellProps();
@@ -100,8 +105,13 @@ export const renderEmptyRows = (
     return rows.map((row: string, index: number) => {
       return (
         <EmptyRow className="tr" key={index} style={style}>
-          {multiRowSelection &&
-            renderBodyCheckBoxCell(false, accentColor, borderRadius)}
+          {multiRowSelection && (
+            <RenderBodyCheckBoxCell
+              accentColor={accentColor}
+              borderRadius={borderRadius}
+              isChecked={false}
+            />
+          )}
           {tableColumns.map((column: any, colIndex: number) => {
             const distanceFromEdge: {
               left?: number;

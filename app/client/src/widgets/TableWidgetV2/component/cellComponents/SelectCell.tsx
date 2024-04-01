@@ -1,13 +1,14 @@
-import React from "react";
+import React, { useContext } from "react";
 import SelectComponent from "widgets/SelectWidget/component";
 import styled from "styled-components";
 import type { DropdownOption } from "widgets/SelectWidget/constants";
 import type { BaseCellComponentProps } from "../Constants";
-import { EDITABLE_CELL_PADDING_OFFSET, TABLE_SIZES } from "../Constants";
+import { EDITABLE_CELL_PADDING_OFFSET } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import type { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { BasicCell } from "./BasicCell";
 import { useCallback } from "react";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 const StyledSelectComponent = styled(SelectComponent)<{
   accentColor: string;
@@ -189,6 +190,8 @@ export const SelectCell = (props: SelectProps) => {
     .map((d: DropdownOption) => d.value)
     .indexOf(value);
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   if (isEditable && isCellEditable && isCellEditMode) {
     return (
       <StyledCellWrapper
@@ -201,6 +204,7 @@ export const SelectCell = (props: SelectProps) => {
         isCellVisible={isCellVisible}
         isHidden={isHidden}
         onClick={onClick}
+        tableDimensions={tableDimensions}
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
@@ -211,7 +215,7 @@ export const SelectCell = (props: SelectProps) => {
           compactMode
           dropDownWidth={width}
           filterText={filterText}
-          height={TABLE_SIZES[compactMode].ROW_HEIGHT}
+          height={tableDimensions.ROW_HEIGHT}
           hideCancelIcon
           isFilterable={isFilterable}
           isLoading={false}

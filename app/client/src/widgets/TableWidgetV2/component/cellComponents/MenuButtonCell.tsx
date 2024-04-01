@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import type { IconName } from "@blueprintjs/icons";
 import type { Alignment } from "@blueprintjs/core";
 
@@ -13,6 +13,7 @@ import type {
   MenuItems,
   MenuItemsSource,
 } from "widgets/MenuButtonWidget/constants";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 interface MenuButtonProps extends Omit<RenderMenuButtonProps, "columnActions"> {
   action?: ColumnAction;
@@ -115,6 +116,8 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
     verticalAlignment,
   } = props;
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   return (
     <CellWrapper
       allowCellWrapping={allowCellWrapping}
@@ -125,6 +128,7 @@ export function MenuButtonCell(props: RenderMenuButtonProps) {
       isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      tableDimensions={tableDimensions}
       textColor={textColor}
       textSize={textSize}
       verticalAlignment={verticalAlignment}

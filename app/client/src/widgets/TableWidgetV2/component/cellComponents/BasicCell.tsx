@@ -1,12 +1,12 @@
 import type { Ref } from "react";
-import React, { useCallback } from "react";
+import React, { useCallback, useContext } from "react";
 import { Tooltip } from "@blueprintjs/core";
 import styled from "styled-components";
-import type { BaseCellComponentProps } from "../Constants";
-import { TABLE_SIZES } from "../Constants";
+import type { BaseCellComponentProps, TableSizes } from "../Constants";
 import { TooltipContentWrapper } from "../TableStyledWrappers";
 import AutoToolTipComponent from "./AutoToolTipComponent";
 import { importSvg } from "design-system-old";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 const EditIcon = importSvg(
   async () => import("assets/icons/control/edit-variant1.svg"),
@@ -57,10 +57,11 @@ const StyledEditIcon = styled.div<{
   backgroundColor?: string;
   compactMode: string;
   disabledEditIcon: boolean;
+  tableDimensions: TableSizes;
 }>`
   position: absolute;
   right: 6px;
-  top: ${(props) => TABLE_SIZES[props.compactMode].EDIT_ICON_TOP}px;
+  top: ${(props) => props.tableDimensions.EDIT_ICON_TOP}px;
   background: ${(props) =>
     props.disabledEditIcon ? "#999" : props.accentColor};
   padding: 2px;
@@ -127,6 +128,8 @@ export const BasicCell = React.forwardRef(
       [onEdit, disabledEditIcon, isCellEditable],
     );
 
+    const tableDimensions = useContext(TableContext).tableDimensions;
+
     return (
       <Wrapper
         allowWrapping={allowCellWrapping}
@@ -165,6 +168,7 @@ export const BasicCell = React.forwardRef(
             compactMode={compactMode}
             disabledEditIcon={disabledEditIcon}
             onMouseUp={onEditHandler}
+            tableDimensions={tableDimensions}
           >
             {disabledEditIcon ? (
               <Tooltip

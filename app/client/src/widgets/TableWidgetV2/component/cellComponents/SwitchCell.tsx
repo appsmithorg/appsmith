@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useContext } from "react";
 import type { BaseCellComponentProps, CellAlignment } from "../Constants";
 import { ALIGN_ITEMS, JUSTIFY_CONTENT } from "../Constants";
 import { CellWrapper, TooltipContentWrapper } from "../TableStyledWrappers";
@@ -7,6 +7,7 @@ import styled from "styled-components";
 import SwitchComponent from "widgets/SwitchWidget/component";
 import { AlignWidgetTypes } from "WidgetProvider/constants";
 import { Tooltip } from "@blueprintjs/core";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
   position: absolute;
@@ -77,6 +78,8 @@ export const SwitchCell = (props: SwitchCellProps) => {
     verticalAlignment,
   } = props;
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   const switchComponent = (
     <SwitchComponent
       accentColor={accentColor}
@@ -99,6 +102,7 @@ export const SwitchCell = (props: SwitchCellProps) => {
       isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      tableDimensions={tableDimensions}
       verticalAlignment={verticalAlignment}
     >
       {hasUnSavedChanges && <UnsavedChangesMarker accentColor={accentColor} />}

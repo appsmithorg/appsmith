@@ -1,4 +1,10 @@
-import React, { useCallback, useEffect, useMemo, useRef } from "react";
+import React, {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+} from "react";
 import { reduce } from "lodash";
 import type { Row as ReactTableRowType } from "react-table";
 import {
@@ -23,11 +29,7 @@ import type {
   AddNewRowActions,
   StickyType,
 } from "./Constants";
-import {
-  TABLE_SIZES,
-  CompactModeTypes,
-  TABLE_SCROLLBAR_HEIGHT,
-} from "./Constants";
+import { TABLE_SCROLLBAR_HEIGHT } from "./Constants";
 import { Colors } from "constants/Colors";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { EditableCell, TableVariant } from "../constants";
@@ -44,6 +46,7 @@ import {
   createMessage,
   CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
+import { TableContext } from "../widget";
 
 const SCROLL_BAR_OFFSET = 2;
 const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
@@ -235,6 +238,9 @@ export function Table(props: TableProps) {
     useRowSelect,
     useSticky,
   );
+
+  const tableSizes = useContext(TableContext).tableDimensions;
+
   //Set isResizingColumn as true when column is resizing using table state
   if (state.columnResizing.isResizingColumn) {
     isResizingColumn.current = true;
@@ -260,7 +266,6 @@ export function Table(props: TableProps) {
     [page, startIndex, endIndex],
   );
   const selectedRowIndices = props.selectedRowIndices || emptyArr;
-  const tableSizes = TABLE_SIZES[props.compactMode || CompactModeTypes.DEFAULT];
   const tableWrapperRef = useRef<HTMLDivElement | null>(null);
   const scrollBarRef = useRef<SimpleBar | null>(null);
   const tableHeaderWrapperRef = React.createRef<HTMLDivElement>();

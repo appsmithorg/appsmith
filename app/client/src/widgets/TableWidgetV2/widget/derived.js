@@ -150,44 +150,79 @@ export default {
     return indices.map((index) => _.omit(rows[index], keysToBeOmitted));
   },
   //
-  getPageSize: (props, moment, _) => {
-    const TABLE_SIZES = {
+  getTableDimensions: (props, moment, _) => {
+    const tableDimensionMode = props.compactMode || "DEFAULT";
+
+    return {
       DEFAULT: {
         COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
+        TABLE_HEADER_HEIGHT: 40,
         ROW_HEIGHT: 40,
         ROW_FONT_SIZE: 14,
         VERTICAL_PADDING: 6,
+        VERTICAL_EDITOR_PADDING: 0,
         EDIT_ICON_TOP: 10,
+        ROW_VIRTUAL_OFFSET: 0,
+        EDITABLE_CELL_HEIGHT: 30,
       },
       SHORT: {
         COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
+        TABLE_HEADER_HEIGHT: 40,
         ROW_HEIGHT: 30,
         ROW_FONT_SIZE: 12,
         VERTICAL_PADDING: 0,
+        VERTICAL_EDITOR_PADDING: 0,
         EDIT_ICON_TOP: 5,
+        ROW_VIRTUAL_OFFSET: 0,
+        EDITABLE_CELL_HEIGHT: 20,
       },
       TALL: {
         COLUMN_HEADER_HEIGHT: 32,
-        TABLE_HEADER_HEIGHT: 38,
+        TABLE_HEADER_HEIGHT: 40,
         ROW_HEIGHT: 60,
         ROW_FONT_SIZE: 18,
         VERTICAL_PADDING: 16,
+        VERTICAL_EDITOR_PADDING: 16,
         EDIT_ICON_TOP: 21,
+        ROW_VIRTUAL_OFFSET: 0,
+        EDITABLE_CELL_HEIGHT: 30,
       },
-    };
-    const compactMode = props.compactMode || "DEFAULT";
+    }[tableDimensionMode];
+  },
+  //
+  getTableBodyHeight: (props, moment, _) => {
     const componentHeight = props.componentHeight - 10;
-    const tableSizes = TABLE_SIZES[compactMode];
+    const tableDimensions = props.originalTableDimensions;
 
+    return (
+      componentHeight -
+      tableDimensions.TABLE_HEADER_HEIGHT -
+      tableDimensions.COLUMN_HEADER_HEIGHT
+    );
+  },
+  //
+  getPageSize: (props, moment, _) => {
     let pageSize =
-      (componentHeight -
-        tableSizes.TABLE_HEADER_HEIGHT -
-        tableSizes.COLUMN_HEADER_HEIGHT) /
-      tableSizes.ROW_HEIGHT;
+      props.tableBodyHeight / props.originalTableDimensions.ROW_HEIGHT;
 
-    return pageSize % 1 > 0.3 ? Math.ceil(pageSize) : Math.floor(pageSize);
+    return Math.floor(pageSize);
+  },
+  //
+  getUpdatedTableDimensions: (props, moment, _) => {
+    const ROW_HEIGHT = props.originalTableDimensions.ROW_HEIGHT;
+
+    const pageSize = props.pageSize;
+
+    const occupiedTableBodyHeight = pageSize * ROW_HEIGHT;
+
+    const RemainingSpace = props.tableBodyHeight - occupiedTableBodyHeight;
+
+    const rowHeightOffset = RemainingSpace / pageSize;
+
+    return {
+      ...props.originalTableDimensions,
+      ROW_HEIGHT: ROW_HEIGHT + rowHeightOffset,
+    };
   },
   //
   getProcessedTableData: (props, moment, _) => {

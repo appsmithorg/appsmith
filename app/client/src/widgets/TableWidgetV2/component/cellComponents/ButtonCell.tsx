@@ -1,14 +1,17 @@
-import React, { memo } from "react";
+import React, { memo, useContext } from "react";
 
 import { CellWrapper } from "../TableStyledWrappers";
-import type { BaseCellComponentProps } from "../Constants";
-import { TABLE_SIZES } from "../Constants";
+import type { BaseCellComponentProps, TableSizes } from "../Constants";
 import { Button } from "./Button";
 import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import styled from "styled-components";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
-const StyledButton = styled(Button)<{ compactMode: string }>`
-  max-height: ${(props) => TABLE_SIZES[props.compactMode].ROW_HEIGHT}px;
+const StyledButton = styled(Button)<{
+  compactMode: string;
+  tableDimensions: TableSizes;
+}>`
+  max-height: ${(props) => props.tableDimensions.ROW_HEIGHT}px;
 `;
 
 export interface RenderActionProps extends BaseCellComponentProps {
@@ -37,6 +40,8 @@ function ButtonCellComponent(props: RenderActionProps) {
     verticalAlignment,
   } = props;
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   if (!columnActions)
     return (
       <CellWrapper
@@ -48,6 +53,7 @@ function ButtonCellComponent(props: RenderActionProps) {
         isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        tableDimensions={tableDimensions}
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
@@ -64,6 +70,7 @@ function ButtonCellComponent(props: RenderActionProps) {
       isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      tableDimensions={tableDimensions}
       textColor={textColor}
       textSize={textSize}
       verticalAlignment={verticalAlignment}
@@ -78,6 +85,7 @@ function ButtonCellComponent(props: RenderActionProps) {
             isSelected={isSelected}
             key={action.id}
             onCommandClick={onCommandClick}
+            tableDimensions={tableDimensions}
           />
         );
       })}

@@ -1,8 +1,9 @@
-import React from "react";
+import React, { useContext } from "react";
 import { isString, noop } from "lodash";
 
 import { CellWrapper } from "../TableStyledWrappers";
 import type { BaseCellComponentProps, ImageSize } from "../Constants";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 /*
  * Function to split the CSV of image url's
@@ -47,6 +48,8 @@ export function ImageCell(props: renderImageType) {
     verticalAlignment,
   } = props;
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   if (!value) {
     return (
       <CellWrapper
@@ -59,6 +62,7 @@ export function ImageCell(props: renderImageType) {
         isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        tableDimensions={tableDimensions}
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
@@ -76,6 +80,7 @@ export function ImageCell(props: renderImageType) {
         isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        tableDimensions={tableDimensions}
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
@@ -99,6 +104,7 @@ export function ImageCell(props: renderImageType) {
       isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      tableDimensions={tableDimensions}
       textColor={textColor}
       textSize={textSize}
       verticalAlignment={verticalAlignment}

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useContext, useState } from "react";
 
 import type { ColumnAction } from "components/propertyControls/ColumnActionSelectorControl";
 import type { IconName } from "@blueprintjs/icons";
@@ -6,6 +6,7 @@ import type { ButtonVariant } from "components/constants";
 import type { BaseCellComponentProps } from "../Constants";
 import { CellWrapper, IconButtonWrapper } from "../TableStyledWrappers";
 import { StyledButton } from "widgets/IconButtonWidget/component";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 interface RenderIconButtonProps extends BaseCellComponentProps {
   isSelected: boolean;
@@ -96,6 +97,8 @@ export function IconButtonCell(props: RenderIconButtonProps) {
     verticalAlignment,
   } = props;
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   if (!columnActions)
     return (
       <CellWrapper
@@ -105,6 +108,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
         horizontalAlignment={horizontalAlignment}
         isCellDisabled={isCellDisabled}
         isHidden={isHidden}
+        tableDimensions={tableDimensions}
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
@@ -121,6 +125,7 @@ export function IconButtonCell(props: RenderIconButtonProps) {
       isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      tableDimensions={tableDimensions}
       textColor={textColor}
       textSize={textSize}
       verticalAlignment={verticalAlignment}

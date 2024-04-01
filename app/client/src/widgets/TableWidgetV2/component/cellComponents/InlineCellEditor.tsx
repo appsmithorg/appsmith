@@ -2,6 +2,7 @@ import { Colors } from "constants/Colors";
 import { isNil } from "lodash";
 import React, {
   useCallback,
+  useContext,
   useLayoutEffect,
   useMemo,
   useRef,
@@ -12,8 +13,8 @@ import type { InputHTMLType } from "widgets/BaseInputWidget/component";
 import BaseInputComponent from "widgets/BaseInputWidget/component";
 import { InputTypes } from "widgets/BaseInputWidget/constants";
 import type { EditableCell } from "widgets/TableWidgetV2/constants";
-import type { VerticalAlignment } from "../Constants";
-import { EDITABLE_CELL_PADDING_OFFSET, TABLE_SIZES } from "../Constants";
+import type { TableSizes, VerticalAlignment } from "../Constants";
+import { EDITABLE_CELL_PADDING_OFFSET } from "../Constants";
 import {
   getLocaleDecimalSeperator,
   getLocaleThousandSeparator,
@@ -21,6 +22,7 @@ import {
 import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
 import * as Sentry from "@sentry/react";
 import { getLocale } from "utils/helpers";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 const FOCUS_CLASS = "has-focus";
 
@@ -32,6 +34,7 @@ const Wrapper = styled.div<{
   textSize?: string;
   isEditableCellValid: boolean;
   paddedInput: boolean;
+  tableDimensions: TableSizes;
 }>`
   padding: 1px;
   border: 1px solid
@@ -53,11 +56,8 @@ const Wrapper = styled.div<{
         : "100%";
     } else {
       return props.paddedInput
-        ? `${
-            TABLE_SIZES[props.compactMode].ROW_HEIGHT -
-            EDITABLE_CELL_PADDING_OFFSET
-          }px`
-        : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`;
+        ? `${props.tableDimensions.ROW_HEIGHT - EDITABLE_CELL_PADDING_OFFSET}px`
+        : `${props.tableDimensions.ROW_HEIGHT}px`;
     }
   }};
   ${(props) => {
@@ -68,7 +68,7 @@ const Wrapper = styled.div<{
         return `bottom: 0;`;
       case "CENTER":
         return `
-          top: calc(50% - (${TABLE_SIZES[props.compactMode].ROW_HEIGHT}/2)px);
+          top: calc(50% - (${props.tableDimensions.ROW_HEIGHT}/2)px);
         `;
     }
   }}
@@ -83,17 +83,14 @@ const Wrapper = styled.div<{
        */
       box-shadow: none !important;
       padding: 0px 5px 0px 6px;
-      height: ${(props) =>
-        TABLE_SIZES[props.compactMode].EDITABLE_CELL_HEIGHT}px;
-      min-height: ${(props) =>
-        TABLE_SIZES[props.compactMode].EDITABLE_CELL_HEIGHT}px;
+      height: ${(props) => props.tableDimensions.EDITABLE_CELL_HEIGHT}px;
+      min-height: ${(props) => props.tableDimensions.EDITABLE_CELL_HEIGHT}px;
       font-size: ${(props) => props.textSize};
     }
 
     .currency-change-dropdown-trigger {
       border: none;
-      height: ${(props) =>
-        TABLE_SIZES[props.compactMode].EDITABLE_CELL_HEIGHT}px;
+      height: ${(props) => props.tableDimensions.EDITABLE_CELL_HEIGHT}px;
       padding: 0 0 0 5px;
       margin-right: 0;
     }
@@ -106,8 +103,7 @@ const Wrapper = styled.div<{
       &,
       &:focus {
         line-height: 28px;
-        padding: ${(props) =>
-            TABLE_SIZES[props.compactMode].VERTICAL_EDITOR_PADDING}px
+        padding: ${(props) => props.tableDimensions.VERTICAL_EDITOR_PADDING}px
           6px 0px 6px;
       }
     }
@@ -267,6 +263,8 @@ export function InlineCellEditor({
     }
   }, [value]);
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   return (
     <Wrapper
       accentColor={accentColor}
@@ -277,6 +275,7 @@ export function InlineCellEditor({
       compactMode={compactMode}
       isEditableCellValid={isEditableCellValid}
       paddedInput
+      tableDimensions={tableDimensions}
       textSize={textSize}
       verticalAlignment={verticalAlignment}
     >

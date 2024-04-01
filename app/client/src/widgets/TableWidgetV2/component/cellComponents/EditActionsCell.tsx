@@ -1,10 +1,11 @@
-import React, { memo } from "react";
+import React, { memo, useContext } from "react";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ButtonColumnActions } from "widgets/TableWidgetV2/constants";
 import { EditableCellActions } from "widgets/TableWidgetV2/constants";
 import { Button } from "./Button";
 import type { BaseCellComponentProps } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 type RenderEditActionsProps = BaseCellComponentProps & {
   isSelected: boolean;
@@ -36,6 +37,8 @@ function EditActionCellComponent(props: RenderEditActionsProps) {
     verticalAlignment,
   } = props;
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   if (!columnActions) {
     return (
       <CellWrapper
@@ -47,6 +50,7 @@ function EditActionCellComponent(props: RenderEditActionsProps) {
         isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        tableDimensions={tableDimensions}
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
@@ -64,6 +68,7 @@ function EditActionCellComponent(props: RenderEditActionsProps) {
       isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}
       isHidden={isHidden}
+      tableDimensions={tableDimensions}
       verticalAlignment={verticalAlignment}
     >
       {columnActions.map((action: ButtonColumnActions) => {

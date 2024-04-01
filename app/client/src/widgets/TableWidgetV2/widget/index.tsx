@@ -33,6 +33,7 @@ import type {
   ColumnProperties,
   ReactTableColumnProps,
   ReactTableFilter,
+  TableSizes,
 } from "../component/Constants";
 import {
   AddNewRowActions,
@@ -139,6 +140,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { memoize } from "WidgetProvider/factory/decorators";
 
 const ReactTableComponent = lazy(async () =>
   retryPromise(async () => import("../component")),
@@ -159,6 +161,22 @@ const getMemoisedAddNewRow = (): addNewRowToTable =>
     }
     return tableData;
   });
+
+export const TableContext = React.createContext<{
+  tableDimensions: TableSizes;
+}>({
+  tableDimensions: {
+    COLUMN_HEADER_HEIGHT: 32,
+    TABLE_HEADER_HEIGHT: 40,
+    ROW_HEIGHT: 40,
+    ROW_FONT_SIZE: 14,
+    VERTICAL_PADDING: 6,
+    VERTICAL_EDITOR_PADDING: 0,
+    EDIT_ICON_TOP: 10,
+    ROW_VIRTUAL_OFFSET: 0,
+    EDITABLE_CELL_HEIGHT: 30,
+  },
+});
 
 class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
   inlineEditTimer: number | null = null;
@@ -492,6 +510,9 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       pageOffset: `{{(()=>{${derivedProperties.getPageOffset}})()}}`,
       isEditableCellsValid: `{{(()=>{ ${derivedProperties.getEditableCellValidity}})()}}`,
       tableHeaders: `{{(()=>{${derivedProperties.getTableHeaders}})()}}`,
+      tableBodyHeight: `{{(()=>{${derivedProperties.getTableBodyHeight}})()}}`,
+      originalTableDimensions: `{{(()=>{${derivedProperties.getTableDimensions}})()}}`,
+      tableDimensions: `{{(()=>{${derivedProperties.getUpdatedTableDimensions}})()}}`,
     };
   }
 
@@ -1196,6 +1217,13 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     return { componentHeight, componentWidth };
   };
 
+  @memoize
+  getTableContextValue(tableDimensions: TableSizes) {
+    return {
+      tableDimensions,
+    };
+  }
+
   getWidgetView() {
     const {
       delimiter,
@@ -1226,82 +1254,88 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
     );
 
     return (
-      <Suspense fallback={<Skeleton />}>
-        <ReactTableComponent
-          accentColor={this.props.accentColor}
-          allowAddNewRow={this.props.allowAddNewRow}
-          allowRowSelection={!this.props.isAddRowInProgress}
-          allowSorting={!this.props.isAddRowInProgress}
-          applyFilter={this.updateFilters}
-          borderColor={this.props.borderColor}
-          borderRadius={this.props.borderRadius}
-          borderWidth={this.props.borderWidth}
-          boxShadow={this.props.boxShadow}
-          canFreezeColumn={this.props.canFreezeColumn}
-          columnWidthMap={this.props.columnWidthMap}
-          columns={tableColumns}
-          compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
-          delimiter={delimiter}
-          disableDrag={this.toggleDrag}
-          disabledAddNewRowSave={this.hasInvalidColumnCell()}
-          editMode={this.props.renderMode === RenderModes.CANVAS}
-          editableCell={this.props.editableCell}
-          filters={this.props.filters}
-          handleColumnFreeze={this.handleColumnFreeze}
-          handleReorderColumn={this.handleReorderColumn}
-          handleResizeColumn={this.handleResizeColumn}
-          height={componentHeight}
-          isAddRowInProgress={this.props.isAddRowInProgress}
-          isEditableCellsValid={this.props.isEditableCellsValid}
-          isLoading={this.props.isLoading}
-          isSortable={this.props.isSortable ?? true}
-          isVisibleDownload={isVisibleDownload}
-          isVisibleFilters={isVisibleFilters}
-          isVisiblePagination={isVisiblePagination}
-          isVisibleSearch={isVisibleSearch}
-          multiRowSelection={
-            this.props.multiRowSelection && !this.props.isAddRowInProgress
-          }
-          nextPageClick={this.handleNextPageClick}
-          onAddNewRow={this.handleAddNewRowClick}
-          onAddNewRowAction={this.handleAddNewRowAction}
-          onBulkEditDiscard={this.onBulkEditDiscard}
-          onBulkEditSave={this.onBulkEditSave}
-          onConnectData={this.onConnectData}
-          onRowClick={this.handleRowClick}
-          pageNo={this.props.pageNo}
-          pageSize={
-            isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
-          }
-          prevPageClick={this.handlePrevPageClick}
-          primaryColumnId={this.props.primaryColumnId}
-          searchKey={this.props.searchText}
-          searchTableData={this.handleSearchTable}
-          selectAllRow={this.handleAllRowSelect}
-          selectedRowIndex={
-            this.props.selectedRowIndex === undefined
-              ? -1
-              : this.props.selectedRowIndex
-          }
-          selectedRowIndices={this.getSelectedRowIndices()}
-          serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
-          showConnectDataOverlay={
-            primaryColumns &&
-            !Object.keys(primaryColumns).length &&
-            this.props.renderMode === RenderModes.CANVAS
-          }
-          sortTableColumn={this.handleColumnSorting}
-          tableData={finalTableData}
-          totalRecordsCount={totalRecordsCount}
-          triggerRowSelection={this.props.triggerRowSelection}
-          unSelectAllRow={this.unSelectAllRow}
-          updatePageNo={this.updatePageNumber}
-          variant={this.props.variant}
-          widgetId={this.props.widgetId}
-          widgetName={this.props.widgetName}
-          width={componentWidth}
-        />
-      </Suspense>
+      <TableContext.Provider
+        value={this.getTableContextValue(this.props.tableDimensions)}
+      >
+        <Suspense fallback={<Skeleton />}>
+          <ReactTableComponent
+            accentColor={this.props.accentColor}
+            allowAddNewRow={this.props.allowAddNewRow}
+            allowRowSelection={!this.props.isAddRowInProgress}
+            allowSorting={!this.props.isAddRowInProgress}
+            applyFilter={this.updateFilters}
+            borderColor={this.props.borderColor}
+            borderRadius={this.props.borderRadius}
+            borderWidth={this.props.borderWidth}
+            boxShadow={this.props.boxShadow}
+            canFreezeColumn={this.props.canFreezeColumn}
+            columnWidthMap={this.props.columnWidthMap}
+            columns={tableColumns}
+            compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
+            delimiter={delimiter}
+            disableDrag={this.toggleDrag}
+            disabledAddNewRowSave={this.hasInvalidColumnCell()}
+            editMode={this.props.renderMode === RenderModes.CANVAS}
+            editableCell={this.props.editableCell}
+            filters={this.props.filters}
+            handleColumnFreeze={this.handleColumnFreeze}
+            handleReorderColumn={this.handleReorderColumn}
+            handleResizeColumn={this.handleResizeColumn}
+            height={componentHeight}
+            isAddRowInProgress={this.props.isAddRowInProgress}
+            isEditableCellsValid={this.props.isEditableCellsValid}
+            isLoading={this.props.isLoading}
+            isSortable={this.props.isSortable ?? true}
+            isVisibleDownload={isVisibleDownload}
+            isVisibleFilters={isVisibleFilters}
+            isVisiblePagination={isVisiblePagination}
+            isVisibleSearch={isVisibleSearch}
+            multiRowSelection={
+              this.props.multiRowSelection && !this.props.isAddRowInProgress
+            }
+            nextPageClick={this.handleNextPageClick}
+            onAddNewRow={this.handleAddNewRowClick}
+            onAddNewRowAction={this.handleAddNewRowAction}
+            onBulkEditDiscard={this.onBulkEditDiscard}
+            onBulkEditSave={this.onBulkEditSave}
+            onConnectData={this.onConnectData}
+            onRowClick={this.handleRowClick}
+            pageNo={this.props.pageNo}
+            pageSize={
+              isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
+            }
+            prevPageClick={this.handlePrevPageClick}
+            primaryColumnId={this.props.primaryColumnId}
+            searchKey={this.props.searchText}
+            searchTableData={this.handleSearchTable}
+            selectAllRow={this.handleAllRowSelect}
+            selectedRowIndex={
+              this.props.selectedRowIndex === undefined
+                ? -1
+                : this.props.selectedRowIndex
+            }
+            selectedRowIndices={this.getSelectedRowIndices()}
+            serverSidePaginationEnabled={
+              !!this.props.serverSidePaginationEnabled
+            }
+            showConnectDataOverlay={
+              primaryColumns &&
+              !Object.keys(primaryColumns).length &&
+              this.props.renderMode === RenderModes.CANVAS
+            }
+            sortTableColumn={this.handleColumnSorting}
+            tableData={finalTableData}
+            totalRecordsCount={totalRecordsCount}
+            triggerRowSelection={this.props.triggerRowSelection}
+            unSelectAllRow={this.unSelectAllRow}
+            updatePageNo={this.updatePageNumber}
+            variant={this.props.variant}
+            widgetId={this.props.widgetId}
+            widgetName={this.props.widgetName}
+            width={componentWidth}
+          />
+        </Suspense>
+      </TableContext.Provider>
     );
   }
 
@@ -1893,7 +1927,7 @@ class TableWidgetV2 extends BaseWidget<TableWidgetProps, WidgetState> {
       rowIndex === 0 &&
       ActionColumnTypes.includes(column.columnType)
     ) {
-      return <CellWrapper />;
+      return <CellWrapper tableDimensions={this.props.tableDimensions} />;
     }
 
     const isHidden = !column.isVisible;

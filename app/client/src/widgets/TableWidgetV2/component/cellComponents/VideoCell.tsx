@@ -1,10 +1,11 @@
-import React from "react";
+import React, { useContext } from "react";
 
 import type { BaseCellComponentProps } from "../Constants";
 import { CellWrapper } from "../TableStyledWrappers";
 import PopoverVideo from "widgets/VideoWidget/component/PopoverVideo";
 import { isString } from "lodash";
 import { YOUTUBE_URL_REGEX } from "WidgetProvider/constants";
+import { TableContext } from "widgets/TableWidgetV2/widget";
 
 type renderCellType = BaseCellComponentProps & {
   value: unknown;
@@ -26,6 +27,8 @@ export const VideoCell = (props: renderCellType) => {
     verticalAlignment,
   } = props;
 
+  const tableDimensions = useContext(TableContext).tableDimensions;
+
   if (!value) {
     return (
       <CellWrapper
@@ -37,6 +40,7 @@ export const VideoCell = (props: renderCellType) => {
         isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        tableDimensions={tableDimensions}
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
@@ -54,6 +58,7 @@ export const VideoCell = (props: renderCellType) => {
         isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        tableDimensions={tableDimensions}
         textColor={textColor}
         textSize={textSize}
         verticalAlignment={verticalAlignment}
@@ -70,6 +75,7 @@ export const VideoCell = (props: renderCellType) => {
         isCellDisabled={isCellDisabled}
         isCellVisible={isCellVisible}
         isHidden={isHidden}
+        tableDimensions={tableDimensions}
         verticalAlignment={verticalAlignment}
       >
         Invalid Video Link

@@ -4,7 +4,7 @@ import { HeaderCell } from "../cellComponents/HeaderCell";
 import type { ReactTableColumnProps } from "../Constants";
 import { StickyType } from "../Constants";
 import type { Row as ReactTableRowType } from "react-table";
-import { renderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
+import { RenderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import styled from "styled-components";
 
@@ -76,13 +76,14 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
             headerWidth={props.headerWidth}
             key={index}
           >
-            {props.multiRowSelection &&
-              renderHeaderCheckBoxCell(
-                props.handleAllRowSelectClick,
-                props.rowSelectionState,
-                props.accentColor,
-                props.borderRadius,
-              )}
+            {props.multiRowSelection && (
+              <RenderHeaderCheckBoxCell
+                accentColor={props.accentColor}
+                borderRadius={props.borderRadius}
+                checkState={props.rowSelectionState}
+                onClick={props.handleAllRowSelectClick}
+              />
+            )}
 
             {headerGroup.headers.map((column: any, columnIndex: number) => {
               const stickyRightModifier = !column.isHidden
