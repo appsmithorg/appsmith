@@ -3,10 +3,10 @@ import React from "react";
 import styled from "styled-components";
 import { generateClassName } from "utils/generators";
 import type { Elevations } from "./constants";
-import { Icon } from "design-system";
-import { getIsEditorOpen } from "layoutSystems/anvil/integrations/onCanvasUISelectors";
-import { useSelector } from "react-redux";
-import { isWidgetSelected } from "selectors/widgetSelectors";
+// import { Icon } from "design-system";
+// import { getIsEditorOpen } from "layoutSystems/anvil/integrations/onCanvasUISelectors";
+// import { useSelector } from "react-redux";
+// import { isWidgetSelected } from "selectors/widgetSelectors";
 
 /**
  * This container component wraps the Zone and Section widgets and allows Anvil to utilise tokens from the themes
@@ -43,49 +43,49 @@ const StyledContainerComponent = styled.div<
   }}
 `;
 
-const DragHandleBlock = styled.div<{ $highlight: boolean }>`
-  cursor: grab;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 30px;
-  height: 20px;
-  z-index: 1;
-  background: ${(props) =>
-    !props.$highlight
-      ? "var(--ads-section-focus)"
-      : "var(--ads-section-selection)"};
-  border-radius: var(--border-radius-1);
-  position: absolute;
-  top: 10px;
-  left: -25px;
-  pointer-events: auto;
-  border-end-end-radius: var(--ads-radius-1);
-  border-end-start-radius: var(--ads-radius-1);
-  transform: rotate(90deg);
-  & svg path:last-child {
-    fill: var(--ads-section-focus);
-  }
+// const DragHandleBlock = styled.div<{ $highlight: boolean }>`
+//   cursor: grab;
+//   display: flex;
+//   align-items: center;
+//   justify-content: center;
+//   width: 30px;
+//   height: 20px;
+//   z-index: 1;
+//   background: ${(props) =>
+//     !props.$highlight
+//       ? "var(--ads-section-focus)"
+//       : "var(--ads-section-selection)"};
+//   border-radius: var(--border-radius-1);
+//   position: absolute;
+//   top: 10px;
+//   left: -25px;
+//   pointer-events: auto;
+//   border-end-end-radius: var(--ads-radius-1);
+//   border-end-start-radius: var(--ads-radius-1);
+//   transform: rotate(90deg);
+//   & svg path:last-child {
+//     fill: var(--ads-section-focus);
+//   }
 
-  :hover {
-    background: var(--ads-section-selection);
-  }
-`;
+//   :hover {
+//     background: var(--ads-section-selection);
+//   }
+// `;
 
-function DragHandle(props: { highlight: boolean }) {
-  return (
-    <DragHandleBlock $highlight={props.highlight} className="drag-handle-block">
-      <Icon name="drag-handle" size="lg" />
-    </DragHandleBlock>
-  );
-}
+// function DragHandle(props: { highlight: boolean }) {
+//   return (
+//     <DragHandleBlock $highlight={props.highlight} className="drag-handle-block">
+//       <Icon name="drag-handle" size="lg" />
+//     </DragHandleBlock>
+//   );
+// }
 
 export function ContainerComponent(props: ContainerComponentProps) {
-  const isEditor = useSelector(getIsEditorOpen);
-  const isSelected = useSelector(isWidgetSelected(props.widgetId));
+  // const isEditor = useSelector(getIsEditorOpen);
+  // const isSelected = useSelector(isWidgetSelected(props.widgetId));
   return (
     <>
-      {props.attachHandle && isEditor && <DragHandle highlight={isSelected} />}
+      {/* {props.attachHandle && isEditor && <DragHandle highlight={isSelected} />} */}
       <StyledContainerComponent
         className={`${generateClassName(props.widgetId)}`}
         data-elevation={props.elevatedBackground}

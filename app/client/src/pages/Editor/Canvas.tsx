@@ -35,13 +35,15 @@ const Wrapper = styled.section<{
   background: string;
   width: number;
   $enableMainCanvasResizer: boolean;
+  $padBackground: boolean;
 }>`
   flex: 1;
   background: ${({ background }) => background};
   width: ${({ $enableMainCanvasResizer, width }) =>
     $enableMainCanvasResizer ? `100%` : `${width}px`};
-  padding-inline-start: 25px;
-`;
+//   padding-inline-start: ${({ $padBackground }) =>
+//     $padBackground ? "25px" : "0px"};
+// `;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
@@ -88,6 +90,7 @@ const Canvas = (props: CanvasProps) => {
       <CodeModeTooltip>
         <Wrapper
           $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
+          $padBackground={!isPreviewMode}
           background={isWDSEnabled ? "" : backgroundForCanvas}
           className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
