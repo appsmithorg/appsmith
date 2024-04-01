@@ -653,10 +653,20 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             isRequired: false,
           })}
         </FormInputContainer>
-        {/* Moved the expires_in field here right after scopeString field 
+        {/* Moved the expiresIn field here right after scopeString field 
         so that users can find it together */}
-        { isGrantTypeAuthorizationCode && this.renderOauth2ExpiresInSeconds }
-        
+        { isGrantTypeAuthorizationCode && 
+          (<FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
+              {this.renderInputTextControlViaFormControl({
+                  configProperty: "authentication.expiresIn",
+                  label: "Authorization expires in (seconds)",
+                  placeholderText: "3600",
+                  dataType: "NUMBER",
+                  encrypted: false,
+                  isRequired: false,
+              })}
+          </FormInputContainer>)
+        }
         <FormInputContainer data-location-id={btoa("authentication.isAuthorizationHeader")}>
           {this.renderDropdownControlViaFormControl(
             "authentication.isAuthorizationHeader",
@@ -791,23 +801,6 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
       <>
         {this.renderOauth2Common()}
         {this.renderOauth2CommonAdvanced()}
-      </>
-    );
-  };
-
-  renderOauth2ExpiresInSeconds = () => {
-    return (
-      <>
-        <FormInputContainer data-location-id={btoa("authentication.expiresIn")}>
-                {this.renderInputTextControlViaFormControl({
-                    configProperty: "authentication.expiresIn",
-                    label: "Authorization expires in (seconds)",
-                    placeholderText: "3600",
-                    dataType: "NUMBER",
-                    encrypted: false,
-                    isRequired: false,
-                })}
-        </FormInputContainer>
       </>
     );
   };
