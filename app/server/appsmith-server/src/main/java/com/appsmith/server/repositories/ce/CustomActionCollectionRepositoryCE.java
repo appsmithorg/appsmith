@@ -36,17 +36,9 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
     Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission);
 
-    Mono<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission);
-
-    Flux<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission);
-
-    Mono<ActionCollection> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
+    Flux<ActionCollection> findByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
     Flux<ActionCollection> findByPageIds(List<String> pageIds, AclPermission permission);
-
-    Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
 
     Flux<ActionCollection> findAllByApplicationIds(List<String> applicationIds, List<String> includeFields);
 

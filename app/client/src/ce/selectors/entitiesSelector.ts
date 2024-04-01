@@ -94,6 +94,8 @@ export interface NewEntityNameOptions {
   prefix: string;
   parentEntityId: string;
   parentEntityKey: CreateNewActionKeyInterface;
+  suffix?: string;
+  startWithoutIndex?: boolean;
 }
 
 export type DatasourceGroupByPluginCategory = Record<
@@ -1462,7 +1464,13 @@ export const getNewEntityName = createSelector(
   getJSCollections,
   (_state: AppState, options: NewEntityNameOptions) => options,
   (actions, jsCollections, options) => {
-    const { parentEntityId, parentEntityKey, prefix } = options;
+    const {
+      parentEntityId,
+      parentEntityKey,
+      prefix,
+      startWithoutIndex = false,
+      suffix = "",
+    } = options;
 
     const actionNames = actions
       .filter((a) => a.config[parentEntityKey] === parentEntityId)
@@ -1471,7 +1479,15 @@ export const getNewEntityName = createSelector(
       .filter((a) => a.config[parentEntityKey] === parentEntityId)
       .map((a) => a.config.name);
 
-    return getNextEntityName(prefix, actionNames.concat(jsActionNames));
+    const entityNames = actionNames.concat(jsActionNames);
+
+    const prefixExists = entityNames.indexOf(`${prefix}`) > -1;
+
+    return getNextEntityName(
+      prefixExists ? `${prefix}${suffix}` : prefix,
+      entityNames,
+      startWithoutIndex,
+    );
   },
 );
 

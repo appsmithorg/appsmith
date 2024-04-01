@@ -97,7 +97,12 @@ export function evalTree(request: EvalWorkerSyncRequest) {
         "setupFirstTree",
         { description: "during initialisation" },
         webworkerTelemetry,
-        () => dataTreeEvaluator?.setupFirstTree(unevalTree, configTree),
+        () =>
+          dataTreeEvaluator?.setupFirstTree(
+            unevalTree,
+            configTree,
+            webworkerTelemetry,
+          ),
       );
 
       evalOrder = setupFirstTreeResponse.evalOrder;
@@ -171,7 +176,12 @@ export function evalTree(request: EvalWorkerSyncRequest) {
         "setupUpdateTree",
         undefined,
         webworkerTelemetry,
-        () => dataTreeEvaluator?.setupUpdateTree(unevalTree, configTree),
+        () =>
+          dataTreeEvaluator?.setupUpdateTree(
+            unevalTree,
+            configTree,
+            webworkerTelemetry,
+          ),
       );
 
       evalOrder = setupUpdateTreeResponse.evalOrder;

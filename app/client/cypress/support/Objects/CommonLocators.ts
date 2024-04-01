@@ -312,11 +312,12 @@ export class CommonLocators {
     `.uppy-Informer p:contains('${msg}')`;
   _fileUploadAddMore = ".uppy-DashboardContent-addMore";
   _buttonText = ".bp3-button-text";
-  _richText_TitleBlock = "[title='Blocks']";
-  _richText_Heading = "[title='Heading 1']";
+  _richText_TitleBlock = "[data-mce-name='blocks']";
+  _richText_Heading = "[aria-label='Heading 1']";
   _richText_Label_Text = ".tox-tbtn__select-label";
-  _richText_Text_Color = '[title="Text color"] .tox-split-button__chevron';
-  _richText_color = (value: string) => `[title='${value}']`;
+  _richText_Text_Color =
+    '[data-mce-name="forecolor"] .tox-split-button__chevron';
+  _richText_color = (value: string) => `[data-mce-name="${value}"]`;
   _richText_line = "#tinymce p span";
   _treeSelectedContent = ".rc-tree-select-selection-item-content";
   _switcherIcon = ".switcher-icon";
@@ -327,4 +328,5 @@ export class CommonLocators {
   _dashboardContainer = ".application-demo-new-dashboard-container";
   _exitFullScreen = ".application-demo-new-dashboard-control-exit-fullscreen";
   _menuItem = ".bp3-menu-item";
+  _slashCommandHintText = ".slash-command-hint-text";
 }
