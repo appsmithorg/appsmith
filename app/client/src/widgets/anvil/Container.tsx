@@ -50,7 +50,7 @@ const DragHandleBlock = styled.div<{ $highlight: boolean }>`
   justify-content: center;
   width: 30px;
   height: 20px;
-  z-index: -1;
+  z-index: 1;
   background: ${(props) =>
     !props.$highlight
       ? "var(--ads-section-focus)"
@@ -63,7 +63,6 @@ const DragHandleBlock = styled.div<{ $highlight: boolean }>`
   border-end-end-radius: var(--ads-radius-1);
   border-end-start-radius: var(--ads-radius-1);
   transform: rotate(90deg);
-  ${(props) => (props.$highlight ? "z-index: 1;" : "")}
   & svg path:last-child {
     fill: var(--ads-section-focus);
   }
