@@ -32,7 +32,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Autowired
     public CustomApplicationRepositoryCEImpl(
             CacheableRepositoryHelper cacheableRepositoryHelper, ApplicationPermission applicationPermission) {
-        super(cacheableRepositoryHelper);
+        super();
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.applicationPermission = applicationPermission;
     }

@@ -17,6 +17,6 @@ public class CustomWorkspaceRepositoryImpl extends CustomWorkspaceRepositoryCEIm
             MongoConverter mongoConverter,
             SessionUserService sessionUserService,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(sessionUserService, cacheableRepositoryHelper);
+        super(sessionUserService);
     }
 }

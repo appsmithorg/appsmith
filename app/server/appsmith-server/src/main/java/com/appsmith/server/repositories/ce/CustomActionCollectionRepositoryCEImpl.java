@@ -27,7 +27,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         implements CustomActionCollectionRepositoryCE {
 
     public CustomActionCollectionRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
+        super();
     }
 
     @Override

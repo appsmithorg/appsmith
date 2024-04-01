@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 public class CustomNewActionRepositoryImpl extends CustomNewActionRepositoryCEImpl
         implements CustomNewActionRepository {
 
-    public CustomNewActionRepositoryImpl(
-            ReactiveMongoOperations mongoOperations, CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, cacheableRepositoryHelper);
+    public CustomNewActionRepositoryImpl(ReactiveMongoOperations mongoOperations) {
+        super(mongoOperations);
     }
 }

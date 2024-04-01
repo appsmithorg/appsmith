@@ -4,7 +4,6 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import org.springframework.data.domain.Sort;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,10 +13,6 @@ import java.util.Set;
 
 public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Datasource>
         implements CustomDatasourceRepositoryCE {
-
-    public CustomDatasourceRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
 
     @Override
     public Flux<Datasource> findAllByWorkspaceId(String workspaceId, AclPermission permission) {

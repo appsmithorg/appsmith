@@ -5,9 +5,4 @@ import com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
-public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> extends BaseAppsmithRepositoryCEImpl<T> {
-
-    public BaseAppsmithRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-}
+public abstract class BaseAppsmithRepositoryImpl<T extends BaseDomain> extends BaseAppsmithRepositoryCEImpl<T> {}

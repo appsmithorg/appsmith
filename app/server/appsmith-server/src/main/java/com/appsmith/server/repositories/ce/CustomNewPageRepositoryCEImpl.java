@@ -9,7 +9,6 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -33,9 +32,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     private final MongoTemplate mongoTemplate;
 
-    public CustomNewPageRepositoryCEImpl(
-            CacheableRepositoryHelper cacheableRepositoryHelper, MongoTemplate mongoTemplate) {
-        super(cacheableRepositoryHelper);
+    public CustomNewPageRepositoryCEImpl(MongoTemplate mongoTemplate) {
+        super();
         this.mongoTemplate = mongoTemplate;
     }
 

@@ -22,8 +22,11 @@ import java.util.Set;
 public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositoryImpl<PermissionGroup>
         implements CustomPermissionGroupRepositoryCE {
 
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
+
     public CustomPermissionGroupRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
+        super();
+        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
     }
 
     @Override

@@ -72,17 +72,17 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     protected final Class<T> genericDomain;
 
     @Autowired
-    MongoConverter mongoConverter;
+    private MongoConverter mongoConverter;
 
-    protected final CacheableRepositoryHelper cacheableRepositoryHelper;
+    @Autowired
+    private CacheableRepositoryHelper cacheableRepositoryHelper;
 
     public static final int NO_RECORD_LIMIT = -1;
 
     public static final int NO_SKIP = 0;
 
     @SuppressWarnings("unchecked")
-    public BaseAppsmithRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
+    public BaseAppsmithRepositoryCEImpl() {
         this.genericDomain =
                 (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
     }

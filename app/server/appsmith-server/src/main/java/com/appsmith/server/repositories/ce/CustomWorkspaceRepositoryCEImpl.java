@@ -4,7 +4,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.services.SessionUserService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
@@ -19,9 +18,8 @@ public class CustomWorkspaceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     private final SessionUserService sessionUserService;
 
-    public CustomWorkspaceRepositoryCEImpl(
-            SessionUserService sessionUserService, CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
+    public CustomWorkspaceRepositoryCEImpl(SessionUserService sessionUserService) {
+        super();
         this.sessionUserService = sessionUserService;
     }
 

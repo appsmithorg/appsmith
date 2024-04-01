@@ -10,7 +10,6 @@ import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
@@ -43,9 +42,8 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     private final ReactiveMongoOperations mongoOperations;
 
-    public CustomNewActionRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations, CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
+    public CustomNewActionRepositoryCEImpl(ReactiveMongoOperations mongoOperations) {
+        super();
         this.mongoOperations = mongoOperations;
     }
 

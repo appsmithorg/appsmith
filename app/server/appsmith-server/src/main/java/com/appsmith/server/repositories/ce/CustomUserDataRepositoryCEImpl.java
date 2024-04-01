@@ -4,7 +4,6 @@ import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.mongodb.BasicDBObject;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
@@ -14,10 +13,6 @@ import java.util.List;
 
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {
-
-    public CustomUserDataRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
 
     @Override
     public Mono<Integer> saveReleaseNotesViewedVersion(String userId, String version) {
