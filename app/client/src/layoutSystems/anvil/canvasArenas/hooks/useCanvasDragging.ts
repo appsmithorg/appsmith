@@ -147,7 +147,7 @@ const renderBlocksOnCanvas = (
     ? 0
     : PADDING_FOR_HORIZONTAL_HIGHLIGHT;
   const verticalPadding = blockToRender.isVertical
-    ? PADDING_FOR_HORIZONTAL_HIGHLIGHT
+    ? PADDING_FOR_HORIZONTAL_HIGHLIGHT / 2
     : 0;
   roundRect(
     canvasCtx,
