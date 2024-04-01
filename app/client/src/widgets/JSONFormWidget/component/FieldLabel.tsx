@@ -82,6 +82,7 @@ const StyledRequiredMarker = styled.div`
 
 const StyledLabelText = styled.p<StyledLabelTextProps>`
   margin-bottom: 0;
+  white-space: nowrap;
   margin-right: ${({ isRequiredField }) =>
     isRequiredField ? LABEL_TEXT_MARGIN_RIGHT_WITH_REQUIRED : DEFAULT_GAP}px;
   color: ${({ color }) => color};
