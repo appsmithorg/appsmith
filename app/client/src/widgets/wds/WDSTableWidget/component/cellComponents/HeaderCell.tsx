@@ -1,76 +1,21 @@
 import React, { useCallback, useState, memo } from "react";
-import { MenuItem, Menu } from "@blueprintjs/core";
 
-import { Colors } from "constants/Colors";
-import styled from "styled-components";
-import { ControlIcons } from "icons/ControlIcons";
-import type { CellAlignment } from "../Constants";
-import {
-  HEADER_MENU_PORTAL_CLASS,
-  JUSTIFY_CONTENT,
-  MENU_CONTENT_CLASS,
-  MULTISELECT_CHECKBOX_WIDTH,
-  POPOVER_ITEMS_TEXT_MAP,
-  StickyType,
-} from "../Constants";
+import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
-import { Popover2 } from "@blueprintjs/popover2";
-import { MenuDivider } from "@design-system/widgets-old";
-import { importRemixIcon, importSvg } from "@design-system/widgets-old";
-import { CANVAS_ART_BOARD } from "constants/componentClassNameConstants";
-import { Icon, Text } from "@design-system/widgets";
+import { importRemixIcon } from "@design-system/widgets-old";
+import {
+  Flex,
+  Icon,
+  IconButton,
+  Item,
+  Menu,
+  MenuList,
+  Text,
+} from "@design-system/widgets";
 
 const Check = importRemixIcon(
   async () => import("remixicon-react/CheckFillIcon"),
 );
-const ArrowDownIcon = importRemixIcon(
-  async () => import("remixicon-react/ArrowDownSLineIcon"),
-);
-const EditIcon = importSvg(
-  async () => import("assets/icons/control/edit-variant1.svg"),
-);
-
-const AscendingIcon = styled(ControlIcons.SORT_CONTROL)`
-  padding: 0;
-  position: relative;
-  top: 3px;
-  cursor: pointer;
-  transform: rotate(180deg);
-  && svg {
-    path {
-      fill: ${Colors.LIGHT_GREYISH_BLUE};
-    }
-  }
-`;
-
-const DescendingIcon = styled(ControlIcons.SORT_CONTROL)`
-  padding: 0;
-  position: relative;
-  top: 3px;
-  cursor: pointer;
-  && svg {
-    path {
-      fill: ${Colors.LIGHT_GREYISH_BLUE};
-    }
-  }
-`;
-
-const ColumnNameContainer = styled.div<{
-  horizontalAlignment: CellAlignment;
-}>`
-  display: flex;
-  align-items: center;
-  justify-content: ${(props) =>
-    props?.horizontalAlignment && JUSTIFY_CONTENT[props.horizontalAlignment]};
-`;
-
-const StyledEditIcon = styled(EditIcon)`
-  width: 14px;
-  min-width: 14px;
-  margin-right: 3px;
-`;
-
-const ICON_SIZE = 16;
 
 interface HeaderProps {
   canFreezeColumn?: boolean;
@@ -206,89 +151,35 @@ const HeaderCellComponent = (props: HeaderProps) => {
         onDragStart={onDragStart}
         onDrop={onDrop}
       >
-        <ColumnNameContainer
-          horizontalAlignment={column.columnProperties.horizontalAlignment}
+        <Flex
+          alignItems="center"
+          justifyContent={column.columnProperties.horizontalAlignment}
         >
-          {isColumnEditable && <StyledEditIcon />}
+          {isColumnEditable && <Icon name="edit" />}
           <Text
             lineClamp={1}
-            style={{ width: props.width }}
             title={props.columnName.replace(/\s/g, "\u00a0")}
             variant="body"
           >
             {props.columnName.replace(/\s/g, "\u00a0")}
           </Text>
-        </ColumnNameContainer>
+        </Flex>
       </div>
-      <div
-        className={`header-menu ${
-          !isSortable && !props.canFreezeColumn && "hide-menu"
-        } ${!isMenuOpen && "hide"}`}
-      >
-        <Popover2
-          content={
-            <Menu className={MENU_CONTENT_CLASS}>
-              <MenuItem
-                disabled={disableSort}
-                labelElement={props.isAscOrder === true ? <Check /> : undefined}
-                onClick={() => {
-                  props.sortTableColumn(props.columnIndex, true);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.SORT_ASC}
-              />
-              <MenuItem
-                disabled={disableSort}
-                labelElement={
-                  props.isAscOrder === false ? <Check /> : undefined
-                }
-                onClick={() => {
-                  props.sortTableColumn(props.columnIndex, false);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.SORT_DSC}
-              />
-              <MenuDivider
-                style={{
-                  marginLeft: 0,
-                  marginRight: 0,
-                }}
-              />
-              <MenuItem
-                disabled={!props.canFreezeColumn}
-                labelElement={
-                  column.sticky === StickyType.LEFT ? <Check /> : undefined
-                }
-                onClick={() => {
-                  toggleColumnFreeze(StickyType.LEFT);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.FREEZE_LEFT}
-              />
-              <MenuItem
-                disabled={!props.canFreezeColumn}
-                labelElement={
-                  column.sticky === StickyType.RIGHT ? <Check /> : undefined
-                }
-                onClick={() => {
-                  toggleColumnFreeze(StickyType.RIGHT);
-                }}
-                text={POPOVER_ITEMS_TEXT_MAP.FREEZE_RIGHT}
-              />
-            </Menu>
-          }
-          interactionKind="hover"
-          isOpen={isMenuOpen}
-          minimal
-          onInteraction={setIsMenuOpen}
-          placement="bottom-end"
-          portalClassName={`${HEADER_MENU_PORTAL_CLASS}-${props.widgetId}`}
-          portalContainer={
-            document.getElementById(CANVAS_ART_BOARD) || undefined
-          }
-        >
-          <ArrowDownIcon className="w-5 h-5" color="var(--wds-color-icon)" />
-        </Popover2>
-      </div>
+      <Menu>
+        <IconButton icon="chevron-down" size="small" variant="ghost" />
+        <MenuList>
+          <Item key="sort-asc">Sort column ascending</Item>
+          <Item key="sort-desc">Sort column descending</Item>
+          <Item isSeparator>Separator</Item>
+          <Item key="freeze-left">Freeze column left</Item>
+          <Item key="freeze-right">Freeze column right</Item>
+        </MenuList>
+      </Menu>
       {props.isAscOrder !== undefined && (
-        <Icon name={props.isAscOrder ? "arrow-up" : "arrow-down"} />
+        <Icon
+          name={props.isAscOrder ? "arrow-up" : "arrow-down"}
+          size="small"
+        />
       )}
       <div
         {...column.getResizerProps()}
