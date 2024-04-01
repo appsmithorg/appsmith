@@ -84,7 +84,7 @@ public class EmailSender {
         }
 
         // Check if the email address is valid. It's possible for certain OAuth2 providers to not return the email ID
-        if (to == null || !validateEmail(to)) {
+        if (!validateEmail(to)) {
             log.error("The email ID: {} is not valid. Not sending an email", to);
             return;
         }

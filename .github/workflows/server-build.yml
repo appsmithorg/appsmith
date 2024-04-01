@@ -89,7 +89,7 @@ jobs:
       - name: Restore the previous run result
         if: inputs.skip-tests != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: cache-appsmith
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/run_result
@@ -136,7 +136,7 @@ jobs:
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: cache-maven-dependencies
         with:
@@ -214,7 +214,7 @@ jobs:
       # Force store previous run result to cache
       - name: Store the previous run result
         if: failure()
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             ~/run_result
@@ -254,7 +254,7 @@ jobs:
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
         if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             app/server/dist/

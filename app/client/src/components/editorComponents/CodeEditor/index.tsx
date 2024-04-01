@@ -89,7 +89,7 @@ import {
 } from "./codeEditorUtils";
 import { slashCommandHintHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { getPluginIdToImageLocation } from "sagas/selectors";
+import { getPluginIdToPlugin } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -1127,7 +1127,7 @@ class CodeEditor extends Component<Props, State> {
             hinter.showHint(cm, entityInformation, {
               blockCompletions,
               datasources: this.props.datasources.list,
-              pluginIdToImageLocation: this.props.pluginIdToImageLocation,
+              pluginIdToPlugin: this.props.pluginIdToPlugin,
               recentEntities: this.props.recentEntities,
               featureFlags: this.props.featureFlags,
               enableAIAssistance: this.AIEnabled,
@@ -1344,7 +1344,7 @@ class CodeEditor extends Component<Props, State> {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
         blockCompletions,
         datasources: this.props.datasources.list,
-        pluginIdToImageLocation: this.props.pluginIdToImageLocation,
+        pluginIdToPlugin: this.props.pluginIdToPlugin,
         recentEntities: this.props.recentEntities,
         featureFlags: this.props.featureFlags,
         enableAIAssistance: this.AIEnabled,
@@ -1751,7 +1751,7 @@ class CodeEditor extends Component<Props, State> {
 const mapStateToProps = (state: AppState, props: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
-  pluginIdToImageLocation: getPluginIdToImageLocation(state),
+  pluginIdToPlugin: getPluginIdToPlugin(state),
   recentEntities: getRecentEntityIds(state),
   lintErrors: getEntityLintErrors(state, props.dataTreePath),
   editorIsFocused: getIsInputFieldFocused(state, getEditorIdentifier(props)),

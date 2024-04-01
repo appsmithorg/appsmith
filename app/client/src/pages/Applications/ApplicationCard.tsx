@@ -46,6 +46,7 @@ import {
 import ForkApplicationModal from "./ForkApplicationModal";
 import { getExportAppAPIRoute } from "@appsmith/constants/ApiConstants";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
+import history from "utils/history";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { toast } from "design-system";
 import { getCurrentUser } from "actions/authActions";
@@ -438,6 +439,17 @@ export function ApplicationCard(props: ApplicationCardProps) {
     dispatch(getCurrentUser());
   }, []);
 
+  const launchMobileApp = useCallback(() => {
+    setURLParams();
+    history.push(
+      viewerURL({
+        pageId: props.application.defaultPageId,
+        params,
+      }),
+    );
+    dispatch(getCurrentUser());
+  }, [props.application.defaultPageId]);
+
   return (
     <Card
       backgroundColor={selectedColor}
@@ -450,7 +462,7 @@ export function ApplicationCard(props: ApplicationCardProps) {
       isFetching={isFetchingApplications}
       isMobile={props.isMobile}
       moreActionItems={moreActionItems}
-      primaryAction={props.isMobile ? launchApp : noop}
+      primaryAction={props.isMobile ? launchMobileApp : noop}
       setShowOverlay={setShowOverlay}
       showGitBadge={Boolean(showGitBadge)}
       showOverlay={showOverlay}
