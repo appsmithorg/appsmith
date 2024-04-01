@@ -27,11 +27,11 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   let borderColor = "transparent";
   let borderWidth = "2px";
   if (isFocused) {
-    borderColor = `var(${onCanvasUI.selectionBGCSSVar}`;
+    borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
     borderWidth = "1px";
   }
   if (isSelected) {
-    borderColor = `var(${onCanvasUI.selectionBGCSSVar}`;
+    borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
     borderWidth = "2px";
   }
   const shouldHideBorder =
@@ -42,6 +42,6 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
     outline: `${borderWidth} solid ${
       canShowBorder ? borderColor : "transparent"
     }`,
-    outlineOffset: "4px",
+    outlineOffset: "3px",
   };
 }
