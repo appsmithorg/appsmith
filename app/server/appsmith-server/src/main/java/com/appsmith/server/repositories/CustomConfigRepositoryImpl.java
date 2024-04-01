@@ -12,6 +12,6 @@ public class CustomConfigRepositoryImpl extends CustomConfigRepositoryCEImpl imp
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        super(cacheableRepositoryHelper);
     }
 }

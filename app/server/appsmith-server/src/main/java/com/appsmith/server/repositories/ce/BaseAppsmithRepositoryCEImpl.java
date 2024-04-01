@@ -66,11 +66,13 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  */
 public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
-    protected final ReactiveMongoOperations mongoOperations;
+    @Autowired
+    private ReactiveMongoOperations mongoOperations;
 
     protected final Class<T> genericDomain;
 
-    protected final MongoConverter mongoConverter;
+    @Autowired
+    MongoConverter mongoConverter;
 
     protected final CacheableRepositoryHelper cacheableRepositoryHelper;
 
@@ -78,14 +80,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     public static final int NO_SKIP = 0;
 
-    @Autowired
     @SuppressWarnings("unchecked")
-    public BaseAppsmithRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        this.mongoOperations = mongoOperations;
-        this.mongoConverter = mongoConverter;
+    public BaseAppsmithRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.genericDomain =
                 (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);

@@ -10,6 +10,6 @@ public class CustomDatasourceStorageStructureRepositoryImpl extends CustomDataso
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        super(cacheableRepositoryHelper);
     }
 }

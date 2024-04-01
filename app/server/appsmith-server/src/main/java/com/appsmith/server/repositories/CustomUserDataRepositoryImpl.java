@@ -12,6 +12,6 @@ public class CustomUserDataRepositoryImpl extends CustomUserDataRepositoryCEImpl
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        super(cacheableRepositoryHelper);
     }
 }

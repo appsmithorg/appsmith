@@ -12,11 +12,9 @@ import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.Fields;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -36,11 +34,8 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     private final MongoTemplate mongoTemplate;
 
     public CustomNewPageRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper,
-            MongoTemplate mongoTemplate) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+            CacheableRepositoryHelper cacheableRepositoryHelper, MongoTemplate mongoTemplate) {
+        super(cacheableRepositoryHelper);
         this.mongoTemplate = mongoTemplate;
     }
 

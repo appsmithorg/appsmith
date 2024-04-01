@@ -13,6 +13,6 @@ public class CustomThemeRepositoryImpl extends CustomThemeRepositoryCEImpl imple
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        super(cacheableRepositoryHelper);
     }
 }

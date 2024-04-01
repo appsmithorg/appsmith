@@ -20,6 +20,6 @@ public class CustomApplicationRepositoryImpl extends CustomApplicationRepository
             @NonNull MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper,
             ApplicationPermission applicationPermission) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper, applicationPermission);
+        super(cacheableRepositoryHelper, applicationPermission);
     }
 }

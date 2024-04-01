@@ -10,6 +10,6 @@ public class CustomJSLibRepositoryImpl extends CustomJSLibRepositoryCEImpl imple
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        super(cacheableRepositoryHelper);
     }
 }

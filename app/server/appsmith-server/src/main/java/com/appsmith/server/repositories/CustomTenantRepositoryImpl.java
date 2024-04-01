@@ -11,6 +11,6 @@ public class CustomTenantRepositoryImpl extends CustomTenantRepositoryCEImpl imp
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
 
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        super(cacheableRepositoryHelper);
     }
 }

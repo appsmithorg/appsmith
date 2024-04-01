@@ -12,6 +12,6 @@ public class CustomPluginRepositoryImpl extends CustomPluginRepositoryCEImpl imp
             ReactiveMongoOperations mongoOperations,
             MongoConverter mongoConverter,
             CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+        super(cacheableRepositoryHelper);
     }
 }

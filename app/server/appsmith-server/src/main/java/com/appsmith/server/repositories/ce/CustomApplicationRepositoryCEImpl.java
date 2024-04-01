@@ -9,12 +9,9 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
-import lombok.NonNull;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -34,11 +31,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
     @Autowired
     public CustomApplicationRepositoryCEImpl(
-            @NonNull ReactiveMongoOperations mongoOperations,
-            @NonNull MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper,
-            ApplicationPermission applicationPermission) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+            CacheableRepositoryHelper cacheableRepositoryHelper, ApplicationPermission applicationPermission) {
+        super(cacheableRepositoryHelper);
         this.cacheableRepositoryHelper = cacheableRepositoryHelper;
         this.applicationPermission = applicationPermission;
     }
