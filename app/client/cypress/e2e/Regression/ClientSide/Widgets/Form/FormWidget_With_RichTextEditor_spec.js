@@ -4,7 +4,7 @@ const widgetsPage = require("../../../../../locators/Widgets.json");
 
 describe(
   "RichTextEditor Widget Functionality in Form",
-  { tags: ["@tag.Widget", "@tag.Form"] },
+  { tags: ["@tag.Widget", "@tag.Form", "@tag.TextEditor"] },
   function () {
     before(() => {
       _.agHelper.AddDsl("formWithRTEDsl");
@@ -21,6 +21,8 @@ describe(
         formWidgetsPage.richTextEditorWidget,
         widgetsPage.widgetNameSpan,
       );
+
+      cy.wait(1000);
 
       //Validate Html
       cy.validateHTMLText(
