@@ -9,9 +9,9 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -23,19 +23,12 @@ import java.util.Optional;
 import java.util.Set;
 
 @Slf4j
+@RequiredArgsConstructor
 public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Application>
         implements CustomApplicationRepositoryCE {
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final ApplicationPermission applicationPermission;
-
-    @Autowired
-    public CustomApplicationRepositoryCEImpl(
-            CacheableRepositoryHelper cacheableRepositoryHelper, ApplicationPermission applicationPermission) {
-        super();
-        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
-        this.applicationPermission = applicationPermission;
-    }
 
     @Override
     public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {

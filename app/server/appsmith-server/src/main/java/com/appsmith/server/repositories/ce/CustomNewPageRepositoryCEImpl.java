@@ -9,6 +9,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
@@ -27,15 +28,11 @@ import java.util.Set;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
+@RequiredArgsConstructor
 public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewPage>
         implements CustomNewPageRepositoryCE {
 
     private final MongoTemplate mongoTemplate;
-
-    public CustomNewPageRepositoryCEImpl(MongoTemplate mongoTemplate) {
-        super();
-        this.mongoTemplate = mongoTemplate;
-    }
 
     @Override
     public Flux<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission) {
