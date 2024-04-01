@@ -78,7 +78,7 @@ jobs:
         id: changed-files-specific
         uses: tj-actions/changed-files@v41
         with:
-          files: 'app/client/**'
+          files: "app/client/**"
 
       - name: Run step if any file(s) in the client folder change
         if: steps.changed-files-specific.outputs.any_changed == 'true'
