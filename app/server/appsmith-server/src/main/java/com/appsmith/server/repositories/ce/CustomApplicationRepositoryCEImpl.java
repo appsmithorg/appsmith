@@ -6,6 +6,7 @@ import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -15,7 +16,6 @@ import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -104,12 +104,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         applicationPage.setId(pageId);
         return queryBuilder()
                 .byId(applicationId)
-                .updateFirst(new Update().push(Application.Fields.pages, applicationPage));
+                .updateFirst(Bridge.update().push(Application.Fields.pages, applicationPage));
     }
 
     @Override
     public Mono<Integer> setPages(String applicationId, List<ApplicationPage> pages) {
-        return queryBuilder().byId(applicationId).updateFirst(new Update().set(Application.Fields.pages, pages));
+        return queryBuilder().byId(applicationId).updateFirst(Bridge.update().set(Application.Fields.pages, pages));
     }
 
     @Override
@@ -120,12 +120,12 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         final Mono<Integer> setAllAsNonDefaultMono = queryBuilder()
                 .byId(applicationId)
                 .criteria(Bridge.isTrue("pages.isDefault"))
-                .updateFirst(new Update().set("pages.$.isDefault", false));
+                .updateFirst(Bridge.update().set("pages.$.isDefault", false));
 
         final Mono<Integer> setDefaultMono = queryBuilder()
                 .byId(applicationId)
                 .criteria(Bridge.equal("pages._id", new ObjectId(pageId)))
-                .updateFirst(new Update().set("pages.$.isDefault", true));
+                .updateFirst(Bridge.update().set("pages.$.isDefault", true));
 
         return setAllAsNonDefaultMono.then(setDefaultMono).then();
     }
@@ -217,7 +217,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Override
     public Mono<Integer> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
-        Update updateObj = new Update();
+        BridgeUpdate updateObj = Bridge.update();
         if (StringUtils.hasLength(editModeThemeId)) {
             updateObj = updateObj.set(Application.Fields.editModeThemeId, editModeThemeId);
         }
@@ -263,7 +263,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public Mono<Integer> unprotectAllBranches(String applicationId, AclPermission permission) {
         String isProtectedFieldPath = Application.Fields.gitApplicationMetadata_isProtectedBranch;
 
-        Update unsetProtected = new Update().set(isProtectedFieldPath, false);
+        BridgeUpdate unsetProtected = Bridge.update().set(isProtectedFieldPath, false);
 
         return queryBuilder()
                 .criteria(Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId))
@@ -285,7 +285,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                         Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId)
                 .in(Application.Fields.gitApplicationMetadata_branchName, branchNames);
 
-        Update setProtected = new Update().set(Application.Fields.gitApplicationMetadata_isProtectedBranch, true);
+        BridgeUpdate setProtected =
+                Bridge.update().set(Application.Fields.gitApplicationMetadata_isProtectedBranch, true);
 
         return queryBuilder().criteria(q).permission(permission).updateAll(setProtected);
     }
