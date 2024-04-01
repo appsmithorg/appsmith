@@ -40,7 +40,6 @@ import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.mongodb.core.FindAndModifyOptions;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -58,7 +57,6 @@ import java.util.Optional;
 import java.util.Set;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * In case you are wondering why we have two different repository implementation classes i.e.
@@ -102,15 +100,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     public static <T extends BaseDomain> BridgeQuery<T> notDeleted() {
         return Bridge.isNull(FieldName.DELETED_AT);
-    }
-
-    /**
-     * @deprecated Consider using {@code queryBuilder().byId(id)} or {@code Bridge.equal(BaseDomain.Fields.id, id)}
-     * instead.
-     */
-    @Deprecated(forRemoval = true)
-    protected Criteria getIdCriteria(Object id) {
-        return where("id").is(id);
     }
 
     @SneakyThrows

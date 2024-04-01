@@ -8,8 +8,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CustomNewPageRepositoryImpl extends CustomNewPageRepositoryCEImpl implements CustomNewPageRepository {
 
-    public CustomNewPageRepositoryImpl(
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomNewPageRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(cacheableRepositoryHelper);
     }
 }

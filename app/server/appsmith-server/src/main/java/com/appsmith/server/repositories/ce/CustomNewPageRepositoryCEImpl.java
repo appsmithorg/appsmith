@@ -28,8 +28,7 @@ import java.util.Optional;
 public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewPage>
         implements CustomNewPageRepositoryCE {
 
-    public CustomNewPageRepositoryCEImpl(
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
+    public CustomNewPageRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(cacheableRepositoryHelper);
     }
 

@@ -76,7 +76,7 @@ export class JSEditor {
   private _outputConsole = ".CodeEditorTarget";
   private _jsObjName = ".t--js-action-name-edit-field span";
   public _jsObjTxt = ".t--js-action-name-edit-field input";
-  public _newJSobj = "span:contains('New JS Object')";
+  public _newJSobj = "span:contains('New JS object')";
   private _bindingsClose = ".t--entity-property-close";
   public _propertyList = ".binding";
   private _responseTabAction = (funName: string) =>
