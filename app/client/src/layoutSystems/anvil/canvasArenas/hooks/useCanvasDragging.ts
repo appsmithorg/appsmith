@@ -143,15 +143,18 @@ const renderBlocksOnCanvas = (
   // Extracting dimensions of the block to render
   const { height, posX, posY, width } = blockToRender;
   // using custom function to draw a rounded rectangle to achieve more sharper rounder corners
-  const padding = blockToRender.isVertical
+  const horizontalPadding = blockToRender.isVertical
     ? 0
     : PADDING_FOR_HORIZONTAL_HIGHLIGHT;
+  const verticalPadding = blockToRender.isVertical
+    ? PADDING_FOR_HORIZONTAL_HIGHLIGHT
+    : 0;
   roundRect(
     canvasCtx,
-    posX - leftOffset + padding,
-    posY - topOffset,
-    width - padding * 2,
-    height,
+    posX - leftOffset + horizontalPadding,
+    posY - topOffset + verticalPadding,
+    width - horizontalPadding * 2,
+    height - verticalPadding * 2,
     2,
     AnvilEditorColors.dropIndicator,
   );
