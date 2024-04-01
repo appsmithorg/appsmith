@@ -11,6 +11,7 @@ const StyledEmptyModalDropArenaWrapper = styled.div<{ isModalEmpty: boolean }>`
     `
   position: relative;
   height: 100% !important;
+  padding: 4px;
   `}
 `;
 const StyledEmptyModalDropArena = styled.div<{
