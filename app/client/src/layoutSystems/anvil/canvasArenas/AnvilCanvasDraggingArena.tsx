@@ -9,7 +9,6 @@ import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
 import { DetachedWidgetsDropArena } from "./DetachedWidgetsDropArena";
-import { EmptyModalDropArena } from "./EmptyModalDropArena";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
 
@@ -63,10 +62,6 @@ export const AnvilCanvasDraggingArena = (
           onDrop={onDrop}
         />
       )}
-      <EmptyModalDropArena
-        anvilDragStates={anvilDragStates}
-        canvasId={canvasId}
-      />
     </>
   ) : null;
 };

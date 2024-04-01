@@ -1,10 +1,23 @@
 import React from "react";
 import { useSelector } from "react-redux";
-import { getWidgetByID } from "sagas/selectors";
+import { getDragDetails, getWidgetByID } from "sagas/selectors";
 import styled from "styled-components";
 import { WDSModalWidget } from "widgets/wds/WDSModalWidget";
-import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
-const StyledEmptyModalDropArena = styled.div<{ isActive: boolean }>`
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+
+const StyledEmptyModalDropArenaWrapper = styled.div<{ isModalEmpty: boolean }>`
+  ${(props) =>
+    props.isModalEmpty &&
+    `
+  position: relative;
+  height: 100% !important;
+  `}
+`;
+const StyledEmptyModalDropArena = styled.div<{
+  isActive: boolean;
+  isModalEmpty: boolean;
+}>`
+  visibility: ${(props) => (props.isModalEmpty ? "visible" : "hidden")};
   background-color: ${(props) =>
     props.isActive
       ? "var(--empty-modal-drop-arena-active-bg)"
@@ -18,30 +31,45 @@ const StyledEmptyModalDropArena = styled.div<{ isActive: boolean }>`
         : "var(--empty-modal-drop-arena-outline-color)"};
   outline-offset: -1px;
   width: 100%;
-  height: 100%;
+  height: 100% !important;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: absolute;
-  top: 0;
-  left: 0;
   color: var(--empty-modal-drop-arena-text-color);
+  position: absolute;
+  inset: 0;
   font-size: 14px;
   font-weight: 510;
   line-height: 19.6px;
 `;
-export const EmptyModalDropArena = (props: {
+export const EmptyModalDropArena = ({
+  canvasId,
+  children,
+  layoutId,
+}: {
   canvasId: string;
-  anvilDragStates: AnvilDnDStates;
+  children: React.ReactNode;
+  layoutId: string;
 }) => {
-  const widget = useSelector(getWidgetByID(props.canvasId));
+  const dragDetails: DragDetails = useSelector(getDragDetails);
+
+  /**
+   * boolean to indicate if the widget is being dragged on this particular canvas.
+   */
+  const isCurrentDraggedCanvas =
+    dragDetails && dragDetails.draggedOn === layoutId;
+  const widget = useSelector(getWidgetByID(canvasId));
   const isModal = widget?.type === WDSModalWidget.type;
   const isModalEmpty = isModal && widget.children?.length === 0;
-  return isModalEmpty ? (
-    <StyledEmptyModalDropArena
-      isActive={props.anvilDragStates.isCurrentDraggedCanvas}
-    >
-      Drop Widgets Here
-    </StyledEmptyModalDropArena>
-  ) : null;
+  return (
+    <StyledEmptyModalDropArenaWrapper isModalEmpty={isModalEmpty}>
+      <StyledEmptyModalDropArena
+        isActive={isCurrentDraggedCanvas}
+        isModalEmpty={isModalEmpty}
+      >
+        Drop Widgets Here
+      </StyledEmptyModalDropArena>
+      {children}
+    </StyledEmptyModalDropArenaWrapper>
+  );
 };

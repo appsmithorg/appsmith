@@ -10,7 +10,6 @@ import {
   ModalHeader,
 } from "@design-system/widgets";
 import React from "react";
-import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ModalBody } from "@design-system/widgets";
@@ -23,6 +22,7 @@ import type {
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
+import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalLayoutProvider";
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
@@ -127,7 +127,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         <ModalContent className={this.props.className}>
           {this.props.showHeader && <ModalHeader title={this.props.title} />}
           <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
-            <LayoutProvider {...this.props} />
+            <ModalLayoutProvider {...this.props} />
           </ModalBody>
           {this.props.showFooter && (
             <ModalFooter
