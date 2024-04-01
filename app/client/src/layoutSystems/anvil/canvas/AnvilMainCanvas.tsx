@@ -6,6 +6,7 @@ import { useSelectWidgetListener } from "../common/hooks/useSelectWidgetListener
 import { useClickToClearSelections } from "./useClickToClearSelections";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { AnvilEditorModeClassName } from "widgets/anvil/constants";
 
 /**
  * Anvil Main Canvas is just a wrapper around AnvilCanvas.
@@ -13,7 +14,6 @@ import { combinedPreviewModeSelector } from "selectors/editorSelectors";
  * Because we need to use useCanvasActivation hook which is only needed to be used once and it is also exclusive to edit mode.
  * checkout useCanvasActivation for more details.
  */
-
 export const AnvilMainCanvas = (props: BaseWidgetProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
@@ -52,7 +52,7 @@ export const AnvilMainCanvas = (props: BaseWidgetProps) => {
   useCanvasActivation();
   useSelectWidgetListener();
   const classList = useMemo(
-    () => (isPreviewMode ? [] : ["anvil-editor"]),
+    () => (isPreviewMode ? [] : [AnvilEditorModeClassName]),
     [isPreviewMode],
   );
   return <AnvilCanvas {...props} classList={classList} ref={canvasRef} />;

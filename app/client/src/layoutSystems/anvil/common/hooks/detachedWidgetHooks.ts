@@ -14,6 +14,7 @@ import { getWidgets } from "sagas/selectors";
 import log from "loglevel";
 import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { AnvilEditorModeClassName } from "widgets/anvil/constants";
 
 /**
  * This hook is used to select and focus on a detached widget
@@ -148,7 +149,7 @@ export function useRenderDetachedChildren(
         defaultWidgetProps: {
           className: `${
             renderMode === RenderModes.CANVAS && !isPreviewMode
-              ? "anvil-detached-widget"
+              ? AnvilEditorModeClassName
               : ""
           } ${getAnvilWidgetDOMId(child.widgetId)}`,
         },

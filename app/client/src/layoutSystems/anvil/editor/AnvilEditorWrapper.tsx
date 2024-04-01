@@ -2,7 +2,7 @@ import React, { useMemo } from "react";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { AnvilEditorDetachedWidgetOnion } from "./AnvilEditorDetachedWidgetOnion";
 import { AnvilEditorWidgetOnion } from "./AnvilEditorWidgetOnion";
-
+import "./styles.css";
 /**
  * AnvilEditorWrapper
  *
