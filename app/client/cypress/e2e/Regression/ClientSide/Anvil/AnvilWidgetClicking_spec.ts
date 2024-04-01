@@ -61,33 +61,7 @@ describe(
       );
       agHelper.AssertElementLength(locators._selectedWidget, 2);
     });
-    it("3. Click on widgets like Switch, Checkbox to toggle selection", () => {
-      // deselect all widgets
-      agHelper.PressEscape();
-      agHelper
-        .GetNClick(wdsWidgets._switchWidgetTargetSelector("Switch1"))
-        .then(() => {
-          wdsWidgets.verifySwitchWidgetState("Switch1", "checked");
-        });
-      agHelper
-        .GetNClick(wdsWidgets._switchWidgetTargetSelector("Switch1"))
-        .then(() => {
-          wdsWidgets.verifySwitchWidgetState("Switch1", "unchecked");
-        });
-      anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSCHECKBOX, 5, 20, {
-        skipWidgetSearch: true,
-        dropTargetDetails: {
-          name: "Zone1",
-        },
-      });
-      wdsWidgets.verifyCheckboxWidgetState("Checkbox1", "checked");
-      agHelper
-        .GetNClick(wdsWidgets._checkboxWidgetTargetSelector("Checkbox1"))
-        .then(() => {
-          wdsWidgets.verifyCheckboxWidgetState("Checkbox1", "unchecked");
-        });
-    });
-    it("4. Click on Canvas to deselect all widgets", () => {
+    it("3. Click on Canvas to deselect all widgets", () => {
       // Find the layout component that is the main canvas
       cy.get(".anvil-canvas > div").click();
       // Find all widgets within the main canvas

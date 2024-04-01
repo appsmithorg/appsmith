@@ -26,6 +26,7 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   top: ${SpaceDistributorHandleDimensions.offsetTop};
   border-radius: ${SpaceDistributorHandleDimensions.borderRadius}px;
   padding: 0px ${SpaceDistributorHandleDimensions.padding}px;
+  pointer-events: all;
   z-index: 1000;
   left: ${({ left }) => left}px;
   &:hover {
