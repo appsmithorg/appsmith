@@ -21,4 +21,7 @@ public class GitConstantsCE {
 
     public static final String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can"
             + " set up a git profile from the user profile section.";
+
+    public static final String CHECKOUT_REMOTE = "checkout-remote";
+    public static final String HARD_RESET = "hard-reset";
 }

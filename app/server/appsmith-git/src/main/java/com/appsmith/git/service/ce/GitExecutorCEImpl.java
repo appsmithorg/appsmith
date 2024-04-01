@@ -63,6 +63,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.constants.ce.GitConstantsCE.CHECKOUT_REMOTE;
+import static com.appsmith.external.constants.ce.GitConstantsCE.HARD_RESET;
 import static com.appsmith.git.constants.CommonConstants.FILE_MIGRATION_MESSAGE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -378,7 +380,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .tag("checkout-remote", FALSE.toString())
+                .tag(CHECKOUT_REMOTE, FALSE.toString())
                 .name(GitEvents.FILE_SYSTEM_CHECKOUT_BRANCH.getEventName())
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
@@ -835,7 +837,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .tag("checkout-remote", TRUE.toString())
+                .tag(CHECKOUT_REMOTE, TRUE.toString())
                 .name(GitEvents.FILE_SYSTEM_CHECKOUT_BRANCH.getEventName())
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
@@ -870,7 +872,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return ref;
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .tag("hard-reset", Boolean.FALSE.toString())
+                .tag(HARD_RESET, Boolean.FALSE.toString())
                 .name(GitEvents.FILE_SYSTEM_RESET.getEventName())
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
@@ -906,7 +908,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return Mono.just(false);
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .tag("hard-reset", TRUE.toString())
+                .tag(HARD_RESET, TRUE.toString())
                 .name(GitEvents.FILE_SYSTEM_RESET.getEventName())
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
