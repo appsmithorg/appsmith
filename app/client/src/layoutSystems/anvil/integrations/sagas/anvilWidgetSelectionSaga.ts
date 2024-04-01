@@ -27,6 +27,7 @@ export function* selectAnvilWidget(
   const {
     detail: { ctrlKey, metaKey, shiftKey },
   } = e;
+
   const isPropPaneVisible: boolean = yield select(getIsPropertyPaneVisible);
   const isWidgetAlreadySelected: boolean = yield select(
     isWidgetSelected(widgetId),

@@ -12,6 +12,7 @@ import type {
   CanvasWidgetStructure,
   FlattenedWidgetProps,
   WidgetConfigProps,
+  WidgetDefaultProps,
   WidgetMethods,
 } from "WidgetProvider/constants";
 import {
@@ -48,6 +49,13 @@ const DEFAULT_WIDGET_ON_CANVAS_UI = {
   focusColorCSSVar: "--ads-widget-selection",
   disableParentSelection: false,
 };
+
+function getDefaultOnCanvasUIConfig(config: WidgetDefaultProps) {
+  return {
+    ...DEFAULT_WIDGET_ON_CANVAS_UI,
+    disableParentSelection: !!config.detachFromLayout,
+  };
+}
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -105,6 +113,10 @@ class WidgetFactory {
       });
     }
 
+    const defaultConfig: WidgetDefaultProps = widget.getDefaults();
+
+    const onCanvasUI =
+      config.onCanvasUI || getDefaultOnCanvasUIConfig(defaultConfig);
     const _config = {
       type: widget.type,
       ...widget.getDefaults(),
@@ -121,7 +133,7 @@ class WidgetFactory {
       isCanvas: config.isCanvas,
       needsHeightForContent: config.needsHeightForContent,
       isSearchWildcard: config.isSearchWildcard,
-      onCanvasUI: config.onCanvasUI || DEFAULT_WIDGET_ON_CANVAS_UI,
+      onCanvasUI,
       needsErrorInfo: !!config.needsErrorInfo,
     };
 

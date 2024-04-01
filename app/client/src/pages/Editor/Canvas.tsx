@@ -40,7 +40,7 @@ const Wrapper = styled.section<{
   background: ${({ background }) => background};
   width: ${({ $enableMainCanvasResizer, width }) =>
     $enableMainCanvasResizer ? `100%` : `${width}px`};
-  padding-inline-start: 15px;
+  padding-inline-start: 25px;
 `;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;

@@ -1,13 +1,15 @@
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { createSelector } from "reselect";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getIsDragging, getIsResizing } from "selectors/widgetDragSelectors";
 import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 
 export const getIsEditorOpen = createSelector(
+  combinedPreviewModeSelector,
   getAppMode,
-  (appMode?: APP_MODE) => {
-    return appMode === APP_MODE.EDIT;
+  (isPreviewMode: boolean, appMode?: APP_MODE) => {
+    return appMode === APP_MODE.EDIT && !isPreviewMode;
   },
 );
 

@@ -220,7 +220,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         isPreviewingNavigation={isPreviewingNavigation}
         navigationHeight={navigationHeight}
         onMouseLeave={() => focusWidget()}
-        onMouseOver={() => focusWidget()}
         style={{
           height: isPreviewMode ? `calc(100% - ${headerHeight})` : "auto",
           fontFamily: fontFamily,

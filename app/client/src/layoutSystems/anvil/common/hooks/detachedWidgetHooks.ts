@@ -38,28 +38,28 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
       // And since the target element is the detached widget, we can
       // be sure that the click happened on the modal widget and not
       // on any of the children. It is now save to select the detached widget
-      if (e.eventPhase === 2) {
-        element?.dispatchEvent(
-          new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
-            bubbles: true,
-            detail: {
-              widgetId,
-              metaKey: e.metaKey,
-              ctrlKey: e.ctrlKey,
-              shiftKey: e.shiftKey,
-            },
-          }),
-        );
-      }
+
+      element?.dispatchEvent(
+        new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
+          bubbles: true,
+          detail: {
+            widgetId,
+            metaKey: e.metaKey,
+            ctrlKey: e.ctrlKey,
+            shiftKey: e.shiftKey,
+            isDetached: true,
+          },
+        }),
+      );
+
       e.stopPropagation();
     };
 
     // The handler for focusing on a detached widget
     // It makes sure to check if the app mode is preview or not
-    const handleWidgetFocus = (e: any) => {
-      if (e.eventPhase === 2) {
-        !isPreviewMode && dispatch(focusWidget(widgetId));
-      }
+    const handleWidgetFocus = () => {
+      // console.log("##### Hovering", e.eventPhase, widgetId, e);
+      !isPreviewMode && dispatch(focusWidget(widgetId));
     };
 
     // Registering and unregistering listeners

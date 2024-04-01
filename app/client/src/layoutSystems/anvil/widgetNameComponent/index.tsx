@@ -1,5 +1,5 @@
-import type { CSSProperties } from "react";
-import React, { useCallback } from "react";
+import type { CSSProperties, MutableRefObject } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { shouldSelectOrFocus } from "layoutSystems/anvil/integrations/onCanvasUISelectors";
 import { useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -7,6 +7,43 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import styled from "styled-components";
 import WidgetFactory from "WidgetProvider/factory";
 import type { AppState } from "@appsmith/reducers";
+function handleScroll(isHidden: MutableRefObject<boolean>) {
+  if (isHidden.current === false) {
+    const nameEls: NodeListOf<HTMLDivElement> = document.querySelectorAll(
+      "[id*='widget-name-']",
+    );
+    nameEls.forEach((el: HTMLDivElement) => {
+      el.style.opacity = "0";
+    });
+    isHidden.current = true;
+  }
+}
+function handleScrollEnd(isHidden: MutableRefObject<boolean>) {
+  if (isHidden.current === true) {
+    isHidden.current = false;
+  }
+}
+export function useScrollHandlerForWidgetNameComponent() {
+  const isHidden = useRef(false);
+  // TODO(abhinav): This is really bad. Figure out a better way
+  const hasModalWidgetType = !!document.querySelector(".appsmith-modal-body");
+  useEffect(() => {
+    const scrollableNodes = document.querySelectorAll(
+      ".appsmith-modal-body, .canvas.scrollbar-thin",
+    );
+
+    scrollableNodes.forEach((node) => {
+      node.addEventListener("scroll", () => handleScroll(isHidden));
+      node.addEventListener("scrollend", () => handleScrollEnd(isHidden));
+    });
+    return () => {
+      scrollableNodes.forEach((node) => {
+        node.removeEventListener("scroll", () => handleScroll(isHidden));
+        node.removeEventListener("scrollend", () => handleScrollEnd(isHidden));
+      });
+    };
+  }, [hasModalWidgetType]);
+}
 
 function getNearestScrollableAncestor(widgetElement: Element) {
   const nearestScrollableModalBody = widgetElement.closest(
@@ -220,32 +257,7 @@ export function WidgetNameComponent(props: {
 export function OnCanvasUIWidgetNameComponents(
   widgets: Array<{ widgetId: string; widgetName: string; widgetType: string }>,
 ) {
-  // Add signals to abort the scroll event
-  // const scrollableElements: NodeListOf<HTMLDivElement | HTMLSelectElement> =
-  //   document.querySelectorAll(
-  //     "section.canvas.scrollbar-thin, div.appsmith-modal-body",
-  //   );
-
-  // scrollableElements.forEach((el: HTMLDivElement | HTMLSelectElement) => {
-  //   el.addEventListener("scroll", () => {
-  //     const nameEls: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-  //       "[id*='widget-name-']",
-  //     );
-
-  //     nameEls.forEach((_el: HTMLDivElement) => {
-  //       _el.style.opacity = "0";
-  //     });
-  //   });
-  // el.addEventListener("scrollend", () => {
-  //   const nameEls: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-  //     "[id*='widget-name-']",
-  //   );
-
-  //   nameEls.forEach((_el: HTMLDivElement) => {
-  //     _el.style.opacity = "1";
-  //   });
-  // });
-  // });
+  useScrollHandlerForWidgetNameComponent();
 
   const renderedNameComponents = widgets.map(
     ({ widgetId, widgetName, widgetType }) => {

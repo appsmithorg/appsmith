@@ -7,9 +7,6 @@ import { useAnvilWidgetStyles } from "./hooks/useAnvilWidgetStyles";
 import { useAnvilWidgetClick } from "./hooks/useAnvilWidgetClick";
 import { useAnvilWidgetDrag } from "./hooks/useAnvilWidgetDrag";
 import { useAnvilWidgetHover } from "./hooks/useAnvilWidgetHover";
-import styled from "styled-components";
-
-const EditorFlexComponent = styled(AnvilFlexComponent)``;
 
 export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
   // Create a ref for the AnvilFlexComponent
@@ -61,7 +58,7 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
 
   // Render the AnvilFlexComponent
   return (
-    <EditorFlexComponent
+    <AnvilFlexComponent
       {...props}
       className={className}
       onClick={onClickFn}
