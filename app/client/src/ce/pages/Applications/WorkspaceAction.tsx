@@ -17,11 +17,9 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 export interface WorkspaceActionProps {
   workspace: Workspace;
@@ -46,9 +44,6 @@ function WorkspaceAction({
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isCreatingApplication = Boolean(
     useSelector(getIsCreatingApplicationByWorkspaceId(workspace.id)),
-  );
-  const isCreateAppFromTemplatesEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_create_app_from_templates_enabled,
   );
 
   const openActionMenu = useCallback(() => {
@@ -97,16 +92,16 @@ function WorkspaceAction({
           {createMessage(NEW_APP)}
         </MenuItem>
         {<Divider className="!block mb-[2px]" />}
-        {isCreateAppFromTemplatesEnabled && (
-          <MenuItem
-            data-testid="t--workspace-action-create-app-from-template"
-            disabled={!hasCreateNewApplicationPermission}
-            onSelect={() => onStartFromTemplate(workspaceId)}
-            startIcon="layout-2-line"
-          >
-            {createMessage(NEW_APP_FROM_TEMPLATE)}
-          </MenuItem>
-        )}
+
+        <MenuItem
+          data-testid="t--workspace-action-create-app-from-template"
+          disabled={!hasCreateNewApplicationPermission}
+          onSelect={() => onStartFromTemplate(workspaceId)}
+          startIcon="layout-2-line"
+        >
+          {createMessage(NEW_APP_FROM_TEMPLATE)}
+        </MenuItem>
+
         {enableImportExport && hasCreateNewApplicationPermission && (
           <MenuItem
             data-testid="t--workspace-import-app"

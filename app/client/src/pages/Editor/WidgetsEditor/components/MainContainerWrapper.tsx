@@ -23,9 +23,9 @@ import {
 } from "selectors/appThemingSelectors";
 import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
 import { useDynamicAppLayout } from "utils/hooks/useDynamicAppLayout";
-import { LayoutSystemTypes } from "../../../layoutSystems/types";
-import { getLayoutSystemType } from "../../../selectors/layoutSystemSelectors";
-import Canvas from "../Canvas";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import Canvas from "pages/Editor/Canvas";
 import type { AppState } from "@appsmith/reducers";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";

@@ -77,6 +77,9 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Dump the client payload context
         env:
           PAYLOAD_CONTEXT: ${{ toJson(github.event) }}
@@ -84,9 +87,9 @@ jobs:
 
       - name: Setup node
         if: needs.ci-test.result != 'success'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: app/client/package.json
 
       - name: Install pg
         if: needs.ci-test.result != 'success'
@@ -176,7 +179,7 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!CAUTION]  
+              > [!CAUTION]
               > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
               > Commit: `${{ github.event.pull_request.head.sha }}`
               > Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
@@ -196,7 +199,7 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!WARNING]  
+              > [!WARNING]
               > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
               > Commit: `${{ github.event.pull_request.head.sha }}`
               > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
@@ -214,7 +217,7 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!IMPORTANT]  
+              > [!IMPORTANT]
               > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
               > Commit: `${{ github.event.pull_request.head.sha }}`
               > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>

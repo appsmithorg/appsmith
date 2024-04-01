@@ -14,7 +14,6 @@ export const modalPreset = (): LayoutProps[] => {
         border: "none",
         height: "100%",
         minHeight: "sizing-16",
-        padding: "spacing-1",
       },
       isDropTarget: true,
       isPermanent: true,

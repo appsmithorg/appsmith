@@ -85,10 +85,11 @@ import {
   getInputValue,
   removeEventFromHighlightedElement,
   removeNewLineCharsIfRequired,
+  shouldShowSlashCommandMenu,
 } from "./codeEditorUtils";
 import { slashCommandHintHelper } from "./commandsHelper";
 import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { getPluginIdToImageLocation } from "sagas/selectors";
+import { getPluginIdToPlugin } from "sagas/selectors";
 import type { ExpectedValueExample } from "utils/validation/common";
 import { getRecentEntityIds } from "selectors/globalSearchSelectors";
 import type { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
@@ -1123,7 +1124,17 @@ class CodeEditor extends Component<Props, State> {
         .forEach(
           (hinter) =>
             hinter.showHint &&
-            hinter.showHint(cm, entityInformation, blockCompletions),
+            hinter.showHint(cm, entityInformation, {
+              blockCompletions,
+              datasources: this.props.datasources.list,
+              pluginIdToPlugin: this.props.pluginIdToPlugin,
+              recentEntities: this.props.recentEntities,
+              featureFlags: this.props.featureFlags,
+              enableAIAssistance: this.AIEnabled,
+              focusEditor: this.focusEditor,
+              executeCommand: this.props.executeCommand,
+              isJsEditor: this.props.mode === EditorModes.JAVASCRIPT,
+            }),
         );
     }
 
@@ -1257,6 +1268,16 @@ class CodeEditor extends Component<Props, State> {
     }
 
     this.peekOverlayExpressionIdentifier.clearScript();
+
+    // This will always open autocomplete dialog for table and json widgets' data properties
+    if (!!instance) {
+      const { propertyPath, widgetType } = this.getEntityInformation();
+      if (shouldShowSlashCommandMenu(widgetType, propertyPath)) {
+        setTimeout(() => {
+          this.handleAutocompleteVisibility(instance);
+        }, 10);
+      }
+    }
   };
 
   handleDebouncedChange = _.debounce(this.handleChange, 600);
@@ -1323,7 +1344,7 @@ class CodeEditor extends Component<Props, State> {
       hinterOpen = this.hinters[i].showHint(cm, entityInformation, {
         blockCompletions,
         datasources: this.props.datasources.list,
-        pluginIdToImageLocation: this.props.pluginIdToImageLocation,
+        pluginIdToPlugin: this.props.pluginIdToPlugin,
         recentEntities: this.props.recentEntities,
         featureFlags: this.props.featureFlags,
         enableAIAssistance: this.AIEnabled,
@@ -1730,7 +1751,7 @@ class CodeEditor extends Component<Props, State> {
 const mapStateToProps = (state: AppState, props: EditorProps) => ({
   dynamicData: getDataTreeForAutocomplete(state),
   datasources: state.entities.datasources,
-  pluginIdToImageLocation: getPluginIdToImageLocation(state),
+  pluginIdToPlugin: getPluginIdToPlugin(state),
   recentEntities: getRecentEntityIds(state),
   lintErrors: getEntityLintErrors(state, props.dataTreePath),
   editorIsFocused: getIsInputFieldFocused(state, getEditorIdentifier(props)),

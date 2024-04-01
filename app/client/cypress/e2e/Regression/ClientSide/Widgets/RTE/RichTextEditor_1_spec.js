@@ -22,7 +22,7 @@ const setRTEContent = (textValue) => {
  */
 const testCursorPoistion = (textValueLen, tinyMceId) => {
   cy.window().then((win) => {
-    const editor = win.tinymce.editors[tinyMceId];
+    const editor = win.tinymce.EditorManager.get(tinyMceId);
 
     // Get the current cursor location
     const getCurrentCursorLocation = editor.selection.getSel().anchorOffset;

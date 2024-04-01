@@ -5,6 +5,12 @@ import { useSelector } from "react-redux";
 import { getWidgetSelectionBlock } from "selectors/ui";
 import { retrieveCodeWidgetNavigationUsed } from "utils/storage";
 
+/**
+ * CodeModeTooltip
+ *
+ * This component is used to display a tooltip when the user hovers over a widget in code mode(when js pane and widgets editor are side by side).
+ */
+
 const CodeModeTooltip = (props: { children: React.ReactElement }) => {
   const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
   const [shouldShow, setShouldShow] = useState<boolean>(false);

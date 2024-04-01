@@ -44,8 +44,8 @@ RUN set -o xtrace \
 # Install NodeJS
 RUN set -o xtrace \
   && mkdir -p /opt/node \
-  && file="$(curl -sS 'https://nodejs.org/dist/latest-v18.x/' | awk -F\" '$2 ~ /linux-'"$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"'.tar.gz/ {print $2}')" \
-  && curl "https://nodejs.org/dist/latest-v18.x/$file" | tar -xz -C /opt/node --strip-components 1
+  && file="$(curl -sS 'https://nodejs.org/dist/latest-v20.x/' | awk -F\" '$2 ~ /linux-'"$(uname -m | sed 's/x86_64/x64/; s/aarch64/arm64/')"'.tar.gz/ {print $2}')" \
+  && curl "https://nodejs.org/dist/latest-v20.x/$file" | tar -xz -C /opt/node --strip-components 1
 
 # Install Caddy
 COPY --from=caddybuilder /usr/bin/caddy /opt/caddy/caddy

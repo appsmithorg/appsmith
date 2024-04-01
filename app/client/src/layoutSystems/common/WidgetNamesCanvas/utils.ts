@@ -12,6 +12,7 @@ import {
   WIDGET_NAME_TEXT_COLOR,
   WIDGET_NAME_VERTICAL_PADDING,
   WIDGET_OUTLINE_OFFSET,
+  WIDGET_NAME_OFFSET,
 } from "./WidgetNameConstants";
 
 /**
@@ -109,6 +110,7 @@ export const getWidgetNameComponent = (
     width: componentWidth,
     x: left,
     y: top,
+    offsetY: WIDGET_NAME_OFFSET,
   });
 
   groupEl.add(rectEl);
