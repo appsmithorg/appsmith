@@ -64,6 +64,7 @@ app/client/src/layoutSystems/* @appsmithorg/ui-builders
 app/client/src/pages/Editor/Canvas.tsx @appsmithorg/ui-builders
 app/client/src/pages/Editor/CanvasLayoutConversion/* @appsmithorg/ui-builders
 app/client/src/pages/Editor/PropertyPane/* @appsmithorg/ui-builders
+app/client/src/pages/Editor/WidgetsEditor/* @appsmithorg/ui-builders
 app/client/src/reducers/entityReducers/autoHeightReducers/* @appsmithorg/ui-builders
 app/client/src/reducers/entityReducers/canvasWidgetsReducer.ts @appsmithorg/ui-builders
 app/client/src/reflow/* @appsmithorg/ui-builders
