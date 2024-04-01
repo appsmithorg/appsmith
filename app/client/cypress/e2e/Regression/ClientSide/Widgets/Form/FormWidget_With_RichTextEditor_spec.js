@@ -15,6 +15,13 @@ describe(
     });
 
     it("RichTextEditor required functionality", function () {
+      //Validate Html
+      cy.validateHTMLText(
+        formWidgetsPage.richTextEditorWidget,
+        "h1",
+        "Default",
+      );
+
       //changing the Text Name
       cy.widgetText(
         this.dataSet.RichTextEditorName,
@@ -22,14 +29,6 @@ describe(
         widgetsPage.widgetNameSpan,
       );
 
-      cy.wait(1000);
-
-      //Validate Html
-      cy.validateHTMLText(
-        formWidgetsPage.richTextEditorWidget,
-        "h1",
-        "Default",
-      );
       //   Make RTE Required
       cy.CheckWidgetProperties(formWidgetsPage.requiredJs);
 
