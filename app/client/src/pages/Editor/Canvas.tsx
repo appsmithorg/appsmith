@@ -41,9 +41,7 @@ const Wrapper = styled.section<{
   background: ${({ background }) => background};
   width: ${({ $enableMainCanvasResizer, width }) =>
     $enableMainCanvasResizer ? `100%` : `${width}px`};
-//   padding-inline-start: ${({ $padBackground }) =>
-//     $padBackground ? "25px" : "0px"};
-// `;
+`;
 const Canvas = (props: CanvasProps) => {
   const { canvasWidth } = props;
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
