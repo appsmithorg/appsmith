@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.server.constants.FeatureMigrationType;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
@@ -9,6 +8,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
+import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.EnvManager;
@@ -20,10 +20,6 @@ import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.mongodb.core.MongoOperations;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
@@ -33,6 +29,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.appsmith.server.constants.MigrationStatus.COMPLETED;
@@ -44,6 +41,7 @@ import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.springframework.data.mongodb.core.query.Update.update;
 
 @SpringBootTest
 @ExtendWith(SpringExtension.class)
@@ -59,10 +57,10 @@ class TenantServiceCETest {
     UserRepository userRepository;
 
     @Autowired
-    UserUtils userUtils;
+    TenantRepository tenantRepository;
 
     @Autowired
-    MongoOperations mongoOperations;
+    UserUtils userUtils;
 
     @MockBean
     FeatureFlagMigrationHelper featureFlagMigrationHelper;
@@ -74,10 +72,10 @@ class TenantServiceCETest {
         final Tenant tenant = tenantService.getDefaultTenant().block();
         assert tenant != null;
         originalTenantConfiguration = tenant.getTenantConfiguration();
-        mongoOperations.updateFirst(
-                Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
-                Update.update(Tenant.Fields.tenantConfiguration, null),
-                Tenant.class);
+
+        tenantRepository
+                .updateAndReturn(tenant.getId(), update(Tenant.Fields.tenantConfiguration, null), Optional.empty())
+                .block();
 
         // Make api_user super-user to test tenant admin functionality
         // Todo change this to tenant admin once we introduce multitenancy
@@ -89,11 +87,13 @@ class TenantServiceCETest {
 
     @AfterEach
     public void cleanup() {
-        final Tenant tenant = tenantService.getDefaultTenant().block();
-        mongoOperations.updateFirst(
-                Query.query(Criteria.where(FieldName.ID).is(tenant.getId())),
-                Update.update(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
-                Tenant.class);
+        tenantService
+                .getDefaultTenant()
+                .flatMap(tenant -> tenantRepository.updateAndReturn(
+                        tenant.getId(),
+                        update(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
+                        Optional.empty()))
+                .block();
     }
 
     @Test

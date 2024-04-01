@@ -34,14 +34,13 @@ import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -54,7 +53,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -63,8 +61,10 @@ import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 
 @Slf4j
 @RequestMapping(Url.APPLICATION_URL)
-public class ApplicationControllerCE extends BaseController<ApplicationService, Application, String> {
+@RequiredArgsConstructor
+public class ApplicationControllerCE {
 
+    protected final ApplicationService service;
     private final ApplicationPageService applicationPageService;
     private final ApplicationFetcher applicationFetcher;
     private final ApplicationForkingService applicationForkingService;
@@ -75,35 +75,11 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ImportService importService;
     private final ExportService exportService;
 
-    @Autowired
-    public ApplicationControllerCE(
-            ApplicationService service,
-            ApplicationPageService applicationPageService,
-            ApplicationFetcher applicationFetcher,
-            ApplicationForkingService applicationForkingService,
-            ThemeService themeService,
-            ApplicationSnapshotService applicationSnapshotService,
-            PartialExportService partialExportService,
-            PartialImportService partialImportService,
-            ImportService importService,
-            ExportService exportService) {
-        super(service);
-        this.exportService = exportService;
-        this.applicationPageService = applicationPageService;
-        this.applicationFetcher = applicationFetcher;
-        this.applicationForkingService = applicationForkingService;
-        this.themeService = themeService;
-        this.applicationSnapshotService = applicationSnapshotService;
-        this.partialExportService = partialExportService;
-        this.partialImportService = partialImportService;
-        this.importService = importService;
-    }
-
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Application>> create(
-            @Valid @RequestBody Application resource, @RequestParam String workspaceId, ServerWebExchange exchange) {
+            @Valid @RequestBody Application resource, @RequestParam String workspaceId) {
         if (workspaceId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspace id"));
         }
@@ -146,11 +122,9 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
-    @Override
     @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<Application>> delete(
-            @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<Application>> delete(@PathVariable String id) {
         log.debug("Going to delete application with id: {}", id);
         return applicationPageService
                 .deleteApplication(id)
@@ -281,9 +255,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @JsonView(Views.Public.class)
     @PostMapping("/snapshot/{id}/restore")
     public Mono<ResponseDTO<Application>> restoreSnapshot(
-            @PathVariable String id,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
+            @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
 
         return applicationSnapshotService
@@ -318,7 +290,6 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @Override
     @JsonView(Views.Public.class)
     @PutMapping("/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> update(
@@ -366,18 +337,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @PathVariable String defaultApplicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return service.deleteAppNavigationLogo(branchName, defaultApplicationId)
-                .map(ignored -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
-    }
-
-    // !! This API endpoint should not be exposed !!
-    @Override
-    @JsonView(Views.Public.class)
-    @GetMapping("")
-    public Mono<ResponseDTO<List<Application>>> getAll(
-            @RequestParam MultiValueMap<String, String> params,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return Mono.just(new ResponseDTO<>(
-                HttpStatus.BAD_REQUEST.value(), null, AppsmithError.UNSUPPORTED_OPERATION.getMessage()));
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 
     @JsonView(Views.Public.class)

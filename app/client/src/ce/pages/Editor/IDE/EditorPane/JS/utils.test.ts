@@ -1,12 +1,12 @@
 import { getJSEntityItemUrl, getJSUrl } from "./utils";
-import { URLBuilder } from "@appsmith/entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { PluginType } from "entities/Action";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
 import { EditorState } from "@appsmith/entities/IDE/constants";
 
 describe("getJSEntityItemUrl", () => {
-  URLBuilder._instance.setCurrentPageId("testPage");
+  urlBuilder.setCurrentPageId("testPage");
   it("returns a JS url", () => {
     const url = getJSEntityItemUrl(
       {
@@ -22,7 +22,7 @@ describe("getJSEntityItemUrl", () => {
 });
 
 describe("getJSUrl", () => {
-  URLBuilder._instance.setCurrentPageId("testPage");
+  urlBuilder.setCurrentPageId("testPage");
   it("returns a JS collection url", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.JS_OBJECT,
