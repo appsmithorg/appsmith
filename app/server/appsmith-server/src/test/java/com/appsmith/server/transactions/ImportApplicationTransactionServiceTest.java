@@ -13,10 +13,10 @@ import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.cakes.ActionCollectionRepositoryCake;
+import com.appsmith.server.repositories.cakes.ApplicationRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
+import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.Gson;
 import org.junit.jupiter.api.BeforeEach;
@@ -59,7 +59,7 @@ public class ImportApplicationTransactionServiceTest {
     WorkspaceService workspaceService;
 
     @Autowired
-    ApplicationRepository applicationRepository;
+    ApplicationRepositoryCake applicationRepository;
 
     @MockBean
     NewActionService newActionService;
@@ -68,7 +68,7 @@ public class ImportApplicationTransactionServiceTest {
     NewActionRepositoryCake newActionRepository;
 
     @Autowired
-    NewPageRepository newPageRepository;
+    NewPageRepositoryCake newPageRepository;
 
     @MockBean
     ActionCollectionService actionCollectionService;

@@ -1,29 +1,33 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.server.domains.Sequence;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Mono;
 
-import static org.springframework.data.mongodb.core.FindAndModifyOptions.options;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
+import java.util.Optional;
+
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
 @RequiredArgsConstructor
 public class SequenceServiceCEImpl implements SequenceServiceCE {
 
-    private final ReactiveMongoTemplate mongoTemplate;
+    private final EntityManager entityManager;
 
     private Mono<Long> getNext(String name) {
-        return mongoTemplate
-                .findAndModify(
-                        query(where("name").is(name)),
-                        new Update().inc("nextNumber", 1),
-                        options().returnNew(true).upsert(true),
-                        Sequence.class)
-                .map(Sequence::getNextNumber);
+        // XXX: This is very much a Postgres-only shenanigan SQL statement.
+        final Query query = entityManager.createNativeQuery(
+                """
+                INSERT INTO "sequence" (name, next_number)
+                VALUES (:name, 1)
+                ON CONFLICT (name) DO UPDATE SET next_number = "sequence".next_number + 1
+                RETURNING next_number
+                """);
+
+        query.setParameter("name", name);
+
+        return asMono(() -> Optional.of((Long) query.getSingleResult()));
     }
 
     @Override
