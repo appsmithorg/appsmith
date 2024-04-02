@@ -10,6 +10,10 @@ import java.util.Collection;
 public final class Bridge {
     private Bridge() {}
 
+    public static BridgeUpdate update() {
+        return new BridgeUpdate();
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> query() {
         return new BridgeQuery<>();
     }
