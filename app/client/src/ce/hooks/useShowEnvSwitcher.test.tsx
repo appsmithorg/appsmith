@@ -29,6 +29,8 @@ const renderMockElement = ({
   );
 };
 
+const environments = { data: [] };
+
 describe("BottomBar environment switcher", () => {
   it("should render when admin in edit mode", () => {
     const mockStore = configureMockStore();
@@ -56,6 +58,7 @@ describe("BottomBar environment switcher", () => {
           isPreviewMode: false,
         },
       },
+      environments,
     });
     renderMockElement({ store, viewMode: false });
     expect(useShowEnvSwitcherSpy).lastReturnedWith(true);
@@ -86,6 +89,7 @@ describe("BottomBar environment switcher", () => {
           isPreviewMode: false,
         },
       },
+      environments,
     });
     renderMockElement({ store, viewMode: false });
     expect(useShowEnvSwitcherSpy).lastReturnedWith(true);
@@ -116,6 +120,7 @@ describe("BottomBar environment switcher", () => {
           isPreviewMode: false,
         },
       },
+      environments,
     });
     renderMockElement({ store, viewMode: false });
     expect(useShowEnvSwitcherSpy).lastReturnedWith(false);
@@ -147,6 +152,7 @@ describe("BottomBar environment switcher", () => {
           isPreviewMode: true,
         },
       },
+      environments,
     });
     renderMockElement({ store, viewMode: false });
     expect(useShowEnvSwitcherSpy).lastReturnedWith(false);
@@ -177,6 +183,7 @@ describe("BottomBar environment switcher", () => {
           isPreviewMode: true,
         },
       },
+      environments,
     });
     renderMockElement({ store, viewMode: false });
     expect(useShowEnvSwitcherSpy).lastReturnedWith(false);
@@ -207,6 +214,7 @@ describe("BottomBar environment switcher", () => {
           isPreviewMode: true,
         },
       },
+      environments,
     });
     renderMockElement({ store, viewMode: false });
     expect(useShowEnvSwitcherSpy).lastReturnedWith(false);
@@ -238,6 +246,7 @@ describe("BottomBar environment switcher", () => {
           isPreviewMode: false,
         },
       },
+      environments,
     });
     renderMockElement({ store, viewMode: true });
     expect(useShowEnvSwitcherSpy).lastReturnedWith(false);
@@ -268,6 +277,7 @@ describe("BottomBar environment switcher", () => {
           isPreviewMode: false,
         },
       },
+      environments,
     });
     renderMockElement({ store, viewMode: true });
     expect(useShowEnvSwitcherSpy).lastReturnedWith(false);
@@ -298,6 +308,7 @@ describe("BottomBar environment switcher", () => {
           isPreviewMode: false,
         },
       },
+      environments,
     });
     renderMockElement({ store, viewMode: true });
     expect(useShowEnvSwitcherSpy).lastReturnedWith(false);
