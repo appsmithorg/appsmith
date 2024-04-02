@@ -2,12 +2,12 @@ package com.appsmith.git.service.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
-import com.appsmith.external.constants.ce.GitEvents;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.GitEvents;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
@@ -63,8 +63,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
-import static com.appsmith.external.constants.ce.GitConstantsCE.CHECKOUT_REMOTE;
-import static com.appsmith.external.constants.ce.GitConstantsCE.HARD_RESET;
+import static com.appsmith.external.git.constants.GitConstants.CHECKOUT_REMOTE;
+import static com.appsmith.external.git.constants.GitConstants.HARD_RESET;
 import static com.appsmith.git.constants.CommonConstants.FILE_MIGRATION_MESSAGE;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
@@ -285,7 +285,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return branchName;
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitEvents.FILE_SYSTEM_CLONE.getEventName())
+                .name(GitEvents.FILE_SYSTEM_CLONE_REPO.getEventName())
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -345,7 +345,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitEvents.FILE_SYSTEM_DELETE.getEventName())
+                .name(GitEvents.FILE_SYSTEM_DELETE_BRANCH.getEventName())
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }

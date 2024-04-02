@@ -1,4 +1,4 @@
-package com.appsmith.external.constants.ce;
+package com.appsmith.external.git.constants.ce;
 
 public class GitConstantsCE {
     // This will be used as a key separator for action and jsobjects name

@@ -1,9 +1,9 @@
-package com.appsmith.external.constants.ce;
+package com.appsmith.external.git.constants;
 
 import java.util.Locale;
 
 public enum GitEvents {
-    FILE_SYSTEM_CLONE,
+    FILE_SYSTEM_CLONE_REPO,
     FILE_SYSTEM_STATUS,
     FILE_SYSTEM_PULL,
     FILE_SYSTEM_BRANCH_TRACK,
@@ -12,7 +12,7 @@ public enum GitEvents {
     FILE_SYSTEM_COMMIT,
     FILE_SYSTEM_CHECKOUT_BRANCH,
     FILE_SYSTEM_CREATE_BRANCH,
-    FILE_SYSTEM_DELETE,
+    FILE_SYSTEM_DELETE_BRANCH,
     FILE_SYSTEM_CREATE_REPO,
     FILE_SYSTEM_RESET,
     FILE_SYSTEM_MERGE,
