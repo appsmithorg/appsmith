@@ -49,6 +49,8 @@ export function AnvilHighlightingCanvas({
       canvasPadding={0}
       getRelativeScrollingParent={getNearestParentCanvas}
       ref={canvasRef}
+      // increases pixel density of the canvas
+      scaleFactor={2}
       shouldObserveIntersection={anvilDragStates.isDragging}
       showCanvas={showDraggingCanvas}
       sliderId={`div-dragarena-${layoutId}`}
