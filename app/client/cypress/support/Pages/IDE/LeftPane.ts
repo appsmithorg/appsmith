@@ -1,4 +1,6 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+import AddView from "./AddView";
+import ListView from "./ListView";
 
 export class LeftPane {
   segments?: string[];
@@ -10,10 +12,12 @@ export class LeftPane {
       "//div[text()='" +
       name +
       "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]",
-    addItem: "button.t--add-item",
     activeItemSelector: "",
     selector: "",
   };
+
+  private addView: AddView;
+  private listView: ListView;
 
   constructor(
     listItemSelector: (name: string) => string,
@@ -25,6 +29,8 @@ export class LeftPane {
     this.segments = segments;
     this.locators.selector = selector;
     this.locators.activeItemSelector = activeItemSelector;
+    this.addView = new AddView();
+    this.listView = new ListView();
   }
 
   public assertAbsence(name: string) {
@@ -96,15 +102,26 @@ export class LeftPane {
   }
 
   public switchToAddNew() {
-    // for js it will directly add a new file
-    cy.get("body").then(($body) => {
-      if ($body.find(this.locators.addItem).length > 0) {
-        ObjectsRegistry.AggregateHelper.GetNClick(
-          this.locators.addItem,
-          0,
-          true,
-        );
-      }
-    });
+    this.listView.switchToAddNew();
+  }
+
+  public assertInAddView() {
+    this.addView.assertInAddView();
+  }
+
+  public closeAddView() {
+    this.addView.closeAddView();
+  }
+
+  public getCreateOptions() {
+    return this.addView.getCreateOptions();
+  }
+
+  public assertInListView() {
+    this.listView.assertListVisibility();
+  }
+
+  public assertItemCount(count: number) {
+    this.listView.assertItemCount(count);
   }
 }

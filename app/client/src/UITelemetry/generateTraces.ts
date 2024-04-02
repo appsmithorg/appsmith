@@ -17,7 +17,7 @@ export const generateContext = (span: Span) => {
 };
 export function startNestedSpan(
   spanName: string,
-  parentSpan: Span,
+  parentSpan?: Span,
   spanAttributes?: Attributes,
   startTime?: TimeInput,
 ) {
