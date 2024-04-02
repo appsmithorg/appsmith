@@ -7,7 +7,7 @@ import { useClickToClearSelections } from "./useClickToClearSelections";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { AnvilEditorModeClassName } from "widgets/anvil/constants";
-
+import "./styles/anvilEditor.css";
 /**
  * Anvil Main Canvas is just a wrapper around AnvilCanvas.
  * Why do we need this?

@@ -1,0 +1,25 @@
+@import "./anvilEditorColors.css";
+
+.detached-widgets-drop-overlay {
+  background-color: var(--modal-overlay-color);
+  position: fixed;
+  overflow: hidden;
+  inset: 0px;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.detached-widgets-drop-overlay-content {
+  background-color: var(--modal-overlay-content-color);
+  color: var(--modal-overlay-content-text-color);
+  outline: var(--modal-overlay-content-outline) !important;
+  outline-offset: 3px !important;
+  border-radius: 4px;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 14px;
+  font-weight: 510;
+}

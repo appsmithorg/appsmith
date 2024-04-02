@@ -1,11 +1,10 @@
-import { Modal, ModalContent } from "@design-system/widgets";
 import React from "react";
 import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import type { AnvilHighlightInfo } from "../utils/anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import "./styles.css";
 import styled from "styled-components";
+import { Popover, PopoverModalContent } from "@design-system/headless";
 
 /**
  * Default highlight passed for AnvilOverlayWidgetTypes widgets
@@ -41,15 +40,14 @@ export const DetachedWidgetsDropArena = (props: {
   };
   return props.anvilDragStates.activateOverlayWidgetDrop ? (
     <DetachedWidgetsDropArenaWrapper onMouseUp={onMouseUp}>
-      <Modal
-        isOpen={props.anvilDragStates.activateOverlayWidgetDrop}
-        overlayClassName="detached-widgets-drop-overlay"
-        size="large"
-      >
-        <ModalContent className="detached-widgets-drop-overlay-content">
-          <div>Drop the Modal here</div>
-        </ModalContent>
-      </Modal>
+      <Popover isOpen modal>
+        <PopoverModalContent
+          contentClassName="detached-widgets-drop-overlay-content"
+          overlayClassName="detached-widgets-drop-overlay"
+        >
+          Drop the Modal here
+        </PopoverModalContent>
+      </Popover>
     </DetachedWidgetsDropArenaWrapper>
   ) : null;
 };

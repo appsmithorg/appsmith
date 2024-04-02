@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import "./styles.css";
+import "./styles/anvilViewer.css";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { getAnvilCanvasId } from "./utils";
 import { LayoutProvider } from "../layoutComponents/LayoutProvider";
