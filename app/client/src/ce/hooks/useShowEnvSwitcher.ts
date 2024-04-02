@@ -30,6 +30,7 @@ const useShowEnvSwitcher = ({ viewMode }: { viewMode: boolean }) => {
   if (!isFeatureEnabled && !isRampAllowed) {
     return false;
   }
+
   if (viewMode && isMultiEnvNotPresent) {
     return false;
   }
