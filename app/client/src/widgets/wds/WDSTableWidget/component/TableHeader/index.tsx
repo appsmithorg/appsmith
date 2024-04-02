@@ -10,6 +10,7 @@ import type { AddNewRowBannerProps } from "./AddNewRowBanner";
 import FilterPane from "./FilterPane";
 import styles from "./styles.module.css";
 import { Pagination } from "./Pagination";
+import { Flex } from "@design-system/widgets";
 
 interface TableHeaderProps
   extends ActionsPropsType,
@@ -51,22 +52,24 @@ function TableHeader(props: TableHeaderProps) {
           onSearch={onSearch}
           searchKey={searchKey}
         />
-        <Actions
-          applyFilter={applyFilter}
-          columns={columns}
-          tableData={tableData}
-          widgetId={widgetId}
-          {...rest}
-        />
-        <Pagination
-          applyFilter={applyFilter}
-          columns={columns}
-          searchKey={searchKey}
-          searchTableData={onSearch}
-          tableData={tableData}
-          widgetId={widgetId}
-          {...rest}
-        />
+        <Flex flexGrow={1} justifyContent="space-between">
+          <Actions
+            applyFilter={applyFilter}
+            columns={columns}
+            tableData={tableData}
+            widgetId={widgetId}
+            {...rest}
+          />
+          <Pagination
+            applyFilter={applyFilter}
+            columns={columns}
+            searchKey={searchKey}
+            searchTableData={onSearch}
+            tableData={tableData}
+            widgetId={widgetId}
+            {...rest}
+          />
+        </Flex>
       </>
     );
   })();
@@ -74,7 +77,7 @@ function TableHeader(props: TableHeaderProps) {
   return (
     <>
       <div className={styles["table-header"]} ref={tableHeaderRef}>
-        {content}
+        <div data-layout="">{content}</div>
       </div>
       <FilterPane {...props} targetNode={tableHeaderRef.current ?? undefined} />
     </>
