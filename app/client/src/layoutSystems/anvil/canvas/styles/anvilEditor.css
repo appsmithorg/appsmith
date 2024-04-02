@@ -1,4 +1,9 @@
-@import "./anvilEditorColors.css";
+/* 
+This file is used to declare styles of the Anvil Editor only Components.
+Please note that these styles will not be applied/available for the published app(AppViewer). 
+*/
+
+@import "./anvilEditorVariables.css";
 
 .detached-widgets-drop-overlay {
   background-color: var(--modal-overlay-color);
@@ -20,6 +25,6 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  font-size: 14px;
-  font-weight: 510;
+  font-size: var(--info-text-font-size);
+  font-weight: var(--info-text-font-weight);
 }

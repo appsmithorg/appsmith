@@ -39,8 +39,8 @@ const StyledEmptyModalDropArena = styled.div<{
   color: var(--empty-modal-drop-arena-text-color);
   position: absolute;
   inset: 0;
-  font-size: 14px;
-  font-weight: 510;
+  font-size: var(--info-text-font-size);
+  font-weight: var(--info-text-font-weight);
   line-height: 19.6px;
 `;
 export const EmptyModalDropArena = ({
