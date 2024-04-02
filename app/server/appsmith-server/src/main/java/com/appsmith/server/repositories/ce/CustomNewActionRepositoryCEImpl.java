@@ -14,7 +14,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 
 import java.time.Instant;
 import java.util.List;
@@ -25,8 +24,6 @@ import java.util.Set;
 @RequiredArgsConstructor
 public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepositoryCE {
-
-    private final ReactiveMongoOperations mongoOperations;
 
     @Override
     public List<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {

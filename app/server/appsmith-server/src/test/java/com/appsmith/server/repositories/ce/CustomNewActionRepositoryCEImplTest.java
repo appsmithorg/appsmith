@@ -7,7 +7,6 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.solutions.ActionPermission;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,7 +70,7 @@ public class CustomNewActionRepositoryCEImplTest {
 
     @Test
     public void bulkInsert_WhenDuplicateId_ExceptionThrown() {
-        String duplicateId = new ObjectId().toString();
+        String duplicateId = UUID.randomUUID().toString();
         List<NewAction> actionList = new ArrayList<>();
 
         for (int i = 0; i < 2; i++) {
@@ -91,7 +90,7 @@ public class CustomNewActionRepositoryCEImplTest {
         String applicationId = UUID.randomUUID().toString();
 
         for (int i = 0; i < 5; i++) {
-            String generatedId = new ObjectId().toString();
+            String generatedId = UUID.randomUUID().toString();
             NewAction action = new NewAction();
             action.setId(generatedId);
             action.setApplicationId(applicationId);

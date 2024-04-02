@@ -20,7 +20,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ApplicationContext;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -43,8 +42,6 @@ public class InstanceConfigHelperCEImpl implements InstanceConfigHelperCE {
     private final CommonConfig commonConfig;
 
     private final ApplicationContext applicationContext;
-
-    private final ReactiveMongoTemplate reactiveMongoTemplate;
 
     private final FeatureFlagService featureFlagService;
     private final AnalyticsService analyticsService;

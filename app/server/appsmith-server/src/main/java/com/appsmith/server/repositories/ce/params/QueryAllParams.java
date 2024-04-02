@@ -9,7 +9,6 @@ import lombok.Getter;
 import lombok.NonNull;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -24,7 +23,6 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.N
 public class QueryAllParams<T extends BaseDomain> {
     // TODO(Shri): There's a cyclic dependency between the repository and this class. Remove it.
     private final BaseAppsmithRepositoryCEImpl<T> repo;
-    private final List<Criteria> criteria = new ArrayList<>();
     private final List<Specification<T>> specifications = new ArrayList<>();
     private final List<String> fields = new ArrayList<>();
     private AclPermission permission;
@@ -46,50 +44,34 @@ public class QueryAllParams<T extends BaseDomain> {
     }
 
     public List<T> all() {
-        ensureNoOldStyleCriteria();
         return repo.queryAllExecute(this);
     }
 
     public Optional<T> one() {
-        ensureNoOldStyleCriteria();
         return repo.queryOneExecute(this);
     }
 
     public Optional<T> first() {
-        ensureNoOldStyleCriteria();
         return repo.queryFirstExecute(this);
     }
 
     public Optional<Long> count() {
-        ensureNoOldStyleCriteria();
         return repo.countExecute(this);
     }
 
     public int updateAll(@NonNull BridgeUpdate update) {
-        ensureNoOldStyleCriteria();
         scope = Scope.ALL;
         return repo.updateExecute(this, update);
     }
 
     public int updateFirst(@NonNull T resource) {
-        ensureNoOldStyleCriteria();
         scope = Scope.FIRST;
         return repo.updateExecute(this, resource);
     }
 
     public int updateFirst(@NonNull BridgeUpdate update) {
-        ensureNoOldStyleCriteria();
         scope = Scope.FIRST;
         return repo.updateExecute(this, update);
-    }
-
-    private void ensureNoOldStyleCriteria() {
-        if (!criteria.isEmpty()) {
-            final var e = new RuntimeException("Operating with criteria, instead of specifications!");
-            // We're eating up the exception in some places, so let's print it out for debugging ourselves.
-            e.printStackTrace();
-            throw e;
-        }
     }
 
     @SafeVarargs

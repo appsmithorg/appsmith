@@ -8,7 +8,6 @@ import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.newactions.base.NewActionService;
 import lombok.RequiredArgsConstructor;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -16,6 +15,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 
@@ -106,7 +106,7 @@ public class ActionCollectionClonePageServiceCEImpl implements ClonePageServiceC
                     toBeClonedActionCollection.getDefaultResources().setPageId(null);
                     // Assign new gitSyncId for cloned actionCollection
                     toBeClonedActionCollection.setGitSyncId(
-                            toBeClonedActionCollection.getApplicationId() + "_" + new ObjectId());
+                            toBeClonedActionCollection.getApplicationId() + "_" + UUID.randomUUID());
                     return actionCollectionService
                             .create(toBeClonedActionCollection)
                             .flatMap(clonedActionCollection -> {

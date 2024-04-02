@@ -30,7 +30,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
 import net.minidev.json.parser.ParseException;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.StringUtils;
@@ -46,6 +45,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
@@ -151,7 +151,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
                     newPage.setUnpublishedPage(page);
                     // gitSyncId will be used to sync resource across instances
                     if (newPage.getGitSyncId() == null) {
-                        newPage.setGitSyncId(page.getApplicationId() + "_" + new ObjectId());
+                        newPage.setGitSyncId(page.getApplicationId() + "_" + UUID.randomUUID());
                     }
                     return repository.save(newPage);
                 })
@@ -167,7 +167,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         newPage.setPolicies(object.getPolicies());
         if (newPage.getGitSyncId() == null) {
             // Make sure gitSyncId will be unique
-            newPage.setGitSyncId(newPage.getApplicationId() + "_" + new ObjectId());
+            newPage.setGitSyncId(newPage.getApplicationId() + "_" + UUID.randomUUID());
         }
         DefaultResources defaultResources = object.getDefaultResources();
         newPage.setDefaultResources(defaultResources);
@@ -206,7 +206,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     @Override
     public Layout createDefaultLayout() {
         Layout layout = new Layout();
-        String id = new ObjectId().toString();
+        String id = UUID.randomUUID().toString();
         layout.setId(id);
         try {
             layout.setDsl((JSONObject) new JSONParser(JSONParser.MODE_PERMISSIVE).parse(FieldName.DEFAULT_PAGE_LAYOUT));
@@ -540,7 +540,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Mono<NewPage> save(NewPage page) {
         // gitSyncId will be used to sync resource across instances
         if (page.getGitSyncId() == null) {
-            page.setGitSyncId(page.getApplicationId() + "_" + new ObjectId());
+            page.setGitSyncId(page.getApplicationId() + "_" + UUID.randomUUID());
         }
         return repository.save(page); // */
     }
@@ -578,7 +578,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     public Flux<NewPage> saveAll(List<NewPage> pages) {
         pages.stream()
                 .filter(newPage -> newPage.getGitSyncId() == null)
-                .forEach(newPage -> newPage.setGitSyncId(newPage.getId() + "_" + new ObjectId()));
+                .forEach(newPage -> newPage.setGitSyncId(newPage.getId() + "_" + UUID.randomUUID()));
         return repository.saveAll(pages); // */
     }
 

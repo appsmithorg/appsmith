@@ -10,12 +10,12 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.solutions.PagePermission;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import reactor.core.publisher.Mono;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 public class LayoutServiceCEImpl implements LayoutServiceCE {
@@ -50,7 +50,7 @@ public class LayoutServiceCEImpl implements LayoutServiceCE {
                         layoutList = new ArrayList<Layout>();
                     }
                     // Adding an Id to the layout to ensure that a layout can be referred to by its ID as well.
-                    layout.setId(new ObjectId().toString());
+                    layout.setId(UUID.randomUUID().toString());
 
                     layoutList.add(layout);
                     page.setLayouts(layoutList);

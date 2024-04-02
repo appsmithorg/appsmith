@@ -8,6 +8,4 @@ public interface HealthCheckServiceCE {
     Mono<String> getHealth();
 
     Mono<Health> getRedisHealth();
-
-    Mono<Health> getMongoHealth();
 }

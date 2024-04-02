@@ -39,7 +39,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.GenericTypeResolver;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Modifying;
-import org.springframework.data.mongodb.core.FindAndModifyOptions;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
@@ -673,8 +672,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      *
      * @implNote
      * The `findAndModify` method operates at the database level and does not automatically handle encryption or decryption of fields. If the document contains encrypted fields, it is the responsibility of the caller to handle encryption and decryption both before and after using this method.
-     *
-     * @see FindAndModifyOptions
      */
     public T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
         throw new ex.Marker("updateAndReturn WIP");
