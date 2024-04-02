@@ -26,9 +26,10 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static com.appsmith.server.helpers.ReactorUtils.asFlux;
-import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
+import static com.appsmith.server.helpers.ReactorUtils.asMono;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -79,7 +80,10 @@ public abstract class BaseService<
 
         // TODO(Shri): update happens with `key=id` and find happens with `id=id` criteria. This is incorrect, but is
         //   too fragile to touch right now. Need to dig in slow and deep to fix this.
-        return asMonoDirect(() -> repositoryDirect.updateFirst(Bridge.equal(key, (String) id), resource))
+        return asMono(() -> Optional.of(repositoryDirect
+                        .queryBuilder()
+                        .criteria(Bridge.equal(key, (String) id))
+                        .updateFirst(resource)))
                 .flatMap(obj -> repository.findById((String) id))
                 .flatMap(savedResource ->
                         analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));

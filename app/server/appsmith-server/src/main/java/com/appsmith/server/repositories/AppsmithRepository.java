@@ -2,11 +2,8 @@ package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;

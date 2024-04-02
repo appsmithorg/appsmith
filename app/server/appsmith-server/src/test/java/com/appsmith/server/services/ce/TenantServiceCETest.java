@@ -73,9 +73,8 @@ class TenantServiceCETest {
         assert tenant != null;
         originalTenantConfiguration = tenant.getTenantConfiguration();
 
-        tenantRepository
-                .updateAndReturn(
-                        tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), Optional.empty());
+        tenantRepository.updateAndReturn(
+                tenant.getId(), Bridge.update().set(Tenant.Fields.tenantConfiguration, null), Optional.empty());
 
         // Make api_user super-user to test tenant admin functionality
         // Todo change this to tenant admin once we introduce multitenancy

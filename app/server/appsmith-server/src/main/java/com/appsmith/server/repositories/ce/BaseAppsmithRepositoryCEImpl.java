@@ -589,7 +589,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      */
     @Modifying
     @Transactional
-    @Override
+    // @Override
     public int updateFirst(BridgeQuery<T> query, T resource) {
         return queryBuilder().criteria(query).updateFirst(resource);
     }

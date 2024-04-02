@@ -12,11 +12,8 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.mongodb.core.query.UpdateDefinition;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.Modifying;
 
 import java.util.List;

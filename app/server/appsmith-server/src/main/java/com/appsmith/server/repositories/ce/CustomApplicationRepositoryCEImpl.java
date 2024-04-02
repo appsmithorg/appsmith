@@ -17,11 +17,10 @@ import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
-import lombok.SneakyThrows;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -127,8 +126,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         // */
 
         /*return queryBuilder()
-            .byId(applicationId)
-            .updateFirst(Bridge.update().push(Application.Fields.pages, applicationPage));//*/
+        .byId(applicationId)
+        .updateFirst(Bridge.update().push(Application.Fields.pages, applicationPage));//*/
     }
 
     @Override

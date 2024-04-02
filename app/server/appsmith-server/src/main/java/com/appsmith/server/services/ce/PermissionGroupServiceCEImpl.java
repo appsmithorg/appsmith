@@ -13,8 +13,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
-import com.appsmith.server.repositories.ConfigRepository;
-import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
