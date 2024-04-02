@@ -800,26 +800,32 @@ function* toggleFunctionExecuteOnLoadSaga(
 function* handleCreateNewJSFromActionCreator(
   action: ReduxAction<(bindingValue: string) => void>,
 ) {
-  const { payload: callback } = action;
-  const pageId: string = yield select(getCurrentPageId);
+  // We name the newly created function similar to the property the function will be called from
+  // eg: Button1OnClick
   const currentFocusedProperty: string = yield select(
     getFocusablePropertyPaneField,
   );
-
   const functionName = currentFocusedProperty.split(".").join("");
+
+  // Side by Side ramp. Switch to SplitScreen mode to allow user to edit JS function
+  // created while having context of the canvas
   const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
   if (isSideBySideEnabled) {
     yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
   }
 
+  // Create the JS Object with the given function name
+  const pageId: string = yield select(getCurrentPageId);
   yield put(createNewJSCollection(pageId, "ACTION_SELECTOR", functionName));
 
+  // Wait for it to be created
   const JSAction: ReduxAction<JSCollection> = yield take(
     ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
   );
 
+  // Call the payload callback with the binding value of the new function created
   const bindingValue = JSAction.payload.name + "." + functionName;
-  callback(bindingValue);
+  action.payload(bindingValue);
 }
 
 export default function* root() {
