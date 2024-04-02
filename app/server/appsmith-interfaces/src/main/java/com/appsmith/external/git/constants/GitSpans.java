@@ -3,6 +3,7 @@ package com.appsmith.external.git.constants;
 import java.util.Locale;
 
 import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
+import static com.appsmith.external.constants.spans.BaseSpan.GIT_SPAN_PREFIX;
 
 public enum GitSpans {
     FILE_SYSTEM_CLONE_REPO,
@@ -26,7 +27,7 @@ public enum GitSpans {
     private final String eventName;
 
     GitSpans() {
-        this.eventName = APPSMITH_SPAN_PREFIX + name().toLowerCase(Locale.ROOT);
+        this.eventName = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + name().toLowerCase(Locale.ROOT);
     }
 
     public String getEventName() {
