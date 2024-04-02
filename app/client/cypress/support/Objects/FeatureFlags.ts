@@ -6,22 +6,7 @@ export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
 ) => {
-  getConsolidatedDataApi(flags, false);
-  const response = {
-    responseMeta: {
-      status: 200,
-      success: true,
-    },
-    data: {
-      ...flags,
-      release_show_new_sidebar_pages_pane_enabled: true,
-      release_side_by_side_ide_enabled: true,
-    },
-    errorDisplay: "",
-  };
-  cy.intercept("GET", "/api/v1/users/features", response);
-
-  if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
+  getConsolidatedDataApi(flags, reload);
 };
 
 export const getConsolidatedDataApi = (
@@ -38,10 +23,11 @@ export const getConsolidatedDataApi = (
         const originalResponse = res?.body;
         const updatedResponse = produce(originalResponse, (draft: any) => {
           draft.data.featureFlags.data = { ...flags };
-          draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
           draft.data.featureFlags.data[
             "release_show_new_sidebar_pages_pane_enabled"
           ] = true;
+          draft.data.featureFlags.data["release_side_by_side_ide_enabled"] =
+            true;
         });
         return res.send(updatedResponse);
       }
