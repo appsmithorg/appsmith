@@ -3,7 +3,6 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
-import com.google.errorprone.annotations.DoNotCall;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -83,7 +82,6 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable> e
      * We don't use this today, it doesn't use our `notDeleted` criteria, and since we don't use it, we're not porting
      * it to Postgres. Querying with `queryBuilder` or anything else is arguably more readable than this.
      */
-    @DoNotCall
     @Override
     public <S extends T> List<S> findAll(Example<S> example, Sort sort) {
         throw new UnsupportedOperationException("This method is not supported!");
