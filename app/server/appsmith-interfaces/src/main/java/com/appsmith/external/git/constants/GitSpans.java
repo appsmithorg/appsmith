@@ -22,8 +22,8 @@ public enum GitSpans {
     FILE_SYSTEM_REBASE,
     FILE_SYSTEM_PUSH,
     FILE_SYSTEM_FETCH_REMOTE,
-    APPLICATION_GIT_STATUS,
-    APPLICATION_GIT_COMMIT;
+    STATUS,
+    COMMIT;
     private final String eventName;
 
     GitSpans() {

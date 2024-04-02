@@ -107,8 +107,8 @@ import static com.appsmith.external.git.constants.GitConstants.EMPTY_COMMIT_ERRO
 import static com.appsmith.external.git.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.external.git.constants.GitConstants.GIT_PROFILE_ERROR;
 import static com.appsmith.external.git.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
-import static com.appsmith.external.git.constants.GitSpans.APPLICATION_GIT_COMMIT;
-import static com.appsmith.external.git.constants.GitSpans.APPLICATION_GIT_STATUS;
+import static com.appsmith.external.git.constants.GitSpans.COMMIT;
+import static com.appsmith.external.git.constants.GitSpans.STATUS;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
@@ -625,7 +625,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     childApplication.getGitApplicationMetadata().getIsRepoPrivate(),
                                     isSystemGenerated))
                             .thenReturn(status)
-                            .name(APPLICATION_GIT_COMMIT.getEventName())
+                            .name(COMMIT.getEventName())
                             .tap(Micrometer.observation(observationRegistry));
                 });
 
@@ -1995,7 +1995,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             throwable);
                     return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, throwable.getMessage()));
                 })
-                .name(APPLICATION_GIT_STATUS.getEventName())
+                .name(STATUS.getEventName())
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.zip(statusMono, sessionUserService.getCurrentUser(), branchedAppMono)
