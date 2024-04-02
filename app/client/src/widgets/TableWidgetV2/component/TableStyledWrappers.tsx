@@ -92,7 +92,7 @@ export const TableWrapper = styled.div<{
     height: 100%;
     display: block;
     position: relative;
-    width: 100%;
+    width: ${({ width }) => width}px;
     overflow: auto hidden;
     &.virtual {
       ${hideScrollbar};
