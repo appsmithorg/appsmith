@@ -469,11 +469,7 @@ export class HomePage {
       this.agHelper.WaitUntilEleAppear(
         this.onboarding.locators.skipStartFromData,
       );
-      this.agHelper.GetNClick(
-        this.onboarding.locators.skipStartFromData,
-        0,
-        true,
-      );
+      this.agHelper.GetNClick(this.onboarding.locators.skipStartFromData);
     }
     this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
   }
