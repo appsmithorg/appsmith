@@ -7,7 +7,6 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -47,7 +46,7 @@ public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Them
         return queryBuilder()
                 .criteria(criteria)
                 .permission(AclPermission.MANAGE_THEMES)
-                .updateAll(new Update().set(Theme.Fields.deletedAt, Instant.now()))
+                .updateAll(Bridge.update().set(Theme.Fields.deletedAt, Instant.now()))
                 .map(count -> count > 0);
     }
 
