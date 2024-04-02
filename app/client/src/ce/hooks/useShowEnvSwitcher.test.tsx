@@ -57,8 +57,8 @@ describe("BottomBar environment switcher", () => {
         editor: {
           isPreviewMode: false,
         },
-        environments,
       },
+      environments,
     });
     renderMockElement({ store, viewMode: false });
     expect(useShowEnvSwitcherSpy).lastReturnedWith(true);
