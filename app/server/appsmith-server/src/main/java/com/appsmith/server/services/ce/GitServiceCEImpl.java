@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
+import com.appsmith.external.constants.ce.GitEvents;
 import com.appsmith.external.dtos.GitBranchDTO;
 import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
@@ -3271,11 +3272,16 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                             throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
-                        }));
+                        }))
+                .name(GitEvents.ADD_FILE_LOCK.getEventName())
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     private Mono<Boolean> releaseFileLock(String defaultApplicationId) {
-        return redisUtils.releaseFileLock(defaultApplicationId);
+        return redisUtils
+                .releaseFileLock(defaultApplicationId)
+                .name(GitEvents.RELEASE_FILE_LOCK.getEventName())
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
