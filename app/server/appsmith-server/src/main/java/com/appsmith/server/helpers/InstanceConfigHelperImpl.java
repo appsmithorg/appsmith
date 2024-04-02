@@ -8,7 +8,6 @@ import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import org.springframework.context.ApplicationContext;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -18,7 +17,6 @@ public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl impleme
             CloudServicesConfig cloudServicesConfig,
             CommonConfig commonConfig,
             ApplicationContext applicationContext,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             FeatureFlagService featureFlagService,
             AnalyticsService analyticsService,
             NetworkUtils networkUtils,
@@ -28,7 +26,6 @@ public class InstanceConfigHelperImpl extends InstanceConfigHelperCEImpl impleme
                 cloudServicesConfig,
                 commonConfig,
                 applicationContext,
-                reactiveMongoTemplate,
                 featureFlagService,
                 analyticsService,
                 networkUtils,

@@ -20,7 +20,6 @@ import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
-import org.bson.types.ObjectId;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.StringUtils;
@@ -147,7 +146,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
 
         final Mono<Integer> setDefaultMono = asMonoDirect(() -> queryBuilder()
                 .byId(applicationId)
-                .criteria(Bridge.equal("pages._id", new ObjectId(pageId)))
+                .criteria(Bridge.equal(
+                        "pages._id", pageId /* Note: This was wrapped in a `new ObjectID()` with MongoDB */))
                 .updateFirst(Bridge.update().set("pages.$.isDefault", true)));
 
         return setAllAsNonDefaultMono.then(setDefaultMono).then().blockOptional();

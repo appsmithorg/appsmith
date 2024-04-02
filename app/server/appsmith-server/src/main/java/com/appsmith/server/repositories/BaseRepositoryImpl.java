@@ -13,7 +13,6 @@ import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.support.JpaEntityInformation;
 import org.springframework.data.jpa.repository.support.SimpleJpaRepository;
-import org.springframework.data.mongodb.repository.support.SimpleReactiveMongoRepository;
 
 import java.io.Serializable;
 import java.util.List;
@@ -23,10 +22,10 @@ import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.n
 
 /**
  * This repository implementation is the base class that will be used by Spring Data running all the default JPA queries.
- * We override the default implementation {@link SimpleReactiveMongoRepository} to filter out records marked with
+ * We override the default implementation SimpleReactiveMongoRepository to filter out records marked with
  * deleted=true.
  * To enable this base implementation, it MUST be set in the annotation @EnableReactiveMongoRepositories.repositoryBaseClass.
- * This is currently defined in {@link com.appsmith.server.configurations.MongoConfig} (liable to change in the future).
+ * This is currently defined in MongoConfig (liable to change in the future).
  * <p>
  * An implementation like this can also be used to set default query parameters based on the user's role and permissions
  * to filter out data that they are allowed to see. This is will be implemented with ACL.

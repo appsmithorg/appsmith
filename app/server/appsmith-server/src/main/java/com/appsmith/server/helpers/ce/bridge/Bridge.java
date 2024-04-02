@@ -2,7 +2,6 @@ package com.appsmith.server.helpers.ce.bridge;
 
 import com.appsmith.external.models.BaseDomain;
 import lombok.NonNull;
-import org.bson.types.ObjectId;
 
 import java.util.Collection;
 
@@ -53,10 +52,6 @@ public class Bridge {
 
     public static <T extends BaseDomain> BridgeQuery<T> equalIgnoreCase(@NonNull String key, @NonNull String value) {
         return Bridge.<T>query().equalIgnoreCase(key, value);
-    }
-
-    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull ObjectId value) {
-        throw new UnsupportedOperationException("Won't be supported");
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> in(

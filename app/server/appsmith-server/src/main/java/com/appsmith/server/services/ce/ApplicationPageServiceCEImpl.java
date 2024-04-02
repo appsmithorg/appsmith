@@ -64,7 +64,6 @@ import jakarta.annotation.Nullable;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
@@ -82,6 +81,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
@@ -149,7 +149,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         for (final Layout layout : layoutList) {
             if (StringUtils.isEmpty(layout.getId())) {
-                layout.setId(new ObjectId().toString());
+                layout.setId(UUID.randomUUID().toString());
             }
         }
 
@@ -627,7 +627,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .flatMap(page -> Flux.fromIterable(page.getLayouts())
                         .map(layout -> {
                             Layout newLayout = new Layout();
-                            String id = new ObjectId().toString();
+                            String id = UUID.randomUUID().toString();
                             newLayout.setId(id);
                             newLayout.setMongoEscapedWidgetNames(layout.getMongoEscapedWidgetNames());
                             newLayout.setDsl(layout.getDsl());

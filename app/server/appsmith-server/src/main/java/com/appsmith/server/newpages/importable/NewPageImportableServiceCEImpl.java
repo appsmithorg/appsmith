@@ -29,7 +29,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -43,6 +42,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
@@ -415,7 +415,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 applicationPageService.generateAndSetPagePolicies(application, newPage.getUnpublishedPage());
                 newPage.setPolicies(newPage.getUnpublishedPage().getPolicies());
                 newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
-                    String layoutId = new ObjectId().toString();
+                    String layoutId = UUID.randomUUID().toString();
                     oldToNewLayoutIds.put(layout.getId(), layoutId);
                     layout.setId(layoutId);
                 });
@@ -426,7 +426,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
                 newPage.getPublishedPage().getLayouts().forEach(layout -> {
                     String layoutId = oldToNewLayoutIds.containsKey(layout.getId())
                             ? oldToNewLayoutIds.get(layout.getId())
-                            : new ObjectId().toString();
+                            : UUID.randomUUID().toString();
                     layout.setId(layoutId);
                 });
             }

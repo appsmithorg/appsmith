@@ -52,7 +52,6 @@ import com.appsmith.server.themes.base.ThemeService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
-import org.bson.types.ObjectId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -63,6 +62,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
 @RequiredArgsConstructor
@@ -166,7 +166,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
                     if (page.getLayouts() != null) {
                         for (final Layout layout : page.getLayouts()) {
-                            layout.setId(new ObjectId().toString());
+                            layout.setId(UUID.randomUUID().toString());
                         }
                     }
 
