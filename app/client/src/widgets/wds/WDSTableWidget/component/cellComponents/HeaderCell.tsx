@@ -1,4 +1,4 @@
-import React, { useCallback, useState, memo } from "react";
+import React, { useCallback, useState, memo, Key } from "react";
 
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
@@ -130,6 +130,25 @@ const HeaderCellComponent = (props: HeaderProps) => {
     [props.onDrop, props.columnIndex],
   );
 
+  const onActionOnMenu = (key: Key) => {
+    switch (key) {
+      case "sort-asc":
+        props.sortTableColumn(props.columnIndex, true);
+        break;
+      case "sort-desc":
+        props.sortTableColumn(props.columnIndex, false);
+        break;
+      case "freeze-left":
+        toggleColumnFreeze(StickyType.LEFT);
+        break;
+      case "freeze-right":
+        toggleColumnFreeze(StickyType.RIGHT);
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <th
       {...headerProps}
@@ -165,7 +184,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
           </Text>
         </Flex>
       </div>
-      <Menu>
+      <Menu disabledKeys={["separator"]} onAction={onActionOnMenu}>
         <IconButton
           color="neutral"
           icon="chevron-down"
@@ -175,7 +194,9 @@ const HeaderCellComponent = (props: HeaderProps) => {
         <MenuList>
           <Item key="sort-asc">Sort column ascending</Item>
           <Item key="sort-desc">Sort column descending</Item>
-          <Item isSeparator>Separator</Item>
+          <Item isSeparator key="separator">
+            Separator
+          </Item>
           <Item key="freeze-left">Freeze column left</Item>
           <Item key="freeze-right">Freeze column right</Item>
         </MenuList>

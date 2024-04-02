@@ -1064,6 +1064,7 @@ export const getDragHandlers = (
   const onDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     currentDraggedColumn.current = columns[index].alias;
     const targetElem = e.target as HTMLDivElement;
+    targetElem.dataset.status = "dragging";
     targetElem.className = targetElem.className + " draggable-header--dragging";
     e.stopPropagation();
   };

@@ -3,12 +3,14 @@
   justify-content: space-between;
   flex-direction: column;
   flex-grow: 1;
-  background: var(--color-bg-secondary);
+  background: var(--color-bg-elevation-3);
   border-style: solid;
   border-width: var(--border-width-1);
   border-color: var(--color-bd);
   border-radius: var(--border-radius-elevation-3);
   box-sizing: border-box;
+  /* adding overflow hidden so that the scollbar at the bottom does not flow out */
+  overflow: hidden;
 
   /* --------------------------------------------------------------------------
    * WRAPPER
@@ -47,8 +49,9 @@
    * TR
    *-------------------------------------------------------------------------- */
    & thead th {
-    padding: var(--outer-spacing-3);
-    background: var(--color-bg);
+    block-size: var(--sizing-10);
+    padding-inline: var(--outer-spacing-2);
+    background: var(--color-bg-elevation-3);
     font-weight: bold;
     align-items: center;
   }

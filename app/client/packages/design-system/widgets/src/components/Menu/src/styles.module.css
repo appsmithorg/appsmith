@@ -81,6 +81,10 @@
   padding: 0;
 }
 
+.menuList li[data-separator] > * {
+  display: none;
+}
+
 /* making sure the first and last child are not displayed when they have the data-separator attribute */
 .menuList li:is(:first-child, :last-child):is([data-separator]) {
   display: none;

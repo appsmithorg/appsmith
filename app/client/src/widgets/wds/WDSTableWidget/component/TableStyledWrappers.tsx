@@ -102,7 +102,6 @@ export const TableWrapper = styled.div<{
     [data-sticky-td] {
       position: sticky;
       position: -webkit-sticky;
-      background-color: inherit;
       border-bottom: ${(props) =>
         props.variant === TableVariantTypes.VARIANT2
           ? "none"
@@ -249,51 +248,6 @@ export const OptionWrapper = styled.div<{
     background: ${(props) =>
       !props.isHeader ? Colors.WHITE_SMOKE : Colors.WHITE_CLOUD};
   }
-`;
-
-export const PaginationItemWrapper = styled.div<{
-  disabled?: boolean;
-  selected?: boolean;
-  borderRadius: string;
-  accentColor: string;
-}>`
-  background: ${(props) =>
-    props.disabled ? `var(--wds-color-bg-disabled)` : `var(--wds-color-bg)`};
-  border: 1px solid
-    ${(props) =>
-      props.disabled
-        ? `var(--wds-color-border-disabled)`
-        : `var(--wds-color-border)`};
-  box-sizing: border-box;
-  width: 24px;
-  height: 24px;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin: 0 4px;
-  cursor: ${(props) => (props.disabled ? "not-allowed" : "pointer")};
-  border-radius: ${({ borderRadius }) => borderRadius};
-
-  & > * {
-    pointer-events: ${(props) => props.disabled && "none"};
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    position: relative;
-  }
-
-  & svg {
-    fill: ${(props) =>
-      props.disabled
-        ? `var(--wds-color-icon-disabled)`
-        : `var(--wds-color-icon)`};
-  }
-  ${({ disabled }) =>
-    !disabled &&
-    `&:hover {
-    border-color: var(--wds-color-border-hover);
-    background-color: var(--wds-color-bg-hover);
-  }`}
 `;
 
 export const MenuColumnWrapper = styled.div<{ selected: boolean }>`
