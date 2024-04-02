@@ -56,6 +56,7 @@ import {
   updateJSFunction,
   executeJSFunctionInit,
   setJsPaneDebuggerState,
+  createNewJSCollection,
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -101,6 +102,10 @@ import {
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
 import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
+import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { setIdeEditorViewMode } from "actions/ideActions";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -792,6 +797,31 @@ function* toggleFunctionExecuteOnLoadSaga(
   }
 }
 
+function* handleCreateNewJSFromActionCreator(
+  action: ReduxAction<(bindingValue: string) => void>,
+) {
+  const { payload: callback } = action;
+  const pageId: string = yield select(getCurrentPageId);
+  const currentFocusedProperty: string = yield select(
+    getFocusablePropertyPaneField,
+  );
+
+  const functionName = currentFocusedProperty.split(".").join("");
+  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
+  if (isSideBySideEnabled) {
+    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+  }
+
+  yield put(createNewJSCollection(pageId, "ACTION_SELECTOR", functionName));
+
+  const JSAction: ReduxAction<JSCollection> = yield take(
+    ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
+  );
+
+  const bindingValue = JSAction.payload.name + "." + functionName;
+  callback(bindingValue);
+}
+
 export default function* root() {
   yield all([
     takeEvery(
@@ -827,6 +857,10 @@ export default function* root() {
     takeLatest(
       ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_INIT,
       toggleFunctionExecuteOnLoadSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.CREATE_NEW_JS_FROM_ACTION_CREATOR,
+      handleCreateNewJSFromActionCreator,
     ),
   ]);
 }

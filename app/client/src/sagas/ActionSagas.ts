@@ -9,6 +9,7 @@ import {
 import {
   all,
   call,
+  delay,
   fork,
   put,
   race,
@@ -53,6 +54,7 @@ import type {
   ActionViewMode,
   ApiAction,
   ApiActionConfig,
+  BaseAction,
   CreateActionDefaultsParams,
   SlashCommandPayload,
 } from "entities/Action";
@@ -117,10 +119,7 @@ import {
   enhanceRequestPayloadWithEventData,
   getFromServerWhenNoPrefetchedResult,
 } from "./helper";
-import {
-  setPropertyValueCreationCallback,
-  setSnipingMode as setSnipingModeAction,
-} from "actions/propertyPaneActions";
+import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
 import { getFormValues } from "redux-form";
 import {
@@ -140,9 +139,13 @@ import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
 import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
-import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode, IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
-import { getPropertyValueCreationCallback } from "selectors/propertyPaneSelectors";
+import {
+  setIdeEditorViewMode,
+  setShowQueryCreateNewModal,
+} from "../actions/ideActions";
+import { getIsSideBySideEnabled } from "../selectors/ideSelectors";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -348,20 +351,6 @@ export function* createActionSaga(
 
       // we fork to prevent the call from blocking
       yield fork(fetchActionDatasourceStructure, newAction);
-
-      try {
-        const onCreateCallback: (name: string) => void = yield select(
-          getPropertyValueCreationCallback,
-        );
-
-        if (onCreateCallback) {
-          onCreateCallback(payload.name || "");
-        }
-      } catch (e) {
-        log.error("Failed to call the property create callback");
-      } finally {
-        yield put(setPropertyValueCreationCallback(undefined));
-      }
     }
   } catch (error) {
     yield put({
@@ -1128,6 +1117,24 @@ function* updateEntitySavingStatus() {
   });
 }
 
+function* handleCreateNewQueryFromActionCreator(
+  action: ReduxAction<(name: string) => void>,
+) {
+  yield put(setShowQueryCreateNewModal(true));
+  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
+  if (isSideBySideEnabled) {
+    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+  }
+
+  const createdQuery: ReduxAction<BaseAction> = yield take(
+    ReduxActionTypes.CREATE_ACTION_SUCCESS,
+  );
+
+  yield delay(100);
+
+  action.payload(createdQuery.payload.name);
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
@@ -1160,6 +1167,10 @@ export function* watchActionSagas() {
     takeLatest(
       ReduxActionTypes.ENTITY_UPDATE_STARTED,
       updateEntitySavingStatus,
+    ),
+    takeLatest(
+      ReduxActionTypes.CREATE_NEW_QUERY_FROM_ACTION_CREATOR,
+      handleCreateNewQueryFromActionCreator,
     ),
   ]);
 }

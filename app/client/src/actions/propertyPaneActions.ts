@@ -97,11 +97,20 @@ export const setSelectedPropertyPanels = (payload: SelectedPropertyPanel) => {
   };
 };
 
-export const setPropertyValueCreationCallback = (
-  payload?: (value: string) => void,
+export const createNewJSCollectionFromActionCreator = (
+  payload: (bindingValue: string) => void,
 ) => {
   return {
-    type: ReduxActionTypes.SET_PROPERTY_VALUE_CREATION_CALLBACK,
+    type: ReduxActionTypes.CREATE_NEW_JS_FROM_ACTION_CREATOR,
+    payload,
+  };
+};
+
+export const createNewQueryFromActionCreator = (
+  payload: (bindingValue: string) => void,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_NEW_QUERY_FROM_ACTION_CREATOR,
     payload,
   };
 };

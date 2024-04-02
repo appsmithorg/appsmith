@@ -331,6 +331,3 @@ export const getShouldFocusPanelPropertySearch = createSelector(
       .includes(widgetName);
   },
 );
-
-export const getPropertyValueCreationCallback = (state: AppState) =>
-  state.ui.propertyPane.valueCreationCallback;

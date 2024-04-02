@@ -112,14 +112,6 @@ const propertyPaneReducer = createImmerReducer(initialState, {
   ) => {
     state.selectedPropertyPanel = action.payload;
   },
-  [ReduxActionTypes.SET_PROPERTY_VALUE_CREATION_CALLBACK]: (
-    state: PropertyPaneReduxState,
-    action: {
-      payload?: (value: string) => void;
-    },
-  ) => {
-    state.valueCreationCallback = action.payload;
-  },
 });
 
 export interface PropertyPaneReduxState {
@@ -133,7 +125,6 @@ export interface PropertyPaneReduxState {
   widgetChildProperty?: string;
   width: number;
   focusedProperty?: string;
-  valueCreationCallback?: (value: string) => void;
 }
 
 export default propertyPaneReducer;

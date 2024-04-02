@@ -6,7 +6,6 @@ import {
   setThenBlockInQuery,
   setCatchBlockInQuery,
 } from "@shared/ast";
-import { createNewJSCollection } from "actions/jsPaneActions";
 import { createModalAction } from "actions/widgetActions";
 import type { AppState } from "@appsmith/reducers";
 import {
@@ -40,6 +39,7 @@ import {
 } from "selectors/widgetSelectors";
 import {
   APPSMITH_GLOBAL_FUNCTIONS,
+  APPSMITH_INTEGRATIONS,
   AppsmithFunction,
   AppsmithFunctionsWithFields,
   FieldType,
@@ -64,17 +64,14 @@ import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelector
 import { isJSAction } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import type { ModuleInstanceDataState } from "@appsmith/constants/ModuleInstanceConstants";
-import {
-  setIdeEditorViewMode,
-  setShowQueryCreateNewModal,
-} from "actions/ideActions";
-import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { getModuleIcon, getPluginImagesFromPlugins } from "pages/Editor/utils";
 import { getAllModules } from "@appsmith/selectors/modulesSelector";
 import type { Module } from "@appsmith/constants/ModuleConstants";
 import type { Plugin } from "api/PluginApi";
-import { setPropertyValueCreationCallback } from "actions/propertyPaneActions";
+import {
+  createNewJSCollectionFromActionCreator,
+  createNewQueryFromActionCreator,
+} from "actions/propertyPaneActions";
 
 const actionList: {
   label: string;
@@ -432,8 +429,6 @@ function getApiAndQueryOptions(
   queryModuleInstances: ModuleInstanceDataState,
   modules: Record<string, Module>,
 ) {
-  const state = store.getState();
-  const isSideBySideEnabled = getIsSideBySideEnabled(state);
   const pluginImages = getPluginImagesFromPlugins(plugins);
   const pluginGroups: any = keyBy(plugins, "id");
 
@@ -444,21 +439,17 @@ function getApiAndQueryOptions(
     icon: "plus",
     className: "t--create-datasources-query-btn",
     onSelect: (value, setterMethod) => {
-      const createQueryCallback = (name: string) => {
-        if (setterMethod && queryOptions) {
+      if (setterMethod && queryOptions) {
+        const createQueryCallback = (name: string) => {
           setterMethod({
             label: name,
             id: name,
             value: name,
             type: queryOptions.value,
           });
-        }
-      };
-      dispatch(setShowQueryCreateNewModal(true));
-      dispatch(setPropertyValueCreationCallback(createQueryCallback));
+        };
 
-      if (isSideBySideEnabled) {
-        dispatch(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+        dispatch(createNewQueryFromActionCreator(createQueryCallback));
       }
     },
   };
@@ -539,20 +530,17 @@ export function getJSOptions(
     icon: "plus",
     className: "t--create-js-object-btn",
     onSelect: (value, setterMethod) => {
-      const createJSCallback = (name: string) => {
-        if (setterMethod && jsOption) {
+      if (setterMethod) {
+        const callback = (bindingValue: string) => {
           setterMethod({
-            label: name,
-            id: name,
-            value: name,
-            type: jsOption.value,
+            label: bindingValue,
+            id: bindingValue,
+            value: bindingValue,
+            type: APPSMITH_INTEGRATIONS.jsFunction,
           });
-        }
-      };
-      dispatch(
-        createNewJSCollection(pageId, "ACTION_SELECTOR", "button1OnClick"),
-      );
-      dispatch(setPropertyValueCreationCallback(createJSCallback));
+        };
+        dispatch(createNewJSCollectionFromActionCreator(callback));
+      }
     },
   };
 
