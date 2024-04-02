@@ -2,7 +2,6 @@ import React from "react";
 import { render } from "@testing-library/react";
 import { Provider } from "react-redux";
 import configureMockStore from "redux-mock-store";
-// import type { AppState } from "@appsmith/reducers";
 import useShowEnvSwitcher from "./useShowEnvSwitcher";
 
 const spier = {
