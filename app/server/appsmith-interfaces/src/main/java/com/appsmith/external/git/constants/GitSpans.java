@@ -2,7 +2,9 @@ package com.appsmith.external.git.constants;
 
 import java.util.Locale;
 
-public enum GitEvents {
+import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
+
+public enum GitSpans {
     FILE_SYSTEM_CLONE_REPO,
     FILE_SYSTEM_STATUS,
     FILE_SYSTEM_PULL,
@@ -18,12 +20,13 @@ public enum GitEvents {
     FILE_SYSTEM_MERGE,
     FILE_SYSTEM_REBASE,
     FILE_SYSTEM_PUSH,
-    FILE_SYSTEM_FETCH_REMOTE;
-
+    FILE_SYSTEM_FETCH_REMOTE,
+    APPLICATION_GIT_STATUS,
+    APPLICATION_GIT_COMMIT;
     private final String eventName;
 
-    GitEvents() {
-        this.eventName = name().toLowerCase(Locale.ROOT);
+    GitSpans() {
+        this.eventName = APPSMITH_SPAN_PREFIX + name().toLowerCase(Locale.ROOT);
     }
 
     public String getEventName() {
