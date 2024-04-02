@@ -528,20 +528,33 @@ export function getJSOptions(
   dispatch: any,
   jsModuleInstances: ReturnType<typeof getJSModuleInstancesData>,
 ) {
+  const jsOption = actionList.find(
+    (action) => action.value === AppsmithFunction.jsFunction,
+  );
+
   const createJSObject: TreeDropdownOption = {
     label: "New JS Object",
     value: AppsmithFunction.jsFunction,
     id: "create",
     icon: "plus",
     className: "t--create-js-object-btn",
-    onSelect: () => {
-      dispatch(createNewJSCollection(pageId, "ACTION_SELECTOR"));
+    onSelect: (value, setterMethod) => {
+      const createJSCallback = (name: string) => {
+        if (setterMethod && jsOption) {
+          setterMethod({
+            label: name,
+            id: name,
+            value: name,
+            type: jsOption.value,
+          });
+        }
+      };
+      dispatch(
+        createNewJSCollection(pageId, "ACTION_SELECTOR", "button1OnClick"),
+      );
+      dispatch(setPropertyValueCreationCallback(createJSCallback));
     },
   };
-
-  const jsOption = actionList.find(
-    (action) => action.value === AppsmithFunction.jsFunction,
-  );
 
   if (jsOption) {
     jsOption.children = [createJSObject];

@@ -39,6 +39,7 @@ import {
   getDifferenceInJSCollection,
   pushLogsForObjectUpdate,
   createDummyJSCollectionActions,
+  createSingleFunctionJsCollection,
 } from "utils/JSPaneUtils";
 import type {
   CreateJSCollectionRequest,
@@ -113,11 +114,15 @@ const CONSOLE_DOT_LOG_INVOCATION_REGEX =
   /console.log[.call | .apply]*\s*\(.*?\)/gm;
 
 function* handleCreateNewJsActionSaga(
-  action: ReduxAction<{ pageId: string; from: EventLocation }>,
+  action: ReduxAction<{
+    pageId: string;
+    from: EventLocation;
+    functionName?: string;
+  }>,
 ) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
-  const { from, pageId } = action.payload;
+  const { from, functionName, pageId } = action.payload;
 
   if (pageId) {
     const jsActions: JSCollectionDataState = yield select(getJSCollections);
@@ -125,12 +130,12 @@ function* handleCreateNewJsActionSaga(
       (a: JSCollectionData) => a.config.pageId === pageId,
     );
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
-    const { actions, body, variables } = createDummyJSCollectionActions(
-      workspaceId,
-      {
-        pageId,
-      },
-    );
+
+    const { actions, body, variables } = functionName
+      ? createSingleFunctionJsCollection(workspaceId, functionName, { pageId })
+      : createDummyJSCollectionActions(workspaceId, {
+          pageId,
+        });
 
     const defaultJSObject: CreateJSCollectionRequest =
       yield generateDefaultJSObject({
@@ -337,7 +342,6 @@ function* updateJSCollection(data: {
 
         yield put(
           updateJSCollectionSuccess({
-            // @ts-expect-error: data is of type unknown
             data: response?.data,
           }),
         );
@@ -604,7 +608,6 @@ function* handleUpdateJSCollectionBody(
         // since server is not sending the info about whether the js collection is main or not
         // we are retaining it manually
         const updatedJSCollection: JSCollection = {
-          // @ts-expect-error: response is of type unknown
           ...response.data,
           isMainJSCollection: !!jsCollection.isMainJSCollection,
         };

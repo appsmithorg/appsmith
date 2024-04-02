@@ -72,6 +72,8 @@ import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlags
 import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { getPropertyValueCreationCallback } from "selectors/propertyPaneSelectors";
+import { setPropertyValueCreationCallback } from "actions/propertyPaneActions";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -118,16 +120,28 @@ export function* createJSCollectionSaga(
         text: `JS Object created`,
         source: {
           type: ENTITY_TYPE.JSACTION,
-          // @ts-expect-error: response.data is of type unknown
           id: response.data.id,
-          // @ts-expect-error: response.data is of type unknown
           name: response.data.name,
         },
       });
 
       const newAction = response.data;
-      // @ts-expect-error: response.data is of type unknown
       yield put(createJSCollectionSuccess(newAction));
+
+      try {
+        const onCreate: (value: string) => string = yield select(
+          getPropertyValueCreationCallback,
+        );
+        if (onCreate) {
+          const functionName = response.data.actions[0].name;
+          const bindingName = `${actionName}.${functionName}`;
+          onCreate(bindingName);
+        }
+      } catch (e) {
+        log.error("Failed to bind value to action creator");
+      } finally {
+        yield put(setPropertyValueCreationCallback(undefined));
+      }
     }
   } catch (error) {
     yield put({
@@ -166,7 +180,6 @@ export function* copyJSCollectionSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     const pageName: string = yield select(
       getPageNameByPageId,
-      // @ts-expect-error: response.data is of type unknown
       response.data.pageId,
     );
     if (isValidResponse) {
@@ -178,7 +191,6 @@ export function* copyJSCollectionSaga(
       );
       const payload = response.data;
 
-      // @ts-expect-error: response.data is of type unknown
       yield put(copyJSCollectionSuccess(payload));
     }
   } catch (e) {
