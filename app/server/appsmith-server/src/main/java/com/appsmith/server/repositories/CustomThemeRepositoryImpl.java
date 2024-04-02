@@ -6,8 +6,4 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CustomThemeRepositoryImpl extends CustomThemeRepositoryCEImpl implements CustomThemeRepository {
-    public CustomThemeRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-}
+public class CustomThemeRepositoryImpl extends CustomThemeRepositoryCEImpl implements CustomThemeRepository {}

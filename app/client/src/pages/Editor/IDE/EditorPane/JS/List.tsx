@@ -76,6 +76,7 @@ const ListJSObjects = () => {
         parentEntityType={ActionParentEntityType.PAGE}
       >
         <Flex
+          data-testid="t--ide-list"
           flex="1"
           flexDirection="column"
           gap="spaces-4"

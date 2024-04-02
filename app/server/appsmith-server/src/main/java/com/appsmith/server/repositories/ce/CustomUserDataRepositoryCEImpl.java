@@ -12,6 +12,8 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
+import com.mongodb.BasicDBObject;
+import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
 
 import java.util.ArrayList;
@@ -21,12 +23,6 @@ import java.util.Optional;
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {
 
-    public CustomUserDataRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-
-    @Modifying
-    @Transactional
     @Override
     public int saveReleaseNotesViewedVersion(String userId, String version) {
         return queryBuilder()

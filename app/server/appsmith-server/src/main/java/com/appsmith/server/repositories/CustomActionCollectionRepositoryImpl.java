@@ -5,9 +5,4 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomActionCollectionRepositoryImpl extends CustomActionCollectionRepositoryCEImpl
-        implements CustomActionCollectionRepository {
-
-    public CustomActionCollectionRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-}
+        implements CustomActionCollectionRepository {}

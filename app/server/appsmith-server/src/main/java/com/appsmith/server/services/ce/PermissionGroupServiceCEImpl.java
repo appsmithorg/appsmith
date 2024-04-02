@@ -11,6 +11,9 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
+import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
@@ -239,9 +242,10 @@ public class PermissionGroupServiceCEImpl
                     Set<String> assignedToUserIds = pg.getAssignedToUserIds();
                     assignedToUserIds.removeAll(userIds);
 
-                    BridgeUpdate updateObj = new BridgeUpdate();
+                    BridgeUpdate updateObj = Bridge.update();
+                    String path = PermissionGroup.Fields.assignedToUserIds;
 
-                    updateObj.set(PermissionGroup.Fields.assignedToUserIds, assignedToUserIds);
+                    updateObj.set(path, assignedToUserIds);
 
                     Mono<Integer> updatePermissionGroupResultMono = repository.updateById(pg.getId(), updateObj);
                     Mono<Void> clearCacheForUsersMono = cleanPermissionGroupCacheForUsers(List.copyOf(userIds));
@@ -403,9 +407,10 @@ public class PermissionGroupServiceCEImpl
 
                     assignedToUserIds.remove(userId);
 
-                    BridgeUpdate updateObj = new BridgeUpdate();
+                    BridgeUpdate updateObj = Bridge.update();
+                    String path = PermissionGroup.Fields.assignedToUserIds;
 
-                    updateObj.set(PermissionGroup.Fields.assignedToUserIds, assignedToUserIds);
+                    updateObj.set(path, assignedToUserIds);
 
                     return repository
                             .updateById(permissionGroupId, updateObj)

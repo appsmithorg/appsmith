@@ -7,9 +7,4 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 public class CustomDatasourceStorageRepositoryImpl extends CustomDatasourceStorageRepositoryCEImpl
-        implements CustomDatasourceStorageRepository {
-
-    public CustomDatasourceStorageRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-}
+        implements CustomDatasourceStorageRepository {}

@@ -4,16 +4,13 @@ import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
+import reactor.core.publisher.Flux;
 
 import java.util.List;
 import java.util.Set;
 
 public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plugin>
         implements CustomPluginRepositoryCE {
-
-    public CustomPluginRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
 
     @Override
     public List<Plugin> findDefaultPluginIcons() {

@@ -5,8 +5,4 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomApplicationSnapshotRepositoryImpl extends CustomApplicationSnapshotRepositoryCEImpl
-        implements CustomApplicationSnapshotRepository {
-    public CustomApplicationSnapshotRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-}
+        implements CustomApplicationSnapshotRepository {}

@@ -7,6 +7,7 @@ import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.cakes.ConfigRepositoryCake;
 import com.appsmith.server.repositories.cakes.PermissionGroupRepositoryCake;
@@ -68,12 +69,13 @@ public class UserUtilsCE {
                     if (permissionGroup.getAssignedToUserIds() != null) {
                         assignedToUserIds.addAll(permissionGroup.getAssignedToUserIds());
                     }
-                    assignedToUserIds.addAll(users.stream().map(User::getId).toList());
+                    assignedToUserIds.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
+                    BridgeUpdate updateObj = Bridge.update();
+                    String path = PermissionGroup.Fields.assignedToUserIds;
 
+                    updateObj.set(path, assignedToUserIds);
                     // Make Super User is called before the first administrator is created.
-                    return permissionGroupRepository.updateById(
-                            permissionGroup.getId(),
-                            Bridge.update().set(PermissionGroup.Fields.assignedToUserIds, assignedToUserIds));
+                    return permissionGroupRepository.updateById(permissionGroup.getId(), updateObj);
                 })
                 .thenMany(Flux.fromIterable(users))
                 .flatMap(user -> permissionGroupRepository.evictAllPermissionGroupCachesForUser(

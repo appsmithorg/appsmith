@@ -5,9 +5,4 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class CustomDatasourceRepositoryImpl extends CustomDatasourceRepositoryCEImpl
-        implements CustomDatasourceRepository {
-
-    public CustomDatasourceRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-}
+        implements CustomDatasourceRepository {}

@@ -5,6 +5,8 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
+import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
@@ -23,8 +25,6 @@ public interface AppsmithRepository<T extends BaseDomain> {
     T setUserPermissionsInObject(T obj, Collection<String> permissionGroups);
 
     T setUserPermissionsInObject(T obj);
-
-    /* no-cake */ int updateFirst(BridgeQuery<T> query, T resource);
 
     T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission);
 

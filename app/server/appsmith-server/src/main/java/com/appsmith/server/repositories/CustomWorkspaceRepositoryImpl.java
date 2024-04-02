@@ -10,8 +10,7 @@ import org.springframework.stereotype.Component;
 public class CustomWorkspaceRepositoryImpl extends CustomWorkspaceRepositoryCEImpl
         implements CustomWorkspaceRepository {
 
-    public CustomWorkspaceRepositoryImpl(
-            SessionUserService sessionUserService, CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(sessionUserService, cacheableRepositoryHelper);
+    public CustomWorkspaceRepositoryImpl(SessionUserService sessionUserService) {
+        super(sessionUserService);
     }
 }

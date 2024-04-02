@@ -6,9 +6,4 @@ import org.springframework.stereotype.Component;
 
 @Component
 @Slf4j
-public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl implements CustomUserRepository {
-
-    public CustomUserRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-}
+public class CustomUserRepositoryImpl extends CustomUserRepositoryCEImpl implements CustomUserRepository {}

@@ -18,6 +18,7 @@ import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Root;
 import jakarta.transaction.Transactional;
 import lombok.SneakyThrows;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,19 +35,12 @@ import static com.appsmith.server.helpers.ReactorUtils.asFlux;
 import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
 
 @Slf4j
+@RequiredArgsConstructor
 public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Application>
         implements CustomApplicationRepositoryCE {
 
     private final CacheableRepositoryHelper cacheableRepositoryHelper;
     private final ApplicationPermission applicationPermission;
-
-    @Autowired
-    public CustomApplicationRepositoryCEImpl(
-            CacheableRepositoryHelper cacheableRepositoryHelper, ApplicationPermission applicationPermission) {
-        super(cacheableRepositoryHelper);
-        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
-        this.applicationPermission = applicationPermission;
-    }
 
     @Override
     public Optional<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
@@ -132,13 +126,14 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
         return Optional.of(getEntityManager().createQuery(cu).executeUpdate());
         // */
 
-        // return queryBuilder().byId(applicationId).updateFirst(update().push(Application.Fields.pages,
-        // applicationPage));
+        /*return queryBuilder()
+            .byId(applicationId)
+            .updateFirst(Bridge.update().push(Application.Fields.pages, applicationPage));//*/
     }
 
     @Override
     public int setPages(String applicationId, List<ApplicationPage> pages) {
-        return queryBuilder().byId(applicationId).updateFirst(new BridgeUpdate().set(Application.Fields.pages, pages));
+        return queryBuilder().byId(applicationId).updateFirst(Bridge.update().set(Application.Fields.pages, pages));
     }
 
     @Override
@@ -241,8 +236,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     @Transactional
     public int setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
-        final BridgeUpdate updateObj = Bridge.update();
-
+        BridgeUpdate updateObj = Bridge.update();
         if (StringUtils.hasLength(editModeThemeId)) {
             updateObj.set(Application.Fields.editModeThemeId, editModeThemeId);
         }
@@ -291,7 +285,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     public int unprotectAllBranches(String applicationId, AclPermission permission) {
         String isProtectedFieldPath = Application.Fields.gitApplicationMetadata_isProtectedBranch;
 
-        BridgeUpdate unsetProtected = new BridgeUpdate().set(isProtectedFieldPath, false);
+        BridgeUpdate unsetProtected = Bridge.update().set(isProtectedFieldPath, false);
 
         return queryBuilder()
                 .criteria(Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId))

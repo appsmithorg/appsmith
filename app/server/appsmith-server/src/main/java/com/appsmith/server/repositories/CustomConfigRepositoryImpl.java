@@ -4,9 +4,4 @@ import com.appsmith.server.repositories.ce.CustomConfigRepositoryCEImpl;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomConfigRepositoryImpl extends CustomConfigRepositoryCEImpl implements CustomConfigRepository {
-
-    public CustomConfigRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-}
+public class CustomConfigRepositoryImpl extends CustomConfigRepositoryCEImpl implements CustomConfigRepository {}

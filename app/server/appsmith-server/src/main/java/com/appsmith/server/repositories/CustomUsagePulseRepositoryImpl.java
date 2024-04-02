@@ -7,9 +7,4 @@ import org.springframework.stereotype.Component;
 @Component
 @Slf4j
 public class CustomUsagePulseRepositoryImpl extends CustomUsagePulseRepositoryCEImpl
-        implements CustomUsagePulseRepository {
-
-    public CustomUsagePulseRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-}
+        implements CustomUsagePulseRepository {}

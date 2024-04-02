@@ -19,10 +19,6 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class CustomThemeRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Theme> implements CustomThemeRepositoryCE {
-    public CustomThemeRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-
     @Override
     public List<Theme> getApplicationThemes(String applicationId, AclPermission aclPermission) {
         BridgeQuery<Theme> appThemeCriteria = Bridge.equal(Theme.Fields.applicationId, applicationId);

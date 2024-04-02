@@ -75,25 +75,32 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * the understanding of these interfaces.
  * ```
  * Ref: https://theappsmith.slack.com/archives/CPQNLFHTN/p1669100205502599?thread_ts=1668753437.497369&cid=CPQNLFHTN
+ * <p>
+ * Note, we use the {@code @Autowired} annotation for bean injection here, instead of using constructor injection. This
+ * is an intentional exception to the usual recommendation. The reason is that this class is a base class for all other
+ * repository classes, and using constructor params would require all repository classes to have the same constructor
+ * params, and corresponding {@code super} calls. This was causing a lot of conflicts between CE and EE, and other
+ * additional overhead, with very little value to speak for. Hence, we are using {@code @Autowired} here.
+ * <p>
+ * <a href="https://theappsmith.slack.com/archives/CPQNLFHTN/p1711966160274399">Ref Slack thread</a>.
  */
 public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> implements AppsmithRepository<T> {
 
-    @Autowired // TODO: Add constructor parameter.
+    @Autowired
     @Getter
     private EntityManager entityManager;
 
     protected final Class<T> genericDomain;
 
-    protected final CacheableRepositoryHelper cacheableRepositoryHelper;
+    @Autowired
+    private CacheableRepositoryHelper cacheableRepositoryHelper;
 
     public static final int NO_RECORD_LIMIT = -1;
 
     public static final int NO_SKIP = 0;
 
-    @Autowired
     @SuppressWarnings("unchecked")
-    public BaseAppsmithRepositoryCEImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
+    public BaseAppsmithRepositoryCEImpl() {
         this.genericDomain =
                 (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
     }

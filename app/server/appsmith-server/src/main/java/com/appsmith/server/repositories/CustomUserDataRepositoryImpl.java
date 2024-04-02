@@ -4,9 +4,4 @@ import com.appsmith.server.repositories.ce.CustomUserDataRepositoryCEImpl;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CustomUserDataRepositoryImpl extends CustomUserDataRepositoryCEImpl implements CustomUserDataRepository {
-
-    public CustomUserDataRepositoryImpl(CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(cacheableRepositoryHelper);
-    }
-}
+public class CustomUserDataRepositoryImpl extends CustomUserDataRepositoryCEImpl implements CustomUserDataRepository {}
