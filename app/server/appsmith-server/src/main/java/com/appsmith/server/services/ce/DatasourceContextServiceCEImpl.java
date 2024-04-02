@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.Map;
@@ -186,7 +187,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         Mono<Plugin> pluginMono =
                 pluginService.findById(datasourceStorage.getPluginId()).cache();
 
-        return pluginMono
+        return (Mono<DatasourceContext<?>>) pluginMono
                 .zipWith(pluginExecutorHelper.getPluginExecutor(pluginMono))
                 .flatMap(tuple2 -> {
                     Plugin plugin = tuple2.getT1();
@@ -214,7 +215,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
                     return getCachedDatasourceContextMono(
                             datasourceStorage, plugin, pluginExecutor, monitor, datasourceContextIdentifier);
-                });
+                })
+                // Scheduling on bounded elastic to avoid blocking the main thread
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     public boolean getIsStale(
