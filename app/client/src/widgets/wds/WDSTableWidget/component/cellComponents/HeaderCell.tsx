@@ -166,7 +166,12 @@ const HeaderCellComponent = (props: HeaderProps) => {
         </Flex>
       </div>
       <Menu>
-        <IconButton icon="chevron-down" size="small" variant="ghost" />
+        <IconButton
+          color="neutral"
+          icon="chevron-down"
+          size="small"
+          variant="ghost"
+        />
         <MenuList>
           <Item key="sort-asc">Sort column ascending</Item>
           <Item key="sort-desc">Sort column descending</Item>

@@ -50,6 +50,7 @@
     padding: var(--outer-spacing-3);
     background: var(--color-bg);
     font-weight: bold;
+    align-items: center;
   }
 
    /* --------------------------------------------------------------------------
