@@ -175,5 +175,6 @@ declare namespace Cypress {
     skipSignposting();
     stubPricingPage();
     validateEvaluatedValue(value: string);
+    selectByTestId(value: string): Chainable<JQuery<HTMLElement>>;
   }
 }

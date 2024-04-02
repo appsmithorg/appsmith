@@ -22,6 +22,16 @@ public final class ValidationUtils {
             SPECIAL_CHARACTERS, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH);
 
     public static boolean validateEmail(String emailStr) {
+        // Limits defined by RFC 5321 at https://datatracker.ietf.org/doc/html/rfc5321#section-4.5.3.1.
+        if (!StringUtils.hasLength(emailStr)) {
+            return false;
+        }
+
+        final String[] parts = emailStr.split("@");
+        if (parts.length != 2 || parts[0].length() > 64 || parts[1].length() > 255) {
+            return false;
+        }
+
         return EmailValidator.getInstance().isValid(emailStr);
     }
 

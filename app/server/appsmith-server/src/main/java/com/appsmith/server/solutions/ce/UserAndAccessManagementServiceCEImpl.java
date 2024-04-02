@@ -9,6 +9,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
@@ -116,6 +117,9 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
 
         Set<String> usernames = new HashSet<>();
         for (String username : originalUsernames) {
+            if (!ValidationUtils.validateEmail(username)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAMES));
+            }
             usernames.add(username.toLowerCase());
         }
 

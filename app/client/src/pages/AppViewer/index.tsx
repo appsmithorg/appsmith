@@ -52,17 +52,24 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
+import BottomBar from "components/BottomBar";
+import useShowEnvSwitcher from "@appsmith/hooks/useShowEnvSwitcher";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
   headerHeight: number;
   $contain: string;
+  showBottomBar: boolean;
 }>`
   display: flex;
   flex-direction: row;
   align-items: stretch;
   justify-content: flex-start;
-  height: calc(100vh - ${({ headerHeight }) => headerHeight}px);
+  height: calc(
+    100vh -
+      ${(props) => (props.showBottomBar ? props.theme.bottomBarHeight : "0px")} -
+      ${({ headerHeight }) => headerHeight}px
+  );
   --view-mode-header-height: ${({ headerHeight }) => headerHeight}px;
   contain: ${({ $contain }) => $contain};
 `;
@@ -121,6 +128,7 @@ function AppViewer(props: Props) {
   const focusRef = useWidgetFocus();
   const isAutoLayout = useSelector(getIsAutoLayout);
 
+  const showBottomBar = useShowEnvSwitcher({ viewMode: true });
   /**
    * initializes the widgets factory and registers all widgets
    */
@@ -221,10 +229,16 @@ function AppViewer(props: Props) {
             hasPages={pages.length > 1}
             headerHeight={headerHeight}
             ref={focusRef}
+            showBottomBar={!!showBottomBar}
           >
             {isInitialized && <AppViewerPageContainer />}
           </AppViewerBody>
-          <div className={"fixed hidden right-8 z-3 md:flex bottom-4"}>
+          {showBottomBar && <BottomBar viewMode />}
+          <div
+            className={`fixed hidden right-8 z-3 md:flex ${
+              showBottomBar ? "bottom-12" : "bottom-4"
+            }`}
+          >
             {!hideWatermark && (
               <a
                 className="hover:no-underline"

@@ -86,6 +86,7 @@ const shouldUpdateCanvas = (
 
 const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   position: absolute;
+  pointer-events: all;
   top: 0px;
   left: 0px;
   height: calc(100% + ${(props) => props.paddingBottom}px);
