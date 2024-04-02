@@ -21,9 +21,6 @@ import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import net.minidev.json.parser.JSONParser;
-import org.bson.BsonInvalidOperationException;
-import org.bson.Document;
-import org.bson.json.JsonParseException;
 import reactor.core.Exceptions;
 
 import java.io.IOException;
@@ -156,12 +153,13 @@ public class DataTypeStringUtils {
             // Not a strict JSON object
         }
 
+        /* TODO: Is this okay to be commented out?
         try {
             Document.parse(input);
             return DataType.BSON;
         } catch (JsonParseException | BsonInvalidOperationException e) {
             // Not BSON
-        }
+        }//*/
 
         /**
          * TODO : ASCII, Binary and Bytes Array
