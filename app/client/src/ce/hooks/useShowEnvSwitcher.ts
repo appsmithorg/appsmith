@@ -15,26 +15,31 @@ const useShowEnvSwitcher = ({ viewMode }: { viewMode: boolean }) => {
     FEATURE_FLAG.release_datasource_environments_enabled,
   );
   const previewMode = useSelector(previewModeSelector);
-  const isMultiEnvNotPresent = useSelector((state) => {
+  const isSingleEnvPresent = useSelector((state) => {
     const workspace = getCurrentAppWorkspace(state);
     const isLoaded = areEnvironmentsFetched(state, workspace?.id);
     const list = getEnvironmentsWithPermission(state);
-    const isDefault = list?.[0]?.isDefault;
-    return isLoaded && (list.length === 0 || (list.length === 1 && isDefault));
+    const isDefault = list.length === 1 && list?.[0]?.isDefault;
+    return isLoaded && list.length > 0 && isDefault;
   });
 
   const isRampAllowed = useSelector((state) =>
     showProductRamps(RAMP_NAME.MULTIPLE_ENV, true)(state),
   );
 
-  if (!isFeatureEnabled && !isRampAllowed) {
-    return false;
-  }
-  if (viewMode && isMultiEnvNotPresent) {
+  if (!isFeatureEnabled) {
     return false;
   }
 
-  if (previewMode && isMultiEnvNotPresent) {
+  if (viewMode && isSingleEnvPresent) {
+    return false;
+  }
+
+  if (previewMode && isSingleEnvPresent) {
+    return false;
+  }
+
+  if (!previewMode && isSingleEnvPresent && !isRampAllowed) {
     return false;
   }
 
