@@ -39,6 +39,7 @@ export const STORAGE_KEYS: {
   PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
   IDE_VIEW_MODE: "IDE_VIEW_MODE",
   CODE_WIDGET_NAVIGATION_USED: "CODE_WIDGET_NAVIGATION_USED",
+  ACTION_TEST_PAYLOAD: "ACTION_TEST_PAYLOAD",
 };
 
 const store = localforage.createInstance({
@@ -904,5 +905,45 @@ export const retrieveCodeWidgetNavigationUsed = async (): Promise<number> => {
     log.error("An error occurred while fetching CODE_WIDGET_NAVIGATION_USED");
     log.error(error);
     return 0;
+  }
+};
+
+interface ActionTestPayload {
+  [actionId: string]: any;
+}
+
+export const getActionTestPayload = async (actionId: string) => {
+  try {
+    const storedPayload: ActionTestPayload | null = await store.getItem(
+      STORAGE_KEYS.ACTION_TEST_PAYLOAD,
+    );
+    if (storedPayload && storedPayload.hasOwnProperty(actionId)) {
+      return storedPayload[actionId];
+    }
+    return null;
+  } catch (error) {
+    log.error("An error occurred while fetching ACTION_TEST_PAYLOAD");
+    log.error(error);
+  }
+};
+
+export const storeActionTestPayload = async (payload: {
+  actionId: string;
+  testData: any;
+}) => {
+  try {
+    const storedPayload: ActionTestPayload | null = await store.getItem(
+      STORAGE_KEYS.ACTION_TEST_PAYLOAD,
+    );
+    const newPayload = {
+      ...storedPayload,
+      [payload.actionId]: payload.testData,
+    };
+    await store.setItem(STORAGE_KEYS.ACTION_TEST_PAYLOAD, newPayload);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting ACTION_TEST_PAYLOAD");
+    log.error(error);
+    return false;
   }
 };
