@@ -45,42 +45,6 @@ export const TableWrapper = styled.div<{
   variant?: TableVariant;
   isAddRowInProgress: boolean;
 }>`
-  .table {
-    .th,
-    .td {
-      margin: 0;
-      position: relative;
-      font-size: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
-      line-height: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
-      :last-child {
-        border-right: 0;
-        .resizer {
-          right: 5px;
-        }
-      }
-      .resizer {
-        display: inline-block;
-        width: 10px;
-        height: 100%;
-        position: absolute;
-        right: 0;
-        top: 0;
-        transform: translateX(50%);
-        z-index: 1;
-        ${"" /* prevents from scrolling while dragging on touch devices */}
-        touch-action:none;
-        &.isResizing {
-          cursor: isResizing;
-        }
-      }
-    }
-
-    .td {
-      min-height: ${(props) => props.tableSizes.ROW_HEIGHT}px;
-      padding: 0;
-    }
-  }
-
   .column-freeze {
     .body {
       position: relative;
@@ -131,69 +95,10 @@ export const TableWrapper = styled.div<{
     }
   }
 
-  .draggable-header {
-    cursor: grab;
-    &.reorder-line {
-      width: 1px;
-      height: 100%;
-    }
-  }
-
   .hidden-header {
     opacity: 0.6;
 
     ${invisible};
-  }
-  .header-menu {
-    cursor: pointer;
-    width: 24px;
-    display: flex;
-    align-items: center;
-    .bp3-popover2-target {
-      display: block;
-    }
-
-    &.hide-menu {
-      display: none;
-    }
-
-    &.hide {
-      &:hover {
-        .bp3-popover2-target {
-          display: block;
-        }
-      }
-      .bp3-popover2-target {
-        display: none;
-      }
-    }
-  }
-  .column-menu {
-    cursor: pointer;
-    height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
-    line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
-  }
-  .th {
-    display: flex !important;
-    &.highlight-left {
-      border-left: 2px solid ${Colors.GREEN};
-    }
-    &.highlight-right {
-      border-right: 2px solid ${Colors.GREEN};
-    }
-    & .draggable-header--dragging {
-      background: #efefef;
-      border-radius: 4px;
-      z-index: 100;
-      width: 100%;
-      text-overflow: none;
-      overflow: none;
-    }
-  }
-  .input-group {
-    height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
-    line-height: ${(props) => props.tableSizes.COLUMN_HEADER_HEIGHT}px;
-    padding: 0 5px;
   }
 `;
 

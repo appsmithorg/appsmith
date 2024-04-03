@@ -190,6 +190,12 @@ const HeaderCellComponent = (props: HeaderProps) => {
         </Flex>
       </div>
       <Flex alignItems="center" gap="spacing-1">
+        {props.isAscOrder !== undefined && (
+          <Icon
+            name={props.isAscOrder ? "arrow-up" : "arrow-down"}
+            size="small"
+          />
+        )}
         <Menu disabledKeys={["separator"]} onAction={onActionOnMenu}>
           <IconButton
             color="neutral"
@@ -207,16 +213,11 @@ const HeaderCellComponent = (props: HeaderProps) => {
             <Item key="freeze-right">Freeze column right</Item>
           </MenuList>
         </Menu>
-        {props.isAscOrder !== undefined && (
-          <Icon
-            name={props.isAscOrder ? "arrow-up" : "arrow-down"}
-            size="small"
-          />
-        )}
       </Flex>
       <div
         {...column.getResizerProps()}
-        className={`resizer ${column.isResizing ? "isResizing" : ""}`}
+        data-resizor=""
+        data-status={column.isResizing ? "resizing" : ""}
         onClick={(e: React.MouseEvent<HTMLElement>) => {
           e.preventDefault();
           e.stopPropagation();

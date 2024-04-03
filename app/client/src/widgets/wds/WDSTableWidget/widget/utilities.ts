@@ -923,26 +923,27 @@ export const getAllStickyColumnsCount = (columns: TableColumnProps[]) => {
 };
 
 /**
+ * returns the highlight position when the column header is dragged
  *
  * @param currentIndex: current dragging item index
  * @param targetIndex: Index poistion of of header that is being hovered
- * @returns
+ * @returns "start" | "end" | "none
  */
-export const getHeaderClassNameOnDragDirection = (
+export const getHighlightPosition = (
   currentIndex: number,
   targetIndex: number,
 ) => {
-  let parentClasses = "th header-reorder";
+  let position = "none";
 
   if (currentIndex !== -1) {
     if (targetIndex > currentIndex) {
-      parentClasses += " highlight-right";
+      position = "end";
     } else if (targetIndex < currentIndex) {
-      parentClasses += " highlight-left";
+      position = "start";
     }
   }
 
-  return parentClasses;
+  return position;
 };
 
 export const getIndexByColumnName = (
@@ -980,7 +981,7 @@ export const getDragHandlers = (
   ) => {
     // We get the parent element(.th) so as to apply left and right highlighting
     const targetElem = e.target as HTMLDivElement;
-    const parentTargetElem = targetElem.closest(".th.header-reorder");
+    const parentTargetElem = targetElem.closest("th");
 
     const currentIndex = getIndexByColumnName(
       currentDraggedColumn.current,
@@ -988,30 +989,30 @@ export const getDragHandlers = (
     );
 
     if (parentTargetElem) {
-      parentTargetElem.className = getHeaderClassNameOnDragDirection(
-        currentIndex,
-        targetIndex,
-      );
+      if (parentTargetElem) {
+        parentTargetElem.dataset.highlightPosition = getHighlightPosition(
+          currentIndex,
+          targetIndex,
+        );
+      }
     }
+
     e.stopPropagation();
     e.preventDefault();
   };
 
   const onDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
     const targetElem = e.target as HTMLDivElement;
-    targetElem.className = targetElem.className.replace(
-      " draggable-header--dragging",
-      "",
-    );
+    targetElem.dataset.status = "";
     e.preventDefault();
   };
 
   const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     const targetElem = e.target as HTMLDivElement;
-    const parentTargetElem = targetElem.closest(".th.header-reorder");
+    const parentTargetElem = targetElem.closest("th");
 
     if (parentTargetElem) {
-      parentTargetElem.className = "th header-reorder";
+      parentTargetElem.dataset.highlightPosition = "none";
     }
 
     e.preventDefault();
@@ -1022,7 +1023,7 @@ export const getDragHandlers = (
   ) => {
     // We get the parent element(.th) so as to apply left and right highlighting
     const targetElem = e.target as HTMLDivElement;
-    const parentTargetElem = targetElem.closest(".th.header-reorder");
+    const parentTargetElem = targetElem.closest("th");
 
     const currentIndex = getIndexByColumnName(
       currentDraggedColumn.current,
@@ -1030,7 +1031,7 @@ export const getDragHandlers = (
     );
 
     if (parentTargetElem) {
-      parentTargetElem.className = getHeaderClassNameOnDragDirection(
+      parentTargetElem.dataset.highlightPosition = getHighlightPosition(
         currentIndex,
         targetIndex,
       );
@@ -1044,7 +1045,6 @@ export const getDragHandlers = (
     currentDraggedColumn.current = columns[index].alias;
     const targetElem = e.target as HTMLDivElement;
     targetElem.dataset.status = "dragging";
-    targetElem.className = targetElem.className + " draggable-header--dragging";
     e.stopPropagation();
   };
 
@@ -1058,10 +1058,7 @@ export const getDragHandlers = (
       partialColumnOrder.splice(index, 0, currentDraggedColumn.current);
       handleReorderColumn(partialColumnOrder);
     }
-    targetElem.className = targetElem.className.replace(
-      " draggable-header--dragging",
-      "",
-    );
+    targetElem.dataset.status = "";
     e.stopPropagation();
   };
 

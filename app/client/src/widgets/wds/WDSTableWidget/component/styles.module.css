@@ -62,6 +62,17 @@
     border-inline-end: var(--border-width-1) solid var(--color-bd);
   }
 
+  & thead th:last-child {
+    border-inline-end: none;
+  }
+
+  & thead th[data-highlight-position="start"] {
+    border-inline-start: 2px solid var(--color-bd-positive);
+  }
+  & thead th[data-highlight-position="end"] {
+    border-inline-end: 2px solid var(--color-bd-positive);
+  }
+
   & thead th [data-draggable-header] {
     position: absolute;
     inset: 0;
@@ -69,7 +80,15 @@
     align-items: items;
     padding-inline: var(--outer-spacing-2);
     padding-inline-end: var(--padding-inline-end);
-    
+  }
+
+  & thead th:has([data-status="dragging"]) [data-draggable-header]  {
+    background: var(--color-bg);
+    border-radius: 4px;
+    z-index: 100;
+    width: 100%;
+    text-overflow: none;
+    overflow: none;
   }
 
    /* --------------------------------------------------------------------------
@@ -92,15 +111,38 @@
     background: var(--color-bg-accent-subtle);
   }
 
-  /* --------------------------------------------------------------------------
+  /*-------------------------------------------------------------------------
   * Cell ( td )
   *-------------------------------------------------------------------------- */
-
   &[data-variant="default"] [role="cell"] {
     border-inline-end: var(--border-width-1) solid var(--color-bd);
   }
 
   &:is([data-variant="horizontal-borders"], [data-variant="default"]) [role="cell"] {
     border-block-end: var(--border-width-1) solid var(--color-bd); 
+  }
+
+  /* --------------------------------------------------------------------------
+  * Resizor
+  *-------------------------------------------------------------------------- */
+  & [data-resizor] {
+    display: inline-block;
+    width: 10px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateX(50%);
+    z-index: 1;
+    /* prevents from scrolling while dragging on touch devices */
+    touch-action:none; 
+  }
+
+  & [data-resizor][data-status="resizing"] {
+    cursor: isResizing;
+  }
+
+  & thead th:last-child [data-resizor] {
+    right: 5px
   }
 }
