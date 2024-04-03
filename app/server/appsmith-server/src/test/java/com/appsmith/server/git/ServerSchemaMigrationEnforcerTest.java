@@ -1,38 +1,19 @@
 package com.appsmith.server.git;
 
-import com.appsmith.external.models.Datasource;
-import com.appsmith.server.actioncollections.base.ActionCollectionService;
-import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
-import com.appsmith.server.datasources.base.DatasourceService;
-import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
-import com.appsmith.server.jslibs.base.CustomJSLibService;
-import com.appsmith.server.layouts.UpdateLayoutService;
-import com.appsmith.server.newactions.base.NewActionService;
-import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.ApplicationRepository;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
-import com.appsmith.server.repositories.ThemeRepository;
-import com.appsmith.server.services.ApplicationPageService;
-import com.appsmith.server.services.LayoutActionService;
-import com.appsmith.server.services.LayoutCollectionService;
-import com.appsmith.server.services.PermissionGroupService;
-import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ApplicationPermission;
-import com.appsmith.server.solutions.EnvironmentPermission;
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -58,11 +39,31 @@ import reactor.test.StepVerifier;
 import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.file.Path;
-import java.util.HashMap;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
 
+/**
+ * The purpose of this test file is to detect if code in Appsmith has changed in a way which would reflect
+ * as uncommitted changes in git-connected applications.
+ * This test case would fail if we have added new domains, changed the underlying structure of the domains,
+ * or how it's represented in domains.
+ * It is intentionally kept to fail so that developers could identify if their code has brought about these changes.
+ *
+ * In order to make the test case pass, we would need to add the following steps:
+ *
+ *  1.  Once the test starts failing, that would mean that we need to increment the serverSchemaVersion
+ *      which is a constant in JsonSchemaVersions.java by 1 count.
+ *      After that, an increment logic addition would be required change in JsonSchemaMigrations to
+ *      update the version number for incoming imports.
+ *
+ *  This is important so that the server code could detect that an auto-commit is
+ *  required for git-connected applications for a seamless experience.
+ *  2.  After step 1, this test case would still fail.
+ *      In order to make the test case work again, please replace the respective JSON with the updated application JSON.
+ *      Please take note that the Serialisation Objective should be VERSION_CONTROL.
+ *      In order to retrieve the updated JSON, one could simply copy the serialized files from the test case itself.
+ */
 @Slf4j
 @ExtendWith(SpringExtension.class)
 @AutoConfigureDataMongo
@@ -70,15 +71,11 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DirtiesContext
 public class ServerSchemaMigrationEnforcerTest {
 
-    private static final Map<String, Datasource> datasourceMap = new HashMap<>();
-    private static Plugin installedPlugin;
-    private static String workspaceId;
-    private static String defaultEnvironmentId;
-    private static String testAppId;
-    private static Datasource jsDatasource;
-    private static Plugin installedJsPlugin;
-    private static Boolean isSetupDone = false;
-    private static String exportWithConfigurationAppId;
+    @Autowired
+    Gson gson;
+
+    @Autowired
+    WorkspaceService workspaceService;
 
     @SpyBean
     ImportService importService;
@@ -87,94 +84,84 @@ public class ServerSchemaMigrationEnforcerTest {
     ExportService exportService;
 
     @Autowired
-    Gson gson;
-
-    @Autowired
-    ApplicationPageService applicationPageService;
-
-    @Autowired
-    PluginRepository pluginRepository;
-
-    @Autowired
-    ApplicationRepository applicationRepository;
-
-    @Autowired
-    DatasourceService datasourceService;
-
-    @Autowired
-    NewPageService newPageService;
-
-    @Autowired
-    NewActionService newActionService;
-
-    @Autowired
-    WorkspaceService workspaceService;
-
-    @Autowired
-    LayoutActionService layoutActionService;
-
-    @Autowired
-    UpdateLayoutService updateLayoutService;
-
-    @Autowired
-    LayoutCollectionService layoutCollectionService;
-
-    @Autowired
-    ActionCollectionService actionCollectionService;
+    CommonGitFileUtils commonGitFileUtils;
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
 
-    @Autowired
-    ThemeRepository themeRepository;
-
-    @Autowired
-    ApplicationService applicationService;
-
-    @Autowired
-    PermissionGroupRepository permissionGroupRepository;
-
-    @Autowired
-    PermissionGroupService permissionGroupService;
-
-    @Autowired
-    CustomJSLibService customJSLibService;
-
-    @Autowired
-    EnvironmentPermission environmentPermission;
-
-    @Autowired
-    ApplicationPermission applicationPermission;
-
-    @SpyBean
-    PluginService pluginService;
-
-    @Autowired
-    CacheableRepositoryHelper cacheableRepositoryHelper;
-
-    @Autowired
-    SessionUserService sessionUserService;
+    public static final String CUSTOM_JS_LIB_LIST = "jsLibraries";
+    public static final String EXPORTED_APPLICATION = "application";
+    public static final String UNPUBLISHED_CUSTOM_JS_LIBS = "unpublishedCustomJSLibs";
+    public static final String PUBLISHED_CUSTOM_JS_LIBS = "publishedCustomJSLibs";
 
     @BeforeEach
     public void setup() {
-        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
-                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
+    }
+
+    public static void verifyAssertions(
+            JsonObject exportedApplicationJsonObject, JsonObject importApplicationGitReferenceObject) {
+
+        assertThat(exportedApplicationJsonObject.get(EXPORTED_APPLICATION).getAsJsonObject())
+                .isEqualTo(importApplicationGitReferenceObject
+                        .get(EXPORTED_APPLICATION)
+                        .getAsJsonObject());
+
+        assertThat(exportedApplicationJsonObject.get("metadata").getAsJsonObject())
+                .isEqualTo(importApplicationGitReferenceObject.get("metadata").getAsJsonObject());
+
+        assertThat(exportedApplicationJsonObject.get("theme").getAsJsonObject())
+                .isEqualTo(importApplicationGitReferenceObject.get("theme").getAsJsonObject());
+
+        assertThat(exportedApplicationJsonObject.get("actions").getAsJsonObject())
+                .isEqualTo(importApplicationGitReferenceObject.get("actions").getAsJsonObject());
+
+        assertThat(exportedApplicationJsonObject.get("actionBody").getAsJsonObject())
+                .isEqualTo(importApplicationGitReferenceObject.get("actionBody").getAsJsonObject());
+
+        assertThat(exportedApplicationJsonObject.get("actionCollections").getAsJsonObject())
+                .isEqualTo(importApplicationGitReferenceObject
+                        .get("actionCollections")
+                        .getAsJsonObject());
+
+        assertThat(exportedApplicationJsonObject.get("actionCollectionBody").getAsJsonObject())
+                .isEqualTo(importApplicationGitReferenceObject
+                        .get("actionCollectionBody")
+                        .getAsJsonObject());
+
+        assertThat(exportedApplicationJsonObject.get("pages").getAsJsonObject())
+                .isEqualTo(importApplicationGitReferenceObject.get("pages").getAsJsonObject());
+
+        assertThat(exportedApplicationJsonObject.get("pageDsl").getAsJsonObject())
+                .isEqualTo(importApplicationGitReferenceObject.get("pageDsl").getAsJsonObject());
+
+        assertThat(exportedApplicationJsonObject.get("datasources").getAsJsonObject())
+                .isEqualTo(
+                        importApplicationGitReferenceObject.get("datasources").getAsJsonObject());
     }
 
     @Test
     @WithUserDetails(value = "api_user")
     public void importApplication_ThenExportApplication_MatchJson_equals_Success() throws URISyntaxException {
-        FilePart filePart = createFilePart("faulty-dsl.json");
+        String filePath = "ce-automation-test.json";
+        FilePart filePart = createFilePart(filePath);
         Workspace newWorkspace = new Workspace();
         newWorkspace.setName("Template Workspace");
         Mono<Workspace> workspaceMono = workspaceService.create(newWorkspace).cache();
 
-        ApplicationJson applicationJson = importService
+        ApplicationJson applicationJsonToBeImported = importService
                 .extractArtifactExchangeJson(filePart)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .block();
 
-        Mockito.doReturn(Mono.just(applicationJson)).when(importService).extractArtifactExchangeJson(Mockito.any());
+        applicationJsonToBeImported.setModifiedResources(null);
+        ApplicationGitReference importApplicationGitReference =
+                (ApplicationGitReference) commonGitFileUtils.createArtifactReference(applicationJsonToBeImported);
+
+        JsonObject importApplicationGitReferenceObject = gson.toJsonTree(
+                        importApplicationGitReference, ApplicationGitReference.class)
+                .getAsJsonObject();
+        removeCustomJsLibsEntries(importApplicationGitReferenceObject);
 
         final Mono<ApplicationImportDTO> resultMono = workspaceMono
                 .flatMap(workspace ->
@@ -190,19 +177,21 @@ public class ServerSchemaMigrationEnforcerTest {
                     .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
         });
 
-        Gson gson = new Gson();
         // The logic over here is that we are comparing the imported json and exported json,
         // if exported changes has diff from the imported one
-
         StepVerifier.create(exportApplicationMono)
                 .assertNext(exportedApplicationJson -> {
                     assertThat(exportedApplicationJson).isNotNull();
-                    String exportedJsonString = gson.toJson(exportedApplicationJson, ApplicationJson.class);
-                    String importeApplicationJson = gson.toJson(applicationJson, ApplicationJson.class);
-                    if (!exportedJsonString.equals(importeApplicationJson)) {
-                        assertThat(exportedApplicationJson.getServerSchemaVersion())
-                                .isGreaterThan(applicationJson.getServerSchemaVersion());
-                    }
+                    exportedApplicationJson.setModifiedResources(null);
+
+                    ApplicationGitReference exportedApplicationGitReference = (ApplicationGitReference)
+                            commonGitFileUtils.createArtifactReference(exportedApplicationJson);
+
+                    JsonObject exportedApplicationGitReferenceObject = gson.toJsonTree(
+                                    exportedApplicationGitReference, ApplicationGitReference.class)
+                            .getAsJsonObject();
+                    removeCustomJsLibsEntries(exportedApplicationGitReferenceObject);
+                    verifyAssertions(exportedApplicationGitReferenceObject, importApplicationGitReferenceObject);
                 })
                 .verifyComplete();
     }
@@ -218,5 +207,25 @@ public class ServerSchemaMigrationEnforcerTest {
         Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
 
         return filepart;
+    }
+
+    private void removeCustomJsLibsEntries(JsonObject applicationObjectNode) {
+        // Remove customJsLib entry from json
+        if (applicationObjectNode.has(CUSTOM_JS_LIB_LIST)) {
+            applicationObjectNode.remove(CUSTOM_JS_LIB_LIST);
+        }
+
+        // Remove customJsLibList entries from exported Json
+        if (applicationObjectNode.has(EXPORTED_APPLICATION)) {
+            JsonObject exportedApplicationNode =
+                    applicationObjectNode.get(EXPORTED_APPLICATION).getAsJsonObject();
+            if (exportedApplicationNode.has(PUBLISHED_CUSTOM_JS_LIBS)) {
+                exportedApplicationNode.remove(PUBLISHED_CUSTOM_JS_LIBS);
+            }
+
+            if (exportedApplicationNode.has(UNPUBLISHED_CUSTOM_JS_LIBS)) {
+                exportedApplicationNode.remove(UNPUBLISHED_CUSTOM_JS_LIBS);
+            }
+        }
     }
 }
