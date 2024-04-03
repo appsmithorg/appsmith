@@ -91,70 +91,79 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
             PluginExecutor<Object> pluginExecutor,
             Object monitor,
             DatasourceContextIdentifier datasourceContextIdentifier) {
-        synchronized (monitor) {
-            /* Destroy any connection that is stale or in error state to free up resource */
-            final boolean isStale = getIsStale(datasourceStorage, datasourceContextIdentifier);
-            final boolean isInErrorState = getIsInErrorState(datasourceContextIdentifier);
 
-            if (isStale || isInErrorState) {
-                final Object connection =
-                        datasourceContextMap.get(datasourceContextIdentifier).getConnection();
-                if (connection != null) {
-                    try {
-                        // Basically remove entry from both cache maps
-                        pluginExecutor.datasourceDestroy(connection);
-                    } catch (Exception e) {
-                        log.info(
-                                Thread.currentThread().getName() + ": Error destroying stale datasource connection", e);
+        return Mono.fromCallable(() -> {
+                    synchronized (monitor) {
+                        /* Destroy any connection that is stale or in error state to free up resource */
+                        final boolean isStale = getIsStale(datasourceStorage, datasourceContextIdentifier);
+                        final boolean isInErrorState = getIsInErrorState(datasourceContextIdentifier);
+
+                        if (isStale || isInErrorState) {
+                            final Object connection = datasourceContextMap
+                                    .get(datasourceContextIdentifier)
+                                    .getConnection();
+                            if (connection != null) {
+                                try {
+                                    // Basically remove entry from both cache maps
+                                    pluginExecutor.datasourceDestroy(connection);
+                                } catch (Exception e) {
+                                    log.info(
+                                            Thread.currentThread().getName()
+                                                    + ": Error destroying stale datasource connection",
+                                            e);
+                                }
+                            }
+                            datasourceContextMonoMap.remove(datasourceContextIdentifier);
+                            datasourceContextMap.remove(datasourceContextIdentifier);
+                        }
+
+                        /*
+                         * If a publisher with cached value already exists then return it. Please note that even if this publisher is
+                         * evaluated multiple times the actual datasource creation will only happen once and get cached and the same
+                         * value would directly be returned to further evaluations / subscriptions.
+                         */
+                        if (datasourceContextIdentifier.getDatasourceId() != null
+                                && datasourceContextMonoMap.get(datasourceContextIdentifier) != null) {
+                            log.debug(Thread.currentThread().getName()
+                                    + ": Cached resource context mono exists. Returning the same.");
+                            return datasourceContextMonoMap.get(datasourceContextIdentifier);
+                        }
+
+                        /* Create a fresh datasource context */
+                        DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
+                        if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
+                            /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
+                            the new connection in the context map. */
+                            datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
+                        }
+
+                        Mono<Object> connectionMonoCache = pluginExecutor
+                                .datasourceCreate(datasourceStorage.getDatasourceConfiguration())
+                                .cache();
+
+                        Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMonoCache
+                                .flatMap(connection ->
+                                        updateDatasourceAndSetAuthentication(connection, datasourceStorage))
+                                .map(connection -> {
+                                    /* When a connection object exists and makes sense for the plugin, we put it in the
+                                    context. Example, DB plugins. */
+                                    datasourceContext.setConnection(connection);
+                                    return datasourceContext;
+                                })
+                                .defaultIfEmpty(
+                                        /* When a connection object doesn't make sense for the plugin, we get an empty mono
+                                        and we just return the context object as is. */
+                                        datasourceContext)
+                                .cache(); /* Cache the value so that further evaluations don't result in new connections */
+
+                        if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
+                            datasourceContextMonoMap.put(datasourceContextIdentifier, datasourceContextMonoCache);
+                        }
+                        log.debug(Thread.currentThread().getName() + ": Cached new datasource context");
+                        return datasourceContextMonoCache;
                     }
-                }
-                datasourceContextMonoMap.remove(datasourceContextIdentifier);
-                datasourceContextMap.remove(datasourceContextIdentifier);
-            }
-
-            /*
-             * If a publisher with cached value already exists then return it. Please note that even if this publisher is
-             * evaluated multiple times the actual datasource creation will only happen once and get cached and the same
-             * value would directly be returned to further evaluations / subscriptions.
-             */
-            if (datasourceContextIdentifier.getDatasourceId() != null
-                    && datasourceContextMonoMap.get(datasourceContextIdentifier) != null) {
-                log.debug(Thread.currentThread().getName()
-                        + ": Cached resource context mono exists. Returning the same.");
-                return datasourceContextMonoMap.get(datasourceContextIdentifier);
-            }
-
-            /* Create a fresh datasource context */
-            DatasourceContext<Object> datasourceContext = new DatasourceContext<>();
-            if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
-                /* For this datasource, either the context doesn't exist, or the context is stale. Replace (or add) with
-                the new connection in the context map. */
-                datasourceContextMap.put(datasourceContextIdentifier, datasourceContext);
-            }
-
-            Mono<Object> connectionMonoCache = pluginExecutor
-                    .datasourceCreate(datasourceStorage.getDatasourceConfiguration())
-                    .cache();
-
-            Mono<DatasourceContext<Object>> datasourceContextMonoCache = connectionMonoCache
-                    .flatMap(connection -> updateDatasourceAndSetAuthentication(connection, datasourceStorage))
-                    .map(connection -> {
-                        /* When a connection object exists and makes sense for the plugin, we put it in the
-                        context. Example, DB plugins. */
-                        datasourceContext.setConnection(connection);
-                        return datasourceContext;
-                    })
-                    .defaultIfEmpty(
-                            /* When a connection object doesn't make sense for the plugin, we get an empty mono
-                            and we just return the context object as is. */
-                            datasourceContext)
-                    .cache(); /* Cache the value so that further evaluations don't result in new connections */
-
-            if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
-                datasourceContextMonoMap.put(datasourceContextIdentifier, datasourceContextMonoCache);
-            }
-            return datasourceContextMonoCache;
-        }
+                })
+                .flatMap(obj -> obj);
     }
 
     /**
@@ -207,6 +216,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     if (datasourceContextIdentifier.isKeyValid()) {
                         if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
                             synchronized (this) {
+                                log.debug(
+                                        Thread.currentThread().getName() + ": Creating monitor for datasource id {}",
+                                        datasourceContextIdentifier.getDatasourceId());
                                 datasourceContextSynchronizationMonitorMap.computeIfAbsent(
                                         datasourceContextIdentifier, k -> new Object());
                             }
