@@ -46,14 +46,30 @@
   }
 
    /* --------------------------------------------------------------------------
-   * TR
+   * TH
    *-------------------------------------------------------------------------- */
    & thead th {
-    block-size: var(--sizing-10);
     padding-inline: var(--outer-spacing-2);
+    padding-block: var(--outer-spacing-1);
     background: var(--color-bg-elevation-3);
     font-weight: bold;
     align-items: center;
+    justify-content: flex-end;
+    border-block-end: var(--border-width-1) solid var(--color-bd);
+  }
+
+  &[data-variant="default"] thead th {
+    border-inline-end: var(--border-width-1) solid var(--color-bd);
+  }
+
+  & thead th [data-draggable-header] {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: items;
+    padding-inline: var(--outer-spacing-2);
+    padding-inline-end: var(--padding-inline-end);
+    
   }
 
    /* --------------------------------------------------------------------------
@@ -61,6 +77,7 @@
    *-------------------------------------------------------------------------- */
   & [role="row"] {
 	  display: flex;
+    block-size: calc(var(--body-line-height) + var(--body-margin-end) + var(--body-margin-start) + (2 * var(--outer-spacing-4)) );
   }
 
   & [role="row"][aria-checked="true"] {
@@ -73,5 +90,17 @@
 
   & [role="row"][data-is-new] {
     background: var(--color-bg-accent-subtle);
+  }
+
+  /* --------------------------------------------------------------------------
+  * Cell ( td )
+  *-------------------------------------------------------------------------- */
+
+  &[data-variant="default"] [role="cell"] {
+    border-inline-end: var(--border-width-1) solid var(--color-bd);
+  }
+
+  &:is([data-variant="horizontal-borders"], [data-variant="default"]) [role="cell"] {
+    border-block-end: var(--border-width-1) solid var(--color-bd); 
   }
 }

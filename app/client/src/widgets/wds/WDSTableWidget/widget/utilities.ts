@@ -668,32 +668,11 @@ export const createColumn = (props: TableWidgetProps, baseName: string) => {
 };
 
 export const createEditActionColumn = (props: TableWidgetProps) => {
-  const themeProps: Record<string, string> = {};
-
-  if (props.childStylesheet[ColumnTypes.EDIT_ACTIONS]) {
-    Object.entries(props.childStylesheet[ColumnTypes.EDIT_ACTIONS]).forEach(
-      ([key, value]) => {
-        const { jsSnippets, stringSegments } = getDynamicBindings(
-          value as string,
-        );
-
-        const js = combineDynamicBindings(jsSnippets, stringSegments);
-
-        themeProps[
-          key
-        ] = `{{${props.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`;
-      },
-    );
-  }
-
   const column = {
     ...createColumn(props, "EditActions"),
     ...getEditActionColumnProperties(),
-    ...themeProps,
     columnType: ColumnTypes.EDIT_ACTIONS,
     label: "Save / Discard",
-    discardButtonVariant: ButtonVariantTypes.TERTIARY,
-    discardButtonColor: Colors.DANGER_SOLID,
     sticky: StickyType.RIGHT,
   };
   const columnOrder = [...(props.columnOrder || [])];

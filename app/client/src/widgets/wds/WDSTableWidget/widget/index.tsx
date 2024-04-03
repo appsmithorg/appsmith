@@ -910,8 +910,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       document
         .getElementById(getAnvilWidgetDOMId(this.props.widgetId))
         ?.getBoundingClientRect().width || this.props.componentWidth;
-    // (2 * WIDGET_PADDING) gives the total horizontal padding (i.e. paddingLeft + paddingRight)
-    componentWidth = componentWidth - 2 * WIDGET_PADDING;
+    componentWidth = componentWidth;
     return { componentHeight: 300, componentWidth };
   };
 

@@ -1,4 +1,5 @@
-import React, { useCallback, useState, memo, Key } from "react";
+import type { Key } from "react";
+import React, { useCallback, useState, memo } from "react";
 
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
@@ -12,10 +13,6 @@ import {
   MenuList,
   Text,
 } from "@design-system/widgets";
-
-const Check = importRemixIcon(
-  async () => import("remixicon-react/CheckFillIcon"),
-);
 
 interface HeaderProps {
   canFreezeColumn?: boolean;
@@ -52,7 +49,6 @@ interface HeaderProps {
 
 const HeaderCellComponent = (props: HeaderProps) => {
   const { column, editMode, isSortable } = props;
-  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const headerProps = { ...column.getHeaderProps() };
   headerProps["style"] = {
@@ -157,6 +153,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
     >
       <div
         className={!props.isHidden ? `draggable-header` : "hidden-header"}
+        data-draggable-header=""
         draggable={
           (props.column.sticky === StickyType.NONE && !props.isHidden) ||
           undefined
@@ -169,44 +166,54 @@ const HeaderCellComponent = (props: HeaderProps) => {
         onDragOver={onDragOver}
         onDragStart={onDragStart}
         onDrop={onDrop}
+        style={
+          {
+            "--padding-inline-end": props.isAscOrder
+              ? "calc((var(--outer-spacing-2) * 2) + (2 *var(--sizing-7)))"
+              : "calc((var(--outer-spacing-2) * 2) + var(--sizing-7))",
+          } as React.CSSProperties
+        }
       >
         <Flex
           alignItems="center"
+          gap="spacing-1"
           justifyContent={column.columnProperties.horizontalAlignment}
         >
-          {isColumnEditable && <Icon name="edit" />}
+          {isColumnEditable && <Icon name="edit" size="small" />}
           <Text
             lineClamp={1}
             title={props.columnName.replace(/\s/g, "\u00a0")}
-            variant="body"
+            variant="caption"
           >
             {props.columnName.replace(/\s/g, "\u00a0")}
           </Text>
         </Flex>
       </div>
-      <Menu disabledKeys={["separator"]} onAction={onActionOnMenu}>
-        <IconButton
-          color="neutral"
-          icon="chevron-down"
-          size="small"
-          variant="ghost"
-        />
-        <MenuList>
-          <Item key="sort-asc">Sort column ascending</Item>
-          <Item key="sort-desc">Sort column descending</Item>
-          <Item isSeparator key="separator">
-            Separator
-          </Item>
-          <Item key="freeze-left">Freeze column left</Item>
-          <Item key="freeze-right">Freeze column right</Item>
-        </MenuList>
-      </Menu>
-      {props.isAscOrder !== undefined && (
-        <Icon
-          name={props.isAscOrder ? "arrow-up" : "arrow-down"}
-          size="small"
-        />
-      )}
+      <Flex alignItems="center" gap="spacing-1">
+        <Menu disabledKeys={["separator"]} onAction={onActionOnMenu}>
+          <IconButton
+            color="neutral"
+            icon="chevron-down"
+            size="small"
+            variant="ghost"
+          />
+          <MenuList>
+            <Item key="sort-asc">Sort column ascending</Item>
+            <Item key="sort-desc">Sort column descending</Item>
+            <Item isSeparator key="separator">
+              Separator
+            </Item>
+            <Item key="freeze-left">Freeze column left</Item>
+            <Item key="freeze-right">Freeze column right</Item>
+          </MenuList>
+        </Menu>
+        {props.isAscOrder !== undefined && (
+          <Icon
+            name={props.isAscOrder ? "arrow-up" : "arrow-down"}
+            size="small"
+          />
+        )}
+      </Flex>
       <div
         {...column.getResizerProps()}
         className={`resizer ${column.isResizing ? "isResizing" : ""}`}

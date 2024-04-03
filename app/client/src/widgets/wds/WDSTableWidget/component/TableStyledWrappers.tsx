@@ -49,18 +49,6 @@ export const TableWrapper = styled.div<{
     .th,
     .td {
       margin: 0;
-      border-bottom: ${(props) =>
-        props.variant === TableVariantTypes.DEFAULT ||
-        props.variant === undefined ||
-        props.variant === TableVariantTypes.VARIANT3
-          ? "1px solid var(--wds-color-border-onaccent)"
-          : "none"};
-      border-right: ${(props) =>
-        props.variant === TableVariantTypes.DEFAULT ||
-        props.variant === undefined ||
-        props.isResizingColumn
-          ? "1px solid var(--wds-color-border-onaccent)"
-          : "none"};
       position: relative;
       font-size: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
       line-height: ${(props) => props.tableSizes.ROW_FONT_SIZE}px;
@@ -105,7 +93,7 @@ export const TableWrapper = styled.div<{
       border-bottom: ${(props) =>
         props.variant === TableVariantTypes.VARIANT2
           ? "none"
-          : "1px solid var(--wds-color-border-onaccent)"};
+          : "1px solid var(--color-bd)"};
       & .draggable-header {
         cursor: pointer;
       }
@@ -122,16 +110,16 @@ export const TableWrapper = styled.div<{
 
     [data-sticky-last-left-td] {
       left: 0px;
-      border-right: 3px solid var(--wds-color-border);
+      border-right: 3px solid var(--color-bd);
       &.hidden-cell,
       &:has(> .hidden-header) {
-        border-right: 0.5px solid var(--wds-color-border);
+        border-right: 0.5px solid var(--color-bd);
       }
     }
 
     [data-sticky-first-right-td] {
       right: 0px;
-      border-left: 3px solid var(--wds-color-border);
+      border-left: 3px solid var(--color-bd);
       &.hidden-cell,
       &:has(> .hidden-header) {
         border-left: none;
@@ -139,7 +127,7 @@ export const TableWrapper = styled.div<{
     }
 
     & .sticky-right-modifier {
-      border-left: 3px solid var(--wds-color-border);
+      border-left: 3px solid var(--color-bd);
     }
   }
 
@@ -187,7 +175,6 @@ export const TableWrapper = styled.div<{
   }
   .th {
     display: flex !important;
-    justify-content: space-between;
     &.highlight-left {
       border-left: 2px solid ${Colors.GREEN};
     }

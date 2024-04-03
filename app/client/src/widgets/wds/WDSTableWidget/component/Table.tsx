@@ -19,17 +19,11 @@ import type {
   AddNewRowActions,
   StickyType,
 } from "./Constants";
-import {
-  TABLE_SIZES,
-  CompactModeTypes,
-  TABLE_SCROLLBAR_HEIGHT,
-} from "./Constants";
+import { TABLE_SIZES, CompactModeTypes } from "./Constants";
 import { Colors } from "constants/Colors";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { EditableCell, TableVariant } from "../constants";
 import "simplebar-react/dist/simplebar.min.css";
-import { createGlobalStyle } from "styled-components";
-import { Classes as PopOver2Classes } from "@blueprintjs/popover2";
 import StaticTable from "./StaticTable";
 import VirtualTable from "./VirtualTable";
 import { ConnectDataOverlay } from "widgets/ConnectDataOverlay";
@@ -39,25 +33,6 @@ import {
   CONNECT_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
 import styles from "./styles.module.css";
-
-const SCROLL_BAR_OFFSET = 2;
-const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
-
-const PopoverStyles = createGlobalStyle<{
-  widgetId: string;
-  borderRadius: string;
-}>`
-  ${HEADER_MENU_PORTAL_CLASS}-${({ widgetId }) => widgetId} {
-    font-family: var(--wds-font-family) !important;
-
-    & .${PopOver2Classes.POPOVER2},
-    .${PopOver2Classes.POPOVER2_CONTENT},
-    .bp3-menu {
-      border-radius: ${({ borderRadius }) =>
-        borderRadius >= `1.5rem` ? `0.375rem` : borderRadius} !important;
-    }
-  }
-`;
 
 export interface TableProps {
   width: number;
@@ -287,20 +262,17 @@ export function Table(props: TableProps) {
     props.isVisiblePagination ||
     props.allowAddNewRow;
 
-  const scrollContainerStyles = useMemo(() => {
-    return {
-      height: isHeaderVisible
-        ? props.height -
-          tableSizes.TABLE_HEADER_HEIGHT -
-          TABLE_SCROLLBAR_HEIGHT -
-          SCROLL_BAR_OFFSET
-        : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
-    };
-  }, [isHeaderVisible, props.height, tableSizes.TABLE_HEADER_HEIGHT]);
-
   const shouldUseVirtual =
     props.serverSidePaginationEnabled &&
     !props.columns.some((column) => column.columnProperties.allowCellWrapping);
+
+  const variant = (() => {
+    if (props.variant === "DEFAULT") return "default";
+    if (props.variant === "VARIANT2") return "no-borders";
+    if (props.variant === "VARIANT3") return "horizontal-borders";
+
+    return "default";
+  })();
 
   return (
     <>
@@ -321,6 +293,7 @@ export function Table(props: TableProps) {
         className={styles.table}
         data-status={props.isAddRowInProgress ? "add-row-in-progress" : ""}
         data-type={shouldUseVirtual ? "virtualized" : "static"}
+        data-variant={variant}
         height={props.height}
         id={`table${props.widgetId}`}
         isAddRowInProgress={props.isAddRowInProgress}
@@ -331,10 +304,6 @@ export function Table(props: TableProps) {
         variant={props.variant}
         width={props.width}
       >
-        <PopoverStyles
-          borderRadius={props.borderRadius}
-          widgetId={props.widgetId}
-        />
         {isHeaderVisible && (
           <TableHeader
             allowAddNewRow={props.allowAddNewRow}
@@ -439,7 +408,6 @@ export function Table(props: TableProps) {
                 prepareRow={prepareRow}
                 primaryColumnId={props.primaryColumnId}
                 rowSelectionState={rowSelectionState}
-                scrollContainerStyles={scrollContainerStyles}
                 selectTableRow={props.selectTableRow}
                 selectedRowIndex={props.selectedRowIndex}
                 selectedRowIndices={props.selectedRowIndices}
