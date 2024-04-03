@@ -1,4 +1,6 @@
 :root {
+  --anvil-drop-indicator: #ce01d3;
+  --anvil-cell-highlight: rgba(206, 1, 211, 0.2);
   --info-text-font-size: 14px;
   --info-text-font-weight: 510;
   --info-text-line-height: 19.6px;

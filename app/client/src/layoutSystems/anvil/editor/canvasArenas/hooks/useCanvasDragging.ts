@@ -10,10 +10,8 @@ import { AnvilCanvasZIndex } from "layoutSystems/anvil/editor/canvas/hooks/useCa
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
-import {
-  AnvilEditorColors,
-  PADDING_FOR_HORIZONTAL_HIGHLIGHT,
-} from "layoutSystems/anvil/utils/constants";
+import { PADDING_FOR_HORIZONTAL_HIGHLIGHT } from "layoutSystems/anvil/utils/constants";
+import memoize from "micro-memoize";
 
 const setHighlightsDrawn = (highlight?: AnvilHighlightInfo) => {
   return {
@@ -120,6 +118,11 @@ function roundRect(
   }
 }
 
+const getDropIndicatorColor = memoize(() => {
+  const rootStyles = getComputedStyle(document.documentElement);
+  return rootStyles.getPropertyValue("--anvil-drop-indicator");
+});
+
 /**
  * Function to stroke a rectangle on the canvas that looks like a highlight/drop area.
  */
@@ -134,7 +137,7 @@ const renderBlocksOnCanvas = (
   // Calculating offset based on the position of the canvas
   const topOffset = getAbsolutePixels(stickyCanvas.style.top);
   const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
-
+  const dropIndicatorColor = getDropIndicatorColor();
   const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
 
   // Clearing previous drawings on the canvas
@@ -156,7 +159,7 @@ const renderBlocksOnCanvas = (
     width - horizontalPadding * 2,
     height - verticalPadding * 2,
     2,
-    AnvilEditorColors.dropIndicator,
+    dropIndicatorColor,
   );
   canvasCtx.closePath();
 };
