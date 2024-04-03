@@ -67,7 +67,7 @@ public class GlobalExceptionHandler {
     }
 
     private void doLog(Throwable error) {
-        if (error instanceof BaseException baseException && baseException.shouldHideStackTraceInLogs()) {
+        if (error instanceof BaseException baseException && baseException.isHideStackTraceInLogs()) {
             log.error(baseException.getClass().getSimpleName() + ": " + baseException.getMessage());
         } else {
             log.error("", error);
