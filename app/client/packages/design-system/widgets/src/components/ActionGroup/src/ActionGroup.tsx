@@ -83,7 +83,12 @@ const _ActionGroup = <T extends object>(
             ]}
             onAction={onAction}
           >
-            <IconButton color={color} icon="dots" variant={variant} />
+            <IconButton
+              color={color}
+              icon="dots"
+              size={size}
+              variant={variant}
+            />
             <MenuList>
               {menuChildren.map((item) => {
                 return (

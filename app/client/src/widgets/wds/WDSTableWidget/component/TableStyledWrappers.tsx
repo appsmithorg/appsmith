@@ -48,7 +48,7 @@ export const TableWrapper = styled.div<{
 }>`
   width: 100%;
   height: 100%;
-  background: white;
+  background: var(--color-bg-secondary);
   border-style: solid;
   border-width: ${({ borderWidth }) => `${borderWidth}px`};
   border-color: ${({ borderColor }) => borderColor};
