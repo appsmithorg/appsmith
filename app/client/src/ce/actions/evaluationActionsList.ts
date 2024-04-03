@@ -105,6 +105,8 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.BUFFERED_ACTION,
   // Generic
   ReduxActionTypes.TRIGGER_EVAL,
+  //
+  ReduxActionTypes.SET_URL_DATA,
 ];
 // Topics used for datasource and query form evaluations
 export const FORM_EVALUATION_REDUX_ACTIONS = [
