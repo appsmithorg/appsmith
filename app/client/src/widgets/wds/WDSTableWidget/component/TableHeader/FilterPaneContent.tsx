@@ -6,9 +6,8 @@ import type {
   ReactTableColumnProps,
   ReactTableFilter,
   Operator,
-} from "../../../Constants";
-import { OperatorTypes, DEFAULT_FILTER } from "../../../Constants";
-import type { DropdownOption } from ".";
+} from "../Constants";
+import { OperatorTypes, DEFAULT_FILTER } from "../Constants";
 import CascadeFields from "./CascadeFields";
 import {
   createMessage,
@@ -25,6 +24,12 @@ import {
 } from "widgets/wds/WDSTableWidget/constants";
 import { generateReactKey } from "utils/generators";
 import { importRemixIcon } from "design-system-old";
+
+export interface DropdownOption {
+  label: string;
+  value: string;
+  type: string;
+}
 
 const AddIcon = importRemixIcon(
   async () => import("remixicon-react/AddLineIcon"),

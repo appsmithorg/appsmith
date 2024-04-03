@@ -124,4 +124,10 @@ export class LeftPane {
   public assertItemCount(count: number) {
     this.listView.assertItemCount(count);
   }
+
+  public assertSelectedSegment(name: string) {
+    ObjectsRegistry.AggregateHelper.GetElement(
+      this.locators.segment(name),
+    ).should("have.attr", "data-selected", "true");
+  }
 }

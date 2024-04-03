@@ -35,7 +35,7 @@ import java.util.function.Function;
 public class DatasourceContextServiceCEImpl implements DatasourceContextServiceCE {
 
     // DatasourceContextIdentifier contains datasourceId & environmentId which is mapped to DatasourceContext
-    protected final Map<DatasourceContextIdentifier, Mono<? extends DatasourceContext<?>>> datasourceContextMonoMap;
+    protected final Map<DatasourceContextIdentifier, Mono<DatasourceContext<Object>>> datasourceContextMonoMap;
     protected final Map<DatasourceContextIdentifier, Object> datasourceContextSynchronizationMonitorMap;
     protected final Map<DatasourceContextIdentifier, DatasourceContext<?>> datasourceContextMap;
     private final DatasourceService datasourceService;
@@ -85,7 +85,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * @return a cached source publisher which upon subscription produces / returns the latest datasource context /
      * connection.
      */
-    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(
+    public Mono<DatasourceContext<Object>> getCachedDatasourceContextMono(
             DatasourceStorage datasourceStorage,
             Plugin plugin,
             PluginExecutor<Object> pluginExecutor,
@@ -183,13 +183,13 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         return datasourceStorageMono.thenReturn(connection);
     }
 
-    protected Mono<DatasourceContext<?>> createNewDatasourceContext(
+    protected Mono<DatasourceContext<Object>> createNewDatasourceContext(
             DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
         log.debug(Thread.currentThread().getName() + ": Datasource context doesn't exist. Creating connection.");
         Mono<Plugin> pluginMono =
                 pluginService.findById(datasourceStorage.getPluginId()).cache();
 
-        return (Mono<DatasourceContext<?>>) pluginMono
+        return pluginMono
                 .zipWith(pluginExecutorHelper.getPluginExecutor(pluginMono))
                 .flatMap(tuple2 -> {
                     Plugin plugin = tuple2.getT1();
