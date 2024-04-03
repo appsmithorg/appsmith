@@ -8,7 +8,7 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import type {
   AnvilHighlightInfo,
   WidgetLayoutProps,
-} from "../../utils/anvilTypes";
+} from "layoutSystems/anvil/utils/anvilTypes";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
 import type {

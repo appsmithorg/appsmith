@@ -4,7 +4,7 @@ import type {
   DraggedWidget,
   HighlightPayload,
   LayoutComponentTypes,
-} from "../utils/anvilTypes";
+} from "layoutSystems/anvil/utils/anvilTypes";
 import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";

@@ -12,8 +12,8 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
-import { useCanvasActivationStates } from "layoutSystems/anvil/canvasArenas/hooks/mainCanvas/useCanvasActivationStates";
-import { canActivateCanvasForDraggedWidget } from "layoutSystems/anvil/canvasArenas/hooks/utils";
+import { useCanvasActivationStates } from "layoutSystems/anvil/editor/canvasArenas/hooks/useCanvasActivationStates";
+import { canActivateCanvasForDraggedWidget } from "layoutSystems/anvil/editor/canvasArenas/hooks/utils";
 
 // Z-Index values for activated and deactivated states
 export const AnvilCanvasZIndex = {

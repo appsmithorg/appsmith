@@ -1,6 +1,6 @@
 import React from "react";
 import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
-import type { AnvilHighlightInfo } from "../utils/anvilTypes";
+import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import styled from "styled-components";

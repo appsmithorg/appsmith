@@ -11,8 +11,9 @@
 .detached-widgets-drop-overlay-content {
   background-color: var(--modal-overlay-content-color);
   color: var(--modal-overlay-content-text-color);
-  outline: var(--modal-overlay-content-outline) !important;
-  outline-offset: 3px !important;
+  border: var(--modal-overlay-content-outline);
+  padding: 3px;
+  background-clip: content-box;
   border-radius: 4px;
   flex: 1;
   display: flex;

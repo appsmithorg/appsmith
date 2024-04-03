@@ -6,7 +6,7 @@ import type {
   AnvilHighlightInfo,
   DraggedWidget,
   HighlightPayload,
-} from "../utils/anvilTypes";
+} from "layoutSystems/anvil/utils/anvilTypes";
 import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 

@@ -3,7 +3,7 @@ import { LayoutProvider } from "./LayoutProvider";
 import React from "react";
 import { previewModeSelector } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
-import { EmptyModalDropArena } from "../canvasArenas/EmptyModalDropArena";
+import { EmptyModalDropArena } from "../editor/canvasArenas/EmptyModalDropArena";
 
 export const ModalLayoutProvider = (props: BaseWidgetProps) => {
   const isPreviewMode = useSelector(previewModeSelector);

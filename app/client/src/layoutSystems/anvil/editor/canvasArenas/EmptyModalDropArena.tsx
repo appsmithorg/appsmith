@@ -32,7 +32,7 @@ const StyledEmptyModalDropArena = styled.div<{
         : "var(--empty-modal-drop-arena-outline-color)"};
   outline-offset: -1px;
   width: 100%;
-  height: 100% !important;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;

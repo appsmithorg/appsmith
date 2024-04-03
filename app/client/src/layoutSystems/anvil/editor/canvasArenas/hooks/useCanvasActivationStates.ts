@@ -12,8 +12,8 @@ import {
   getDraggedBlocks,
   getDraggedWidgetHierarchy,
   getDraggedWidgetTypes,
-} from "../utils";
-import type { AnvilDraggedWidgetTypes } from "../../types";
+} from "./utils";
+import type { AnvilDraggedWidgetTypes } from "../types";
 
 export interface AnvilCanvasActivationStates {
   activateOverlayWidgetDrop: boolean;
