@@ -5,6 +5,7 @@ import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import styled from "styled-components";
 import { Popover, PopoverModalContent } from "@design-system/headless";
+import { DropModalHereMessage } from "layoutSystems/anvil/common/messages";
 
 /**
  * Default highlight passed for AnvilOverlayWidgetTypes widgets
@@ -45,7 +46,7 @@ export const DetachedWidgetsDropArena = (props: {
           contentClassName="detached-widgets-drop-overlay-content"
           overlayClassName="detached-widgets-drop-overlay"
         >
-          Drop the Modal here
+          {DropModalHereMessage()}
         </PopoverModalContent>
       </Popover>
     </DetachedWidgetsDropArenaWrapper>

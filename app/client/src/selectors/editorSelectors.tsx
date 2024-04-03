@@ -875,6 +875,18 @@ export const previewModeSelector = (state: AppState) => {
 };
 
 /**
+ * Return true if the app is in edit mode but not in preview mode.
+ */
+
+export const isEditOnlyModeSelector = createSelector(
+  getRenderMode,
+  previewModeSelector,
+  protectedModeSelector,
+  (renderMode, isPreviewMode, isProtectedMode) =>
+    renderMode === RenderModes.CANVAS && (isPreviewMode || isProtectedMode),
+);
+
+/**
  * returns the `state.ui.editor.zoomLevel`
  *
  * @param state AppState

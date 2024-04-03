@@ -1,22 +1,20 @@
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { LayoutProvider } from "./LayoutProvider";
 import React from "react";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { isEditOnlyModeSelector } from "selectors/editorSelectors";
 import { useSelector } from "react-redux";
-import { EmptyModalDropArena } from "../editor/canvasArenas/EmptyModalDropArena";
+import { AnvilModalDropArena } from "../editor/canvasArenas/AnvilModalDropArena";
 
 export const ModalLayoutProvider = (props: BaseWidgetProps) => {
-  const isPreviewMode = useSelector(previewModeSelector);
-  const showEmptyModalDropArena =
-    props.renderMode === "CANVAS" && !isPreviewMode;
-  if (showEmptyModalDropArena) {
+  const isEditOnlyMode = useSelector(isEditOnlyModeSelector);
+  if (isEditOnlyMode) {
     return (
-      <EmptyModalDropArena
-        canvasId={props.widgetId}
+      <AnvilModalDropArena
         layoutId={props.layout[0].layoutId}
+        modalId={props.widgetId}
       >
         <LayoutProvider {...props} />
-      </EmptyModalDropArena>
+      </AnvilModalDropArena>
     );
   }
   return <LayoutProvider {...props} />;

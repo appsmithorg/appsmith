@@ -10,7 +10,7 @@ import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
 import { DetachedWidgetsDropArena } from "./DetachedWidgetsDropArena";
 import { useSelector } from "react-redux";
-import { previewModeSelector } from "selectors/editorSelectors";
+import { isEditOnlyModeSelector } from "selectors/editorSelectors";
 
 // Props interface for AnvilCanvasDraggingArena component
 interface AnvilCanvasDraggingArenaProps {
@@ -27,7 +27,7 @@ interface AnvilCanvasDraggingArenaProps {
 export const AnvilCanvasDraggingArena = (
   props: AnvilCanvasDraggingArenaProps,
 ) => {
-  const isPreviewMode = useSelector(previewModeSelector);
+  const isEditOnlyMode = useSelector(isEditOnlyModeSelector);
   const {
     allowedWidgetTypes,
     canvasId,
@@ -48,7 +48,7 @@ export const AnvilCanvasDraggingArena = (
   const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
   const isMainCanvasDropArena =
     anvilDragStates.mainCanvasLayoutId === props.layoutId;
-  return !isPreviewMode ? (
+  return isEditOnlyMode ? (
     <>
       <AnvilHighlightingCanvas
         anvilDragStates={anvilDragStates}

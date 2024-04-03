@@ -2,8 +2,8 @@ import React from "react";
 import { useSelector } from "react-redux";
 import { getDragDetails, getWidgetByID } from "sagas/selectors";
 import styled from "styled-components";
-import { WDSModalWidget } from "widgets/wds/WDSModalWidget";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { DropWidgetsHereMessage } from "layoutSystems/anvil/common/messages";
 
 const StyledEmptyModalDropArenaWrapper = styled.div<{ isModalEmpty: boolean }>`
   ${(props) =>
@@ -43,12 +43,12 @@ const StyledEmptyModalDropArena = styled.div<{
   font-weight: var(--info-text-font-weight);
   line-height: var(--info-text-line-height);
 `;
-export const EmptyModalDropArena = ({
-  canvasId,
+export const AnvilModalDropArena = ({
   children,
   layoutId,
+  modalId,
 }: {
-  canvasId: string;
+  modalId: string;
   children: React.ReactNode;
   layoutId: string;
 }) => {
@@ -59,16 +59,15 @@ export const EmptyModalDropArena = ({
    */
   const isCurrentDraggedCanvas =
     dragDetails && dragDetails.draggedOn === layoutId;
-  const widget = useSelector(getWidgetByID(canvasId));
-  const isModal = widget?.type === WDSModalWidget.type;
-  const isModalEmpty = isModal && widget.children?.length === 0;
+  const widget = useSelector(getWidgetByID(modalId));
+  const isModalEmpty = widget.children?.length === 0;
   return (
     <StyledEmptyModalDropArenaWrapper isModalEmpty={isModalEmpty}>
       <StyledEmptyModalDropArena
         isActive={isCurrentDraggedCanvas}
         isModalEmpty={isModalEmpty}
       >
-        Drop Widgets Here
+        {DropWidgetsHereMessage()}
       </StyledEmptyModalDropArena>
       {children}
     </StyledEmptyModalDropArenaWrapper>
