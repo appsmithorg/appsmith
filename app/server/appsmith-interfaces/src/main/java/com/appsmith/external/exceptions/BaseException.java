@@ -41,7 +41,7 @@ public abstract class BaseException extends RuntimeException {
 
     @SuppressWarnings("unchecked")
     public <T extends BaseException> T hideStackTraceInLogs() {
-        hideStackTraceInLogs = false;
+        hideStackTraceInLogs = true;
         return (T) this;
     }
 
