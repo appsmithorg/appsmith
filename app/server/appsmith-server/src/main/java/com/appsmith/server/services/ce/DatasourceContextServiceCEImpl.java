@@ -124,8 +124,11 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                          */
                         if (datasourceContextIdentifier.getDatasourceId() != null
                                 && datasourceContextMonoMap.get(datasourceContextIdentifier) != null) {
-                            log.debug(Thread.currentThread().getName()
-                                    + ": Cached resource context mono exists. Returning the same.");
+                            log.debug(
+                                    Thread.currentThread().getName()
+                                            + ": Cached resource context mono exists for datasource id {}, environment id {}. Returning the same.",
+                                    datasourceContextIdentifier.getDatasourceId(),
+                                    datasourceContextIdentifier.getEnvironmentId());
                             return datasourceContextMonoMap.get(datasourceContextIdentifier);
                         }
 
@@ -159,11 +162,16 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         if (datasourceContextIdentifier.isKeyValid() && shouldCacheContextForThisPlugin(plugin)) {
                             datasourceContextMonoMap.put(datasourceContextIdentifier, datasourceContextMonoCache);
                         }
-                        log.debug(Thread.currentThread().getName() + ": Cached new datasource context");
+                        log.debug(
+                                Thread.currentThread().getName()
+                                        + ": Cached new datasource context for datasource id {}, environment id {}",
+                                datasourceContextIdentifier.getDatasourceId(),
+                                datasourceContextIdentifier.getEnvironmentId());
                         return datasourceContextMonoCache;
                     }
                 })
-                .flatMap(obj -> obj);
+                .flatMap(obj -> obj)
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     /**
@@ -194,7 +202,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
     protected Mono<DatasourceContext<Object>> createNewDatasourceContext(
             DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
-        log.debug(Thread.currentThread().getName() + ": Datasource context doesn't exist. Creating connection.");
+        log.debug("Datasource context doesn't exist. Creating connection.");
         Mono<Plugin> pluginMono =
                 pluginService.findById(datasourceStorage.getPluginId()).cache();
 
@@ -203,6 +211,19 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                 .flatMap(tuple2 -> {
                     Plugin plugin = tuple2.getT1();
                     PluginExecutor<Object> pluginExecutor = tuple2.getT2();
+
+                    return getDatasourceContextMono(
+                            datasourceStorage, datasourceContextIdentifier, plugin, pluginExecutor);
+                });
+    }
+
+    private Mono<DatasourceContext<Object>> getDatasourceContextMono(
+            DatasourceStorage datasourceStorage,
+            DatasourceContextIdentifier datasourceContextIdentifier,
+            Plugin plugin,
+            PluginExecutor<Object> pluginExecutor) {
+
+        return Mono.fromCallable(() -> {
 
                     /**
                      * Keep one monitor object against each datasource id. The synchronized method
@@ -217,8 +238,10 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         if (datasourceContextSynchronizationMonitorMap.get(datasourceContextIdentifier) == null) {
                             synchronized (this) {
                                 log.debug(
-                                        Thread.currentThread().getName() + ": Creating monitor for datasource id {}",
-                                        datasourceContextIdentifier.getDatasourceId());
+                                        Thread.currentThread().getName()
+                                                + ": Creating monitor for datasource id {}, environment id {}",
+                                        datasourceContextIdentifier.getDatasourceId(),
+                                        datasourceContextIdentifier.getEnvironmentId());
                                 datasourceContextSynchronizationMonitorMap.computeIfAbsent(
                                         datasourceContextIdentifier, k -> new Object());
                             }
@@ -230,7 +253,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     return getCachedDatasourceContextMono(
                             datasourceStorage, plugin, pluginExecutor, monitor, datasourceContextIdentifier);
                 })
-                // Scheduling on bounded elastic to avoid blocking the main thread
+                .flatMap(obj -> obj)
                 .subscribeOn(Schedulers.boundedElastic());
     }
 
