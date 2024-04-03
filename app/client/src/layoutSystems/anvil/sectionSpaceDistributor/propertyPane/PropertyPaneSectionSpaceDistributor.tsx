@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import {
-  convertFlexGrowToFlexBasis,
+  convertFlexGrowToFlexBasisForPropPane,
   getDistributionHandleId,
   getPropertyPaneDistributionHandleId,
   getPropertyPaneZoneId,
@@ -14,7 +14,6 @@ import type { WidgetLayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
 import { PropertyPaneSpaceDistributionHandle } from "./PropertyPaneSpaceDistributionHandle";
 
 const MockedSection = styled.div`
-  --outer-spacing-4: 4px;
   background-color: var(--ads-v2-color-bg-emphasis);
   border-radius: 5px;
   display: flex;
@@ -67,7 +66,7 @@ export const PropertyPaneSectionSpaceDistributor = ({
         const distributionHandleId = getDistributionHandleId(zoneId);
         const propPaneZoneId = getPropertyPaneZoneId(zoneId);
         const propPaneHandleId = getPropertyPaneDistributionHandleId(zoneId);
-        const flexBasisValue = convertFlexGrowToFlexBasis(zoneValue);
+        const flexBasisValue = convertFlexGrowToFlexBasisForPropPane(zoneValue);
         return (
           // Render mocked zone and distribution handle for each zone
           <>
