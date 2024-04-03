@@ -10,10 +10,10 @@ class Canvas {
     }
   }
 
-  hoverOnWidget(widgetType: string) {
-    const selector = `.t--draggable-${widgetType}`;
+  hoverOnWidget(widgetName: string) {
+    const selector = `[data-widgetname-cy="${widgetName}"] > div`;
     agHelper.Sleep(500);
-    cy.get(selector).first().trigger("mouseover", { force: true }).wait(500);
+    cy.get(selector).trigger("mouseover", { force: true }).wait(500);
   }
 
   commandClickWidget(widgetName: string) {

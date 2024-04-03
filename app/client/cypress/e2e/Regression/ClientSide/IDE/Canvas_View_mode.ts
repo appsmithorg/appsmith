@@ -11,6 +11,8 @@ import {
 import Canvas from "../../../../support/Pages/Canvas";
 import EditorNavigation, {
   EditorViewMode,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Canvas view mode", { tags: ["@tag.IDE"] }, () => {
@@ -33,7 +35,7 @@ describe("Canvas view mode", { tags: ["@tag.IDE"] }, () => {
 
     EditorNavigation.SwitchScreenMode(EditorViewMode.SplitScreen);
 
-    Canvas.hoverOnWidget("inputwidgetv2");
+    Canvas.hoverOnWidget("Input1");
     // check for tooltip helper text
     cy.assertTooltipPresence(
       '[role="tooltip"]',
@@ -49,6 +51,9 @@ describe("Canvas view mode", { tags: ["@tag.IDE"] }, () => {
       locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
       "test data",
     );
+
+    // assert js pane existance
+    PageLeftPane.assertSelectedSegment(PagePaneSegment.JS);
 
     // cmd click to show property pane
     Canvas.commandClickWidget("Input1");
