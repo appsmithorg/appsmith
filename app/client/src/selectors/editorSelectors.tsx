@@ -883,7 +883,7 @@ export const isEditOnlyModeSelector = createSelector(
   previewModeSelector,
   protectedModeSelector,
   (renderMode, isPreviewMode, isProtectedMode) =>
-    renderMode === RenderModes.CANVAS && (isPreviewMode || isProtectedMode),
+    renderMode === RenderModes.CANVAS && !(isPreviewMode || isProtectedMode),
 );
 
 /**
