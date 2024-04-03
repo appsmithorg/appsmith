@@ -1327,6 +1327,7 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.wait(2000);
 
   if (CURRENT_REPO === REPO.CE) {
+    assertHelper.AssertNetworkStatus("@getApplicationsOfWorkspace");
     agHelper.WaitUntilEleAppear(onboarding.locators.skipStartFromData);
     agHelper.GetNClick(onboarding.locators.skipStartFromData);
     cy.get("#loading").should("not.exist");
