@@ -871,7 +871,7 @@ Cypress.Commands.add("validateHTMLText", (widgetCss, htmlTag, value) => {
 });
 Cypress.Commands.add("setTinyMceContent", (tinyMceId, content) => {
   cy.window().then((win) => {
-    const editor = win.tinymce.editors[tinyMceId];
+    const editor = win.tinymce.EditorManager.get(tinyMceId);
     editor.setContent(content);
   });
 });
@@ -1327,6 +1327,7 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.wait(2000);
 
   if (CURRENT_REPO === REPO.CE) {
+    assertHelper.AssertNetworkStatus("@getApplicationsOfWorkspace");
     agHelper.WaitUntilEleAppear(onboarding.locators.skipStartFromData);
     agHelper.GetNClick(onboarding.locators.skipStartFromData);
     cy.get("#loading").should("not.exist");
@@ -2076,4 +2077,17 @@ Cypress.Commands.add("stubPricingPage", () => {
       win.location.href = "https://www.appsmith.com/pricing?";
     }).as("pricingPage");
   });
+});
+
+/**
+ * @param testID
+ * @returns
+ *
+ * This function act as a data-testid selector. In
+ * any case it is decided to rename the data-testid,
+ * it's thing single function that needs to be updated.
+ *
+ */
+Cypress.Commands.add("selectByTestId", (testId) => {
+  return cy.get(`[data-testid="${testId}"]`);
 });

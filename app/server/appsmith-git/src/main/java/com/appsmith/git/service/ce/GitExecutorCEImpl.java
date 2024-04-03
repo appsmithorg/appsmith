@@ -7,6 +7,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.GitSpans;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
@@ -16,6 +17,7 @@ import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import com.appsmith.git.helpers.StopwatchHelpers;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CreateBranchCommand;
@@ -40,6 +42,7 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -63,7 +66,11 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static com.appsmith.external.git.constants.GitConstants.GitMetricConstants.CHECKOUT_REMOTE;
+import static com.appsmith.external.git.constants.GitConstants.GitMetricConstants.HARD_RESET;
 import static com.appsmith.git.constants.CommonConstants.FILE_MIGRATION_MESSAGE;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 @RequiredArgsConstructor
 @Component
@@ -73,6 +80,8 @@ public class GitExecutorCEImpl implements GitExecutor {
     private final RepositoryHelper repositoryHelper = new RepositoryHelper();
 
     private final GitServiceConfig gitServiceConfig;
+
+    protected final ObservationRegistry observationRegistry;
 
     public static final DateTimeFormatter ISO_FORMATTER =
             DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
@@ -107,7 +116,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.fromCallable(() -> {
                     log.debug("Trying to commit to local repo path, {}", path);
                     Path repoPath = path;
-                    if (Boolean.TRUE.equals(isSuffixedPath)) {
+                    if (TRUE.equals(isSuffixedPath)) {
                         repoPath = createRepoPath(repoPath);
                     }
                     Stopwatch processStopwatch =
@@ -133,6 +142,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpans.FILE_SYSTEM_COMMIT.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -235,6 +246,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpans.FILE_SYSTEM_PUSH.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -275,6 +288,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return branchName;
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpans.FILE_SYSTEM_CLONE_REPO.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -292,7 +307,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     try (Git git = Git.open(baseRepoPath.toFile())) {
                         // Create and checkout to new branch
                         git.checkout()
-                                .setCreateBranch(Boolean.TRUE)
+                                .setCreateBranch(TRUE)
                                 .setName(branchName)
                                 .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                                 .call();
@@ -303,6 +318,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpans.FILE_SYSTEM_CREATE_BRANCH.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -321,16 +338,18 @@ public class GitExecutorCEImpl implements GitExecutor {
                         // Create and checkout to new branch
                         List<String> deleteBranchList = git.branchDelete()
                                 .setBranchNames(branchName)
-                                .setForce(Boolean.TRUE)
+                                .setForce(TRUE)
                                 .call();
                         processStopwatch.stopAndLogTimeInMillis();
                         if (deleteBranchList.isEmpty()) {
                             return Boolean.FALSE;
                         }
-                        return Boolean.TRUE;
+                        return TRUE;
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpans.FILE_SYSTEM_DELETE_BRANCH.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -348,7 +367,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     try (Git git = Git.open(baseRepoPath.toFile())) {
                         if (StringUtils.equalsIgnoreCase(
                                 branchName, git.getRepository().getBranch())) {
-                            return Boolean.TRUE;
+                            return TRUE;
                         }
                         // Create and checkout to new branch
                         String checkedOutBranch = git.checkout()
@@ -364,6 +383,9 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .tag(CHECKOUT_REMOTE, FALSE.toString())
+                .name(GitSpans.FILE_SYSTEM_CHECKOUT_BRANCH.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -424,6 +446,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                         }
                     })
                     .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                    .name(GitSpans.FILE_SYSTEM_PULL.getEventName())
+                    .tap(Micrometer.observation(observationRegistry))
                     .subscribeOn(scheduler);
         }
     }
@@ -554,6 +578,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .flatMap(response -> response)
+                .name(GitSpans.FILE_SYSTEM_STATUS.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -755,6 +781,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpans.FILE_SYSTEM_MERGE.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -768,12 +796,12 @@ public class GitExecutorCEImpl implements GitExecutor {
             boolean isFetchAll) {
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_FETCH.getEventName());
-        Path repoPath = Boolean.TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
+        Path repoPath = TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
                     TransportConfigCallback config = new SshTransportConfigCallback(privateKey, publicKey);
                     try (Git git = Git.open(repoPath.toFile())) {
                         String fetchMessages;
-                        if (Boolean.TRUE.equals(isFetchAll)) {
+                        if (TRUE.equals(isFetchAll)) {
                             fetchMessages = git.fetch()
                                     .setRemoveDeletedRefs(true)
                                     .setTransportConfigCallback(config)
@@ -798,6 +826,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return Mono.error(error);
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpans.FILE_SYSTEM_FETCH_REMOTE.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -892,7 +922,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     try (Git git = Git.open(baseRepoPath.toFile())) {
                         // Create and checkout to new branch
                         git.checkout()
-                                .setCreateBranch(Boolean.TRUE)
+                                .setCreateBranch(TRUE)
                                 .setName(branchName)
                                 .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                                 .setStartPoint("origin/" + branchName)
@@ -906,6 +936,9 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .tag(CHECKOUT_REMOTE, TRUE.toString())
+                .name(GitSpans.FILE_SYSTEM_CHECKOUT_BRANCH.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -938,6 +971,9 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return ref;
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .tag(HARD_RESET, Boolean.FALSE.toString())
+                .name(GitSpans.FILE_SYSTEM_RESET.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -971,6 +1007,9 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return Mono.just(false);
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .tag(HARD_RESET, TRUE.toString())
+                .name(GitSpans.FILE_SYSTEM_RESET.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -1000,6 +1039,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpans.FILE_SYSTEM_REBASE.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -1011,6 +1052,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpans.FILE_SYSTEM_BRANCH_TRACK.getEventName())
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 }
