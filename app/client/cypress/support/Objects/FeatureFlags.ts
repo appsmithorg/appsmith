@@ -11,7 +11,7 @@ export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
 ) => {
-  getConsolidatedDataApi(flags, reload, defaultFlags);
+  getConsolidatedDataApi({ ...flags, ...defaultFlags }, reload);
   const response = {
     responseMeta: {
       status: 200,
@@ -30,7 +30,6 @@ export const featureFlagIntercept = (
 export const getConsolidatedDataApi = (
   flags: Record<string, boolean> = {},
   reload = true,
-  defaultFlags = {},
 ) => {
   cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
     req.reply((res: any) => {
@@ -43,7 +42,6 @@ export const getConsolidatedDataApi = (
         const updatedResponse = produce(originalResponse, (draft: any) => {
           draft.data.featureFlags.data = {
             ...flags,
-            ...defaultFlags,
           };
         });
         return res.send(updatedResponse);
