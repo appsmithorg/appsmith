@@ -31,8 +31,8 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
   const { focusWidget } = useWidgetSelection();
 
   useEffect(() => {
-    // The select handler sends a custom event that is handled at a singular place in the AnvilMainCanvas
-    // The event listener is actually attached to the body and not the AnvilMainCanvas. This can be changed in the future if necessary.
+    // The select handler sends a custom event that is handled at a singular place in the AnvilEditorCanvas
+    // The event listener is actually attached to the body and not the AnvilEditorCanvas. This can be changed in the future if necessary.
     const handleWidgetSelect = (e: any) => {
       // EventPhase 2 is the Target phase.
       // This signifies that the event has reached the target element.

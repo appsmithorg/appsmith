@@ -6,7 +6,7 @@ import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { getAbsolutePixels } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getClosestHighlight } from "./utils";
-import { AnvilCanvasZIndex } from "./mainCanvas/useCanvasActivation";
+import { AnvilCanvasZIndex } from "../../editor/canvas/hooks/useCanvasActivation";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";

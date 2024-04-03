@@ -7,8 +7,8 @@ import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPos
 import { debounce, uniq } from "lodash";
 import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { useCanvasActivationStates } from "./useCanvasActivationStates";
-import { canActivateCanvasForDraggedWidget } from "../utils";
+import { useCanvasActivationStates } from "../../../canvasArenas/hooks/mainCanvas/useCanvasActivationStates";
+import { canActivateCanvasForDraggedWidget } from "../../../canvasArenas/hooks/utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { useSelector } from "react-redux";

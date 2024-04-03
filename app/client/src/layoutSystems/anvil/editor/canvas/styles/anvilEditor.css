@@ -1,0 +1,7 @@
+/* 
+This file is used to declare styles of the Anvil Editor only Components.
+Please note that these styles will not be applied/available for the published app(AnvilViewerCanvas). 
+*/
+@import "./anvilEditorInteractions.css";
+@import "./anvilEditorVariables.css";
+@import "./anvilEditorDetachedWidgetsOverlay.css";

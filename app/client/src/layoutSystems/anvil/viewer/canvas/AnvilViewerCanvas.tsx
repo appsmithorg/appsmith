@@ -2,11 +2,11 @@ import React, { useMemo } from "react";
 import "./styles/anvilViewer.css";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { getAnvilCanvasId } from "./utils";
-import { LayoutProvider } from "../layoutComponents/LayoutProvider";
-import { useRenderDetachedChildren } from "../common/hooks/detachedWidgetHooks";
+import { LayoutProvider } from "../../layoutComponents/LayoutProvider";
+import { useRenderDetachedChildren } from "../../common/hooks/detachedWidgetHooks";
 import { AnvilCanvasClassName } from "widgets/anvil/constants";
 
-export const AnvilCanvas = React.forwardRef(
+export const AnvilViewerCanvas = React.forwardRef(
   (props: BaseWidgetProps, ref: React.ForwardedRef<HTMLDivElement>) => {
     const className: string = useMemo(
       () => `${AnvilCanvasClassName} ${props.classList?.join(" ")}`,
