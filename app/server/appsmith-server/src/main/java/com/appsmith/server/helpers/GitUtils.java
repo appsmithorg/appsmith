@@ -40,7 +40,9 @@ public class GitUtils {
         final Matcher match = GIT_SSH_URL_PATTERN.matcher(sshUrl);
 
         if (!match.matches()) {
-            throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "ssh url");
+            throw new AppsmithException(
+                    AppsmithError.INVALID_GIT_CONFIGURATION,
+                    "Remote URL is incorrect, please add a URL in standard format. Example: git@example.com:username/reponame.git");
         }
 
         return "https://" + match.group("host") + "/" + match.group("path");
