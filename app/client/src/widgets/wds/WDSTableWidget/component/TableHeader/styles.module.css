@@ -53,14 +53,6 @@
   [data-layout] [data-field] {
     width: 100%;
   }
-
-  [data-layout] [data-table-actions] {
-    flex: 0.5;
-  }
-
-  [data-layout] [data-table-header-pagination] {
-    flex: 0.5;
-  }
 }
 
 @container table-header (inline-size <= 150px) {

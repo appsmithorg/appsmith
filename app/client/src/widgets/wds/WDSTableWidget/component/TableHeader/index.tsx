@@ -52,7 +52,7 @@ function TableHeader(props: TableHeaderProps) {
           onSearch={onSearch}
           searchKey={searchKey}
         />
-        <Flex flexGrow={1} justifyContent="space-between">
+        <Flex flexGrow={1} gap="spacing-1" justifyContent="space-between">
           <Actions
             applyFilter={applyFilter}
             columns={columns}
