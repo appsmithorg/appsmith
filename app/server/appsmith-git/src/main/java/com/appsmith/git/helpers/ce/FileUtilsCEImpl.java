@@ -64,11 +64,11 @@ import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
-import static com.appsmith.external.constants.GitConstants.ACTION_COLLECTION_LIST;
-import static com.appsmith.external.constants.GitConstants.ACTION_LIST;
-import static com.appsmith.external.constants.GitConstants.CUSTOM_JS_LIB_LIST;
-import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
-import static com.appsmith.external.constants.GitConstants.PAGE_LIST;
+import static com.appsmith.external.git.constants.GitConstants.ACTION_COLLECTION_LIST;
+import static com.appsmith.external.git.constants.GitConstants.ACTION_LIST;
+import static com.appsmith.external.git.constants.GitConstants.CUSTOM_JS_LIB_LIST;
+import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
+import static com.appsmith.external.git.constants.GitConstants.PAGE_LIST;
 import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;

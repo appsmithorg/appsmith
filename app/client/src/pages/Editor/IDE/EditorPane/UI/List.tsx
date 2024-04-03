@@ -1,4 +1,4 @@
-import React, { useCallback, useMemo } from "react";
+import React, { useCallback, useEffect, useMemo } from "react";
 import { Button, Flex } from "design-system";
 import WidgetEntity from "pages/Editor/Explorer/Widgets/WidgetEntity";
 import { useSelector } from "react-redux";
@@ -26,7 +26,9 @@ const ListContainer = styled(Flex)`
   }
 `;
 
-const ListWidgets = () => {
+const ListWidgets = (props: {
+  setFocusSearchInput: (focusSearchInput: boolean) => void;
+}) => {
   const pageId = useSelector(getCurrentPageId) as string;
   const widgets = useSelector(selectWidgetsForCurrentPage);
   const pagePermissions = useSelector(getPagePermissions);
@@ -42,11 +44,16 @@ const ListWidgets = () => {
   }, [widgets?.children]);
 
   const addButtonClickHandler = useCallback(() => {
+    props.setFocusSearchInput(true);
     history.push(builderURL({}));
   }, []);
 
   const widgetsExist =
     widgets && widgets.children && widgets.children.length > 0;
+
+  useEffect(() => {
+    props.setFocusSearchInput(false);
+  }, []);
 
   return (
     <ListContainer
@@ -81,7 +88,13 @@ const ListWidgets = () => {
         </Flex>
       ) : null}
       {widgetsExist ? (
-        <Flex flex="1" flexDirection={"column"} overflowY="auto" px="spaces-3">
+        <Flex
+          data-testid="t--ide-list"
+          flex="1"
+          flexDirection={"column"}
+          overflowY="auto"
+          px="spaces-3"
+        >
           {widgets?.children?.map((child) => (
             <WidgetEntity
               childWidgets={child.children}

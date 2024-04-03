@@ -24,6 +24,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
 import reactor.core.publisher.Mono;
+import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
 import java.util.Map;
@@ -34,7 +35,7 @@ import java.util.function.Function;
 public class DatasourceContextServiceCEImpl implements DatasourceContextServiceCE {
 
     // DatasourceContextIdentifier contains datasourceId & environmentId which is mapped to DatasourceContext
-    protected final Map<DatasourceContextIdentifier, Mono<? extends DatasourceContext<?>>> datasourceContextMonoMap;
+    protected final Map<DatasourceContextIdentifier, Mono<DatasourceContext<Object>>> datasourceContextMonoMap;
     protected final Map<DatasourceContextIdentifier, Object> datasourceContextSynchronizationMonitorMap;
     protected final Map<DatasourceContextIdentifier, DatasourceContext<?>> datasourceContextMap;
     private final DatasourceService datasourceService;
@@ -84,7 +85,7 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
      * @return a cached source publisher which upon subscription produces / returns the latest datasource context /
      * connection.
      */
-    public Mono<? extends DatasourceContext<?>> getCachedDatasourceContextMono(
+    public Mono<DatasourceContext<Object>> getCachedDatasourceContextMono(
             DatasourceStorage datasourceStorage,
             Plugin plugin,
             PluginExecutor<Object> pluginExecutor,
@@ -103,7 +104,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                         // Basically remove entry from both cache maps
                         pluginExecutor.datasourceDestroy(connection);
                     } catch (Exception e) {
-                        log.info("Error destroying stale datasource connection", e);
+                        log.info(
+                                Thread.currentThread().getName() + ": Error destroying stale datasource connection", e);
                     }
                 }
                 datasourceContextMonoMap.remove(datasourceContextIdentifier);
@@ -117,7 +119,8 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
              */
             if (datasourceContextIdentifier.getDatasourceId() != null
                     && datasourceContextMonoMap.get(datasourceContextIdentifier) != null) {
-                log.debug("Cached resource context mono exists. Returning the same.");
+                log.debug(Thread.currentThread().getName()
+                        + ": Cached resource context mono exists. Returning the same.");
                 return datasourceContextMonoMap.get(datasourceContextIdentifier);
             }
 
@@ -180,9 +183,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
         return datasourceStorageMono.thenReturn(connection);
     }
 
-    protected Mono<DatasourceContext<?>> createNewDatasourceContext(
+    protected Mono<DatasourceContext<Object>> createNewDatasourceContext(
             DatasourceStorage datasourceStorage, DatasourceContextIdentifier datasourceContextIdentifier) {
-        log.debug("Datasource context doesn't exist. Creating connection.");
+        log.debug(Thread.currentThread().getName() + ": Datasource context doesn't exist. Creating connection.");
         Mono<Plugin> pluginMono =
                 pluginService.findById(datasourceStorage.getPluginId()).cache();
 
@@ -214,7 +217,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
 
                     return getCachedDatasourceContextMono(
                             datasourceStorage, plugin, pluginExecutor, monitor, datasourceContextIdentifier);
-                });
+                })
+                // Scheduling on bounded elastic to avoid blocking the main thread
+                .subscribeOn(Schedulers.boundedElastic());
     }
 
     public boolean getIsStale(
