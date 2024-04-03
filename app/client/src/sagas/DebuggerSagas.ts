@@ -49,6 +49,7 @@ import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutio
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 import { getActiveEditorField } from "selectors/activeEditorFieldSelectors";
+import { transformErrorLogsSaga } from "@appsmith/sagas/helpers";
 
 let blockedSource: string | null = null;
 
@@ -400,7 +401,7 @@ function* logDebuggerErrorAnalyticsSaga(
 }
 
 function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
-  const errorLogs = action.payload;
+  const errorLogs: Log[] = yield call(transformErrorLogsSaga, action.payload);
   const currentDebuggerErrors: Record<string, Log> =
     yield select(getDebuggerErrors);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);

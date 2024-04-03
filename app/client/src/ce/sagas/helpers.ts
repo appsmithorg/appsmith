@@ -1,6 +1,7 @@
 import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 import type { Action } from "entities/Action";
+import type { Log } from "entities/AppsmithConsole";
 
 export interface ResolveParentEntityMetadataReturnType {
   parentEntityId?: string;
@@ -20,3 +21,7 @@ export const resolveParentEntityMetadata = (
 
   return { parentEntityId: undefined, parentEntityKey: undefined };
 };
+
+export function* transformErrorLogsSaga(logs: Log[]) {
+  return logs;
+}
