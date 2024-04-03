@@ -1,4 +1,4 @@
-package com.appsmith.external.constants.ce;
+package com.appsmith.external.git.constants.ce;
 
 public class GitConstantsCE {
     // This will be used as a key separator for action and jsobjects name
@@ -21,4 +21,9 @@ public class GitConstantsCE {
 
     public static final String GIT_PROFILE_ERROR = "Unable to find git author configuration for logged-in user. You can"
             + " set up a git profile from the user profile section.";
+
+    public class GitMetricConstantsCE {
+        public static final String CHECKOUT_REMOTE = "checkout-remote";
+        public static final String HARD_RESET = "hard-reset";
+    }
 }

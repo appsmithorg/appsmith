@@ -20,16 +20,22 @@ const useShowEnvSwitcher = ({ viewMode }: { viewMode: boolean }) => {
     const isLoaded = areEnvironmentsFetched(state, workspace?.id);
     const list = getEnvironmentsWithPermission(state);
     const isDefault = list?.[0]?.isDefault;
-    return isLoaded && (list.length === 0 || (list.length === 1 && isDefault));
+    if (!isFeatureEnabled) {
+      return true;
+    } else {
+      return (
+        isLoaded && (list.length === 0 || (list.length === 1 && isDefault))
+      );
+    }
   });
 
   const isRampAllowed = useSelector((state) =>
     showProductRamps(RAMP_NAME.MULTIPLE_ENV, true)(state),
   );
-
   if (!isFeatureEnabled && !isRampAllowed) {
     return false;
   }
+
   if (viewMode && isMultiEnvNotPresent) {
     return false;
   }
