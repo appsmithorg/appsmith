@@ -67,7 +67,11 @@ public class GlobalExceptionHandler {
     }
 
     private void doLog(Throwable error) {
-        log.error("", error);
+        if (error instanceof BaseException baseException && baseException.shouldHideStackTraceInLogs()) {
+            log.error(baseException.getClass().getSimpleName() + ": " + baseException.getMessage());
+        } else {
+            log.error("", error);
+        }
 
         StringWriter stringWriter = new StringWriter();
         PrintWriter printWriter = new PrintWriter(stringWriter);
