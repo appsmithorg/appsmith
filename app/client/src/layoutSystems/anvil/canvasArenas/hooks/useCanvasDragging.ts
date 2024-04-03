@@ -1,12 +1,12 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
-import type { AnvilHighlightingCanvasProps } from "../AnvilHighlightingCanvas";
+import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/canvasArenas/AnvilHighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { getAbsolutePixels } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
 import { getClosestHighlight } from "./utils";
-import { AnvilCanvasZIndex } from "../../editor/canvas/hooks/useCanvasActivation";
+import { AnvilCanvasZIndex } from "layoutSystems/anvil/editor/canvas/hooks/useCanvasActivation";
 import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";

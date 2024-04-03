@@ -1,5 +1,5 @@
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { AnvilViewerCanvas } from "../../viewer/canvas/AnvilViewerCanvas";
+import { AnvilViewerCanvas } from "layoutSystems/anvil/viewer/canvas/AnvilViewerCanvas";
 import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useCanvasActivation } from "./hooks/useCanvasActivation";
 import { useSelectWidgetListener } from "./hooks/useSelectWidgetListener";
