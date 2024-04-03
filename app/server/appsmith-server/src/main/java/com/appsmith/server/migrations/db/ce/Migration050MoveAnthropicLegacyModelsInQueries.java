@@ -71,10 +71,15 @@ public class Migration050MoveAnthropicLegacyModelsInQueries {
     private void updateAction(NewAction action) {
         ActionConfiguration unpublishedActionConfiguration =
                 action.getUnpublishedAction().getActionConfiguration();
-        action.getUnpublishedAction().setActionConfiguration(updateActionConfiguration(unpublishedActionConfiguration));
+        if (unpublishedActionConfiguration != null && unpublishedActionConfiguration.getFormData() != null) {
+            action.getUnpublishedAction()
+                    .setActionConfiguration(updateActionConfiguration(unpublishedActionConfiguration));
+        }
         ActionConfiguration publishedActionConfiguration =
                 action.getPublishedAction().getActionConfiguration();
-        action.getPublishedAction().setActionConfiguration(updateActionConfiguration(publishedActionConfiguration));
+        if (publishedActionConfiguration != null && publishedActionConfiguration.getFormData() != null) {
+            action.getPublishedAction().setActionConfiguration(updateActionConfiguration(publishedActionConfiguration));
+        }
         mongoTemplate.save(action);
     }
 
