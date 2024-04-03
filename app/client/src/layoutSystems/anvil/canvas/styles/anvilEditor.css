@@ -27,4 +27,5 @@ Please note that these styles will not be applied/available for the published ap
   align-items: center;
   font-size: var(--info-text-font-size);
   font-weight: var(--info-text-font-weight);
+  line-height: var(--info-text-line-height);
 }

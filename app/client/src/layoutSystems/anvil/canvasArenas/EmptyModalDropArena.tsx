@@ -41,7 +41,7 @@ const StyledEmptyModalDropArena = styled.div<{
   inset: 0;
   font-size: var(--info-text-font-size);
   font-weight: var(--info-text-font-weight);
-  line-height: 19.6px;
+  line-height: var(--info-text-line-height);
 `;
 export const EmptyModalDropArena = ({
   canvasId,

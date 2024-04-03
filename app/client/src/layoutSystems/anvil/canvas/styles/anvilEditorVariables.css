@@ -1,6 +1,7 @@
 :root {
   --info-text-font-size: 14px;
   --info-text-font-weight: 510;
+  --info-text-line-height: 19.6px;
   --modal-overlay-color: rgba(245, 222, 245, 0.9);
   --modal-overlay-content-color: #ffe5fe;
   --modal-overlay-content-outline: 1px dashed #ce01d3;
