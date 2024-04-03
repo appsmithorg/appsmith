@@ -139,11 +139,11 @@ public class DatasourceUtils {
             }
             int idx = part.indexOf('=');
             if (idx >= 0) {
-                String key = part.substring(0, idx).toLowerCase();
+                String key = part.substring(0, idx);
                 String value = part.substring(idx + 1);
                 optionsMap.put(key, value);
             } else {
-                optionsMap.put(part.toLowerCase(), "");
+                optionsMap.put(part, "");
             }
         }
         optionsMap.putIfAbsent("authsource", "admin");
