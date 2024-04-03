@@ -19,6 +19,8 @@ import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.commands.AnthropicCommand;
 import com.external.plugins.constants.AnthropicConstants;
 import com.external.plugins.models.AnthropicRequestDTO;
+import com.external.plugins.models.CompletionDTO;
+import com.external.plugins.models.MessageDTO;
 import com.external.plugins.utils.AnthropicMethodStrategy;
 import com.external.plugins.utils.RequestUtils;
 import com.fasterxml.jackson.annotation.JsonInclude;
@@ -138,6 +140,8 @@ public class AnthropicPlugin extends BasePlugin {
                 return Mono.just(apiKeyNotPresentErrorResult);
             }
 
+            String model = anthropicRequestDTO.getModel();
+
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             String requestBody;
             try {
@@ -183,7 +187,12 @@ public class AnthropicPlugin extends BasePlugin {
                         Object body;
                         try {
                             body = objectMapper.readValue(responseEntity.getBody(), Object.class);
-                            actionExecutionResult.setBody(body);
+                            if (model.contains("claude-3")) {
+                                actionExecutionResult.setBody(body);
+                            } else {
+                                actionExecutionResult.setBody(
+                                        formatResponseBodyAsCompletionAPI(model, responseEntity.getBody()));
+                            }
                         } catch (IOException ex) {
                             actionExecutionResult.setIsExecutionSuccess(false);
                             actionExecutionResult.setErrorInfo(new AppsmithPluginException(
@@ -214,6 +223,24 @@ public class AnthropicPlugin extends BasePlugin {
                         errorResult.setErrorInfo(error);
                         return Mono.just(errorResult);
                     });
+        }
+
+        /**
+         * To keep things backward compatible, if model doesn't belong to claude 3, format response in form of claude completion API
+         */
+        private Object formatResponseBodyAsCompletionAPI(String model, byte[] response) {
+            try {
+                MessageDTO messageDTO = objectMapper.readValue(response, MessageDTO.class);
+                CompletionDTO completionDTO = new CompletionDTO();
+                completionDTO.setId(messageDTO.getId());
+                completionDTO.setType("completion");
+                completionDTO.setStopReason(messageDTO.getStopReason());
+                completionDTO.setModel(model);
+                completionDTO.setCompletion(messageDTO.getFirstMessage());
+                return completionDTO;
+            } catch (IOException e) {
+                throw new AppsmithPluginException(AppsmithPluginError.PLUGIN_JSON_PARSE_ERROR, new String(response));
+            }
         }
 
         @Override
