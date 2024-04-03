@@ -11,7 +11,7 @@ export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
 ) => {
-  getConsolidatedDataApi({ ...flags, ...defaultFlags }, reload);
+  getConsolidatedDataApi({ ...flags, ...defaultFlags }, false);
   const response = {
     responseMeta: {
       status: 200,
