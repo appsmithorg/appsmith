@@ -3,7 +3,7 @@ package com.appsmith.server.repositories;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
-import org.springframework.data.mongodb.core.query.Update;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -24,7 +24,7 @@ public interface AppsmithRepository<T extends BaseDomain> {
 
     Mono<T> setUserPermissionsInObject(T obj);
 
-    Mono<T> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission);
+    Mono<T> updateAndReturn(String id, UpdateDefinition updateObj, Optional<AclPermission> permission);
 
     /**
      * This method uses the mongodb bulk operation to save a list of new actions. When calling this method, please note

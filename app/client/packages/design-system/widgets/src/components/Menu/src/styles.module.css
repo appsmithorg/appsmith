@@ -75,3 +75,13 @@
     0 0 0 2px var(--color-bg),
     0 0 0 4px var(--color-bd-focus);
 }
+
+.menuList li[data-separator] {
+  border-top: var(--border-width-1) solid var(--color-bd);
+  padding: 0;
+}
+
+/* making sure the first and last child are not displayed when they have the data-separator attribute */
+.menuList li:is(:first-child, :last-child):is([data-separator]) {
+  display: none;
+}

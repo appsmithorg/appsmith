@@ -43,23 +43,17 @@ import {
 } from "@appsmith/selectors/applicationSelectors";
 import { editorInitializer } from "../../utils/editor/EditorUtils";
 import { widgetInitialisationSuccess } from "../../actions/widgetActions";
-import {
-  areEnvironmentsFetched,
-  getEnvironmentsWithPermission,
-} from "@appsmith/selectors/environmentSelectors";
 import type { FontFamily } from "@design-system/theming";
 import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
 } from "@design-system/theming";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { RAMP_NAME } from "utils/ProductRamps/RampsControlList";
-import { showProductRamps } from "@appsmith/selectors/rampSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
 import BottomBar from "components/BottomBar";
+import useShowEnvSwitcher from "@appsmith/hooks/useShowEnvSwitcher";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -134,26 +128,7 @@ function AppViewer(props: Props) {
   const focusRef = useWidgetFocus();
   const isAutoLayout = useSelector(getIsAutoLayout);
 
-  const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
-  const canShowRamp = useSelector(showRampSelector);
-
-  const workspaceId = currentApplicationDetails?.workspaceId || "";
-  const isMultipleEnvEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_datasource_environments_enabled,
-  );
-  const environmentList = useSelector(getEnvironmentsWithPermission);
-  // If there is only one environment and it is default, don't show the bottom bar
-  const isOnlyDefaultShown =
-    environmentList.length === 1 && environmentList[0]?.isDefault;
-  const showBottomBar = useSelector((state: AppState) => {
-    return (
-      areEnvironmentsFetched(state, workspaceId) &&
-      (isMultipleEnvEnabled || canShowRamp) &&
-      environmentList.length > 0 &&
-      !isOnlyDefaultShown
-    );
-  });
-
+  const showBottomBar = useShowEnvSwitcher({ viewMode: true });
   /**
    * initializes the widgets factory and registers all widgets
    */

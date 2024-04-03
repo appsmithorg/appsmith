@@ -1,0 +1,13 @@
+.anvil-editor {
+  user-select: none;
+  pointer-events: none;
+}
+/* making sure widgets on the editor are editable */
+.anvil-editor .anvil-widget-wrapper {
+  pointer-events: all;
+}
+
+/* making sure widgets on the editor are not intractable */
+.anvil-editor .anvil-widget-wrapper > * {
+  pointer-events: none;
+}
