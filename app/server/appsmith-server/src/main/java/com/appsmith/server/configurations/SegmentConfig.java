@@ -60,13 +60,17 @@ public class SegmentConfig {
                 .build();
         logProcessorWithErrorHandler.onError(logData -> {
             final Throwable error = logData.getError();
+            final String message = error == null ? "" : error.getMessage();
+            final Object args = ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList());
+            final String stackTrace = error == null ? "" : ExceptionUtils.getStackTrace(error);
+
             analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error")
                     .userId("segmentError")
                     .properties(Map.of(
                             "message", logData.getMessage(),
-                            "error", error == null ? "" : error.getMessage(),
-                            "args", ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList()),
-                            "stackTrace", ExceptionUtils.getStackTrace(error))));
+                            "error", message,
+                            "args", args,
+                            "stackTrace", stackTrace)));
         });
 
         return analytics;

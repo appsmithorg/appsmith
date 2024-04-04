@@ -7,6 +7,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.GitSpans;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.service.GitExecutorImpl;
@@ -99,12 +100,14 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_ADD_PROTECTED_BRANCH;
 import static com.appsmith.external.constants.AnalyticsEvents.GIT_REMOVE_PROTECTED_BRANCH;
-import static com.appsmith.external.constants.GitConstants.CONFLICTED_SUCCESS_MESSAGE;
-import static com.appsmith.external.constants.GitConstants.DEFAULT_COMMIT_MESSAGE;
-import static com.appsmith.external.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
-import static com.appsmith.external.constants.GitConstants.GIT_CONFIG_ERROR;
-import static com.appsmith.external.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
-import static com.appsmith.external.constants.ce.GitConstantsCE.GIT_PROFILE_ERROR;
+import static com.appsmith.external.git.constants.GitConstants.CONFLICTED_SUCCESS_MESSAGE;
+import static com.appsmith.external.git.constants.GitConstants.DEFAULT_COMMIT_MESSAGE;
+import static com.appsmith.external.git.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
+import static com.appsmith.external.git.constants.GitConstants.GIT_CONFIG_ERROR;
+import static com.appsmith.external.git.constants.GitConstants.GIT_PROFILE_ERROR;
+import static com.appsmith.external.git.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
+import static com.appsmith.external.git.constants.GitSpans.COMMIT;
+import static com.appsmith.external.git.constants.GitSpans.STATUS;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
@@ -112,6 +115,7 @@ import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_C
 import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
 import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
 import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
+import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 /**
@@ -225,7 +229,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
         if (DEFAULT.equals(defaultApplicationId)) {
             gitProfile.setUseGlobalProfile(null);
-        } else if (!Boolean.TRUE.equals(gitProfile.getUseGlobalProfile())) {
+        } else if (!TRUE.equals(gitProfile.getUseGlobalProfile())) {
             gitProfile.setUseGlobalProfile(Boolean.FALSE);
         }
 
@@ -425,7 +429,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 .flatMap(application -> {
                     GitArtifactMetadata gitData = application.getGitApplicationMetadata();
-                    if (Boolean.TRUE.equals(isFileLock)) {
+                    if (TRUE.equals(isFileLock)) {
                         return addFileLock(gitData.getDefaultApplicationId()).then(Mono.just(application));
                     }
                     return Mono.just(application);
@@ -443,7 +447,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(isPrivate -> {
                                 // Check the repo limit if the visibility status is updated, or it is private
                                 if (!isPrivate.equals(defaultGitMetadata.getIsRepoPrivate())
-                                        || isPrivate.equals(Boolean.TRUE)) {
+                                        || isPrivate.equals(TRUE)) {
                                     defaultGitMetadata.setIsRepoPrivate(isPrivate);
                                     defaultApplication.setGitApplicationMetadata(defaultGitMetadata);
                                     return applicationService
@@ -572,7 +576,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     String commitStatus = tuple.getT1();
                     result.append(commitStatus);
 
-                    if (Boolean.TRUE.equals(commitDTO.getDoPush())) {
+                    if (TRUE.equals(commitDTO.getDoPush())) {
                         // Push flow
                         result.append(".\nPush Result : ");
                         return pushApplication(childApplication.getId(), false, false)
@@ -604,7 +608,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .update(childApplication.getId(), update)
                             // Release the file lock on git repo
                             .flatMap(application -> {
-                                if (Boolean.TRUE.equals(isFileLock)) {
+                                if (TRUE.equals(isFileLock)) {
                                     return releaseFileLock(childApplication
                                             .getGitApplicationMetadata()
                                             .getDefaultApplicationId());
@@ -619,8 +623,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     childApplication.getGitApplicationMetadata().getIsRepoPrivate(),
                                     isSystemGenerated))
                             .thenReturn(status)
-                            .tag("gitCommit", defaultApplicationId)
-                            .name(AnalyticsEvents.GIT_COMMIT.getEventName())
+                            .name(COMMIT.getEventName())
                             .tap(Micrometer.observation(observationRegistry));
                 });
 
@@ -870,7 +873,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (!application.getPages().isEmpty()) {
                         defaultPageId = application.getPages().stream()
                                 .filter(applicationPage ->
-                                        applicationPage.getIsDefault().equals(Boolean.TRUE))
+                                        applicationPage.getIsDefault().equals(TRUE))
                                 .collect(Collectors.toList())
                                 .get(0)
                                 .getId();
@@ -904,7 +907,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     GitProfile profile = userData.getGitProfileByKey(defaultApplicationId);
                                     if (profile == null
                                             || StringUtils.isEmptyOrNull(profile.getAuthorName())
-                                            || Boolean.TRUE.equals(profile.getUseGlobalProfile())) {
+                                            || TRUE.equals(profile.getUseGlobalProfile())) {
 
                                         profile = userData.getGitProfileByKey(DEFAULT);
                                     }
@@ -1007,7 +1010,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             });
                 })
                 .flatMap(application -> {
-                    if (Boolean.TRUE.equals(isFileLock)) {
+                    if (TRUE.equals(isFileLock)) {
                         return addFileLock(
                                         application.getGitApplicationMetadata().getDefaultApplicationId())
                                 .map(status -> application);
@@ -1067,7 +1070,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(tuple -> {
                     String pushStatus = tuple.getT1();
                     Application application = tuple.getT2();
-                    if (Boolean.TRUE.equals(isFileLock)) {
+                    if (TRUE.equals(isFileLock)) {
                         return releaseFileLock(
                                         application.getGitApplicationMetadata().getDefaultApplicationId())
                                 .map(status -> tuple);
@@ -1547,7 +1550,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(application1 -> addAnalyticsForGitOperation(
                                     AnalyticsEvents.GIT_CHECKOUT_REMOTE_BRANCH,
                                     application1,
-                                    Boolean.TRUE.equals(application1
+                                    TRUE.equals(application1
                                             .getGitApplicationMetadata()
                                             .getIsRepoPrivate())))
                             .map(responseUtils::updateApplicationWithDefaultResources)
@@ -1560,7 +1563,7 @@ public class GitServiceCEImpl implements GitServiceCE {
     }
 
     private Mono<Application> publishAndOrGetApplication(String applicationId, boolean publish) {
-        if (Boolean.TRUE.equals(publish)) {
+        if (TRUE.equals(publish)) {
             return applicationPageService
                     .publish(applicationId, true)
                     // Get application here to decrypt the git private key if present
@@ -1781,7 +1784,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(rootApplication -> {
                     Path repoPath = getRepoPath(rootApplication);
                     Mono<String> defaultBranchMono;
-                    if (Boolean.TRUE.equals(pruneBranches) && syncDefaultBranchWithRemote) {
+                    if (TRUE.equals(pruneBranches) && syncDefaultBranchWithRemote) {
                         defaultBranchMono = syncDefaultBranchNameFromRemote(repoPath, rootApplication);
                     } else {
                         defaultBranchMono =
@@ -1827,7 +1830,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(objects -> {
                     GitArtifactMetadata gitArtifactMetadata = rootApp.getGitApplicationMetadata();
 
-                    if (Boolean.TRUE.equals(pruneBranches)) {
+                    if (TRUE.equals(pruneBranches)) {
                         return gitExecutor
                                 .fetchRemote(
                                         repoPath,
@@ -1994,8 +1997,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             throwable);
                     return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, throwable.getMessage()));
                 })
-                .tag("gitStatus", defaultApplicationId)
-                .name(AnalyticsEvents.GIT_STATUS.getEventName())
+                .name(STATUS.getEventName())
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.zip(statusMono, sessionUserService.getCurrentUser(), branchedAppMono)
@@ -2263,7 +2265,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     ApplicationJson applicationJson = tuple.getT3();
                     MergeStatusDTO mergeStatusDTO = new MergeStatusDTO();
                     mergeStatusDTO.setStatus(tuple.getT1());
-                    mergeStatusDTO.setMergeAble(Boolean.TRUE);
+                    mergeStatusDTO.setMergeAble(TRUE);
 
                     // 4. Get the latest application mono with all the changes
                     return importService
@@ -3273,11 +3275,16 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .retryWhen(Retry.fixedDelay(MAX_RETRIES, RETRY_DELAY)
                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                             throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
-                        }));
+                        }))
+                .name(GitSpans.ADD_FILE_LOCK.getEventName())
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     private Mono<Boolean> releaseFileLock(String defaultApplicationId) {
-        return redisUtils.releaseFileLock(defaultApplicationId);
+        return redisUtils
+                .releaseFileLock(defaultApplicationId)
+                .name(GitSpans.RELEASE_FILE_LOCK.getEventName())
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
@@ -3357,7 +3364,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     if (autoCommitConfig.getEnabled()) {
                         autoCommitConfig.setEnabled(Boolean.FALSE);
                     } else {
-                        autoCommitConfig.setEnabled(Boolean.TRUE);
+                        autoCommitConfig.setEnabled(TRUE);
                     }
                     // need to call the setter because getter returns a default config if attribute is null
                     application.getGitApplicationMetadata().setAutoCommitConfig(autoCommitConfig);

@@ -5,8 +5,8 @@ import type {
   Row as ReactTableRowType,
 } from "react-table";
 import type { ReactTableColumnProps, TableSizes } from "./Constants";
-import type { TableColumnHeaderProps } from "./header/TableColumnHeader";
-import VirtualTableInnerElement from "./header/VirtualTableInnerElement";
+import type { TableColumnHeaderProps } from "./TableHeader/TableColumnHeader";
+import VirtualTableInnerElement from "./TableHeader/VirtualTableInnerElement";
 import { TableBody } from "./TableBody";
 
 type VirtualTableProps = TableColumnHeaderProps & {

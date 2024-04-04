@@ -63,4 +63,9 @@ public class AppsmithException extends BaseException {
     public String getReferenceDoc() {
         return this.error.getReferenceDoc();
     }
+
+    public AppsmithException hideStackTraceInLogs() {
+        hideStackTraceInLogs = true;
+        return this;
+    }
 }
