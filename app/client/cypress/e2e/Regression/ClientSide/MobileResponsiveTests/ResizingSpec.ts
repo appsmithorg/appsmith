@@ -1,6 +1,7 @@
 import * as commonlocators from "../../../../locators/commonlocators.json";
 import {
   agHelper,
+  autoLayout,
   draggableWidgets,
   entityExplorer,
   locators,
@@ -11,15 +12,7 @@ describe(
   { tags: ["@tag.MobileResponsive"] },
   function () {
     before(() => {
-      cy.get(commonlocators.autoConvert).click({
-        force: true,
-      });
-      cy.get(commonlocators.convert).click({
-        force: true,
-      });
-      cy.get(commonlocators.refreshApp).click({
-        force: true,
-      });
+      autoLayout.ConvertToAutoLayoutAndVerify(false);
     });
     beforeEach(() => {
       agHelper.SelectAllWidgets();

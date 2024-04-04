@@ -3,6 +3,7 @@ import {
   autoLayout,
   draggableWidgets,
   entityExplorer,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -20,8 +21,7 @@ describe(
 
     beforeEach(() => {
       // Cleanup the canvas before each test
-      PageLeftPane.switchSegment(PagePaneSegment.UI);
-      PageLeftPane.switchToAddNew();
+      agHelper.GetNClick(locators._canvas);
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();
       agHelper.SetCanvasViewportWidth(808);
