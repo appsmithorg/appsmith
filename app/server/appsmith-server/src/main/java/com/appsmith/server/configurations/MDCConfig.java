@@ -2,8 +2,10 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.LogHelper;
+import io.micrometer.tracing.Tracer;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
+import lombok.RequiredArgsConstructor;
 import org.reactivestreams.Subscription;
 import org.slf4j.MDC;
 import org.springframework.context.annotation.Configuration;
@@ -15,9 +17,12 @@ import reactor.util.context.Context;
 import java.util.Map;
 
 @Configuration
+@RequiredArgsConstructor
 public class MDCConfig {
 
     private static final String MDC_CONTEXT_REACTOR_KEY = "MDCConfig";
+
+    private final Tracer tracer;
 
     @PostConstruct
     void contextOperatorHook() {

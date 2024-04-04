@@ -42,7 +42,7 @@ public class GitUtils {
         if (!match.matches()) {
             throw new AppsmithException(
                     AppsmithError.INVALID_GIT_CONFIGURATION,
-                    "Remote URL is incorrect, please add a URL in standard format. Example: git@example.com:username/reponame.git");
+                    "Remote URL is incorrect. Please add a URL in standard format. Example: git@example.com:username/reponame.git");
         }
 
         return "https://" + match.group("host") + "/" + match.group("path");
@@ -67,8 +67,8 @@ public class GitUtils {
         }
         throw new AppsmithException(
                 AppsmithError.INVALID_GIT_CONFIGURATION,
-                "Remote URL is incorrect, "
-                        + "please add a URL in standard format. Example: git@example.com:username/reponame.git");
+                "Remote URL is incorrect. "
+                        + "Please add a URL in standard format. Example: git@example.com:username/reponame.git");
     }
 
     /**
