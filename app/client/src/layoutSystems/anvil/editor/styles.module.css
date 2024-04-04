@@ -1,0 +1,11 @@
+.disableAnvilModalInteraction {
+  user-select: none;
+  pointer-events: none;
+}
+
+.disableAnvilWidgetInteraction {
+  pointer-events: all;
+  & > * {
+    pointer-events: none;
+  }
+}

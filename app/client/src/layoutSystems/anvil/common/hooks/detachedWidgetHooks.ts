@@ -14,8 +14,7 @@ import { getWidgets } from "sagas/selectors";
 import log from "loglevel";
 import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { AnvilEditorModeClassName } from "widgets/anvil/constants";
-
+import styles from "layoutSystems/anvil/editor/styles.module.css";
 /**
  * This hook is used to select and focus on a detached widget
  * As detached widgets are outside of the layout flow, we need to access the correct element in the DOM
@@ -136,9 +135,9 @@ function useDetachedChildren(children: CanvasWidgetStructure[]) {
 export function useRenderDetachedChildren(
   widgetId: string,
   children: CanvasWidgetStructure[],
+  isPreviewMode: boolean,
 ) {
   const renderMode: RenderModes = useSelector(getRenderMode);
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   // Get the detached children to render on the canvas
   const detachedChildren = useDetachedChildren(children);
   let renderDetachedChildren = null;
@@ -149,7 +148,7 @@ export function useRenderDetachedChildren(
         defaultWidgetProps: {
           className: `${
             renderMode === RenderModes.CANVAS && !isPreviewMode
-              ? AnvilEditorModeClassName
+              ? styles.disableAnvilModalInteraction
               : ""
           } ${getAnvilWidgetDOMId(child.widgetId)}`,
         },

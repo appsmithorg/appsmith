@@ -9,13 +9,14 @@ import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvi
 export const AnvilViewerCanvas = React.forwardRef(
   (props: BaseWidgetProps, ref: React.ForwardedRef<HTMLDivElement>) => {
     const className: string = useMemo(
-      () => `${styles[AnvilCanvasClassName]} ${props.classList?.join(" ")}`,
+      () => `${props.classList?.join(" ")} ${styles[AnvilCanvasClassName]}`,
       [props.classList],
     );
 
     const renderDetachedChildren = useRenderDetachedChildren(
       props.widgetId,
       props.children,
+      props.isPreviewMode,
     );
 
     return (
