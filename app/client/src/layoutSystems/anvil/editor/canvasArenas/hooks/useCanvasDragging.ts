@@ -34,90 +34,6 @@ const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
   slidingArena.style.opacity = "0.8";
 };
 
-function drawRoundedCorner(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  radius: number,
-  startAngle: number,
-  endAngle: number,
-) {
-  const segments = 10; // Number of segments per quarter circle
-  const angleIncrement = (endAngle - startAngle) / segments;
-
-  for (let i = 1; i <= segments; i++) {
-    const angle = startAngle + angleIncrement * i;
-    const xOffset = x + Math.cos(angle) * radius;
-    const yOffset = y + Math.sin(angle) * radius;
-    ctx.lineTo(xOffset, yOffset);
-  }
-}
-
-function roundRect(
-  ctx: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number,
-  fillStyle?: string,
-  strokeStyle?: string,
-) {
-  ctx.beginPath();
-  ctx.moveTo(x + radius, y);
-
-  // Top-right corner
-  drawRoundedCorner(
-    ctx,
-    x + width - radius,
-    y + radius,
-    radius,
-    -Math.PI / 2,
-    0,
-  );
-
-  // Bottom-right corner
-  drawRoundedCorner(
-    ctx,
-    x + width - radius,
-    y + height - radius,
-    radius,
-    0,
-    Math.PI / 2,
-  );
-
-  // Bottom-left corner
-  drawRoundedCorner(
-    ctx,
-    x + radius,
-    y + height - radius,
-    radius,
-    Math.PI / 2,
-    Math.PI,
-  );
-
-  // Top-left corner
-  drawRoundedCorner(
-    ctx,
-    x + radius,
-    y + radius,
-    radius,
-    Math.PI,
-    (Math.PI * 3) / 2,
-  );
-
-  ctx.closePath();
-
-  if (fillStyle) {
-    ctx.fillStyle = fillStyle;
-    ctx.fill();
-  }
-  if (strokeStyle) {
-    ctx.strokeStyle = strokeStyle;
-    ctx.stroke();
-  }
-}
-
 const getDropIndicatorColor = memoize(() => {
   const rootStyles = getComputedStyle(document.documentElement);
   return rootStyles.getPropertyValue("--anvil-drop-indicator");
@@ -152,15 +68,15 @@ const renderBlocksOnCanvas = (
   const verticalPadding = blockToRender.isVertical
     ? PADDING_FOR_HORIZONTAL_HIGHLIGHT / 2
     : 0;
-  roundRect(
-    canvasCtx,
+  canvasCtx.roundRect(
     posX - leftOffset + horizontalPadding,
     posY - topOffset + verticalPadding,
     width - horizontalPadding * 2,
     height - verticalPadding * 2,
     2,
-    dropIndicatorColor,
   );
+  canvasCtx.fillStyle = dropIndicatorColor;
+  canvasCtx.fill();
   canvasCtx.closePath();
 };
 
