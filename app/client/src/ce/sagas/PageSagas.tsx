@@ -978,11 +978,6 @@ export function* clonePageSaga(
       }
 
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-      yield put(
-        fetchAllPageEntityCompletion([
-          executePageLoadActions(ActionExecutionContext.CLONE_PAGE),
-        ]),
-      );
 
       // TODO: Update URL params here.
 
