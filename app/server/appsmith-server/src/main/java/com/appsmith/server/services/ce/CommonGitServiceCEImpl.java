@@ -62,10 +62,10 @@ import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.ce.GitConstantsCE.DEFAULT_COMMIT_MESSAGE;
-import static com.appsmith.external.constants.ce.GitConstantsCE.EMPTY_COMMIT_ERROR_MESSAGE;
-import static com.appsmith.external.constants.ce.GitConstantsCE.GIT_CONFIG_ERROR;
-import static com.appsmith.external.constants.ce.GitConstantsCE.GIT_PROFILE_ERROR;
+import static com.appsmith.external.git.constants.GitConstants.DEFAULT_COMMIT_MESSAGE;
+import static com.appsmith.external.git.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
+import static com.appsmith.external.git.constants.GitConstants.GIT_CONFIG_ERROR;
+import static com.appsmith.external.git.constants.GitConstants.GIT_PROFILE_ERROR;
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;

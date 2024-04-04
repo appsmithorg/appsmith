@@ -49,7 +49,7 @@ interface ReactTableComponentProps {
   columnWidthMap?: { [key: string]: number };
   handleResizeColumn: (columnWidthMap: { [key: string]: number }) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
-  searchTableData: (searchKey: any) => void;
+  onSearch: (searchKey: any) => void;
   filters?: ReactTableFilter[];
   applyFilter: (filters: ReactTableFilter[]) => void;
   columns: ReactTableColumnProps[];
@@ -121,12 +121,12 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     onBulkEditSave,
     onConnectData,
     onRowClick,
+    onSearch,
     pageNo,
     pageSize,
     prevPageClick,
     primaryColumnId,
     searchKey,
-    searchTableData,
     selectAllRow,
     selectedRowIndex,
     selectedRowIndices,
@@ -234,12 +234,12 @@ function ReactTableComponent(props: ReactTableComponentProps) {
       onBulkEditDiscard={onBulkEditDiscard}
       onBulkEditSave={onBulkEditSave}
       onConnectData={onConnectData}
+      onSearch={onSearch}
       pageNo={pageNo - 1}
       pageSize={pageSize || 1}
       prevPageClick={prevPageClick}
       primaryColumnId={primaryColumnId}
       searchKey={searchKey}
-      searchTableData={searchTableData}
       selectTableRow={selectTableRow}
       selectedRowIndex={selectedRowIndex}
       selectedRowIndices={selectedRowIndices}
@@ -281,7 +281,7 @@ export default React.memo(ReactTableComponent, (prev, next) => {
     prev.pageSize === next.pageSize &&
     prev.prevPageClick === next.prevPageClick &&
     prev.searchKey === next.searchKey &&
-    prev.searchTableData === next.searchTableData &&
+    prev.onSearch === next.onSearch &&
     prev.selectedRowIndex === next.selectedRowIndex &&
     prev.selectedRowIndices === next.selectedRowIndices &&
     prev.serverSidePaginationEnabled === next.serverSidePaginationEnabled &&

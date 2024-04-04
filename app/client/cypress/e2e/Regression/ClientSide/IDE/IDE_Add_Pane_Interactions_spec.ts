@@ -5,6 +5,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import FileTabs from "../../../../support/Pages/IDE/FileTabs";
+import { assertHelper } from "../../../../support/Objects/ObjectsCore";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const commonLocators = ObjectsRegistry.CommonLocators;
@@ -62,6 +63,7 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
       cy.selectByTestId("more-action-trigger").click();
       cy.get(".t--apiFormDeleteBtn").click();
       cy.get(".t--apiFormDeleteBtn").click();
+      assertHelper.AssertNetworkStatus("@deleteJSCollection");
     });
     PageLeftPane.assertInAddView();
   });
@@ -100,6 +102,7 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
       cy.selectByTestId("more-action-trigger").click();
       cy.get(".t--apiFormDeleteBtn").click();
       cy.get(".t--apiFormDeleteBtn").click();
+      assertHelper.AssertNetworkStatus("@deleteAction");
     });
     PageLeftPane.assertInAddView();
   });
