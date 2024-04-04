@@ -1,6 +1,6 @@
-import { transformTableDataIntoCsv } from "./Utilities";
-import type { TableColumnProps } from "../../Constants";
-import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
+import { ColumnTypes } from "../constants";
+import type { TableColumnProps } from "./Constants";
+import { transformTableDataIntoCsv } from "./utilities";
 
 describe("TransformTableDataIntoArrayOfArray", () => {
   const columns: TableColumnProps[] = [

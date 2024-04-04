@@ -76,7 +76,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
-import static com.mongodb.assertions.Assertions.assertNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -1279,7 +1278,7 @@ public class LayoutActionServiceTest {
         // by default there should be no error in the layout, hence no error should be sent to ActionDTO/ errorReports
         // will be null
         assertNotNull(createdAction);
-        assertNull(createdAction.getErrorReports());
+        assertThat(createdAction.getErrorReports()).isNull();
 
         // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated
         // layoutOnLoadActionErrors
