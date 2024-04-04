@@ -463,6 +463,8 @@ export class HomePage {
         }
       });
 
+    this.assertHelper.AssertNetworkStatus("@getApplicationsOfWorkspace");
+
     if (skipToApplication) {
       this.agHelper.WaitUntilEleAppear(
         this.onboarding.locators.skipStartFromData,

@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * In case you are wondering why we have two different repository implementation classes i.e.
@@ -64,30 +63,34 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  * the understanding of these interfaces.
  * ```
  * Ref: https://theappsmith.slack.com/archives/CPQNLFHTN/p1669100205502599?thread_ts=1668753437.497369&cid=CPQNLFHTN
+ * <p>
+ * Note, we use the {@code @Autowired} annotation for bean injection here, instead of using constructor injection. This
+ * is an intentional exception to the usual recommendation. The reason is that this class is a base class for all other
+ * repository classes, and using constructor params would require all repository classes to have the same constructor
+ * params, and corresponding {@code super} calls. This was causing a lot of conflicts between CE and EE, and other
+ * additional overhead, with very little value to speak for. Hence, we are using {@code @Autowired} here.
+ * <p>
+ * <a href="https://theappsmith.slack.com/archives/CPQNLFHTN/p1711966160274399">Ref Slack thread</a>.
  */
 public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
-    protected final ReactiveMongoOperations mongoOperations;
+    @Autowired
+    private ReactiveMongoOperations mongoOperations;
 
     protected final Class<T> genericDomain;
 
-    protected final MongoConverter mongoConverter;
+    @Autowired
+    private MongoConverter mongoConverter;
 
-    protected final CacheableRepositoryHelper cacheableRepositoryHelper;
+    @Autowired
+    private CacheableRepositoryHelper cacheableRepositoryHelper;
 
     public static final int NO_RECORD_LIMIT = -1;
 
     public static final int NO_SKIP = 0;
 
-    @Autowired
     @SuppressWarnings("unchecked")
-    public BaseAppsmithRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        this.mongoOperations = mongoOperations;
-        this.mongoConverter = mongoConverter;
-        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
+    public BaseAppsmithRepositoryCEImpl() {
         this.genericDomain =
                 (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
     }
@@ -110,15 +113,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         .in(permissionGroups)
                         .and("permission")
                         .is(permission.getValue()));
-    }
-
-    /**
-     * @deprecated Consider using {@code queryBuilder().byId(id)} or {@code Bridge.equal(BaseDomain.Fields.id, id)}
-     * instead.
-     */
-    @Deprecated(forRemoval = true)
-    protected Criteria getIdCriteria(Object id) {
-        return where("id").is(id);
     }
 
     protected DBObject getDbObject(Object o) {
@@ -451,7 +445,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      *
      * @see FindAndModifyOptions
      */
-    public Mono<T> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+    public Mono<T> updateAndReturn(String id, UpdateDefinition updateObj, Optional<AclPermission> permission) {
         Query query = new Query(Criteria.where("id").is(id));
 
         FindAndModifyOptions findAndModifyOptions =
