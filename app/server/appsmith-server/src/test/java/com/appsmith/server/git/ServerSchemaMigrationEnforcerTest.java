@@ -44,6 +44,12 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 
 /**
+ * This class tests the enforcement of server schema migrations within the Appsmith platform.
+ * It ensures that any changes to the domain models or their serialization that could affect
+ * git-connected applications are detected. The test fails by design when such changes are detected,
+ * prompting developers to take corrective actions to maintain schema compatibility.
+ */
+/**
  * The purpose of this test file is to detect if code in Appsmith has changed in a way which would reflect
  * as uncommitted changes in git-connected applications.
  * This test case would fail if we have added new domains, changed the underlying structure of the domains,
@@ -197,16 +203,16 @@ public class ServerSchemaMigrationEnforcerTest {
     }
 
     private FilePart createFilePart(String filePath) throws URISyntaxException {
-        FilePart filepart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
+        FilePart filePart = Mockito.mock(FilePart.class, Mockito.RETURNS_DEEP_STUBS);
         URL resource = this.getClass().getResource(filePath);
         Flux<DataBuffer> dataBufferFlux = DataBufferUtils.read(
                         Path.of(resource.toURI()), new DefaultDataBufferFactory(), 4096)
                 .cache();
 
-        Mockito.when(filepart.content()).thenReturn(dataBufferFlux);
-        Mockito.when(filepart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
+        Mockito.when(filePart.content()).thenReturn(dataBufferFlux);
+        Mockito.when(filePart.headers().getContentType()).thenReturn(MediaType.APPLICATION_JSON);
 
-        return filepart;
+        return filePart;
     }
 
     private void removeCustomJsLibsEntries(JsonObject applicationObjectNode) {
