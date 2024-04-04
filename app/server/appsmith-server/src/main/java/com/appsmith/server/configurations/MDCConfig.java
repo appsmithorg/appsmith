@@ -2,10 +2,14 @@ package com.appsmith.server.configurations;
 
 import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.LogHelper;
+import io.micrometer.observation.Observation;
+import io.micrometer.tracing.Tracer;
+import io.micrometer.tracing.handler.TracingObservationHandler;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.reactivestreams.Subscription;
 import org.slf4j.MDC;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Hooks;
@@ -13,11 +17,18 @@ import reactor.core.publisher.Operators;
 import reactor.util.context.Context;
 
 import java.util.Map;
+import java.util.Optional;
 
 @Configuration
 public class MDCConfig {
 
     private static final String MDC_CONTEXT_REACTOR_KEY = "MDCConfig";
+    private static final String OBSERVATION = "micrometer.observation";
+    private static final String TRACE_ID = "traceId";
+    private static final String SPAN_ID = "spanId";
+
+    @Autowired
+    Tracer tracer;
 
     @PostConstruct
     void contextOperatorHook() {
@@ -78,6 +89,15 @@ public class MDCConfig {
                 Map<String, String> map = context.get(LogHelper.CONTEXT_MAP);
 
                 map.put(MDCFilter.THREAD, Thread.currentThread().getName());
+                Optional<Observation> observationOptional = context.getOrEmpty(OBSERVATION);
+                observationOptional.ifPresent(observation -> {
+                    TracingObservationHandler.TracingContext tracingContext =
+                            observation.getContext().get(TracingObservationHandler.TracingContext.class);
+                    if (tracingContext != null && tracingContext.getSpan() != null) {
+                        map.put(TRACE_ID, tracingContext.getSpan().context().traceId());
+                        map.put(SPAN_ID, tracingContext.getSpan().context().spanId());
+                    }
+                });
                 MDC.setContextMap(map);
             } else {
                 MDC.clear();
