@@ -1,7 +1,6 @@
-<svg width="56" height="44" viewBox="0 0 56 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect y="13" width="56" height="16" rx="8" fill="white"/>
-<circle cx="36" cy="21" r="3.5" fill="white" stroke="#CC3D00"/>
-<rect x="6" y="19" width="31" height="4" rx="2" fill="#FFBFA1"/>
-<rect x="36" y="19" width="14" height="4" rx="2" fill="#E3E8EF"/>
-<path d="M35.5 38.5V38.5C36.6046 38.5 37.5 37.6046 37.5 36.5V36.5M37.5 36.5V35.5C37.5 34.9477 37.0523 34.5 36.5 34.5H34.5C33.9477 34.5 33.5 34.9477 33.5 35.5V35.5C33.5 36.0523 33.9477 36.5 34.5 36.5H37.5Z" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M3 23H11M27 23H19" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="15" cy="23" r="4" transform="rotate(-90 15 23)" stroke="#364252" stroke-width="2" stroke-linejoin="round"/>
+<path d="M3 15H7M11 15H7M3 9L7 7V15" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M23 15V15C25.2091 15 27 13.2091 27 11V11M27 11V9C27 7.89543 26.1046 7 25 7H21C19.8954 7 19 7.89543 19 9V9C19 10.1046 19.8954 11 21 11H27Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

@@ -82,6 +82,10 @@ export const getBuildingBlockExplorerCards = createSelector(
           buildingBlock.screenshotUrls.length > 1
             ? buildingBlock.screenshotUrls[1]
             : buildingBlock.screenshotUrls[0],
+        thumbnail:
+          buildingBlock.screenshotUrls.length > 1
+            ? buildingBlock.screenshotUrls[1]
+            : buildingBlock.screenshotUrls[0],
         tags: [WIDGET_TAGS.BUILDING_BLOCKS],
       }),
     );

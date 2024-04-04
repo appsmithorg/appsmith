@@ -1,11 +1,11 @@
-<svg width="56" height="44" viewBox="0 0 56 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect width="56" height="44" rx="3" fill="white"/>
-<path d="M20.5 7.5H10.5C9.94772 7.5 9.5 7.94772 9.5 8.5V18.5C9.5 19.0523 9.94772 19.5 10.5 19.5H20.5C21.0523 19.5 21.5 19.0523 21.5 18.5V8.5C21.5 7.94772 21.0523 7.5 20.5 7.5Z" fill="white" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="13" cy="11" r="1.5" fill="#FFEEE5" stroke="#CC3D00" stroke-linejoin="round"/>
-<path d="M18.5 12.5L21.5 15.5V18.5C21.5 19.0523 21.0523 19.5 20.5 19.5H11.5L18.5 12.5Z" fill="#FFEEE5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="26" y="10" width="20" height="8" rx="1" fill="#E3E8EF"/>
-<path d="M20.5 23.5H10.5C9.94772 23.5 9.5 23.9477 9.5 24.5V34.5C9.5 35.0523 9.94772 35.5 10.5 35.5H20.5C21.0523 35.5 21.5 35.0523 21.5 34.5V24.5C21.5 23.9477 21.0523 23.5 20.5 23.5Z" fill="white" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<circle cx="13" cy="27" r="1.5" fill="#FFEEE5" stroke="#CC3D00" stroke-linejoin="round"/>
-<path d="M18.5 28.5L21.5 31.5V34.5C21.5 35.0523 21.0523 35.5 20.5 35.5H11.5L18.5 28.5Z" fill="#FFEEE5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<rect x="26" y="26" width="22" height="8" rx="1" fill="#E3E8EF"/>
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M9 5V1H5V5H9Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9 17V13H5V17H9Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M9 29V25H5V29H9Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 1H25" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 5H21" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 13H25" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 17H21" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 25H25" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 29H21" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>

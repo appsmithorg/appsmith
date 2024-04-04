@@ -1,27 +1,9 @@
-<svg width="73" height="73" viewBox="0 0 73 73" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g filter="url(#filter0_d_7044_126706)">
-<mask id="path-1-outside-1_7044_126706" maskUnits="userSpaceOnUse" x="4" y="4" width="57" height="57" fill="black">
-<rect fill="white" x="4" y="4" width="57" height="57"/>
-<path d="M4 7C4 5.34314 5.34315 4 7 4H57C58.6569 4 60 5.34315 60 7V57C60 58.6569 58.6569 60 57 60H7C5.34314 60 4 58.6569 4 57V7Z"/>
-</mask>
-<path d="M4 7C4 5.34314 5.34315 4 7 4H57C58.6569 4 60 5.34315 60 7V57C60 58.6569 58.6569 60 57 60H7C5.34314 60 4 58.6569 4 57V7Z" fill="white"/>
-<path d="M4 4H60H4ZM61 57C61 59.2091 59.2091 61 57 61H8C5.79086 61 4 59.2091 4 57C4 58.1046 5.34315 59 7 59H57C58.1046 59 59 58.1046 59 57H61ZM4 60V4V60ZM57 4C59.2091 4 61 5.79086 61 8V57C61 59.2091 59.2091 61 57 61V59C58.1046 59 59 58.1046 59 57V7C59 5.34315 58.1046 4 57 4Z" fill="#DCE2E8" mask="url(#path-1-outside-1_7044_126706)"/>
-<rect x="12" y="12" width="28" height="9" rx="1" fill="#E3E8EF"/>
-<path d="M45.5 13.5L51.5 19.5M51.5 13.5L45.5 19.5" stroke="#CC3D00" stroke-linecap="round"/>
-<rect x="12" y="30" width="40" height="6" rx="1" fill="#E3E8EF"/>
-<rect x="12" y="38" width="40" height="6" rx="1" fill="#E3E8EF"/>
-<rect x="12" y="46" width="24" height="6" rx="1" fill="#E3E8EF"/>
-</g>
-<defs>
-<filter id="filter0_d_7044_126706" x="0" y="0" width="73" height="73" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
-<feFlood flood-opacity="0" result="BackgroundImageFix"/>
-<feColorMatrix in="SourceAlpha" type="matrix" values="0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 127 0" result="hardAlpha"/>
-<feOffset dx="4" dy="4"/>
-<feGaussianBlur stdDeviation="4"/>
-<feComposite in2="hardAlpha" operator="out"/>
-<feColorMatrix type="matrix" values="0 0 0 0 0.862745 0 0 0 0 0.886275 0 0 0 0 0.909804 0 0 0 1 0"/>
-<feBlend mode="normal" in2="BackgroundImageFix" result="effect1_dropShadow_7044_126706"/>
-<feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_7044_126706" result="shape"/>
-</filter>
-</defs>
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M23 1H3C1.89543 1 1 1.89543 1 3V23C1 24.1046 1.89543 25 3 25H23C24.1046 25 25 24.1046 25 23V3C25 1.89543 24.1046 1 23 1Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M15 11L19 7M19 11L15 7" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29 23V25C29 27.2091 27.2091 29 25 29H23" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29 13V17" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29 5V7" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 29H17" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5 29H7" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 </svg>
