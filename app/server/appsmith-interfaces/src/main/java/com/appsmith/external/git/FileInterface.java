@@ -47,14 +47,16 @@ public interface FileInterface {
 
     /**
      * This method just reconstructs the metdata of the json from git repo.
+     *
      * @param workspaceId
      * @param defaultApplicationId
      * @param repoName
      * @param branchName
+     * @param repoSuffixPath
      * @return
      */
     Mono<Object> reconstructMetadataFromGitRepo(
-            String workspaceId, String defaultApplicationId, String repoName, String branchName);
+            String workspaceId, String defaultApplicationId, String repoName, String branchName, Path repoSuffixPath);
 
     /**
      * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -

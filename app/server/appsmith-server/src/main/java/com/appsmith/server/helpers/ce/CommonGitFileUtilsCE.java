@@ -491,9 +491,11 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Map<String, Integer>> reconstructMetadataFromRepo(
-            String workspaceId, String applicationId, String repoName, String branchName) {
+            String workspaceId, String applicationId, String repoName, String branchName, Path baseRepoSuffix) {
         return fileUtils
-                .reconstructMetadataFromGitRepo(workspaceId, applicationId, repoName, branchName)
+                .reconstructMetadataFromGitRepo(workspaceId, applicationId, repoName, branchName, baseRepoSuffix)
+                .onErrorResume(error -> Mono.error(
+                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", error.getMessage())))
                 .map(metadata -> {
                     Gson gson = new Gson();
                     JsonObject metadataJsonObject =

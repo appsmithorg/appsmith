@@ -1155,19 +1155,25 @@ public class FileUtilsCEImpl implements FileInterface {
 
     @Override
     public Mono<Object> reconstructMetadataFromGitRepo(
-            String workspaceId, String defaultApplicationId, String repoName, String branchName) {
-        Path baseRepoSuffix = Paths.get(workspaceId, defaultApplicationId, repoName);
-        // Checkout to mentioned branch if not already checked-out
-        return gitExecutor
-                .checkoutToBranch(baseRepoSuffix, branchName)
-                .map(isSwitched -> {
-                    Path baseRepoPath =
-                            Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
-                    Gson gson = new Gson();
-                    Object metadata = readFile(
-                            baseRepoPath.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
-                    return metadata;
-                })
-                .subscribeOn(scheduler);
+            String workspaceId, String defaultArtifactId, String repoName, String branchName, Path baseRepoSuffix) {
+        Mono<Object> metadataMono;
+        try {
+            // instead of checking out to last branch we are first cleaning the git repo,
+            // then checking out to the desired branch
+            metadataMono = gitExecutor
+                    .resetToLastCommit(baseRepoSuffix, branchName)
+                    .map(isSwitched -> {
+                        Path baseRepoPath =
+                                Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
+                        Gson gson = new Gson();
+                        Object metadata = readFile(
+                                baseRepoPath.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
+                        return metadata;
+                    });
+        } catch (GitAPIException | IOException exception) {
+            metadataMono = Mono.error(exception);
+        }
+
+        return metadataMono.subscribeOn(scheduler);
     }
 }
