@@ -35,4 +35,5 @@ export const defaultsConfig = {
   delimiter: ",",
   version: 2,
   inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
+  pageSize: 8,
 } as unknown as WidgetDefaultProps;

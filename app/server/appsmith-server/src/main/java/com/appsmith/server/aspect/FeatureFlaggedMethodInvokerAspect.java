@@ -81,6 +81,9 @@ public class FeatureFlaggedMethodInvokerAspect {
             Method superMethod = targetSuperClass.getMethod(method.getName(), method.getParameterTypes());
             return superMethod.invoke(service, joinPoint.getArgs());
         } catch (Throwable e) {
+            if (e instanceof AppsmithException) {
+                throw (AppsmithException) e;
+            }
             String errorMessage = "Exception while invoking super class method";
             AppsmithException exception = getInvalidAnnotationUsageException(method, errorMessage);
             log.error(exception.getMessage(), e);

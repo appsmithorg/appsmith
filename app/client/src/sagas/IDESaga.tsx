@@ -101,7 +101,7 @@ export function* handleQueryEntityRedirect(deletedId: string) {
  * 3. If there are other items, navigate to an item close to the current one
  * **/
 
-enum RedirectAction {
+export enum RedirectAction {
   NA = "NA", // No action is needed
   CREATE = "CREATE", // Navigate to a creation URL
   ITEM = "ITEM", // Navigate to this item
@@ -111,7 +111,7 @@ interface RedirectActionDescription {
   payload?: EntityItem;
 }
 
-function getNextEntityAfterDelete(
+export function getNextEntityAfterDelete(
   deletedId: string,
   allItems: EntityItem[],
 ): RedirectActionDescription {

@@ -9,8 +9,10 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.EmailService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -47,6 +49,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
     private final EmailService emailService;
     private final CommonConfig commonConfig;
 
+    private final CaptchaService captchaService;
+
     public UserAndAccessManagementServiceCEImpl(
             SessionUserService sessionUserService,
             PermissionGroupService permissionGroupService,
@@ -56,7 +60,8 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
             UserService userService,
             PermissionGroupPermission permissionGroupPermission,
             EmailService emailService,
-            CommonConfig commonConfig) {
+            CommonConfig commonConfig,
+            CaptchaService captchaService) {
 
         this.sessionUserService = sessionUserService;
         this.permissionGroupService = permissionGroupService;
@@ -67,6 +72,18 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
         this.emailService = emailService;
         this.permissionGroupPermission = permissionGroupPermission;
         this.commonConfig = commonConfig;
+        this.captchaService = captchaService;
+    }
+
+    @Override
+    public Mono<List<User>> inviteUsers(InviteUsersDTO inviteUsersDTO, String originHeader, String captchaToken) {
+        return captchaService.verify(captchaToken).flatMap(captchaVerified -> {
+            if (TRUE.equals(captchaVerified)) {
+                return inviteUsers(inviteUsersDTO, originHeader);
+            } else {
+                return Mono.error(new AppsmithException(AppsmithError.GOOGLE_RECAPTCHA_INVITE_FLOW_FAILED));
+            }
+        });
     }
 
     /**
@@ -100,6 +117,9 @@ public class UserAndAccessManagementServiceCEImpl implements UserAndAccessManage
 
         Set<String> usernames = new HashSet<>();
         for (String username : originalUsernames) {
+            if (!ValidationUtils.validateEmail(username)) {
+                return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.USERNAMES));
+            }
             usernames.add(username.toLowerCase());
         }
 

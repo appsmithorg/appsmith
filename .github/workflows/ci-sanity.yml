@@ -160,7 +160,7 @@ jobs:
 
       - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
 

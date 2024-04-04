@@ -3,7 +3,7 @@ import { useDispatch, useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/constants";
-import type { RenderModes } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -14,6 +14,7 @@ import { getWidgets } from "sagas/selectors";
 import log from "loglevel";
 import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
+import { AnvilEditorModeClassName } from "widgets/anvil/constants";
 
 /**
  * This hook is used to select and focus on a detached widget
@@ -100,7 +101,8 @@ export function useAddBordersToDetachedWidgets(widgetId: string) {
   );
 
   if (element) {
-    element.style.border = borderStyled.border ?? "none";
+    element.style.outlineOffset = borderStyled.outlineOffset ?? "unset";
+    element.style.outline = borderStyled.outline ?? "none";
   }
 }
 
@@ -136,7 +138,7 @@ export function useRenderDetachedChildren(
   children: CanvasWidgetStructure[],
 ) {
   const renderMode: RenderModes = useSelector(getRenderMode);
-
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   // Get the detached children to render on the canvas
   const detachedChildren = useDetachedChildren(children);
   let renderDetachedChildren = null;
@@ -144,12 +146,18 @@ export function useRenderDetachedChildren(
     renderDetachedChildren = detachedChildren.map((child) =>
       renderChildWidget({
         childWidgetData: child as WidgetProps,
-        defaultWidgetProps: {},
+        defaultWidgetProps: {
+          className: `${
+            renderMode === RenderModes.CANVAS && !isPreviewMode
+              ? AnvilEditorModeClassName
+              : ""
+          } ${getAnvilWidgetDOMId(child.widgetId)}`,
+        },
         noPad: false,
         // Adding these properties as the type insists on providing this
         // while it is not required for detached children
         layoutSystemProps: { parentColumnSpace: 1, parentRowSpace: 1 },
-        renderMode: renderMode,
+        renderMode,
         widgetId: MAIN_CONTAINER_WIDGET_ID,
       }),
     );

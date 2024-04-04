@@ -1,9 +1,12 @@
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilCanvas } from "./AnvilCanvas";
-import React, { useCallback, useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useMemo, useRef } from "react";
 import { useCanvasActivation } from "../canvasArenas/hooks/mainCanvas/useCanvasActivation";
 import { useSelectWidgetListener } from "../common/hooks/useSelectWidgetListener";
 import { useClickToClearSelections } from "./useClickToClearSelections";
+import { useSelector } from "react-redux";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { AnvilEditorModeClassName } from "widgets/anvil/constants";
 
 /**
  * Anvil Main Canvas is just a wrapper around AnvilCanvas.
@@ -11,12 +14,12 @@ import { useClickToClearSelections } from "./useClickToClearSelections";
  * Because we need to use useCanvasActivation hook which is only needed to be used once and it is also exclusive to edit mode.
  * checkout useCanvasActivation for more details.
  */
-
 export const AnvilMainCanvas = (props: BaseWidgetProps) => {
   const canvasRef = useRef<HTMLDivElement>(null);
 
   /* This is a click event listener to clear selections on clicking outside of the widget */
   const clickToClearSelections = useClickToClearSelections(props.widgetId);
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
 
   const handleOnClickCapture = useCallback(
     // We need to make sure to call this only if we're clicking on the main canvas
@@ -48,5 +51,9 @@ export const AnvilMainCanvas = (props: BaseWidgetProps) => {
 
   useCanvasActivation();
   useSelectWidgetListener();
-  return <AnvilCanvas {...props} ref={canvasRef} />;
+  const classList = useMemo(
+    () => (isPreviewMode ? [] : [AnvilEditorModeClassName]),
+    [isPreviewMode],
+  );
+  return <AnvilCanvas {...props} classList={classList} ref={canvasRef} />;
 };

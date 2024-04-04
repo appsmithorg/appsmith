@@ -20,6 +20,7 @@ public enum AnalyticsEvents {
     UPDATE_LAYOUT,
     PUBLISH_APPLICATION("publish_APPLICATION"),
     FORK,
+    TEMPLATE_FORK,
     PAGE_REORDER,
     GENERATE_CRUD_PAGE("generate_CRUD_PAGE"),
     CREATE_SUPERUSER,

@@ -10,6 +10,10 @@ import java.util.Collection;
 public final class Bridge {
     private Bridge() {}
 
+    public static BridgeUpdate update() {
+        return new BridgeUpdate();
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> query() {
         return new BridgeQuery<>();
     }
@@ -34,6 +38,10 @@ public final class Bridge {
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull String value) {
+        return Bridge.<T>query().equal(key, value);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull Integer value) {
         return Bridge.<T>query().equal(key, value);
     }
 
@@ -75,5 +83,9 @@ public final class Bridge {
 
     public static <T extends BaseDomain> BridgeQuery<T> isFalse(@NonNull String key) {
         return Bridge.<T>query().isFalse(key);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> notExists(@NonNull String key) {
+        return Bridge.<T>query().notExists(key);
     }
 }

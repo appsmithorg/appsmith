@@ -294,6 +294,7 @@ export const contentConfig = [
         dependencies: ["schema", "childStylesheet"],
       },
     ],
+    expandedByDefault: true,
   },
   {
     sectionName: "General",
@@ -398,6 +399,7 @@ export const contentConfig = [
         validation: { type: ValidationTypes.TEXT },
       },
     ],
+    expandedByDefault: false,
   },
   {
     sectionName: "Events",
@@ -412,6 +414,7 @@ export const contentConfig = [
         isTriggerProperty: true,
       },
     ],
+    expandedByDefault: false,
   },
 ];
 

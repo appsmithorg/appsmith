@@ -62,10 +62,10 @@ import java.util.Optional;
 import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.ce.GitConstantsCE.DEFAULT_COMMIT_MESSAGE;
-import static com.appsmith.external.constants.ce.GitConstantsCE.EMPTY_COMMIT_ERROR_MESSAGE;
-import static com.appsmith.external.constants.ce.GitConstantsCE.GIT_CONFIG_ERROR;
-import static com.appsmith.external.constants.ce.GitConstantsCE.GIT_PROFILE_ERROR;
+import static com.appsmith.external.git.constants.GitConstants.DEFAULT_COMMIT_MESSAGE;
+import static com.appsmith.external.git.constants.GitConstants.EMPTY_COMMIT_ERROR_MESSAGE;
+import static com.appsmith.external.git.constants.GitConstants.GIT_CONFIG_ERROR;
+import static com.appsmith.external.git.constants.GitConstants.GIT_PROFILE_ERROR;
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
@@ -297,6 +297,101 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
                     return sendUnitExecutionTimeAnalyticsEvent(flowName, elapsedTime, currentUser, artifact)
                             .thenReturn(gitStatusDTO);
                 });
+    }
+
+    @Override
+    public Mono<BranchTrackingStatus> fetchRemoteChanges(
+            Artifact defaultArtifact, Artifact branchedArtifact, String branchName, boolean isFileLock) {
+
+        if (StringUtils.isEmptyOrNull(branchName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
+
+        if (branchedArtifact == null || defaultArtifact == null || defaultArtifact.getGitArtifactMetadata() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR));
+        }
+
+        final String finalBranchName = branchName.replaceFirst(ORIGIN, REMOTE_NAME_REPLACEMENT);
+        GitArtifactMetadata defaultGitData = defaultArtifact.getGitArtifactMetadata();
+        String defaultArtifactId = defaultGitData.getDefaultArtifactId();
+
+        GitArtifactHelper<?> artifactGitHelper = getArtifactGitService(defaultArtifact.getArtifactType());
+
+        Mono<User> currUserMono = sessionUserService.getCurrentUser().cache(); // will be used to send analytics event
+
+        Mono<Boolean> addFileLockMono = Mono.just(Boolean.TRUE);
+        if (Boolean.TRUE.equals(isFileLock)) {
+            addFileLockMono = addFileLock(defaultArtifactId);
+        }
+        /*
+           1. Copy resources from DB to local repo
+           2. Fetch the current status from local repo
+        */
+
+        // current user mono has been zipped just to run in parallel.
+        Mono<BranchTrackingStatus> fetchRemoteStatusMono = addFileLockMono
+                .flatMap(isFileLocked -> {
+                    GitArtifactMetadata gitData = branchedArtifact.getGitArtifactMetadata();
+                    gitData.setGitAuth(defaultGitData.getGitAuth());
+
+                    Path repoSuffix = artifactGitHelper.getRepoSuffixPath(
+                            branchedArtifact.getWorkspaceId(),
+                            gitData.getDefaultApplicationId(),
+                            gitData.getRepoName());
+
+                    Path repoPath = gitExecutor.createRepoPath(repoSuffix);
+                    Mono<Boolean> checkoutBranchMono = gitExecutor.checkoutToBranch(repoSuffix, finalBranchName);
+                    Mono<String> fetchRemoteMono = gitExecutor.fetchRemote(
+                            repoPath,
+                            gitData.getGitAuth().getPublicKey(),
+                            gitData.getGitAuth().getPrivateKey(),
+                            true,
+                            finalBranchName,
+                            false);
+
+                    Mono<BranchTrackingStatus> branchedStatusMono =
+                            gitExecutor.getBranchTrackingStatus(repoPath, finalBranchName);
+
+                    return checkoutBranchMono
+                            .then(Mono.defer(() -> fetchRemoteMono))
+                            .then(Mono.defer(() -> branchedStatusMono))
+                            .flatMap(branchTrackingStatus -> {
+                                if (isFileLock) {
+                                    return releaseFileLock(defaultArtifactId).thenReturn(branchTrackingStatus);
+                                }
+                                return Mono.just(branchTrackingStatus);
+                            })
+                            .onErrorResume(throwable -> {
+                                /*
+                                 in case of any error, the global exception handler will release the lock
+                                 hence we don't need to do that manually
+                                */
+                                log.error(
+                                        "Error to fetch from remote for application: {}, branch: {}",
+                                        defaultArtifactId,
+                                        branchName,
+                                        throwable);
+                                return Mono.error(new AppsmithException(
+                                        AppsmithError.GIT_ACTION_FAILED, "fetch", throwable.getMessage()));
+                            });
+                })
+                .elapsed()
+                .zipWith(currUserMono)
+                .flatMap(objects -> {
+                    Long elapsedTime = objects.getT1().getT1();
+                    BranchTrackingStatus branchTrackingStatus = objects.getT1().getT2();
+                    User currentUser = objects.getT2();
+                    return sendUnitExecutionTimeAnalyticsEvent(
+                                    AnalyticsEvents.GIT_FETCH.getEventName(),
+                                    elapsedTime,
+                                    currentUser,
+                                    branchedArtifact)
+                            .thenReturn(branchTrackingStatus);
+                });
+
+        return Mono.create(sink -> {
+            fetchRemoteStatusMono.subscribe(sink::success, sink::error, null, sink.currentContext());
+        });
     }
 
     /**

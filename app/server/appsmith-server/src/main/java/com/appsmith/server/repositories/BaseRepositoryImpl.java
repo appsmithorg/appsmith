@@ -101,36 +101,13 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
                 });
     }
 
+    /**
+     * We don't use this today, it doesn't use our `notDeleted` criteria, and since we don't use it, we're not porting
+     * it to Postgres. Querying with `queryBuilder` or anything else is arguably more readable than this.
+     */
     @Override
-    public Flux<T> findAll(Example example, Sort sort) {
-        Assert.notNull(example, "Sample must not be null!");
-        Assert.notNull(sort, "Sort must not be null!");
-
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMapMany(principal -> {
-                    Criteria criteria = new Criteria()
-                            .andOperator(
-                                    // Older check for deleted
-                                    new Criteria()
-                                            .orOperator(
-                                                    where(FieldName.DELETED).exists(false),
-                                                    where(FieldName.DELETED).is(false)),
-                                    // New check for deleted
-                                    new Criteria()
-                                            .orOperator(
-                                                    where(FieldName.DELETED_AT).exists(false),
-                                                    where(FieldName.DELETED_AT).is(null)),
-                                    // Set the criteria as the example
-                                    new Criteria().alike(example));
-
-                    Query query = new Query(criteria)
-                            .collation(entityInformation.getCollation()) //
-                            .with(sort);
-
-                    return mongoOperations.find(query, example.getProbeType(), entityInformation.getCollectionName());
-                });
+    public <S extends T> Flux<S> findAll(Example<S> example, Sort sort) {
+        return Flux.error(new UnsupportedOperationException("This method is not supported!"));
     }
 
     @Override
@@ -150,17 +127,12 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
     public Mono<Boolean> archiveById(ID id) {
         Assert.notNull(id, "The given id must not be null!");
 
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query(getIdCriteria(id));
-                    query.addCriteria(notDeleted());
+        Query query = new Query(getIdCriteria(id));
+        query.addCriteria(notDeleted());
 
-                    return mongoOperations
-                            .updateFirst(query, getForArchive(), entityInformation.getJavaType())
-                            .map(result -> result.getModifiedCount() > 0 ? true : false);
-                });
+        return mongoOperations
+                .updateFirst(query, getForArchive(), entityInformation.getJavaType())
+                .map(result -> result.getModifiedCount() > 0 ? true : false);
     }
 
     public Update getForArchive() {
@@ -175,17 +147,12 @@ public class BaseRepositoryImpl<T extends BaseDomain, ID extends Serializable>
         Assert.notNull(ids, "The given ids must not be null!");
         Assert.notEmpty(ids, "The given list of ids must not be empty!");
 
-        return ReactiveSecurityContextHolder.getContext()
-                .map(ctx -> ctx.getAuthentication())
-                .map(auth -> auth.getPrincipal())
-                .flatMap(principal -> {
-                    Query query = new Query();
-                    query.addCriteria(new Criteria().where(FieldName.ID).in(ids));
-                    query.addCriteria(notDeleted());
+        Query query = new Query();
+        query.addCriteria(where(FieldName.ID).in(ids));
+        query.addCriteria(notDeleted());
 
-                    return mongoOperations
-                            .updateMulti(query, getForArchive(), entityInformation.getJavaType())
-                            .map(result -> result.getModifiedCount() > 0 ? true : false);
-                });
+        return mongoOperations
+                .updateMulti(query, getForArchive(), entityInformation.getJavaType())
+                .map(result -> result.getModifiedCount() > 0);
     }
 }
