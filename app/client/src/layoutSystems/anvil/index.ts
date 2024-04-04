@@ -13,7 +13,12 @@ import { AnvilViewerCanvas } from "./viewer/canvas/AnvilViewerCanvas";
  *
  */
 const getAnvilSystemPropsEnhancer = (props: BaseWidgetProps) => {
-  return props;
+  return {
+    ...props,
+    allowWidgetInteraction: !(
+      props.renderMode === RenderModes.CANVAS && !props.isPreviewMode
+    ),
+  };
 };
 
 const getAnvilSystemWrapper = (renderMode: RenderModes) => {
