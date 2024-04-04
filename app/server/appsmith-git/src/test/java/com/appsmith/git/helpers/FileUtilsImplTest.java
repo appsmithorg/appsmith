@@ -3,6 +3,7 @@ package com.appsmith.git.helpers;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.service.GitExecutorImpl;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
@@ -42,7 +43,7 @@ public class FileUtilsImplTest {
     public void setUp() {
         gitServiceConfig = new GitServiceConfig();
         gitServiceConfig.setGitRootPath(localTestDirectoryPath.toString());
-        fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor);
+        fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor, new GsonBuilder());
     }
 
     @AfterEach
