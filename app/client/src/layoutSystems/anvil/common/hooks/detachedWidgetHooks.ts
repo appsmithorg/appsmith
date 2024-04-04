@@ -148,7 +148,7 @@ export function useRenderDetachedChildren(
         defaultWidgetProps: {
           className: `${
             renderMode === RenderModes.CANVAS && !isPreviewMode
-              ? styles.disableAnvilModalInteraction
+              ? styles.disableAnvilDetachedWidgetInteraction
               : ""
           } ${getAnvilWidgetDOMId(child.widgetId)}`,
         },
