@@ -63,9 +63,9 @@ describe(
     });
     it("3. Click on Canvas to deselect all widgets", () => {
       // Find the layout component that is the main canvas
-      cy.get(".anvil-canvas > div").click();
+      cy.get("#anvil-canvas-0 > div").click();
       // Find all widgets within the main canvas
-      cy.get(".anvil-canvas").within(() => {
+      cy.get("#anvil-canvas-0").within(() => {
         // For each widget check if the border-color is transparent
         // The border-color changes if a widget is selected or focused.
         cy.get(".anvil-widget-wrapper").each(($widget) => {
