@@ -23,7 +23,6 @@ import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
 import type { TableVariant } from "../constants";
-import { TableVariantTypes } from "../constants";
 import { Layers } from "constants/Layers";
 
 const BORDER_RADIUS = "border-radius: 4px;";
@@ -46,59 +45,6 @@ export const TableWrapper = styled.div<{
   isAddRowInProgress: boolean;
 }>`
   .column-freeze {
-    .body {
-      position: relative;
-      z-index: 0;
-    }
-
-    [data-sticky-td] {
-      position: sticky;
-      position: -webkit-sticky;
-      border-bottom: ${(props) =>
-        props.variant === TableVariantTypes.VARIANT2
-          ? "none"
-          : "1px solid var(--color-bd)"};
-      & .draggable-header {
-        cursor: pointer;
-      }
-      &.hidden-cell,
-      &:has(> .hidden-header) {
-        z-index: 0;
-        position: unset !important;
-      }
-
-      &:has(> .hidden-header) .resizer {
-        position: relative;
-      }
-    }
-
-    [data-sticky-last-left-td] {
-      left: 0px;
-      border-right: 3px solid var(--color-bd);
-      &.hidden-cell,
-      &:has(> .hidden-header) {
-        border-right: 0.5px solid var(--color-bd);
-      }
-    }
-
-    [data-sticky-first-right-td] {
-      right: 0px;
-      border-left: 3px solid var(--color-bd);
-      &.hidden-cell,
-      &:has(> .hidden-header) {
-        border-left: none;
-      }
-    }
-
-    & .sticky-right-modifier {
-      border-left: 3px solid var(--color-bd);
-    }
-  }
-
-  .hidden-header {
-    opacity: 0.6;
-
-    ${invisible};
   }
 `;
 

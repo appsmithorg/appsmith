@@ -1,4 +1,13 @@
 .table {
+  --th-height: calc(
+    var(--caption-line-height) + var(--caption-margin-end) +
+      var(--caption-margin-start) + (2 * var(--outer-spacing-3))
+  );
+  --tr-height: calc(
+    var(--body-line-height) + var(--body-margin-end) + var(--body-margin-start) +
+      (2 * var(--outer-spacing-4))
+  );
+
   display: flex;
   justify-content: space-between;
   flex-direction: column;
@@ -12,6 +21,10 @@
   /* adding overflow hidden so that the scollbar at the bottom does not flow out */
   overflow: hidden;
 
+  & [aria-hidden] {
+    opacity: 0.6;
+  }
+
   /* --------------------------------------------------------------------------
    * WRAPPER
    *-------------------------------------------------------------------------- */
@@ -23,14 +36,17 @@
     container-type: inline-size;
   }
 
-  &[data-type="virtualized"] [data-table-wrapper]  {
-	  overflow: hidden;
+  &[data-type="virtualized"] [data-table-wrapper] {
+    overflow: hidden;
   }
 
   /* --------------------------------------------------------------------------
    * TABLE
    *-------------------------------------------------------------------------- */
   & [role="table"] {
+    background-position-x: var(--th-height);
+    background-position-y: var(--tr-height);
+
     border-spacing: 0;
     display: table;
   }
@@ -45,11 +61,18 @@
     width: fit-content;
   }
 
-   /* --------------------------------------------------------------------------
+  /* --------------------------------------------------------------------------
+   * ROWGROUP
+   *-------------------------------------------------------------------------- */
+  & [role="rowgroup"] {
+    position: relative;
+  }
+
+  /* --------------------------------------------------------------------------
    * TH
    *-------------------------------------------------------------------------- */
-   & thead th {
-    padding-inline: var(--outer-spacing-2);
+  & thead th {
+    padding-inline: var(--outer-spacing-1);
     padding-block: var(--outer-spacing-1);
     background: var(--color-bg-elevation-3);
     font-weight: bold;
@@ -69,6 +92,7 @@
   & thead th[data-highlight-position="start"] {
     border-inline-start: 2px solid var(--color-bd-positive);
   }
+
   & thead th[data-highlight-position="end"] {
     border-inline-end: 2px solid var(--color-bd-positive);
   }
@@ -82,7 +106,7 @@
     padding-inline-end: var(--padding-inline-end);
   }
 
-  & thead th:has([data-status="dragging"]) [data-draggable-header]  {
+  & thead th:has([data-status="dragging"]) [data-draggable-header] {
     background: var(--color-bg);
     border-radius: 4px;
     z-index: 100;
@@ -91,37 +115,76 @@
     overflow: none;
   }
 
-   /* --------------------------------------------------------------------------
+  & thead th[data-sticky-last-left-td]:not([aria-hidden]) {
+    left: 0px;
+    border-right: 3px solid var(--color-bd);
+  }
+
+  & thead th[data-sticky-first-right-td]:not([aria-hidden]) {
+    right: 0px;
+    border-left: 3px solid var(--color-bd);
+  }
+
+  /* --------------------------------------------------------------------------
    * TR
    *-------------------------------------------------------------------------- */
   & [role="row"] {
-	  display: flex;
-    block-size: calc(var(--body-line-height) + var(--body-margin-end) + var(--body-margin-start) + (2 * var(--outer-spacing-4)) );
+    display: flex;
+    block-size: var(--tr-height);
   }
 
-  & [role="row"][aria-checked="true"] {
-	  background-color: var(--color-bg-accent-subtle);
-  }
-
-  &[data-status="add-row-in-progress"] [role="row"] {
-    background: var(--color-bg);
-  }
-
-  & [role="row"][data-is-new] {
-    background: var(--color-bg-accent-subtle);
+  & [role="row"]:has(th) {
+    block-size: var(--th-height);
   }
 
   /*-------------------------------------------------------------------------
   * Cell ( td )
   *-------------------------------------------------------------------------- */
-  &[data-variant="default"] [role="cell"] {
+  & [role="cell"] {
+    background-color: var(--color-bg-elevation-3);
+  }
+
+  & [role="row"][aria-checked="true"] [role="cell"] {
+    background-color: var(--color-bg-accent-subtle);
+  }
+
+  &[data-status="add-row-in-progress"] [role="cell"] {
+    background: var(--color-bg);
+  }
+
+  & [role="row"][data-is-new] [role="cell"] {
+    background: var(--color-bg-accent-subtle);
+  }
+
+  &[data-variant="default"] [role="cell"]:not(:last-child) {
     border-inline-end: var(--border-width-1) solid var(--color-bd);
   }
 
-  &:is([data-variant="horizontal-borders"], [data-variant="default"]) [role="cell"] {
-    border-block-end: var(--border-width-1) solid var(--color-bd); 
+  &:is([data-variant="horizontal-borders"], [data-variant="default"])
+    [role="cell"] {
+    border-block-end: var(--border-width-1) solid var(--color-bd);
   }
 
+  & [role="cell"][data-sticky-td] {
+    position: sticky;
+    position: -webkit-sticky;
+  }
+
+  & [role="cell"][data-sticky-last-left-td]:not([aria-hidden]) {
+    left: 0px;
+    border-right: 3px solid var(--color-bd);
+  }
+
+  & [role="cell"][data-sticky-first-right-td]:not([aria-hidden]) {
+    right: 0px;
+    border-left: 3px solid var(--color-bd);
+  }
+
+  & :is([role="cell"], th)[data-sticky-td][aria-hidden] {
+    position: relative !important;
+    left: unset !important;
+    right: unset !important;
+  }
   /* --------------------------------------------------------------------------
   * Resizor
   *-------------------------------------------------------------------------- */
@@ -135,7 +198,7 @@
     transform: translateX(50%);
     z-index: 1;
     /* prevents from scrolling while dragging on touch devices */
-    touch-action:none; 
+    touch-action: none;
   }
 
   & [data-resizor][data-status="resizing"] {
@@ -143,6 +206,6 @@
   }
 
   & thead th:last-child [data-resizor] {
-    right: 5px
+    right: 5px;
   }
 }

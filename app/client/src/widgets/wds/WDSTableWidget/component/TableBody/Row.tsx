@@ -66,6 +66,7 @@ export function Row(props: RowType) {
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
       {props.row.cells.map((cell, cellIndex) => {
         const cellProperties = cell.getCellProps();
+
         cellProperties["style"] = {
           ...cellProperties.style,
           left:
@@ -76,6 +77,7 @@ export function Row(props: RowType) {
         return (
           <div
             {...cellProperties}
+            aria-hidden={columns[cellIndex].isHidden ? "true" : undefined}
             className={
               columns[cellIndex].isHidden
                 ? "td hidden-cell"

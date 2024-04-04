@@ -1,9 +1,8 @@
 import type { Key } from "react";
-import React, { useCallback, useState, memo } from "react";
+import React, { useCallback, memo } from "react";
 
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
 import { isColumnTypeEditable } from "widgets/wds/WDSTableWidget/widget/utilities";
-import { importRemixIcon } from "@design-system/widgets-old";
 import {
   Flex,
   Icon,
@@ -148,6 +147,7 @@ const HeaderCellComponent = (props: HeaderProps) => {
   return (
     <th
       {...headerProps}
+      aria-hidden={props.isHidden ? "true" : undefined}
       className={`th header-reorder ${props.stickyRightModifier}`}
       data-header={props.columnName}
     >
