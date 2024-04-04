@@ -21,7 +21,6 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
@@ -77,14 +76,13 @@ import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 @Slf4j
 @Getter
-@RequiredArgsConstructor
 @Component
 @Import({GitServiceConfig.class})
 public class FileUtilsCEImpl implements FileInterface {
 
     private final GitServiceConfig gitServiceConfig;
-
     private final GitExecutor gitExecutor;
+    private final Gson gson;
 
     private static final String EDIT_MODE_URL_TEMPLATE = "{{editModeUrl}}";
 
@@ -96,6 +94,26 @@ public class FileUtilsCEImpl implements FileInterface {
     private final Scheduler scheduler = Schedulers.boundedElastic();
 
     private static final String CANVAS_WIDGET = "(Canvas)[0-9]*.";
+
+    public FileUtilsCEImpl(GitServiceConfig gitServiceConfig, GitExecutor gitExecutor, GsonBuilder gsonBuilder) {
+        this.gitServiceConfig = gitServiceConfig;
+        this.gitExecutor = gitExecutor;
+
+        // Gson to pretty format JSON file
+        // Keep Long type as is by default GSON have behavior to convert to Double
+        // Convert unordered set to ordered one
+        this.gson = gsonBuilder
+                .registerTypeAdapter(Double.class, new GsonDoubleToLongConverter())
+                .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedConverter())
+                .registerTypeAdapter(Map.class, new GsonUnorderedToOrderedConverter())
+                .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
+                // Instance creator is required while de-serialising using Gson as key instance can't be invoked
+                // with no-args constructor
+                .registerTypeAdapter(DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
+                .disableHtmlEscaping()
+                .setPrettyPrinting()
+                .create();
+    }
 
     /**
      * Application will be stored in the following structure:
@@ -207,19 +225,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 .flatMap(isSwitched -> {
                     Path baseRepo = Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
 
-                    // Gson to pretty format JSON file
-                    // Keep Long type as is by default GSON have behavior to convert to Double
-                    // Convert unordered set to ordered one
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Double.class, new GsonDoubleToLongConverter())
-                            .registerTypeAdapter(Set.class, new GsonUnorderedToOrderedConverter())
-                            .registerTypeAdapter(Map.class, new GsonUnorderedToOrderedConverter())
-                            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
-                            .disableHtmlEscaping()
-                            .setPrettyPrinting()
-                            .create();
-
-                    updateEntitiesInRepo(applicationGitReference, baseRepo, gson);
+                    updateEntitiesInRepo(applicationGitReference, baseRepo);
 
                     processStopwatch.stopAndLogTimeInMillis();
                     return Mono.just(baseRepo);
@@ -227,8 +233,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 .subscribeOn(scheduler);
     }
 
-    protected Set<String> updateEntitiesInRepo(
-            ApplicationGitReference applicationGitReference, Path baseRepo, Gson gson) {
+    protected Set<String> updateEntitiesInRepo(ApplicationGitReference applicationGitReference, Path baseRepo) {
 
         Set<String> validDatasourceFileNames = new HashSet<>();
         ModifiedResources modifiedResources = applicationGitReference.getModifiedResources();
@@ -240,19 +245,17 @@ public class FileUtilsCEImpl implements FileInterface {
         // Save application
         saveResource(
                 applicationGitReference.getApplication(),
-                baseRepo.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION),
-                gson);
+                baseRepo.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION));
 
         // Save application metadata
         JsonObject metadata = gson.fromJson(gson.toJson(applicationGitReference.getMetadata()), JsonObject.class);
         metadata.addProperty(CommonConstants.FILE_FORMAT_VERSION, CommonConstants.fileFormatVersion);
-        saveResource(metadata, baseRepo.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
+        saveResource(metadata, baseRepo.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION));
 
         // Save application theme
         saveResource(
                 applicationGitReference.getTheme(),
-                baseRepo.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION),
-                gson);
+                baseRepo.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION));
 
         // Save pages
         Path pageDirectory = baseRepo.resolve(PAGE_DIRECTORY);
@@ -270,8 +273,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 // Save page metadata
                 saveResource(
                         pageResource.getValue(),
-                        pageSpecificDirectory.resolve(pageName + CommonConstants.JSON_EXTENSION),
-                        gson);
+                        pageSpecificDirectory.resolve(pageName + CommonConstants.JSON_EXTENSION));
                 Map<String, JSONObject> result = DSLTransformerHelper.flatten(
                         new JSONObject(applicationGitReference.getPageDsl().get(pageName)));
                 result.forEach((key, jsonObject) -> {
@@ -319,7 +321,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
                 Path jsLibSpecificFile = jsLibDirectory.resolve(fileNameWithExtension);
                 if (isResourceUpdated) {
-                    saveResource(jsLibEntry.getValue(), jsLibSpecificFile, gson);
+                    saveResource(jsLibEntry.getValue(), jsLibSpecificFile);
                 }
                 validJsLibs.add(fileNameWithExtension);
             });
@@ -361,8 +363,7 @@ public class FileUtilsCEImpl implements FileInterface {
                                     ? applicationGitReference.getActionBody().get(resource.getKey())
                                     : null,
                             queryName,
-                            actionSpecificDirectory.resolve(queryName),
-                            gson);
+                            actionSpecificDirectory.resolve(queryName));
                     // Delete the resource from the old file structure v2
                     deleteFile(pageSpecificDirectory
                             .resolve(ACTION_DIRECTORY)
@@ -400,8 +401,7 @@ public class FileUtilsCEImpl implements FileInterface {
                             resource.getValue(),
                             applicationGitReference.getActionCollectionBody().get(resource.getKey()),
                             actionCollectionName,
-                            actionCollectionSpecificDirectory.resolve(actionCollectionName),
-                            gson);
+                            actionCollectionSpecificDirectory.resolve(actionCollectionName));
                     // Delete the resource from the old file structure v2
                     deleteFile(actionCollectionSpecificDirectory.resolve(
                             actionCollectionName + CommonConstants.JSON_EXTENSION));
@@ -421,8 +421,7 @@ public class FileUtilsCEImpl implements FileInterface {
                 applicationGitReference.getDatasources().entrySet()) {
             saveResource(
                     resource.getValue(),
-                    baseRepo.resolve(DATASOURCE_DIRECTORY).resolve(resource.getKey() + CommonConstants.JSON_EXTENSION),
-                    gson);
+                    baseRepo.resolve(DATASOURCE_DIRECTORY).resolve(resource.getKey() + CommonConstants.JSON_EXTENSION));
             validDatasourceFileNames.add(resource.getKey() + CommonConstants.JSON_EXTENSION);
         }
         // Scan datasource directory and delete any unwanted files if present
@@ -438,13 +437,12 @@ public class FileUtilsCEImpl implements FileInterface {
      *
      * @param sourceEntity resource extracted from DB to be stored in file
      * @param path         file path where the resource to be stored
-     * @param gson
      * @return if the file operation is successful
      */
-    protected boolean saveResource(Object sourceEntity, Path path, Gson gson) {
+    protected boolean saveResource(Object sourceEntity, Path path) {
         try {
             Files.createDirectories(path.getParent());
-            return writeToFile(sourceEntity, path, gson);
+            return writeToFile(sourceEntity, path);
         } catch (IOException e) {
             log.error("Error while writing resource to file {} with {}", path, e.getMessage());
             log.debug(e.getMessage());
@@ -470,10 +468,9 @@ public class FileUtilsCEImpl implements FileInterface {
      * @param body         actual js code written by the user
      * @param resourceName name of the action collection
      * @param path         file path where the resource will be stored
-     * @param gson
      * @return if the file operation is successful
      */
-    private boolean saveActionCollection(Object sourceEntity, String body, String resourceName, Path path, Gson gson) {
+    private boolean saveActionCollection(Object sourceEntity, String body, String resourceName, Path path) {
         try {
             Files.createDirectories(path);
             if (StringUtils.hasText(body)) {
@@ -484,7 +481,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
             // Write metadata for the jsObject
             Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
-            return writeToFile(sourceEntity, metadataPath, gson);
+            return writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
             log.debug(e.getMessage());
         }
@@ -500,10 +497,9 @@ public class FileUtilsCEImpl implements FileInterface {
      * @param body         actual query written by the user
      * @param resourceName name of the action
      * @param path         file path where the resource will be stored
-     * @param gson
      * @return if the file operation is successful
      */
-    private boolean saveActions(Object sourceEntity, String body, String resourceName, Path path, Gson gson) {
+    private boolean saveActions(Object sourceEntity, String body, String resourceName, Path path) {
         try {
             Files.createDirectories(path);
             // Write the user written query to .txt file to make conflict handling easier
@@ -515,7 +511,7 @@ public class FileUtilsCEImpl implements FileInterface {
 
             // Write metadata for the actions
             Path metadataPath = path.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
-            return writeToFile(sourceEntity, metadataPath, gson);
+            return writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
             log.error("Error while reading file {} with message {} with cause", path, e.getMessage(), e.getCause());
         }
@@ -529,7 +525,7 @@ public class FileUtilsCEImpl implements FileInterface {
         }
     }
 
-    private boolean writeToFile(Object sourceEntity, Path path, Gson gson) throws IOException {
+    private boolean writeToFile(Object sourceEntity, Path path) throws IOException {
         try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             gson.toJson(sourceEntity, fileWriter);
             return true;
@@ -631,14 +627,7 @@ public class FileUtilsCEImpl implements FileInterface {
                     Path baseRepoPath =
                             Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
 
-                    // Instance creator is required while de-serialising using Gson as key instance can't be invoked
-                    // with no-args constructor
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(
-                                    DatasourceStructure.Key.class, new DatasourceStructure.KeyInstanceCreator())
-                            .create();
-
-                    ApplicationGitReference applicationGitReference = fetchApplicationReference(baseRepoPath, gson);
+                    ApplicationGitReference applicationGitReference = fetchApplicationReference(baseRepoPath);
                     processStopwatch.stopAndLogTimeInMillis();
                     return applicationGitReference;
                 })
@@ -717,10 +706,9 @@ public class FileUtilsCEImpl implements FileInterface {
      * This method will be used to read and dehydrate the json file present from the local git repo
      *
      * @param filePath file on which the read operation will be performed
-     * @param gson
      * @return resource stored in the JSON file
      */
-    public static Object readFile(Path filePath, Gson gson) {
+    public Object readFile(Path filePath) {
 
         Object file;
         try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
@@ -736,10 +724,9 @@ public class FileUtilsCEImpl implements FileInterface {
      * This method will be used to read and dehydrate the json files present from the local git repo
      *
      * @param directoryPath directory path for files on which read operation will be performed
-     * @param gson
      * @return resources stored in the directory
      */
-    protected Map<String, Object> readFiles(Path directoryPath, Gson gson, String keySuffix) {
+    protected Map<String, Object> readFiles(Path directoryPath, String keySuffix) {
         Map<String, Object> resource = new HashMap<>();
         File directory = directoryPath.toFile();
         if (directory.isDirectory()) {
@@ -782,7 +769,7 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return resources stored in the directory
      */
     private Map<String, Object> readActionCollection(
-            Path directoryPath, Gson gson, String keySuffix, Map<String, String> actionCollectionBodyMap) {
+            Path directoryPath, String keySuffix, Map<String, String> actionCollectionBodyMap) {
         Map<String, Object> resource = new HashMap<>();
         File directory = directoryPath.toFile();
         if (directory.isDirectory()) {
@@ -794,11 +781,9 @@ public class FileUtilsCEImpl implements FileInterface {
                 if (resourcePath.toFile().exists()) {
                     body = readFileAsString(resourcePath);
                 }
-                Object file = readFile(
-                        directoryPath
-                                .resolve(resourceName)
-                                .resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION),
-                        gson);
+                Object file = readFile(directoryPath
+                        .resolve(resourceName)
+                        .resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION));
                 actionCollectionBodyMap.put(resourceName + keySuffix, body);
                 resource.put(resourceName + keySuffix, file);
             }
@@ -811,11 +796,10 @@ public class FileUtilsCEImpl implements FileInterface {
      * Where the user queries and the metadata is split into to different files
      *
      * @param directoryPath directory path for files on which read operation will be performed
-     * @param gson
      * @return resources stored in the directory
      */
     private Map<String, Object> readAction(
-            Path directoryPath, Gson gson, String keySuffix, Map<String, String> actionCollectionBodyMap) {
+            Path directoryPath, String keySuffix, Map<String, String> actionCollectionBodyMap) {
         Map<String, Object> resource = new HashMap<>();
         File directory = directoryPath.toFile();
         if (directory.isDirectory()) {
@@ -827,11 +811,9 @@ public class FileUtilsCEImpl implements FileInterface {
                 if (queryPath.toFile().exists()) {
                     body = readFileAsString(queryPath);
                 }
-                Object file = readFile(
-                        directoryPath
-                                .resolve(resourceName)
-                                .resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION),
-                        gson);
+                Object file = readFile(directoryPath
+                        .resolve(resourceName)
+                        .resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION));
                 actionCollectionBodyMap.put(resourceName + keySuffix, body);
                 resource.put(resourceName + keySuffix, file);
             }
@@ -839,15 +821,14 @@ public class FileUtilsCEImpl implements FileInterface {
         return resource;
     }
 
-    private Object readPageMetadata(Path directoryPath, Gson gson) {
-        return readFile(directoryPath.resolve(directoryPath.toFile().getName() + CommonConstants.JSON_EXTENSION), gson);
+    private Object readPageMetadata(Path directoryPath) {
+        return readFile(directoryPath.resolve(directoryPath.toFile().getName() + CommonConstants.JSON_EXTENSION));
     }
 
-    private ApplicationGitReference fetchApplicationReference(Path baseRepoPath, Gson gson) {
+    private ApplicationGitReference fetchApplicationReference(Path baseRepoPath) {
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
         // Extract application metadata from the json
-        Object metadata =
-                readFile(baseRepoPath.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
+        Object metadata = readFile(baseRepoPath.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION));
         Integer fileFormatVersion = getFileFormatVersion(metadata);
         // Check if fileFormat of the saved files in repo is compatible
         if (!isFileFormatCompatible(fileFormatVersion)) {
@@ -855,36 +836,35 @@ public class FileUtilsCEImpl implements FileInterface {
         }
         // Extract application data from the json
         applicationGitReference.setApplication(
-                readFile(baseRepoPath.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION), gson));
+                readFile(baseRepoPath.resolve(CommonConstants.APPLICATION + CommonConstants.JSON_EXTENSION)));
         applicationGitReference.setTheme(
-                readFile(baseRepoPath.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION), gson));
+                readFile(baseRepoPath.resolve(CommonConstants.THEME + CommonConstants.JSON_EXTENSION)));
         Path pageDirectory = baseRepoPath.resolve(PAGE_DIRECTORY);
         // Reconstruct application from given file format
         switch (fileFormatVersion) {
             case 1:
                 // Extract actions
                 applicationGitReference.setActions(
-                        readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
+                        readFiles(baseRepoPath.resolve(ACTION_DIRECTORY), CommonConstants.EMPTY_STRING));
                 // Extract actionCollections
-                applicationGitReference.setActionCollections(readFiles(
-                        baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
+                applicationGitReference.setActionCollections(
+                        readFiles(baseRepoPath.resolve(ACTION_COLLECTION_DIRECTORY), CommonConstants.EMPTY_STRING));
                 // Extract pages
-                applicationGitReference.setPages(readFiles(pageDirectory, gson, CommonConstants.EMPTY_STRING));
+                applicationGitReference.setPages(readFiles(pageDirectory, CommonConstants.EMPTY_STRING));
                 // Extract datasources
                 applicationGitReference.setDatasources(
-                        readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
+                        readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), CommonConstants.EMPTY_STRING));
                 break;
 
             case 2:
             case 3:
             case 4:
-                updateGitApplicationReference(
-                        baseRepoPath, gson, applicationGitReference, pageDirectory, fileFormatVersion);
+                updateGitApplicationReference(baseRepoPath, applicationGitReference, pageDirectory, fileFormatVersion);
                 break;
 
             case 5:
                 updateGitApplicationReferenceV2(
-                        baseRepoPath, gson, applicationGitReference, pageDirectory, fileFormatVersion);
+                        baseRepoPath, applicationGitReference, pageDirectory, fileFormatVersion);
                 break;
 
             default:
@@ -892,7 +872,7 @@ public class FileUtilsCEImpl implements FileInterface {
         applicationGitReference.setMetadata(metadata);
 
         Path jsLibDirectory = baseRepoPath.resolve(JS_LIB_DIRECTORY);
-        Map<String, Object> jsLibrariesMap = readFiles(jsLibDirectory, gson, CommonConstants.EMPTY_STRING);
+        Map<String, Object> jsLibrariesMap = readFiles(jsLibDirectory, CommonConstants.EMPTY_STRING);
         applicationGitReference.setJsLibraries(jsLibrariesMap);
 
         return applicationGitReference;
@@ -901,7 +881,6 @@ public class FileUtilsCEImpl implements FileInterface {
     @Deprecated
     private void updateGitApplicationReference(
             Path baseRepoPath,
-            Gson gson,
             ApplicationGitReference applicationGitReference,
             Path pageDirectory,
             int fileFormatVersion) {
@@ -918,24 +897,23 @@ public class FileUtilsCEImpl implements FileInterface {
             for (File page : Objects.requireNonNull(directory.listFiles())) {
                 pageMap.put(
                         page.getName(),
-                        readFile(page.toPath().resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION), gson));
+                        readFile(page.toPath().resolve(CommonConstants.CANVAS + CommonConstants.JSON_EXTENSION)));
 
                 if (fileFormatVersion >= 4) {
                     actionMap.putAll(
-                            readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
+                            readAction(page.toPath().resolve(ACTION_DIRECTORY), page.getName(), actionBodyMap));
                 } else {
-                    actionMap.putAll(readFiles(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName()));
+                    actionMap.putAll(readFiles(page.toPath().resolve(ACTION_DIRECTORY), page.getName()));
                 }
 
                 if (fileFormatVersion >= 3) {
                     actionCollectionMap.putAll(readActionCollection(
                             page.toPath().resolve(ACTION_COLLECTION_DIRECTORY),
-                            gson,
                             page.getName(),
                             actionCollectionBodyMap));
                 } else {
                     actionCollectionMap.putAll(
-                            readFiles(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), gson, page.getName()));
+                            readFiles(page.toPath().resolve(ACTION_COLLECTION_DIRECTORY), page.getName()));
                 }
             }
         }
@@ -946,14 +924,13 @@ public class FileUtilsCEImpl implements FileInterface {
         applicationGitReference.setPages(pageMap);
         // Extract datasources
         applicationGitReference.setDatasources(
-                readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
+                readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), CommonConstants.EMPTY_STRING));
     }
 
     private Integer getFileFormatVersion(Object metadata) {
         if (metadata == null) {
             return 1;
         }
-        Gson gson = new Gson();
         JsonObject json = gson.fromJson(gson.toJson(metadata), JsonObject.class);
         JsonElement fileFormatVersion = json.get(CommonConstants.FILE_FORMAT_VERSION);
         return fileFormatVersion.getAsInt();
@@ -965,7 +942,6 @@ public class FileUtilsCEImpl implements FileInterface {
 
     protected void updateGitApplicationReferenceV2(
             Path baseRepoPath,
-            Gson gson,
             ApplicationGitReference applicationGitReference,
             Path pageDirectory,
             int fileFormatVersion) {
@@ -983,9 +959,9 @@ public class FileUtilsCEImpl implements FileInterface {
             // pages, actions and actionCollections from the JSON files
             for (File page : Objects.requireNonNull(directory.listFiles())) {
                 if (page.isDirectory()) {
-                    pageMap.put(page.getName(), readPageMetadata(page.toPath(), gson));
+                    pageMap.put(page.getName(), readPageMetadata(page.toPath()));
 
-                    JSONObject mainContainer = getMainContainer(pageMap.get(page.getName()), gson);
+                    JSONObject mainContainer = getMainContainer(pageMap.get(page.getName()));
 
                     // Read widgets data recursively from the widgets directory
                     Map<String, JSONObject> widgetsData = readWidgetsData(
@@ -997,10 +973,9 @@ public class FileUtilsCEImpl implements FileInterface {
                             DSLTransformerHelper.getNestedDSL(widgetsData, parentDirectories, mainContainer);
                     pageDsl.put(page.getName(), nestedDSL.toString());
                     actionMap.putAll(
-                            readAction(page.toPath().resolve(ACTION_DIRECTORY), gson, page.getName(), actionBodyMap));
+                            readAction(page.toPath().resolve(ACTION_DIRECTORY), page.getName(), actionBodyMap));
                     actionCollectionMap.putAll(readActionCollection(
                             page.toPath().resolve(ACTION_COLLECTION_DIRECTORY),
-                            gson,
                             page.getName(),
                             actionCollectionBodyMap));
                 }
@@ -1014,7 +989,7 @@ public class FileUtilsCEImpl implements FileInterface {
         applicationGitReference.setPageDsl(pageDsl);
         // Extract datasources
         applicationGitReference.setDatasources(
-                readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), gson, CommonConstants.EMPTY_STRING));
+                readFiles(baseRepoPath.resolve(DATASOURCE_DIRECTORY), CommonConstants.EMPTY_STRING));
     }
 
     private Map<String, JSONObject> readWidgetsData(String directoryPath) {
@@ -1094,7 +1069,7 @@ public class FileUtilsCEImpl implements FileInterface {
         }
     }
 
-    private JSONObject getMainContainer(Object pageJson, Gson gson) {
+    private JSONObject getMainContainer(Object pageJson) {
         JSONObject pageJSON = new JSONObject(gson.toJson(pageJson));
         JSONArray layouts = pageJSON.getJSONObject("unpublishedPage").getJSONArray("layouts");
         return layouts.getJSONObject(0).getJSONObject("dsl");
