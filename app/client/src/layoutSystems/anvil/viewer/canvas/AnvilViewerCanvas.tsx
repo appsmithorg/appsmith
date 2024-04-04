@@ -1,5 +1,5 @@
 import React, { useMemo } from "react";
-import "./styles/anvilViewer.css";
+import styles from "./styles.module.css";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { getAnvilCanvasId } from "./utils";
 import { AnvilCanvasClassName } from "widgets/anvil/constants";
@@ -9,7 +9,7 @@ import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvi
 export const AnvilViewerCanvas = React.forwardRef(
   (props: BaseWidgetProps, ref: React.ForwardedRef<HTMLDivElement>) => {
     const className: string = useMemo(
-      () => `${AnvilCanvasClassName} ${props.classList?.join(" ")}`,
+      () => `${styles[AnvilCanvasClassName]} ${props.classList?.join(" ")}`,
       [props.classList],
     );
 

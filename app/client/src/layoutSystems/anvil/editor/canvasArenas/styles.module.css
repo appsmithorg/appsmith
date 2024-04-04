@@ -1,4 +1,4 @@
-.detached-widgets-drop-overlay {
+.detachedWidgetsDropOverlay {
   background-color: var(--modal-overlay-color);
   position: fixed;
   padding: 40px;
@@ -6,7 +6,7 @@
   flex-direction: column;
 }
 
-.detached-widgets-drop-overlay-content {
+.detachedWidgetsDropOverlayContent {
   background-color: var(--modal-overlay-content-color);
   color: var(--modal-overlay-content-text-color);
   border: var(--modal-overlay-content-outline);

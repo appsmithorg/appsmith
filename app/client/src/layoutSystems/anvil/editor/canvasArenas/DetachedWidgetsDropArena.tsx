@@ -6,7 +6,7 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import styled from "styled-components";
 import { Popover, PopoverModalContent } from "@design-system/headless";
 import { DropModalHereMessage } from "layoutSystems/anvil/common/messages";
-
+import styles from "./styles.module.css";
 /**
  * Default highlight passed for AnvilOverlayWidgetTypes widgets
  */
@@ -43,8 +43,8 @@ export const DetachedWidgetsDropArena = (props: {
     <DetachedWidgetsDropArenaWrapper onMouseUp={onMouseUp}>
       <Popover isOpen modal>
         <PopoverModalContent
-          contentClassName="detached-widgets-drop-overlay-content"
-          overlayClassName="detached-widgets-drop-overlay"
+          contentClassName={styles.detachedWidgetsDropOverlayContent}
+          overlayClassName={styles.detachedWidgetsDropOverlay}
         >
           {DropModalHereMessage()}
         </PopoverModalContent>
