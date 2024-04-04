@@ -2,6 +2,7 @@ package com.appsmith.server.dtos.ce;
 
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
@@ -175,5 +176,5 @@ public class ActionCollectionCE_DTO {
         return this.getPageId();
     }
 
-    public static class Fields {}
+    public static class Fields extends BranchAwareDomain.Fields {}
 }

@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static com.appsmith.external.helpers.StringUtils.dotted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
@@ -107,7 +108,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
          */
         BridgeQuery<ActionCollection> bridgeQuery = Bridge.query();
         if (!StringUtils.isEmpty(branchName)) {
-            bridgeQuery.equal(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME, branchName);
+            bridgeQuery.equal(ActionCollection.Fields.defaultResources_branchName, branchName);
         }
 
         // Fetch published actions
@@ -118,11 +119,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                String pageIdFieldPath = String.join(
-                        ".",
+                String pageIdFieldPath = dotted(
                         ActionCollection.Fields.publishedCollection,
-                        ActionCollectionDTO.Fields.defaultResources,
-                        DefaultResources.Fields.pageId);
+                        ActionCollectionDTO.Fields.defaultResources_pageId);
                 bridgeQuery.in(pageIdFieldPath, pageIds);
             }
         }
@@ -133,11 +132,9 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                String pageIdFieldPath = String.join(
-                        ".",
+                String pageIdFieldPath = dotted(
                         ActionCollection.Fields.unpublishedCollection,
-                        ActionCollectionDTO.Fields.defaultResources,
-                        DefaultResources.Fields.pageId);
+                        ActionCollectionDTO.Fields.defaultResources_pageId);
                 bridgeQuery.in(pageIdFieldPath, pageIds);
             }
 
