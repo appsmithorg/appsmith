@@ -29,7 +29,7 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
 
     @Override
     public Mono<String> getHealth() {
-        return Mono.when(getRedisHealth(), getMongoHealth()).thenReturn("All systems are Up");
+        return Mono.when(getRedisHealth(), getMongoHealth()).thenReturn("All systems are up");
     }
 
     private Mono<Health> getRedisHealth() {
