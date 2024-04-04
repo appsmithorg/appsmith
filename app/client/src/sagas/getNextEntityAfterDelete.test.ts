@@ -8,10 +8,9 @@ import { FocusEntity } from "navigation/FocusEntity";
  *
  * @return action   -> RedirectAction.NA if the deleted item is not current one
  * @return action   -> RedirectAction.LIST if no items left in the list
- * @return action   -> RedirectAction.ITEM if there is no item left in the same group
- *         payload  -> first item from the all items list
- * @return action   -> RedirectAction.ITEM if there is there are items left in the same group
- *         payload  -> first item from the grouped list
+ * @return action   -> RedirectAction.ITEM if there are other items in the list
+ *         payload  -> second last item if the last one is deleted
+ *         payload  -> next item if more items to the right
  *
  */
 describe("getNextEntityAfterDelete function", () => {
