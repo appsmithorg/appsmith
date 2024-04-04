@@ -9,7 +9,7 @@ import { widgetListURL } from "@appsmith/RouteBuilder";
 import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import SegmentAddHeader from "../components/SegmentAddHeader";
 
-const AddWidgets = () => {
+const AddWidgets = (props: { focusSearchInput?: boolean }) => {
   const pageId = useSelector(getCurrentPageId) as string;
 
   const closeButtonClickHandler = useCallback(() => {
@@ -23,7 +23,7 @@ const AddWidgets = () => {
         titleMessage={EDITOR_PANE_TEXTS.widgets_create_tab_title}
       />
       <Flex flexDirection="column" gap="spaces-3" overflowX="scroll">
-        <UIEntitySidebar isActive />
+        <UIEntitySidebar focusSearchInput={props.focusSearchInput} isActive />
       </Flex>
     </>
   );

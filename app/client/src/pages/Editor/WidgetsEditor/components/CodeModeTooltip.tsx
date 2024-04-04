@@ -4,6 +4,10 @@ import { modText } from "utils/helpers";
 import { useSelector } from "react-redux";
 import { getWidgetSelectionBlock } from "selectors/ui";
 import { retrieveCodeWidgetNavigationUsed } from "utils/storage";
+import {
+  CANVAS_VIEW_MODE_TOOLTIP,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 /**
  * CodeModeTooltip
@@ -28,7 +32,7 @@ const CodeModeTooltip = (props: { children: React.ReactElement }) => {
   if (!isWidgetSelectionBlock) return props.children;
   return (
     <Tooltip
-      content={`💡 ${modText()} click a widget to navigate to UI mode.`}
+      content={createMessage(CANVAS_VIEW_MODE_TOOLTIP, `${modText()}`)}
       isDisabled={!shouldShow}
       placement={"bottom"}
       showArrow={false}
