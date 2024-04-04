@@ -15,7 +15,7 @@ jobs:
         uses: trilom/file-changes-action@v1.2.3
         continue-on-error: true
 
-      - name: Ger labels of the PR
+      - name: Get labels of the PR
         id: labels
         uses: joerick/pr-labels-action@v1.0.6
         continue-on-error: true
