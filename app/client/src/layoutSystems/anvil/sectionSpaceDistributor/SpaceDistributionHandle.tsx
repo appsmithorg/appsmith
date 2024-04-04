@@ -51,12 +51,25 @@ const updateDistributionHandlePosition = (
     if (target && target.parentElement) {
       // making this change to compute offset left coz offsetLeft of the dom api does not provide decimal values
       // which is causing the handle to jump on clicking it the first time
+
+      // Get the left position of the parent element relative to the viewport
       const parentLeft = target.parentElement.getBoundingClientRect().left;
+
+      // Get the left position of the target element relative to the viewport
       const targetLeft = target.getBoundingClientRect().left;
+
+      // Calculate the offset between the left edges of the target element and its parent element
       const offsetLeft = targetLeft - parentLeft;
-      const updatedLeft =
-        offsetLeft - (SpaceDistributorHandleDimensions.width + zoneGap) * 0.5;
-      ref.current.style.left = updatedLeft + "px";
+
+      // Calculate the midpoint between zones by subtracting half of the zoneGap from the offsetLeft
+      const midPointBetweenZones = offsetLeft - zoneGap / 2;
+
+      // Calculate the left position of the handle, adjusting for its width
+      const handleWidthAdjustedLeft =
+        midPointBetweenZones - SpaceDistributorHandleDimensions.width / 2;
+
+      // Set the left position of the handle element using its reference
+      ref.current.style.left = handleWidthAdjustedLeft + "px";
     }
   }
 };
