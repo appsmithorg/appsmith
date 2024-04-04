@@ -1140,9 +1140,8 @@ public class FileUtilsCEImpl implements FileInterface {
                     .map(isSwitched -> {
                         Path baseRepoPath =
                                 Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
-                        Gson gson = new Gson();
                         Object metadata = readFile(
-                                baseRepoPath.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION), gson);
+                                baseRepoPath.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION));
                         return metadata;
                     });
         } catch (GitAPIException | IOException exception) {
