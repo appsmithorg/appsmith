@@ -19,6 +19,7 @@ import com.appsmith.server.repositories.cakes.NewActionRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.Gson;
+import jakarta.transaction.TransactionalException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
@@ -30,7 +31,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.data.mongodb.MongoTransactionException;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -170,8 +170,8 @@ public class ImportApplicationTransactionServiceTest {
         newWorkspace.setName("Template Workspace");
 
         Mockito.when(newActionImportableService.importEntities(any(), any(), any(), any(), any()))
-                .thenReturn(Mono.error(new MongoTransactionException(
-                        "Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'")));
+                .thenReturn(Mono.error(new TransactionalException(
+                        "Command failed with error 251 (NoSuchTransaction): 'Transaction 1 has been aborted.'", null)));
 
         Workspace createdWorkspace = workspaceService.create(newWorkspace).block();
 
