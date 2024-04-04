@@ -3,8 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/constants";
-import { RenderModes } from "constants/WidgetConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getRenderMode } from "selectors/editorSelectors";
@@ -14,7 +12,10 @@ import { getWidgets } from "sagas/selectors";
 import log from "loglevel";
 import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import styles from "layoutSystems/anvil/editor/styles.module.css";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  type RenderModes,
+} from "constants/WidgetConstants";
 /**
  * This hook is used to select and focus on a detached widget
  * As detached widgets are outside of the layout flow, we need to access the correct element in the DOM
@@ -135,7 +136,6 @@ function useDetachedChildren(children: CanvasWidgetStructure[]) {
 export function useRenderDetachedChildren(
   widgetId: string,
   children: CanvasWidgetStructure[],
-  isPreviewMode: boolean,
 ) {
   const renderMode: RenderModes = useSelector(getRenderMode);
   // Get the detached children to render on the canvas
@@ -146,11 +146,7 @@ export function useRenderDetachedChildren(
       renderChildWidget({
         childWidgetData: child as WidgetProps,
         defaultWidgetProps: {
-          className: `${
-            renderMode === RenderModes.CANVAS && !isPreviewMode
-              ? styles.disableAnvilDetachedWidgetInteraction
-              : ""
-          } ${getAnvilWidgetDOMId(child.widgetId)}`,
+          className: `${getAnvilWidgetDOMId(child.widgetId)}`,
         },
         noPad: false,
         // Adding these properties as the type insists on providing this
