@@ -21,7 +21,11 @@ export function PhoneInputComponent(props: PhoneInputComponentProps) {
       onChange={props.onValueChange}
       onFocusChange={props.onFocusChange}
       placeholder={props.placeholder}
-      startIcon={<Text>{`${selectedCountry?.dial_code}`}</Text>}
+      prefix={
+        <Text
+          style={{ whiteSpace: "nowrap" }}
+        >{`${selectedCountry?.dial_code}`}</Text>
+      }
       validationState={props.validationStatus}
       value={props.value}
     />
