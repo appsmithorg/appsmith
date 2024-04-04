@@ -3,13 +3,11 @@ package com.appsmith.server.configurations;
 import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.LogHelper;
 import io.micrometer.observation.Observation;
-import io.micrometer.tracing.Tracer;
 import io.micrometer.tracing.handler.TracingObservationHandler;
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
 import org.reactivestreams.Subscription;
 import org.slf4j.MDC;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.CoreSubscriber;
 import reactor.core.publisher.Hooks;
@@ -26,9 +24,6 @@ public class MDCConfig {
     private static final String OBSERVATION = "micrometer.observation";
     private static final String TRACE_ID = "traceId";
     private static final String SPAN_ID = "spanId";
-
-    @Autowired
-    Tracer tracer;
 
     @PostConstruct
     void contextOperatorHook() {
