@@ -28,46 +28,53 @@ describe("getNextEntityAfterDelete function", () => {
       key: "2",
       group: "AbGsheet",
     },
+    {
+      title: "Google sheet 2",
+      type: PluginType.SAAS,
+      key: "3",
+      group: "AbGsheet",
+    },
+    {
+      title: "Google sheet 3",
+      type: PluginType.SAAS,
+      key: "4",
+      group: "AbGsheet",
+    },
   ];
 
   jest
     .spyOn(FocusEntityObj, "identifyEntityFromPath")
     .mockImplementation(() => ({
       entity: FocusEntity.QUERY,
-      id: "2",
+      id: "3",
       appState: EditorState.EDITOR,
       params: {},
     }));
 
   it("1. Deleted item is not the current item then no redirect", () => {
-    expect(getNextEntityAfterDelete("5", [])).toEqual({
+    expect(getNextEntityAfterDelete("4", [])).toEqual({
       action: RedirectAction.NA,
     });
   });
 
-  it("2. Redirect to add, if nothing left after deletion", () => {
-    expect(getNextEntityAfterDelete("2", [])).toEqual({
+  it("2. Redirect to list, if nothing left after deletion", () => {
+    expect(getNextEntityAfterDelete("3", [items[2]])).toEqual({
       action: RedirectAction.LIST,
     });
   });
 
-  it("3. Redirect to the first item, if nothing left in the same group", () => {
-    expect(getNextEntityAfterDelete("2", items)).toEqual({
+  it("3. Redirect to the next item if it is somewhere between", () => {
+    expect(getNextEntityAfterDelete("3", items)).toEqual({
       action: RedirectAction.ITEM,
-      payload: items[0],
+      payload: items[3],
     });
   });
 
-  it("4. Redirect to the first item in the group", () => {
-    items.push({
-      title: "Google sheet 2",
-      type: PluginType.SAAS,
-      key: "3",
-      group: "AbGsheet",
-    });
-    expect(getNextEntityAfterDelete("2", items)).toEqual({
+  it("4. Redirect to second last item if last item is selected", () => {
+    // Remove the last item
+    expect(getNextEntityAfterDelete("3", items)).toEqual({
       action: RedirectAction.ITEM,
-      payload: items[2],
+      payload: items[1],
     });
   });
 });

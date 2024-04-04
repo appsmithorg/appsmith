@@ -7,21 +7,14 @@ import {
   setJSTabs,
   setQueryTabs,
 } from "actions/ideActions";
-import history from "../utils/history";
+import history from "utils/history";
 import {
-  jsCollectionAddURL,
   jsCollectionListURL,
   queryAddURL,
   queryListURL,
 } from "@appsmith/RouteBuilder";
-import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
-import { groupAndSortEntitySegmentList } from "@appsmith/selectors/appIDESelectors";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
-import {
-  getCurrentPageId,
-  getJSSegmentItems,
-  getQuerySegmentItems,
-} from "@appsmith/selectors/entitiesSelector";
+import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
 import { getJSEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
 import log from "loglevel";
@@ -29,6 +22,11 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { retrieveIDEViewMode, storeIDEViewMode } from "utils/storage";
+import { findIndex } from "lodash";
+import {
+  selectJSSegmentEditorTabs,
+  selectQuerySegmentEditorTabs,
+} from "@appsmith/selectors/appIDESelectors";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   const { entity, id } = entityInfo;
@@ -61,8 +59,8 @@ function* getUpdatedTabs(newId: string, currentTabs: string[]) {
 
 export function* handleJSEntityRedirect(deletedId: string) {
   const pageId: string = yield select(getCurrentPageId);
-  const allJsItems: EntityItem[] = yield select(getJSSegmentItems);
-  const redirectAction = getNextEntityAfterDelete(deletedId, allJsItems);
+  const allJsTabs: EntityItem[] = yield select(selectJSSegmentEditorTabs);
+  const redirectAction = getNextEntityAfterDelete(deletedId, allJsTabs);
   switch (redirectAction.action) {
     case RedirectAction.LIST:
       history.push(jsCollectionListURL({ pageId }));
@@ -70,7 +68,7 @@ export function* handleJSEntityRedirect(deletedId: string) {
     case RedirectAction.ITEM:
       if (!redirectAction.payload) {
         log.error("Redirect item does not have a payload");
-        history.push(jsCollectionAddURL({ pageId }));
+        history.push(jsCollectionListURL({ pageId }));
         break;
       }
       const { payload } = redirectAction;
@@ -81,8 +79,8 @@ export function* handleJSEntityRedirect(deletedId: string) {
 
 export function* handleQueryEntityRedirect(deletedId: string) {
   const pageId: string = yield select(getCurrentPageId);
-  const allQueryItems: EntityItem[] = yield select(getQuerySegmentItems);
-  const redirectAction = getNextEntityAfterDelete(deletedId, allQueryItems);
+  const allQueryTabs: EntityItem[] = yield select(selectQuerySegmentEditorTabs);
+  const redirectAction = getNextEntityAfterDelete(deletedId, allQueryTabs);
   switch (redirectAction.action) {
     case RedirectAction.LIST:
       history.push(queryListURL({ pageId }));
@@ -140,28 +138,19 @@ export function getNextEntityAfterDelete(
     };
   }
 
-  // Check if another action is present in the group and redirect to it, or else
-  // navigate to tht top of the list
-  const currentSortedList: EditorSegmentList =
-    groupAndSortEntitySegmentList(allItems);
-
-  let remainingGroupEntities: EntityItem[] = [];
-  for (const { items } of currentSortedList) {
-    if (items.find((a) => a.key === deletedId)) {
-      remainingGroupEntities = items.filter((a) => a.key !== deletedId);
-      break;
-    }
-  }
-
-  if (remainingGroupEntities.length === 0) {
+  // Get closest item
+  const currentIndex = findIndex(allItems, { key: deletedId });
+  if (currentIndex === allItems.length - 1) {
+    // last item, so get the second last item
     return {
       action: RedirectAction.ITEM,
-      payload: otherItems[0],
+      payload: otherItems[otherItems.length - 1],
     };
   } else {
+    // Some other item, so get the next one
     return {
       action: RedirectAction.ITEM,
-      payload: remainingGroupEntities[0],
+      payload: allItems[currentIndex + 1],
     };
   }
 }
