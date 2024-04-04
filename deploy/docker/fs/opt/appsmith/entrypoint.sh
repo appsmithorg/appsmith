@@ -319,7 +319,7 @@ setup-custom-ca-certificates() (
     -deststorepass changeit
 
   # Add the custom CA certificates to the store.
-  find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
+  find -L "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
     -print \
     -exec keytool -import -alias '{}' -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
 
