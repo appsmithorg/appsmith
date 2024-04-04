@@ -19,6 +19,9 @@ describe(
       agHelper.GetNClick(".t--create-datasources-query-btn");
       agHelper.GetElement(".t--new-blank-api").first().click();
       cy.wait("@createNewApi");
+      // Side by side is activated in this step.
+      // In case the announcement modal shows up, it should be closed
+      EditorNavigation.CloseAnnouncementModal();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       agHelper.GetNAssertElementText(
         propPane._actionCard,
@@ -32,6 +35,9 @@ describe(
       propPane.SelectPlatformFunction("onClick", "Execute a JS function");
       agHelper.GetNClick(".t--create-js-object-btn");
       cy.wait("@createNewJSCollection");
+      // Side by side is activated in this step.
+      // In case the announcement modal shows up, it should be closed
+      EditorNavigation.CloseAnnouncementModal();
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
       agHelper.GetNAssertElementText(
         propPane._actionCard,
