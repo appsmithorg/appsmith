@@ -105,7 +105,9 @@ export const SpaceDistributionHandle = ({
   const resizeObserverRef = useRef<ResizeObserver>();
   resizeObserverRef.current = new ResizeObserver((entries) => {
     // Update the position of the distribution handle on resize
-    updateDistributionHandlePosition(entries, ref, zoneGap);
+    requestAnimationFrame(() =>
+      updateDistributionHandlePosition(entries, ref, zoneGap),
+    );
   });
 
   // Use a custom hook to handle space distribution events
