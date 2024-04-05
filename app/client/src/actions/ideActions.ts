@@ -38,3 +38,9 @@ export const setQueryTabs = (tabs: string[]) => {
     payload: tabs,
   };
 };
+export const setShowQueryCreateNewModal = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_SHOW_QUERY_CREATE_NEW_MODAL,
+    payload,
+  };
+};
