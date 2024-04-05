@@ -14,6 +14,7 @@ import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.applications.spans.ApplicationSpans;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
@@ -625,7 +626,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     childApplication.getGitApplicationMetadata().getIsRepoPrivate(),
                                     isSystemGenerated))
                             .thenReturn(status)
-                            .name(COMMIT.getEventName())
+                            .name(COMMIT)
                             .tap(Micrometer.observation(observationRegistry));
                 });
 
@@ -1591,7 +1592,9 @@ public class GitServiceCEImpl implements GitServiceCE {
         return applicationService
                 .findById(applicationId, aclPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
+                .name(ApplicationSpans.FETCH_BY_ID)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Deprecated
@@ -2000,7 +2003,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             throwable);
                     return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, throwable.getMessage()));
                 })
-                .name(STATUS.getEventName())
+                .name(STATUS)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.zip(statusMono, sessionUserService.getCurrentUser(), branchedAppMono)
@@ -3279,14 +3282,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                             throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                         }))
-                .name(GitSpans.ADD_FILE_LOCK.getEventName())
+                .name(GitSpans.ADD_FILE_LOCK)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
     private Mono<Boolean> releaseFileLock(String defaultApplicationId) {
         return redisUtils
                 .releaseFileLock(defaultApplicationId)
-                .name(GitSpans.RELEASE_FILE_LOCK.getEventName())
+                .name(GitSpans.RELEASE_FILE_LOCK)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
