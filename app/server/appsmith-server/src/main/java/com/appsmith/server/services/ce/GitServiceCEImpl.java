@@ -14,7 +14,6 @@ import com.appsmith.git.service.GitExecutorImpl;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.applications.spans.ApplicationSpans;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.Entity;
@@ -1592,9 +1591,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         return applicationService
                 .findById(applicationId, aclPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)))
-                .name(ApplicationSpans.FETCH_BY_ID)
-                .tap(Micrometer.observation(observationRegistry));
+                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
     }
 
     @Deprecated

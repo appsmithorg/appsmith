@@ -177,7 +177,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     @Deprecated
     public Mono<Application> findById(String id, AclPermission aclPermission) {
-        return repository.findById(id, aclPermission).flatMap(this::setTransientFields);
+        return repository
+                .findById(id, aclPermission)
+                .flatMap(this::setTransientFields)
+                .name(ApplicationSpans.FETCH_BY_ID)
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     @Override
