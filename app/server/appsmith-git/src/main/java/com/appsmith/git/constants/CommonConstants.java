@@ -5,6 +5,8 @@ public class CommonConstants {
     // feature)
     public static Integer fileFormatVersion = 5;
     public static String FILE_FORMAT_VERSION = "fileFormatVersion";
+    public static final String SERVER_SCHEMA_VERSION = "serverSchemaVersion";
+    public static final String CLIENT_SCHEMA_VERSION = "clientSchemaVersion";
 
     public static final String CANVAS = "canvas";
 

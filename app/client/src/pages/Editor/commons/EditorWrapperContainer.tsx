@@ -3,29 +3,20 @@ import styled from "styled-components";
 
 interface EditorWrapperContainerProps {
   children: React.ReactNode;
-  hasBottomBar?: boolean;
 }
 
-const Wrapper = styled.div<{ hasBottomBar?: boolean }>`
+const Wrapper = styled.div`
   display: flex;
   height: calc(
     100vh - ${(props) => props.theme.smallHeaderHeight} -
-      ${(props) => (props.hasBottomBar ? props.theme.bottomBarHeight : "0px")}
+      ${(props) => props.theme.bottomBarHeight}
   );
   background-color: ${(props) => props.theme.appBackground};
 `;
 
-function EditorWrapperContainer({
-  children,
-  hasBottomBar = true,
-}: EditorWrapperContainerProps) {
+function EditorWrapperContainer({ children }: EditorWrapperContainerProps) {
   return (
-    <Wrapper
-      className="relative w-full overflow-x-hidden"
-      hasBottomBar={hasBottomBar}
-    >
-      {children}
-    </Wrapper>
+    <Wrapper className="relative w-full overflow-x-hidden">{children}</Wrapper>
   );
 }
 

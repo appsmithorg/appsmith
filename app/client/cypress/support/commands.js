@@ -2091,3 +2091,17 @@ Cypress.Commands.add("stubPricingPage", () => {
 Cypress.Commands.add("selectByTestId", (testId) => {
   return cy.get(`[data-testid="${testId}"]`);
 });
+
+/**
+ * @param tooltipSelector
+ * @param expectedText
+ * @returns
+ *
+ *
+ */
+Cypress.Commands.add(
+  "assertTooltipPresence",
+  (tooltipSelector = "", expectedText) => {
+    cy.get(tooltipSelector).should("be.visible").and("contain", expectedText);
+  },
+);

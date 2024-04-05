@@ -714,7 +714,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.INVALID_GIT_CONFIGURATION, GIT_PROFILE_ERROR)));
 
-        final String browserSupportedUrl = GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl());
+        final String browserSupportedUrl;
+        try {
+            browserSupportedUrl = GitUtils.convertSshUrlToBrowserSupportedUrl(gitConnectDTO.getRemoteUrl());
+        } catch (AppsmithException error) {
+            return Mono.error(error);
+        }
 
         Mono<Boolean> isPrivateRepoMono =
                 GitUtils.isRepoPrivate(browserSupportedUrl).cache();

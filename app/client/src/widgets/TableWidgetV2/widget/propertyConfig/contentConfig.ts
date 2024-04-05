@@ -59,7 +59,6 @@ export default [
         ) => triggerFlag && isDynamic && !isToggleDisabled,
       },
       {
-        helpText: "Columns",
         propertyName: "primaryColumns",
         controlType: "PRIMARY_COLUMNS_V2",
         label: "Columns",

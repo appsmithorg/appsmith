@@ -26,6 +26,7 @@ export const InputTypes: { [key: string]: string } = {
   PASSWORD: "PASSWORD",
   CURRENCY: "CURRENCY",
   SEARCH: "SEARCH",
+  MULTI_LINE_TEXT: "MULTI_LINE_TEXT",
 };
 
 export type InputType = (typeof InputTypes)[keyof typeof InputTypes];
