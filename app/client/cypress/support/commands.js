@@ -1327,6 +1327,7 @@ Cypress.Commands.add("createSuperUser", () => {
   cy.wait(2000);
 
   if (CURRENT_REPO === REPO.CE) {
+    assertHelper.AssertNetworkStatus("@getApplicationsOfWorkspace");
     agHelper.WaitUntilEleAppear(onboarding.locators.skipStartFromData);
     agHelper.GetNClick(onboarding.locators.skipStartFromData);
     cy.get("#loading").should("not.exist");
@@ -2077,3 +2078,30 @@ Cypress.Commands.add("stubPricingPage", () => {
     }).as("pricingPage");
   });
 });
+
+/**
+ * @param testID
+ * @returns
+ *
+ * This function act as a data-testid selector. In
+ * any case it is decided to rename the data-testid,
+ * it's thing single function that needs to be updated.
+ *
+ */
+Cypress.Commands.add("selectByTestId", (testId) => {
+  return cy.get(`[data-testid="${testId}"]`);
+});
+
+/**
+ * @param tooltipSelector
+ * @param expectedText
+ * @returns
+ *
+ *
+ */
+Cypress.Commands.add(
+  "assertTooltipPresence",
+  (tooltipSelector = "", expectedText) => {
+    cy.get(tooltipSelector).should("be.visible").and("contain", expectedText);
+  },
+);

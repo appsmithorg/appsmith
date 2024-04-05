@@ -84,9 +84,9 @@ export class DataManager {
         "http://host.docker.internal:5001/v1/whatdoestrumpthink/random",
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
       flowerImageUrl1:
-        "http://host.docker.internal:8001/photo-1503469432756-4aae2e18d881.jpeg",
+        "http://host.docker.internal:5000/photo-1503469432756-4aae2e18d881.jpeg",
       flowerImageUrl2:
-        "http://host.docker.internal:8001/photo-1492529029602-33e53698f407.jpeg",
+        "http://host.docker.internal:5000/photo-1492529029602-33e53698f407.jpeg",
       AirtableBaseForME: "appubHrVbovcudwN6",
       AirtableTableForME: "tblsFCQSskVFf7xNd",
       ApiUrlME: "http://host.docker.internal:5001/v1/production",

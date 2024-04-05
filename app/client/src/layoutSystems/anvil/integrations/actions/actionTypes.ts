@@ -1,4 +1,4 @@
-import type { AnvilDragMeta } from "layoutSystems/anvil/canvasArenas/types";
+import type { AnvilDragMeta } from "layoutSystems/anvil/editor/canvasArenas/types";
 import type {
   AnvilHighlightInfo,
   DraggedWidget,

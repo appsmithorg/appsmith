@@ -102,9 +102,9 @@ public class GraphQLPluginTest {
     @SuppressWarnings("rawtypes")
     @Container
     public static GenericContainer graphqlContainer = new GenericContainer(
-                    CompletableFuture.completedFuture("appsmith/test-event" + "-driver"))
+                    CompletableFuture.completedFuture("appsmith/test-event-driver"))
             .withExposedPorts(5000)
-            .waitingFor(Wait.forHttp("/").forStatusCode(404));
+            .waitingFor(Wait.forHttp("/").forStatusCode(200));
 
     @BeforeEach
     public void setUp() throws IOException {

@@ -17,7 +17,13 @@ import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
 
-function UIEntitySidebar({ isActive }: { isActive: boolean }) {
+function UIEntitySidebar({
+  focusSearchInput,
+  isActive,
+}: {
+  isActive: boolean;
+  focusSearchInput?: boolean;
+}) {
   const { cards, entityLoading, groupedCards } = useUIExplorerItems();
   const [filteredCards, setFilteredCards] =
     useState<WidgetCardsGroupedByTags>(groupedCards);
@@ -80,6 +86,10 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
   useEffect(() => {
     setFilteredCards(groupedCards);
   }, [groupedCards]);
+
+  useEffect(() => {
+    if (focusSearchInput) searchInputRef.current?.focus();
+  }, [focusSearchInput]);
 
   return (
     <div
