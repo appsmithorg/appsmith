@@ -311,7 +311,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "isSendSessionEnabled",
             "Send Appsmith signature header",
             "",
-            true,
+            false,
           )}
         </FormInputContainer>
         {formData.isSendSessionEnabled && (
@@ -331,7 +331,7 @@ class DatasourceRestAPIEditor extends React.Component<Props> {
             "connection.ssl.authTypeControl",
             "Use Self-Signed Certificate",
             "",
-            true,
+            false,
           )}
         </FormInputContainer>
         {this.renderSelfSignedCertificateFields()}

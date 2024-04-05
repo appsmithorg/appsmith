@@ -136,16 +136,20 @@ class EditorNavigation {
       _.AggregateHelper.GetNClick(this.locators.MaximizeBtn);
     } else {
       _.AggregateHelper.GetNClick(this.locators.MinimizeBtn);
-      cy.get("body").then(($body) => {
-        if ($body.find(this.locators.announcementCloseButton).length > 0) {
-          _.AggregateHelper.GetNClick(
-            this.locators.announcementCloseButton,
-            0,
-            true,
-          );
-        }
-      });
+      this.CloseAnnouncementModal();
     }
+  }
+
+  CloseAnnouncementModal() {
+    cy.get("body").then(($body) => {
+      if ($body.find(this.locators.announcementCloseButton).length > 0) {
+        _.AggregateHelper.GetNClick(
+          this.locators.announcementCloseButton,
+          0,
+          true,
+        );
+      }
+    });
   }
 }
 

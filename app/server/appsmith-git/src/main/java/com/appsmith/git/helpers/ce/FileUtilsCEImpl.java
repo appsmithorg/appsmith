@@ -1127,4 +1127,27 @@ public class FileUtilsCEImpl implements FileInterface {
         }
         return stringBuilder.toString();
     }
+
+    @Override
+    public Mono<Object> reconstructMetadataFromGitRepo(
+            String workspaceId, String defaultArtifactId, String repoName, String branchName, Path baseRepoSuffix) {
+        Mono<Object> metadataMono;
+        try {
+            // instead of checking out to last branch we are first cleaning the git repo,
+            // then checking out to the desired branch
+            metadataMono = gitExecutor
+                    .resetToLastCommit(baseRepoSuffix, branchName)
+                    .map(isSwitched -> {
+                        Path baseRepoPath =
+                                Paths.get(gitServiceConfig.getGitRootPath()).resolve(baseRepoSuffix);
+                        Object metadata = readFile(
+                                baseRepoPath.resolve(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION));
+                        return metadata;
+                    });
+        } catch (GitAPIException | IOException exception) {
+            metadataMono = Mono.error(exception);
+        }
+
+        return metadataMono.subscribeOn(scheduler);
+    }
 }

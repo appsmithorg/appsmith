@@ -36,10 +36,6 @@ The `rts-build` job builds the "rts" (real-time suggestions) package of the clie
 
 This job, named `build-docker-image`, creates and pushes the Docker image for the application. It is dependent on the success of the `client-build`, `server-build`, and `rts-build` jobs. The Docker image is built with two platforms: `linux/arm64` and `linux/amd64`.
 
-### `perf-test`
-
-The `perf-test` job performs performance tests on the Docker image. It depends on the successful completion of the `build-docker-image` job.
-
 ### `ci-test`
 
 The `ci-test` job runs continuous integration tests on the Docker image. It depends on the successful completion of the `build-docker-image` job.

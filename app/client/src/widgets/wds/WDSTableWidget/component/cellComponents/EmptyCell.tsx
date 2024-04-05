@@ -99,7 +99,7 @@ export const renderEmptyRows = (
 
     return rows.map((row: string, index: number) => {
       return (
-        <EmptyRow className="tr" key={index} style={style}>
+        <EmptyRow className="tr" key={index} role="row" style={style}>
           {multiRowSelection &&
             renderBodyCheckBoxCell(false, accentColor, borderRadius)}
           {tableColumns.map((column: any, colIndex: number) => {
@@ -155,6 +155,7 @@ export const renderEmptyRows = (
                     ? "td hidden-cell"
                     : `td${addStickyModifierClass(columns, colIndex)}`
                 }
+                role="cell"
                 {...stickyAttributes}
                 key={colIndex}
                 sticky={column?.sticky ?? StickyType.NONE}

@@ -1,0 +1,224 @@
+.table {
+  --th-height: calc(
+    var(--caption-line-height) + var(--caption-margin-end) +
+      var(--caption-margin-start) + (2 * var(--outer-spacing-3))
+  );
+  --tr-height: calc(
+    var(--body-line-height) + var(--body-margin-end) + var(--body-margin-start) +
+      (2 * var(--outer-spacing-4))
+  );
+
+  display: flex;
+  justify-content: space-between;
+  flex-direction: column;
+  flex-grow: 1;
+  background: var(--color-bg-elevation-3);
+  border-style: solid;
+  border-width: var(--border-width-1);
+  border-color: var(--color-bd);
+  border-radius: var(--border-radius-elevation-3);
+  box-sizing: border-box;
+  /* adding overflow hidden so that the scollbar at the bottom does not flow out */
+  overflow: hidden;
+
+  & [aria-hidden] {
+    opacity: 0.6;
+  }
+
+  /* --------------------------------------------------------------------------
+   * WRAPPER
+   *-------------------------------------------------------------------------- */
+  [data-table-wrapper] {
+    display: block;
+    position: relative;
+    overflow: auto hidden;
+    scrollbar-color: initial;
+    container-type: inline-size;
+  }
+
+  &[data-type="virtualized"] [data-table-wrapper] {
+    overflow: hidden;
+  }
+
+  /* --------------------------------------------------------------------------
+   * TABLE
+   *-------------------------------------------------------------------------- */
+  & [role="table"] {
+    background-position-x: var(--th-height);
+    background-position-y: var(--tr-height);
+
+    border-spacing: 0;
+    display: table;
+  }
+
+  /* --------------------------------------------------------------------------
+   * THEAD
+   *-------------------------------------------------------------------------- */
+  & thead {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    width: fit-content;
+  }
+
+  /* --------------------------------------------------------------------------
+   * ROWGROUP
+   *-------------------------------------------------------------------------- */
+  & [role="rowgroup"] {
+    position: relative;
+  }
+
+  /* --------------------------------------------------------------------------
+   * TH
+   *-------------------------------------------------------------------------- */
+  & thead [role="columnheader"] {
+    padding-inline: var(--outer-spacing-1);
+    padding-block: var(--outer-spacing-1);
+    background: var(--color-bg-elevation-3);
+    font-weight: bold;
+    align-items: center;
+    justify-content: flex-end;
+    border-block-end: var(--border-width-1) solid var(--color-bd);
+  }
+
+  &[data-variant="default"] thead [role="columnheader"] {
+    border-inline-end: var(--border-width-1) solid var(--color-bd);
+  }
+
+  & thead [role="columnheader"]:last-child {
+    border-inline-end: none;
+  }
+
+  & thead [role="columnheader"][data-sticky-td] {
+    position: sticky;
+    left: 0;
+  }
+
+  & thead [role="columnheader"][data-highlight-position="start"] {
+    border-inline-start: 2px solid var(--color-bd-positive);
+  }
+
+  & thead [role="columnheader"][data-highlight-position="end"] {
+    border-inline-end: 2px solid var(--color-bd-positive);
+  }
+
+  & thead [role="columnheader"] [data-draggable-header] {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: items;
+    padding-inline: var(--outer-spacing-2);
+    padding-inline-end: var(--padding-inline-end);
+  }
+
+  &
+    thead
+    [role="columnheader"]:has([data-status="dragging"])
+    [data-draggable-header] {
+    background: var(--color-bg);
+    border-radius: 4px;
+    z-index: 100;
+    width: 100%;
+    text-overflow: none;
+    overflow: none;
+  }
+
+  & thead [role="columnheader"][data-sticky-last-left-td]:not([aria-hidden]) {
+    /*important is added below because the useSticky hooks adds left as inline css */
+    left: 0px !important;
+    border-right: 3px solid var(--color-bd);
+  }
+
+  & thead [role="columnheader"][data-sticky-first-right-td]:not([aria-hidden]) {
+    /*important is added below because the useSticky hooks adds left as inline css */
+    right: 0px !important;
+    border-left: 3px solid var(--color-bd);
+  }
+
+  /* --------------------------------------------------------------------------
+   * TR
+   *-------------------------------------------------------------------------- */
+  & [role="row"] {
+    display: flex;
+    block-size: var(--tr-height);
+  }
+
+  & [role="row"]:has([role="columnheader"]) {
+    block-size: var(--th-height);
+  }
+
+  /*-------------------------------------------------------------------------
+  * Cell ( td )
+  *-------------------------------------------------------------------------- */
+  & [role="cell"] {
+    background-color: var(--color-bg-elevation-3);
+  }
+
+  & [role="row"][aria-checked="true"] [role="cell"] {
+    background-color: var(--color-bg-accent-subtle);
+  }
+
+  &[data-status="add-row-in-progress"] [role="cell"] {
+    background: var(--color-bg);
+  }
+
+  & [role="row"][data-is-new] [role="cell"] {
+    background: var(--color-bg-accent-subtle);
+  }
+
+  &[data-variant="default"] [role="cell"]:not(:last-child) {
+    border-inline-end: var(--border-width-1) solid var(--color-bd);
+  }
+
+  &:is([data-variant="horizontal-borders"], [data-variant="default"])
+    [role="cell"] {
+    border-block-end: var(--border-width-1) solid var(--color-bd);
+  }
+
+  & [role="cell"][data-sticky-td] {
+    position: sticky;
+    position: -webkit-sticky;
+  }
+
+  & [role="cell"][data-sticky-last-left-td]:not([aria-hidden]) {
+    /*important is added below because the useSticky hooks adds left as inline css */
+    left: 0px !important;
+    border-right: 3px solid var(--color-bd);
+  }
+
+  & [role="cell"][data-sticky-first-right-td]:not([aria-hidden]) {
+    /*important is below here because the useSticky hooks adds left as inline css */
+    right: 0px !important;
+    border-left: 3px solid var(--color-bd);
+  }
+
+  /*important is added below because the useSticky hooks adds styles as inline css */
+  & :is([role="cell"], th)[data-sticky-td][aria-hidden] {
+    position: relative !important;
+    left: unset !important;
+    right: unset !important;
+  }
+  /* --------------------------------------------------------------------------
+  * Resizor
+  *-------------------------------------------------------------------------- */
+  & [data-resizor] {
+    display: inline-block;
+    width: 10px;
+    height: 100%;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transform: translateX(50%);
+    z-index: 1;
+    /* prevents from scrolling while dragging on touch devices */
+    touch-action: none;
+  }
+
+  & [data-resizor][data-status="resizing"] {
+    cursor: isResizing;
+  }
+
+  & thead th:last-child [data-resizor] {
+    right: 5px;
+  }
+}

@@ -6,7 +6,6 @@ import { StickyType } from "../Constants";
 import type { Row as ReactTableRowType } from "react-table";
 import { renderHeaderCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
-import styled from "styled-components";
 
 export interface TableColumnHeaderProps {
   enableDrag: () => void;
@@ -34,12 +33,6 @@ export interface TableColumnHeaderProps {
   widgetId: string;
 }
 
-const StyledHeaderGroup = styled.div<{
-  headerWidth: number;
-}>`
-  display: flex;
-  width: ${(props) => props.headerWidth}px !important;
-`;
 const TableColumnHeader = (props: TableColumnHeaderProps) => {
   const currentDraggedColumn = React.useRef<string>("");
   const columnOrder = props.columns.map((col) => col.alias);
@@ -59,22 +52,17 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
   );
 
   return (
-    <div
-      className="thead"
-      onMouseLeave={props.enableDrag}
-      onMouseOver={props.disableDrag}
-    >
+    <thead onMouseLeave={props.enableDrag} onMouseOver={props.disableDrag}>
       {props.headerGroups.map((headerGroup: any, index: number) => {
         const headerRowProps = {
           ...headerGroup.getHeaderGroupProps(),
         };
 
         return (
-          <StyledHeaderGroup
+          <tr
             {...headerRowProps}
-            className="tr header"
-            headerWidth={props.headerWidth}
             key={index}
+            style={{ width: props.headerWidth }}
           >
             {props.multiRowSelection &&
               renderHeaderCheckBoxCell(
@@ -123,7 +111,7 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
                 />
               );
             })}
-          </StyledHeaderGroup>
+          </tr>
         );
       })}
 
@@ -139,7 +127,7 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
           {},
           props.prepareRow,
         )}
-    </div>
+    </thead>
   );
 };
 

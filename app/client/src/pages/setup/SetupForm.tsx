@@ -207,6 +207,7 @@ function SetupForm(props: SetupFormProps) {
             <DetailsForm
               {...props}
               isFirstPage={isFirstPage}
+              isSubmitted={isSubmitted}
               toggleFormPage={toggleFormPage}
             />
           </SetupStep>
