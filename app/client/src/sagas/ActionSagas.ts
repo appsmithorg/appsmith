@@ -9,6 +9,7 @@ import {
 import {
   all,
   call,
+  delay,
   fork,
   put,
   race,
@@ -53,6 +54,7 @@ import type {
   ActionViewMode,
   ApiAction,
   ApiActionConfig,
+  BaseAction,
   CreateActionDefaultsParams,
   SlashCommandPayload,
 } from "entities/Action";
@@ -137,8 +139,13 @@ import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
 import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
-import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { EditorViewMode, IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
+import {
+  setIdeEditorViewMode,
+  setShowQueryCreateNewModal,
+} from "actions/ideActions";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
 export const DEFAULT_PREFIX = {
   QUERY: "Query",
@@ -1110,6 +1117,31 @@ function* updateEntitySavingStatus() {
   });
 }
 
+function* handleCreateNewQueryFromActionCreator(
+  action: ReduxAction<(name: string) => void>,
+) {
+  // Show the Query create modal from where the user selects the type of query to be created
+  yield put(setShowQueryCreateNewModal(true));
+
+  // Side by Side ramp. Switch to SplitScreen mode to allow user to edit query
+  // created while having context of the canvas
+  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
+  if (isSideBySideEnabled) {
+    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+  }
+
+  // Wait for a query to be created
+  const createdQuery: ReduxAction<BaseAction> = yield take(
+    ReduxActionTypes.CREATE_ACTION_SUCCESS,
+  );
+
+  // A delay is needed to ensure the callback function has reference to the latest created Query
+  yield delay(100);
+
+  // Call the payload callback with the new query name that will set the binding to the field
+  action.payload(createdQuery.payload.name);
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
@@ -1142,6 +1174,10 @@ export function* watchActionSagas() {
     takeLatest(
       ReduxActionTypes.ENTITY_UPDATE_STARTED,
       updateEntitySavingStatus,
+    ),
+    takeLatest(
+      ReduxActionTypes.CREATE_NEW_QUERY_FROM_ACTION_CREATOR,
+      handleCreateNewQueryFromActionCreator,
     ),
   ]);
 }
