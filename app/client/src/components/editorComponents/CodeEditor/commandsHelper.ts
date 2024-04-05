@@ -20,6 +20,7 @@ import type {
   NavigationData,
 } from "selectors/navigationSelectors";
 import { getAIContext } from "@appsmith/components/editorComponents/GPT/trigger";
+import type { Plugin } from "api/PluginApi";
 
 export const slashCommandHintHelper: HintHelper = (
   _,
@@ -38,12 +39,12 @@ export const slashCommandHintHelper: HintHelper = (
         executeCommand,
         featureFlags,
         focusEditor,
-        pluginIdToImageLocation,
+        pluginIdToPlugin,
         recentEntities,
       }: {
         datasources: Datasource[];
         executeCommand: (payload: SlashCommandPayload) => void;
-        pluginIdToImageLocation: Record<string, string>;
+        pluginIdToPlugin: Record<string, Plugin>;
         recentEntities: string[];
         entityId: string;
         featureFlags: FeatureFlags;
@@ -92,7 +93,7 @@ export const slashCommandHintHelper: HintHelper = (
           aiContext,
           datasources,
           executeCommand,
-          pluginIdToImageLocation,
+          pluginIdToPlugin,
           recentEntities,
           featureFlags,
           enableAIAssistance,

@@ -7,12 +7,13 @@ import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import net.minidev.json.JSONObject;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -72,7 +73,7 @@ public class UserUtilsCE {
                         assignedToUserIds.addAll(permissionGroup.getAssignedToUserIds());
                     }
                     assignedToUserIds.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
-                    Update updateObj = new Update();
+                    BridgeUpdate updateObj = Bridge.update();
                     String path = PermissionGroup.Fields.assignedToUserIds;
 
                     updateObj.set(path, assignedToUserIds);

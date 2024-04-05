@@ -7,8 +7,6 @@ import {
   appSettings,
   anvilLayout,
 } from "../../../../support/Objects/ObjectsCore";
-import { MAIN_CONTAINER_WIDGET_ID } from "../../../../../src/constants/WidgetConstants";
-import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/utils";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(

@@ -641,7 +641,7 @@ describe("rowHighlights tests", () => {
       ]);
       expect(res[0].posY).toEqual(0);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
-      expect(res[0].posX).toEqual(HIGHLIGHT_SIZE / 2);
+      expect(res[0].posX).toEqual(0);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
       expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
     });

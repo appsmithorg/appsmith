@@ -17,6 +17,7 @@ interface StickyCanvasArenaProps {
   dependencies?: Record<string, any>;
   ref: StickyCanvasArenaRef;
   shouldObserveIntersection: boolean;
+  scaleFactor?: number;
 }
 
 interface StickyCanvasArenaRef {
@@ -88,6 +89,7 @@ const shouldUpdateCanvas = (
 
 const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   position: absolute;
+  pointer-events: all;
   top: 0px;
   left: 0px;
   height: calc(100% + ${(props) => props.paddingBottom}px);
@@ -106,6 +108,7 @@ export const StickyCanvasArena = forwardRef(
       canvasPadding,
       dependencies = {},
       getRelativeScrollingParent,
+      scaleFactor = 1,
       shouldObserveIntersection,
       showCanvas,
       sliderId,
@@ -143,9 +146,10 @@ export const StickyCanvasArena = forwardRef(
       const canvasCtx: CanvasRenderingContext2D =
         stickyCanvasRef.current.getContext("2d");
       stickyCanvasRef.current.height =
-        entry.intersectionRect.height * scale * 4;
-      stickyCanvasRef.current.width = entry.intersectionRect.width * scale * 4;
-      canvasCtx.scale(scale * 4, scale * 4);
+        entry.intersectionRect.height * scale * scaleFactor;
+      stickyCanvasRef.current.width =
+        entry.intersectionRect.width * scale * scaleFactor;
+      canvasCtx.scale(scale * scaleFactor, scale * scaleFactor);
     };
 
     const updateCanvasStylesIntersection = (

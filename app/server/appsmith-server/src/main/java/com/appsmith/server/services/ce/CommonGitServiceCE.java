@@ -20,6 +20,9 @@ public interface CommonGitServiceCE {
     Mono<GitStatusDTO> getStatus(String defaultArtifactId, boolean compareRemote, String branchName);
 
     Mono<BranchTrackingStatus> fetchRemoteChanges(
+            Artifact defaultArtifact, Artifact branchedArtifact, String branchName, boolean isFileLock);
+
+    Mono<BranchTrackingStatus> fetchRemoteChanges(
             String defaultApplicationId, String branchName, boolean isFileLock, ArtifactType artifactType);
 
     Mono<? extends Artifact> connectArtifactToGit(

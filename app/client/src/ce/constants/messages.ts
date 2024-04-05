@@ -2464,3 +2464,6 @@ export const SPLITPANE_ANNOUNCEMENT = {
   DESCRIPTION: () =>
     "Write queries and JS functions while you refer to the UI on the side! This is a beta version that we will continue to improve with your feedback.",
 };
+
+export const CANVAS_VIEW_MODE_TOOLTIP = (shortcutKey: string) =>
+  `💡 ${shortcutKey} click a widget to navigate to UI mode.`;
