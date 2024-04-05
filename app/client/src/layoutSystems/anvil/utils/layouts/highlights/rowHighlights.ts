@@ -523,9 +523,9 @@ export function generateHighlights(
 
   return {
     ...baseHighlight,
-    height: Math.max(tallestDimension?.height || 0, layoutDimension.height),
+    height: tallestDimension?.height ?? layoutDimension.height,
     posX,
-    posY: Math.min(tallestDimension?.top || 0, layoutDimension.top),
+    posY: tallestDimension?.top ?? layoutDimension.top,
     rowIndex,
   };
 }
