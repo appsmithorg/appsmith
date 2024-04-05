@@ -5,6 +5,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.data.redis.RedisReactiveHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
+import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
 import org.springframework.boot.actuate.health.Status;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import reactor.core.publisher.Mono;
@@ -16,8 +17,6 @@ import java.util.function.Function;
 @Slf4j
 public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
 
-    // TODO: Add health check for Postgres.
-
     private final ReactiveRedisConnectionFactory reactiveRedisConnectionFactory;
 
     public HealthCheckServiceCEImpl(ReactiveRedisConnectionFactory reactiveRedisConnectionFactory) {
@@ -26,11 +25,10 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
 
     @Override
     public Mono<String> getHealth() {
-        return getRedisHealth().map(ignored -> "All systems are Up");
+        return Mono.when(getRedisHealth(), getMongoHealth()).thenReturn("All systems are up");
     }
 
-    @Override
-    public Mono<Health> getRedisHealth() {
+    private Mono<Health> getRedisHealth() {
         Function<TimeoutException, Throwable> healthTimeout = error -> {
             log.warn("Redis health check timed out: {}", error.getMessage());
             return new AppsmithException(AppsmithError.HEALTHCHECK_TIMEOUT, "Redis");
@@ -43,10 +41,8 @@ public class HealthCheckServiceCEImpl implements HealthCheckServiceCE {
                 .onErrorMap(TimeoutException.class, healthTimeout);
     }
 
-    private boolean isUp(Health health) {
-        if (Status.UP.equals(health.getStatus())) {
-            return Boolean.TRUE;
-        }
-        return Boolean.FALSE;
+    private Mono<Health> getMongoHealth() {
+        // TODO: Add health check for Postgres.
+        return Mono.empty();
     }
 }

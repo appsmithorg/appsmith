@@ -45,6 +45,10 @@ public class GitUtilsTest {
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@127.0.0.1:test/newRepo.git"))
                 .isEqualTo("https://127.0.0.1/test/newRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@localhost:test/newRepo.git"))
+                .isEqualTo("https://localhost/test/newRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@absolute.path.com:/test/newRepo.git"))
+                .isEqualTo("https://absolute.path.com/test/newRepo");
     }
 
     @Test
