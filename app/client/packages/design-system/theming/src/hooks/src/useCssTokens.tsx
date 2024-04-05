@@ -37,7 +37,6 @@ const getTypographyCss = (typography: Typography) => {
           }
         }
         --${currentKey}-line-height: ${lineHeight};
-        --${currentKey}-font-size: ${fontSize};
         --${currentKey}-margin-start: ${after.marginTop};
         --${currentKey}-margin-end: ${before.marginBottom};
       `
