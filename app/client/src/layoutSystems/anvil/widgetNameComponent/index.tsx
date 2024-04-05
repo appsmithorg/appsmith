@@ -236,7 +236,11 @@ export function WidgetNameComponent(props: {
       ? props.focusColorCSSVar
       : props.selectionColorCSSVar;
 
-  if (nameComponentState === "focus") widgetNameStyles.zIndex = 9000001;
+  if (nameComponentState === "focus") {
+    widgetNameStyles.zIndex = 9000001;
+  } else {
+    widgetNameStyles.zIndex = 9000000;
+  }
 
   return (
     <SplitButton
