@@ -78,7 +78,9 @@ const ButtonWrapper = styled.div`
 `;
 
 export default function DetailsForm(
-  props: SetupFormProps & { isFirstPage: boolean } & {
+  props: SetupFormProps & {
+    isFirstPage: boolean;
+    isSubmitted?: boolean;
     toggleFormPage: () => void;
   },
 ) {
@@ -202,6 +204,7 @@ export default function DetailsForm(
             <Button
               className="t--welcome-form-submit-button w-100"
               isDisabled={props.invalid}
+              isLoading={props.isSubmitted}
               kind="primary"
               size="md"
               type="submit"

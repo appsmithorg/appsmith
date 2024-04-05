@@ -1,6 +1,9 @@
 import type { MutableRefObject } from "react";
 import { SectionColumns, ZoneMinColumnWidth } from "../constants";
-import { convertFlexGrowToFlexBasis } from "./spaceDistributionEditorUtils";
+import {
+  convertFlexGrowToFlexBasis,
+  convertFlexGrowToFlexBasisForPropPane,
+} from "./spaceDistributionEditorUtils";
 
 // Interface representing the DOM elements associated with a space distribution zone
 export interface SpaceDistributionZoneDomCollection {
@@ -56,12 +59,11 @@ const adjustZoneFlexGrowForMagneticEffect = (
     [leftZonePropPaneDom, rightZonePropPaneDom].forEach((zoneDom) => {
       zoneDom.style.transition = transitionStyle;
     });
-    leftZonePropPaneDom.style.flexBasis = convertFlexGrowToFlexBasis(
+    leftZonePropPaneDom.style.flexBasis = convertFlexGrowToFlexBasisForPropPane(
       leftZoneComputedColumnsRoundOff,
     );
-    rightZonePropPaneDom.style.flexBasis = convertFlexGrowToFlexBasis(
-      rightZoneComputedColumnsRoundOff,
-    );
+    rightZonePropPaneDom.style.flexBasis =
+      convertFlexGrowToFlexBasisForPropPane(rightZoneComputedColumnsRoundOff);
     leftZonePropPaneDom.innerHTML = leftZoneComputedColumnsRoundOff.toString();
     rightZonePropPaneDom.innerHTML =
       rightZoneComputedColumnsRoundOff.toString();
@@ -188,12 +190,12 @@ export const updateWidgetCSSOnMinimumLimit = (
 
     // Reflect the changes on prop pane zones if they exist
     if (reflectOnPropPane) {
-      leftZonePropPaneDom.style.flexBasis = convertFlexGrowToFlexBasis(
-        minimumShrinkableSpacePerBlock,
-      );
-      rightZonePropPaneDom.style.flexBasis = convertFlexGrowToFlexBasis(
-        totalSpace - minimumShrinkableSpacePerBlock,
-      );
+      leftZonePropPaneDom.style.flexBasis =
+        convertFlexGrowToFlexBasisForPropPane(minimumShrinkableSpacePerBlock);
+      rightZonePropPaneDom.style.flexBasis =
+        convertFlexGrowToFlexBasisForPropPane(
+          totalSpace - minimumShrinkableSpacePerBlock,
+        );
       leftZonePropPaneDom.innerHTML = ZoneMinColumnWidth.toString();
       rightZonePropPaneDom.innerHTML =
         spaceForTheZoneOtherThanShrunkenZone.toString();
@@ -213,12 +215,12 @@ export const updateWidgetCSSOnMinimumLimit = (
 
     // Reflect the changes on prop pane zones if they exist
     if (reflectOnPropPane) {
-      rightZonePropPaneDom.style.flexBasis = convertFlexGrowToFlexBasis(
-        minimumShrinkableSpacePerBlock,
-      );
-      leftZonePropPaneDom.style.flexBasis = convertFlexGrowToFlexBasis(
-        totalSpace - minimumShrinkableSpacePerBlock,
-      );
+      rightZonePropPaneDom.style.flexBasis =
+        convertFlexGrowToFlexBasisForPropPane(minimumShrinkableSpacePerBlock);
+      leftZonePropPaneDom.style.flexBasis =
+        convertFlexGrowToFlexBasisForPropPane(
+          totalSpace - minimumShrinkableSpacePerBlock,
+        );
       rightZonePropPaneDom.innerHTML = ZoneMinColumnWidth.toString();
       leftZonePropPaneDom.innerHTML =
         spaceForTheZoneOtherThanShrunkenZone.toString();

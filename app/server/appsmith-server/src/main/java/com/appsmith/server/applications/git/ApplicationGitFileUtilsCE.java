@@ -27,7 +27,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.external.constants.ce.GitConstantsCE.NAME_SEPARATOR;
+import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.server.constants.ce.FieldNameCE.ACTION_COLLECTION_LIST;
 import static com.appsmith.server.constants.ce.FieldNameCE.ACTION_LIST;

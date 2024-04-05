@@ -8,7 +8,7 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import type {
   AnvilHighlightInfo,
   WidgetLayoutProps,
-} from "../../utils/anvilTypes";
+} from "layoutSystems/anvil/utils/anvilTypes";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
 import type {
@@ -229,7 +229,9 @@ function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
 
     // Select the newly added widget
     yield put(
-      selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
+      selectWidgetInitAction(SelectionRequestType.Create, [
+        newWidget.newWidgetId,
+      ]),
     );
 
     log.debug("Anvil: add new widget took", performance.now() - start, "ms");

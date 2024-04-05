@@ -11,6 +11,8 @@ public abstract class BaseException extends RuntimeException {
 
     private Map<String, String> contextMap;
 
+    protected boolean hideStackTraceInLogs = false;
+
     public BaseException(String message) {
         super(message);
         contextMap = MDC.getCopyOfContextMap();
