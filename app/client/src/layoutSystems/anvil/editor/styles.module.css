@@ -1,0 +1,6 @@
+.disableAnvilWidgetInteraction {
+  pointer-events: all;
+  & > * {
+    pointer-events: none;
+  }
+}

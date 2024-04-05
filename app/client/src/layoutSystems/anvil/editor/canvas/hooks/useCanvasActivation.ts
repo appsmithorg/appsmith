@@ -7,13 +7,13 @@ import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPos
 import { debounce, uniq } from "lodash";
 import { useEffect, useRef } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { useCanvasActivationStates } from "./useCanvasActivationStates";
-import { canActivateCanvasForDraggedWidget } from "../utils";
 import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { useSelector } from "react-redux";
 import { getWidgets } from "sagas/selectors";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import { useCanvasActivationStates } from "layoutSystems/anvil/editor/canvasArenas/hooks/useCanvasActivationStates";
+import { canActivateCanvasForDraggedWidget } from "layoutSystems/anvil/editor/canvasArenas/hooks/utils";
 
 // Z-Index values for activated and deactivated states
 export const AnvilCanvasZIndex = {

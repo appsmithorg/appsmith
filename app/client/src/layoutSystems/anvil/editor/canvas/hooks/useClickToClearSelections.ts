@@ -3,7 +3,7 @@ import type { AppState } from "@appsmith/reducers";
 import { useSelector } from "react-redux";
 import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { getAnvilSpaceDistributionStatus } from "../integrations/selectors";
+import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 /**
  * Custom hook to handle click events for clearing widget selections.
  * @param {string} widgetId - ID of the widget associated with the click event.

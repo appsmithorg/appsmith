@@ -4,10 +4,13 @@ import type {
   DraggedWidget,
   HighlightPayload,
   LayoutComponentTypes,
-} from "../utils/anvilTypes";
+} from "layoutSystems/anvil/utils/anvilTypes";
 import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
 import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
+import { DetachedWidgetsDropArena } from "./DetachedWidgetsDropArena";
+import { useSelector } from "react-redux";
+import { isEditOnlyModeSelector } from "selectors/editorSelectors";
 
 // Props interface for AnvilCanvasDraggingArena component
 interface AnvilCanvasDraggingArenaProps {
@@ -24,6 +27,7 @@ interface AnvilCanvasDraggingArenaProps {
 export const AnvilCanvasDraggingArena = (
   props: AnvilCanvasDraggingArenaProps,
 ) => {
+  const isEditOnlyMode = useSelector(isEditOnlyModeSelector);
   const {
     allowedWidgetTypes,
     canvasId,
@@ -42,13 +46,22 @@ export const AnvilCanvasDraggingArena = (
 
   // Using the useAnvilWidgetDrop hook to handle widget dropping
   const onDrop = useAnvilWidgetDrop(canvasId, anvilDragStates);
-
-  return (
-    <AnvilHighlightingCanvas
-      anvilDragStates={anvilDragStates}
-      deriveAllHighlightsFn={deriveAllHighlightsFn}
-      layoutId={layoutId}
-      onDrop={onDrop}
-    />
-  );
+  const isMainCanvasDropArena =
+    anvilDragStates.mainCanvasLayoutId === props.layoutId;
+  return isEditOnlyMode ? (
+    <>
+      <AnvilHighlightingCanvas
+        anvilDragStates={anvilDragStates}
+        deriveAllHighlightsFn={deriveAllHighlightsFn}
+        layoutId={layoutId}
+        onDrop={onDrop}
+      />
+      {isMainCanvasDropArena && (
+        <DetachedWidgetsDropArena
+          anvilDragStates={anvilDragStates}
+          onDrop={onDrop}
+        />
+      )}
+    </>
+  ) : null;
 };
