@@ -63,6 +63,8 @@ const renderBlocksOnCanvas = (
   canvasCtx.beginPath();
   // Extracting dimensions of the block to render
   const { height, posX, posY, width } = blockToRender;
+  const left = posX - leftOffset + canvasToLayoutGap.left;
+  const top = posY - topOffset + canvasToLayoutGap.top;
   // using custom function to draw a rounded rectangle to achieve more sharper rounder corners
   const horizontalPadding = blockToRender.isVertical
     ? 0
@@ -71,8 +73,8 @@ const renderBlocksOnCanvas = (
     ? PADDING_FOR_HORIZONTAL_HIGHLIGHT / 2
     : 0;
   canvasCtx.roundRect(
-    posX - leftOffset + horizontalPadding,
-    posY - topOffset + verticalPadding,
+    left + horizontalPadding,
+    top + verticalPadding,
     width - horizontalPadding * 2,
     height - verticalPadding * 2,
     2,

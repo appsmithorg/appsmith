@@ -3,6 +3,8 @@ import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "react-redux";
 import { useWidgetBorderStyles } from "layoutSystems/anvil/common/hooks/useWidgetBorderStyles";
 import type { AppState } from "@appsmith/reducers";
+import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
+import { getDragDetails } from "sagas/selectors";
 
 export const useAnvilWidgetStyles = (
   widgetId: string,
@@ -12,9 +14,12 @@ export const useAnvilWidgetStyles = (
 ) => {
   // Selectors to determine whether the widget is selected or dragging
   const isSelected = useSelector(isWidgetSelected(widgetId));
+  const dragDetails: DragDetails = useSelector(getDragDetails);
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+
+  const { newWidget } = dragDetails;
   // Get widget border styles using useWidgetBorderStyles
   const widgetBorderStyles = useWidgetBorderStyles(widgetId);
 
@@ -37,7 +42,8 @@ export const useAnvilWidgetStyles = (
   }, [widgetName, isSelected]);
 
   // Calculate whether the widget should fade based on dragging, selection, and visibility
-  const shouldFadeWidget = (isDragging && isSelected) || !isVisible;
+  const shouldFadeWidget =
+    (isDragging && !newWidget && isSelected) || !isVisible;
 
   // Calculate opacity factor based on whether the widget should fade
   const opacityFactor = useMemo(() => {
