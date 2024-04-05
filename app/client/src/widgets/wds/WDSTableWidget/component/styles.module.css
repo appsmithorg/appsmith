@@ -192,6 +192,7 @@
     border-left: 3px solid var(--color-bd);
   }
 
+  /*important is added below because the useSticky hooks adds styles as inline css */
   & :is([role="cell"], th)[data-sticky-td][aria-hidden] {
     position: relative !important;
     left: unset !important;
