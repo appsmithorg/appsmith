@@ -59,7 +59,11 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
         };
 
         return (
-          <tr {...headerRowProps} key={index}>
+          <tr
+            {...headerRowProps}
+            key={index}
+            style={{ width: props.headerWidth }}
+          >
             {props.multiRowSelection &&
               renderHeaderCheckBoxCell(
                 props.handleAllRowSelectClick,

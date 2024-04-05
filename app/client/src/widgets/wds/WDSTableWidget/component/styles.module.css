@@ -71,7 +71,7 @@
   /* --------------------------------------------------------------------------
    * TH
    *-------------------------------------------------------------------------- */
-  & thead th {
+  & thead [role="columnheader"] {
     padding-inline: var(--outer-spacing-1);
     padding-block: var(--outer-spacing-1);
     background: var(--color-bg-elevation-3);
@@ -81,23 +81,28 @@
     border-block-end: var(--border-width-1) solid var(--color-bd);
   }
 
-  &[data-variant="default"] thead th {
+  &[data-variant="default"] thead [role="columnheader"] {
     border-inline-end: var(--border-width-1) solid var(--color-bd);
   }
 
-  & thead th:last-child {
+  & thead [role="columnheader"]:last-child {
     border-inline-end: none;
   }
 
-  & thead th[data-highlight-position="start"] {
+  & thead [role="columnheader"][data-sticky-td] {
+    position: sticky;
+    left: 0;
+  }
+
+  & thead [role="columnheader"][data-highlight-position="start"] {
     border-inline-start: 2px solid var(--color-bd-positive);
   }
 
-  & thead th[data-highlight-position="end"] {
+  & thead [role="columnheader"][data-highlight-position="end"] {
     border-inline-end: 2px solid var(--color-bd-positive);
   }
 
-  & thead th [data-draggable-header] {
+  & thead [role="columnheader"] [data-draggable-header] {
     position: absolute;
     inset: 0;
     display: flex;
@@ -106,7 +111,10 @@
     padding-inline-end: var(--padding-inline-end);
   }
 
-  & thead th:has([data-status="dragging"]) [data-draggable-header] {
+  &
+    thead
+    [role="columnheader"]:has([data-status="dragging"])
+    [data-draggable-header] {
     background: var(--color-bg);
     border-radius: 4px;
     z-index: 100;
@@ -115,13 +123,15 @@
     overflow: none;
   }
 
-  & thead th[data-sticky-last-left-td]:not([aria-hidden]) {
-    left: 0px;
+  & thead [role="columnheader"][data-sticky-last-left-td]:not([aria-hidden]) {
+    /*important is added below because the useSticky hooks adds left as inline css */
+    left: 0px !important;
     border-right: 3px solid var(--color-bd);
   }
 
-  & thead th[data-sticky-first-right-td]:not([aria-hidden]) {
-    right: 0px;
+  & thead [role="columnheader"][data-sticky-first-right-td]:not([aria-hidden]) {
+    /*important is added below because the useSticky hooks adds left as inline css */
+    right: 0px !important;
     border-left: 3px solid var(--color-bd);
   }
 
@@ -133,7 +143,7 @@
     block-size: var(--tr-height);
   }
 
-  & [role="row"]:has(th) {
+  & [role="row"]:has([role="columnheader"]) {
     block-size: var(--th-height);
   }
 
@@ -171,12 +181,14 @@
   }
 
   & [role="cell"][data-sticky-last-left-td]:not([aria-hidden]) {
-    left: 0px;
+    /*important is added below because the useSticky hooks adds left as inline css */
+    left: 0px !important;
     border-right: 3px solid var(--color-bd);
   }
 
   & [role="cell"][data-sticky-first-right-td]:not([aria-hidden]) {
-    right: 0px;
+    /*important is below here because the useSticky hooks adds left as inline css */
+    right: 0px !important;
     border-left: 3px solid var(--color-bd);
   }
 
