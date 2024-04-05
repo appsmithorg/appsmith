@@ -1,5 +1,8 @@
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
+import type {
+  AnvilHighlightInfo,
+  DraggedWidget,
+} from "layoutSystems/anvil/utils/anvilTypes";
 import WidgetFactory from "WidgetProvider/factory";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";

@@ -6,7 +6,7 @@ import type {
   AnvilHighlightInfo,
   DraggedWidget,
   HighlightPayload,
-} from "../utils/anvilTypes";
+} from "layoutSystems/anvil/utils/anvilTypes";
 import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 
@@ -49,6 +49,8 @@ export function AnvilHighlightingCanvas({
       canvasPadding={0}
       getRelativeScrollingParent={getNearestParentCanvas}
       ref={canvasRef}
+      // increases pixel density of the canvas
+      scaleFactor={2}
       shouldObserveIntersection={anvilDragStates.isDragging}
       showCanvas={showDraggingCanvas}
       sliderId={`div-dragarena-${layoutId}`}
