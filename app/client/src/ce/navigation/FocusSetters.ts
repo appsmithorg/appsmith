@@ -14,7 +14,7 @@ import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
 import { getQueryEntityItemUrl } from "../pages/Editor/IDE/EditorPane/Query/utils";
 
-export function setSelectedDatasource(id: string) {
+export function setSelectedDatasource(id?: string) {
   if (id) {
     history.replace(
       datasourcesEditorIdURL({
