@@ -281,6 +281,11 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             List<String> pagesToImport) {
         Mono<ApplicationImportDTO> importedApplicationMono = getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> {
+                    String templateName = "";
+                    if (applicationJson.getExportedApplication() != null
+                            && applicationJson.getExportedApplication().getName() != null) {
+                        templateName = applicationJson.getExportedApplication().getName();
+                    }
                     if (branchName != null) {
                         return applicationService
                                 .findByBranchNameAndDefaultApplicationId(
@@ -292,15 +297,13 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                                         applicationJson,
                                         pagesToImport))
                                 .map(importableArtifact -> (Application) importableArtifact)
-                                .zipWith(Mono.just(
-                                        applicationJson.getExportedApplication().getName()));
+                                .zipWith(Mono.just(templateName));
                     }
                     return importService
                             .mergeArtifactExchangeJsonWithImportableArtifact(
                                     organizationId, applicationId, null, applicationJson, pagesToImport)
                             .map(importableArtifact -> (Application) importableArtifact)
-                            .zipWith(Mono.just(
-                                    applicationJson.getExportedApplication().getName()));
+                            .zipWith(Mono.just(templateName));
                 })
                 .flatMap(tuple -> {
                     Application application = tuple.getT1();
