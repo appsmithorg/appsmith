@@ -2,7 +2,6 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
