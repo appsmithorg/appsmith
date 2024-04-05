@@ -463,17 +463,18 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     private void saveWidgets(JSONObject sourceEntity, String resourceName, Path path) {
+        Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
         try {
             Files.createDirectories(path);
-            Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
             String resourceType = "Widgets";
             span.tag(RESOURCE_TYPE, resourceType);
             span.start();
 
             writeStringToFile(sourceEntity.toString(4), path.resolve(resourceName + CommonConstants.JSON_EXTENSION));
-            span.end();
         } catch (IOException e) {
             log.debug("Error while writings widgets data to file, {}", e.getMessage());
+        } finally {
+            span.end();
         }
     }
 
@@ -489,17 +490,16 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return if the file operation is successful
      */
     private boolean saveActionCollection(Object sourceEntity, String body, String resourceName, Path path) {
+        Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
         try {
             Files.createDirectories(path);
             if (StringUtils.hasText(body)) {
                 // Write the js Object body to .js file to make conflict handling easier
                 Path bodyPath = path.resolve(resourceName + CommonConstants.JS_EXTENSION);
-                Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
                 String resourceType = "ActionCollectionBody";
                 span.tag(RESOURCE_TYPE, resourceType);
                 span.start();
                 writeStringToFile(body, bodyPath);
-                span.end();
             }
 
             // Write metadata for the jsObject
@@ -507,6 +507,8 @@ public class FileUtilsCEImpl implements FileInterface {
             return writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
             log.debug(e.getMessage());
+        } finally {
+            span.end();
         }
         return false;
     }
@@ -523,18 +525,17 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return if the file operation is successful
      */
     private boolean saveActions(Object sourceEntity, String body, String resourceName, Path path) {
+        Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
         try {
             Files.createDirectories(path);
             // Write the user written query to .txt file to make conflict handling easier
             // Body will be null if the action is of type JS
             if (StringUtils.hasLength(body)) {
                 Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
-                Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
                 String resourceType = "NewActionBody";
                 span.tag(RESOURCE_TYPE, resourceType);
                 span.start();
                 writeStringToFile(body, bodyPath);
-                span.end();
             }
 
             // Write metadata for the actions
@@ -542,6 +543,8 @@ public class FileUtilsCEImpl implements FileInterface {
             return writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
             log.error("Error while reading file {} with message {} with cause", path, e.getMessage(), e.getCause());
+        } finally {
+            span.end();
         }
         return false;
     }

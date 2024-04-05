@@ -65,6 +65,7 @@ public class FileUtilsImplTest {
 
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
         applicationGitReference.setApplication(new Object());
+        applicationGitReference.setTheme(new Object());
         applicationGitReference.setMetadata(new Object());
         applicationGitReference.setPages(new HashMap<>());
         applicationGitReference.setActions(new HashMap<>());
