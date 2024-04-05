@@ -1,5 +1,6 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.service.GitExecutorImpl;
@@ -43,7 +44,7 @@ public class FileUtilsImplTest {
     public void setUp() {
         gitServiceConfig = new GitServiceConfig();
         gitServiceConfig.setGitRootPath(localTestDirectoryPath.toString());
-        fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor, new GsonBuilder());
+        fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor, new GsonBuilder(), ObservationHelper.NOOP);
     }
 
     @AfterEach

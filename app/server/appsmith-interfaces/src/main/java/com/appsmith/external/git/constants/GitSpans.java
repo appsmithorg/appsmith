@@ -23,7 +23,10 @@ public enum GitSpans {
     FILE_SYSTEM_PUSH,
     FILE_SYSTEM_FETCH_REMOTE,
     STATUS,
-    COMMIT;
+    COMMIT,
+    FILE_WRITE,
+    FILE_READ,
+    ;
     private final String eventName;
 
     GitSpans() {
