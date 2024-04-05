@@ -281,9 +281,11 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             List<String> pagesToImport) {
         Mono<ApplicationImportDTO> importedApplicationMono = getApplicationJsonFromTemplate(templateId)
                 .flatMap(applicationJson -> {
-                    String templateName = applicationJson.getExportedApplication() != null
-                            ? applicationJson.getExportedApplication().getName()
-                            : "";
+                    String templateName = "";
+                    if (applicationJson.getExportedApplication() != null
+                            && applicationJson.getExportedApplication().getName() != null) {
+                        templateName = applicationJson.getExportedApplication().getName();
+                    }
                     if (branchName != null) {
                         return applicationService
                                 .findByBranchNameAndDefaultApplicationId(
