@@ -5,8 +5,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.actuate.data.redis.RedisReactiveHealthIndicator;
 import org.springframework.boot.actuate.health.Health;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.boot.actuate.health.Status;
 import org.springframework.data.redis.connection.ReactiveRedisConnectionFactory;
 import reactor.core.publisher.Mono;
 
