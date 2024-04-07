@@ -13,6 +13,7 @@ import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -131,7 +132,10 @@ public class DatasourceUtils {
     }
 
     private static String buildURITail(String tailInfo) {
-        Map<String, String> optionsMap = new HashMap<>();
+        // preserves order of keys, and hence the params ordering in the url remains unchanged
+        // here Treemap with case-insensitive order could not be used because that also changes the ordering of params
+        Map<String, String> optionsMap = new LinkedHashMap<>();
+        Map<String, String> lowercasedOptionsMap = new HashMap<>();
 
         for (final String part : tailInfo.split("[&;]")) {
             if (part.isEmpty()) {
@@ -142,12 +146,20 @@ public class DatasourceUtils {
                 String key = part.substring(0, idx);
                 String value = part.substring(idx + 1);
                 optionsMap.put(key, value);
+                lowercasedOptionsMap.put(key.toLowerCase(), value);
             } else {
                 optionsMap.put(part, "");
+                lowercasedOptionsMap.put(part.toLowerCase(), "");
             }
         }
-        optionsMap.putIfAbsent("authsource", "admin");
-        optionsMap.put("minpoolsize", "0");
+        if (!lowercasedOptionsMap.containsKey("authsource")
+                || !StringUtils.hasLength(lowercasedOptionsMap.get("authsource"))) {
+            optionsMap.put("authsource", "admin");
+        }
+        if (!lowercasedOptionsMap.containsKey("minpoolsize")
+                || !StringUtils.hasLength(lowercasedOptionsMap.get("minpoolsize"))) {
+            optionsMap.put("minpoolsize", "0");
+        }
         return optionsMap.entrySet().stream()
                 .map(entry -> {
                     if (StringUtils.hasLength(entry.getValue())) {
