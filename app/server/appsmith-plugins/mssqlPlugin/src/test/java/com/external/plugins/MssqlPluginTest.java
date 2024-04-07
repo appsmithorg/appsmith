@@ -21,7 +21,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.zaxxer.hikari.HikariDataSource;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
@@ -40,6 +39,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -221,8 +221,8 @@ public class MssqlPluginTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration(container);
         // Set up random username and password and try to connect
         DBAuth auth = (DBAuth) dsConfig.getAuthentication();
-        auth.setUsername(new ObjectId().toString());
-        auth.setPassword(new ObjectId().toString());
+        auth.setUsername(UUID.randomUUID().toString());
+        auth.setPassword(UUID.randomUUID().toString());
 
         Mono<HikariDataSource> dsConnectionMono = mssqlPluginExecutor.datasourceCreate(dsConfig);
 

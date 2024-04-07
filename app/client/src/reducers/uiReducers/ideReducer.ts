@@ -16,6 +16,7 @@ const initialState: IDEState = {
   view: EditorViewMode.FullScreen,
   pagesActive: false,
   tabs: IDETabsDefaultValue,
+  showCreateModal: false,
 };
 
 const ideReducer = createReducer(initialState, {
@@ -68,12 +69,24 @@ const ideReducer = createReducer(initialState, {
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
   },
+  [ReduxActionTypes.SET_SHOW_QUERY_CREATE_NEW_MODAL]: (
+    state: IDEState,
+    action: {
+      payload: boolean;
+    },
+  ) => {
+    return {
+      ...state,
+      showCreateModal: action.payload,
+    };
+  },
 });
 
 export interface IDEState {
   view: EditorViewMode;
   pagesActive: boolean;
   tabs: IDETabs;
+  showCreateModal: boolean;
 }
 
 export interface IDETabs {

@@ -3,8 +3,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/constants";
-import { RenderModes } from "constants/WidgetConstants";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getRenderMode } from "selectors/editorSelectors";
@@ -14,8 +12,10 @@ import { getWidgets } from "sagas/selectors";
 import log from "loglevel";
 import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { AnvilEditorModeClassName } from "widgets/anvil/constants";
-
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  type RenderModes,
+} from "constants/WidgetConstants";
 /**
  * This hook is used to select and focus on a detached widget
  * As detached widgets are outside of the layout flow, we need to access the correct element in the DOM
@@ -31,8 +31,8 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
   const { focusWidget } = useWidgetSelection();
 
   useEffect(() => {
-    // The select handler sends a custom event that is handled at a singular place in the AnvilMainCanvas
-    // The event listener is actually attached to the body and not the AnvilMainCanvas. This can be changed in the future if necessary.
+    // The select handler sends a custom event that is handled at a singular place in the AnvilEditorCanvas
+    // The event listener is actually attached to the body and not the AnvilEditorCanvas. This can be changed in the future if necessary.
     const handleWidgetSelect = (e: any) => {
       // EventPhase 2 is the Target phase.
       // This signifies that the event has reached the target element.
@@ -138,7 +138,6 @@ export function useRenderDetachedChildren(
   children: CanvasWidgetStructure[],
 ) {
   const renderMode: RenderModes = useSelector(getRenderMode);
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
   // Get the detached children to render on the canvas
   const detachedChildren = useDetachedChildren(children);
   let renderDetachedChildren = null;
@@ -147,11 +146,7 @@ export function useRenderDetachedChildren(
       renderChildWidget({
         childWidgetData: child as WidgetProps,
         defaultWidgetProps: {
-          className: `${
-            renderMode === RenderModes.CANVAS && !isPreviewMode
-              ? AnvilEditorModeClassName
-              : ""
-          } ${getAnvilWidgetDOMId(child.widgetId)}`,
+          className: `${getAnvilWidgetDOMId(child.widgetId)}`,
         },
         noPad: false,
         // Adding these properties as the type insists on providing this

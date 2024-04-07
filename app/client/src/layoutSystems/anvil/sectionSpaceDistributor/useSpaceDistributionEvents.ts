@@ -10,6 +10,7 @@ import {
   resetDistributionHandleCSS,
   getPropertyPaneDistributionHandleId,
   convertFlexGrowToFlexBasis,
+  convertFlexGrowToFlexBasisForPropPane,
 } from "./utils/spaceDistributionEditorUtils";
 import { PropPaneDistributionHandleCustomEvent } from "./constants";
 import { getSelectedWidgets } from "selectors/ui";
@@ -116,7 +117,8 @@ export const useSpaceDistributionEvents = ({
             zoneDom.style.flexBasis = convertFlexGrowToFlexBasis(flexGrow);
           }
           if (zonePropDom) {
-            zonePropDom.style.flexBasis = convertFlexGrowToFlexBasis(flexGrow);
+            zonePropDom.style.flexBasis =
+              convertFlexGrowToFlexBasisForPropPane(flexGrow);
           }
         });
 

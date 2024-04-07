@@ -14,9 +14,14 @@ import type {
 export const createNewJSCollection = (
   pageId: string,
   from: EventLocation,
-): ReduxAction<{ pageId: string; from: EventLocation }> => ({
+  functionName?: string,
+): ReduxAction<{
+  pageId: string;
+  from: EventLocation;
+  functionName?: string;
+}> => ({
   type: ReduxActionTypes.CREATE_NEW_JS_ACTION,
-  payload: { pageId: pageId, from: from },
+  payload: { pageId, from, functionName },
 });
 
 export const updateJSCollection = (
