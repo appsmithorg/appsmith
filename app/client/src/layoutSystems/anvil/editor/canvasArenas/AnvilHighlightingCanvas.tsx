@@ -43,7 +43,7 @@ export function AnvilHighlightingCanvas({
     stickyCanvasRef,
     slidingArenaRef,
   });
-  return showDraggingCanvas ? (
+  return true ? (
     <StickyCanvasArena
       canvasId={`canvas-dragging-${layoutId}`}
       canvasPadding={0}
@@ -51,8 +51,8 @@ export function AnvilHighlightingCanvas({
       ref={canvasRef}
       // increases pixel density of the canvas
       scaleFactor={2}
-      shouldObserveIntersection={anvilDragStates.isDragging}
-      showCanvas={showDraggingCanvas}
+      shouldObserveIntersection={true}
+      showCanvas={true}
       sliderId={`div-dragarena-${layoutId}`}
     />
   ) : null;

@@ -289,3 +289,10 @@ div.anvil-widget-wrapper:not(:has(div[data-elevation="true"][elevation="2"]))
   div.anvil-widget-wrapper:has(div[data-elevation]) {
   padding-block: var(--outer-spacing-0);
 }
+
+::selection {
+  -webkit-user-select: auto; /* Safari */
+  -moz-user-select: auto; /* Firefox */
+  -ms-user-select: auto; /* IE 10+ */
+  user-select: auto;
+}

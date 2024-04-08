@@ -40,12 +40,60 @@ const getDropIndicatorColor = memoize(() => {
   return rootStyles.getPropertyValue("--anvil-drop-indicator");
 });
 
+const getEdgeHighlightOffset = (
+  highlightPositions: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  },
+  currentLayoutPositions: LayoutElementPosition,
+  canvasToLayoutGap: { left: number; top: number },
+  isVertical: boolean,
+) => {
+  const {
+    left: highlightLeft,
+    top: highlightTop,
+    width: highlightWidth,
+    height: highlightHeight,
+  } = highlightPositions;
+  const { width: layoutWidth, height: layoutHeight } = currentLayoutPositions;
+  // add offset only for the highlights at the edge of layout
+  const isTopEdge = highlightTop === canvasToLayoutGap.top;
+  const isLeftEdge = highlightLeft === canvasToLayoutGap.left;
+  const isRightEdge =
+    highlightLeft + highlightWidth === canvasToLayoutGap.left + layoutWidth;
+  const isBottomEdge =
+    highlightTop + highlightHeight === canvasToLayoutGap.top + layoutHeight;
+  const topGap = (canvasToLayoutGap.top + highlightHeight) * 0.5;
+  const leftGap = (canvasToLayoutGap.left + highlightWidth) * 0.5;
+  const topOffset = !isVertical
+    ? isTopEdge
+      ? -topGap
+      : isBottomEdge
+      ? topGap
+      : 0
+    : 0;
+  const leftOffset = isVertical
+    ? isLeftEdge
+      ? -leftGap
+      : isRightEdge
+      ? leftGap
+      : 0
+    : 0;
+  return {
+    topOffset,
+    leftOffset,
+  };
+};
+
 /**
  * Function to stroke a rectangle on the canvas that looks like a highlight/drop area.
  */
 const renderBlocksOnCanvas = (
   stickyCanvas: HTMLCanvasElement,
   blockToRender: AnvilHighlightInfo,
+  currentLayoutPositions: LayoutElementPosition,
   shouldDraw: boolean,
   canvasToLayoutGap: { left: number; top: number },
 ) => {
@@ -61,10 +109,17 @@ const renderBlocksOnCanvas = (
   // Clearing previous drawings on the canvas
   canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
   canvasCtx.beginPath();
+
   // Extracting dimensions of the block to render
   const { height, posX, posY, width } = blockToRender;
   const left = posX - leftOffset + canvasToLayoutGap.left;
   const top = posY - topOffset + canvasToLayoutGap.top;
+  const edgeOffset = getEdgeHighlightOffset(
+    { left, top, width, height },
+    currentLayoutPositions,
+    canvasToLayoutGap,
+    blockToRender.isVertical,
+  );
   // using custom function to draw a rounded rectangle to achieve more sharper rounder corners
   const horizontalPadding = blockToRender.isVertical
     ? 0
@@ -73,12 +128,13 @@ const renderBlocksOnCanvas = (
     ? PADDING_FOR_HORIZONTAL_HIGHLIGHT / 2
     : 0;
   canvasCtx.roundRect(
-    left + horizontalPadding,
-    top + verticalPadding,
+    left + horizontalPadding + edgeOffset.leftOffset,
+    top + verticalPadding + edgeOffset.topOffset,
     width - horizontalPadding * 2,
     height - verticalPadding * 2,
     2,
   );
+
   canvasCtx.fillStyle = dropIndicatorColor;
   canvasCtx.fill();
   canvasCtx.closePath();
@@ -136,7 +192,8 @@ export const useCanvasDragging = (
    * Ref to store highlights derived in real time once dragging starts
    */
   const allHighlightsRef = useRef([] as AnvilHighlightInfo[]);
-
+  const canvasIsDragging = useRef(false);
+  const currentLayoutPositions = layoutElementPositions[layoutId];
   /**
    * Function to calculate and store highlights
    */
@@ -150,8 +207,7 @@ export const useCanvasDragging = (
       )?.highlights;
     }
   };
-  const canvasIsDragging = useRef(false);
-  const currentLayoutPositions = layoutElementPositions[layoutId];
+
   useEffect(() => {
     // Effect to handle changes in isCurrentDraggedCanvas
     if (stickyCanvasRef.current && slidingArenaRef.current) {
@@ -256,6 +312,7 @@ export const useCanvasDragging = (
               renderBlocksOnCanvas(
                 stickyCanvasRef.current,
                 currentRectanglesToDraw,
+                currentLayoutPositions,
                 canvasIsDragging.current,
                 canvasToLayoutGap.current,
               );
