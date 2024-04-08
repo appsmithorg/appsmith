@@ -67,7 +67,7 @@ import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getWidgets } from "sagas/selectors";
-import { removeFocusHistoryRequest } from "actions/focusHistoryActions";
+import FocusRetention from "sagas/FocusRetentionSaga";
 import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
@@ -236,9 +236,9 @@ export function* moveJSCollectionSaga(
       );
     }
     const currentURL = window.location.pathname;
+    yield call(FocusRetention.handleRemoveFocusHistory, currentURL);
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
-    yield put(removeFocusHistoryRequest(currentURL));
   } catch (e) {
     toast.show(createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name), {
       kind: "error",
@@ -292,12 +292,12 @@ export function* deleteJSCollectionSaga(
       const isEditorPaneSegmentsEnabled: boolean = yield select(
         getIsEditorPaneSegmentsEnabled,
       );
+      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
       if (isEditorPaneSegmentsEnabled && ideType === IDE_TYPE.App) {
         yield call(handleJSEntityRedirect, id);
       } else {
         history.push(builderURL({ pageId }));
       }
-      yield put(removeFocusHistoryRequest(currentUrl));
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
         text: "JS Object was deleted",

@@ -51,11 +51,11 @@ export const Pagination = (props: PaginationProps) => {
         props.isVisiblePagination &&
         props.serverSidePaginationEnabled && (
           <div data-table-header-pagination="">
-            {props.totalRecordsCount && (
+            {props.totalRecordsCount ? (
               <Text lineClamp={1} variant="footnote">
                 {props.totalRecordsCount} Records
               </Text>
-            )}
+            ) : null}
             <IconButton
               icon="chevron-left"
               isDisabled={props.pageNo === 0}

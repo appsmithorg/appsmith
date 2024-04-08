@@ -44,28 +44,29 @@ export function Row(props: RowType) {
     (primaryColumnId && (props.row.original[primaryColumnId] as Key)) ||
     props.index;
 
-  if (!isAddRowInProgress) {
-    rowProps["role"] = "button";
-  }
+  const onClickRow = (e: React.MouseEvent) => {
+    props.row.toggleRowSelected();
+    selectTableRow?.(props.row);
+    e.stopPropagation();
+  };
 
   return (
     <div
       {...rowProps}
+      aria-checked={isRowSelected}
       className={`tr ${isRowSelected ? "selected-row" : ""} ${
         props.className || ""
-      } ${isAddRowInProgress && props.index === 0 ? "new-row" : ""}`}
+      }`}
+      data-is-new={isAddRowInProgress && props.index === 0 ? "" : undefined}
       data-rowindex={props.index}
       key={key}
-      onClick={(e) => {
-        props.row.toggleRowSelected();
-        selectTableRow?.(props.row);
-        e.stopPropagation();
-      }}
+      onClick={onClickRow}
     >
       {multiRowSelection &&
         renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
       {props.row.cells.map((cell, cellIndex) => {
         const cellProperties = cell.getCellProps();
+
         cellProperties["style"] = {
           ...cellProperties.style,
           left:
@@ -76,6 +77,7 @@ export function Row(props: RowType) {
         return (
           <div
             {...cellProperties}
+            aria-hidden={columns[cellIndex].isHidden ? "true" : undefined}
             className={
               columns[cellIndex].isHidden
                 ? "td hidden-cell"

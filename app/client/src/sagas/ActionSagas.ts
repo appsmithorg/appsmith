@@ -135,7 +135,7 @@ import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
-import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
+import FocusRetention from "./FocusRetentionSaga";
 import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
@@ -623,6 +623,7 @@ export function* deleteActionSaga(
         queryName: name,
       });
     }
+    yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
     const isEditorPaneSegmentsEnabled: boolean = yield select(
       getIsEditorPaneSegmentsEnabled,
     );
@@ -656,7 +657,6 @@ export function* deleteActionSaga(
     });
 
     yield put(deleteActionSuccess({ id }));
-    yield put(removeFocusHistoryRequest(currentUrl));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
@@ -711,9 +711,9 @@ function* moveActionSaga(
       apiID: response.data.id,
     });
     const currentUrl = window.location.pathname;
+    yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
-    yield put(removeFocusHistoryRequest(currentUrl));
   } catch (e) {
     toast.show(createMessage(ERROR_ACTION_MOVE_FAIL, actionObject.name), {
       kind: "error",
