@@ -1,5 +1,4 @@
 import React from "react";
-import styled from "styled-components";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import { Icon, Text } from "design-system";
 import {
@@ -7,13 +6,6 @@ import {
   TRY_TO_PULL,
   createMessage,
 } from "@appsmith/constants/messages";
-
-const StaticWrapper = styled.div`
-  display: flex;
-  gap: 6px;
-  font-weight: 600;
-  margin-bottom: 6px;
-`;
 
 export enum StaticChangeKind {
   SETTINGS = "SETTINGS",
@@ -86,13 +78,16 @@ export default function StaticChage({ kind, status }: StaticChageProps) {
     return null;
   }
   return (
-    <StaticWrapper data-testid={`t--status-change-${kind}`}>
+    <div
+      className="flex items-center space-x-1.5"
+      data-testid={`t--status-change-${kind}`}
+    >
       {iconName && (
         <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
       )}
-      <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
+      <Text color={"var(--ads-v2-color-fg)"} kind="body-m">
         {message}
       </Text>
-    </StaticWrapper>
+    </div>
   );
 }

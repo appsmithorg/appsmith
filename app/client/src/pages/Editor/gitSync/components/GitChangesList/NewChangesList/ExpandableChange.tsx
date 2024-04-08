@@ -1,29 +1,21 @@
-import { Icon, Text } from "design-system";
-import React, { useState } from "react";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleHeader,
+  Icon,
+  Text,
+} from "design-system";
+import React from "react";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import styled from "styled-components";
 
-const ChangeContainer = styled.div`
-  margin-bottom: 8px;
+const StyledCollapsible = styled(Collapsible)`
+  gap: 0;
 `;
 
-const Wrapper = styled.div`
-  display: flex;
-  gap: 6px;
-  cursor: pointer;
-  font-weight: 600;
-`;
-
-const ContentWrapper = styled.div`
-  padding-left: 32px;
-  margin-bottom: 6px;
-`;
-
-const ContentSubItem = styled.div`
-  margin-top: 6px;
-  margin-bottom: 6px;
-  display: flex;
-  gap: 6px;
+const StyledCollapsibleHeader = styled(CollapsibleHeader)`
+  padding-top: 0;
+  padding-bottom: 0;
 `;
 
 export enum ExpandableChangeKind {
@@ -101,59 +93,51 @@ export function ChangeSubList({
   iconName,
 }: ChangeSubListProps) {
   const sublist = entities.map((entity) => {
-    let pageName = null;
-    let entityName = null;
-    if (entity.includes("/")) {
-      [pageName, entityName] = entity.split("/");
-    } else {
-      entityName = entity;
-    }
+    const entityNameArr = entity.split("/");
+    const entityName = entityNameArr[entityNameArr.length - 1];
+
     return (
-      <ContentSubItem className="d-flex" key={entity}>
+      <div className="flex items-center space-x-1.5" key={entity}>
         {iconName && (
           <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
         )}
-        {pageName && (
-          <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
-            {pageName}
-          </Text>
-        )}
-        {pageName && (
-          <Icon
-            color={"var(--ads-v2-color-fg)"}
-            name="arrow-right-line"
-            size="sm"
-          />
-        )}
-        <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
+        <Text color={"var(--ads-v2-color-fg)"} kind="body-m">
           {`${entityName} ${action}`}
         </Text>
-      </ContentSubItem>
+      </div>
     );
   });
-  return <div>{sublist}</div>;
+  // eslint-disable-next-line react/jsx-no-useless-fragment
+  return <>{sublist}</>;
 }
 
 interface ChangeProps {
   kind: ExpandableChangeKind;
   status: GitStatusData;
+  filter?: (entity: string) => boolean;
 }
 
-export function ExpandableChange({ kind, status }: ChangeProps) {
-  const [isCollapsed, setIsCollapsed] = useState(true);
-
+export function ExpandableChange({ filter, kind, status }: ChangeProps) {
   const { added, iconName, modified, plural, removed, singular } =
     allChangeDefs[kind](status);
 
-  const isModified = !!modified.length;
-  const isAdded = !!added.length;
-  const isRemoved = !!removed.length;
+  const filteredModified =
+    typeof filter === "function" ? modified.filter(filter) : modified;
+  const filteredAdded =
+    typeof filter === "function" ? added.filter(filter) : added;
+  const filteredRemoved =
+    typeof filter === "function" ? removed.filter(filter) : removed;
+
+  const isModified = !!filteredModified.length;
+  const isAdded = !!filteredAdded.length;
+  const isRemoved = !!filteredRemoved.length;
   const hasOnlyOneChange =
     [isModified ? 1 : 0, isAdded ? 1 : 0, isRemoved ? 1 : 0].reduce(
       (a, v) => a + v,
     ) === 1;
 
-  const totalChanges = modified.length + added.length + removed.length;
+  const totalChanges =
+    filteredModified.length + filteredAdded.length + filteredRemoved.length;
 
   const getMessage = (count: number, action: string) =>
     `${count} ${count === 1 ? `${singular}` : `${plural}`} ${action}`;
@@ -175,54 +159,43 @@ export function ExpandableChange({ kind, status }: ChangeProps) {
     return getMessage(totalChanges, action);
   };
 
-  const handleClick = () => {
-    setIsCollapsed((c) => !c);
-  };
-
   if (totalChanges === 0) {
     return null;
   }
 
   return (
-    <ChangeContainer>
-      <Wrapper data-testid={`t--status-change-${kind}`} onClick={handleClick}>
-        <Icon
-          color={"var(--ads-v2-color-fg)"}
-          name={!isCollapsed ? "arrow-down-s-line" : "arrow-right-s-line"}
-          size="md"
-        />
-        {iconName && (
-          <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+    <StyledCollapsible className="space-y-2">
+      <StyledCollapsibleHeader>
+        <div className="flex item-center space-x-1.5">
+          {iconName && (
+            <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+          )}
+          <Text>{getTitleMessage()}</Text>
+        </div>
+      </StyledCollapsibleHeader>
+      <CollapsibleContent className="ml-6 space-y-1">
+        {isModified && (
+          <ChangeSubList
+            action="edited"
+            entities={filteredModified}
+            iconName={iconName}
+          />
         )}
-        <Text color={"var(--ads-v2-color-fg)"} kind="body-s">
-          {getTitleMessage()}
-        </Text>
-      </Wrapper>
-      {!isCollapsed && (
-        <ContentWrapper>
-          {isModified && (
-            <ChangeSubList
-              action="edited"
-              entities={modified}
-              iconName={iconName}
-            />
-          )}
-          {isAdded && (
-            <ChangeSubList
-              action="added"
-              entities={added}
-              iconName={iconName}
-            />
-          )}
-          {isRemoved && (
-            <ChangeSubList
-              action="removed"
-              entities={removed}
-              iconName={iconName}
-            />
-          )}
-        </ContentWrapper>
-      )}
-    </ChangeContainer>
+        {isAdded && (
+          <ChangeSubList
+            action="added"
+            entities={filteredAdded}
+            iconName={iconName}
+          />
+        )}
+        {isRemoved && (
+          <ChangeSubList
+            action="removed"
+            entities={filteredRemoved}
+            iconName={iconName}
+          />
+        )}
+      </CollapsibleContent>
+    </StyledCollapsible>
   );
 }
