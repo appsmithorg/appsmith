@@ -192,7 +192,8 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
           "mt-0": shouldShowSnapShotBanner || !shouldHaveTopMargin,
           "mt-4":
             !shouldShowSnapShotBanner &&
-            (showCanvasTopSection || showAnonymousDataPopup),
+            (showCanvasTopSection || showAnonymousDataPopup) &&
+            !isAnvilLayout,
           "mt-8":
             !shouldShowSnapShotBanner &&
             shouldHaveTopMargin &&
