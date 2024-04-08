@@ -24,8 +24,7 @@ const CheckboxContainer = styled.div<StyledCheckboxContainerProps>`
     display: flex;
     height: 100%;
     justify-content: start;
-    width: 100%;
-
+    width: auto;
     ${({ minHeight }) => `
     ${minHeight ? `min-height: ${minHeight}px;` : ""}`};
 
