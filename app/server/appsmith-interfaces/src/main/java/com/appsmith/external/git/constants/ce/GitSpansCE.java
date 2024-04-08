@@ -5,7 +5,8 @@ import static com.appsmith.external.constants.spans.BaseSpan.GIT_SPAN_PREFIX;
 
 public class GitSpansCE {
 
-    public static String FILE_SYSTEM_CLONE_REPO = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "file_system_clone_repo";
+    public static final String FILE_SYSTEM_CLONE_REPO =
+            APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "file_system_clone_repo";
     public static final String FILE_SYSTEM_STATUS = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "file_system_status";
     public static final String FILE_SYSTEM_PULL = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "file_system_pull";
     public static final String FILE_SYSTEM_BRANCH_TRACK =
@@ -29,4 +30,12 @@ public class GitSpansCE {
             APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "file_system_fetch_remote";
     public static final String STATUS = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "status";
     public static final String COMMIT = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "commit";
+    public static final String PUSH = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "push";
+    public static final String PULL = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "pull";
+    public static final String CREATE_BRANCH = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "create_branch";
+    public static final String CHECKOUT_BRANCH = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "checkout_branch";
+    public static final String DELETE_BRANCH = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "delete_branch";
+    public static final String FETCH_REMOTE = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "fetch_remote";
+    public static final String DETACH_REMOTE = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "detach_remote";
+    public static final String DISCARD_CHANGES = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "discard_changes";
 }
