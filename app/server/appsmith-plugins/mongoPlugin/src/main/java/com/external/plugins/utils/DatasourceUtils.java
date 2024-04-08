@@ -9,6 +9,7 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.MongoPluginErrorMessages;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
@@ -131,23 +132,23 @@ public class DatasourceUtils {
     }
 
     private static String buildURITail(String tailInfo) {
-        Map<String, String> optionsMap = new HashMap<>();
-
+        // case-insensitive match and preserves order of keys, hence the params ordering in the url remains unchanged
+        Map<String, String> optionsMap = new LinkedCaseInsensitiveMap<>();
         for (final String part : tailInfo.split("[&;]")) {
             if (part.isEmpty()) {
                 continue;
             }
             int idx = part.indexOf('=');
             if (idx >= 0) {
-                String key = part.substring(0, idx).toLowerCase();
+                String key = part.substring(0, idx);
                 String value = part.substring(idx + 1);
                 optionsMap.put(key, value);
             } else {
-                optionsMap.put(part.toLowerCase(), "");
+                optionsMap.put(part, "");
             }
         }
         optionsMap.putIfAbsent("authsource", "admin");
-        optionsMap.put("minpoolsize", "0");
+        optionsMap.putIfAbsent("minpoolsize", "0");
         return optionsMap.entrySet().stream()
                 .map(entry -> {
                     if (StringUtils.hasLength(entry.getValue())) {
