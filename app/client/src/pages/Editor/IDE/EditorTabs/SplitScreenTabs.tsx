@@ -24,6 +24,7 @@ import history, { NavigationMethod } from "utils/history";
 import { includes } from "lodash";
 import ListButton from "./ListButton";
 import { Announcement } from "../EditorPane/components/Announcement";
+import { SearchableFilesList } from "./SearchableFilesList";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -78,7 +79,11 @@ const SplitScreenTabs = () => {
           {!isTabsRevampEnabled ? <AddButton /> : null}
           <FileTabs navigateToTab={onClick} tabs={files} />
           {isTabsRevampEnabled ? <AddButton /> : null}
-          <ListButton items={overflowList} navigateToTab={onClick} />
+          {isTabsRevampEnabled ? (
+            <SearchableFilesList items={overflowList} navigateToTab={onClick} />
+          ) : (
+            <ListButton items={overflowList} navigateToTab={onClick} />
+          )}
         </Container>
       ) : null}
       <Announcement />
