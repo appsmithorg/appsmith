@@ -5,4 +5,4 @@ package com.appsmith.external.views;
  * be ignored as part of HTTP requests. For example, if a field is marked with this annotation, in
  * a class used with {@code @RequestBody}, it's value will NOT be deserialized.
  */
-public interface ToResponse extends Views.Public {}
+public interface ToResponse {}

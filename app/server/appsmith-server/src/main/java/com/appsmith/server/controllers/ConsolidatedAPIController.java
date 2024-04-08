@@ -1,6 +1,6 @@
 package com.appsmith.server.controllers;
 
-import com.appsmith.external.views.ToResponse;
+import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ApplicationMode;
@@ -40,7 +40,7 @@ public class ConsolidatedAPIController {
      * several API calls to fetch all the required data. This endpoint consolidates all that data and returns them as
      * response hence enabling the client to fetch the required data via a single API call only.
      */
-    @JsonView(ToResponse.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/edit")
     public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForEditMode(
             @RequestParam(required = false) String applicationId,
@@ -62,7 +62,7 @@ public class ConsolidatedAPIController {
                 .tap(Micrometer.observation(observationRegistry));
     }
 
-    @JsonView(ToResponse.class)
+    @JsonView(Views.Public.class)
     @GetMapping("/view")
     public Mono<ResponseDTO<ConsolidatedAPIResponseDTO>> getAllDataForFirstPageLoadForViewMode(
             @RequestParam(required = false) String applicationId,
