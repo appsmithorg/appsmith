@@ -8,10 +8,10 @@ import {
   useAddQueryListItems,
   useGroupedAddQueryOperations,
 } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
-import { getShowCreateNewModal } from "selectors/propertyPaneSelectors";
-import { setShowCreateNewModal } from "actions/propertyPaneActions";
+import { getShowCreateNewModal } from "selectors/ideSelectors";
+import { setShowQueryCreateNewModal } from "actions/ideActions";
 
-const CreateNewModal: React.FC = () => {
+const CreateNewQueryModal: React.FC = () => {
   const dispatch = useDispatch();
   const groupedActionOperations = useGroupedAddQueryOperations();
   const { getListItems } = useAddQueryListItems();
@@ -19,7 +19,7 @@ const CreateNewModal: React.FC = () => {
 
   const onCloseHandler = (open: boolean) => {
     if (!open) {
-      dispatch(setShowCreateNewModal(false));
+      dispatch(setShowQueryCreateNewModal(false));
     }
   };
 
@@ -48,4 +48,4 @@ const CreateNewModal: React.FC = () => {
   );
 };
 
-export { CreateNewModal };
+export { CreateNewQueryModal };

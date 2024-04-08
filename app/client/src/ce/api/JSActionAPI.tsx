@@ -7,9 +7,7 @@ import type { PluginType } from "entities/Action";
 import type { FetchActionsPayload } from "api/ActionAPI";
 import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
-export type JSCollectionCreateUpdateResponse = ApiResponse & {
-  id: string;
-};
+export type JSCollectionCreateUpdateResponse = ApiResponse<JSCollection>;
 
 export interface MoveJSCollectionRequest {
   collectionId: string;

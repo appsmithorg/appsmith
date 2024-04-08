@@ -8,7 +8,12 @@ import {
   setQueryTabs,
 } from "actions/ideActions";
 import history from "../utils/history";
-import { jsCollectionAddURL, queryAddURL } from "@appsmith/RouteBuilder";
+import {
+  jsCollectionAddURL,
+  jsCollectionListURL,
+  queryAddURL,
+  queryListURL,
+} from "@appsmith/RouteBuilder";
 import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
 import { groupAndSortEntitySegmentList } from "@appsmith/selectors/appIDESelectors";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
@@ -59,8 +64,8 @@ export function* handleJSEntityRedirect(deletedId: string) {
   const allJsItems: EntityItem[] = yield select(getJSSegmentItems);
   const redirectAction = getNextEntityAfterDelete(deletedId, allJsItems);
   switch (redirectAction.action) {
-    case RedirectAction.CREATE:
-      history.push(jsCollectionAddURL({ pageId }));
+    case RedirectAction.LIST:
+      history.push(jsCollectionListURL({ pageId }));
       break;
     case RedirectAction.ITEM:
       if (!redirectAction.payload) {
@@ -79,8 +84,8 @@ export function* handleQueryEntityRedirect(deletedId: string) {
   const allQueryItems: EntityItem[] = yield select(getQuerySegmentItems);
   const redirectAction = getNextEntityAfterDelete(deletedId, allQueryItems);
   switch (redirectAction.action) {
-    case RedirectAction.CREATE:
-      history.push(queryAddURL({ pageId }));
+    case RedirectAction.LIST:
+      history.push(queryListURL({ pageId }));
       break;
     case RedirectAction.ITEM:
       if (!redirectAction.payload) {
@@ -97,13 +102,13 @@ export function* handleQueryEntityRedirect(deletedId: string) {
 /**
  * Adds custom redirect logic to redirect after an item is deleted
  * 1. Do not navigate if the deleted item is not selected
- * 2. If it was the only item, navigate to a creation url
+ * 2. If it was the only item, navigate to the list url, to show the blank state
  * 3. If there are other items, navigate to an item close to the current one
  * **/
 
 export enum RedirectAction {
   NA = "NA", // No action is needed
-  CREATE = "CREATE", // Navigate to a creation URL
+  LIST = "LIST", // Navigate to a creation URL
   ITEM = "ITEM", // Navigate to this item
 }
 interface RedirectActionDescription {
@@ -131,7 +136,7 @@ export function getNextEntityAfterDelete(
   // If no other action is remaining, navigate to the creation url
   if (otherItems.length === 0) {
     return {
-      action: RedirectAction.CREATE,
+      action: RedirectAction.LIST,
     };
   }
 

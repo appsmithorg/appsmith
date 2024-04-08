@@ -29,7 +29,6 @@ jobs:
           issue-type: pull-request
           commands: |
             ok-to-test
-            perf-test
             ci-test-limit
             build-deploy-preview
           permission: write
