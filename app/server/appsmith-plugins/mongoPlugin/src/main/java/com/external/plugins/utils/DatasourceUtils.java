@@ -9,11 +9,11 @@ import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.external.plugins.exceptions.MongoPluginErrorMessages;
+import org.springframework.util.LinkedCaseInsensitiveMap;
 import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -132,11 +132,8 @@ public class DatasourceUtils {
     }
 
     private static String buildURITail(String tailInfo) {
-        // preserves order of keys, and hence the params ordering in the url remains unchanged
-        // here Treemap with case-insensitive order could not be used because that also changes the ordering of params
-        Map<String, String> optionsMap = new LinkedHashMap<>();
-        Map<String, String> lowercasedOptionsMap = new HashMap<>();
-
+        // case-insensitive match and preserves order of keys, hence the params ordering in the url remains unchanged
+        Map<String, String> optionsMap = new LinkedCaseInsensitiveMap<>();
         for (final String part : tailInfo.split("[&;]")) {
             if (part.isEmpty()) {
                 continue;
@@ -146,20 +143,12 @@ public class DatasourceUtils {
                 String key = part.substring(0, idx);
                 String value = part.substring(idx + 1);
                 optionsMap.put(key, value);
-                lowercasedOptionsMap.put(key.toLowerCase(), value);
             } else {
                 optionsMap.put(part, "");
-                lowercasedOptionsMap.put(part.toLowerCase(), "");
             }
         }
-        if (!lowercasedOptionsMap.containsKey("authsource")
-                || !StringUtils.hasLength(lowercasedOptionsMap.get("authsource"))) {
-            optionsMap.put("authsource", "admin");
-        }
-        if (!lowercasedOptionsMap.containsKey("minpoolsize")
-                || !StringUtils.hasLength(lowercasedOptionsMap.get("minpoolsize"))) {
-            optionsMap.put("minpoolsize", "0");
-        }
+        optionsMap.putIfAbsent("authsource", "admin");
+        optionsMap.putIfAbsent("minpoolsize", "0");
         return optionsMap.entrySet().stream()
                 .map(entry -> {
                     if (StringUtils.hasLength(entry.getValue())) {
