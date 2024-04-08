@@ -39,6 +39,7 @@ export const useConversionOverride = () => {
     (window as any).overrideConversionFlow = (flag = true) => {
       dispatch(setConversionFlowOverrideFlagAction(flag));
       setConversionFlowOverrideFlag(flag);
+      window.console.log(`Conversion flow override flag set to: ${flag}`);
     };
 
     // Clean up the global function when the component unmounts
