@@ -331,6 +331,3 @@ export const getShouldFocusPanelPropertySearch = createSelector(
       .includes(widgetName);
   },
 );
-
-export const getShowCreateNewModal = (state: AppState) =>
-  state.ui.propertyPane.showCreateNewModal;

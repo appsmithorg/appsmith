@@ -85,7 +85,6 @@ const StaticTable = (props: StaticTableProps) => {
         selectTableRow={props.selectTableRow}
         selectedRowIndex={props.selectedRowIndex}
         selectedRowIndices={props.selectedRowIndices}
-        tableSizes={props.tableSizes}
         useVirtual={props.useVirtual}
         width={props.width - TABLE_SCROLLBAR_WIDTH / 2}
       />
