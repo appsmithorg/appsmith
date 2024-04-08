@@ -1008,7 +1008,9 @@ export class DataSources {
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
   ) {
     this.ReconnectModalValidation(dbName, dsName);
-    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
+    if (dsName !== "MySQL") { // MySQL does not have a connection mode as it's not configured correctly in backend
+      this.ValidateNSelectDropdown("Connection mode", "Read / Write");
+    }
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
