@@ -3,7 +3,11 @@ import { ToggleButton } from "design-system";
 
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import {
+  getIDEViewMode,
+  getIsSideBySideEnabled,
+  getIsTabsRevampEnabled,
+} from "selectors/ideSelectors";
 import Container from "./Container";
 import { useCurrentEditorState } from "../hooks";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
@@ -24,6 +28,7 @@ import { Announcement } from "../EditorPane/components/Announcement";
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
+  const isTabsRevampEnabled = useSelector(getIsTabsRevampEnabled);
   const { segment, segmentMode } = useCurrentEditorState();
 
   const onJSAddClick = useJSAdd();
@@ -54,19 +59,25 @@ const SplitScreenTabs = () => {
   if (!isSideBySideEnabled) return null;
   if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
+
+  const AddButton = () => (
+    <ToggleButton
+      data-testid="t--ide-split-screen-add-button"
+      icon="add-line"
+      id="tabs-add-toggle"
+      isSelected={segmentMode === EditorEntityTabState.Add}
+      onClick={onAddClick}
+      size="md"
+    />
+  );
+
   return (
     <>
       {files.length > 0 ? (
         <Container>
-          <ToggleButton
-            data-testid="t--ide-split-screen-add-button"
-            icon="add-line"
-            id="tabs-add-toggle"
-            isSelected={segmentMode === EditorEntityTabState.Add}
-            onClick={onAddClick}
-            size="md"
-          />
+          {!isTabsRevampEnabled ? <AddButton /> : null}
           <FileTabs navigateToTab={onClick} tabs={files} />
+          {isTabsRevampEnabled ? <AddButton /> : null}
           <ListButton items={overflowList} navigateToTab={onClick} />
         </Container>
       ) : null}
