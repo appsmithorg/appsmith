@@ -1,20 +1,26 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 
+import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import {
   Button,
   Flex,
   Menu,
   MenuContent,
+  MenuGroup,
+  MenuGroupName,
   MenuItem,
   MenuTrigger,
   SearchInput,
 } from "design-system";
 import { ListIconContainer, TabTextContainer } from "./StyledComponents";
+import { SFL, createMessage } from "@appsmith/constants/messages";
+import { useCurrentEditorState } from "../hooks";
 
 interface Props {
-  items: EntityItem[];
+  allItems: EntityItem[];
+  openTabs: EntityItem[];
   navigateToTab: (item: EntityItem) => void;
 }
 
@@ -28,23 +34,41 @@ const StyledButton = styled(Button)<{ isActive?: boolean }>`
 `;
 
 const SearchableFilesList = (props: Props) => {
-  const { items, navigateToTab } = props;
-  const [files, setFiles] = useState(items);
+  const { allItems, navigateToTab, openTabs } = props;
+  const [files, setFiles] = useState(allItems);
+  const [tabs, setTabs] = useState(openTabs);
   const [isOpen, setOpen] = useState(false);
+  const { segment } = useCurrentEditorState();
 
   useEffect(() => {
     // reset filter
-    setFiles(items);
-  }, [isOpen]);
+    setFiles(allItems);
+    setTabs(openTabs);
+  }, [isOpen, allItems, openTabs]);
 
-  if (items.length === 0) {
+  if (allItems.length === 0) {
     return null;
   }
 
   const filterHandler = (value: string) => {
-    const _files = [...items].filter((item) => item.title.includes(value));
-    setFiles(_files);
+    const _files = [...allItems].filter((item) => item.title.includes(value));
+    setFiles(value.length > 0 ? _files : allItems);
+    setTabs(value.length > 0 ? [] : openTabs);
   };
+
+  const renderMenuItems = (items: EntityItem[]) =>
+    items.map((file) => (
+      <MenuItem key={file.key} onClick={() => navigateToTab(file)}>
+        <Flex
+          alignItems="center"
+          className={"text-ellipsis whitespace-nowrap overflow-hidden"}
+          gap="spaces-2"
+        >
+          <ListIconContainer>{file.icon}</ListIconContainer>
+          <TabTextContainer>{file.title}</TabTextContainer>
+        </Flex>
+      </MenuItem>
+    ));
 
   return (
     <Menu onOpenChange={setOpen} open={isOpen}>
@@ -72,18 +96,25 @@ const SearchableFilesList = (props: Props) => {
           onChange={filterHandler}
           onKeyDown={(e: KeyboardEvent) => e.stopPropagation()}
         />
-        {files.map((file) => (
-          <MenuItem key={file.key} onClick={() => navigateToTab(file)}>
-            <Flex
-              alignItems="center"
-              className={"text-ellipsis whitespace-nowrap overflow-hidden"}
-              gap="spaces-2"
-            >
-              <ListIconContainer>{file.icon}</ListIconContainer>
-              <TabTextContainer>{file.title}</TabTextContainer>
-            </Flex>
-          </MenuItem>
-        ))}
+        {tabs.length > 0 ? (
+          <MenuGroup>
+            <MenuGroupName className="!pt-[8px]">
+              {createMessage(SFL.OPENED_GROUP_LABEL)}
+            </MenuGroupName>
+            {renderMenuItems(tabs)}
+          </MenuGroup>
+        ) : null}
+        <MenuGroup>
+          <MenuGroupName className="!pt-[8px]">
+            {createMessage(
+              SFL.GROUP_LABEL,
+              segment === EditorEntityTab.QUERIES
+                ? SFL.QUERY_TEXT
+                : SFL.JS_OBJECT_TEXT,
+            )}
+          </MenuGroupName>
+          {renderMenuItems(files)}
+        </MenuGroup>
       </MenuContent>
     </Menu>
   );
