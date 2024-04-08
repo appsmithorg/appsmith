@@ -61,7 +61,8 @@ function* getUpdatedTabs(newId: string, currentTabs: string[]) {
     ? [...currentTabs, newId]
     : [newId, ...currentTabs];
   if (newTabs.length > 5) {
-    newTabs = newTabs.slice(0, 5);
+    // take last 5 since new tab gets added to the end of the array
+    newTabs = newTabs.slice(-5);
   }
   return newTabs;
 }
