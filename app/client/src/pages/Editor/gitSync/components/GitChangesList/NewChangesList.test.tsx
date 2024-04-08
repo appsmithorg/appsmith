@@ -76,12 +76,9 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
-    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
     expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-REMOTE_AHEAD"),
@@ -98,9 +95,9 @@ describe("GitChangesList", () => {
   it("should render Page related changes", () => {
     const store = getMockStore({
       gitStatus: {
-        pagesModified: ["Page 1", "Page 2"],
-        pagesAdded: ["Page 3"],
-        pagesRemoved: ["Page 4"],
+        pagesModified: ["Page1", "Page2"],
+        pagesAdded: ["Page3"],
+        pagesRemoved: ["Page4"],
       },
     });
 
@@ -109,13 +106,14 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
-    expect(getByTestId("t--status-change-PAGES")).toBeInTheDocument();
+    expect(getByTestId("t--status-change-PAGE-Page1")).toBeInTheDocument();
+    expect(getByTestId("t--status-change-PAGE-Page2")).toBeInTheDocument();
+    expect(getByTestId("t--status-change-PAGE-Page3")).toBeInTheDocument();
+    expect(getByTestId("t--status-change-PAGE-Page4")).toBeInTheDocument();
 
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
     expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-REMOTE_AHEAD"),
@@ -143,10 +141,7 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
-    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
     expect(getByTestId("t--status-change-DATASOURCES")).toBeInTheDocument();
-    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
     expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-REMOTE_AHEAD"),
@@ -163,9 +158,9 @@ describe("GitChangesList", () => {
   it("should render Query related changes", () => {
     const store = getMockStore({
       gitStatus: {
-        queriesModified: ["Query 1", "Query 2"],
-        queriesAdded: ["Query 3"],
-        queriesRemoved: ["Query 4"],
+        queriesModified: ["Page1/Query1", "Page2/Query2"],
+        queriesAdded: ["Page1/Query3"],
+        queriesRemoved: ["Page1/Query4"],
       },
     });
 
@@ -174,12 +169,27 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
-    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
+
+    const page1 = getByTestId("t--status-change-PAGE-Page1");
+    const page2 = getByTestId("t--status-change-PAGE-Page2");
+
+    expect(page1).toBeInTheDocument();
+    expect(page2).toBeInTheDocument();
+
+    page1.click();
+    page2.click();
+
+    expect(
+      page1.querySelectorAll("[data-testid=t--status-change-QUERIES]").length,
+    ).toBeGreaterThan(0);
+
+    expect(
+      page2.querySelectorAll("[data-testid=t--status-change-QUERIES]").length,
+    ).toBeGreaterThan(0);
+
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
-    expect(getByTestId("t--status-change-QUERIES")).toBeInTheDocument();
-    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
     expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-REMOTE_AHEAD"),
@@ -196,9 +206,9 @@ describe("GitChangesList", () => {
   it("should render JSObject related changes", () => {
     const store = getMockStore({
       gitStatus: {
-        jsObjectsModified: ["JSObject 1", "JSObject 2"],
-        jsObjectsAdded: ["JSObject 3"],
-        jsObjectsRemoved: ["JSObject 4"],
+        jsObjectsModified: ["Page1/JSObject1", "Page2/JSObject2"],
+        jsObjectsAdded: ["Page1/JSObject3"],
+        jsObjectsRemoved: ["Page1/JSObject4"],
       },
     });
 
@@ -207,12 +217,27 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
-    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
+
+    const page1 = getByTestId("t--status-change-PAGE-Page1");
+    const page2 = getByTestId("t--status-change-PAGE-Page2");
+
+    expect(page1).toBeInTheDocument();
+    expect(page2).toBeInTheDocument();
+
+    page1.click();
+    page2.click();
+
+    expect(
+      page1.querySelectorAll("[data-testid=t--status-change-JSOBJECTS]").length,
+    ).toBeGreaterThan(0);
+
+    expect(
+      page2.querySelectorAll("[data-testid=t--status-change-JSOBJECTS]").length,
+    ).toBeGreaterThan(0);
+
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
-    expect(getByTestId("t--status-change-JSOBJECTS")).toBeInTheDocument();
     expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-REMOTE_AHEAD"),
@@ -240,12 +265,9 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
-    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
     expect(getByTestId("t--status-change-JSLIBS")).toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-REMOTE_AHEAD"),
@@ -272,12 +294,9 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
-    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
     expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
     expect(getByTestId("t--status-change-REMOTE_AHEAD")).toBeInTheDocument();
     expect(getByTestId("t--status-change-REMOTE_BEHIND")).toBeInTheDocument();
@@ -299,12 +318,9 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
-    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
     expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-REMOTE_AHEAD"),
@@ -330,12 +346,9 @@ describe("GitChangesList", () => {
         <GitChangesList />
       </Provider>,
     );
-    expect(queryByTestId("t--status-change-PAGES")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-DATASOURCES"),
     ).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-QUERIES")).not.toBeInTheDocument();
-    expect(queryByTestId("t--status-change-JSOBJECTS")).not.toBeInTheDocument();
     expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
     expect(
       queryByTestId("t--status-change-REMOTE_AHEAD"),

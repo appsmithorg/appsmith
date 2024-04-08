@@ -100,27 +100,33 @@ function SinglePageChange({ page, status }: SinglePageChangeProps) {
   );
 
   if (!showCollapsible) {
-    return titleComp;
+    return (
+      <div data-testid={`t--status-change-PAGE-${page.replace(" ", "_")}`}>
+        {titleComp}
+      </div>
+    );
   }
 
   return (
-    <StyledCollapsible className="space-y-2" isOpen onOpenChange={() => {}}>
-      <StyledCollapsibleHeader arrowPosition="start">
-        {titleComp}
-      </StyledCollapsibleHeader>
-      <CollapsibleContent className="ml-6 space-y-2">
-        <ExpandableChange
-          filter={(entity) => entity.includes(page)}
-          kind={ExpandableChangeKind.QUERIES}
-          status={status}
-        />
-        <ExpandableChange
-          filter={(entity) => entity.includes(page)}
-          kind={ExpandableChangeKind.JSOBJECTS}
-          status={status}
-        />
-      </CollapsibleContent>
-    </StyledCollapsible>
+    <div data-testid={`t--status-change-PAGE-${page.replace(" ", "_")}`}>
+      <StyledCollapsible>
+        <StyledCollapsibleHeader arrowPosition="start">
+          {titleComp}
+        </StyledCollapsibleHeader>
+        <CollapsibleContent className="ml-6 space-y-2">
+          <ExpandableChange
+            filter={(entity) => entity.includes(page)}
+            kind={ExpandableChangeKind.QUERIES}
+            status={status}
+          />
+          <ExpandableChange
+            filter={(entity) => entity.includes(page)}
+            kind={ExpandableChangeKind.JSOBJECTS}
+            status={status}
+          />
+        </CollapsibleContent>
+      </StyledCollapsible>
+    </div>
   );
 }
 

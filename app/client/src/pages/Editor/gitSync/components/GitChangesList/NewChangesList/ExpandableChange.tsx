@@ -164,38 +164,44 @@ export function ExpandableChange({ filter, kind, status }: ChangeProps) {
   }
 
   return (
-    <StyledCollapsible className="space-y-2">
-      <StyledCollapsibleHeader>
-        <div className="flex item-center space-x-1.5">
-          {iconName && (
-            <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
+    <div data-testid={`t--status-change-${kind}`}>
+      <StyledCollapsible className="space-y-2">
+        <StyledCollapsibleHeader>
+          <div className="flex item-center space-x-1.5">
+            {iconName && (
+              <Icon
+                color={"var(--ads-v2-color-fg)"}
+                name={iconName}
+                size="md"
+              />
+            )}
+            <Text>{getTitleMessage()}</Text>
+          </div>
+        </StyledCollapsibleHeader>
+        <CollapsibleContent className="ml-6 space-y-1">
+          {isModified && (
+            <ChangeSubList
+              action="edited"
+              entities={filteredModified}
+              iconName={iconName}
+            />
           )}
-          <Text>{getTitleMessage()}</Text>
-        </div>
-      </StyledCollapsibleHeader>
-      <CollapsibleContent className="ml-6 space-y-1">
-        {isModified && (
-          <ChangeSubList
-            action="edited"
-            entities={filteredModified}
-            iconName={iconName}
-          />
-        )}
-        {isAdded && (
-          <ChangeSubList
-            action="added"
-            entities={filteredAdded}
-            iconName={iconName}
-          />
-        )}
-        {isRemoved && (
-          <ChangeSubList
-            action="removed"
-            entities={filteredRemoved}
-            iconName={iconName}
-          />
-        )}
-      </CollapsibleContent>
-    </StyledCollapsible>
+          {isAdded && (
+            <ChangeSubList
+              action="added"
+              entities={filteredAdded}
+              iconName={iconName}
+            />
+          )}
+          {isRemoved && (
+            <ChangeSubList
+              action="removed"
+              entities={filteredRemoved}
+              iconName={iconName}
+            />
+          )}
+        </CollapsibleContent>
+      </StyledCollapsible>
+    </div>
   );
 }
