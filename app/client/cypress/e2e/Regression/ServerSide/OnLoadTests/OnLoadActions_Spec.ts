@@ -1,6 +1,8 @@
 import {
   agHelper,
   apiPage,
+  assertHelper,
+  dataManager,
   deployMode,
   entityExplorer,
   entityItems,
@@ -41,16 +43,14 @@ describe(
     it("2. Bug 8595: OnPageLoad execution - when Query Parmas added via Params tab", function () {
       agHelper.AddDsl("onPageLoadActionsDsl", locators._imageWidget);
       apiPage.CreateAndFillApi(
-        "https://source.unsplash.com/collection/1599413",
+        dataManager.dsValues[dataManager.defaultEnviorment].flowerImageUrl1,
         "RandomFlora",
-        30000,
       );
       //apiPage.RunAPI();
 
       apiPage.CreateAndFillApi(
-        "https://randomuser.me/api/",
+        dataManager.dsValues[dataManager.defaultEnviorment].mockApiUrl,
         "RandomUser",
-        30000,
       );
       //apiPage.RunAPI();
 
@@ -137,17 +137,19 @@ describe(
 
       deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
       agHelper.Sleep(5000); //for all api's to ccomplete call!
-      cy.wait("@viewPage").then(($response) => {
-        const respBody = JSON.stringify($response.response?.body);
+      assertHelper.AssertNetworkStatus("@getConsolidatedData");
 
+      cy.get("@getConsolidatedData").then(($response: any) => {
+        const respBody = JSON.stringify($response.response?.body);
+        const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
         const _randomFlora =
-          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[0];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[0];
         const _randomUser =
-          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[1];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[1];
         const _genderize =
-          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[2];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[2];
         const _suggestions =
-          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[3];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[3];
         // cy.log("_randomFlora is: " + JSON.stringify(_randomFlora))
         // cy.log("_randomUser is: " + JSON.stringify(_randomUser))
         // cy.log("_genderize is: " + JSON.stringify(_genderize))
@@ -189,24 +191,34 @@ describe(
         "https://api.genderize.io?name={{RandomUser.data.results[0].name.first}}",
         "Genderize",
         30000,
+        "GET",
+        false,
+        false,
       );
       apiPage.ValidateQueryParams({
         key: "name",
         value: "{{RandomUser.data.results[0].name.first}}",
       }); // verifies Bug 10055
 
-      deployMode.DeployApp(locators._widgetInDeployed("textwidget"), false);
-      agHelper.Sleep(5000); //for all api's to ccomplete call!
-      cy.wait("@viewPage").then(($response) => {
+      deployMode.DeployApp(
+        locators._widgetInDeployed("textwidget"),
+        false,
+        false,
+      );
+      assertHelper.AssertNetworkStatus("@getConsolidatedData");
+
+      cy.get("@getConsolidatedData").then(($response: any) => {
         const respBody = JSON.stringify($response.response?.body);
+        const { pageWithMigratedDsl } = JSON.parse(respBody)?.data;
+
         const _randomFlora =
-          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[0];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[0];
         const _randomUser =
-          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[1];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[1];
         const _genderize =
-          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[2];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[2];
         const _suggestions =
-          JSON.parse(respBody).data.layouts[0].layoutOnLoadActions[3];
+          pageWithMigratedDsl.data.layouts[0].layoutOnLoadActions[3];
 
         expect(JSON.parse(JSON.stringify(_randomFlora))[0]["name"]).to.eq(
           "RandomFlora",

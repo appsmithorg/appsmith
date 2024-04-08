@@ -1,5 +1,6 @@
-import EditorNavigation, {
-  EntityType,
+import {
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 
 const datasourceEditor = require("../../../locators/DatasourcesEditor.json");
@@ -20,7 +21,7 @@ describe(
 
     it("1. Verify after killing MySQL session, app should not crash", function () {
       cy.NavigateToDatasourceEditor();
-      cy.get(datasourceEditor.MySQL).click();
+      agHelper.GetNClick(datasourceEditor.MySQL);
       cy.generateUUID().then((uid) => {
         datasourceName = uid;
         cy.get(".t--edit-datasource-name").click();
@@ -47,7 +48,7 @@ describe(
       );
       cy.SaveAndRunAPI();
       cy.ResponseCheck("killed");
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.wait(2000);
       // run kill query
       cy.get(".bp3-button-text:contains('Kill Session')").should("be.visible");

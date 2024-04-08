@@ -7,12 +7,11 @@ import type {
 import AppsmithConsole from "utils/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Log } from "entities/AppsmithConsole";
+import { LOG_CATEGORY, Severity } from "entities/AppsmithConsole";
 import {
   ENTITY_TYPE,
-  LOG_CATEGORY,
   PLATFORM_ERROR,
-  Severity,
-} from "entities/AppsmithConsole";
+} from "@appsmith/entities/AppsmithConsole/utils";
 import { toast } from "design-system";
 import {
   ReduxActionTypes,
@@ -25,6 +24,7 @@ import log from "loglevel";
 import { isPlainObject, isString } from "lodash";
 import { DATA_BIND_REGEX_GLOBAL } from "constants/BindingsConstants";
 import { klona } from "klona/lite";
+import { apiFailureResponseInterceptor } from "@appsmith/api/ApiUtils";
 
 // function to extract all objects that have dynamic values
 export const extractFetchDynamicValueFormConfigs = (
@@ -202,4 +202,30 @@ export async function generateHashFromString(str: unknown) {
     .join("");
 
   return hashHex;
+}
+
+export function* getFromServerWhenNoPrefetchedResult(
+  prefetchedResult?: any,
+  apiEffect?: any,
+): any {
+  if (prefetchedResult) {
+    if (prefetchedResult?.responseMeta?.error) {
+      const { responseMeta } = prefetchedResult;
+      const { status } = responseMeta;
+
+      const resp = yield apiFailureResponseInterceptor({
+        response: {
+          data: {
+            responseMeta,
+          },
+          status,
+        },
+      });
+      return resp;
+    }
+
+    return prefetchedResult;
+  }
+
+  return yield apiEffect();
 }

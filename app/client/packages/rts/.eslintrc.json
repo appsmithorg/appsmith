@@ -4,6 +4,7 @@
   "rules": {
     "@typescript-eslint/prefer-nullish-coalescing": "off",
     "@typescript-eslint/strict-boolean-expressions": "off",
-    "@typescript-eslint/no-explicit-any": "off"
+    "@typescript-eslint/no-explicit-any": "off",
+    "testing-library/no-debugging-utils": "off"
   }
 }

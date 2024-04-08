@@ -17,7 +17,7 @@ describe(
   function () {
     const workspaceName = "gsheet apps";
     const dataSourceName = {
-      allAccess: "gsheet",
+      allAccess: "gsheet-all",
       readNWrite: "gsheet-read-write",
     };
     let appName = "gsheet-app";
@@ -32,6 +32,7 @@ describe(
 
       //Adding query to insert a new spreadsheet
       homePage.NavigateToHome();
+      homePage.SelectWorkspace(workspaceName);
       homePage.CreateAppInWorkspace(workspaceName, appName);
       gsheetHelper.AddNewSpreadsheetQuery(
         dataSourceName.readNWrite,
@@ -353,7 +354,7 @@ describe(
 
     after("Delete spreadsheet and app", function () {
       // Delete spreadsheet and app
-      homePage.SearchAndOpenApp(appName);
+      homePage.EditAppFromAppHover(appName);
       gsheetHelper.DeleteSpreadsheetQuery(
         dataSourceName.allAccess,
         spreadSheetName,

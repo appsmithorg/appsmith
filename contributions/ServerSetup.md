@@ -134,7 +134,7 @@ With the prerequisites met, let's build the code.
 7. Run the following command to create the final JAR for the Appsmith server:
 
     ```console
-    ./build.sh -DskipTests
+    ./build.sh -Dmaven.test.skip
     ```
     - This command will create a `dist` folder which contains the final packaged jar along with multiple jars for plugins as well.
     - If you want to run the tests, you can remove `-DskipTests` flag from the build cmd.

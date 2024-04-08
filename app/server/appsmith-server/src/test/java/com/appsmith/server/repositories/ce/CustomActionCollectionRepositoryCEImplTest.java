@@ -4,7 +4,6 @@ import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.repositories.ActionCollectionRepository;
-import org.bson.types.ObjectId;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -51,7 +50,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         StepVerifier.create(actionCollectionFlux.collectList())
                 .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList.size()).isEqualTo(5);
+                    assertThat(actionCollectionList).hasSize(5);
                     actionCollectionList.forEach(newAction -> {
                         assertThat(newAction.getWorkspaceId()).isEqualTo("workspace-" + newAction.getId());
                     });
@@ -62,7 +61,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
     @Test
     public void bulkInsert_WhenDuplicateId_ExceptionThrown() {
-        String duplicateId = new ObjectId().toString();
+        String duplicateId = UUID.randomUUID().toString();
         List<ActionCollection> actionCollections = new ArrayList<>();
 
         for (int i = 0; i < 2; i++) {
@@ -81,7 +80,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
         String applicationId = UUID.randomUUID().toString();
 
         for (int i = 0; i < 5; i++) {
-            String generatedId = new ObjectId().toString();
+            String generatedId = UUID.randomUUID().toString();
             ActionCollection actionCollection = new ActionCollection();
             actionCollection.setId(generatedId);
             actionCollection.setApplicationId(applicationId);
@@ -97,7 +96,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         StepVerifier.create(actionCollectionsMono)
                 .assertNext(actionCollections -> {
-                    assertThat(actionCollections.size()).isEqualTo(5);
+                    assertThat(actionCollections).hasSize(5);
                     actionCollections.forEach(newAction -> {
                         assertThat(newAction.getWorkspaceId()).isEqualTo("workspace-" + newAction.getId());
                     });
@@ -135,7 +134,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         StepVerifier.create(actionCollectionListMono)
                 .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList.size()).isEqualTo(1);
+                    assertThat(actionCollectionList).hasSize(1);
                 })
                 .verifyComplete();
 
@@ -147,7 +146,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         StepVerifier.create(actionCollectionListMono2)
                 .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList.size()).isEqualTo(0);
+                    assertThat(actionCollectionList).hasSize(0);
                 })
                 .verifyComplete();
 
@@ -159,7 +158,7 @@ public class CustomActionCollectionRepositoryCEImplTest {
 
         StepVerifier.create(actionCollectionListMono3)
                 .assertNext(actionCollectionList -> {
-                    assertThat(actionCollectionList.size()).isEqualTo(0);
+                    assertThat(actionCollectionList).hasSize(0);
                 })
                 .verifyComplete();
     }

@@ -1,46 +1,13 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.models.AuthenticationResponse;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.appsmith.server.dtos.ce.IntegrationCE_DTO;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.util.Set;
-
 @Getter
 @Setter
 @ToString
 @NoArgsConstructor
-public class IntegrationDTO {
-    String installationKey;
-
-    String datasourceId;
-
-    String applicationId;
-
-    String pageId;
-
-    String pluginName;
-
-    String pluginVersion;
-
-    // TODO start using this in the future
-    Type authenticationType;
-
-    Set<String> scope;
-
-    AuthenticationResponse authenticationResponse;
-
-    String redirectionDomain;
-
-    String branch;
-
-    String importForGit;
-
-    public enum Type {
-        @JsonProperty("oAuth2")
-        OAUTH2
-    }
-}
+public class IntegrationDTO extends IntegrationCE_DTO {}

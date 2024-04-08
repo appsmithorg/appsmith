@@ -5,7 +5,7 @@ import { omit } from "lodash";
 import { AppIcon, Size, TextType, Text } from "design-system-old";
 import type { PropsWithChildren } from "react";
 import type { HTMLDivProps, ICardProps } from "@blueprintjs/core";
-import type { MenuItemProps } from "design-system";
+import { Button, type MenuItemProps } from "design-system";
 
 import GitConnectedBadge from "./GitConnectedBadge";
 
@@ -27,6 +27,7 @@ type CardProps = PropsWithChildren<{
   title: string;
   titleTestId: string;
   isSelected?: boolean;
+  hasEditPermission?: boolean;
 }>;
 
 interface NameWrapperProps {
@@ -172,43 +173,11 @@ const NameWrapper = styled((props: HTMLDivProps & NameWrapperProps) => (
    `}
   overflow: hidden;
 
-  ${(props) => `&.${props.testId}-selected {
-    animation: deleteshake 0.5s linear infinite;
-    filter: grayscale(1);
-  }`}
-  @-webkit-keyframes deleteshake {
-    0% {
-      transform: rotate(0deg);
-    }
-    25% {
-      transform: rotate(5deg);
-    }
-    50% {
-      transform: rotate(0deg);
-    }
-    75% {
-      transform: rotate(-5deg);
-    }
-    100% {
-      transform: rotate(0deg);
-    }
-  }
-  @keyframes deleteshake {
-    0% {
-      transform: rotate(0deg);
-    }
-    25% {
-      transform: rotate(5deg);
-    }
-    50% {
-      transform: rotate(0deg);
-    }
-    75% {
-      transform: rotate(-5deg);
-    }
-    100% {
-      transform: rotate(0deg);
-    }
+  border: 2px solid transparent;
+  padding: var(--ads-spaces-1);
+  border-radius: var(--ads-v2-border-radius);
+  &:hover {
+    border-color: var(--ads-v2-color-gray-100);
   }
 `;
 
@@ -244,7 +213,6 @@ const Wrapper = styled(
   }
   .bp3-card {
     border-radius: var(--ads-v2-border-radius);
-  }
   }
 
   ${({ isMobile }) =>
@@ -288,9 +256,8 @@ const Control = styled.div<{ fixed?: boolean }>`
 
 const CardFooter = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  margin: 4px 0;
+  margin: 4px 0 0 0;
   width: ${(props) => props.theme.card.minWidth}px;
 
   @media screen and (min-width: 1500px) {
@@ -324,9 +291,20 @@ const CardFooter = styled.div`
 const ModifiedDataComponent = styled.div`
   font-size: 13px;
   color: var(--ads-v2-color-fg-muted);
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+  flex-grow: 1;
   &::first-letter {
     text-transform: uppercase;
   }
+  & ~ * {
+    flex-shrink: 0;
+  }
+`;
+
+export const ContextMenuTrigger = styled(Button)<{ isHidden?: boolean }>`
+  ${(props) => props.isHidden && "opacity: 0; visibility: hidden;"}
 `;
 
 function Card({
@@ -334,12 +312,12 @@ function Card({
   children,
   contextMenu,
   editedByText,
+  hasEditPermission,
   hasReadPermission,
   icon,
   isContextMenuOpen,
   isFetching,
   isMobile,
-  isSelected,
   moreActionItems,
   primaryAction,
   setShowOverlay,
@@ -352,7 +330,7 @@ function Card({
   return (
     <Container isMobile={isMobile} onClick={primaryAction}>
       <NameWrapper
-        className={`${testId} ${isSelected ? `${testId}-selected` : ""}`}
+        className={testId}
         hasReadPermission={hasReadPermission}
         isContextMenuOpen={isContextMenuOpen}
         onMouseEnter={() => {
@@ -391,9 +369,13 @@ function Card({
           )}
         </Wrapper>
         <CardFooter>
-          <ModifiedDataComponent className="t--application-edited-text">
-            {editedByText}
-          </ModifiedDataComponent>
+          {hasEditPermission ? (
+            <ModifiedDataComponent className="t--application-edited-text">
+              {editedByText}
+            </ModifiedDataComponent>
+          ) : (
+            <div />
+          )}
           {Boolean(moreActionItems.length) && !isMobile && contextMenu}
         </CardFooter>
       </NameWrapper>

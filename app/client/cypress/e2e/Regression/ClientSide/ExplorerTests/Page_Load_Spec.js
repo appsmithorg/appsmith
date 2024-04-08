@@ -8,6 +8,7 @@ import {
   deployMode,
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   afterEach(() => {
@@ -20,7 +21,7 @@ describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
 
   before(() => {
     agHelper.AddDsl("PageLoadDsl");
-    cy.CreatePage();
+    PageList.AddNewPage();
     cy.get("h2").contains("Drag and drop a widget here");
   });
 
@@ -47,7 +48,7 @@ describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
       "This is Page 2",
     );
     // Test after reload
-    agHelper.RefreshPage("viewPage");
+    agHelper.RefreshPage("getConsolidatedData");
     // Assert active page tab
     cy.get(".t--page-switch-tab")
       .contains("Page2")

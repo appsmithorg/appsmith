@@ -36,6 +36,8 @@ export enum SelectionRequestType {
   /** Replace the existing selection with a new single selection.
    * The new selection will be the last selected widget */
   One = "One",
+  /** Selection that has been lead by creation of a new widget */
+  Create = "Create",
   /** Replace the existing selection with a new selection of multiple widgets.
    * The new selection's first widget becomes the last selected widget
    * */
@@ -63,7 +65,7 @@ export type SetSelectionResult = string[] | undefined;
 
 // Main container cannot be a selection, dont honour this request
 export const isInvalidSelectionRequest = (id: unknown) =>
-  typeof id !== "string" || id === MAIN_CONTAINER_WIDGET_ID;
+  typeof id !== "string";
 
 export class WidgetSelectionError extends Error {
   request?: SelectionPayload;

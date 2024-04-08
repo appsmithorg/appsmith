@@ -14,7 +14,7 @@ import EditorNavigation, {
 describe("removeValue Action test", { tags: ["@tag.JS"] }, () => {
   before(() => {
     entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
   });
 
   it("1. Feature 11639 : Remove store value", function () {

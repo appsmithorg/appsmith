@@ -1,5 +1,9 @@
 import homePageLocators from "../../../locators/HomePage";
-import { homePage, dataSources } from "../../../support/Objects/ObjectsCore";
+import {
+  homePage,
+  dataSources,
+  agHelper,
+} from "../../../support/Objects/ObjectsCore";
 
 describe(
   "Reconnect Datasource Modal validation while importing application",
@@ -19,9 +23,13 @@ describe(
           newWorkspaceName =
             createWorkspaceInterception.response.body.data.name;
           homePage.RenameWorkspace(newWorkspaceName, workspaceId);
-          cy.get(homePageLocators.workspaceImportAppOption).click({
-            force: true,
-          });
+          agHelper.GetNClick(homePageLocators.createNew, 0, true);
+          agHelper.GetNClick(
+            homePageLocators.workspaceImportAppOption,
+            0,
+            true,
+          );
+
           cy.get(homePageLocators.workspaceImportAppModal).should("be.visible");
           cy.xpath(homePageLocators.uploadLogo)
             .first()

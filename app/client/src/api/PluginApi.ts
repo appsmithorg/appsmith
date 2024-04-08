@@ -3,6 +3,7 @@ import type { AxiosPromise } from "axios";
 import type { ApiResponse } from "api/ApiResponses";
 import type { PluginPackageName, PluginType } from "entities/Action";
 import type { DependencyMap } from "utils/DynamicBindingUtils";
+import { FILE_UPLOAD_TRIGGER_TIMEOUT_MS } from "@appsmith/constants/ApiConstants";
 
 export type PluginId = string;
 export type GenerateCRUDEnabledPluginMap = Record<PluginId, PluginPackageName>;
@@ -11,7 +12,6 @@ export enum UIComponentTypes {
   DbEditorForm = "DbEditorForm",
   UQIDbEditorForm = "UQIDbEditorForm",
   ApiEditorForm = "ApiEditorForm",
-  RapidApiEditorForm = "RapidApiEditorForm",
   JsEditorForm = "JsEditorForm",
 }
 
@@ -32,6 +32,8 @@ export interface Plugin {
   responseType?: "TABLE" | "JSON";
   documentationLink?: string;
   generateCRUDPageComponent?: string;
+  // We need to know if the plugin requires a datasource (Eg Workflows plugin does not require a datasource to create queries)
+  requiresDatasource: boolean;
 }
 
 export interface PluginFormPayload {
@@ -54,6 +56,9 @@ class PluginsApi extends Api {
   static url = "v1/plugins";
   static defaultDynamicTriggerURL(datasourceId: string): string {
     return `/v1/datasources/${datasourceId}/trigger`;
+  }
+  static dynamicTriggerURLForInternalPlugins(pluginId: string): string {
+    return `/${PluginsApi.url}/${pluginId}/trigger`;
   }
   static async fetchPlugins(
     workspaceId: string,
@@ -79,6 +84,36 @@ class PluginsApi extends Api {
     AxiosPromise<ApiResponse<DefaultPlugin[]>>
   > {
     return Api.get(PluginsApi.url + `/default/icons`);
+  }
+
+  static async uploadFiles(
+    pluginId: string,
+    files: File[],
+    params?: Record<string, any>,
+  ): Promise<AxiosPromise<ApiResponse>> {
+    const url = this.dynamicTriggerURLForInternalPlugins(pluginId);
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append("files", file);
+    });
+
+    if (params) {
+      Object.keys(params).forEach((key) => {
+        formData.append(key, params[key]);
+      });
+    }
+
+    return Api.post(
+      url,
+      formData,
+      {},
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+        timeout: FILE_UPLOAD_TRIGGER_TIMEOUT_MS,
+      },
+    );
   }
 }
 

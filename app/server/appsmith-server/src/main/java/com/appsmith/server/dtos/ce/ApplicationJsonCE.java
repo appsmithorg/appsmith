@@ -1,12 +1,15 @@
 package com.appsmith.server.dtos.ce;
 
+import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DecryptedSensitiveFields;
 import com.appsmith.external.models.InvisibleActionFields;
 import com.appsmith.external.views.Views;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -14,7 +17,6 @@ import com.appsmith.server.domains.Theme;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.Transient;
 
 import java.util.List;
 import java.util.Map;
@@ -27,17 +29,18 @@ import java.util.Set;
  */
 @Getter
 @Setter
-public class ApplicationJsonCE {
+public class ApplicationJsonCE implements ArtifactExchangeJsonCE {
+
+    @JsonView({Views.Public.class, Views.Export.class})
+    ArtifactType artifactJsonType = ArtifactType.APPLICATION;
 
     // To convey the schema version of the client and will be used to check if the imported file is compatible with
     // current DSL schema
-    @Transient
     @JsonView({Views.Public.class, Views.Export.class})
     Integer clientSchemaVersion;
 
     // To convey the schema version of the server and will be used to check if the imported file is compatible with
     // current DB schema
-    @Transient
     @JsonView({Views.Public.class, Views.Export.class})
     Integer serverSchemaVersion;
 
@@ -85,7 +88,7 @@ public class ApplicationJsonCE {
      * are updated in the database.
      */
     @JsonView(Views.Internal.class)
-    Map<String, Set<String>> updatedResources;
+    ModifiedResources modifiedResources;
 
     // TODO remove the plain text fields during the export once we have a way to address sample apps DB authentication
     @JsonView(Views.Public.class)
@@ -114,4 +117,20 @@ public class ApplicationJsonCE {
 
     @JsonView({Views.Public.class, Views.Export.class})
     String widgets;
+
+    @Override
+    public Artifact getArtifact() {
+        return this.getExportedApplication();
+    }
+
+    @Override
+    public void setThemes(Theme unpublishedTheme, Theme publishedTheme) {
+        this.setEditModeTheme(unpublishedTheme);
+        this.setPublishedTheme(publishedTheme);
+    }
+
+    @Override
+    public Theme getUnpublishedTheme() {
+        return this.getEditModeTheme();
+    }
 }

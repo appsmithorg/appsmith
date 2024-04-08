@@ -1,5 +1,5 @@
 import {
-  setIsAutocommitEnabled,
+  toggleAutocommitEnabledInit,
   setIsAutocommitModalOpen,
 } from "actions/gitSyncActions";
 import {
@@ -19,10 +19,15 @@ import {
 } from "design-system";
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { getIsAutocommitModalOpen } from "selectors/gitSyncSelectors";
+import {
+  getIsAutocommitModalOpen,
+  getIsAutocommitToggling,
+} from "selectors/gitSyncSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 
 function DisableAutocommitModal() {
   const isAutocommitModalOpen = useSelector(getIsAutocommitModalOpen);
+  const isAutocommitToggling = useSelector(getIsAutocommitToggling);
 
   const dispatch = useDispatch();
 
@@ -31,7 +36,8 @@ function DisableAutocommitModal() {
   };
 
   const handleDisableAutocommit = () => {
-    dispatch(setIsAutocommitEnabled(false));
+    dispatch(toggleAutocommitEnabledInit());
+    AnalyticsUtil.logEvent("GS_AUTO_COMMIT_DISABLED");
     dispatch(setIsAutocommitModalOpen(false));
   };
 
@@ -57,6 +63,7 @@ function DisableAutocommitModal() {
         <ModalFooter>
           <Button
             className="t--autocommit-modal-cta-button"
+            isLoading={isAutocommitToggling}
             kind="primary"
             onClick={handleDisableAutocommit}
             size="md"

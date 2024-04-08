@@ -19,7 +19,6 @@ import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
-import { showDebugger } from "actions/debuggerActions";
 
 import { runActionViaShortcut } from "actions/pluginActionActions";
 import type { SearchCategory } from "components/editorComponents/GlobalSearch/utils";
@@ -36,10 +35,7 @@ import {
   createMessage,
   SAVE_HOTKEY_TOASTER_MESSAGE,
 } from "@appsmith/constants/messages";
-import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { getExplorerPinned } from "selectors/explorerSelector";
-import { setExplorerPinnedAction } from "actions/explorerActions";
 import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { matchBuilderPath } from "constants/routes";
@@ -50,6 +46,7 @@ import { showDebuggerFlag } from "selectors/debuggerSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
 import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
+import { setPreviewModeInitAction } from "actions/editorActions";
 
 interface Props {
   copySelectedWidget: () => void;
@@ -59,7 +56,6 @@ interface Props {
   groupSelectedWidget: () => void;
   setGlobalSearchCategory: (category: SearchCategory) => void;
   resetSnipingMode: () => void;
-  openDebugger: () => void;
   closeProppane: () => void;
   closeTableFilterProppane: () => void;
   executeAction: () => void;
@@ -75,12 +71,11 @@ interface Props {
   isPreviewMode: boolean;
   isProtectedMode: boolean;
   setPreviewModeInitAction: (shouldSet: boolean) => void;
-  isExplorerPinned: boolean;
   isSignpostingEnabled: boolean;
-  setExplorerPinnedAction: (shouldPinned: boolean) => void;
   showCommitModal: () => void;
   getMousePosition: () => { x: number; y: number };
   hideInstaller: () => void;
+  toggleDebugger: () => void;
 }
 
 @HotkeysTarget
@@ -173,14 +168,7 @@ class GlobalHotKeys extends React.Component<Props> {
           global
           group="Canvas"
           label="Open Debugger"
-          onKeyDown={() => {
-            this.props.openDebugger();
-            if (this.props.isDebuggerOpen) {
-              AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-                source: "CANVAS",
-              });
-            }
-          }}
+          onKeyDown={this.props.toggleDebugger}
           preventDefault
         />
         <Hotkey
@@ -260,11 +248,12 @@ class GlobalHotKeys extends React.Component<Props> {
           label="Deselect all Widget"
           onKeyDown={(e: any) => {
             this.props.resetSnipingMode();
-            this.props.deselectAllWidgets();
-            this.props.closeProppane();
-            this.props.closeTableFilterProppane();
+            if (matchBuilderPath(window.location.pathname)) {
+              this.props.deselectAllWidgets();
+              this.props.closeProppane();
+              this.props.closeTableFilterProppane();
+            }
             e.preventDefault();
-            this.props.setPreviewModeInitAction(false);
           }}
         />
         <Hotkey
@@ -333,21 +322,11 @@ class GlobalHotKeys extends React.Component<Props> {
           stopPropagation
         />
         <Hotkey
-          combo="p"
+          combo="alt + p"
           global
           label="Preview Mode"
           onKeyDown={() => {
             this.props.setPreviewModeInitAction(!this.props.isPreviewMode);
-          }}
-        />
-        <Hotkey
-          combo="mod + /"
-          disabled={this.props.isSignpostingEnabled}
-          global
-          label="Pin/Unpin Entity Explorer"
-          onKeyDown={() => {
-            this.props.setExplorerPinnedAction(!this.props.isExplorerPinned);
-            this.props.hideInstaller();
           }}
         />
         <Hotkey
@@ -374,7 +353,6 @@ const mapStateToProps = (state: AppState) => ({
   appMode: getAppMode(state),
   isPreviewMode: previewModeSelector(state),
   isProtectedMode: protectedModeSelector(state),
-  isExplorerPinned: getExplorerPinned(state),
   isSignpostingEnabled: getIsFirstTimeUserOnboardingEnabled(state),
 });
 
@@ -389,7 +367,6 @@ const mapDispatchToProps = (dispatch: any) => {
     setGlobalSearchCategory: (category: SearchCategory) =>
       dispatch(setGlobalSearchCategory(category)),
     resetSnipingMode: () => dispatch(resetSnipingModeAction()),
-    openDebugger: () => dispatch(showDebugger()),
     closeProppane: () => dispatch(closePropertyPane()),
     closeTableFilterProppane: () => dispatch(closeTableFilterPane()),
     selectAllWidgetsInit: () =>
@@ -399,10 +376,6 @@ const mapDispatchToProps = (dispatch: any) => {
     executeAction: () => dispatch(runActionViaShortcut()),
     undo: () => dispatch(undoAction()),
     redo: () => dispatch(redoAction()),
-    setPreviewModeInitAction: (shouldSet: boolean) =>
-      dispatch(setPreviewModeInitAction(shouldSet)),
-    setExplorerPinnedAction: (shouldSet: boolean) =>
-      dispatch(setExplorerPinnedAction(shouldSet)),
     showCommitModal: () =>
       dispatch(
         setIsGitSyncModalOpen({
@@ -411,6 +384,8 @@ const mapDispatchToProps = (dispatch: any) => {
         }),
       ),
     hideInstaller: () => dispatch(toggleInstaller(false)),
+    setPreviewModeInitAction: (shouldSet: boolean) =>
+      dispatch(setPreviewModeInitAction(shouldSet)),
   };
 };
 

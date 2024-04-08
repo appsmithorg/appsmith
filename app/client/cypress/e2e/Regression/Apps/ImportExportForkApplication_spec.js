@@ -17,7 +17,7 @@ describe(
     it("1. Import application from json and validate data on pageload", function () {
       // import application
       homePage.NavigateToHome();
-      cy.get(homePageLocatores.optionsIcon).first().click();
+      agHelper.GetNClick(homePageLocatores.createNew, 0);
       cy.get(homePageLocatores.workspaceImportAppOption).click({ force: true });
       cy.get(homePageLocatores.workspaceImportAppModal).should("be.visible");
       cy.xpath(homePageLocatores.uploadLogo).selectFile(
@@ -87,7 +87,6 @@ describe(
       cy.get(homePageLocatores.appMoreIcon).first().click({ force: true });
       // export application
       cy.get(homePageLocatores.exportAppFromMenu).click({ force: true });
-      cy.get(homePageLocatores.searchInput).clear();
       cy.get(`a[id=t--export-app-link]`).then((anchor) => {
         const url = anchor.prop("href");
         cy.request(url).then(({ body, headers }) => {
@@ -104,6 +103,8 @@ describe(
           cy.get("@guid").then((uid) => {
             newWorkspaceName = uid;
             homePage.CreateNewWorkspace(newWorkspaceName);
+            agHelper.GetNClick(homePageLocatores.createNew, 0, true);
+
             cy.get(homePageLocatores.workspaceImportAppOption).click({
               force: true,
             });
@@ -116,7 +117,7 @@ describe(
               { force: true },
             );
             if (!Cypress.env("AIRGAPPED"))
-              assertHelper.AssertNetworkStatus("@getReleaseItems");
+              assertHelper.AssertNetworkStatus("@getAllWorkspaces");
 
             // import exported application in new workspace
             // cy.get(homePageLocatores.workspaceImportAppButton).click({ force: true });
@@ -136,8 +137,8 @@ describe(
               }
               const importedApp = interception.response.body.data.application;
               const appSlug = importedApp.slug;
-              cy.wait("@getPagesForCreateApp").then((interception) => {
-                const pages = interception.response.body.data.pages;
+              cy.wait("@getConsolidatedData").then((interception) => {
+                const pages = interception.response.body.data.pages.data.pages;
                 let defaultPage = pages.find(
                   (eachPage) => !!eachPage.isDefault,
                 );

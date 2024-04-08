@@ -48,8 +48,8 @@ public class DatasourceStorageForkableServiceCEImpl implements ForkableServiceCE
             initialAuth = newDatasourceStorage.getDatasourceConfiguration().getAuthentication();
         }
 
-        if (!Boolean.TRUE.equals(targetMeta.getForkWithConfiguration())) {
-            newDatasourceStorage.setDatasourceConfiguration(null);
+        if (Boolean.FALSE.equals(targetMeta.getForkWithConfiguration())) {
+            removeSensitiveFields(newDatasourceStorage);
         }
 
         /*
@@ -80,5 +80,14 @@ public class DatasourceStorageForkableServiceCEImpl implements ForkableServiceCE
         }
 
         return newDatasourceStorage;
+    }
+
+    private void removeSensitiveFields(DatasourceStorage datasourceStorage) {
+        if (datasourceStorage.getDatasourceConfiguration() != null) {
+            datasourceStorage.getDatasourceConfiguration().setAuthentication(null);
+            datasourceStorage.getDatasourceConfiguration().setSshProxy(null);
+            datasourceStorage.getDatasourceConfiguration().setSshProxyEnabled(null);
+            datasourceStorage.getDatasourceConfiguration().setProperties(null);
+        }
     }
 }

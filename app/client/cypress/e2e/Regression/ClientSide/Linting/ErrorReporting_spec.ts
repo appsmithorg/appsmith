@@ -12,6 +12,7 @@ import {
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe("Lint error reporting", { tags: ["@tag.JS"] }, () => {
@@ -67,7 +68,6 @@ describe("Lint error reporting", { tags: ["@tag.JS"] }, () => {
     }`;
 
     // Test in PropertyPane
-    PageLeftPane.expandCollapseItem("Queries/JS");
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
@@ -120,7 +120,6 @@ describe("Lint error reporting", { tags: ["@tag.JS"] }, () => {
     }`;
 
     // Test in PropertyPane
-    PageLeftPane.expandCollapseItem("Queries/JS");
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
@@ -173,7 +172,6 @@ describe("Lint error reporting", { tags: ["@tag.JS"] }, () => {
     }`;
 
     // Test in PropertyPane
-    PageLeftPane.expandCollapseItem("Queries/JS");
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
@@ -228,11 +226,10 @@ describe("Lint error reporting", { tags: ["@tag.JS"] }, () => {
     }
     `;
     // Test in PropertyPane
-    PageLeftPane.expandCollapseItem("Queries/JS");
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+    propPane.UpdatePropertyFieldValue("onClick", "");
     propPane.UpdatePropertyFieldValue("Tooltip", "{{currentItem}}");
     propPane.UpdatePropertyFieldValue("Label", "{{currentRow}}");
-    propPane.UpdatePropertyFieldValue("onClick", "");
 
     agHelper.AssertElementLength(locators._lintErrorElement, 2);
 
@@ -250,6 +247,7 @@ describe("Lint error reporting", { tags: ["@tag.JS"] }, () => {
       completeReplace: true,
       toRun: false,
       shouldCreateNewJSObj: true,
+      prettify: false,
     });
     agHelper.AssertElementLength(locators._lintErrorElement, 2);
 
@@ -345,6 +343,7 @@ describe("Lint error reporting", { tags: ["@tag.JS"] }, () => {
       action: "Delete",
       entityType: entityItems.Api,
     });
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "JSObject1",
       action: "Delete",

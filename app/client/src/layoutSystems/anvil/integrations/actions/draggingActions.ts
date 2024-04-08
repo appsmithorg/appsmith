@@ -1,5 +1,13 @@
+import type { AnvilDragMeta } from "layoutSystems/anvil/editor/canvasArenas/types";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { AnvilHighlightInfo } from "../../utils/anvilTypes";
+import type {
+  AnvilHighlightInfo,
+  DraggedWidget,
+} from "layoutSystems/anvil/utils/anvilTypes";
+import type {
+  AnvilMoveWidgetsPayload,
+  AnvilNewWidgetsPayload,
+} from "./actionTypes";
 import { AnvilReduxActionTypes } from "./actionTypes";
 
 /**
@@ -11,15 +19,19 @@ export const addNewAnvilWidgetAction = (
     height: number;
     newWidgetId: string;
     type: string;
+    detachFromLayout: boolean;
   },
   highlight: AnvilHighlightInfo,
+  dragMeta: AnvilDragMeta,
 ) => {
+  const payload: AnvilNewWidgetsPayload = {
+    highlight,
+    newWidget,
+    dragMeta,
+  };
   return {
     type: AnvilReduxActionTypes.ANVIL_ADD_NEW_WIDGET,
-    payload: {
-      highlight,
-      newWidget,
-    },
+    payload,
   };
 };
 
@@ -28,14 +40,17 @@ export const addNewAnvilWidgetAction = (
  */
 export const moveAnvilWidgets = (
   highlight: AnvilHighlightInfo,
-  movedWidgets: string[],
+  movedWidgets: DraggedWidget[],
+  dragMeta: AnvilDragMeta,
 ) => {
+  const payload: AnvilMoveWidgetsPayload = {
+    highlight,
+    movedWidgets,
+    dragMeta,
+  };
   return {
     type: AnvilReduxActionTypes.ANVIL_MOVE_WIDGET,
-    payload: {
-      highlight,
-      movedWidgets,
-    },
+    payload,
   };
 };
 

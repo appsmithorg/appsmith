@@ -110,9 +110,9 @@ On your development machine, please ensure that:
   ```
 
 - In order to run cypress tests which use datasources/rest api, you will need to have TED (Test Event Driver) container running: (It bundles multiple services together along with fake data for testing)
-  ``` 
+  ```
   docker pull appsmith/test-event-driver
-  
+
   docker run --name appsmithted -d -p 2222:22 -p 5001:5001 -p 3306:3306 -p 28017:27017 -p 5432:5432 -p 25:25 -p 5000:5000 -p 3000:3000 -v `pwd`/git-server/keys:/git-server/keys -v `pwd`/git-server/repos:/git-server/repo appsmith/test-event-driver
   ```
 
@@ -134,15 +134,15 @@ On your development machine, please ensure that:
 
             docker pull appsmith/appsmith-ce
 
-            docker run -d --name appsmith -p 8000:80 -p 9001:9001 appsmith/appsmith-ce:latest;
+            docker run -d --name appsmith -p 8000:80 appsmith/appsmith-ce:latest;
 
             docker logs -f appsmith;
 
-            ./start-https.sh http://localhost:8000 // if nginx is installed locally 
+            ./start-https.sh http://localhost:8000 // if nginx is installed locally
             ./start-https.sh http://host.docker.internal:8000 // if nginx is running on docker
-            
+
             ```
-    
+
 
         1. Create docker image from local source code
 
@@ -151,15 +151,15 @@ On your development machine, please ensure that:
             ./scripts/local_testing.sh -l # This builds a fat docker image of local backend and frontend
             # The docker image created above will show up in your docker desktop application
 
-            docker run -d --name appsmith -p 8000:80 -p 9001:9001 appsmith/appsmith-ce:local-testing;
-            
-            ./start-https.sh http://localhost:8000 // if nginx is installed locally 
+            docker run -d --name appsmith -p 8000:80 appsmith/appsmith-ce:local-testing;
+
+            ./start-https.sh http://localhost:8000 // if nginx is installed locally
             ./start-https.sh http://host.docker.internal:8000 // if nginx is running on docker
 
             ```
 - Please check out our [Testing Contribution](docs/TestAutomation.md) guide for more details on setting up & troubleshooting Cypress runs on your machine.
 
-   
+
 ### Running Unit Tests
 
 - To run the Jest unit tests, run:
@@ -172,10 +172,10 @@ On your development machine, please ensure that:
 - To run a single jest test,
   ```bash
     cd app/client
-    
+
     # Run either command below to run a test
     npx jest <file_path/file_name>
-    
+
     # or
 
     yarn jest src/widgets/<filepath>/<filename>.test.ts --silent=false

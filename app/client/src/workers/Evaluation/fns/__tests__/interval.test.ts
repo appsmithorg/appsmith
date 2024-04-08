@@ -50,7 +50,9 @@ describe("Tests for interval functions", () => {
     self["$isDataField"] = false;
     self["$cloudHosting"] = false;
     ExecutionMetaData.setExecutionMetaData({
-      triggerMeta: {},
+      triggerMeta: {
+        onPageLoad: false,
+      },
       eventType: EventType.ON_PAGE_LOAD,
     });
     overrideWebAPIs(evalContext);
@@ -112,5 +114,24 @@ describe("Tests for interval functions", () => {
     evalContext.clearInterval(interval);
     expect(showAlertMock).toBeCalledTimes(2);
     expect(showAlertMock).toBeCalledWith("Hello World");
+  });
+
+  it("clearInterval should remove only the mentioned interval, and not all the intervals", async () => {
+    const callback = jest.fn();
+    const interval1 = evalContext.setInterval(callback, 1000);
+    evalContext.setInterval(callback, 1000, "intervalId1");
+    evalContext.setInterval(callback, 1000, "intervalId2");
+    jest.advanceTimersByTime(1000);
+    evalContext.clearInterval(); // this should not clear any intervals as no 'id' parameter is passed
+    expect(callback).toBeCalledTimes(3);
+    evalContext.clearInterval(interval1);
+    jest.advanceTimersByTime(1000);
+    expect(callback).toBeCalledTimes(5);
+    evalContext.clearInterval("intervalId1");
+    jest.advanceTimersByTime(1000);
+    expect(callback).toBeCalledTimes(6);
+    evalContext.clearInterval("intervalId2");
+    jest.advanceTimersByTime(5000);
+    expect(callback).toBeCalledTimes(6);
   });
 });

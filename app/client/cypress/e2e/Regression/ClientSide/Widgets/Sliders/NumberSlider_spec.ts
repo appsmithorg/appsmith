@@ -291,7 +291,8 @@ describe("Number Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
   });
 
   it("7. Verify Range slider visibility in explorer", () => {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
+    PageLeftPane.switchToAddNew();
     agHelper.ClearTextField(locators._entityExplorersearch);
     agHelper.TypeText(locators._entityExplorersearch, "Number");
     agHelper.AssertElementExist(locators._widgetPageIcon("numbersliderwidget"));

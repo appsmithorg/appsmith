@@ -5,7 +5,6 @@ import {
   entityExplorer,
   propPane,
   draggableWidgets,
-  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -79,7 +78,6 @@ describe(
       // Select from dropdown
       agHelper.GetNClick(`${locators._propertyControl}icon`);
       agHelper.GetElement(propPane._iconDropdown).scrollTo("top");
-      agHelper.Sleep();
       agHelper.GetNClick(propPane._dataIcon("airplane"));
       agHelper.AssertElementVisibility(
         `${locators._widgetInDeployed("iconbuttonwidget")} ${propPane._dataIcon(
@@ -108,28 +106,7 @@ describe(
       );
     });
 
-    it("4. Verify onClick", () => {
-      propPane.ToggleJSMode("onClick", true);
-      propPane.UpdatePropertyFieldValue(
-        "onClick",
-        `{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}`,
-      );
-      deployMode.DeployApp(
-        locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
-      );
-      agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
-      agHelper.AssertURL("yahoo.com");
-      cy.go("back");
-      agHelper.WaitUntilEleAppear(
-        locators._widgetInDeployed("iconbuttonwidget"),
-      );
-      assertHelper.AssertNetworkResponseData("@viewPage");
-      assertHelper.AssertDocumentReady();
-      agHelper.Sleep(3000); //for view page to complete loading & then navigate back
-      deployMode.NavigateBacktoEditor();
-    });
-
-    it("5. Verify tooltip", () => {
+    it("4. Verify tooltip", () => {
       // entityExplorer.DragDropWidgetNVerify("currencyinputwidget", 500, 300);
       EditorNavigation.SelectEntityByName("CurrencyInput1", EntityType.Widget);
       propPane.UpdatePropertyFieldValue("Default value", "1000");
@@ -157,7 +134,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("6. Validate visible and disabled toggle", () => {
+    it("5. Validate visible and disabled toggle", () => {
       EditorNavigation.SelectEntityByName("NewIconButton", EntityType.Widget);
       propPane.TogglePropertyState("visible", "Off");
 
@@ -239,7 +216,7 @@ describe(
       propPane.TogglePropertyState("disabled", "Off");
     });
 
-    it("7. Verify button color and border and shadows", () => {
+    it("6. Verify button color and border and shadows", () => {
       // Verify button color picker opens up
       propPane.MoveToTab("Style");
       agHelper.GetNClick(propPane._propertyControlColorPicker("buttoncolor"));
@@ -286,6 +263,20 @@ describe(
         "box-shadow",
         "rgba(0, 0, 0, 0.1) 0px 10px 15px -3px, rgba(0, 0, 0, 0.05) 0px 4px 6px -2px",
       );
+    });
+
+    it("7. Verify onClick", () => {
+      propPane.MoveToTab("Content");
+      propPane.ToggleJSMode("onClick", true);
+      propPane.UpdatePropertyFieldValue(
+        "onClick",
+        `{{navigateTo('www.yahoo.com', {}, 'SAME_WINDOW');}}`,
+      );
+      deployMode.DeployApp(
+        locators._widgetInDeployed(draggableWidgets.ICONBUTTON),
+      );
+      agHelper.GetNClick(`${locators._widgetInDeployed("iconbuttonwidget")}`);
+      agHelper.AssertURL("yahoo.com");
     });
   },
 );

@@ -9,7 +9,8 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ApplicationImportDTO {
+public class ApplicationImportDTO extends ArtifactImportDTO {
+
     Application application;
 
     List<Datasource> unConfiguredDatasourceList;

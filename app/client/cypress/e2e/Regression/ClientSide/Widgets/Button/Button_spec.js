@@ -1,4 +1,7 @@
-import { PageLeftPane } from "../../../../../support/Pages/EditorNavigation";
+import EditorNavigation, {
+  EntityType,
+  PageLeftPane,
+} from "../../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../../locators/Widgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
@@ -194,8 +197,8 @@ describe(
     });
 
     it(
-      "excludeForAirgap",
       "8. Button-Check recaptcha type can be selected",
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         cy.selectDropdownValue(commonlocators.recaptchaVersion, "reCAPTCHA v2");
         cy.get(commonlocators.recaptchaVersionText)
@@ -215,14 +218,14 @@ describe(
     it("10. Button-Copy & Delete Verification", function () {
       //Copy button and verify all properties
       _.agHelper.Sleep();
-      PageLeftPane.expandCollapseItem("Widgets");
+      EditorNavigation.SelectEntityByName("Container3", EntityType.Widget);
       PageLeftPane.expandCollapseItem("Container3");
       _.propPane.CopyPasteWidgetFromPropertyPane("Submitbutton");
       //cy.copyWidget("buttonwidget", widgetsPage.buttonWidget);
       //_.deployMode.NavigateBacktoEditor();
       // Delete the button widget
 
-      PageLeftPane.expandCollapseItem("Container3", "Widgets");
+      PageLeftPane.expandCollapseItem("Container3");
       _.propPane.DeleteWidgetFromPropertyPane("SubmitbuttonCopy");
       _.deployMode.DeployApp();
       cy.get(widgetsPage.buttonWidget).should("not.exist");

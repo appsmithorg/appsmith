@@ -1,19 +1,18 @@
 import React, { forwardRef } from "react";
 import { Button } from "@design-system/widgets";
-import { useButtonGroupContext } from "./ButtonGroupContext";
 
 import type { ButtonGroupItemProps } from "./types";
 import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
 
-const _ButtonGroupItem = (
-  props: ButtonGroupItemProps,
+const _ButtonGroupItem = <T extends object>(
+  props: ButtonGroupItemProps<T>,
   ref: HeadlessButtonRef,
 ) => {
-  const { color, variant } = useButtonGroupContext();
-  const { children, ...rest } = props;
+  const { color, item, variant, ...rest } = props;
+
   return (
     <Button color={color} ref={ref} variant={variant} {...rest}>
-      {children}
+      {item.rendered}
     </Button>
   );
 };

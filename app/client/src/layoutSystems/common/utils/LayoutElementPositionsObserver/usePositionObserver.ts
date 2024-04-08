@@ -6,7 +6,29 @@ import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import { getAnvilLayoutDOMId, getAnvilWidgetDOMId } from "./utils";
+import { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
 export type ObservableElementType = "widget" | "layout";
+
+export function useObserveDetachedWidget(widgetId: string) {
+  // We don't need the observer in preview mode or the published app
+  // This is because the positions need to be observed only to enable
+  // editor features
+  const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const appMode = useSelector(getAppMode);
+  if (isPreviewMode || appMode === APP_MODE.PUBLISHED) {
+    return;
+  }
+  const className = getAnvilWidgetDOMId(widgetId);
+  const ref = {
+    current: document.querySelector(`.${className}`) as HTMLDivElement,
+  };
+  positionObserver.observeWidget(widgetId, "", ref, true);
+  return () => {
+    const element = document.querySelector(`.${className}`) as HTMLDivElement;
+    const domID = element.getAttribute("id");
+    if (domID) positionObserver.unObserveWidget(domID);
+  };
+}
 
 /**
  * A hook to register a widget or a layout with the position observer
@@ -23,6 +45,7 @@ export function usePositionObserver(
     canvasId?: string;
     parentDropTarget?: string;
     isDropTarget?: boolean;
+    layoutType?: LayoutComponentTypes;
   },
   ref: RefObject<HTMLDivElement>,
 ) {
@@ -56,6 +79,7 @@ export function usePositionObserver(
             ids.canvasId,
             ids.parentDropTarget || "",
             !!ids.isDropTarget,
+            ids.layoutType || LayoutComponentTypes.WIDGET_ROW,
             ref,
           );
           break;

@@ -192,7 +192,7 @@ describe(
       freezeColumnFromDropdown("status", "left");
       freezeColumnFromDropdown("action", "right");
 
-      agHelper.RefreshPage("viewPage");
+      agHelper.RefreshPage("getConsolidatedData");
 
       checkIfColumnIsFrozenViaCSS("status");
       checkIfColumnIsFrozenViaCSS("action");
@@ -215,7 +215,7 @@ describe(
       freezeColumnFromDropdown("id", "left");
       freezeColumnFromDropdown("updatedAt", "right");
 
-      agHelper.RefreshPage("viewPage");
+      agHelper.RefreshPage("getConsolidatedData");
 
       checkIfColumnIsFrozenViaCSS("id");
       checkIfColumnIsFrozenViaCSS("updatedAt");

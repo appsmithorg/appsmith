@@ -33,9 +33,9 @@ function PropertyHelpLabel(props: Props) {
       content={props.tooltip || ""}
       isDisabled={!toolTipDefined}
     >
-      <div onClick={props.onClick}>
+      <div className="w-full" onClick={props.onClick}>
         <Label
-          className={`t--property-control-label`}
+          className={`t--property-control-label w-full block text-ellipsis overflow-hidden`}
           style={{
             cursor: toolTipDefined ? "help" : "default",
           }}

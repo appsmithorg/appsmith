@@ -5,11 +5,9 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { Variable, JSAction } from "entities/JSCollection";
 import type { PluginType } from "entities/Action";
 import type { FetchActionsPayload } from "api/ActionAPI";
-import type { ActionContextTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
-export type JSCollectionCreateUpdateResponse = ApiResponse & {
-  id: string;
-};
+export type JSCollectionCreateUpdateResponse = ApiResponse<JSCollection>;
 
 export interface MoveJSCollectionRequest {
   collectionId: string;
@@ -23,7 +21,8 @@ export interface UpdateJSObjectNameRequest {
   newName: string;
   oldName: string;
   moduleId?: string;
-  contextType?: ActionContextTypeInterface;
+  workflowId?: string;
+  contextType?: ActionParentEntityTypeInterface;
 }
 
 export interface CreateJSCollectionRequest {
@@ -37,7 +36,7 @@ export interface CreateJSCollectionRequest {
   applicationId: string;
   pluginType: PluginType;
   workflowId?: string;
-  contextType?: ActionContextTypeInterface;
+  contextType?: ActionParentEntityTypeInterface;
   moduleId?: string;
 }
 
@@ -47,14 +46,16 @@ export interface SetFunctionPropertyPayload {
   value: any;
 }
 export interface RefactorAction {
-  pageId: string;
+  pageId?: string;
   actionId: string;
   newName: string;
   oldName: string;
   collectionName: string;
+  moduleId?: string;
+  contextType?: ActionParentEntityTypeInterface;
 }
 export interface RefactorActionRequest extends RefactorAction {
-  layoutId: string;
+  layoutId?: string;
 }
 
 export interface UpdateCollectionActionNameRequest

@@ -5,8 +5,11 @@ import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.SSLHelper;
+import com.appsmith.external.helpers.restApiUtils.helpers.OAuth2Utils;
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.AuthenticationResponse;
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.DefaultResources;
@@ -20,12 +23,15 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
+import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.AuthorizationCodeCallbackDTO;
 import com.appsmith.server.dtos.IntegrationDTO;
+import com.appsmith.server.dtos.RequestAppsmithTokenDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.InstanceConfigHelper;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.helpers.RedirectHelper;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -36,13 +42,16 @@ import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.ClientResponse;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Mono;
@@ -87,6 +96,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     private final PagePermission pagePermission;
     private final PluginExecutorHelper pluginExecutorHelper;
     private final DatasourceStorageService datasourceStorageService;
+    private final InstanceConfigHelper instanceConfigHelper;
     private static final String FILE_SPECIFIC_DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.file";
     private static final String ACCESS_TOKEN_KEY = "access_token";
 
@@ -116,6 +126,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .flatMap(datasource -> datasourceService.getTrueEnvironmentId(
                         datasource.getWorkspaceId(), environmentId, datasource.getPluginId(), null))
                 .cache();
+        Mono<String> workspaceIdMono = datasourceMonoCached.map(Datasource::getWorkspaceId);
 
         return datasourceMonoCached
                 .zipWith(trueEnvironmentIdCached)
@@ -127,16 +138,18 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
-                .zipWith(trueEnvironmentIdCached)
+                .zipWith(Mono.zip(workspaceIdMono, trueEnvironmentIdCached))
                 .flatMap(tuple2 -> {
                     DatasourceStorage datasourceStorage = tuple2.getT1();
-                    String trueEnvironmentId = tuple2.getT2();
+                    String workspaceId = tuple2.getT2().getT1();
+                    String trueEnvironmentId = tuple2.getT2().getT2();
                     OAuth2 oAuth2 = (OAuth2)
                             datasourceStorage.getDatasourceConfiguration().getAuthentication();
                     final String redirectUri = redirectHelper.getRedirectDomain(httpRequest.getHeaders());
                     final String state = StringUtils.hasText(branchName)
-                            ? String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri, branchName)
-                            : String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri);
+                            ? String.join(
+                                    ",", pageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId, branchName)
+                            : String.join(",", pageId, datasourceId, trueEnvironmentId, redirectUri, workspaceId);
                     // Adding basic uri components
                     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUriString(
                                     oAuth2.getAuthorizationUrl())
@@ -291,16 +304,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                 if (issuedAtResponse != null) {
                                     issuedAt = Instant.ofEpochMilli(Long.parseLong((String) issuedAtResponse));
                                 }
-                                // We expect at least one of the following to be present
-                                Object expiresAtResponse = response.get(Authentication.EXPIRES_AT);
-                                Object expiresInResponse = response.get(Authentication.EXPIRES_IN);
-                                Instant expiresAt = null;
-                                if (expiresAtResponse != null) {
-                                    expiresAt =
-                                            Instant.ofEpochSecond(Long.parseLong(String.valueOf(expiresAtResponse)));
-                                } else if (expiresInResponse != null) {
-                                    expiresAt = issuedAt.plusSeconds(Long.parseLong(String.valueOf(expiresInResponse)));
-                                }
+                                Instant expiresAt = OAuth2Utils.getAuthenticationExpiresAt(oAuth2, response, issuedAt);
                                 authenticationResponse.setExpiresAt(expiresAt);
                                 // Replacing with returned scope instead
                                 if (scope != null && !scope.isBlank()) {
@@ -332,7 +336,8 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
         final String datasourceId = splitState[1];
         final String environmentId = splitState[2];
         final String redirectOrigin = splitState[3];
-        final String branchName = splitState.length == 5 ? splitState[4] : null;
+        final String workspaceId = splitState[4];
+        final String branchName = splitState.length == 6 ? splitState[5] : null;
         String response = SUCCESS;
         if (error != null) {
             response = error;
@@ -350,6 +355,7 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                         + "?response_status="
                         + responseStatus
                         + "&view_mode=true"
+                        + (StringUtils.hasText(workspaceId) ? "&workspaceId=" + workspaceId : "")
                         + (StringUtils.hasText(branchName) ? "&branch=" + branchName : ""))
                 .onErrorResume(e -> Mono.just(redirectOrigin + Entity.SLASH + Entity.APPLICATIONS
                         + "?response_status="
@@ -360,9 +366,9 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
     public Mono<String> getAppsmithToken(
             String datasourceId,
             String environmentId,
-            String pageId,
+            RequestAppsmithTokenDTO requestAppsmithTokenDTO,
             String branchName,
-            ServerHttpRequest request,
+            HttpHeaders headers,
             String importForGit) {
         // Check whether user has access to manage the datasource
         // Validate the datasource according to plugin type as well
@@ -387,37 +393,26 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                     return datasourceStorageService.findByDatasourceAndEnvironmentId(datasource, trueEnvironmentId);
                 });
 
-        final String redirectUri = redirectHelper.getRedirectDomain(request.getHeaders());
+        final String redirectUri = redirectHelper.getRedirectDomain(headers);
 
         return datasourceStorageMonoCached
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.DATASOURCE, datasourceId)))
                 .flatMap(this::validateRequiredFieldsForGenericOAuth2)
                 .flatMap(datasource -> Mono.zip(
-                                newPageService.findById(pageId, pagePermission.getReadPermission()),
-                                configService.getInstanceId(),
-                                pluginService.findById(datasource.getPluginId()))
-                        .map(tuple -> {
+                                configService.getInstanceId(), pluginService.findById(datasource.getPluginId()))
+                        .flatMap(tuple -> {
+                            String instanceId = tuple.getT1();
+                            Plugin plugin = tuple.getT2();
                             IntegrationDTO integrationDTO = new IntegrationDTO();
-                            integrationDTO.setInstallationKey(tuple.getT2());
-                            NewPage page = tuple.getT1();
+                            integrationDTO.setInstallationKey(instanceId);
 
-                            DefaultResources defaultResourceIds = page.getDefaultResources();
-                            String defaultPageId = StringUtils.hasLength(defaultResourceIds.getPageId())
-                                    ? defaultResourceIds.getPageId()
-                                    : page.getId();
-
-                            String defaultApplicationId = StringUtils.hasLength(defaultResourceIds.getApplicationId())
-                                    ? defaultResourceIds.getApplicationId()
-                                    : page.getApplicationId();
-
-                            integrationDTO.setPageId(defaultPageId);
-                            integrationDTO.setApplicationId(defaultApplicationId);
                             integrationDTO.setBranch(branchName);
                             integrationDTO.setImportForGit(importForGit);
-                            final Plugin plugin = tuple.getT3();
+                            integrationDTO.setWorkspaceId(datasource.getWorkspaceId());
                             integrationDTO.setPluginName(plugin.getPluginName());
                             integrationDTO.setPluginVersion(plugin.getVersion());
+                            integrationDTO.setContextType(requestAppsmithTokenDTO.getContextType());
                             // TODO add authenticationDTO
                             integrationDTO.setDatasourceId(datasourceId);
                             integrationDTO.setScope(((OAuth2) datasource
@@ -425,22 +420,62 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                             .getAuthentication())
                                     .getScope());
                             integrationDTO.setRedirectionDomain(redirectUri);
-                            return integrationDTO;
+                            return getContext(
+                                            requestAppsmithTokenDTO.getContextId(),
+                                            requestAppsmithTokenDTO.getContextType())
+                                    .map(context -> associateIntegrationDTOWithContext(
+                                            integrationDTO, context, requestAppsmithTokenDTO.getContextType()));
                         }))
                 .flatMap(integrationDTO -> {
-                    return WebClientUtils.create(
+                    Mono<ClientResponse> clientResponseMono = WebClientUtils.create(
                                     cloudServicesConfig.getBaseUrl() + "/api/v1/integrations/oauth/appsmith")
                             .method(HttpMethod.POST)
                             .body(BodyInserters.fromValue(integrationDTO))
-                            .exchange()
+                            .exchange();
+
+                    return clientResponseMono
                             .flatMap(response -> {
                                 if (response.statusCode().is2xxSuccessful()) {
                                     return response.bodyToMono(Map.class);
                                 } else {
-                                    log.debug("Unable to retrieve appsmith token with error {}", response.statusCode());
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.AUTHENTICATION_FAILURE,
-                                            "Unable to retrieve appsmith token with error " + response.statusCode()));
+                                    if (response.statusCode().equals(HttpStatus.FORBIDDEN)) {
+                                        // Instance is not registered with CS, hence re-registering it
+                                        Mono<? extends Config> registerInstanceMono =
+                                                instanceConfigHelper.registerInstance();
+                                        return registerInstanceMono
+                                                .flatMap(config -> clientResponseMono.flatMap(res -> {
+                                                    if (res.statusCode().is2xxSuccessful()) {
+                                                        // After re-registering the instance, the appsmith token request
+                                                        // is successful
+                                                        return res.bodyToMono(Map.class);
+                                                    } else {
+                                                        // After re-registering the instance, the appsmith token request
+                                                        // has failed
+                                                        log.debug(
+                                                                "Unable to retrieve appsmith token with error {}",
+                                                                res.statusCode());
+                                                        return Mono.error(new AppsmithException(
+                                                                AppsmithError.AUTHENTICATION_FAILURE,
+                                                                "Unable to retrieve appsmith token with error "
+                                                                        + res.statusCode()));
+                                                    }
+                                                }))
+                                                .onErrorResume(e -> {
+                                                    log.error("Error while registering instance", e.getMessage());
+                                                    return Mono.error(new AppsmithException(
+                                                            AppsmithError.AUTHENTICATION_FAILURE,
+                                                            "Appsmith Instance Not Registered with Cloud Services "
+                                                                    + response.statusCode()));
+                                                });
+                                    } else {
+                                        log.debug(
+                                                "Unable to retrieve appsmith token with error {}",
+                                                response.statusCode());
+                                        return Mono.error(new AppsmithException(
+                                                AppsmithError.AUTHENTICATION_FAILURE,
+                                                "Unable to retrieve appsmith token with error "
+                                                        + response.statusCode()));
+                                    }
                                 }
                             })
                             .map(body -> String.valueOf(body.get("data")))
@@ -473,6 +508,26 @@ public class AuthenticationServiceCEImpl implements AuthenticationServiceCE {
                                     .save(datasourceStorage)
                                     .then(Mono.error(error));
                         }));
+    }
+
+    protected Mono<? extends BaseDomain> getContext(String contextId, CreatorContextType contextType) {
+        return newPageService.findById(contextId, pagePermission.getReadPermission());
+    }
+
+    protected IntegrationDTO associateIntegrationDTOWithContext(
+            IntegrationDTO integrationDTO, BaseDomain baseDomain, CreatorContextType contextType) {
+        NewPage newPage = (NewPage) baseDomain;
+        DefaultResources defaultResources = newPage.getDefaultResources();
+        String defaultPageId =
+                StringUtils.hasLength(defaultResources.getPageId()) ? defaultResources.getPageId() : newPage.getId();
+
+        String defaultApplicationId = StringUtils.hasLength(defaultResources.getApplicationId())
+                ? defaultResources.getApplicationId()
+                : newPage.getApplicationId();
+
+        integrationDTO.setPageId(defaultPageId);
+        integrationDTO.setApplicationId(defaultApplicationId);
+        return integrationDTO;
     }
 
     public Mono<OAuth2ResponseDTO> getAccessTokenFromCloud(

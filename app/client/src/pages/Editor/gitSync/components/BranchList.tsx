@@ -27,9 +27,6 @@ import BranchListHotkeys from "./BranchListHotkeys";
 import {
   createMessage,
   FIND_OR_CREATE_A_BRANCH,
-  // GO_TO_SETTINGS,
-  // LEARN_MORE,
-  // NOW_PROTECT_BRANCH,
   SWITCH_BRANCHES,
   SYNC_BRANCHES,
 } from "@appsmith/constants/messages";
@@ -40,7 +37,6 @@ import {
   Button,
   SearchInput,
   Text,
-  // Callout,
 } from "design-system";
 import { get } from "lodash";
 import {
@@ -381,32 +377,6 @@ export default function BranchList(props: {
         {loading && <BranchesLoading />}
         {!loading && (
           <ListContainer>
-            {/* keeping it commented for future use */}
-            {/* <Callout
-              isClosable
-              links={[
-                {
-                  children: createMessage(GO_TO_SETTINGS),
-                  onClick: () => {
-                    props.setIsPopupOpen?.(false);
-                    dispatch(
-                      setIsGitSyncModalOpen({
-                        isOpen: true,
-                        tab: GitSyncModalTab.SETTINGS,
-                      }),
-                    );
-                  },
-                },
-                {
-                  children: createMessage(LEARN_MORE),
-                  to: "https://docs.appsmith.com/advanced-concepts/version-control-with-git",
-                  target: "_blank",
-                },
-              ]}
-              style={{ width: 300 }}
-            >
-              {createMessage(NOW_PROTECT_BRANCH)}
-            </Callout> */}
             <Space size={5} />
             {isCreateNewBranchInputValid && (
               <CreateNewBranch

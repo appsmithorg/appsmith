@@ -48,7 +48,7 @@ export const showProductRamps = (
       const { currentApplication } = ui?.applications;
       const isSuperUser = currentUser?.isSuperUser;
       if (isSuperUser) return RAMP_FOR_ROLES.SUPER_USER;
-      const workspaceUsers = ui?.workspaces?.workspaceUsers;
+      const workspaceUsers = ui?.selectedWorkspace?.users;
       if (workspaceUsers?.length) {
         const workspaceUser = workspaceUsers.find(
           (user: any) => user?.username === currentUser?.username,

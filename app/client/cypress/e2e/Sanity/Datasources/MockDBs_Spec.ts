@@ -11,12 +11,13 @@ import {
   AppSidebar,
   AppSidebarButton,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 import PageList from "../../../support/Pages/PageList";
 
 describe(
-  "excludeForAirgap",
   "Validate Mock Query Active Ds querying & count",
+  { tags: ["@tag.Datasource", "@tag.excludeForAirgap"] },
   () => {
     it("1. Create Query from Mock Postgres DB & verify active queries count", () => {
       PageList.AddNewPage();
@@ -43,6 +44,12 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
+        // Validates the value of source for action creation -
+        // should be self here as the user explicitly triggered create action
+        cy.wait("@createNewApi").then((interception) => {
+          expect(interception.request.body.source).to.equal("SELF");
+        });
+
         dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
@@ -92,7 +99,7 @@ describe(
 
     afterEach(() => {
       AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Delete",

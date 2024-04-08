@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers.ce;
 
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.helpers.GitCloudServicesUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -45,7 +45,7 @@ public class GitPrivateRepoHelperCEImpl implements GitPrivateRepoHelperCE {
     }
 
     @Override
-    public Mono<Boolean> isBranchProtected(GitApplicationMetadata metaData, String branchName) {
+    public Mono<Boolean> isBranchProtected(GitArtifactMetadata metaData, String branchName) {
         boolean result = false;
         if (metaData != null) {
             String defaultBranch = metaData.getDefaultBranchName();

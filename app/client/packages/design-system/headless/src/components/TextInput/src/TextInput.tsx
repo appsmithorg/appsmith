@@ -9,10 +9,23 @@ export type TextInputRef = Ref<HTMLDivElement>;
 
 function TextInput(props: TextInputProps, ref: TextInputRef) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const { spellCheck, ...rest } = props;
+  const {
+    defaultValue,
+    isReadOnly = false,
+    spellCheck,
+    type: typeProp,
+    value,
+    ...rest
+  } = props;
+
+  const isEmpty = isReadOnly && !Boolean(value) && !Boolean(defaultValue);
+  const type = typeProp === "password" && isEmpty ? "text" : typeProp;
 
   const { descriptionProps, errorMessageProps, inputProps, labelProps } =
-    useTextField(rest, inputRef);
+    useTextField(
+      { ...rest, type, defaultValue, value: isEmpty ? "—" : value },
+      inputRef,
+    );
 
   if (props.placeholder != null) {
     // eslint-disable-next-line no-console

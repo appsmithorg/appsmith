@@ -50,7 +50,7 @@ public class CustomOidcUserServiceCEImpl extends OidcReactiveOAuth2UserService {
 
         return repository
                 .findByEmail(username)
-                .switchIfEmpty(repository.findByCaseInsensitiveEmail(username))
+                .switchIfEmpty(repository.findFirstByEmailIgnoreCaseOrderByCreatedAtDesc(username))
                 .switchIfEmpty(Mono.defer(() -> {
                     User newUser = new User();
                     if (oidcUser.getUserInfo() != null) {

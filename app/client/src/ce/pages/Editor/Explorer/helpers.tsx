@@ -5,9 +5,6 @@ import {
   QUERIES_EDITOR_ID_PATH,
   JS_COLLECTION_ID_PATH,
   DATA_SOURCES_EDITOR_ID_PATH,
-  BUILDER_PATH_DEPRECATED,
-  BUILDER_PATH,
-  BUILDER_CUSTOM_PATH,
   matchBuilderPath,
   matchViewerPath,
   BUILDER_VIEWER_PATH_PREFIX,
@@ -21,6 +18,8 @@ import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReduce
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { PluginType } from "entities/Action";
 import localStorage from "utils/localStorage";
+import { EDITOR_PATHS } from "@appsmith/entities/IDE/utils";
+import type { Match } from "path-to-regexp";
 
 export const ContextMenuPopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
@@ -49,7 +48,7 @@ export interface ExplorerFileEntity {
 
 export const matchBasePath = (pathname: string) => {
   const basePathMatch = matchPath(pathname, {
-    path: [BUILDER_PATH_DEPRECATED, BUILDER_PATH, BUILDER_CUSTOM_PATH],
+    path: EDITOR_PATHS,
     strict: false,
     exact: false,
   });
@@ -95,8 +94,13 @@ export function getAppViewerPageIdFromPath(path: string): string | null {
   return null;
 }
 
+export const matchEditorPath = (
+  path: string,
+): Match<{ applicationId: string; pageId: string }> => {
+  return matchBuilderPath(path, { end: false });
+};
 export const isEditorPath = (path: string) => {
-  return !!matchBuilderPath(path, { end: false });
+  return !!matchEditorPath(path);
 };
 
 export const isViewerPath = (path: string) => {

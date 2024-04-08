@@ -298,6 +298,7 @@ const resultRenamedActions = {
     {
       id: "fun1",
       collectionId: "1234",
+      moduleId: undefined,
       oldName: "myFun1",
       newName: "myFun11",
       pageId: "page123",

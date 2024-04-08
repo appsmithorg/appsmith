@@ -17,7 +17,6 @@ import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.datasourcestorages.base.DatasourceStorageService;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.services.AnalyticsService;
@@ -104,33 +103,24 @@ public class DatasourceStructureSolutionCEImpl implements DatasourceStructureSol
                 datasourceStructureService.getByDatasourceIdAndEnvironmentId(
                         datasourceStorage.getDatasourceId(), datasourceStorage.getEnvironmentId());
 
-        Mono<Boolean> flagMono = featureFlagService.check(FeatureFlagEnum.ab_mock_mongo_schema_enabled);
-
         Mono<DatasourceStructure> fetchAndStoreNewStructureMono = pluginExecutorHelper
                 .getPluginExecutor(pluginService.findById(datasourceStorage.getPluginId()))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, datasourceStorage.getPluginId())))
                 .flatMap(pluginExecutor -> {
-                    return Mono.zip(Mono.just(pluginExecutor), flagMono);
-                })
-                .flatMap(tuple -> {
-                    PluginExecutor pluginExecutor = tuple.getT1();
-                    Boolean isMongoSchemaEnabledForMockDB = tuple.getT2();
                     return datasourceContextService.retryOnce(
                             datasourceStorage, resourceContext -> ((PluginExecutor<Object>) pluginExecutor)
                                     .getStructure(
                                             resourceContext.getConnection(),
                                             datasourceStorage.getDatasourceConfiguration(),
-                                            datasourceStorage.getIsMock(),
-                                            isMongoSchemaEnabledForMockDB));
+                                            datasourceStorage.getIsMock()));
                 })
                 .timeout(Duration.ofSeconds(GET_STRUCTURE_TIMEOUT_SECONDS))
-                .onErrorMap(
-                        TimeoutException.class,
-                        error -> new AppsmithPluginException(
+                .onErrorMap(TimeoutException.class, error -> new AppsmithPluginException(
                                 AppsmithPluginError.PLUGIN_GET_STRUCTURE_TIMEOUT_ERROR,
                                 "Appsmith server timed out when fetching structure. Please reach out to appsmith "
-                                        + "customer support to resolve this."))
+                                        + "customer support to resolve this.")
+                        .hideStackTraceInLogs())
                 .onErrorMap(
                         StaleConnectionException.class,
                         error -> new AppsmithPluginException(

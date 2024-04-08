@@ -1,0 +1,90 @@
+.references {
+  flex-basis: 288px;
+  width: 288px;
+  border-left: var(--ads-v2-color-gray-300) 1px solid;
+  overflow: auto;
+  height: calc(100vh - 90px);
+}
+
+.collapsible {
+  border-bottom: 1px solid var(--ads-v2-color-gray-300);
+}
+
+.collapsibleHeader {
+  display: flex;
+  padding: 0.5rem 1rem;
+  justify-content: space-between;
+  align-items: center;
+  height: 38px;
+}
+
+.collapsibleBody {
+  padding: 0px 1rem;
+  padding-bottom: 1rem;
+}
+
+.collapsibleTitle {
+  flex-basis: calc(100% - 24px);
+  width: calc(100% - 24px);
+  font-weight: 500;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  display: flex;
+  gap: 8px;
+  align-items: stretch;
+}
+
+.collapsibleIcon {
+  flex-basis: 24px;
+  width: 24px;
+  cursor: pointer;
+}
+
+.marginTop {
+  margin: 1rem 0 6px;
+}
+
+.events {
+  width: 100%;
+}
+
+.event:not(:last-child) {
+  margin-bottom: 12px;
+}
+
+.eventName {
+  display: flex;
+  align-items: center;
+}
+
+.eventLabel {
+  font-size: 12px;
+  font-weight: 400;
+  margin-right: 2px;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: calc(100% - 22px);
+}
+
+.eventControl {
+  cursor: pointer;
+}
+
+.eventValue {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.eventValueDefault {
+  color: #9ba4b2;
+}
+
+.switchTransientMode {
+  margin-bottom: 10px;
+}
+
+.noMargin.noMargin {
+  margin: 0px;
+}

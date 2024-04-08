@@ -2,9 +2,9 @@ import {
   UPDATE_VIA_IMPORT_SETTING,
   createMessage,
 } from "@appsmith/constants/messages";
-import { getCurrentAppWorkspace } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentAppWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { Text, Button } from "design-system";
-import ImportApplicationModal from "pages/Applications/ImportApplicationModal";
+import ImportModal from "pages/common/ImportModal";
 import React from "react";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -48,11 +48,11 @@ export function ImportAppSettings() {
           {createMessage(UPDATE_VIA_IMPORT_SETTING.settingActionButtonTxt)}
         </Button>
       </SettingWrapper>
-      <ImportApplicationModal
-        appId={appId}
+      <ImportModal
+        editorId={appId}
         isModalOpen={isModalOpen}
         onClose={handleClose}
-        toApp
+        toEditor
         workspaceId={workspace?.id}
       />
     </>

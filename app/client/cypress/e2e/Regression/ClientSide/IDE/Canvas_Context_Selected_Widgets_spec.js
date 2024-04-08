@@ -22,15 +22,13 @@ describe(
       EditorNavigation.SelectEntityByName(page1, EntityType.Page);
       cy.CreateAPI(api1);
       _.agHelper.Sleep(2000); // adding wait for page to load
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
     });
 
     beforeEach(() => {
       _.agHelper.RefreshPage();
       // Deselect all widgets
-      cy.get(`#div-selection-0`).click({
-        force: true,
-      });
+      cy.get("body").type("{esc}");
     });
 
     it("1. Widget should be selected while switching back and forth betw_.entityExplorer.n pages", function () {
@@ -87,12 +85,12 @@ describe(
 
     it("3. Multiple widgets should be selected while switching back and forth betw_.entityExplorer.n pages", function () {
       //select widgets in page1
-      EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget, {
-        ctrlKey: true,
-      });
-      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {
-        ctrlKey: true,
-      });
+      _.agHelper
+        .GetElement(PageLeftPane.listItemSelector("Camera1"))
+        .click({ ctrlKey: true });
+      _.agHelper
+        .GetElement(PageLeftPane.listItemSelector("Button1"))
+        .click({ ctrlKey: true });
 
       //verify the 2 widgets are selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 2);
@@ -117,12 +115,12 @@ describe(
 
     it("4. Multiple widgets should be selected while switching back to page from API pane", function () {
       //select widgets in page1
-      EditorNavigation.SelectEntityByName("Camera1", EntityType.Widget, {
-        ctrlKey: true,
-      });
-      EditorNavigation.SelectEntityByName("Button1", EntityType.Widget, {
-        ctrlKey: true,
-      });
+      _.agHelper
+        .GetElement(PageLeftPane.listItemSelector("Camera1"))
+        .click({ ctrlKey: true });
+      _.agHelper
+        .GetElement(PageLeftPane.listItemSelector("Button1"))
+        .click({ ctrlKey: true });
 
       //verify the 2 widgets are selected in page1
       cy.get(`div[data-testid='t--selected']`).should("have.length", 2);

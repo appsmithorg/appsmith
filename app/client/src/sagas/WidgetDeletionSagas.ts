@@ -2,7 +2,6 @@ import type {
   MultipleWidgetDeletePayload,
   WidgetDelete,
 } from "actions/pageActions";
-import { updateAndSaveLayout } from "actions/pageActions";
 import { closePropertyPane, closeTableFilterPane } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type {
@@ -14,7 +13,7 @@ import {
   ReduxActionTypes,
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { flattenDeep, omit, orderBy } from "lodash";
 import type {
@@ -43,11 +42,6 @@ import {
 } from "./WidgetOperationUtils";
 import { showUndoRedoToast } from "utils/replayHelpers";
 import WidgetFactory from "WidgetProvider/factory";
-import {
-  inGuidedTour,
-  isExploringSelector,
-} from "selectors/onboardingSelectors";
-import { toggleShowDeviationDialog } from "actions/onboardingActions";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { updateFlexLayersOnDelete } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
@@ -55,6 +49,9 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
+import FocusRetention from "./FocusRetentionSaga";
+import { widgetURL } from "@appsmith/RouteBuilder";
+import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -93,6 +90,7 @@ function* deleteTabChildSaga(
       },
       {},
     );
+    const widgetType: string = allWidgets[widgetId].type;
     const updatedDslObj: UpdatedDSLPostDelete = yield call(
       getUpdatedDslAfterDeletingWidget,
       widgetId,
@@ -129,9 +127,10 @@ function* deleteTabChildSaga(
           finalData,
           tabWidget.parentId,
           widgetId,
+          widgetType,
         );
       }
-      yield put(updateAndSaveLayout(finalData));
+      yield call(updateAndSaveAnvilLayout, finalData);
       yield call(postDelete, widgetId, label, otherWidgetsToDelete);
     }
   }
@@ -142,13 +141,6 @@ function* deleteSagaInit(deleteAction: ReduxAction<WidgetDelete>) {
   const selectedWidget: FlattenedWidgetProps | undefined =
     yield select(getSelectedWidget);
   const selectedWidgets: string[] = yield select(getSelectedWidgets);
-  const guidedTourEnabled: boolean = yield select(inGuidedTour);
-  const isExploring: boolean = yield select(isExploringSelector);
-
-  if (guidedTourEnabled && !isExploring) {
-    yield put(toggleShowDeviationDialog(true));
-    return;
-  }
 
   if (selectedWidgets.length > 1) {
     yield put({
@@ -271,9 +263,10 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
             finalData,
             parentId,
             widgetId,
+            widget.type,
           );
         }
-        yield put(updateAndSaveLayout(finalData));
+        yield call(updateAndSaveAnvilLayout, finalData);
         yield put(generateAutoHeightLayoutTreeAction(true, true));
 
         const currentApplication: ApplicationPayload = yield select(
@@ -288,6 +281,8 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           widgetType: widget.type,
           templateTitle: currentApplication?.forkedFromTemplateTitle,
         });
+        const currentUrl = window.location.pathname;
+        yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
@@ -372,6 +367,7 @@ function* deleteAllSelectedWidgetsSaga(
             finalData,
             parentId,
             widgetId,
+            widgets[widgetId].type,
           );
         }
       }
@@ -396,11 +392,17 @@ function* deleteAllSelectedWidgetsSaga(
     //   );
     // }
 
-    yield put(updateAndSaveLayout(finalData));
+    yield call(updateAndSaveAnvilLayout, finalData);
     yield put(generateAutoHeightLayoutTreeAction(true, true));
 
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));
     const bulkDeleteKey = selectedWidgets.join(",");
+    for (const widget of selectedWidgets) {
+      yield call(
+        FocusRetention.handleRemoveFocusHistory,
+        widgetURL({ selectedWidgets: [widget] }),
+      );
+    }
     if (!disallowUndo) {
       // close property pane after delete
       yield put(closePropertyPane());

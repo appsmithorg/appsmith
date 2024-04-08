@@ -31,7 +31,7 @@ describe(
     }
   ]`;
     before(() => {
-      entityExplorer.DragNDropWidget(draggableWidgets.INPUT_V2);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
     });
 
     it("1. Data Type - Single Line Text", function () {

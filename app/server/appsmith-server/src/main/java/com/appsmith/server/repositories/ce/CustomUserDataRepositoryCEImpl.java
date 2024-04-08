@@ -1,89 +1,52 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.UserData;
-import com.appsmith.server.dtos.QRecentlyUsedEntityDTO;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.google.common.collect.Lists;
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.result.UpdateResult;
-import org.springframework.data.mongodb.core.ReactiveMongoOperations;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.util.CollectionUtils;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
-import java.util.Optional;
-
-import static org.springframework.data.mongodb.core.query.Criteria.where;
-import static org.springframework.data.mongodb.core.query.Query.query;
 
 public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<UserData>
         implements CustomUserDataRepositoryCE {
 
-    public CustomUserDataRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
+    @Override
+    public Mono<Integer> saveReleaseNotesViewedVersion(String userId, String version) {
+        return queryBuilder()
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
+                .updateFirst(Update.update(UserData.Fields.releaseNotesViewedVersion, version));
     }
 
     @Override
-    public Mono<UpdateResult> saveReleaseNotesViewedVersion(String userId, String version) {
-        return mongoOperations.upsert(
-                query(where(fieldName(QUserData.userData.userId)).is(userId)),
-                Update.update(fieldName(QUserData.userData.releaseNotesViewedVersion), version)
-                        .setOnInsert(fieldName(QUserData.userData.userId), userId),
-                UserData.class);
-    }
-
-    @Override
-    public Mono<UpdateResult> removeIdFromRecentlyUsedList(
-            String userId, String workspaceId, List<String> applicationIds) {
-        Update update = new Update().pull(fieldName(QUserData.userData.recentlyUsedWorkspaceIds), workspaceId);
+    public Mono<Void> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds) {
+        Update update = new Update().pull(UserData.Fields.recentlyUsedWorkspaceIds, workspaceId);
         if (!CollectionUtils.isEmpty(applicationIds)) {
-            update = update.pullAll(fieldName(QUserData.userData.recentlyUsedAppIds), applicationIds.toArray());
+            update = update.pullAll(UserData.Fields.recentlyUsedAppIds, applicationIds.toArray());
         }
         update.pull(
-                fieldName(QUserData.userData.recentlyUsedEntityIds),
-                new BasicDBObject(fieldName(QRecentlyUsedEntityDTO.recentlyUsedEntityDTO.workspaceId), workspaceId));
-        return mongoOperations.updateFirst(
-                query(where(fieldName(QUserData.userData.userId)).is(userId)), update, UserData.class);
-    }
-
-    /**
-     * Fetches a list of UserData objects from DB where userId matches with the provided a list of userId.
-     * The returned UserData objects will have only the userId and photoAssetId fields.
-     *
-     * @param userId List of userId as a list
-     * @return Flux of UserData with only the photoAssetId and userId fields
-     */
-    @Override
-    public Flux<UserData> findPhotoAssetsByUserIds(Iterable<String> userId) {
-        // need to convert from Iterable to ArrayList because the "in" method of criteria takes a collection as input
-        Criteria criteria = where(fieldName(QUserData.userData.userId)).in(Lists.newArrayList(userId));
-        List<String> fieldsToInclude =
-                List.of(fieldName(QUserData.userData.profilePhotoAssetId), fieldName(QUserData.userData.userId));
-        return queryAll(List.of(criteria), Optional.of(fieldsToInclude), Optional.empty(), Optional.empty());
+                UserData.Fields.recentlyUsedEntityIds,
+                new BasicDBObject(RecentlyUsedEntityDTO.Fields.workspaceId, workspaceId));
+        return queryBuilder()
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
+                .updateFirst(update)
+                .then();
     }
 
     @Override
     public Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
-        final Query query = query(where(fieldName(QUserData.userData.userId)).is(userId));
-
-        query.fields().include(fieldName(QUserData.userData.recentlyUsedEntityIds));
-
-        return mongoOperations.findOne(query, UserData.class).map(userData -> {
-            final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.getRecentlyUsedEntityIds();
-            return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds)
-                    ? ""
-                    : recentlyUsedWorkspaceIds.get(0).getWorkspaceId();
-        });
+        return queryBuilder()
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
+                .fields(UserData.Fields.recentlyUsedEntityIds)
+                .one()
+                .map(userData -> {
+                    final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.getRecentlyUsedEntityIds();
+                    return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds)
+                            ? ""
+                            : recentlyUsedWorkspaceIds.get(0).getWorkspaceId();
+                });
     }
 }

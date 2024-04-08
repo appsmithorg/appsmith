@@ -6,6 +6,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.defaultresources.DefaultResourcesService;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.PluginExecutorHelper;
@@ -17,7 +18,6 @@ import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.ConfigService;
-import com.appsmith.server.services.MarketplaceService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.solutions.ActionPermission;
 import com.appsmith.server.solutions.ActionPermissionImpl;
@@ -34,14 +34,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -53,16 +48,7 @@ public class NewActionServiceUnitTest {
     NewActionServiceCEImpl newActionService;
 
     @MockBean
-    Scheduler scheduler;
-
-    @MockBean
     Validator validator;
-
-    @MockBean
-    MongoConverter mongoConverter;
-
-    @MockBean
-    ReactiveMongoTemplate reactiveMongoTemplate;
 
     @MockBean
     AnalyticsService analyticsService;
@@ -75,9 +61,6 @@ public class NewActionServiceUnitTest {
 
     @MockBean
     PluginExecutorHelper pluginExecutorHelper;
-
-    @MockBean
-    MarketplaceService marketplaceService;
 
     @MockBean
     PolicyGenerator policyGenerator;
@@ -123,19 +106,21 @@ public class NewActionServiceUnitTest {
     @MockBean
     ObservationRegistry observationRegistry;
 
+    @MockBean
+    DefaultResourcesService<NewAction> defaultResourcesService;
+
+    @MockBean
+    DefaultResourcesService<ActionDTO> dtoDefaultResourcesService;
+
     @BeforeEach
     public void setup() {
         newActionService = new NewActionServiceCEImpl(
-                scheduler,
                 validator,
-                mongoConverter,
-                reactiveMongoTemplate,
                 newActionRepository,
                 analyticsService,
                 datasourceService,
                 pluginService,
                 pluginExecutorHelper,
-                marketplaceService,
                 policyGenerator,
                 newPageService,
                 applicationService,
@@ -149,7 +134,9 @@ public class NewActionServiceUnitTest {
                 pagePermission,
                 actionPermission,
                 entityValidationService,
-                observationRegistry);
+                observationRegistry,
+                defaultResourcesService,
+                dtoDefaultResourcesService);
 
         ObservationRegistry.ObservationConfig mockObservationConfig =
                 Mockito.mock(ObservationRegistry.ObservationConfig.class);
@@ -205,26 +192,6 @@ public class NewActionServiceUnitTest {
                 .assertNext(updatedAction -> {
                     assertEquals("testId", updatedAction.getPluginId());
                     assertEquals(PluginType.JS, updatedAction.getPluginType());
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    public void testPublishActionArchivesAndPublishesActions() {
-        String applicationId = "dummy-application-id";
-        List updateResult = Mockito.mock(List.class);
-        Mockito.when(updateResult.size()).thenReturn(10);
-
-        Mockito.when(newActionRepository.archiveDeletedUnpublishedActions(
-                        applicationId, actionPermission.getEditPermission()))
-                .thenReturn(Mono.empty());
-
-        Mockito.when(newActionRepository.publishActions(applicationId, actionPermission.getEditPermission()))
-                .thenReturn(Mono.just(updateResult));
-
-        StepVerifier.create(newActionService.publishActions(applicationId, actionPermission.getEditPermission()))
-                .assertNext(updateResult1 -> {
-                    assertEquals(10, updateResult1.size());
                 })
                 .verifyComplete();
     }

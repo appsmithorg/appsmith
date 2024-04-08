@@ -1,4 +1,6 @@
 .checkbox {
+  position: relative;
+
   [data-icon] {
     --checkbox-border-width: var(--border-width-2);
     --checkbox-border-color: var(--color-bd-neutral);
@@ -7,10 +9,15 @@
     --checkbox-box-shadow: 0px 0px 0px var(--checkbox-border-width)
       var(--checkbox-border-color) inset;
 
-    width: var(--sizing-4);
-    height: var(--sizing-4);
+    /**
+      Checkbox icon are positioned absolutely because we need to align the elements along the baseline
+      but icon takes more space than the text content.
+    */
+    position: absolute;
+    width: var(--sizing-5);
+    height: var(--sizing-5);
     box-shadow: var(--checkbox-box-shadow);
-    border-radius: clamp(0px, var(--border-radius-1), 25%);
+    border-radius: clamp(0px, var(--border-radius-elevation-3), 25%);
     color: transparent;
     display: inline-flex;
     align-items: center;
@@ -21,6 +28,28 @@
 
   &[data-hovered]:not([data-disabled]) [data-icon] {
     --checkbox-border-color: var(--color-bd-neutral-hover);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * LABEL POSITION
+  *-----------------------------------------------------------------------------
+  */
+  &[data-label-position="end"] {
+    padding-inline-start: calc(var(--sizing-5) + var(--inner-spacing-2));
+    justify-content: flex-end;
+  }
+
+  &[data-label-position="end"] [data-icon] {
+    left: 0;
+  }
+
+  &[data-label-position="start"] {
+    padding-inline-end: calc(var(--sizing-5) + var(--inner-spacing-2));
+  }
+
+  &[data-label-position="start"] [data-icon] {
+    right: 0;
   }
 
   /**

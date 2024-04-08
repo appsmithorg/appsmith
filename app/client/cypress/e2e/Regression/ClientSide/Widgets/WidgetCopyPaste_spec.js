@@ -1,12 +1,10 @@
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
-  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonLocators = require("../../../../locators/commonlocators.json");
-const explorer = require("../../../../locators/explorerlocators.json");
 const dsl = require("../../../../fixtures/WidgetCopyPaste.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
@@ -90,7 +88,6 @@ describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
 
   it("4. When modal is open, it should paste inside the modal", () => {
     //add modal widget
-    cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("modalwidget", { x: 300, y: 700 });
     cy.get(".t--modal-widget").should("exist");
 
@@ -118,14 +115,10 @@ describe("Widget Copy paste", { tags: ["@tag.Widget"] }, function () {
 
   it("6. Should be able to paste list widget inside another list widget", function () {
     //clean up
-    cy.get(`#div-selection-0`).click({
-      force: true,
-    });
-    cy.get("body").type(`{${modifierKey}}{a}`);
-    cy.get("body").type("{del}");
+    PageList.AddNewPage("New blank page");
 
     //add list widget
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchToAddNew();
     cy.dragAndDropToCanvas("listwidgetv2", { x: 500, y: 700 });
     cy.get(`div[data-testid='t--selected']`).should("have.length", 1);
 

@@ -1,0 +1,60 @@
+.headerWrapper.headerWrapper {
+  padding: 0 0 0 12px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.header.header {
+  margin-left: 10px;
+}
+
+.headerControls {
+  gap: 1rem;
+  justify-content: right !important;
+}
+
+.content {
+  display: flex;
+  flex-direction: row;
+  height: calc(100vh - 40px);
+  overflow: hidden;
+}
+
+.loader {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  justify-content: center;
+}
+
+.closeButton.closeButton {
+  height: 36px;
+}
+
+.connectionLostContainer {
+  height: calc(100vh - 40px);
+  left: 0;
+  position: fixed;
+  top: 40px;
+  width: 100vw;
+  background: #ffffffa1;
+}
+
+.contentRight {
+  display: flex;
+  width: 50%;
+  flex-direction: column;
+  border-width: 0px;
+  border-top: none;
+  border-right: none;
+  min-width: 660px;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.contentLeft {
+  width: 50%;
+  border: none;
+  position: relative;
+  min-width: 300px;
+}

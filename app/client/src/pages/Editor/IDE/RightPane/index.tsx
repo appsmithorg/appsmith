@@ -1,5 +1,5 @@
 import React from "react";
-import PropertyPaneWrapper from "pages/Editor/WidgetsEditor/PropertyPaneWrapper";
+import PropertyPaneWrapper from "pages/Editor/WidgetsEditor/components/PropertyPaneWrapper";
 import {
   ADD_PATH,
   BUILDER_CUSTOM_PATH,
@@ -21,6 +21,7 @@ const RightPane = () => {
         BUILDER_PATH_DEPRECATED,
         BUILDER_PATH,
         BUILDER_CUSTOM_PATH,
+        `${path}${ADD_PATH}`,
         `${path}${WIDGETS_EDITOR_BASE_PATH}`,
         `${path}${WIDGETS_EDITOR_ID_PATH}`,
         `${path}${WIDGETS_EDITOR_ID_PATH}${ADD_PATH}`,

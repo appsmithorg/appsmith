@@ -37,7 +37,7 @@ import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import type { LayoutProps } from "layoutSystems/anvil/utils/anvilTypes";
-import { modalPreset } from "layoutSystems/anvil/layoutComponents/presets/ModalPreset";
+import { modalPreset } from "layoutSystems/autolayout/layoutComponents/presets/ModalPreset";
 import { LayoutSystemTypes } from "layoutSystems/types";
 
 export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {

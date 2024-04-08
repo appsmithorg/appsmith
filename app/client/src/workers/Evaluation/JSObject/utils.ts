@@ -46,7 +46,7 @@ export const updateJSCollectionInUnEvalTree = (
   const modifiedUnEvalTree = unEvalTree;
   const functionsList: Array<string> = [];
   const jsEntityConfig = configTree[entityName] as JSActionEntityConfig;
-  const varList: Array<string> = jsEntityConfig?.variables;
+  const varList: Array<string> | undefined = jsEntityConfig?.variables;
   Object.keys(jsEntityConfig?.meta).forEach((action) => {
     functionsList.push(action);
   });
@@ -134,7 +134,7 @@ export const updateJSCollectionInUnEvalTree = (
       }
     }
   }
-  if (parsedBody.variables.length) {
+  if (parsedBody.variables.length && varList) {
     for (let i = 0; i < parsedBody.variables.length; i++) {
       const newVar = parsedBody.variables[i];
       const existedVar = varList.indexOf(newVar.name);
@@ -210,14 +210,17 @@ export const removeFunctionsAndVariableJSCollection = (
     functionsList.push(action);
   });
   //removed variables
-  const varList: Array<string> = oldConfig.variables;
+  const varList: Array<string> | undefined = oldConfig.variables;
   set(oldConfig, `${entityName}.variables`, []);
-  for (let i = 0; i < varList.length; i++) {
-    const varName = varList[i];
-    unset(modifiedDataTree[entityName], varName);
-    // When user updates the JSObject all the variable's reset's to initial value
-    JSObjectCollection.removeVariable(`${entityName}.${varName}`);
+  if (varList) {
+    for (let i = 0; i < varList.length; i++) {
+      const varName = varList[i];
+      unset(modifiedDataTree[entityName], varName);
+      // When user updates the JSObject all the variable's reset's to initial value
+      JSObjectCollection.removeVariable(`${entityName}.${varName}`);
+    }
   }
+
   //remove functions
   const reactivePaths = entity.reactivePaths;
   const meta = entity.meta;
@@ -264,7 +267,7 @@ export function isJSObjectVariable(
   const entity = configTree[jsObjectName];
   const variables = entityConfig.variables;
   return (
-    isJSAction(entity as unknown as DataTreeEntity) && variables.includes(key)
+    isJSAction(entity as unknown as DataTreeEntity) && variables?.includes(key)
   );
 }
 

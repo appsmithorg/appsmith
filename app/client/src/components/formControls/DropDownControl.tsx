@@ -248,6 +248,7 @@ function renderDropdown(
         return (
           <Option
             aria-label={option.label}
+            disabled={option.disabled}
             isDisabled={option.isDisabled}
             key={option.value}
             value={option.value}

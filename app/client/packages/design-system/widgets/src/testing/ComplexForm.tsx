@@ -8,7 +8,7 @@ import {
   TooltipRoot,
   TooltipTrigger,
   TooltipContent,
-  ButtonGroup,
+  ActionGroup,
   Flex,
   SwitchGroup,
   Switch,
@@ -21,12 +21,9 @@ import {
   ModalBody,
   ModalFooter,
   ModalContent,
+  Item,
 } from "@design-system/widgets";
 // This component is used only for testing purpose and is not used in the prod
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
-// eslint-disable-next-line @typescript-eslint/no-restricted-imports
-import EmotionUnhappyLineIcon from "remixicon-react/EmotionUnhappyLineIcon";
 
 export const ComplexForm = () => {
   const fakeSubmit = async () => {
@@ -42,19 +39,30 @@ export const ComplexForm = () => {
   const submitRef = useRef(null);
 
   return (
-    <Flex direction="column" gap="spacing-6">
+    <Flex
+      direction="column"
+      gap="spacing-6"
+      style={{
+        background: "var(--color-bg-elevation-1)",
+        borderColor: "var(--color-bd-elevation-1)",
+        borderRadius: "var(--border-radius-elevation-1)",
+        borderStyle: "solid",
+        borderWidth: 1,
+        padding: "var(--outer-spacing-6)",
+      }}
+    >
       <Flex direction="column" gap="spacing-3">
         <Text variant="heading">Your order</Text>
         <Text>Choose your favorite dishes and place an order.</Text>
       </Flex>
 
       <Flex direction="column" gap="spacing-5">
-        <ButtonGroup>
-          <Button>Fast food</Button>
-          <Button>Salads</Button>
-          <Button>Drinks</Button>
-          <Button>Sauces</Button>
-        </ButtonGroup>
+        <ActionGroup>
+          <Item>Fast food</Item>
+          <Item>Salads</Item>
+          <Item>Drinks</Item>
+          <Item>Sauces</Item>
+        </ActionGroup>
 
         <SwitchGroup label="Repeat order">
           <Switch value="value-1">Once a week</Switch>
@@ -80,8 +88,8 @@ export const ComplexForm = () => {
           <Flex direction="column" gap="spacing-2">
             <Text isBold>Feedback is important to us</Text>
             <Flex>
-              <IconButton icon={EmotionHappyLineIcon} variant="ghost" />
-              <IconButton icon={EmotionUnhappyLineIcon} variant="ghost" />
+              <IconButton icon="star" variant="ghost" />
+              <IconButton icon="star" variant="ghost" />
             </Flex>
           </Flex>
           <TextArea label="Your comment" />

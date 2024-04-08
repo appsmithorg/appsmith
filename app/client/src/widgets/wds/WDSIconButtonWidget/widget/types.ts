@@ -1,9 +1,8 @@
-import type { IconButtonProps } from "@design-system/widgets";
+import type { IconButtonProps, IconProps } from "@design-system/widgets";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
-import type { IconName } from "@blueprintjs/icons";
 
 export interface IconButtonWidgetProps extends WidgetProps {
-  iconName: IconName;
+  iconName: IconProps["name"];
   buttonColor: IconButtonProps["color"];
   buttonVariant: IconButtonProps["variant"];
   isDisabled: boolean;

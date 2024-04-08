@@ -1,7 +1,14 @@
-import { Icon } from "@design-system/headless";
+import {
+  Flex,
+  Icon,
+  SIZES,
+  Button,
+  Menu,
+  MenuList,
+  Item,
+} from "@design-system/widgets";
 import { TextInput } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable } from "@storybook/addon-docs";
-import EmotionHappyLineIcon from "remixicon-react/EmotionHappyLineIcon";
 
 <Meta
   title="Design-system/widgets/TextInput"
@@ -48,26 +55,33 @@ TextInput is a component that allows users to input text.
   {Template.bind({})}
 </Story>
 
-## Password Text Input
+## Size
 
-<Story
-  name="Password Text Input"
-  args={{
-    label: "Password",
-    placeholder: "Password Text Input",
-    type: "password",
-  }}
->
-  {Template.bind({})}
+<Story name="Size">
+  <Flex direction="column" gap="spacing-2">
+    {Object.keys(SIZES)
+      .filter((size) => !["large"].includes(size))
+      .map((size) => (
+        <TextInput
+          placeholder={size}
+          size={size}
+          startIcon={<Icon name="user" />}
+          key={size}
+          prefix={<Icon name="user" size={size} />}
+        />
+      ))}
+  </Flex>
 </Story>
 
 ## Prefix and Suffix
+
+We can use icon strings or even components, such as menus, as a prefix and suffix.
 
 <Story
   name="Prefix"
   args={{
     placeholder: "Start Visual",
-    startIcon: "$",
+    prefix: "$",
   }}
 >
   {Template.bind({})}
@@ -77,7 +91,66 @@ TextInput is a component that allows users to input text.
   name="Suffix"
   args={{
     placeholder: "End Visual",
-    endIcon: "minutes",
+    suffix: "minutes",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Prefix and Suffix"
+  args={{
+    placeholder: "End Visual",
+    prefix: <Icon name="user" />,
+    suffix: <Icon name="user" />,
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+<Story
+  name="Prefix menu"
+  args={{
+    placeholder: "End Visual",
+    prefix: (
+      <Menu disabledKeys={["cut"]} onAction={(key) => console.log(key)}>
+        <Button color="neutral" variant="ghost" icon="chevron-down" />
+        <MenuList>
+          <Item key="copy">Copy</Item>
+          <Item key="cut">Cut</Item>
+          <Item key="paste">Paste</Item>
+        </MenuList>
+      </Menu>
+    ),
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Type Password
+
+The icon button for input type password type occupies the same slot as the suffix and has priority.
+
+<Story
+  name="Type Password"
+  args={{
+    label: "Password",
+    placeholder: "Type Password",
+    type: "password",
+  }}
+>
+  {Template.bind({})}
+</Story>
+
+## Loading
+
+Loading indicator for input occupies the same slot as the password icon and suffix and has priority.
+
+<Story
+  name="Loading"
+  args={{
+    placeholder: "Loading",
+    isLoading: true,
   }}
 >
   {Template.bind({})}
@@ -95,84 +168,13 @@ TextInput is a component that allows users to input text.
   {Template.bind({})}
 </Story>
 
-## Loading
+## Readonly
 
 <Story
-  name="Loading - No Icon"
+  name="Readonly"
   args={{
-    placeholder: "No Icon",
-    isLoading: true,
-  }}
->
-  {Template.bind({})}
-</Story>
-
-<Story
-  name="Loading - Start Icon"
-  args={{
-    placeholder: "Only Start Icon",
-    isLoading: true,
-    startIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-  }}
->
-  {Template.bind({})}
-</Story>
-
-<Story
-  name="Loading - End Icon"
-  args={{
-    placeholder: "Only End Icon",
-    isLoading: true,
-    endIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-  }}
->
-  {Template.bind({})}
-</Story>
-
-<Story
-  name="Loading - Both Icons"
-  args={{
-    placeholder: "Both Start + End Icon",
-    isLoading: true,
-    endIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-    startIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-  }}
->
-  {Template.bind({})}
-</Story>
-
-<Story
-  name="Loading - Both Icons + Position Overriden"
-  args={{
-    placeholder: "Loading - Both Icons + Position Overriden",
-    isLoading: true,
-    endIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-    startIcon: (
-      <Icon>
-        <EmotionHappyLineIcon />
-      </Icon>
-    ),
-    loaderPosition: "end",
+    placeholder: "Readonly",
+    readonly: true,
   }}
 >
   {Template.bind({})}

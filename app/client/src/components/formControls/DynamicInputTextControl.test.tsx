@@ -4,7 +4,7 @@ import DynamicInputTextControl from "./DynamicInputTextControl";
 import { reduxForm } from "redux-form";
 import { mockCodemirrorRender } from "test/__mocks__/CodeMirrorEditorMock";
 import userEvent from "@testing-library/user-event";
-import { waitFor } from "@testing-library/dom";
+import { waitFor } from "@testing-library/react";
 
 function TestForm(props: any) {
   return <div>{props.children}</div>;
@@ -17,6 +17,7 @@ const ReduxFormDecorator = reduxForm({
 
 describe("DynamicInputTextControl", () => {
   beforeEach(() => {
+    // eslint-disable-next-line testing-library/no-render-in-lifecycle
     mockCodemirrorRender();
   });
   it("renders correctly", () => {
@@ -38,10 +39,13 @@ describe("DynamicInputTextControl", () => {
       {},
     );
 
+    // eslint-disable-next-line testing-library/await-async-utils
     waitFor(async () => {
       const input = screen.getAllByText("My test value")[0];
-      userEvent.type(input, "New text");
+      // eslint-disable-next-line testing-library/no-wait-for-side-effects
+      await userEvent.type(input, "New text");
       await expect(screen.getAllByText("New text")).toHaveLength(2);
+      // eslint-disable-next-line testing-library/await-async-queries
       await expect(screen.findByText("My test value")).toBeNull();
     });
   });

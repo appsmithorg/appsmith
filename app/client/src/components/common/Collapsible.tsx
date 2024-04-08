@@ -1,4 +1,4 @@
-import type { MutableRefObject, ReactNode } from "react";
+import type { ReactNode } from "react";
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Collapse, Classes as BPClasses } from "@blueprintjs/core";
@@ -25,6 +25,7 @@ const CollapsibleWrapper = styled.div<{
   &&&&&& .${BPClasses.COLLAPSE} {
     flex-grow: 1;
     overflow-y: auto !important;
+    scrollbar-gutter: stable;
   }
 
   .${BPClasses.COLLAPSE_BODY} {
@@ -73,7 +74,7 @@ export interface CollapsibleProps {
   CustomLabelComponent?: (props: any) => JSX.Element;
   isDisabled?: boolean;
   datasource?: Partial<Datasource>;
-  containerRef?: MutableRefObject<HTMLDivElement | null>;
+  handleCustomCollapse?: (openStatus: boolean) => void;
 }
 
 interface CollapsibleGroupProps {
@@ -114,22 +115,16 @@ export function CollapsibleGroup({
 
 export function Collapsible({
   children,
-  containerRef,
   CustomLabelComponent,
   datasource,
   expand = true,
+  handleCustomCollapse,
   label,
 }: CollapsibleProps) {
   const [isOpen, setIsOpen] = useState(!!expand);
 
   const handleCollapse = (openStatus: boolean) => {
-    if (containerRef?.current) {
-      if (openStatus) {
-        containerRef.current.style.height = "";
-      } else {
-        containerRef.current.style.height = "auto";
-      }
-    }
+    handleCustomCollapse && handleCustomCollapse(openStatus);
     setIsOpen(openStatus);
   };
 

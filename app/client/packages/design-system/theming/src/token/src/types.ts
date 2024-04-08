@@ -1,44 +1,3 @@
-import type { ColorMode, ColorTypes } from "../../color";
-
-export type ThemeToken = {
-  [key in TokenType]?: { [key: string]: Token };
-};
-
-export type TokenType =
-  | "sizing"
-  | "color"
-  | "outerSpacing"
-  | "innerSpacing"
-  | "borderRadius"
-  | "boxShadow"
-  | "borderWidth"
-  | "opacity"
-  | "zIndex";
-
-export interface Token {
-  value: string | number;
-  type: TokenType;
-}
-
-export interface TokenSource {
-  typography?: Typography;
-  seedColor?: ColorTypes;
-  colorMode?: ColorMode;
-  borderRadius?: TokenObj;
-  boxShadow?: TokenObj;
-  borderWidth?: TokenObj;
-  opacity?: TokenObj;
-  fontFamily?: FontFamily;
-  zIndex?: TokenObj;
-  sizing?: TokenObj;
-  outerSpacing?: TokenObj;
-  innerSpacing?: TokenObj;
-}
-
-export interface TokenObj {
-  [key: string]: string | number;
-}
-
 import arial from "@capsizecss/metrics/arial";
 import inter from "@capsizecss/metrics/inter";
 import rubik from "@capsizecss/metrics/rubik";
@@ -52,6 +11,74 @@ import montserrat from "@capsizecss/metrics/montserrat";
 import nunitoSans from "@capsizecss/metrics/nunitoSans12pt";
 import appleSystem from "@capsizecss/metrics/appleSystem";
 import BlinkMacSystemFont from "@capsizecss/metrics/blinkMacSystemFont";
+
+import type { ColorMode, ColorTypes } from "../../color";
+
+export type ThemeToken = {
+  [key in TokenType]?: { [key: string]: Token };
+};
+
+export type TokenType =
+  | "sizing"
+  | "color"
+  | "outerSpacing"
+  | "innerSpacing"
+  | "borderRadiusElevation"
+  | "boxShadow"
+  | "borderWidth"
+  | "opacity"
+  | "zIndex"
+  | "strokeWidth"
+  | "iconSize";
+
+export interface Token {
+  value: string | number;
+  type: TokenType;
+}
+
+export interface TokenSource {
+  typography?: Typography;
+  seedColor?: ColorTypes;
+  colorMode?: ColorMode;
+  borderRadiusElevation?: TokenObj;
+  boxShadow?: TokenObj;
+  borderWidth?: TokenObj;
+  opacity?: TokenObj;
+  fontFamily?: FontFamily;
+  zIndex?: TokenObj;
+  sizing?: TokenObj;
+  outerSpacing?: TokenObj;
+  innerSpacing?: TokenObj;
+  iconStyle?: IconStyle;
+  strokeWidth?: TokenObj;
+  iconSize?: TokenObj;
+}
+
+export interface TokenObj {
+  [key: string]: string | number;
+}
+
+export interface IconDensity {
+  tight: TokenObj;
+  regular: TokenObj;
+  loose: TokenObj;
+}
+
+export interface IconSizing {
+  small: TokenObj;
+  regular: TokenObj;
+  big: TokenObj;
+}
+
+export interface TokenScaleConfig {
+  V: number;
+  R: number;
+  N: number;
+  stepsUp: number;
+  stepsDown: number;
+  userSizingRatio?: number;
+  userDensityRatio?: number;
+}
 
 export const FONT_METRICS = {
   Poppins: poppins,
@@ -72,8 +99,8 @@ export const FONT_METRICS = {
 // we use "as const" here because we need to iterate by variants
 export const TYPOGRAPHY_VARIANTS = {
   footnote: "footnote",
-  body: "body",
   caption: "caption",
+  body: "body",
   subtitle: "subtitle",
   title: "title",
   heading: "heading",
@@ -111,3 +138,5 @@ export interface TypographyVariantMetric {
 export type Typography = {
   [key in keyof typeof TYPOGRAPHY_VARIANTS]: TypographyVariantMetric;
 };
+
+export type IconStyle = "outlined" | "filled";

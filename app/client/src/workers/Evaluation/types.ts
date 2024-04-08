@@ -18,7 +18,7 @@ import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator
 import type { WorkerRequest } from "@appsmith/workers/common/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { APP_MODE } from "entities/App";
-import type { WebworkerSpan } from "UITelemetry/generateWebWorkerTraces";
+import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
 
 export type EvalWorkerSyncRequest<T = any> = WorkerRequest<
   T,
@@ -60,8 +60,6 @@ export interface EvalTreeResponseData {
   isNewWidgetAdded: boolean;
   undefinedEvalValuesMap: Record<string, boolean>;
   jsVarsCreatedEvent?: { path: string; type: string }[];
-  webworkerTelemetry?: WebworkerSpan[];
+  webworkerTelemetry?: Record<string, WebworkerSpanData>;
   updates: string;
 }
-
-export type JSVarMutatedEvents = Record<string, { path: string; type: string }>;

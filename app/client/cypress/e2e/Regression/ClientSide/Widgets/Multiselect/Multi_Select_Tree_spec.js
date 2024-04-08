@@ -1,7 +1,6 @@
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
-const explorer = require("../../../../../locators/explorerlocators.json");
 const widgetsPage = require("../../../../../locators/Widgets.json");
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
@@ -14,7 +13,6 @@ describe(
     });
 
     it("1. Check isDirty meta property", function () {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("textwidget", { x: 300, y: 500 });
       cy.openPropertyPane("textwidget");
       cy.updateCodeInput(

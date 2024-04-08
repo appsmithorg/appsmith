@@ -5,11 +5,12 @@
     display: flex;
     align-items: center;
     gap: var(--inner-spacing-1);
-    border-radius: var(--border-radius-1);
-    box-shadow: 0 0 0 1px var(--color-bd-neutral);
-    padding-inline: var(--inner-spacing-1);
-    padding-block: var(--inner-spacing-1);
+    border-radius: var(--border-radius-elevation-3);
+    background-color: var(--color-bg-neutral-subtle);
     flex: 1;
+    max-inline-size: 100%;
+    isolation: isolate;
+    padding-inline: var(--inner-spacing-2);
   }
 
   & [data-field-input] :is(input, textarea) {
@@ -19,19 +20,33 @@
     flex-grow: 1;
     color: var(--color-fg);
     text-overflow: ellipsis;
+    max-inline-size: 100%;
     width: 100%;
-    padding: 0;
+    box-sizing: content-box;
+    block-size: calc(
+      var(--body-line-height) + var(--body-margin-start) +
+        var(--body-margin-end)
+    );
+    padding-block: var(--inner-spacing-3);
 
     &:autofill,
     &:autofill:hover,
     &:autofill:focus,
     &:autofill:active {
       font-size: initial;
+      /** Removing browser's autofill styles */
+      -webkit-text-fill-color: var(--color-fg);
+      -webkit-box-shadow: 0 0 0 40rem var(--color-bg-neutral-subtle) inset;
     }
 
     &:focus {
       outline: none;
     }
+  }
+
+  & [data-field-input][data-hovered] {
+    background-color: var(--color-bg-neutral-subtle-hover);
+    box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-hover);
   }
 
   /**
@@ -40,6 +55,7 @@
   *-----------------------------------------------------------------------------
   */
   & [data-readonly][data-field-input] {
+    background-color: transparent;
     box-shadow: none;
     padding-inline: 0;
   }
@@ -54,6 +70,12 @@
   * We use an absolutely positioned pseudo element because
   * we need to make the focus state in read mode a bit wider than the component width
   */
+
+  & [data-field-input][data-focused] {
+    background-color: transparent;
+    box-shadow: none;
+  }
+
   & [data-field-input][data-focused]:before {
     content: "";
     left: 0;
@@ -61,7 +83,8 @@
     height: 100%;
     position: absolute;
     box-shadow: 0 0 0 2px var(--color-bd-focus);
-    border-radius: var(--border-radius-1);
+    border-radius: var(--border-radius-elevation-3);
+    z-index: -1;
   }
 
   & [data-readonly][data-field-input][data-focused]:before {
@@ -78,8 +101,8 @@
     box-shadow: 0 0 0 1px var(--color-bd-negative);
   }
 
-  & [data-field-input][data-invalid][data-focused] {
-    box-shadow: 0 0 0 2px var(--color-bd-negative);
+  & [data-field-input][data-invalid][data-hovered] {
+    box-shadow: 0 0 0 1px var(--color-bd-negative-hover);
   }
 
   /**
@@ -116,15 +139,6 @@
 
   /**
   * ----------------------------------------------------------------------------
-  * ICON BUTTON ( used in password input type )
-  *-----------------------------------------------------------------------------
-  */
-  & [data-field-input] [data-icon-button] {
-    block-size: calc(100% - var(--inner-spacing-1));
-  }
-
-  /**
-  * ----------------------------------------------------------------------------
   * DISABLED
   *-----------------------------------------------------------------------------
   */
@@ -136,14 +150,27 @@
 
   /**
   * ----------------------------------------------------------------------------
-  * START ICON AND END ICON
+  * PREFIX AND SUFFIX
   *-----------------------------------------------------------------------------
   */
-  & [data-field-input-start-icon] div {
-    width: max-content;
+  & :is([data-field-input-prefix], [data-field-input-suffix]) {
+    block-size: 0;
+    display: flex;
+    align-items: center;
   }
 
-  & [data-field-input-end-icon] div {
-    width: max-content;
+  &
+    [data-field-input]:has(textarea)
+    :is([data-field-input-prefix], [data-field-input-suffix]) {
+    display: none;
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * SIZE
+  *-----------------------------------------------------------------------------
+  */
+  &:has(input[data-size="small"]) [data-field-input] {
+    padding-block: var(--inner-spacing-2);
   }
 }

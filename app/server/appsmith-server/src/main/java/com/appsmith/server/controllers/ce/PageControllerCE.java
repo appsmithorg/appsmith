@@ -71,7 +71,7 @@ public class PageControllerCE {
     public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(
             @RequestBody @NonNull CRUDPageResourceDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug(
                 "Going to create crud-page in application {}, branchName {}", resource.getApplicationId(), branchName);
         return createDBTablePageSolution
@@ -86,7 +86,7 @@ public class PageControllerCE {
             @PathVariable String defaultPageId,
             @NonNull @RequestBody CRUDPageResourceDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = FieldName.ENVIRONMENT_ID, required = false) String environmentId) {
+            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
         log.debug("Going to create CRUD page {}, branchName {}", defaultPageId, branchName);
         return createDBTablePageSolution
                 .createPageFromDBTable(defaultPageId, resource, environmentId, branchName, Boolean.TRUE)

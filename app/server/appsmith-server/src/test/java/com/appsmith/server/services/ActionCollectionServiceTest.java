@@ -580,19 +580,19 @@ public class ActionCollectionServiceTest {
 
         StepVerifier.create(viewModeCollectionsMono)
                 .assertNext(viewModeCollections -> {
-                    assertThat(viewModeCollections.size()).isEqualTo(1);
+                    assertThat(viewModeCollections).hasSize(1);
 
                     final ActionCollectionViewDTO actionCollectionViewDTO = viewModeCollections.get(0);
 
                     // Actions
                     final List<ActionDTO> actions = actionCollectionViewDTO.getActions();
-                    assertThat(actions.size()).isEqualTo(1);
+                    assertThat(actions).hasSize(1);
                     assertThat(actions.get(0).getActionConfiguration().getBody())
                             .isEqualTo("mockBody");
 
                     // Variables
                     final List<JSValue> variables = actionCollectionViewDTO.getVariables();
-                    assertThat(variables.size()).isEqualTo(1);
+                    assertThat(variables).hasSize(1);
                     assertThat(variables.get(0).getValue()).isEqualTo("test");
 
                     // Metadata

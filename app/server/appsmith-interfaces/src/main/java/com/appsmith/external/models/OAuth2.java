@@ -56,6 +56,8 @@ public class OAuth2 extends AuthenticationDTO {
 
     String authorizationUrl;
 
+    String expiresIn;
+
     String accessTokenUrl;
 
     @Transient

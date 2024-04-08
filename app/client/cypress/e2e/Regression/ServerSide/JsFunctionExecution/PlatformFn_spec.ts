@@ -1,4 +1,3 @@
-import { data } from "cypress/types/jquery";
 import {
   agHelper,
   apiPage,
@@ -6,7 +5,9 @@ import {
   debuggerHelper,
   dataManager,
   locators,
+  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
+import EditorNavigation from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "Tests functionality of platform function",
@@ -176,6 +177,53 @@ describe(
       agHelper.AssertElementLength(locators._toastMsg, 2);
       agHelper.ValidateToastMessage("Hello World", 0);
       agHelper.ValidateToastMessage("Hello World", 1);
+    });
+
+    it("3. Bug 30121 Reset widget should reset children as well when resetChildren argument is set to true", () => {
+      EditorNavigation.ShowCanvas();
+      agHelper.AddDsl("resetWidgetDSL");
+      agHelper.ClearNType(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
+        "Hello! How are you?",
+        0,
+      );
+
+      agHelper.ClickButton("ResetContainer");
+
+      agHelper.AssertText(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
+        "text",
+        "",
+        0,
+      );
+
+      agHelper.ClearNType(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
+        "Hello! How are you?",
+        1,
+      );
+
+      agHelper.ClearNType(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
+        "Hello! How are you?",
+        2,
+      );
+
+      agHelper.ClickButton("ResetList");
+
+      agHelper.AssertText(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
+        "text",
+        "",
+        1,
+      );
+
+      agHelper.AssertText(
+        locators._widgetInDeployed(draggableWidgets.INPUT_V2) + " input",
+        "text",
+        "",
+        2,
+      );
     });
   },
 );

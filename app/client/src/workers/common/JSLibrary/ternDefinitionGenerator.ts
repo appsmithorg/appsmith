@@ -21,9 +21,11 @@ export function getTernDocType(obj: any) {
 
 export function typeToTernType(type: string) {
   if (type === "boolean") return "bool";
-  if (type === "undefined") return "?";
   if (type === "function") return "fn()";
-  return "string";
+  if (type === "number") return "number";
+  if (type === "array") return "[]";
+  if (type === "string") return "string";
+  return "?";
 }
 
 const ignoredKeys = [

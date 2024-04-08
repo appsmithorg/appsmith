@@ -242,7 +242,7 @@ public class MongoPluginErrorsTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<DatasourceStructure> structureMono = pluginExecutor
                 .datasourceCreate(dsConfig)
-                .flatMap(connection -> pluginExecutor.getStructure(mockConnection, dsConfig, null, null));
+                .flatMap(connection -> pluginExecutor.getStructure(mockConnection, dsConfig, null));
 
         StepVerifier.create(structureMono).verifyErrorSatisfies(error -> {
             assertTrue(error instanceof AppsmithPluginException);

@@ -50,4 +50,24 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE, Dom
     public AclPermission getPageCreatePermission() {
         return AclPermission.MANAGE_APPLICATIONS;
     }
+
+    @Override
+    public AclPermission getGitConnectPermission() {
+        return AclPermission.CONNECT_TO_GIT;
+    }
+
+    @Override
+    public AclPermission getManageProtectedBranchPermission() {
+        return AclPermission.MANAGE_PROTECTED_BRANCHES;
+    }
+
+    @Override
+    public AclPermission getManageDefaultBranchPermission() {
+        return AclPermission.MANAGE_DEFAULT_BRANCHES;
+    }
+
+    @Override
+    public AclPermission getManageAutoCommitPermission() {
+        return AclPermission.MANAGE_AUTO_COMMIT;
+    }
 }

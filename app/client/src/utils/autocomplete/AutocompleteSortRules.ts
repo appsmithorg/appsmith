@@ -11,6 +11,7 @@ import type {
 } from "./CodemirrorTernService";
 import { createCompletionHeader } from "./CodemirrorTernService";
 import { AutocompleteDataType } from "./AutocompleteDataType";
+import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 
 interface AutocompleteRule {
   computeScore(
@@ -387,6 +388,39 @@ export class AutocompleteSorter {
   }
 }
 
+/**
+ * Set score to -Infinity for paths to be blocked from autocompletion
+ * Max score - 0
+ * Min score - -Infinity
+ * respective module inputs should not get module as autocompletion option
+ */
+class RemoveDependentEntityBlackListedCompletionRule
+  implements AutocompleteRule
+{
+  static threshold = -Infinity;
+
+  computeScore(completion: Completion<TernCompletionResult>): number {
+    let score = 0;
+    const { currentFieldInfo } = AutocompleteSorter;
+    const { blockCompletions } = currentFieldInfo;
+
+    if (
+      blockCompletions &&
+      currentFieldInfo.entityType === ENTITY_TYPE.MODULE_INPUT
+    ) {
+      for (let index = 0; index < blockCompletions.length; index++) {
+        const { subPath } = blockCompletions[index];
+        if (completion.text === subPath) {
+          score = RemoveDependentEntityBlackListedCompletionRule.threshold;
+          break;
+        }
+      }
+    }
+
+    return score;
+  }
+}
+
 export class ScoredCompletion {
   score = 0;
   static rules = [
@@ -405,6 +439,7 @@ export class ScoredCompletion {
     new RemoveBlackListedCompletionRule(),
     new HideInternalDefsRule(),
     new NestedPropertyInsideLiteralRule(),
+    new RemoveDependentEntityBlackListedCompletionRule(),
   ];
   completion: Completion<TernCompletionResult>;
 

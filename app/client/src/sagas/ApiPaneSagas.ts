@@ -34,19 +34,13 @@ import history from "utils/history";
 import { INTEGRATION_EDITOR_MODES, INTEGRATION_TABS } from "constants/routes";
 import { initialize, autofill, change, reset } from "redux-form";
 import type { Property } from "api/ActionAPI";
-import { createNewApiName } from "utils/AppsmithUtils";
 import { getQueryParams } from "utils/URLUtils";
 import { getPluginIdOfPackageName } from "sagas/selectors";
 import {
   getAction,
-  getActions,
   getDatasourceActionRouteInfo,
   getPlugin,
 } from "@appsmith/selectors/entitiesSelector";
-import type {
-  ActionData,
-  ActionDataState,
-} from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   createActionRequest,
   setActionProperty,
@@ -57,7 +51,7 @@ import type {
   CreateApiActionDefaultsParams,
 } from "entities/Action";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import log from "loglevel";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -73,7 +67,7 @@ import {
   queryParamsRegEx,
 } from "utils/ApiPaneUtils";
 import { updateReplayEntity } from "actions/pageActions";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { Plugin } from "api/PluginApi";
 import { getDisplayFormat } from "selectors/apiPaneSelectors";
 import {
@@ -98,6 +92,8 @@ import {
   getApplicationByIdFromWorkspaces,
   getCurrentApplicationIdForCreateNewApp,
 } from "@appsmith/selectors/applicationSelectors";
+import { DEFAULT_CREATE_APPSMITH_AI_CONFIG } from "constants/ApiEditorConstants/AppsmithAIEditorConstants";
+import { checkAndGetPluginFormConfigsSaga } from "./PluginSagas";
 
 function* syncApiParamsSaga(
   actionPayload: ReduxActionWithMeta<string, { field: string }>,
@@ -683,9 +679,13 @@ export function* createDefaultApiActionPayload(
   const { apiType, from, newActionName } = props;
   const pluginId: string = yield select(getPluginIdOfPackageName, apiType);
   // Default Config is Rest Api Plugin Config
-  let defaultConfig = DEFAULT_CREATE_API_CONFIG;
+  let defaultConfig: any = DEFAULT_CREATE_API_CONFIG;
   if (apiType === PluginPackageName.GRAPHQL) {
     defaultConfig = DEFAULT_CREATE_GRAPHQL_CONFIG;
+  }
+  if (apiType === PluginPackageName.APPSMITH_AI) {
+    defaultConfig = DEFAULT_CREATE_APPSMITH_AI_CONFIG;
+    yield call(checkAndGetPluginFormConfigsSaga, pluginId);
   }
 
   return {
@@ -695,6 +695,7 @@ export function* createDefaultApiActionPayload(
       name: defaultConfig.datasource.name,
       pluginId,
       workspaceId,
+      datasourceConfiguration: defaultConfig.datasource.datasourceConfiguration,
     },
     eventData: {
       actionType: defaultConfig.eventData.actionType,
@@ -717,11 +718,6 @@ function* handleCreateNewApiActionSaga(
   const { apiType = PluginPackageName.REST_API, from, pageId } = action.payload;
 
   if (pageId) {
-    const actions: ActionDataState = yield select(getActions);
-    const pageActions = actions.filter(
-      (a: ActionData) => a.config.pageId === pageId,
-    );
-    const newActionName = createNewApiName(pageActions, pageId);
     // Note: Do NOT send pluginId on top level here.
     // It breaks embedded rest datasource flow.
 
@@ -730,7 +726,6 @@ function* handleCreateNewApiActionSaga(
       {
         apiType,
         from,
-        newActionName,
       },
     );
 

@@ -1,6 +1,6 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.server.domains.QUserData;
+import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -14,7 +14,6 @@ import org.springframework.data.mongodb.core.query.Update;
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 
@@ -33,12 +32,11 @@ public class Migration036AddRecentlyUsedEntitiesForUserData {
     @Execution
     public void addRecentlyUsedEntitiesForUserData() {
 
-        final Query userDataQuery =
-                query(where(fieldName(QUserData.userData.deleted)).ne(true));
+        final Query userDataQuery = query(where(FieldName.DELETED).ne(true));
 
         // We are not migrating the applicationIds, to avoid long-running migration. Also, as user starts using the
         // instance these fields should auto-populate.
-        userDataQuery.fields().include(fieldName(QUserData.userData.recentlyUsedWorkspaceIds));
+        userDataQuery.fields().include(UserData.Fields.recentlyUsedWorkspaceIds);
 
         List<UserData> userDataList = mongoTemplate.find(userDataQuery, UserData.class);
         for (UserData userData : userDataList) {
@@ -52,9 +50,8 @@ public class Migration036AddRecentlyUsedEntitiesForUserData {
                 recentlyUsedEntityDTO.setWorkspaceId(workspaceId);
                 recentlyUsedEntityDTOS.add(recentlyUsedEntityDTO);
             }
-            update.set(fieldName(QUserData.userData.recentlyUsedEntityIds), recentlyUsedEntityDTOS);
-            mongoTemplate.updateFirst(
-                    query(where(fieldName(QUserData.userData.id)).is(userData.getId())), update, UserData.class);
+            update.set(UserData.Fields.recentlyUsedEntityIds, recentlyUsedEntityDTOS);
+            mongoTemplate.updateFirst(query(where(UserData.Fields.id).is(userData.getId())), update, UserData.class);
         }
     }
 }

@@ -13,7 +13,6 @@ import EditorNavigation, {
   AppSidebar,
   AppSidebarButton,
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -23,10 +22,6 @@ describe(
     let dsName: any, query: string;
 
     before("Create Postgress DS", () => {
-      featureFlagIntercept({
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      });
       agHelper.AddDsl("Datatypes/CharacterDTdsl");
       appSettings.OpenPaneAndChangeTheme("Pacific");
       dataSources.CreateDataSource("Postgres");
@@ -110,8 +105,6 @@ describe(
       );
       dataSources.EnterQuery(query);
       agHelper.RenameWithInPane("deleteRecord");
-
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
     });
 
     it("4. Inserting record (null values) - chartypes", () => {
@@ -386,18 +379,15 @@ describe(
       dataSources.ReadQueryTableResponse(0).then(($cellData) => {
         expect($cellData).to.eq("0"); //Success response for dropped table!
       });
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
       dataSources.AssertTableInVirtuosoList(dsName, "public.chartypes", false);
     });
 
     it("15. Verify Deletion of the datasource after all created queries are deleted", () => {
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
       AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.DeleteAllQueriesForDB(dsName);
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200); //ProductLines, Employees pages are still using this ds
     });
   },

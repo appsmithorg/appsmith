@@ -32,6 +32,7 @@ describe(
 
       //Adding app and data to the selected sheet
       homePage.NavigateToHome();
+      homePage.SelectWorkspace(workspaceName);
       homePage.CreateAppInWorkspace(workspaceName);
       homePage.RenameApplication(appName);
       gsheetHelper.AddInsertOrUpdateQuery(
@@ -82,7 +83,7 @@ describe(
 
     after("Delete app", function () {
       // Delete data in spreadsheet and app
-      PageLeftPane.switchSegment(PagePaneSegment.Explorer);
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       gsheetHelper.EnterBasicQueryValues(
         "Delete One",
         dataSourceName,

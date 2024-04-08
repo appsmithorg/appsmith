@@ -7,14 +7,17 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
+import org.springframework.util.StringUtils;
 
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static com.appsmith.external.constants.PluginConstants.DEFAULT_APPSMITH_AI_DATASOURCE;
 import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATASOURCE;
 
 @Getter
@@ -22,6 +25,7 @@ import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATAS
 @AllArgsConstructor
 @NoArgsConstructor
 @Document
+@FieldNameConstants
 public class DatasourceStorage extends BaseDomain {
 
     @JsonView(Views.Public.class)
@@ -145,6 +149,7 @@ public class DatasourceStorage extends BaseDomain {
          * user clicks on `test datasource` button.
          * DEFAULT_REST_DATASOURCE is the embedded datasource name for both REST API plugin and GraphQL plugin.
          */
-        return DEFAULT_REST_DATASOURCE.equals(this.name) && this.getDatasourceId() == null;
+        return (DEFAULT_REST_DATASOURCE.equals(this.name) || DEFAULT_APPSMITH_AI_DATASOURCE.equals(this.name))
+                && !StringUtils.hasText(this.datasourceId);
     }
 }

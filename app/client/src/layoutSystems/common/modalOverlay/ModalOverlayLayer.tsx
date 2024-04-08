@@ -7,10 +7,9 @@ import { Layers } from "constants/Layers";
 import { theme } from "constants/DefaultTheme";
 import { useDispatch, useSelector } from "react-redux";
 import { getAppViewHeaderHeight } from "selectors/appViewSelectors";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useMaxModalWidth } from "widgets/ModalWidget/component/useModalWidth";
+import { useAppViewerSidebarProperties } from "utils/hooks/useAppViewerSidebarProperties";
 const Container = styled.div<{
   width?: number;
   height?: number;
@@ -24,6 +23,7 @@ const Container = styled.div<{
   isEditMode?: boolean;
   headerHeight?: number;
   smallHeaderHeight?: string;
+  leftSidebarWidth?: string;
 }>`
   &&& {
     .${Classes.OVERLAY} {
@@ -31,18 +31,16 @@ const Container = styled.div<{
         z-index: ${(props) => props.zIndex || 2 - 1};
       }
       position: fixed;
-      top: ${(props) =>
-        `calc(${props.headerHeight}px + ${
-          props.isEditMode ? props.smallHeaderHeight : "0px"
-        })`};
+      top: 0;
       right: 0;
       bottom: 0;
-      height: ${(props) =>
-        `calc(100vh - (${props.headerHeight}px + ${
-          props.isEditMode ? props.smallHeaderHeight : "0px"
-        }))`};
+      left: ${(props) => props.leftSidebarWidth || 0}px;
+      height: 100%;
       z-index: ${(props) => props.zIndex};
-      width: 100%;
+      width: ${(props) =>
+        props.leftSidebarWidth !== "0"
+          ? `calc(100% - ${props.leftSidebarWidth})`
+          : "100%"};
       display: flex;
       justify-content: center;
       align-items: center;
@@ -123,12 +121,12 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
         modalName: props.widgetName,
       },
     });
-    dispatch(selectWidgetInitAction(SelectionRequestType.Empty));
     e.stopPropagation();
     e.preventDefault();
   };
 
   const maxModalWidth = useMaxModalWidth();
+  const { hasSidebarPinned, sidebarWidth } = useAppViewerSidebarProperties();
 
   return (
     <ComponentContainerWrapper isEditMode={props.isEditMode}>
@@ -148,6 +146,7 @@ export function ModalOverlayLayer(props: BaseWidgetProps) {
           height={props.height}
           isEditMode={props.isEditMode}
           left={props.left}
+          leftSidebarWidth={hasSidebarPinned ? sidebarWidth.toString() : "0"}
           maxWidth={maxModalWidth}
           minSize={props.minSize}
           right={props.bottom}

@@ -9,17 +9,21 @@ import { getCurrentThemeDetails } from "selectors/themeSelectors";
 import type { BackgroundTheme } from "sagas/ThemeSaga";
 import { changeAppBackground } from "sagas/ThemeSaga";
 import { updateRecentEntitySaga } from "sagas/GlobalSearchSagas";
-import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 import {
   setLastSelectedWidget,
   setSelectedWidgets,
 } from "actions/widgetSelectionActions";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { contextSwitchingSaga } from "sagas/ContextSwitchingSaga";
+import FocusRetention from "sagas/FocusRetentionSaga";
 import { getSafeCrash } from "selectors/errorSelectors";
 import { flushErrors } from "actions/errorActions";
 import type { NavigationMethod } from "utils/history";
 import UsagePulse from "usagePulse";
+import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
+import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { updateIDETabsOnRouteChangeSaga } from "sagas/IDESaga";
+import { getIDEViewMode } from "selectors/ideSelectors";
 
 let previousPath: string;
 
@@ -30,16 +34,25 @@ export function* handleRouteChange(
   try {
     yield fork(clearErrors);
     yield fork(watchForTrackableUrl, action.payload);
-    const isAnEditorPath = isEditorPath(pathname);
+    const ideType = getIDETypeByUrl(pathname);
+    const isAnEditorPath = ideType !== IDE_TYPE.None;
 
     // handled only on edit mode
     if (isAnEditorPath) {
-      yield fork(logNavigationAnalytics, action.payload);
-      yield fork(contextSwitchingSaga, pathname, previousPath, state);
-      yield fork(appBackgroundHandler);
-      const entityInfo = identifyEntityFromPath(pathname);
-      yield fork(updateRecentEntitySaga, entityInfo);
-      yield fork(setSelectedWidgetsSaga, state?.invokedBy);
+      yield fork(
+        FocusRetention.onRouteChange.bind(FocusRetention),
+        pathname,
+        previousPath,
+        state,
+      );
+      if (ideType === IDE_TYPE.App) {
+        yield fork(logNavigationAnalytics, action.payload);
+        yield fork(appBackgroundHandler);
+        const entityInfo = identifyEntityFromPath(pathname);
+        yield fork(updateRecentEntitySaga, entityInfo);
+        yield fork(updateIDETabsOnRouteChangeSaga, entityInfo);
+        yield fork(setSelectedWidgetsSaga, state?.invokedBy);
+      }
     }
   } catch (e) {
     log.error("Error in focus change", e);
@@ -99,6 +112,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
   const isRecent = recentEntityIds.some(
     (entityId) => entityId === currentEntity.id,
   );
+  const ideViewMode: EditorViewMode = yield select(getIDEViewMode);
   const { height, width } = window.screen;
   AnalyticsUtil.logEvent("ROUTE_CHANGE", {
     toPath: pathname,
@@ -110,6 +124,7 @@ function* logNavigationAnalytics(payload: RouteChangeActionPayload) {
     fromType: previousEntity.entity,
     screenHeight: height,
     screenWidth: width,
+    editorMode: ideViewMode,
   });
 }
 

@@ -1,4 +1,6 @@
+const { default: HomePage } = require("../../../../locators/HomePage");
 const commonlocators = require("../../../../locators/commonlocators.json");
+const { agHelper } = require("../../../../support/Objects/ObjectsCore");
 
 describe("Check for product updates button and modal", function () {
   it("1. Check if we should show the product updates button and it opens the updates modal", function () {
@@ -12,7 +14,8 @@ describe("Check for product updates button and modal", function () {
       .then((state) => {
         const { newReleasesCount, releaseItems } = state.ui.releases;
         if (Array.isArray(releaseItems) && releaseItems.length > 0) {
-          cy.get("span.t--product-updates-btn")
+          agHelper.GetNClick(HomePage.helpButton, 0);
+          cy.get(".t--product-updates-btn")
             .contains("What's new?")
             .click({ force: true });
           //eslint-disable-next-line cypress/no-unnecessary-waiting

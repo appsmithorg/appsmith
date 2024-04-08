@@ -4,6 +4,21 @@ import type {
   SaveWorkspaceRequest,
 } from "@appsmith/api/WorkspaceApi";
 
+interface FetchAllWorkspacesParams {
+  fetchEntities?: boolean;
+  workspaceId?: string | null;
+}
+
+export const fetchAllWorkspaces = (params?: FetchAllWorkspacesParams) => {
+  return {
+    type: ReduxActionTypes.FETCH_ALL_WORKSPACES_INIT,
+    payload: {
+      fetchEntities: params?.fetchEntities,
+      workspaceId: params?.workspaceId,
+    },
+  };
+};
+
 export const fetchWorkspace = (
   workspaceId: string,
   skipValidation?: boolean,
@@ -93,3 +108,28 @@ export const deleteWorkspaceLogo = (id: string) => {
     },
   };
 };
+
+export const searchEntities = (payload: string) => ({
+  type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_INIT,
+  payload,
+});
+
+export const resetSearchEntity = () => ({
+  type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_RESET,
+});
+
+export const searchWorkspaceEntitiesLoader = (payload: boolean) => ({
+  type: ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_LOADER,
+  payload,
+});
+
+export const fetchEntitiesOfWorkspace = (payload: { workspaceId?: string }) => {
+  return {
+    type: ReduxActionTypes.FETCH_ENTITIES_OF_WORKSPACE_INIT,
+    payload,
+  };
+};
+
+export const resetImportData = () => ({
+  type: ReduxActionTypes.RESET_IMPORT_DATA,
+});

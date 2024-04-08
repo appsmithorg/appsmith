@@ -13,12 +13,12 @@ const CanvasResizerIcon = importSvg(
 );
 
 const AutoLayoutCanvasResizer = styled.div`
-  position: sticky;
+  position: relative;
+  z-index: var(--on-canvas-ui-z-index);
   cursor: col-resize;
   user-select: none;
   -webkit-user-select: none;
   width: 2px;
-  height: 100%;
   display: flex;
   background: var(--ads-v2-color-border);
   align-items: center;
@@ -58,12 +58,9 @@ const AutoLayoutCanvasResizer = styled.div`
 export function MainContainerResizer({
   currentPageId,
   enableMainCanvasResizer,
-  heightWithTopMargin,
   isPageInitiated,
   isPreview,
-  shouldHaveTopMargin,
 }: {
-  heightWithTopMargin: string;
   isPageInitiated: boolean;
   shouldHaveTopMargin: boolean;
   isPreview: boolean;
@@ -73,11 +70,11 @@ export function MainContainerResizer({
   const appLayout = useSelector(getCurrentApplicationLayout);
   const ref = useRef<HTMLDivElement>(null);
   const dispatch = useDispatch();
+  const topHeaderHeight = "48px";
   useEffect(() => {
     const ele: HTMLElement | null = document.getElementById(CANVAS_VIEWPORT);
 
     if (isPageInitiated && enableMainCanvasResizer) {
-      const buffer = isPreview ? AUTOLAYOUT_RESIZER_WIDTH_BUFFER : 0;
       const fullWidthCSS = `calc(100% - ${AUTOLAYOUT_RESIZER_WIDTH_BUFFER}px)`;
       const wrapperElement: any = document.getElementById("widgets-editor");
 
@@ -109,7 +106,7 @@ export function MainContainerResizer({
           // Calculate the dimension of element
           const styles = window.getComputedStyle(ele);
           dispatch(setAutoCanvasResizing(true));
-          w = parseInt(styles.width, 10) + buffer;
+          w = parseInt(styles.width, 10);
           // h = parseInt(styles.height, 10);
           const mouseMove = (e: any) => mouseMoveHandler(e);
           events.push(mouseMove);
@@ -173,8 +170,8 @@ export function MainContainerResizer({
       }}
       ref={ref}
       style={{
-        top: "100%",
-        height: shouldHaveTopMargin ? heightWithTopMargin : "100vh",
+        top: isPreview ? topHeaderHeight : "0",
+        height: isPreview ? `calc(100% - ${topHeaderHeight})` : "100%",
       }}
     >
       <div className="canvas-resizer-icon">

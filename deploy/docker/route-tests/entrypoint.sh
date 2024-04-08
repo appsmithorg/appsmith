@@ -74,6 +74,7 @@ new-spec "Spec 2: With a custom domain, cert obtained (because of internal CA)"
 export APPSMITH_CUSTOM_DOMAIN=custom-domain.com
 node /caddy-reconfigure.mjs
 #sed -i '2i acme_ca https://acme-staging-v02.api.letsencrypt.org/directory' "$TMP/Caddyfile"
+# The domain being present is a necceary thing here, since otherwise Caddy won't know what domain to provision a cert for.
 sed -i '/https:\/\/'"$APPSMITH_CUSTOM_DOMAIN"' {$/a tls internal' "$TMP/Caddyfile"
 reload-caddy
 run-hurl --variable ca_issuer="CN = Caddy Local Authority - ECC Intermediate" \

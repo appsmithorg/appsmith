@@ -20,7 +20,7 @@ export default {
   homeIcon: ".t--appsmith-logo",
   inputAppName: "input[name=applicationName]",
   createNew: ".createnew",
-  createWorkspace: "span:contains('New workspace')",
+  createWorkspace: "[data-testid=t--workspace-new-workspace-auto-create]",
   inputWorkspaceName: "//input[@name='name']",
   submitBtn: "//span[text()='Submit']",
   workspaceMenu: "//span[text()='TestShareWorkspace']",
@@ -100,4 +100,10 @@ export default {
   reconnectDatasourceModal: "[data-testid='reconnect-datasource-modal']",
   importAppProgressWrapper: ".t-import-app-progress-wrapper",
   backtoHome: ".t--app-viewer-back-to-apps-button",
+  newButtonCreateApplication: "[data-testid=t--workspace-action-create-app]",
+  helpButton:".t--help-menu-option",
+  noEntityFound:".no-search-results",
+  initialWorkspace:"[data-testid^='Untitled workspace']",
+  initialApplication:"[data-testid^='Untitled application']",
+  _entitySearchBar:"[data-testid='t--application-search-input']";
 };

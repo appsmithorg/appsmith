@@ -3,11 +3,8 @@ import styled from "styled-components";
 import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
-  getGitRemoteStatus,
   getGitStatus,
   getIsFetchingGitStatus,
-  getIsFetchingGitRemoteStatus,
-  getIsGitStatusLiteEnabled,
 } from "selectors/gitSyncSelectors";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import {
@@ -60,6 +57,8 @@ export enum Kind {
   JS_LIB = "JS_LIB",
   THEME = "THEME",
   SETTINGS = "SETTINGS",
+  PACKAGES = "PACKAGES",
+  MODULES = "MODULES",
 }
 
 interface GitStatusProps {
@@ -127,6 +126,22 @@ const STATUS_MAP: GitStatusMap = {
     } modified`,
     iconName: "package",
     hasValue: (status?.modifiedJSLibs || 0) > 0,
+  }),
+  [Kind.PACKAGES]: (status) => ({
+    message: `${status?.modifiedPackages || 0} ${
+      (status?.modifiedPackages || 0) <= 1 ? "package" : "packages"
+    } modified`,
+    iconName: "package",
+    hasValue: (status?.modifiedPackages || 0) > 0,
+  }),
+  [Kind.MODULES]: (status) => ({
+    message: `${status?.modifiedModules || 0} ${
+      (status?.modifiedModules || 0) <= 1
+        ? "module configuration"
+        : "module configurations"
+    } modified`,
+    iconName: "package",
+    hasValue: (status?.modifiedModules || 0) > 0,
   }),
 };
 
@@ -196,6 +211,8 @@ export function gitChangeListData(
     Kind.JS_OBJECT,
     Kind.DATA_SOURCE,
     Kind.JS_LIB,
+    Kind.MODULES,
+    Kind.PACKAGES,
   ];
   return changeKind
     .map((type: Kind) => STATUS_MAP[type](status))
@@ -222,24 +239,15 @@ export function gitRemoteChangeListData(
 
 export default function GitChangesList() {
   const status = useSelector(getGitStatus);
-  const remoteStatus = useSelector(getGitRemoteStatus);
-  const isGitStatusLiteEnabled = useSelector(getIsGitStatusLiteEnabled);
 
   const derivedStatus: Partial<GitStatusData> = {
     ...status,
-    aheadCount: isGitStatusLiteEnabled
-      ? remoteStatus?.aheadCount
-      : status?.aheadCount,
-    behindCount: isGitStatusLiteEnabled
-      ? remoteStatus?.behindCount
-      : status?.behindCount,
-    remoteBranch: isGitStatusLiteEnabled
-      ? remoteStatus?.remoteTrackingBranch
-      : status?.remoteBranch,
+    aheadCount: status?.aheadCount,
+    behindCount: status?.behindCount,
+    remoteBranch: status?.remoteBranch,
   };
 
   const statusLoading = useSelector(getIsFetchingGitStatus);
-  const remoteStatusLoading = useSelector(getIsFetchingGitRemoteStatus);
 
   const statusChanges = gitChangeListData(derivedStatus);
   const remoteStatusChanges = gitRemoteChangeListData(derivedStatus);
@@ -256,22 +264,7 @@ export default function GitChangesList() {
       />,
     );
   }
-  return isGitStatusLiteEnabled ? (
-    <>
-      <Changes data-testid={"t--git-change-statuses"}>
-        {!statusLoading ? statusChanges : null}
-        {!remoteStatusLoading ? remoteStatusChanges : null}
-        {status?.migrationMessage ? (
-          <CalloutContainer>
-            <Callout kind="info">{status.migrationMessage}</Callout>
-          </CalloutContainer>
-        ) : null}
-      </Changes>
-      {statusLoading || remoteStatusLoading ? (
-        <DummyChange data-testid={"t--git-change-loading-dummy"} />
-      ) : null}
-    </>
-  ) : (
+  return (
     // disabling for better redability
     // eslint-disable-next-line react/jsx-no-useless-fragment
     <>
@@ -280,6 +273,7 @@ export default function GitChangesList() {
       ) : statusChanges.length ? (
         <Changes data-testid={"t--git-change-statuses"}>
           {statusChanges}
+          {remoteStatusChanges}
           {status?.migrationMessage ? (
             <CalloutContainer>
               <Callout kind="info">{status.migrationMessage}</Callout>

@@ -6,11 +6,10 @@ import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,22 +20,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
 @Slf4j
 @RequestMapping(Url.THEME_URL)
-public class ThemeControllerCE extends BaseController<ThemeService, Theme, String> {
-    public ThemeControllerCE(ThemeService themeService) {
-        super(themeService);
-    }
+@RequiredArgsConstructor
+public class ThemeControllerCE {
 
-    @Override
-    public Mono<ResponseDTO<Theme>> create(Theme resource, String originHeader, ServerWebExchange exchange) {
-        throw new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION);
-    }
+    private final ThemeService service;
 
     @JsonView(Views.Public.class)
     @GetMapping("applications/{applicationId}")
@@ -65,16 +58,6 @@ public class ThemeControllerCE extends BaseController<ThemeService, Theme, Strin
             @Valid @RequestBody Theme resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return service.updateTheme(applicationId, branchName, resource)
-                .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
-    }
-
-    @JsonView(Views.Public.class)
-    @PatchMapping("applications/{applicationId}")
-    public Mono<ResponseDTO<Theme>> publishCurrentTheme(
-            @PathVariable String applicationId,
-            @RequestBody Theme resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return service.persistCurrentTheme(applicationId, branchName, resource)
                 .map(theme -> new ResponseDTO<>(HttpStatus.OK.value(), theme, null));
     }
 

@@ -1,9 +1,10 @@
+import { CURRENT_REPO, REPO } from "../../../../fixtures/REPO";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   agHelper,
-  locators,
   homePage,
   assertHelper,
+  adminSettings,
   appSettings,
 } from "../../../../support/Objects/ObjectsCore";
 
@@ -11,10 +12,10 @@ describe(
   "Delete workspace test spec",
   { tags: ["@tag.Workspace"] },
   function () {
-    let newWorkspaceName;
+    let newWorkspaceName: any;
 
     it("1. Should delete the workspace", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
+      homePage.NavigateToHome();
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         newWorkspaceName = "workspace" + uid;
@@ -26,22 +27,17 @@ describe(
     });
 
     it("2. Should show option to delete workspace for an admin user", function () {
-      agHelper.VisitNAssert("/applications", "getReleaseItems");
-      agHelper.Sleep(2000);
-
-      featureFlagIntercept({ license_gac_enabled: true });
-      agHelper.Sleep(2000);
-
+      if (CURRENT_REPO == REPO.EE) adminSettings.EnableGAC(false, true);
       agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         newWorkspaceName = uid;
         homePage.CreateNewWorkspace(newWorkspaceName);
-        agHelper.Sleep(500);
         agHelper.AssertContains("Delete workspace"); //only to check if Delete workspace is shown to an admin user
         homePage.InviteUserToWorkspace(
           newWorkspaceName,
           Cypress.env("TESTUSERNAME1"),
           "App Viewer",
+          false,
         );
         homePage.LogOutviaAPI();
         homePage.LogintoApp(
@@ -49,14 +45,12 @@ describe(
           Cypress.env("TESTPASSWORD1"),
           "App Viewer",
         );
-        agHelper.VisitNAssert("/applications", "getReleaseItems");
         homePage.OpenWorkspaceOptions(newWorkspaceName);
         agHelper.AssertContains(
           "Delete workspace",
           "not.exist",
           appSettings.locators._userProfileDropdownMenu,
         );
-        homePage.LogOutviaAPI();
       });
     });
   },

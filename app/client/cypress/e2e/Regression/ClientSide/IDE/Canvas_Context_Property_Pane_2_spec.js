@@ -18,7 +18,7 @@ describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     _.apiPage.CreateApi(api1);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
   });
 
   beforeEach(() => {
@@ -180,9 +180,8 @@ function setPropertyPaneSectionState(propertySectionState) {
   )) {
     cy.get("body").then(($body) => {
       if (
-        $body.find(
-          `${propertySectionClass(sectionName)} .t--chevron-icon.rotate-180`,
-        ).length >
+        $body.find(`${propertySectionClass(sectionName)} .t--chevron-icon`)
+          .length >
           0 !==
         shouldSectionOpen
       ) {
@@ -198,9 +197,8 @@ function verifyPropertyPaneSectionState(propertySectionState) {
   )) {
     cy.get("body").then(($body) => {
       const isSectionOpen =
-        $body.find(
-          `${propertySectionClass(sectionName)} .t--chevron-icon.rotate-180`,
-        ).length > 0;
+        $body.find(`${propertySectionClass(sectionName)} .t--chevron-icon`)
+          .length > 0;
       expect(isSectionOpen).to.equal(shouldSectionOpen);
     });
   }

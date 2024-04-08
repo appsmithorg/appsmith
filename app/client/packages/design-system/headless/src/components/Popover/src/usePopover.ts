@@ -17,6 +17,7 @@ const DEFAULT_POPOVER_OFFSET = 10;
 
 export function usePopover({
   defaultOpen = false,
+  dismissClickOutside = false,
   duration = 0,
   initialFocus,
   isOpen: controlledOpen,
@@ -56,7 +57,17 @@ export function usePopover({
   const click = useClick(context, {
     enabled: controlledOpen == null,
   });
-  const dismiss = useDismiss(context);
+  const dismiss = useDismiss(context, {
+    escapeKey: !dismissClickOutside,
+    outsidePress: (event) => {
+      if (dismissClickOutside) return false;
+
+      // By default, click to close popup only work inside the provider
+      return Boolean(
+        (event?.target as HTMLElement).closest("[data-theme-provider]"),
+      );
+    },
+  });
   const role = useRole(context);
   const interactions = useInteractions([click, dismiss, role]);
 

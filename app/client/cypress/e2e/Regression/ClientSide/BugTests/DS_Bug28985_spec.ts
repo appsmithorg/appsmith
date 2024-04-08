@@ -1,6 +1,8 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 describe(
@@ -58,6 +60,8 @@ describe(
 
       agHelper.ValidateToastMessage("Successful");
 
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+
       entityExplorer.RenameEntityFromExplorer("Api1", "Api123");
 
       EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
@@ -81,6 +85,7 @@ describe(
       agHelper.ClickButton("Success 2");
 
       agHelper.ValidateToastMessage("Successful");
+      PageLeftPane.switchSegment(PagePaneSegment.JS);
 
       entityExplorer.RenameEntityFromExplorer("JSObject1", "JSObject123");
 

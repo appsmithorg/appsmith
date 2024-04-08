@@ -3,6 +3,9 @@ package com.appsmith.server.services;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.clonepage.ClonePageService;
+import com.appsmith.server.domains.ActionCollection;
+import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -59,7 +62,9 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             DatasourceRepository datasourceRepository,
             DatasourcePermission datasourcePermission,
             DSLMigrationUtils dslMigrationUtils,
-            GitAutoCommitHelper gitAutoCommitHelper) {
+            GitAutoCommitHelper gitAutoCommitHelper,
+            ClonePageService<NewAction> actionClonePageService,
+            ClonePageService<ActionCollection> actionCollectionClonePageService) {
 
         super(
                 workspaceService,
@@ -89,6 +94,8 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 datasourceRepository,
                 datasourcePermission,
                 dslMigrationUtils,
-                gitAutoCommitHelper);
+                gitAutoCommitHelper,
+                actionClonePageService,
+                actionCollectionClonePageService);
     }
 }

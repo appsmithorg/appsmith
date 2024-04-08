@@ -10,7 +10,6 @@ import applicationSagas from "@appsmith/sagas/ApplicationSagas";
 import batchSagas from "../src/sagas/BatchSagas";
 import draggingCanvasSagas from "../src/sagas/CanvasSagas/DraggingCanvasSagas";
 import selectionCanvasSagas from "../src/sagas/CanvasSagas/SelectionCanvasSagas";
-import importedCollectionsSagas from "../src/sagas/CollectionSagas";
 import curlImportSagas from "../src/sagas/CurlImportSagas";
 import debuggerSagas from "../src/sagas/DebuggerSagas";
 import formEvaluationChangeListener from "../src/sagas/FormEvaluationSaga";
@@ -21,7 +20,6 @@ import jsPaneSagas from "../src/sagas/JSPaneSagas";
 import LintingSaga from "../src/sagas/LintingSagas";
 import modalSagas from "../src/sagas/ModalSagas";
 import pluginSagas from "../src/sagas/PluginSagas";
-import providersSagas from "../src/sagas/ProvidersSaga";
 import queryPaneSagas from "../src/sagas/QueryPaneSagas";
 import saaSPaneSagas from "../src/sagas/SaaSPaneSagas";
 import snipingModeSagas from "../src/sagas/SnipingModeSagas";
@@ -44,8 +42,6 @@ export const sagasToRunForTests = [
   userSagas,
   pluginSagas,
   workspaceSagas,
-  importedCollectionsSagas,
-  providersSagas,
   curlImportSagas,
   snipingModeSagas,
   queryPaneSagas,

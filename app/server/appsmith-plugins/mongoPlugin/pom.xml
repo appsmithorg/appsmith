@@ -19,7 +19,7 @@
         <dependency>
             <groupId>org.testcontainers</groupId>
             <artifactId>mongodb</artifactId>
-            <version>1.19.1</version>
+            <version>${testcontainers.version}</version>
             <scope>test</scope>
             <exclusions>
                 <exclusion>

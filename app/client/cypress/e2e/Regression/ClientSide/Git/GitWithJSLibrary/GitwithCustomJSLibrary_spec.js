@@ -16,9 +16,8 @@ const tempBranch = "feat/tempBranch";
 let repoName;
 
 describe(
-  "excludeForAirgap",
   "Tests JS Library with Git",
-  { tags: ["@tag.Git"] },
+  { tags: ["@tag.Git", "@tag.excludeForAirgap"] },
   () => {
     before(() => {
       homePage.NavigateToHome();
@@ -60,6 +59,7 @@ describe(
       cy.get(gitSyncLocators.commitCommentInput).should("be.disabled");
       cy.get(gitSyncLocators.commitButton).should("be.disabled");
       cy.get(gitSyncLocators.closeGitSyncModal).click();
+      AppSidebar.navigate(AppSidebarButton.Editor);
       // swtich to master, verify no uncommitted changes
       cy.switchGitBranch("master");
       agHelper.AssertElementExist(gitSync._bottomBarPull);
@@ -83,10 +83,9 @@ describe(
       cy.get(gitSyncLocators.commitButton).click();
       agHelper.AssertElementExist(gitSync._bottomBarPull);
       cy.get(gitSyncLocators.closeGitSyncModal).click();
-      cy.wait(2000);
       cy.merge(mainBranch);
       cy.get(gitSyncLocators.closeGitSyncModal).click();
-      cy.wait(2000);
+      AppSidebar.navigate(AppSidebarButton.Editor);
       // verify custom js library is present in master branch
       cy.switchGitBranch(mainBranch);
       agHelper.AssertElementExist(gitSync._bottomBarPull);

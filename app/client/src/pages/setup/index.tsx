@@ -1,8 +1,6 @@
 import React from "react";
-import LandingPage from "./Welcome";
-import SetupForm from "./SetupForm";
+import UserWelcomeScreen from "./UserWelcomeScreen";
 import { requiresUnauth } from "pages/UserAuth/requiresAuthHOC";
-import { useState } from "react";
 import styled from "styled-components";
 import { useSelector } from "react-redux";
 import { getCurrentUser } from "selectors/usersSelectors";
@@ -17,20 +15,13 @@ const StyledSetupContainer = styled.div`
 
 function Setup() {
   const user = useSelector(getCurrentUser);
-  const [showLandingPage, setShowLandingPage] = useState<boolean>(true);
   if (!user?.emptyInstance) {
     return <Redirect to={AUTH_LOGIN_URL} />;
   }
+
   return (
     <StyledSetupContainer>
-      {showLandingPage ? (
-        <LandingPage
-          forSuperUser
-          onGetStarted={() => setShowLandingPage(false)}
-        />
-      ) : (
-        <SetupForm />
-      )}
+      <UserWelcomeScreen isSuperUser />
     </StyledSetupContainer>
   );
 }

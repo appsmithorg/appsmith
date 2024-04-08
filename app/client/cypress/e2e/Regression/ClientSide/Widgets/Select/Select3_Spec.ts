@@ -17,7 +17,7 @@ describe(
   { tags: ["@tag.Widget", "@tag.Select"] },
   function () {
     before(() => {
-      entityExplorer.DragNDropWidget(draggableWidgets.SELECT);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.SELECT);
     });
 
     it("1. Validate Server side filtering", () => {

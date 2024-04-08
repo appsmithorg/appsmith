@@ -35,7 +35,6 @@ const appsmithConfig = getAppsmithConfigs();
 
 export const BLOCKED_ROUTES = [
   "v1/app-templates",
-  "v1/marketplace",
   "v1/datasources/mocks",
   "v1/usage-pulse",
   "v1/applications/releaseItems",
@@ -108,7 +107,7 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
     const activeEnv = getCurrentEnvironmentId(state);
 
     if (activeEnv && config.headers) {
-      config.headers.environmentId = activeEnv;
+      config.headers["X-Appsmith-EnvironmentId"] = activeEnv;
     }
   }
 

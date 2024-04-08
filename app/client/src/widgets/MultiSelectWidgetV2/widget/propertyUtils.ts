@@ -13,25 +13,13 @@ export function defaultOptionValueValidation(
   let isValid = false;
   let parsed: any[] = [];
   let message = { name: "", message: "" };
-  const isServerSideFiltered = props.serverSideFiltering;
-  // TODO: options shouldn't get un-eval values;
-  let options = props.options;
 
   const DEFAULT_ERROR_MESSAGE = {
     name: "TypeError",
     message:
       "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
   };
-  const MISSING_FROM_OPTIONS = {
-    name: "ValidationError",
-    message:
-      "Some or all default values are missing from options. Please update the values.",
-  };
-  const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
-    name: "ValidationError",
-    message:
-      "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
-  };
+
   /*
    * Function to check if the object has `label` and `value`
    */
@@ -136,42 +124,6 @@ export function defaultOptionValueValidation(
     message = DEFAULT_ERROR_MESSAGE;
   }
 
-  if (isValid && !_.isNil(parsed) && !_.isEmpty(parsed)) {
-    if (!Array.isArray(options) && typeof options === "string") {
-      try {
-        const parsedOptions = JSON.parse(options);
-        if (Array.isArray(parsedOptions)) {
-          options = parsedOptions;
-        } else {
-          options = [];
-        }
-      } catch (e) {
-        options = [];
-      }
-    }
-
-    const parsedValue = parsed;
-    const areValuesPresent = parsedValue.every((value) => {
-      const index = _.findIndex(
-        options,
-        (option) => option.value === value || option.value === value.value,
-      );
-      return index !== -1;
-    });
-
-    if (!areValuesPresent) {
-      isValid = false;
-      if (!isServerSideFiltered) {
-        message = MISSING_FROM_OPTIONS;
-      } else {
-        if (!parsed.every(hasLabelValue)) {
-          message = MISSING_FROM_OPTIONS_AND_WRONG_FORMAT;
-        } else {
-          message = MISSING_FROM_OPTIONS;
-        }
-      }
-    }
-  }
   return {
     isValid,
     parsed,

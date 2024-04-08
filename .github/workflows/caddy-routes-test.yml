@@ -1,0 +1,15 @@
+name: Caddy route tests
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "0 0 * * MON"
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - run: deploy/docker/route-tests/run.sh

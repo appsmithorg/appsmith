@@ -2,17 +2,18 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.SerialiseApplicationObjective;
+import com.appsmith.server.constants.ArtifactType;
+import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.ApplicationSnapshot;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
-import com.appsmith.server.exports.internal.ExportApplicationService;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -21,6 +22,7 @@ import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatcher;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -46,10 +48,10 @@ public class ApplicationSnapshotServiceUnitTest {
     ApplicationService applicationService;
 
     @MockBean
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @MockBean
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @MockBean
     ApplicationSnapshotRepository applicationSnapshotRepository;
@@ -87,9 +89,9 @@ public class ApplicationSnapshotServiceUnitTest {
                         branchName, defaultAppId, AclPermission.MANAGE_APPLICATIONS))
                 .thenReturn(Mono.just(branchedAppId));
 
-        Mockito.when(exportApplicationService.exportApplicationById(
-                        branchedAppId, SerialiseApplicationObjective.VERSION_CONTROL))
-                .thenReturn(Mono.just(applicationJson));
+        Mockito.when(exportService.exportByArtifactId(
+                        branchedAppId, SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION))
+                .thenAnswer(getTypeSafeMockAnswer(applicationJson));
 
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))
                 .thenReturn(Mono.just("").then());
@@ -144,9 +146,10 @@ public class ApplicationSnapshotServiceUnitTest {
         ArgumentMatcher<ApplicationJson> matchApplicationJson;
         matchApplicationJson = applicationJson1 ->
                 applicationJson1.getExportedApplication().getName().equals(application.getName());
-        Mockito.when(importApplicationService.restoreSnapshot(
-                        eq(application.getWorkspaceId()), argThat(matchApplicationJson), eq(branchedAppId), eq(branch)))
-                .thenReturn(Mono.just(application));
+
+        Mockito.when(importService.restoreSnapshot(
+                        eq(application.getWorkspaceId()), eq(branchedAppId), eq(branch), argThat(matchApplicationJson)))
+                .thenAnswer(getTypeSafeMockAnswer(application));
 
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))
                 .thenReturn(Mono.just("application").then());
@@ -193,9 +196,9 @@ public class ApplicationSnapshotServiceUnitTest {
         Mockito.when(applicationSnapshotRepository.findByApplicationId(branchedAppId))
                 .thenReturn(Flux.fromIterable(snapshots));
 
-        Mockito.when(importApplicationService.restoreSnapshot(
-                        eq(application.getWorkspaceId()), any(), eq(branchedAppId), eq(branch)))
-                .thenReturn(Mono.just(application));
+        Mockito.when(importService.restoreSnapshot(
+                        eq(application.getWorkspaceId()), eq(branchedAppId), eq(branch), any()))
+                .thenAnswer(getTypeSafeMockAnswer(application));
 
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId(branchedAppId))
                 .thenReturn(Mono.just("application").then());
@@ -240,7 +243,7 @@ public class ApplicationSnapshotServiceUnitTest {
         application.setId("branched-app-id");
         application.setName("Snapshot test");
         application.setWorkspaceId("workspace-id");
-        application.setGitApplicationMetadata(new GitApplicationMetadata());
+        application.setGitApplicationMetadata(new GitArtifactMetadata());
         application.getGitApplicationMetadata().setDefaultApplicationId("default-app-id");
         application.getGitApplicationMetadata().setBranchName("development");
 
@@ -269,15 +272,13 @@ public class ApplicationSnapshotServiceUnitTest {
                 .thenReturn(Flux.just(applicationSnapshot));
 
         // mock the import application service to return the application that was passed to it
-        Mockito.when(importApplicationService.restoreSnapshot(
+        Mockito.when(importService.restoreSnapshot(
                         eq(application.getWorkspaceId()),
-                        argThat(applicationJson1 -> applicationJson1
-                                .getExportedApplication()
-                                .getName()
-                                .equals(application.getName())),
                         eq("branched-app-id"),
-                        eq("development")))
-                .thenReturn(Mono.just(application));
+                        eq("development"),
+                        argThat(applicationJson1 ->
+                                applicationJson1.getArtifact().getName().equals(application.getName()))))
+                .thenAnswer(getTypeSafeMockAnswer(application));
 
         // mock the delete spanshot to return an empty mono
         Mockito.when(applicationSnapshotRepository.deleteAllByApplicationId("branched-app-id"))
@@ -321,5 +322,9 @@ public class ApplicationSnapshotServiceUnitTest {
                     return Mono.error(e);
                 });
         finalMono.subscribe();
+    }
+
+    private static <T> Answer<Mono<T>> getTypeSafeMockAnswer(T object) {
+        return invocationOnMock -> Mono.just(object);
     }
 }

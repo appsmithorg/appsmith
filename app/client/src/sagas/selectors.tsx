@@ -97,6 +97,7 @@ export const getDataTreeForActionCreator = memoize((state: AppState) => {
     dataTree[key] = {
       meta: value?.meta || null,
       ENTITY_TYPE: value?.ENTITY_TYPE || null,
+      type: value?.type || null,
     };
   });
   return dataTree;
@@ -231,4 +232,11 @@ export const getWidgetImmediateChildren = createSelector(
     }
     return childrenIds;
   },
+);
+
+export const getPluginIdToPlugin = createSelector(getPlugins, (plugins) =>
+  plugins.reduce((acc: Record<string, Plugin>, p: Plugin) => {
+    acc[p.id] = p;
+    return acc;
+  }, {}),
 );

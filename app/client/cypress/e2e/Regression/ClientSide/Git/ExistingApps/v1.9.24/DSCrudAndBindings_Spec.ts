@@ -112,7 +112,7 @@ describe(
         "listingAndReviews Data",
       );
       agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-      table.WaitUntilTableLoad(0, 0, "v1");
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //Filter & validate table data
       table.OpenNFilterTable("_id", "is exactly", "15665837");
@@ -131,7 +131,7 @@ describe(
         "countryFlags Data",
       );
       agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-      table.WaitUntilTableLoad(0, 0, "v1");
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //Filter & validate table data
       table.OpenNFilterTable("Country", "starts with", "Ba");
@@ -152,7 +152,7 @@ describe(
         "public_astronauts Data",
       );
       agHelper.AssertElementVisibility(locators._widgetByName("data_table"));
-      table.WaitUntilTableLoad(0, 0, "v1");
+      table.WaitUntilTableLoad(0, 0, "v2");
 
       //Filter & validate table data
       table.OpenNFilterTable("id", "is exactly", "196");

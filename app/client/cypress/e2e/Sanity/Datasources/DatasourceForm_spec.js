@@ -1,4 +1,7 @@
-import { PageLeftPane } from "../../../support/Pages/EditorNavigation";
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../support/Pages/EditorNavigation";
 
 const testdata = require("../../../fixtures/testdata.json");
 import {
@@ -32,7 +35,7 @@ describe(
       dataSources.SaveDSFromDialog();
       //Check if saved api as a datasource does not fail on cloning", function () {
 
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Api1",
         action: "Copy to page",

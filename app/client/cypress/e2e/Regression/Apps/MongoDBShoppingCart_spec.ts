@@ -7,18 +7,14 @@ import {
   gitSync,
   dataSources,
   locators,
+  table,
 } from "../../../support/Objects/ObjectsCore";
 
 describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
   let datasourceName: string, repoName: any;
 
   before(() => {
-    agHelper.GenerateUUID();
-    cy.get("@guid").then((uid) => {
-      homePage.CreateNewWorkspace("MongoDBShop" + uid, true);
-      homePage.CreateAppInWorkspace("MongoDBShop" + uid, "MongoDBShopApp");
-      agHelper.AddDsl("mongoAppdsl");
-    });
+    agHelper.AddDsl("mongoAppdsl");
     dataSources.CreateDataSource("Mongo");
     cy.get("@saveDatasource").then((httpResponse: any) => {
       datasourceName = httpResponse.response.body.data.name;
@@ -169,7 +165,8 @@ describe("Shopping cart App", { tags: ["@tag.Datasource"] }, function () {
     );
     agHelper.GetNClick(appPage.addButton, 0, true);
     assertHelper.AssertNetworkStatus("@postExecute");
-    // Deleting the book from the cart
+    // Select the table row & Deleting the book from the cart
+    table.SelectTableRow(1);
     agHelper.GetNClick(appPage.deleteButton, 1, false);
     assertHelper.AssertNetworkStatus("@postExecute");
     assertHelper.AssertNetworkStatus("@postExecute");

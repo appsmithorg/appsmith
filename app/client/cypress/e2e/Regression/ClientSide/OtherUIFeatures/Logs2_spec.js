@@ -14,13 +14,13 @@ const generateTestLogString = () => {
   return logString;
 };
 
-describe("Debugger logs", function () {
+describe("Debugger logs", { tags: ["@tag.Debugger"] }, function () {
   this.beforeEach(() => {
     logString = generateTestLogString();
   });
 
   it("1. Console log on text widget with normal moustache binding", function () {
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     _.entityExplorer.DragDropWidgetNVerify("textwidget", 400, 400);
     _.propPane.UpdatePropertyFieldValue(
       "Text",
@@ -285,7 +285,8 @@ describe("Debugger logs", function () {
     });
 
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    _.agHelper.GetNClick(_.locators._errorTab);
+    _.agHelper.AssertElementVisibility(".t--debugger-count");
+    _.debuggerHelper.ClickDebuggerIcon();
 
     _.debuggerHelper.ClicklogEntityLink();
 

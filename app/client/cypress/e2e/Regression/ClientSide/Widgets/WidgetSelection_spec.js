@@ -47,7 +47,7 @@ describe("Widget Selection", { tags: ["@tag.Widget"] }, function () {
     //select on one of the widgets from the right side panel
     cy.get(`.t-multi-widget-property-pane`).should("have.length", 1);
     cy.get(`#${dsl.dsl.children[2].widgetId}`).should("have.length", 1);
-    cy.get(`#${dsl.dsl.children[2].widgetId}`).click({
+    cy.get(`#widget_name_${dsl.dsl.children[2].widgetId}`).click({
       force: true,
     });
 
@@ -62,7 +62,7 @@ describe("Widget Selection", { tags: ["@tag.Widget"] }, function () {
     cy.get("body").type("{ctrl}{a}");
     // Switch to the Canvas
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     // Widgets should not be selected
     cy.get(".t--multi-selection-box").should("not.exist");
   });

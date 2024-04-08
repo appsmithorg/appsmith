@@ -34,6 +34,7 @@ describe("Tests to assert install/uninstall flows", function () {
         takenNamesMap: {},
       },
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
+      webworkerTelemetry: {},
     });
     //
     expect(self.importScripts).toHaveBeenCalled();
@@ -57,6 +58,7 @@ describe("Tests to assert install/uninstall flows", function () {
         takenNamesMap: {},
       },
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
+      webworkerTelemetry: {},
     });
     expect(res).toEqual({
       success: true,
@@ -77,6 +79,7 @@ describe("Tests to assert install/uninstall flows", function () {
         takenNamesMap: { lodash: true },
       },
       method: EVAL_WORKER_ASYNC_ACTION.INSTALL_LIBRARY,
+      webworkerTelemetry: {},
     });
     expect(res).toEqual({
       success: true,
@@ -94,6 +97,7 @@ describe("Tests to assert install/uninstall flows", function () {
     const res = await uninstallLibrary({
       data: ["lodash"],
       method: EVAL_WORKER_SYNC_ACTION.UNINSTALL_LIBRARY,
+      webworkerTelemetry: {},
     });
     expect(res).toEqual({ success: true });
     expect(self.lodash).toBeUndefined();

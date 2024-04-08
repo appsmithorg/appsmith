@@ -7,6 +7,9 @@ import {X509Certificate} from "crypto"
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
 
+// Rate limit, numeric value defining the requests-per-second allowed.
+const RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 100, 10)
+
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
 let certLocation = null
@@ -16,7 +19,7 @@ if (CUSTOM_DOMAIN !== "") {
     certLocation = "/appsmith-stacks/ssl"
   } catch {
     // no custom certs, see if old certbot certs are there.
-    const letsEncryptCertLocation = "/etc/letsencrypt/live/" + CUSTOM_DOMAIN
+    const letsEncryptCertLocation = "/appsmith-stacks/letsencrypt/live/" + CUSTOM_DOMAIN
     const fullChainPath = letsEncryptCertLocation + `/fullchain.pem`
     try {
       fs.accessSync(fullChainPath, fs.constants.R_OK)
@@ -31,8 +34,6 @@ if (CUSTOM_DOMAIN !== "") {
 
 }
 
-const tlsConfig = certLocation == null ? "" : `tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem`
-
 const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'self'")
   .replace(/;.*$/, "")
 
@@ -46,6 +47,7 @@ parts.push(`
   servers {
     trusted_proxies static 0.0.0.0/0
   }
+  order rate_limit before basicauth
 }
 
 (file_server) {
@@ -75,7 +77,7 @@ parts.push(`
   }
 
   request_body {
-    max_size 150MB
+    max_size ${process.env.APPSMITH_CODEC_SIZE || 150}MB
   }
 
   handle {
@@ -115,6 +117,14 @@ parts.push(`
     import reverse_proxy 9001
   }
 
+  rate_limit {
+    zone dynamic_zone {
+      key {http.request.remote_ip}
+      events ${RATE_LIMIT}
+      window 1s
+    }
+  }
+
   handle_errors {
     respond "{err.status_code} {err.status_text}" {err.status_code}
     header -Server
@@ -128,13 +138,27 @@ parts.push(`
 `)
 
 if (CUSTOM_DOMAIN !== "") {
-  // If no custom domain, no extra routing needed.
+  if (certLocation) {
+    // There's a custom certificate, don't bind to any exact domain.
+    parts.push(`
+    https:// {
+      import all-config
+      tls ${certLocation}/fullchain.pem ${certLocation}/privkey.pem
+    }
+    `)
+
+  } else {
+    // No custom certificate, bind to the custom domain explicitly, so Caddy can auto-provision the cert.
+    parts.push(`
+    https://${CUSTOM_DOMAIN} {
+      import all-config
+    }
+    `)
+
+  }
+
   // We have to own the http-to-https redirect, since we need to remove the `Server` header from the response.
   parts.push(`
-  https://${CUSTOM_DOMAIN} {
-    import all-config
-    ${tlsConfig}
-  }
   http://${CUSTOM_DOMAIN} {
     redir https://{host}{uri}
     header -Server
@@ -143,10 +167,34 @@ if (CUSTOM_DOMAIN !== "") {
   `)
 }
 
+finalizeIndexHtml()
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
 spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
 spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
+
+function finalizeIndexHtml() {
+  let info = null;
+  try {
+    info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
+  } catch(e) {
+    // info will be empty, that's okay.
+    console.error("Error reading info.json", e)
+  }
+
+  const extraEnv = {
+    APPSMITH_VERSION_ID: info?.version ?? "",
+    APPSMITH_VERSION_SHA: info?.commitSha ?? "",
+    APPSMITH_VERSION_RELEASE_DATE: info?.imageBuiltAt ?? "",
+  }
+
+  const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replace(
+    /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
+    (_, name) => (process.env[name] || extraEnv[name] || "")
+  )
+
+  fs.writeFileSync(process.env.WWW_PATH + "/index.html", content)
+}
 
 function isCertExpired(path) {
   const cert = new X509Certificate(fs.readFileSync(path, "utf-8"))

@@ -1,43 +1,62 @@
 .overlay {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   background: var(--color-bg-neutral-opacity);
-  display: grid;
-  place-items: center;
   z-index: var(--z-index-99);
+  contain: strict;
 }
 
-.content {
-  background: var(--color-bg);
-  border-radius: var(--border-radius-1);
+.overlay .content {
+  background: var(--color-bg-elevation-3);
+  border-radius: var(--border-radius-elevation-3);
   box-shadow: var(--box-shadow-1);
-  max-width: calc(100vw - var(--outer-spacing-6));
-  max-height: calc(100vh - var(--outer-spacing-6));
   outline: none;
   display: flex;
   flex-direction: column;
-  gap: var(--outer-spacing-4);
   padding-inline: var(--outer-spacing-4);
   padding-block: var(--outer-spacing-4);
+  gap: var(--outer-spacing-2);
+  flex: 1;
 }
 
-[data-size="small"] .content {
-  width: var(--sizing-120);
+.overlay .content .header {
+  /* Needed to align the close button */
+  padding-inline: 0 calc(var(--outer-spacing-2));
+  margin-inline: 0 calc(-1 * var(--outer-spacing-4));
 }
 
-[data-size="medium"] .content {
-  width: var(--sizing-180);
-}
-
-[data-size="large"] .content {
-  width: 100%;
-  height: 100%;
-}
-
-.body {
+.overlay .content .body {
   overflow: auto;
-  max-height: 100%;
+  padding-block: var(--outer-spacing-2);
   padding-inline: var(--outer-spacing-4);
   margin-inline: calc(var(--outer-spacing-4) * -1);
   flex: 1;
+
+  /* Needed to remove the height from the child element so that Scrollbar is displayed correctly */
+  & > *:last-child {
+    height: auto;
+  }
+}
+
+.overlay [role="dialog"] {
+  display: flex;
+  max-inline-size: calc(100% - var(--outer-spacing-8));
+  max-block-size: calc(100% - var(--outer-spacing-8));
+}
+
+.overlay [role="dialog"][data-size="small"] {
+  inline-size: var(--sizing-120);
+}
+
+.overlay [role="dialog"][data-size="medium"] {
+  inline-size: var(--sizing-180);
+}
+
+.overlay [role="dialog"][data-size="large"],
+.overlay [role="dialog"][data-size="large"] .content {
+  inline-size: 100%;
+  min-block-size: 50%;
 }
 
 .overlay,

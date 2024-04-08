@@ -56,13 +56,13 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
 
       # Retrieve npm dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache npm dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: cache-yarn-dependencies
         with:
@@ -74,19 +74,17 @@ jobs:
             ${{ runner.OS }}-
 
       - name: Install dependencies
-        run: yarn install --frozen-lockfile
+        run: yarn install --immutable
 
       - name: Create the bundle
         env:
           REACT_APP_ENVIRONMENT: "PRODUCTION"
           REACT_APP_FUSIONCHARTS_LICENSE_KEY: "${{ secrets.APPSMITH_FUSIONCHARTS_LICENSE_KEY }}"
           REACT_APP_SEGMENT_CE_KEY: "${{ secrets.APPSMITH_SEGMENT_CE_KEY }}"
-          REACT_APP_VERSION_ID: "${{ needs.prelude.outputs.tag }}"
           REACT_APP_INTERCOM_APP_ID: "${{ secrets.APPSMITH_INTERCOM_ID }}"
           REACT_APP_VERSION_EDITION: "Community"
         run: |
-          REACT_APP_VERSION_RELEASE_DATE="$(date -u '+%Y-%m-%dT%H:%M:%SZ')" \
-            yarn build
+          yarn build
           ls -l build
 
       - name: Pack the client build directory
@@ -115,14 +113,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Set up JDK 17
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: "temurin"
           java-version: "17"
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: cache-maven-dependencies
         with:
@@ -162,16 +160,16 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
 
-      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # actions/setup-node@v4 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: app/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/yarn.lock') }}

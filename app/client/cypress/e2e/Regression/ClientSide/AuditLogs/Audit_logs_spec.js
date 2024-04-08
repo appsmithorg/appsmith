@@ -1,10 +1,9 @@
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
-import { agHelper } from "../../../../support/Objects/ObjectsCore";
-
-const Access = {
-  AdminSettingsEntryLink: ".admin-settings-menu-option",
-  LeftPaneAuditLogsLink: ".t--settings-category-audit-logs",
-};
+import {
+  agHelper,
+  adminSettings as adminSettingsHelper,
+} from "../../../../support/Objects/ObjectsCore";
+import adminsSettings from "../../../../locators/AdminsSettings";
 
 const Header = {
   Heading: "[data-testid='t--header-heading-container']",
@@ -25,18 +24,18 @@ const UpgradePage = {
   ...Carousel,
 };
 
-const locators = { ...Access, ...UpgradePage };
+const locators = { ...UpgradePage };
 
 describe("Audit logs", { tags: ["@tag.Settings"] }, () => {
   it("1. Super user can access audit logs page", () => {
     if (CURRENT_REPO === REPO.CE) {
       cy.LogOut();
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      cy.get(locators.AdminSettingsEntryLink).should("be.visible");
-      cy.get(locators.AdminSettingsEntryLink).click();
-      cy.url().should("contain", "/settings/general");
-      cy.get(locators.LeftPaneAuditLogsLink).should("be.visible");
-      agHelper.GetNClick(locators.LeftPaneAuditLogsLink);
+      cy.get(adminSettingsHelper._adminSettingsBtn).should("be.visible");
+      cy.get(adminSettingsHelper._adminSettingsBtn).click();
+      cy.url().should("contain", adminSettingsHelper.routes.GENERAL);
+      cy.get(adminsSettings.auditLogs).should("be.visible");
+      agHelper.GetNClick(adminsSettings.auditLogs);
       agHelper.AssertElementVisibility(locators.UpgradeContainer);
       cy.get(locators.HeaderContainer).should("be.visible");
       cy.get(locators.CarouselContainer).should("be.visible");

@@ -20,7 +20,7 @@ const _TooltipContent = (
   // We have to shift the arrow so that there is no empty space if the tooltip has rounding
   const theme = useThemeContext();
   const borderRadius = Number(
-    (theme?.borderRadius?.[1].value as string).replace("px", ""),
+    (theme?.borderRadiusElevation?.[3].value as string).replace("px", ""),
   );
   const isRounded = borderRadius > BORDER_RADIUS_THRESHOLD;
 

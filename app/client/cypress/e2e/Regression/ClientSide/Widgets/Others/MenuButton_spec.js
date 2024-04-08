@@ -129,6 +129,8 @@ describe(
       cy.get(".bp3-menu-item").eq(1).contains("Lindsay");
       cy.get(".bp3-menu-item").eq(2).contains("Brock");
 
+      cy.get("[data-testid='t--property-pane-back-btn']").click();
+
       cy.closePropertyPane();
     });
 
@@ -155,6 +157,7 @@ describe(
       });
       cy.wait(500);
       cy.get(".bp3-menu-item").eq(1).should("have.class", "bp3-disabled");
+      cy.get("[data-testid='t--property-pane-back-btn']").click();
 
       cy.closePropertyPane();
     });

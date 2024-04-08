@@ -33,13 +33,29 @@
       }
     },
     {
+      "label": "Max Tokens",
+      "tooltipText": "The maximum number of tokens to generate in the chat completion.",
+      "subtitle": "The maximum number of tokens to generate in the chat completion.",
+      "Description": "Put a positive integer value",
+      "configProperty": "actionConfiguration.formData.maxTokens",
+      "controlType": "INPUT_TEXT",
+      "initialValue": "16",
+      "isRequired": true,
+      "dataType": "NUMBER",
+      "customStyles": {
+        "width": "270px",
+        "minWidth": "270px"
+      }
+    },
+    {
       "label": "Messages",
       "tooltipText": "Ask a question",
       "subtitle": "A list of messages comprising the conversation so far.",
       "propertyName": "messages",
       "isRequired": true,
-      "configProperty": "actionConfiguration.formData.messages",
+      "configProperty": "actionConfiguration.formData.messages.data",
       "controlType": "ARRAY_FIELD",
+      "alternateViewTypes": ["json"],
       "addMoreButtonLabel": "Add message",
       "schema": [
         {

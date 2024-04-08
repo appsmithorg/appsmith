@@ -63,6 +63,7 @@ describe(
           dataManager.dsValues[dataManager.defaultEnviorment].postgres_password,
         );
         dataSources.TestSaveDatasource();
+        dataSources.selectTabOnDatasourcePage("Configurations");
         dataSources.AssertDataSourceInfo([
           "READ_ONLY",
           "host.docker.internal",
@@ -121,6 +122,7 @@ describe(
         );
         dataSources.ValidateNSelectDropdown("SSL mode", "Required", "Disabled");
         dataSources.TestSaveDatasource();
+        dataSources.selectTabOnDatasourcePage("Configurations");
         dataSources.AssertDataSourceInfo([
           "READ_ONLY",
           "host.docker.internal",

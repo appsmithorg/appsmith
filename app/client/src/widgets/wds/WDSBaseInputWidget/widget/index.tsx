@@ -5,15 +5,12 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
+import * as config from "../config";
 import IconSVG from "../icon.svg";
 import type { BaseInputWidgetProps } from "./types";
-import { propertyPaneContentConfig } from "./contentConfig";
-import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type {
-  AnvilConfig,
-  WidgetBaseConfiguration,
-} from "WidgetProvider/constants";
+import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
 
 class WDSBaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -34,31 +31,22 @@ class WDSBaseInputWidget<
 
   static getDefaults() {
     return {
-      rows: 4,
       label: "Label",
-      labelPosition: "side",
-      labelAlignment: "left",
-      labelTextSize: "0.875rem",
-      labelWidth: 5,
-      columns: 20,
       widgetName: "Input",
-      version: 1,
-      defaultText: "",
       iconAlign: "left",
+      defaultText: "",
       autoFocus: false,
-      labelStyle: "",
       resetOnSubmit: true,
       isRequired: false,
       isReadOnly: false,
       isDisabled: false,
       animateLoading: true,
       responsiveBehavior: ResponsiveBehavior.Fill,
-      minWidth: FILL_WIDGET_MIN_WIDTH,
-    };
+    } as unknown as WidgetDefaultProps;
   }
 
   static getPropertyPaneContentConfig() {
-    return propertyPaneContentConfig;
+    return config.propertyPaneContentConfig;
   }
 
   static getPropertyPaneStyleConfig() {
@@ -82,18 +70,6 @@ class WDSBaseInputWidget<
       text: undefined,
       isFocused: false,
       isDirty: false,
-    };
-  }
-
-  static getAnvilConfig(): AnvilConfig | null {
-    return {
-      isLargeWidget: false,
-      widgetSize: {
-        maxHeight: {},
-        maxWidth: {},
-        minHeight: { base: "70px" },
-        minWidth: { base: "120px" },
-      },
     };
   }
 

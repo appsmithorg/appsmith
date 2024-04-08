@@ -226,7 +226,6 @@ export function updateExistingLayer(
     const updatedWidgets = { ...widgets, [parentId]: updatedCanvas };
     return updatedWidgets;
   } catch (e) {
-    // console.error("#### update existing layer error", e);
     return allWidgets;
   }
 }

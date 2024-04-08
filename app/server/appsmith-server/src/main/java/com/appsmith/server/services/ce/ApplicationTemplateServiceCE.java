@@ -2,6 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.dtos.ApplicationImportDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationTemplate;
 import com.appsmith.server.dtos.TemplateDTO;
 import org.springframework.util.MultiValueMap;
@@ -28,4 +29,6 @@ public interface ApplicationTemplateServiceCE {
     Mono<Application> publishAsCommunityTemplate(TemplateDTO resource);
 
     Mono<Boolean> publishAppsmithTemplate(TemplateDTO resource);
+
+    Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId);
 }

@@ -11,7 +11,7 @@ export interface IconProps extends DOMProps, AriaLabelingProps {
   "aria-hidden"?: boolean | "false" | "true";
 }
 
-export function Icon(props: IconProps) {
+export function _Icon(props: IconProps, ref: React.Ref<SVGSVGElement>) {
   const {
     "aria-hidden": ariaHiddenProp,
     "aria-label": ariaLabel,
@@ -28,6 +28,11 @@ export function Icon(props: IconProps) {
     "aria-hidden": Boolean(ariaLabel) ? ariaHiddenProp ?? undefined : true,
     role,
     "data-icon": "",
+    ref,
     className,
   });
 }
+
+_Icon.displayName = "Icon";
+
+export const Icon = React.forwardRef(_Icon);

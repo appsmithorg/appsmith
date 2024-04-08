@@ -1,5 +1,3 @@
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
-
 export interface WorkspaceRole {
   id: string;
   name: string;
@@ -37,12 +35,6 @@ export interface WorkspaceUser {
   isChangingRole: boolean;
   photoId?: string;
   roles: WorkspaceUserRoles[];
-}
-
-export interface Workspaces {
-  applications: ApplicationPayload[];
-  workspace: Workspace;
-  users: WorkspaceUser[];
 }
 
 export enum ENTITY_TYPE {

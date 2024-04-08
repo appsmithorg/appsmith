@@ -9,12 +9,11 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { setPreviewModeInitAction } from "actions/editorActions";
 import { previewModeSelector } from "selectors/editorSelectors";
 
-import { isExploringSelector } from "selectors/onboardingSelectors";
 import { createMessage, EDITOR_HEADER } from "@appsmith/constants/messages";
+import { altText } from "../../utils/helpers";
 
 function ToggleModeButton() {
   const dispatch = useDispatch();
-  const isExploring = useSelector(isExploringSelector);
   const isPreviewMode = useSelector(previewModeSelector);
   const appMode = useSelector(getAppMode);
 
@@ -25,7 +24,7 @@ function ToggleModeButton() {
     dispatch(setPreviewModeInitAction(!isPreviewMode));
   }, [dispatch, setPreviewModeInitAction, isPreviewMode]);
 
-  if (isExploring || isViewMode) return null;
+  if (isViewMode) return null;
 
   return (
     <Tooltip
@@ -33,7 +32,9 @@ function ToggleModeButton() {
         <>
           {createMessage(EDITOR_HEADER.previewTooltip.text)}
           <span style={{ marginLeft: 20 }}>
-            {createMessage(EDITOR_HEADER.previewTooltip.shortcut)}
+            {`${altText()} ${createMessage(
+              EDITOR_HEADER.previewTooltip.shortcut,
+            )}`}
           </span>
         </>
       }

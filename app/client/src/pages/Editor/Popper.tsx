@@ -179,9 +179,6 @@ export default (props: PopperProps) => {
             }
           },
           modifiers: {
-            flip: {
-              behavior: ["right", "left", "bottom", "top"],
-            },
             keepTogether: {
               enabled: false,
             },

@@ -26,8 +26,6 @@
   "createApiOnSideBar": "button:contains('Create new API')",
   "saveButton": "button:contains('Save')",
   "addHeader": ".t--addApiHeader svg",
-  "marketPlaceapi": ".t--eachProviderCard p",
-  "addPageButton": ".t--addToPageBtn",
   "apidocumentaionLink": ".t--apiDocumentationLink",
   "postbody": "(//div[contains(@class,'CodeMirror-wrap')]//textarea)[2]",
   "paginationTab": "//span[text()='Pagination']",

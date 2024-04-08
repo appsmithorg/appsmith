@@ -12,8 +12,6 @@ import com.appsmith.server.dtos.UpdatePermissionGroupDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.AppsmithComparators;
-import com.appsmith.server.notifications.EmailSender;
-import com.appsmith.server.repositories.UserDataRepository;
 import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -21,9 +19,7 @@ import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
-import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -52,9 +48,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
     private final SessionUserService sessionUserService;
     private final WorkspaceService workspaceService;
     private final UserRepository userRepository;
-    private final UserDataRepository userDataRepository;
-    private final PolicySolution policySolution;
-    private final EmailSender emailSender;
     private final UserDataService userDataService;
     private final PermissionGroupService permissionGroupService;
     private final TenantService tenantService;
@@ -66,9 +59,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
             SessionUserService sessionUserService,
             WorkspaceService workspaceService,
             UserRepository userRepository,
-            UserDataRepository userDataRepository,
-            PolicySolution policySolution,
-            EmailSender emailSender,
             UserDataService userDataService,
             PermissionGroupService permissionGroupService,
             TenantService tenantService,
@@ -77,9 +67,6 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
         this.sessionUserService = sessionUserService;
         this.workspaceService = workspaceService;
         this.userRepository = userRepository;
-        this.userDataRepository = userDataRepository;
-        this.policySolution = policySolution;
-        this.emailSender = emailSender;
         this.userDataService = userDataService;
         this.permissionGroupService = permissionGroupService;
         this.tenantService = tenantService;
@@ -126,7 +113,7 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                         new AppsmithException(AppsmithError.ACTION_IS_NOT_AUTHORIZED, "Change role of a member")));
 
         // the user is being removed from the workspace. Remove the workspace from recent workspace list of UserData
-        Mono<UpdateResult> updateUserDataMono =
+        Mono<Void> updateUserDataMono =
                 userMono.flatMap(user -> userDataService.removeRecentWorkspaceAndApps(user.getId(), workspaceId));
 
         Mono<Boolean> removeUserFromOldPermissionGroupMono = oldDefaultPermissionGroupsMono.flatMap(
@@ -261,27 +248,23 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 userIdsMono.flatMapMany(userRepository::findAllById).collectMap(User::getId);
 
         // Create a map of UserData.userUd to UserData
-        Mono<Map<String, UserData>> userDataMapMono = userIdsMono
+        Mono<Map<String, String>> userDataMapMono = userIdsMono
                 // get the profile photos of the list of users
-                .flatMapMany(userIdsSet -> userDataRepository.findPhotoAssetsByUserIds(
-                        userIdsSet.stream().toList()))
-                .collectMap(UserData::getUserId);
+                .flatMap(userIdsSet -> userDataService.getProfilePhotoAssetIdsForUserIds(
+                userIdsSet.stream().toList()));
 
         // Update name and username in the list of UserAndGroupDTO
         userAndPermissionGroupDTOsMono = Mono.zip(userAndPermissionGroupDTOsMono, userMapMono, userDataMapMono)
                 .map(tuple -> {
                     List<MemberInfoDTO> workspaceMemberInfoDTOList = tuple.getT1();
                     Map<String, User> userMap = tuple.getT2();
-                    Map<String, UserData> userDataMap = tuple.getT3();
+                    Map<String, String> userDataMap = tuple.getT3();
                     workspaceMemberInfoDTOList.forEach(userAndPermissionGroupDTO -> {
                         User user = userMap.get(userAndPermissionGroupDTO.getUserId());
-                        UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
                         userAndPermissionGroupDTO.setName(
                                 Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                         userAndPermissionGroupDTO.setUsername(user.getUsername());
-                        if (userData != null) {
-                            userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
-                        }
+                        userAndPermissionGroupDTO.setPhotoId(userDataMap.get(userAndPermissionGroupDTO.getUserId()));
                     });
                     return workspaceMemberInfoDTOList;
                 });
@@ -324,9 +307,8 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                 userIdsMono.flatMapMany(userRepository::findAllById).collectMap(User::getId);
 
         // Create a map of UserData.userUd to UserData
-        Mono<Map<String, UserData>> userDataMapMono = userIdsMono
-                .flatMapMany(userDataRepository::findPhotoAssetsByUserIds)
-                .collectMap(UserData::getUserId);
+        Mono<Map<String, String>> userDataMapMono =
+                userIdsMono.flatMap(userDataService::getProfilePhotoAssetIdsForUserIds);
 
         Flux<Map<String, Collection<PermissionGroup>>> permissionGroupsByWorkspaceFlux =
                 permissionGroupsByWorkspacesMono.repeat();
@@ -347,16 +329,14 @@ public class UserWorkspaceServiceCEImpl implements UserWorkspaceServiceCE {
                             .map(tuple1 -> {
                                 List<MemberInfoDTO> workspaceMemberInfoDTOList = tuple1.getT1();
                                 Map<String, User> userMap = tuple1.getT2();
-                                Map<String, UserData> userDataMap = tuple1.getT3();
+                                Map<String, String> userDataMap = tuple1.getT3();
                                 workspaceMemberInfoDTOList.forEach(userAndPermissionGroupDTO -> {
                                     User user = userMap.get(userAndPermissionGroupDTO.getUserId());
-                                    UserData userData = userDataMap.get(userAndPermissionGroupDTO.getUserId());
                                     userAndPermissionGroupDTO.setName(
                                             Optional.ofNullable(user.getName()).orElse(user.computeFirstName()));
                                     userAndPermissionGroupDTO.setUsername(user.getUsername());
-                                    if (userData != null) {
-                                        userAndPermissionGroupDTO.setPhotoId(userData.getProfilePhotoAssetId());
-                                    }
+                                    userAndPermissionGroupDTO.setPhotoId(
+                                            userDataMap.get(userAndPermissionGroupDTO.getUserId()));
                                 });
                                 return workspaceMemberInfoDTOList;
                             });

@@ -12,7 +12,6 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.OAuth2;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.models.UploadedFile;
 import com.appsmith.external.services.EncryptionService;
@@ -75,7 +74,6 @@ import static com.appsmith.server.acl.AclPermission.READ_WORKSPACES;
 import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @ExtendWith(SpringExtension.class)
@@ -925,7 +923,6 @@ public class DatasourceServiceTest {
                                         page.setApplicationId(application1.getId());
                                         page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
-                                                .users(Set.of("api_user"))
                                                 .build())));
                                         return applicationPageService.createPage(page);
                                     }));
@@ -1007,7 +1004,6 @@ public class DatasourceServiceTest {
                                         page.setApplicationId(application1.getId());
                                         page.setPolicies(new HashSet<>(Set.of(Policy.builder()
                                                 .permission(READ_PAGES.getValue())
-                                                .users(Set.of("api_user"))
                                                 .build())));
                                         return applicationPageService.createPage(page);
                                     }));
@@ -1831,14 +1827,14 @@ public class DatasourceServiceTest {
                 );
 
         MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.add(fieldName(QDatasource.datasource.workspaceId), workspaceId);
+        params.add(Datasource.Fields.workspaceId, workspaceId);
 
         Mono<List<Datasource>> listMono =
                 datasourceService.getAllWithStorages(params).collectList();
 
         StepVerifier.create(listMono)
                 .assertNext(datasources -> {
-                    assertThat(datasources.size()).isEqualTo(4);
+                    assertThat(datasources).hasSize(4);
 
                     assertThat(datasources).allMatch(datasourceDTO -> Set.of("A", "B", "C", "D")
                             .contains(datasourceDTO.getName()));
@@ -1929,7 +1925,7 @@ public class DatasourceServiceTest {
 
         StepVerifier.create(datasourceMono)
                 .assertNext(dbDatasource -> {
-                    assertThat(dbDatasource.getDatasourceStorages().size()).isEqualTo(1);
+                    assertThat(dbDatasource.getDatasourceStorages()).hasSize(1);
                     assertThat(dbDatasource.getDatasourceStorages().get(defaultEnvironmentId))
                             .isNotNull();
                     DatasourceStorageDTO datasourceStorageDTO =

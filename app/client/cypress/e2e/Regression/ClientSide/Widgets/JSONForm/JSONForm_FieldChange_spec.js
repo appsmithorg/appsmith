@@ -42,7 +42,7 @@ describe(
       agHelper.ValidateToastMessage("123");
       agHelper.TypeText(datePickerlocators.input, "konnichiwa");
       agHelper.ClickButton("Submit");
-      agHelper.CheckForErrorToast(
+      agHelper.FailIfErrorToast(
         "Cannot read properties of null (reading 'toString')",
       );
       deployMode.NavigateBacktoEditor();

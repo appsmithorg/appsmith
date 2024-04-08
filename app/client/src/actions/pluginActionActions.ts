@@ -3,20 +3,28 @@ import type {
   EvaluationReduxAction,
   AnyReduxAction,
   ReduxAction,
-  ReduxActionWithoutPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { JSUpdate } from "utils/JSPaneUtils";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { Action } from "entities/Action";
+import type { Action, ActionViewMode } from "entities/Action";
+import { ActionExecutionContext } from "entities/Action";
 import { batchAction } from "actions/batchActions";
 import type { ExecuteErrorPayload } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ModalInfo } from "reducers/uiReducers/modalActionReducer";
 import type { OtlpSpan } from "UITelemetry/generateTraces";
+import type { ApiResponse } from "api/ApiResponses";
+import type { JSCollection } from "entities/JSCollection";
 
 export const createActionRequest = (payload: Partial<Action>) => {
+  return {
+    type: ReduxActionTypes.CREATE_ACTION_REQUEST,
+    payload,
+  };
+};
+export const createActionInit = (payload: Partial<Action>) => {
   return {
     type: ReduxActionTypes.CREATE_ACTION_INIT,
     payload,
@@ -32,27 +40,36 @@ export const createActionSuccess = (payload: Action) => {
 
 export interface FetchActionsPayload {
   applicationId: string;
+  publishedActions?: ApiResponse<ActionViewMode[]>;
+  publishedActionCollections?: ApiResponse<JSCollection[]>;
+  unpublishedActionCollections?: ApiResponse<JSCollection[]>;
+  unpublishedActions?: ApiResponse<Action[]>;
 }
 
 export const fetchActions = (
-  { applicationId }: { applicationId: string },
+  {
+    applicationId,
+    unpublishedActions,
+  }: { applicationId: string; unpublishedActions?: ApiResponse<Action[]> },
   postEvalActions: Array<AnyReduxAction>,
 ): EvaluationReduxAction<unknown> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_INIT,
-    payload: { applicationId },
+    payload: { applicationId, unpublishedActions },
     postEvalActions,
   };
 };
 
 export const fetchActionsForView = ({
   applicationId,
+  publishedActions,
 }: {
   applicationId: string;
+  publishedActions?: ApiResponse<ActionViewMode[]>;
 }): ReduxAction<FetchActionsPayload> => {
   return {
     type: ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
-    payload: { applicationId },
+    payload: { applicationId, publishedActions },
   };
 };
 
@@ -90,6 +107,8 @@ export const runAction = (
   id: string,
   paginationField?: PaginationField,
   skipOpeningDebugger = false,
+  action = undefined,
+  actionExecutionContext = ActionExecutionContext.SELF,
 ) => {
   return {
     type: ReduxActionTypes.RUN_ACTION_REQUEST,
@@ -97,6 +116,8 @@ export const runAction = (
       id,
       paginationField,
       skipOpeningDebugger,
+      action,
+      actionExecutionContext,
     },
   };
 };
@@ -297,9 +318,16 @@ export const updateActionProperty = (
   });
 };
 
-export const executePageLoadActions = (): ReduxActionWithoutPayload => ({
-  type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
-});
+export const executePageLoadActions = (
+  actionExecutionContext?: ActionExecutionContext,
+) => {
+  return {
+    type: ReduxActionTypes.EXECUTE_PAGE_LOAD_ACTIONS,
+    payload: {
+      actionExecutionContext,
+    },
+  };
+};
 
 export const executeJSUpdates = (
   payload: Record<string, JSUpdate>,

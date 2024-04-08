@@ -247,7 +247,7 @@ export const getEntityId = (entity: {
     case FocusEntity.PROPERTY_PANE:
       return entity.widgetId;
     case FocusEntity.CANVAS:
-    case FocusEntity.PAGE:
+    case FocusEntity.EDITOR:
       return entity.pageId;
     case FocusEntity.NONE:
       break;
@@ -269,6 +269,8 @@ export interface ActionOperation {
   focusEntityType?: FocusEntity;
   dsName?: string;
   entityExplorerTitle?: string;
+  isBeta?: boolean;
+  tooltip?: string;
 }
 
 export const actionOperations: ActionOperation[] = [

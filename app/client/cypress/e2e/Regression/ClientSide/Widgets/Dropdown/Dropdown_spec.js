@@ -1,4 +1,3 @@
-const explorer = require("../../../../../locators/explorerlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const publish = require("../../../../../locators/publishWidgetspage.json");
@@ -13,7 +12,6 @@ describe(
     });
 
     it("Add new dropdown widget", () => {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("selectwidget", { x: 300, y: 300 });
       cy.get(".t--widget-selectwidget").should("exist");
     });

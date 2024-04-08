@@ -4,7 +4,6 @@
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 import ApiEditor from "../locators/ApiEditor";
-const pages = require("../locators/Pages.json");
 const apiwidget = require("../locators/apiWidgetslocator.json");
 const explorer = require("../locators/explorerlocators.json");
 import { ObjectsRegistry } from "./Objects/Registry";
@@ -85,7 +84,7 @@ Cypress.Commands.add("EditApiNameFromExplorer", (apiname) => {
     .clear()
     .type(apiname, { force: true })
     .should("have.value", apiname)
-    .blur();
+    .blur({ force: true });
   // eslint-disable-next-line cypress/no-unnecessary-waiting
   cy.wait(3000);
 });
@@ -196,7 +195,7 @@ Cypress.Commands.add("EnterSourceDetailsWithbody", (baseUrl, v1method) => {
 
 Cypress.Commands.add("CreationOfUniqueAPIcheck", (apiname) => {
   dataSources.NavigateToDSCreateNew();
-  cy.get(apiwidget.createapi).click({ force: true });
+  agHelper.GetNClick(apiwidget.createapi);
   cy.wait("@createNewApi");
   // cy.wait("@getUser");
   cy.get(apiwidget.resourceUrl).should("be.visible");
@@ -271,7 +270,7 @@ Cypress.Commands.add("RenameEntity", (value, selectFirst) => {
 
 Cypress.Commands.add("CreateApiAndValidateUniqueEntityName", (apiname) => {
   dataSources.NavigateToDSCreateNew();
-  cy.get(apiwidget.createapi).click({ force: true });
+  agHelper.GetNClick(apiwidget.createapi);
   cy.wait("@createNewApi");
   cy.get(apiwidget.resourceUrl).should("be.visible");
   cy.get(apiwidget.ApiName).click({ force: true });
@@ -348,7 +347,7 @@ Cypress.Commands.add("DeleteAPI", () => {
 });
 
 Cypress.Commands.add("testCreateApiButton", () => {
-  cy.get(ApiEditor.createBlankApiCard).click({ force: true });
+  agHelper.GetNClick(ApiEditor.createBlankApiCard);
   cy.wait("@createNewApi");
   cy.get("@createNewApi")
     .its("response.body.responseMeta.status")
@@ -393,8 +392,3 @@ Cypress.Commands.add("createAndFillApi", (url, parameters) => {
 //     .contains(apiname)
 //     .click({ force: true });
 // });
-
-Cypress.Commands.add("checkIfApiPaneIsVisible", () => {
-  cy.get(ApiEditor.datasourcesRightPane).should("exist");
-  cy.get(ApiEditor.datasourcesRightPane).should("be.visible");
-});

@@ -17,6 +17,8 @@ export class Onboarding {
     explorer_widget_tab: `#explorer-tab-options [data-value*="widgets"]`,
     add_datasources: "#add_datasources",
     connect_data_overlay: "#table-overlay-connectdata",
+    skipStartFromData: "[data-testid='t--create-new-app-option-skip']",
+    seeMoreButtonOnCanvas: `[data-testid="t--canvas-building-block-see-more"]`,
   };
 
   completeSignposting() {

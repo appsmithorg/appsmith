@@ -1,8 +1,6 @@
 import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
-
-const widgetsPage = require("../../../../../locators/Widgets.json");
 import {
   agHelper,
   draggableWidgets,
@@ -19,7 +17,7 @@ describe(
     });
 
     it("1. Verify default table row Data", function () {
-      entityExplorer.DragNDropWidget(draggableWidgets.TABLE);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE);
       table.AddSampleTableData();
       EditorNavigation.SelectEntityByName("Table2", EntityType.Widget);
 

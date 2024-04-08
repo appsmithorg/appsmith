@@ -7,7 +7,6 @@ import EditorNavigation, {
 const commonlocators = require("../../../../../locators/commonlocators.json");
 const formWidgetsPage = require("../../../../../locators/FormWidgets.json");
 const widgetLocators = require("../../../../../locators/Widgets.json");
-const datasource = require("../../../../../locators/DatasourcesEditor.json");
 import {
   agHelper,
   locators,
@@ -61,9 +60,7 @@ describe(
       cy.SaveAndRunAPI();
 
       // Going to HomePage where the button widget is located and opeing it's property pane.
-      cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
-        force: true,
-      });
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       PageLeftPane.expandCollapseItem("Container3", "Widgets");
       EditorNavigation.SelectEntityByName("Dropdown1", EntityType.Widget);
       cy.reload();
@@ -91,39 +88,16 @@ describe(
 
     it("3. Dropdown-Call-Query Validation", function () {
       //creating a query and calling it from the onOptionChangeAction of the Dropdown widget.
-      // Creating a mock query
-      // cy.CreateMockQuery("Query1");
-      let postgresDatasourceName;
-
-      cy.startRoutesForDatasource();
-      cy.NavigateToDatasourceEditor();
-      cy.get(datasource.PostgreSQL).click();
-      cy.generateUUID().then((uid) => {
-        postgresDatasourceName = uid;
-
-        cy.get(".t--edit-datasource-name").click();
-        cy.get(".t--edit-datasource-name input")
-          .clear()
-          .type(postgresDatasourceName, { force: true })
-          .should("have.value", postgresDatasourceName)
-          .blur();
-
-        // cy.wait("@saveDatasource").should(
-        //   "have.nested.property",
-        //   "response.body.responseMeta.status",
-        //   201,
-        // );
-        cy.fillPostgresDatasourceForm();
-        cy.saveDatasource();
-        dataSources.CreateQueryForDS(postgresDatasourceName);
-      });
-
-      cy.CreateMockQuery("Query1");
+      // Creating a query
+      dataSources.CreateDataSource("Postgres");
+      dataSources.CreateQueryAfterDSSaved(
+        'SELECT * FROM public."country" LIMIT 10;',
+      );
       // Going to HomePage where the button widget is located and opeing it's property pane.
       cy.get("[data-guided-tour-id='explorer-entity-Page1']").click({
         force: true,
       });
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.openPropertyPane("selectwidget");
       cy.reload();
       // Adding the query in the onOptionChangeAction of the dropdown widget.

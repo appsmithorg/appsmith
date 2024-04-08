@@ -1,0 +1,60 @@
+{
+  "form": [
+    {
+      "sectionName": "Details",
+      "id": 1,
+      "children": [
+        {
+          "label": "Authentication type",
+          "configProperty": "datasourceConfiguration.authentication.authenticationType",
+          "controlType": "DROP_DOWN",
+          "initialValue": "accessKey",
+          "setFirstOptionAsDefault": true,
+          "options": [
+            {
+              "label": "AWS access key",
+              "value": "accessKey"
+            },
+            {
+              "label": "Instance role",
+              "value": "instanceRole"
+            }
+          ]
+        },
+        {
+          "label": "Access key",
+          "configProperty": "datasourceConfiguration.authentication.username",
+          "controlType": "INPUT_TEXT",
+          "isRequired": true,
+          "initialValue": "",
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "accessKey"
+          }
+        },
+        {
+          "label": "Secret key",
+          "configProperty": "datasourceConfiguration.authentication.password",
+          "controlType": "INPUT_TEXT",
+          "dataType": "PASSWORD",
+          "initialValue": "",
+          "isRequired": true,
+          "encrypted": true,
+          "hidden": {
+            "path": "datasourceConfiguration.authentication.authenticationType",
+            "comparison": "NOT_EQUALS",
+            "value": "accessKey"
+          }
+        },
+        {
+          "label": "Region",
+          "configProperty": "datasourceConfiguration.properties[1].value",
+          "controlType": "INPUT_TEXT",
+          "initialValue": "",
+          "placeholderText": "us-east-1"
+        }
+      ]
+    }
+  ]
+}

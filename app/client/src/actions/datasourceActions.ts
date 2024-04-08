@@ -12,8 +12,12 @@ import type {
   MockDatasource,
 } from "entities/Datasource";
 import type { PluginType } from "entities/Action";
-import type { ResponseMeta } from "api/ApiResponses";
+import type { ApiResponse, ResponseMeta } from "api/ApiResponses";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
+import {
+  ActionParentEntityType,
+  type ActionParentEntityTypeInterface,
+} from "@appsmith/entities/Engine/actionHelpers";
 
 export const createDatasourceFromForm = (
   payload: CreateDatasourceConfig & Datasource,
@@ -97,14 +101,16 @@ export const createDatasourceSuccess = (
 });
 
 export const redirectAuthorizationCode = (
-  pageId: string,
+  contextId: string,
   datasourceId: string,
   pluginType: PluginType,
+  contextType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   return {
     type: ReduxActionTypes.REDIRECT_AUTHORIZATION_CODE,
     payload: {
-      pageId,
+      contextId,
+      contextType,
       datasourceId,
       pluginType,
     },
@@ -273,16 +279,20 @@ export const setDatasourceCollapsible = (key: string, isOpen: boolean) => {
   };
 };
 
-export const fetchDatasources = (payload?: { workspaceId?: string }) => {
+export const fetchDatasources = (payload?: {
+  workspaceId?: string;
+  datasources?: ApiResponse<Datasource[]>;
+}) => {
   return {
     type: ReduxActionTypes.FETCH_DATASOURCES_INIT,
     payload,
   };
 };
 
-export const fetchMockDatasources = () => {
+export const fetchMockDatasources = (mockDatasources?: ApiResponse) => {
   return {
     type: ReduxActionTypes.FETCH_MOCK_DATASOURCES_INIT,
+    payload: { mockDatasources },
   };
 };
 
@@ -495,6 +505,17 @@ export const datasourceDiscardAction = (pluginId: string) => {
 export const softRefreshDatasourceStructure = () => ({
   type: ReduxActionTypes.SOFT_REFRESH_DATASOURCE_STRUCTURE,
 });
+
+export const setDatasourcePreviewSelectedTableName = (
+  selectedTableName: string,
+) => {
+  return {
+    type: ReduxActionTypes.SET_DATASOURCE_PREVIEW_SELECTED_TABLE_NAME,
+    payload: {
+      selectedTableName: selectedTableName,
+    },
+  };
+};
 
 export default {
   fetchDatasources,

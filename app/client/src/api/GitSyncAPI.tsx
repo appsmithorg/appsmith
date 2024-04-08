@@ -35,7 +35,7 @@ export interface ConnectToGitPayload {
 interface GitStatusParam {
   applicationId: string;
   branch: string;
-  compareRemote: "true" | "false";
+  compareRemote: boolean;
 }
 
 interface GitRemoteStatusParam {
@@ -143,7 +143,7 @@ class GitSyncAPI extends Api {
   static async getGitStatus({
     applicationId,
     branch,
-    compareRemote = "true",
+    compareRemote = true,
   }: GitStatusParam) {
     return Api.get(
       `${GitSyncAPI.baseURL}/status/app/${applicationId}`,
@@ -214,6 +214,22 @@ class GitSyncAPI extends Api {
     return Api.post(
       `${GitSyncAPI.baseURL}/branch/app/${applicationId}/protected`,
       { branchNames },
+    );
+  }
+
+  static async getGitMetadata(applicationId: string) {
+    return Api.get(`${GitSyncAPI.baseURL}/metadata/app/${applicationId}`);
+  }
+
+  static async toggleAutocommit(applicationId: string) {
+    return Api.patch(
+      `${GitSyncAPI.baseURL}/auto-commit/toggle/app/${applicationId}`,
+    );
+  }
+
+  static async getAutocommitProgress(applicationId: string) {
+    return Api.get(
+      `${GitSyncAPI.baseURL}/auto-commit/progress/app/${applicationId}`,
     );
   }
 }

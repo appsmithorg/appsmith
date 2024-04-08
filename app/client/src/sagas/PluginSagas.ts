@@ -7,7 +7,7 @@ import {
 import type { DefaultPlugin, PluginFormPayload } from "api/PluginApi";
 import PluginsApi from "api/PluginApi";
 import { validateResponse } from "sagas/ErrorSagas";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   getActions,
   getDatasources,
@@ -31,7 +31,11 @@ import {
 import type { ApiResponse } from "api/ApiResponses";
 import PluginApi from "api/PluginApi";
 import log from "loglevel";
-import { getGraphQLPlugin, PluginType } from "entities/Action";
+import {
+  getAppsmithAIPlugin,
+  getGraphQLPlugin,
+  PluginType,
+} from "entities/Action";
 import type {
   FormEditorConfigs,
   FormSettingsConfigs,
@@ -39,11 +43,15 @@ import type {
   FormDatasourceButtonConfigs,
 } from "utils/DynamicBindingUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import { getFromServerWhenNoPrefetchedResult } from "./helper";
 
 function* fetchPluginsSaga(
-  action: ReduxAction<{ workspaceId?: string } | undefined>,
+  action: ReduxAction<
+    { workspaceId?: string; plugins?: ApiResponse<Plugin[]> } | undefined
+  >,
 ) {
   try {
+    const plugins = action.payload?.plugins;
     let workspaceId: string = yield select(getCurrentWorkspaceId);
     if (action.payload?.workspaceId) workspaceId = action.payload?.workspaceId;
 
@@ -51,9 +59,11 @@ function* fetchPluginsSaga(
       throw Error("Workspace id does not exist");
     }
     const pluginsResponse: ApiResponse<Plugin[]> = yield call(
-      PluginsApi.fetchPlugins,
-      workspaceId,
+      getFromServerWhenNoPrefetchedResult,
+      plugins,
+      () => call(PluginsApi.fetchPlugins, workspaceId),
     );
+
     const isValid: boolean = yield validateResponse(pluginsResponse);
     if (isValid) {
       yield put({
@@ -69,7 +79,10 @@ function* fetchPluginsSaga(
   }
 }
 
-function* fetchPluginFormConfigsSaga() {
+function* fetchPluginFormConfigsSaga(action?: {
+  payload?: { pluginFormConfigs?: ApiResponse<PluginFormPayload[]> };
+}) {
+  const pluginFormConfigs = action?.payload?.pluginFormConfigs;
   try {
     const datasources: Datasource[] = yield select(getDatasources);
     const plugins: Plugin[] = yield select(getPlugins);
@@ -81,6 +94,7 @@ function* fetchPluginFormConfigsSaga() {
     const apiPlugin = plugins.find((plugin) => plugin.type === PluginType.API);
     const jsPlugin = plugins.find((plugin) => plugin.type === PluginType.JS);
     const graphqlPlugin = getGraphQLPlugin(plugins);
+    const appsmithAIPlugin = getAppsmithAIPlugin(plugins);
     if (apiPlugin) {
       pluginIdFormsToFetch.add(apiPlugin.id);
     }
@@ -89,18 +103,35 @@ function* fetchPluginFormConfigsSaga() {
       pluginIdFormsToFetch.add(graphqlPlugin.id);
     }
 
+    if (appsmithAIPlugin) {
+      pluginIdFormsToFetch.add(appsmithAIPlugin.id);
+    }
+
     const actions: ActionDataState = yield select(getActions);
     const actionPluginIds = actions.map((action) => action.config.pluginId);
     for (const pluginId of actionPluginIds) {
       pluginIdFormsToFetch.add(pluginId);
     }
-
-    const pluginFormData: PluginFormPayload[] = [];
-    const pluginFormResponses: ApiResponse<PluginFormPayload>[] = yield all(
-      [...pluginIdFormsToFetch].map((id) =>
-        call(PluginsApi.fetchFormConfig, id),
+    const pluginCalls = [...pluginIdFormsToFetch].map((id) =>
+      call(
+        getFromServerWhenNoPrefetchedResult,
+        // Set the data if it exists in the prefetched data
+        // This is to avoid making a call to the server for the data
+        pluginFormConfigs?.data?.[id as any]
+          ? {
+              ...pluginFormConfigs,
+              data: pluginFormConfigs?.data?.[id as any],
+            }
+          : undefined,
+        // If the data does not exist in the prefetched data, make a call to the server
+        () => call(PluginsApi.fetchFormConfig, id),
       ),
     );
+
+    const pluginFormResponses: ApiResponse<PluginFormPayload>[] =
+      yield all(pluginCalls);
+
+    const pluginFormData: PluginFormPayload[] = [];
 
     for (let i = 0; i < pluginFormResponses.length; i++) {
       const response = pluginFormResponses[i];

@@ -1,6 +1,7 @@
 import EditorNavigation, {
   EntityType,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
@@ -49,7 +50,7 @@ describe(
       cy.get(".t--action-name-edit-field").click({ force: true });
       cy.get("@saveDatasource").then((httpResponse) => {
         datasourceName = httpResponse.response.body.data.name;
-        PageLeftPane.expandCollapseItem("Queries/JS");
+        PageLeftPane.switchSegment(PagePaneSegment.Queries);
         entityExplorer.ActionContextMenuByEntityName({
           entityNameinLeftSidebar: "Query1",
           action: "Show bindings",

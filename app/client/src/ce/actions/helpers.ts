@@ -4,7 +4,10 @@ import {
   createNewQueryAction,
 } from "actions/apiPaneActions";
 import { createNewJSCollection } from "actions/jsPaneActions";
-import { ACTION_PARENT_ENTITY_TYPE } from "@appsmith/entities/Engine/actionHelpers";
+import {
+  ActionParentEntityType,
+  type ActionParentEntityTypeInterface,
+} from "@appsmith/entities/Engine/actionHelpers";
 import { saveActionName } from "actions/pluginActionActions";
 import { saveJSObjectName } from "actions/jsActionActions";
 
@@ -14,7 +17,7 @@ export const createNewQueryBasedOnParentEntity = (
   dsId: string,
   // Used in EE
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
+  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   return createNewQueryAction(entityId, from, dsId);
 };
@@ -25,7 +28,7 @@ export const createNewAPIBasedOnParentEntity = (
   apiType?: string,
   // Used in EE
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
+  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   return createNewApiAction(entityId, from, apiType);
 };
@@ -35,7 +38,7 @@ export const createNewJSCollectionBasedOnParentEntity = (
   from: EventLocation,
   // Used in EE
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
+  parentEntityType = ActionParentEntityType.PAGE,
 ) => {
   return createNewJSCollection(entityId, from);
 };
@@ -45,7 +48,7 @@ export const saveActionNameBasedOnParentEntity = (
   name: string,
   // Used in EE
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
+  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   return saveActionName({ id, name });
 };
@@ -55,7 +58,26 @@ export const saveJSObjectNameBasedOnParentEntity = (
   name: string,
   // Used in EE
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  parentEntityType = ACTION_PARENT_ENTITY_TYPE.PAGE,
+  parentEntityType: ActionParentEntityTypeInterface = ActionParentEntityType.PAGE,
 ) => {
   return saveJSObjectName({ id, name });
+};
+
+export const createNewApiActionBasedOnEditorType = (
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  editorType: string,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  editorId: string,
+  parentEntityId: string,
+  parentEntityType: ActionParentEntityTypeInterface,
+  apiType: string,
+): any => {
+  if (parentEntityId) {
+    return createNewAPIBasedOnParentEntity(
+      parentEntityId,
+      "API_PANE",
+      apiType,
+      parentEntityType,
+    );
+  }
 };

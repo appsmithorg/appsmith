@@ -9,6 +9,12 @@ import { GitSyncModalTab } from "entities/GitSync";
 import type { GetSSHKeyResponseData, SSHKeyType } from "actions/gitSyncActions";
 import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 
+export enum GitSettingsTab {
+  GENERAL = "GENERAL",
+  BRANCH = "BRANCH",
+  CD = "CD",
+}
+
 const initialState: GitSyncReducerState = {
   isGitSyncModalOpen: false,
   isCommitting: false,
@@ -16,12 +22,13 @@ const initialState: GitSyncReducerState = {
   activeGitSyncModalTab: GitSyncModalTab.GIT_CONNECTION,
   isErrorPopupVisible: false,
   isFetchingGitStatus: false,
-  isFetchingGitRemoteStatus: false,
   isFetchingMergeStatus: false,
   globalGitConfig: { authorEmail: "", authorName: "" },
   branches: [],
   fetchingBranches: false,
   localGitConfig: { authorEmail: "", authorName: "" },
+
+  isDiscarding: false,
 
   isFetchingLocalGitConfig: false,
   isFetchingGlobalGitConfig: false,
@@ -46,8 +53,14 @@ const initialState: GitSyncReducerState = {
   isUpdateProtectedBranchesLoading: false,
 
   isAutocommitModalOpen: false,
-  isAutocommitEnabled: false,
-  isAutocommitInProgress: false,
+  togglingAutocommit: false,
+  pollingAutocommitStatus: false,
+
+  gitMetadata: null,
+  gitMetadataLoading: false,
+
+  isGitSettingsModalOpen: false,
+  activeGitSettingsModalTab: GitSettingsTab.GENERAL,
 };
 
 const gitSyncReducer = createReducer(initialState, {
@@ -277,27 +290,6 @@ const gitSyncReducer = createReducer(initialState, {
   ) => ({
     ...state,
     isFetchingGitStatus: false,
-  }),
-  [ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_INIT]: (
-    state: GitSyncReducerState,
-  ) => ({
-    ...state,
-    isFetchingGitRemoteStatus: true,
-    gitRemoteStatus: undefined,
-  }),
-  [ReduxActionTypes.FETCH_GIT_REMOTE_STATUS_SUCCESS]: (
-    state: GitSyncReducerState,
-    action: ReduxAction<GitStatusData | undefined>,
-  ) => ({
-    ...state,
-    gitRemoteStatus: action.payload,
-    isFetchingGitRemoteStatus: false,
-  }),
-  [ReduxActionErrorTypes.FETCH_GIT_REMOTE_STATUS_ERROR]: (
-    state: GitSyncReducerState,
-  ) => ({
-    ...state,
-    isFetchingGitRemoteStatus: false,
   }),
   [ReduxActionErrorTypes.DISCONNECT_TO_GIT_ERROR]: (
     state: GitSyncReducerState,
@@ -530,6 +522,11 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     deletingBranch: action.payload,
   }),
+  [ReduxActionTypes.GIT_DISCARD_CHANGES]: (state: GitSyncReducerState) => ({
+    ...state,
+    isDiscarding: true,
+    discardError: null,
+  }),
   [ReduxActionTypes.GIT_DISCARD_CHANGES_SUCCESS]: (
     state: GitSyncReducerState,
     action: ReduxAction<any>,
@@ -602,13 +599,6 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isUpdateProtectedBranchesLoading: false,
   }),
-  [ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_ENABLED]: (
-    state,
-    action: ReduxAction<{ isAutocommitEnabled: boolean }>,
-  ) => ({
-    ...state,
-    isAutocommitEnabled: action.payload.isAutocommitEnabled,
-  }),
   [ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_MODAL_OPEN]: (
     state,
     action: ReduxAction<{ isAutocommitModalOpen: boolean }>,
@@ -616,12 +606,53 @@ const gitSyncReducer = createReducer(initialState, {
     ...state,
     isAutocommitModalOpen: action.payload.isAutocommitModalOpen,
   }),
-  [ReduxActionTypes.GIT_SET_IS_AUTOCOMMIT_IN_PROGRESS]: (
+  [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT]: (state) => ({
+    ...state,
+    togglingAutocommit: true,
+  }),
+  [ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_SUCCESS]: (state) => ({
+    ...state,
+    togglingAutocommit: false,
+  }),
+  [ReduxActionErrorTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_ERROR]: (state) => ({
+    ...state,
+    togglingAutocommit: false,
+  }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_START_PROGRESS_POLLING]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: true,
+  }),
+  [ReduxActionTypes.GIT_AUTOCOMMIT_STOP_PROGRESS_POLLING]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: false,
+  }),
+  [ReduxActionErrorTypes.GIT_AUTOCOMMIT_PROGRESS_POLLING_ERROR]: (state) => ({
+    ...state,
+    pollingAutocommitStatus: false,
+  }),
+  [ReduxActionTypes.GIT_GET_METADATA_INIT]: (state) => ({
+    ...state,
+    gitMetadataLoading: true,
+  }),
+  [ReduxActionTypes.GIT_GET_METADATA_SUCCESS]: (
     state,
-    action: ReduxAction<{ isAutocommitInProgress: boolean }>,
+    action: ReduxAction<{ gitMetadata: GitMetadata }>,
   ) => ({
     ...state,
-    isAutocommitInProgress: action.payload.isAutocommitInProgress,
+    gitMetadataLoading: false,
+    gitMetadata: action.payload.gitMetadata,
+  }),
+  [ReduxActionErrorTypes.GIT_GET_METADATA_ERROR]: (state) => ({
+    ...state,
+    gitMetadataLoading: false,
+  }),
+  [ReduxActionTypes.GIT_SET_SETTINGS_MODAL_OPEN]: (
+    state,
+    action: ReduxAction<{ open: boolean; tab?: GitSettingsTab }>,
+  ) => ({
+    ...state,
+    isGitSettingsModalOpen: action.payload.open,
+    activeGitSettingsModalTab: action.payload.tab || GitSettingsTab.GENERAL,
   }),
 });
 
@@ -639,12 +670,9 @@ export interface GitStatusData {
   modifiedJSLibs: number;
   discardDocUrl?: string;
   migrationMessage?: string;
-}
-
-export interface GitRemoteStatusData {
-  aheadCount: number;
-  behindCount: number;
-  remoteTrackingBranch: string;
+  modifiedPackages?: number;
+  modifiedModules?: number;
+  modifiedModuleInstances?: number;
 }
 
 interface GitErrorPayloadType {
@@ -702,6 +730,22 @@ export interface GitDiscardResponse {
   modifiedAt: string;
 }
 
+export type GitMetadata = {
+  branchName: string;
+  defaultBranchName: string;
+  remoteUrl: string;
+  repoName: string;
+  browserSupportedUrl?: string;
+  isRepoPrivate?: boolean;
+  browserSupportedRemoteUrl: string;
+  defaultApplicationId: string;
+  isProtectedBranch: boolean;
+  autoCommitConfig: {
+    enabled: boolean;
+  };
+  isAutoDeploymentEnabled?: boolean;
+} | null;
+
 export type GitSyncReducerState = GitBranchDeleteState & {
   isGitSyncModalOpen: boolean;
   isCommitting?: boolean;
@@ -712,7 +756,6 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   isFetchingLocalGitConfig: boolean;
 
   isFetchingGitStatus: boolean;
-  isFetchingGitRemoteStatus: boolean;
   isFetchingMergeStatus: boolean;
 
   activeGitSyncModalTab: GitSyncModalTab;
@@ -723,7 +766,6 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   localGitConfig: GitConfig;
   gitStatus?: GitStatusData;
-  gitRemoteStatus?: GitRemoteStatusData;
   mergeStatus?: MergeStatus;
   connectError?: GitErrorType;
   commitAndPushError?: GitErrorType;
@@ -751,7 +793,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
 
   gitImportError?: any;
 
-  isDiscarding?: boolean;
+  isDiscarding: boolean;
   discard?: GitDiscardResponse;
   discardError?: GitErrorType;
 
@@ -763,9 +805,15 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   protectedBranchesLoading: boolean;
   isUpdateProtectedBranchesLoading: boolean;
 
-  isAutocommitEnabled: boolean;
   isAutocommitModalOpen: boolean;
-  isAutocommitInProgress: boolean;
+  togglingAutocommit: boolean;
+  pollingAutocommitStatus: boolean;
+
+  gitMetadata: GitMetadata | null;
+  gitMetadataLoading: boolean;
+
+  isGitSettingsModalOpen: boolean;
+  activeGitSettingsModalTab: GitSettingsTab;
 };
 
 export default gitSyncReducer;

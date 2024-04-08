@@ -119,7 +119,7 @@
   "currentRowWithIdInside": "{{\"#\" + currentRow.email}}",
   "defaultdataBinding": "{'Test','This'}",
   "dropdownErrorMsg": "This value does not evaluate to type Array<Object>",
-  "tableWidgetErrorMsg": "This value does not evaluate to type Array<Object>",
+  "tableWidgetErrorMsg": "Invalid value. This field expects an array of objects(Array<Object>) or the result of a Query such as '{{query1.data}}'.",
   "bindingDataPoint": "{{JSON.stringify(Chart1.selectedDataPoint)}}",
   "bindingSeriesTitle": "{{Chart1.selectedDataPoint.seriesTitle",
   "bindChartData": "{{Chart1.selectedDataPoint",

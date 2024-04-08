@@ -1,3 +1,4 @@
+import "./styles.css";
 import { Flex } from "@design-system/widgets";
 import type {
   AlignSelf,
@@ -9,8 +10,6 @@ import type {
   SizingDimension,
   SpacingDimension,
 } from "@design-system/widgets";
-import { ROW_GAP } from "layoutSystems/common/utils/constants";
-import { addPixelToSize } from "layoutSystems/common/utils/commonUtils";
 import React, { useMemo } from "react";
 import type { CSSProperties, ReactNode } from "react";
 import type {
@@ -19,7 +18,13 @@ import type {
 } from "layoutSystems/anvil/utils/types";
 import { usePositionObserver } from "layoutSystems/common/utils/LayoutElementPositionsObserver/usePositionObserver";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { type RenderMode, RenderModes } from "constants/WidgetConstants";
+import type { RenderMode } from "constants/WidgetConstants";
+import type { LayoutComponentTypes } from "layoutSystems/anvil/utils/anvilTypes";
+import { useSelector } from "react-redux";
+import {
+  getAnvilHighlightShown,
+  getShouldHighLightCellSelector,
+} from "layoutSystems/anvil/integrations/selectors";
 
 export interface FlexLayoutProps
   extends AlignSelf,
@@ -28,9 +33,11 @@ export interface FlexLayoutProps
     FlexWrap {
   canvasId: string;
   children: ReactNode;
+  isContainer?: boolean;
   isDropTarget?: boolean;
   layoutId: string;
   layoutIndex: number;
+  layoutType: LayoutComponentTypes;
   parentDropTarget: string;
   renderMode: RenderMode;
 
@@ -47,9 +54,10 @@ export interface FlexLayoutProps
   overflowX?: OverflowValues;
   overflowY?: OverflowValues;
   position?: PositionValues;
-  rowGap?: Responsive<SpacingDimension>;
+  gap?: Responsive<SpacingDimension>;
   padding?: Responsive<SpacingDimension>;
   width?: Responsive<SizingDimension>;
+  className?: string;
 }
 
 export const FlexLayout = React.memo((props: FlexLayoutProps) => {
@@ -58,16 +66,20 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     border,
     canvasId,
     children,
+    className,
     columnGap,
     direction,
     flexBasis,
     flexGrow,
     flexShrink,
+    gap,
     height,
+    isContainer,
     isDropTarget,
     justifyContent,
     layoutId,
     layoutIndex,
+    layoutType,
     maxHeight,
     maxWidth,
     minHeight,
@@ -76,11 +88,9 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     parentDropTarget,
     position,
     renderMode,
-    rowGap,
     width,
     wrap,
   } = props;
-
   /** POSITIONS OBSERVER LOGIC */
   // Create a ref so that this DOM node can be
   // observed by the observer for changes in size
@@ -90,7 +100,8 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     {
       layoutId: layoutId,
       canvasId: canvasId,
-      isDropTarget: isDropTarget,
+      isDropTarget,
+      layoutType,
       parentDropTarget,
     },
     ref,
@@ -111,12 +122,11 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
       maxWidth: maxWidth || "none",
       minHeight: minHeight || "unset",
       minWidth: minWidth || "unset",
-      padding: padding || (isDropTarget ? "4px" : "0px"),
-      rowGap: rowGap || {
-        base: addPixelToSize(ROW_GAP),
-      },
+      padding: padding || "spacing-0",
+      gap: gap || "spacing-3",
       width: width || "auto",
       wrap: wrap || "nowrap",
+      className: className || "",
     };
   }, [
     alignSelf,
@@ -133,31 +143,35 @@ export const FlexLayout = React.memo((props: FlexLayoutProps) => {
     minHeight,
     minWidth,
     padding,
-    rowGap,
+    gap,
     width,
     wrap,
   ]);
-
+  const shouldHighlightCell = useSelector((state) =>
+    getShouldHighLightCellSelector(state, layoutId, layoutType),
+  );
+  const highlightShown = useSelector(getAnvilHighlightShown);
+  highlightShown?.rowIndex;
   // The following properties aren't included in type FlexProps but can be passed as style.
   const styleProps: CSSProperties = useMemo(() => {
     return {
-      border:
-        border ||
-        (isDropTarget && renderMode === RenderModes.CANVAS
-          ? "1px dashed #979797"
-          : "none"),
       position: position || "relative",
+      ...(shouldHighlightCell
+        ? { background: "var(--anvil-cell-highlight)" }
+        : {}),
     };
-  }, [border, isDropTarget, position, renderMode]);
+  }, [border, isDropTarget, position, renderMode, shouldHighlightCell]);
 
-  const className = useMemo(() => {
-    return `layout-${layoutId} layout-index-${layoutIndex}`;
-  }, [layoutId, layoutIndex]);
+  const _className = useMemo(() => {
+    return `${className ?? ""} layout-${layoutId} layout-index-${layoutIndex} ${
+      isContainer ? "make-container" : ""
+    }`;
+  }, [isContainer, layoutId, layoutIndex]);
 
   return (
     <Flex
       {...flexProps}
-      className={className}
+      className={_className}
       id={getAnvilLayoutDOMId(canvasId, layoutId)}
       ref={ref}
       style={styleProps}

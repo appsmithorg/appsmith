@@ -10,6 +10,8 @@ import {
 } from "../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../support/Pages/EditorNavigation";
 
 describe(
@@ -17,12 +19,8 @@ describe(
   { tags: ["@tag.Datasource"] },
   function () {
     before(() => {
-      agHelper.GenerateUUID();
-      cy.get("@guid").then((uid) => {
-        homePage.CreateNewWorkspace("EchoApiCMS" + uid, true);
-        homePage.CreateAppInWorkspace("EchoApiCMS" + uid, "EchoApiCMSApp");
-        agHelper.AddDsl("CMSdsl");
-      });
+      homePage.RenameApplication("EchoApiCMSApp");
+      agHelper.AddDsl("CMSdsl");
     });
 
     let repoName;
@@ -77,7 +75,7 @@ describe(
 
     it("4. Send mail and verify post request body", function () {
       // navigating to canvas
-      cy.xpath(appPage.pagebutton).click();
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.get(appPage.submitButton).should("be.visible");
       cy.xpath("//span[text()='3']").click({ force: true });
       cy.get(appPage.mailButton).closest("div").click();
@@ -91,9 +89,8 @@ describe(
         .type("Task completed", { force: true });
       cy.get(appPage.confirmButton).closest("div").click({ force: true });
       cy.get(appPage.closeButton).closest("div").click({ force: true });
-      cy.xpath(appPage.pagebutton).click({ force: true });
-      //cy.xpath(appPage.datasourcesbutton).click({ force: true });
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       cy.xpath(appPage.postApi).click({ force: true });
       cy.ResponseCheck("Test");
       // cy.ResponseCheck("Task completed");
@@ -102,16 +99,15 @@ describe(
 
     it("5. Delete proposal and verify delete request body", function () {
       // navigating back to canvas
-      cy.xpath(appPage.pagebutton).click({ force: true });
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
       cy.get(appPage.submitButton).closest("div").should("be.visible");
       cy.xpath("//span[text()='Dan.Wyman@hotmail.com']").click({ force: true });
       // deleting the proposal and asserting delete call's response
       cy.xpath(appPage.deleteButton).click({ force: true });
       cy.xpath(appPage.deleteTaskText).should("be.visible");
       cy.get(appPage.confirmButton).closest("div").click({ force: true });
-      cy.xpath(appPage.pagebutton).click({ force: true });
-      //cy.xpath(appPage.datasourcesbutton).click({ force: true });
-      cy.xpath(appPage.deleteApi).click({ force: true });
+      PageLeftPane.switchSegment(PagePaneSegment.UI);
+      EditorNavigation.SelectEntityByName("delete_proposal", EntityType.Api);
       cy.ResponseCheck("Dan.Wyman@hotmail.com");
       cy.ResponseCheck("Recusan");
     });

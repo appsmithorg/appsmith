@@ -1,0 +1,18 @@
+.wrapper {
+  border-top: 1px solid var(--ads-v2-color-gray-300);
+  position: relative;
+}
+
+.tabList.tabList {
+  padding-left: 5px;
+}
+
+.tabPanel.tabPanel {
+  margin-top: 0px;
+}
+
+.controls {
+  position: absolute;
+  top: 11px;
+  right: 12px;
+}

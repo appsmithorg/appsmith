@@ -1028,7 +1028,7 @@ export const tableDataValidation = (
     messages: [
       {
         name: "TypeError",
-        message: `This value does not evaluate to type Array<Object>}`,
+        message: `Invalid value. This field expects an array of objects(Array<Object>) or the result of a Query such as "{{query1.data}}".`,
       },
     ],
   };

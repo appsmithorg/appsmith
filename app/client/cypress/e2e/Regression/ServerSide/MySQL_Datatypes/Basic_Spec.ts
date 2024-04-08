@@ -14,6 +14,7 @@ import EditorNavigation, {
   AppSidebarButton,
   AppSidebar,
   PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -21,13 +22,6 @@ let dsName: any, query: string;
 
 describe("MySQL Datatype tests", { tags: ["@tag.Datasource"] }, function () {
   before("Load dsl, Change theme, Create Mysql DS", () => {
-    featureFlagIntercept(
-      {
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      },
-      false,
-    );
     agHelper.AddDsl("Datatypes/mySQLdsl");
 
     appSettings.OpenPaneAndChangeTheme("Moon");
@@ -145,7 +139,7 @@ describe("MySQL Datatype tests", { tags: ["@tag.Datasource"] }, function () {
       //DS deletion
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
       AppSidebar.navigate(AppSidebarButton.Editor);
-      PageLeftPane.expandCollapseItem("Queries/JS");
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
       ["createTable", "dropTable", "insertRecord", "selectRecords"].forEach(
         (type) => {
           entityExplorer.ActionContextMenuByEntityName({
@@ -157,7 +151,6 @@ describe("MySQL Datatype tests", { tags: ["@tag.Datasource"] }, function () {
       );
       deployMode.DeployApp();
       deployMode.NavigateBacktoEditor();
-      PageLeftPane.expandCollapseItem("Queries/JS");
       dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
     },
   );

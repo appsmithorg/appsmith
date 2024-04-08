@@ -23,6 +23,7 @@ export interface URLBuilderParams {
   persistExistingParams?: boolean;
   // This is used to pass ID if the sender doesn't know the type of the entity
   parentEntityId?: string;
+  generateEditorPath?: boolean;
 }
 
 export enum URL_TYPE {

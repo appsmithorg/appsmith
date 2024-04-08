@@ -69,7 +69,7 @@ jobs:
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         id: cache-appsmith
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/run_result
@@ -105,18 +105,20 @@ jobs:
 
       - name: Use Node.js
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
 
-      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # actions/setup-node@v4 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
-          path: app/client/.yarn/cache
+          path: |
+            app/client/.yarn/cache
+            app/client/node_modules/.cache/webpack/
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
           restore-keys: |
             v1-yarn3-
@@ -125,8 +127,7 @@ jobs:
       - name: Install dependencies
         if: steps.run_result.outputs.run_result != 'success'
         working-directory: app/client
-        run: |
-          yarn install --immutable
+        run: yarn install --immutable
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -281,7 +282,7 @@ jobs:
       # Force store previous run result to cache
       - name: Store the previous run result
         if: failure()
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             ~/run_result
@@ -293,11 +294,11 @@ jobs:
         id: slack_notification
         run: |
           if [[ "${{ steps.test_status.outputs.run_result }}" == "failedtest" ]]; then
-            echo "slack_message=There are test failures in the run. Cypress Dashboard: <https://internal.appsmith.com/app/cypress-dashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
+            echo "slack_message=There are test failures in the run. Cypress Dashboard: <https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#FF0000" >> $GITHUB_OUTPUT
             echo "slack_icon=:parachute:" >> $GITHUB_OUTPUT
           else
-            echo "slack_message=All tests passed successfully :tada: . Cypress Dashboard: <https://internal.appsmith.com/app/cypress-dashboard/rundetails-64ec3df0c632e24c00764938?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}|Click here!>" >> $GITHUB_OUTPUT
+            echo "slack_message=All tests passed successfully :tada: . Cypress Dashboard: <https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}|Click here!>" >> $GITHUB_OUTPUT
             echo "slack_color=#00FF00" >> $GITHUB_OUTPUT
             echo "slack_icon=:eight_spoked_asterisk:" >> $GITHUB_OUTPUT
           fi

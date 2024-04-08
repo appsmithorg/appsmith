@@ -2,6 +2,7 @@ import React from "react";
 import styled from "styled-components";
 import type { WidgetProps, WidgetState } from "./BaseWidget";
 import BaseWidget from "./BaseWidget";
+import type { AnvilConfig } from "WidgetProvider/constants";
 
 const SkeletonWrapper = styled.div`
   height: 100%;
@@ -25,6 +26,16 @@ class SkeletonWidget extends BaseWidget<SkeletonWidgetProps, WidgetState> {
       columns: 4,
       widgetName: "Skeleton",
       version: 1,
+    };
+  }
+
+  static getAnvilConfig(): AnvilConfig | null {
+    return {
+      isLargeWidget: false,
+      widgetSize: {
+        minHeight: { base: "auto" },
+        minWidth: { base: "auto" },
+      },
     };
   }
 

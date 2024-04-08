@@ -13,6 +13,7 @@ export interface InitializeEditorPayload {
   pageId?: string;
   branch?: string;
   mode: APP_MODE;
+  shouldInitialiseUserDetails?: boolean;
 }
 
 export const initEditor = (
@@ -27,6 +28,7 @@ export interface InitAppViewerPayload {
   applicationId?: string;
   pageId: string;
   mode: APP_MODE;
+  shouldInitialiseUserDetails?: boolean;
 }
 
 export const initAppViewer = ({
@@ -34,6 +36,7 @@ export const initAppViewer = ({
   branch,
   mode,
   pageId,
+  shouldInitialiseUserDetails,
 }: InitAppViewerPayload) => ({
   type: ReduxActionTypes.INITIALIZE_PAGE_VIEWER,
   payload: {
@@ -41,6 +44,7 @@ export const initAppViewer = ({
     applicationId,
     pageId,
     mode,
+    shouldInitialiseUserDetails,
   },
 });
 

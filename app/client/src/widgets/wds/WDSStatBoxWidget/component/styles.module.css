@@ -1,0 +1,4 @@
+.statbox {
+  border-radius: var(--border-radius-elevation-3);
+  width: 100%;
+}

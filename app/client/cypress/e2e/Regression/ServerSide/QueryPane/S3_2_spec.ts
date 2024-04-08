@@ -455,7 +455,6 @@ describe(
         agHelper.UpdateCodeInput(formControls.s3BucketName, bucketName);
         dataSources.RunQuery();
         agHelper.Sleep(); //for CI runs
-        agHelper.ScrollIntoView("." + dataSources._addSuggestedExisting);
         dataSources.AddSuggestedWidget(
           Widgets.Table,
           dataSources._addSuggestedExisting,

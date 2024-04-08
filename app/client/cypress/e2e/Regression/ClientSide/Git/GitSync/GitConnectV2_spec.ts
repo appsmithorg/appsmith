@@ -2,7 +2,6 @@ import { featureFlagIntercept } from "../../../../../support/Objects/FeatureFlag
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../../support/Pages/EditorNavigation";
 
 let ws1Name: string;
@@ -15,21 +14,18 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   before(() => {
     _.agHelper.GenerateUUID();
     cy.get("@guid").then((uid) => {
-      ws1Name = "GitConnectV2-1" + uid;
-      ws2Name = "GitConnectV2-2" + uid;
-      app1Name = "GitConnectV2" + uid;
+      ws1Name = "GCV2-1" + uid;
+      ws2Name = "GCV2-2" + uid;
+      app1Name = "GCV2" + uid;
       _.homePage.CreateNewWorkspace(ws1Name, true);
       _.homePage.CreateNewWorkspace(ws2Name, true);
+      _.homePage.SelectWorkspace(ws1Name);
       _.homePage.CreateAppInWorkspace(ws1Name, app1Name);
     });
   });
 
   it("Testing connect to git flow - V2", function () {
-    featureFlagIntercept({
-      release_git_connect_v2_enabled: true,
-    });
-
-    _.gitSync.CreateNConnectToGitV2();
+    _.gitSync.CreateNConnectToGit();
 
     cy.get("@gitRepoName").then((repName) => {
       repoName = repName;
@@ -37,10 +33,6 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
   });
 
   it("Testing import via git flow - V2", function () {
-    featureFlagIntercept({
-      release_git_connect_v2_enabled: true,
-    });
-
     _.gitSync.CreateGitBranch("test", true);
     cy.get("@gitbranchName").then((bName) => {
       branchName = bName;
@@ -49,10 +41,8 @@ describe("Git Connect V2", { tags: ["@tag.Git"] }, function () {
       _.propPane.UpdatePropertyFieldValue("Text", "Hello World");
       _.gitSync.CommitAndPush();
 
-      _.gitSync.ImportAppFromGitV2(ws2Name, repoName);
+      _.gitSync.ImportAppFromGit(ws2Name, repoName);
       _.gitSync.SwitchGitBranch(branchName);
-      PageLeftPane.expandCollapseItem("Widgets");
-      PageLeftPane.assertPresence("MyText");
       EditorNavigation.SelectEntityByName("MyText", EntityType.Widget);
       _.propPane.ValidatePropertyFieldValue("Text", "Hello World");
     });

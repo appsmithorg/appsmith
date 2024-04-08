@@ -1,17 +1,12 @@
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-
-const explorer = require("../../../../locators/explorerlocators.json");
-const testdata = require("../../../../fixtures/testdata.json");
-
 import {
   agHelper,
-  entityExplorer,
-  propPane,
   apiPage,
   debuggerHelper,
 } from "../../../../support/Objects/ObjectsCore";
+const testdata = require("../../../../fixtures/testdata.json");
 
 describe("Check debugger logs state when there are onPageLoad actions", function () {
   before(() => {
@@ -22,7 +17,7 @@ describe("Check debugger logs state when there are onPageLoad actions", function
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     apiPage.CreateAndFillApi(testdata.baseUrl + testdata.methods, "TestApi");
     apiPage.RunAPI();
-    agHelper.GetNClick(explorer.addWidget);
+    EditorNavigation.ShowCanvas();
     agHelper.RefreshPage();
     // Wait for the debugger icon to be visible
     agHelper.AssertElementVisibility(".t--debugger-count");

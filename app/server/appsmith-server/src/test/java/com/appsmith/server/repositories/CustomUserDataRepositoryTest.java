@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.UserData;
-import com.mongodb.client.result.UpdateResult;
+import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -46,7 +46,7 @@ public class CustomUserDataRepositoryTest {
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("123", "234", "345"), null);
 
         // remove the 345 org id from the recently used workspaceId list
-        Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
+        Mono<Void> updateResultMono = createUserDataMono.flatMap(
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(userData.getUserId(), "345", List.of()));
 
         // read the userdata
@@ -72,7 +72,7 @@ public class CustomUserDataRepositoryTest {
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("123", "234", "345"), null);
 
         // remove the 345 org id from the recently used workspaceId list
-        Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
+        Mono<Void> updateResultMono = createUserDataMono.flatMap(
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(userData.getUserId(), "678", List.of()));
 
         // read the userdata
@@ -98,7 +98,7 @@ public class CustomUserDataRepositoryTest {
         Mono<UserData> createUserDataMono = createUser(sampleUserId, null, List.of("123", "456", "789"));
 
         // remove the 345 org id from the recently used workspaceId list
-        Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
+        Mono<Void> updateResultMono = createUserDataMono.flatMap(
                 // workspaceId does not matter
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "345", List.of("123", "789")) // remove 123 and 789
@@ -113,7 +113,7 @@ public class CustomUserDataRepositoryTest {
         StepVerifier.create(userDataAfterUpdateMono)
                 .assertNext(userData -> {
                     List<String> recentlyUsedAppIds = userData.getRecentlyUsedAppIds();
-                    assertThat(recentlyUsedAppIds.size()).isEqualTo(1);
+                    assertThat(recentlyUsedAppIds).hasSize(1);
                     assertThat(recentlyUsedAppIds.get(0)).isEqualTo("456");
                 })
                 .verifyComplete();
@@ -127,7 +127,7 @@ public class CustomUserDataRepositoryTest {
                 createUser(sampleUserId, List.of("abc", "efg", "hij"), List.of("123", "456", "789"));
 
         // remove the 345 org id from the recently used workspaceId list
-        Mono<UpdateResult> updateResultMono = createUserDataMono.flatMap(
+        Mono<Void> updateResultMono = createUserDataMono.flatMap(
                 // workspaceId does not matter
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
                         userData.getUserId(), "efg", List.of("123", "789")) // remove 123 and 789
@@ -143,10 +143,10 @@ public class CustomUserDataRepositoryTest {
                 .assertNext(userData -> {
                     List<String> recentlyUsedAppIds = userData.getRecentlyUsedAppIds();
                     List<String> recentlyUsedWorkspaceIds = userData.getRecentlyUsedWorkspaceIds();
-                    assertThat(recentlyUsedAppIds.size()).isEqualTo(1);
+                    assertThat(recentlyUsedAppIds).hasSize(1);
                     assertThat(recentlyUsedAppIds.get(0)).isEqualTo("456");
 
-                    assertThat(recentlyUsedWorkspaceIds.size()).isEqualTo(2);
+                    assertThat(recentlyUsedWorkspaceIds).hasSize(2);
                     assertThat(recentlyUsedWorkspaceIds).contains("abc", "hij");
                 })
                 .verifyComplete();
@@ -160,29 +160,25 @@ public class CustomUserDataRepositoryTest {
         UserData userDataOne = new UserData();
         userDataOne.setUserId(firstId);
         userDataOne.setProfilePhotoAssetId(photoId);
-        userDataOne.setRecentlyUsedAppIds(List.of("abc"));
 
         UserData userDataTwo = new UserData();
         userDataTwo.setUserId(secondId);
-        userDataTwo.setRecentlyUsedAppIds(List.of("abc"));
 
-        Flux<UserData> userDataFlux = userDataRepository
+        Flux<UserDataProfilePhotoProjection> userDataFlux = userDataRepository
                 .saveAll(List.of(userDataOne, userDataTwo))
                 .map(UserData::getUserId)
                 .collectList()
-                .flatMapMany(userDataRepository::findPhotoAssetsByUserIds);
+                .flatMapMany(userDataRepository::findByUserIdIn);
 
-        StepVerifier.create(userDataFlux.collectMap(UserData::getUserId))
+        StepVerifier.create(userDataFlux.collectMap(UserDataProfilePhotoProjection::getUserId))
                 .assertNext(userDataMap -> {
-                    assertThat(userDataMap.size()).isEqualTo(2);
+                    assertThat(userDataMap).hasSize(2);
 
-                    UserData firstUserData = userDataMap.get(firstId);
+                    UserDataProfilePhotoProjection firstUserData = userDataMap.get(firstId);
                     assertThat(firstUserData.getProfilePhotoAssetId()).isEqualTo(photoId);
-                    assertThat(firstUserData.getRecentlyUsedAppIds()).isNull();
 
-                    UserData secondUserData = userDataMap.get(secondId);
+                    UserDataProfilePhotoProjection secondUserData = userDataMap.get(secondId);
                     assertThat(secondUserData.getProfilePhotoAssetId()).isNull();
-                    assertThat(secondUserData.getRecentlyUsedAppIds()).isNull();
                 })
                 .verifyComplete();
     }

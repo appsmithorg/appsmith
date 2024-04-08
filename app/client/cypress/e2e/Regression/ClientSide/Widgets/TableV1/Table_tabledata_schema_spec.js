@@ -1,4 +1,8 @@
-const explorer = require("../../../../../locators/explorerlocators.json");
+import {
+  PageLeftPane,
+  PagePaneSegment,
+} from "../../../../../support/Pages/EditorNavigation";
+
 import * as _ from "../../../../../support/Objects/ObjectsCore";
 
 describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
@@ -8,7 +12,6 @@ describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
   it("1. Table Widget Functionality To Check with changing schema of tabledata", () => {
     let jsContext = `{{Switch1.isSwitchedOn?[{name: "joe"}]:[{employee_name: "john"}];}}`;
     cy.wait(5000);
-    cy.get(explorer.addWidget).click();
     cy.dragAndDropToCanvas("switchwidget", { x: 200, y: 200 });
     cy.wait(2000);
     cy.openPropertyPane("tablewidget");
@@ -41,7 +44,7 @@ describe("Table Widget", { tags: ["@tag.Widget", "@tag.Table"] }, function () {
       expect(value).to.be.equal("joe");
     });
     _.deployMode.NavigateBacktoEditor();
-    cy.CheckAndUnfoldEntityItem("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     _.entityExplorer.DeleteWidgetFromEntityExplorer("Switch1");
     _.entityExplorer.DeleteWidgetFromEntityExplorer("Table1");
   });

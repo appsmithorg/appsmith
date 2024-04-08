@@ -1,7 +1,6 @@
-import type { IconName } from "@blueprintjs/icons";
-
 import type { InputComponentProps } from "../component/types";
 import type { BaseInputWidgetProps } from "../../WDSBaseInputWidget";
+import type { IconProps } from "@design-system/widgets";
 
 export interface InputWidgetProps extends BaseInputWidgetProps {
   defaultText?: string | number;
@@ -17,7 +16,7 @@ export interface InputWidgetProps extends BaseInputWidgetProps {
   minNum?: number;
 
   // icon props
-  iconName?: IconName;
+  iconName?: IconProps["name"];
   iconAlign?: "left" | "right";
 }
 

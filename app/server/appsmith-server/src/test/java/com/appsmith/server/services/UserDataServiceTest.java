@@ -11,7 +11,6 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.AssetRepository;
 import com.appsmith.server.repositories.UserDataRepository;
-import com.appsmith.server.solutions.UserChangedHandler;
 import org.assertj.core.api.AssertionsForClassTypes;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +18,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -42,7 +40,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -62,9 +59,6 @@ public class UserDataServiceTest {
 
     @Autowired
     private AssetRepository assetRepository;
-
-    @MockBean
-    private UserChangedHandler userChangedHandler;
 
     @Autowired
     private AssetService assetService;
@@ -243,20 +237,15 @@ public class UserDataServiceTest {
                 .getForCurrentUser()
                 .flatMap(userData -> {
                     // set recently used org ids to null
-                    userData.setRecentlyUsedWorkspaceIds(null);
                     userData.setRecentlyUsedEntityIds(null);
                     return userDataRepository.save(userData);
                 })
-                .then(userDataService.updateLastUsedAppAndWorkspaceList(application));
+                .then(userDataService.updateLastUsedResourceAndWorkspaceList(
+                        application.getId(), sampleWorkspaceId, null));
 
         StepVerifier.create(saveMono)
                 .assertNext(userData -> {
-                    assertEquals(1, userData.getRecentlyUsedWorkspaceIds().size());
-                    assertEquals(
-                            sampleWorkspaceId,
-                            userData.getRecentlyUsedWorkspaceIds().get(0));
-
-                    assertThat(userData.getRecentlyUsedEntityIds().size()).isEqualTo(1);
+                    assertThat(userData.getRecentlyUsedEntityIds()).hasSize(1);
                     assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
                             .isEqualTo(sampleWorkspaceId);
                 })
@@ -287,17 +276,13 @@ public class UserDataServiceTest {
                     Application application = new Application();
                     application.setWorkspaceId(sampleWorkspaceId);
                     application.setId("sample-app-id");
-                    return userDataService.updateLastUsedAppAndWorkspaceList(application);
+                    return userDataService.updateLastUsedResourceAndWorkspaceList(
+                            application.getId(), sampleWorkspaceId, null);
                 });
 
         StepVerifier.create(resultMono)
                 .assertNext(userData -> {
-                    assertEquals(3, userData.getRecentlyUsedWorkspaceIds().size());
-                    assertEquals(
-                            "sample-org-id",
-                            userData.getRecentlyUsedWorkspaceIds().get(0));
-
-                    assertThat(userData.getRecentlyUsedEntityIds().size()).isEqualTo(3);
+                    assertThat(userData.getRecentlyUsedEntityIds()).hasSize(3);
                     assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
                             .isEqualTo("sample-org-id");
                     assertThat(userData.getRecentlyUsedEntityIds()
@@ -343,21 +328,14 @@ public class UserDataServiceTest {
                     Application application = new Application();
                     application.setId(sampleAppId);
                     application.setWorkspaceId(sampleWorkspaceId);
-                    return userDataService.updateLastUsedAppAndWorkspaceList(application);
+                    return userDataService.updateLastUsedResourceAndWorkspaceList(
+                            application.getId(), sampleWorkspaceId, null);
                 })
                 .cache();
 
         StepVerifier.create(resultMono)
                 .assertNext(userData -> {
-                    assertThat(userData.getRecentlyUsedWorkspaceIds().size()).isEqualTo(MAX_RECENT_WORKSPACES_LIMIT);
-                    assertThat(userData.getRecentlyUsedWorkspaceIds().get(0)).isEqualTo(sampleWorkspaceId);
-                    assertThat(userData.getRecentlyUsedWorkspaceIds().get(9)).isEqualTo("org-9");
-
-                    assertThat(userData.getRecentlyUsedAppIds().size()).isEqualTo(MAX_RECENT_APPLICATIONS_LIMIT);
-                    assertThat(userData.getRecentlyUsedAppIds().get(0)).isEqualTo(sampleAppId);
-                    assertThat(userData.getRecentlyUsedAppIds().get(19)).isEqualTo("app-19");
-
-                    assertThat(userData.getRecentlyUsedEntityIds().size()).isEqualTo(MAX_RECENT_WORKSPACES_LIMIT);
+                    assertThat(userData.getRecentlyUsedEntityIds()).hasSize(MAX_RECENT_WORKSPACES_LIMIT);
                     assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
                             .isEqualTo(sampleWorkspaceId);
                     assertThat(userData.getRecentlyUsedEntityIds().get(9).getWorkspaceId())
@@ -367,20 +345,14 @@ public class UserDataServiceTest {
                                     .getApplicationIds()
                                     .get(0))
                             .isEqualTo(sampleAppId);
-                    assertThat(userData.getRecentlyUsedEntityIds()
-                                    .get(0)
-                                    .getApplicationIds()
-                                    .size())
-                            .isEqualTo(1);
+                    assertThat(userData.getRecentlyUsedEntityIds().get(0).getApplicationIds())
+                            .hasSize(1);
                     // Truncation will be applied only after the specific entry for recently used entities goes through
                     // the workflow
                     assertThat(userData.getRecentlyUsedEntityIds().get(1).getWorkspaceId())
                             .isEqualTo("org-1");
-                    assertThat(userData.getRecentlyUsedEntityIds()
-                                    .get(1)
-                                    .getApplicationIds()
-                                    .size())
-                            .isEqualTo(22);
+                    assertThat(userData.getRecentlyUsedEntityIds().get(1).getApplicationIds())
+                            .hasSize(22);
                 })
                 .verifyComplete();
 
@@ -391,17 +363,14 @@ public class UserDataServiceTest {
             Application application = new Application();
             application.setId(sampleAppId);
             application.setWorkspaceId("org-1");
-            return userDataService.updateLastUsedAppAndWorkspaceList(application);
+            return userDataService.updateLastUsedResourceAndWorkspaceList(application.getId(), "org-1", null);
         });
 
         StepVerifier.create(updateRecentlyUsedEntitiesMono)
                 .assertNext(userData -> {
                     // Check whether a new org id is put at first.
-                    assertThat(userData.getRecentlyUsedEntityIds()
-                                    .get(0)
-                                    .getApplicationIds()
-                                    .size())
-                            .isEqualTo(MAX_RECENT_APPLICATIONS_LIMIT);
+                    assertThat(userData.getRecentlyUsedEntityIds().get(0).getApplicationIds())
+                            .hasSize(MAX_RECENT_APPLICATIONS_LIMIT);
                     assertThat(userData.getRecentlyUsedEntityIds().get(0).getWorkspaceId())
                             .isEqualTo("org-1");
                     assertThat(userData.getRecentlyUsedEntityIds()

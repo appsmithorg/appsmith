@@ -16,7 +16,8 @@
               "label": "Bearer token",
               "value": "bearerToken"
             }
-          ]
+          ],
+          "hidden" : true
         },
         {
           "label": "API Key",

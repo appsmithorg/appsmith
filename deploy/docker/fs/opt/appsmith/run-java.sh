@@ -69,6 +69,7 @@ sh /opt/appsmith/run-starting-page-init.sh &
 # Ref -Dlog4j2.formatMsgNoLookups=true https://spring.io/blog/2021/12/10/log4j2-vulnerability-and-spring-boot
 exec java ${APPSMITH_JAVA_ARGS:-} ${APPSMITH_JAVA_HEAP_ARG:-} \
   --add-opens java.base/java.time=ALL-UNNAMED \
+  --add-opens java.base/java.nio=ALL-UNNAMED \
   -Dserver.port=8080 \
   -XX:+ShowCodeDetailsInExceptionMessages \
   -Djava.security.egd=file:/dev/./urandom \

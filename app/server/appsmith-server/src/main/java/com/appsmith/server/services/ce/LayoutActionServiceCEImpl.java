@@ -211,7 +211,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                 .map(NewPage::getId);
 
         Mono<NewAction> branchedActionMono = newActionService.findByBranchNameAndDefaultActionId(
-                branchName, actionMoveDTO.getAction().getId(), actionPermission.getEditPermission());
+                branchName, actionMoveDTO.getAction().getId(), false, actionPermission.getEditPermission());
 
         return Mono.zip(toPageMono, branchedActionMono)
                 .flatMap(tuple -> {
@@ -253,7 +253,8 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
     public Mono<ActionDTO> updateSingleActionWithBranchName(
             String defaultActionId, ActionDTO action, String branchName) {
         return newActionService
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
+                .findByBranchNameAndDefaultActionId(
+                        branchName, defaultActionId, false, actionPermission.getEditPermission())
                 .flatMap(newAction -> updateActionBasedOnContextType(newAction, action));
     }
 
@@ -262,6 +263,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      * This is a basic action update, which updates actions related to pages.
      */
     protected Mono<ActionDTO> updateActionBasedOnContextType(NewAction newAction, ActionDTO action) {
+        log.debug("Updating action based on context type with action id: {}", action != null ? action.getId() : null);
         String pageId = action.getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
@@ -277,6 +279,9 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                 actionDTO.setErrorReports(
                                         pageDTO.getLayouts().get(0).getLayoutOnLoadActionErrors());
                             }
+                            log.debug(
+                                    "Update action based on context type completed, returning actionDTO with action id: {}",
+                                    actionDTO != null ? actionDTO.getId() : null);
                             return actionDTO;
                         });
     }
@@ -297,14 +302,15 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                     return newActionService.save(newAction).flatMap(savedAction -> updateLayoutService
                             .updatePageLayoutsByPageId(
                                     savedAction.getUnpublishedAction().getPageId())
-                            .then(newActionService.generateActionByViewMode(savedAction, false)));
+                            .thenReturn(newActionService.generateActionByViewMode(savedAction, false)));
                 });
     }
 
     @Override
     public Mono<ActionDTO> setExecuteOnLoad(String defaultActionId, String branchName, Boolean isExecuteOnLoad) {
         return newActionService
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getEditPermission())
+                .findByBranchNameAndDefaultActionId(
+                        branchName, defaultActionId, false, actionPermission.getEditPermission())
                 .flatMap(branchedAction -> setExecuteOnLoad(branchedAction.getId(), isExecuteOnLoad))
                 .map(responseUtils::updateActionDTOWithDefaultResources);
     }
@@ -326,9 +332,13 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
 
     public Mono<ActionDTO> deleteUnpublishedAction(String defaultActionId, String branchName) {
         return newActionService
-                .findByBranchNameAndDefaultActionId(branchName, defaultActionId, actionPermission.getDeletePermission())
+                .findByBranchNameAndDefaultActionId(
+                        branchName, defaultActionId, false, actionPermission.getDeletePermission())
                 .flatMap(branchedAction -> deleteUnpublishedAction(branchedAction.getId()))
-                .map(responseUtils::updateActionDTOWithDefaultResources);
+                .map(responseUtils::updateActionDTOWithDefaultResources)
+                .flatMap(actionDTO -> newActionService
+                        .saveLastEditInformationInParent(actionDTO)
+                        .thenReturn(actionDTO));
     }
 
     @Override

@@ -55,7 +55,7 @@ describe(
           _.deployMode.NavigateBacktoEditor();
           cy.wait(2000);
           cy.visit(currentUrl, { timeout: 60000 });
-          cy.wait("@getPagesForViewApp").should(
+          cy.wait("@getConsolidatedData").should(
             "have.nested.property",
             "response.body.responseMeta.status",
             200,

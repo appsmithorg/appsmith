@@ -1,5 +1,6 @@
 package com.appsmith.server.dtos.ce;
 
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
@@ -35,4 +36,6 @@ public class RefactorEntityNameCE_DTO {
 
     @JsonView(Views.Internal.class)
     Boolean isInternal;
+
+    CreatorContextType contextType;
 }

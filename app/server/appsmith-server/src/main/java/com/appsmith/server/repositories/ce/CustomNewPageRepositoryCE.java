@@ -3,7 +3,6 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.repositories.AppsmithRepository;
-import com.mongodb.bulk.BulkWriteResult;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -43,9 +42,7 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission);
 
-    Mono<List<BulkWriteResult>> publishPages(Collection<String> pageIds, AclPermission permission);
-
-    Mono<List<BulkWriteResult>> bulkUpdate(List<NewPage> newPages);
+    Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission);
 
     Flux<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
 }

@@ -41,7 +41,7 @@ Cypress.Commands.add("fillAuthenticatedAPIForm", () => {
 
 Cypress.Commands.add("runQuery", (expectedRes = true) => {
   cy.onlyQueryRun();
-  AggregateHelper.CheckForErrorToast("Failed to initialize pool");
+  AggregateHelper.FailIfErrorToast("Failed to initialize pool");
   cy.wait(2000); //for postexecute to go thru
   cy.wait("@postExecute").should(
     "have.nested.property",

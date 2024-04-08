@@ -3,7 +3,6 @@ import homePage from "../../../../locators/HomePage";
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 const application = require("../../../../locators/Applications.json");
 import * as _ from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Create app same name in different workspace",
@@ -11,32 +10,20 @@ describe(
   function () {
     let workspaceId;
     let appid;
-    let newWorkspaceName;
     before(() => {
-      //create app within a new workspace
-      _.homePage.NavigateToHome();
-      cy.generateUUID().then((uid) => {
-        workspaceId = uid;
-        appid = uid;
-        cy.createWorkspace();
-        cy.wait("@createWorkspace").then((interception) => {
-          newWorkspaceName = interception.response.body.data.name;
-          _.homePage.RenameWorkspace(newWorkspaceName, workspaceId);
-          cy.CreateAppForWorkspace(workspaceId, appid);
-          _.homePage.NavigateToHome();
-          cy.LogOut();
-        });
+      cy.get("@workspaceName").then((workspaceName) => {
+        workspaceId = workspaceName;
       });
+      cy.generateUUID().then((uid) => {
+        appid = uid;
+        _.homePage.RenameApplication(appid);
+      });
+      _.homePage.LogOutviaAPI();
     });
+
     it("1. create app with same name in a different workspace", function () {
       cy.LoginFromAPI(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      cy.wait("@applications").should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      featureFlagIntercept({ license_gac_enabled: true });
-      cy.wait(2000);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
       const newWSName = workspaceId + "1";
       //Automated as part of Bug19506
       cy.get(".t--applications-container")
@@ -54,13 +41,8 @@ describe(
       }
       cy.get(application.closeModalPopup).click({ force: true });
       _.homePage.NavigateToHome();
-      cy.createWorkspace();
-      cy.wait("@createWorkspace").then((interception) => {
-        console.log("createWorkspace response: ", interception);
-        newWorkspaceName = interception.response.body.data.name;
-        _.homePage.RenameWorkspace(newWorkspaceName, newWSName);
-        cy.CreateAppForWorkspace(newWSName, appid);
-      });
+      _.homePage.CreateNewWorkspace(newWSName);
+      _.homePage.CreateAppInWorkspace(newWSName, appid);
     });
   },
 );

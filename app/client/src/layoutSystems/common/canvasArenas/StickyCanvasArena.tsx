@@ -17,12 +17,18 @@ interface StickyCanvasArenaProps {
   dependencies?: Record<string, any>;
   ref: StickyCanvasArenaRef;
   shouldObserveIntersection: boolean;
+  scaleFactor?: number;
 }
 
 interface StickyCanvasArenaRef {
   stickyCanvasRef: RefObject<HTMLCanvasElement>;
   slidingArenaRef: RefObject<HTMLDivElement>;
 }
+
+const StickyCanvas = styled.canvas`
+  position: absolute;
+  pointer-events: none;
+`;
 
 /**
  * we use IntersectionObserver to detect the amount of canvas(stickyCanvasRef) that is interactable at any point of time
@@ -81,6 +87,7 @@ const shouldUpdateCanvas = (
 
 const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
   position: absolute;
+  pointer-events: all;
   top: 0px;
   left: 0px;
   height: calc(100% + ${(props) => props.paddingBottom}px);
@@ -99,6 +106,7 @@ export const StickyCanvasArena = forwardRef(
       canvasPadding,
       dependencies = {},
       getRelativeScrollingParent,
+      scaleFactor = 1,
       shouldObserveIntersection,
       showCanvas,
       sliderId,
@@ -135,9 +143,11 @@ export const StickyCanvasArena = forwardRef(
     const rescaleSliderCanvas = (entry: IntersectionObserverEntry) => {
       const canvasCtx: CanvasRenderingContext2D =
         stickyCanvasRef.current.getContext("2d");
-      stickyCanvasRef.current.height = entry.intersectionRect.height * scale;
-      stickyCanvasRef.current.width = entry.intersectionRect.width * scale;
-      canvasCtx.scale(scale, scale);
+      stickyCanvasRef.current.height =
+        entry.intersectionRect.height * scale * scaleFactor;
+      stickyCanvasRef.current.width =
+        entry.intersectionRect.width * scale * scaleFactor;
+      canvasCtx.scale(scale * scaleFactor, scale * scaleFactor);
     };
 
     const updateCanvasStylesIntersection = (
@@ -199,17 +209,15 @@ export const StickyCanvasArena = forwardRef(
         {/* Canvas will always be sticky to its scrollable parent's view port. i.e,
       it will only be as big as its viewable area so maximum size would be less
   than screen width and height in all cases. */}
-        <canvas
+        <StickyCanvas
           data-sl="canvas-mq" // attribute to enable canvas on smartlook
           data-testid={canvasId}
           id={canvasId}
           ref={stickyCanvasRef}
-          style={{
-            position: "absolute",
-          }}
         />
         <StyledCanvasSlider
           data-testid={sliderId}
+          data-type={"canvas-slider"}
           id={sliderId}
           paddingBottom={canvasPadding}
           ref={slidingArenaRef}

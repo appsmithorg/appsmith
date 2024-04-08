@@ -3,6 +3,7 @@ import {
   widgetCanvasFactory,
 } from "test/factories/WidgetFactoryUtils";
 import { render, fireEvent } from "test/testUtils";
+import { screen } from "@testing-library/react";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as dataTreeSelectors from "selectors/dataTreeSelectors";
 import * as editorSelectors from "selectors/editorSelectors";
@@ -30,17 +31,13 @@ describe("Tabs widget functional cases", () => {
     const dsl: any = widgetCanvasFactory.build({
       children,
     });
-    const component = render(
+    render(
       <MockPageDSL dsl={dsl}>
-        <Canvas
-          canvasWidth={dsl.rightColumn}
-          pageId="page_id"
-          widgetsStructure={dsl}
-        />
+        <Canvas canvasWidth={dsl.rightColumn} widgetsStructure={dsl} />
       </MockPageDSL>,
     );
-    const tab1 = component.queryByText("Tab 1");
-    const tab2 = component.queryByText("Tab 2");
+    const tab1 = screen.queryByText("Tab 1");
+    const tab2 = screen.queryByText("Tab 2");
     expect(tab1).toBeDefined();
     expect(tab2).toBeDefined();
   });
@@ -62,11 +59,7 @@ describe("Tabs widget functional cases", () => {
     });
     const component = render(
       <MockPageDSL dsl={dsl}>
-        <Canvas
-          canvasWidth={dsl.rightColumn}
-          pageId="page_id"
-          widgetsStructure={dsl}
-        />
+        <Canvas canvasWidth={dsl.rightColumn} widgetsStructure={dsl} />
       </MockPageDSL>,
     );
     const tab1 = component.queryByText("Tab 1");

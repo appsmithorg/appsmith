@@ -6,11 +6,9 @@ import { retryPromise } from "utils/AppsmithUtils";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { contentConfig, styleConfig } from "./propertyConfig";
 import {
-  CUSTOM_ECHART_FEATURE_FLAG,
   DefaultEChartConfig,
   DefaultEChartsBasicChartsData,
   DefaultFusionChartConfig,
-  FUSION_CHART_DEPRECATION_FLAG,
   messages,
 } from "../constants";
 import type { ChartSelectedDataPoint } from "../constants";
@@ -70,6 +68,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
       iconSVG: IconSVG,
       tags: [WIDGET_TAGS.DISPLAY],
       needsMeta: true,
+      needsErrorInfo: true,
       searchTags: ["graph", "visuals", "visualisations"],
     };
   }
@@ -148,10 +147,7 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
     return {
       getEditorCallouts(props: WidgetProps): WidgetCallout[] {
         const callouts: WidgetCallout[] = [];
-        if (
-          ChartWidget.showCustomFusionChartDeprecationMessages() &&
-          props.chartType == "CUSTOM_FUSION_CHART"
-        ) {
+        if (props.chartType == "CUSTOM_FUSION_CHART") {
           callouts.push({
             message: messages.customFusionChartDeprecationMessage,
             links: [
@@ -190,18 +186,11 @@ class ChartWidget extends BaseWidget<ChartWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneContentConfig() {
-    return contentConfig(
-      this.getFeatureFlag(CUSTOM_ECHART_FEATURE_FLAG),
-      this.showCustomFusionChartDeprecationMessages(),
-    );
+    return contentConfig();
   }
 
   static getPropertyPaneStyleConfig() {
     return styleConfig;
-  }
-
-  static showCustomFusionChartDeprecationMessages() {
-    return this.getFeatureFlag(FUSION_CHART_DEPRECATION_FLAG);
   }
 
   static getStylesheetConfig(): Stylesheet {

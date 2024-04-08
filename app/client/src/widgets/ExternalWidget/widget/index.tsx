@@ -12,7 +12,6 @@ import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { OnButtonClickProps } from "components/propertyControls/ButtonControl";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
   static type = "EXTERNAL_WIDGET";
@@ -20,9 +19,7 @@ class ExternalWidget extends BaseWidget<ExternalWidgetProps, WidgetState> {
   static getConfig() {
     return {
       name: "Custom Widget [alpha]",
-      hideCard: !super.getFeatureFlag(
-        FEATURE_FLAG.release_custom_widgets_enabled,
-      ),
+      hideCard: true,
       iconSVG: IconSVG,
       needsMeta: true,
       isCanvas: false,

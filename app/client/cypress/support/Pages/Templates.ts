@@ -8,12 +8,19 @@ export class Templates {
     _templatesTab: ".t--templates-tab",
     _forkApp: ".t--fork-template",
     _templateCard: "[data-testid='template-card']",
+    _templateViewForkButton: "[data-testid='template-fork-button']",
+    _buildingBlockCardOnCanvas: "[data-testid='t--canvas-building-block-item']",
+    _datasourceConnectPromptSubmitBtn:
+      "[data-testid='t--datasource-connect-prompt-submit-btn']",
     _templatesSearchInput: "[data-testid='t--application-search-input']",
     _resultsHeader: "[data-testid='t--application-templates-results-header']",
     _templateViewGoBack: "[data-testid='t--template-view-goback']",
     _templateDialogBox: "[data-testid=t--templates-dialog-component]",
     _closeTemplateDialogBoxBtn: ".ads-v2-modal__content-header-close-button",
     _requestForTemplateBtn: "span:contains('Request for a template')",
+    _tempaltesFilterItem: "[data-testid='t--templates-filter-item']",
+    _templateFilterItemSelectedIcon: `[data-testid="t--templates-filter-item-selected-icon"]`,
+    _templatesCardForkButton: "[data-testid='t--fork-template-button']",
   };
 
   FilterTemplatesByName(query: string) {
@@ -22,17 +29,6 @@ export class Templates {
       query,
     );
     this.agHelper.Sleep();
-  }
-
-  AssertResultsHeaderText(
-    text: string,
-    textPresence: "have.text" | "contain.text" | "not.have.text" = "have.text",
-  ) {
-    ObjectsRegistry.AggregateHelper.GetNAssertElementText(
-      this.locators._resultsHeader,
-      text,
-      textPresence,
-    );
   }
 
   GetTemplatesCardsList() {
@@ -75,5 +71,16 @@ export class Templates {
     cy.intercept("GET", "/api/v1/app-templates/filters").as("fetchFilters");
     this.agHelper.RefreshPage("fetchFilters");
     this.agHelper.AssertElementVisibility(this.locators._templateCard);
+  }
+
+  FilterByFirst2Categories() {
+    return this.agHelper
+      .GetElement(this.locators._tempaltesFilterItem)
+      .then((categories) => {
+        const first2Categories = categories.slice(1, 3);
+        first2Categories.map((_, category) => {
+          cy.wrap(category).click();
+        });
+      });
   }
 }

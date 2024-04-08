@@ -1,8 +1,13 @@
-import type { Log, ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { Log } from "entities/AppsmithConsole";
+import {
+  getModuleInstanceInvalidErrors,
+  type ENTITY_TYPE,
+} from "@appsmith/entities/AppsmithConsole/utils";
 import { Severity } from "entities/AppsmithConsole";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
   getEntityNameAndPropertyPath,
+  isAction,
   isJSAction,
   isWidget,
 } from "@appsmith/workers/Evaluation/evaluationUtils";
@@ -71,6 +76,19 @@ function logLatestEvalPropertyErrors(
 
     const entityType = entity.ENTITY_TYPE as string;
     const payloadInfo = getEntityPayloadInfo[entityType](entityConfig);
+    const entityNameToDisplay = payloadInfo.entityName || entityName;
+
+    const moduleInstanceErrors = getModuleInstanceInvalidErrors(
+      entity,
+      entityConfig,
+      propertyPath,
+    );
+
+    if (moduleInstanceErrors.length) {
+      moduleInstanceErrors.forEach((instanceError) => {
+        errorsToAdd.push(instanceError);
+      });
+    }
 
     if (!payloadInfo) continue;
 
@@ -86,7 +104,10 @@ function logLatestEvalPropertyErrors(
       },
     ];
 
-    const httpMethod = get(entity.config, "httpMethod");
+    const httpMethod =
+      isAction(entity) && entity.config
+        ? get(entity.config, "httpMethod")
+        : undefined;
 
     for (const { errors, isWarning, key: debuggerKey } of debuggerKeys) {
       // if dataTree has error but debugger does not -> add
@@ -107,7 +128,10 @@ function logLatestEvalPropertyErrors(
               widgetType: entity.type,
             }
           : {};
-        const logPropertyPath = !isJSAction(entity) ? propertyPath : entityName;
+
+        const logPropertyPath = !isJSAction(entity)
+          ? propertyPath
+          : entityNameToDisplay;
         // Add or update
         if (
           !isJSAction(entity) ||
@@ -126,7 +150,7 @@ function logLatestEvalPropertyErrors(
               messages: errorMessages,
               source: {
                 id: payloadInfo.id,
-                name: entityName,
+                name: entityNameToDisplay,
                 type: entityType as ENTITY_TYPE,
                 propertyPath: logPropertyPath,
                 pluginType: payloadInfo.pluginType,

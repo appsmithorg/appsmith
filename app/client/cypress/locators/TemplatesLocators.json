@@ -9,5 +9,9 @@
   "selectCheckbox": ".ads-v2-checkbox",
   "closeButton": "//button[@aria-label='Close']//span",
   "marketingDashboard": "//h1[text()='Marketing Dashboard']",
-  "vehicleMaintenenceApp": "//h1[text()='Vehicle Maintenance App']"
+  "vehicleMaintenenceApp": "//h1[text()='Vehicle Maintenance App']",
+  "applicationTrackerDashboard": "//h1[text()='Applicant Tracker-test']",
+  "startFromTemplateOnboardingCard": "[data-testid=t--start-from-template]",
+  "templateLoadState": "div.template-content:not(:empty)",
+  "selectAllPages": "label:contains('Select all') > input[type='checkbox']"
 }

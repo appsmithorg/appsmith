@@ -60,15 +60,16 @@ describe(
     ];
 
     it(
-      "excludeForAirgap",
       "should validate that all widgets can be added to List",
+      { tags: ["@tag.excludeForAirgap"] },
       () => {
-        PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+        PageLeftPane.switchSegment(PagePaneSegment.UI);
         allowed.forEach((widget) => {
           entityExplorer.DragDropWidgetNVerify(widget);
           //cy.dragAndDropToWidget(widget, "listwidgetv2", { x: 350, y: 50 });
           agHelper.GetNClick(propPane._deleteWidget);
-          cy.wait("@updateLayout");
+          cy.assertPageSave();
+          cy.wait(800);
         });
       },
     );
@@ -77,7 +78,7 @@ describe(
       "airgap",
       "should validate that all widgets can be added to List except mapwidget - airgap",
       () => {
-        PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+        PageLeftPane.switchSegment(PagePaneSegment.UI);
         const airgapAllowed = allowed.filter(
           (widget) => widget !== "mapwidget",
         );
@@ -88,7 +89,8 @@ describe(
           cy.assertPageSave();
           cy.get(`.t--draggable-${widget}`).should("exist");
           cy.get(widgetsPage.removeWidget).click({ force: true });
-          cy.wait("@updateLayout");
+          cy.assertPageSave();
+          cy.wait(800);
         });
       },
     );

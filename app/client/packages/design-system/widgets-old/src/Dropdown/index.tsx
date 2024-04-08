@@ -858,6 +858,7 @@ export function RenderDropdownOptions(props: DropdownOptionsProps) {
     <DropdownWrapper
       className="ads-dropdown-options-wrapper"
       data-cy="dropdown-options-wrapper"
+      // eslint-disable-next-line testing-library/consistent-data-testid
       data-testid="dropdown-options-wrapper"
       isOpen={props.isOpen}
       width={optionWidth}

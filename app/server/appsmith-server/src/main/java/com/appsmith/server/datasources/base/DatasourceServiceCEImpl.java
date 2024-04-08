@@ -9,7 +9,6 @@ import com.appsmith.external.models.DatasourceTestResult;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.QDatasource;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
@@ -64,7 +63,6 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullP
 import static com.appsmith.server.helpers.CollectionUtils.isNullOrEmpty;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsProperties;
 import static com.appsmith.server.helpers.DatasourceAnalyticsUtils.getAnalyticsPropertiesForTestEventStatus;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -676,8 +674,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Mono<Datasource> findByNameAndWorkspaceId(
-            String name, String workspaceId, Optional<AclPermission> permission) {
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission) {
         return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
     }
 
@@ -759,22 +756,16 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
 
     @Override
     public Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params) {
-        String workspaceId = params.getFirst(fieldName(QDatasource.datasource.workspaceId));
+        String workspaceId = params.getFirst(Datasource.Fields.workspaceId);
         if (workspaceId != null) {
-            return this.getAllByWorkspaceIdWithStorages(
-                    workspaceId, Optional.of(datasourcePermission.getReadPermission()));
+            return this.getAllByWorkspaceIdWithStorages(workspaceId, datasourcePermission.getReadPermission());
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
     }
 
     @Override
-    public Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission) {
-        return repository.findAllByWorkspaceId(workspaceId, permission);
-    }
-
-    @Override
-    public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission) {
+    public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, AclPermission permission) {
 
         return repository
                 .findAllByWorkspaceId(workspaceId, permission)
@@ -832,6 +823,20 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                                         .deleteDatasourceContext(datasourceStorage)
                                         .then(datasourceStorageService.archive(datasourceStorage));
                             })
+                            .flatMap(datasourceStorage -> {
+                                if (!StringUtils.hasText(toDelete.getPluginId())) {
+                                    log.error("Plugin id is missing in datasource, skipping pre-delete hook execution");
+                                    return Mono.just(datasourceStorage);
+                                }
+                                Mono<PluginExecutor> pluginExecutorMono = findPluginExecutor(toDelete.getPluginId());
+                                return pluginExecutorMono
+                                        .flatMap(pluginExecutor -> ((PluginExecutor<Object>) pluginExecutor)
+                                                .preDeleteHook(datasourceStorage))
+                                        .onErrorResume(error -> {
+                                            log.error("Error occurred while executing after delete hook", error);
+                                            return Mono.just(datasourceStorage);
+                                        });
+                            })
                             .then(repository.archive(toDelete))
                             .thenReturn(toDelete);
                 })
@@ -841,6 +846,14 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
                     analyticsProperties.put(FieldName.EVENT_DATA, eventData);
                     return analyticsService.sendDeleteEvent(datasource, analyticsProperties);
                 });
+    }
+
+    private Mono<PluginExecutor> findPluginExecutor(String pluginId) {
+        final Mono<Plugin> pluginMono = pluginService.findById(pluginId).cache();
+        return pluginExecutorHelper
+                .getPluginExecutor(pluginMono)
+                .switchIfEmpty(
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.PLUGIN, pluginId)));
     }
 
     /**

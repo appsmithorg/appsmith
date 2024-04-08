@@ -7,7 +7,8 @@ import { EVAL_WORKER_ACTIONS } from "@appsmith/workers/Evaluation/evalWorkerActi
 import type { EvalWorkerSyncRequest, EvalWorkerASyncRequest } from "../types";
 import evalActionBindings from "./evalActionBindings";
 import evalExpression from "./evalExpression";
-import evalTree, {
+import {
+  evalTree,
   clearCache,
   evalTreeTransmissionErrorHandler,
 } from "./evalTree";

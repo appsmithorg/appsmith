@@ -1,8 +1,8 @@
 import {
   Flex,
-  ButtonGroupItem,
   ButtonGroup,
   COLORS,
+  Item,
   BUTTON_VARIANTS,
 } from "@design-system/widgets";
 import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
@@ -11,16 +11,16 @@ import { Canvas, Meta, Story, ArgsTable, Source } from "@storybook/addon-docs";
 
 # Button Group
 
-A `ButtonGroup` is a group of `ButtonGroupItem` that are visually connected together.
-The `ButtonGroupItem` accepts the same props as the `Button` except `variant` and `color`.
+A `ButtonGroup` is a group of buttons that are visually connected together.
+The `Item` accepts the same props as the `Button` except `variant` and `color`.
 More information about `Button` props you can find [here](?path=/docs/design-system-widgets-button--docs).
 
 export const Template = (args) => {
   return (
     <ButtonGroup {...args}>
-      <ButtonGroupItem>Option 1</ButtonGroupItem>
-      <ButtonGroupItem>Option 2</ButtonGroupItem>
-      <ButtonGroupItem>Option 3</ButtonGroupItem>
+      <Item>Option 1</Item>
+      <Item>Option 2</Item>
+      <Item>Option 3</Item>
     </ButtonGroup>
   );
 };
@@ -36,7 +36,7 @@ export const Template = (args) => {
 `Button` component has 3 visual style variants and 5 semantic color options
 
 <Story name="Semantic">
-  <Flex direction="column" gap="spacing-4" alignItems="center">
+  <Flex direction="column" gap="spacing-4" alignItems="center" width="100%">
     {Object.values(BUTTON_VARIANTS).map((variant) =>
       Object.values(COLORS).map((color) => (
         <ButtonGroup
@@ -44,15 +44,15 @@ export const Template = (args) => {
           color={color}
           key={`${variant}-${color}`}
         >
-          <ButtonGroupItem>
+          <Item>
             {variant} {color}
-          </ButtonGroupItem>
-          <ButtonGroupItem>
+          </Item>
+          <Item>
             {variant} {color}
-          </ButtonGroupItem>
-          <ButtonGroupItem>
+          </Item>
+          <Item>
             {variant} {color}
-          </ButtonGroupItem>
+          </Item>
         </ButtonGroup>
       )),
     )}
@@ -72,13 +72,30 @@ export const Template = (args) => {
   {Template.bind({})}
 </Story>
 
+# Responsive
+
+<Story name="Responsive">
+  <div style={{ width: 150 }}>
+    <ButtonGroup variant="outlined">
+      <Item key="option-1">Option 1</Item>
+      <Item key="option-2">Option 2</Item>
+      <Item key="option-3" icon="file">
+        {"Option 3"}
+      </Item>
+      <Item key="option-4" icon="trash" iconPosition="end" color="negative">
+        {"Option 4"}
+      </Item>
+    </ButtonGroup>
+  </div>
+</Story>
+
 ## ButtonGroupItem usage
 
 <Story name="ButtonGroupItem usage">
   <ButtonGroup>
-    <ButtonGroupItem isDisabled>Option 2</ButtonGroupItem>
-    <ButtonGroupItem isLoading>Option 2</ButtonGroupItem>
-    <ButtonGroupItem>Option 3</ButtonGroupItem>
+    <Item isDisabled>Option 2</Item>
+    <Item isLoading>Option 2</Item>
+    <Item>Option 3</Item>
   </ButtonGroup>
 </Story>
 
@@ -86,9 +103,9 @@ export const Template = (args) => {
   dark
   code={`
 <ButtonGroup>
-  <ButtonGroupItem isDisabled>Option 2</ButtonGroupItem>
-  <ButtonGroupItem isLoading>Option 2</ButtonGroupItem>
-  <ButtonGroupItem>Option 3</ButtonGroupItem>
+  <Item>Option 2</Item>
+  <Item isLoading>Option 2</Item>
+  <Item>Option 3</Item>
 </ButtonGroup>
 `}
 />

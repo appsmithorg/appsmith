@@ -11,17 +11,9 @@ import java.util.Collection;
 public interface BaseRepository<T, ID extends Serializable> extends ReactiveMongoRepository<T, ID> {
 
     /**
-     * This function should be used to get an object from the DB without applying any ACL rules
-     *
-     * @param id The identifier for this type
-     * @return Mono<T>
-     */
-    Mono<T> retrieveById(ID id);
-
-    /**
      * This function sets the deleted flag to true and then saves the modified document.
      *
-     * @param T The entity which needs to be archived
+     * @param entity The entity which needs to be archived
      * @return Mono<T>
      */
     Mono<T> archive(T entity);

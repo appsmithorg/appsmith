@@ -6,14 +6,16 @@ import type {
   AnvilHighlightInfo,
   DraggedWidget,
   GetDimensions,
+  HighlightPayload,
   LayoutProps,
   WidgetLayoutProps,
 } from "../../anvilTypes";
+import { HIGHLIGHT_SIZE } from "../../constants";
 import {
-  HIGHLIGHT_SIZE,
-  HORIZONTAL_DROP_ZONE_MULTIPLIER,
-} from "../../constants";
-import { getNonDraggedWidgets, getStartPosition } from "./highlightUtils";
+  getNonDraggedWidgets,
+  getStartPosition,
+  performInitialChecks,
+} from "./highlightUtils";
 import {
   type RowMetaData,
   type RowMetaInformation,
@@ -32,20 +34,31 @@ export const deriveAlignedRowHighlights =
   (
     positions: LayoutElementPositions,
     draggedWidgets: DraggedWidget[],
-  ): AnvilHighlightInfo[] => {
-    if (!draggedWidgets.length || !positions[layoutProps.layoutId]) return [];
+  ): HighlightPayload => {
     const { layout } = layoutProps;
+
+    /**
+     * Step 0: Perform initial checks before calculating highlights.
+     * There are situations where highlight calculations are not required.
+     */
+    const res: HighlightPayload | undefined = performInitialChecks(
+      layoutProps,
+      positions,
+      draggedWidgets,
+    );
+
+    if (res) return res;
 
     const getDimensions: (id: string) => LayoutElementPosition =
       getRelativeDimensions(positions);
 
     /**
-     * Step 1: Construct a base highlight.
+     * Step 2: Construct a base highlight.
      */
     const baseHighlight: AnvilHighlightInfo = {
+      layoutId: layoutProps.layoutId,
       alignment: FlexLayerAlignment.Start,
       canvasId,
-      dropZone: {},
       height: 0,
       isVertical: true,
       layoutOrder,
@@ -56,7 +69,7 @@ export const deriveAlignedRowHighlights =
     };
 
     /**
-     * Step 2: Check if layout is empty and appropriately return initial set of highlights.
+     * Step 3: Check if layout is empty and appropriately return initial set of highlights.
      */
     if (!layout || !layout.length) {
       return getInitialHighlights(
@@ -68,7 +81,7 @@ export const deriveAlignedRowHighlights =
     }
 
     /**
-     * Step 3: Derive highlights for widgets.
+     * Step 4: Derive highlights for widgets.
      */
     return getHighlightsForWidgets(
       layoutProps,
@@ -85,14 +98,14 @@ export const deriveAlignedRowHighlights =
  * @param baseHighlight | AnvilHighlightInfo
  * @param draggedWidgets | DraggedWidget[]
  * @param getDimensions | GetDimensions : method to get relative position of entity.
- * @returns AnvilHighlightInfo[] : List of highlights for empty AlignedRow.
+ * @returns HighlightPayload.
  */
 function getInitialHighlights(
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
   draggedWidgets: DraggedWidget[],
   getDimensions: GetDimensions,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
   let highlights: AnvilHighlightInfo[] = [];
 
   // Check if dragged widgets contain a Fill widget.
@@ -123,15 +136,16 @@ function getInitialHighlights(
       baseHighlight,
       index,
       alignment,
+      layoutProps.layoutId,
       alignmentDimension,
       undefined,
       undefined,
+      undefined,
       true,
-      !!layoutProps.isDropTarget,
     );
   });
 
-  return highlights;
+  return { highlights, skipEntity: false };
 }
 
 /**
@@ -141,7 +155,7 @@ function getInitialHighlights(
  * @param draggedWidgets | string[]
  * @param baseHighlight | AnvilHighlightInfo
  * @param getDimensions | GetDimensions
- * @returns AnvilHighlightInfo[]
+ * @returns HighlightPayload
  */
 export function getHighlightsForWidgets(
   layoutProps: LayoutProps,
@@ -149,7 +163,7 @@ export function getHighlightsForWidgets(
   draggedWidgets: DraggedWidget[],
   baseHighlight: AnvilHighlightInfo,
   getDimensions: GetDimensions,
-): AnvilHighlightInfo[] {
+): HighlightPayload {
   const layout: WidgetLayoutProps[] = layoutProps.layout as WidgetLayoutProps[];
   const layoutDimension: LayoutElementPosition = getDimensions(
     layoutProps.layoutId,
@@ -165,24 +179,25 @@ export function getHighlightsForWidgets(
    * then it renders all widgets directly without using alignments.
    */
   if (hasFillWidget) {
-    const highlights: AnvilHighlightInfo[] = getHighlightsForWidgetsRow(
+    const payload: HighlightPayload = getHighlightsForWidgetsRow(
       layoutProps,
       baseHighlight,
       draggedWidgets,
       getDimensions,
     );
-    return highlights;
+    return payload;
   }
 
   /**
-   * Check if layout has widgets that are not being dragged.
+   * Check if the layout has widgets that are not being dragged.
    */
   const nonDraggedWidgets: WidgetLayoutProps[] = getNonDraggedWidgets(
     layout,
     draggedWidgets,
   );
 
-  if (!nonDraggedWidgets.length && !layoutProps.isDropTarget) return [];
+  if (!nonDraggedWidgets.length && !layoutProps.isDropTarget)
+    return { highlights: [], skipEntity: true };
 
   /**
    * Collect all information on alignments
@@ -195,11 +210,14 @@ export function getHighlightsForWidgets(
 
   let highlights: AnvilHighlightInfo[] = [];
   let childCount = 0;
+
+  // Iterate through each alignment in the layout
   Object.keys(alignmentInfo).forEach((alignment: string) => {
     const { dimension, meta, widgets } = alignmentInfo[alignment];
 
     /**
-     * If the alignment doesn't render any widgets, then derive initial highlights for the alignment.
+     * If the alignment doesn't render any widgets,
+     * then derive initial highlights for the alignment.
      */
     if (!widgets.length) {
       /**
@@ -210,7 +228,7 @@ export function getHighlightsForWidgets(
       if (
         alignment === FlexLayerAlignment.Center &&
         alignmentInfo[FlexLayerAlignment.Start].dimension.width +
-          alignmentInfo[FlexLayerAlignment.Start].dimension.width >
+          alignmentInfo[FlexLayerAlignment.End].dimension.width >
           (layoutDimension.width * 2) / 3
       )
         return;
@@ -220,20 +238,26 @@ export function getHighlightsForWidgets(
         baseHighlight,
         childCount,
         alignment as FlexLayerAlignment,
+        layoutProps.layoutId,
         dimension,
         undefined,
         undefined,
+        undefined,
         true,
-        !!layoutProps.isDropTarget,
       );
     } else {
       const { metaData, tallestWidgets } = meta;
       let rIndex = 0;
+
+      // Iterate through each row within the alignment
       while (rIndex < metaData.length) {
         const row: RowMetaData[] = metaData[rIndex];
         const tallestWidget = tallestWidgets[rIndex];
 
         let temp: AnvilHighlightInfo[] = [];
+        const draggedWidgetIndices: number[] = [];
+
+        // Iterate through each widget within the row
         row.forEach((each: RowMetaData, index: number) => {
           const isDraggedWidget: boolean = draggedWidgets.some(
             (widget: DraggedWidget) => widget.widgetId === each.widgetId,
@@ -244,40 +268,53 @@ export function getHighlightsForWidgets(
           const tallestDimension: LayoutElementPosition = getDimensions(
             tallestWidget.widgetId,
           );
-
+          const prevDimension: LayoutElementPosition | undefined =
+            index === 0 ? undefined : getDimensions(row[index - 1].widgetId);
+          const skipHighlightBeforeWidget = draggedWidgetIndices.includes(
+            index - 1,
+          );
           /**
            * Add a highlight before the widget
            */
+          temp = updateHighlights(
+            temp,
+            isDraggedWidget || skipHighlightBeforeWidget
+              ? { ...baseHighlight, existingPositionHighlight: true }
+              : baseHighlight,
+            childCount,
+            alignment as FlexLayerAlignment,
+            layoutProps.layoutId,
+            dimension,
+            currentDimension,
+            tallestDimension,
+            prevDimension,
+            false,
+          );
+
           if (!isDraggedWidget) {
-            temp = updateHighlights(
-              temp,
-              baseHighlight,
-              childCount,
-              alignment as FlexLayerAlignment,
-              dimension,
-              currentDimension,
-              tallestDimension,
-              false,
-              !!layoutProps.isDropTarget,
-            );
             childCount += 1;
+          } else {
+            draggedWidgetIndices.push(index);
           }
 
           if (index === row.length - 1) {
-            /**
-             * Add a highlight after the last widget in the row.
-             */
-            temp = updateHighlights(
-              temp,
-              baseHighlight,
-              childCount,
-              alignment as FlexLayerAlignment,
-              dimension,
-              currentDimension,
-              tallestDimension,
-              true,
-              !!layoutProps.isDropTarget,
-            );
+            if (!isDraggedWidget) {
+              /**
+               * Add a highlight after the last widget in the row.
+               */
+              temp = updateHighlights(
+                temp,
+                baseHighlight,
+                childCount,
+                alignment as FlexLayerAlignment,
+                layoutProps.layoutId,
+                dimension,
+                currentDimension,
+                tallestDimension,
+                prevDimension,
+                true,
+              );
+            }
             highlights.push(...temp);
             temp = [];
           }
@@ -287,19 +324,19 @@ export function getHighlightsForWidgets(
     }
   });
 
-  return highlights;
+  return { highlights, skipEntity: false };
 }
 
 function generateHighlight(
+  layoutId: string,
   baseHighlight: AnvilHighlightInfo,
   childCount: number,
   alignment: FlexLayerAlignment,
   layoutDimension: LayoutElementPosition,
   currDimension: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   tallestWidget: LayoutElementPosition | undefined,
-  prevHighlight: AnvilHighlightInfo | undefined,
   isFinalHighlight: boolean,
-  isDropTarget: boolean,
 ): AnvilHighlightInfo {
   let posX = 0;
   if (!currDimension) {
@@ -307,36 +344,34 @@ function generateHighlight(
     posX =
       layoutDimension.left + getStartPosition(alignment, layoutDimension.width);
   } else if (isFinalHighlight) {
+    const gap: number =
+      layoutDimension.left +
+      layoutDimension.width -
+      currDimension.left -
+      currDimension.width;
     posX = Math.min(
       currDimension.left + currDimension.width,
+      layoutDimension.left +
+        layoutDimension.width -
+        gap / 2 -
+        HIGHLIGHT_SIZE / 2,
       layoutDimension.left + layoutDimension.width - HIGHLIGHT_SIZE,
     );
   } else {
     // highlight before a widget.
-    posX = Math.max(currDimension.left - HIGHLIGHT_SIZE, layoutDimension.left);
+    const gap: number = prevDimension
+      ? currDimension.left - (prevDimension.left + prevDimension.width)
+      : HIGHLIGHT_SIZE;
+    posX = Math.max(
+      currDimension.left - gap / 2 - HIGHLIGHT_SIZE / 2,
+      layoutDimension.left,
+    );
   }
-
-  const multiplier = isDropTarget ? 1 : HORIZONTAL_DROP_ZONE_MULTIPLIER;
 
   return {
     ...baseHighlight,
+    layoutId,
     alignment,
-    dropZone: {
-      left: Math.max(
-        prevHighlight
-          ? (posX - prevHighlight.posX) * multiplier
-          : (posX - layoutDimension.left) *
-              (alignment === FlexLayerAlignment.Start ? 1 : multiplier),
-        HIGHLIGHT_SIZE,
-      ),
-      right: Math.max(
-        isFinalHighlight
-          ? (layoutDimension.left + layoutDimension.width - posX) *
-              (alignment === FlexLayerAlignment.End ? 1 : multiplier)
-          : HIGHLIGHT_SIZE,
-        HIGHLIGHT_SIZE,
-      ),
-    },
     height: tallestWidget?.height ?? layoutDimension.height,
     posX,
     posY: tallestWidget ? tallestWidget?.top : layoutDimension.top,
@@ -349,30 +384,31 @@ function updateHighlights(
   baseHighlight: AnvilHighlightInfo,
   childCount: number,
   alignment: FlexLayerAlignment,
+  layoutId: string,
   layoutDimension: LayoutElementPosition,
   currDimension: LayoutElementPosition | undefined,
   tallestWidget: LayoutElementPosition | undefined,
+  prevDimension: LayoutElementPosition | undefined,
   isFinalHighlight: boolean,
-  isDropTarget: boolean,
 ): AnvilHighlightInfo[] {
   const prevHighlight: AnvilHighlightInfo | undefined = arr.length
     ? arr[arr.length - 1]
     : undefined;
+
   const curr: AnvilHighlightInfo = generateHighlight(
+    layoutId,
     baseHighlight,
     childCount,
     alignment as FlexLayerAlignment,
     layoutDimension,
     currDimension,
+    prevDimension,
     tallestWidget,
-    prevHighlight,
     isFinalHighlight,
-    isDropTarget,
   );
   if (prevHighlight) {
     arr[arr.length - 1] = {
       ...prevHighlight,
-      dropZone: { ...prevHighlight.dropZone, right: curr.dropZone.left },
     };
   }
   arr.push(curr);

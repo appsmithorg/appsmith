@@ -23,7 +23,7 @@ import {
 } from "@appsmith/constants/messages";
 import history from "utils/history";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/workspaceSelectors";
+import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
@@ -109,7 +109,10 @@ function DatasourceStarterLayoutPrompt() {
         </PopoverBody>
 
         <BtnContainer>
-          <Button onClick={onClickConnect}>
+          <Button
+            data-testid="t--datasource-connect-prompt-submit-btn"
+            onClick={onClickConnect}
+          >
             {createMessage(
               STARTER_TEMPLATE_PAGE_LAYOUTS.datasourceConnectPrompt.buttonText,
             )}

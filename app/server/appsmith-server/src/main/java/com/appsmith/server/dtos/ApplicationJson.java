@@ -11,4 +11,4 @@ import lombok.Setter;
  */
 @Getter
 @Setter
-public class ApplicationJson extends ApplicationJsonCE {}
+public class ApplicationJson extends ApplicationJsonCE implements ArtifactExchangeJson {}

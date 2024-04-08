@@ -13,3 +13,6 @@ export const getIsCreatingPackage = (state: AppState, workspaceId: string) =>
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const getPackagesList = (state: AppState): PackageMetadata[] =>
   DEFAULT_PACKAGE_LIST;
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export const getPackagesOfWorkspace = (state: AppState) => [];

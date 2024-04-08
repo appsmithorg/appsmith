@@ -32,7 +32,7 @@ public class TextUtilsTest {
 
     private void checkFromCsv(String inputString, int expectedSize, String... parts) {
         Set<String> s1 = TextUtils.csvToSet(inputString);
-        assertThat(s1.size()).isEqualTo(expectedSize);
+        assertThat(s1).hasSize(expectedSize);
         assertThat(s1).contains(parts);
     }
 

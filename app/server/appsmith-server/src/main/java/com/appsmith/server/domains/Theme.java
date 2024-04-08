@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.util.Map;
@@ -16,6 +17,7 @@ import java.util.Map;
 @Getter
 @Setter
 @Document
+@FieldNameConstants
 public class Theme extends BaseDomain {
     public static final String LEGACY_THEME_NAME = "classic";
     public static final String DEFAULT_THEME_NAME = "default-new";
@@ -31,11 +33,6 @@ public class Theme extends BaseDomain {
 
     @JsonView(Views.Public.class)
     private String applicationId;
-
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    private String organizationId;
 
     @JsonView(Views.Public.class)
     String workspaceId;
@@ -73,4 +70,6 @@ public class Theme extends BaseDomain {
         // set null to base domain properties also
         super.sanitiseToExportDBObject();
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

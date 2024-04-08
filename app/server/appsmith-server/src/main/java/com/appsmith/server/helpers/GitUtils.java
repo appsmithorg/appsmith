@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.util.WebClientUtils;
@@ -20,6 +20,9 @@ public class GitUtils {
     public static final Duration RETRY_DELAY = Duration.ofSeconds(1);
     public static final Integer MAX_RETRIES = 20;
 
+    public static final Pattern GIT_SSH_URL_PATTERN =
+            Pattern.compile("^(ssh://)?git@(?<host>.+?):/*(?<path>.+?)(\\.git)?$");
+
     /**
      * Sample repo urls :
      * git@example.com:user/repoName.git
@@ -33,9 +36,16 @@ public class GitUtils {
         if (StringUtils.isEmptyOrNull(sshUrl)) {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "ssh url");
         }
-        return sshUrl.replaceFirst(".*git@", "https://")
-                .replaceFirst("(\\.[a-zA-Z0-9]*):", "$1/")
-                .replaceFirst("\\.git$", "");
+
+        final Matcher match = GIT_SSH_URL_PATTERN.matcher(sshUrl);
+
+        if (!match.matches()) {
+            throw new AppsmithException(
+                    AppsmithError.INVALID_GIT_CONFIGURATION,
+                    "Remote URL is incorrect. Please add a URL in standard format. Example: git@example.com:username/reponame.git");
+        }
+
+        return "https://" + match.group("host") + "/" + match.group("path");
     }
 
     /**
@@ -49,16 +59,16 @@ public class GitUtils {
     public static String getRepoName(String remoteUrl) {
         // Pattern to match git SSH URL
         final Matcher matcher = Pattern.compile(
-                        "((git|ssh|http(s)?)|(git@[\\w\\-\\.]+))(:(\\/\\/)?)([\\w.@:/\\-~]+)(\\.git|)(\\/)?")
+                        "((git|ssh)|([\\w\\-\\.]+@[\\w\\-\\.]+))(:(\\/\\/)?)([\\w.@:\\/\\-~\\(\\)\\%]+)(\\.git|)(\\/)?")
                 .matcher(remoteUrl);
         if (matcher.find()) {
             // To trim the postfix and prefix
-            return matcher.group(7).replaceFirst("\\.git$", "").replaceFirst("^(.*[\\\\\\/])", "");
+            return matcher.group(6).replaceFirst("\\.git$", "").replaceFirst("^(.*[\\\\\\/])", "");
         }
         throw new AppsmithException(
                 AppsmithError.INVALID_GIT_CONFIGURATION,
-                "Remote URL is incorrect, "
-                        + "please add a URL in standard format. Example: git@example.com:username/reponame.git");
+                "Remote URL is incorrect. "
+                        + "Please add a URL in standard format. Example: git@example.com:username/reponame.git");
     }
 
     /**
@@ -102,10 +112,10 @@ public class GitUtils {
         return sshUrl.split("\\.")[0].replaceFirst("git@", "");
     }
 
-    public static String getDefaultBranchName(GitApplicationMetadata gitApplicationMetadata) {
-        return StringUtils.isEmptyOrNull(gitApplicationMetadata.getDefaultBranchName())
-                ? gitApplicationMetadata.getBranchName()
-                : gitApplicationMetadata.getDefaultBranchName();
+    public static String getDefaultBranchName(GitArtifactMetadata gitArtifactMetadata) {
+        return StringUtils.isEmptyOrNull(gitArtifactMetadata.getDefaultBranchName())
+                ? gitArtifactMetadata.getBranchName()
+                : gitArtifactMetadata.getDefaultBranchName();
     }
 
     /**
@@ -115,7 +125,7 @@ public class GitUtils {
      * @return              true if the application is default branched, false otherwise
      */
     public static boolean isDefaultBranchedApplication(Application application) {
-        GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+        GitArtifactMetadata metadata = application.getGitApplicationMetadata();
         return isApplicationConnectedToGit(application)
                 && !StringUtils.isEmptyOrNull(metadata.getBranchName())
                 && metadata.getBranchName().equals(metadata.getDefaultBranchName());
@@ -127,7 +137,7 @@ public class GitUtils {
      * @return              true if the application is connected to Git, false otherwise
      */
     public static boolean isApplicationConnectedToGit(Application application) {
-        GitApplicationMetadata metadata = application.getGitApplicationMetadata();
+        GitArtifactMetadata metadata = application.getGitApplicationMetadata();
         return metadata != null
                 && !StringUtils.isEmptyOrNull(metadata.getDefaultApplicationId())
                 && !StringUtils.isEmptyOrNull(metadata.getRemoteUrl());
@@ -145,8 +155,8 @@ public class GitUtils {
         return isMigrationRequired;
     }
 
-    public static boolean isAutoCommitEnabled(GitApplicationMetadata gitApplicationMetadata) {
-        return gitApplicationMetadata.getAutoCommitConfig() == null
-                || gitApplicationMetadata.getAutoCommitConfig().getEnabled();
+    public static boolean isAutoCommitEnabled(GitArtifactMetadata gitArtifactMetadata) {
+        return gitArtifactMetadata.getAutoCommitConfig() == null
+                || gitArtifactMetadata.getAutoCommitConfig().getEnabled();
     }
 }

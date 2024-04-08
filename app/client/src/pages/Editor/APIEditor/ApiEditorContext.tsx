@@ -19,6 +19,7 @@ interface ApiEditorContextContextProps {
   closeEditorLink?: React.ReactNode;
   showRightPaneTabbedSection?: boolean;
   actionRightPaneAdditionSections?: React.ReactNode;
+  notification?: React.ReactNode | string;
 }
 
 type ApiEditorContextProviderProps =
@@ -36,6 +37,7 @@ export function ApiEditorContextProvider({
   handleDeleteClick,
   handleRunClick,
   moreActionsMenu,
+  notification,
   saveActionName,
   settingsConfig,
   showRightPaneTabbedSection,
@@ -51,6 +53,7 @@ export function ApiEditorContextProvider({
       moreActionsMenu,
       saveActionName,
       settingsConfig,
+      notification,
     }),
     [
       actionRightPaneBackLink,
@@ -62,6 +65,7 @@ export function ApiEditorContextProvider({
       moreActionsMenu,
       saveActionName,
       settingsConfig,
+      notification,
     ],
   );
 

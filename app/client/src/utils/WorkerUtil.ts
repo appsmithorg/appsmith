@@ -6,7 +6,11 @@ import log from "loglevel";
 import type { TMessage } from "./MessageUtil";
 import { MessageType, sendMessage } from "./MessageUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
-import { convertWebworkerSpansToRegularSpans } from "UITelemetry/generateWebWorkerTraces";
+import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
+import {
+  convertWebworkerSpansToRegularSpans,
+  newWebWorkerSpanData,
+} from "UITelemetry/generateWebWorkerTraces";
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
  *
@@ -165,30 +169,48 @@ export class GracefulWorkerService {
     this._channels.set(messageId, ch);
     const mainThreadStartTime = performance.now();
     let timeTaken;
-    const span = startRootSpan(method);
+    const rootSpan = startRootSpan(method);
+
+    const webworkerTelemetryData: Record<string, WebworkerSpanData> = {
+      transferDataToWorkerThread: newWebWorkerSpanData(
+        "transferDataToWorkerThread",
+        {},
+      ),
+    };
+
+    const body = {
+      method,
+      data,
+      webworkerTelemetry: webworkerTelemetryData,
+    };
 
     try {
       sendMessage.call(this._Worker, {
         messageType: MessageType.REQUEST,
-        body: {
-          method,
-          data,
-        },
+        body: body,
         messageId,
       });
 
       // The `this._broker` method is listening to events and will pass response to us over this channel.
       const response = yield take(ch);
-      timeTaken = response.timeTaken;
-      const { data: responseData } = response;
-      span &&
+      const webworkerTelemetryResponse = response.data
+        .webworkerTelemetry as Record<string, WebworkerSpanData>;
+
+      if (webworkerTelemetryResponse) {
+        webworkerTelemetryResponse["transferDataToMainThread"].endTime =
+          Date.now();
+      }
+
+      rootSpan &&
         convertWebworkerSpansToRegularSpans(
-          span,
-          responseData?.webworkerTelemetry,
+          rootSpan,
+          webworkerTelemetryResponse,
         );
-      return responseData;
+
+      timeTaken = response.timeTaken;
+      return response.data;
     } finally {
-      endSpan(span);
+      endSpan(rootSpan);
 
       // Log perf of main thread and worker
       const mainThreadEndTime = performance.now();

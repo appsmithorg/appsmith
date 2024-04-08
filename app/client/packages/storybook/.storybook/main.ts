@@ -38,12 +38,13 @@ module.exports = {
       },
     });
   },
+
   stories: getStories(),
+
   addons: [
     "@storybook/addon-a11y",
     "@storybook/addon-viewport",
     "@storybook/addon-docs",
-    "@storybook/addon-actions",
     "@storybook/addon-controls",
     "@storybook/addon-toolbars",
     "@storybook/addon-measure",
@@ -51,9 +52,11 @@ module.exports = {
     "@storybook/preset-create-react-app",
     "./addons/theming/manager.ts",
   ],
+
   framework: {
     name: "@storybook/react-vite",
   },
+
   typescript: {
     reactDocgen: "react-docgen-typescript",
     reactDocgenTypescriptOptions: {
@@ -65,7 +68,12 @@ module.exports = {
       },
     },
   },
+
   core: {
     disableTelemetry: true,
+  },
+
+  docs: {
+    autodocs: true,
   },
 };

@@ -11,7 +11,6 @@ import React, {
   useEffect,
   useMemo,
   useRef,
-  useState,
 } from "react";
 import { useSelector } from "react-redux";
 import styled from "styled-components";
@@ -33,24 +32,21 @@ import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { calculateDropTargetRows } from "./DropTargetUtils";
 
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { EditorState as IDEAppState } from "@appsmith/entities/IDE/constants";
+import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { LayoutSystemTypes } from "layoutSystems/types";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { getCurrentUser } from "selectors/usersSelectors";
-import {
-  getUsersFirstApplicationId,
-  isUserSignedUpFlagSet,
-} from "utils/storage";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getWidgetSelectionBlock } from "selectors/ui";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import useCurrentAppState from "pages/Editor/IDE/hooks";
-import { EditorState as IDEAppState } from "entities/IDE/constants";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -75,33 +71,31 @@ const StyledDropTarget = styled.div`
 `;
 
 function Onboarding() {
-  const [isUsersFirstApp, setIsUsersFirstApp] = useState(false);
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
   const appState = useCurrentAppState();
-  const user = useSelector(getCurrentUser);
+  const isAirgappedInstance = isAirgapped();
+
   const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
   );
-
-  const currentApplicationId = useSelector(
-    (state: AppState) => state.ui.applications.currentApplication?.id,
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
 
   const shouldShowStarterTemplates = useMemo(
     () =>
       showStarterTemplatesInsteadofBlankCanvas &&
       !isMobileCanvas &&
-      isUsersFirstApp,
-    [isMobileCanvas, isUsersFirstApp, showStarterTemplatesInsteadofBlankCanvas],
+      !isAirgappedInstance &&
+      // This is to hide starter building blocks once building blocks are available in the explorer
+      !releaseDragDropBuildingBlocks,
+    [
+      showStarterTemplatesInsteadofBlankCanvas,
+      isMobileCanvas,
+      isAirgappedInstance,
+      releaseDragDropBuildingBlocks,
+    ],
   );
-  useEffect(() => {
-    (async () => {
-      const firstApplicationId = await getUsersFirstApplicationId();
-      const isNew = !!user && (await isUserSignedUpFlagSet(user.email));
-      const isFirstApp = firstApplicationId === currentApplicationId;
-      setIsUsersFirstApp(isNew && isFirstApp);
-    })();
-  }, [user, currentApplicationId]);
 
   if (shouldShowStarterTemplates && appState === IDEAppState.EDITOR)
     return <StarterBuildingBlocks />;
@@ -266,6 +260,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   );
   // Are we changing the auto height limits by dragging the signifiers?
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
+  const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
 
   const dispatch = useDispatch();
 
@@ -286,7 +281,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   // This shows the property pane
   const showPropertyPane = useShowPropertyPane();
 
-  const { deselectAll, focusWidget } = useWidgetSelection();
+  const { focusWidget, goToWidgetAdd } = useWidgetSelection();
 
   // Everytime we get a new bottomRow, or we toggle shouldScrollContents
   // we call this effect
@@ -334,10 +329,15 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       (e.target as HTMLDivElement).dataset.testid === selectionDiv ||
       (e.target as HTMLDivElement).dataset.testid === mainCanvasId;
 
-    if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
+    if (
+      !isResizing &&
+      !isDragging &&
+      !isAutoHeightWithLimitsChanging &&
+      !isWidgetSelectionBlocked
+    ) {
       // Check if Target is the MainCanvas
       if (isTargetMainCanvas) {
-        deselectAll();
+        goToWidgetAdd();
         focusWidget && focusWidget(props.widgetId);
         showPropertyPane && showPropertyPane();
         e.preventDefault();

@@ -31,6 +31,13 @@ const focusHistoryReducer = createImmerReducer(initialState, {
     const { focusState, key } = action.payload;
     state.history[key] = focusState;
   },
+  [ReduxActionTypes.REMOVE_FOCUS_HISTORY]: (
+    state: FocusHistoryState,
+    action: { payload: { key: string } },
+  ) => {
+    const { key } = action.payload;
+    delete state.history[key];
+  },
 });
 
 export default focusHistoryReducer;

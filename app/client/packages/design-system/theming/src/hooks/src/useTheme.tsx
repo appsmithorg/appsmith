@@ -1,15 +1,15 @@
 import Color from "colorjs.io";
 import { useEffect, useState } from "react";
-import { TokensAccessor, defaultTokens } from "../../token";
-import { useFluidSizing, useFluidSpacing, useFluidTypography } from "./";
+import { TokensAccessor, defaultTokens, tokensConfigs } from "../../token";
+import { useSizing, useSpacing, useTypography } from "./";
 
 import type { ColorMode } from "../../color";
-import type { TokenSource, FontFamily } from "../../token";
-
-const { fluid, ...restDefaultTokens } = defaultTokens;
+import type { TokenSource, FontFamily, IconStyle } from "../../token";
+import { useIconDensity } from "./useIconDensity";
+import { useIconSizing } from "./useIconSizing";
 
 const tokensAccessor = new TokensAccessor({
-  ...(restDefaultTokens as TokenSource),
+  ...(defaultTokens as TokenSource),
 });
 
 export interface UseThemeProps {
@@ -19,6 +19,7 @@ export interface UseThemeProps {
   fontFamily?: FontFamily;
   userDensity?: number;
   userSizing?: number;
+  iconStyle?: IconStyle;
 }
 
 export function useTheme(props: UseThemeProps = {}) {
@@ -26,22 +27,31 @@ export function useTheme(props: UseThemeProps = {}) {
     borderRadius,
     colorMode = "light",
     fontFamily,
+    iconStyle = "outlined",
     seedColor,
     userDensity = 1,
     userSizing = 1,
   } = props;
 
-  const { sizing } = useFluidSizing(fluid, userDensity, userSizing);
-  const { innerSpacing, outerSpacing } = useFluidSpacing(
-    fluid,
+  const { sizing } = useSizing(tokensConfigs.sizing, userDensity, userSizing);
+  const { innerSpacing, outerSpacing } = useSpacing(
+    tokensConfigs.outerSpacing,
+    tokensConfigs.innerSpacing,
     userDensity,
     userSizing,
   );
-  const { typography } = useFluidTypography(
-    fluid,
+  const { typography } = useTypography(
+    tokensConfigs.typography,
     fontFamily,
     userDensity,
     userSizing,
+  );
+
+  const { iconSize } = useIconSizing(tokensConfigs.icon.sizing, userSizing);
+
+  const { strokeWidth } = useIconDensity(
+    tokensConfigs.icon.density,
+    userDensity,
   );
 
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens);
@@ -62,14 +72,15 @@ export function useTheme(props: UseThemeProps = {}) {
 
   useEffect(() => {
     if (borderRadius != null) {
-      tokensAccessor.updateBorderRadius({
-        1: borderRadius,
+      tokensAccessor.updateBorderRadiusElevation({
+        ...defaultTokens.borderRadiusElevation,
+        base: borderRadius,
       });
 
       setTheme((prevState) => {
         return {
           ...prevState,
-          ...tokensAccessor.getBorderRadius(),
+          ...tokensAccessor.getBorderRadiusElevation(),
         };
       });
     }
@@ -154,6 +165,45 @@ export function useTheme(props: UseThemeProps = {}) {
       });
     }
   }, [innerSpacing]);
+
+  useEffect(() => {
+    if (iconStyle) {
+      tokensAccessor.updateIconStyle(iconStyle);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          iconStyle: tokensAccessor.getIconStyle(),
+        };
+      });
+    }
+  }, [iconStyle]);
+
+  useEffect(() => {
+    if (iconSize != null) {
+      tokensAccessor.updateIconSize(iconSize);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getIconSize(),
+        };
+      });
+    }
+  }, [iconSize]);
+
+  useEffect(() => {
+    if (strokeWidth != null) {
+      tokensAccessor.updateStrokeWidth(strokeWidth);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getStrokeWidth(),
+        };
+      });
+    }
+  }, [strokeWidth]);
 
   return { theme, setTheme };
 }

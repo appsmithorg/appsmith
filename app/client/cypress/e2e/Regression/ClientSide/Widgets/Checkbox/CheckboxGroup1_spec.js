@@ -1,5 +1,4 @@
 import * as _ from "../../../../../support/Objects/ObjectsCore";
-const explorer = require("../../../../../locators/explorerlocators.json");
 
 describe(
   "checkboxgroupwidget Widget Functionality",
@@ -10,7 +9,6 @@ describe(
     });
 
     it("Add new widget", () => {
-      cy.get(explorer.addWidget).click();
       cy.dragAndDropToCanvas("checkboxgroupwidget", { x: 300, y: 300 });
       cy.get(".t--widget-checkboxgroupwidget").should("exist");
     });

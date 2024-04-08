@@ -25,3 +25,5 @@ export const getCurrentEnvironmentDetails = (state: AppState) => ({
 });
 
 export const allowManageEnvironmentAccessForUser = (state: AppState) => false;
+
+export const isEnvironmentFetching = (state: AppState) => false;

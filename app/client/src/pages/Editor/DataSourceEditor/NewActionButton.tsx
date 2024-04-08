@@ -14,6 +14,7 @@ import {
 import {
   createMessage,
   ERROR_ADD_API_INVALID_URL,
+  NEW_AI_BUTTON_TEXT,
   NEW_API_BUTTON_TEXT,
   NEW_QUERY_BUTTON_TEXT,
 } from "@appsmith/constants/messages";
@@ -23,6 +24,7 @@ import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import type { Datasource } from "entities/Datasource";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { getSelectedTableName } from "@appsmith/selectors/entitiesSelector";
 
 interface NewActionButtonProps {
   datasource?: Datasource;
@@ -34,6 +36,22 @@ interface NewActionButtonProps {
   style?: any;
   isNewQuerySecondaryButton?: boolean;
 }
+
+export const apiPluginHasUrl = (
+  currentEnvironment: string,
+  pluginType?: string,
+  datasource?: Datasource,
+) => {
+  if (pluginType !== PluginType.API) {
+    return false;
+  }
+  return (
+    !datasource ||
+    !datasource?.datasourceStorages[currentEnvironment]?.datasourceConfiguration
+      ?.url
+  );
+};
+
 function NewActionButton(props: NewActionButtonProps) {
   const {
     datasource,
@@ -53,17 +71,11 @@ function NewActionButton(props: NewActionButtonProps) {
     pages.find((p) => p.pageId === currentPageId),
     ...pages.filter((p) => p.pageId !== currentPageId),
   ];
+  const queryDefaultTableName = useSelector(getSelectedTableName);
 
   const createQueryAction = useCallback(
     (pageId: string) => {
-      if (
-        pluginType === PluginType.API &&
-        (!datasource ||
-          !datasource.datasourceStorages[currentEnvironment]
-            .datasourceConfiguration ||
-          !datasource.datasourceStorages[currentEnvironment]
-            .datasourceConfiguration.url)
-      ) {
+      if (apiPluginHasUrl(currentEnvironment, pluginType, datasource)) {
         toast.show(ERROR_ADD_API_INVALID_URL(), {
           kind: "error",
         });
@@ -78,12 +90,13 @@ function NewActionButton(props: NewActionButtonProps) {
               pageId,
               props.eventFrom as EventLocation,
               datasource?.id,
+              queryDefaultTableName,
             ),
           );
         }
       }
     },
-    [dispatch, currentPageId, datasource, pluginType],
+    [dispatch, currentPageId, datasource, pluginType, queryDefaultTableName],
   );
 
   const handleOnInteraction = useCallback(
@@ -101,6 +114,19 @@ function NewActionButton(props: NewActionButtonProps) {
     },
     [pages, createQueryAction, disabled, isLoading],
   );
+
+  const getCreateButtonText = () => {
+    switch (pluginType) {
+      case PluginType.DB:
+      case PluginType.SAAS:
+        return createMessage(NEW_QUERY_BUTTON_TEXT);
+      case PluginType.AI:
+        return createMessage(NEW_AI_BUTTON_TEXT);
+      default:
+        return createMessage(NEW_API_BUTTON_TEXT);
+    }
+  };
+
   return (
     <Menu onOpenChange={handleOnInteraction} open={isPageSelectionOpen}>
       <MenuTrigger disabled={disabled}>
@@ -114,9 +140,7 @@ function NewActionButton(props: NewActionButtonProps) {
           size="md"
           startIcon="plus"
         >
-          {pluginType === PluginType.DB || pluginType === PluginType.SAAS
-            ? createMessage(NEW_QUERY_BUTTON_TEXT)
-            : createMessage(NEW_API_BUTTON_TEXT)}
+          {getCreateButtonText()}
         </Button>
       </MenuTrigger>
       <MenuContent
@@ -125,10 +149,10 @@ function NewActionButton(props: NewActionButtonProps) {
         height={pages.length <= 4 ? "fit-content" : "186px"}
         side={"bottom"}
       >
-        <Text className="pl-2" kind="heading-xs">{`Create a ${
+        <Text className="pl-2" kind="heading-xs">{`Create ${
           pluginType === PluginType.DB || pluginType === PluginType.SAAS
             ? "query"
-            : "api"
+            : "API"
         } in`}</Text>
         {pageMenuItems.map((page, i) => {
           if (page) {

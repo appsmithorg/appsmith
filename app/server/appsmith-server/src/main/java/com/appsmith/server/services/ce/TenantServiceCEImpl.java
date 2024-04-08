@@ -20,11 +20,8 @@ import com.appsmith.server.solutions.EnvManager;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Map;
 
@@ -43,16 +40,13 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
     public TenantServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             TenantRepository repository,
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
             FeatureFlagMigrationHelper featureFlagMigrationHelper) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
@@ -227,7 +221,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                                 // Fetch the tenant again from DB to make sure the downstream chain is consuming the
                                 // latest
                                 // DB object and not the modified one because of the client pertinent changes
-                                .then(repository.retrieveById(tenant.getId()))
+                                .then(repository.findById(tenant.getId()))
                                 .flatMap(this::checkAndExecuteMigrationsForTenantFeatureFlags);
                     }
                     return Mono.error(
@@ -240,7 +234,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         if (!StringUtils.hasLength(id)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
-        return repository.retrieveById(id);
+        return repository.findById(id);
     }
 
     /**

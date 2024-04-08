@@ -12,7 +12,6 @@ import { createDatasourceFromForm } from "actions/datasourceActions";
 import type { SaaSAction } from "entities/Action";
 import { createActionRequest } from "actions/pluginActionActions";
 import type { Datasource } from "entities/Datasource";
-import { createNewApiName } from "utils/AppsmithUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 // Design
@@ -88,7 +87,6 @@ class ListView extends React.Component<Props> {
 
   handleCreateNewAPI = (datasource: Datasource) => {
     const {
-      actions,
       location,
       match: {
         params: { pageId },
@@ -100,10 +98,7 @@ class ListView extends React.Component<Props> {
       pgId = pageId;
     }
     if (pgId) {
-      const newApiName = createNewApiName(actions, pgId);
-
       this.props.createAction({
-        name: newApiName,
         pageId: pgId,
         pluginId: datasource.pluginId,
         datasource: {

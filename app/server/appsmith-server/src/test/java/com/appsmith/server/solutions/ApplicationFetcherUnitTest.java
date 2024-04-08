@@ -3,7 +3,7 @@ package com.appsmith.server.solutions;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.User;
@@ -225,10 +225,10 @@ public class ApplicationFetcherUnitTest {
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
                     List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
-                    assertThat(dtos.size()).isEqualTo(4);
+                    assertThat(dtos).hasSize(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getWorkspace().getTenantId()).isEqualTo(defaultTenantId);
-                        assertThat(dto.getApplications().size()).isEqualTo(4);
+                        assertThat(dto.getApplications()).hasSize(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
                             application.getPages().forEach(page -> assertThat(page.getSlug())
@@ -269,10 +269,10 @@ public class ApplicationFetcherUnitTest {
         StepVerifier.create(applicationFetcher.getAllApplications())
                 .assertNext(userHomepageDTO -> {
                     List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
-                    assertThat(dtos.size()).isEqualTo(4);
+                    assertThat(dtos).hasSize(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
                         assertThat(dto.getWorkspace().getTenantId()).isEqualTo(defaultTenantId);
-                        assertThat(dto.getApplications().size()).isEqualTo(4);
+                        assertThat(dto.getApplications()).hasSize(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
                             application.getPages().forEach(page -> assertThat(page.getSlug())
@@ -301,9 +301,9 @@ public class ApplicationFetcherUnitTest {
         StepVerifier.create(userHomepageDTOMono)
                 .assertNext(userHomepageDTO -> {
                     List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
-                    assertThat(dtos.size()).isEqualTo(4);
+                    assertThat(dtos).hasSize(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
-                        assertThat(dto.getApplications().size()).isEqualTo(4);
+                        assertThat(dto.getApplications()).hasSize(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
                             application.getPages().forEach(page -> assertThat(page.getSlug())
@@ -330,11 +330,11 @@ public class ApplicationFetcherUnitTest {
                     branchApp.setName("branched App");
                     branchApp.setWorkspaceId(application.getWorkspaceId());
                     branchApp.setId("org-" + 5 + "-app-" + 5);
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                    gitApplicationMetadata.setDefaultApplicationId(application.getId());
-                    gitApplicationMetadata.setBranchName("master");
-                    gitApplicationMetadata.setRemoteUrl("remnoteUrl");
-                    branchApp.setGitApplicationMetadata(gitApplicationMetadata);
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+                    gitArtifactMetadata.setDefaultApplicationId(application.getId());
+                    gitArtifactMetadata.setBranchName("master");
+                    gitArtifactMetadata.setRemoteUrl("remnoteUrl");
+                    branchApp.setGitApplicationMetadata(gitArtifactMetadata);
 
                     // Set dummy applicationPages
                     ApplicationPage unpublishedPage = new ApplicationPage();
@@ -358,9 +358,9 @@ public class ApplicationFetcherUnitTest {
         StepVerifier.create(userHomepageDTOMono)
                 .assertNext(userHomepageDTO -> {
                     List<WorkspaceApplicationsDTO> dtos = userHomepageDTO.getWorkspaceApplications();
-                    assertThat(dtos.size()).isEqualTo(4);
+                    assertThat(dtos).hasSize(4);
                     for (WorkspaceApplicationsDTO dto : dtos) {
-                        assertThat(dto.getApplications().size()).isEqualTo(4);
+                        assertThat(dto.getApplications()).hasSize(4);
                         List<Application> applicationList = dto.getApplications();
                         for (Application application : applicationList) {
                             application.getPages().forEach(page -> assertThat(page.getSlug())
@@ -401,7 +401,7 @@ public class ApplicationFetcherUnitTest {
                 .assertNext(userHomepageDTO -> {
                     List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getWorkspaceApplications();
                     assertThat(workspaceApplications).isNotNull();
-                    assertThat(workspaceApplications.size()).isEqualTo(4);
+                    assertThat(workspaceApplications).hasSize(4);
 
                     // apps under first org should be sorted as org-2-app-2, org-2-app-1, org-2-app-3, org-2-app-4
                     checkAppsAreSorted(
@@ -463,7 +463,7 @@ public class ApplicationFetcherUnitTest {
                 .assertNext(userHomepageDTO -> {
                     List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getWorkspaceApplications();
                     assertThat(workspaceApplications).isNotNull();
-                    assertThat(workspaceApplications.size()).isEqualTo(4);
+                    assertThat(workspaceApplications).hasSize(4);
 
                     // apps under first org should be sorted as 1,2,3
                     checkAppsAreSorted(

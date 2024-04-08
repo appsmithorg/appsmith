@@ -13,11 +13,6 @@ describe(
   "App level import with Datasource",
   { tags: ["@tag.ImportExport"] },
   () => {
-    before(() => {
-      homePage.CreateNewWorkspace("AppLevelImport", true);
-      homePage.CreateAppInWorkspace("AppLevelImport");
-    });
-
     //this tests coveres Applevel import for MySql, Gsheet is covered in Gsheet folder
     it("1. Bug #26024 - Import an app at App Level with Datasource - MySql", () => {
       appSettings.OpenAppSettings();

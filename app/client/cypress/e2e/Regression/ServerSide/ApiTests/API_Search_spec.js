@@ -3,6 +3,7 @@ import {
   entityExplorer,
   apiPage,
   entityItems,
+  dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 import {
   AppSidebar,
@@ -10,7 +11,6 @@ import {
   PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 
-let APIName;
 const testUrl1 =
   "http://host.docker.internal:5001/v1/dynamicrecords/generaterecords?records=10";
 const testUrl2 =
@@ -30,7 +30,6 @@ describe(
         cy.log("Creation of FirstAPI Action successful");
         AppSidebar.navigate(AppSidebarButton.Editor);
         cy.CreateAPI(`SecondAPI_${uid}`);
-        cy.CheckAndUnfoldEntityItem("Queries/JS");
         cy.log("Creation of SecondAPI Action successful");
         PageLeftPane.assertPresence(`FirstAPI_${uid}`);
         PageLeftPane.assertPresence(`SecondAPI_${uid}`);
@@ -54,20 +53,17 @@ describe(
       apiPage.CreateAndFillApi(testUrl2);
       cy.RunAPI();
       cy.get(ApiEditor.jsonResponseTab).click();
-      cy.checkIfApiPaneIsVisible();
+      dataSources.AssertBindDataVisible();
       cy.get(ApiEditor.rawResponseTab).click();
-      cy.checkIfApiPaneIsVisible();
+      dataSources.AssertBindDataVisible();
       cy.get(ApiEditor.tableResponseTab).click();
-      cy.checkIfApiPaneIsVisible();
+      dataSources.AssertBindDataVisible();
     });
+
     it("3. Bug 14242: Appsmith crash when create an API pointing to Github hosted json", function () {
-      cy.generateUUID().then((uid) => {
-        APIName = uid;
-        cy.CreateAPI(APIName);
-      });
-      cy.enterDatasource(testUrl3);
-      cy.SaveAndRunAPI();
-      cy.ResponseStatusCheck("200");
+      apiPage.CreateAndFillApi(testUrl3);
+      apiPage.RunAPI();
+      apiPage.ResponseStatusCheck("200 OK");
     });
   },
 );

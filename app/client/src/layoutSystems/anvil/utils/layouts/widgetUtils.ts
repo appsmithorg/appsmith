@@ -1,7 +1,7 @@
 import WidgetFactory from "WidgetProvider/factory";
 import type { WidgetType } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import type { WidgetProps } from "widgets/BaseWidget";
+import type { WidgetLayoutProps } from "../anvilTypes";
 
 /**
  * Check from widget configuration if the widget is a Fill widget.
@@ -19,7 +19,11 @@ export function isFillWidgetType(type: WidgetType): boolean {
  * @param children | WidgetProps[]
  * @returns boolean
  */
-export function isFillWidgetPresentInList(children: WidgetProps[]): boolean {
+export function isFillWidgetPresentInList(
+  children: WidgetLayoutProps[],
+): boolean {
   if (!children || !children?.length) return false;
-  return children.some((child) => child && isFillWidgetType(child.type));
+  return children.some(
+    (child: WidgetLayoutProps) => child && isFillWidgetType(child.widgetType),
+  );
 }

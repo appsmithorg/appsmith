@@ -64,10 +64,10 @@ export interface CreateWorkspaceRequest {
 
 class WorkspaceApi extends Api {
   static workspacesURL = "v1/workspaces";
-  static async fetchWorkspaces(): Promise<
+  static async fetchAllWorkspaces(): Promise<
     AxiosPromise<FetchWorkspacesResponse>
   > {
-    return Api.get(WorkspaceApi.workspacesURL);
+    return Api.get(`${WorkspaceApi.workspacesURL}/home`);
   }
   static async fetchWorkspace(
     request: FetchWorkspaceRequest,

@@ -12,7 +12,7 @@ import {
 } from "../../support/Objects/ObjectsCore";
 
 const workspaceName = "gsheet apps";
-const dataSourceName = "gsheet";
+const dataSourceName = "gsheet-all";
 let appName = "gsheet-app";
 let spreadSheetName = "test-sheet";
 describe(
@@ -28,6 +28,7 @@ describe(
 
       //Adding query to insert a new spreadsheet
       homePage.NavigateToHome();
+      homePage.SelectWorkspace(workspaceName);
       homePage.CreateAppInWorkspace(workspaceName, appName);
       gsheetHelper.AddNewSpreadsheetQuery(
         dataSourceName,
@@ -342,7 +343,7 @@ describe(
 
     after("Delete spreadsheet and app", function () {
       // Delete spreadsheet and app
-      homePage.SearchAndOpenApp(appName);
+      homePage.EditAppFromAppHover(appName);
       gsheetHelper.DeleteSpreadsheetQuery(dataSourceName, spreadSheetName);
       cy.get("@postExecute").then((interception: any) => {
         expect(interception.response.body.data.body.message).to.deep.equal(

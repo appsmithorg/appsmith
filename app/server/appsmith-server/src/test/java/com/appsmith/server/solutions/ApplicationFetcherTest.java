@@ -74,10 +74,9 @@ public class ApplicationFetcherTest {
                     .findFirst()
                     .orElse(new WorkspaceApplicationsDTO());
 
-            assertThat(orgApps.getApplications().size()).isEqualTo(1);
-            assertThat(orgApps.getApplications().get(0).getPublishedPages().size())
-                    .isEqualTo(1);
-            assertThat(orgApps.getApplications().get(0).getPages().size()).isEqualTo(2);
+            assertThat(orgApps.getApplications()).hasSize(1);
+            assertThat(orgApps.getApplications().get(0).getPublishedPages()).hasSize(1);
+            assertThat(orgApps.getApplications().get(0).getPages()).hasSize(2);
         });
     }
 }

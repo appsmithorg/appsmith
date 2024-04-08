@@ -21,13 +21,24 @@ export class AssertHelper {
   }
 
   public AssertDocumentReady() {
-    cy.waitUntil(() =>
-      //cy.document().then((doc) => doc.readyState === "complete"),
-      cy.document().should((doc) => {
-        expect(doc.readyState).to.equal("complete");
+    this.waitForCondition(() =>
+      cy.document().then((doc) => {
+        return doc.readyState === "complete";
       }),
     );
-    //cy.window({ timeout: 60000 }).should("have.property", "onload");//commenting to reduce time
+
+    this.waitForCondition(() =>
+      cy.window().then((win) => {
+        return win.hasOwnProperty("onload");
+      }),
+    );
+  }
+
+  private waitForCondition(conditionFn: any) {
+    cy.waitUntil(() => conditionFn, {
+      timeout: Cypress.config("pageLoadTimeout"),
+      interval: 1000,
+    });
   }
 
   public AssertDelete(entityType: EntityItemsType) {
@@ -61,7 +72,7 @@ export class AssertHelper {
     return aliasName;
   }
 
-  public WaitForNetworkCall(aliasName: string, responseTimeout = 150000) {
+  public WaitForNetworkCall(aliasName: string, responseTimeout = 100000) {
     // cy.wait(aliasName).then(($apiCall: any) => {
     //   expect($apiCall.response.body.responseMeta.status).to.eq(expectedStatus);
     // });

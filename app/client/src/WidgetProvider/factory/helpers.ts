@@ -209,7 +209,7 @@ export function enhancePropertyPaneConfig(
         config[sectionIndex].children?.push(
           ...PropertyPaneConfigTemplates[
             registeredFeature as RegisteredWidgetFeatures
-          ],
+          ](features[registeredFeature as RegisteredWidgetFeatures]),
         );
         config = WidgetFeaturePropertyPaneEnhancements[
           registeredFeature as RegisteredWidgetFeatures

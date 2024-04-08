@@ -29,10 +29,6 @@ class WDSSwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     return config.methodsConfig;
   }
 
-  static getAutoLayoutConfig() {
-    return {};
-  }
-
   static getAnvilConfig(): AnvilConfig | null {
     return config.anvilConfig;
   }

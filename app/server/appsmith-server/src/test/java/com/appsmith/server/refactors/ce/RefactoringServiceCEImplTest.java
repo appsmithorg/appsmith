@@ -275,7 +275,8 @@ class RefactoringServiceCEImplTest {
         oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
         oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
 
-        Mockito.when(newActionService.findActionDTObyIdAndViewMode(Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
+        Mockito.when(newActionService.findActionDTObyIdAndViewMode(
+                        Mockito.anyString(), Mockito.anyBoolean(), Mockito.any()))
                 .thenReturn(Mono.just(new ActionDTO()));
 
         Mockito.when(newActionService.updateUnpublishedAction(Mockito.any(), Mockito.any()))

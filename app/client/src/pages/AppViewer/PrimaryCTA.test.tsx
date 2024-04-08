@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen, cleanup } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom/extend-expect";
 import { Provider } from "react-redux";
 import { ThemeProvider } from "styled-components";
@@ -77,7 +77,15 @@ export const initialState: any = {
         forkingEnabled: true,
         isPublic: true,
       },
-      userWorkspaces: [],
+      workspaces: [],
+    },
+    workspaces: {
+      list: [],
+    },
+    selectedWorkspace: {
+      loadingStates: {
+        isFetchingApplications: false,
+      },
     },
     theme: {
       theme: {
@@ -147,8 +155,6 @@ export const fetchApplicationMockResponse = {
 };
 
 describe("App viewer fork button", () => {
-  afterEach(cleanup);
-
   it("Fork modal trigger should not be displayed until user details are fetched", () => {
     render(
       <Provider store={getStore()}>

@@ -14,7 +14,7 @@ public class MappedExportableResourcesCE_DTO {
     Map<String, String> pluginMap = new HashMap<>();
     Map<String, String> datasourceIdToNameMap = new HashMap<>();
     Map<String, Instant> datasourceNameToUpdatedAtMap = new HashMap<>();
-    Map<String, String> pageIdToNameMap = new HashMap<>();
+    Map<String, String> contextIdToNameMap = new HashMap<>();
     Map<String, String> actionIdToNameMap = new HashMap<>();
     Map<String, String> collectionIdToNameMap = new HashMap<>();
 }

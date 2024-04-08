@@ -8,7 +8,9 @@ import {
   draggableWidgets,
   deployMode,
 } from "../../../../../../support/Objects/ObjectsCore";
-
+import EditorNavigation, {
+  EntityType,
+} from "../../../../../../support/Pages/EditorNavigation";
 // TODO: Test for Reset functionality
 const items = JSON.parse(dsl.dsl.children[0].listData);
 
@@ -26,6 +28,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
   });
 
   it("1. Input Widgets default value", function () {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 100); //for test #2
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.CURRENCY_INPUT,
       200,
@@ -34,6 +37,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
     propPane.UpdatePropertyFieldValue("Default value", "{{currentItem.id}}");
     propPane.TogglePropertyState("Required", "On");
 
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 200); //for test #2
     entityExplorer.DragDropWidgetNVerify(
       draggableWidgets.PHONE_INPUT,
       200,
@@ -46,6 +50,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
     propPane.TogglePropertyState("Required", "On");
     propPane.TogglePropertyState("Enable formatting", "Off");
 
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 300); //for test #2
     entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 300);
     propPane.UpdatePropertyFieldValue("Default value", "{{currentItem.email}}");
     propPane.TogglePropertyState("Required", "On");
@@ -76,7 +81,7 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
 
   it("2. Input Widgets isValid", function () {
     // Test for isValid === True
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 100);
+    EditorNavigation.SelectEntityByName("Text1", EntityType.Widget);
     propPane.RenameWidget("Text1", "Currency_Widget");
     agHelper.Sleep();
     propPane.UpdatePropertyFieldValue(
@@ -89,8 +94,8 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
       "true",
     );
 
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 200);
-    propPane.RenameWidget("Text1", "PhoneInput_Widget");
+    EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
+    propPane.RenameWidget("Text2", "PhoneInput_Widget");
     agHelper.Sleep();
     propPane.UpdatePropertyFieldValue(
       "Text",
@@ -102,8 +107,8 @@ describe("Input Widgets", { tags: ["@tag.Widget", "@tag.List"] }, function () {
       "true",
     );
 
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 500, 300);
-    propPane.RenameWidget("Text1", "Input_Widget");
+    EditorNavigation.SelectEntityByName("Text3", EntityType.Widget);
+    propPane.RenameWidget("Text3", "Input_Widget");
     agHelper.Sleep();
     propPane.UpdatePropertyFieldValue("Text", "{{currentView.Input1.isValid}}");
     agHelper.AssertText(

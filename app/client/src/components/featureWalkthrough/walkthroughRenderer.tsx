@@ -1,5 +1,4 @@
 import { Icon, Text, Button, Divider } from "design-system";
-import { showIndicator } from "pages/Editor/GuidedTour/utils";
 import React, { useContext, useEffect, useState } from "react";
 import styled from "styled-components";
 import { PADDING_HIGHLIGHT, getPosition } from "./utils";
@@ -12,6 +11,7 @@ import WalkthroughContext, {
   isFeatureFooterDetails,
 } from "./walkthroughContext";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { showIndicator } from "components/utils/Indicator";
 
 const CLIPID = "clip__feature";
 const Z_INDEX = 1000;

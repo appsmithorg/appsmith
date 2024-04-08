@@ -19,6 +19,14 @@ const StyledCode = styled.div<{ skin: Skin }>`
   ${(props) => (props.skin === Skin.DARK ? themes.DARK : themes.LIGHT)};
   padding: 0 0px;
 
+  code.language-appsmith-binding {
+    color: ${(props) => props.theme.colors.bindingText};
+  }
+  .token.punctuation {
+    color: hsl(222, 70%, 77%);
+  }
+  .token.property {
+    color: hsl(30, 77%, 40%);
   }
 `;
 

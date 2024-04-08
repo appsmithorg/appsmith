@@ -9,6 +9,7 @@ import {
 import {
   all,
   call,
+  delay,
   fork,
   put,
   race,
@@ -31,6 +32,7 @@ import type {
 import {
   copyActionError,
   copyActionSuccess,
+  createActionInit,
   createActionSuccess,
   deleteActionSuccess,
   fetchActionsForPage,
@@ -52,10 +54,11 @@ import type {
   ActionViewMode,
   ApiAction,
   ApiActionConfig,
+  BaseAction,
   CreateActionDefaultsParams,
   SlashCommandPayload,
 } from "entities/Action";
-import { isGraphqlPlugin } from "entities/Action";
+import { isGraphqlPlugin, ActionCreationSourceTypeEnum } from "entities/Action";
 import {
   isAPIAction,
   PluginPackageName,
@@ -73,6 +76,7 @@ import {
   getPageNameByPageId,
   getPlugin,
   getSettingConfig,
+  getNewEntityName,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -93,7 +97,7 @@ import {
   getConfigInitialValues,
 } from "components/formControls/utils";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import {
   createNewApiAction,
@@ -113,6 +117,7 @@ import {
   RequestPayloadAnalyticsPath,
   checkAndLogErrorsIfCyclicDependency,
   enhanceRequestPayloadWithEventData,
+  getFromServerWhenNoPrefetchedResult,
 } from "./helper";
 import { setSnipingMode as setSnipingModeAction } from "actions/propertyPaneActions";
 import { toast } from "design-system";
@@ -130,6 +135,22 @@ import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
+import FocusRetention from "./FocusRetentionSaga";
+import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
+import { handleQueryEntityRedirect } from "./IDESaga";
+import { EditorViewMode, IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
+import {
+  setIdeEditorViewMode,
+  setShowQueryCreateNewModal,
+} from "actions/ideActions";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
+
+export const DEFAULT_PREFIX = {
+  QUERY: "Query",
+  API: "Api",
+} as const;
 
 export function* createDefaultActionPayloadWithPluginDefaults(
   props: CreateActionDefaultsParams,
@@ -154,6 +175,7 @@ export function* createDefaultActionPayload({
   datasourceId,
   from,
   newActionName,
+  queryDefaultTableName,
 }: CreateActionDefaultsParams) {
   const datasource: Datasource = yield select(getDatasource, datasourceId);
   const plugin: Plugin = yield select(getPlugin, datasource?.pluginId);
@@ -182,9 +204,16 @@ export function* createDefaultActionPayload({
 
   const defaultActionConfig: any = getDefaultTemplateActionConfig(
     plugin,
+    queryDefaultTableName,
     dsStructure,
     datasource?.isMock,
   );
+
+  // since table name has been consumed, we no longer need it, hence resetting it
+  yield put({
+    type: ReduxActionTypes.SET_DATASOURCE_PREVIEW_SELECTED_TABLE_NAME,
+    payload: "",
+  });
 
   const defaultAction: Partial<Action> = {
     pluginId: datasource?.pluginId,
@@ -233,12 +262,60 @@ export function* getPluginActionDefaultValues(pluginId: string) {
   return initialValues;
 }
 
+/**
+ * This saga prepares the action request i.e it helps generating a
+ * new name of an action. This is to reduce any dependency on name generation
+ * on the caller of this saga.
+ */
+export function* createActionRequestSaga(
+  actionPayload: ReduxAction<
+    Partial<Action> & { eventData: any; pluginId: string }
+  >,
+) {
+  const payload = { ...actionPayload.payload };
+  const pluginId =
+    actionPayload.payload.pluginId ||
+    actionPayload.payload.datasource?.pluginId;
+  if (!actionPayload.payload.name) {
+    const { parentEntityId, parentEntityKey } = resolveParentEntityMetadata(
+      actionPayload.payload,
+    );
+
+    if (!parentEntityId || !parentEntityKey) return;
+    const plugin: Plugin | undefined = yield select(getPlugin, pluginId || "");
+    const isQueryType =
+      plugin?.type === PluginType.DB ||
+      plugin?.packageName === PluginPackageName.APPSMITH_AI;
+
+    const prefix = isQueryType ? DEFAULT_PREFIX.QUERY : DEFAULT_PREFIX.API;
+
+    if (
+      plugin?.type === PluginType.DB ||
+      plugin?.packageName === PluginPackageName.APPSMITH_AI
+    ) {
+      DEFAULT_PREFIX.QUERY;
+    }
+
+    const name: string = yield select(getNewEntityName, {
+      prefix,
+      parentEntityId,
+      parentEntityKey,
+    });
+
+    payload.name = name;
+  }
+
+  yield put(createActionInit(payload));
+}
+
 export function* createActionSaga(
   actionPayload: ReduxAction<
     Partial<Action> & { eventData: any; pluginId: string }
   >,
 ) {
   try {
+    // Indicates that source of action creation is self
+    actionPayload.payload.source = ActionCreationSourceTypeEnum.SELF;
     const payload = actionPayload.payload;
 
     const response: ApiResponse<ActionCreateUpdateResponse> =
@@ -301,15 +378,18 @@ export function* fetchActionDatasourceStructure(
 export function* fetchActionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, unpublishedActions } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "EDITOR", appId: applicationId },
   );
   try {
-    const response: ApiResponse<Action[]> = yield ActionAPI.fetchActions({
-      applicationId,
-    });
+    const response: ApiResponse<Action[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      unpublishedActions,
+      async () => ActionAPI.fetchActions({ applicationId }),
+    );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       yield put({
@@ -336,14 +416,18 @@ export function* fetchActionsSaga(
 export function* fetchActionsForViewModeSaga(
   action: ReduxAction<FetchActionsPayload>,
 ) {
-  const { applicationId } = action.payload;
+  const { applicationId, publishedActions } = action.payload;
   PerformanceTracker.startAsyncTracking(
     PerformanceTransactionName.FETCH_ACTIONS_API,
     { mode: "VIEWER", appId: applicationId },
   );
   try {
-    const response: ApiResponse<ActionViewMode[]> =
-      yield ActionAPI.fetchActionsForViewMode(applicationId);
+    const response: ApiResponse<ActionViewMode[]> = yield call(
+      getFromServerWhenNoPrefetchedResult,
+      publishedActions,
+      async () => ActionAPI.fetchActionsForViewMode(applicationId),
+    );
+
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
       const correctFormatResponse = response.data.map((action) => {
@@ -502,7 +586,9 @@ export function* deleteActionSaga(
   try {
     const id = actionPayload.payload.id;
     const name = actionPayload.payload.name;
+    const currentUrl = window.location.pathname;
     const action: Action | undefined = yield select(getAction, id);
+    const ideType = getIDETypeByUrl(currentUrl);
 
     if (!action) return;
 
@@ -537,16 +623,24 @@ export function* deleteActionSaga(
         queryName: name,
       });
     }
+    yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+    const isEditorPaneSegmentsEnabled: boolean = yield select(
+      getIsEditorPaneSegmentsEnabled,
+    );
 
-    if (!!actionPayload.payload.onSuccess) {
-      actionPayload.payload.onSuccess();
+    if (isEditorPaneSegmentsEnabled && ideType === IDE_TYPE.App) {
+      yield call(handleQueryEntityRedirect, action.id);
     } else {
-      history.push(
-        integrationEditorURL({
-          pageId,
-          selectedTab: INTEGRATION_TABS.NEW,
-        }),
-      );
+      if (!!actionPayload.payload.onSuccess) {
+        actionPayload.payload.onSuccess();
+      } else {
+        history.push(
+          integrationEditorURL({
+            pageId,
+            selectedTab: INTEGRATION_TABS.NEW,
+          }),
+        );
+      }
     }
 
     AppsmithConsole.info({
@@ -616,6 +710,8 @@ function* moveActionSaga(
       // @ts-expect-error: response is of type unknown
       apiID: response.data.id,
     });
+    const currentUrl = window.location.pathname;
+    yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
   } catch (e) {
@@ -648,6 +744,9 @@ function* copyActionSaga(
       name: action.payload.name,
       pageId: action.payload.destinationPageId,
     }) as Partial<Action>;
+
+    // Indicates that source of action creation is copy action
+    copyAction.source = ActionCreationSourceTypeEnum.COPY_ACTION;
 
     delete copyAction.id;
     const response: ApiResponse<ActionCreateUpdateResponse> =
@@ -834,10 +933,6 @@ export function* setActionPropertySaga(
   if (propertyName === "name") return;
 
   const actionObj: Action = yield select(getAction, actionId);
-  const fieldToBeUpdated = propertyName.replace(
-    "actionConfiguration",
-    "config",
-  );
 
   if (!actionObj) {
     return;
@@ -851,20 +946,6 @@ export function* setActionPropertySaga(
         : QUERY_EDITOR_FORM_NAME,
     ),
   );
-
-  AppsmithConsole.info({
-    logType: LOG_TYPE.ACTION_UPDATE,
-    text: "Configuration updated",
-    source: {
-      type: ENTITY_TYPE.ACTION,
-      name: actionObj?.name,
-      id: actionId,
-      propertyPath: fieldToBeUpdated,
-    },
-    state: {
-      [fieldToBeUpdated]: value,
-    },
-  });
 
   const effects: Record<string, any> = {};
   // Value change effect
@@ -1036,6 +1117,31 @@ function* updateEntitySavingStatus() {
   });
 }
 
+function* handleCreateNewQueryFromActionCreator(
+  action: ReduxAction<(name: string) => void>,
+) {
+  // Show the Query create modal from where the user selects the type of query to be created
+  yield put(setShowQueryCreateNewModal(true));
+
+  // Side by Side ramp. Switch to SplitScreen mode to allow user to edit query
+  // created while having context of the canvas
+  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
+  if (isSideBySideEnabled) {
+    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+  }
+
+  // Wait for a query to be created
+  const createdQuery: ReduxAction<BaseAction> = yield take(
+    ReduxActionTypes.CREATE_ACTION_SUCCESS,
+  );
+
+  // A delay is needed to ensure the callback function has reference to the latest created Query
+  yield delay(100);
+
+  // Call the payload callback with the new query name that will set the binding to the field
+  action.payload(createdQuery.payload.name);
+}
+
 export function* watchActionSagas() {
   yield all([
     takeEvery(ReduxActionTypes.SET_ACTION_PROPERTY, setActionPropertySaga),
@@ -1044,6 +1150,7 @@ export function* watchActionSagas() {
       ReduxActionTypes.FETCH_ACTIONS_VIEW_MODE_INIT,
       fetchActionsForViewModeSaga,
     ),
+    takeEvery(ReduxActionTypes.CREATE_ACTION_REQUEST, createActionRequestSaga),
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
@@ -1067,6 +1174,10 @@ export function* watchActionSagas() {
     takeLatest(
       ReduxActionTypes.ENTITY_UPDATE_STARTED,
       updateEntitySavingStatus,
+    ),
+    takeLatest(
+      ReduxActionTypes.CREATE_NEW_QUERY_FROM_ACTION_CREATOR,
+      handleCreateNewQueryFromActionCreator,
     ),
   ]);
 }

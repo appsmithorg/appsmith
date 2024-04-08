@@ -10,7 +10,6 @@ describe(
   { tags: ["@tag.Datasource"] },
   () => {
     before(() => {
-      featureFlagIntercept({ ab_gsheet_schema_enabled: true });
       dataSources.CreateDataSource("Postgres");
     });
 

@@ -22,7 +22,7 @@ describe(
     });
 
     it("1. Verify properties in Always scan mode", () => {
-      entityExplorer.DragNDropWidget(draggableWidgets.CODESCANNER);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.CODESCANNER);
       agHelper.AssertAttribute(
         propPane._mode("Always on"),
         "data-selected",
@@ -79,7 +79,7 @@ describe(
         "c) Verify that the scanned data is correctly displayed on the app's screen",
       () => {
         //Add an action in onCodeDetected event
-        entityExplorer.DragNDropWidget(draggableWidgets.TEXT, 300, 500);
+        entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT, 300, 500);
         propPane.TypeTextIntoField("Text", "{{CodeScanner1.value}}");
         EditorNavigation.SelectEntityByName("CodeScanner1", EntityType.Widget);
         propPane.EnterJSContext(
@@ -93,7 +93,7 @@ describe(
 
         //Open the Code Scanner modal and Scan a QR using fake webcam video
         cy.task("changeVideoSource", "qrCodeVideo.y4m");
-        agHelper.RefreshPage("viewPage");
+        agHelper.RefreshPage("getConsolidatedData");
         agHelper.ValidateToastMessage("Code scanned successfully!");
 
         //Verify that the scanned data is correctly displayed on the app's screen
@@ -190,7 +190,7 @@ describe(
 
         //Open the Code Scanner modal and Scan a QR using fake webcam video
         cy.task("changeVideoSource", "qrCodeVideo.y4m");
-        agHelper.RefreshPage("viewPage");
+        agHelper.RefreshPage("getConsolidatedData");
         agHelper.AssertElementVisibility(
           widgetLocators.codeScannerNewScanButton,
         );
@@ -211,7 +211,7 @@ describe(
     it("5. Validate scanning rotated QR code.", () => {
       //Open the Code Scanner modal and Scan rotated QR code using fake webcam video
       cy.task("changeVideoSource", "rotatedQRCode.y4m");
-      agHelper.RefreshPage("viewPage");
+      agHelper.RefreshPage("getConsolidatedData");
       agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
       agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
       agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
@@ -229,7 +229,7 @@ describe(
     it("6. Validate scanning invalid QR code.", () => {
       //Open the Code Scanner modal and Scan invalid QR code using fake webcam video
       cy.task("changeVideoSource", "invalidQRCode.y4m");
-      agHelper.RefreshPage("viewPage");
+      agHelper.RefreshPage("getConsolidatedData");
       agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
       agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
       agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
@@ -247,7 +247,7 @@ describe(
     it("7. Validate scanning multiple QR codes.", () => {
       //Open the Code Scanner modal and Scan multiple QR codes using fake webcam video
       cy.task("changeVideoSource", "multipleQRCodes.y4m");
-      agHelper.RefreshPage("viewPage");
+      agHelper.RefreshPage("getConsolidatedData");
       agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
       agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
       agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);
@@ -284,7 +284,7 @@ describe(
     it("9. Validate scanning high density QR code.", () => {
       //Open the Code Scanner modal and Scan high density QR code using fake webcam video
       cy.task("changeVideoSource", "highDensityQRCode.y4m");
-      agHelper.RefreshPage("viewPage");
+      agHelper.RefreshPage("getConsolidatedData");
       agHelper.AssertElementVisibility(widgetLocators.codeScannerNewScanButton);
       agHelper.GetNClick(widgetLocators.codeScannerNewScanButton, 0, true);
       agHelper.AssertElementVisibility(widgetLocators.codeScannerModal);

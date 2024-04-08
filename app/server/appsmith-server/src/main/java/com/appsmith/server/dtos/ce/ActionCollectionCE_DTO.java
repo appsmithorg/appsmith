@@ -17,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -31,6 +32,7 @@ import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValues
 @Setter
 @NoArgsConstructor
 @ToString
+@FieldNameConstants
 public class ActionCollectionCE_DTO {
 
     @Transient
@@ -139,14 +141,39 @@ public class ActionCollectionCE_DTO {
         this.setApplicationId(actionCollection.getApplicationId());
         this.setWorkspaceId(actionCollection.getWorkspaceId());
         this.setUserPermissions(actionCollection.userPermissions);
-        copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
+        if (this.getDefaultResources() == null) {
+            this.setDefaultResources(actionCollection.getDefaultResources());
+        } else {
+            copyNewFieldValuesIntoOldObject(actionCollection.getDefaultResources(), this.getDefaultResources());
+        }
     }
 
     public void sanitiseForExport() {
+        this.resetTransientFields();
         this.setDefaultResources(null);
         this.setDefaultToBranchedActionIdsMap(null);
         this.setDefaultToBranchedArchivedActionIdsMap(null);
         this.setActionIds(null);
         this.setArchivedActionIds(null);
+        this.setUserPermissions(Set.of());
     }
+
+    public String getUserExecutableName() {
+        return this.getName();
+    }
+
+    protected void resetTransientFields() {
+        this.setId(null);
+        this.setWorkspaceId(null);
+        this.setApplicationId(null);
+        this.setErrorReports(null);
+        this.setActions(List.of());
+        this.setArchivedActions(List.of());
+    }
+
+    public String calculateContextId() {
+        return this.getPageId();
+    }
+
+    public static class Fields {}
 }

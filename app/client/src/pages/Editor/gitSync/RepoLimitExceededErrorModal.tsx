@@ -36,12 +36,13 @@ import Link from "./components/Link";
 import {
   getCurrentApplication,
   getWorkspaceIdForImport,
-  getUserApplicationsWorkspaces,
 } from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Space } from "./components/StyledComponents";
+import { getFetchedWorkspaces } from "@appsmith/selectors/workspaceSelectors";
+import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspaceSelectors";
 
 const ApplicationWrapper = styled.div`
   margin-bottom: ${(props) => props.theme.spaces[7]}px;
@@ -71,23 +72,24 @@ function RepoLimitExceededErrorModal() {
   const isOpen = useSelector(getShowRepoLimitErrorModal);
   const dispatch = useDispatch();
   const application = useSelector(getCurrentApplication);
-  const userWorkspaces = useSelector(getUserApplicationsWorkspaces);
+  const applicationsOfWorkspace = useSelector(getApplicationsOfWorkspace);
+  const workspaces = useSelector(getFetchedWorkspaces);
   const workspaceIdForImport = useSelector(getWorkspaceIdForImport);
   const docURL = useSelector(getDisconnectDocUrl);
   const [workspaceName, setWorkspaceName] = useState("");
   const applications = useMemo(() => {
-    if (userWorkspaces) {
-      const workspace: any = userWorkspaces.find((workspaceObject: any) => {
-        const { workspace } = workspaceObject;
+    if (workspaces) {
+      const workspace: any = workspaces.find((workspace: any) => {
         if (!application && workspaceIdForImport) {
           return workspace.id === workspaceIdForImport;
         } else {
           return workspace.id === application?.workspaceId;
         }
       });
-      setWorkspaceName(workspace?.workspace.name || "");
+
+      setWorkspaceName(workspace?.name || "");
       return (
-        workspace?.applications.filter((application: ApplicationPayload) => {
+        applicationsOfWorkspace.filter((application: ApplicationPayload) => {
           const data = application.gitApplicationMetadata;
           return (
             data &&
@@ -101,7 +103,7 @@ function RepoLimitExceededErrorModal() {
     } else {
       return [];
     }
-  }, [userWorkspaces, workspaceIdForImport]);
+  }, [workspaces, workspaceIdForImport]);
   const onClose = () => dispatch(setShowRepoLimitErrorModal(false));
   const openDisconnectGitModal = useCallback(
     (applicationId: string, name: string) => {
@@ -123,7 +125,7 @@ function RepoLimitExceededErrorModal() {
   useEffect(() => {
     if (isOpen) {
       dispatch({
-        type: ReduxActionTypes.GET_ALL_APPLICATION_INIT,
+        type: ReduxActionTypes.FETCH_ALL_APPLICATIONS_OF_WORKSPACE_INIT,
       });
     }
   }, [isOpen]);

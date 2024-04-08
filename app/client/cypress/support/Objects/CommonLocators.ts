@@ -52,6 +52,7 @@ export class CommonLocators {
   _publishButton = ".t--application-publish-btn";
   _widgetInCanvas = (widgetType: string) => `.t--draggable-${widgetType}`;
   _widgetInDeployed = (widgetType: string) => `.t--widget-${widgetType}`;
+  _anvilWidgetInCanvas = this._widgetInDeployed;
   _widgetInputSelector = (widgetType: string) =>
     this._widgetInDeployed(widgetType) + " input";
   _textWidgetInDeployed = this._widgetInDeployed("textwidget") + " span";
@@ -64,7 +65,6 @@ export class CommonLocators {
     this._widgetInDeployed("inputwidgetv2") + " textarea";
   _imageWidget = ".t--draggable-imagewidget";
   _backToEditor = ".t--back-to-editor";
-  _newPage = ".pages .t--entity-add-btn";
   _toastMsg = "div.Toastify__toast";
   _toastContainer = "div.Toastify__toast-container";
   _specificToast = (toastText: string) =>
@@ -83,11 +83,11 @@ export class CommonLocators {
   _visibleTextDiv = (divText: string) => "//div[text()='" + divText + "']";
   _visibleTextSpan = (spanText: string, isCss = false) =>
     isCss ? `span:contains("${spanText}")` : `//span[text()="${spanText}"]`;
-  _openWidget = ".widgets .t--entity-add-btn";
   _dropHere = ".t--drop-target";
+  _canvasSlider = "[data-type=canvas-slider]";
   _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
   _crossBtn = "span.cancel-icon";
-  _createNew = ".t--entity-add-btn.group.files button";
+  _createNew = ".t--add-item";
   _uploadFiles = "div.uppy-Dashboard-AddFiles input";
   _uploadBtn = "button.uppy-StatusBar-actionBtn--upload";
   _errorTab = "[data-testid=t--tab-ERROR]";
@@ -204,7 +204,7 @@ export class CommonLocators {
   _tern_doc = ".t--tern-doc";
   _argHintFnName = ".CodeMirror-Tern-tooltip .CodeMirror-Tern-fname";
   _cancelActionExecution = ".t--cancel-action-button";
-  _widgetPane = "[data-testid='widget-sidebar-scrollable-wrapper']";
+  _widgetPane = "[data-testid='t--widget-sidebar-scrollable-wrapper']";
   _sliderThumb = '[data-testid="slider-thumb"]';
   _optionsJsToggle = ".t--property-control-options .t--js-toggle";
   _bottomPaneCollapseIcon = ".t--tabs-collapse-icon";
@@ -224,7 +224,7 @@ export class CommonLocators {
   _dialogCloseButton = ".ads-v2-modal__content-header-close-button";
   _evaluateMsg = ".t--evaluatedPopup-error";
   _evalValuePopover = ".t--CodeEditor-evaluatedValue";
-  _canvas = "[data-testid=widgets-editor]";
+  _canvas = "[data-testid=t--widgets-editor]";
   _enterPreviewMode = "[data-testid='edit-mode']";
   _exitPreviewMode = "[data-testid='preview-mode']";
   _ds_imageSelector = ".ads-dialog-trigger";
@@ -287,6 +287,7 @@ export class CommonLocators {
   _buttonWidgetInForm =
     "//*[contains(@class,'t--widget-buttonwidget')]//button[contains(@class,'bp3-button')]";
   _walkthrough_overlay = `.t--walkthrough-overlay`;
+  _autoHeightOverlay = "[data-testid='t--auto-height-overlay']";
   _autoHeightHandles = "[data-testid='t-auto-height-overlay-handles']";
   _autoHeightMin = "[data-testid='t--auto-height-overlay-handles-min']";
   _autoHeightMax = "[data-testid='t--auto-height-overlay-handles-max']";
@@ -311,11 +312,12 @@ export class CommonLocators {
     `.uppy-Informer p:contains('${msg}')`;
   _fileUploadAddMore = ".uppy-DashboardContent-addMore";
   _buttonText = ".bp3-button-text";
-  _richText_TitleBlock = "[title='Blocks']";
-  _richText_Heading = "[title='Heading 1']";
+  _richText_TitleBlock = "[data-mce-name='blocks']";
+  _richText_Heading = "[aria-label='Heading 1']";
   _richText_Label_Text = ".tox-tbtn__select-label";
-  _richText_Text_Color = '[title="Text color"] .tox-split-button__chevron';
-  _richText_color = (value: string) => `[title='${value}']`;
+  _richText_Text_Color =
+    '[data-mce-name="forecolor"] .tox-split-button__chevron';
+  _richText_color = (value: string) => `[data-mce-name="${value}"]`;
   _richText_line = "#tinymce p span";
   _treeSelectedContent = ".rc-tree-select-selection-item-content";
   _switcherIcon = ".switcher-icon";
@@ -326,4 +328,5 @@ export class CommonLocators {
   _dashboardContainer = ".application-demo-new-dashboard-container";
   _exitFullScreen = ".application-demo-new-dashboard-control-exit-fullscreen";
   _menuItem = ".bp3-menu-item";
+  _slashCommandHintText = ".slash-command-hint-text";
 }

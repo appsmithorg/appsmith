@@ -394,7 +394,7 @@ public class MongoPluginQueriesTest {
         DatasourceConfiguration dsConfig = createDatasourceConfiguration();
         Mono<DatasourceStructure> structureMono = pluginExecutor
                 .datasourceCreate(dsConfig)
-                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig, null, null));
+                .flatMap(connection -> pluginExecutor.getStructure(connection, dsConfig, null));
 
         StepVerifier.create(structureMono)
                 .assertNext(structure -> {

@@ -1,6 +1,7 @@
 package com.appsmith.external.git;
 
 import com.appsmith.external.models.ApplicationGitReference;
+import com.appsmith.external.models.ArtifactGitReference;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import reactor.core.publisher.Mono;
 
@@ -29,7 +30,7 @@ public interface FileInterface {
      *       --page2
      */
     Mono<Path> saveApplicationToGitRepo(
-            Path baseRepoSuffix, ApplicationGitReference applicationGitReference, String branchName)
+            Path baseRepoSuffix, ArtifactGitReference artifactGitReference, String branchName)
             throws IOException, GitAPIException;
 
     /**
@@ -43,6 +44,19 @@ public interface FileInterface {
      */
     Mono<ApplicationGitReference> reconstructApplicationReferenceFromGitRepo(
             String organisationId, String defaultApplicationId, String repoName, String branchName);
+
+    /**
+     * This method just reconstructs the metdata of the json from git repo.
+     *
+     * @param workspaceId
+     * @param defaultApplicationId
+     * @param repoName
+     * @param branchName
+     * @param repoSuffixPath
+     * @return
+     */
+    Mono<Object> reconstructMetadataFromGitRepo(
+            String workspaceId, String defaultApplicationId, String repoName, String branchName, Path repoSuffixPath);
 
     /**
      * Once the user connects the existing application to a remote repo, we will initialize the repo with Readme.md -

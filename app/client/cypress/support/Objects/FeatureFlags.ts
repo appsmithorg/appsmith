@@ -1,9 +1,17 @@
 import { LICENSE_FEATURE_FLAGS } from "../Constants";
+import { ObjectsRegistry } from "./Registry";
+import produce from "immer";
+
+const defaultFlags = {
+  release_show_new_sidebar_pages_pane_enabled: true,
+  release_side_by_side_ide_enabled: true,
+};
 
 export const featureFlagIntercept = (
   flags: Record<string, boolean> = {},
   reload = true,
 ) => {
+  getConsolidatedDataApi({ ...flags, ...defaultFlags }, false);
   const response = {
     responseMeta: {
       status: 200,
@@ -11,15 +19,36 @@ export const featureFlagIntercept = (
     },
     data: {
       ...flags,
-      release_app_sidebar_enabled: true,
+      ...defaultFlags,
     },
     errorDisplay: "",
   };
   cy.intercept("GET", "/api/v1/users/features", response);
-  if (reload) {
-    cy.reload();
-    cy.wait(2000); //for the page to re-load finish for CI runs
-  }
+  if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
+};
+
+export const getConsolidatedDataApi = (
+  flags: Record<string, boolean> = {},
+  reload = true,
+) => {
+  cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+    req.reply((res: any) => {
+      if (
+        res.statusCode === 200 ||
+        res.statusCode === 401 ||
+        res.statusCode === 500
+      ) {
+        const originalResponse = res?.body;
+        const updatedResponse = produce(originalResponse, (draft: any) => {
+          draft.data.featureFlags.data = {
+            ...flags,
+          };
+        });
+        return res.send(updatedResponse);
+      }
+    });
+  }).as("getConsolidatedData");
+  if (reload) ObjectsRegistry.AggregateHelper.CypressReload();
 };
 
 export const featureFlagInterceptForLicenseFlags = () => {
@@ -54,6 +83,27 @@ export const featureFlagInterceptForLicenseFlags = () => {
       });
     },
   ).as("getLicenseFeatures");
-  cy.reload();
-  cy.wait(2000); //for the page to re-load finish for CI runs
+
+  cy.intercept("GET", "/api/v1/consolidated-api/*?*", (req) => {
+    req.reply((res: any) => {
+      if (res.statusCode === 200) {
+        const originalResponse = res?.body;
+        const updatedResponse = produce(originalResponse, (draft: any) => {
+          draft.data.featureFlags.data = {};
+          Object.keys(originalResponse.data.featureFlags.data).forEach(
+            (flag) => {
+              if (LICENSE_FEATURE_FLAGS.includes(flag)) {
+                draft.data.featureFlags.data[flag] =
+                  originalResponse.data.featureFlags.data[flag];
+              }
+            },
+          );
+          draft.data.featureFlags.data["release_app_sidebar_enabled"] = true;
+        });
+        return res.send(updatedResponse);
+      }
+    });
+  }).as("getConsolidatedData");
+
+  ObjectsRegistry.AggregateHelper.CypressReload();
 };

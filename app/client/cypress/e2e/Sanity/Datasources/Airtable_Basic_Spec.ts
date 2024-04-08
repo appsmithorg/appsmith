@@ -16,9 +16,8 @@ import EditorNavigation, {
 
 let dsName: any, jsonSpecies: any, offset: any, insertedRecordId: any;
 describe(
-  "excludeForAirgap",
   "Validate Airtable Ds",
-  { tags: ["@tag.Datasource", "@tag.Sanity"] },
+  { tags: ["@tag.Datasource", "@tag.Sanity", "@tag.excludeForAirgap"] },
   () => {
     before("Create a new Airtable DS", () => {
       dataSources.CreateDataSource("Airtable", true, false);

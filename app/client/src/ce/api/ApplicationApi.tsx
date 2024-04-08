@@ -67,6 +67,7 @@ export interface ApplicationResponsePayload {
 export interface FetchApplicationPayload {
   applicationId?: string;
   pageId?: string;
+  pages?: FetchApplicationResponse;
   mode: APP_MODE;
 }
 
@@ -106,8 +107,6 @@ export interface ForkApplicationRequest {
   workspaceId: string;
   editMode?: boolean;
 }
-
-export type GetAllApplicationResponse = ApiResponse<ApplicationPagePayload[]>;
 
 export interface UpdateApplicationPayload {
   icon?: string;
@@ -166,6 +165,9 @@ export interface FetchUsersApplicationsWorkspacesResponse extends ApiResponse {
     newReleasesCount?: string;
     releaseItems?: Array<Record<string, any>>;
   };
+}
+export interface FetchApplicationsOfWorkspaceResponse extends ApiResponse {
+  data: Array<ApplicationObject>;
 }
 export interface FetchReleaseItemsResponse extends ApiResponse {
   data: {
@@ -258,6 +260,13 @@ export interface ImportPartialApplicationRequest {
   pageId: string;
 }
 
+export interface ImportBuildingBlockToApplicationRequest {
+  pageId: string;
+  applicationId: string;
+  workspaceId: string;
+  templateId: string;
+}
+
 export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -284,10 +293,10 @@ export class ApplicationApi extends Api {
     return Api.get(ApplicationApi.baseURL);
   }
 
-  static async getAllApplication(): Promise<
-    AxiosPromise<GetAllApplicationResponse>
-  > {
-    return Api.get(ApplicationApi.baseURL + "/new");
+  static async fetchAllApplicationsOfWorkspace(
+    workspaceId: string,
+  ): Promise<any> {
+    return Api.get(ApplicationApi.baseURL + "/home?workspaceId=" + workspaceId);
   }
 
   static async getReleaseItems(): Promise<
@@ -375,12 +384,6 @@ export class ApplicationApi extends Api {
         "/fork/" +
         request.workspaceId,
     );
-  }
-
-  static async deleteMultipleApps(request: {
-    ids: string[];
-  }): Promise<AxiosPromise<ApiResponse>> {
-    return Api.post(`${ApplicationApi.baseURL}/delete-apps`, request.ids);
   }
 
   static async importApplicationToWorkspace(
@@ -482,6 +485,12 @@ export class ApplicationApi extends Api {
         onUploadProgress: request.progress,
       },
     );
+  }
+
+  static async importBuildingBlockToApplication(
+    request: ImportBuildingBlockToApplicationRequest,
+  ) {
+    return Api.post(`${ApplicationApi.baseURL}/import/partial/block`, request);
   }
 }
 

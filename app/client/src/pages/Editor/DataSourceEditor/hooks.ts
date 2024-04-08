@@ -1,6 +1,6 @@
 import { executeDatasourceQuery } from "actions/datasourceActions";
 import type { Datasource, QueryTemplate } from "entities/Datasource";
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useDispatch, useSelector } from "react-redux";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -123,27 +123,11 @@ export const useShowPageGenerationOnHeader = (
 
   const isGoogleSheetPlugin = isGoogleSheetPluginDS(plugin?.packageName);
 
-  //   A/B feature flag for datasource view mode preview data.
-  let isEnabledForDSViewModeSchema = useFeatureFlag(
-    FEATURE_FLAG.ab_gsheet_schema_enabled,
-  );
-
-  const isEnabledForMockMongoSchema = useFeatureFlag(
-    FEATURE_FLAG.ab_mock_mongo_schema_enabled,
-  );
-
-  // for mongoDB, the feature flag should be based on ab_mock_mongo_schema_enabled.
-  if (plugin?.name === PluginName.MONGO) {
-    isEnabledForDSViewModeSchema = isEnabledForMockMongoSchema;
-  }
-
-  const isPluginAllowedToPreviewData = isEnabledForDSViewModeSchema
-    ? DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
-      (plugin?.name === PluginName.MONGO &&
-        !!(datasource as Datasource)?.isMock) ||
-      isGoogleSheetPlugin
-    : false;
-
+  const isPluginAllowedToPreviewData =
+    DATASOURCES_ALLOWED_FOR_PREVIEW_MODE.includes(plugin?.name || "") ||
+    (plugin?.name === PluginName.MONGO &&
+      !!(datasource as Datasource)?.isMock) ||
+    isGoogleSheetPlugin;
   const generateCRUDSupportedPlugin: GenerateCRUDEnabledPluginMap = useSelector(
     getGenerateCRUDEnabledPluginMap,
   );

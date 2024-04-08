@@ -25,7 +25,7 @@ describe("Omnibar functionality test cases", () => {
     deployMode.StubWindowNAssert(
       '//span[text()="Learn more"]',
       "connect-to-a-database",
-      "getPluginForm",
+      "getConsolidatedData",
     );
   });
 
@@ -90,8 +90,8 @@ describe("Omnibar functionality test cases", () => {
   });
 
   it(
-    "excludeForAirgap",
     "4. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab",
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       // typing a random string in search bar
       cy.get(omnibar.globalSearch).click({ force: true });
@@ -119,7 +119,7 @@ describe("Omnibar functionality test cases", () => {
       deployMode.StubWindowNAssert(
         omnibar.discordLink,
         "https://discord.com/invite/rBTTVJp",
-        "getPluginForm",
+        "getConsolidatedData",
       );
     },
   );

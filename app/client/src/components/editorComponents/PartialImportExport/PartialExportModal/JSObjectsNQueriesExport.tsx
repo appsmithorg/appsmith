@@ -58,7 +58,10 @@ const JSObjectsNQueriesExport = ({
   };
 
   return (
-    <div className="pl-4 pr-4">
+    <div
+      className="pl-4 pr-4"
+      data-testid="t--partialExportModal-queriesSection"
+    >
       {Object.keys(data).map((dsName) => (
         <Collapsible isOpen key={dsName}>
           <CollapsibleHeader>

@@ -130,7 +130,6 @@ export class AggregateHelper {
     cy.fixture(dslFile).then((val) => {
       cy.url().then((url) => {
         pageid = url.split("/")[5]?.split("-").pop() as string;
-        cy.log(pageid + "page id");
         //Fetch the layout id
         cy.request("GET", "api/v1/pages/" + pageid).then((response: any) => {
           const respBody = JSON.stringify(response.body);
@@ -152,14 +151,13 @@ export class AggregateHelper {
               "X-Requested-By": "Appsmith",
             },
           }).then((dslDumpResp) => {
-            //cy.log("Pages resposne is : " + dslDumpResp.body);
             expect(dslDumpResp.status).equal(200);
             //this.Sleep(3000); //for dsl to settle in layouts api & then refresh
             this.RefreshPage();
             if (elementToCheckPresenceaftDslLoad)
               this.WaitUntilEleAppear(elementToCheckPresenceaftDslLoad);
-            //this.Sleep(2000); //settling time for dsl
-            this.assertHelper.AssertNetworkResponseData("@getPluginForm");
+            // this.Sleep(5000); //settling time for dsl
+            this.assertHelper.AssertNetworkResponseData("@getConsolidatedData");
             this.AssertElementAbsence(this.locator._loading); //Checks the spinner is gone & dsl loaded!
             this.AssertElementAbsence(this.locator._animationSpnner, 20000); //Checks page is loaded with dsl!
           });
@@ -231,8 +229,9 @@ export class AggregateHelper {
     let saveStatus = this.CheckForPageSaveError();
     // wait for save query to trigger & n/w call to finish occuring
     if (!saveStatus)
-      cy.get(this.locator._saveStatusContainer, { timeout: 30000 }).should(
-        "not.exist",
+      this.AssertElementAbsence(
+        this.locator._saveStatusContainer,
+        Cypress.config("defaultCommandTimeout"),
       ); //adding timeout since waiting more time is not worth it!
 
     //this.AssertNetworkStatus("@sucessSave", 200);
@@ -274,11 +273,10 @@ export class AggregateHelper {
   public GetElement(
     selector: ElementType,
     exists: "exist" | "not.exist" | "noVerify" = "exist",
-    timeout = Cypress.config("defaultCommandTimeout"),
+    timeout = Cypress.config("pageLoadTimeout"),
   ) {
     let locator;
     if (typeof selector == "string") {
-      //cy.log(selector, "selector");
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
           ? cy.xpath(selector, {
@@ -313,7 +311,6 @@ export class AggregateHelper {
   public GetElementsNAssertTextPresence(selector: string, text: string) {
     this.GetElement(selector).then(($elements: any) => {
       let found = false;
-      cy.log("elements length is" + $elements.length);
       $elements.each((index: any, element: any) => {
         const eleText = Cypress.$(element).text().trim();
         if (eleText === text) {
@@ -348,7 +345,6 @@ export class AggregateHelper {
           if ($body.find(this.locator._evalPopup).length > 0) {
             this.GetElement(this.locator._evalPopup).then(($evalPopUp) => {
               $evalPopUp.remove();
-              cy.log("Eval pop up removed");
             });
           }
           break;
@@ -361,7 +357,6 @@ export class AggregateHelper {
               .parents("div.rc-tooltip")
               .then(($tooltipElement) => {
                 $tooltipElement.remove();
-                cy.log(toolTipOrToasttext + " tooltip removed");
               });
           }
           break;
@@ -381,7 +376,6 @@ export class AggregateHelper {
                 "'))",
             ).then(($toastContainer) => {
               $toastContainer.remove();
-              cy.log(toolTipOrToasttext + " toast removed");
             });
           }
           break;
@@ -398,13 +392,15 @@ export class AggregateHelper {
           force: boolean;
           waitAfterClick: boolean;
           sleepTime: number;
+          type?: "click" | "invoke";
         }> = 0,
   ) {
     const button = this.locator._buttonByText(btnVisibleText);
     let index: number,
       force = true,
       waitAfterClick = true,
-      waitTime = 1000;
+      waitTime = 1000,
+      type = "click";
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
@@ -421,15 +417,23 @@ export class AggregateHelper {
           ? indexOrOptions.waitAfterClick
           : true;
       waitTime = indexOrOptions.sleepTime || 1000;
+      type = indexOrOptions?.type || "click";
     }
 
-    return this.ScrollIntoView(button, index)
-      .click({ force })
-      .then(() => {
+    const element = this.ScrollIntoView(button, index);
+    if (type == "invoke") {
+      return element.invoke("click").then(() => {
         if (waitAfterClick) {
           return this.Sleep(waitTime);
         }
       });
+    }
+
+    return element.click({ force }).then(() => {
+      if (waitAfterClick) {
+        return this.Sleep(waitTime);
+      }
+    });
   }
 
   public clickMultipleButtons(btnVisibleText: string, waitAfterClick = true) {
@@ -474,7 +478,10 @@ export class AggregateHelper {
 
   public WaitUntilEleDisappear(selector: string) {
     cy.waitUntil(() => this.GetElement(selector, "not.exist"), {
-      errorMsg: "Element did not disappear even after 10 seconds",
+      errorMsg:
+        "Element did not disappear after " +
+        Cypress.config().pageLoadTimeout +
+        "seconds",
       timeout: Cypress.config().pageLoadTimeout,
       interval: 1000,
     });
@@ -486,8 +493,11 @@ export class AggregateHelper {
         this.GetElement(this.locator._toastContainer).waitUntil(
           ($ele) => cy.wrap($ele).should("have.length", 0),
           {
-            errorMsg: "Toasts did not disappear even after 10 seconds",
-            timeout: 10000,
+            errorMsg:
+              "Toasts did not disappear even after " +
+              Cypress.config().defaultCommandTimeout +
+              " seconds",
+            timeout: Cypress.config().defaultCommandTimeout,
             interval: 1000,
           },
         );
@@ -496,16 +506,18 @@ export class AggregateHelper {
   }
 
   public WaitUntilEleAppear(selector: string) {
-    this.GetElement(selector).waitUntil(
-      ($ele) =>
-        cy
-          .wrap($ele)
+    cy.waitUntil(
+      () =>
+        this.GetElement(selector)
           .should("exist")
           .should("be.visible")
           .its("length")
           .should("be.gte", 1),
       {
-        errorMsg: "Element did not appear even after 10 seconds",
+        errorMsg:
+          "Element did not appear even after " +
+          Cypress.config().pageLoadTimeout +
+          " seconds",
         timeout: Cypress.config().pageLoadTimeout,
         interval: 2000,
       },
@@ -571,7 +583,6 @@ export class AggregateHelper {
     endpoint = "dropdownwidget",
   ) {
     const mode = window.localStorage.getItem("inDeployedMode");
-    //cy.log("mode frm deployed is:" + mode)
     const modeSelector =
       mode == "true"
         ? this.locator._selectWidgetDropdownInDeployed(endpoint)
@@ -579,7 +590,6 @@ export class AggregateHelper {
     const finalSelector = insideParent
       ? this.locator._divWithClass(insideParent) + modeSelector
       : modeSelector;
-    cy.log(finalSelector);
 
     this.GetNClick(finalSelector, index);
     cy.get(this.locator._dropDownValue(dropdownOption)).click({ force: true });
@@ -656,8 +666,8 @@ export class AggregateHelper {
     this.Sleep(sleep);
   }
 
-  public SelectAllWidgets(parentWidget = ".appsmith_widget_0") {
-    cy.get(parentWidget).type(this.isMac ? "{meta}A" : "{ctrl}A");
+  public SelectAllWidgets() {
+    cy.get("body").type(this.isMac ? "{meta}A" : "{ctrl}A");
   }
 
   public SetCanvasViewportWidth(width: number) {
@@ -705,7 +715,6 @@ export class AggregateHelper {
     // .type("{ctrl}{shift}{downarrow}{del}", { force: true });
     cy.focused().then(($cm: any) => {
       if ($cm.contents != "") {
-        cy.log("The field is not empty");
         this.ScrollIntoView(this.locator._actionTextArea(actionName), index)
           .click({ force: true })
           .focused()
@@ -751,14 +760,17 @@ export class AggregateHelper {
     waitTimeInterval = 500,
     ctrlKey = false,
     metaKey = false,
+    position: Cypress.PositionType = "center",
   ) {
     return this.ScrollIntoView(selector, index)
-      .click({
+      .click(position, {
         force: force,
         ctrlKey: ctrlKey,
         metaKey,
       })
-      .wait(waitTimeInterval);
+      .then(($element) => {
+        return cy.wrap($element).wait(waitTimeInterval);
+      });
   }
 
   public GetClosestNClick(
@@ -884,7 +896,7 @@ export class AggregateHelper {
     force = false,
   ) {
     this.ClearTextField(selector, force, index);
-    this.TypeText(selector, totype, index);
+    return this.TypeText(selector, totype, index);
   }
 
   public TypeText(
@@ -902,14 +914,14 @@ export class AggregateHelper {
     let index: number;
     let shouldFocus = true;
     let parseSpecialCharSeq = false;
-    let delay = 5;
+    let delay = 10;
 
     if (typeof indexOrOptions === "number") {
       index = indexOrOptions;
     } else {
       index = indexOrOptions.index || 0;
       parseSpecialCharSeq = indexOrOptions.parseSpecialCharSeq || false;
-      delay = indexOrOptions.delay || 5;
+      delay = indexOrOptions.delay || 10;
       shouldFocus =
         indexOrOptions.shouldFocus !== undefined
           ? indexOrOptions.shouldFocus
@@ -983,7 +995,6 @@ export class AggregateHelper {
     this.GetElement(selector)
       .invoke("attr", "data-selected-value")
       .then((dataSelectedValue) => {
-        cy.log("dataSelectedValue:" + dataSelectedValue);
         if (dataSelectedValue !== undefined) {
           this.GetElement(selector).should(
             "have.attr",
@@ -1110,6 +1121,11 @@ export class AggregateHelper {
       this.assertHelper.AssertNetworkStatus("@" + networkCallAlias); //getWorkspace for Edit page!
   }
 
+  public CypressReload() {
+    cy.reload();
+    this.assertHelper.AssertDocumentReady();
+  }
+
   public ActionContextMenuWithInPane({
     action = "Delete",
     entityType = EntityItems.JSObject,
@@ -1181,6 +1197,7 @@ export class AggregateHelper {
   public EnterValue(
     valueToEnter: string,
     options: IEnterValue = DEFAULT_ENTERVALUE_OPTIONS,
+    toVerifySave = true,
   ) {
     const { apiOrQuery, directInput, inputFieldName, propFieldName } = options;
     if (propFieldName && directInput && !inputFieldName) {
@@ -1191,7 +1208,7 @@ export class AggregateHelper {
         valueToEnter,
       );
     }
-    this.AssertAutoSave();
+    toVerifySave && this.AssertAutoSave();
   }
 
   public VerifyCodeInputValue(propFieldName: string, value: string) {
@@ -1272,7 +1289,7 @@ export class AggregateHelper {
           this.Sleep(200);
         }
       });
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public UpdateFieldInput(selector: string, value: string) {
@@ -1280,7 +1297,7 @@ export class AggregateHelper {
       .find("input")
       .invoke("attr", "value", value)
       .trigger("input");
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public ValidateFieldInputValue(selector: string, value: string) {
@@ -1291,7 +1308,7 @@ export class AggregateHelper {
       .then((inputValue) => {
         expect(inputValue).to.equal(value);
       });
-    this.Sleep(); //for value set to settle
+    this.Sleep(); //for value set to register
   }
 
   public UpdateTextArea(selector: string, value: string) {
@@ -1300,7 +1317,7 @@ export class AggregateHelper {
       .first()
       .invoke("val", value)
       .trigger("input");
-    this.Sleep(500); //for value set to settle
+    this.Sleep(500); //for value set to register
   }
 
   public TypeIntoTextArea(selector: string, value: string) {
@@ -1308,7 +1325,7 @@ export class AggregateHelper {
       .find("textarea")
       .first()
       .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
-    this.Sleep(500); //for value set to settle
+    this.Sleep(500); //for value set to register
   }
 
   public UpdateInputValue(selector: string, value: string, force = false) {
@@ -1436,21 +1453,17 @@ export class AggregateHelper {
   // this should only be used when we want to verify the evaluated value of dynamic bindings for example {{Api1.data}} or {{"asa"}}
   // and should not be called for plain strings
   public VerifyEvaluatedValue(currentValue: string) {
-    this.Sleep(3000);
-    cy.get(this.locator._evaluatedCurrentValue)
+    this.GetElement(this.locator._evaluatedCurrentValue)
       .first()
       .should("be.visible")
       .should("not.have.text", "undefined");
-    cy.get(this.locator._evaluatedCurrentValue)
+    this.GetElement(this.locator._evaluatedCurrentValue)
       .first()
       .click({ force: true })
       .then(($text) => {
         if ($text.text()) expect($text.text()).to.eq(currentValue);
       })
-      .trigger("mouseout")
-      .then(() => {
-        cy.wait(2000);
-      });
+      .trigger("mouseout");
   }
 
   public UploadFile(fixtureName: string, toClickUpload = true, index = 0) {
@@ -1502,7 +1515,7 @@ export class AggregateHelper {
     selector: ElementType,
     visibility = true,
     index = 0,
-    timeout = Cypress.config("defaultCommandTimeout"),
+    timeout = Cypress.config("pageLoadTimeout"),
   ) {
     return this.GetElement(selector, "exist", timeout)
       .eq(index)
@@ -1511,10 +1524,16 @@ export class AggregateHelper {
     //return this.ScrollIntoView(selector, index, timeout).should("be.visible");//to find out why this is failing.
   }
 
-  public CheckForErrorToast(error: string) {
+  IsElementVisible(selector: ElementType) {
+    return this.GetElement(selector).then(($element) =>
+      Cypress.$($element).length > 0 ? true : false,
+    ) as Cypress.Chainable<boolean>;
+  }
+
+  public FailIfErrorToast(error: string) {
     cy.get("body").then(($ele) => {
-      if ($ele.find(this.locator._toastMsg).length) {
-        if ($ele.find(this.locator._specificToast(error)).length) {
+      if ($ele.find(this.locator._toastMsg).length > 0) {
+        if ($ele.find(this.locator._specificToast(error)).length > 0) {
           throw new Error("Error Toast from Application:" + error);
         }
       }
@@ -1593,8 +1612,12 @@ export class AggregateHelper {
   }
 
   public AssertURL(url: string) {
-    cy.url().should("include", url);
-    this.Sleep(); //settle time for new url!
+    this.WaitForCondition(() =>
+      cy.url().then((currentUrl) => {
+        return currentUrl.includes(url);
+      }),
+    );
+    this.assertHelper.AssertDocumentReady();
   }
 
   public ScrollTo(
@@ -1643,6 +1666,18 @@ export class AggregateHelper {
     index = 0,
   ) {
     return this.GetElement(widgetSelector).eq(index).invoke("css", attribute);
+  }
+
+  public GetWidgetCSSValue(
+    widgetSelector: string,
+    attribute: string,
+    index = 0,
+  ) {
+    return this.GetElement(widgetSelector)
+      .eq(index)
+      .then(($element) => {
+        cy.wrap($element.css(attribute)).as("cssAttributeValue");
+      });
   }
 
   GetWidgetByName(widgetName: string) {
@@ -1700,13 +1735,13 @@ export class AggregateHelper {
     });
   }
 
-  public VisitNAssert(url: string, apiToValidate = "", waitTime = 3000) {
-    cy.visit(url, { timeout: 60000 });
-    // cy.window({ timeout: 60000 }).then((win) => {
-    //   win.location.href = url;
-    // });
-    this.Sleep(waitTime); //for new url to settle
-    if (apiToValidate.includes("getReleaseItems") && Cypress.env("AIRGAPPED")) {
+  public VisitNAssert(url: string, apiToValidate = "") {
+    cy.visit(url);
+    this.AssertURL(url);
+    if (
+      apiToValidate.includes("getAllWorkspaces") &&
+      Cypress.env("AIRGAPPED")
+    ) {
       this.Sleep(2000);
     } else
       apiToValidate && this.assertHelper.AssertNetworkStatus(apiToValidate);

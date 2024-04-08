@@ -85,8 +85,10 @@ export function AppJSEditorContextMenu({
     [dispatch],
   );
   const deleteJSCollectionFromPage = useCallback(
-    (actionId: string, actionName: string) =>
-      dispatch(deleteJSCollection({ id: actionId, name: actionName })),
+    (actionId: string, actionName: string) => {
+      dispatch(deleteJSCollection({ id: actionId, name: actionName }));
+      setConfirmDelete(false);
+    },
     [dispatch],
   );
 
@@ -179,7 +181,13 @@ export function AppJSEditorContextMenu({
   if (isDeletePermitted) options.push(deleteOption);
 
   return (
-    <JSEditorContextMenu className="t--more-action-menu" options={options} />
+    <JSEditorContextMenu
+      className="t--more-action-menu"
+      onMenuClose={() => {
+        setConfirmDelete(false);
+      }}
+      options={options}
+    />
   );
 }
 

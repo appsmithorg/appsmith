@@ -8,30 +8,33 @@ import { getTypographyClassName } from "@design-system/theming";
 import { TextInput as HeadlessTextInput } from "@design-system/headless";
 
 import { Spinner } from "../../Spinner";
-import { EyeIcon } from "./icons/EyeIcon";
+import type { IconProps } from "../../Icon";
 import { IconButton } from "../../IconButton";
-import { EyeOffIcon } from "./icons/EyeOffIcon";
 import { ContextualHelp } from "./ContextualHelp";
 import { textInputStyles, fieldStyles } from "../../../styles";
+import type { SIZES } from "../../../shared";
 
 export interface TextInputProps extends HeadlessTextInputProps {
-  /** position for the laoding icon */
-  loaderPosition?: "auto" | "start" | "end";
   /** loading state for the input */
   isLoading?: boolean;
+  /** size of the input
+   *
+   * @default medium
+   */
+  size?: Omit<keyof typeof SIZES, "large">;
 }
 
 const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
   const {
     contextualHelp: contextualHelpProp,
     description,
-    endIcon,
     errorMessage,
     isLoading = false,
     isRequired,
     label,
-    loaderPosition = "auto",
-    startIcon,
+    prefix,
+    size = "medium",
+    suffix,
     type,
     ...rest
   } = props;
@@ -45,55 +48,40 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
     togglePassword((prev) => !prev);
   };
 
-  const renderStartIcon = () => {
-    const showLoadingIndicator =
-      isLoading &&
-      (loaderPosition === "start" ||
-        (Boolean(startIcon) && loaderPosition !== "end"));
+  const renderSuffix = () => {
+    if (isLoading) return <Spinner />;
 
-    if (!showLoadingIndicator) return startIcon;
-
-    return <Spinner />;
-  };
-
-  const renderEndIcon = () => {
     if (type === "password") {
-      const Icon = showPassword ? EyeOffIcon : EyeIcon;
+      const icon: IconProps["name"] = showPassword ? "eye-off" : "eye";
 
       return (
         <IconButton
           color="neutral"
-          icon={Icon}
+          icon={icon}
           onPress={onPressEyeIcon}
           variant="ghost"
         />
       );
     }
 
-    const showLoadingIndicator =
-      isLoading &&
-      (loaderPosition === "end" ||
-        Boolean(loaderPosition === "auto" && Boolean(startIcon)));
-
-    if (!showLoadingIndicator) return endIcon;
-
-    return <Spinner />;
+    return suffix;
   };
 
   return (
     <HeadlessTextInput
       contextualHelp={contextualHelp}
+      data-size={Boolean(size) ? size : undefined}
       description={description}
-      endIcon={renderEndIcon()}
       errorMessage={errorMessage}
       fieldClassName={clsx(textInputStyles["text-input"], fieldStyles.field)}
       helpTextClassName={getTypographyClassName("footnote")}
       inputClassName={getTypographyClassName("body")}
       isRequired={isRequired}
       label={label}
-      labelClassName={getTypographyClassName("body")}
+      labelClassName={getTypographyClassName("caption")}
+      prefix={prefix}
       ref={ref}
-      startIcon={renderStartIcon()}
+      suffix={renderSuffix()}
       type={showPassword ? "text" : type}
       {...rest}
     />

@@ -898,10 +898,7 @@ public class MongoPlugin extends BasePlugin {
 
         @Override
         public Mono<DatasourceStructure> getStructure(
-                MongoClient mongoClient,
-                DatasourceConfiguration datasourceConfiguration,
-                Boolean isMock,
-                Boolean isMongoSchemaEnabledForMockDB) {
+                MongoClient mongoClient, DatasourceConfiguration datasourceConfiguration, Boolean isMock) {
             final DatasourceStructure structure = new DatasourceStructure();
             List<DatasourceStructure.Table> tables = new ArrayList<>();
             structure.setTables(tables);
@@ -910,10 +907,7 @@ public class MongoPlugin extends BasePlugin {
 
             return Flux.from(database.listCollectionNames())
                     .filter(collectionName -> {
-                        if (isMock != null
-                                && isMock == true
-                                && isMongoSchemaEnabledForMockDB != null
-                                && isMongoSchemaEnabledForMockDB == true) {
+                        if (isMock != null && isMock == true) {
                             return collectionName.equals(MOCK_DB_MOVIES_COLLECTION_NAME);
                         }
                         return true;

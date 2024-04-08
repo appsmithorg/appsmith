@@ -77,47 +77,18 @@ export const getFixedLayoutComponentDimensions = ({
   };
 };
 
-/**
- * getAnvilComponentDimensions
- *
- * utility function to compute a widgets dimensions in Anvil layout system
- *
- */
-export const getAnvilComponentDimensions = ({
-  bottomRow,
-  height,
-  leftColumn,
-  rightColumn,
-  topRow,
-  width,
-}: BaseWidgetProps) => {
-  /**
-   * Anvil widgets are part of a fluid layout.
-   * Component width is calculated as a percentage of the grid width.
-   * Component height is calculated in pixels.
-   */
-  // TODO: Update this when positionsObserver is merged in. Since  typeof componentWidth = number, convert percentage to pixel width. or reverse.
-  return {
-    componentWidth:
-      width ||
-      ((rightColumn - leftColumn) * 100) / GridDefaults.DEFAULT_GRID_COLUMNS,
-    componentHeight:
-      height || (bottomRow - topRow) * GridDefaults.DEFAULT_GRID_ROW_HEIGHT,
-  };
-};
-
 export const getComponentDimensions = memo(
   (
     props: BaseWidgetProps,
     layoutSystemType: LayoutSystemTypes,
     isMobile = false,
   ): {
-    componentHeight: number;
-    componentWidth: number;
+    componentHeight?: number;
+    componentWidth?: number;
   } => {
     switch (layoutSystemType) {
       case LayoutSystemTypes.ANVIL:
-        return getAnvilComponentDimensions(props);
+        return {};
       case LayoutSystemTypes.AUTO:
         return getAutoLayoutComponentDimensions({ ...props, isMobile });
       default:

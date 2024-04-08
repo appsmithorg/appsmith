@@ -56,7 +56,8 @@ public class VisionCommandTest {
         formData.put(MAX_TOKENS, "1000");
 
         formData.put(
-                SYSTEM_MESSAGES, List.of(Map.of(CONTENT, "Assistant Helper 1"), Map.of(CONTENT, "Assistant Helper 2")));
+                SYSTEM_MESSAGES,
+                Map.of("data", List.of(Map.of(CONTENT, "Assistant Helper 1"), Map.of(CONTENT, "Assistant Helper 2"))));
 
         UserQuery userQuery1 = new UserQuery();
         userQuery1.setContent("What's in this image?");
@@ -66,7 +67,7 @@ public class VisionCommandTest {
         userQuery2.setType(QueryType.IMAGE);
         userQuery2.setContent("https://docs.appsmith.com/img/imagetable.gif");
 
-        formData.put(USER_MESSAGES, List.of(userQuery1, userQuery2));
+        formData.put(USER_MESSAGES, Map.of("data", List.of(userQuery1, userQuery2)));
         ActionConfiguration actionConfiguration = new ActionConfiguration();
         actionConfiguration.setFormData(formData);
 

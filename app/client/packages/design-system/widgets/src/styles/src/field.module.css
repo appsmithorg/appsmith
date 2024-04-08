@@ -3,7 +3,8 @@
 .field {
   display: flex;
   flex-direction: column;
-  gap: var(--inner-spacing-2);
+  gap: var(--inner-spacing-3);
+  width: 100%;
 
   /**
   * ----------------------------------------------------------------------------
@@ -22,6 +23,7 @@
     height: fit-content;
     color: var(--color-fg);
     max-width: 100%;
+    font-weight: 600;
   }
 
   & [data-field-label] span {
@@ -38,8 +40,6 @@
   *-----------------------------------------------------------------------------
   */
   & [data-field-necessity-indicator-icon] {
-    width: var(--inner-spacing-2);
-    height: var(--inner-spacing-2);
     color: var(--color-fg-negative);
     margin-left: var(--inner-spacing-1);
   }
@@ -64,16 +64,31 @@
   & [data-field-group] {
     gap: var(--inner-spacing-2);
     display: flex;
+    flex-wrap: wrap;
     flex-direction: column;
   }
 
-  &[data-disabled] [data-field-group] [data-label] {
+  & [data-field-group] [data-icon] {
+    /** In the group components, the checkbox, radio and switch icons are positioned relatively */
+    position: relative;
+  }
+
+  & [data-field-group] [data-label] {
+    padding: 0;
+    gap: var(--inner-spacing-2);
+  }
+
+  &[data-disabled] [data-field-group] {
     cursor: default;
   }
 
   & [data-field-group][data-orientation="horizontal"] {
     gap: var(--inner-spacing-4);
     flex-direction: row;
+  }
+
+  & [data-field-group] [data-label-position="start"] {
+    flex-direction: row-reverse;
   }
 
   /**
@@ -85,16 +100,6 @@
     gap: var(--inner-spacing-2);
     display: flex;
     flex-direction: column;
-  }
-
-  /**
-  * ----------------------------------------------------------------------------
-  * FIELD INPUT GROUP
-  *-----------------------------------------------------------------------------
-  */
-  & [data-field-input-group] {
-    display: flex;
-    align-items: center;
   }
 
   /**

@@ -22,7 +22,7 @@ describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
     cy.dragAndDropToCanvas("textwidget", { x: 300, y: 200 });
     EditorNavigation.SelectEntityByName(page1, EntityType.Page);
     _.apiPage.CreateApi(api1);
-    PageLeftPane.switchSegment(PagePaneSegment.Widgets);
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
   });
 
   beforeEach(() => {
@@ -58,8 +58,8 @@ describe("Canvas context Property Pane", { tags: ["@tag.IDE"] }, function () {
   });
 
   it(
-    "excludeForAirgap",
     "3. Code Editor should have focus while switching between widgets, pages and Editor Panes",
+    { tags: ["@tag.excludeForAirgap"] },
     function () {
       // TODO: Since google recaptcha is not possible in airgap mode, skipping this test for now for airgapped version.
       //Will modify the dsl to have maybe phone input widget to have a dropdown property control - Sangeeth
@@ -196,9 +196,8 @@ function setPropertyPaneSectionState(propertySectionState) {
   )) {
     cy.get("body").then(($body) => {
       if (
-        $body.find(
-          `${propertySectionClass(sectionName)} .t--chevron-icon.rotate-180`,
-        ).length >
+        $body.find(`${propertySectionClass(sectionName)} .t--chevron-icon`)
+          .length >
           0 !==
         shouldSectionOpen
       ) {
@@ -214,9 +213,8 @@ function verifyPropertyPaneSectionState(propertySectionState) {
   )) {
     cy.get("body").then(($body) => {
       const isSectionOpen =
-        $body.find(
-          `${propertySectionClass(sectionName)} .t--chevron-icon.rotate-180`,
-        ).length > 0;
+        $body.find(`${propertySectionClass(sectionName)} .t--chevron-icon`)
+          .length > 0;
       expect(isSectionOpen).to.equal(shouldSectionOpen);
     });
   }

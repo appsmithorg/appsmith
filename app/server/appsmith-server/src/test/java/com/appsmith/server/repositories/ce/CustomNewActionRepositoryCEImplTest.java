@@ -60,7 +60,7 @@ public class CustomNewActionRepositoryCEImplTest {
 
         StepVerifier.create(newActionFlux.collectList())
                 .assertNext(newActions -> {
-                    assertThat(newActions.size()).isEqualTo(5);
+                    assertThat(newActions).hasSize(5);
                     newActions.forEach(newAction -> {
                         assertThat(newAction.getWorkspaceId()).isEqualTo("workspace-" + newAction.getId());
                     });
@@ -105,7 +105,7 @@ public class CustomNewActionRepositoryCEImplTest {
 
         StepVerifier.create(newActionsMono)
                 .assertNext(newActions -> {
-                    assertThat(newActions.size()).isEqualTo(5);
+                    assertThat(newActions).hasSize(5);
                     newActions.forEach(newAction -> {
                         assertThat(newAction.getWorkspaceId()).isEqualTo("workspace-" + newAction.getId());
                     });
@@ -170,7 +170,6 @@ public class CustomNewActionRepositoryCEImplTest {
         // one deleted action with applicationId1 and pluginType JS
         NewAction deletedAction = createAction(applicationId1, PluginType.JS);
         deletedAction.setDeletedAt(Instant.now());
-        deletedAction.setDeleted(true);
         actionList.add(deletedAction);
 
         Flux<PluginTypeAndCountDTO> pluginTypeAndCountDTOFlux = newActionRepository
@@ -179,7 +178,7 @@ public class CustomNewActionRepositoryCEImplTest {
 
         StepVerifier.create(pluginTypeAndCountDTOFlux.collectList())
                 .assertNext(list -> {
-                    assertThat(list.size()).isEqualTo(3);
+                    assertThat(list).hasSize(3);
                     list.forEach(pluginTypeAndCountDTO -> {
                         if (pluginTypeAndCountDTO.getPluginType().equals(PluginType.API)) {
                             assertThat(pluginTypeAndCountDTO.getCount()).isEqualTo(2);
@@ -219,8 +218,8 @@ public class CustomNewActionRepositoryCEImplTest {
                     List<NewAction> app1Actions = objects.getT1();
                     List<NewAction> app2Actions = objects.getT2();
 
-                    assertThat(app1Actions.size()).isEqualTo(2);
-                    assertThat(app2Actions.size()).isEqualTo(1);
+                    assertThat(app1Actions).hasSize(2);
+                    assertThat(app2Actions).hasSize(1);
 
                     app1Actions.forEach(action -> {
                         ActionDTO unpublishedActionDto = action.getUnpublishedAction();
@@ -273,8 +272,8 @@ public class CustomNewActionRepositoryCEImplTest {
                     List<NewAction> app1Actions = objects.getT1();
                     List<NewAction> app2Actions = objects.getT2();
 
-                    assertThat(app1Actions.size()).isEqualTo(1);
-                    assertThat(app2Actions.size()).isEqualTo(1);
+                    assertThat(app1Actions).hasSize(1);
+                    assertThat(app2Actions).hasSize(1);
 
                     // merge actions from both list and verify they are in the same state when created
                     List.of(app1Actions.get(0), app2Actions.get(0)).forEach(action -> {

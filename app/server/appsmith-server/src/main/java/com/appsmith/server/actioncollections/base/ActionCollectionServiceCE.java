@@ -45,6 +45,11 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id);
 
+    Mono<ActionCollectionDTO> deleteUnpublishedActionCollectionWithOptionalPermission(
+            String id,
+            Optional<AclPermission> deleteCollectionPermission,
+            Optional<AclPermission> deleteActionPermission);
+
     Mono<ActionCollectionDTO> deleteWithoutPermissionUnpublishedActionCollection(String id);
 
     Mono<ActionCollectionDTO> deleteUnpublishedActionCollection(String id, String branchName);
@@ -60,7 +65,10 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
 
     Flux<ActionCollection> findByPageId(String pageId);
 
-    Flux<ActionCollection> findByPageIds(List<String> pageIds, Optional<AclPermission> permission);
+    Flux<ActionCollectionDTO> getCollectionsByPageIdAndViewMode(
+            String pageId, boolean viewMode, AclPermission permission);
+
+    Flux<ActionCollection> findByPageIdsForExport(List<String> pageIds, AclPermission permission);
 
     Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission);
@@ -76,4 +84,10 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     Mono<ActionCollectionDTO> validateAndSaveCollection(ActionCollection actionCollection);
 
     Mono<ActionCollectionViewDTO> generateActionCollectionViewDTO(ActionCollection actionCollection);
+
+    Mono<Void> bulkValidateAndInsertActionCollectionInRepository(List<ActionCollection> actionCollectionList);
+
+    Mono<Void> bulkValidateAndUpdateActionCollectionInRepository(List<ActionCollection> actionCollectionList);
+
+    Mono<Void> saveLastEditInformationInParent(ActionCollectionDTO actionCollectionDTO);
 }

@@ -38,10 +38,6 @@ class WDSCheckboxGroupWidget extends BaseWidget<
     return defaultsConfig;
   }
 
-  static getAutoLayoutConfig() {
-    return {};
-  }
-
   static getAnvilConfig(): AnvilConfig | null {
     return anvilConfig;
   }
@@ -107,14 +103,8 @@ class WDSCheckboxGroupWidget extends BaseWidget<
   };
 
   getWidgetView() {
-    const {
-      labelPosition,
-      labelTooltip,
-      options,
-      selectedOptionValue,
-      widgetId,
-      ...rest
-    } = this.props;
+    const { labelTooltip, options, selectedValues, widgetId, ...rest } =
+      this.props;
 
     const validation = validateInput(this.props);
 
@@ -125,14 +115,10 @@ class WDSCheckboxGroupWidget extends BaseWidget<
         errorMessage={validation.errorMessage}
         onChange={this.onChange}
         validationState={validation.validationStatus}
-        value={selectedOptionValue}
+        value={selectedValues}
       >
         {options.map((option, index) => (
-          <Checkbox
-            key={`${widgetId}-option-${index}`}
-            labelPosition={labelPosition}
-            value={option.value}
-          >
+          <Checkbox key={`${widgetId}-option-${index}`} value={option.value}>
             {option.label}
           </Checkbox>
         ))}

@@ -32,16 +32,6 @@ const DEFAULT_ERROR_MESSAGE = {
   message:
     "value should match: Array<string | number> | Array<{label: string, value: string | number}>",
 };
-const MISSING_FROM_OPTIONS = {
-  name: "ValidationError",
-  message:
-    "Some or all default values are missing from options. Please update the values.",
-};
-const MISSING_FROM_OPTIONS_AND_WRONG_FORMAT = {
-  name: "ValidationError",
-  message:
-    "Default value is missing in options. Please use [{label : <string | num>, value : < string | num>}] format to show default for server side data",
-};
 
 describe("defaultOptionValueValidation - ", () => {
   it("should get tested with empty string", () => {
@@ -57,41 +47,6 @@ describe("defaultOptionValueValidation - ", () => {
       isValid: true,
       parsed: [],
       messages: [{ name: "", message: "" }],
-    });
-  });
-
-  it("should get tested with array of strings", () => {
-    const input = ["green", "red"];
-
-    expect(
-      defaultOptionValueValidation(
-        input,
-        { ...props } as MultiSelectWidgetProps,
-        _,
-      ),
-    ).toEqual({
-      isValid: false,
-      parsed: input,
-      messages: [MISSING_FROM_OPTIONS],
-    });
-  });
-
-  it("should get tested with array of strings and stringified options", () => {
-    const input = ["green", "red"];
-
-    expect(
-      defaultOptionValueValidation(
-        input,
-        {
-          ...props,
-          options: JSON.stringify(props.options) as unknown,
-        } as MultiSelectWidgetProps,
-        _,
-      ),
-    ).toEqual({
-      isValid: false,
-      parsed: input,
-      messages: [MISSING_FROM_OPTIONS],
     });
   });
 
@@ -203,72 +158,6 @@ describe("defaultOptionValueValidation - ", () => {
       isValid: true,
       parsed: ["1", "2"],
       messages: [{ name: "", message: "" }],
-    });
-  });
-
-  it("should get tested with string and ServerSide filtering on", () => {
-    const input = "YELLOW";
-
-    expect(
-      defaultOptionValueValidation(
-        input,
-        { ...props, serverSideFiltering: true } as MultiSelectWidgetProps,
-        _,
-      ),
-    ).toEqual({
-      isValid: false,
-      parsed: ["YELLOW"],
-      messages: [MISSING_FROM_OPTIONS_AND_WRONG_FORMAT],
-    });
-  });
-
-  it("should get tested with simple string", () => {
-    const input = `{"green"`;
-
-    expect(
-      defaultOptionValueValidation(
-        input,
-        { ...props } as MultiSelectWidgetProps,
-        _,
-      ),
-    ).toEqual({
-      isValid: false,
-      parsed: [`{"green"`],
-      messages: [MISSING_FROM_OPTIONS],
-    });
-  });
-
-  it("should get tested with array of label, value and serverside filtering off", () => {
-    const input = [
-      {
-        label: "green",
-        value: "green",
-      },
-      {
-        label: "red",
-        value: "red",
-      },
-    ];
-
-    expect(
-      defaultOptionValueValidation(
-        input,
-        { ...props } as MultiSelectWidgetProps,
-        _,
-      ),
-    ).toEqual({
-      isValid: false,
-      parsed: [
-        {
-          label: "green",
-          value: "green",
-        },
-        {
-          label: "red",
-          value: "red",
-        },
-      ],
-      messages: [MISSING_FROM_OPTIONS],
     });
   });
 

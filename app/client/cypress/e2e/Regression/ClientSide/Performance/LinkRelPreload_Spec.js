@@ -1,5 +1,6 @@
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import emptyDSL from "../../../../fixtures/emptyDSL.json";
+import { AppSidebar } from "../../../../support/Pages/EditorNavigation";
 
 // Hi, developer!
 //
@@ -45,7 +46,7 @@ describe(
       reloadAndTogglePreloading(true);
 
       // Ensure the app editor is fully loaded
-      cy.get("#sidebar").should("be.visible");
+      AppSidebar.assertVisible();
 
       _.deployMode.DeployApp();
 

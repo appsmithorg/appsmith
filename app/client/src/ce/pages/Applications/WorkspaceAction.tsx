@@ -1,58 +1,120 @@
-import React from "react";
-import { Button } from "design-system";
+import {
+  Button,
+  Divider,
+  Menu,
+  MenuContent,
+  MenuItem,
+  MenuTrigger,
+} from "design-system";
+import React, { useCallback, useState } from "react";
 import { useSelector } from "react-redux";
 
 import {
-  getIsCreatingApplicationByWorkspaceId,
-  getIsFetchingApplications,
-  getUserApplicationsWorkspacesList,
-} from "@appsmith/selectors/applicationSelectors";
+  IMPORT_BTN_LABEL,
+  NEW_APP,
+  NEW_APP_FROM_TEMPLATE,
+  WORKSPACE_ACTION_BUTTON,
+  createMessage,
+} from "@appsmith/constants/messages";
+import type { Workspace } from "@appsmith/constants/workspaceConstants";
+import { getIsCreatingApplicationByWorkspaceId } from "@appsmith/selectors/applicationSelectors";
+import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { hasCreateNewAppPermission } from "@appsmith/utils/permissionHelpers";
 
 export interface WorkspaceActionProps {
-  workspaceId: string;
+  workspace: Workspace;
   isMobile: boolean;
+  enableImportExport: boolean;
+  workspaceId: string;
   onCreateNewApplication: (workspaceId: string) => void;
+  onStartFromTemplate: (workspaceId: string) => void;
+  setSelectedWorkspaceIdForImportApplication: (workspaceId?: string) => void;
 }
 
 function WorkspaceAction({
+  enableImportExport,
   isMobile,
   onCreateNewApplication,
+  onStartFromTemplate,
+  setSelectedWorkspaceIdForImportApplication,
+  workspace,
   workspaceId,
 }: WorkspaceActionProps) {
+  const [isActionMenuOpen, setIsActionMenuOpen] = useState(false);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isCreatingApplication = Boolean(
-    useSelector(getIsCreatingApplicationByWorkspaceId(workspaceId)),
-  );
-  const workspaceList = useSelector(getUserApplicationsWorkspacesList);
-  const workspaceObject = workspaceList.find(
-    ({ workspace }) => workspace.id === workspaceId,
+    useSelector(getIsCreatingApplicationByWorkspaceId(workspace.id)),
   );
 
-  if (!workspaceObject) return null;
+  const openActionMenu = useCallback(() => {
+    setIsActionMenuOpen(true);
+  }, []);
 
-  const { applications, workspace } = workspaceObject;
+  const closeActionMenu = useCallback(() => {
+    setIsActionMenuOpen(false);
+  }, []);
+
+  if (!workspace) return null;
 
   const hasCreateNewApplicationPermission =
     hasCreateNewAppPermission(workspace.userPermissions) && !isMobile;
 
-  if (
-    !hasCreateNewApplicationPermission ||
-    isFetchingApplications ||
-    applications.length === 0
-  )
-    return null;
+  if (!hasCreateNewApplicationPermission || isFetchingApplications) return null;
 
   return (
-    <Button
-      className="t--new-button createnew"
-      isLoading={isCreatingApplication}
-      onClick={() => onCreateNewApplication(workspace.id)}
-      size="md"
-      startIcon={"plus"}
+    <Menu
+      data-testid="t--workspace-action-menu"
+      onOpenChange={setIsActionMenuOpen}
+      open={isActionMenuOpen}
     >
-      New
-    </Button>
+      <MenuTrigger>
+        <Button
+          className="t--new-button createnew"
+          endIcon="arrow-down-s-line"
+          isLoading={isCreatingApplication}
+          onClick={openActionMenu}
+          size="md"
+        >
+          {createMessage(WORKSPACE_ACTION_BUTTON)}
+        </Button>
+      </MenuTrigger>
+      <MenuContent
+        align="end"
+        onEscapeKeyDown={closeActionMenu}
+        onInteractOutside={closeActionMenu}
+      >
+        <MenuItem
+          data-testid="t--workspace-action-create-app"
+          disabled={!hasCreateNewApplicationPermission}
+          onSelect={() => onCreateNewApplication(workspace.id)}
+          startIcon="apps-line"
+        >
+          {createMessage(NEW_APP)}
+        </MenuItem>
+        {<Divider className="!block mb-[2px]" />}
+
+        <MenuItem
+          data-testid="t--workspace-action-create-app-from-template"
+          disabled={!hasCreateNewApplicationPermission}
+          onSelect={() => onStartFromTemplate(workspaceId)}
+          startIcon="layout-2-line"
+        >
+          {createMessage(NEW_APP_FROM_TEMPLATE)}
+        </MenuItem>
+
+        {enableImportExport && hasCreateNewApplicationPermission && (
+          <MenuItem
+            data-testid="t--workspace-import-app"
+            onSelect={() =>
+              setSelectedWorkspaceIdForImportApplication(workspace.id)
+            }
+            startIcon="upload-cloud"
+          >
+            {createMessage(IMPORT_BTN_LABEL)}
+          </MenuItem>
+        )}
+      </MenuContent>
+    </Menu>
   );
 }
 

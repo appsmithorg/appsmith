@@ -14,7 +14,9 @@ import {
   entityItems,
   assertHelper,
   locators,
+  apiPage,
 } from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 
 let datasourceName;
 
@@ -365,7 +367,6 @@ describe(
           id.split(":")[1].trim().replace(/['"]+/g, ""),
         );
       });
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Query1",
         action: "Delete",
@@ -434,22 +435,26 @@ describe(
       dataSources.AssertTableInVirtuosoList(datasourceName, "NonAsciiTest");
 
       //Verifying Suggested Widgets functionality
-      cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
+      apiPage.SelectPaneTab("Response");
+      dataSources.AddSuggestedWidget(Widgets.Table);
       cy.wait("@updateLayout").then(({ response }) => {
         cy.log("1st Response is :" + JSON.stringify(response.body));
         //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
       });
 
-      cy.CheckAndUnfoldEntityItem("Queries/JS");
-      cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
-      cy.get(queryLocators.suggestedWidgetChart).click().wait(1000);
+      cy.get("@entity").then((entityN) =>
+        EditorNavigation.SelectEntityByName(entityN, EntityType.Query),
+      );
+      dataSources.AddSuggestedWidget(Widgets.Chart);
       cy.wait("@updateLayout").then(({ response }) => {
         cy.log("2nd Response is :" + JSON.stringify(response.body));
         //expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");
       });
 
       cy.VerifyErrorMsgAbsence("Cyclic dependency found while evaluating");
-      cy.get("@entity").then((entityN) => cy.selectEntityByName(entityN));
+      cy.get("@entity").then((entityN) =>
+        EditorNavigation.SelectEntityByName(entityN, EntityType.Query),
+      );
 
       //Update document - Single document
       cy.wait(2000);

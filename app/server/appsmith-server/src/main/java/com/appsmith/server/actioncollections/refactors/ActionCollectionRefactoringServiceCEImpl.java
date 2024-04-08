@@ -5,7 +5,6 @@ import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.MustacheBindingToken;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.EntityType;
@@ -17,8 +16,6 @@ import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -161,10 +158,6 @@ public class ActionCollectionRefactoringServiceCEImpl implements EntityRefactori
 
     protected Flux<ActionCollectionDTO> getExistingEntities(
             String contextId, CreatorContextType contextType, String layoutId, boolean viewMode) {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        if (StringUtils.hasText(contextId)) {
-            params.add(FieldName.PAGE_ID, contextId);
-        }
-        return actionCollectionService.getActionCollectionsByViewMode(params, viewMode);
+        return actionCollectionService.getCollectionsByPageIdAndViewMode(contextId, viewMode, null);
     }
 }

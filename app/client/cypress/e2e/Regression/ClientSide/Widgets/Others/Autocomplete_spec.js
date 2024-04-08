@@ -77,8 +77,8 @@ describe(
     });
 
     it(
-      "excludeForAirgap",
       "Slash command and mustache autocomplete validation for textbox widget",
+      { tags: ["@tag.excludeForAirgap"] },
       function () {
         cy.openPropertyPane("textwidget");
         cy.EnableAllCodeEditors();

@@ -514,6 +514,7 @@ export function getDynamicBindingsChangesSaga(
         const childPropertyValue = _.get(value, dynamicPath.key);
         return isDynamicValue(childPropertyValue);
       }
+      return !!dynamicPath;
     });
   } else if (typeof value === "string") {
     const fieldExists = _.some(dynamicBindings, { key: bindingField });

@@ -1,12 +1,14 @@
 import { generateLayoutComponentMock } from "mocks/layoutComponents/layoutComponentMock";
 import {
   LayoutComponentTypes,
-  type AnvilHighlightInfo,
   type LayoutComponentProps,
   type WidgetLayoutProps,
   type DraggedWidget,
 } from "../../anvilTypes";
-import { HIGHLIGHT_SIZE, VERTICAL_DROP_ZONE_MULTIPLIER } from "../../constants";
+import {
+  DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT,
+  HIGHLIGHT_SIZE,
+} from "../../constants";
 import { registerLayoutComponents } from "../layoutUtils";
 import {
   FlexLayerAlignment,
@@ -14,7 +16,6 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { deriveColumnHighlights } from "./columnHighlights";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
-import { getStartPosition } from "./highlightUtils";
 
 describe("columnHighlights", () => {
   const draggedWidgets: DraggedWidget[] = [
@@ -31,7 +32,7 @@ describe("columnHighlights", () => {
     it("should derive highlights for a column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      });
+      }).layout as LayoutComponentProps;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -60,7 +61,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -78,17 +79,17 @@ describe("columnHighlights", () => {
       expect(res[0].height).toEqual(HIGHLIGHT_SIZE);
 
       // highlights should be placed before every widget
-      expect(res[0].posY).toBeLessThan(positions[buttonId].top);
+      expect(res[0].posY).toBe(positions[buttonId].top);
       expect(res[1].posY).toBeLessThan(positions[inputId].top);
       // and at the bottom of the last widget
-      expect(res[2].posY).toBeGreaterThan(
+      expect(res[2].posY).toBeGreaterThanOrEqual(
         positions[inputId].top + positions[inputId].height,
       );
     });
     it("should discount dragged child widgets from highlight calculation", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      });
+      }).layout as LayoutComponentProps;
       const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
       const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
       const positions: LayoutElementPositions = {
@@ -117,7 +118,7 @@ describe("columnHighlights", () => {
           offsetTop: 60,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
@@ -134,84 +135,13 @@ describe("columnHighlights", () => {
       // One highlight is discounted on account of child button widget being dragged.
       expect(res.length).toEqual(2);
       // First highlight should be placed before input widget
-      expect(res[0].posY).toBeLessThan(positions[inputId].top);
+      expect(res[0].posY).toBe(positions[inputId].top);
       expect(res[0].rowIndex).toEqual(0);
       // Second highlight should be placed after input widget
-      expect(res[1].posY).toBeGreaterThan(
+      expect(res[1].posY).toBeGreaterThanOrEqual(
         positions[inputId].top + positions[inputId].height,
       );
       expect(res[1].rowIndex).toEqual(1);
-    });
-    it("should calculate drop zones properly", () => {
-      const layout: LayoutComponentProps = generateLayoutComponentMock({
-        layoutType: LayoutComponentTypes.WIDGET_COLUMN,
-      });
-      const buttonId: string = (layout.layout[0] as WidgetLayoutProps).widgetId;
-      const inputId: string = (layout.layout[1] as WidgetLayoutProps).widgetId;
-      const positions: LayoutElementPositions = {
-        [layout.layoutId]: {
-          height: 500,
-          left: 0,
-          top: 0,
-          width: 300,
-          offsetLeft: 0,
-          offsetTop: 0,
-        },
-        [buttonId]: {
-          height: 40,
-          left: 10,
-          top: 10,
-          width: 120,
-          offsetLeft: 10,
-          offsetTop: 10,
-        },
-        [inputId]: {
-          height: 70,
-          left: 10,
-          top: 60,
-          width: 290,
-          offsetLeft: 10,
-          offsetTop: 60,
-        },
-      };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
-        layout,
-        "0",
-        [],
-        layout.layoutId,
-      )(positions, draggedWidgets);
-
-      /**
-       * Horizontal highlights have top and bottom drop zones,
-       * which denote the vertical space above and below the horizontal highlight respectively.
-       *
-       *                [Top]
-       * Highlight: ------------
-       *               [Bottom]
-       */
-
-      // Top drop zone of first highlight should span the entire space between the start of the layout and the first child.
-      expect(res[0].dropZone.top).toEqual(
-        positions[buttonId].top -
-          positions[layout.layoutId].top -
-          HIGHLIGHT_SIZE,
-      );
-      // Bottom drop zone of first highlight should be equal to the space between the top of this widget and the next.
-      expect(res[0].dropZone.bottom).toEqual(
-        (positions[inputId].top - positions[buttonId].top) *
-          VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
-      expect(res[1].dropZone.top).toEqual(
-        (positions[inputId].top - positions[buttonId].top) *
-          VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
-      expect(res[1].dropZone.bottom).toEqual(
-        (res[2].posY - res[1].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
-      expect(res[2].dropZone.top).toEqual(res[1].dropZone.bottom);
-      expect(res[2].dropZone.bottom).toEqual(
-        positions[layout.layoutId].height - res[2].posY,
-      );
     });
   });
   describe("initial highlights", () => {
@@ -220,7 +150,7 @@ describe("columnHighlights", () => {
         isDropTarget: true,
         layoutType: LayoutComponentTypes.WIDGET_COLUMN,
         layout: [],
-      });
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -231,16 +161,16 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
         layout.layoutId,
       )(positions, draggedWidgets);
 
-      expect(res[0].width).toEqual(positions[layout.layoutId].width);
+      expect(res[0].height).toEqual(DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
-      expect(res[0].posY).toEqual(HIGHLIGHT_SIZE / 2);
+      expect(res[0].posY).toEqual(0);
     });
     it("should return a highlight with the correct dimensions for a center aligned empty drop target column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
@@ -250,7 +180,7 @@ describe("columnHighlights", () => {
         layoutStyle: {
           justifyContent: "center",
         },
-      });
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -261,20 +191,15 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
         layout.layoutId,
       )(positions, draggedWidgets);
       expect(res).toBeDefined();
-      expect(res[0].width).toEqual(positions[layout.layoutId].width);
-      expect(res[0].posY).toEqual(
-        getStartPosition(
-          FlexLayerAlignment.Center,
-          positions[layout.layoutId].height,
-        ),
-      );
+      expect(res[0].height).toEqual(DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT);
+      expect(res[0].posY).toEqual(0);
     });
     it("should return a highlight with the correct dimensions for a end aligned empty drop target column", () => {
       const layout: LayoutComponentProps = generateLayoutComponentMock({
@@ -284,7 +209,7 @@ describe("columnHighlights", () => {
         layoutStyle: {
           justifyContent: "end",
         },
-      });
+      }).layout as LayoutComponentProps;
       const positions: LayoutElementPositions = {
         [layout.layoutId]: {
           height: 400,
@@ -295,17 +220,15 @@ describe("columnHighlights", () => {
           offsetTop: 0,
         },
       };
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         layout,
         "0",
         [],
         layout.layoutId,
       )(positions, draggedWidgets);
 
-      expect(res[0].width).toEqual(positions[layout.layoutId].width);
-      expect(res[0].posY).toEqual(
-        positions[layout.layoutId].height - HIGHLIGHT_SIZE,
-      );
+      expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
+      expect(res[0].posY).toEqual(0);
     });
   });
   describe("layout highlights", () => {
@@ -313,11 +236,13 @@ describe("columnHighlights", () => {
       /**
        * Create 2 rows with two widgets in each of them.
        */
-      const row1: LayoutComponentProps = generateLayoutComponentMock();
+      const row1: LayoutComponentProps = generateLayoutComponentMock()
+        .layout as LayoutComponentProps;
       const button1: string = (row1.layout[0] as WidgetLayoutProps).widgetId;
       const input1: string = (row1.layout[1] as WidgetLayoutProps).widgetId;
 
-      const row2: LayoutComponentProps = generateLayoutComponentMock();
+      const row2: LayoutComponentProps = generateLayoutComponentMock()
+        .layout as LayoutComponentProps;
       const button2: string = (row2.layout[0] as WidgetLayoutProps).widgetId;
       const input2: string = (row2.layout[1] as WidgetLayoutProps).widgetId;
 
@@ -330,7 +255,7 @@ describe("columnHighlights", () => {
           layoutType: LayoutComponentTypes.LAYOUT_COLUMN,
         },
         false,
-      );
+      ).layout as LayoutComponentProps;
 
       /**
        * Create dimensions data
@@ -397,7 +322,7 @@ describe("columnHighlights", () => {
       /**
        * Get highlights for the column layout.
        */
-      const res: AnvilHighlightInfo[] = deriveColumnHighlights(
+      const { highlights: res } = deriveColumnHighlights(
         column,
         "0",
         [],
@@ -417,24 +342,7 @@ describe("columnHighlights", () => {
       expect(res[1].isVertical).toBeTruthy();
       expect(res[3].isVertical).toBeTruthy();
 
-      expect(res[0].posY).toEqual(
-        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
-      );
-      expect(res[0].dropZone.top).toEqual(
-        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
-      );
-
-      expect(res[4].isVertical).toBeFalsy();
-      expect(res[4].posY).toEqual(
-        dimensions[row2.layoutId].top - HIGHLIGHT_SIZE,
-      );
-      expect(res[4].dropZone.top).toEqual(
-        (dimensions[row2.layoutId].top - dimensions[row1.layoutId].top) *
-          VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
-      expect(res[4].dropZone.bottom).toEqual(
-        (res[8].posY - res[4].posY) * VERTICAL_DROP_ZONE_MULTIPLIER,
-      );
+      expect(res[0].posY).toEqual(dimensions[row1.layoutId].top);
     });
   });
 });

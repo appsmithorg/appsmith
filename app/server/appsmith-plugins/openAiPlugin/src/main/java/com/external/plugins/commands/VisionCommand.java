@@ -11,6 +11,7 @@ import com.external.plugins.models.UserQuery;
 import com.external.plugins.models.UserTextContent;
 import com.external.plugins.models.VisionMessage;
 import com.external.plugins.models.VisionRequestDTO;
+import com.external.plugins.utils.MessageUtils;
 import com.external.plugins.utils.RequestUtils;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
@@ -102,8 +103,10 @@ public class VisionCommand implements OpenAICommand {
 
         visionRequestDTO.setModel(model);
 
-        List<VisionMessage> visionMessages = transformSystemMessages(formData.get(SYSTEM_MESSAGES));
-        visionMessages.addAll(transformUserMessages(formData.get(USER_MESSAGES)));
+        List<VisionMessage> visionMessages = transformSystemMessages(
+                MessageUtils.extractMessages((Map<String, Object>) formData.get(SYSTEM_MESSAGES)));
+        visionMessages.addAll(
+                transformUserMessages(MessageUtils.extractMessages((Map<String, Object>) formData.get(USER_MESSAGES))));
         Float temperature = getTemperatureFromFormData(formData);
 
         visionRequestDTO.setMessages(visionMessages);

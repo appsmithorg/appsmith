@@ -19,12 +19,14 @@ import { Colors } from "constants/Colors";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { redoAction, undoAction } from "actions/pageActions";
 import { redoShortCut, undoShortCut } from "utils/helpers";
-import { openAppSettingsPaneAction } from "actions/appSettingsPaneActions";
 import { toast } from "design-system";
 import type { ThemeProp } from "WidgetProvider/constants";
-import { DISCORD_URL, DOCS_BASE_URL } from "constants/ThirdPartyConstants";
-import { protectedModeSelector } from "selectors/gitSyncSelectors";
-import { useIsAppSidebarEnabled } from "../../../navigation/featureFlagHooks";
+import { DOCS_BASE_URL } from "constants/ThirdPartyConstants";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
+import { getCurrentUser } from "selectors/usersSelectors";
+
+const { cloudHosting, intercomAppID } = getAppsmithConfigs();
 
 export interface NavigationMenuDataProps extends ThemeProp {
   editMode: typeof noop;
@@ -37,12 +39,14 @@ export const GetNavigationMenuData = ({
 }: NavigationMenuDataProps): MenuItemData[] => {
   const dispatch = useDispatch();
   const history = useHistory();
-  const isAppSidebarEnabled = useIsAppSidebarEnabled();
-  const isProtectedMode = useSelector(protectedModeSelector);
 
   const applicationId = useSelector(getCurrentApplicationId);
 
   const isApplicationIdPresent = !!(applicationId && applicationId.length > 0);
+
+  const isSideBySideFlagEnabled = useSelector(getIsSideBySideEnabled);
+
+  const user = useSelector(getCurrentUser);
 
   const currentApplication = useSelector(getCurrentApplication);
   const hasExportPermission = isPermitted(
@@ -77,8 +81,6 @@ export const GetNavigationMenuData = ({
       kind: "success",
     });
   };
-
-  const openAppSettingsPane = () => dispatch(openAppSettingsPaneAction());
 
   const deleteApplication = () => {
     if (applicationId && applicationId.length > 0) {
@@ -139,7 +141,7 @@ export const GetNavigationMenuData = ({
       type: MenuTypes.MENU_DIVIDER,
       isVisible: true,
     },
-    {
+    !isSideBySideFlagEnabled && {
       text: "Edit",
       type: MenuTypes.PARENT,
       isVisible: true,
@@ -161,44 +163,37 @@ export const GetNavigationMenuData = ({
       ],
     },
     {
-      text: "Settings",
-      onClick: openAppSettingsPane,
-      type: MenuTypes.MENU,
-      isVisible: !isAppSidebarEnabled && !isProtectedMode,
-    },
-    {
       text: "Help",
       type: MenuTypes.PARENT,
       isVisible: true,
       children: [
         {
-          text: "Community forum",
-          onClick: () => openExternalLink("https://community.appsmith.com/"),
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-        {
-          text: "Discord channel",
-          onClick: () => openExternalLink(DISCORD_URL),
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-        {
-          text: "Github",
-          onClick: () =>
-            openExternalLink("https://github.com/appsmithorg/appsmith/"),
-          type: MenuTypes.MENU,
-          isVisible: true,
-          isOpensNewWindow: true,
-        },
-        {
           text: "Documentation",
           onClick: () => openExternalLink(DOCS_BASE_URL),
           type: MenuTypes.MENU,
           isVisible: true,
-          isOpensNewWindow: true,
+          startIcon: "book-line",
+        },
+        {
+          text: "Report a bug",
+          onClick: () =>
+            openExternalLink(
+              "https://github.com/appsmithorg/appsmith/issues/new/choose",
+            ),
+          type: MenuTypes.MENU,
+          isVisible: true,
+          startIcon: "bug-line",
+        },
+        {
+          startIcon: "chat-help",
+          text: "Chat with us",
+          onClick: () => {
+            if (cloudHosting || user?.isIntercomConsentGiven) {
+              window.Intercom("show");
+            }
+          },
+          type: MenuTypes.MENU,
+          isVisible: intercomAppID && window.Intercom,
         },
       ],
     },

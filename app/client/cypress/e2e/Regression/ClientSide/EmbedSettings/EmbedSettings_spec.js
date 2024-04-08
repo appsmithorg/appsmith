@@ -21,11 +21,13 @@ describe("Embed settings options", { tags: ["@tag.Settings"] }, function () {
   function ValidateEditModeSetting(setting) {
     _.deployMode.NavigateBacktoEditor();
     _.embedSettings.OpenEmbedSettings();
-    _.agHelper.Sleep();
-    _.agHelper.GetNAssertElementText(
-      _.embedSettings.locators._frameAncestorsSetting,
-      setting,
-    );
+
+    _.agHelper.WaitForCondition(() => {
+      _.agHelper.GetNAssertElementText(
+        _.embedSettings.locators._frameAncestorsSetting,
+        setting,
+      );
+    });
   }
 
   before(() => {

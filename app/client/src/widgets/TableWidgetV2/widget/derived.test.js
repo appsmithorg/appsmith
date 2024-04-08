@@ -904,6 +904,125 @@ describe("Validates getFilteredTableData Properties", () => {
     expect(result).toStrictEqual(expected);
   });
 
+  it("validates generated filtered table data with date values to be sorted correctly", () => {
+    const { getFilteredTableData } = derivedProperty;
+    const input = {
+      processedTableData: [
+        { guid: "abc123", createdAt: 1678886400 },
+        { guid: "def456", createdAt: 1747968000 },
+        { guid: "ghi789", createdAt: 1646582400 },
+        { guid: "jkl012", createdAt: 1668806400 },
+        { guid: "mno345", createdAt: 1677840000 },
+        { guid: "pqr678", createdAt: 1649670400 },
+        { guid: "stu901", createdAt: 1683552000 },
+        { guid: "vwx234", createdAt: 1642137600 },
+        { guid: "yzab567", createdAt: 1661740800 },
+        { guid: "cde890", createdAt: 1670563200 },
+      ],
+      sortOrder: { column: "createdAt", order: "desc" },
+      columnOrder: ["guid", "createdAt"],
+      primaryColumns: {
+        guid: {
+          allowCellWrapping: false,
+          allowSameOptionsInNewRow: true,
+          index: 0,
+          width: 150,
+          originalId: "guid",
+          id: "guid",
+          alias: "guid",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "text",
+          textSize: "0.875rem",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDisabled: false,
+          isCellEditable: false,
+          isEditable: false,
+          isCellVisible: true,
+          isDerived: false,
+          label: "guid",
+          isSaveVisible: true,
+          isDiscardVisible: true,
+          computedValue: [
+            "abc123",
+            "def456",
+            "ghi789",
+            "jkl012",
+            "mno345",
+            "pqr678",
+            "stu901",
+            "vwx234",
+            "yzab567",
+            "cde890",
+          ],
+          sticky: "",
+          validation: {},
+          currencyCode: "USD",
+          decimals: 0,
+          thousandSeparator: true,
+          notation: "standard",
+          textColor: "",
+          cellBackground: "",
+          fontStyle: "",
+        },
+        createdAt: {
+          allowCellWrapping: false,
+          allowSameOptionsInNewRow: true,
+          index: 1,
+          width: 150,
+          originalId: "createdAt",
+          id: "createdAt",
+          alias: "createdAt",
+          horizontalAlignment: "LEFT",
+          verticalAlignment: "CENTER",
+          columnType: "date",
+          textSize: "0.875rem",
+          enableFilter: true,
+          enableSort: true,
+          isVisible: true,
+          isDisabled: false,
+          isCellEditable: false,
+          isEditable: false,
+          isCellVisible: true,
+          isDerived: false,
+          label: "createdAt",
+          isSaveVisible: true,
+          isDiscardVisible: true,
+          computedValue: [
+            1678886400, 1747968000, 1646582400, 1668806400, 1677840000,
+            1649670400, 1683552000, 1642137600, 1661740800, 1670563200,
+          ],
+          sticky: "",
+          validation: {},
+          currencyCode: "USD",
+          decimals: 0,
+          thousandSeparator: true,
+          notation: "standard",
+          inputFormat: "Epoch",
+          textColor: "",
+          cellBackground: "",
+          fontStyle: "",
+          outputFormat: "",
+        },
+      },
+    };
+
+    input.orderedTableColumns = Object.values(input.primaryColumns).sort(
+      (a, b) => {
+        return input.columnOrder[a.id] < input.columnOrder[b.id];
+      },
+    );
+
+    const expected = input.processedTableData.sort((a, b) => {
+      return a.createdAt < b.createdAt ? 1 : -1;
+    });
+
+    let result = getFilteredTableData(input, moment, _);
+    expect(result).toStrictEqual(expected);
+  });
+
   it("validates generated filtered table data to be filtered correctly in empty comparison", () => {
     const { getFilteredTableData } = derivedProperty;
     const input = {

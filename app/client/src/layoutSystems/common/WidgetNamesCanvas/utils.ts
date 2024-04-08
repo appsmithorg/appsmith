@@ -11,6 +11,8 @@ import {
   WIDGET_NAME_ICON_PADDING,
   WIDGET_NAME_TEXT_COLOR,
   WIDGET_NAME_VERTICAL_PADDING,
+  WIDGET_OUTLINE_OFFSET,
+  WIDGET_NAME_OFFSET,
 } from "./WidgetNameConstants";
 
 /**
@@ -70,8 +72,8 @@ export const getWidgetNameComponent = (
     scrollTop,
   );
   const left: number =
-    widgetLeft + widgetNameData.position.width - componentWidth;
-  const top: number = widgetTop - WIDGET_NAME_HEIGHT;
+    widgetLeft + widgetNameData.position.width - componentWidth - 1;
+  const top: number = widgetTop - WIDGET_NAME_HEIGHT + 1;
 
   //Store the widget name positions for future use
   const widgetNamePosition: WidgetNamePositionData = {
@@ -108,6 +110,7 @@ export const getWidgetNameComponent = (
     width: componentWidth,
     x: left,
     y: top,
+    offsetY: WIDGET_NAME_OFFSET,
   });
 
   groupEl.add(rectEl);
@@ -145,7 +148,7 @@ const getPositionsForBoundary = (
   const canvasLeftOffset = parentLeft - canvasLeft;
   const canvasTopOffset = parentTop - canvasTop;
 
-  const left: number = position.left + canvasLeftOffset;
+  const left: number = position.left + canvasLeftOffset + WIDGET_OUTLINE_OFFSET;
   const top: number = position.top + canvasTopOffset - scrollTop;
 
   return { left, top, canvasLeftOffset, canvasTopOffset };

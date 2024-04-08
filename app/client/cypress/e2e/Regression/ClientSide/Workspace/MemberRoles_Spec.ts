@@ -1,6 +1,5 @@
 import { REPO, CURRENT_REPO } from "../../../../fixtures/REPO";
 import HomePage from "../../../../locators/HomePage";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 let workspaceId: any, appid: any;
 
@@ -9,14 +8,12 @@ describe(
   { tags: ["@tag.Workspace"] },
   () => {
     it("1. Create new Workspace, Share with a user from UI & verify", () => {
-      _.homePage.NavigateToHome();
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(true, false);
       _.agHelper.GenerateUUID();
       cy.get("@guid").then((uid) => {
         workspaceId = uid;
         appid = uid;
-        featureFlagIntercept({ license_gac_enabled: true });
-        _.agHelper.Sleep(2000);
-        _.homePage.CreateNewWorkspace(workspaceId);
+        _.homePage.CreateNewWorkspace(workspaceId, true);
         _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 1);
         _.homePage.InviteUserToWorkspaceErrorMessage(workspaceId, "abcdef");
         cy.visit("/applications", { timeout: 60000 });
@@ -30,14 +27,12 @@ describe(
         _.homePage.CheckWorkspaceShareUsersCount(workspaceId, 2);
         _.homePage.CreateAppInWorkspace(workspaceId, appid);
       });
-      _.homePage.LogOutviaAPI();
     });
 
     it("2. Login as Administrator and search for users using search bar", () => {
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
+      _.homePage.SelectWorkspace(workspaceId);
       _.agHelper.GetNClick(_.homePage._shareWorkspace(workspaceId));
       _.agHelper.GetNClick(_.homePage._visibleTextSpan("Manage users"));
       cy.get(".search-highlight").should("not.exist");
@@ -48,7 +43,6 @@ describe(
       cy.get(".search-highlight")
         .should("exist")
         .contains(Cypress.env("TESTUSERNAME1"));
-      _.homePage.Signout();
     });
 
     it("3. Login as Invited user and validate Viewer role", function () {
@@ -57,9 +51,9 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "App Viewer",
       );
-      featureFlagIntercept({ license_gac_enabled: true });
-      _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      if (CURRENT_REPO === REPO.EE)
+        _.adminSettings.EnableGAC(false, true, "home");
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       cy.get(_.homePage._appHoverIcon("edit")).should("not.exist");
       // verify only viewer role is visible
@@ -71,23 +65,19 @@ describe(
         .should("have.length", 1)
         .and("contain.text", `App Viewer`);
       _.agHelper.GetNClick(HomePage.closeBtn);
-      _.homePage.LaunchAppFromAppHover();
-      //_.deployMode.NavigateToHomeDirectly();
-      _.homePage.Signout(false);
+      _.homePage.LaunchAppFromAppHover(_.locators._emptyPageTxt);
     });
 
     it("4. Login as Workspace owner and Update the Invited user role to Developer", function () {
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "App Viewer",
         "Developer",
       );
-      _.homePage.Signout();
     });
 
     it("5. Login as Invited user and validate Developer role", function () {
@@ -96,9 +86,9 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "Developer",
       );
-      featureFlagIntercept({ license_gac_enabled: true });
-      _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      if (CURRENT_REPO === REPO.EE)
+        _.adminSettings.EnableGAC(false, true, "home");
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
 
@@ -120,22 +110,18 @@ describe(
 
       _.agHelper.GetNClick(HomePage.closeBtn);
       _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
-
-      _.homePage.Signout();
     });
 
     it("6. Login as Workspace owner and Update the Invited user role to Administrator", function () {
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "Developer",
         "Administrator",
       );
-      _.homePage.Signout();
     });
 
     it("7. Login as Invited user and validate Administrator role", function () {
@@ -144,16 +130,17 @@ describe(
         Cypress.env("TESTPASSWORD1"),
         "Administrator",
       );
-      featureFlagIntercept({ license_gac_enabled: true });
-      _.agHelper.Sleep(2000);
+      if (CURRENT_REPO === REPO.EE)
+        _.adminSettings.EnableGAC(false, true, "home");
       _.homePage.InviteUserToWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME2"),
         "App Viewer",
+        false,
       );
       _.agHelper.GetNClick(HomePage.closeBtn);
       _.agHelper.Sleep();
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       cy.get(_.homePage._applicationCard).first().trigger("mouseover");
       _.agHelper.AssertElementExist(_.homePage._appHoverIcon("edit"));
 
@@ -177,22 +164,19 @@ describe(
       cy.get(".rc-select-item-option").should("contain.text", `Administrator`);
       _.agHelper.GetNClick(HomePage.closeBtn);
       _.agHelper.GetNClick(_.homePage._appHoverIcon("edit"));
-
-      _.homePage.Signout();
     });
 
     it("8. Login as Workspace owner and verify all 3 users are present", function () {
       _.homePage.LogintoApp(Cypress.env("USERNAME"), Cypress.env("PASSWORD"));
-      featureFlagIntercept({ license_gac_enabled: true });
-      _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      if (CURRENT_REPO === REPO.EE) _.adminSettings.EnableGAC(false, true);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.UpdateUserRoleInWorkspace(
         workspaceId,
         Cypress.env("TESTUSERNAME1"),
         "Administrator",
         "Developer",
       );
-      _.homePage.FilterApplication(appid, workspaceId);
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.OpenMembersPageForWorkspace(workspaceId);
       cy.get(_.homePage._usersEmailList).then(function ($list) {
         expect($list).to.have.length(3);
@@ -209,11 +193,9 @@ describe(
         Cypress.env("TESTUSERNAME1"),
         Cypress.env("TESTPASSWORD1"),
       );
-      featureFlagIntercept({ license_gac_enabled: true });
-      _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      if (CURRENT_REPO === REPO.EE)
+        _.adminSettings.EnableGAC(false, true, "home");
       _.homePage.LeaveWorkspace(workspaceId);
-      _.homePage.Signout();
     });
 
     it("10. Login as App Viewer, Verify leave workspace flow", () => {
@@ -222,11 +204,10 @@ describe(
         Cypress.env("TESTPASSWORD2"),
         "App Viewer",
       );
-      featureFlagIntercept({ license_gac_enabled: true });
-      _.agHelper.Sleep(2000);
-      _.homePage.FilterApplication(appid, workspaceId);
+      if (CURRENT_REPO === REPO.EE)
+        _.adminSettings.EnableGAC(false, true, "home");
+      _.homePage.SelectWorkspace(workspaceId);
       _.homePage.LeaveWorkspace(workspaceId);
-      _.homePage.LogOutviaAPI();
     });
   },
 );

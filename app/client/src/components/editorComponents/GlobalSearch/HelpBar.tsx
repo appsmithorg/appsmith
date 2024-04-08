@@ -1,7 +1,8 @@
 import React from "react";
 import styled from "styled-components";
-import { connect } from "react-redux";
+import { connect, useSelector } from "react-redux";
 import { getTypographyByKey, Text, TextType } from "design-system-old";
+import { Icon } from "design-system";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -9,8 +10,9 @@ import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";
 import type { AppState } from "@appsmith/reducers";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 
-const StyledHelpBar = styled.button`
+const StyledHelpBar = styled.button<{ isSideBySideFlagEnabled?: boolean }>`
   padding: 0 var(--ads-v2-spaces-3);
   margin: var(--ads-v2-spaces-2);
   .placeholder-text {
@@ -36,6 +38,13 @@ const StyledHelpBar = styled.button`
   &[disabled] {
     cursor: not-allowed;
   }
+  ${({ isSideBySideFlagEnabled }) =>
+    isSideBySideFlagEnabled &&
+    `
+      flex-grow: 0;
+      gap: 8px;
+      min-width: fit-content;
+  `}
 `;
 
 interface Props {
@@ -44,14 +53,20 @@ interface Props {
 }
 
 function HelpBar({ isProtectedMode, toggleShowModal }: Props) {
+  const isSideBySideFlagEnabled = useSelector(getIsSideBySideEnabled);
+
   return (
     <StyledHelpBar
       className="t--global-search-modal-trigger"
       data-testid="global-search-modal-trigger"
       disabled={isProtectedMode}
+      isSideBySideFlagEnabled={isSideBySideFlagEnabled}
       onClick={toggleShowModal}
     >
-      <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
+      {!isSideBySideFlagEnabled && (
+        <Text type={TextType.P2}>{HELPBAR_PLACEHOLDER()}</Text>
+      )}
+      {isSideBySideFlagEnabled && <Icon name={"search-line"} size={"md"} />}
       <Text italic type={TextType.P3}>
         {modText()} K
       </Text>

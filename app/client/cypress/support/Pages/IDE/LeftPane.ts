@@ -1,4 +1,6 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+import AddView from "./AddView";
+import ListView from "./ListView";
 
 export class LeftPane {
   segments?: string[];
@@ -10,11 +12,25 @@ export class LeftPane {
       "//div[text()='" +
       name +
       "']/ancestor::div/span[contains(@class, 't--entity-collapse-toggle')]",
+    activeItemSelector: "",
+    selector: "",
   };
 
-  constructor(listItemSelector: (name: string) => string, segments?: string[]) {
+  private addView: AddView;
+  private listView: ListView;
+
+  constructor(
+    listItemSelector: (name: string) => string,
+    selector: string,
+    activeItemSelector: string,
+    segments?: string[],
+  ) {
     this.listItemSelector = listItemSelector;
     this.segments = segments;
+    this.locators.selector = selector;
+    this.locators.activeItemSelector = activeItemSelector;
+    this.addView = new AddView();
+    this.listView = new ListView();
   }
 
   public assertAbsence(name: string) {
@@ -42,14 +58,7 @@ export class LeftPane {
     if (!this.segments) {
       throw Error("No Segments configured");
     }
-    ObjectsRegistry.AggregateHelper.GetAttribute(
-      this.locators.segment(name),
-      "data-selected",
-    ).then(($value) => {
-      if ($value === "true") return;
-      else
-        ObjectsRegistry.AggregateHelper.GetNClick(this.locators.segment(name));
-    });
+    ObjectsRegistry.AggregateHelper.GetNClick(this.locators.segment(name));
   }
 
   public selectItem(
@@ -82,8 +91,43 @@ export class LeftPane {
         }
       });
   }
+  public selectedItem(): Cypress.Chainable {
+    return ObjectsRegistry.AggregateHelper.GetElement(
+      this.locators.activeItemSelector,
+    );
+  }
 
   public assertSelected(name: string) {
     // TODO
+  }
+
+  public switchToAddNew() {
+    this.listView.switchToAddNew();
+  }
+
+  public assertInAddView() {
+    this.addView.assertInAddView();
+  }
+
+  public closeAddView() {
+    this.addView.closeAddView();
+  }
+
+  public getCreateOptions() {
+    return this.addView.getCreateOptions();
+  }
+
+  public assertInListView() {
+    this.listView.assertListVisibility();
+  }
+
+  public assertItemCount(count: number) {
+    this.listView.assertItemCount(count);
+  }
+
+  public assertSelectedSegment(name: string) {
+    ObjectsRegistry.AggregateHelper.GetElement(
+      this.locators.segment(name),
+    ).should("have.attr", "data-selected", "true");
   }
 }

@@ -4,12 +4,10 @@ import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.services.AstService;
 import com.appsmith.server.solutions.ActionPermission;
-import com.appsmith.server.solutions.PagePermission;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,9 +32,6 @@ class WidgetRefactoringServiceCEImplTest {
     private final String postWord = ")\\b";
 
     @Autowired
-    PagePermission pagePermission;
-
-    @Autowired
     ActionPermission actionPermission;
 
     @MockBean
@@ -50,13 +45,8 @@ class WidgetRefactoringServiceCEImplTest {
     @MockBean
     ActionCollectionRepository actionCollectionRepository;
 
-    WidgetRefactoringServiceCEImpl widgetRefactoringServiceCE;
-
-    @BeforeEach
-    public void setUp() {
-        widgetRefactoringServiceCE =
-                new WidgetRefactoringServiceCEImpl(newPageService, astService, mapper, pagePermission);
-    }
+    @Autowired
+    WidgetRefactorUtil widgetRefactorUtil;
 
     @Test
     void testRefactorNameInDsl_whenRenamingTextWidget_replacesAllReferences() {
@@ -66,7 +56,7 @@ class WidgetRefactoringServiceCEImplTest {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
             final String oldName = "Text";
-            Mono<Set<String>> updatesMono = widgetRefactoringServiceCE.refactorNameInDsl(
+            Mono<Set<String>> updatesMono = widgetRefactorUtil.refactorNameInDsl(
                     dslAsJsonNode, oldName, "newText", 2, Pattern.compile(preWord + oldName + postWord));
 
             StepVerifier.create(updatesMono)
@@ -94,7 +84,7 @@ class WidgetRefactoringServiceCEImplTest {
             assert initialStream != null;
             JsonNode dslAsJsonNode = mapper.readTree(initialStream);
             final String oldName = "List1";
-            Mono<Set<String>> updatesMono = widgetRefactoringServiceCE.refactorNameInDsl(
+            Mono<Set<String>> updatesMono = widgetRefactorUtil.refactorNameInDsl(
                     dslAsJsonNode, oldName, "newList", 2, Pattern.compile(preWord + oldName + postWord));
 
             StepVerifier.create(updatesMono)

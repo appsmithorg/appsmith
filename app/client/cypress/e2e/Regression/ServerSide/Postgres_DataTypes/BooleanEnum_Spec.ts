@@ -9,10 +9,8 @@ import {
   locators,
   table,
 } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
   AppSidebarButton,
   AppSidebar,
 } from "../../../../support/Pages/EditorNavigation";
@@ -24,10 +22,6 @@ describe(
     let dsName: any, query: string;
 
     before("Create Postgress DS, Add dsl, Appply theme", () => {
-      featureFlagIntercept({
-        ab_gsheet_schema_enabled: true,
-        ab_mock_mongo_schema_enabled: true,
-      });
       agHelper.AddDsl("Datatypes/BooleanEnumDTdsl");
       appSettings.OpenPaneAndChangeThemeColors(-18, -20);
       dataSources.CreateDataSource("Postgres");
@@ -80,7 +74,6 @@ describe(
         .then(($noRecMsg) =>
           expect($noRecMsg).to.eq("No data records to show"),
         );
-      PageLeftPane.expandCollapseItem("Queries/JS", false);
     });
 
     it("2. Inserting record - boolenumtypes", () => {
@@ -175,7 +168,6 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad();
       query = `SELECT * FROM boolenumtypes WHERE workingday > 'Tuesday';`;
-      PageLeftPane.expandCollapseItem("Queries/JS");
       entityExplorer.CreateNewDsQuery(dsName);
       agHelper.RenameWithInPane("verifyEnumOrdering");
       dataSources.EnterQuery(query);
@@ -255,18 +247,15 @@ describe(
         dataSources.ReadQueryTableResponse(0).then(($cellData) => {
           expect($cellData).to.eq("0"); //Success response for dropped table!
         });
-        PageLeftPane.expandCollapseItem("Queries/JS", false);
 
         //Delete queries
         dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //Since all queries exists
         AppSidebar.navigate(AppSidebarButton.Editor);
-        PageLeftPane.expandCollapseItem("Queries/JS");
         entityExplorer.DeleteAllQueriesForDB(dsName);
 
         //Delete ds
         deployMode.DeployApp();
         deployMode.NavigateBacktoEditor();
-        PageLeftPane.expandCollapseItem("Queries/JS");
         dataSources.DeleteDatasourceFromWithinDS(dsName, 200);
       },
     );

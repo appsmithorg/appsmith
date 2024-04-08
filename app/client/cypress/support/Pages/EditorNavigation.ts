@@ -4,6 +4,7 @@ import ClickOptions = Cypress.ClickOptions;
 import { Sidebar } from "./IDE/Sidebar";
 import { LeftPane } from "./IDE/LeftPane";
 import PageList from "./PageList";
+
 export enum AppSidebarButton {
   Data = "Data",
   Editor = "Editor",
@@ -13,8 +14,14 @@ export enum AppSidebarButton {
 export const AppSidebar = new Sidebar(Object.values(AppSidebarButton));
 
 export enum PagePaneSegment {
-  Explorer = "Explorer",
-  Widgets = "Widgets",
+  UI = "UI",
+  Queries = "Queries",
+  JS = "JS",
+}
+
+export enum EditorViewMode {
+  FullScreen = "FullScreen",
+  SplitScreen = "SplitScreen",
 }
 
 const pagePaneListItemSelector = (name: string) =>
@@ -22,6 +29,8 @@ const pagePaneListItemSelector = (name: string) =>
 
 export const PageLeftPane = new LeftPane(
   pagePaneListItemSelector,
+  ".ide-editor-left-pane",
+  ".ide-editor-left-pane__content .active.t--entity-item",
   Object.values(PagePaneSegment),
 );
 
@@ -34,6 +43,12 @@ export enum EntityType {
   Page = "Page",
 }
 class EditorNavigation {
+  public locators = {
+    MaximizeBtn: "[data-testid='t--ide-maximize']",
+    MinimizeBtn: "[data-testid='t--ide-minimize']",
+    announcementCloseButton: "[data-testid='t--ide-close-announcement']",
+  };
+
   NavigateToDatasource(name: string) {
     AppSidebar.navigate(AppSidebarButton.Data);
     cy.get(datasource.datasourceCard)
@@ -43,7 +58,8 @@ class EditorNavigation {
       .should("be.visible")
       .click()
       .parents(datasource.datasourceCard)
-      .should("have.attr", "data-selected", "true");
+      .as("dsCard");
+    cy.get("@dsCard").should("have.attr", "data-selected", "true");
   }
 
   NavigateToWidget(
@@ -52,8 +68,7 @@ class EditorNavigation {
     hierarchy: string[] = [],
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    PageLeftPane.expandCollapseItem("Widgets");
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
     hierarchy.forEach((level) => {
       PageLeftPane.expandCollapseItem(level);
     });
@@ -63,25 +78,24 @@ class EditorNavigation {
 
   NavigateToQuery(name: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
   NavigateToJSObject(name: string) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.switchSegment(PagePaneSegment.Explorer);
-    PageLeftPane.expandCollapseItem("Queries/JS");
+    PageLeftPane.switchSegment(PagePaneSegment.JS);
     PageLeftPane.selectItem(name);
     _.AggregateHelper.Sleep(); //for selection to settle
   }
 
-  NavigateToPage(name: string) {
+  NavigateToPage(name: string, networkCallAlias = false) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.expandCollapseItem("Pages");
+    PageList.ShowList();
     PageLeftPane.selectItem(name, { multiple: true, force: true });
     _.AggregateHelper.Sleep(); //for selection to settle
+    networkCallAlias && _.AssertHelper.AssertNetworkStatus("pageSnap");
   }
 
   SelectEntityByName(
@@ -114,7 +128,28 @@ class EditorNavigation {
 
   ShowCanvas() {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageList.SelectedPageItem().click();
+    PageLeftPane.switchSegment(PagePaneSegment.UI);
+  }
+
+  SwitchScreenMode(mode: EditorViewMode) {
+    if (mode === EditorViewMode.FullScreen) {
+      _.AggregateHelper.GetNClick(this.locators.MaximizeBtn);
+    } else {
+      _.AggregateHelper.GetNClick(this.locators.MinimizeBtn);
+      this.CloseAnnouncementModal();
+    }
+  }
+
+  CloseAnnouncementModal() {
+    cy.get("body").then(($body) => {
+      if ($body.find(this.locators.announcementCloseButton).length > 0) {
+        _.AggregateHelper.GetNClick(
+          this.locators.announcementCloseButton,
+          0,
+          true,
+        );
+      }
+    });
   }
 }
 

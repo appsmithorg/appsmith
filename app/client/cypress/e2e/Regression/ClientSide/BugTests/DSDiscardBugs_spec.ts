@@ -167,9 +167,8 @@ describe(
 
     it("7. Bug 19801: Create new Auth DS, refresh the page without saving, we should not see discard popup", () => {
       _.dataSources.NavigateToDSCreateNew();
-      _.agHelper.GenerateUUID();
       // using CreatePlugIn function instead of CreateDatasource,
-      // because I do not need to fill the datasource form and use the same default data
+      // because we do not need to fill the datasource form for this case
       _.dataSources.CreatePlugIn("Authenticated API");
       _.agHelper.RefreshPage();
       _.agHelper.AssertElementAbsence(_.dataSources._datasourceModalSave);

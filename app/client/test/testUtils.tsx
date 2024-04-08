@@ -15,6 +15,9 @@ import createSagaMiddleware from "redux-saga";
 import store, { testStore } from "store";
 import { sagasToRunForTests } from "./sagas";
 import { all, call, spawn } from "redux-saga/effects";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
+import { fetchFeatureFlagsSuccess } from "../src/actions/userActions";
+import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
 
 const testSagaMiddleware = createSagaMiddleware();
 
@@ -38,25 +41,41 @@ const rootSaga = function* (sagasToRun = sagasToRunForTests) {
   );
 };
 
-const customRender = (
-  ui: ReactElement,
-  state?: {
-    url?: string;
-    initialState?: Partial<AppState>;
-    sagasToRun?: typeof sagasToRunForTests;
-  },
-  options?: Omit<RenderOptions, "queries">,
-) => {
+interface State {
+  url?: string;
+  initialState?: Partial<AppState>;
+  sagasToRun?: typeof sagasToRunForTests;
+  featureFlags?: Partial<FeatureFlags>;
+}
+const setupState = (state?: State) => {
   let reduxStore = store;
   window.history.pushState({}, "Appsmith", state?.url || "/");
-  if (state && state.initialState) {
+  if (state && (state.initialState || state.featureFlags)) {
     reduxStore = testStore(state.initialState || {});
+    if (state.featureFlags) {
+      reduxStore.dispatch(
+        fetchFeatureFlagsSuccess({
+          ...DEFAULT_FEATURE_FLAG_VALUE,
+          ...state.featureFlags,
+        }),
+      );
+    }
   }
   if (state && state.sagasToRun) {
     reduxStore = testStoreWithTestMiddleWare(reduxStore.getState());
     testSagaMiddleware.run(() => rootSaga(state.sagasToRun));
   }
   const defaultTheme = getCurrentThemeDetails(reduxStore.getState());
+
+  return { reduxStore, defaultTheme };
+};
+
+const customRender = (
+  ui: ReactElement,
+  state?: State,
+  options?: Omit<RenderOptions, "queries">,
+) => {
+  const { defaultTheme, reduxStore } = setupState(state);
   return render(
     <BrowserRouter>
       <Provider store={reduxStore}>
@@ -70,6 +89,19 @@ const customRender = (
   );
 };
 
+const hookWrapper = (state: State) => {
+  return ({ children }: { children: ReactElement }) => {
+    const { defaultTheme, reduxStore } = setupState(state);
+    return (
+      <BrowserRouter>
+        <Provider store={reduxStore}>
+          <ThemeProvider theme={defaultTheme}>{children}</ThemeProvider>
+        </Provider>
+      </BrowserRouter>
+    );
+  };
+};
+
 export * from "@testing-library/react";
 
-export { customRender as render };
+export { customRender as render, hookWrapper };

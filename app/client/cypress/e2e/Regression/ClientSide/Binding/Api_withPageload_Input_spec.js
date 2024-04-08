@@ -39,7 +39,7 @@ describe(
     });
 
     it("3. Binding second input widget with API on PageLoad data and default data from input1 widget ", function () {
-      cy.selectEntityByName("Input3");
+      EditorNavigation.SelectEntityByName("Input3", EntityType.Widget);
       cy.get(widgetsPage.defaultInput).type(testdata.pageloadBinding, {
         parseSpecialCharSequences: false,
       });

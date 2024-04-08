@@ -1,7 +1,7 @@
 import type { BaseAction } from "../Action";
 import type { PluginType } from "entities/Action";
 import type { LayoutOnLoadActionErrors } from "constants/AppsmithActionConstants/ActionConstants";
-import type { ActionContextTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 export interface Variable {
   name: string;
@@ -16,15 +16,15 @@ export interface JSCollection {
   pluginId: string;
   pluginType: PluginType.JS;
   actions: Array<JSAction>;
-  body: string;
-  variables: Array<Variable>;
+  body?: string;
+  variables?: Array<Variable>;
   userPermissions?: string[];
   errorReports?: Array<LayoutOnLoadActionErrors>;
   isPublic?: boolean;
   moduleId?: string;
   moduleInstanceId?: string;
   workflowId?: string;
-  contextType?: ActionContextTypeInterface;
+  contextType?: ActionParentEntityTypeInterface;
   // This is used to identify the main js collection of a workflow
   // main js collection is the entrypoint for a workflow
   // cannot be deleted or renamed
@@ -33,9 +33,9 @@ export interface JSCollection {
 }
 
 export interface JSActionConfig {
-  body: string;
+  body?: string;
   timeoutInMillisecond: number;
-  jsArguments: Array<Variable>;
+  jsArguments?: Array<Variable>;
 }
 export interface JSAction extends BaseAction {
   actionConfiguration: JSActionConfig;

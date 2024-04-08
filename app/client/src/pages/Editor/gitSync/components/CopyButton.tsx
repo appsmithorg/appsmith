@@ -1,3 +1,4 @@
+import type { CSSProperties } from "react";
 import React, { useRef, useState } from "react";
 import { Button, Icon, Tooltip } from "design-system";
 import styled from "styled-components";
@@ -13,17 +14,21 @@ export const TooltipWrapper = styled.div`
 export const IconContainer = styled.div``;
 
 interface CopyButtonProps {
+  style?: CSSProperties;
   value?: string;
   delay?: number;
   onCopy?: () => void;
   tooltipMessage?: string;
   isDisabled?: boolean;
+  testIdSuffix?: string;
 }
 
 export function CopyButton({
   delay = 2000,
   isDisabled = false,
   onCopy = noop,
+  style,
+  testIdSuffix = "generic",
   tooltipMessage,
   value,
 }: CopyButtonProps) {
@@ -47,7 +52,7 @@ export function CopyButton({
   return (
     <>
       {showCopied ? (
-        <IconContainer>
+        <IconContainer style={style}>
           <Icon
             color="var(--ads-v2-color-fg-success)"
             name="check-line"
@@ -55,10 +60,10 @@ export function CopyButton({
           />
         </IconContainer>
       ) : (
-        <TooltipWrapper>
+        <TooltipWrapper style={style}>
           <Tooltip content={tooltipMessage}>
             <Button
-              className="t--copy-ssh-key"
+              data-testid={`t--copy-${testIdSuffix}`}
               isDisabled={isDisabled}
               isIconButton
               kind="tertiary"

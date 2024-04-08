@@ -23,7 +23,7 @@ describe("Preview mode functionality", function () {
 
   beforeEach(() => {
     cy.getSharedUrl().then((url) => {
-      agHelper.VisitNAssert(url, "getPagesForViewApp"),
+      agHelper.VisitNAssert(url, "getConsolidatedData"),
         agHelper.AssertElementVisibility(
           locators._widgetInDeployed(draggableWidgets.BUTTON),
         );
@@ -42,7 +42,7 @@ describe("Preview mode functionality", function () {
     cy.url().then((url) => {
       url = new URL(url);
       url.searchParams.append("embed", "true");
-      agHelper.VisitNAssert(url.toString(), "getPagesForViewApp");
+      agHelper.VisitNAssert(url.toString(), "getConsolidatedData");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.BUTTON),
       );
@@ -55,7 +55,7 @@ describe("Preview mode functionality", function () {
       url = new URL(url);
       url.searchParams.append("embed", "true");
       url.searchParams.append("navbar", "true");
-      agHelper.VisitNAssert(url.toString(), "getPagesForViewApp");
+      agHelper.VisitNAssert(url.toString(), "getConsolidatedData");
       agHelper.AssertElementVisibility(
         locators._widgetInDeployed(draggableWidgets.BUTTON),
       );

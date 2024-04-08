@@ -2,6 +2,8 @@
 import {
   AppSidebar,
   AppSidebarButton,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -55,7 +57,6 @@ describe("GlobalSearch", function () {
 
   it("3. navigatesToApi", () => {
     cy.CreateAPI("SomeApi");
-
     cy.get(commonlocators.globalSearchTrigger).click({ force: true });
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(1000);
@@ -140,7 +141,8 @@ describe("GlobalSearch", function () {
 
   it("7. Api actions should have API as prefix", () => {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    cy.get(globalSearchLocators.createNew).click({ force: true });
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    PageLeftPane.switchToAddNew();
     cy.get(globalSearchLocators.blankDatasource).first().click({ force: true });
     cy.get(datasourceHomeLocators.createAuthApiDatasource).click();
     cy.get(datasourceLocators.datasourceTitleLocator).click();
@@ -153,8 +155,9 @@ describe("GlobalSearch", function () {
     cy.saveDatasource();
 
     AppSidebar.navigate(AppSidebarButton.Editor);
-    cy.get(globalSearchLocators.createNew).click({ force: true });
-    cy.get(".ads-v2-menu__menu-item span:contains('omnibarApiDatasource')")
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
+    PageLeftPane.switchToAddNew();
+    cy.get(".ads-v2-listitem span:contains('omnibarApiDatasource')")
       .first()
       .click();
     cy.wait("@createNewApi");
@@ -167,8 +170,8 @@ describe("GlobalSearch", function () {
   // updated test so that when user clicks on google sheet and searches for the same datasource, no
   // results found will be shown
   it(
-    "excludeForAirgap",
     "8. navigatesToGoogleSheetsQuery does not break again: Bug 15012",
+    { tags: ["@tag.excludeForAirgap"] },
     () => {
       cy.createGoogleSheetsDatasource();
       cy.renameDatasource("XYZ");

@@ -11,6 +11,8 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
+  PageLeftPane,
+  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -253,6 +255,7 @@ describe("Autocomplete tests", { tags: ["@tag.JS"] }, () => {
         entityType: entityItems.JSObject,
       });
     });
+    PageLeftPane.switchSegment(PagePaneSegment.Queries);
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Api1",
       action: "Delete",

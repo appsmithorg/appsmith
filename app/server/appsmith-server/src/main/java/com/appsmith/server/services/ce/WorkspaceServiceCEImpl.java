@@ -8,7 +8,6 @@ import com.appsmith.server.constants.Constraint;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
@@ -31,24 +30,17 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.mongodb.DBObject;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Arrays;
 import java.util.List;
@@ -72,7 +64,6 @@ import static com.appsmith.server.constants.PatternConstants.EMAIL_PATTERN;
 import static com.appsmith.server.constants.PatternConstants.WEBSITE_PATTERN;
 import static com.appsmith.server.helpers.PermissionUtils.collateAllPermissions;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static java.lang.Boolean.TRUE;
 
 @Slf4j
@@ -94,10 +85,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Autowired
     public WorkspaceServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             WorkspaceRepository repository,
             AnalyticsService analyticsService,
             PluginRepository pluginRepository,
@@ -112,7 +100,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
             PermissionGroupPermission permissionGroupPermission,
             WorkspaceServiceHelper workspaceServiceHelper) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.pluginRepository = pluginRepository;
         this.sessionUserService = sessionUserService;
         this.assetRepository = assetRepository;
@@ -459,23 +447,8 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                     return workspaceFromDb;
                 })
                 .flatMap(this::validateObject)
-                .then(Mono.defer(() -> {
-                    Query query = new Query(
-                            Criteria.where(fieldName(QWorkspace.workspace.id)).is(id));
-                    DBObject update = getDbObject(resource);
-                    Update updateObj = new Update();
-                    Map<String, Object> updateMap = update.toMap();
-                    updateMap.forEach(updateObj::set);
-                    return mongoTemplate
-                            .updateFirst(query, updateObj, resource.getClass())
-                            .flatMap(updateResult -> {
-                                if (updateResult.getMatchedCount() == 0) {
-                                    return Mono.error(new AppsmithException(
-                                            AppsmithError.NO_RESOURCE_FOUND, FieldName.WORKSPACE, id));
-                                }
-                                return repository.findById(id).flatMap(analyticsService::sendUpdateEvent);
-                            });
-                }));
+                .then(Mono.defer(() -> repository.updateById(id, resource, null)))
+                .flatMap(analyticsService::sendUpdateEvent);
     }
 
     @Override
@@ -614,7 +587,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
 
     @Override
     public Flux<Workspace> getAll() {
-        return repository.findAllWorkspaces();
+        return repository.findAll();
     }
 
     @Override

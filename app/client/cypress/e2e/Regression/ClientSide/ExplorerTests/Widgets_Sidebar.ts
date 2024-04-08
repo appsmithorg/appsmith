@@ -3,14 +3,11 @@ import {
   agHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
-import {
-  PageLeftPane,
-  PagePaneSegment,
-} from "../../../../support/Pages/EditorNavigation";
+import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Entity explorer tests related to widgets and validation",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.Widget"] },
   function () {
     // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
     const WIDGET_TAGS: Record<string, string> = {
@@ -50,7 +47,15 @@ describe(
       ],
       Buttons: ["Button", "Button Group", "Icon button", "Menu button"],
       Select: ["Multi TreeSelect", "MultiSelect", "Select", "TreeSelect"],
-      Display: ["Chart", "Iframe", "List", "Map Chart", "Stats Box", "Table"],
+      Display: [
+        "Chart",
+        "Custom",
+        "Iframe",
+        "List",
+        "Map Chart",
+        "Stats Box",
+        "Table",
+      ],
       Layout: ["Container", "Divider", "Form", "JSON Form", "Modal", "Tabs"],
       Media: ["Audio", "Document Viewer", "Image", "Video"],
       Toggles: [
@@ -78,8 +83,6 @@ describe(
     };
 
     it("1. All widget tags should be visible and open by default.", () => {
-      PageLeftPane.switchSegment(PagePaneSegment.Widgets);
-
       agHelper.AssertElementLength(
         entityExplorer._widgetTagsList,
         Object.keys(WIDGET_TAGS).length,
@@ -185,7 +188,8 @@ describe(
       agHelper.AssertElementLength(entityExplorer._widgetCards, 2);
 
       agHelper.ClearNType(entityExplorer._widgetSearchInput, "cypress");
-      agHelper.AssertElementLength(entityExplorer._widgetCards, 0);
+      agHelper.AssertElementLength(entityExplorer._widgetCards, 1);
+      agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
 
       agHelper.ClearTextField(entityExplorer._widgetSearchInput);
 

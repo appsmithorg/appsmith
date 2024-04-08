@@ -1,7 +1,9 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BranchAwareDomain;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
@@ -9,20 +11,19 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
+
+import static com.appsmith.external.helpers.StringUtils.dotted;
 
 @Getter
 @Setter
 @ToString
+@FieldNameConstants
 public class NewActionCE extends BranchAwareDomain {
 
     // Fields in action that are not allowed to change between published and unpublished versions
     @JsonView(Views.Public.class)
     String applicationId;
-
-    // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
-    @Deprecated
-    @JsonView(Views.Public.class)
-    String organizationId;
 
     @JsonView(Views.Public.class)
     String workspaceId;
@@ -32,12 +33,6 @@ public class NewActionCE extends BranchAwareDomain {
 
     @JsonView(Views.Public.class)
     String pluginId;
-
-    @JsonView(Views.Public.class)
-    String templateId; // If action is created via a template, store the id here.
-
-    @JsonView(Views.Public.class)
-    String providerId; // If action is created via a template, store the template's provider id here.
 
     @JsonView(Views.Public.class)
     Documentation documentation; // Documentation for the template using which this action was created
@@ -51,11 +46,8 @@ public class NewActionCE extends BranchAwareDomain {
 
     @Override
     public void sanitiseToExportDBObject() {
-        this.setTemplateId(null);
         this.setApplicationId(null);
-        this.setOrganizationId(null);
         this.setWorkspaceId(null);
-        this.setProviderId(null);
         this.setDocumentation(null);
         ActionDTO unpublishedAction = this.getUnpublishedAction();
         if (unpublishedAction != null) {
@@ -66,5 +58,27 @@ public class NewActionCE extends BranchAwareDomain {
             publishedAction.sanitiseToExportDBObject();
         }
         super.sanitiseToExportDBObject();
+    }
+
+    public static class Fields extends BranchAwareDomain.Fields {
+        public static final String unpublishedAction_datasource_id =
+                dotted(unpublishedAction, ActionDTO.Fields.datasource, Datasource.Fields.id);
+        public static final String unpublishedAction_name = dotted(unpublishedAction, ActionDTO.Fields.name);
+        public static final String unpublishedAction_pageId = dotted(unpublishedAction, ActionDTO.Fields.pageId);
+        public static final String unpublishedAction_deletedAt = dotted(unpublishedAction, ActionDTO.Fields.deletedAt);
+        public static final String unpublishedAction_contextType =
+                dotted(unpublishedAction, ActionDTO.Fields.contextType);
+        public static final String unpublishedAction_userSetOnLoad =
+                dotted(unpublishedAction, ActionDTO.Fields.userSetOnLoad);
+        public static final String unpublishedAction_executeOnLoad =
+                dotted(unpublishedAction, ActionDTO.Fields.executeOnLoad);
+        public static final String unpublishedAction_fullyQualifiedName =
+                dotted(unpublishedAction, ActionDTO.Fields.fullyQualifiedName);
+        public static final String unpublishedAction_actionConfiguration_httpMethod =
+                dotted(unpublishedAction, ActionDTO.Fields.actionConfiguration, ActionConfiguration.Fields.httpMethod);
+
+        public static final String publishedAction_name = dotted(publishedAction, ActionDTO.Fields.name);
+        public static final String publishedAction_pageId = dotted(publishedAction, ActionDTO.Fields.pageId);
+        public static final String publishedAction_contextType = dotted(publishedAction, ActionDTO.Fields.contextType);
     }
 }

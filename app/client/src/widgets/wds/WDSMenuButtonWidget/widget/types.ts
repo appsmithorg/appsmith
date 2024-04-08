@@ -1,4 +1,4 @@
-import type { ButtonProps, COLORS } from "@design-system/widgets";
+import type { ButtonProps, COLORS, IconProps } from "@design-system/widgets";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { IconName } from "@blueprintjs/icons";
 
@@ -40,7 +40,7 @@ export interface MenuButtonWidgetProps extends WidgetProps {
   getVisibleItems: () => Array<MenuItem>;
 
   // Trigger button style
-  triggerButtonIconName?: IconName;
+  triggerButtonIconName?: IconProps["name"];
   triggerButtonIconAlign?: ButtonProps["iconPosition"];
   triggerButtonVariant?: ButtonProps["variant"];
   triggerButtonColor?: ButtonProps["color"];
