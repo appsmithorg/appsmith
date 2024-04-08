@@ -39,6 +39,7 @@ export const STORAGE_KEYS: {
   PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
   IDE_VIEW_MODE: "IDE_VIEW_MODE",
   CODE_WIDGET_NAVIGATION_USED: "CODE_WIDGET_NAVIGATION_USED",
+  OVERRIDE_CONVERSION_FLOW_FLAG: "OVERRIDE_CONVERSION_FLOW_FLAG",
 };
 
 const store = localforage.createInstance({
@@ -904,5 +905,23 @@ export const retrieveCodeWidgetNavigationUsed = async (): Promise<number> => {
     log.error("An error occurred while fetching CODE_WIDGET_NAVIGATION_USED");
     log.error(error);
     return 0;
+  }
+};
+
+export const getConversionFlowOverrideFlag = async () => {
+  const conversionFlowOverrideFlag = (await store.getItem(
+    STORAGE_KEYS.OVERRIDE_CONVERSION_FLOW_FLAG,
+  )) as boolean;
+  return conversionFlowOverrideFlag || false;
+};
+
+export const setConversionFlowOverrideFlag = async (flag: boolean) => {
+  try {
+    await store.setItem(STORAGE_KEYS.OVERRIDE_CONVERSION_FLOW_FLAG, flag);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting OVERRIDE_CONVERSION_FLOW_FLAG");
+    log.error(error);
+    return false;
   }
 };
