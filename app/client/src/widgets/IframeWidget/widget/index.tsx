@@ -13,6 +13,7 @@ import type {
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import type {
   SnipingModeProperty,
@@ -37,6 +38,7 @@ class IframeWidget extends BaseWidget<IframeWidgetProps, WidgetState> {
     return {
       name: "Iframe",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.DISPLAY],
       needsMeta: true,
       searchTags: ["embed"],
