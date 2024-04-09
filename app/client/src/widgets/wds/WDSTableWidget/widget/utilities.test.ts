@@ -966,7 +966,7 @@ describe("getTableStyles - ", () => {
         textSize: "HEADING1",
         fontStyle: "12",
         cellBackground: "#f00",
-        verticalAlignment: "TOP",
+        verticalAlignment: "start",
         horizontalAlignment: "CENTER",
       }) as any as TableStyles,
     ).toEqual({
@@ -974,7 +974,7 @@ describe("getTableStyles - ", () => {
       textSize: "HEADING1",
       fontStyle: "12",
       cellBackground: "#f00",
-      verticalAlignment: "TOP",
+      verticalAlignment: "start",
       horizontalAlignment: "CENTER",
     });
   });

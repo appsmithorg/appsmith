@@ -71,8 +71,6 @@ const Container = styled.div<{
   height: 100%;
   width: 100%;
   display: flex;
-  align-items: ${(props) =>
-    props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
 `;
 
 const FOCUS_CLASS = "has-focus";
@@ -114,18 +112,6 @@ const Wrapper = styled.div<{
         : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`;
     }
   }};
-  ${(props) => {
-    switch (props.verticalAlignment) {
-      case "TOP":
-        return `top: 0;`;
-      case "BOTTOM":
-        return `bottom: 0;`;
-      case "CENTER":
-        return `
-            top: calc(50% - (${TABLE_SIZES[props.compactMode].ROW_HEIGHT}/2)px);
-          `;
-    }
-  }}
 
   &&&&& {
     .bp3-input,

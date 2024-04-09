@@ -28,10 +28,6 @@ const SwitchCellWrapper = styled(CellWrapper)<{
       props.horizontalAlignment &&
       JUSTIFY_CONTENT[props.horizontalAlignment]} !important;
 
-    align-items: ${(props) =>
-      props.verticalAlignment &&
-      ALIGN_ITEMS[props.verticalAlignment]} !important;
-
     & .bp3-switch {
       gap: 0px;
       width: max-content;

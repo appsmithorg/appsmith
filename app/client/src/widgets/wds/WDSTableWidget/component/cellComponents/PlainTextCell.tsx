@@ -21,18 +21,7 @@ import CurrencyTypeDropdown, {
 import { getLocale } from "utils/helpers";
 import * as Sentry from "@sentry/react";
 import { getLocaleThousandSeparator } from "widgets/WidgetUtils";
-
-const Container = styled.div<{
-  isCellEditMode?: boolean;
-  verticalAlignment?: VerticalAlignment;
-  cellBackground?: string;
-}>`
-  height: 100%;
-  width: 100%;
-  display: flex;
-  align-items: ${(props) =>
-    props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
-`;
+import { Flex } from "@design-system/widgets";
 
 export type RenderDefaultPropsType = BaseCellComponentProps & {
   accentColor: string;
@@ -262,7 +251,7 @@ function PlainTextCell(
       additionalProps.decimals = decimals;
     }
 
-    editor = (
+    return (
       <InlineCellEditor
         accentColor={accentColor}
         additionalProps={additionalProps}
@@ -287,39 +276,31 @@ function PlainTextCell(
   }
 
   return (
-    <Container
+    <BasicCell
+      accentColor={accentColor}
+      allowCellWrapping={allowCellWrapping}
       cellBackground={cellBackground}
-      className="t--table-text-cell"
+      columnType={columnType}
+      compactMode={compactMode}
+      disabledEditIcon={disabledEditIcon}
+      disabledEditIconMessage={disabledEditIconMessage}
+      fontStyle={fontStyle}
+      hasUnsavedChanges={hasUnsavedChanges}
+      horizontalAlignment={horizontalAlignment}
+      isCellDisabled={isCellDisabled}
       isCellEditMode={isCellEditMode}
+      isCellEditable={isCellEditable}
+      isCellVisible={isCellVisible}
+      isHidden={isHidden}
+      onEdit={editEvents.onEdit}
+      ref={contentRef}
+      tableWidth={tableWidth}
+      textColor={textColor}
+      textSize={textSize}
+      url={columnType === ColumnTypes.URL ? props.value : null}
+      value={formattedValue}
       verticalAlignment={verticalAlignment}
-    >
-      <BasicCell
-        accentColor={accentColor}
-        allowCellWrapping={allowCellWrapping}
-        cellBackground={cellBackground}
-        columnType={columnType}
-        compactMode={compactMode}
-        disabledEditIcon={disabledEditIcon}
-        disabledEditIconMessage={disabledEditIconMessage}
-        fontStyle={fontStyle}
-        hasUnsavedChanges={hasUnsavedChanges}
-        horizontalAlignment={horizontalAlignment}
-        isCellDisabled={isCellDisabled}
-        isCellEditMode={isCellEditMode}
-        isCellEditable={isCellEditable}
-        isCellVisible={isCellVisible}
-        isHidden={isHidden}
-        onEdit={editEvents.onEdit}
-        ref={contentRef}
-        tableWidth={tableWidth}
-        textColor={textColor}
-        textSize={textSize}
-        url={columnType === ColumnTypes.URL ? props.value : null}
-        value={formattedValue}
-        verticalAlignment={verticalAlignment}
-      />
-      {editor}
-    </Container>
+    />
   );
 }
 

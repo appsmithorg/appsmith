@@ -6,40 +6,6 @@ export const styleConfig = [
     sectionName: "Text formatting",
     children: [
       {
-        propertyName: "textSize",
-        label: "Text size",
-        helpText: "Controls the size of text in the column",
-        controlType: "DROP_DOWN",
-        updateHook: updateColumnStyles,
-        dependencies: ["primaryColumns"],
-        options: [
-          {
-            label: "S",
-            value: "0.875rem",
-            subText: "0.875rem",
-          },
-          {
-            label: "M",
-            value: "1rem",
-            subText: "1rem",
-          },
-          {
-            label: "L",
-            value: "1.25rem",
-            subText: "1.25rem",
-          },
-          {
-            label: "XL",
-            value: "1.875rem",
-            subText: "1.875rem",
-          },
-        ],
-        isJSConvertible: true,
-        isBindProperty: true,
-        isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
-      },
-      {
         propertyName: "fontStyle",
         label: "Emphasis",
         helpText: "Controls the style of the text in the column",
@@ -72,25 +38,25 @@ export const styleConfig = [
         options: [
           {
             startIcon: "align-left",
-            value: "LEFT",
+            value: "start",
           },
           {
             startIcon: "align-center",
-            value: "CENTER",
+            value: "center",
           },
           {
             startIcon: "align-right",
-            value: "RIGHT",
+            value: "end",
           },
         ],
-        defaultValue: "LEFT",
+        defaultValue: "start",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: ["LEFT", "CENTER", "RIGHT"],
+            allowedValues: ["start", "center", "end"],
           },
         },
       },
@@ -105,25 +71,25 @@ export const styleConfig = [
         options: [
           {
             startIcon: "vertical-align-top",
-            value: "TOP",
+            value: "start",
           },
           {
             startIcon: "vertical-align-middle",
-            value: "CENTER",
+            value: "center",
           },
           {
             startIcon: "vertical-align-bottom",
-            value: "BOTTOM",
+            value: "end",
           },
         ],
-        defaultValue: "CENTER",
+        defaultValue: "center",
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            allowedValues: ["start", "center", "end"],
           },
         },
       },
