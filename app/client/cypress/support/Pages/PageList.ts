@@ -59,8 +59,8 @@ class PageList {
 
   public ShowList() {
     cy.get(this.locators.switcher).then(($switcher) => {
-      const isActive: string | undefined = $switcher.attr("data-active");
-      if (isActive === "false") {
+      const isActive: string | undefined = $switcher.attr("data-state");
+      if (isActive === "closed") {
         cy.get(this.locators.switcher).click();
       }
     });

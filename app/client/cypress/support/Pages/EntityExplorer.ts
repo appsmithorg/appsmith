@@ -80,6 +80,9 @@ export class EntityExplorer {
   }: EntityActionParams) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     this.agHelper.Sleep();
+    if (entityType === EntityItems.Page) {
+      PageList.ShowList();
+    }
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
       .scrollIntoView()
       .last()
