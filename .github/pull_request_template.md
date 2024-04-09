@@ -1,17 +1,13 @@
 ## Description
 > [!TIP]  
-> _Add a TL;DR when the description is longer than 500 words or extremely technical (helps the content team)._
+> _Add a TL;DR when the description is longer than 500 words or extremely technical (helps the content, marketing, and DevRel team)._
 >
 > _Please also include relevant motivation and context. List any dependencies that are required for this change. Add links to Notion, Figma or any other documents that might be relevant to the PR._
 
 ## Communication
- Should we communicate with users about this change?
+Should the DevRel and Marketing teams inform users about this change?
 - [ ] Yes
 - [ ] No
-
-> If the answer is yes, sha
-- [ ] I have verified the checkov output
-- [ ] I have verified the Jenkins Terraform plan
 
 Fixes #`Issue Number`  
 _or_  
