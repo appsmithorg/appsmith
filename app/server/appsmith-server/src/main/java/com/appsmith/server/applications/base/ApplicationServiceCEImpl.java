@@ -4,7 +4,6 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.applications.spans.ApplicationSpans;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.constants.FieldName;
@@ -45,7 +44,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
-import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -55,7 +53,6 @@ import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
 import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
-import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -93,7 +90,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     private final UserDataService userDataService;
     private final WorkspaceService workspaceService;
     private final WorkspacePermission workspacePermission;
-    private final ObservationRegistry observationRegistry;
 
     private static final Integer MAX_RETRIES = 5;
 
@@ -113,8 +109,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             SessionUserService sessionUserService,
             UserDataService userDataService,
             WorkspaceService workspaceService,
-            WorkspacePermission workspacePermission,
-            ObservationRegistry observationRegistry) {
+            WorkspacePermission workspacePermission) {
 
         super(validator, repository, analyticsService);
         this.policySolution = policySolution;
@@ -129,7 +124,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.userDataService = userDataService;
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
-        this.observationRegistry = observationRegistry;
     }
 
     @Override
@@ -177,11 +171,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     @Override
     @Deprecated
     public Mono<Application> findById(String id, AclPermission aclPermission) {
-        return repository
-                .findById(id, aclPermission)
-                .flatMap(this::setTransientFields)
-                .name(ApplicationSpans.FETCH_BY_ID)
-                .tap(Micrometer.observation(observationRegistry));
+        return repository.findById(id, aclPermission).flatMap(this::setTransientFields);
     }
 
     @Override
@@ -861,9 +851,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     public Mono<Application> findByBranchNameAndDefaultApplicationId(
             String branchName, String defaultApplicationId, AclPermission aclPermission) {
-        return findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, null, aclPermission)
-                .name(ApplicationSpans.FETCH_BY_DEFAULT_ID_AND_BRANCH)
-                .tap(Micrometer.observation(observationRegistry));
+        return findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, null, aclPermission);
     }
 
     @Override

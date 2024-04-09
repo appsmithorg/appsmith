@@ -15,7 +15,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
-import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -39,8 +38,7 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             SessionUserService sessionUserService,
             UserDataService userDataService,
             WorkspaceService workspaceService,
-            WorkspacePermission workspacePermission,
-            ObservationRegistry observationRegistry) {
+            WorkspacePermission workspacePermission) {
 
         super(
                 validator,
@@ -57,7 +55,6 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 sessionUserService,
                 userDataService,
                 workspaceService,
-                workspacePermission,
-                observationRegistry);
+                workspacePermission);
     }
 }
