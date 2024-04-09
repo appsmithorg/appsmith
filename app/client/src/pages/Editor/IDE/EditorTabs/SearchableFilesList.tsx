@@ -39,9 +39,8 @@ const StyledButton = styled(Button)<{ isActive?: boolean }>`
 
 const FUSE_OPTIONS = {
   shouldSort: true,
-  threshold: 0.5,
+  threshold: 0.0,
   location: 0,
-  findAllMatches: true,
   keys: ["title"],
 };
 
@@ -86,7 +85,7 @@ const SearchableFilesList = (props: Props) => {
     <Menu onOpenChange={setOpen} open={isOpen}>
       <MenuTrigger>
         <StyledButton
-          id="tabs-overflow-trigger"
+          data-testid="t--files-list-trigger"
           isActive={isOpen}
           isIconButton
           kind="tertiary"
@@ -97,7 +96,6 @@ const SearchableFilesList = (props: Props) => {
       <MenuContent
         align={"start"}
         className="!max-h-[300px]"
-        data-testId={"t--page-selection"}
         height={"fit-content"}
         side={"bottom"}
         sideOffset={2}
@@ -105,6 +103,7 @@ const SearchableFilesList = (props: Props) => {
       >
         <SearchInput
           autoFocus
+          data-testid={"t--files-list-search-input"}
           onChange={filterHandler}
           onKeyDown={(e: KeyboardEvent) => e.stopPropagation()}
         />
