@@ -1,6 +1,6 @@
 package com.appsmith.external.git;
 
-import com.appsmith.external.git.constants.ce.GitSpansCE;
+import com.appsmith.external.git.constants.ce.GitSpanCE;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Test;
 
@@ -15,7 +15,7 @@ public class GitSpansTest {
 
     @Test
     public void enforceCorrectNameUsage_InGitSpansCE() throws IllegalAccessException {
-        Class<?> gitSpansClass = GitSpansCE.class;
+        Class<?> gitSpansClass = GitSpanCE.class;
         Field[] fields = gitSpansClass.getDeclaredFields();
         for (Field field : fields) {
             if (java.lang.reflect.Modifier.isStatic(field.getModifiers())) {

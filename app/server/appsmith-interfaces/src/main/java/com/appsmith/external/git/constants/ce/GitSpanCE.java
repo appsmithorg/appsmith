@@ -3,7 +3,7 @@ package com.appsmith.external.git.constants.ce;
 import static com.appsmith.external.constants.spans.BaseSpan.APPSMITH_SPAN_PREFIX;
 import static com.appsmith.external.constants.spans.BaseSpan.GIT_SPAN_PREFIX;
 
-public class GitSpansCE {
+public class GitSpanCE {
 
     public static final String FILE_SYSTEM_CLONE_REPO =
             APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "file_system_clone_repo";
