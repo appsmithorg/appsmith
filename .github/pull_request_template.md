@@ -4,6 +4,15 @@
 >
 > _Please also include relevant motivation and context. List any dependencies that are required for this change. Add links to Notion, Figma or any other documents that might be relevant to the PR._
 
+## Communication
+ Should we communicate with users about this change?
+- [ ] Yes
+- [ ] No
+
+> If the answer is yes, sha
+- [ ] I have verified the checkov output
+- [ ] I have verified the Jenkins Terraform plan
+
 Fixes #`Issue Number`  
 _or_  
 Fixes `Issue URL`
