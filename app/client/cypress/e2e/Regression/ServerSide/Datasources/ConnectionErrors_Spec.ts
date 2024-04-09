@@ -105,7 +105,6 @@ describe(
         agHelper.ValidateToastMessage(
           "Access denied for user 'root'@'172.17.0.1'",
         );
-        agHelper.GetNClick(locators._visibleTextSpan("Read only"));
         propPane.AssertPropertiesDropDownValues("SSL mode", [
           "Default",
           "Required",
@@ -124,7 +123,6 @@ describe(
         dataSources.TestSaveDatasource();
         dataSources.selectTabOnDatasourcePage("Configurations");
         dataSources.AssertDataSourceInfo([
-          "READ_ONLY",
           "host.docker.internal",
           "fakeapi",
         ]);
