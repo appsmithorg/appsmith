@@ -2,7 +2,12 @@ import type {
   OccupiedSpace,
   WidgetSpace,
 } from "constants/CanvasEditorConstants";
-import { GridDefaults } from "constants/WidgetConstants";
+import {
+  BUILDING_BLOCK_EXPLORER_TYPE,
+  BUILDING_BLOCK_MIN_HORIZONTAL_LIMIT,
+  BUILDING_BLOCK_MIN_VERTICAL_LIMIT,
+  GridDefaults,
+} from "constants/WidgetConstants";
 import { isEmpty } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DraggingGroupCenter } from "reducers/uiReducers/dragResizeReducer";
@@ -466,9 +471,24 @@ export const modifyBlockDimension = (
   canExtend: boolean,
   modifyBlock: boolean,
 ) => {
-  const { columnWidth, fixedHeight, height, left, rowHeight, top, width } =
-    draggingBlock;
-
+  const {
+    columnWidth,
+    fixedHeight,
+    height,
+    left,
+    rowHeight,
+    top,
+    type,
+    width,
+  } = draggingBlock;
+  const horizontalResizeLimit =
+    type === BUILDING_BLOCK_EXPLORER_TYPE
+      ? BUILDING_BLOCK_MIN_HORIZONTAL_LIMIT
+      : HORIZONTAL_RESIZE_MIN_LIMIT;
+  const verticalResizeLimit =
+    type === BUILDING_BLOCK_EXPLORER_TYPE
+      ? BUILDING_BLOCK_MIN_VERTICAL_LIMIT
+      : VERTICAL_RESIZE_MIN_LIMIT;
   //get left and top of widget on canvas grid
   const [leftColumn, topRow] = getDropZoneOffsets(
     snapColumnSpace,
@@ -490,23 +510,23 @@ export const modifyBlockDimension = (
     // calculate offsets based on collisions and limits
     if (leftColumn < 0) {
       leftOffset =
-        leftColumn + columnWidth > HORIZONTAL_RESIZE_MIN_LIMIT
+        leftColumn + columnWidth > horizontalResizeLimit
           ? leftColumn
-          : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
+          : horizontalResizeLimit - columnWidth;
     } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
       rightOffset =
         GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
       rightOffset =
-        columnWidth + rightOffset >= HORIZONTAL_RESIZE_MIN_LIMIT
+        columnWidth + rightOffset >= horizontalResizeLimit
           ? rightOffset
-          : HORIZONTAL_RESIZE_MIN_LIMIT - columnWidth;
+          : horizontalResizeLimit - columnWidth;
     }
 
     if (topRow < 0 && fixedHeight === undefined) {
       topOffset =
-        topRow + rowHeight > VERTICAL_RESIZE_MIN_LIMIT
+        topRow + rowHeight > verticalResizeLimit
           ? topRow
-          : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+          : verticalResizeLimit - rowHeight;
     }
 
     if (
@@ -516,9 +536,9 @@ export const modifyBlockDimension = (
     ) {
       bottomOffset = parentBottomRow - topRow - rowHeight;
       bottomOffset =
-        rowHeight + bottomOffset >= VERTICAL_RESIZE_MIN_LIMIT
+        rowHeight + bottomOffset >= verticalResizeLimit
           ? bottomOffset
-          : VERTICAL_RESIZE_MIN_LIMIT - rowHeight;
+          : verticalResizeLimit - rowHeight;
     }
   }
 
