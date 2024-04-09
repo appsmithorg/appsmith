@@ -109,7 +109,7 @@ function SinglePageChange({ page, status }: SinglePageChangeProps) {
 
   return (
     <div data-testid={`t--status-change-PAGE-${page.replace(" ", "_")}`}>
-      <StyledCollapsible>
+      <StyledCollapsible className="space-y-2">
         <StyledCollapsibleHeader arrowPosition="start">
           {titleComp}
         </StyledCollapsibleHeader>
