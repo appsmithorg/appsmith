@@ -50,6 +50,7 @@ import {
 import { DynamicHeight } from "utils/WidgetFeatures";
 
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 
 import { RenderModes, WIDGET_TAGS } from "constants/WidgetConstants";
 import type {
@@ -150,6 +151,7 @@ class JSONFormWidget extends BaseWidget<
     return {
       name: "JSON Form",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.LAYOUT],
       needsMeta: true,
     };
