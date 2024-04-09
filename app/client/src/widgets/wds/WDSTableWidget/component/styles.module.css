@@ -140,17 +140,19 @@
    *-------------------------------------------------------------------------- */
   & [role="row"] {
     display: flex;
-    block-size: var(--tr-height);
+    min-block-size: var(--tr-height);
   }
 
   & [role="row"]:has([role="columnheader"]) {
     block-size: var(--th-height);
+    min-block-size: auto;
   }
 
   /*-------------------------------------------------------------------------
   * Cell ( td )
   *-------------------------------------------------------------------------- */
   & [role="cell"] {
+    position: relative;
     background-color: var(--color-bg-elevation-3);
   }
 

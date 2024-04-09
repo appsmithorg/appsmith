@@ -173,8 +173,6 @@ export const CellWrapper = styled.div<{
     props.horizontalAlignment && JUSTIFY_CONTENT[props.horizontalAlignment]};
   text-align: ${(props) =>
     props.horizontalAlignment && TEXT_ALIGN[props.horizontalAlignment]};
-  align-items: ${(props) =>
-    props.verticalAlignment && ALIGN_ITEMS[props.verticalAlignment]};
 
   background: ${(props) => {
     if (props.isCellDisabled) {
@@ -223,8 +221,7 @@ export const CellWrapper = styled.div<{
     width: 100%;
     height: 100%;
     display: flex;
-    align-items: ${(props) =>
-      props.verticalAlignment && IMAGE_VERTICAL_ALIGN[props.verticalAlignment]};
+
     justify-content: ${(props) =>
       props.horizontalAlignment &&
       IMAGE_HORIZONTAL_ALIGN[props.horizontalAlignment]};

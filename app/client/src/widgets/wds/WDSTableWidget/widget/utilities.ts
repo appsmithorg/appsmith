@@ -183,7 +183,7 @@ export function getDefaultColumnProperties(
   widgetName: string,
   isDerived?: boolean,
   columnType?: string,
-): ColumnProperties {
+) {
   const columnProps = {
     allowCellWrapping: false,
     allowSameOptionsInNewRow: true,
@@ -193,7 +193,7 @@ export function getDefaultColumnProperties(
     id: sanitizedId,
     alias: id,
     horizontalAlignment: CellAlignmentTypes.LEFT,
-    verticalAlignment: VerticalAlignmentTypes.CENTER,
+    verticalAlignment: "start",
     columnType: columnType || ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
     textSize: "0.875rem",
@@ -220,7 +220,7 @@ export function getDefaultColumnProperties(
     decimals: 0,
     thousandSeparator: true,
     notation: "standard" as Intl.NumberFormatOptions["notation"],
-  };
+  } as ColumnProperties;
 
   return columnProps;
 }

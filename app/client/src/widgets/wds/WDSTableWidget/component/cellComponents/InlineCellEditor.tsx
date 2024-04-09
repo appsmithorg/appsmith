@@ -21,6 +21,7 @@ import {
 import { limitDecimalValue } from "widgets/CurrencyInputWidget/component/utilities";
 import * as Sentry from "@sentry/react";
 import { getLocale } from "utils/helpers";
+import { TextArea } from "@design-system/widgets";
 
 const FOCUS_CLASS = "has-focus";
 
@@ -38,88 +39,9 @@ const Wrapper = styled.div<{
     ${(props) => (!props.isEditableCellValid ? Colors.DANGER_SOLID : "#fff")};
   background: #fff;
   position: absolute;
-  width: ${(props) =>
-    props.paddedInput
-      ? `calc(100% - ${EDITABLE_CELL_PADDING_OFFSET}px)`
-      : "100%"};
-  left: 50%;
-  transform: translate(-50%, 0);
   overflow: hidden;
   border-radius: 3px;
-  height: ${(props) => {
-    if (props.allowCellWrapping) {
-      return props.paddedInput
-        ? `calc(100% - ${EDITABLE_CELL_PADDING_OFFSET}px)`
-        : "100%";
-    } else {
-      return props.paddedInput
-        ? `${
-            TABLE_SIZES[props.compactMode].ROW_HEIGHT -
-            EDITABLE_CELL_PADDING_OFFSET
-          }px`
-        : `${TABLE_SIZES[props.compactMode].ROW_HEIGHT}px`;
-    }
-  }};
-  ${(props) => {
-    switch (props.verticalAlignment) {
-      case "TOP":
-        return `top: 0;`;
-      case "BOTTOM":
-        return `bottom: 0;`;
-      case "CENTER":
-        return `
-          top: calc(50% - (${TABLE_SIZES[props.compactMode].ROW_HEIGHT}/2)px);
-        `;
-    }
-  }}
-
-  &&&&& {
-    .bp3-input,
-    .bp3-input:focus {
-      border: none;
-      /*
-       * using !important since underlying
-       * component styles has !important
-       */
-      box-shadow: none !important;
-      padding: 0px 5px 0px 6px;
-      min-height: 34px;
-      font-size: ${(props) => props.textSize};
-    }
-
-    .currency-change-dropdown-trigger {
-      border: none;
-      height: ${(props) =>
-        TABLE_SIZES[props.compactMode].EDITABLE_CELL_HEIGHT}px;
-      padding: 0 0 0 5px;
-      margin-right: 0;
-    }
-
-    .bp3-button-group.bp3-vertical {
-      display: none;
-    }
-
-    textarea.bp3-input {
-      &,
-      &:focus {
-        line-height: 28px;
-        padding: ${(props) =>
-            TABLE_SIZES[props.compactMode].VERTICAL_EDITOR_PADDING}px
-          6px 0px 6px;
-      }
-    }
-
-    .text-input-wrapper {
-      height: calc(100% + 4px);
-      border: none;
-      box-shadow: none !important;
-    }
-  }
-
-  &.${FOCUS_CLASS} {
-    ${(props) =>
-      props.isEditableCellValid && `border: 1px solid ${props.accentColor}`}
-  }
+  inset: 0;
 `;
 
 function convertToNumber(inputValue: string) {
@@ -265,40 +187,9 @@ export function InlineCellEditor({
   }, [value]);
 
   return (
-    <Wrapper
-      accentColor={accentColor}
-      allowCellWrapping={allowCellWrapping}
-      className={`${hasFocus ? FOCUS_CLASS : ""} t--inlined-cell-editor ${
-        !isEditableCellValid && "t--inlined-cell-editor-has-error"
-      }`}
-      compactMode={compactMode}
-      isEditableCellValid={isEditableCellValid}
-      paddedInput
-      textSize={textSize}
-      verticalAlignment={verticalAlignment}
-    >
-      <BaseInputComponent
-        accentColor={accentColor}
-        autoFocus={hasFocus || autoFocus}
-        compactMode
-        disableNewLineOnPressEnterKey={false}
-        errorMessage={validationErrorMessage}
-        errorTooltipBoundary={`#table${widgetId} .tableWrap`}
-        inputHTMLType={inputHTMLType}
-        inputRef={inputRef}
-        inputType={inputType}
-        isInvalid={hasFocus && !isEditableCellValid}
-        isLoading={false}
-        label=""
-        multiline={multiline}
-        onFocusChange={onFocusChange}
-        onKeyDown={onKeyDown}
-        onValueChange={onTextChange}
-        showError
-        value={parsedValue}
-        widgetId=""
-        {...additionalProps}
-      />
-    </Wrapper>
+    <TextArea
+      autoFocus={hasFocus || autoFocus}
+      errorMessage={validationErrorMessage}
+    />
   );
 }
