@@ -1,5 +1,5 @@
 import React, { useCallback, useMemo, useState } from "react";
-import { Flex } from "design-system";
+import { Flex, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
@@ -18,7 +18,30 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
-import PaneHeader from "../LeftPane/PaneHeader";
+import styled from "styled-components";
+
+const Container = styled(Flex)`
+  & .t--entity-item {
+    grid-template-columns: 0 auto 1fr auto auto auto auto auto;
+    height: 32px;
+
+    & .t--entity-name {
+      padding-left: var(--ads-v2-spaces-3);
+    }
+  }
+`;
+
+const Header = styled.div`
+  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+  padding-right: var(--ads-v2-spaces-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px;
+  span {
+    line-height: 20px;
+  }
+`;
 
 const PagesSection = () => {
   const dispatch = useDispatch();
@@ -64,27 +87,24 @@ const PagesSection = () => {
   );
 
   return (
-    <Flex
+    <Container
       flexDirection={"column"}
-      height={"21.5%"}
       justifyContent={"center"}
+      maxHeight={"300px"}
       overflow={"hidden"}
     >
-      <PaneHeader
-        className="pages"
-        rightIcon={
-          canCreatePages ? (
-            <AddPageContextMenu
-              buttonSize="sm"
-              className={`${EntityClassNames.ADD_BUTTON} group pages`}
-              createPageCallback={createPageCallback}
-              onMenuClose={onMenuClose}
-              openMenu={isMenuOpen}
-            />
-          ) : null
-        }
-        title={`All Pages (${pages.length})`}
-      />
+      <Header className="pages">
+        <Text kind="heading-xs">{`All Pages (${pages.length})`}</Text>
+        {canCreatePages ? (
+          <AddPageContextMenu
+            buttonSize="sm"
+            className={`${EntityClassNames.ADD_BUTTON} group pages`}
+            createPageCallback={createPageCallback}
+            onMenuClose={onMenuClose}
+            openMenu={isMenuOpen}
+          />
+        ) : null}
+      </Header>
       <Flex
         alignItems={"center"}
         flex={"1"}
@@ -94,7 +114,7 @@ const PagesSection = () => {
       >
         {pageElements}
       </Flex>
-    </Flex>
+    </Container>
   );
 };
 

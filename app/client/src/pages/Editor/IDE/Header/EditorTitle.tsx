@@ -10,6 +10,16 @@ import {
 
 import { createMessage, HEADER_TITLES } from "@appsmith/constants/messages";
 import { PagesSection } from "../EditorPane/PagesSection";
+import styled from "styled-components";
+
+const PageSwitchTrigger = styled.div<{ active: boolean }>`
+  :hover {
+    background-color: var(--ads-v2-color-bg-subtle);
+  }
+  background-color: ${(props) =>
+    props.active ? `var(--ads-v2-color-bg-subtle)` : "unset"};
+  cursor: pointer;
+`;
 
 const EditorTitle = ({ title }: { title: string }) => {
   const [active, setActive] = useState(false);
@@ -17,7 +27,10 @@ const EditorTitle = ({ title }: { title: string }) => {
   return (
     <Menu onOpenChange={setActive}>
       <MenuTrigger>
-        <div className="flex align-center justify-center py-2 hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer">
+        <PageSwitchTrigger
+          active={active}
+          className="flex align-center justify-center py-2"
+        >
           <Text
             color={"var(--ads-v2-colors-content-label-inactive-fg)"}
             kind="body-m"
@@ -41,7 +54,7 @@ const EditorTitle = ({ title }: { title: string }) => {
               size={"md"}
             />
           </Flex>
-        </div>
+        </PageSwitchTrigger>
       </MenuTrigger>
       <MenuContent align="start" width="300px">
         <PagesSection />

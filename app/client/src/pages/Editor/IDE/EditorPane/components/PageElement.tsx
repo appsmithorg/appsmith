@@ -106,7 +106,7 @@ const PageElement = ({ page }: { page: Page }) => {
       onNameEdit={resolveAsSpaceChar}
       ref={ref}
       searchKeyword={""}
-      step={1}
+      step={0}
       updateEntityName={(id, name) =>
         updatePage({ id, name, isHidden: !!page.isHidden })
       }
