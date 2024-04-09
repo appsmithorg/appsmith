@@ -4,13 +4,19 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
 import { Tab, TabPanel, Tabs, TabsList } from "design-system";
 import styled from "styled-components";
-import { LIST_HEADER_HEIGHT } from "./Debugger/DebuggerLogs";
+import { LIST_HEADER_HEIGHT, FOOTER_MARGIN } from "./Debugger/DebuggerLogs";
 
 const TabPanelWrapper = styled(TabPanel)`
   margin-top: 0;
   height: calc(100% - ${LIST_HEADER_HEIGHT});
   &.ads-v2-tabs__panel {
     overflow: auto;
+  }
+  & .t--code-editor-wrapper.codeWrapper {
+    height: calc(100% - ${FOOTER_MARGIN});
+    & .CodeMirror-scroll {
+      box-sizing: border-box;
+    }
   }
 `;
 
