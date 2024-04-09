@@ -97,7 +97,6 @@ export const EVALUATE_REDUX_ACTIONS = [
   ReduxActionTypes.UPDATE_SELECTED_APP_THEME_SUCCESS,
   ReduxActionTypes.CHANGE_SELECTED_APP_THEME_SUCCESS,
   ReduxActionTypes.SET_PREVIEW_APP_THEME,
-
   // Custom Library
   ReduxActionTypes.INSTALL_LIBRARY_SUCCESS,
   ReduxActionTypes.UNINSTALL_LIBRARY_SUCCESS,
