@@ -84,7 +84,7 @@ const SearchableFilesList = (props: Props) => {
       </MenuTrigger>
       <MenuContent
         align={"start"}
-        className="!max-h-[300px]"
+        className="!max-h-[600px]"
         data-testId={"t--page-selection"}
         height={"fit-content"}
         side={"bottom"}

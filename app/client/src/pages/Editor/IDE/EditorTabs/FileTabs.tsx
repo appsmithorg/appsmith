@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { Flex, Tooltip } from "design-system";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
@@ -22,8 +22,23 @@ const FileTabs = (props: Props) => {
 
   const currentEntity = identifyEntityFromPath(location.pathname);
 
+  useEffect(() => {
+    const activetab = document.querySelector(".editor-tab.active");
+    if (activetab) {
+      activetab.scrollIntoView({
+        inline: "nearest",
+      });
+    }
+  }, [tabs]);
+
   return (
-    <Flex data-testid="t--editor-tabs" gap="spaces-2" height="100%">
+    <Flex
+      data-testid="t--editor-tabs"
+      gap="spaces-2"
+      height="100%"
+      overflowX="auto"
+      overflowY="hidden"
+    >
       {tabs.map((tab: EntityItem) => (
         <StyledTab
           className={clsx(
