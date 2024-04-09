@@ -72,7 +72,11 @@ import static com.appsmith.external.git.constants.GitConstants.ACTION_LIST;
 import static com.appsmith.external.git.constants.GitConstants.CUSTOM_JS_LIB_LIST;
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.git.constants.GitConstants.PAGE_LIST;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricConstantsCE.ACTION_COLLECTION_BODY;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricConstantsCE.METADATA;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricConstantsCE.NEW_ACTION_BODY;
 import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricConstantsCE.RESOURCE_TYPE;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricConstantsCE.WIDGETS;
 import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
@@ -466,15 +470,15 @@ public class FileUtilsCEImpl implements FileInterface {
         Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
         try {
             Files.createDirectories(path);
-            String resourceType = "Widgets";
+            String resourceType = WIDGETS;
             span.tag(RESOURCE_TYPE, resourceType);
-            span.start();
+            observationHelper.startSpan(span, true);
 
             writeStringToFile(sourceEntity.toString(4), path.resolve(resourceName + CommonConstants.JSON_EXTENSION));
         } catch (IOException e) {
             log.debug("Error while writings widgets data to file, {}", e.getMessage());
         } finally {
-            span.end();
+            observationHelper.endSpan(span, true);
         }
     }
 
@@ -496,9 +500,9 @@ public class FileUtilsCEImpl implements FileInterface {
             if (StringUtils.hasText(body)) {
                 // Write the js Object body to .js file to make conflict handling easier
                 Path bodyPath = path.resolve(resourceName + CommonConstants.JS_EXTENSION);
-                String resourceType = "ActionCollectionBody";
+                String resourceType = ACTION_COLLECTION_BODY;
                 span.tag(RESOURCE_TYPE, resourceType);
-                span.start();
+                observationHelper.startSpan(span, true);
                 writeStringToFile(body, bodyPath);
             }
 
@@ -508,7 +512,7 @@ public class FileUtilsCEImpl implements FileInterface {
         } catch (IOException e) {
             log.debug(e.getMessage());
         } finally {
-            span.end();
+            observationHelper.endSpan(span, true);
         }
         return false;
     }
@@ -532,9 +536,9 @@ public class FileUtilsCEImpl implements FileInterface {
             // Body will be null if the action is of type JS
             if (StringUtils.hasLength(body)) {
                 Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
-                String resourceType = "NewActionBody";
+                String resourceType = NEW_ACTION_BODY;
                 span.tag(RESOURCE_TYPE, resourceType);
-                span.start();
+                observationHelper.startSpan(span, true);
                 writeStringToFile(body, bodyPath);
             }
 
@@ -544,7 +548,7 @@ public class FileUtilsCEImpl implements FileInterface {
         } catch (IOException e) {
             log.error("Error while reading file {} with message {} with cause", path, e.getMessage(), e.getCause());
         } finally {
-            span.end();
+            observationHelper.endSpan(span, true);
         }
         return false;
     }
@@ -560,16 +564,16 @@ public class FileUtilsCEImpl implements FileInterface {
         Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
         String resourceType = sourceEntity.getClass().getSimpleName();
         if (!(sourceEntity instanceof BaseDomain)) {
-            resourceType = "Metadata";
+            resourceType = METADATA;
         }
         span.tag(RESOURCE_TYPE, resourceType);
-        span.start();
+        observationHelper.startSpan(span, true);
 
         try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             gson.toJson(sourceEntity, fileWriter);
             return true;
         } finally {
-            span.end();
+            observationHelper.endSpan(span, true);
         }
     }
 
@@ -751,7 +755,7 @@ public class FileUtilsCEImpl implements FileInterface {
      */
     public Object readFile(Path filePath) {
         Span span = observationHelper.createSpan(GitSpans.FILE_READ.getEventName());
-        span.start();
+        observationHelper.startSpan(span, true);
 
         Object file;
         try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
@@ -760,7 +764,7 @@ public class FileUtilsCEImpl implements FileInterface {
             log.error("Error while reading file {} with message {} with cause", filePath, e.getMessage(), e.getCause());
             return null;
         } finally {
-            span.end();
+            observationHelper.endSpan(span, true);
         }
         return file;
     }
@@ -798,14 +802,14 @@ public class FileUtilsCEImpl implements FileInterface {
      */
     private String readFileAsString(Path filePath) {
         Span span = observationHelper.createSpan(GitSpans.FILE_READ.getEventName());
-        span.start();
+        observationHelper.startSpan(span, true);
         String data = CommonConstants.EMPTY_STRING;
         try {
             data = FileUtils.readFileToString(filePath.toFile(), "UTF-8");
         } catch (IOException e) {
             log.error("Error while reading the file from git repo {} ", e.getMessage());
         } finally {
-            span.end();
+            observationHelper.endSpan(span, true);
         }
         return data;
     }

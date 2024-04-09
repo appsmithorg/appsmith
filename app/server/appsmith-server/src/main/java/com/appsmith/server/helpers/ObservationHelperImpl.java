@@ -1,6 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.helpers.ObservationHelper;
+import com.appsmith.server.configurations.CommonConfig;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
@@ -16,7 +17,9 @@ import static com.appsmith.external.constants.MDCConstants.TRACE_ID;
 public class ObservationHelperImpl implements ObservationHelper {
 
     private final Tracer tracer;
+    private final CommonConfig commonConfig;
 
+    @Override
     public Span createSpan(String name) {
         TraceContext traceContext = tracer.traceContextBuilder()
                 .traceId(MDC.getCopyOfContextMap().get(TRACE_ID))
@@ -26,5 +29,21 @@ public class ObservationHelperImpl implements ObservationHelper {
         Span span = tracer.spanBuilder().setParent(traceContext).name(name).start();
 
         return span;
+    }
+
+    @Override
+    public Span startSpan(Span span, boolean isDetail) {
+        if (!isDetail || commonConfig.isTracingDetail()) {
+            return span.start();
+        } else {
+            return span;
+        }
+    }
+
+    @Override
+    public void endSpan(Span span, boolean isDetail) {
+        if (!isDetail || commonConfig.isTracingDetail()) {
+            span.end();
+        }
     }
 }
