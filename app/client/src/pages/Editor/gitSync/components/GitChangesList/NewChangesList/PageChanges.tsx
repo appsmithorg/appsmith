@@ -10,6 +10,10 @@ import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import { ExpandableChange, ExpandableChangeKind } from "./ExpandableChange";
 import styled from "styled-components";
 
+const TitleText = styled(Text)`
+  font-weight: 500;
+`;
+
 const StyledCollapsible = styled(Collapsible)`
   gap: 0;
 `;
@@ -94,8 +98,8 @@ function SinglePageChange({ page, status }: SinglePageChangeProps) {
 
   const titleComp = (
     <div className="flex item-center space-x-1.5">
-      <Icon color={"var(--ads-v2-color-fg)"} name="widget" size="md" />
-      <Text>{titleText}</Text>
+      <Icon color={"var(--ads-v2-color-fg)"} name="page-line" size="md" />
+      <TitleText>{titleText}</TitleText>
     </div>
   );
 

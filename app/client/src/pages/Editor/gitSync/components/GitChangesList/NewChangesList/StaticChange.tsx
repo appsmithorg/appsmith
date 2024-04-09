@@ -6,6 +6,11 @@ import {
   TRY_TO_PULL,
   createMessage,
 } from "@appsmith/constants/messages";
+import styled from "styled-components";
+
+const TitleText = styled(Text)`
+  font-weight: 500;
+`;
 
 export enum StaticChangeKind {
   SETTINGS = "SETTINGS",
@@ -85,9 +90,7 @@ export default function StaticChage({ kind, status }: StaticChageProps) {
       {iconName && (
         <Icon color={"var(--ads-v2-color-fg)"} name={iconName} size="md" />
       )}
-      <Text color={"var(--ads-v2-color-fg)"} kind="body-m">
-        {message}
-      </Text>
+      <TitleText color={"var(--ads-v2-color-fg)"}>{message}</TitleText>
     </div>
   );
 }

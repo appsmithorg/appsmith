@@ -9,6 +9,10 @@ import React from "react";
 import type { GitStatusData } from "reducers/uiReducers/gitSyncReducer";
 import styled from "styled-components";
 
+const TitleText = styled(Text)`
+  font-weight: 500;
+`;
+
 const StyledCollapsible = styled(Collapsible)`
   gap: 0;
 `;
@@ -175,7 +179,7 @@ export function ExpandableChange({ filter, kind, status }: ChangeProps) {
                 size="md"
               />
             )}
-            <Text>{getTitleMessage()}</Text>
+            <TitleText>{getTitleMessage()}</TitleText>
           </div>
         </StyledCollapsibleHeader>
         <CollapsibleContent className="ml-6 space-y-1">
