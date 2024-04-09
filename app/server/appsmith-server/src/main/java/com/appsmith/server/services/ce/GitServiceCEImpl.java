@@ -108,8 +108,8 @@ import static com.appsmith.external.git.constants.GitConstants.EMPTY_COMMIT_ERRO
 import static com.appsmith.external.git.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.external.git.constants.GitConstants.GIT_PROFILE_ERROR;
 import static com.appsmith.external.git.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
-import static com.appsmith.external.git.constants.GitSpan.COMMIT;
-import static com.appsmith.external.git.constants.GitSpan.STATUS;
+import static com.appsmith.external.git.constants.GitSpan.OPS_COMMIT;
+import static com.appsmith.external.git.constants.GitSpan.OPS_STATUS;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
@@ -627,7 +627,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     childApplication.getGitApplicationMetadata().getIsRepoPrivate(),
                                     isSystemGenerated))
                             .thenReturn(status)
-                            .name(COMMIT)
+                            .name(OPS_COMMIT)
                             .tap(Micrometer.observation(observationRegistry));
                 });
 
@@ -1095,7 +1095,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     application.getGitApplicationMetadata().getIsRepoPrivate())
                             .thenReturn(pushStatus);
                 })
-                .name(GitSpan.PUSH)
+                .name(GitSpan.OPS_PUSH)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> pushStatusMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
@@ -1241,7 +1241,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         .flatMapMany(actionCollectionService::saveAll))
                                 .then(addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCONNECT, application, false))
                                 .map(responseUtils::updateApplicationWithDefaultResources))
-                .name(GitSpan.DETACH_REMOTE)
+                .name(GitSpan.OPS_DETACH_REMOTE)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> disconnectMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
@@ -1384,7 +1384,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 application,
                                 application.getGitApplicationMetadata().getIsRepoPrivate())))
                 .map(responseUtils::updateApplicationWithDefaultResources)
-                .name(GitSpan.CREATE_BRANCH)
+                .name(GitSpan.OPS_CREATE_BRANCH)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> createBranchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
@@ -1456,7 +1456,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return Mono.just(result);
                 })
                 .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, FALSE.toString())
-                .name(GitSpan.CHECKOUT_BRANCH)
+                .name(GitSpan.OPS_CHECKOUT_BRANCH)
                 .tap(Micrometer.observation(observationRegistry))
                 .onErrorResume(throwable -> {
                     return Mono.error(throwable);
@@ -1572,7 +1572,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     releaseFileLock(defaultApplicationId).then(Mono.just(application1)));
                 })
                 .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, TRUE.toString())
-                .name(GitSpan.CHECKOUT_BRANCH)
+                .name(GitSpan.OPS_CHECKOUT_BRANCH)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(
@@ -1663,7 +1663,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(gitPullDTO ->
                                     releaseFileLock(defaultApplicationId).then(Mono.just(gitPullDTO)));
                 })
-                .name(GitSpan.PULL)
+                .name(GitSpan.OPS_PULL)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> pullMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
@@ -2016,7 +2016,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             throwable);
                     return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, throwable.getMessage()));
                 })
-                .name(STATUS)
+                .name(OPS_STATUS)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.zip(statusMono, sessionUserService.getCurrentUser(), branchedAppMono)
@@ -2151,7 +2151,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     AnalyticsEvents.GIT_FETCH.getEventName(), elapsedTime, currentUser, app)
                             .thenReturn(branchTrackingStatus);
                 })
-                .name(GitSpan.FETCH_REMOTE)
+                .name(GitSpan.OPS_FETCH_REMOTE)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> {
@@ -2908,7 +2908,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                         application,
                         application.getGitApplicationMetadata().getIsRepoPrivate()))
                 .map(responseUtils::updateApplicationWithDefaultResources)
-                .name(GitSpan.DELETE_BRANCH)
+                .name(GitSpan.OPS_DELETE_BRANCH)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> deleteBranchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
@@ -2973,7 +2973,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                 .flatMap(application -> releaseFileLock(defaultApplicationId)
                         .then(this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES, application, null)))
                 .map(responseUtils::updateApplicationWithDefaultResources)
-                .name(GitSpan.DISCARD_CHANGES)
+                .name(GitSpan.OPS_DISCARD_CHANGES)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(
