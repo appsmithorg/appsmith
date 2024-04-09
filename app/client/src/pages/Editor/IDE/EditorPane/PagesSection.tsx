@@ -1,7 +1,8 @@
-import React, { useCallback, useMemo, useState } from "react";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Flex } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
+import { animated, useSpring } from "react-spring";
 
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
@@ -18,7 +19,12 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
+import { getPagesActiveStatus } from "selectors/ideSelectors";
 import PaneHeader from "../LeftPane/PaneHeader";
+
+const AnimatedFlex = animated(Flex);
+const defaultAnimationState = { height: "0%" };
+const expandedAnimationState = { height: "21.5%" };
 
 const PagesSection = () => {
   const dispatch = useDispatch();
@@ -30,6 +36,14 @@ const PagesSection = () => {
   );
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const instanceId = useSelector(getInstanceId);
+  const pagesActive = useSelector(getPagesActiveStatus);
+
+  const [springs, api] = useSpring(() => ({
+    from: defaultAnimationState,
+    config: {
+      duration: 200,
+    },
+  }));
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -39,6 +53,22 @@ const PagesSection = () => {
     isFeatureEnabled,
     userAppPermissions,
   );
+
+  useEffect(() => {
+    if (pagesActive) {
+      api.start({
+        to: expandedAnimationState,
+      });
+    } else {
+      api.start({
+        to: defaultAnimationState,
+      });
+    }
+
+    return () => {
+      api.stop();
+    };
+  }, [pagesActive, api]);
 
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
@@ -64,11 +94,12 @@ const PagesSection = () => {
   );
 
   return (
-    <Flex
+    <AnimatedFlex
       flexDirection={"column"}
       height={"21.5%"}
       justifyContent={"center"}
       overflow={"hidden"}
+      style={springs}
     >
       <PaneHeader
         className="pages"
@@ -94,7 +125,7 @@ const PagesSection = () => {
       >
         {pageElements}
       </Flex>
-    </Flex>
+    </AnimatedFlex>
   );
 };
 

@@ -9,6 +9,7 @@ import EditorPaneSegments from "./EditorPaneSegments";
 import GlobalAdd from "./GlobalAdd";
 import { useEditorPaneWidth } from "../hooks";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
+import { PagesSection } from "./PagesSection";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
   const width = useEditorPaneWidth();
@@ -25,6 +26,7 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
       {/** Entity Properties component is needed to render
         the Bindings popover in the context menu. Will be removed eventually **/}
       <EntityProperties />
+      <PagesSection />
 
       <Switch>
         <SentryRoute component={GlobalAdd} exact path={`${path}${ADD_PATH}`} />

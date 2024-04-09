@@ -25,6 +25,9 @@ export const getIDEViewMode = createSelector(
   },
 );
 
+export const getPagesActiveStatus = (state: AppState) =>
+  state.ui.ide.pagesActive;
+
 export const getActionsCount = (pageId: string) =>
   createSelector(getPageActions(pageId), (actions) => {
     return actions.length || 0;
