@@ -90,6 +90,8 @@ import {
   getWidgetByName,
   getWidgets,
 } from "./selectors";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -635,6 +637,8 @@ export function* addBuildingBlockToApplication(
 
       yield put(pasteWidget(false, mousePosition));
       yield call(postPageAdditionSaga, applicationId);
+      // remove selecting of recently imported widgets
+      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       // stop loading after pasting process is complete
       yield put({
