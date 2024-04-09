@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
+import Fuse from "fuse.js";
 
 import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
@@ -15,7 +16,10 @@ import {
   SearchInput,
 } from "design-system";
 import { ListIconContainer, TabTextContainer } from "./StyledComponents";
-import { SFL, createMessage } from "@appsmith/constants/messages";
+import {
+  SCROLLABLE_FILES_LIST,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { useCurrentEditorState } from "../hooks";
 
 interface Props {
@@ -32,6 +36,14 @@ const StyledButton = styled(Button)<{ isActive?: boolean }>`
     --button-color-fg: var(--ads-v2-colors-action-tertiary-label-default-fg);
   `}
 `;
+
+const FUSE_OPTIONS = {
+  shouldSort: true,
+  threshold: 0.5,
+  location: 0,
+  findAllMatches: true,
+  keys: ["title"],
+};
 
 const SearchableFilesList = (props: Props) => {
   const { allItems, navigateToTab, openTabs } = props;
@@ -51,8 +63,8 @@ const SearchableFilesList = (props: Props) => {
   }
 
   const filterHandler = (value: string) => {
-    const _files = [...allItems].filter((item) => item.title.includes(value));
-    setFiles(value.length > 0 ? _files : allItems);
+    const fuse = new Fuse(allItems, FUSE_OPTIONS);
+    setFiles(value.length > 0 ? fuse.search(value) : allItems);
     setTabs(value.length > 0 ? [] : openTabs);
   };
 
@@ -99,7 +111,7 @@ const SearchableFilesList = (props: Props) => {
         {tabs.length > 0 ? (
           <MenuGroup>
             <MenuGroupName className="!pt-[8px]">
-              {createMessage(SFL.OPENED_GROUP_LABEL)}
+              {createMessage(SCROLLABLE_FILES_LIST.OPENED_GROUP_LABEL)}
             </MenuGroupName>
             {renderMenuItems(tabs)}
           </MenuGroup>
@@ -107,10 +119,10 @@ const SearchableFilesList = (props: Props) => {
         <MenuGroup>
           <MenuGroupName className="!pt-[8px]">
             {createMessage(
-              SFL.GROUP_LABEL,
+              SCROLLABLE_FILES_LIST.GROUP_LABEL,
               segment === EditorEntityTab.QUERIES
-                ? SFL.QUERY_TEXT
-                : SFL.JS_OBJECT_TEXT,
+                ? SCROLLABLE_FILES_LIST.QUERY_TEXT
+                : SCROLLABLE_FILES_LIST.JS_OBJECT_TEXT,
             )}
           </MenuGroupName>
           {renderMenuItems(files)}

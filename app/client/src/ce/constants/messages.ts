@@ -2469,7 +2469,7 @@ export const CANVAS_VIEW_MODE_TOOLTIP = (shortcutKey: string) =>
   `💡 ${shortcutKey} click a widget to navigate to UI mode.`;
 
 // searchable files list
-export const SFL = {
+export const SCROLLABLE_FILES_LIST = {
   GROUP_LABEL: (type: string) => `Open a ${type}`,
   OPENED_GROUP_LABEL: () => `Opened`,
   QUERY_TEXT: `query`,
