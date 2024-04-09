@@ -122,10 +122,7 @@ describe(
         dataSources.ValidateNSelectDropdown("SSL mode", "Required", "Disabled");
         dataSources.TestSaveDatasource();
         dataSources.selectTabOnDatasourcePage("Configurations");
-        dataSources.AssertDataSourceInfo([
-          "host.docker.internal",
-          "fakeapi",
-        ]);
+        dataSources.AssertDataSourceInfo(["host.docker.internal", "fakeapi"]);
       });
     });
 
