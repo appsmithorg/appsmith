@@ -16,7 +16,7 @@ import {
 } from "../utils/layouts/layoutUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import LayoutFactory from "./LayoutFactory";
-import { AnvilCanvasDraggingArena } from "../canvasArenas/AnvilCanvasDraggingArena";
+import { AnvilCanvasDraggingArena } from "../editor/canvasArenas/AnvilCanvasDraggingArena";
 import { FlexLayout, type FlexLayoutProps } from "./components/FlexLayout";
 import { defaultHighlightPayload } from "../utils/constants";
 
