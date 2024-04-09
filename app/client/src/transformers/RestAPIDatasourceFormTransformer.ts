@@ -259,6 +259,7 @@ const datasourceToFormAuthentication = (
         authentication.sendScopeWithRefreshToken || false,
       refreshTokenClientCredentialsLocation:
         authentication.refreshTokenClientCredentialsLocation || "BODY",
+      useSelfSignedCert: authentication.useSelfSignedCert,
     };
     if (isClientCredentials(authType, authentication)) {
       return {

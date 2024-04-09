@@ -153,7 +153,11 @@ describe(
           response.body.data.pluginErrorDetails.appsmithErrorMessage,
         ).to.contains("File content is not base64 encoded.");
       });
-      dataSources.ValidateNSelectDropdown("File data type", "Base64", "Text");
+      dataSources.ValidateNSelectDropdown(
+        "File data type",
+        "Base64",
+        "Text / Binary",
+      );
 
       dataSources.RunQuery({ toValidateResponse: false });
       cy.wait("@postExecute").then(({ response }) => {
@@ -417,7 +421,11 @@ describe(
         fileName = "S3Crud_" + uid;
 
         cy.typeValueNValidate(fileName, formControls.s3FilePath);
-        dataSources.ValidateNSelectDropdown("File data type", "Base64", "Text");
+        dataSources.ValidateNSelectDropdown(
+          "File data type",
+          "Base64",
+          "Text / Binary",
+        );
         cy.typeValueNValidate(
           '{"data": "Hi, this is Automation script adding file for S3 CRUD New Page validation!"}',
           formControls.rawBody,

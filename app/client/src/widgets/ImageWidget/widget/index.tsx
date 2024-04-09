@@ -15,6 +15,7 @@ import type {
 } from "WidgetProvider/constants";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { FlexVerticalAlignment } from "layoutSystems/common/utils/constants";
@@ -31,6 +32,7 @@ class ImageWidget extends BaseWidget<ImageWidgetProps, WidgetState> {
     return {
       name: "Image",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.MEDIA],
     };
   }

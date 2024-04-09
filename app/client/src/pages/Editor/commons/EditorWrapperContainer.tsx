@@ -1,5 +1,8 @@
 import React from "react";
 import styled from "styled-components";
+import classNames from "classnames";
+import { useSelector } from "react-redux";
+import { combinedPreviewModeSelector } from "../../../selectors/editorSelectors";
 
 interface EditorWrapperContainerProps {
   children: React.ReactNode;
@@ -15,8 +18,17 @@ const Wrapper = styled.div`
 `;
 
 function EditorWrapperContainer({ children }: EditorWrapperContainerProps) {
+  const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
+
   return (
-    <Wrapper className="relative w-full overflow-x-hidden">{children}</Wrapper>
+    <Wrapper
+      className={classNames({
+        [`relative w-full overflow-x-hidden`]: true,
+        "select-none": !isCombinedPreviewMode,
+      })}
+    >
+      {children}
+    </Wrapper>
   );
 }
 
