@@ -40,8 +40,7 @@ describe(
           name: "Zone1",
         },
       });
-      // deselect all widgets
-      agHelper.PressEscape();
+      agHelper.GetNClick(`${anvilLayout.mainCanvasSelector}`);
       agHelper.AssertElementLength(locators._selectedWidget, 0);
       agHelper.GetNClick(locators._widgetByName("Button1"));
       agHelper.AssertElementLength(locators._selectedWidget, 1);
@@ -63,9 +62,9 @@ describe(
     });
     it("3. Click on Canvas to deselect all widgets", () => {
       // Find the layout component that is the main canvas
-      cy.get(".anvil-canvas > div").click();
+      cy.get(`${anvilLayout.mainCanvasSelector} > div`).click();
       // Find all widgets within the main canvas
-      cy.get(".anvil-canvas").within(() => {
+      cy.get(`${anvilLayout.mainCanvasSelector}`).within(() => {
         // For each widget check if the border-color is transparent
         // The border-color changes if a widget is selected or focused.
         cy.get(".anvil-widget-wrapper").each(($widget) => {

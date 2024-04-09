@@ -7,7 +7,7 @@ import { FocusEntity } from "navigation/FocusEntity";
 /**
  *
  * @return action   -> RedirectAction.NA if the deleted item is not current one
- * @return action   -> RedirectAction.CREATE if no items left in the list
+ * @return action   -> RedirectAction.LIST if no items left in the list
  * @return action   -> RedirectAction.ITEM if there is no item left in the same group
  *         payload  -> first item from the all items list
  * @return action   -> RedirectAction.ITEM if there is there are items left in the same group
@@ -47,7 +47,7 @@ describe("getNextEntityAfterDelete function", () => {
 
   it("2. Redirect to add, if nothing left after deletion", () => {
     expect(getNextEntityAfterDelete("2", [])).toEqual({
-      action: RedirectAction.CREATE,
+      action: RedirectAction.LIST,
     });
   });
 

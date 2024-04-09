@@ -1,5 +1,8 @@
 name: Test, build and push Docker Image
 
+run-name: >
+  ${{ github.workflow }} with TED:${{ inputs.ted_tag || 'latest' }}
+
 on:
   # This workflow will run everyday at 7:00AM, 1:00PM IST on weekdays
   schedule:
@@ -34,6 +37,12 @@ jobs:
       tags: ${{ steps.setup.outputs.tags }}
       matrix: ${{ steps.setup.outputs.matrix }}
     steps:
+      - name: "Post inputs to run summary"
+        env:
+          INPUTS: "${{ toJSON(inputs) }}"
+        run: |
+          echo $'## Inputs\n```\n'"$INPUTS"$'\n```' > "$GITHUB_STEP_SUMMARY"
+
       - name: Set tags and matrix runner
         id: setup
         run: |
