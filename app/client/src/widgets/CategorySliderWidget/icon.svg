@@ -1,16 +1,6 @@
-<<<<<<< HEAD
-<svg width="56" height="44" viewBox="0 0 56 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect y="13" width="56" height="16" rx="8" fill="white"/>
-<circle cx="36" cy="21" r="3.5" fill="white" stroke="#CC3D00"/>
-<rect x="6" y="19" width="31" height="4" rx="2" fill="#FFBFA1"/>
-<rect x="36" y="19" width="14" height="4" rx="2" fill="#E3E8EF"/>
-<path d="M38.5 34.5V38.5H40.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M32.5 34.5L36.5 38.5M36.5 34.5L32.5 38.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-=======
 <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M3 23H11M27 23H19" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <circle cx="15" cy="23" r="4" transform="rotate(-90 15 23)" stroke="#364252" stroke-width="2" stroke-linejoin="round"/>
 <path d="M11 15L10 13M3 15L4 13M4 13L7 7L10 13M4 13L10 13" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M19 7H27L19 15H27" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
->>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>

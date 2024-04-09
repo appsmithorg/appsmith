@@ -1,20 +1,6 @@
-<<<<<<< HEAD
-<svg width="57" height="44" viewBox="0 0 57 44" fill="none" xmlns="http://www.w3.org/2000/svg">
-<path d="M15.5 1V0.5H15H2C1.17157 0.5 0.5 1.17157 0.5 2V15V15.5H1H15H15.5V15V1Z" fill="#FFEEE5" stroke="#CC3D00"/>
-<path d="M15 0.5H14.5V1V15V15.5H15H56H56.5V15V2C56.5 1.17157 55.8284 0.5 55 0.5H15Z" fill="#FFEEE5" stroke="#CC3D00"/>
-<rect x="0.5" y="14.5" width="15" height="15" fill="#FFEEE5" stroke="#CC3D00"/>
-<rect x="14.5" y="14.5" width="42" height="15" fill="white"/>
-<rect x="14.5" y="14.5" width="42" height="15" stroke="#99A4B3"/>
-<rect x="19" y="19" width="24" height="7" rx="1" fill="#E3E8EF"/>
-<path d="M1 28.5H0.5V29V42C0.5 42.8284 1.17157 43.5 2 43.5H15H15.5V43V29V28.5H15H1Z" fill="#FFEEE5" stroke="#CC3D00"/>
-<path d="M15 28.5H14.5V29V43V43.5H15H55C55.8284 43.5 56.5 42.8284 56.5 42V29V28.5H56H15Z" fill="white"/>
-<path d="M15 28.5H14.5V29V43V43.5H15H55C55.8284 43.5 56.5 42.8284 56.5 42V29V28.5H56H15Z" stroke="#99A4B3"/>
-<rect x="19" y="33" width="33" height="7" rx="1" fill="#E3E8EF"/>
-=======
 <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M25 3H5C3.89543 3 3 3.89543 3 5V25C3 26.1046 3.89543 27 5 27H25C26.1046 27 27 26.1046 27 25V5C27 3.89543 26.1046 3 25 3Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M15 11V27" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M3 11H27" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M3 19H27" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
->>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>

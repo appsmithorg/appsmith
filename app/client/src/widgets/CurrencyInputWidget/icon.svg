@@ -1,18 +1,6 @@
-<<<<<<< HEAD
-<svg width="56" height="24" viewBox="0 0 56 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="0.5" y="0.5" width="55" height="23" rx="2.5" fill="white"/>
-<rect x="0.5" y="0.5" width="55" height="23" rx="2.5" stroke="#CDD5DF"/>
-<path d="M9 12.5C7.61929 12.5 6.5 11.3807 6.5 10C6.5 8.61929 7.61929 7.5 9 7.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M14 17.5C15.3807 17.5 16.5 16.3807 16.5 15C16.5 13.6193 15.3807 12.5 14 12.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M15.5 9.5C15.5 8.39543 14.6046 7.5 13.5 7.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M6.5 15.5C6.5 16.6046 7.39543 17.5 8.5 17.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M11.5 5.5V19.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M9 7.5H13.5M9 12.5H14M8.5 17.5H14" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-=======
 <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M15 11H9C7.89543 11 7 11.8954 7 13V13C7 14.1046 7.89543 15 9 15H13C14.1046 15 15 15.8954 15 17V17C15 18.1046 14.1046 19 13 19H7" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M11 21V9" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M25 13H27M29 13H27M27 13V29M25 29H29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M29 5H1V25H19" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
->>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>

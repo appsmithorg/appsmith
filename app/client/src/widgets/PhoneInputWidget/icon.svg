@@ -1,14 +1,7 @@
-<<<<<<< HEAD
-<svg width="56" height="24" viewBox="0 0 56 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="0.5" y="0.5" width="55" height="23" rx="2.5" fill="white"/>
-<rect x="0.5" y="0.5" width="55" height="23" rx="2.5" stroke="#CDD5DF"/>
-<path d="M9.25786 16.1573C11.8906 18.79 16.1447 19.4487 19.1341 16.8428C19.3755 16.6324 19.5 16.3211 19.5 16.001C19.5 15.6808 19.3728 15.3738 19.1464 15.1474L17.2071 13.2081C16.8166 12.8176 16.1834 12.8176 15.7929 13.2081L14.2071 14.7939C13.8166 15.1844 13.1834 15.1844 12.7929 14.7939L10.2071 12.2081C9.81658 11.8176 9.81658 11.1844 10.2071 10.7939L11.7929 9.20808C12.1834 8.81756 12.1834 8.18439 11.7929 7.79387L9.85355 5.85453C9.62718 5.62815 9.32014 5.50098 9 5.50098C8.67986 5.50098 8.36868 5.62572 8.15736 5.86621C5.43746 8.96162 6.25357 13.153 9.25786 16.1573Z" stroke="#CC3D00"/>
-=======
 <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M15 19H17M19 19H17M15 13L17 11V19" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M7 15H11" stroke="#364252" stroke-width="2" stroke-linecap="round"/>
 <path d="M9 17V13" stroke="#364252" stroke-width="2" stroke-linecap="round"/>
 <path d="M25 13H27M29 13H27M27 13V29M25 29H29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M29 5H1V25H19" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
->>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>

@@ -1,33 +1,7 @@
-<<<<<<< HEAD
-<svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
-<g clip-path="url(#clip0_7044_127039)">
-<rect width="56" height="56" rx="3" fill="white"/>
-<rect width="56" height="24" fill="white"/>
-<path d="M7.5 6.5H12.5C14.1569 6.5 15.5 7.34315 15.5 9C15.5 10.6569 14.1569 11.5 12.5 11.5H8.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.5 11.5H13.5C15.1569 11.5 16.5 12.3431 16.5 14C16.5 15.6569 15.1569 16.5 13.5 16.5H7.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M8.5 6.5V16.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M28.5 6.5H29.6712M30.5 6.5H29.6712M26.5 16.5H25.5M24.5 16.5H25.5M25.5 16.5L29.6712 6.5" stroke="#99A4B3" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M38.5 19.5H48.5" stroke="#99A4B3" stroke-linecap="round" stroke-linejoin="round"/>
-<path d="M39.5 6.5V13C39.5 15.2091 41.2909 16.5 43.5 16.5C45.7091 16.5 47.5 15.2091 47.5 13V6.5" stroke="#99A4B3" stroke-linecap="round"/>
-<path d="M38.5 6.5H40.5M46.5 6.5H48.5" stroke="#99A4B3" stroke-linecap="round" stroke-linejoin="round"/>
-<mask id="path-10-inside-1_7044_127039" fill="white">
-<path d="M0 24H56V56H0V24Z"/>
-</mask>
-<path d="M0 24H56V56H0V24Z" fill="white"/>
-<path d="M0 25H56V23H0V25Z" fill="#CDD5DF" mask="url(#path-10-inside-1_7044_127039)"/>
-</g>
-<rect x="0.5" y="0.5" width="55" height="55" rx="2.5" stroke="#CDD5DF"/>
-<defs>
-<clipPath id="clip0_7044_127039">
-<rect width="56" height="56" rx="3" fill="white"/>
-</clipPath>
-</defs>
-=======
 <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M1 9V15M1 15V21H4C5.65685 21 7 19.6569 7 18V18C7 16.3431 5.65685 15 4 15H1Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M1 9H4C5.65685 9 7 10.3431 7 12V12C7 13.6569 5.65685 15 4 15H1" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M13 9H15M17 9H15M15 9L13 21M11 21H15" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M21 9V17C21 19.2091 22.7909 21 25 21V21C27.2091 21 29 19.2091 29 17V9" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M21 25H29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
->>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>
