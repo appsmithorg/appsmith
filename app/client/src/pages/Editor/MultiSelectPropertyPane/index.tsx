@@ -20,7 +20,7 @@ function MultiSelectPropertyPane() {
     <div className="relative space-y-3">
       <div className="px-3 py-3">
         <Text kind="heading-s" renderAs="h3">
-          Multi
+          Multiple selected
         </Text>
       </div>
 

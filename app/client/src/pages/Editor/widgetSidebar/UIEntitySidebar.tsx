@@ -102,7 +102,7 @@ function UIEntitySidebar({
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
-          placeholder="Search widgets"
+          placeholder="Search UI elements"
           ref={searchInputRef}
           type="text"
         />
