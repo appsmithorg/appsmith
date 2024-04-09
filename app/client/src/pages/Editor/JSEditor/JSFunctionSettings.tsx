@@ -6,9 +6,9 @@ import {
 import type { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
 import styled from "styled-components";
-import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
+import { CONFIRM_BEFORE_CALLING_HEADING, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
-import { Icon, Radio, RadioGroup, Tooltip, Switch } from "design-system";
+import { Icon, Tooltip, Switch } from "design-system";
 
 interface SettingsHeadingProps {
   text: string;
@@ -16,6 +16,7 @@ interface SettingsHeadingProps {
   info?: string;
   grow: boolean;
   headingCount: number;
+  hidden?: boolean;
 }
 
 export interface OnUpdateSettingsProps {
@@ -69,7 +70,9 @@ export const SettingColumn = styled.div<{
   headingCount: number;
   grow?: boolean;
   isHeading?: boolean;
+  hidden?: boolean;
 }>`
+  visibility: ${(props) => (props.hidden ? "hidden" : "visible")};
   display: flex;
   align-items: center;
   flex-grow: ${(props) => (props.grow ? 1 : 0)};
@@ -125,11 +128,17 @@ function SettingsHeading({
   grow,
   hasInfo,
   headingCount,
+  hidden,
   info,
   text,
 }: SettingsHeadingProps) {
   return (
-    <SettingColumn grow={grow} headingCount={headingCount} isHeading>
+    <SettingColumn
+      grow={grow}
+      headingCount={headingCount}
+      hidden={hidden}
+      isHeading
+    >
       <span>{text}</span>
       {hasInfo && info && (
         <Tooltip content={createMessage(() => info)}>
@@ -142,7 +151,6 @@ function SettingsHeading({
 
 function SettingsItem({
   action,
-  disabled,
   headingCount,
   onUpdateSettings,
   renderAdditionalColumns,
@@ -181,6 +189,8 @@ function SettingsItem({
     });
   };
 
+  const showConfirmBeforeExecute = action.confirmBeforeExecute;
+
   return (
     <SettingRow
       className="t--async-js-function-settings"
@@ -193,58 +203,22 @@ function SettingsItem({
         className={`${action.name}-on-page-load-setting`}
         headingCount={headingCount}
       >
-        {RADIO_OPTIONS.length > 2 ? (
-          <RadioGroup
-            defaultValue={executeOnPageLoad}
+        <SwitchWrapper>
+          <Switch
+            defaultSelected={JSON.parse(executeOnPageLoad)}
             name={`execute-on-page-load-${action.id}`}
-            onChange={onChangeExecuteOnPageLoad}
-            orientation="horizontal"
-          >
-            {RADIO_OPTIONS.map((option) => (
-              <Radio
-                isDisabled={disabled}
-                key={option.label}
-                value={option.value}
-              >
-                {option.label}
-              </Radio>
-            ))}
-          </RadioGroup>
-        ) : (
-          <SwitchWrapper>
-            <Switch
-              defaultSelected={JSON.parse(executeOnPageLoad)}
-              name={`execute-on-page-load-${action.id}`}
-              onChange={(isSelected) =>
-                onChangeExecuteOnPageLoad(String(isSelected))
-              }
-            />
-          </SwitchWrapper>
-        )}
+            onChange={(isSelected) =>
+              onChangeExecuteOnPageLoad(String(isSelected))
+            }
+          />
+        </SwitchWrapper>
       </SettingColumn>
       <SettingColumn
         className={`${action.name}-confirm-before-execute`}
         headingCount={headingCount}
       >
-        {RADIO_OPTIONS.length > 2 ? (
-          <RadioGroup
-            defaultValue={confirmBeforeExecute}
-            name={`confirm-before-execute-${action.id}`}
-            onChange={onChangeConfirmBeforeExecute}
-            orientation="horizontal"
-          >
-            {RADIO_OPTIONS.map((option) => (
-              <Radio
-                isDisabled={disabled}
-                key={option.label}
-                value={option.value}
-              >
-                {option.label}
-              </Radio>
-            ))}
-          </RadioGroup>
-        ) : (
-          <SwitchWrapper>
+        <SwitchWrapper>
+          {showConfirmBeforeExecute ? (
             <Switch
               className="flex justify-center "
               defaultSelected={JSON.parse(confirmBeforeExecute)}
@@ -253,8 +227,8 @@ function SettingsItem({
                 onChangeConfirmBeforeExecute(String(isSelected))
               }
             />
-          </SwitchWrapper>
-        )}
+          ) : null}
+        </SwitchWrapper>
       </SettingColumn>
       {renderAdditionalColumns?.(action, headingCount)}
     </SettingRow>
@@ -268,7 +242,17 @@ function JSFunctionSettingsView({
   onUpdateSettings,
   renderAdditionalColumns,
 }: JSFunctionSettingsProps) {
+  const showConfirmBeforeExecuteOption = actions.some(
+    (action) => action.confirmBeforeExecute === true,
+  );
   const headings = [...SETTINGS_HEADINGS, ...additionalHeadings];
+
+  headings.forEach((heading) => {
+    if (heading.key === CONFIRM_BEFORE_CALLING_HEADING.key) {
+      CONFIRM_BEFORE_CALLING_HEADING.hidden = !showConfirmBeforeExecuteOption;
+    }
+  });
+
   return (
     <JSFunctionSettingsWrapper>
       <SettingsContainer>
@@ -281,6 +265,7 @@ function JSFunctionSettingsView({
                   grow={index === 0}
                   hasInfo={setting.hasInfo}
                   headingCount={headings.length}
+                  hidden={setting?.hidden}
                   info={setting.info}
                   key={setting.key}
                   text={setting.text}
