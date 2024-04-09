@@ -52,7 +52,9 @@ const newRelicBrowserAgentConfig = {
 };
 
 // The agent loader code executes immediately on instantiation.
-new BrowserAgent(newRelicBrowserAgentConfig);
+if (enableNewRelic) {
+  new BrowserAgent(newRelicBrowserAgentConfig);
+}
 
 const shouldAutoFreeze = process.env.NODE_ENV === "development";
 
