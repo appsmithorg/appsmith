@@ -348,10 +348,10 @@ export class JSEditor {
     // Set onPageLoad
     this.agHelper.CheckUncheck(this._onPageLoadSwitch(funName), onLoad);
     // Set confirmBeforeExecute
-    this.agHelper.CheckUncheck(
-      this._confirmBeforeExecuteSwitch(funName),
-      bfrCalling,
-    );
+    // this.agHelper.CheckUncheck(
+    //   this._confirmBeforeExecuteSwitch(funName),
+    //   bfrCalling,
+    // );
     // Return to code tab
     this.agHelper.GetNClick(this._codeTab);
   }
