@@ -6,7 +6,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.external.git.constants.GitSpans;
+import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
@@ -467,7 +467,7 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     private void saveWidgets(JSONObject sourceEntity, String resourceName, Path path) {
-        Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
+        Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
         try {
             Files.createDirectories(path);
             String resourceType = WIDGETS;
@@ -494,7 +494,7 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return if the file operation is successful
      */
     private boolean saveActionCollection(Object sourceEntity, String body, String resourceName, Path path) {
-        Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
+        Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
         try {
             Files.createDirectories(path);
             if (StringUtils.hasText(body)) {
@@ -529,7 +529,7 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return if the file operation is successful
      */
     private boolean saveActions(Object sourceEntity, String body, String resourceName, Path path) {
-        Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
+        Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
         try {
             Files.createDirectories(path);
             // Write the user written query to .txt file to make conflict handling easier
@@ -561,7 +561,7 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     private boolean writeToFile(Object sourceEntity, Path path) throws IOException {
-        Span span = observationHelper.createSpan(GitSpans.FILE_WRITE.getEventName());
+        Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
         String resourceType = sourceEntity.getClass().getSimpleName();
         if (!(sourceEntity instanceof BaseDomain)) {
             resourceType = METADATA;
@@ -754,7 +754,7 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return resource stored in the JSON file
      */
     public Object readFile(Path filePath) {
-        Span span = observationHelper.createSpan(GitSpans.FILE_READ.getEventName());
+        Span span = observationHelper.createSpan(GitSpan.FILE_READ);
         observationHelper.startSpan(span, true);
 
         Object file;
@@ -801,7 +801,7 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return content of the file in the path
      */
     private String readFileAsString(Path filePath) {
-        Span span = observationHelper.createSpan(GitSpans.FILE_READ.getEventName());
+        Span span = observationHelper.createSpan(GitSpan.FILE_READ);
         observationHelper.startSpan(span, true);
         String data = CommonConstants.EMPTY_STRING;
         try {

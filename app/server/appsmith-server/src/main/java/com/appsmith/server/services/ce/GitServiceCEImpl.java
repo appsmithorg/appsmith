@@ -7,7 +7,8 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.external.git.constants.GitSpans;
+import com.appsmith.external.git.constants.GitConstants;
+import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.service.GitExecutorImpl;
@@ -107,8 +108,8 @@ import static com.appsmith.external.git.constants.GitConstants.EMPTY_COMMIT_ERRO
 import static com.appsmith.external.git.constants.GitConstants.GIT_CONFIG_ERROR;
 import static com.appsmith.external.git.constants.GitConstants.GIT_PROFILE_ERROR;
 import static com.appsmith.external.git.constants.GitConstants.MERGE_CONFLICT_BRANCH_NAME;
-import static com.appsmith.external.git.constants.GitSpans.COMMIT;
-import static com.appsmith.external.git.constants.GitSpans.STATUS;
+import static com.appsmith.external.git.constants.GitSpan.OPS_COMMIT;
+import static com.appsmith.external.git.constants.GitSpan.OPS_STATUS;
 import static com.appsmith.git.constants.AppsmithBotAsset.APPSMITH_BOT_USERNAME;
 import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 import static com.appsmith.server.constants.FieldName.DEFAULT;
@@ -116,6 +117,7 @@ import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_C
 import static com.appsmith.server.helpers.DefaultResourcesUtils.createDefaultIdsOrUpdateWithGivenResourceIds;
 import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
 import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
+import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
@@ -219,10 +221,10 @@ public class GitServiceCEImpl implements GitServiceCE {
         // 2. Updating or creating repo specific profile and user want to use repo specific profile but provided empty
         //    values for authorName and email
 
-        if ((DEFAULT.equals(defaultApplicationId) || Boolean.FALSE.equals(gitProfile.getUseGlobalProfile()))
+        if ((DEFAULT.equals(defaultApplicationId) || FALSE.equals(gitProfile.getUseGlobalProfile()))
                 && StringUtils.isEmptyOrNull(gitProfile.getAuthorName())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Name"));
-        } else if ((DEFAULT.equals(defaultApplicationId) || Boolean.FALSE.equals(gitProfile.getUseGlobalProfile()))
+        } else if ((DEFAULT.equals(defaultApplicationId) || FALSE.equals(gitProfile.getUseGlobalProfile()))
                 && StringUtils.isEmptyOrNull(gitProfile.getAuthorEmail())) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "Author Email"));
         } else if (StringUtils.isEmptyOrNull(defaultApplicationId)) {
@@ -232,7 +234,7 @@ public class GitServiceCEImpl implements GitServiceCE {
         if (DEFAULT.equals(defaultApplicationId)) {
             gitProfile.setUseGlobalProfile(null);
         } else if (!TRUE.equals(gitProfile.getUseGlobalProfile())) {
-            gitProfile.setUseGlobalProfile(Boolean.FALSE);
+            gitProfile.setUseGlobalProfile(FALSE);
         }
 
         return sessionUserService
@@ -458,7 +460,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                             .flatMap(application ->
                                                     gitPrivateRepoHelper.isRepoLimitReached(workspaceId, false))
                                             .flatMap(isRepoLimitReached -> {
-                                                if (Boolean.FALSE.equals(isRepoLimitReached)) {
+                                                if (FALSE.equals(isRepoLimitReached)) {
                                                     return Mono.just(defaultApplication);
                                                 }
                                                 throw new AppsmithException(AppsmithError.GIT_APPLICATION_LIMIT_ERROR);
@@ -625,7 +627,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     childApplication.getGitApplicationMetadata().getIsRepoPrivate(),
                                     isSystemGenerated))
                             .thenReturn(status)
-                            .name(COMMIT.getEventName())
+                            .name(OPS_COMMIT)
                             .tap(Micrometer.observation(observationRegistry));
                 });
 
@@ -738,7 +740,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return gitPrivateRepoHelper
                             .isRepoLimitReached(application.getWorkspaceId(), true)
                             .flatMap(isRepoLimitReached -> {
-                                if (Boolean.FALSE.equals(isRepoLimitReached)) {
+                                if (FALSE.equals(isRepoLimitReached)) {
                                     return Mono.just(application);
                                 }
                                 return addAnalyticsForGitOperation(
@@ -1092,7 +1094,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     application,
                                     application.getGitApplicationMetadata().getIsRepoPrivate())
                             .thenReturn(pushStatus);
-                });
+                })
+                .name(GitSpan.OPS_PUSH)
+                .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> pushStatusMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
@@ -1236,7 +1240,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                         .collectList()
                                         .flatMapMany(actionCollectionService::saveAll))
                                 .then(addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCONNECT, application, false))
-                                .map(responseUtils::updateApplicationWithDefaultResources));
+                                .map(responseUtils::updateApplicationWithDefaultResources))
+                .name(GitSpan.OPS_DETACH_REMOTE)
+                .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> disconnectMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
@@ -1377,7 +1383,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 AnalyticsEvents.GIT_CREATE_BRANCH,
                                 application,
                                 application.getGitApplicationMetadata().getIsRepoPrivate())))
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources)
+                .name(GitSpan.OPS_CREATE_BRANCH)
+                .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> createBranchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
@@ -1447,6 +1455,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     return Mono.just(result);
                 })
+                .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, FALSE.toString())
+                .name(GitSpan.OPS_CHECKOUT_BRANCH)
+                .tap(Micrometer.observation(observationRegistry))
                 .onErrorResume(throwable -> {
                     return Mono.error(throwable);
                 });
@@ -1559,7 +1570,10 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .map(responseUtils::updateApplicationWithDefaultResources)
                             .flatMap(application1 ->
                                     releaseFileLock(defaultApplicationId).then(Mono.just(application1)));
-                });
+                })
+                .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, TRUE.toString())
+                .name(GitSpan.OPS_CHECKOUT_BRANCH)
+                .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(
                 sink -> checkoutRemoteBranchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
@@ -1648,7 +1662,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                             // Release file lock after the pull operation
                             .flatMap(gitPullDTO ->
                                     releaseFileLock(defaultApplicationId).then(Mono.just(gitPullDTO)));
-                });
+                })
+                .name(GitSpan.OPS_PULL)
+                .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> pullMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
@@ -1857,7 +1873,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     }
                     return branchDTOList;
                 })
-                .flatMap(gitBranchDTOList -> Boolean.FALSE.equals(pruneBranches)
+                .flatMap(gitBranchDTOList -> FALSE.equals(pruneBranches)
                         ? Mono.just(gitBranchDTOList)
                         : addAnalyticsForGitOperation(
                                         AnalyticsEvents.GIT_PRUNE,
@@ -2000,7 +2016,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             throwable);
                     return Mono.error(new AppsmithException(AppsmithError.GIT_GENERIC_ERROR, throwable.getMessage()));
                 })
-                .name(STATUS.getEventName())
+                .name(OPS_STATUS)
                 .tap(Micrometer.observation(observationRegistry));
 
         return Mono.zip(statusMono, sessionUserService.getCurrentUser(), branchedAppMono)
@@ -2134,7 +2150,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return sendUnitExecutionTimeAnalyticsEvent(
                                     AnalyticsEvents.GIT_FETCH.getEventName(), elapsedTime, currentUser, app)
                             .thenReturn(branchTrackingStatus);
-                });
+                })
+                .name(GitSpan.OPS_FETCH_REMOTE)
+                .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> {
             fetchRemoteStatusMono.subscribe(sink::success, sink::error, null, sink.currentContext());
@@ -2572,7 +2590,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                     return gitPrivateRepoHelper
                             .isRepoLimitReached(workspaceId, true)
                             .flatMap(isRepoLimitReached -> {
-                                if (Boolean.FALSE.equals(isRepoLimitReached)) {
+                                if (FALSE.equals(isRepoLimitReached)) {
                                     return Mono.just(gitAuth).zipWith(applicationMono);
                                 }
                                 return addAnalyticsForGitOperation(
@@ -2853,7 +2871,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                             .flatMap(isBranchDeleted ->
                                     releaseFileLock(defaultApplicationId).map(status -> isBranchDeleted))
                             .flatMap(isBranchDeleted -> {
-                                if (Boolean.FALSE.equals(isBranchDeleted)) {
+                                if (FALSE.equals(isBranchDeleted)) {
                                     return Mono.error(new AppsmithException(
                                             AppsmithError.GIT_ACTION_FAILED,
                                             " delete branch. Branch does not exists in the repo"));
@@ -2889,7 +2907,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                         AnalyticsEvents.GIT_DELETE_BRANCH,
                         application,
                         application.getGitApplicationMetadata().getIsRepoPrivate()))
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources)
+                .name(GitSpan.OPS_DELETE_BRANCH)
+                .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(sink -> deleteBranchMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
     }
@@ -2952,7 +2972,9 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 .flatMap(application -> releaseFileLock(defaultApplicationId)
                         .then(this.addAnalyticsForGitOperation(AnalyticsEvents.GIT_DISCARD_CHANGES, application, null)))
-                .map(responseUtils::updateApplicationWithDefaultResources);
+                .map(responseUtils::updateApplicationWithDefaultResources)
+                .name(GitSpan.OPS_DISCARD_CHANGES)
+                .tap(Micrometer.observation(observationRegistry));
 
         return Mono.create(
                 sink -> discardChangeMono.subscribe(sink::success, sink::error, null, sink.currentContext()));
@@ -3279,14 +3301,14 @@ public class GitServiceCEImpl implements GitServiceCE {
                         .onRetryExhaustedThrow((retryBackoffSpec, retrySignal) -> {
                             throw new AppsmithException(AppsmithError.GIT_FILE_IN_USE);
                         }))
-                .name(GitSpans.ADD_FILE_LOCK.getEventName())
+                .name(GitSpan.ADD_FILE_LOCK)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
     private Mono<Boolean> releaseFileLock(String defaultApplicationId) {
         return redisUtils
                 .releaseFileLock(defaultApplicationId)
-                .name(GitSpans.RELEASE_FILE_LOCK.getEventName())
+                .name(GitSpan.RELEASE_FILE_LOCK)
                 .tap(Micrometer.observation(observationRegistry));
     }
 
@@ -3364,7 +3386,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                     AutoCommitConfig autoCommitConfig = gitArtifactMetadata.getAutoCommitConfig();
                     if (autoCommitConfig.getEnabled()) {
-                        autoCommitConfig.setEnabled(Boolean.FALSE);
+                        autoCommitConfig.setEnabled(FALSE);
                     } else {
                         autoCommitConfig.setEnabled(TRUE);
                     }
