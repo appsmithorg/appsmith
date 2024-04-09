@@ -1,5 +1,11 @@
+<<<<<<< HEAD
 <svg width="56" height="24" viewBox="0 0 56 24" fill="none" xmlns="http://www.w3.org/2000/svg">
 <path d="M45.5 4.5L47.5 9.5H52.5L48.5 13L50.5 18.5L45.5 15.5L40.5 18.5L42.5 13L38.5 9.5H43.5L45.5 4.5Z" fill="#CDD5DF" stroke="#CDD5DF" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M27.5 4.5L29.5 9.5H34.5L30.5 13L32.5 18.5L27.5 15.5L22.5 18.5L24.5 13L20.5 9.5H25.5L27.5 4.5Z" fill="white" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M9.5 4.5L11.5 9.5H16.5L12.5 13L14.5 18.5L9.5 15.5L4.5 18.5L6.5 13L2.5 9.5H7.5L9.5 4.5Z" fill="white" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+=======
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M5 29L15 23V1L11 11H1L9 18L5 29Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M15 1L19 11H29L21 18L25 29L15 23" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" stroke-dasharray="4 4"/>
+>>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>

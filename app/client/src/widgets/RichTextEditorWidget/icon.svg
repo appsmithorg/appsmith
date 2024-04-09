@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_7044_127039)">
 <rect width="56" height="56" rx="3" fill="white"/>
@@ -21,4 +22,12 @@
 <rect width="56" height="56" rx="3" fill="white"/>
 </clipPath>
 </defs>
+=======
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1 9V15M1 15V21H4C5.65685 21 7 19.6569 7 18V18C7 16.3431 5.65685 15 4 15H1Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1 9H4C5.65685 9 7 10.3431 7 12V12C7 13.6569 5.65685 15 4 15H1" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 9H15M17 9H15M15 9L13 21M11 21H15" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M21 9V17C21 19.2091 22.7909 21 25 21V21C27.2091 21 29 19.2091 29 17V9" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M21 25H29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+>>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>

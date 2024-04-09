@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <svg width="73" height="73" viewBox="0 0 73 73" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g filter="url(#filter0_d_7044_126706)">
 <mask id="path-1-outside-1_7044_126706" maskUnits="userSpaceOnUse" x="4" y="4" width="57" height="57" fill="black">
@@ -24,4 +25,14 @@
 <feBlend mode="normal" in="SourceGraphic" in2="effect1_dropShadow_7044_126706" result="shape"/>
 </filter>
 </defs>
+=======
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M23 1H3C1.89543 1 1 1.89543 1 3V23C1 24.1046 1.89543 25 3 25H23C24.1046 25 25 24.1046 25 23V3C25 1.89543 24.1046 1 23 1Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M15 11L19 7M19 11L15 7" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29 23V25C29 27.2091 27.2091 29 25 29H23" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29 13V17" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M29 5V7" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 29H17" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M5 29H7" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+>>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>

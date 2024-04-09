@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <svg width="56" height="44" viewBox="0 0 56 44" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="56" height="44" rx="3" fill="white"/>
 <path d="M38.5 17.5V11.5H32.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
@@ -5,4 +6,12 @@
 <path d="M24.5 11.5H18.5V17.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M24.5 31.5H18.5V27.5V25.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M14.5 21.5H42.5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+=======
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M25 11V5H19" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M25 19V25H19" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M11 5H5L5 11" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M11 25H5L5 21V19" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M1 15H29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+>>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>

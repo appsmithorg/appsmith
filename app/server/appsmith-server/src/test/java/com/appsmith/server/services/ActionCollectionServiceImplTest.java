@@ -1,7 +1,6 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.ActionDTO;
-import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.views.Views;
@@ -47,11 +46,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.test.StepVerifier;
 
 import java.io.File;
@@ -108,13 +105,7 @@ public class ActionCollectionServiceImplTest {
     ActionPermission actionPermission;
 
     @MockBean
-    private Scheduler scheduler;
-
-    @MockBean
     private Validator validator;
-
-    @MockBean
-    private MongoConverter mongoConverter;
 
     @MockBean
     private AnalyticsService analyticsService;
@@ -549,11 +540,8 @@ public class ActionCollectionServiceImplTest {
             return Mono.just(argument);
         });
 
-        // Mockito.when(reactiveMongoTemplate.updateFirst(Mockito.any(), Mockito.any(), Mockito.any(Class.class)))
-        //         .thenReturn(Mono.just((Mockito.mock(UpdateResult.class))));
-
-        final QueryAllParams params = Mockito.spy(new QueryAllParams(null));
-        doReturn(Mono.just(1)).when(params).updateFirst(Mockito.<BaseDomain>any());
+        final QueryAllParams<ActionCollection> params = Mockito.spy(new QueryAllParams<>(null));
+        doReturn(Mono.just(1)).when(params).updateFirst(Mockito.<ActionCollection>any());
         Mockito.when(actionCollectionRepository.queryBuilder()).thenReturn(params);
 
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString(), Mockito.<AclPermission>any()))
@@ -818,8 +806,8 @@ public class ActionCollectionServiceImplTest {
 
         Mockito.when(actionCollectionRepository.findById(Mockito.anyString())).thenReturn(Mono.just(actionCollection));
 
-        final QueryAllParams params = Mockito.spy(new QueryAllParams(null));
-        doReturn(Mono.just(1)).when(params).updateFirst(Mockito.<BaseDomain>any());
+        final QueryAllParams<ActionCollection> params = Mockito.spy(new QueryAllParams<>(null));
+        doReturn(Mono.just(1)).when(params).updateFirst(Mockito.<ActionCollection>any());
         Mockito.when(actionCollectionRepository.queryBuilder()).thenReturn(params);
 
         PageDTO oldPageDTO = new PageDTO();

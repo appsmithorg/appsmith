@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <svg width="56" height="50" viewBox="0 0 56 50" fill="none" xmlns="http://www.w3.org/2000/svg">
 <mask id="path-1-inside-1_7044_126662" fill="white">
 <path d="M0 12C0 13.6569 1.34315 15 3 15H53C54.6569 15 56 13.6569 56 12V0H0V12Z"/>
@@ -8,4 +9,14 @@
 <path d="M0 37C0 35.3431 1.34315 34 3 34H53C54.6569 34 56 35.3431 56 37V50H0V37Z"/>
 </mask>
 <path d="M-1 37C-1 34.7909 0.790861 33 3 33H53C55.2091 33 57 34.7909 57 37H55C55 35.8954 54.1046 35 53 35H3C1.89543 35 1 35.8954 1 37H-1ZM56 50H0H56ZM-1 50V37C-1 34.7909 0.790861 33 3 33V35C1.89543 35 1 35.8954 1 37V50H-1ZM53 33C55.2091 33 57 34.7909 57 37V50H55V37C55 35.8954 54.1046 35 53 35V33Z" fill="#E3E8EF" mask="url(#path-4-inside-2_7044_126662)"/>
+=======
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M1 15H29" stroke="#364252" stroke-width="2" stroke-linecap="round"/>
+<path d="M7 25H5C3.89543 25 3 25.8954 3 27V29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M27 29V27C27 25.8954 26.1046 25 25 25H23" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 25H17" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M7 5H5C3.89543 5 3 4.10457 3 3V1" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M27 1V3C27 4.10457 26.1046 5 25 5H23" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M13 5H17" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+>>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>

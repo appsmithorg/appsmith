@@ -20,7 +20,7 @@ import _, {
 
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
@@ -910,8 +910,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       document
         .getElementById(getAnvilWidgetDOMId(this.props.widgetId))
         ?.getBoundingClientRect().width || this.props.componentWidth;
-    // (2 * WIDGET_PADDING) gives the total horizontal padding (i.e. paddingLeft + paddingRight)
-    componentWidth = componentWidth - 2 * WIDGET_PADDING;
+    componentWidth = componentWidth;
     return { componentHeight: 300, componentWidth };
   };
 
@@ -988,6 +987,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           onBulkEditSave={this.onBulkEditSave}
           onConnectData={this.onConnectData}
           onRowClick={this.handleRowClick}
+          onSearch={this.handleSearchTable}
           pageNo={this.props.pageNo}
           pageSize={
             isVisibleHeaderOptions ? Math.max(1, pageSize) : pageSize + 1
@@ -995,7 +995,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           prevPageClick={this.handlePrevPageClick}
           primaryColumnId={this.props.primaryColumnId}
           searchKey={this.props.searchText}
-          searchTableData={this.handleSearchTable}
           selectAllRow={this.handleAllRowSelect}
           selectedRowIndex={
             this.props.selectedRowIndex === undefined

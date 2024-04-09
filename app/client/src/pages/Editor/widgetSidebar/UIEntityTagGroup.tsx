@@ -16,8 +16,8 @@ import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import SeeMoreButton from "./SeeMoreButton";
 import styled from "styled-components";
-import UIEntityCard from "./UIEntityCard";
 import { EDITOR_PANE_TEXTS, createMessage } from "@appsmith/constants/messages";
+import WidgetCard from "./WidgetCard";
 
 const LoadingWrapper = styled.div`
   display: flex;
@@ -98,10 +98,10 @@ const UIEntityTagGroup = (props: Props) => {
             ? sortBy(
                 props.cards,
                 (widget) => SUGGESTED_WIDGETS_ORDER[widget.type],
-              ).map((card) => <UIEntityCard details={card} key={card.key} />)
+              ).map((card) => <WidgetCard details={card} key={card.key} />)
             : props.cards
                 .slice(0, noOfItemsToRender)
-                .map((card) => <UIEntityCard details={card} key={card.key} />)}
+                .map((card) => <WidgetCard details={card} key={card.key} />)}
         </div>
         <SeeMoreButton
           hidden={noOfItemsToRender >= props.cards.length && !showFullItems}

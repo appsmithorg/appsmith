@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 
+import static com.appsmith.external.helpers.StringUtils.dotted;
+
 @Setter
 @Getter
 @FieldNameConstants
@@ -21,5 +23,10 @@ public abstract class BranchAwareDomain extends BaseDomain {
         super.sanitiseToExportDBObject();
     }
 
-    public static class Fields extends BaseDomain.Fields {}
+    public static class Fields extends BaseDomain.Fields {
+        public static final String defaultResources_applicationId =
+                dotted(defaultResources, DefaultResources.Fields.applicationId);
+        public static final String defaultResources_branchName =
+                dotted(defaultResources, DefaultResources.Fields.branchName);
+    }
 }

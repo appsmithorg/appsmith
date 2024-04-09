@@ -10,6 +10,10 @@ import java.util.Collection;
 public final class Bridge {
     private Bridge() {}
 
+    public static BridgeUpdate update() {
+        return new BridgeUpdate();
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> query() {
         return new BridgeQuery<>();
     }
@@ -37,7 +41,7 @@ public final class Bridge {
         return Bridge.<T>query().equal(key, value);
     }
 
-    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull int value) {
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, @NonNull Integer value) {
         return Bridge.<T>query().equal(key, value);
     }
 
@@ -61,6 +65,17 @@ public final class Bridge {
         return Bridge.<T>query().equal(key, value);
     }
 
+    /**
+     * Prefer using `.isTrue()` or `.isFalse()` instead of this method **if possible**.
+     */
+    public static <T extends BaseDomain> BridgeQuery<T> equal(@NonNull String key, boolean value) {
+        return Bridge.<T>query().equal(key, value);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> regexMatchIgnoreCase(@NonNull String key, String regexPattern) {
+        return Bridge.<T>query().regexMatchIgnoreCase(key, regexPattern);
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> in(@NonNull String key, @NonNull Collection<String> value) {
         return Bridge.<T>query().in(key, value);
     }
@@ -73,11 +88,19 @@ public final class Bridge {
         return Bridge.<T>query().isNull(key);
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> isNotNull(@NonNull String key) {
+        return Bridge.<T>query().isNotNull(key);
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> isTrue(@NonNull String key) {
         return Bridge.<T>query().isTrue(key);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> isFalse(@NonNull String key) {
         return Bridge.<T>query().isFalse(key);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> notExists(@NonNull String key) {
+        return Bridge.<T>query().notExists(key);
     }
 }

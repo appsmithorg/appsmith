@@ -3,7 +3,7 @@ import PropertyPaneSidebar from "components/editorComponents/PropertyPaneSidebar
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getPropertyPaneWidth } from "selectors/propertyPaneSelectors";
-import { CreateNewModal } from "pages/Editor/IDE/RightPane/components/CreateNewModal";
+import { CreateNewQueryModal } from "pages/Editor/IDE/RightPane/components/CreateNewQueryModal";
 
 /**
  * PropertyPaneWrapper
@@ -38,7 +38,7 @@ function PropertyPaneWrapper() {
         onWidthChange={onRightSidebarWidthChange}
         width={propertyPaneWidth}
       />
-      <CreateNewModal />
+      <CreateNewQueryModal />
     </>
   );
 }

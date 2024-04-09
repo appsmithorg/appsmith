@@ -1,6 +1,13 @@
+<<<<<<< HEAD
 <svg width="56" height="44" viewBox="0 0 56 44" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect width="56" height="44" rx="3" fill="white"/>
 <path d="M15.5 13.5L23.5 9.5V31.5L15.5 35.5V13.5Z" fill="white" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M31.5 13.5L23.5 9.5V31.5L31.5 35.5V13.5Z" fill="#FFEEE5" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
 <path d="M31.5 13.5L39.5 9.5V31.5L31.5 35.5V13.5Z" fill="white" stroke="#CC3D00" stroke-linecap="round" stroke-linejoin="round"/>
+=======
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M3 7L11 3V23L3 27V7Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M19 7L11 3V23L19 27V7Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M19 7L27 3V23L19 27V7Z" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+>>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>

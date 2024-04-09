@@ -1213,15 +1213,7 @@ function* executePageLoadAction(
           data: payload,
         }),
       );
-      yield put(
-        updateActionData([
-          {
-            entityName: action.name,
-            dataPath: "data",
-            data: payload.body,
-          },
-        ]),
-      );
+
       PerformanceTracker.stopAsyncTracking(
         PerformanceTransactionName.EXECUTE_ACTION,
         {
@@ -1276,15 +1268,7 @@ function* executePageLoadAction(
         undefined,
         pageAction.id,
       );
-      yield put(
-        updateActionData([
-          {
-            entityName: action.name,
-            dataPath: "data",
-            data: payload.body,
-          },
-        ]),
-      );
+
       yield take(ReduxActionTypes.SET_EVALUATED_TREE);
     }
   }

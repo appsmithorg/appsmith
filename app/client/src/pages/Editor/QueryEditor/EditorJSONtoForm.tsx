@@ -116,6 +116,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   height: calc(100% - 50px);
+  overflow: hidden;
   width: 100%;
 `;
 

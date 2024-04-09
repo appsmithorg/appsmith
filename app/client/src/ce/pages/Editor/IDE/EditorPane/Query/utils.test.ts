@@ -3,7 +3,7 @@ import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
 import { EditorState } from "@appsmith/entities/IDE/constants";
 import { PluginPackageName, PluginType } from "entities/Action";
-import { URLBuilder } from "@appsmith/entities/URLRedirect/URLAssembly";
+import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 
 describe("getQueryEntityItemUrl", () => {
   it("throws error if plugin type is not a query", () => {
@@ -30,7 +30,7 @@ describe("getQueryEntityItemUrl", () => {
 });
 
 describe("getQueryUrl", () => {
-  URLBuilder._instance.setCurrentPageId("testPage");
+  urlBuilder.setCurrentPageId("testPage");
   it("gets the correct SAAS plugin url", () => {
     const focusEntity: FocusEntityInfo = {
       entity: FocusEntity.QUERY,

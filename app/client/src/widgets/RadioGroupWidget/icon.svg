@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 <svg width="56" height="56" viewBox="0 0 56 56" fill="none" xmlns="http://www.w3.org/2000/svg">
 <g clip-path="url(#clip0_7044_126797)">
 <rect x="8" y="13" width="12" height="12" rx="6" fill="#FFBFA1"/>
@@ -25,4 +26,14 @@
 <rect x="8" y="13" width="12" height="12" rx="6" fill="white"/>
 </clipPath>
 </defs>
+=======
+<svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M17 5H29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17 21H29" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17 9H25" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<path d="M17 25H25" stroke="#364252" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+<circle cx="7" cy="23" r="6" transform="rotate(-90 7 23)" stroke="#364252" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="7" cy="7" r="6" transform="rotate(-90 7 7)" stroke="#364252" stroke-width="2" stroke-linejoin="round"/>
+<circle cx="7" cy="7" r="2" transform="rotate(-90 7 7)" stroke="#364252" stroke-width="2" stroke-linejoin="round"/>
+>>>>>>> 0a5130c5682618ac00508afeba49d25c140b5ad8
 </svg>
