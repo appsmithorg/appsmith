@@ -44,7 +44,7 @@ const SearchableFilesList = (props: Props) => {
     // reset filter
     setFiles(allItems);
     setTabs(openTabs);
-  }, [isOpen, allItems, openTabs]);
+  }, [isOpen]);
 
   if (allItems.length === 0) {
     return null;
