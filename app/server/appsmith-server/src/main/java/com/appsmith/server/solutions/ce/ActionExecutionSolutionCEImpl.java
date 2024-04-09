@@ -751,12 +751,16 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     protected Function<? super Throwable, ? extends Throwable> executionExceptionMapper(
             ActionDTO actionDTO, Integer timeoutDuration) {
         return error -> {
-            if (error instanceof TimeoutException e) {
+            if (error instanceof TimeoutException) {
                 return new AppsmithPluginException(
                         AppsmithPluginError.PLUGIN_QUERY_TIMEOUT_ERROR, actionDTO.getName(), timeoutDuration);
             } else if (error instanceof StaleConnectionException e) {
                 return new AppsmithPluginException(AppsmithPluginError.STALE_CONNECTION_ERROR, e.getMessage());
             } else {
+                log.debug(
+                        "{}: In the action execution error mode.",
+                        Thread.currentThread().getName(),
+                        error);
                 return error;
             }
         };
@@ -764,10 +768,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
 
     protected Function<? super Throwable, Mono<ActionExecutionResult>> executionExceptionHandler(ActionDTO actionDTO) {
         return error -> {
-            log.debug(
-                    "{}: In the action execution error mode.",
-                    Thread.currentThread().getName(),
-                    error);
             ActionExecutionResult result = new ActionExecutionResult();
             result.setErrorInfo(error);
             result.setIsExecutionSuccess(false);
