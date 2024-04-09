@@ -31,22 +31,18 @@ const initiateConversionFlowOverrideState = (dispatch: Dispatch<any>) => {
  */
 export const useConversionOverride = () => {
   const dispatch = useDispatch();
+  const isConversionFlowEnabled = useIsConversionFlowEnabled();
   useEffect(() => {
     // Initialize the conversion flow override state
     initiateConversionFlowOverrideState(dispatch);
-
+  }, []);
+  useEffect(() => {
     // Set up a global function to toggle the override flag
     (window as any).overrideConversionFlow = (flag = true) => {
       dispatch(setConversionFlowOverrideFlagAction(flag));
       setConversionFlowOverrideFlag(flag);
       window.console.log(`Conversion flow override flag set to: ${flag}`);
     };
-
-    // Clean up the global function when the component unmounts
-    return () => {
-      delete (window as any).overrideConversionFlow;
-    };
-  }, []);
-  const isConversionFlowEnabled = useIsConversionFlowEnabled();
+  }, [dispatch]);
   return isConversionFlowEnabled;
 };
