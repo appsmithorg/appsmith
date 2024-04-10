@@ -30,8 +30,6 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
 import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
-import { setAppMode } from "../../../actions/pageActions";
-import { APP_MODE } from "../../../entities/App";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -257,15 +255,3 @@ export function useWidgetSelectionBlockListener() {
     }
   };
 }
-
-export const useCanvasModeListener = () => {
-  const ideState = useCurrentAppState();
-  const dispatch = useDispatch();
-  useEffect(() => {
-    if (ideState === EditorState.EDITOR) {
-      dispatch(setAppMode(APP_MODE.EDIT));
-    } else {
-      dispatch(setAppMode(APP_MODE.PUBLISHED));
-    }
-  }, [ideState]);
-};
