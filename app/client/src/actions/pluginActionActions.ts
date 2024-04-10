@@ -408,13 +408,6 @@ export const closeQueryActionTab = (payload: { id: string }) => {
   };
 };
 
-export const removeQueryActionTab = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.REMOVE_QUERY_ACTION_TAB,
-    payload,
-  };
-};
-
 export default {
   createAction: createActionRequest,
   fetchActions,

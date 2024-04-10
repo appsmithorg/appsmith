@@ -22,7 +22,6 @@ import {
   fetchJSCollectionsForPageSuccess,
   moveJSCollectionError,
   moveJSCollectionSuccess,
-  removeJSActionTab,
 } from "actions/jsActionActions";
 import {
   getJSCollection,
@@ -485,5 +484,4 @@ export function* closeJSActionTabSaga(
 ) {
   const id = actionPayload.payload.id;
   yield call(handleJSEntityRedirect, id);
-  yield put(removeJSActionTab({ id }));
 }
