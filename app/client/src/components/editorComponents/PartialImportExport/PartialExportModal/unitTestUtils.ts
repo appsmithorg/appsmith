@@ -3361,7 +3361,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -6803,7 +6803,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -7214,7 +7214,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -9183,7 +9183,7 @@ export const defaultAppState = {
             identifier: "SELECTOR",
             children: [
               {
-                label: "Commands",
+                label: "Command",
                 description:
                   "Choose method you would like to use to query the database",
                 configProperty: "actionConfiguration.formData.command.data",
