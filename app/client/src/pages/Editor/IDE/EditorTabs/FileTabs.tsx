@@ -1,14 +1,17 @@
 import React, { useEffect } from "react";
-import { Flex, Icon, Tooltip } from "design-system";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
+import { useSelector } from "react-redux";
 import clsx from "classnames";
+import { Flex, Icon, Tooltip } from "design-system";
+
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import {
   StyledTab,
   TabIconContainer,
   TabTextContainer,
 } from "./StyledComponents";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { getIsTabsRevampEnabled } from "selectors/ideSelectors";
 
 interface Props {
   tabs: EntityItem[];
@@ -18,6 +21,7 @@ interface Props {
 
 const FileTabs = (props: Props) => {
   const { navigateToTab, onClose, tabs } = props;
+  const isTabsRevampEnabled = useSelector(getIsTabsRevampEnabled);
 
   const location = useLocation();
 
@@ -54,17 +58,20 @@ const FileTabs = (props: Props) => {
           data-testid={`t--ide-tab-${tab.title}`}
           key={tab.key}
           onClick={() => navigateToTab(tab)}
+          showOverflow={isTabsRevampEnabled}
         >
           <TabIconContainer>{tab.icon}</TabIconContainer>
           <Tooltip content={tab.title} mouseEnterDelay={1}>
             <TabTextContainer>{tab.title}</TabTextContainer>
           </Tooltip>
           {/* not using button component because of the size not matching design */}
-          <Icon
-            className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
-            name="close-line"
-            onClick={(e) => onCloseClick(e, tab.key)}
-          />
+          {isTabsRevampEnabled ? (
+            <Icon
+              className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
+              name="close-line"
+              onClick={(e) => onCloseClick(e, tab.key)}
+            />
+          ) : null}
         </StyledTab>
       ))}
     </Flex>

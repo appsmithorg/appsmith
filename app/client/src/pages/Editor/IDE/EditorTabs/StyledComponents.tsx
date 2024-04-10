@@ -1,5 +1,6 @@
 import styled from "styled-components";
 import { Flex } from "design-system";
+import { DEFAULT_SPLIT_SCREEN_WIDTH } from "constants/AppConstants";
 
 /**
  * Logic for 54px in max width
@@ -15,10 +16,9 @@ import { Flex } from "design-system";
  * 127px
  *
  */
-export const StyledTab = styled(Flex)`
+export const StyledTab = styled(Flex)<{ showOverflow: boolean }>`
   position: relative;
   top: 1px;
-  padding: var(--ads-v2-spaces-3);
   font-size: 12px;
   color: var(--ads-v2-colors-text-default);
   cursor: pointer;
@@ -28,6 +28,13 @@ export const StyledTab = styled(Flex)`
   border-top-right-radius: var(--ads-v2-border-radius);
   align-items: center;
   justify-content: center;
+  ${({ showOverflow }) =>
+    showOverflow
+      ? `padding: var(--ads-v2-spaces-3);`
+      : `
+        padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-4);
+        max-width: calc((${DEFAULT_SPLIT_SCREEN_WIDTH} - 127px) / 5);
+    `}
 
   // After element - the seperator in between tabs
   &:not(&.active):not(:has(+ .active)):after {

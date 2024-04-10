@@ -57,9 +57,12 @@ export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
 function* getUpdatedTabs(newId: string, currentTabs: string[]) {
   if (currentTabs.includes(newId)) return currentTabs;
   const isTabsRevampEnabled: boolean = yield select(getIsTabsRevampEnabled);
-  const newTabs = isTabsRevampEnabled
+  let newTabs = isTabsRevampEnabled
     ? [...currentTabs, newId]
     : [newId, ...currentTabs];
+  if (!isTabsRevampEnabled && newTabs.length > 5) {
+    newTabs = newTabs.slice(0, 5);
+  }
   return newTabs;
 }
 
