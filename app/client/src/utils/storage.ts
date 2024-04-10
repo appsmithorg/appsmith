@@ -5,6 +5,8 @@ import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePr
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { FeaturesToOverride } from "./hooks/useFeatureFlagOverride";
+import type { OverriddenFeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -39,7 +41,7 @@ export const STORAGE_KEYS: {
   PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
   IDE_VIEW_MODE: "IDE_VIEW_MODE",
   CODE_WIDGET_NAVIGATION_USED: "CODE_WIDGET_NAVIGATION_USED",
-  OVERRIDE_CONVERSION_FLOW_FLAG: "OVERRIDE_CONVERSION_FLOW_FLAG",
+  OVERRIDDEN_FEATURE_FLAGS: "OVERRIDDEN_FEATURE_FLAGS",
 };
 
 const store = localforage.createInstance({
@@ -908,20 +910,20 @@ export const retrieveCodeWidgetNavigationUsed = async (): Promise<number> => {
   }
 };
 
-export const getConversionFlowOverrideFlag = async () => {
-  const conversionFlowOverrideFlag = (await store.getItem(
-    STORAGE_KEYS.OVERRIDE_CONVERSION_FLOW_FLAG,
-  )) as boolean;
-  return conversionFlowOverrideFlag || false;
+export const getFeatureFlagOverrideValues = async (
+  flagsToFetch = FeaturesToOverride,
+) => {
+  const featureFlagValues: OverriddenFeatureFlags = {};
+  for (const flag of flagsToFetch) {
+    featureFlagValues[flag] = (await store.getItem(flag)) as boolean;
+  }
+  return featureFlagValues;
 };
 
-export const setConversionFlowOverrideFlag = async (flag: boolean) => {
-  try {
-    await store.setItem(STORAGE_KEYS.OVERRIDE_CONVERSION_FLOW_FLAG, flag);
-    return true;
-  } catch (error) {
-    log.error("An error occurred while setting OVERRIDE_CONVERSION_FLOW_FLAG");
-    log.error(error);
-    return false;
+export const setFeatureFlagOverrideValues = async (
+  featureFlagValues: OverriddenFeatureFlags,
+) => {
+  for (const [flag, value] of Object.entries(featureFlagValues)) {
+    await store.setItem(flag, value);
   }
 };

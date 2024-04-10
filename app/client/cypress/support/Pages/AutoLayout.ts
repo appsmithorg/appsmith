@@ -49,7 +49,9 @@ export class AutoLayout {
   public ConvertToAutoLayoutAndVerify(isNotNewApp = true) {
     cy.window().then((win) => {
       // Access the global function and call it
-      (win as any)?.overrideConversionFlow(true);
+      (win as any)?.overrideFeatureFlag({
+        release_layout_conversion_enabled: true,
+      });
       this.VerifyIsFixedLayout();
 
       this.agHelper.GetNClick(this.autoConvertButton, 0, true);
@@ -74,7 +76,9 @@ export class AutoLayout {
   ) {
     cy.window().then((win) => {
       // Access the global function and call it
-      (win as any).overrideConversionFlow(true);
+      (win as any).overrideFeatureFlag({
+        release_layout_conversion_enabled: true,
+      });
       this.VerifyIsAutoLayout();
 
       this.agHelper.GetNClick(this.autoConvertButton, 0, true);

@@ -26,14 +26,14 @@ import {
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useConversionForm } from "./hooks/useConversionForm";
 import type { AppState } from "@appsmith/reducers";
-import { useConversionOverride } from "./hooks/useConversionOverride";
+import { useIsConversionFlowEnabled } from "./hooks/useIsConversionFlowEnabled";
 
 function ConversionButton() {
   const [showModal, setShowModal] = React.useState(false);
   const isAutoLayout = useRef(getIsAutoLayout(store.getState()));
   const formProps = useConversionForm({ isAutoLayout: isAutoLayout.current });
   const dispatch = useDispatch();
-  const isConversionFlowEnabled = useConversionOverride();
+  const isConversionFlowEnabled = useIsConversionFlowEnabled();
   const conversionState = useSelector(
     (state: AppState) => state.ui.layoutConversion.conversionState,
   );
