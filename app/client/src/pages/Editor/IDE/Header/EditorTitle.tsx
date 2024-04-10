@@ -13,12 +13,14 @@ import { PagesSection } from "../EditorPane/PagesSection";
 import styled from "styled-components";
 
 const PageSwitchTrigger = styled.div<{ active: boolean }>`
-  :hover {
-    background-color: var(--ads-v2-color-bg-subtle);
-  }
+  border-radius: var(--ads-v2-border-radius);
   background-color: ${(props) =>
     props.active ? `var(--ads-v2-color-bg-subtle)` : "unset"};
   cursor: pointer;
+  padding: var(--ads-v2-spaces-2);
+  :hover {
+    background-color: var(--ads-v2-color-bg-subtle);
+  }
 `;
 
 const EditorTitle = ({ title }: { title: string }) => {
@@ -29,7 +31,7 @@ const EditorTitle = ({ title }: { title: string }) => {
       <MenuTrigger>
         <PageSwitchTrigger
           active={active}
-          className="flex align-center justify-center py-2"
+          className="flex align-center justify-center"
         >
           <Text
             color={"var(--ads-v2-colors-content-label-inactive-fg)"}

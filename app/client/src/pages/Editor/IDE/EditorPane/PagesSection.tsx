@@ -32,7 +32,7 @@ const Container = styled(Flex)`
 `;
 
 const Header = styled.div`
-  padding: var(--ads-v2-spaces-3) var(--ads-v2-spaces-4);
+  padding: var(--ads-v2-spaces-3);
   padding-right: var(--ads-v2-spaces-2);
   display: flex;
   justify-content: space-between;
@@ -110,6 +110,7 @@ const PagesSection = () => {
         flex={"1"}
         flexDirection={"column"}
         overflow={"auto"}
+        px="spaces-2"
         width={"100%"}
       >
         {pageElements}
