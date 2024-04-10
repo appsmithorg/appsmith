@@ -48,6 +48,7 @@ import java.util.stream.Collectors;
 
 import static com.external.plugins.constants.AnthropicConstants.ANTHROPIC_MODELS;
 import static com.external.plugins.constants.AnthropicConstants.BODY;
+import static com.external.plugins.constants.AnthropicConstants.CLAUDE3_PREFIX;
 import static com.external.plugins.constants.AnthropicConstants.LABEL;
 import static com.external.plugins.constants.AnthropicConstants.TEST_MODEL;
 import static com.external.plugins.constants.AnthropicConstants.TEST_PROMPT;
@@ -142,6 +143,7 @@ public class AnthropicPlugin extends BasePlugin {
 
             String model = anthropicRequestDTO.getModel();
 
+            // we don't want to serialise null values as Anthropic throws bad request otherwise
             objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
             String requestBody;
             try {
@@ -187,7 +189,7 @@ public class AnthropicPlugin extends BasePlugin {
                         Object body;
                         try {
                             body = objectMapper.readValue(responseEntity.getBody(), Object.class);
-                            if (model.contains("claude-3")) {
+                            if (model.contains(CLAUDE3_PREFIX)) {
                                 actionExecutionResult.setBody(body);
                             } else {
                                 actionExecutionResult.setBody(
@@ -291,7 +293,11 @@ public class AnthropicPlugin extends BasePlugin {
                     })
                     .onErrorResume(error -> {
                         log.debug("Error while fetching Anthropic models list", error);
-                        return Mono.just(getDataToMap(ANTHROPIC_MODELS));
+                        if (ANTHROPIC_MODELS.containsKey(requestType)) {
+                            return Mono.just(getDataToMap(ANTHROPIC_MODELS.get(requestType)));
+                        }
+                        return Mono.error(new AppsmithPluginException(
+                                AppsmithPluginError.PLUGIN_EXECUTE_ARGUMENT_ERROR, error.getMessage()));
                     })
                     .map(trigger -> {
                         TriggerResultDTO triggerResult = new TriggerResultDTO(trigger);
@@ -307,7 +313,7 @@ public class AnthropicPlugin extends BasePlugin {
         }
 
         private List<Map<String, String>> getDataToMap(List<String> data) {
-            return data.stream().sorted().map(x -> Map.of(LABEL, x, VALUE, x)).collect(Collectors.toList());
+            return data.stream().map(x -> Map.of(LABEL, x, VALUE, x)).collect(Collectors.toList());
         }
     }
 }

@@ -3,8 +3,6 @@ package com.external.plugins;
 import com.appsmith.external.models.ApiKeyAuth;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceTestResult;
-import com.appsmith.external.models.TriggerRequestDTO;
-import com.appsmith.external.models.TriggerResultDTO;
 import com.appsmith.external.services.SharedConfig;
 import com.external.plugins.constants.AnthropicErrorMessages;
 import mockwebserver3.MockResponse;
@@ -17,14 +15,8 @@ import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 import java.io.IOException;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import static com.external.plugins.constants.AnthropicConstants.CHAT_MODELS;
-import static com.external.plugins.constants.AnthropicConstants.LABEL;
-import static com.external.plugins.constants.AnthropicConstants.VALUE;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -125,37 +117,5 @@ public class AnthropicPluginTest {
                     assertFalse(datasourceTestResult.isSuccess());
                 })
                 .verifyComplete();
-    }
-
-    @Test
-    public void verifyDatasourceTriggerResultsForChatModels() {
-        ApiKeyAuth apiKeyAuth = new ApiKeyAuth();
-        apiKeyAuth.setValue("apiKey");
-        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setAuthentication(apiKeyAuth);
-
-        TriggerRequestDTO request = new TriggerRequestDTO();
-        request.setRequestType(CHAT_MODELS);
-        Mono<TriggerResultDTO> datasourceTriggerResultMono =
-                pluginExecutor.trigger(null, datasourceConfiguration, request);
-
-        StepVerifier.create(datasourceTriggerResultMono)
-                .assertNext(result -> {
-                    assertTrue(result.getTrigger() instanceof List<?>);
-                    assertEquals(((List) result.getTrigger()).size(), 5);
-                    assertEquals(
-                            result.getTrigger(),
-                            getDataToMap(List.of(
-                                    "claude-2.1",
-                                    "claude-instant-1.2",
-                                    "claude-3-opus-20240229",
-                                    "claude-3-sonnet-20240229",
-                                    "claude-3-haiku-20240307")));
-                })
-                .verifyComplete();
-    }
-
-    private List<Map<String, String>> getDataToMap(List<String> data) {
-        return data.stream().sorted().map(x -> Map.of(LABEL, x, VALUE, x)).collect(Collectors.toList());
     }
 }

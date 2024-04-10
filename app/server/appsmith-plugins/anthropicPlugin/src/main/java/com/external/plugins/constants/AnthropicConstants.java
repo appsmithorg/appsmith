@@ -3,6 +3,7 @@ package com.external.plugins.constants;
 import org.springframework.web.reactive.function.client.ExchangeStrategies;
 
 import java.util.List;
+import java.util.Map;
 
 public class AnthropicConstants {
     public static final String ANTHROPIC_API_ENDPOINT = "https://api.anthropic.com/v1";
@@ -26,6 +27,7 @@ public class AnthropicConstants {
     public static final String ROLE = "role";
     public static final String TYPE = "type";
     public static final String CONTENT = "content";
+    public static final String CLAUDE3_PREFIX = "claude-3";
     public static final String MODEL = "model";
     public static final String CHAT_MODEL_SELECTOR = "chatModel";
     public static final String VISION_MODEL_SELECTOR = "visionModel";
@@ -39,9 +41,16 @@ public class AnthropicConstants {
     public static final String API_KEY_HEADER = "x-api-key";
     public static final String ANTHROPIC_VERSION_HEADER = "anthropic-version";
     public static final String ANTHROPIC_VERSION = "2023-06-01";
-    public static final List<String> ANTHROPIC_MODELS =
-            List.of("claude-2.1", "claude-2", "claude-instant-1.2", "claude-instant-1");
-    public static final String CLOUD_SERVICES = "https://cs-1607-customer.dp.appsmith.com";
+    public static final Map<String, List<String>> ANTHROPIC_MODELS = Map.of(
+            CHAT,
+                    List.of(
+                            "claude-instant-1.2",
+                            "claude-2.1",
+                            "claude-3-opus-20240229",
+                            "claude-3-sonnet-20240229",
+                            "claude-3-haiku-20240307"),
+            VISION, List.of("claude-3-opus-20240229", "claude-3-sonnet-20240229", "claude-3-haiku-20240307"));
+    public static final String CLOUD_SERVICES = "https://cs.appsmith.com";
     public static final String MODELS_API = "/api/v1/ai/models";
     public static final String PROVIDER = "provider";
     public static final String ANTHROPIC = "anthropic";

@@ -73,4 +73,20 @@ public class CommandUtils {
                     String.format(STRING_APPENDER, EXECUTION_FAILURE, BAD_TEMPERATURE_CONFIGURATION));
         }
     }
+
+    /**
+     * Anthropic message API expect role to be one of user or assistant. This method converts Human to user and Assistant to assistant
+     * @param role - Appsmith understood role
+     * @return - Actual role value expected by Anthropic message API
+     */
+    public static String getActualRoleValue(String role) {
+        if (role == null) {
+            return null;
+        }
+        return switch (role) {
+            case "Human" -> "user";
+            case "Assistant" -> "assistant";
+            default -> role;
+        };
+    }
 }

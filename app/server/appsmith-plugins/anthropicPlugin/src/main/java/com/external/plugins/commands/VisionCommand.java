@@ -5,6 +5,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.models.AnthropicRequestDTO;
 import com.external.plugins.models.Message;
+import com.external.plugins.utils.CommandUtils;
 import com.external.plugins.utils.RequestUtils;
 import com.google.gson.Gson;
 import org.springframework.http.HttpMethod;
@@ -113,7 +114,7 @@ public class VisionCommand implements AnthropicCommand {
             if (messageMap != null && messageMap.containsKey(ROLE) && messageMap.containsKey(CONTENT)) {
                 Message message = new Message();
                 String type = messageMap.get(TYPE);
-                message.setRole(messageMap.get(ROLE));
+                message.setRole(CommandUtils.getActualRoleValue(messageMap.get(ROLE)));
                 if (TEXT.equals(type)) {
                     Message.TextContent textContent = new Message.TextContent();
                     textContent.setText(messageMap.get(CONTENT));
@@ -135,7 +136,7 @@ public class VisionCommand implements AnthropicCommand {
                     imageContent.setSource(source);
                     message.setContent(List.of(imageContent));
                 }
-                message.setRole(messageMap.get(ROLE));
+                message.setRole(CommandUtils.getActualRoleValue(messageMap.get(ROLE)));
                 messages.add(message);
             }
         }

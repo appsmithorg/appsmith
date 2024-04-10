@@ -25,10 +25,7 @@ import static com.appsmith.server.constants.ce.FieldNameCE.PLUGIN_ID;
 @ChangeUnit(order = "050", id = "move-anthropic-legacy-models", author = "")
 public class Migration050MoveAnthropicLegacyModelsInQueries {
     private final MongoTemplate mongoTemplate;
-    private static final String HUMAN = "Human";
-    private static final String ASSISTANT = "Assistant";
     public static final String CHAT_MODEL = "chatModel";
-    public static final String MESSAGES = "messages";
     private static final Map<String, String> LEGACY_TO_NEXT_MODELS = Map.of(
             "claude-instant-1", "claude-instant-1.2",
             "claude-2", "claude-2.1");
@@ -90,18 +87,6 @@ public class Migration050MoveAnthropicLegacyModelsInQueries {
             if (LEGACY_TO_NEXT_MODELS.containsKey(chatModel)) {
                 formData.put(CHAT_MODEL, Map.of("data", LEGACY_TO_NEXT_MODELS.get(chatModel)));
             }
-        }
-        if (formData.containsKey(MESSAGES)) {
-            List<Map<String, String>> messages =
-                    (List<Map<String, String>>) ((Map<String, Object>) formData.get(MESSAGES)).get("data");
-            for (Map<String, String> message : messages) {
-                if (HUMAN.equals(message.get("role"))) {
-                    message.put("role", "user");
-                } else if (ASSISTANT.equals(message.get("role"))) {
-                    message.put("role", "assistant");
-                }
-            }
-            formData.put(MESSAGES, Map.of("data", messages));
         }
         actionConfiguration.setFormData(formData);
         return actionConfiguration;

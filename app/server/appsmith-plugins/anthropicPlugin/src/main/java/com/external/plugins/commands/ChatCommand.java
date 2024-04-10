@@ -6,7 +6,7 @@ import com.appsmith.external.models.ActionConfiguration;
 import com.external.plugins.constants.AnthropicConstants;
 import com.external.plugins.models.AnthropicRequestDTO;
 import com.external.plugins.models.Message;
-import com.external.plugins.models.Role;
+import com.external.plugins.utils.CommandUtils;
 import com.external.plugins.utils.RequestUtils;
 import com.google.gson.Gson;
 import org.springframework.http.HttpMethod;
@@ -114,43 +114,12 @@ public class ChatCommand implements AnthropicCommand {
                 Message.TextContent textContent = new Message.TextContent();
                 textContent.setText(messageMap.get(CONTENT));
 
-                message.setRole(messageMap.get(ROLE));
+                message.setRole(CommandUtils.getActualRoleValue(messageMap.get(ROLE)));
                 message.setContent(List.of(textContent));
 
                 messages.add(message);
             }
         }
         return messages;
-    }
-
-    /**
-     * This is the kind of format we want to build from the messages as a prompt.
-     * Example Prompt: `\n\nHuman: ${query}\n\nAssistant:`
-     * Lastly, we leave it with an additional Assistant: so that it can respond back as an assistant
-     */
-    private String createPrompt(Map<String, Object> formData) {
-        StringBuilder stringBuilder = new StringBuilder();
-        if (formData.containsKey(MESSAGES)) {
-            List<Map<String, String>> messageMaps = getMessages((Map<String, Object>) formData.get(MESSAGES));
-            if (messageMaps == null) {
-                throw new AppsmithPluginException(
-                        AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                        "messages are not provided in the configuration correctly");
-            }
-            for (Map<String, String> messageMap : messageMaps) {
-                if (messageMap != null && messageMap.containsKey(ROLE) && messageMap.containsKey(CONTENT)) {
-                    stringBuilder
-                            .append("\n\n")
-                            .append(messageMap.get(ROLE))
-                            .append(": ")
-                            .append(messageMap.get(CONTENT));
-                }
-            }
-            return stringBuilder.append("\n").append(Role.Assistant).append(":").toString();
-        } else {
-            throw new AppsmithPluginException(
-                    AppsmithPluginError.PLUGIN_DATASOURCE_ARGUMENT_ERROR,
-                    "messages are not provided in the configuration");
-        }
     }
 }

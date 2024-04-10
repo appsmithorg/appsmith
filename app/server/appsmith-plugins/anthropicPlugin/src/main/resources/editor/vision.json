@@ -72,15 +72,15 @@
           "label": "Role",
           "key": "role",
           "controlType": "DROP_DOWN", 
-          "initialValue": "user",
+          "initialValue": "Human",
           "options": [
             {
-              "label": "User",
-              "value": "user"
+              "label": "Human",
+              "value": "Human"
             },
             {
               "label": "Assistant",
-              "value": "assistant"
+              "value": "Assistant"
             }
           ]
         },
