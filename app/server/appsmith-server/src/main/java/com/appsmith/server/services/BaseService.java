@@ -80,10 +80,7 @@ public abstract class BaseService<
 
         // TODO(Shri): update happens with `key=id` and find happens with `id=id` criteria. This is incorrect, but is
         //   too fragile to touch right now. Need to dig in slow and deep to fix this.
-        return asMono(() -> Optional.of(repositoryDirect
-                        .queryBuilder()
-                        .criteria(Bridge.equal(key, (String) id))
-                        .updateFirst(resource)))
+        return asMono(() -> Optional.of(repositoryDirect.updateById((String) id, resource, null)))
                 .flatMap(obj -> repository.findById((String) id))
                 .flatMap(savedResource ->
                         analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
