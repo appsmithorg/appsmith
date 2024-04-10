@@ -43,6 +43,7 @@ class PageList {
   }
 
   public SelectedPageItem(): Cypress.Chainable {
+    this.ShowList();
     return cy.get(".t--entity.page > .active");
   }
 

@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigation, {
   EntityType,
@@ -38,8 +39,7 @@ interface EntityActionParams {
     | "Export"
     | "Import";
   subAction?: string;
-  //@ts-expect-error: type mismatch
-  entityType?: EntityItems;
+  entityType?: EntityItemsType;
   toAssertAction?: boolean;
   toastToValidate?: string;
 }
@@ -257,13 +257,14 @@ export class EntityExplorer {
     entityName: string,
     renameVal: string,
     viaMenu = false,
+    entityType?: EntityItemsType,
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageList.ShowList();
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,
         action: "Edit name",
+        entityType,
       });
     else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
     cy.xpath(this.locator._entityNameEditing(entityName))

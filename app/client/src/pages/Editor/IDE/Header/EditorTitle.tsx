@@ -25,7 +25,7 @@ const EditorTitle = ({ title }: { title: string }) => {
   const [active, setActive] = useState(false);
 
   return (
-    <Menu onOpenChange={setActive}>
+    <Menu onOpenChange={setActive} open={active}>
       <MenuTrigger>
         <PageSwitchTrigger
           active={active}
@@ -56,7 +56,13 @@ const EditorTitle = ({ title }: { title: string }) => {
           </Flex>
         </PageSwitchTrigger>
       </MenuTrigger>
-      <MenuContent align="start" width="300px">
+      <MenuContent
+        align="start"
+        onEscapeKeyDown={() => {
+          setActive(false);
+        }}
+        width="300px"
+      >
         <PagesSection />
       </MenuContent>
     </Menu>

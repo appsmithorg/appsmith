@@ -16,6 +16,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch",
@@ -67,7 +68,12 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     });
 
     PageList.AddNewPage();
-    entityExplorer.RenameEntityFromExplorer("Page2", "ParentPage1", true);
+    entityExplorer.RenameEntityFromExplorer(
+      "Page2",
+      "ParentPage1",
+      true,
+      EntityItems.Page,
+    );
     dataSources.NavigateToDSCreateNew();
     apiPage.CreateApi("ParentApi1");
     jsEditor.CreateJSObject();
@@ -80,7 +86,12 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       childBranchKey = branName;
     });
     PageList.AddNewPage();
-    entityExplorer.RenameEntityFromExplorer("Page2", "ChildPage1", true);
+    entityExplorer.RenameEntityFromExplorer(
+      "Page2",
+      "ChildPage1",
+      true,
+      EntityItems.Page,
+    );
     dataSources.NavigateToDSCreateNew();
     apiPage.CreateApi("ChildApi1");
     jsEditor.CreateJSObject();
@@ -114,6 +125,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       "ParentPage1",
       "ParentPageRenamed",
       true,
+      EntityItems.Page,
     );
     agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
