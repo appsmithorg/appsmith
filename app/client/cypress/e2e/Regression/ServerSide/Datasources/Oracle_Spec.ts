@@ -10,7 +10,6 @@ import {
   table,
   entityItems,
   apiPage,
-  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {

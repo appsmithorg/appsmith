@@ -2,16 +2,12 @@ import {
   agHelper,
   dataSources,
   deployMode,
-  entityExplorer,
-  entityItems,
   homePage,
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-
-let datasourceName: any, jsName: any;
 
 describe(
   "JSObjects OnLoad Actions tests",

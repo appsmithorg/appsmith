@@ -3,9 +3,6 @@ import {
   apiPage,
   dataSources,
   deployMode,
-  entityExplorer,
-  entityItems,
-  homePage,
   jsEditor,
   locators,
   propPane,
@@ -14,8 +11,6 @@ import EditorNavigation, {
   EntityType,
   AppSidebarButton,
   AppSidebar,
-  PageLeftPane,
-  PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 
 let dsName: any, jsName: any;
