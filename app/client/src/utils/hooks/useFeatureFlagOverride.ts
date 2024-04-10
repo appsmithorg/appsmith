@@ -6,6 +6,7 @@ import {
   setFeatureFlagOverridesAction,
   updateFeatureFlagOverrideAction,
 } from "actions/featureFlagActions";
+import { isBoolean } from "lodash";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
@@ -27,9 +28,9 @@ export const useFeatureFlagOverride = () => {
     if (areFeatureFlagsFetched) {
       getFeatureFlagOverrideValues().then((flagValues) => {
         const filteredFlagValues = (
-          Object.keys(flagValues) as FeatureFlag[]
-        ).reduce((acc, flagName) => {
-          if (FeaturesToOverride.includes(flagName)) {
+          Object.entries(flagValues) as [FeatureFlag, boolean][]
+        ).reduce((acc, [flagName, flagValue]) => {
+          if (FeaturesToOverride.includes(flagName) && isBoolean(flagValue)) {
             acc[flagName] = flagValues[flagName];
           }
           return acc;
@@ -46,8 +47,11 @@ export const useFeatureFlagOverride = () => {
       featureFlagValues: OverriddenFeatureFlags,
     ) => {
       const areAllFlagsValid = (
-        Object.keys(featureFlagValues) as FeatureFlag[]
-      ).every((flagName) => FeaturesToOverride.includes(flagName));
+        Object.entries(featureFlagValues) as [FeatureFlag, boolean][]
+      ).every(
+        ([flagName, flagValue]) =>
+          FeaturesToOverride.includes(flagName) && isBoolean(flagValue),
+      );
       if (areAllFlagsValid) {
         dispatch(updateFeatureFlagOverrideAction(featureFlagValues));
         setFeatureFlagOverrideValues(featureFlagValues);
@@ -57,9 +61,7 @@ export const useFeatureFlagOverride = () => {
         );
       } else {
         window.console.error(
-          `Invalid feature flag override values provided. Valid flags: ${FeaturesToOverride.join(
-            ", ",
-          )}`,
+          "Invalid feature flag override values. Please check the feature flags being overridden.",
         );
       }
     };
