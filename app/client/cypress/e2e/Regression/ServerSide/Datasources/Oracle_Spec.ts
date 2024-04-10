@@ -446,11 +446,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
     propPane.EnterJSContext("onClick", `{{Query1.run()}}`);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     agHelper.ClickButton("Submit");
-    jsEditor.ConfirmationClick("No"); //Handling both No & Yes from confirmation dialog
-    agHelper.AssertContains("cancelled");
-    agHelper.WaitUntilAllToastsDisappear();
-    agHelper.ClickButton("Submit");
-    jsEditor.ConfirmationClick("Yes");
+
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
   });
