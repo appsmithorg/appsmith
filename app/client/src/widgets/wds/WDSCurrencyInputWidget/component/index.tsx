@@ -22,7 +22,7 @@ export function CurrencyInputComponent(props: CurrencyInputComponentProps) {
       onFocusChange={props.onFocusChange}
       onKeyDown={props.onKeyDown}
       placeholder={props.placeholder}
-      startIcon={<Text>{currency?.symbol_native}</Text>}
+      prefix={<Text>{currency?.symbol_native}</Text>}
       validationState={props.validationStatus}
       value={props.value}
     />

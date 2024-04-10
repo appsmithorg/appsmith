@@ -1,0 +1,18 @@
+:root {
+  --anvil-drop-indicator: #ce01d3;
+  --anvil-cell-highlight: rgba(206, 1, 211, 0.2);
+  --info-text-font-size: 14px;
+  --info-text-font-weight: 510;
+  --info-text-line-height: 19.6px;
+  --modal-overlay-color: rgba(245, 222, 245, 0.9);
+  --modal-overlay-content-color: #ffe5fe;
+  --modal-overlay-content-outline: 1px dashed #ce01d3;
+  --modal-overlay-content-text-color: #2a002b;
+  --empty-modal-drop-arena-active-bg: #ffe5fe;
+  --empty-modal-drop-arena-bg: #e6efff;
+  --empty-modal-drop-arena-outline-color: #3075ff;
+  --empty-modal-drop-arena-outline-active-color: #ce01d3;
+  --empty-modal-drop-arena-text-color: #001040;
+  --space-distribution-handle-active-bg: #0045c6;
+  --space-distribution-handle-bg: #3075ff;
+}

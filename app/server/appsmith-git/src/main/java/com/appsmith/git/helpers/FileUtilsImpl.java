@@ -2,6 +2,7 @@ package com.appsmith.git.helpers;
 
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.helpers.ce.FileUtilsCEImpl;
 import com.google.gson.GsonBuilder;
@@ -16,7 +17,11 @@ import org.springframework.stereotype.Component;
 @Import({GitServiceConfig.class})
 public class FileUtilsImpl extends FileUtilsCEImpl implements FileInterface {
 
-    public FileUtilsImpl(GitServiceConfig gitServiceConfig, GitExecutor gitExecutor, GsonBuilder gsonBuilder) {
-        super(gitServiceConfig, gitExecutor, gsonBuilder);
+    public FileUtilsImpl(
+            GitServiceConfig gitServiceConfig,
+            GitExecutor gitExecutor,
+            GsonBuilder gsonBuilder,
+            ObservationHelper observationHelper) {
+        super(gitServiceConfig, gitExecutor, gsonBuilder, observationHelper);
     }
 }

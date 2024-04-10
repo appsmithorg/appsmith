@@ -139,6 +139,11 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
                 .body(BodyInserters.fromValue(featureFlagIdentityTraits))
                 .exchangeToMono(clientResponse -> {
                     if (clientResponse.statusCode().is2xxSuccessful()) {
+                        HttpHeaders headers = clientResponse.headers().asHttpHeaders();
+                        if (!SignatureVerifier.isSignatureValid(headers)) {
+                            return Mono.error(
+                                    new AppsmithException(AppsmithError.INVALID_PARAMETER, CLOUD_SERVICES_SIGNATURE));
+                        }
                         return clientResponse.bodyToMono(
                                 new ParameterizedTypeReference<ResponseDTO<Map<String, Map<String, Boolean>>>>() {});
                     } else {

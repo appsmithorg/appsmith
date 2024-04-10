@@ -2,8 +2,6 @@ import { capitalize } from "lodash";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { COLORS, BUTTON_VARIANTS } from "@design-system/widgets";
 
-import type { ButtonWidgetProps } from "../../widget/types";
-
 export const propertyPaneStyleConfig = [
   {
     sectionName: "General",
@@ -65,22 +63,6 @@ export const propertyPaneStyleConfig = [
         isTriggerProperty: false,
         validation: {
           type: ValidationTypes.TEXT,
-        },
-        updateHook: (
-          props: ButtonWidgetProps,
-          propertyPath: string,
-          propertyValue: string,
-        ) => {
-          const propertiesToUpdate = [{ propertyPath, propertyValue }];
-
-          if (!props.iconAlign) {
-            propertiesToUpdate.push({
-              propertyPath: "iconAlign",
-              propertyValue: "start",
-            });
-          }
-
-          return propertiesToUpdate;
         },
       },
       {

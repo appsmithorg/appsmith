@@ -1,6 +1,7 @@
 package com.appsmith.server.exceptions;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.constants.MDCConstants;
 import com.appsmith.external.exceptions.AppsmithErrorAction;
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.external.exceptions.ErrorDTO;
@@ -8,7 +9,6 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.util.DuplicateKeyExceptionUtils;
-import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.AnalyticsService;
@@ -97,7 +97,7 @@ public class GlobalExceptionHandler {
                     scope.setExtra("downstreamErrorCode", baseError.getDownstreamErrorCode());
                 });
                 final User user = new User();
-                user.setEmail(baseError.getContextMap().getOrDefault(MDCFilter.USER_EMAIL, "unknownUser"));
+                user.setEmail(baseError.getContextMap().getOrDefault(MDCConstants.USER_EMAIL, "unknownUser"));
                 Sentry.setUser(user);
                 Sentry.captureException(error);
             }

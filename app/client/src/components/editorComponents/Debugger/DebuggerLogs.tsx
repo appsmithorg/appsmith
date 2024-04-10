@@ -26,6 +26,7 @@ import { getDebuggerSelectedFilter } from "selectors/debuggerSelectors";
 import { setDebuggerSelectedFilter } from "actions/debuggerActions";
 
 export const LIST_HEADER_HEIGHT = "38px";
+export const FOOTER_MARGIN = "40px";
 
 const ContainerWrapper = styled.div`
   overflow: hidden;

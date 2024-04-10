@@ -49,7 +49,7 @@ import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/layouts/update/deletionUtils";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
-import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
+import FocusRetention from "./FocusRetentionSaga";
 import { widgetURL } from "@appsmith/RouteBuilder";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 
@@ -282,6 +282,7 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           templateTitle: currentApplication?.forkedFromTemplateTitle,
         });
         const currentUrl = window.location.pathname;
+        yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
         if (!disallowUndo) {
           // close property pane after delete
           yield put(closePropertyPane());
@@ -290,7 +291,6 @@ function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
           );
           yield call(postDelete, widgetId, widgetName, otherWidgetsToDelete);
         }
-        yield put(removeFocusHistoryRequest(currentUrl));
       }
     }
   } catch (error) {
@@ -397,6 +397,12 @@ function* deleteAllSelectedWidgetsSaga(
 
     yield put(selectWidgetInitAction(SelectionRequestType.Empty));
     const bulkDeleteKey = selectedWidgets.join(",");
+    for (const widget of selectedWidgets) {
+      yield call(
+        FocusRetention.handleRemoveFocusHistory,
+        widgetURL({ selectedWidgets: [widget] }),
+      );
+    }
     if (!disallowUndo) {
       // close property pane after delete
       yield put(closePropertyPane());
@@ -418,11 +424,6 @@ function* deleteAllSelectedWidgetsSaga(
           });
         });
       }
-    }
-    for (const widget of selectedWidgets) {
-      yield put(
-        removeFocusHistoryRequest(widgetURL({ selectedWidgets: [widget] })),
-      );
     }
   } catch (error) {
     yield put({
