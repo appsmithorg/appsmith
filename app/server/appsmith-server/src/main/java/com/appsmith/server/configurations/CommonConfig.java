@@ -66,6 +66,9 @@ public class CommonConfig {
     @Value("${appsmith.rts.port:8091}")
     private String rtsPort;
 
+    @Value("${appsmith.micrometer.tracing.detail.enabled:false}")
+    private boolean tracingDetail;
+
     private List<String> allowedDomains;
 
     private String mongoDBVersion;
