@@ -1,4 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { LayoutSystemTypes } from "layoutSystems/types";
 
@@ -10,10 +11,18 @@ export const getLayoutSystemType = (state: AppState) => {
     state.ui.applications?.currentApplication?.applicationDetail?.appPositioning
       ?.type
   ) {
-    return LayoutSystemTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type
-    ];
+    const layoutSystemType =
+      LayoutSystemTypes[
+        state.ui.applications.currentApplication?.applicationDetail
+          ?.appPositioning?.type
+      ];
+    if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+      return layoutSystemType;
+    }
+    const isAnvilEnabled = getIsAnvilLayoutEnabled(state);
+    if (isAnvilEnabled) {
+      return LayoutSystemTypes.ANVIL;
+    }
   }
   return LayoutSystemTypes.FIXED;
 };

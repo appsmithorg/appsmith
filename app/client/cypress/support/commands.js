@@ -1067,7 +1067,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
   if (Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST)) {
     // intercept features call for creating pages that support Anvil + WDS tests
     featureFlagIntercept(
-      { release_anvil_enabled: true, ab_wds_enabled: true },
+      { release_anvil_enabled: true },
       false,
     );
   } else {

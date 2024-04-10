@@ -64,14 +64,15 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { AppState } from "@appsmith/reducers";
 import { nestDSL, flattenDSL } from "@shared/dsl";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 // Saga check : if layout system is not anvil, then run the saga
 // An alternative implementation would be to re-use shouldRunSaga,
 // however we will still have to check for individula action types.
 // This seems cleaner
 function* preventForAnvil(saga: any, action: ReduxAction<unknown>) {
-  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
-  if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+  if (!isAnvilLayout) {
     yield call(shouldRunSaga, saga, action);
   }
 }
