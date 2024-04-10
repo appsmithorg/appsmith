@@ -26,6 +26,7 @@ export interface AppsmithUIConfigs {
     accountId: string;
     applicationId: string;
     browserAgentlicenseKey: string;
+    browserAgentEndpoint: string;
     otlpLicenseKey: string;
     otlpServiceName: string;
     otlpEndpoint: string;
