@@ -85,7 +85,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView({Views.Public.class, FromRequest.class})
     String collectionId;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView(Views.Public.class)
     ActionConfiguration actionConfiguration;
 
     // this attribute carries error messages while processing the actionCollection
