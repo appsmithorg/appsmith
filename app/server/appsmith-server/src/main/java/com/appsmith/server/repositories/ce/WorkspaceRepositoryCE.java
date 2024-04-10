@@ -11,8 +11,9 @@ public interface WorkspaceRepositoryCE extends BaseRepository<Workspace, String>
 
     // TODO(Shri): Native queries are debt. Fix DB model to avoid this.
     @Query(
-            value =
-                    "todo SELECT * FROM workspace WHERE id = ? AND jsonb_path_exists(plugins, '$[*] ? @.pluginId == $p',  jsonb_build_object('p', ?))",
+            value = "SELECT * FROM workspace "
+                    + "WHERE id = ? "
+                    + "AND jsonb_path_exists(plugins, '$[*].pluginId ? (@ == $p)',  jsonb_build_object('p', ?))",
             nativeQuery = true)
     Optional<Workspace> findByIdAndPluginsPluginId(String workspaceId, String pluginId);
 
