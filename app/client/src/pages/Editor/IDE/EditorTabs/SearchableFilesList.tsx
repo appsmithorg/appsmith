@@ -17,7 +17,7 @@ import {
 } from "design-system";
 import { ListIconContainer, TabTextContainer } from "./StyledComponents";
 import {
-  SCROLLABLE_FILES_LIST,
+  SEARCHABLE_FILES_LIST,
   createMessage,
 } from "@appsmith/constants/messages";
 import { useCurrentEditorState } from "../hooks";
@@ -110,7 +110,7 @@ const SearchableFilesList = (props: Props) => {
         {tabs.length > 0 ? (
           <MenuGroup>
             <MenuGroupName className="!pt-[8px]">
-              {createMessage(SCROLLABLE_FILES_LIST.OPENED_GROUP_LABEL)}
+              {createMessage(SEARCHABLE_FILES_LIST.OPENED_GROUP_LABEL)}
             </MenuGroupName>
             {renderMenuItems(tabs)}
           </MenuGroup>
@@ -118,10 +118,10 @@ const SearchableFilesList = (props: Props) => {
         <MenuGroup>
           <MenuGroupName className="!pt-[8px]">
             {createMessage(
-              SCROLLABLE_FILES_LIST.GROUP_LABEL,
+              SEARCHABLE_FILES_LIST.GROUP_LABEL,
               segment === EditorEntityTab.QUERIES
-                ? SCROLLABLE_FILES_LIST.QUERY_TEXT
-                : SCROLLABLE_FILES_LIST.JS_OBJECT_TEXT,
+                ? SEARCHABLE_FILES_LIST.QUERY_TEXT
+                : SEARCHABLE_FILES_LIST.JS_OBJECT_TEXT,
             )}
           </MenuGroupName>
           {renderMenuItems(files)}

@@ -57,7 +57,7 @@ describe("SearchableFilesList", () => {
     expect(getByText("File 4")).toBeTruthy();
   });
 
-  it("calls navigateToTab when a menu item is clicked", () => {
+  it("calls navigateToTab on closed item when a menu item is clicked", () => {
     const { getAllByText, getByTestId } = render(
       <SearchableFilesList
         allItems={allItems}
@@ -75,12 +75,26 @@ describe("SearchableFilesList", () => {
 
     // Check if navigateToTabMock was called with the correct item
     expect(navigateToTabMock).toHaveBeenCalledWith(openTabs[0]);
+  });
 
-    // Click on a open a js/query group menu item
-    fireEvent.click(allByText[1]);
+  it("calls navigateToTab on a open item when a menu item is clicked", () => {
+    const { getAllByText, getByTestId } = render(
+      <SearchableFilesList
+        allItems={allItems}
+        navigateToTab={navigateToTabMock}
+        openTabs={openTabs}
+      />,
+    );
+
+    const triggerButton = getByTestId(triggerButtonTestId);
+    fireEvent.click(triggerButton);
+
+    // Click on a opened group menu item
+    const allByText = getAllByText("File 4");
+    fireEvent.click(allByText[0]);
 
     // Check if navigateToTabMock was called with the correct item
-    expect(navigateToTabMock).toHaveBeenCalledWith(allItems[0]);
+    expect(navigateToTabMock).toHaveBeenCalledWith(allItems[3]);
   });
 
   it("filters files correctly based on search input", () => {
