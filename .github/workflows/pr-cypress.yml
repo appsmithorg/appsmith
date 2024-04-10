@@ -181,7 +181,7 @@ jobs:
             > [!CAUTION]
             > 🔴 🔴 🔴 Some tests have failed.
             > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
-            > Commit: `${{ github.event.pull_request.head.sha }}`
+            > Commit: ${{ github.event.pull_request.head.sha }}
             > Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
             > The following are new failures, please fix them before merging the PR: <ol>
             ${{env.new_failed_spec_env}} </ol>
@@ -201,7 +201,7 @@ jobs:
             <!-- This is an auto-generated comment: Cypress test results  -->
             > [!WARNING]
             > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
-            > Commit: `${{ github.event.pull_request.head.sha }}`
+            > Commit: ${{ github.event.pull_request.head.sha }}
             > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
             > It seems like **no tests ran** 😔. We are not able to recognize it, please check workflow <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
 
@@ -220,7 +220,7 @@ jobs:
             > [!TIP]
             > 🟢 🟢 🟢 All cypress tests have passed! 🎉 🎉 🎉
             > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
-            > Commit: `${{ github.event.pull_request.head.sha }}`
+            > Commit: ${{ github.event.pull_request.head.sha }}
             > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
 
             <!-- end of auto-generated comment: Cypress test results  -->
