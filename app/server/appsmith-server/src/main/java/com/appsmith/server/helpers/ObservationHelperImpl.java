@@ -5,19 +5,24 @@ import com.appsmith.server.configurations.CommonConfig;
 import io.micrometer.tracing.Span;
 import io.micrometer.tracing.TraceContext;
 import io.micrometer.tracing.Tracer;
-import lombok.RequiredArgsConstructor;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
+
+import java.util.Optional;
 
 import static com.appsmith.external.constants.MDCConstants.SPAN_ID;
 import static com.appsmith.external.constants.MDCConstants.TRACE_ID;
 
-@RequiredArgsConstructor
 @Component
 public class ObservationHelperImpl implements ObservationHelper {
 
     private final Tracer tracer;
     private final CommonConfig commonConfig;
+
+    public ObservationHelperImpl(Optional<Tracer> tracer, CommonConfig commonConfig) {
+        this.commonConfig = commonConfig;
+        this.tracer = tracer.orElse(Tracer.NOOP);
+    }
 
     @Override
     public Span createSpan(String name) {
