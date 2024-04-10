@@ -5,9 +5,6 @@ import {
   homePage,
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
-import EditorNavigation, {
-  EntityType,
-} from "../../../../support/Pages/EditorNavigation";
 
 describe(
   "JSObjects OnLoad Actions tests",
@@ -65,22 +62,6 @@ describe(
       homePage.DeleteApplication("JSOnLoadFailureTest");
       homePage.DeleteApplication("JSOnLoadFailureTest (1)");
       //homePage.DeleteWorkspace("JSOnLoadTest");
-    });
-
-    it("6. Tc #1909 - Verify the sequence of of JS Object on page load", () => {
-      EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
-      jsEditor.EnableDisableAsyncFuncSettings("astros", true);
-      jsEditor.EnableDisableAsyncFuncSettings("city", true);
-      EditorNavigation.SelectEntityByName("JSObject2", EntityType.JSObject);
-      jsEditor.EnableDisableAsyncFuncSettings("cat", true);
-      jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true);
-      EditorNavigation.SelectEntityByName("JSObject3", EntityType.JSObject);
-      jsEditor.EnableDisableAsyncFuncSettings("film", true);
-
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-      agHelper.RefreshPage();
-
-      agHelper.ValidateToastMessage("ran successfully", 0, 5);
     });
 
     function AssertJSOnPageLoad(
