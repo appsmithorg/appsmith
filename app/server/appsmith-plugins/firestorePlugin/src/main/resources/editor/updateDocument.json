@@ -23,7 +23,7 @@
     {
       "label": "Delete Key Path",
       "configProperty": "actionConfiguration.formData.deleteKeyPath.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "controlType": "QUERY_DYNAMIC_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": true,
       "initialValue": "",
@@ -32,7 +32,7 @@
     {
       "label": "Timestamp Path",
       "configProperty": "actionConfiguration.formData.timestampValuePath.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "controlType": "QUERY_DYNAMIC_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "initialValue": "",
       "placeholderText": "[ \"checkinLog.timestampKey\" ]"

@@ -65,7 +65,7 @@
     {
       "label": "Order By",
       "configProperty": "actionConfiguration.formData.orderBy.data",
-      "controlType": "QUERY_DYNAMIC_INPUT_TEXT",
+      "controlType": "QUERY_DYNAMIC_TEXT",
       "evaluationSubstitutionType": "TEMPLATE",
       "isRequired": false,
       "initialValue": "",
