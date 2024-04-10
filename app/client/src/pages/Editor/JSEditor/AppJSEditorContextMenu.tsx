@@ -18,7 +18,7 @@ import {
   autoIndentCode,
   getAutoIndentShortcutKeyText,
 } from "components/editorComponents/CodeEditor/utils/autoIndentUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { updateJSCollectionBody } from "actions/jsPaneActions";
 import type { IconName } from "@blueprintjs/icons";
 

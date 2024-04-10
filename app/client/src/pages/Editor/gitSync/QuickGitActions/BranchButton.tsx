@@ -11,7 +11,7 @@ import {
   getGitStatus,
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Button, Icon, Text, Tooltip } from "design-system";
 import { isEllipsisActive } from "../../../../utils/helpers";
 import {

@@ -57,7 +57,7 @@ import {
   updateApplicationThemeSettingAction,
   fetchAllApplicationsOfWorkspace,
 } from "@appsmith/actions/applicationActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,

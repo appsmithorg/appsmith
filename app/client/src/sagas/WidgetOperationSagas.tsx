@@ -41,7 +41,7 @@ import {
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { convertToString } from "utils/AppsmithUtils";
 import type {
   BatchUpdateDynamicPropertyUpdates,

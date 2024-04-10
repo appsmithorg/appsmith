@@ -7,7 +7,7 @@ import type { JSAction } from "entities/JSCollection";
 import React, { useState } from "react";
 import styled from "styled-components";
 import { RADIO_OPTIONS, SETTINGS_HEADINGS } from "./constants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Icon, Radio, RadioGroup, Tooltip, Switch } from "design-system";
 
 interface SettingsHeadingProps {

@@ -13,7 +13,7 @@ import {
 } from "@appsmith/constants/messages";
 import { Button, Callout, Divider, Icon, Text, Tooltip } from "design-system";
 import { adminSettingsCategoryUrl } from "@appsmith/RouteBuilder";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import useOnUpgrade from "utils/hooks/useOnUpgrade";
 import { RampFeature, RampSection } from "utils/ProductRamps/RampsControlList";
 import EnterpriseTag from "components/EnterpriseTag";

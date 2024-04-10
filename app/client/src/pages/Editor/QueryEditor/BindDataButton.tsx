@@ -28,7 +28,7 @@ import { getWidgets } from "sagas/selectors";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { addSuggestedWidget } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";

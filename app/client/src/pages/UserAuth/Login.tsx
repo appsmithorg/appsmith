@@ -34,7 +34,7 @@ import { isEmail, isEmptyString } from "utils/formhelpers";
 import type { LoginFormValues } from "pages/UserAuth/helpers";
 
 import { SpacedSubmitForm, FormActions } from "pages/UserAuth/StyledComponents";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { LOGIN_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,

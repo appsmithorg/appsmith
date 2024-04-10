@@ -66,7 +66,7 @@ import {
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { NavigationSetting } from "constants/AppConstants";
 import { useHref } from "pages/Editor/utils";
 import { viewerURL } from "@appsmith/RouteBuilder";
