@@ -4,13 +4,17 @@ import { Route, Switch, useRouteMatch } from "react-router";
 import * as Sentry from "@sentry/react";
 import useRoutes from "@appsmith/pages/Editor/IDE/MainPane/useRoutes";
 import EditorTabs from "pages/Editor/IDE/EditorTabs/FullScreenTabs";
-import { useWidgetSelectionBlockListener } from "pages/Editor/IDE/hooks";
+import {
+  useCanvasModeListener,
+  useWidgetSelectionBlockListener,
+} from "pages/Editor/IDE/hooks";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 export const MainPane = (props: { id: string }) => {
   const { path } = useRouteMatch();
   const routes = useRoutes(path);
   useWidgetSelectionBlockListener();
+  useCanvasModeListener();
 
   return (
     <div
