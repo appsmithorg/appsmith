@@ -96,7 +96,7 @@ public class GitAutoCommitHelperImplTest {
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
-        StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
+        StepVerifier.create(gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName))
                 .assertNext(aBoolean -> {
                     assertThat(aBoolean).isFalse();
                 })
@@ -106,6 +106,7 @@ public class GitAutoCommitHelperImplTest {
     @Test
     public void autoCommitApplication_WhenBranchIsProtected_AutoCommitNotTriggered() {
         Application application = new Application();
+        application.setId(defaultApplicationId);
         application.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Mockito.when(featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled))
@@ -128,6 +129,7 @@ public class GitAutoCommitHelperImplTest {
     @Test
     public void autoCommitApplication_WhenAutoCommitDisabled_AutoCommitNotTriggered() {
         Application application = new Application();
+        application.setId(defaultApplicationId);
         GitArtifactMetadata metadata = new GitArtifactMetadata();
         metadata.setAutoCommitConfig(new AutoCommitConfig());
         metadata.getAutoCommitConfig().setEnabled(Boolean.FALSE);
@@ -154,6 +156,7 @@ public class GitAutoCommitHelperImplTest {
     @Test
     public void autoCommitApplication_WhenAnotherCommitIsRunning_AutoCommitNotTriggered() {
         Application application = new Application();
+        application.setId(defaultApplicationId);
         application.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Mockito.when(applicationService.findById(defaultApplicationId, applicationPermission.getEditPermission()))
@@ -225,8 +228,10 @@ public class GitAutoCommitHelperImplTest {
         autoCommitEvent.setRepoName(application.getGitApplicationMetadata().getRepoName());
         autoCommitEvent.setPrivateKey(gitAuth.getPrivateKey());
         autoCommitEvent.setPublicKey(gitAuth.getPublicKey());
+        autoCommitEvent.setIsServerSideEvent(null);
+        autoCommitEvent.setIsClientSideEvent(Boolean.TRUE);
 
-        StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
+        StepVerifier.create(gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName))
                 .assertNext(aBoolean -> {
                     assertThat(aBoolean).isTrue();
                     Mockito.verify(autoCommitEventHandler).publish(autoCommitEvent);
@@ -283,9 +288,10 @@ public class GitAutoCommitHelperImplTest {
     public void autoCommitApplication_WhenRemoteAhead_AutoCommitNotTriggered() {
 
         Application application = new Application();
+        application.setId(defaultApplicationId);
         GitArtifactMetadata metadata = new GitArtifactMetadata();
         metadata.setAutoCommitConfig(new AutoCommitConfig());
-        metadata.getAutoCommitConfig().setEnabled(Boolean.FALSE);
+        metadata.getAutoCommitConfig().setEnabled(Boolean.TRUE);
 
         application.setGitApplicationMetadata(metadata);
 

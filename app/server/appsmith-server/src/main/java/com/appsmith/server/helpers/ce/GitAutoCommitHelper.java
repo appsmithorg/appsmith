@@ -7,4 +7,10 @@ public interface GitAutoCommitHelper {
     Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId);
 
     Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName);
+
+    Mono<Boolean> autoCommitClientMigration(String defaultApplicationId, String branchName);
+
+    Mono<Boolean> autoCommitServerMigration(String defaultApplicationId, String branchName);
+
+    Mono<Boolean> autoCommitApplicationV2(String defaultApplicationId, String branchName, Boolean isClientMigration);
 }

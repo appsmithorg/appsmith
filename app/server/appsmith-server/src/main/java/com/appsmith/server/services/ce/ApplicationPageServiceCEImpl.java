@@ -325,7 +325,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         // if edit mode, then trigger the auto commit event
                         Mono<Boolean> autoCommitEventRunner;
                         if (!viewMode) {
-                            autoCommitEventRunner = gitAutoCommitHelper.autoCommitApplication(
+                            autoCommitEventRunner = gitAutoCommitHelper.autoCommitClientMigration(
                                     newPage.getDefaultResources().getApplicationId(),
                                     newPage.getDefaultResources().getBranchName());
                         } else {

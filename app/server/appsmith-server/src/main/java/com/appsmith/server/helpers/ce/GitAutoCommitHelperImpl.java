@@ -68,6 +68,164 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                 .defaultIfEmpty(new AutoCommitProgressDTO(Boolean.FALSE));
     }
 
+    /**
+     * This method finds if the application could be processed for autocommit.
+     * @param defaultApplication: the default application for the git
+     * @param branchName: branch name
+     * @return a flag denoting whether the application is good to be committed.
+     */
+    public Mono<Boolean> isEligibleForAutocommit(Application defaultApplication, String branchName) {
+
+        String defaultApplicationId = defaultApplication.getId();
+
+        Mono<Boolean> featureEnabledMono =
+                featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled);
+
+        if (!GitUtils.isAutoCommitEnabled(defaultApplication.getGitApplicationMetadata())) {
+            log.debug("auto commit is disabled for application: {}", defaultApplicationId);
+            return Mono.just(Boolean.FALSE);
+        }
+
+        Mono<Boolean> isBranchProtected =
+                gitPrivateRepoHelper.isBranchProtected(defaultApplication.getGitApplicationMetadata(), branchName);
+
+        Mono<Boolean> isAutoCommitRunningMono = redisUtils
+                .getRunningAutoCommitBranchName(defaultApplicationId)
+                .map(a -> Boolean.TRUE)
+                .switchIfEmpty(Mono.just(Boolean.FALSE));
+
+        return Mono.zip(featureEnabledMono, isBranchProtected, isAutoCommitRunningMono)
+                .flatMap(tuple -> {
+                    Boolean isFeatureEnabled = tuple.getT1();
+                    Boolean isAutoCommitDisabledForBranch = tuple.getT2();
+                    Boolean isAutoCommitRunning = tuple.getT3();
+
+                    if (!isFeatureEnabled || isAutoCommitDisabledForBranch || isAutoCommitRunning) {
+                        log.debug(
+                                "auto commit is not applicable for application: {} branch: {} isFeatureEnabled: {}, isAutoCommitDisabledForBranch: {}",
+                                defaultApplicationId,
+                                branchName,
+                                isFeatureEnabled,
+                                isAutoCommitDisabledForBranch);
+                        return Mono.just(Boolean.FALSE);
+                    }
+
+                    return Mono.just(Boolean.TRUE);
+                })
+                .switchIfEmpty(Mono.just(Boolean.FALSE));
+    }
+
+    @Override
+    public Mono<Boolean> autoCommitClientMigration(String defaultApplicationId, String branchName) {
+        return featureFlagService
+                .check(FeatureFlagEnum.release_git_autocommit_feature_enabled)
+                .flatMap(isFlagEnabled -> {
+                    if (Boolean.TRUE.equals(isFlagEnabled)) {
+                        return autoCommitApplicationV2(defaultApplicationId, branchName, Boolean.TRUE);
+                    }
+
+                    return Mono.just(Boolean.FALSE);
+                });
+    }
+
+    @Override
+    public Mono<Boolean> autoCommitServerMigration(String defaultApplicationId, String branchName) {
+        return featureFlagService
+                .check(FeatureFlagEnum.release_git_autocommit_feature_enabled)
+                .flatMap(isFlagEnabled -> {
+                    if (Boolean.TRUE.equals(isFlagEnabled)) {
+                        return autoCommitApplicationV2(defaultApplicationId, branchName, Boolean.FALSE);
+                    }
+
+                    return Mono.just(Boolean.FALSE);
+                });
+    }
+
+    @Override
+    public Mono<Boolean> autoCommitApplicationV2(
+            String defaultApplicationId, String branchName, Boolean isClientMigration) {
+
+        // if either param is absent, then application is not connected to git.
+        if (!StringUtils.hasText(branchName) || !StringUtils.hasText(defaultApplicationId)) {
+            return Mono.just(Boolean.FALSE);
+        }
+
+        final String finalBranchName = branchName.replaceFirst("origin/", "");
+
+        Mono<Application> applicationMono = applicationService
+                .findById(defaultApplicationId, applicationPermission.getEditPermission())
+                .cache();
+
+        Mono<Application> branchedApplicationMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(
+                        finalBranchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .cache();
+
+        return applicationMono
+                .flatMap(defaultApplication -> {
+                    return isEligibleForAutocommit(defaultApplication, finalBranchName)
+                            .flatMap(isEligible -> {
+                                if (!Boolean.TRUE.equals(isEligible)) {
+                                    return Mono.empty();
+                                }
+
+                                return Mono.zip(applicationMono, branchedApplicationMono);
+                            });
+                })
+                .flatMap(tuple2 -> {
+                    Application defaultApplication = tuple2.getT1();
+                    Application branchedApplication = tuple2.getT2();
+                    return commonGitService
+                            .fetchRemoteChanges(defaultApplication, branchedApplication, finalBranchName, true)
+                            .flatMap(branchTrackingStatus -> {
+                                if (branchTrackingStatus.getBehindCount() > 0) {
+                                    log.debug(
+                                            "the remote is ahead of the local, aborting autocommit for application {} and branch {}",
+                                            defaultApplicationId,
+                                            branchName);
+                                    return Mono.empty();
+                                }
+                                return Mono.just(defaultApplication)
+                                        .zipWith(userDataService.getGitProfileForCurrentUser(defaultApplicationId));
+                            });
+                })
+                .map(objects -> {
+                    Application application = objects.getT1();
+                    GitProfile gitProfile = objects.getT2();
+                    GitArtifactMetadata gitArtifactMetadata = application.getGitApplicationMetadata();
+                    AutoCommitEvent autoCommitEvent = new AutoCommitEvent(
+                            defaultApplicationId,
+                            branchName,
+                            application.getWorkspaceId(),
+                            gitArtifactMetadata.getRepoName(),
+                            gitProfile.getAuthorName(),
+                            gitProfile.getAuthorEmail(),
+                            gitArtifactMetadata.getRemoteUrl(),
+                            gitArtifactMetadata.getGitAuth().getPrivateKey(),
+                            gitArtifactMetadata.getGitAuth().getPublicKey());
+
+                    if (Boolean.TRUE.equals(isClientMigration)) {
+                        autoCommitEvent.setIsClientSideEvent(Boolean.TRUE);
+                    } else {
+                        autoCommitEvent.setIsServerSideEvent(Boolean.TRUE);
+                    }
+
+                    // it's a synchronous call, no need to return anything
+                    autoCommitEventHandler.publish(autoCommitEvent);
+                    return Boolean.TRUE;
+                })
+                .defaultIfEmpty(Boolean.FALSE)
+                // we cannot throw exception from this flow because doing so will fail the main operation
+                .onErrorResume(throwable -> {
+                    log.error(
+                            "Error during auto-commit for application: {}, branch: {}",
+                            defaultApplicationId,
+                            branchName,
+                            throwable);
+                    return Mono.just(Boolean.FALSE);
+                });
+    }
+
     @Override
     public Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName) {
 
