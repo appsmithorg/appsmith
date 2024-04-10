@@ -458,6 +458,10 @@ function setup_auto_heal(){
    fi
 }
 
+function capture_infra_details(){
+  bash /opt/appsmith/generate-infra-details.sh || true
+}
+
 # Main Section
 init_loading_pages
 init_env_file
@@ -494,6 +498,7 @@ export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
 mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
+capture_infra_details
 
 # Handle CMD command
 exec "$@"
