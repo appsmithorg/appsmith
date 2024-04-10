@@ -21,6 +21,7 @@ export interface INJECTED_CONFIGS {
     accountId: string;
     applicationId: string;
     browserAgentlicenseKey: string;
+    browserAgentEndpoint: string;
     otlpLicenseKey: string;
     otlpServiceName: string;
     otlpEndpoint: string;
@@ -93,6 +94,8 @@ export const getConfigsFromEnvVars = (): INJECTED_CONFIGS => {
       applicationId: process.env.APPSMITH_NEW_RELIC_APPLICATION_ID || "",
       browserAgentlicenseKey:
         process.env.APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY || "",
+      browserAgentEndpoint:
+        process.env.APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT || "",
       otlpLicenseKey: process.env.APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY || "",
       otlpEndpoint: process.env.APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME || "",
       otlpServiceName:
@@ -170,6 +173,10 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
   const newRelicBrowserLicenseKey = getConfig(
     ENV_CONFIG.newRelic.browserAgentlicenseKey,
     APPSMITH_FEATURE_CONFIGS?.newRelic.browserAgentlicenseKey,
+  );
+  const newRelicBrowserAgentEndpoint = getConfig(
+    ENV_CONFIG.newRelic.browserAgentEndpoint,
+    APPSMITH_FEATURE_CONFIGS?.newRelic.browserAgentEndpoint,
   );
   const newRelicOtlpLicenseKey = getConfig(
     ENV_CONFIG.newRelic.otlpLicenseKey,
@@ -263,6 +270,7 @@ export const getAppsmithConfigs = (): AppsmithUIConfigs => {
       accountId: newRelicAccountId.value,
       applicationId: newRelicApplicationId.value,
       browserAgentlicenseKey: newRelicBrowserLicenseKey.value,
+      browserAgentEndpoint: newRelicBrowserAgentEndpoint.value,
       otlpLicenseKey: newRelicOtlpLicenseKey.value,
       otlpEndpoint: newRelicOtlpEndpoint.value,
       otlpServiceName: newRelicOtlpServiceName.value,

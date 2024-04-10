@@ -83,9 +83,10 @@ function UIEntitySidebar({
     filterCards(value.toLowerCase());
   }, 300);
 
+  // update widgets list after building blocks have been fetched async
   useEffect(() => {
     setFilteredCards(groupedCards);
-  }, [groupedCards]);
+  }, [entityLoading[WIDGET_TAGS.BUILDING_BLOCKS]]);
 
   useEffect(() => {
     if (focusSearchInput) searchInputRef.current?.focus();

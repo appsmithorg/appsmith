@@ -64,6 +64,7 @@
     "@loadable/component": "^5.15.3",
     "@manaflair/redux-batch": "^1.0.0",
     "@mantine/hooks": "^5.10.1",
+    "@newrelic/browser-agent": "^1.255.0",
     "@opentelemetry/auto-instrumentations-web": "^0.33.2",
     "@opentelemetry/context-zone": "^1.17.1",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.44.0",
