@@ -701,9 +701,10 @@ public class GitExecutorCEImpl implements GitExecutor {
     protected void populateJsLibsChanges(GitStatusDTO response) {
         Predicate<String> condition = x -> x.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH);
 
-        Function<String, String> getName =
-                x -> x.split(CommonConstants.DELIMITER_PATH)[1].split(CommonConstants.SEPARATOR_UNDERSCORE)[0];
-
+        Function<String, String> getName = x -> {
+            String filename = x.split(CommonConstants.DELIMITER_PATH)[1];
+            return filename.substring(0, filename.lastIndexOf(CommonConstants.SEPARATOR_UNDERSCORE));
+        };
         Set<String> jsLibsModified =
                 response.getModified().stream().filter(condition).map(getName).collect(Collectors.toSet());
         Set<String> jsLibsAdded =
