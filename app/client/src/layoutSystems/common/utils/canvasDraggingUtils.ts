@@ -2,12 +2,7 @@ import type {
   OccupiedSpace,
   WidgetSpace,
 } from "constants/CanvasEditorConstants";
-import {
-  BUILDING_BLOCK_EXPLORER_TYPE,
-  BUILDING_BLOCK_MIN_HORIZONTAL_LIMIT,
-  BUILDING_BLOCK_MIN_VERTICAL_LIMIT,
-  GridDefaults,
-} from "constants/WidgetConstants";
+import { GridDefaults } from "constants/WidgetConstants";
 import { isEmpty } from "lodash";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DraggingGroupCenter } from "reducers/uiReducers/dragResizeReducer";
@@ -113,6 +108,7 @@ interface NewWidgetBlock {
   detachFromLayout: boolean;
   isDynamicHeight: boolean;
   type: WidgetType;
+  widgetName?: string;
 }
 
 /**
@@ -470,25 +466,11 @@ export const modifyBlockDimension = (
   parentBottomRow: number,
   canExtend: boolean,
   modifyBlock: boolean,
+  horizontalMinResizeLimit: number = HORIZONTAL_RESIZE_MIN_LIMIT,
+  verticalMinResizeLimit: number = VERTICAL_RESIZE_MIN_LIMIT,
 ) => {
-  const {
-    columnWidth,
-    fixedHeight,
-    height,
-    left,
-    rowHeight,
-    top,
-    type,
-    width,
-  } = draggingBlock;
-  const horizontalResizeLimit =
-    type === BUILDING_BLOCK_EXPLORER_TYPE
-      ? BUILDING_BLOCK_MIN_HORIZONTAL_LIMIT
-      : HORIZONTAL_RESIZE_MIN_LIMIT;
-  const verticalResizeLimit =
-    type === BUILDING_BLOCK_EXPLORER_TYPE
-      ? BUILDING_BLOCK_MIN_VERTICAL_LIMIT
-      : VERTICAL_RESIZE_MIN_LIMIT;
+  const { columnWidth, fixedHeight, height, left, rowHeight, top, width } =
+    draggingBlock;
   //get left and top of widget on canvas grid
   const [leftColumn, topRow] = getDropZoneOffsets(
     snapColumnSpace,
@@ -510,23 +492,23 @@ export const modifyBlockDimension = (
     // calculate offsets based on collisions and limits
     if (leftColumn < 0) {
       leftOffset =
-        leftColumn + columnWidth > horizontalResizeLimit
+        leftColumn + columnWidth > horizontalMinResizeLimit
           ? leftColumn
-          : horizontalResizeLimit - columnWidth;
+          : horizontalMinResizeLimit - columnWidth;
     } else if (leftColumn + columnWidth > GridDefaults.DEFAULT_GRID_COLUMNS) {
       rightOffset =
         GridDefaults.DEFAULT_GRID_COLUMNS - leftColumn - columnWidth;
       rightOffset =
-        columnWidth + rightOffset >= horizontalResizeLimit
+        columnWidth + rightOffset >= horizontalMinResizeLimit
           ? rightOffset
-          : horizontalResizeLimit - columnWidth;
+          : horizontalMinResizeLimit - columnWidth;
     }
 
     if (topRow < 0 && fixedHeight === undefined) {
       topOffset =
-        topRow + rowHeight > verticalResizeLimit
+        topRow + rowHeight > verticalMinResizeLimit
           ? topRow
-          : verticalResizeLimit - rowHeight;
+          : verticalMinResizeLimit - rowHeight;
     }
 
     if (
@@ -536,9 +518,9 @@ export const modifyBlockDimension = (
     ) {
       bottomOffset = parentBottomRow - topRow - rowHeight;
       bottomOffset =
-        rowHeight + bottomOffset >= verticalResizeLimit
+        rowHeight + bottomOffset >= verticalMinResizeLimit
           ? bottomOffset
-          : verticalResizeLimit - rowHeight;
+          : verticalMinResizeLimit - rowHeight;
     }
   }
 
