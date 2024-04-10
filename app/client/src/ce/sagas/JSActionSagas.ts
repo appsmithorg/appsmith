@@ -13,7 +13,6 @@ import {
 } from "actions/pluginActionActions";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
-  closeJSActionTabSuccess,
   copyJSCollectionError,
   copyJSCollectionSuccess,
   createJSCollectionSuccess,
@@ -23,6 +22,7 @@ import {
   fetchJSCollectionsForPageSuccess,
   moveJSCollectionError,
   moveJSCollectionSuccess,
+  removeJSActionTab,
 } from "actions/jsActionActions";
 import {
   getJSCollection,
@@ -484,6 +484,6 @@ export function* closeJSActionTabSaga(
   actionPayload: ReduxAction<{ id: string }>,
 ) {
   const id = actionPayload.payload.id;
-  yield put(closeJSActionTabSuccess({ id }));
   yield call(handleJSEntityRedirect, id);
+  yield put(removeJSActionTab({ id }));
 }

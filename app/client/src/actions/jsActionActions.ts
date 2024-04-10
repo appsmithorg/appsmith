@@ -168,9 +168,9 @@ export const closeJSActionTab = (payload: { id: string }) => {
   };
 };
 
-export const closeJSActionTabSuccess = (payload: { id: string }) => {
+export const removeJSActionTab = (payload: { id: string }) => {
   return {
-    type: ReduxActionTypes.CLOSE_JS_ACTION_TAB_SUCCESS,
+    type: ReduxActionTypes.REMOVE_JS_ACTION_TAB,
     payload,
   };
 };

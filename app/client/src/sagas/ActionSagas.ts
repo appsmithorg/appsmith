@@ -30,7 +30,7 @@ import type {
   SetActionPropertyPayload,
 } from "actions/pluginActionActions";
 import {
-  closeQueryActionTabSuccess,
+  removeQueryActionTab,
   copyActionError,
   copyActionSuccess,
   createActionInit,
@@ -1190,6 +1190,6 @@ export function* closeActionTabSaga(
   }>,
 ) {
   const id = actionPayload.payload.id;
-  yield put(closeQueryActionTabSuccess({ id }));
   yield call(handleQueryEntityRedirect, id);
+  yield put(removeQueryActionTab({ id }));
 }
