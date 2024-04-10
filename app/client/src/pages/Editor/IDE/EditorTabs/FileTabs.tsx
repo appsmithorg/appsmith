@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { Flex, Tooltip } from "design-system";
+import { Flex, Icon, Tooltip } from "design-system";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import { useLocation } from "react-router";
 import clsx from "classnames";
@@ -13,10 +13,11 @@ import { identifyEntityFromPath } from "navigation/FocusEntity";
 interface Props {
   tabs: EntityItem[];
   navigateToTab: (tab: EntityItem) => void;
+  onClose: (actionId: string) => void;
 }
 
 const FileTabs = (props: Props) => {
-  const { navigateToTab, tabs } = props;
+  const { navigateToTab, onClose, tabs } = props;
 
   const location = useLocation();
 
@@ -30,6 +31,11 @@ const FileTabs = (props: Props) => {
       });
     }
   }, [tabs]);
+
+  const onCloseClick = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    onClose(id);
+  };
 
   return (
     <Flex
@@ -53,6 +59,12 @@ const FileTabs = (props: Props) => {
           <Tooltip content={tab.title} mouseEnterDelay={1}>
             <TabTextContainer>{tab.title}</TabTextContainer>
           </Tooltip>
+          {/* not using button component because of the size not matching design */}
+          <Icon
+            className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
+            name="close-line"
+            onClick={(e) => onCloseClick(e, tab.key)}
+          />
         </StyledTab>
       ))}
     </Flex>

@@ -401,6 +401,20 @@ export const updateActionData = (
   };
 };
 
+export const closeQueryActionTab = (payload: { id: string }) => {
+  return {
+    type: ReduxActionTypes.CLOSE_QUERY_ACTION_TAB,
+    payload,
+  };
+};
+
+export const closeQueryActionTabSuccess = (payload: { id: string }) => {
+  return {
+    type: ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCCESS,
+    payload,
+  };
+};
+
 export default {
   createAction: createActionRequest,
   fetchActions,

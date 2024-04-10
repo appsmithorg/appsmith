@@ -13,6 +13,7 @@ import {
 } from "actions/pluginActionActions";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
+  closeJSActionTabSuccess,
   copyJSCollectionError,
   copyJSCollectionSuccess,
   createJSCollectionSuccess,
@@ -477,4 +478,12 @@ export function* fetchJSCollectionsForViewModeSaga(
       payload: { error },
     });
   }
+}
+
+export function* closeJSActionTabSaga(
+  actionPayload: ReduxAction<{ id: string }>,
+) {
+  const id = actionPayload.payload.id;
+  yield put(closeJSActionTabSuccess({ id }));
+  yield call(handleJSEntityRedirect, id);
 }
