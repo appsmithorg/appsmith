@@ -119,12 +119,12 @@ function SinglePageChange({ page, status }: SinglePageChangeProps) {
         </StyledCollapsibleHeader>
         <CollapsibleContent className="ml-6 space-y-2">
           <ExpandableChange
-            filter={(entity) => entity.includes(page)}
+            filter={(entity) => entity.startsWith(`${page}/`)}
             kind={ExpandableChangeKind.QUERIES}
             status={status}
           />
           <ExpandableChange
-            filter={(entity) => entity.includes(page)}
+            filter={(entity) => entity.startsWith(`${page}/`)}
             kind={ExpandableChangeKind.JSOBJECTS}
             status={status}
           />
