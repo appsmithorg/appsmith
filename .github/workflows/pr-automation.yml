@@ -134,7 +134,8 @@ jobs:
         with:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!TIP]
+              > [!IMPORTANT]
+              > 🟣 🟣 🟣 Your tests are running.
               > Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
               > Commit: `${{ github.event.pull_request.head.sha }}`
               > Workflow: `${{ github.workflow }}`
