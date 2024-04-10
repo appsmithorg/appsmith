@@ -5,7 +5,7 @@ import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePr
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
-import { FeaturesToOverride } from "./hooks/useFeatureFlagOverride";
+import { AvailableFeaturesToOverride } from "./hooks/useFeatureFlagOverride";
 import type { OverriddenFeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export const STORAGE_KEYS: {
@@ -910,8 +910,18 @@ export const retrieveCodeWidgetNavigationUsed = async (): Promise<number> => {
   }
 };
 
+/**
+
+
+Retrieves the overridden values for feature flags.
+
+
+@param flagsToFetch - The feature flags to fetch the overridden values for.
+
+@returns An object containing the overridden values for each feature flag.
+*/
 export const getFeatureFlagOverrideValues = async (
-  flagsToFetch = FeaturesToOverride,
+  flagsToFetch = AvailableFeaturesToOverride,
 ) => {
   const featureFlagValues: OverriddenFeatureFlags = {};
   for (const flag of flagsToFetch) {
@@ -920,6 +930,16 @@ export const getFeatureFlagOverrideValues = async (
   return featureFlagValues;
 };
 
+/**
+
+
+Sets the override values for feature flags.
+
+
+@param featureFlagValues - An object containing the feature flags and their corresponding override values.
+
+@returns {Promise<void>} - A promise that resolves when all the feature flags have been set.
+*/
 export const setFeatureFlagOverrideValues = async (
   featureFlagValues: OverriddenFeatureFlags,
 ) => {

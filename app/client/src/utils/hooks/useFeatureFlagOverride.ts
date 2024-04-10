@@ -15,7 +15,7 @@ import {
   setFeatureFlagOverrideValues,
 } from "utils/storage";
 
-export const FeaturesToOverride: FeatureFlag[] = [
+export const AvailableFeaturesToOverride: FeatureFlag[] = [
   "release_anvil_enabled",
   "ab_wds_enabled",
   "release_layout_conversion_enabled",
@@ -24,13 +24,20 @@ export const FeaturesToOverride: FeatureFlag[] = [
 export const useFeatureFlagOverride = () => {
   const dispatch = useDispatch();
   const areFeatureFlagsFetched = useSelector(getFeatureFlagsFetched);
+
+  /**
+   * Fetches the feature flag override values and updates the state.
+   */
   useEffect(() => {
     if (areFeatureFlagsFetched) {
       getFeatureFlagOverrideValues().then((flagValues) => {
         const filteredFlagValues = (
           Object.entries(flagValues) as [FeatureFlag, boolean][]
         ).reduce((acc, [flagName, flagValue]) => {
-          if (FeaturesToOverride.includes(flagName) && isBoolean(flagValue)) {
+          if (
+            AvailableFeaturesToOverride.includes(flagName) &&
+            isBoolean(flagValue)
+          ) {
             acc[flagName] = flagValues[flagName];
           }
           return acc;
@@ -41,8 +48,11 @@ export const useFeatureFlagOverride = () => {
       });
     }
   }, [areFeatureFlagsFetched]);
+
+  /**
+   * Sets up a global function to toggle the feature flag override.
+   */
   useEffect(() => {
-    // Set up a global function to toggle the override flag
     (window as any).overrideFeatureFlag = (
       featureFlagValues: OverriddenFeatureFlags,
     ) => {
@@ -50,7 +60,8 @@ export const useFeatureFlagOverride = () => {
         Object.entries(featureFlagValues) as [FeatureFlag, boolean][]
       ).every(
         ([flagName, flagValue]) =>
-          FeaturesToOverride.includes(flagName) && isBoolean(flagValue),
+          AvailableFeaturesToOverride.includes(flagName) &&
+          isBoolean(flagValue),
       );
       if (areAllFlagsValid) {
         dispatch(updateFeatureFlagOverrideAction(featureFlagValues));
