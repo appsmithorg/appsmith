@@ -30,7 +30,6 @@ const initialState: layoutConversionReduxState = {
   conversionError: undefined,
   conversionState: CONVERSION_STATES.START,
   isConverting: false,
-  conversionFlowOverrideFlag: false,
 };
 
 const layoutConversionReducer = createImmerReducer(initialState, {
@@ -63,12 +62,6 @@ const layoutConversionReducer = createImmerReducer(initialState, {
   ) => {
     state.snapshotDetails = action.payload;
   },
-  [ReduxActionTypes.SET_CONVERSION_FLOW_OVERRIDE_FLAG]: (
-    state: layoutConversionReduxState,
-    action: ReduxAction<boolean>,
-  ) => {
-    state.conversionFlowOverrideFlag = action.payload;
-  },
 });
 
 export interface layoutConversionReduxState {
@@ -76,7 +69,6 @@ export interface layoutConversionReduxState {
   conversionError: Error | undefined;
   conversionState: CONVERSION_STATES;
   isConverting: boolean;
-  conversionFlowOverrideFlag: boolean;
 }
 
 export default layoutConversionReducer;

@@ -1,10 +1,11 @@
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { EditorState } from "@appsmith/entities/IDE/constants";
 import { getReadableSnapShotDetails } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { useSelector } from "react-redux";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getSnapshotUpdatedTime } from "selectors/autoLayoutSelectors";
-import { useIsConversionFlowEnabled } from "./useIsConversionFlowEnabled";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 
 /**
  * This hook is used to determine whether to show the snapshot banner.
@@ -16,7 +17,9 @@ import { useIsConversionFlowEnabled } from "./useIsConversionFlowEnabled";
  * @returns {boolean} - Indicates whether to show the snapshot banner
  */
 export const useShowSnapShotBanner = (isPreviewMode: boolean) => {
-  const isConversionFlowEnabled = useIsConversionFlowEnabled();
+  const isConversionFlowEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_layout_conversion_enabled,
+  );
   const lastUpdatedTime = useSelector(getSnapshotUpdatedTime);
   const readableSnapShotDetails = getReadableSnapShotDetails(lastUpdatedTime);
   const isNavigationSelectedInSettings = useSelector(

@@ -87,13 +87,6 @@ export const setConversionStop = () => {
   };
 };
 
-export const setConversionFlowOverrideFlagAction = (flag: boolean) => {
-  return {
-    type: ReduxActionTypes.SET_CONVERSION_FLOW_OVERRIDE_FLAG,
-    payload: flag,
-  };
-};
-
 export const setAutoCanvasResizing = (isAutoCanvasResizing: boolean) => {
   return {
     type: ReduxActionTypes.SET_AUTO_CANVAS_RESIZING,
