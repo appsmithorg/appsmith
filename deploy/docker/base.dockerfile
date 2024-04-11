@@ -18,7 +18,7 @@ RUN set -o xtrace \
   && apt-get update \
   && apt-get upgrade --yes \
   && DEBIAN_FRONTEND=noninteractive apt-get install --no-install-recommends --yes \
-    supervisor curl nfs-common gnupg wget netcat openssh-client \
+    supervisor curl nfs-common gnupg wget netcat openssh-client unzip \
     gettext \
     ca-certificates \
   # Install MongoDB v5, Redis, PostgreSQL v13
@@ -49,6 +49,9 @@ RUN set -o xtrace \
 
 # Install Caddy
 COPY --from=caddybuilder /usr/bin/caddy /opt/caddy/caddy
+
+# Add newrelic related files
+RUN curl -o /opt/appsmith/newrelic-java.zip https://download.newrelic.com/newrelic/java-agent/newrelic-agent/8.9.1/newrelic-java-8.9.1.zip ; unzip /opt/appsmith/newrelic-java.zip -d /opt/appsmith/ ; rm -rf /opt/appsmith/newrelic-java.zip
 
 # Clean up
 RUN rm -rf \

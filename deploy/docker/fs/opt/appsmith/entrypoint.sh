@@ -472,6 +472,20 @@ function capture_infra_details(){
   bash /opt/appsmith/generate-infra-details.sh || true
 }
 
+function setup_new_relic_agent(){
+   if [[ ${APPSMITH_ENABLE_NEW_RELIC_LOGGING-} = 1 ]]; then
+     export APPSMITH_JAVA_ARGS+=" -javaagent:/opt/newrelic/newrelic.jar"
+     # By default APPSMITH_ENABLE_NEW_RELIC_LOGGING=0
+     cat > /opt/appsmith/newrelic/newrelic.yml << EOF
+common:
+  license_key: $APPSMITH_APP_NEW_RELIC_LICENSE_KEY
+  app_name: $APPSMITH_NEW_RELIC_APP_NAME
+  enable_auto_transaction_naming: false
+  log_file_name: "$APPSMITH_LOG_DIR/newrelic_agent.log"
+EOF
+   fi
+}
+
 # Main Section
 print_appsmith_info
 init_loading_pages
