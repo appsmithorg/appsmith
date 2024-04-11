@@ -8,7 +8,7 @@ import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.views.Views;
+import com.appsmith.external.views.Git;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.converters.GsonDoubleToLongConverter;
@@ -108,8 +108,8 @@ public class FileOperationsCEImpl implements FileOperationsCE {
                 .create();
 
         this.objectMapper = objectMapper;
-        this.objectReader = objectMapper.readerWithView(Views.Git.class);
-        this.objectWriter = objectMapper.writerWithView(Views.Git.class);
+        this.objectReader = objectMapper.readerWithView(Git.class);
+        this.objectWriter = objectMapper.writerWithView(Git.class);
 
         this.observationHelper = observationHelper;
     }

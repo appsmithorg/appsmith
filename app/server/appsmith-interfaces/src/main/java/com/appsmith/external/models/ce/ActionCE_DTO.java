@@ -16,6 +16,7 @@ import com.appsmith.external.models.Executable;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -65,26 +66,26 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Public.class)
     String pluginId;
 
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     String name;
 
     // The FQN for an action will also include any collection it is a part of as collectionName.actionName
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     String fullyQualifiedName;
 
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     Datasource datasource;
 
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     String pageId;
 
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     CreatorContextType contextType;
 
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     String collectionId;
 
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     ActionConfiguration actionConfiguration;
 
     // this attribute carries error messages while processing the actionCollection
@@ -93,17 +94,17 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Public.class)
     List<ErrorDTO> errorReports;
 
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     Boolean executeOnLoad;
 
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     Boolean clientSideExecution;
 
     /*
      * This is a list of fields specified by the client to signify which fields have dynamic bindings in them.
      * TODO: The server can use this field to simplify our Mustache substitutions in the future
      */
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     List<Property> dynamicBindingPathList;
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
@@ -128,10 +129,10 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Internal.class)
     String cacheResponse;
 
-    @JsonView({Views.Internal.class, Views.Git.class})
+    @JsonView({Views.Internal.class, Git.class})
     Boolean userSetOnLoad = false;
 
-    @JsonView({Views.Public.class, Views.Git.class})
+    @JsonView({Views.Public.class, Git.class})
     Boolean confirmBeforeExecute = false;
 
     @Transient

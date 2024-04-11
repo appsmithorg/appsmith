@@ -3,6 +3,7 @@ package com.appsmith.server.domains;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.CompareDslActionDTO;
@@ -38,7 +39,7 @@ public class Layout {
     @JsonView(Views.Internal.class)
     Boolean viewMode = false;
 
-    @JsonView({Views.Public.class, Views.Export.class, Views.Git.class})
+    @JsonView({Views.Public.class, Views.Export.class, Git.class})
     JSONObject dsl;
 
     @JsonView(Views.Internal.class)
@@ -74,10 +75,15 @@ public class Layout {
     @JsonView(Views.Internal.class)
     Boolean validOnPageLoadActions = TRUE;
 
-    // BEGIN DEFUNCT FIELDS
     @JsonView({Views.Public.class, Views.Export.class})
     private String id;
 
+    /*
+     * These fields (except for `id`) only exist here because their removal will cause a huge diff on all layouts in
+     * git-connected applications. So, instead, we keep them, but defunct. For all other practical purposes, these
+     * fields (again, except for `id`) don't exist.
+     */
+    // BEGIN DEFUNCT FIELDS
     @Deprecated(forRemoval = true)
     @Transient
     @JsonView(Views.Internal.class)
@@ -101,7 +107,7 @@ public class Layout {
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)
      * the dsl returned should be JSONObject dsl
      */
-    @JsonView({Views.Public.class, Views.Export.class, Views.Git.class})
+    @JsonView({Views.Public.class, Views.Export.class, Git.class})
     public JSONObject getDsl() {
         return viewMode ? publishedDsl : dsl;
     }
