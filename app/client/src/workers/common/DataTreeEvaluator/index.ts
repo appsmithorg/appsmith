@@ -37,6 +37,7 @@ import type {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { converMicroDiffToDeepDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 import {
   addDependantsOfNestedPropertyPaths,
@@ -502,41 +503,20 @@ export default class DataTreeEvaluator {
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
-    const microDiffDifferences = profileFn(
+    const jsDifferences: Diff<
+      Record<string, JSActionEntity>,
+      Record<string, JSActionEntity>
+    >[] = profileFn(
       "SetupUpdateTree.Diff1",
       undefined,
       webworkerTelemetry,
       () =>
-        microDiff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) ||
-        [],
+        converMicroDiffToDeepDiff(
+          microDiff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) ||
+            [],
+        ),
     );
-    const jsDifferences: Diff<
-      Record<string, JSActionEntity>,
-      Record<string, JSActionEntity>
-    >[] = microDiffDifferences.map((v: Record<string, any>) => {
-      const { oldValue, path, type, value } = v;
-      //convert microDiff format to deepDiff format
-      if (type === "CREATE") {
-        return {
-          kind: "N",
-          path,
-          rhs: value,
-        };
-      }
-      if (type === "REMOVE") {
-        return {
-          kind: "D",
-          path,
-          lhs: oldValue,
-        };
-      }
-      return {
-        kind: "E",
-        path,
-        lhs: oldValue,
-        rhs: value,
-      };
-    });
+
     const jsTranslatedDiffs = flatten(
       jsDifferences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),
