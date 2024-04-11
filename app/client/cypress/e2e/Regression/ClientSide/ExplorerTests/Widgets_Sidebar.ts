@@ -11,6 +11,7 @@ describe(
   function () {
     // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
     const WIDGET_TAGS: Record<string, string> = {
+      BUILDING_BLOCKS: "Building Blocks",
       SUGGESTED_WIDGETS: "Suggested",
       INPUTS: "Inputs",
       BUTTONS: "Buttons",
@@ -36,6 +37,27 @@ describe(
 
     // When adding a new widget or tag, we need to manually add it to this list.
     const WIDGETS_CATALOG: Record<string, string[]> = {
+      "Building Blocks": [
+        "View Data",
+        "Edit Data",
+        "Table Lookup",
+        "Update Data",
+        "Sort & Filter",
+        "Date Filter",
+        "Validated Form",
+        "Insert Data",
+        "Delete Data",
+        "Conditional Formating",
+        "Upload Files",
+        "Camera Upload",
+        "Login Flow",
+        "Chart & Filters",
+        "Editable Table",
+        "Sort & Filter List",
+        "Action List",
+        "Address Map",
+        "Refresh on Click",
+      ],
       Suggested: ["Input", "JSON Form", "List", "Select", "Table", "Text"],
       Inputs: [
         "Currency Input",
@@ -111,6 +133,11 @@ describe(
         // check that all widgets are present within their tags
         const widgetsInThisTag: string[] = [];
 
+        // click the see more button for building blocks first to show all widgets
+        cy.wrap($widgetTag)
+          .find(entityExplorer._widgetSeeMoreButton)
+          .click({ force: true });
+
         cy.wrap($widgetTag)
           .find(entityExplorer._widgetCardTitle)
           .each(($widgetName) => {
@@ -134,10 +161,10 @@ describe(
       });
     });
 
-    it("3. All widgets should be ordered alphabetically within their tags, except Essential widgets, which should be sorted by their static rank.", () => {
+    it("3. All widgets other than building blocks should be ordered alphabetically within their tags, except Essential widgets, which should be sorted by their static rank.", () => {
       agHelper
         .GetElement(
-          `${entityExplorer._widgetTagsList}:not(${entityExplorer._widgetTagSuggestedWidgets})`,
+          `${entityExplorer._widgetTagsList}:not(${entityExplorer._widgetTagSuggestedWidgets}):not(${entityExplorer._widgetTagBuildingBlocks})`,
         )
         .each(($widgetTag) => {
           const widgetsInThisTag: string[] = [];
@@ -192,6 +219,12 @@ describe(
       agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
 
       agHelper.ClearTextField(entityExplorer._widgetSearchInput);
+      // click to show all building blocks
+      agHelper.GetElement(entityExplorer._widgetTagsList).each(($widgetTag) => {
+        cy.wrap($widgetTag)
+          .find(entityExplorer._widgetSeeMoreButton)
+          .click({ force: true });
+      });
 
       agHelper.AssertElementLength(
         entityExplorer._widgetCards,
