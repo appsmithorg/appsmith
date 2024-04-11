@@ -96,7 +96,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             if (pageIds != null && !pageIds.isEmpty()) {
                 String pageIdFieldPath = dotted(
                         ActionCollection.Fields.publishedCollection,
-                        ActionCollectionDTO.Fields.defaultResources_pageId);
+                        ActionCollectionDTO.Fields.defaultResources,
+                        ActionCollectionDTO.Fields.pageId);
                 bridgeQuery.in(pageIdFieldPath, pageIds);
             }
         }
@@ -109,7 +110,8 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             if (pageIds != null && !pageIds.isEmpty()) {
                 String pageIdFieldPath = dotted(
                         ActionCollection.Fields.unpublishedCollection,
-                        ActionCollectionDTO.Fields.defaultResources_pageId);
+                        ActionCollectionDTO.Fields.defaultResources,
+                        ActionCollectionDTO.Fields.pageId);
                 bridgeQuery.in(pageIdFieldPath, pageIds);
             }
 
