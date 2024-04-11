@@ -28,26 +28,6 @@ import { Layers } from "constants/Layers";
 const BORDER_RADIUS = "border-radius: 4px;";
 const HEADER_CONTROL_FONT_SIZE = "12px";
 
-export const TableWrapper = styled.div<{
-  width: number;
-  height: number;
-  tableSizes: TableSizes;
-  accentColor: string;
-  backgroundColor?: Color;
-  triggerRowSelection: boolean;
-  isHeaderVisible?: boolean;
-  borderRadius: string;
-  boxShadow?: string;
-  borderColor?: string;
-  borderWidth?: number;
-  isResizingColumn?: boolean;
-  variant?: TableVariant;
-  isAddRowInProgress: boolean;
-}>`
-  .column-freeze {
-  }
-`;
-
 export const DropDownWrapper = styled.div`
   display: flex;
   flex-direction: column;
@@ -169,10 +149,6 @@ export const CellWrapper = styled.div<{
     props.fontStyle?.includes(FontStyleTypes.UNDERLINE) && props.isTextType
       ? "underline"
       : ""};
-  justify-content: ${(props) =>
-    props.horizontalAlignment && JUSTIFY_CONTENT[props.horizontalAlignment]};
-  text-align: ${(props) =>
-    props.horizontalAlignment && TEXT_ALIGN[props.horizontalAlignment]};
 
   background: ${(props) => {
     if (props.isCellDisabled) {
@@ -217,15 +193,6 @@ export const CellWrapper = styled.div<{
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;`}
-  .image-cell-wrapper {
-    width: 100%;
-    height: 100%;
-    display: flex;
-
-    justify-content: ${(props) =>
-      props.horizontalAlignment &&
-      IMAGE_HORIZONTAL_ALIGN[props.horizontalAlignment]};
-  }
   .image-cell {
     height: ${(props) =>
       props.imageSize ? ImageSizes[props.imageSize] : ImageSizes.DEFAULT};
@@ -250,14 +217,6 @@ export const CellWrapper = styled.div<{
       border: none;
       ${BORDER_RADIUS}
     }
-  }
-  .link-text {
-    width: 100%;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    word-break: break-word;
-    text-align: ${(props) =>
-      props.horizontalAlignment && TEXT_ALIGN[props.horizontalAlignment]};
   }
   .hidden-icon {
     display: none;

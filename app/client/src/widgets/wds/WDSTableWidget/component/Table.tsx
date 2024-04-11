@@ -9,7 +9,6 @@ import {
   useRowSelect,
 } from "react-table";
 import { useSticky } from "react-table-sticky";
-import { TableWrapper } from "./TableStyledWrappers";
 import { TableHeader } from "./TableHeader";
 import { Classes } from "@blueprintjs/core";
 import type {
@@ -116,9 +115,7 @@ export interface HeaderComponentProps {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
-  columnOrder?: string[];
-  accentColor: string;
-  borderRadius: string;
+  columnOrder?: string[]; 
   headerGroups: any;
   canFreezeColumn?: boolean;
   editMode: boolean;
@@ -283,26 +280,12 @@ export function Table(props: TableProps) {
           onConnectData={props.onConnectData}
         />
       )}
-      <TableWrapper
-        accentColor={props.accentColor}
-        backgroundColor={Colors.ATHENS_GRAY_DARKER}
-        borderColor={props.borderColor}
-        borderRadius={props.borderRadius}
-        borderWidth={props.borderWidth}
-        boxShadow={props.boxShadow}
+      <div
         className={styles.table}
         data-status={props.isAddRowInProgress ? "add-row-in-progress" : ""}
         data-type={shouldUseVirtual ? "virtualized" : "static"}
         data-variant={variant}
-        height={props.height}
         id={`table${props.widgetId}`}
-        isAddRowInProgress={props.isAddRowInProgress}
-        isHeaderVisible={isHeaderVisible}
-        isResizingColumn={isResizingColumn.current}
-        tableSizes={tableSizes}
-        triggerRowSelection={props.triggerRowSelection}
-        variant={props.variant}
-        width={props.width}
       >
         {isHeaderVisible && (
           <TableHeader
@@ -422,7 +405,7 @@ export function Table(props: TableProps) {
             )}
           </div>
         </div>
-      </TableWrapper>
+      </div>
     </>
   );
 }

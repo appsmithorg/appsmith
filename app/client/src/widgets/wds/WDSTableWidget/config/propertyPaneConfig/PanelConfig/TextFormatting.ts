@@ -17,54 +17,7 @@ export default {
     );
   },
   children: [
-    {
-      propertyName: "textSize",
-      label: "Text size",
-      helpText: "Controls the size of text in the column",
-      controlType: "DROP_DOWN",
-      isJSConvertible: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      options: [
-        {
-          label: "S",
-          value: "0.875rem",
-          subText: "0.875rem",
-        },
-        {
-          label: "M",
-          value: "1rem",
-          subText: "1rem",
-        },
-        {
-          label: "L",
-          value: "1.25rem",
-          subText: "1.25rem",
-        },
-        {
-          label: "XL",
-          value: "1.875rem",
-          subText: "1.875rem",
-        },
-      ],
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.TEXT,
-        },
-      },
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.TEXT,
-          ColumnTypes.DATE,
-          ColumnTypes.NUMBER,
-          ColumnTypes.CURRENCY,
-          ColumnTypes.URL,
-        ]);
-      },
-    },
+   
     {
       propertyName: "fontStyle",
       label: "Emphasis",
