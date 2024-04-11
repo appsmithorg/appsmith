@@ -1,10 +1,25 @@
 import type { AppState } from "@appsmith/reducers";
-import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
+import type {
+  FeatureFlag,
+  FeatureFlags,
+  OverriddenFeatureFlags,
+} from "@appsmith/entities/FeatureFlag";
 import { createSelector } from "reselect";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import memoize from "micro-memoize";
 
-export const selectFeatureFlags = (state: AppState) =>
-  state.ui.users.featureFlag.data;
+const combineFeatureFlags = memoize(
+  (featureFlags: FeatureFlags, overriddenFlags: OverriddenFeatureFlags) => {
+    return { ...featureFlags, ...overriddenFlags };
+  },
+);
+
+export const selectFeatureFlags = (state: AppState) => {
+  return combineFeatureFlags(
+    state.ui.users.featureFlag.data,
+    state.ui.users.featureFlag.overriddenFlags,
+  );
+};
 
 export const selectFeatureFlagCheck = (
   state: AppState,

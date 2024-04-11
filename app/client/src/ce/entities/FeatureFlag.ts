@@ -53,12 +53,14 @@ export const FEATURE_FLAG = {
     "ab_learnability_ease_of_initial_use_enabled",
   ab_learnability_discoverability_collapse_all_except_data_enabled:
     "ab_learnability_discoverability_collapse_all_except_data_enabled",
+  release_layout_conversion_enabled: "release_layout_conversion_enabled",
   release_ide_tabs_revamp_enabled: "release_ide_tabs_revamp_enabled",
 } as const;
 
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
 
 export type FeatureFlags = Record<FeatureFlag, boolean>;
+export type OverriddenFeatureFlags = Partial<Record<FeatureFlag, boolean>>;
 
 export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   TEST_FLAG: true,
@@ -95,6 +97,7 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   rollout_side_by_side_enabled: false,
   ab_learnability_ease_of_initial_use_enabled: false,
   ab_learnability_discoverability_collapse_all_except_data_enabled: false,
+  release_layout_conversion_enabled: false,
   release_ide_tabs_revamp_enabled: false,
 };
 
