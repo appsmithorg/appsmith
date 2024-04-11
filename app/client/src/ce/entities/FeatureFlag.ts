@@ -61,7 +61,6 @@ export const FEATURE_FLAG = {
 export type FeatureFlag = keyof typeof FEATURE_FLAG;
 
 export type FeatureFlags = Record<FeatureFlag, boolean>;
-export type OverriddenFeatureFlags = Partial<Record<FeatureFlag, boolean>>;
 
 export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   TEST_FLAG: true,

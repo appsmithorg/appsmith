@@ -1,7 +1,4 @@
-import type {
-  FeatureFlag,
-  OverriddenFeatureFlags,
-} from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlag } from "@appsmith/entities/FeatureFlag";
 import {
   setFeatureFlagOverridesAction,
   updateFeatureFlagOverrideAction,
@@ -20,6 +17,7 @@ export const AvailableFeaturesToOverride: FeatureFlag[] = [
   "ab_wds_enabled",
   "release_layout_conversion_enabled",
 ];
+export type OverriddenFeatureFlags = Partial<Record<FeatureFlag, boolean>>;
 
 export const useFeatureFlagOverride = () => {
   const dispatch = useDispatch();
