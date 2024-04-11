@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
+import com.appsmith.external.models.DefaultResources;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -97,7 +98,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 String pageIdFieldPath = dotted(
                         ActionCollection.Fields.publishedCollection,
                         ActionCollectionDTO.Fields.defaultResources,
-                        ActionCollectionDTO.Fields.pageId);
+                        DefaultResources.Fields.pageId);
                 bridgeQuery.in(pageIdFieldPath, pageIds);
             }
         }
@@ -111,7 +112,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
                 String pageIdFieldPath = dotted(
                         ActionCollection.Fields.unpublishedCollection,
                         ActionCollectionDTO.Fields.defaultResources,
-                        ActionCollectionDTO.Fields.pageId);
+                        DefaultResources.Fields.pageId);
                 bridgeQuery.in(pageIdFieldPath, pageIds);
             }
 
