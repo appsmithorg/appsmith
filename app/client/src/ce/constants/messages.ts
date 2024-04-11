@@ -2467,3 +2467,11 @@ export const SPLITPANE_ANNOUNCEMENT = {
 
 export const CANVAS_VIEW_MODE_TOOLTIP = (shortcutKey: string) =>
   `💡 ${shortcutKey} click a widget to navigate to UI mode.`;
+
+// searchable files list
+export const SEARCHABLE_FILES_LIST = {
+  GROUP_LABEL: (type: string) => `Open a ${type}`,
+  OPENED_GROUP_LABEL: () => `Opened`,
+  QUERY_TEXT: `query`,
+  JS_OBJECT_TEXT: `JS object`,
+};
