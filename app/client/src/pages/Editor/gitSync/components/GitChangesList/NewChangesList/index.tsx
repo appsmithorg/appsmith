@@ -40,7 +40,7 @@ export default function NewChangesList() {
   }
 
   return (
-    <div className="my-4 space-y-2" data-testid={"t--status-changes"}>
+    <div className="my-4 space-y-2" data-testid={"t--git-status-changes"}>
       <StaticChage kind={StaticChangeKind.REMOTE_BEHIND} status={status} />
       <StaticChage kind={StaticChangeKind.REMOTE_AHEAD} status={status} />
       <PageChanges status={status} />

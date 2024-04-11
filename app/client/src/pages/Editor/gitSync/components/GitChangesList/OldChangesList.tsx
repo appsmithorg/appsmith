@@ -277,7 +277,7 @@ export default function OldChangesList() {
       {statusLoading ? (
         <DummyChange data-testid={"t--git-change-loading-dummy"} />
       ) : statusChanges.length ? (
-        <Changes data-testid={"t--git-change-statuses"}>
+        <Changes data-testid={"t--git-status-changes"}>
           {statusChanges}
           {remoteStatusChanges}
           {status?.migrationMessage ? (
