@@ -360,7 +360,6 @@ export class JSEditor {
   }
 
   public ConfirmationClick(type: "Yes" | "No") {
-    //this.agHelper.GetNClick(this._confirmationModalBtns(type), 0, true);
     this.agHelper
       .GetElement(this._confirmationModalBtns(type))
       .eq(0)

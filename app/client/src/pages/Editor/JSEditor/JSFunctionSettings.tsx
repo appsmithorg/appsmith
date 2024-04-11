@@ -4,11 +4,12 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import type { JSAction } from "entities/JSCollection";
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { CONFIRM_BEFORE_CALLING_HEADING, SETTINGS_HEADINGS } from "./constants";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Icon, Tooltip, Switch } from "design-system";
+import RemoveConfirmationModal from "./RemoveConfirmBeforeCallingDialog";
 
 interface SettingsHeadingProps {
   text: string;
@@ -155,6 +156,8 @@ function SettingsItem({
   onUpdateSettings,
   renderAdditionalColumns,
 }: SettingsItemProps) {
+  const [showConfirmationModal, setShowConfirmationModal] = useState(false);
+
   const [executeOnPageLoad, setExecuteOnPageLoad] = useState(
     String(!!action.executeOnLoad),
   );
@@ -191,6 +194,15 @@ function SettingsItem({
 
   const showConfirmBeforeExecute = action.confirmBeforeExecute;
 
+  const onRemoveConfirm = useCallback(() => {
+    setShowConfirmationModal(false);
+    onChangeConfirmBeforeExecute("false");
+  }, []);
+
+  const onCancel = useCallback(() => {
+    setShowConfirmationModal(false);
+  }, []);
+
   return (
     <SettingRow
       className="t--async-js-function-settings"
@@ -221,16 +233,19 @@ function SettingsItem({
           {showConfirmBeforeExecute ? (
             <Switch
               className="flex justify-center "
-              defaultSelected={JSON.parse(confirmBeforeExecute)}
+              isSelected={JSON.parse(confirmBeforeExecute)}
               name={`confirm-before-execute-${action.id}`}
-              onChange={(isSelected) =>
-                onChangeConfirmBeforeExecute(String(isSelected))
-              }
+              onChange={() => setShowConfirmationModal(true)}
             />
           ) : null}
         </SwitchWrapper>
       </SettingColumn>
       {renderAdditionalColumns?.(action, headingCount)}
+      <RemoveConfirmationModal
+        isOpen={showConfirmationModal}
+        onCancel={onCancel}
+        onConfirm={onRemoveConfirm}
+      />
     </SettingRow>
   );
 }

@@ -22,8 +22,7 @@ export const NO_FUNCTION_DROPDOWN_OPTION: JSActionDropdownOption = {
 export const CONFIRM_BEFORE_CALLING_HEADING = {
   text: "Confirm before calling ",
   hasInfo: true,
-  info: `Ask for confirmation before executing function. 
-  (This setting is deprecated and will be removed in the future.)`,
+  info: `Ask for confirmation before executing function.`,
   key: "run_before_calling",
   hidden: true,
 };
