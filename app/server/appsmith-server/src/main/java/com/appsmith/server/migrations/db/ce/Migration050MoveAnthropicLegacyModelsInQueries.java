@@ -83,9 +83,10 @@ public class Migration050MoveAnthropicLegacyModelsInQueries {
     private ActionConfiguration updateActionConfiguration(ActionConfiguration actionConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
         if (formData.containsKey(CHAT_MODEL)) {
-            String chatModel = ((Map<String, String>) formData.get(CHAT_MODEL)).get("data");
+            Map<String, String> chatModelData = (Map<String, String>) formData.get(CHAT_MODEL);
+            String chatModel = chatModelData.get("data");
             if (LEGACY_TO_NEXT_MODELS.containsKey(chatModel)) {
-                formData.put(CHAT_MODEL, Map.of("data", LEGACY_TO_NEXT_MODELS.get(chatModel)));
+                chatModelData.put("data", LEGACY_TO_NEXT_MODELS.get(chatModel));
             }
         }
         actionConfiguration.setFormData(formData);
