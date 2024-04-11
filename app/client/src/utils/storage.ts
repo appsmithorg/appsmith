@@ -5,8 +5,8 @@ import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePr
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import type { OverriddenFeatureFlags } from "./hooks/useFeatureFlagOverride";
 import { AvailableFeaturesToOverride } from "./hooks/useFeatureFlagOverride";
-import type { OverriddenFeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 export const STORAGE_KEYS: {
   [id: string]: string;

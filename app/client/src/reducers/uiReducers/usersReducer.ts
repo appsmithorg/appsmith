@@ -8,11 +8,9 @@ import {
 
 import type { User } from "constants/userConstants";
 import { DefaultCurrentUserDetails } from "constants/userConstants";
-import type {
-  FeatureFlags,
-  OverriddenFeatureFlags,
-} from "@appsmith/entities/FeatureFlag";
+import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
+import type { OverriddenFeatureFlags } from "utils/hooks/useFeatureFlagOverride";
 
 const initialState: UsersReduxState = {
   loadingStates: {
