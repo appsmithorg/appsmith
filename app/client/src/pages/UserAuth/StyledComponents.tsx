@@ -98,6 +98,9 @@ export const AuthCardBody = styled.div`
 export const SpacedForm = styled(Form)``;
 
 export const SpacedSubmitForm = styled.form`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
   && .bp3-label {
     color: var(--ads-v2-color-fg);
     margin-bottom: var(--ads-v2-spaces-2);
@@ -108,6 +111,15 @@ export const SpacedSubmitForm = styled.form`
   &:only-child {
     margin-right: 0;
   }
+  .bp3-form-group {
+    margin: 0;
+  }
+`;
+
+export const EmailFormWrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 `;
 
 export const FormActions = styled.div`
@@ -117,7 +129,6 @@ export const FormActions = styled.div`
   }
   justify-content: space-between;
   align-items: baseline;
-  margin-top: ${(props) => props.theme.spaces[5]}px;
   & > label {
     margin-right: ${(props) => props.theme.spaces[11]}px;
   }

@@ -5,7 +5,6 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import {
   createMessage,
   DEFAULT_ERROR_MESSAGE,
-  FORGOT_PASSWORD_PAGE_LOGIN_LINK,
   PAGE_CLIENT_ERROR_DESCRIPTION,
   VERIFY_ERROR_ALREADY_VERIFIED_TITLE,
   VERIFY_ERROR_EXPIRED_TITLE,
@@ -98,13 +97,14 @@ const VerificationError = (
       <Container
         footer={
           <div className="px-2 py-4 flex align-center justify-center text-base text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+            Back to &nbsp;
             <Link
-              className="pl-[var(--ads-v2\-spaces-3)]"
+              className="text-sm justify-center pl-[var(--ads-v2\-spaces-3)]"
               kind="primary"
               target="_self"
               to={AUTH_LOGIN_URL}
             >
-              {createMessage(FORGOT_PASSWORD_PAGE_LOGIN_LINK)}
+              Sign in
             </Link>
           </div>
         }

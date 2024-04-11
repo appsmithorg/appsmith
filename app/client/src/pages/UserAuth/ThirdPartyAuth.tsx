@@ -12,8 +12,13 @@ import { Button } from "design-system";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
-  flex-direction: column;
   gap: var(--ads-v2-spaces-3);
+  width: 100%;
+  flex-wrap: wrap;
+`;
+
+const StyledButton = styled(Button)`
+  flex: 1 0 171px;
 `;
 
 type SignInType = "SIGNIN" | "SIGNUP";
@@ -33,7 +38,7 @@ function SocialLoginButton(props: {
     url += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
   return (
-    <Button
+    <StyledButton
       href={url}
       kind="secondary"
       onClick={() => {
@@ -60,9 +65,9 @@ function SocialLoginButton(props: {
       }
     >
       <div className="login-method" data-testid={`login-with-${props.name}`}>
-        {props.label ?? `Continue with ${props.name}`}
+        {props.label ?? `${props.name}`}
       </div>
-    </Button>
+    </StyledButton>
   );
 }
 

@@ -20,7 +20,6 @@ import { AUTH_LOGIN_URL, FORGOT_PASSWORD_URL } from "constants/routes";
 import {
   RESET_PASSWORD_PAGE_PASSWORD_INPUT_LABEL,
   RESET_PASSWORD_PAGE_PASSWORD_INPUT_PLACEHOLDER,
-  RESET_PASSWORD_LOGIN_LINK_TEXT,
   RESET_PASSWORD_SUBMIT_BUTTON_TEXT,
   RESET_PASSWORD_PAGE_TITLE,
   FORM_VALIDATION_INVALID_PASSWORD,
@@ -153,18 +152,24 @@ export function ResetPassword(props: ResetPasswordProps) {
   if (!isTokenValid && validatingToken) {
     return <Spinner />;
   }
+
+  const footerSection = (
+    <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+      Back to &nbsp;
+      <Link
+        className="text-sm justify-center"
+        kind="primary"
+        target="_self"
+        to={AUTH_LOGIN_URL}
+      >
+        Sign in
+      </Link>
+    </div>
+  );
+
   return (
     <Container
-      subtitle={
-        <Link
-          className="text-sm justify-center"
-          startIcon="arrow-left-line"
-          target="_self"
-          to={AUTH_LOGIN_URL}
-        >
-          {createMessage(RESET_PASSWORD_LOGIN_LINK_TEXT)}
-        </Link>
-      }
+      footer={footerSection}
       title={createMessage(RESET_PASSWORD_PAGE_TITLE)}
     >
       {(showSuccessMessage || showFailureMessage) && (

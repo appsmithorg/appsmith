@@ -19,7 +19,6 @@ import {
   SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
   ALREADY_HAVE_AN_ACCOUNT,
   createMessage,
-  SIGNUP_PAGE_SUBTITLE,
   GOOGLE_RECAPTCHA_KEY_ERROR,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
@@ -171,7 +170,7 @@ export function SignUp(props: SignUpFormProps) {
   };
 
   const footerSection = (
-    <div className="px-2 py-4 flex align-center justify-center text-base text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+    <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
       {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
       <Link
         className="t--sign-up t--signup-link pl-[var(--ads-v2\-spaces-3)]"
@@ -185,11 +184,7 @@ export function SignUp(props: SignUpFormProps) {
   );
 
   return (
-    <Container
-      footer={footerSection}
-      subtitle={createMessage(SIGNUP_PAGE_SUBTITLE)}
-      title={createMessage(SIGNUP_PAGE_TITLE)}
-    >
+    <Container footer={footerSection} title={createMessage(SIGNUP_PAGE_TITLE)}>
       <Helmet>
         <title>{htmlPageTitle}</title>
       </Helmet>
