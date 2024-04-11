@@ -502,14 +502,20 @@ export default class DataTreeEvaluator {
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
-    const micDiff =
-      microDiff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || [];
+    const microDiffDifferences = profileFn(
+      "SetupUpdateTree.Diff1",
+      undefined,
+      webworkerTelemetry,
+      () =>
+        microDiff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) ||
+        [],
+    );
     const jsDifferences: Diff<
       Record<string, JSActionEntity>,
       Record<string, JSActionEntity>
-    >[] = micDiff.map((v) => {
-      const { oldValue, path, type, value } = v as any;
-
+    >[] = microDiffDifferences.map((v: Record<string, any>) => {
+      const { oldValue, path, type, value } = v;
+      //convert microDiff format to deepDiff format
       if (type === "CREATE") {
         return {
           kind: "N",
