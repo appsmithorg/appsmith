@@ -17,7 +17,6 @@ import {
 
 export const AvailableFeaturesToOverride: FeatureFlag[] = [
   "release_anvil_enabled",
-  "ab_wds_enabled",
   "release_layout_conversion_enabled",
 ];
 
