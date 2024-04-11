@@ -24,6 +24,7 @@ import history, { NavigationMethod } from "utils/history";
 import { includes } from "lodash";
 import ListButton from "./ListButton";
 import { Announcement } from "../EditorPane/components/Announcement";
+import { SearchableFilesList } from "./SearchableFilesList";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -71,14 +72,35 @@ const SplitScreenTabs = () => {
     />
   );
 
+  // TODO: Remove this once release_ide_tabs_revamp_enabled is lifted
+  const Content = () => {
+    if (isTabsRevampEnabled) {
+      return (
+        <>
+          <SearchableFilesList
+            allItems={allFilesList}
+            navigateToTab={onClick}
+            openTabs={files}
+          />
+          <FileTabs navigateToTab={onClick} tabs={files} />
+          <AddButton />
+        </>
+      );
+    }
+    return (
+      <>
+        <AddButton />
+        <FileTabs navigateToTab={onClick} tabs={files} />
+        <ListButton items={overflowList} navigateToTab={onClick} />
+      </>
+    );
+  };
+
   return (
     <>
       {files.length > 0 ? (
         <Container>
-          {!isTabsRevampEnabled ? <AddButton /> : null}
-          <FileTabs navigateToTab={onClick} tabs={files} />
-          {isTabsRevampEnabled ? <AddButton /> : null}
-          <ListButton items={overflowList} navigateToTab={onClick} />
+          <Content />
         </Container>
       ) : null}
       <Announcement />
