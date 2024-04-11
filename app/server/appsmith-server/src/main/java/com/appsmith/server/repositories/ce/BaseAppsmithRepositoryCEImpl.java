@@ -175,7 +175,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         return Optional.of(findById(id, permission)
                 .map(entityFromDB -> {
-                    entityFromDB.setModifiedBy(user.getUsername());
+                    // If the update flow is triggered within the server without any user context, then user object will
+                    // be null
+                    if (user != null) {
+                        entityFromDB.setModifiedBy(user.getUsername());
+                    }
                     AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(
                             resource, entityFromDB, Set.of(FieldName.ID, "policies"));
                     entityFromDB.setUpdatedAt(Instant.now());
