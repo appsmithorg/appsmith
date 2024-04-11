@@ -27,6 +27,11 @@ export interface LogDebuggerErrorAnalyticsPayload {
   environmentName?: string;
 }
 
+export type DeleteErrorLogPayload = {
+  id: string;
+  analytics?: Log["analytics"];
+}[];
+
 export const debuggerLogInit = (payload: Log[]) => ({
   type: ReduxActionTypes.DEBUGGER_LOG_INIT,
   payload,
@@ -57,9 +62,7 @@ export const addErrorLogs = (payload: Log[]) => ({
   payload,
 });
 
-export const deleteErrorLogsInit = (
-  payload: { id: string; analytics?: Log["analytics"] }[],
-) => ({
+export const deleteErrorLogsInit = (payload: DeleteErrorLogPayload) => ({
   type: ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG_INIT,
   payload,
 });

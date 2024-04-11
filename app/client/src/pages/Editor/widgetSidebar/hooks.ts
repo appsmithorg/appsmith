@@ -40,7 +40,7 @@ export const useUIExplorerItems = () => {
     } else {
       setEntityLoading((prev) => ({ ...prev, "Building Blocks": false }));
     }
-  }, [dispatch, isBuildingBlocksLoaded]);
+  }, [isBuildingBlocksLoaded, releaseDragDropBuildingBlocks]);
 
   const cards = useMemo(
     () => [

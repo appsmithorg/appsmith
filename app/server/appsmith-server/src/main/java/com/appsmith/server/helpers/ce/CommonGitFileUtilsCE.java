@@ -8,6 +8,7 @@ import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStorage;
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.helpers.FileUtilsImpl;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
@@ -26,9 +27,12 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ArtifactGitFileUtils;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -54,6 +58,9 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
+import static com.appsmith.git.constants.CommonConstants.CLIENT_SCHEMA_VERSION;
+import static com.appsmith.git.constants.CommonConstants.FILE_FORMAT_VERSION;
+import static com.appsmith.git.constants.CommonConstants.SERVER_SCHEMA_VERSION;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -481,5 +488,54 @@ public class CommonGitFileUtilsCE {
 
     public Mono<Long> deleteIndexLockFile(Path path) {
         return fileUtils.deleteIndexLockFile(path, INDEX_LOCK_FILE_STALE_TIME);
+    }
+
+    public Mono<Map<String, Integer>> reconstructMetadataFromRepo(
+            String workspaceId, String applicationId, String repoName, String branchName, Path baseRepoSuffix) {
+        return fileUtils
+                .reconstructMetadataFromGitRepo(workspaceId, applicationId, repoName, branchName, baseRepoSuffix)
+                .onErrorResume(error -> Mono.error(
+                        new AppsmithException(AppsmithError.GIT_ACTION_FAILED, "checkout", error.getMessage())))
+                .map(metadata -> {
+                    Gson gson = new Gson();
+                    JsonObject metadataJsonObject =
+                            gson.toJsonTree(metadata, Object.class).getAsJsonObject();
+                    Integer serverSchemaVersion = getServerSchemaVersion(metadataJsonObject);
+                    Integer clientSchemaVersion = getClientSchemaVersion(metadataJsonObject);
+                    Integer fileFormatVersion = getFileFormatVersion(metadataJsonObject);
+
+                    Map<String, Integer> metadataMap = new HashMap<>();
+                    metadataMap.put(SERVER_SCHEMA_VERSION, serverSchemaVersion);
+                    metadataMap.put(CLIENT_SCHEMA_VERSION, clientSchemaVersion);
+                    metadataMap.put(FILE_FORMAT_VERSION, fileFormatVersion);
+                    return metadataMap;
+                });
+    }
+
+    private Integer getServerSchemaVersion(JsonObject metadataJsonObject) {
+        if (metadataJsonObject == null) {
+            return JsonSchemaVersions.serverVersion;
+        }
+
+        JsonElement serverSchemaVersion = metadataJsonObject.get(SERVER_SCHEMA_VERSION);
+        return serverSchemaVersion.getAsInt();
+    }
+
+    private Integer getClientSchemaVersion(JsonObject metadataJsonObject) {
+        if (metadataJsonObject == null) {
+            return JsonSchemaVersions.clientVersion;
+        }
+
+        JsonElement clientSchemaVersion = metadataJsonObject.get(CommonConstants.CLIENT_SCHEMA_VERSION);
+        return clientSchemaVersion.getAsInt();
+    }
+
+    private Integer getFileFormatVersion(JsonObject metadataJsonObject) {
+        if (metadataJsonObject == null) {
+            return 1;
+        }
+
+        JsonElement fileFormatVersion = metadataJsonObject.get(CommonConstants.FILE_FORMAT_VERSION);
+        return fileFormatVersion.getAsInt();
     }
 }
