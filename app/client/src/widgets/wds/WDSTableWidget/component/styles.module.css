@@ -1,3 +1,7 @@
+/* TODO(pawan): can we access css module variable from packages/widgets */
+@value colors: accent, neutral, negative, warning, positive;
+
+
 .table {
   --th-height: calc(
     var(--caption-line-height) + var(--caption-margin-end) +
@@ -200,6 +204,21 @@
     left: unset !important;
     right: unset !important;
   }
+
+  /*-------------------------------------------------------------------------
+  * Column Types
+  *-------------------------------------------------------------------------- */
+  & [role="cell"]:is([data-column-type="text"], [data-column-type="number"]) {
+    padding: var(--outer-spacing-4);
+  }
+
+  @each $color in colors {
+    & [role="cell"][data-cell-color="$(color)"]:is([data-column-type="text"], [data-column-type="number"]) {
+      background-color: var(--color-bg-$(color)-subtle);
+    }
+  }
+
+
   /* --------------------------------------------------------------------------
   * Resizor
   *-------------------------------------------------------------------------- */

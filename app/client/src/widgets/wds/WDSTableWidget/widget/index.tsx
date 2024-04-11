@@ -31,7 +31,6 @@ import type {
 } from "../component/Constants";
 import {
   AddNewRowActions,
-  CompactModeTypes,
   DEFAULT_FILTER,
   SORT_ORDER,
   SortOrderTypes,
@@ -45,15 +44,9 @@ import type {
 } from "../constants";
 import {
   ActionColumnTypes,
-  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
-  ColumnTypes,
-  DEFAULT_BUTTON_LABEL,
-  DEFAULT_COLUMN_WIDTH,
-  DEFAULT_MENU_BUTTON_LABEL,
-  DEFAULT_MENU_VARIANT,
+  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING, 
   defaultEditableCell,
   EditableCellActions,
-  InlineEditingSaveOptions,
   ORIGINAL_INDEX_KEY,
   PaginationDirection,
   TABLE_COLUMN_ORDER_KEY,
@@ -65,7 +58,6 @@ import {
   generateNewColumnOrderFromStickyValue,
   getAllStickyColumnsCount,
   getAllTableColumnKeys,
-  getBooleanPropertyValue,
   getCellProperties,
   getColumnOrderByWidgetIdFromLS,
   getColumnType,
@@ -74,7 +66,6 @@ import {
   getSelectRowIndex,
   getSelectRowIndices,
   getTableStyles,
-  isColumnTypeEditable,
   updateAndSyncTableLocalColumnOrders,
 } from "./utilities";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -83,24 +74,12 @@ import { IconNames } from "@blueprintjs/icons";
 import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
 import { sanitizeKey } from "widgets/WidgetUtils";
-import PlainTextCell from "../component/cellComponents/PlainTextCell";
-import { ButtonCell } from "../component/cellComponents/ButtonCell";
-import { MenuButtonCell } from "../component/cellComponents/MenuButtonCell";
-import { ImageCell } from "../component/cellComponents/ImageCell";
-import { VideoCell } from "../component/cellComponents/VideoCell";
-import { IconButtonCell } from "../component/cellComponents/IconButtonCell";
-import { EditActionCell } from "../component/cellComponents/EditActionsCell";
+import { PlainTextCell } from "../component/cellComponents";
+
 import { klona as clone } from "klona";
-import { CheckboxCell } from "../component/cellComponents/CheckboxCell";
-import { SwitchCell } from "../component/cellComponents/SwitchCell";
-import { SelectCell } from "../component/cellComponents/SelectCell";
 import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
 import type { Stylesheet } from "entities/AppTheming";
-import { DateCell } from "../component/cellComponents/DateCell";
-import type { MenuItem } from "widgets/MenuButtonWidget/constants";
-import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
-import { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
 import { getMemoiseGetColumnsWithLocalStorageFn } from "./reactTableUtils/getColumnsPureFn";
 import type {
@@ -944,7 +923,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     );
 
     return (
-      <Suspense fallback={<Skeleton />}>
+      <Suspense fallback={<>Loading...</>}>
         <ReactTableComponent
           accentColor={this.props.accentColor}
           allowAddNewRow={this.props.allowAddNewRow}
@@ -958,7 +937,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           canFreezeColumn={this.props.canFreezeColumn}
           columnWidthMap={this.props.columnWidthMap}
           columns={tableColumns}
-          compactMode={this.props.compactMode || CompactModeTypes.DEFAULT}
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
           disabledAddNewRowSave={this.hasInvalidColumnCell()}
@@ -1615,8 +1593,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     const isHidden = !column.isVisible;
-    const {
-      compactMode = CompactModeTypes.DEFAULT,
+    const { 
       filteredTableData = [],
       multiRowSelection,
       selectedRowIndex,
@@ -1644,603 +1621,28 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
      * on the data thus original index is needed to identify the column's cell property.
      */
     const cellProperties = getCellProperties(column, originalIndex, isNewRow);
-    let isSelected = false;
+    const alias = props.cell.column.columnProperties.alias;  
 
-    if (this.props.transientTableData) {
-      cellProperties.hasUnsavedChanges =
-        this.props.transientTableData.hasOwnProperty(originalIndex) &&
-        this.props.transientTableData[originalIndex].hasOwnProperty(
-          props.cell.column.columnProperties.alias,
-        );
-    }
-
-    if (multiRowSelection) {
-      isSelected =
-        _.isArray(selectedRowIndices) && selectedRowIndices.includes(rowIndex);
-    } else {
-      isSelected = selectedRowIndex === rowIndex;
-    }
-
-    const isColumnEditable =
-      column.isEditable && isColumnTypeEditable(column.columnType);
-    const alias = props.cell.column.columnProperties.alias;
-
-    const isCellEditable = isColumnEditable && cellProperties.isCellEditable;
-
-    const isCellEditMode =
-      (props.cell.column.alias === this.props.editableCell?.column &&
-        rowIndex === this.props.editableCell?.index) ||
-      (isNewRow && isColumnEditable);
-
-    const shouldDisableEdit =
-      (this.props.inlineEditingSaveOption ===
-        InlineEditingSaveOptions.ROW_LEVEL &&
-        this.props.updatedRowIndices.length &&
-        this.props.updatedRowIndices.indexOf(originalIndex) === -1) ||
-      (this.hasInvalidColumnCell() && !isNewRow);
-
-    const disabledEditMessage = `Save or discard the ${
-      this.props.isAddRowInProgress ? "newly added" : "unsaved"
-    } row to start editing here`;
 
     if (this.props.isAddRowInProgress) {
       cellProperties.isCellDisabled = rowIndex !== 0;
 
       if (rowIndex === 0) {
-        cellProperties.cellBackground = "";
+        cellProperties.cellBackground = "red";
       }
     }
 
     switch (column.columnType) {
-      case ColumnTypes.BUTTON:
-        return (
-          <ButtonCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            columnActions={[
-              {
-                backgroundColor:
-                  cellProperties.buttonColor || this.props.accentColor,
-                eventType: EventType.ON_CLICK,
-                id: column.id,
-                isVisible: true,
-                label: cellProperties.buttonLabel || DEFAULT_BUTTON_LABEL,
-                dynamicTrigger: column.onClick || "",
-                variant: cellProperties.buttonVariant,
-                borderRadius:
-                  cellProperties.borderRadius || this.props.borderRadius,
-                boxShadow: cellProperties.boxShadow,
-              },
-            ]}
-            compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isDisabled={!!cellProperties.isDisabled}
-            isHidden={isHidden}
-            isSelected={isSelected}
-            onCommandClick={(action: string, onComplete: () => void) =>
-              this.onColumnEvent({
-                rowIndex,
-                action,
-                onComplete,
-                triggerPropertyName: "onClick",
-                eventType: EventType.ON_CLICK,
-              })
-            }
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.EDIT_ACTIONS:
-        return (
-          <EditActionCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            columnActions={[
-              {
-                id: EditableCellActions.SAVE,
-                label: cellProperties.saveActionLabel,
-                dynamicTrigger: column.onSave || "",
-                eventType: EventType.ON_ROW_SAVE,
-                iconName: cellProperties.saveActionIconName,
-                variant: cellProperties.saveButtonVariant,
-                backgroundColor:
-                  cellProperties.saveButtonColor || this.props.accentColor,
-                iconAlign: cellProperties.saveIconAlign,
-                borderRadius:
-                  cellProperties.saveBorderRadius || this.props.borderRadius,
-                isVisible: cellProperties.isSaveVisible,
-                isDisabled:
-                  cellProperties.isSaveDisabled || this.hasInvalidColumnCell(),
-                boxShadow: cellProperties.boxShadow,
-              },
-              {
-                id: EditableCellActions.DISCARD,
-                label: cellProperties.discardActionLabel,
-                dynamicTrigger: column.onDiscard || "",
-                eventType: EventType.ON_ROW_DISCARD,
-                iconName: cellProperties.discardActionIconName,
-                variant: cellProperties.discardButtonVariant,
-                backgroundColor:
-                  cellProperties.discardButtonColor || this.props.accentColor,
-                iconAlign: cellProperties.discardIconAlign,
-                borderRadius:
-                  cellProperties.discardBorderRadius || this.props.borderRadius,
-                isVisible: cellProperties.isDiscardVisible,
-                isDisabled:
-                  cellProperties.isDiscardDisabled ||
-                  this.hasInvalidColumnCell(),
-                boxShadow: cellProperties.boxShadow,
-              },
-            ]}
-            compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible}
-            isHidden={isHidden}
-            isSelected={isSelected}
-            onCommandClick={(
-              action: string,
-              onComplete: () => void,
-              eventType: EventType,
-            ) =>
-              this.onColumnEvent({
-                rowIndex,
-                action,
-                onComplete,
-                triggerPropertyName: "onClick",
-                eventType: eventType,
-              })
-            }
-            onDiscard={() =>
-              this.removeRowFromTransientTableData(originalIndex)
-            }
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.SELECT:
-        return (
-          <SelectCell
-            accentColor={this.props.accentColor}
-            alias={props.cell.column.columnProperties.alias}
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            autoOpen={!this.props.isAddRowInProgress}
-            borderRadius={cellProperties.borderRadius}
-            cellBackground={cellProperties.cellBackground}
-            columnType={column.columnType}
-            compactMode={compactMode}
-            disabledEditIcon={
-              shouldDisableEdit || this.props.isAddRowInProgress
-            }
-            disabledEditIconMessage={disabledEditMessage}
-            filterText={
-              this.props.selectColumnFilterText?.[
-                this.props.editableCell?.column || column.alias
-              ]
-            }
-            fontStyle={cellProperties.fontStyle}
-            hasUnsavedChanges={cellProperties.hasUnsavedChanges}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellEditMode={isCellEditMode}
-            isCellEditable={isCellEditable}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isEditable={isColumnEditable}
-            isFilterable={cellProperties.isFilterable}
-            isHidden={isHidden}
-            isNewRow={isNewRow}
-            key={props.key}
-            onFilterChange={this.onSelectFilterChange}
-            onFilterChangeActionString={column.onFilterUpdate}
-            onItemSelect={this.onOptionSelect}
-            onOptionSelectActionString={column.onOptionChange}
-            options={cellProperties.selectOptions}
-            placeholderText={cellProperties.placeholderText}
-            resetFilterTextOnClose={cellProperties.resetFilterTextOnClose}
-            rowIndex={rowIndex}
-            serverSideFiltering={cellProperties.serverSideFiltering}
-            tableWidth={this.props.componentWidth}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            toggleCellEditMode={this.toggleCellEditMode}
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-            width={
-              this.props.columnWidthMap?.[column.id] || DEFAULT_COLUMN_WIDTH
-            }
-          />
-        );
-
-      case ColumnTypes.IMAGE:
-        const onClick = column.onClick
-          ? () =>
-              this.onColumnEvent({
-                rowIndex,
-                action: column.onClick,
-                triggerPropertyName: "onClick",
-                eventType: EventType.ON_CLICK,
-              })
-          : noop;
-
-        return (
-          <ImageCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            imageSize={cellProperties.imageSize}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            isSelected={isSelected}
-            onClick={onClick}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.MENU_BUTTON:
-        const getVisibleItems = (rowIndex: number) => {
-          const { configureMenuItems, menuItems, menuItemsSource, sourceData } =
-            cellProperties;
-
-          if (menuItemsSource === MenuItemsSource.STATIC && menuItems) {
-            const visibleItems = Object.values(menuItems)?.filter((item) =>
-              getBooleanPropertyValue(item.isVisible, rowIndex),
-            );
-
-            return visibleItems?.length
-              ? orderBy(visibleItems, ["index"], ["asc"])
-              : [];
-          } else if (
-            menuItemsSource === MenuItemsSource.DYNAMIC &&
-            isArray(sourceData) &&
-            sourceData?.length &&
-            configureMenuItems?.config
-          ) {
-            const { config } = configureMenuItems;
-
-            const getValue = (
-              propertyName: keyof MenuItem,
-              index: number,
-              rowIndex: number,
-            ) => {
-              const value = config[propertyName];
-
-              if (isArray(value) && isArray(value[rowIndex])) {
-                return value[rowIndex][index];
-              } else if (isArray(value)) {
-                return value[index];
-              }
-
-              return value ?? null;
-            };
-
-            const visibleItems = sourceData
-              .map((item, index) => ({
-                ...item,
-                id: index.toString(),
-                isVisible: getValue("isVisible", index, rowIndex),
-                isDisabled: getValue("isDisabled", index, rowIndex),
-                index: index,
-                widgetId: "",
-                label: getValue("label", index, rowIndex),
-                onClick: config?.onClick,
-                textColor: getValue("textColor", index, rowIndex),
-                backgroundColor: getValue("backgroundColor", index, rowIndex),
-                iconAlign: getValue("iconAlign", index, rowIndex),
-                iconColor: getValue("iconColor", index, rowIndex),
-                iconName: getValue("iconName", index, rowIndex),
-              }))
-              .filter((item) => item.isVisible === true);
-
-            return visibleItems;
-          }
-
-          return [];
-        };
-
-        return (
-          <MenuButtonCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            borderRadius={
-              cellProperties.borderRadius || this.props.borderRadius
-            }
-            boxShadow={cellProperties.boxShadow}
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            configureMenuItems={cellProperties.configureMenuItems}
-            fontStyle={cellProperties.fontStyle}
-            getVisibleItems={getVisibleItems}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            iconAlign={cellProperties.iconAlign}
-            iconName={cellProperties.menuButtoniconName || undefined}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isCompact={!!cellProperties.isCompact}
-            isDisabled={!!cellProperties.isDisabled}
-            isHidden={isHidden}
-            isSelected={isSelected}
-            label={cellProperties.menuButtonLabel ?? DEFAULT_MENU_BUTTON_LABEL}
-            menuColor={
-              cellProperties.menuColor || this.props.accentColor || Colors.GREEN
-            }
-            menuItems={cellProperties.menuItems}
-            menuItemsSource={cellProperties.menuItemsSource}
-            menuVariant={cellProperties.menuVariant ?? DEFAULT_MENU_VARIANT}
-            onCommandClick={(
-              action: string,
-              index?: number,
-              onComplete?: () => void,
-            ) => {
-              const additionalData: Record<
-                string,
-                string | number | Record<string, unknown>
-              > = {};
-
-              if (cellProperties?.sourceData && _.isNumber(index)) {
-                additionalData.currentItem = cellProperties.sourceData[index];
-                additionalData.currentIndex = index;
-              }
-
-              return this.onColumnEvent({
-                rowIndex,
-                action,
-                onComplete,
-                triggerPropertyName: "onClick",
-                eventType: EventType.ON_CLICK,
-                additionalData,
-              });
-            }}
-            rowIndex={originalIndex}
-            sourceData={cellProperties.sourceData}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.ICON_BUTTON:
-        return (
-          <IconButtonCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            borderRadius={
-              cellProperties.borderRadius || this.props.borderRadius
-            }
-            boxShadow={cellProperties.boxShadow || "NONE"}
-            buttonColor={
-              cellProperties.buttonColor ||
-              this.props.accentColor ||
-              Colors.GREEN
-            }
-            buttonVariant={cellProperties.buttonVariant || "PRIMARY"}
-            cellBackground={cellProperties.cellBackground}
-            columnActions={[
-              {
-                id: column.id,
-                dynamicTrigger: column.onClick || "",
-              },
-            ]}
-            compactMode={compactMode}
-            disabled={!!cellProperties.isDisabled}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            iconName={(cellProperties.iconName || IconNames.ADD) as IconName}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            isSelected={isSelected}
-            onCommandClick={(action: string, onComplete: () => void) =>
-              this.onColumnEvent({
-                rowIndex,
-                action,
-                onComplete,
-                triggerPropertyName: "onClick",
-                eventType: EventType.ON_CLICK,
-              })
-            }
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.VIDEO:
-        return (
-          <VideoCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.CHECKBOX:
-        return (
-          <CheckboxCell
-            accentColor={this.props.accentColor}
-            borderRadius={
-              cellProperties.borderRadius || this.props.borderRadius
-            }
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            disabledCheckbox={
-              shouldDisableEdit || (this.props.isAddRowInProgress && !isNewRow)
-            }
-            disabledCheckboxMessage={disabledEditMessage}
-            hasUnSavedChanges={cellProperties.hasUnsavedChanges}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellEditable={isCellEditable}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            onChange={() =>
-              this.onCheckChange(
-                column,
-                props.cell.row.values,
-                !props.cell.value,
-                alias,
-                originalIndex,
-                rowIndex,
-              )
-            }
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.SWITCH:
-        return (
-          <SwitchCell
-            accentColor={this.props.accentColor}
-            cellBackground={cellProperties.cellBackground}
-            compactMode={compactMode}
-            disabledSwitch={
-              shouldDisableEdit || (this.props.isAddRowInProgress && !isNewRow)
-            }
-            disabledSwitchMessage={disabledEditMessage}
-            hasUnSavedChanges={cellProperties.hasUnsavedChanges}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellEditable={isCellEditable}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isHidden={isHidden}
-            onChange={() =>
-              this.onCheckChange(
-                column,
-                props.cell.row.values,
-                !props.cell.value,
-                alias,
-                originalIndex,
-                rowIndex,
-              )
-            }
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-          />
-        );
-
-      case ColumnTypes.DATE:
-        return (
-          <DateCell
-            accentColor={this.props.accentColor}
-            alias={props.cell.column.columnProperties.alias}
-            borderRadius={this.props.borderRadius}
-            cellBackground={cellProperties.cellBackground}
-            closeOnSelection
-            columnType={column.columnType}
-            compactMode={compactMode}
-            disabledEditIcon={
-              shouldDisableEdit || this.props.isAddRowInProgress
-            }
-            disabledEditIconMessage={disabledEditMessage}
-            firstDayOfWeek={props.cell.column.columnProperties.firstDayOfWeek}
-            fontStyle={cellProperties.fontStyle}
-            hasUnsavedChanges={cellProperties.hasUnsavedChanges}
-            horizontalAlignment={cellProperties.horizontalAlignment}
-            inputFormat={cellProperties.inputFormat}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellEditMode={isCellEditMode}
-            isCellEditable={isCellEditable}
-            isCellVisible={cellProperties.isCellVisible ?? true}
-            isEditableCellValid={this.isColumnCellValid(alias)}
-            isHidden={isHidden}
-            isNewRow={isNewRow}
-            isRequired={
-              props.cell.column.columnProperties.validation
-                .isColumnEditableCellRequired
-            }
-            maxDate={props.cell.column.columnProperties.validation.maxDate}
-            minDate={props.cell.column.columnProperties.validation.minDate}
-            onCellTextChange={this.onCellTextChange}
-            onDateSave={this.onDateSave}
-            onDateSelectedString={
-              props.cell.column.columnProperties.onDateSelected
-            }
-            outputFormat={cellProperties.outputFormat}
-            rowIndex={rowIndex}
-            shortcuts={cellProperties.shortcuts}
-            tableWidth={this.props.componentWidth}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            timePrecision={cellProperties.timePrecision || TimePrecision.NONE}
-            toggleCellEditMode={this.toggleCellEditMode}
-            updateNewRowValues={this.updateNewRowValues}
-            validationErrorMessage="This field is required"
-            value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-            widgetId={this.props.widgetId}
-          />
-        );
-
-      default:
-        let validationErrorMessage;
-
-        if (isCellEditMode) {
-          validationErrorMessage =
-            column.validation.isColumnEditableCellRequired &&
-            (isNil(props.cell.value) || props.cell.value === "")
-              ? "This field is required"
-              : column.validation?.errorMessage;
-        }
-
+      default:  
         return (
           <PlainTextCell
-            accentColor={this.props.accentColor}
-            alias={props.cell.column.columnProperties.alias}
-            allowCellWrapping={cellProperties.allowCellWrapping}
-            cellBackground={cellProperties.cellBackground}
-            columnType={column.columnType}
-            compactMode={compactMode}
-            currencyCode={cellProperties.currencyCode}
-            decimals={cellProperties.decimals}
-            disabledEditIcon={
-              shouldDisableEdit || this.props.isAddRowInProgress
-            }
-            disabledEditIconMessage={disabledEditMessage}
-            displayText={cellProperties.displayText}
+            cellColor={cellProperties.cellColor} 
             fontStyle={cellProperties.fontStyle}
-            hasUnsavedChanges={cellProperties.hasUnsavedChanges}
             horizontalAlignment={cellProperties.horizontalAlignment}
-            isCellDisabled={cellProperties.isCellDisabled}
-            isCellEditMode={isCellEditMode}
-            isCellEditable={isCellEditable}
             isCellVisible={cellProperties.isCellVisible ?? true}
-            isEditableCellValid={this.isColumnCellValid(alias)}
             isHidden={isHidden}
-            isNewRow={isNewRow}
-            notation={cellProperties.notation}
-            onCellTextChange={this.onCellTextChange}
-            onSubmitString={props.cell.column.columnProperties.onSubmit}
-            rowIndex={rowIndex}
-            tableWidth={this.props.componentWidth}
-            textColor={cellProperties.textColor}
-            textSize={cellProperties.textSize}
-            thousandSeparator={cellProperties.thousandSeparator}
-            toggleCellEditMode={this.toggleCellEditMode}
-            validationErrorMessage={validationErrorMessage}
             value={props.cell.value}
-            verticalAlignment={cellProperties.verticalAlignment}
-            widgetId={this.props.widgetId}
+            allowCellWrapping={cellProperties.allowCellWrapping}
           />
         );
     }

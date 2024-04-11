@@ -23,10 +23,6 @@ const CheckboxCellWrapper = styled(CellWrapper)<{
   horizontalAlignment?: CellAlignment;
 }>`
   & div {
-    justify-content: ${(props) =>
-      props.horizontalAlignment &&
-      JUSTIFY_CONTENT[props.horizontalAlignment]} !important;
-
     & .bp3-checkbox {
       gap: 0px;
     }
@@ -60,7 +56,6 @@ const CheckboxCellComponent = (props: CheckboxCellProps) => {
     accentColor,
     borderRadius,
     cellBackground,
-    compactMode,
     disabledCheckbox,
     disabledCheckboxMessage,
     hasUnSavedChanges,
@@ -91,7 +86,6 @@ const CheckboxCellComponent = (props: CheckboxCellProps) => {
   return (
     <CheckboxCellWrapper
       cellBackground={cellBackground}
-      compactMode={compactMode}
       horizontalAlignment={horizontalAlignment}
       isCellDisabled={isCellDisabled}
       isCellVisible={isCellVisible}

@@ -2,7 +2,7 @@ import type { CSSProperties, Key } from "react";
 import React, { useContext } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
-import { BodyContext } from ".";
+import { TableBodyContext } from "./context";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
@@ -26,7 +26,7 @@ export function Row(props: RowType) {
     selectedRowIndex,
     selectedRowIndices,
     selectTableRow,
-  } = useContext(BodyContext);
+  } = useContext(TableBodyContext);
 
   prepareRow?.(props.row);
   const rowProps = {
@@ -69,6 +69,8 @@ export function Row(props: RowType) {
 
         cellProperties["style"] = {
           ...cellProperties.style,
+          display: "flex",
+          alignItems: columns[cellIndex].columnProperties.verticalAlignment,
           left:
             columns[cellIndex].sticky === StickyType.LEFT && multiRowSelection
               ? cell.column.totalLeft + MULTISELECT_CHECKBOX_WIDTH
@@ -92,6 +94,8 @@ export function Row(props: RowType) {
             data-colindex={cellIndex}
             data-rowindex={props.index}
             key={cellIndex}
+            data-column-type={columns[cellIndex].columnProperties.columnType}
+            data-cell-color={columns[cellIndex].columnProperties.cellColor}
           >
             {cell.render("Cell")}
           </div>
@@ -113,7 +117,7 @@ export const EmptyRows = (props: {
     prepareRow,
     rows,
     width,
-  } = useContext(BodyContext);
+  } = useContext(TableBodyContext);
 
   return (
     <>
@@ -141,7 +145,7 @@ export const EmptyRow = (props: { style?: CSSProperties }) => {
     prepareRow,
     rows,
     width,
-  } = useContext(BodyContext);
+  } = useContext(TableBodyContext);
 
   return renderEmptyRows(
     1,

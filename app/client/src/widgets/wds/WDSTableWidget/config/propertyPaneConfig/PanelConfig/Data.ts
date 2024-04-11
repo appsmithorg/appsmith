@@ -37,24 +37,8 @@ export default {
           value: ColumnTypes.CHECKBOX,
         },
         {
-          label: "Currency",
-          value: ColumnTypes.CURRENCY,
-        },
-        {
-          label: "Date",
-          value: ColumnTypes.DATE,
-        },
-        {
           label: "Icon button",
           value: ColumnTypes.ICON_BUTTON,
-        },
-        {
-          label: "Image",
-          value: ColumnTypes.IMAGE,
-        },
-        {
-          label: "Menu button",
-          value: ColumnTypes.MENU_BUTTON,
         },
         {
           label: "Number",
@@ -63,22 +47,10 @@ export default {
         {
           label: "Plain text",
           value: ColumnTypes.TEXT,
-        },
-        {
-          label: "Select",
-          value: ColumnTypes.SELECT,
-        },
-        {
-          label: "Switch",
-          value: ColumnTypes.SWITCH,
-        },
+        }, 
         {
           label: "URL",
           value: ColumnTypes.URL,
-        },
-        {
-          label: "Video",
-          value: ColumnTypes.VIDEO,
         },
       ],
       updateHook: composePropertyUpdateHook([

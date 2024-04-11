@@ -192,8 +192,8 @@ export function getDefaultColumnProperties(
     originalId: id,
     id: sanitizedId,
     alias: id,
-    horizontalAlignment: CellAlignmentTypes.LEFT,
-    verticalAlignment: "start",
+    horizontalAlignment: "start",
+    verticalAlignment: "center",
     columnType: columnType || ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
     textSize: "0.875rem",
@@ -269,6 +269,7 @@ export const getPropertyValue = (
     return value;
   }
 };
+
 export const getBooleanPropertyValue = (value: unknown, index: number) => {
   if (isBoolean(value)) {
     return value;
@@ -300,6 +301,11 @@ export const getCellProperties = (
 ) => {
   if (columnProperties) {
     return {
+      cellColor: getPropertyValue(
+        columnProperties.cellColor,
+        rowIndex,
+        true,
+      ),
       horizontalAlignment: getPropertyValue(
         columnProperties.horizontalAlignment,
         rowIndex,
@@ -318,22 +324,7 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-      menuButtonLabel: getPropertyValue(
-        columnProperties.menuButtonLabel,
-        rowIndex,
-        true,
-      ),
       iconName: getPropertyValue(columnProperties.iconName, rowIndex, true),
-      menuButtoniconName: getPropertyValue(
-        columnProperties.menuButtoniconName,
-        rowIndex,
-        true,
-      ),
-      menuItemsSource: getPropertyValue(
-        columnProperties.menuItemsSource,
-        rowIndex,
-        true,
-      ),
       sourceData: getPropertyValue(
         columnProperties.sourceData,
         rowIndex,
@@ -346,19 +337,11 @@ export const getCellProperties = (
         rowIndex,
         true,
       ),
-      borderRadius: getPropertyValue(
-        columnProperties.borderRadius,
-        rowIndex,
-        true,
-      ),
-      boxShadow: getPropertyValue(columnProperties.boxShadow, rowIndex, true),
       iconButtonStyle: getPropertyValue(
         columnProperties.iconButtonStyle,
         rowIndex,
         true,
       ),
-      textSize: getPropertyValue(columnProperties.textSize, rowIndex),
-      textColor: getPropertyValue(columnProperties.textColor, rowIndex),
       fontStyle: getPropertyValue(columnProperties.fontStyle, rowIndex), //Fix this
       isVisible: getBooleanPropertyValue(columnProperties.isVisible, rowIndex),
       isDisabled: getBooleanPropertyValue(
@@ -375,146 +358,10 @@ export const getCellProperties = (
         true,
       ),
       iconAlign: getPropertyValue(columnProperties.iconAlign, rowIndex, true),
-      isCompact: getPropertyValue(columnProperties.isCompact, rowIndex),
-      menuColor: getPropertyValue(columnProperties.menuColor, rowIndex, true),
-      menuItems: getPropertyValue(columnProperties.menuItems, rowIndex),
-      menuVariant: getPropertyValue(
-        columnProperties.menuVariant,
-        rowIndex,
-        true,
-      ),
-      isCellEditable: getBooleanPropertyValue(
-        columnProperties.isCellEditable,
-        rowIndex,
-      ),
       allowCellWrapping: getBooleanPropertyValue(
         columnProperties.allowCellWrapping,
         rowIndex,
-      ),
-      // EditActions related properties
-      saveButtonVariant: getPropertyValue(
-        columnProperties.saveButtonVariant,
-        rowIndex,
-        true,
-      ),
-      saveButtonColor: getPropertyValue(
-        columnProperties.saveButtonColor,
-        rowIndex,
-        true,
-      ),
-      saveIconAlign: getPropertyValue(
-        columnProperties.saveIconAlign,
-        rowIndex,
-        true,
-      ),
-      saveBorderRadius: getPropertyValue(
-        columnProperties.saveBorderRadius,
-        rowIndex,
-        true,
-      ),
-      saveActionLabel: getPropertyValue(
-        columnProperties.saveActionLabel,
-        rowIndex,
-        true,
-      ),
-      saveActionIconName: getPropertyValue(
-        columnProperties.saveActionIconName,
-        rowIndex,
-        true,
-      ),
-      isSaveVisible: getBooleanPropertyValue(
-        columnProperties.isSaveVisible,
-        rowIndex,
-      ),
-      isSaveDisabled: getBooleanPropertyValue(
-        columnProperties.isSaveDisabled,
-        rowIndex,
-      ),
-      discardButtonVariant: getPropertyValue(
-        columnProperties.discardButtonVariant,
-        rowIndex,
-        true,
-      ),
-      discardButtonColor: getPropertyValue(
-        columnProperties.discardButtonColor,
-        rowIndex,
-        true,
-      ),
-      discardIconAlign: getPropertyValue(
-        columnProperties.discardIconAlign,
-        rowIndex,
-        true,
-      ),
-      discardBorderRadius: getPropertyValue(
-        columnProperties.discardBorderRadius,
-        rowIndex,
-        true,
-      ),
-      discardActionLabel: getPropertyValue(
-        columnProperties.discardActionLabel,
-        rowIndex,
-        true,
-      ),
-      discardActionIconName: getPropertyValue(
-        columnProperties.discardActionIconName,
-        rowIndex,
-        true,
-      ),
-      isDiscardVisible: getBooleanPropertyValue(
-        columnProperties.isDiscardVisible,
-        rowIndex,
-      ),
-      isDiscardDisabled: getBooleanPropertyValue(
-        columnProperties.isDiscardDisabled,
-        rowIndex,
-      ),
-      imageSize: getPropertyValue(columnProperties.imageSize, rowIndex, true),
-      isFilterable: getBooleanPropertyValue(
-        columnProperties.isFilterable,
-        rowIndex,
-      ),
-      serverSideFiltering: getBooleanPropertyValue(
-        columnProperties.serverSideFiltering,
-        rowIndex,
-      ),
-      placeholderText: getPropertyValue(
-        columnProperties.placeholderText,
-        rowIndex,
-        true,
-      ),
-      resetFilterTextOnClose: getPropertyValue(
-        columnProperties.resetFilterTextOnClose,
-        rowIndex,
-      ),
-      inputFormat: getPropertyValue(
-        columnProperties.inputFormat,
-        rowIndex,
-        true,
-      ),
-      outputFormat: getPropertyValue(
-        columnProperties.outputFormat,
-        rowIndex,
-        true,
-      ),
-      shortcuts: getBooleanPropertyValue(columnProperties.shortcuts, rowIndex),
-      selectOptions: getSelectOptions(
-        isAddRowInProgress,
-        rowIndex,
-        columnProperties,
-      ),
-      timePrecision: getPropertyValue(
-        columnProperties.timePrecision,
-        rowIndex,
-        true,
-      ),
-      currencyCode: getPropertyValue(
-        columnProperties.currencyCode,
-        rowIndex,
-        true,
-      ),
-      decimals: columnProperties.decimals,
-      thousandSeparator: !!columnProperties.thousandSeparator,
-      notation: columnProperties.notation,
+      ), 
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
@@ -1066,26 +913,6 @@ export const getDragHandlers = (
     onDragStart,
     onDrop,
   };
-};
-
-export const getSelectOptions = (
-  isNewRow: boolean,
-  rowIndex: number,
-  columnProperties: ColumnProperties,
-) => {
-  if (isNewRow) {
-    if (
-      columnProperties.allowSameOptionsInNewRow &&
-      columnProperties?.selectOptions
-    ) {
-      // Use select options from the first row
-      return getArrayPropertyValue(columnProperties.selectOptions, 0);
-    } else {
-      return columnProperties.newRowSelectOptions;
-    }
-  } else {
-    return getArrayPropertyValue(columnProperties.selectOptions, rowIndex);
-  }
 };
 
 export function convertNumToCompactString(num: number) {

@@ -104,41 +104,7 @@ export default {
           ColumnTypes.URL,
         ]);
       },
-    },
-    {
-      propertyName: "isCellEditable",
-      dependencies: [
-        "primaryColumns",
-        "columnOrder",
-        "columnType",
-        "childStylesheet",
-        "inlineEditingSaveOption",
-      ],
-      label: "Editable",
-      helpText: "Controls the cell's editablity",
-      defaultValue: false,
-      controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      isJSConvertible: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      updateHook: composePropertyUpdateHook([
-        updateColumnLevelEditability,
-        updateInlineEditingOptionDropdownVisibilityHook,
-      ]),
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.BOOLEAN,
-        },
-      },
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        const baseProperty = getBasePropertyPath(propertyPath);
-        const columnType = get(props, `${baseProperty}.columnType`, "");
-        const isDerived = get(props, `${baseProperty}.isDerived`, false);
-        return !isColumnTypeEditable(columnType) || isDerived;
-      },
-    },
+    }, 
     {
       propertyName: "sticky",
       helpText:

@@ -17,6 +17,7 @@ import type {
 import type { ColumnTypes } from "../constants";
 import type { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
+import type { PlainTextCellProps } from "./cellComponents/PlainTextCell";
 
 export interface TableSizes {
   COLUMN_HEADER_HEIGHT: number;
@@ -112,7 +113,7 @@ export interface TableStyles {
 export type CompactMode = keyof typeof CompactModeTypes;
 export type Condition = keyof typeof ConditionFunctions | "";
 export type Operator = keyof typeof OperatorTypes;
-export type CellAlignment = keyof typeof CellAlignmentTypes;
+export type CellAlignment = "start" | "center" | "end";
 export type VerticalAlignment = "start" | "center" | "end";
 export type ImageSize = keyof typeof ImageSizes;
 
@@ -211,25 +212,20 @@ export interface BaseCellProperties {
   textColor?: string;
   cellBackground?: string;
   isVisible?: boolean;
-  isDisabled?: boolean;
-  borderRadius: string;
-  boxShadow: string;
+  isDisabled?: boolean; 
   isCellVisible: boolean;
   isCellDisabled?: boolean;
 }
 
 export interface CellLayoutProperties
-  extends EditActionCellProperties,
-    InlineEditingCellProperties,
+  extends
     CellWrappingProperties,
     ButtonCellProperties,
     URLCellProperties,
-    MenuButtonCellProperties,
-    SelectCellProperties,
-    ImageCellProperties,
-    DateCellProperties,
-    CurrencyCellProperties,
-    BaseCellProperties {}
+    BaseCellProperties 
+    {
+      cellColor?: PlainTextCellProps["cellColor"];
+    }
 
 export interface TableColumnMetaProps {
   isHidden: boolean;
@@ -353,38 +349,26 @@ export interface CurrencyColumnProperties {
 export interface ColumnProperties
   extends ColumnBaseProperties,
     ColumnStyleProperties,
-    DateColumnProperties,
-    ColumnEditabilityProperties,
-    CurrencyColumnProperties,
-    EditActionColumnProperties {
+    ColumnEditabilityProperties {
   allowSameOptionsInNewRow?: boolean;
   newRowSelectOptions?: DropdownOption[];
   buttonLabel?: string;
-  menuButtonLabel?: string;
   buttonColor?: string;
   onClick?: string;
   dropdownOptions?: string;
   onOptionChange?: string;
   displayText?: string;
   buttonVariant?: ButtonVariant;
-  isCompact?: boolean;
-  menuItems?: MenuItems;
-  menuVariant?: ButtonVariant;
-  menuColor?: string;
-  borderRadius?: ButtonBorderRadius;
-  boxShadow?: string;
-  boxShadowColor?: string;
   iconName?: IconName;
-  menuButtoniconName?: IconName;
   iconAlign?: Alignment;
   onItemClicked?: (onClick: string | undefined) => void;
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
   sticky?: StickyType;
-  getVisibleItems?: () => Array<MenuItem>;
-  menuItemsSource?: MenuItemsSource;
+  getVisibleItems?: () => Array<MenuItem>; 
   configureMenuItems?: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
+  cellColor?: PlainTextCellProps["cellColor"];
 }
 
 export const ConditionFunctions: {
@@ -494,7 +478,6 @@ export enum IMAGE_VERTICAL_ALIGN {
 }
 
 export interface BaseCellComponentProps {
-  compactMode: string;
   isHidden: boolean;
   allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
@@ -502,8 +485,6 @@ export interface BaseCellComponentProps {
   cellBackground?: string;
   isCellVisible: boolean;
   fontStyle?: string;
-  textColor?: string;
-  textSize?: string;
   isCellDisabled?: boolean;
 }
 
@@ -513,29 +494,6 @@ export enum CheckboxState {
   PARTIAL = 2,
 }
 
-export const scrollbarOnHoverCSS = `
-  .track-horizontal {
-    height: 6px;
-    bottom: 1px;
-    width: 100%;
-    opacity: 0;
-    transition: opacity 0.15s ease-in;
-    &:active {
-      opacity: 1;
-    }
-  }
-  &:hover {
-    .track-horizontal {
-      opacity: 1;
-    }
-  }
-  .thumb-horizontal {
-    &:hover, &:active {
-      height: 6px !important;
-    }
-  }
-`;
-
 export const MULTISELECT_CHECKBOX_WIDTH = 40;
 
 export enum AddNewRowActions {
@@ -543,20 +501,6 @@ export enum AddNewRowActions {
   DISCARD = "DISCARD",
 }
 
-export const EDITABLE_CELL_PADDING_OFFSET = 8;
-
-export const TABLE_SCROLLBAR_WIDTH = 10;
-export const TABLE_SCROLLBAR_HEIGHT = 8;
-
-export const POPOVER_ITEMS_TEXT_MAP = {
-  SORT_ASC: "Sort column ascending",
-  SORT_DSC: "Sort column descending",
-  FREEZE_LEFT: "Freeze column left",
-  FREEZE_RIGHT: "Freeze column right",
-};
-
-export const HEADER_MENU_PORTAL_CLASS = ".header-menu-portal";
-export const MENU_CONTENT_CLASS = ".menu-content";
 export const DEFAULT_FILTER = {
   id: generateReactKey(),
   column: "",
