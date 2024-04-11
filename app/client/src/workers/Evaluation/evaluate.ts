@@ -82,13 +82,23 @@ const topLevelWorkerAPIs = Object.keys(self).reduce((acc, key: string) => {
   return acc;
 }, {} as any);
 
+const ignoreGlobalObjectKeys = new Set([
+  "evaluationVersion",
+  "window",
+  "document",
+  "location",
+]);
+
 function resetWorkerGlobalScope() {
+  const jsLibraryAccessorSet = new Set(
+    JSLibraries.flatMap((lib) => lib.accessor),
+  );
+
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
     //TODO: Remove this once we have a better way to handle this
-    if (["evaluationVersion", "window", "document", "location"].includes(key))
-      continue;
-    if (JSLibraries.find((lib) => lib.accessor.includes(key))) continue;
+    if (ignoreGlobalObjectKeys.has(key)) continue;
+    if (jsLibraryAccessorSet.has(key)) continue;
     if (libraryReservedIdentifiers[key]) continue;
     try {
       // @ts-expect-error: Types are not available
@@ -253,7 +263,6 @@ export default function evaluateSync(
   configTree?: ConfigTree,
 ): EvalResult {
   return (function () {
-    resetWorkerGlobalScope();
     const errors: EvaluationError[] = [];
     let result;
 
@@ -271,6 +280,7 @@ export default function evaluateSync(
         triggers: [],
       };
     }
+    resetWorkerGlobalScope();
 
     setEvalContext({
       dataTree,
