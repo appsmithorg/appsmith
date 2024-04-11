@@ -7,6 +7,7 @@ import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
+import { getUserSource } from "@appsmith/utils";
 
 declare global {
   interface Window {
@@ -50,6 +51,36 @@ function getApplicationId(location: Location) {
   const appId = pathSplit[applicationsIndex + 1];
 
   return appId;
+}
+
+function getUserLocation() {
+  // Check if geolocation is supported by the browser
+  if ("geolocation" in navigator) {
+    // Prompt user for permission to access their location
+    navigator.geolocation.getCurrentPosition(
+      // Success callback function
+      (position) => {
+        // Get the user's latitude and longitude coordinates
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+
+        // Do something with the location data, e.g. display on a map
+        return {
+          latitude: lat,
+          longitude: lng,
+        };
+      },
+      // Error callback function
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      (error) => {
+        // Handle errors, e.g. user denied location sharing permissions
+        return {};
+      },
+    );
+  } else {
+    // Geolocation is not supported by the browser
+    return {};
+  }
 }
 
 export enum AnalyticsEventType {
@@ -170,13 +201,14 @@ class AnalyticsUtil {
     const appId = getApplicationId(windowDoc.location);
     const { appVersion, segment } = getAppsmithConfigs();
     if (userData) {
+      const source = getUserSource();
       let user: any = {};
       if (segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
           appId,
-          source: "cloud",
+          source,
         };
       } else {
         const userId = userData.username;
@@ -186,7 +218,7 @@ class AnalyticsUtil {
         }
         user = {
           userId: AnalyticsUtil.cachedAnonymoustId,
-          source: "ce",
+          source,
         };
       }
       finalEventData = {
@@ -214,13 +246,16 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     const userId = userData.username;
     if (windowDoc.analytics) {
+      const source = getUserSource();
+      const location = getUserLocation();
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
       if (segment.apiKey) {
         const userProperties = {
+          userId: userId,
+          source,
+          ...location,
           email: userData.email,
           name: userData.name,
-          userId: userId,
-          source: "cloud",
           emailVerified: userData.emailVerified,
         };
         AnalyticsUtil.user = userData;
@@ -234,7 +269,8 @@ class AnalyticsUtil {
         }
         const userProperties = {
           userId: AnalyticsUtil.cachedAnonymoustId,
-          source: "ce",
+          source,
+          ...location,
           ...(sendAdditionalData
             ? {
                 id: AnalyticsUtil.cachedAnonymoustId,

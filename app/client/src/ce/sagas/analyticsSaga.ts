@@ -1,6 +1,5 @@
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { call, select } from "redux-saga/effects";
 import type { APP_MODE } from "entities/App";
 import {
@@ -14,12 +13,7 @@ import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
-
-export function getUserSource() {
-  const { cloudHosting } = getAppsmithConfigs();
-  const source = cloudHosting ? "cloud" : "ce";
-  return source;
-}
+import { getUserSource } from "@appsmith/utils";
 
 export interface UserAndAppDetails {
   pageId: string;
