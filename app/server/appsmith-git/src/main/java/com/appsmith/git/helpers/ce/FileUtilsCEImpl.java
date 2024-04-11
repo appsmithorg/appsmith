@@ -6,9 +6,12 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.GitSpan;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
@@ -20,6 +23,7 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.stream.JsonReader;
+import io.micrometer.tracing.Span;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -68,6 +72,11 @@ import static com.appsmith.external.git.constants.GitConstants.ACTION_LIST;
 import static com.appsmith.external.git.constants.GitConstants.CUSTOM_JS_LIB_LIST;
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.git.constants.GitConstants.PAGE_LIST;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricConstantsCE.ACTION_COLLECTION_BODY;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricConstantsCE.METADATA;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricConstantsCE.NEW_ACTION_BODY;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricConstantsCE.RESOURCE_TYPE;
+import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricConstantsCE.WIDGETS;
 import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
 import static com.appsmith.git.constants.GitDirectories.DATASOURCE_DIRECTORY;
@@ -83,6 +92,7 @@ public class FileUtilsCEImpl implements FileInterface {
     private final GitServiceConfig gitServiceConfig;
     private final GitExecutor gitExecutor;
     private final Gson gson;
+    private final ObservationHelper observationHelper;
 
     private static final String EDIT_MODE_URL_TEMPLATE = "{{editModeUrl}}";
 
@@ -95,7 +105,11 @@ public class FileUtilsCEImpl implements FileInterface {
 
     private static final String CANVAS_WIDGET = "(Canvas)[0-9]*.";
 
-    public FileUtilsCEImpl(GitServiceConfig gitServiceConfig, GitExecutor gitExecutor, GsonBuilder gsonBuilder) {
+    public FileUtilsCEImpl(
+            GitServiceConfig gitServiceConfig,
+            GitExecutor gitExecutor,
+            GsonBuilder gsonBuilder,
+            ObservationHelper observationHelper) {
         this.gitServiceConfig = gitServiceConfig;
         this.gitExecutor = gitExecutor;
 
@@ -113,6 +127,8 @@ public class FileUtilsCEImpl implements FileInterface {
                 .disableHtmlEscaping()
                 .setPrettyPrinting()
                 .create();
+
+        this.observationHelper = observationHelper;
     }
 
     /**
@@ -205,9 +221,9 @@ public class FileUtilsCEImpl implements FileInterface {
      * This method will save the complete application in the local repo directory.
      * Path to repo will be : ./container-volumes/git-repo/workspaceId/defaultApplicationId/repoName/{application_data}
      *
-     * @param baseRepoSuffix          path suffix used to create a repo path
+     * @param baseRepoSuffix       path suffix used to create a repo path
      * @param artifactGitReference application reference object from which entire application can be rehydrated
-     * @param branchName              name of the branch for the current application
+     * @param branchName           name of the branch for the current application
      * @return repo path where the application is stored
      */
     public Mono<Path> saveApplicationToGitRepo(
@@ -451,11 +467,18 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     private void saveWidgets(JSONObject sourceEntity, String resourceName, Path path) {
+        Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
         try {
             Files.createDirectories(path);
+            String resourceType = WIDGETS;
+            span.tag(RESOURCE_TYPE, resourceType);
+            observationHelper.startSpan(span, true);
+
             writeStringToFile(sourceEntity.toString(4), path.resolve(resourceName + CommonConstants.JSON_EXTENSION));
         } catch (IOException e) {
             log.debug("Error while writings widgets data to file, {}", e.getMessage());
+        } finally {
+            observationHelper.endSpan(span, true);
         }
     }
 
@@ -471,11 +494,15 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return if the file operation is successful
      */
     private boolean saveActionCollection(Object sourceEntity, String body, String resourceName, Path path) {
+        Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
         try {
             Files.createDirectories(path);
             if (StringUtils.hasText(body)) {
                 // Write the js Object body to .js file to make conflict handling easier
                 Path bodyPath = path.resolve(resourceName + CommonConstants.JS_EXTENSION);
+                String resourceType = ACTION_COLLECTION_BODY;
+                span.tag(RESOURCE_TYPE, resourceType);
+                observationHelper.startSpan(span, true);
                 writeStringToFile(body, bodyPath);
             }
 
@@ -484,6 +511,8 @@ public class FileUtilsCEImpl implements FileInterface {
             return writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
             log.debug(e.getMessage());
+        } finally {
+            observationHelper.endSpan(span, true);
         }
         return false;
     }
@@ -500,12 +529,16 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return if the file operation is successful
      */
     private boolean saveActions(Object sourceEntity, String body, String resourceName, Path path) {
+        Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
         try {
             Files.createDirectories(path);
             // Write the user written query to .txt file to make conflict handling easier
             // Body will be null if the action is of type JS
             if (StringUtils.hasLength(body)) {
                 Path bodyPath = path.resolve(resourceName + CommonConstants.TEXT_FILE_EXTENSION);
+                String resourceType = NEW_ACTION_BODY;
+                span.tag(RESOURCE_TYPE, resourceType);
+                observationHelper.startSpan(span, true);
                 writeStringToFile(body, bodyPath);
             }
 
@@ -514,6 +547,8 @@ public class FileUtilsCEImpl implements FileInterface {
             return writeToFile(sourceEntity, metadataPath);
         } catch (IOException e) {
             log.error("Error while reading file {} with message {} with cause", path, e.getMessage(), e.getCause());
+        } finally {
+            observationHelper.endSpan(span, true);
         }
         return false;
     }
@@ -526,9 +561,19 @@ public class FileUtilsCEImpl implements FileInterface {
     }
 
     private boolean writeToFile(Object sourceEntity, Path path) throws IOException {
+        Span span = observationHelper.createSpan(GitSpan.FILE_WRITE);
+        String resourceType = sourceEntity.getClass().getSimpleName();
+        if (!(sourceEntity instanceof BaseDomain)) {
+            resourceType = METADATA;
+        }
+        span.tag(RESOURCE_TYPE, resourceType);
+        observationHelper.startSpan(span, true);
+
         try (BufferedWriter fileWriter = Files.newBufferedWriter(path, StandardCharsets.UTF_8)) {
             gson.toJson(sourceEntity, fileWriter);
             return true;
+        } finally {
+            observationHelper.endSpan(span, true);
         }
     }
 
@@ -709,6 +754,8 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return resource stored in the JSON file
      */
     public Object readFile(Path filePath) {
+        Span span = observationHelper.createSpan(GitSpan.FILE_READ);
+        observationHelper.startSpan(span, true);
 
         Object file;
         try (JsonReader reader = new JsonReader(new FileReader(filePath.toFile()))) {
@@ -716,6 +763,8 @@ public class FileUtilsCEImpl implements FileInterface {
         } catch (Exception e) {
             log.error("Error while reading file {} with message {} with cause", filePath, e.getMessage(), e.getCause());
             return null;
+        } finally {
+            observationHelper.endSpan(span, true);
         }
         return file;
     }
@@ -752,11 +801,15 @@ public class FileUtilsCEImpl implements FileInterface {
      * @return content of the file in the path
      */
     private String readFileAsString(Path filePath) {
+        Span span = observationHelper.createSpan(GitSpan.FILE_READ);
+        observationHelper.startSpan(span, true);
         String data = CommonConstants.EMPTY_STRING;
         try {
             data = FileUtils.readFileToString(filePath.toFile(), "UTF-8");
         } catch (IOException e) {
             log.error("Error while reading the file from git repo {} ", e.getMessage());
+        } finally {
+            observationHelper.endSpan(span, true);
         }
         return data;
     }
