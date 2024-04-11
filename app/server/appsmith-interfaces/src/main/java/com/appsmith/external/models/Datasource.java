@@ -53,7 +53,7 @@ public class Datasource extends BranchAwareDomain {
     String templateName;
 
     // This is only kept public for embedded datasource
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView(Views.Public.class)
     DatasourceConfiguration datasourceConfiguration;
 
     @Transient
