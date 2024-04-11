@@ -1,7 +1,6 @@
 import toposort from "toposort";
 import type DependencyMap from ".";
 import { IMMEDIATE_PARENT_REGEX } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { union } from "lodash";
 
 type SortDependencies =
   | {
@@ -39,13 +38,31 @@ export class DependencyMapUtils {
     }
   }
 
-  static makeParentsDependOnChildren(dependencyMap: DependencyMap) {
+  static makeParentsDependOnChildren(
+    dependencyMap: DependencyMap,
+    affectedPaths?: any,
+  ) {
     const dependencies = dependencyMap.rawDependencies;
-    for (const [node, deps] of dependencies.entries()) {
-      this.makeParentsDependOnChild(dependencyMap, node);
-      deps.forEach((dep) => {
-        this.makeParentsDependOnChild(dependencyMap, dep);
-      });
+
+    if (!affectedPaths) {
+      for (const [node, deps] of dependencies.entries()) {
+        this.makeParentsDependOnChild(dependencyMap, node);
+        deps.forEach((dep) => {
+          this.makeParentsDependOnChild(dependencyMap, dep);
+        });
+      }
+    } else {
+      [...dependencies.keys()]
+        .filter((key) => affectedPaths.some((p: any) => key.startsWith(p)))
+        .forEach((node) => {
+          const deps = dependencies.get(node);
+          this.makeParentsDependOnChild(dependencyMap, node);
+          if (deps) {
+            deps.forEach((dep) => {
+              this.makeParentsDependOnChild(dependencyMap, dep);
+            });
+          }
+        });
     }
     return dependencyMap;
   }
@@ -61,9 +78,13 @@ export class DependencyMapUtils {
       const immediateParent = matches[1];
       const existingImmediateParentDeps =
         dependencyMap.getDirectDependencies(immediateParent) || [];
-      const newDeps = union(existingImmediateParentDeps, [curKey]);
-
-      dependencyMap.addDependency(immediateParent, newDeps);
+      const existingImmediateParentDepsSet = new Set(
+        existingImmediateParentDeps,
+      );
+      if (!existingImmediateParentDepsSet.has(curKey)) {
+        const newDeps = [...existingImmediateParentDeps, curKey];
+        dependencyMap.addDependency(immediateParent, newDeps);
+      }
       curKey = immediateParent;
     }
   };
