@@ -37,7 +37,7 @@ import type {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { converMicroDiffToDeepDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { convertMicroDiffToDeepDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 import {
   addDependantsOfNestedPropertyPaths,
@@ -511,7 +511,7 @@ export default class DataTreeEvaluator {
       undefined,
       webworkerTelemetry,
       () =>
-        converMicroDiffToDeepDiff(
+        convertMicroDiffToDeepDiff(
           microDiff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) ||
             [],
         ),

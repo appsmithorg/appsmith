@@ -992,7 +992,7 @@ export const isNotEntity = (entity: DataTreeEntity) => {
 export const isEntityAction = (entity: DataTreeEntity) => {
   return isAction(entity);
 };
-export const converMicroDiffToDeepDiff = (
+export const convertMicroDiffToDeepDiff = (
   microDiffDifferences: Record<string, any>[],
 ) =>
   microDiffDifferences.map((v: Record<string, any>) => {
