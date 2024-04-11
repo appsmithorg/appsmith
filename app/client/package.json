@@ -75,6 +75,7 @@
     "@opentelemetry/semantic-conventions": "^1.17.1",
     "@sentry/react": "^6.2.4",
     "@sentry/tracing": "^6.2.4",
+    "@shared/actions": "workspace:^",
     "@shared/ast": "workspace:^",
     "@shared/dsl": "workspace:^",
     "@tanstack/virtual-core": "^3.0.0-beta.18",
