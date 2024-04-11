@@ -106,6 +106,13 @@ public class ServerSchemaMigrationEnforcerTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
     }
 
+    /**
+     * Each entity in the map is a separate file in git file-system, it's imperative that we compare them separately
+     * If the comparison fails then it would essentially mean that users would see the diff,
+     * hence it should not be ignored
+     * @param target
+     * @param source
+     */
     public void verifyMapAssertions(JsonObject target, JsonObject source) {
         for (String key : source.keySet()) {
             assertThat(convertElementToString(source.get(key))).isEqualTo(convertElementToString(target.get(key)));
