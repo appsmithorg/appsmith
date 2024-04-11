@@ -38,7 +38,7 @@ public class Layout {
     @JsonView(Views.Internal.class)
     Boolean viewMode = false;
 
-    @JsonView({Views.Public.class, Views.Export.class})
+    @JsonView({Views.Public.class, Views.Export.class, Views.Git.class})
     JSONObject dsl;
 
     @JsonView(Views.Internal.class)
@@ -74,14 +74,10 @@ public class Layout {
     @JsonView(Views.Internal.class)
     Boolean validOnPageLoadActions = TRUE;
 
-    /*
-     * These fields (except for `id`) only exist here because their removal will cause a huge diff on all layouts in
-     * git-connected applications. So, instead, we keep them, but defunct. For all other practical purposes, these
-     * fields (again, except for `id`) don't exist.
-     */
+    // BEGIN DEFUNCT FIELDS
     @JsonView({Views.Public.class, Views.Export.class})
     private String id;
-    // BEGIN DEFUNCT FIELDS
+
     @Deprecated(forRemoval = true)
     @Transient
     @JsonView(Views.Internal.class)
@@ -105,7 +101,7 @@ public class Layout {
      * If view mode, the dsl returned should be the publishedDSL, else if the edit mode is on (view mode = false)
      * the dsl returned should be JSONObject dsl
      */
-    @JsonView({Views.Public.class, Views.Export.class})
+    @JsonView({Views.Public.class, Views.Export.class, Views.Git.class})
     public JSONObject getDsl() {
         return viewMode ? publishedDsl : dsl;
     }

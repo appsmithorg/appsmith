@@ -30,7 +30,7 @@ public class ActionCollectionCE extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Git.class})
     ActionCollectionDTO unpublishedCollection;
 
     @JsonView(Views.Public.class)

@@ -26,4 +26,6 @@ public interface Views {
     interface ExportUnpublished extends Export {}
 
     interface ExportPublished extends Export {}
+
+    interface Git {}
 }

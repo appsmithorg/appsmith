@@ -1,10 +1,10 @@
 package com.appsmith.server.aspect;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.aspect.component.TestComponent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.services.FeatureFlagService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

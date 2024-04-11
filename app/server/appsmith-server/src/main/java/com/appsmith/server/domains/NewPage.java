@@ -19,7 +19,7 @@ public class NewPage extends BranchAwareDomain implements Context {
     @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Git.class})
     PageDTO unpublishedPage;
 
     @JsonView(Views.Public.class)

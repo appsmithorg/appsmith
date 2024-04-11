@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonPropertyOrder;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.Setter;
@@ -11,6 +12,7 @@ import static com.appsmith.external.helpers.StringUtils.dotted;
 @Setter
 @Getter
 @FieldNameConstants
+@JsonPropertyOrder({"id", "gitSyncId"})
 public abstract class BranchAwareDomain extends BaseDomain {
     // This field will be used to store the default/root resource IDs for branched resources generated for git
     // connected applications and will be used to connect resources across the branches

@@ -28,17 +28,17 @@ public class NewActionCE extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Git.class})
     PluginType pluginType;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Git.class})
     String pluginId;
 
     @JsonView(Views.Public.class)
     Documentation documentation; // Documentation for the template using which this action was created
 
     // Action specific fields that are allowed to change between published and unpublished versions
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Git.class})
     ActionDTO unpublishedAction;
 
     @JsonView(Views.Public.class)

@@ -16,10 +16,10 @@ import org.springframework.data.annotation.Transient;
 @EqualsAndHashCode
 public class ApplicationPage {
 
-    @JsonView({Views.Public.class, Views.Export.class})
+    @JsonView({Views.Public.class, Views.Export.class, Views.Git.class})
     String id;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Views.Git.class})
     Boolean isDefault;
 
     @Transient
