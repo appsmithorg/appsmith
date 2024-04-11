@@ -99,6 +99,9 @@ export class EntityExplorer {
         toastToValidate: toastToValidate,
       });
     }
+    if (entityType === EntityItems.Page) {
+      PageList.HideList();
+    }
   }
 
   public DeleteWidgetFromEntityExplorer(widgetNameinLeftSidebar: string) {

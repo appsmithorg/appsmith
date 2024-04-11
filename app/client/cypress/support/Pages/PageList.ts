@@ -4,7 +4,6 @@ import EditorNavigation, {
   AppSidebarButton,
   EntityType,
 } from "./EditorNavigation";
-import homePageLocators from "../../locators/HomePage";
 
 class PageList {
   private locators = {
@@ -53,13 +52,11 @@ class PageList {
 
   public ClonePage(pageName = "Page1") {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    this.ShowList();
     EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     ObjectsRegistry.EntityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: pageName,
       action: "Clone",
     });
-    this.HideList();
     ObjectsRegistry.AssertHelper.AssertNetworkStatus("@clonePage", 201);
   }
 
