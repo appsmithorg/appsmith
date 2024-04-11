@@ -6,7 +6,7 @@ import com.segment.analytics.messages.TrackMessage;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang.ObjectUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,14 +60,15 @@ public class SegmentConfig {
                 .build();
         logProcessorWithErrorHandler.onError(logData -> {
             final Throwable error = logData.getError();
-            final String message = error == null ? "" : error.getMessage();
+            final String message = ObjectUtils.defaultIfNull(error == null ? null : error.getMessage(), "");
             final Object args = ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList());
-            final String stackTrace = error == null ? "" : ExceptionUtils.getStackTrace(error);
+            final String stackTrace =
+                    ObjectUtils.defaultIfNull(error == null ? null : ExceptionUtils.getStackTrace(error), "");
 
             analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error")
                     .userId("segmentError")
                     .properties(Map.of(
-                            "message", logData.getMessage(),
+                            "message", ObjectUtils.defaultIfNull(logData.getMessage(), ""),
                             "error", message,
                             "args", args,
                             "stackTrace", stackTrace)));

@@ -79,7 +79,7 @@ describe("columnHighlights", () => {
       expect(res[0].height).toEqual(HIGHLIGHT_SIZE);
 
       // highlights should be placed before every widget
-      expect(res[0].posY).toBeLessThan(positions[buttonId].top);
+      expect(res[0].posY).toBe(positions[buttonId].top);
       expect(res[1].posY).toBeLessThan(positions[inputId].top);
       // and at the bottom of the last widget
       expect(res[2].posY).toBeGreaterThanOrEqual(
@@ -135,7 +135,7 @@ describe("columnHighlights", () => {
       // One highlight is discounted on account of child button widget being dragged.
       expect(res.length).toEqual(2);
       // First highlight should be placed before input widget
-      expect(res[0].posY).toBeLessThan(positions[inputId].top);
+      expect(res[0].posY).toBe(positions[inputId].top);
       expect(res[0].rowIndex).toEqual(0);
       // Second highlight should be placed after input widget
       expect(res[1].posY).toBeGreaterThanOrEqual(
@@ -342,9 +342,7 @@ describe("columnHighlights", () => {
       expect(res[1].isVertical).toBeTruthy();
       expect(res[3].isVertical).toBeTruthy();
 
-      expect(res[0].posY).toEqual(
-        dimensions[row1.layoutId].top - HIGHLIGHT_SIZE,
-      );
+      expect(res[0].posY).toEqual(dimensions[row1.layoutId].top);
     });
   });
 });

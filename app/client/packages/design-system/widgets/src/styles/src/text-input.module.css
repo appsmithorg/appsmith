@@ -7,11 +7,10 @@
     gap: var(--inner-spacing-1);
     border-radius: var(--border-radius-elevation-3);
     background-color: var(--color-bg-neutral-subtle);
-    padding-inline: var(--inner-spacing-2);
     flex: 1;
     max-inline-size: 100%;
     isolation: isolate;
-    padding-block: var(--inner-spacing-3);
+    padding-inline: var(--inner-spacing-2);
   }
 
   & [data-field-input] :is(input, textarea) {
@@ -21,16 +20,23 @@
     flex-grow: 1;
     color: var(--color-fg);
     text-overflow: ellipsis;
-    padding: 0;
     max-inline-size: 100%;
-    margin-block-start: var(--body-margin-start);
-    margin-block-end: var(--body-margin-end);
+    width: 100%;
+    box-sizing: content-box;
+    block-size: calc(
+      var(--body-line-height) + var(--body-margin-start) +
+        var(--body-margin-end)
+    );
+    padding-block: var(--inner-spacing-3);
 
     &:autofill,
     &:autofill:hover,
     &:autofill:focus,
     &:autofill:active {
       font-size: initial;
+      /** Removing browser's autofill styles */
+      -webkit-text-fill-color: var(--color-fg);
+      -webkit-box-shadow: 0 0 0 40rem var(--color-bg-neutral-subtle) inset;
     }
 
     &:focus {
@@ -133,17 +139,6 @@
 
   /**
   * ----------------------------------------------------------------------------
-  * ICON BUTTON ( used in password input type )
-  *-----------------------------------------------------------------------------
-  */
-  & [data-field-input] [data-icon-button] {
-    block-size: calc(100% - var(--inner-spacing-1));
-    inline-size: calc(100% - var(--inner-spacing-1));
-    min-inline-size: 100%;
-  }
-
-  /**
-  * ----------------------------------------------------------------------------
   * DISABLED
   *-----------------------------------------------------------------------------
   */
@@ -155,13 +150,19 @@
 
   /**
   * ----------------------------------------------------------------------------
-  * START ICON AND END ICON
+  * PREFIX AND SUFFIX
   *-----------------------------------------------------------------------------
   */
-  & :is([data-field-input-start-icon], [data-field-input-end-icon]) {
-    width: max-content;
+  & :is([data-field-input-prefix], [data-field-input-suffix]) {
+    block-size: 0;
     display: flex;
     align-items: center;
+  }
+
+  &
+    [data-field-input]:has(textarea)
+    :is([data-field-input-prefix], [data-field-input-suffix]) {
+    display: none;
   }
 
   /**
@@ -171,17 +172,5 @@
   */
   &:has(input[data-size="small"]) [data-field-input] {
     padding-block: var(--inner-spacing-2);
-
-    & [data-icon] {
-      inline-size: var(--sizing-5);
-      aspect-ratio: 1;
-    }
-  }
-
-  &:has(input[data-size="medium"]) [data-field-input] {
-    & [data-icon] {
-      inline-size: var(--sizing-7);
-      aspect-ratio: 1;
-    }
   }
 }

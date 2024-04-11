@@ -875,6 +875,20 @@ export const previewModeSelector = (state: AppState) => {
 };
 
 /**
+ * This selector is used to identify if the application is in an edit-only state,
+ * meaning it is in the canvas render mode but not in preview or protected mode.
+ * This is useful for enabling or disabling certain UI elements or functionalities
+ * that are only applicable in this specific mode.
+ */
+export const isEditOnlyModeSelector = createSelector(
+  getRenderMode,
+  previewModeSelector,
+  protectedModeSelector,
+  (renderMode, isPreviewMode, isProtectedMode) =>
+    renderMode === RenderModes.CANVAS && !(isPreviewMode || isProtectedMode),
+);
+
+/**
  * returns the `state.ui.editor.zoomLevel`
  *
  * @param state AppState

@@ -7,7 +7,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.external.git.constants.GitSpans;
+import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
@@ -139,7 +139,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpans.FILE_SYSTEM_COMMIT.getEventName())
+                .name(GitSpan.FS_COMMIT)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -243,7 +243,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpans.FILE_SYSTEM_PUSH.getEventName())
+                .name(GitSpan.FS_PUSH)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -285,7 +285,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return branchName;
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpans.FILE_SYSTEM_CLONE_REPO.getEventName())
+                .name(GitSpan.FS_CLONE_REPO)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -315,7 +315,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpans.FILE_SYSTEM_CREATE_BRANCH.getEventName())
+                .name(GitSpan.FS_CREATE_BRANCH)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -345,7 +345,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpans.FILE_SYSTEM_DELETE_BRANCH.getEventName())
+                .name(GitSpan.FS_DELETE_BRANCH)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -381,7 +381,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .tag(CHECKOUT_REMOTE, FALSE.toString())
-                .name(GitSpans.FILE_SYSTEM_CHECKOUT_BRANCH.getEventName())
+                .name(GitSpan.FS_CHECKOUT_BRANCH)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -443,7 +443,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                         }
                     })
                     .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                    .name(GitSpans.FILE_SYSTEM_PULL.getEventName())
+                    .name(GitSpan.FS_PULL)
                     .tap(Micrometer.observation(observationRegistry))
                     .subscribeOn(scheduler);
         }
@@ -560,7 +560,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .flatMap(response -> response)
-                .name(GitSpans.FILE_SYSTEM_STATUS.getEventName())
+                .name(GitSpan.FS_STATUS)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -682,7 +682,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpans.FILE_SYSTEM_MERGE.getEventName())
+                .name(GitSpan.FS_MERGE)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -727,7 +727,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return Mono.error(error);
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpans.FILE_SYSTEM_FETCH_REMOTE.getEventName())
+                .name(GitSpan.FS_FETCH_REMOTE)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -838,7 +838,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .tag(CHECKOUT_REMOTE, TRUE.toString())
-                .name(GitSpans.FILE_SYSTEM_CHECKOUT_BRANCH.getEventName())
+                .name(GitSpan.FS_CHECKOUT_BRANCH)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -873,7 +873,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .tag(HARD_RESET, Boolean.FALSE.toString())
-                .name(GitSpans.FILE_SYSTEM_RESET.getEventName())
+                .name(GitSpan.FS_RESET)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -909,7 +909,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .tag(HARD_RESET, TRUE.toString())
-                .name(GitSpans.FILE_SYSTEM_RESET.getEventName())
+                .name(GitSpan.FS_RESET)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -940,7 +940,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpans.FILE_SYSTEM_REBASE.getEventName())
+                .name(GitSpan.FS_REBASE)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
@@ -953,7 +953,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                .name(GitSpans.FILE_SYSTEM_BRANCH_TRACK.getEventName())
+                .name(GitSpan.FS_BRANCH_TRACK)
                 .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }

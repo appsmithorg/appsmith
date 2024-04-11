@@ -15,8 +15,8 @@ import { sortBy } from "lodash";
 import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import SeeMoreButton from "./SeeMoreButton";
-import WidgetCard from "./WidgetCard";
 import styled from "styled-components";
+import WidgetCard from "./WidgetCard";
 
 const LoadingWrapper = styled.div`
   display: flex;

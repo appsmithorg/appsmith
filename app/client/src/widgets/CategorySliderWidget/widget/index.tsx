@@ -18,6 +18,7 @@ import { Alignment } from "@blueprintjs/core";
 import { LabelPosition } from "components/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export interface SliderOption {
@@ -59,6 +60,7 @@ class CategorySliderWidget extends BaseWidget<
       needsMeta: true,
       searchTags: ["range"],
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.SLIDERS],
     };
   }
