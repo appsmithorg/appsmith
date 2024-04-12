@@ -16,8 +16,9 @@ import { groupWidgetCardsByTags } from "../utils";
  * @returns Object containing grouped cards and cards.
  */
 export const useUIExplorerItems = () => {
-  const releaseDragDropBuildingBlocks = true;
-  useFeatureFlag(FEATURE_FLAG.release_drag_drop_building_blocks_enabled);
+  const releaseDragDropBuildingBlocks = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
+  );
   const dispatch = useDispatch();
   // check if entities have loaded
   const isBuildingBlocksLoaded = useSelector(templatesCountSelector) > 0;

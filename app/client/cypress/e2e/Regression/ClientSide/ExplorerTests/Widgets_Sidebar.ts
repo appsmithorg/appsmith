@@ -118,6 +118,7 @@ describe(
     });
 
     it("2. All widgets should be present within their tags and these tags should be collapsible", () => {
+      featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       agHelper.GetElement(entityExplorer._widgetTagsList).each(($widgetTag) => {
         // check that tags are collapsible
         cy.wrap($widgetTag).find(locators._adsV2CollapsibleHeader).click({
@@ -208,6 +209,7 @@ describe(
     });
 
     it("4. Widget search should work", () => {
+      featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       agHelper.TypeText(entityExplorer._widgetSearchInput, "text");
       agHelper.AssertElementLength(entityExplorer._widgetCards, 3);
 
