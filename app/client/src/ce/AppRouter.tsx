@@ -63,6 +63,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import CustomWidgetBuilderLoader from "pages/Editor/CustomWidgetBuilder/loader";
 import { getIsConsolidatedPageLoading } from "selectors/ui";
+import { useFeatureFlagOverride } from "utils/hooks/useFeatureFlagOverride";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -149,6 +150,7 @@ export default function AppRouter() {
   const safeCrashCode: ERROR_CODES | undefined = useSelector(getSafeCrashCode);
   const isConsolidatedPageLoading = useSelector(getIsConsolidatedPageLoading);
   const dispatch = useDispatch();
+  useFeatureFlagOverride();
 
   useEffect(() => {
     dispatch(initCurrentPage());
