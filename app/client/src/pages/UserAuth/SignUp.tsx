@@ -59,6 +59,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHTMLPageTitle } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
 import log from "loglevel";
+import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
 
 declare global {
   interface Window {
@@ -196,8 +197,11 @@ export function SignUp(props: SignUpFormProps) {
             <Link
               className="t--visit-docs t--visit-docs-link pl-[var(--ads-v2\-spaces-3)] justify-center"
               kind="primary"
+              onClick={() =>
+                AnalyticsUtil.logEvent("DOCS_LINK_CLICKED_FOR_SELF_HOSTING")
+              }
               target="_self"
-              to={AUTH_LOGIN_URL}
+              to={`${SELF_HOSTING_DOC}?utm_source=cloudSignup`}
             >
               {createMessage(VISIT_OUR_DOCS)}
             </Link>
