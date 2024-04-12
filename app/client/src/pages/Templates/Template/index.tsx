@@ -143,7 +143,12 @@ export function TemplateLayout(props: TemplateLayoutProps) {
         </ImageWrapper>
         <TemplateContent className="template-content">
           <Tooltip content={title} placement="right">
-            <Text className="title" kind="heading-m" renderAs="h1">
+            <Text
+              className="title"
+              data-testid="template-content-title"
+              kind="heading-m"
+              renderAs="h1"
+            >
               {title}
             </Text>
           </Tooltip>
