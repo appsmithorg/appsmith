@@ -140,7 +140,7 @@ public class CommonConfig {
     }
 
     public String getRtsBaseUrl() {
-        return rtsHost + ":" + rtsPort;
+        return rtsHost.endsWith("/") ? rtsHost + rtsPort : rtsHost + "/" + rtsPort;
     }
 
     public boolean isMongoUptoDate() {
