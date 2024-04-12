@@ -187,7 +187,7 @@ public class MigrationHelperMethods {
                 // Determine plugin
                 final String pluginName = newAction.getPluginId();
                 if ("google-sheets-plugin".equals(pluginName)) {
-                    // DatabaseChangelog2.migrateGoogleSheetsToUqi(newAction);
+                    migrateGoogleSheetsToUqi(newAction);
                 }
             });
         }
