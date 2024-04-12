@@ -11,6 +11,7 @@ import com.amazonaws.services.s3.model.S3Object;
 import com.amazonaws.services.s3.model.S3ObjectInputStream;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.util.Base64;
+import com.appsmith.external.constants.DatasourceQueryType;
 import com.appsmith.external.datatypes.ClientDataType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -1534,5 +1535,148 @@ public class AmazonS3PluginTest {
                         List.of(actionConfiguration), mappedColumnsAndTableName, userSelectedBucketName)
                 .block();
         assertEquals(userSelectedBucketName, mappedColumnsAndTableName.get("templateBucket"));
+    }
+
+    @Test
+    public void verify_getQueryType_shouldReturnFetchIfCommandIsList() {
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, COMMAND, "LIST");
+
+        actionConfiguration.setFormData(configMap);
+        Mono<DatasourceQueryType> datasourceQueryTypeMono = pluginExecutor.getQueryType(actionConfiguration);
+
+        StepVerifier.create(datasourceQueryTypeMono)
+                .assertNext(result -> {
+                    assertEquals(DatasourceQueryType.FETCH, result);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void verify_getQueryType_shouldReturnUnknownIfCommandNotDefined() {
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+
+        actionConfiguration.setFormData(configMap);
+        Mono<DatasourceQueryType> datasourceQueryTypeMono = pluginExecutor.getQueryType(actionConfiguration);
+
+        StepVerifier.create(datasourceQueryTypeMono)
+                .assertNext(result -> {
+                    assertEquals(DatasourceQueryType.UNKNOWN, result);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void verify_getQueryType_shouldReturnUnknownIfCommandIsUploadFiles() {
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_FILE_FROM_BODY");
+
+        actionConfiguration.setFormData(configMap);
+        Mono<DatasourceQueryType> datasourceQueryTypeMono = pluginExecutor.getQueryType(actionConfiguration);
+
+        StepVerifier.create(datasourceQueryTypeMono)
+                .assertNext(result -> {
+                    assertEquals(DatasourceQueryType.UNKNOWN, result);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void verify_getQueryType_shouldReturnUnknownIfCommandIsUploadMultipleFiles() {
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, COMMAND, "UPLOAD_MULTIPLE_FILES_FROM_BODY");
+
+        actionConfiguration.setFormData(configMap);
+        Mono<DatasourceQueryType> datasourceQueryTypeMono = pluginExecutor.getQueryType(actionConfiguration);
+
+        StepVerifier.create(datasourceQueryTypeMono)
+                .assertNext(result -> {
+                    assertEquals(DatasourceQueryType.UNKNOWN, result);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void verify_getQueryType_shouldReturnUnknownIfCommandIsReadFile() {
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, COMMAND, "READ_FILE");
+
+        actionConfiguration.setFormData(configMap);
+        Mono<DatasourceQueryType> datasourceQueryTypeMono = pluginExecutor.getQueryType(actionConfiguration);
+
+        StepVerifier.create(datasourceQueryTypeMono)
+                .assertNext(result -> {
+                    assertEquals(DatasourceQueryType.UNKNOWN, result);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void verify_getQueryType_shouldReturnUnknownIfCommandIsDeleteFile() {
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE_FILE");
+
+        actionConfiguration.setFormData(configMap);
+        Mono<DatasourceQueryType> datasourceQueryTypeMono = pluginExecutor.getQueryType(actionConfiguration);
+
+        StepVerifier.create(datasourceQueryTypeMono)
+                .assertNext(result -> {
+                    assertEquals(DatasourceQueryType.UNKNOWN, result);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void verify_getQueryType_shouldReturnUnknownIfCommandIsDeleteMultipleFiles() {
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, COMMAND, "DELETE_MULTIPLE_FILES");
+
+        actionConfiguration.setFormData(configMap);
+        Mono<DatasourceQueryType> datasourceQueryTypeMono = pluginExecutor.getQueryType(actionConfiguration);
+
+        StepVerifier.create(datasourceQueryTypeMono)
+                .assertNext(result -> {
+                    assertEquals(DatasourceQueryType.UNKNOWN, result);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void verify_getQueryType_shouldReturnUnknownIfCommandIsListBuckets() {
+        AmazonS3Plugin.S3PluginExecutor pluginExecutor = new AmazonS3Plugin.S3PluginExecutor();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+
+        Map<String, Object> configMap = new HashMap<>();
+        setDataValueSafelyInFormData(configMap, COMMAND, "LIST_BUCKETS");
+
+        actionConfiguration.setFormData(configMap);
+        Mono<DatasourceQueryType> datasourceQueryTypeMono = pluginExecutor.getQueryType(actionConfiguration);
+
+        StepVerifier.create(datasourceQueryTypeMono)
+                .assertNext(result -> {
+                    assertEquals(DatasourceQueryType.UNKNOWN, result);
+                })
+                .verifyComplete();
     }
 }

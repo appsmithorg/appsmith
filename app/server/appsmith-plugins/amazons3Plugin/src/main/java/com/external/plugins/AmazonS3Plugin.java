@@ -15,6 +15,7 @@ import com.amazonaws.services.s3.model.S3ObjectSummary;
 import com.amazonaws.services.s3.transfer.TransferManager;
 import com.amazonaws.services.s3.transfer.TransferManagerBuilder;
 import com.amazonaws.util.IOUtils;
+import com.appsmith.external.constants.DatasourceQueryType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.dtos.MultipartFormDataDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
@@ -1096,6 +1097,33 @@ public class AmazonS3Plugin extends BasePlugin {
                     (String) ((Map<?, ?>) formData.get(KEY_BUCKET)).get(KEY_DATA), userSelectedBucketName);
 
             return Mono.empty();
+        }
+
+        @Override
+        public Mono<DatasourceQueryType> getQueryType(ActionConfiguration actionConfig) {
+            Map<String, Object> formData = actionConfig.getFormData();
+            DatasourceQueryType queryType = DatasourceQueryType.UNKNOWN;
+            String command = getDataValueSafelyFromFormData(formData, COMMAND, STRING_TYPE);
+
+            if (!StringUtils.isNullOrEmpty(command)) {
+                AmazonS3Action s3Action = AmazonS3Action.valueOf(command);
+                // Switch case added so that this functionality can be extended for
+                // other query types too in future based on command
+                switch (s3Action) {
+                    case LIST:
+                        queryType = DatasourceQueryType.FETCH;
+                        break;
+                    case UPLOAD_FILE_FROM_BODY:
+                    case UPLOAD_MULTIPLE_FILES_FROM_BODY:
+                    case READ_FILE:
+                    case DELETE_FILE:
+                    case DELETE_MULTIPLE_FILES:
+                    case LIST_BUCKETS:
+                    default:
+                        break;
+                }
+            }
+            return Mono.just(queryType);
         }
     }
 }
