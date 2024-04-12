@@ -169,3 +169,29 @@ export const StyledFormGroup = styled(FormGroup)`
     margin-bottom: var(--ads-v2-spaces-2);
   }
 `;
+
+export const OrWithLines = styled.div`
+  overflow: hidden;
+  text-align: center;
+
+  &::before,
+  &::after {
+    background-color: var(--ads-v2-color-border);
+    content: "";
+    display: inline-block;
+    height: 1px;
+    position: relative;
+    vertical-align: middle;
+    width: 50%;
+  }
+
+  &::before {
+    right: 0.5em;
+    margin-left: -50%;
+  }
+
+  &::after {
+    left: 0.5em;
+    margin-right: -50%;
+  }
+`;
