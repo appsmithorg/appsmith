@@ -1,6 +1,7 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 import { getWidgetSelector, WIDGET } from "../../locators/WidgetLocators";
 import { AppSidebar, AppSidebarButton } from "./EditorNavigation";
+import { featureFlagIntercept } from "../Objects/FeatureFlags";
 
 type FixedConversionOptions = "DESKTOP" | "MOBILE";
 
@@ -48,10 +49,10 @@ export class AutoLayout {
 
   public ConvertToAutoLayoutAndVerify(isNotNewApp = true) {
     cy.window().then((win) => {
-      // Access the global function and call it
-      (win as any)?.overrideFeatureFlag({
+      featureFlagIntercept({
         release_layout_conversion_enabled: true,
       });
+
       this.VerifyIsFixedLayout();
 
       this.agHelper.GetNClick(this.autoConvertButton, 0, true);
@@ -75,8 +76,7 @@ export class AutoLayout {
     fixedConversionOption: FixedConversionOptions,
   ) {
     cy.window().then((win) => {
-      // Access the global function and call it
-      (win as any).overrideFeatureFlag({
+      featureFlagIntercept({
         release_layout_conversion_enabled: true,
       });
       this.VerifyIsAutoLayout();

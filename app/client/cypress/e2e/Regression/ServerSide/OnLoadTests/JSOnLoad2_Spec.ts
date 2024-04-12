@@ -3,7 +3,6 @@ import {
   dataSources,
   deployMode,
   entityExplorer,
-  entityItems,
   homePage,
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
@@ -11,7 +10,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
 
-let datasourceName: any, jsName: any;
+let datasourceName: any;
 
 describe(
   "JSObjects OnLoad Actions tests",
@@ -119,8 +118,8 @@ describe(
         },
       );
 
-      jsEditor.EnableDisableAsyncFuncSettings("astros", true, true);
-      jsEditor.EnableDisableAsyncFuncSettings("city", true, true);
+      jsEditor.EnableDisableAsyncFuncSettings("astros", true);
+      jsEditor.EnableDisableAsyncFuncSettings("city", true);
 
       jsEditor.CreateJSObject(
         `export default {
@@ -138,8 +137,8 @@ describe(
         },
       );
 
-      jsEditor.EnableDisableAsyncFuncSettings("cat", true, true);
-      jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true, true);
+      jsEditor.EnableDisableAsyncFuncSettings("cat", true);
+      jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true);
 
       jsEditor.CreateJSObject(
         `export default {
@@ -154,29 +153,18 @@ describe(
           shouldCreateNewJSObj: true,
         },
       );
-      jsEditor.EnableDisableAsyncFuncSettings("film", true, true);
-
-      deployMode.DeployApp();
-      for (let dialog = 1; dialog <= 5; dialog++) {
-        jsEditor.ConfirmationClick("Yes");
-        agHelper.Sleep(500);
-      }
-      deployMode.NavigateBacktoEditor();
-      for (let dialog = 1; dialog <= 5; dialog++) {
-        jsEditor.ConfirmationClick("Yes");
-        agHelper.Sleep(500);
-      }
+      jsEditor.EnableDisableAsyncFuncSettings("film", true);
     });
 
     it("7. Tc #1909 - Verify the sequence of of JS Object on page load", () => {
       EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
-      jsEditor.EnableDisableAsyncFuncSettings("astros", true, false);
-      jsEditor.EnableDisableAsyncFuncSettings("city", true, false);
+      jsEditor.EnableDisableAsyncFuncSettings("astros", true);
+      jsEditor.EnableDisableAsyncFuncSettings("city", true);
       EditorNavigation.SelectEntityByName("JSObject2", EntityType.JSObject);
-      jsEditor.EnableDisableAsyncFuncSettings("cat", true, false);
-      jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true, false);
+      jsEditor.EnableDisableAsyncFuncSettings("cat", true);
+      jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true);
       EditorNavigation.SelectEntityByName("JSObject3", EntityType.JSObject);
-      jsEditor.EnableDisableAsyncFuncSettings("film", true, false);
+      jsEditor.EnableDisableAsyncFuncSettings("film", true);
 
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper.RefreshPage();

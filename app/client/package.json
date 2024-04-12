@@ -146,6 +146,7 @@
     "marked": "^4.0.18",
     "memoize-one": "^6.0.0",
     "micro-memoize": "^4.0.10",
+    "microdiff": "^1.4.0",
     "moment": "2.29.4",
     "moment-timezone": "^0.5.35",
     "nanoid": "^2.0.4",

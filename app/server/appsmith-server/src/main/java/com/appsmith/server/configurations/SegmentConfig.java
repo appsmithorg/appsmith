@@ -6,7 +6,7 @@ import com.segment.analytics.messages.TrackMessage;
 import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.ObjectUtils;
+import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,18 +60,29 @@ public class SegmentConfig {
                 .build();
         logProcessorWithErrorHandler.onError(logData -> {
             final Throwable error = logData.getError();
-            final String message = ObjectUtils.defaultIfNull(error == null ? null : error.getMessage(), "");
-            final Object args = ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList());
-            final String stackTrace =
-                    ObjectUtils.defaultIfNull(error == null ? null : ExceptionUtils.getStackTrace(error), "");
+
+            if (logData.getMessage() == null) {
+                log.error("Message is null for log data: {}", logData);
+                return;
+            }
+
+            if (error == null) {
+                log.error("Error is null for log: {}", logData.getMessage());
+                return;
+            }
+
+            if (error.getMessage() == null) {
+                log.error("Error message is null for log: {}", logData.getMessage());
+                return;
+            }
 
             analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error")
                     .userId("segmentError")
                     .properties(Map.of(
-                            "message", ObjectUtils.defaultIfNull(logData.getMessage(), ""),
-                            "error", message,
-                            "args", args,
-                            "stackTrace", stackTrace)));
+                            "message", logData.getMessage(),
+                            "error", error.getMessage(),
+                            "args", ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList()),
+                            "stackTrace", ExceptionUtils.getStackTrace(error))));
         });
 
         return analytics;

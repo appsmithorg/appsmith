@@ -13,6 +13,7 @@ import type {
   OverriddenFeatureFlags,
 } from "@appsmith/entities/FeatureFlag";
 import { DEFAULT_FEATURE_FLAG_VALUE } from "@appsmith/entities/FeatureFlag";
+import type { OverriddenFeatureFlags } from "utils/hooks/useFeatureFlagOverride";
 
 const initialState: UsersReduxState = {
   loadingStates: {
