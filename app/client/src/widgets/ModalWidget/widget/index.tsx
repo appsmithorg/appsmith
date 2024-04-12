@@ -32,6 +32,7 @@ import type {
 } from "WidgetProvider/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgetBluePrintUpdates } from "utils/WidgetBlueprintUtils";
 import { DynamicHeight } from "utils/WidgetFeatures";
@@ -47,6 +48,7 @@ export class ModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return {
       name: "Modal",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.LAYOUT],
       needsMeta: true,
       isCanvas: true,

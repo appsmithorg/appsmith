@@ -23,6 +23,7 @@ import type {
   PropertyUpdates,
 } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
@@ -32,6 +33,7 @@ class SwitchWidget extends BaseWidget<SwitchWidgetProps, WidgetState> {
     return {
       name: "Switch",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.TOGGLES],
       needsMeta: true,
       searchTags: ["boolean"],

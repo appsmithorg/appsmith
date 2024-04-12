@@ -45,6 +45,7 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getDefaultCurrency } from "../component/CurrencyCodeDropdown";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export function defaultValueValidation(
@@ -158,6 +159,7 @@ class CurrencyInputWidget extends BaseInputWidget<
     return {
       name: "Currency Input",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.INPUTS],
       needsMeta: true,
       searchTags: ["amount", "total"],

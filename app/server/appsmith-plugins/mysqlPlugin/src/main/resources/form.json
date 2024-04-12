@@ -32,6 +32,7 @@
           "configProperty": "datasourceConfiguration.connection.mode",
           "controlType": "SEGMENTED_CONTROL",
           "initialValue": "READ_WRITE",
+          "hidden": true,
           "options": [
             {
               "label": "Read / Write",
