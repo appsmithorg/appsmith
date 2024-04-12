@@ -21,7 +21,7 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import FormTextField from "components/utils/ReduxFormTextField";
 import { FormGroup } from "design-system-old";
-import { Button, Link, Callout } from "design-system";
+import { Button, Link, Callout, Icon } from "design-system";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import type { ForgotPasswordFormValues } from "./helpers";
 import { forgotPasswordSubmitHandler } from "./helpers";
@@ -59,8 +59,9 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
   }, [props.emailValue]);
 
   const footerSection = (
-    <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
-      Back to &nbsp;
+    <div className="px-2 flex items-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+      <Icon name="arrow-left-line" size="md" />
+      &nbsp; Back to &nbsp;
       <Link
         className="text-sm justify-center"
         kind="primary"

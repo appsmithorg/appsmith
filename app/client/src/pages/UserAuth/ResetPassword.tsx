@@ -9,7 +9,7 @@ import { RESET_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getIsTokenValid, getIsValidatingToken } from "selectors/authSelectors";
 import FormTextField from "components/utils/ReduxFormTextField";
-import { Button, Callout, Link } from "design-system";
+import { Button, Callout, Icon, Link } from "design-system";
 import Spinner from "components/editorComponents/Spinner";
 import StyledForm from "components/editorComponents/Form";
 import { isEmptyString, isStrongPassword } from "utils/formhelpers";
@@ -154,8 +154,9 @@ export function ResetPassword(props: ResetPasswordProps) {
   }
 
   const footerSection = (
-    <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
-      Back to &nbsp;
+    <div className="px-2 flex items-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+      <Icon name="arrow-left-line" size="md" />
+      &nbsp; Back to &nbsp;
       <Link
         className="text-sm justify-center"
         kind="primary"

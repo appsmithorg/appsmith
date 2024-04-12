@@ -25,50 +25,43 @@ const ContainerWrapper = styled.div`
   }
 `;
 
-function MainContent(props: ContainerProps) {
-  const { children, footer, subtitle, title } = props;
-  const tenantConfig = useSelector(getTenantConfig);
-  return (
-    <>
-      <img
-        className="h-8 mx-auto"
-        src={getAssetUrl(tenantConfig.brandLogoUrl)}
-      />
-      <div className={`flex flex-col gap-4`}>
-        <div className="flex flex-col gap-2 text-center">
-          <h1 className="text-lg font-semibold text-center text-[color:var(--ads-v2\-color-fg-emphasis)]">
-            {title}
-          </h1>
-          {subtitle && (
-            <p className="text-[14px] text-center text-[color:var(--ads-v2\-color-fg)]">
-              {subtitle}
-            </p>
-          )}
-        </div>
-        {children}
-        {footer}
-      </div>
-    </>
-  );
-}
-
 function Container(props: ContainerProps) {
-  const { testId } = props;
+  const { children, footer, subtitle, testId, title } = props;
+  const tenantConfig = useSelector(getTenantConfig);
   const { cloudHosting } = getAppsmithConfigs();
   const isMobileDevice = useIsMobileDevice();
 
-  return isMobileDevice ? (
-    <MainContent {...props} />
-  ) : (
+  return (
     <ContainerWrapper
       className={`gap-14 my-auto flex items-center justify-center min-w-min`}
       data-testid={testId}
     >
       {cloudHosting && <LeftSideContent />}
       <div
-        className={`bg-white border border-[color:var(--ads-v2-color-border)] px-6 py-8 w-[min(400px,80%)] gap-4 flex flex-col t--login-container rounded-[var(--ads-v2\-border-radius)]`}
+        className={`bg-white border border-[color:var(--ads-v2-color-border)] px-6 py-8 gap-4 flex flex-col t--login-container rounded-[var(--ads-v2-border-radius)] ${
+          isMobileDevice ? "w-full" : "w-[min(400px,80%)]"
+        }`}
       >
-        <MainContent {...props} />
+        {!isMobileDevice && (
+          <img
+            className="h-8 mx-auto"
+            src={getAssetUrl(tenantConfig.brandLogoUrl)}
+          />
+        )}
+        <div className={`flex flex-col gap-4`}>
+          <div className="flex flex-col gap-2 text-center">
+            <h1 className="text-lg font-semibold text-center text-[color:var(--ads-v2\-color-fg-emphasis)]">
+              {title}
+            </h1>
+            {subtitle && (
+              <p className="text-[14px] text-center text-[color:var(--ads-v2\-color-fg)]">
+                {subtitle}
+              </p>
+            )}
+          </div>
+          {children}
+          {footer}
+        </div>
       </div>
     </ContainerWrapper>
   );

@@ -1,6 +1,6 @@
 import React, { useEffect } from "react";
 import Container from "./Container";
-import { Button, Callout, Link, Text } from "design-system";
+import { Button, Callout, Icon, Link, Text } from "design-system";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import {
   createMessage,
@@ -96,8 +96,9 @@ const VerificationError = (
     return (
       <Container
         footer={
-          <div className="px-2 py-4 flex align-center justify-center text-base text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
-            Back to &nbsp;
+          <div className="px-2 py-4 flex items-center justify-center text-base text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+            <Icon name="arrow-left-line" size="md" />
+            &nbsp; Back to &nbsp;
             <Link
               className="text-sm justify-center pl-[var(--ads-v2\-spaces-3)]"
               kind="primary"

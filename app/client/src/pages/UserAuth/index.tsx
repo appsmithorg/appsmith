@@ -16,6 +16,9 @@ import VerifyUser from "./VerifyUser";
 import VerificationError from "./VerificationError";
 import FooterLinks from "./FooterLinks";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { getTenantConfig } from "@appsmith/selectors/tenantSelectors";
+import { getAppsmithConfigs } from "@appsmith/configs";
 
 const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -26,17 +29,23 @@ export function UserAuth() {
     getThemeDetails(state, ThemeMode.LIGHT),
   );
   const isMobileDevice = useIsMobileDevice();
+  const tenantConfig = useSelector(getTenantConfig);
+  const { cloudHosting } = getAppsmithConfigs();
 
   return (
     <ThemeProvider theme={lightTheme}>
       {/* TODO: (Albin) - chnages this to ads-v2 variable once  branding is sorted out. */}
       <div
-        className={`absolute inset-0 flex flex-col overflow-y-auto auth-container ${
-          !isMobileDevice
-            ? "p-4 bg-[color:var(--ads-color-background-secondary)]"
-            : "px-6 py-12 bg-white"
+        className={`absolute inset-0 flex flex-col overflow-y-auto auth-container bg-[color:var(--ads-color-background-secondary)] ${
+          !isMobileDevice ? "p-4" : "px-6 py-12"
         } t--auth-container justify-between`}
       >
+        {isMobileDevice && (
+          <img
+            className="h-8 mx-auto"
+            src={getAssetUrl(tenantConfig.brandLogoUrl)}
+          />
+        )}
         <Switch location={location}>
           <SentryRoute component={Login} exact path={`${path}/login`} />
           <SentryRoute component={SignUp} exact path={`${path}/signup`} />
@@ -63,7 +72,7 @@ export function UserAuth() {
           />
           <SentryRoute component={PageNotFound} />
         </Switch>
-        <FooterLinks />
+        {cloudHosting && <FooterLinks />}
       </div>
     </ThemeProvider>
   );
