@@ -10,6 +10,9 @@ import java.util.List;
 import static com.external.plugins.constants.AnthropicConstants.IMAGE;
 import static com.external.plugins.constants.AnthropicConstants.TEXT;
 
+/**
+ * This DTO is part of request body for Anthropic messages API
+ */
 @Getter
 @Setter
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)

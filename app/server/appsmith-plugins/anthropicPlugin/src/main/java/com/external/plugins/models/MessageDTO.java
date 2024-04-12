@@ -7,6 +7,9 @@ import lombok.Data;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * This DTO is being used as a response body for Anthropic messages API
+ */
 @Data
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class MessageDTO {
