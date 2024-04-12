@@ -82,4 +82,24 @@ describe("FileTabs", () => {
 
     expect(mockNavigateToTab).toHaveBeenCalledWith(mockTabs[0]);
   });
+
+  it("check for close click", () => {
+    featureFlags.release_ide_tabs_revamp_enabled = true;
+    const { getByTestId } = render(
+      <FileTabs
+        navigateToTab={mockNavigateToTab}
+        onClose={mockOnClose}
+        tabs={mockTabs}
+      />,
+      {
+        featureFlags: featureFlags,
+      },
+    );
+    const tabElement = getByTestId(`t--ide-tab-${mockTabs[1].title}`);
+    const closeElement = tabElement.querySelector(
+      "[data-testid='t--tab-close-btn']",
+    ) as HTMLElement;
+    fireEvent.click(closeElement);
+    expect(mockOnClose).toHaveBeenCalledWith(mockTabs[1].key);
+  });
 });
