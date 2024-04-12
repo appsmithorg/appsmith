@@ -90,6 +90,13 @@ describe("Validate Redis DS", { tags: ["@tag.Datasource"] }, () => {
     dataSources.EnterQuery(hGetKeys);
     dataSources.RunQueryNVerifyResponseViews(); //5 keys, 5 values
     dataSources.AssertQueryTableResponse(0, "null");
+    
+    // Delete the query & datasource
+    agHelper.ActionContextMenuWithInPane({
+      action: "Delete",
+      entityType: entityItems.Query,
+    });
+    dataSources.DeleteDatasourceFromWithinDS(dsName);
   });
 
   it("2. Verify the default port for the datasource", function () {
@@ -97,20 +104,5 @@ describe("Validate Redis DS", { tags: ["@tag.Datasource"] }, () => {
     dataSources.CreatePlugIn("Redis");
 
     agHelper.AssertAttribute(dataSources._port, "value", "6379");
-  });
-
-  after("Delete the query & datasource", () => {
-    agHelper.ActionContextMenuWithInPane({
-      action: "Delete",
-      entityType: entityItems.Query,
-    });
-    dataSources.DeleteDatasourceFromWithinDS(dsName);
-    //commenting below since after query delete, we run into risk of not seeing the datasource in EntityExplorer
-    // EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
-    // entityExplorer.ActionContextMenuByEntityName({
-    //   entityNameinLeftSidebar: dsName,
-    //   action: "Delete",
-    //   entityType: entityItems.Datasource,
-    // });
   });
 });

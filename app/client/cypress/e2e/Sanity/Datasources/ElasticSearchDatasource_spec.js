@@ -1,6 +1,6 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
 
-import { dataSources } from "../../../support/Objects/ObjectsCore";
+import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 
 let elasticSearchName;
 

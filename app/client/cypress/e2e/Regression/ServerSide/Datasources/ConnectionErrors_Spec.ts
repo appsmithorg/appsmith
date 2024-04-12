@@ -25,8 +25,8 @@ describe(
         agHelper.RenameWithInPane(dataSourceName, false);
 
         dataSources.TestDatasource(false);
-        agHelper.ValidateToastMessage("Missing endpoint.");
         agHelper.ValidateToastMessage("Missing username for authentication.");
+        agHelper.ValidateToastMessage("Missing hostname.");
         agHelper.ClearTextField(dataSources._databaseName);
         dataSources.TestDatasource(false);
         agHelper.ValidateToastMessage("Missing database name.");
