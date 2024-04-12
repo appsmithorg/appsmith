@@ -33,16 +33,17 @@ public class SerializationUtils {
         objectMapper
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
-                .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
-                .configure(JsonNodeFeature.WRITE_PROPERTIES_SORTED, true)
-                .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
                 .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                 .registerModules(JAVA_TIME_MODULE, HTTP_METHOD_MODULE)
-                .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .enable(SerializationFeature.INDENT_OUTPUT);
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
 
         if (prettyPrinter != null) {
-            objectMapper.setDefaultPrettyPrinter(prettyPrinter);
+            objectMapper
+                    .setDefaultPrettyPrinter(prettyPrinter)
+                    .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
+                    .configure(JsonNodeFeature.WRITE_PROPERTIES_SORTED, true)
+                    .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+                    .enable(SerializationFeature.INDENT_OUTPUT);
         }
 
         return objectMapper;
