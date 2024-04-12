@@ -26,7 +26,6 @@ class PageList {
     cy.get(this.locators.newPageOption)
       .contains(option, { matchCase: false })
       .click({ force: true });
-    this.HideList();
     if (option === "New blank page") {
       ObjectsRegistry.AssertHelper.AssertNetworkStatus("@createPage", 201);
 
@@ -41,13 +40,11 @@ class PageList {
     ObjectsRegistry.AggregateHelper.GetElement(
       this.locators.pageListItem(pageName),
     ).should("have.class", "activePage");
-    this.HideList();
   }
 
   public SelectedPageItem(): Cypress.Chainable {
     this.ShowList();
     return cy.get(".t--entity.page > .active");
-    this.HideList();
   }
 
   public ClonePage(pageName = "Page1") {
@@ -109,7 +106,6 @@ class PageList {
     cy.wait("@deletePage")
       .its("response.body.responseMeta.status")
       .should("eq", 200);
-    this.HideList();
   }
 }
 
