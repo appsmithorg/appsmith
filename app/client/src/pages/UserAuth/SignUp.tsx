@@ -197,9 +197,7 @@ export function SignUp(props: SignUpFormProps) {
             <Link
               className="t--visit-docs t--visit-docs-link pl-[var(--ads-v2\-spaces-3)] justify-center"
               kind="primary"
-              onClick={() =>
-                AnalyticsUtil.logEvent("DOCS_LINK_CLICKED_FOR_SELF_HOSTING")
-              }
+              onClick={() => AnalyticsUtil.logEvent("VISIT_SELF_HOST_DOCS")}
               target="_self"
               to={`${SELF_HOSTING_DOC}?utm_source=cloudSignup`}
             >
