@@ -68,6 +68,7 @@ const FileTabs = (props: Props) => {
           {isTabsRevampEnabled ? (
             <Icon
               className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
+              data-testid="t--tab-close-btn"
               name="close-line"
               onClick={(e) => onCloseClick(e, tab.key)}
             />
