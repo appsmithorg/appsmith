@@ -9,7 +9,6 @@ import {
   deleteAction,
 } from "actions/pluginActionActions";
 
-import { useNewActionName } from "./helpers";
 import {
   CONTEXT_COPY,
   CONTEXT_DELETE,
@@ -40,7 +39,6 @@ interface EntityContextMenuProps {
 
 export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
-  const nextEntityName = useNewActionName();
   const [confirmDelete, setConfirmDelete] = useState(false);
   const { isChangePermitted = false, isDeletePermitted = false } = props;
 
@@ -55,10 +53,10 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
         copyActionRequest({
           id: actionId,
           destinationPageId: pageId,
-          name: nextEntityName(`${actionName}Copy`, pageId),
+          name: actionName,
         }),
       ),
-    [dispatch, nextEntityName],
+    [dispatch],
   );
   const moveActionToPage = useCallback(
     (actionId: string, actionName: string, destinationPageId: string) =>
@@ -67,10 +65,10 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
           id: actionId,
           destinationPageId,
           originalPageId: props.pageId,
-          name: nextEntityName(actionName, destinationPageId),
+          name: actionName,
         }),
       ),
-    [dispatch, nextEntityName, props.pageId],
+    [dispatch, props.pageId],
   );
   const deleteActionFromPage = useCallback(
     (actionId: string, actionName: string) => {
