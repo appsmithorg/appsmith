@@ -46,7 +46,10 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.PressEscape();
 
     //Api 3
-    apiPage.CreateAndFillApi("http://host.docker.internal:8000/a.txt", "SampleText");
+    apiPage.CreateAndFillApi(
+      "http://host.docker.internal:8000/a.txt",
+      "SampleText",
+    );
     agHelper.PressEscape();
 
     //Api 4
