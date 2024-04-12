@@ -560,6 +560,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     actionDTO.getDefaultResources().setActionId(defaults.getActionId());
                     actionDTO.getDefaultResources().setApplicationId(defaults.getApplicationId());
+                    actionDTO.setUpdatedAt(newAction.getUpdatedAt());
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
