@@ -537,7 +537,7 @@ export default {
       actionUiConfig: {
         editor: [
           {
-            label: "Commands",
+            label: "Command",
             description: "Select the method to run",
             configProperty: "actionConfiguration.formData.command",
             controlType: "DROP_DOWN",
@@ -3912,7 +3912,7 @@ export default {
       actionUiConfig: {
         editor: [
           {
-            label: "Commands",
+            label: "Command",
             description: "Select the method to run",
             configProperty: "actionConfiguration.formData.command",
             controlType: "DROP_DOWN",
@@ -4323,7 +4323,7 @@ export default {
       actionUiConfig: {
         editor: [
           {
-            label: "Commands",
+            label: "Command",
             description: "Select the method to run",
             configProperty: "actionConfiguration.formData.command",
             controlType: "DROP_DOWN",
