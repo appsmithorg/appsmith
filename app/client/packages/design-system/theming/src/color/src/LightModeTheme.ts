@@ -115,7 +115,8 @@ export class LightModeTheme implements ColorModeTheme {
 
       bdOnAccent: this.bdOnAccent.to("sRGB").toString(),
       bdOnNeutral: this.bdOnNeutral.to("sRGB").toString(),
-      bdOnNeutralHover: this.bdOnNeutralHover.to("sRGB").toString(),
+      bdOnNeutralSubtle: this.bdOnNeutralSubtle.to("sRGB").toString(),
+      bdOnNeutralSubtleHover: this.bdOnNeutralSubtleHover.to("sRGB").toString(),
       bdOnPositive: this.bdOnPositive.to("sRGB").toString(),
       bdOnNegative: this.bdOnNegative.to("sRGB").toString(),
       bdOnWarning: this.bdOnWarning.to("sRGB").toString(),
@@ -1185,25 +1186,19 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
-  private get bdOnNeutralHover() {
-    // Outline on the input field shown on hover
-    const color = this.bdNeutral.clone();
+  private get bdOnNeutralSubtle() {
+    // Low contrast indicator of interactivity in TextInput and similar
+    const color = this.bgNeutralSubtle.clone();
 
-    if (this.bdNeutral.oklch.l < 0.06) {
-      color.oklch.l += 0.95;
-    }
+    color.oklch.l -= 0.06;
 
-    if (this.bdNeutral.oklch.l >= 0.06 && this.bdNeutral.oklch.l < 0.25) {
-      color.oklch.l += 0.75;
-    }
+    return color;
+  }
 
-    if (this.bdNeutral.oklch.l >= 0.25 && this.bdNeutral.oklch.l < 0.5) {
-      color.oklch.l += 0.5;
-    }
+  private get bdOnNeutralSubtleHover() {
+    const color = this.bdOnNeutralSubtle.clone();
 
-    if (this.bdNeutral.oklch.l >= 0.5) {
-      color.oklch.l += 0.3;
-    }
+    color.oklch.l += 0.03;
 
     return color;
   }

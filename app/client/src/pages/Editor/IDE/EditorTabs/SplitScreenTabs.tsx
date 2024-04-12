@@ -1,5 +1,5 @@
 import React from "react";
-import { ToggleButton } from "design-system";
+import { Flex, Spinner, ToggleButton } from "design-system";
 
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
@@ -15,6 +15,7 @@ import {
   EditorEntityTabState,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
+import { useIsJSAddLoading } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { TabSelectors } from "./constants";
 import { includes } from "lodash";
 import ListButton from "./ListButton";
@@ -28,6 +29,7 @@ const SplitScreenTabs = () => {
   const { segment, segmentMode } = useCurrentEditorState();
   const { addClickHandler, closeClickHandler, tabClickHandler } =
     useIDETabClickHandlers();
+  const isJSLoading = useIsJSAddLoading();
 
   const tabsConfig = TabSelectors[segment];
 
@@ -40,16 +42,25 @@ const SplitScreenTabs = () => {
   if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
 
-  const AddButton = () => (
-    <ToggleButton
-      data-testid="t--ide-split-screen-add-button"
-      icon="add-line"
-      id="tabs-add-toggle"
-      isSelected={segmentMode === EditorEntityTabState.Add}
-      onClick={addClickHandler}
-      size="md"
-    />
-  );
+  const AddButton = () => {
+    if (isJSLoading) {
+      return (
+        <Flex px="spaces-2">
+          <Spinner size="md" />
+        </Flex>
+      );
+    }
+    return (
+      <ToggleButton
+        data-testid="t--ide-split-screen-add-button"
+        icon="add-line"
+        id="tabs-add-toggle"
+        isSelected={segmentMode === EditorEntityTabState.Add}
+        onClick={addClickHandler}
+        size="md"
+      />
+    );
+  };
 
   // TODO: Remove this once release_ide_tabs_revamp_enabled is lifted
   const Content = () => {

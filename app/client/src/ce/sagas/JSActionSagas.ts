@@ -25,6 +25,7 @@ import {
 } from "actions/jsActionActions";
 import {
   getJSCollection,
+  getNewEntityName,
   getPageNameByPageId,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
@@ -72,6 +73,7 @@ import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlags
 import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -140,10 +142,17 @@ export function* copyJSCollectionSaga(
     getJSCollection,
     action.payload.id,
   );
+  const newName: string = yield select(getNewEntityName, {
+    prefix: action.payload.name,
+    parentEntityId: action.payload.destinationPageId,
+    parentEntityKey: CreateNewActionKey.PAGE,
+    suffix: "Copy",
+    startWithoutIndex: true,
+  });
   try {
     if (!actionObject) throw new Error("Could not find js collection to copy");
     const copyJSCollection = Object.assign({}, actionObject, {
-      name: action.payload.name,
+      name: newName,
       pageId: action.payload.destinationPageId,
     }) as Partial<JSCollection>;
     delete copyJSCollection.id;
@@ -186,10 +195,9 @@ export function* copyJSCollectionSaga(
 }
 
 export function* handleMoveOrCopySaga(
-  actionPayload: ReduxAction<{ id: string }>,
+  actionPayload: ReduxAction<JSCollection>,
 ) {
-  const { id } = actionPayload.payload;
-  const { pageId }: JSCollection = yield select(getJSCollection, id);
+  const { id, pageId } = actionPayload.payload;
   history.push(
     jsCollectionIdURL({
       pageId: pageId,
@@ -209,11 +217,17 @@ export function* moveJSCollectionSaga(
     getJSCollection,
     action.payload.id,
   );
+  const newName: string = yield select(getNewEntityName, {
+    prefix: action.payload.name,
+    parentEntityId: action.payload.destinationPageId,
+    parentEntityKey: CreateNewActionKey.PAGE,
+    startWithoutIndex: true,
+  });
   try {
     const response: ApiResponse = yield JSActionAPI.moveJSCollection({
       collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
-      name: action.payload.name,
+      name: newName,
     });
 
     const isValidResponse: boolean = yield validateResponse(response);
