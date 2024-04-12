@@ -21,6 +21,8 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
         implements CustomUserDataRepositoryCE {
 
     @Override
+    @Transactional
+    @Modifying
     public int saveReleaseNotesViewedVersion(String userId, String version) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
