@@ -1,5 +1,21 @@
 import type { AppState } from "@appsmith/reducers";
 import { LayoutComponentTypes, type LayoutProps } from "../utils/anvilTypes";
+import { createSelector } from "reselect";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+
+export const getIsAnvilLayoutEnabled = (state: AppState) => {
+  return selectFeatureFlagCheck(state, FEATURE_FLAG.release_anvil_enabled);
+};
+
+export const getIsAnvilLayout = createSelector(
+  getLayoutSystemType,
+  (layoutSystemType) => {
+    return layoutSystemType === LayoutSystemTypes.ANVIL;
+  },
+);
 
 // ToDo: This is a placeholder implementation this is bound to change
 export function getDropTargetLayoutId(state: AppState, canvasId: string) {
