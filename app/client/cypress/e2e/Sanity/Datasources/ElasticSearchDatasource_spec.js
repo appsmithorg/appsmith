@@ -31,5 +31,12 @@ describe(
 
       dataSources.SaveDSFromDialog(false);
     });
+
+    it("2. Verify the default port for the datasource", function () {
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("Elasticsearch");
+
+      agHelper.AssertAttribute(dataSources._port, "value", "9200");
+    });
   },
 );

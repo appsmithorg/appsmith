@@ -455,6 +455,13 @@ WHERE aircraft_type = 'Passenger Plane'`;
     deployMode.NavigateBacktoEditor();
   });
 
+  it("8. Verify the default port for the datasource", function () {
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("Oracle");
+
+    agHelper.AssertAttribute(dataSources._port, "value", "1521");
+  });
+
   after(
     "Verify Deletion of the Oracle datasource after all created queries are deleted",
     () => {
