@@ -6,6 +6,7 @@ import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -27,26 +28,37 @@ public class SerializationUtils {
         HTTP_METHOD_MODULE = new HttpMethodConverter.HttpMethodModule();
     }
 
-    public static ObjectMapper getDefaultObjectMapper(PrettyPrinter prettyPrinter) {
-        ObjectMapper jsonMapper = new ObjectMapper();
-        jsonMapper
+    public static ObjectMapper getBasicObjectMapper(PrettyPrinter prettyPrinter) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
                 .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
                 .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
                 .configure(JsonNodeFeature.WRITE_PROPERTIES_SORTED, true)
                 .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                 .registerModules(JAVA_TIME_MODULE, HTTP_METHOD_MODULE)
                 .setSerializationInclusion(JsonInclude.Include.NON_NULL)
-                .enable(SerializationFeature.INDENT_OUTPUT)
-                .setDefaultPrettyPrinter(prettyPrinter)
-                .setConfig(jsonMapper.getSerializationConfig().withView(Views.Public.class));
+                .enable(SerializationFeature.INDENT_OUTPUT);
+
+        if (prettyPrinter != null) {
+            objectMapper.setDefaultPrettyPrinter(prettyPrinter);
+        }
+
+        return objectMapper;
+    }
+
+    public static ObjectMapper getDefaultObjectMapper(PrettyPrinter prettyPrinter) {
+        ObjectMapper objectMapper = getBasicObjectMapper(prettyPrinter);
+
         /*
          Setting Views.Public as default view class for the serializer.
          Views.Public.class will be used if a controller has no JsonView annotation present.
          It'll be overridden by the JsonView annotation in the controller.
         */
+        objectMapper.setConfig(objectMapper.getSerializationConfig().withView(Views.Public.class));
 
-        return jsonMapper;
+        return objectMapper;
     }
 
     public static GsonBuilderCustomizer typeAdapterRegistration() {

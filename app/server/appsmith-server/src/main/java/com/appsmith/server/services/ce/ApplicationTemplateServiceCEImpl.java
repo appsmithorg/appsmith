@@ -28,7 +28,6 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
@@ -381,9 +380,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
             // The default mapper is registered with views.public.class and removes few
             // attributes due to this
             // The templates flow has different requirement hence not using the same
-            ObjectMapper ow = new ObjectMapper();
-            ow.registerModule(new JavaTimeModule());
-            ObjectWriter writer = ow.writer().withDefaultPrettyPrinter();
+            ObjectWriter writer = objectMapper.writerWithView(null);
             payload = writer.writeValueAsString(communityTemplate);
         } catch (Exception e) {
             return Mono.error(e);
