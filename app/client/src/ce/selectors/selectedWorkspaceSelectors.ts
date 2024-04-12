@@ -1,36 +1,10 @@
-import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
-import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import memoize from "micro-memoize";
 
 export const getIsFetchingApplications = (state: AppState): boolean =>
   state.ui.selectedWorkspace.loadingStates.isFetchingApplications;
 
-const filterApplicationsBasedOnAnvilCheck = memoize(
-  (applications: ApplicationPayload[], isAnvilEnabled: boolean) => {
-    return applications.filter((application) => {
-      if (isAnvilEnabled) {
-        return (
-          application.applicationDetail?.appPositioning?.type ===
-          LayoutSystemTypes.ANVIL
-        );
-      } else {
-        return (
-          application.applicationDetail?.appPositioning?.type !==
-          LayoutSystemTypes.ANVIL
-        );
-      }
-    });
-  },
-);
-
 export const getApplicationsOfWorkspace = (state: AppState) => {
-  const isAnvilEnabled = getIsAnvilLayoutEnabled(state);
-  return filterApplicationsBasedOnAnvilCheck(
-    state.ui.selectedWorkspace.applications,
-    isAnvilEnabled,
-  );
+  return state.ui.selectedWorkspace.applications;
 };
 
 export const getAllUsersOfWorkspace = (state: AppState) =>

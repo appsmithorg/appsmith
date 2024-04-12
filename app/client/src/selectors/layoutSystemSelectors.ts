@@ -1,4 +1,5 @@
 import type { AppState } from "@appsmith/reducers";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { LayoutSystemTypes } from "layoutSystems/types";
 
@@ -14,10 +15,21 @@ export const getLayoutSystemType = (state: AppState) => {
       ?.type
   ) {
     // Get the layout system type based on the appPositioning type
-    return LayoutSystemTypes[
-      state.ui.applications.currentApplication?.applicationDetail
-        ?.appPositioning?.type
-    ];
+    const layoutSystemType =
+      LayoutSystemTypes[
+        state.ui.applications.currentApplication?.applicationDetail
+          ?.appPositioning?.type
+      ];
+    // If the layout system type is not ANVIL, return it
+    if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+      return layoutSystemType;
+    }
+    // Check if the ANVIL layout system is enabled
+    const isAnvilEnabled = getIsAnvilLayoutEnabled(state);
+    // If ANVIL is enabled, return ANVIL as the layout system type
+    if (isAnvilEnabled) {
+      return LayoutSystemTypes.ANVIL;
+    }
   }
   // If no layout system type is found, return FIXED as the default layout system type
   return LayoutSystemTypes.FIXED;
