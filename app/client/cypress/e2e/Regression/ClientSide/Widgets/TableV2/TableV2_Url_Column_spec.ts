@@ -23,13 +23,13 @@ describe(
       table.AssertURLColumnNavigation(
         0,
         0,
-        "http://localhost:8000/photo-1492529029602-33e53698f407.jpeg",
+        "http://host.docker.internal:8000/photo-1492529029602-33e53698f407.jpeg",
         "v2",
       );
       table.AssertURLColumnNavigation(
         3,
         0,
-        "http://localhost:8000/photo-1503469432756-4aae2e18d881.jpeg",
+        "http://host.docker.internal:8000/photo-1503469432756-4aae2e18d881.jpeg",
         "v2",
       );
     });

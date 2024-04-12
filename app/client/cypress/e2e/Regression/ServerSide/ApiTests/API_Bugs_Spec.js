@@ -46,12 +46,12 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
     agHelper.PressEscape();
 
     //Api 3
-    apiPage.CreateAndFillApi("http://localhost:8000/a.txt", "SampleText");
+    apiPage.CreateAndFillApi("http://host.docker.internal:8000/a.txt", "SampleText");
     agHelper.PressEscape();
 
     //Api 4
     apiPage.CreateAndFillApi(
-      "http://localhost:5001/v1/dynamicrecords/getrecordsArray",
+      "http://host.docker.internal:5001/v1/dynamicrecords/getrecordsArray",
       "dynamicRecords",
     );
     agHelper.PressEscape();
