@@ -23,6 +23,13 @@ const StyledButton = styled(Button)`
 
 type SignInType = "SIGNIN" | "SIGNUP";
 
+const startIcon: {
+  [key: string]: string;
+} = {
+  Google: "google-colored",
+  Github: "github-fill",
+};
+
 function SocialLoginButton(props: {
   logo: string;
   name: string;
@@ -60,7 +67,7 @@ function SocialLoginButton(props: {
       size="md"
       startIcon={
         ["Google", "Github"].includes(props.name)
-          ? props.name.toLowerCase() + `-fill`
+          ? startIcon[props.name]
           : "key-2-line"
       }
     >
