@@ -63,6 +63,9 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
+    @Value("${appsmith.rts.host:http://127.0.0.1}")
+    private String rtsHost;
+
     @Value("${appsmith.rts.port:8091}")
     private String rtsPort;
 
@@ -137,7 +140,7 @@ public class CommonConfig {
     }
 
     public String getRtsBaseUrl() {
-        return "http://127.0.0.1:" + rtsPort;
+        return rtsHost + ":" + rtsPort;
     }
 
     public boolean isMongoUptoDate() {
