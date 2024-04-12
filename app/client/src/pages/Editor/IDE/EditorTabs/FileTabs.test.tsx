@@ -1,5 +1,5 @@
 import React from "react";
-import { render } from "test/testUtils";
+import { fireEvent, render } from "test/testUtils";
 import FileTabs from "./FileTabs";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import { PluginType } from "entities/Action";
@@ -63,5 +63,23 @@ describe("FileTabs", () => {
 
       expect(queryByTestId("t--tab-close-btn")).toBeFalsy();
     });
+  });
+
+  it("check tab click", () => {
+    featureFlags.release_ide_tabs_revamp_enabled = false;
+    const { getByTestId } = render(
+      <FileTabs
+        navigateToTab={mockNavigateToTab}
+        onClose={mockOnClose}
+        tabs={mockTabs}
+      />,
+      {
+        featureFlags: featureFlags,
+      },
+    );
+    const tabElement = getByTestId(`t--ide-tab-${mockTabs[0].title}`);
+    fireEvent.click(tabElement);
+
+    expect(mockNavigateToTab).toHaveBeenCalledWith(mockTabs[0]);
   });
 });
