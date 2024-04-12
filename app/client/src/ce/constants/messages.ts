@@ -624,6 +624,12 @@ export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
 
+export const REMOVE_CONFIRM_BEFORE_CALLING_HEADING = () =>
+  `Remove 'Confirm before calling' `;
+export const REMOVE_CONFIRM_BEFORE_CALLING_DESCRIPTION =
+  () => `By turning off this setting, you won't be able to undo or turn on this setting again,
+as it has been deprecated. Are you sure you want to proceed?`;
+
 // Import/Export Application features
 export const ERROR_IMPORTING_APPLICATION_TO_WORKSPACE = () =>
   "Error importing application. No workspace found";
