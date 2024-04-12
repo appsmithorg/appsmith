@@ -306,6 +306,34 @@ describe("GitChangesList", () => {
     expect(queryByTestId("t--status-change-THEME")).not.toBeInTheDocument();
   });
 
+  it("should render Theme and Settings related changes", () => {
+    const store = getMockStore({
+      gitStatus: {
+        modified: ["theme.json", "application.json"],
+      },
+    });
+
+    const { getByTestId, queryByTestId } = render(
+      <Provider store={store}>
+        <GitChangesList />
+      </Provider>,
+    );
+    expect(
+      queryByTestId("t--status-change-DATASOURCES"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-JSLIBS")).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_AHEAD"),
+    ).not.toBeInTheDocument();
+    expect(
+      queryByTestId("t--status-change-REMOTE_BEHIND"),
+    ).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-PACKAGES")).not.toBeInTheDocument();
+    expect(queryByTestId("t--status-change-MODULES")).not.toBeInTheDocument();
+    expect(getByTestId("t--status-change-SETTINGS")).toBeInTheDocument();
+    expect(getByTestId("t--status-change-THEME")).toBeInTheDocument();
+  });
+
   it("should render Package related changes", () => {
     const store = getMockStore({
       gitStatus: {

@@ -537,12 +537,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                         response.setAdded(added);
                         response.setRemoved(removed);
 
-                        populatePageChanges(response);
-                        populateQueryChanges(response);
-                        populateJsObjectChanges(response);
-                        populateDatasourceChanges(response);
-                        populateJsLibsChanges(response);
-                        legacyPopulateJsLibMigrationMessage(response);
+                        populateModifiedEntities(response);
 
                         // conflicts changes
                         response.setConflicting(status.getConflicting());
@@ -583,13 +578,25 @@ public class GitExecutorCEImpl implements GitExecutor {
                 .subscribeOn(scheduler);
     }
 
-    protected void populatePageChanges(GitStatusDTO response) {
-        Predicate<String> isPageModified = x -> x.startsWith(GitDirectories.PAGE_DIRECTORY)
+    protected void populateModifiedEntities(GitStatusDTO response) {
+        populatePageChanges(response);
+        populateQueryChanges(response);
+        populateJsObjectChanges(response);
+        populateDatasourceChanges(response);
+        populateJsLibsChanges(response);
+        legacyPopulateJsLibMigrationMessage(response);
+    }
+
+    protected boolean isAModifiedPage(String x) {
+        return x.startsWith(GitDirectories.PAGE_DIRECTORY)
                 && !x.contains(GitDirectories.ACTION_DIRECTORY)
                 && !x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY);
+    }
+
+    protected void populatePageChanges(GitStatusDTO response) {
 
         Predicate<String> isPageAddedOrRemoved = x -> {
-            if (isPageModified.test(x)) {
+            if (isAModifiedPage(x)) {
                 String[] pageNameArray = x.split(CommonConstants.DELIMITER_PATH);
                 String folderName = pageNameArray[1];
                 String fileName =
@@ -612,7 +619,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         Set<String> pagesModified = Stream.concat(
                         response.getModified().stream(),
                         Stream.concat(response.getAdded().stream(), response.getRemoved().stream()))
-                .filter(isPageModified)
+                .filter(this::isAModifiedPage)
                 .map(getName)
                 .filter(x -> !pagesAdded.contains(x))
                 .filter(x -> !pagesRemoved.contains(x))
