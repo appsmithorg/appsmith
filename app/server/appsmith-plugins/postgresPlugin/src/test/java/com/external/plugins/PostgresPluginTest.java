@@ -19,14 +19,15 @@ import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.SharedConfig;
+import com.appsmith.util.SerializationUtils;
 import com.external.plugins.exceptions.PostgresErrorMessages;
 import com.external.plugins.exceptions.PostgresPluginError;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.zaxxer.hikari.HikariDataSource;
-import org.junit.jupiter.api.Assertions;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.testcontainers.containers.PostgreSQLContainer;
@@ -305,7 +306,9 @@ public class PostgresPluginTest {
         Mono<HikariDataSource> dsConnectionMono = pluginExecutor.datasourceCreate(dsConfig);
 
         StepVerifier.create(dsConnectionMono)
-                .assertNext(Assertions::assertNotNull)
+                .assertNext(value -> {
+                    Assertions.assertThat(value).isNotNull();
+                })
                 .verifyComplete();
     }
 
@@ -382,7 +385,7 @@ public class PostgresPluginTest {
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
                             new String[] {"user_id"},
-                            new ObjectMapper()
+                            SerializationUtils.getBasicObjectMapper(null)
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -448,7 +451,7 @@ public class PostgresPluginTest {
                     assertEquals(
                             "1 years 5 mons 0 days 2 hours 0 mins 0.0 secs",
                             node.get("interval1").asText());
-                    assertTrue(node.get("spouse_dob").isNull());
+                    Assertions.assertThat(node.get("spouse_dob")).isEqualTo(NullNode.getInstance());
 
                     // Check the order of the columns.
                     assertArrayEquals(
@@ -468,7 +471,7 @@ public class PostgresPluginTest {
                                 "texts",
                                 "rating"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getBasicObjectMapper(null)
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -776,7 +779,7 @@ public class PostgresPluginTest {
                                 "texts",
                                 "rating"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getBasicObjectMapper(null)
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -853,7 +856,7 @@ public class PostgresPluginTest {
                                 "texts",
                                 "rating"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getBasicObjectMapper(null)
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -942,7 +945,7 @@ public class PostgresPluginTest {
                                 "texts",
                                 "rating"
                             },
-                            new ObjectMapper()
+                            SerializationUtils.getBasicObjectMapper(null)
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -1616,7 +1619,7 @@ public class PostgresPluginTest {
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
                             new String[] {"numeric_string"},
-                            new ObjectMapper()
+                            SerializationUtils.getBasicObjectMapper(null)
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
