@@ -81,7 +81,7 @@ describe(
         agHelper.RenameWithInPane(dataSourceName, false);
 
         dataSources.TestDatasource(false);
-        agHelper.ValidateToastMessage("Missing endpoint and url");
+        agHelper.ValidateToastMessage("Host value cannot be empty");
         agHelper.ValidateToastMessage("Missing username for authentication.");
         agHelper.ValidateToastMessage("Missing password for authentication.");
         agHelper.ClearTextField(dataSources._databaseName);
@@ -135,7 +135,7 @@ describe(
         agHelper.RenameWithInPane(dataSourceName, false);
 
         dataSources.TestDatasource(false);
-        agHelper.ValidateToastMessage("Missing endpoint(s)");
+        agHelper.ValidateToastMessage("Connection timed out. Please check if the datasource configuration fields have been filled correctly.");
         dataSources.ValidateNSelectDropdown(
           "Use mongo connection string URI",
           "No",
