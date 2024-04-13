@@ -35,6 +35,12 @@ public class WorkspaceControllerCE {
     private final UserWorkspaceService userWorkspaceService;
 
     @JsonView(Views.Public.class)
+    @GetMapping("/{id}")
+    public Mono<ResponseDTO<Workspace>> getByIdAndBranchName(@PathVariable String id) {
+        return service.getById(id).map(workspace -> new ResponseDTO<>(HttpStatus.OK.value(), workspace, null));
+    }
+
+    @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Workspace>> create(@Valid @RequestBody Workspace resource) {
