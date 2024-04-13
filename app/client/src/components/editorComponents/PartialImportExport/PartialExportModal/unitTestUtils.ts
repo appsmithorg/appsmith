@@ -12751,7 +12751,6 @@ export const defaultAppState = {
           release_appnavigationlogoupload_enabled: false,
           release_embed_hide_share_settings_enabled: false,
           ab_gsheet_schema_enabled: true,
-          ab_wds_enabled: false,
           release_table_serverside_filtering_enabled: false,
           release_custom_echarts_enabled: false,
           license_branding_enabled: false,
