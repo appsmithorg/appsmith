@@ -1,6 +1,5 @@
 package com.appsmith.server.repositories.ce;
 
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
@@ -25,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.StringUtils.dotted;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
@@ -76,7 +76,7 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
             q.isNull(NewPage.Fields.unpublishedPage_deletedAt);
         }
 
-        q.equal(layoutsKey + "." + Layout.Fields.id, layoutId);
+        q.equal(dotted(layoutsKey, Layout.Fields.id), layoutId);
 
         return queryBuilder().criteria(q).permission(aclPermission).one();
     }
@@ -153,17 +153,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Mono<NewPage> findPageByBranchNameAndDefaultPageId(
             String branchName, String defaultPageId, AclPermission permission) {
-        final String defaultResources = NewPage.Fields.defaultResources;
 
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
-                Bridge.<NewPage>equal(defaultResources + "." + FieldName.PAGE_ID, defaultPageId);
+                Bridge.equal(NewPage.Fields.defaultResources_pageId, defaultPageId);
 
         if (branchName != null) {
             // branchCriteria
-            q.equal(defaultResources + "." + FieldName.BRANCH_NAME, branchName);
+            q.equal(NewPage.Fields.defaultResources_branchName, branchName);
         } else {
-            q.isNull(defaultResources + "." + FieldName.BRANCH_NAME);
+            q.isNull(NewPage.Fields.defaultResources_branchName);
         }
 
         return queryBuilder().criteria(q).permission(permission).one();
@@ -192,11 +191,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Mono<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
 
         // defaultAppIdCriteria
         final BridgeQuery<NewPage> q =
-                Bridge.equal(defaultResources + "." + NewPage.Fields.applicationId, defaultApplicationId);
+                Bridge.equal(NewPage.Fields.defaultResources_applicationId, defaultApplicationId);
 
         if (gitSyncId != null) {
             // gitSyncIdCriteria

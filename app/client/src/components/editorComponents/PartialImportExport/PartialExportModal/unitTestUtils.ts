@@ -3361,7 +3361,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -6803,7 +6803,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -7214,7 +7214,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -9183,7 +9183,7 @@ export const defaultAppState = {
             identifier: "SELECTOR",
             children: [
               {
-                label: "Commands",
+                label: "Command",
                 description:
                   "Choose method you would like to use to query the database",
                 configProperty: "actionConfiguration.formData.command.data",
@@ -12751,7 +12751,6 @@ export const defaultAppState = {
           release_appnavigationlogoupload_enabled: false,
           release_embed_hide_share_settings_enabled: false,
           ab_gsheet_schema_enabled: true,
-          ab_wds_enabled: false,
           release_table_serverside_filtering_enabled: false,
           release_custom_echarts_enabled: false,
           license_branding_enabled: false,

@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { ToggleButton } from "design-system";
+import { Flex, Spinner, ToggleButton } from "design-system";
 
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
@@ -16,7 +16,10 @@ import {
   EditorEntityTabState,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+import {
+  useIsJSAddLoading,
+  useJSAdd,
+} from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import { TabSelectors } from "./constants";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
@@ -24,6 +27,7 @@ import history, { NavigationMethod } from "utils/history";
 import { includes } from "lodash";
 import ListButton from "./ListButton";
 import { Announcement } from "../EditorPane/components/Announcement";
+import { SearchableFilesList } from "./SearchableFilesList";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
@@ -32,6 +36,7 @@ const SplitScreenTabs = () => {
   const { segment, segmentMode } = useCurrentEditorState();
 
   const onJSAddClick = useJSAdd();
+  const isJSLoading = useIsJSAddLoading();
   const onQueryAddClick = useQueryAdd();
   const onAddClick = useCallback(() => {
     if (segment === EditorEntityTab.JS) onJSAddClick();
@@ -71,14 +76,41 @@ const SplitScreenTabs = () => {
     />
   );
 
+  // TODO: Remove this once release_ide_tabs_revamp_enabled is lifted
+  const Content = () => {
+    if (isTabsRevampEnabled) {
+      return (
+        <>
+          <SearchableFilesList
+            allItems={allFilesList}
+            navigateToTab={onClick}
+            openTabs={files}
+          />
+          <FileTabs navigateToTab={onClick} tabs={files} />
+          <AddButton />
+        </>
+      );
+    }
+    return (
+      <>
+        {isJSLoading ? (
+          <Flex px="spaces-2">
+            <Spinner size="md" />
+          </Flex>
+        ) : (
+          <AddButton />
+        )}
+        <FileTabs navigateToTab={onClick} tabs={files} />
+        <ListButton items={overflowList} navigateToTab={onClick} />
+      </>
+    );
+  };
+
   return (
     <>
       {files.length > 0 ? (
         <Container>
-          {!isTabsRevampEnabled ? <AddButton /> : null}
-          <FileTabs navigateToTab={onClick} tabs={files} />
-          {isTabsRevampEnabled ? <AddButton /> : null}
-          <ListButton items={overflowList} navigateToTab={onClick} />
+          <Content />
         </Container>
       ) : null}
       <Announcement />
