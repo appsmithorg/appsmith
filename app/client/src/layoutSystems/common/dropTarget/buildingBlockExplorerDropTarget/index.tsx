@@ -3,10 +3,13 @@ import { Text } from "design-system";
 import React from "react";
 import styled from "styled-components";
 
+const DROP_TARGET_CONTAINER_TOP_MARGIN = 20;
+const DROP_TARGET_CONTAINER_LEFT_MARGIN = 50;
+const DROP_TARGET_CONTAINER_PADDING = 16;
+
 export const DropTargetContainer = styled.div`
   position: absolute;
-  top: 20px;
-  left: 10px;
+  top: ${DROP_TARGET_CONTAINER_TOP_MARGIN}px;
   display: flex;
   flex-direction: column;
   height: 100vh;
@@ -18,8 +21,8 @@ const MainContainer = styled.div`
   flex-direction: column;
   align-items: flex-start;
   justify-content: center;
-  padding: 16px 16px;
-  margin-left: 50px;
+  padding: ${DROP_TARGET_CONTAINER_PADDING}px;
+  margin-left: ${DROP_TARGET_CONTAINER_LEFT_MARGIN}px;
 `;
 
 const TextContainer = styled.div`

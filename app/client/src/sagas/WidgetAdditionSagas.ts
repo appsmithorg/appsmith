@@ -530,7 +530,6 @@ export function* addBuildingBlockToApplication(
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentPageId: string = yield select(getCurrentPageId);
     const workspaceId: string = yield select(getCurrentWorkspaceId);
-    const allWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
     const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
     const canvasWidgets: CanvasWidgetsReduxState =
       yield select(getCanvasWidgets);
@@ -577,7 +576,7 @@ export function* addBuildingBlockToApplication(
               layoutSystemType === LayoutSystemTypes.ANVIL
             ) {
               widgetPositionInfo = getWidgetLayoutMetaInfo(
-                allWidgets[widget?.parentId]?.layout[0] ?? null,
+                canvasWidgets[widget?.parentId]?.layout[0] ?? null,
                 widget.widgetId,
               );
             }

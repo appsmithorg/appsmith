@@ -108,7 +108,6 @@ interface NewWidgetBlock {
   detachFromLayout: boolean;
   isDynamicHeight: boolean;
   type: WidgetType;
-  widgetName?: string;
 }
 
 /**
@@ -466,6 +465,7 @@ export const modifyBlockDimension = (
   parentBottomRow: number,
   canExtend: boolean,
   modifyBlock: boolean,
+  // this allows dynamic resize limit for building blocks
   horizontalMinResizeLimit: number = HORIZONTAL_RESIZE_MIN_LIMIT,
   verticalMinResizeLimit: number = VERTICAL_RESIZE_MIN_LIMIT,
 ) => {

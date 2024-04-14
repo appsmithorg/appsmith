@@ -74,50 +74,46 @@ const StyledDropTarget = styled.div`
 
 function Onboarding() {
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
-  const draggingBuildingBlockToCanvas = useSelector(
-    isDraggingBuildingBlockToCanvas,
-  );
+  const isDraggingBuildingBlock = useSelector(isDraggingBuildingBlockToCanvas);
   const appState = useCurrentAppState();
   const isAirgappedInstance = isAirgapped();
 
-  const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
+  const showStarterTemplatesInsteadOfBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
   );
-  const releaseDragDropBuildingBlocks = useFeatureFlag(
+  const releaseDragDropBuildingBlocksEnabled = useFeatureFlag(
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
 
   const shouldShowStarterTemplates = useMemo(
     () =>
-      showStarterTemplatesInsteadofBlankCanvas &&
+      showStarterTemplatesInsteadOfBlankCanvas &&
       !isMobileCanvas &&
       !isAirgappedInstance &&
-      // This is to hide starter building blocks once building blocks are available in the explorer
-      !releaseDragDropBuildingBlocks,
+      !releaseDragDropBuildingBlocksEnabled, // Hide starter templates when drag-drop building blocks are available
     [
-      showStarterTemplatesInsteadofBlankCanvas,
+      showStarterTemplatesInsteadOfBlankCanvas,
       isMobileCanvas,
       isAirgappedInstance,
-      releaseDragDropBuildingBlocks,
+      releaseDragDropBuildingBlocksEnabled,
     ],
   );
 
   const shouldShowBuildingBlocksDropTarget = useMemo(
-    () => releaseDragDropBuildingBlocks && !draggingBuildingBlockToCanvas,
-    [releaseDragDropBuildingBlocks, draggingBuildingBlockToCanvas],
+    () => releaseDragDropBuildingBlocksEnabled && !isDraggingBuildingBlock,
+    [releaseDragDropBuildingBlocksEnabled, isDraggingBuildingBlock],
   );
 
-  if (shouldShowStarterTemplates && appState === IDEAppState.EDITOR) {
+  const isEditorState = appState === IDEAppState.EDITOR;
+
+  if (shouldShowStarterTemplates && isEditorState) {
     return <StarterBuildingBlocks />;
-  } else if (
-    shouldShowBuildingBlocksDropTarget &&
-    appState === IDEAppState.EDITOR
-  ) {
+  } else if (shouldShowBuildingBlocksDropTarget && isEditorState) {
     return <BuildingBlockExplorerDropTarget />;
   } else if (
     !shouldShowBuildingBlocksDropTarget &&
     !shouldShowStarterTemplates &&
-    !draggingBuildingBlockToCanvas
+    !isDraggingBuildingBlock
   ) {
     return (
       <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
