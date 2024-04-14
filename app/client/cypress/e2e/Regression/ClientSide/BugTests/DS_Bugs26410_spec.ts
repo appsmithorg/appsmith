@@ -12,19 +12,19 @@ describe(
       dataSources.CreateDataSource("Mongo", false, false);
       dataSources.CreateQueryAfterDSSaved("", "MongoQuery");
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "Find document(s)",
         "Insert document(s)",
       );
       dataSources.NavigateToDSCreateNew();
       dataSources.CreateDataSource("Twilio", false, false);
       dataSources.CreateQueryAfterDSSaved("", "TwilioQuery");
-      dataSources.ValidateNSelectDropdown("Commands", "", "Schedule message");
+      dataSources.ValidateNSelectDropdown("Command", "", "Schedule message");
       EditorNavigation.SelectEntityByName("MongoQuery", EntityType.Query);
-      dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Insert document(s)");
 
       EditorNavigation.SelectEntityByName("TwilioQuery", EntityType.Query);
-      dataSources.ValidateNSelectDropdown("Commands", "Schedule message");
+      dataSources.ValidateNSelectDropdown("Command", "Schedule message");
     });
   },
 );

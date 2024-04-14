@@ -31,7 +31,7 @@ describe(
         // Create S3 DS
         dataSources.CreateDataSource("S3");
         dataSources.CreateQueryAfterDSSaved();
-        dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
+        dataSources.ValidateNSelectDropdown("Command", "List files in bucket");
         agHelper.EnterValue("assets-test.appsmith.com", {
           propFieldName: "",
           directInput: false,
