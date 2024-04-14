@@ -1,5 +1,5 @@
 import React, { useCallback } from "react";
-import { ToggleButton } from "design-system";
+import { Flex, Spinner, ToggleButton } from "design-system";
 
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
@@ -16,7 +16,10 @@ import {
   EditorEntityTabState,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+import {
+  useIsJSAddLoading,
+  useJSAdd,
+} from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import { TabSelectors } from "./constants";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
@@ -33,6 +36,7 @@ const SplitScreenTabs = () => {
   const { segment, segmentMode } = useCurrentEditorState();
 
   const onJSAddClick = useJSAdd();
+  const isJSLoading = useIsJSAddLoading();
   const onQueryAddClick = useQueryAdd();
   const onAddClick = useCallback(() => {
     if (segment === EditorEntityTab.JS) onJSAddClick();
@@ -89,7 +93,13 @@ const SplitScreenTabs = () => {
     }
     return (
       <>
-        <AddButton />
+        {isJSLoading ? (
+          <Flex px="spaces-2">
+            <Spinner size="md" />
+          </Flex>
+        ) : (
+          <AddButton />
+        )}
         <FileTabs navigateToTab={onClick} tabs={files} />
         <ListButton items={overflowList} navigateToTab={onClick} />
       </>
