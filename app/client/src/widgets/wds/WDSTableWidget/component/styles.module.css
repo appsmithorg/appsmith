@@ -128,14 +128,12 @@
   }
 
   & thead [role="columnheader"][data-sticky-last-left-td]:not([aria-hidden]) {
-    /*important is added below because the useSticky hooks adds left as inline css */
-    left: 0px !important;
+    left: 0px;
     border-right: 3px solid var(--color-bd);
   }
 
   & thead [role="columnheader"][data-sticky-first-right-td]:not([aria-hidden]) {
-    /*important is added below because the useSticky hooks adds left as inline css */
-    right: 0px !important;
+    right: 0px;
     border-left: 3px solid var(--color-bd);
   }
 
@@ -187,14 +185,12 @@
   }
 
   & [role="cell"][data-sticky-last-left-td]:not([aria-hidden]) {
-    /*important is added below because the useSticky hooks adds left as inline css */
-    left: 0px !important;
+    left: 0px;
     border-right: 3px solid var(--color-bd);
   }
 
   & [role="cell"][data-sticky-first-right-td]:not([aria-hidden]) {
-    /*important is below here because the useSticky hooks adds left as inline css */
-    right: 0px !important;
+    right: 0px;
     border-left: 3px solid var(--color-bd);
   }
 
