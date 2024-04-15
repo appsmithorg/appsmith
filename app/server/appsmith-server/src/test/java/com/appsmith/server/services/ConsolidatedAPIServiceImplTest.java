@@ -565,6 +565,18 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getPagesWithMigratedDsl());
+                    assertNotNull(consolidatedAPIResponseDTO.getUnpublishedActions());
+                    assertEquals(
+                            1,
+                            consolidatedAPIResponseDTO
+                                    .getUnpublishedActions()
+                                    .getData()
+                                    .size());
+                    assertNotNull(consolidatedAPIResponseDTO
+                            .getUnpublishedActions()
+                            .getData()
+                            .get(0)
+                            .getUpdatedAt());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO
