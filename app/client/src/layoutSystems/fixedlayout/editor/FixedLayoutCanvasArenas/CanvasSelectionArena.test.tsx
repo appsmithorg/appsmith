@@ -1,5 +1,4 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import Canvas from "pages/Editor/Canvas";
 import GlobalHotKeys from "pages/Editor/GlobalHotKeys";
 import React from "react";
 import { MemoryRouter } from "react-router-dom";
@@ -24,6 +23,7 @@ import { generateReactKey } from "utils/generators";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import Canvas from "pages/Editor/Canvas";
 
 describe("Canvas selection test cases", () => {
   jest

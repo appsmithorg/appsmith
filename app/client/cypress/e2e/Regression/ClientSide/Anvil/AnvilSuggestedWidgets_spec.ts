@@ -11,7 +11,6 @@ describe(
       // intercept features call for Anvil + WDS tests
       featureFlagIntercept({
         release_anvil_enabled: true,
-        ab_wds_enabled: true,
       });
     });
     it("1. Suggested wds widgets for anvil layout", () => {

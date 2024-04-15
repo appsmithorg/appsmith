@@ -19,8 +19,7 @@ import {
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { NAVIGATION_SETTINGS } from "constants/AppConstants";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 /**
  * NavigationAdjustedPageViewer
@@ -46,8 +45,8 @@ export const NavigationAdjustedPageViewer = (props: {
   const isMobile = useIsMobileDevice();
   const isPreviewingNavigation =
     isPreview || isAppSettingsPaneWithNavigationTabOpen;
-  const layoutSystemType: LayoutSystemTypes = useSelector(getLayoutSystemType);
-  const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
+
   return (
     <PageViewWrapper
       className={classNames({
