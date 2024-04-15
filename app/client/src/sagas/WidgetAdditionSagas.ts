@@ -10,7 +10,10 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
-import { getCanvasWidgets } from "@appsmith/selectors/entitiesSelector";
+import {
+  getActions,
+  getCanvasWidgets,
+} from "@appsmith/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { flattenDSL } from "@shared/dsl";
 import type { WidgetBlueprint } from "WidgetProvider/constants";
@@ -92,6 +95,7 @@ import {
 } from "./selectors";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -402,7 +406,13 @@ export function* getUpdateDslAfterCreatingChild(
  *
  * @param addChildAction
  */
-export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
+export function* addChildSaga(
+  addChildAction: ReduxAction<
+    WidgetAddChild & {
+      shouldReplay?: boolean;
+    }
+  >,
+) {
   try {
     const start = performance.now();
     toast.dismiss();
@@ -423,7 +433,11 @@ export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
-    yield put(updateAndSaveLayout(updatedWidgets));
+    yield put(
+      updateAndSaveLayout(updatedWidgets, {
+        shouldReplay: addChildAction.payload.shouldReplay,
+      }),
+    );
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [addChildAction.payload.newWidgetId],
@@ -529,6 +543,8 @@ export function* addBuildingBlockToApplication(
     const buildingBlocks: Template[] = yield select(getTemplatesSelector);
     const applicationId: string = yield select(getCurrentApplicationId);
     const currentPageId: string = yield select(getCurrentPageId);
+    const actionsBeforeAddingBuildingBlock: ActionDataState =
+      yield select(getActions);
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
     const canvasWidgets: CanvasWidgetsReduxState =
@@ -644,14 +660,29 @@ export function* addBuildingBlockToApplication(
         type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_SUCCESS,
       });
 
-      // run all actions in the building block, if any, to populate the page with data
-      if (
-        response.data.onPageLoadActions &&
-        response.data.onPageLoadActions.length > 0
-      ) {
+      const actionsAfterAddingBuildingBlocks: ActionDataState =
+        yield select(getActions);
+
+      // Extract unique ids from the actionsBeforeAddingBuildingBlocks array
+      const actionIdsBeforeAddingBB = actionsBeforeAddingBuildingBlock.map(
+        (obj) => obj.config.id,
+      );
+
+      // Filter the after array to find new actions not present in actionsBeforeAddingBuildingBlocks array
+      const newlyAddedActions = actionsAfterAddingBuildingBlocks.filter(
+        (obj) => !actionIdsBeforeAddingBB.includes(obj.config.id),
+      );
+
+      const actionsToRun =
+        actionsBeforeAddingBuildingBlock.length === 1
+          ? actionsBeforeAddingBuildingBlock
+          : newlyAddedActions;
+
+      // run all newly created actions
+      if (actionsToRun && actionsToRun.length > 0) {
         yield all(
-          response.data.onPageLoadActions.map(function* (action) {
-            yield put(runAction(action.id));
+          actionsToRun.map(function* (action) {
+            yield put(runAction(action.config.id));
           }),
         );
       }
@@ -682,13 +713,17 @@ function* addBuildingBlockSaga(addEntityAction: ReduxAction<WidgetAddChild>) {
   const skeletonWidgetName = `loading_${buildingblockName
     .toLowerCase()
     .replace(/ /g, "_")}`;
-  const addSkeletonWidgetAction: ReduxAction<WidgetAddChild> = {
+  const addSkeletonWidgetAction: ReduxAction<
+    WidgetAddChild & { shouldReplay: boolean }
+  > = {
     ...addEntityAction,
     payload: {
       ...addEntityAction.payload,
       type: "SKELETON_WIDGET",
       widgetName: skeletonWidgetName,
       widgetId: MAIN_CONTAINER_WIDGET_ID,
+      // so that the skeleton loader does not get included when the users uses the undo/redo
+      shouldReplay: false,
     },
   };
   yield call(addChildSaga, addSkeletonWidgetAction);

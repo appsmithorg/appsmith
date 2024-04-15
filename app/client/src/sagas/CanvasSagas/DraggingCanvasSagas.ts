@@ -167,6 +167,8 @@ function* addBuildingBlockAndMoveWidgetsSaga(
     ...actionPayload,
     payload: {
       ...actionPayload.payload,
+      // so that the skeleton loader does not get included when the users uses the undo/redo
+      shouldReplay: false,
       newWidget: {
         ...actionPayload.payload.newWidget,
         type: "SKELETON_WIDGET",
@@ -206,6 +208,7 @@ export function* addWidgetAndMoveWidgetsSaga(
     newWidget: WidgetAddChild;
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
     canvasId: string;
+    shouldReplay?: boolean;
   }>,
 ) {
   const start = performance.now();
@@ -227,7 +230,11 @@ export function* addWidgetAndMoveWidgetsSaga(
     ) {
       throw Error;
     }
-    yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
+    yield put(
+      updateAndSaveLayout(updatedWidgetsOnAddAndMove, {
+        shouldReplay: actionPayload.payload.shouldReplay,
+      }),
+    );
     yield put(generateAutoHeightLayoutTreeAction(true, true));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
@@ -244,8 +251,6 @@ export function* addWidgetAndMoveWidgetsSaga(
     });
   }
 }
-
-// function* update
 
 function* addWidgetAndMoveWidgets(
   newWidget: WidgetAddChild,
