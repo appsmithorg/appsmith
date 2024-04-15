@@ -1167,6 +1167,7 @@ export function* watchActionSagas() {
     takeEvery(ReduxActionTypes.CREATE_ACTION_INIT, createActionSaga),
     takeLatest(ReduxActionTypes.UPDATE_ACTION_INIT, updateActionSaga),
     takeLatest(ReduxActionTypes.DELETE_ACTION_INIT, deleteActionSaga),
+    takeLatest(ReduxActionTypes.CLOSE_QUERY_ACTION_TAB, closeActionTabSaga),
     takeLatest(ReduxActionTypes.BIND_DATA_ON_CANVAS, bindDataOnCanvasSaga),
     takeLatest(ReduxActionTypes.SAVE_ACTION_NAME_INIT, saveActionName),
     takeLatest(ReduxActionTypes.MOVE_ACTION_INIT, moveActionSaga),
@@ -1193,4 +1194,13 @@ export function* watchActionSagas() {
       handleCreateNewQueryFromActionCreator,
     ),
   ]);
+}
+
+export function* closeActionTabSaga(
+  actionPayload: ReduxAction<{
+    id: string;
+  }>,
+) {
+  const id = actionPayload.payload.id;
+  yield call(handleQueryEntityRedirect, id);
 }
