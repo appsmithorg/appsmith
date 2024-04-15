@@ -11118,8 +11118,10 @@ export const defaultAppState = {
         isFetchingAllUsers: false,
       },
       partialImportExport: {
+        isExportModalOpen: false,
         isExporting: false,
         isExportDone: false,
+        isImportModalOpen: false,
         isImporting: false,
         isImportDone: false,
       },
