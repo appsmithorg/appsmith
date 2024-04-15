@@ -72,13 +72,11 @@ export const importTemplateIntoApplication = (
 export const importStarterBuildingBlockIntoApplication = (
   templateId: string,
   templateName: string,
-  templatePageName: string,
 ) => ({
   type: ReduxActionTypes.IMPORT_STARTER_BUILDING_BLOCK_TO_APPLICATION_INIT,
   payload: {
     templateId,
     templateName,
-    pageNames: [templatePageName],
   },
 });
 

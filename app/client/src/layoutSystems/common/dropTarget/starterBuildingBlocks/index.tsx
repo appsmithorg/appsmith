@@ -63,12 +63,8 @@ function StarterBuildingBlocks() {
     });
   };
 
-  const onClick = (
-    templateId: string,
-    templateName: string,
-    templatePageName: string,
-  ) => {
-    if (!templateId || !templateName || !templatePageName) return;
+  const onClick = (templateId: string, templateName: string) => {
+    if (!templateId || !templateName) return;
 
     // Close explorer tabs to allow datasource prompt show properly
     saveExplorerStatus(applicationId, "widgets", false);
@@ -76,11 +72,7 @@ function StarterBuildingBlocks() {
     saveExplorerStatus(applicationId, "datasource", false);
 
     dispatch(
-      importStarterBuildingBlockIntoApplication(
-        templateId,
-        templateName,
-        templatePageName,
-      ),
+      importStarterBuildingBlockIntoApplication(templateId, templateName),
     );
 
     AnalyticsUtil.logEvent("fork_APPLICATIONTEMPLATE", {
@@ -91,7 +83,6 @@ function StarterBuildingBlocks() {
         appMode: currentAppMode,
         application: currentApplication,
         templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-        templatePageName,
       },
     });
   };
@@ -142,11 +133,7 @@ function StarterBuildingBlocks() {
               data-testid="t--canvas-building-block-item"
               key={item.id}
               onClick={() =>
-                onClick(
-                  item.templateId || "",
-                  item.templateName || "",
-                  item.templatePageName || "",
-                )
+                onClick(item.templateId || "", item.templateName || "")
               }
               onMouseEnter={() => handleItemHover(index)}
               onMouseLeave={() => {
@@ -209,5 +196,4 @@ const layoutItems: {
   screenshot: string;
   templateId: string;
   templateName: string;
-  templatePageName: string;
 }[] = STARTER_BUILDING_BLOCKS.STARTER_BUILDING_BLOCKS_TEMPLATES;

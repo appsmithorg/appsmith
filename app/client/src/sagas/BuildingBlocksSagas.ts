@@ -149,7 +149,6 @@ function* apiCallForForkBuildingBlockToApplication(request: {
 
 function* forkStarterBuildingBlockToApplicationSaga(
   action: ReduxAction<{
-    pageNames?: string[];
     templateId: string;
     templateName: string;
   }>,

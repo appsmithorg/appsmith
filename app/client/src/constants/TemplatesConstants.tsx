@@ -41,7 +41,6 @@ export const STARTER_BUILDING_BLOCKS = {
         "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-detail.png",
       templateId: "6530e343fa63b553e4be0266",
       templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-      templatePageName: "Record Details",
     },
     {
       id: 1,
@@ -56,7 +55,6 @@ export const STARTER_BUILDING_BLOCKS = {
         "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-edit.png",
       templateId: "6530e343fa63b553e4be0266",
       templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-      templatePageName: "Record Edit",
     },
     {
       id: 3,
@@ -71,7 +69,6 @@ export const STARTER_BUILDING_BLOCKS = {
         "https://images.ctfassets.net/lpvian6u6i39/55ERsTeUvbAzJVaBBsInZr/0009fee0adb710b91c18a5bdc989deeb/canvas-starter-building-block-sort-filter-table.png?fm=png&q=50",
       templateId: "6530e343fa63b553e4be0266",
       templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-      templatePageName: "Sort and Filter Table",
     },
   ],
 };
