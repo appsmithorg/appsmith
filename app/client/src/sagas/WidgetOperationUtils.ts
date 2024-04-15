@@ -48,7 +48,6 @@ import type {
 import { ReflowDirection } from "reflow/reflowTypes";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getSelectedWidgets } from "selectors/ui";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
