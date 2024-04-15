@@ -11,10 +11,7 @@ import {
   importStarterBuildingBlockIntoApplication,
   showTemplatesModal,
 } from "actions/templateActions";
-import {
-  STARTER_BUILDING_BLOCKS,
-  STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-} from "constants/TemplatesConstants";
+import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
 import { Button, Text } from "design-system";
 import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
 import { useDispatch, useSelector } from "react-redux";
@@ -82,7 +79,7 @@ function StarterBuildingBlocks() {
       eventData: {
         appMode: currentAppMode,
         application: currentApplication,
-        templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
+        templateAppName: templateName,
       },
     });
   };

@@ -8,7 +8,10 @@ import { flattenDSL } from "@shared/dsl";
 import type { WidgetProps } from "@shared/dsl/src/migrate/types";
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { runAction } from "actions/pluginActionActions";
-import { showStarterBuildingBlockDatasourcePrompt } from "actions/templateActions";
+import {
+  setCurrentForkingBuildingBlockName,
+  showStarterBuildingBlockDatasourcePrompt,
+} from "actions/templateActions";
 import { pasteWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
@@ -57,6 +60,7 @@ function* apiCallForForkBuildingBlockToApplication(request: {
   activePageId: string;
   applicationId: string;
   workspaceId: string;
+  templateName: string;
 }) {
   try {
     const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
@@ -138,6 +142,7 @@ function* apiCallForForkBuildingBlockToApplication(request: {
 
       // Show datasource prompt after 3 seconds
       yield delay(STARTER_BUILDING_BLOCKS.DATASOURCE_PROMPT_DELAY);
+      yield put(setCurrentForkingBuildingBlockName(request.templateName));
       yield put(showStarterBuildingBlockDatasourcePrompt(request.activePageId));
     } else {
       throw new Error("Failed importing starter building block");
@@ -163,6 +168,7 @@ function* forkStarterBuildingBlockToApplicationSaga(
       activePageId,
       applicationId,
       workspaceId,
+      templateName: action.payload.templateName,
     });
   } catch (error) {
     yield put({

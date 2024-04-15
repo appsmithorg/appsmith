@@ -80,6 +80,13 @@ export const importStarterBuildingBlockIntoApplication = (
   },
 });
 
+export const setCurrentForkingBuildingBlockName = (
+  buildingBlockName: string,
+) => ({
+  type: ReduxActionTypes.SET_CURRENT_FORKING_BUILDING_BLOCK_NAME,
+  payload: buildingBlockName,
+});
+
 export const showStarterBuildingBlockDatasourcePrompt = (
   buildingBlockSourcePageId: string,
 ) => ({
