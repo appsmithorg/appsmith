@@ -99,6 +99,9 @@ export class EntityExplorer {
         toastToValidate: toastToValidate,
       });
     }
+    if (entityType === EntityItems.Page) {
+      PageList.HideList();
+    }
   }
 
   public DeleteWidgetFromEntityExplorer(widgetNameinLeftSidebar: string) {
@@ -260,6 +263,9 @@ export class EntityExplorer {
     entityType?: EntityItemsType,
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
+    if (entityType === EntityItems.Page) {
+      PageList.ShowList();
+    }
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,
@@ -274,5 +280,8 @@ export class EntityExplorer {
       .wait(300);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
     PageLeftPane.assertPresence(renameVal);
+    if (entityType === EntityItems.Page) {
+      PageList.HideList();
+    }
   }
 }
