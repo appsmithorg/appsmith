@@ -135,7 +135,9 @@ describe(
         agHelper.RenameWithInPane(dataSourceName, false);
 
         dataSources.TestDatasource(false);
-        agHelper.ValidateToastMessage("Connection timed out. Please check if the datasource configuration fields have been filled correctly.");
+        agHelper.ValidateToastMessage(
+          "Connection timed out. Please check if the datasource configuration fields have been filled correctly.",
+        );
         dataSources.ValidateNSelectDropdown(
           "Use mongo connection string URI",
           "No",
@@ -166,7 +168,9 @@ describe(
           "Replica set",
         );
         dataSources.TestDatasource(false);
-        agHelper.ValidateToastMessage("Missing endpoint(s)");
+        agHelper.ValidateToastMessage(
+          "REPLICA_SET connections should not be given a port. If you are trying to specify all the shards, please add more than one.",
+        );
         agHelper.UpdateInputValue(
           dataSources._host(),
           dataManager.dsValues[dataManager.defaultEnviorment].mongo_host,
