@@ -21,8 +21,14 @@ import static com.appsmith.server.constants.ApiConstants.DATE;
 @Slf4j
 public class SignatureVerifier {
 
-    // Public key for verifying signatures with ED25519 scheme. We are using two keys to support key rotation. Once the
-    // keys are rotated on CS side, we can remove the previous key in the upcoming versions.
+    // Public key for verifying signatures with ED25519 scheme. We are using two keys to avoid any dependency to match
+    // the release cycles for CS and Appsmith instance. Once the corresponding private key is available on CS side, we
+    // can remove the previous key in the upcoming versions on the instance.
+    // Steps:
+    // 1. Add updated public key to Appsmith
+    // 2. Tag the release to be available to self-hosted instances
+    // 3. Update the private key on CS side to match with the released version from above step
+    // 4. Remove the previous public key from Appsmith
     private static final String CURRENT_PUBLIC_VERIFICATION_KEY =
             "AAAAC3NzaC1lZDI1NTE5AAAAIAt5shghJhvGR0JQHBoOZ73N8JjRo31MPpY1y67O1C2G";
     private static final String PREVIOUS_PUBLIC_VERIFICATION_KEY =
