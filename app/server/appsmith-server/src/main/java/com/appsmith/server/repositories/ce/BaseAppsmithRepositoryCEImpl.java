@@ -192,6 +192,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         id))); // */
     }
 
+    @Modifying
+    @Transactional
     public Optional<Integer> updateFieldByDefaultIdAndBranchName(
             String defaultId,
             String defaultIdPath,

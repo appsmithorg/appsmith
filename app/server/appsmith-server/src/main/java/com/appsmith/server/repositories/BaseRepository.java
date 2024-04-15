@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.external.models.BaseDomain;
+import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -53,6 +54,7 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable> e
      * @return
      */
     @Modifying
+    @Transactional
     @Query("UPDATE #{#entityName} e SET e.deletedAt = instant WHERE e.deletedAt IS NULL AND e.id IN :ids")
-    /*no-cake*/ Optional<Boolean> archiveAllById(Collection<ID> ids);
+    /*no-cake*/ int archiveAllById(Collection<ID> ids);
 }

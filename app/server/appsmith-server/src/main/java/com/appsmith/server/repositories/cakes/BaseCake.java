@@ -50,8 +50,7 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     }
 
     public Mono<Boolean> archiveAllById(Collection<String> ids) {
-        return Mono.fromSupplier(() -> repository.archiveAllById(ids).orElse(null))
-                .subscribeOn(Schedulers.boundedElastic());
+        return Mono.fromSupplier(() -> repository.archiveAllById(ids) > 0).subscribeOn(Schedulers.boundedElastic());
     }
 
     public Mono<Boolean> archiveById(String id) {
