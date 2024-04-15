@@ -537,7 +537,7 @@ export default {
       actionUiConfig: {
         editor: [
           {
-            label: "Commands",
+            label: "Command",
             description: "Select the method to run",
             configProperty: "actionConfiguration.formData.command",
             controlType: "DROP_DOWN",
@@ -3912,7 +3912,7 @@ export default {
       actionUiConfig: {
         editor: [
           {
-            label: "Commands",
+            label: "Command",
             description: "Select the method to run",
             configProperty: "actionConfiguration.formData.command",
             controlType: "DROP_DOWN",
@@ -4112,8 +4112,7 @@ export default {
                 isRequired: true,
                 label: "Message SID",
                 placeholderText: "MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-                subtitle:
-                  "Specify the SID of the messaging Service used with the message.",
+                subtitle: "Specify the SID of the message.",
                 tooltipText:
                   "The Twilio-provided string that uniquely identifies the message resource to fetch.",
               },
@@ -4205,8 +4204,7 @@ export default {
                 isRequired: true,
                 tooltipText:
                   "The Twilio-provided string that uniquely identifies the message resource to fetch.",
-                subtitle:
-                  "Specify the SID of the messaging Service used with the message.",
+                subtitle: "Specify the SID of the message.",
                 label: "Message SID",
                 placeholderText: "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                 configProperty: "actionConfiguration.formData.MESSAGE_SID",
@@ -4241,8 +4239,7 @@ export default {
                 isRequired: true,
                 label: "Message SID",
                 placeholderText: "MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-                subtitle:
-                  "Specify the SID of the messaging Service used with the message.",
+                subtitle: "Specify the SID of the message.",
                 tooltipText:
                   "The Twilio-provided string that uniquely identifies the message resource to delete.",
               },
@@ -4326,7 +4323,7 @@ export default {
       actionUiConfig: {
         editor: [
           {
-            label: "Commands",
+            label: "Command",
             description: "Select the method to run",
             configProperty: "actionConfiguration.formData.command",
             controlType: "DROP_DOWN",

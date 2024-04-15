@@ -73,7 +73,7 @@ describe(
         dataSources.CreateQueryAfterDSSaved();
 
         assertHelper.AssertNetworkStatus("@trigger");
-        dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+        dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
         agHelper.Sleep(2000); //for movies collection to load & populate in dropdown
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
@@ -85,7 +85,7 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
-        dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+        dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
         AppSidebar.navigate(AppSidebarButton.Data);

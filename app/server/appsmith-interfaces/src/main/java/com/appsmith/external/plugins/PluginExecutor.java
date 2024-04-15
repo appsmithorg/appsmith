@@ -1,5 +1,6 @@
 package com.appsmith.external.plugins;
 
+import com.appsmith.external.constants.DatasourceQueryType;
 import com.appsmith.external.dtos.ExecuteActionDTO;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
@@ -374,5 +375,14 @@ public interface PluginExecutor<C> extends ExtensionPoint, CrudTemplateService {
         // Currently this function is overridden only by postgresPlugin class, in future it will be done for all plugins
         // wherever applicable.
         return Mono.just("");
+    }
+
+    /*
+     * This method returns query type, query type is used for
+     * suggesting relevant actions to users when binding data
+     */
+    default Mono<DatasourceQueryType> getQueryType(ActionConfiguration actionConfig) {
+        // For all plugins where implementation is unclear right now, we will be returning its type as UNKNOWN
+        return Mono.just(DatasourceQueryType.UNKNOWN);
     }
 }
