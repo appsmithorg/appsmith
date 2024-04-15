@@ -16,7 +16,7 @@ export function* updateAndSaveAnvilLayout(
   options?: { isRetry: boolean; shouldReplay: boolean },
 ) {
   const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
-  if (isAnvilLayout || !widgets) {
+  if (!isAnvilLayout || !widgets) {
     yield put(updateAndSaveLayout(widgets, options));
     return;
   }

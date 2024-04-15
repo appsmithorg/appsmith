@@ -1,6 +1,7 @@
 package com.appsmith.external.models.ce;
 
 import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
+import com.appsmith.external.constants.DatasourceQueryType;
 import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.dtos.LayoutExecutableUpdateDTO;
 import com.appsmith.external.exceptions.ErrorDTO;
@@ -177,6 +178,10 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @Transient
     @JsonView(Views.Public.class)
     ActionCreationSourceTypeEnum source;
+
+    @Transient
+    @JsonView(Views.Public.class)
+    DatasourceQueryType queryType;
 
     @Override
     @JsonView(Views.Public.class)
