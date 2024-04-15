@@ -10,6 +10,8 @@ import {
 } from "selectors/templatesSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { groupWidgetCardsByTags } from "../utils";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 /**
  * Custom hook for managing UI explorer items including widgets and building blocks.
@@ -19,6 +21,8 @@ export const useUIExplorerItems = () => {
   const releaseDragDropBuildingBlocks = useFeatureFlag(
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
+  const layoutSystemType = useSelector(getLayoutSystemType);
+  const isFixedLayout = layoutSystemType === LayoutSystemTypes.FIXED;
   const dispatch = useDispatch();
   // check if entities have loaded
   const isBuildingBlocksLoaded = useSelector(templatesCountSelector) > 0;
@@ -35,19 +39,30 @@ export const useUIExplorerItems = () => {
 
   // handle loading async entities
   useEffect(() => {
-    if (!isBuildingBlocksLoaded && releaseDragDropBuildingBlocks) {
+    if (
+      !isBuildingBlocksLoaded &&
+      releaseDragDropBuildingBlocks &&
+      isFixedLayout
+    ) {
       dispatch(getAllTemplates());
     } else {
       setEntityLoading((prev) => ({ ...prev, "Building Blocks": false }));
     }
-  }, [isBuildingBlocksLoaded, releaseDragDropBuildingBlocks]);
+  }, [isBuildingBlocksLoaded, releaseDragDropBuildingBlocks, isFixedLayout]);
 
   const cards = useMemo(
     () => [
       ...widgetCards,
-      ...(releaseDragDropBuildingBlocks ? buildingBlockCards : []),
+      ...(isFixedLayout && releaseDragDropBuildingBlocks
+        ? buildingBlockCards
+        : []),
     ],
-    [widgetCards, buildingBlockCards, releaseDragDropBuildingBlocks],
+    [
+      widgetCards,
+      buildingBlockCards,
+      releaseDragDropBuildingBlocks,
+      isFixedLayout,
+    ],
   );
 
   const groupedCards = useMemo(() => groupWidgetCardsByTags(cards), [cards]);
