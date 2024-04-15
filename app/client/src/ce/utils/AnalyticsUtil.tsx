@@ -23,7 +23,7 @@ declare global {
   }
 }
 
-const parentContextTypeTokens = ["pkg", "workflow"];
+export const parentContextTypeTokens = ["pkg", "workflow"];
 
 /**
  * Function to check the current URL and return the parent context.
@@ -32,7 +32,7 @@ const parentContextTypeTokens = ["pkg", "workflow"];
  * @param location current location object based on URL
  * @returns object {id, type} where type is either pkg or workflow and id is the id of the pkg or workflow
  */
-function getParentContextFromURL(location: Location) {
+export function getParentContextFromURL(location: Location) {
   const pathSplit = location.pathname.split("/");
   let type = parentContextTypeTokens[0];
   const editorIndex = pathSplit.findIndex((path) =>
@@ -47,7 +47,7 @@ function getParentContextFromURL(location: Location) {
   }
 }
 
-function getApplicationId(location: Location) {
+export function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
     (path) => path === "applications",
@@ -55,36 +55,6 @@ function getApplicationId(location: Location) {
   const appId = pathSplit[applicationsIndex + 1];
 
   return appId;
-}
-
-function getUserLocation() {
-  // Check if geolocation is supported by the browser
-  if ("geolocation" in navigator) {
-    // Prompt user for permission to access their location
-    navigator.geolocation.getCurrentPosition(
-      // Success callback function
-      (position) => {
-        // Get the user's latitude and longitude coordinates
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-
-        // Do something with the location data, e.g. display on a map
-        return {
-          latitude: lat,
-          longitude: lng,
-        };
-      },
-      // Error callback function
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      (error) => {
-        // Handle errors, e.g. user denied location sharing permissions
-        return {};
-      },
-    );
-  } else {
-    // Geolocation is not supported by the browser
-    return {};
-  }
 }
 
 export enum AnalyticsEventType {
@@ -251,13 +221,11 @@ class AnalyticsUtil {
     const userId = userData.username;
     if (windowDoc.analytics) {
       const source = getUserSource();
-      const location = getUserLocation();
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
       if (segment.apiKey) {
         const userProperties = {
           userId: userId,
           source,
-          ...location,
           email: userData.email,
           name: userData.name,
           emailVerified: userData.emailVerified,
@@ -274,7 +242,6 @@ class AnalyticsUtil {
         const userProperties = {
           userId: AnalyticsUtil.cachedAnonymoustId,
           source,
-          ...location,
           ...(sendAdditionalData
             ? {
                 id: AnalyticsUtil.cachedAnonymoustId,
