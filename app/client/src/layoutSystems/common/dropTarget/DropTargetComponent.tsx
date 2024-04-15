@@ -48,7 +48,7 @@ import {
 import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
 import BuildingBlockExplorerDropTarget from "./buildingBlockExplorerDropTarget";
-import { isDraggingBuildingBlockToCanvas } from "selectors/templatesSelectors";
+import { isDraggingBuildingBlockToCanvas } from "selectors/buildingBlocksSelectors";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;

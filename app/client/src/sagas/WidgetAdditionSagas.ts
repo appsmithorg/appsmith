@@ -548,7 +548,7 @@ export function* addBuildingBlockToApplication(
 
     // start loading for dragging building blocks
     yield put({
-      type: ReduxActionTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_INIT,
+      type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_INIT,
     });
 
     // makes sure updateAndSaveLayout completes first for skeletonWidget addition
@@ -641,7 +641,7 @@ export function* addBuildingBlockToApplication(
 
       // stop loading after pasting process is complete
       yield put({
-        type: ReduxActionTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_SUCCESS,
+        type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_SUCCESS,
       });
 
       // run all actions in the building block, if any, to populate the page with data
@@ -671,7 +671,7 @@ export function* addBuildingBlockToApplication(
       },
     });
     yield put({
-      type: ReduxActionErrorTypes.DRAG_BUILDING_BLOCK_TO_CANVAS_ERROR,
+      type: ReduxActionErrorTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_ERROR,
     });
   }
 }

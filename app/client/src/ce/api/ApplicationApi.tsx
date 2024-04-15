@@ -13,7 +13,7 @@ import type {
   LayoutSystemTypeConfig,
   LayoutSystemTypes,
 } from "layoutSystems/types";
-import type { PluginType } from "entities/Action";
+import type { ActionViewMode } from "entities/Action";
 
 export type EvaluationVersion = number;
 
@@ -270,14 +270,7 @@ export interface ImportBuildingBlockToApplicationRequest {
 
 export interface ImportBuildingBlockToApplicationResponse {
   widgetDsl: string;
-  onPageLoadActions: {
-    confirmBeforeExecute: boolean;
-    id: string;
-    jsonPathKeys: string[];
-    name: string;
-    pluginType: PluginType;
-    timeoutInMillisecond: number;
-  }[];
+  onPageLoadActions: Omit<ActionViewMode, "pageId">[];
 }
 
 export class ApplicationApi extends Api {
