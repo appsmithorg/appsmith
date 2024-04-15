@@ -19,10 +19,11 @@ import com.appsmith.external.models.PsParameterDTO;
 import com.appsmith.external.models.RequestParamDTO;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.external.services.SharedConfig;
-import com.appsmith.util.SerializationUtils;
 import com.external.plugins.exceptions.PostgresErrorMessages;
 import com.external.plugins.exceptions.PostgresPluginError;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -385,7 +386,8 @@ public class PostgresPluginTest {
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
                             new String[] {"user_id"},
-                            SerializationUtils.getBasicObjectMapper(null)
+                            new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -471,7 +473,8 @@ public class PostgresPluginTest {
                                 "texts",
                                 "rating"
                             },
-                            SerializationUtils.getBasicObjectMapper(null)
+                            new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -779,7 +782,8 @@ public class PostgresPluginTest {
                                 "texts",
                                 "rating"
                             },
-                            SerializationUtils.getBasicObjectMapper(null)
+                            new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -856,7 +860,8 @@ public class PostgresPluginTest {
                                 "texts",
                                 "rating"
                             },
-                            SerializationUtils.getBasicObjectMapper(null)
+                            new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -945,7 +950,8 @@ public class PostgresPluginTest {
                                 "texts",
                                 "rating"
                             },
-                            SerializationUtils.getBasicObjectMapper(null)
+                            new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
@@ -1619,7 +1625,8 @@ public class PostgresPluginTest {
                     final JsonNode node = ((ArrayNode) result.getBody()).get(0);
                     assertArrayEquals(
                             new String[] {"numeric_string"},
-                            SerializationUtils.getBasicObjectMapper(null)
+                            new ObjectMapper()
+                                    .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
                                     .convertValue(node, LinkedHashMap.class)
                                     .keySet()
                                     .toArray());
