@@ -90,7 +90,7 @@ describe("Validate Redis DS", { tags: ["@tag.Datasource"] }, () => {
     dataSources.EnterQuery(hGetKeys);
     dataSources.RunQueryNVerifyResponseViews(); //5 keys, 5 values
     dataSources.AssertQueryTableResponse(0, "null");
-    
+
     // Delete the query & datasource
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
