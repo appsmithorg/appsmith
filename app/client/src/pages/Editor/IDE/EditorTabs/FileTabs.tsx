@@ -2,6 +2,7 @@ import React, { useEffect } from "react";
 import { useLocation } from "react-router";
 import { useSelector } from "react-redux";
 import clsx from "classnames";
+import type { FlexProps } from "design-system";
 import { Flex, Icon, Tooltip } from "design-system";
 
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
@@ -22,6 +23,9 @@ interface Props {
 const FileTabs = (props: Props) => {
   const { navigateToTab, onClose, tabs } = props;
   const isTabsRevampEnabled = useSelector(getIsTabsRevampEnabled);
+  const containerProps: FlexProps = isTabsRevampEnabled
+    ? { overflowX: "auto", overflowY: "hidden" }
+    : {};
 
   const location = useLocation();
 
@@ -46,8 +50,7 @@ const FileTabs = (props: Props) => {
       data-testid="t--editor-tabs"
       gap="spaces-2"
       height="100%"
-      overflowX="auto"
-      overflowY="hidden"
+      {...containerProps}
     >
       {tabs.map((tab: EntityItem) => (
         <StyledTab
