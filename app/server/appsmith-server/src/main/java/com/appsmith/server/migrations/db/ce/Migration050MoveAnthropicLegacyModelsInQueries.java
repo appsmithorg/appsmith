@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
+import org.springframework.util.StringUtils;
 
-import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.PACKAGE_NAME;
@@ -56,13 +56,8 @@ public class Migration050MoveAnthropicLegacyModelsInQueries {
             return;
         }
         String pluginId = plugin.getId();
-        List<NewAction> anthropicActions =
-                mongoTemplate.find(Query.query(Criteria.where(PLUGIN_ID).is(pluginId)), NewAction.class);
-        if (anthropicActions.isEmpty()) {
-            log.info("No Anthropic actions found");
-            return;
-        }
-        anthropicActions.forEach(this::updateAction);
+        mongoTemplate.stream(Query.query(Criteria.where(PLUGIN_ID).is(pluginId)), NewAction.class)
+                .forEach(this::updateAction);
     }
 
     private void updateAction(NewAction action) {
@@ -82,16 +77,21 @@ public class Migration050MoveAnthropicLegacyModelsInQueries {
                         .setActionConfiguration(updateActionConfiguration(publishedActionConfiguration));
             }
         }
-
         mongoTemplate.save(action);
     }
 
     private ActionConfiguration updateActionConfiguration(ActionConfiguration actionConfiguration) {
         Map<String, Object> formData = actionConfiguration.getFormData();
+        if (formData == null || formData.isEmpty()) {
+            return actionConfiguration;
+        }
         if (formData.containsKey(CHAT_MODEL)) {
             Map<String, String> chatModelData = (Map<String, String>) formData.get(CHAT_MODEL);
+            if (chatModelData == null) {
+                return actionConfiguration;
+            }
             String chatModel = chatModelData.get("data");
-            if (LEGACY_TO_NEXT_MODELS.containsKey(chatModel)) {
+            if (StringUtils.hasText(chatModel) && LEGACY_TO_NEXT_MODELS.containsKey(chatModel)) {
                 chatModelData.put("data", LEGACY_TO_NEXT_MODELS.get(chatModel));
             }
         }
