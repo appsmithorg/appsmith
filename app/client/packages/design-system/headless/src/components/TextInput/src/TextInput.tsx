@@ -21,11 +21,11 @@ function TextInput(props: TextInputProps, ref: TextInputRef) {
   const isEmpty = isReadOnly && !Boolean(value) && !Boolean(defaultValue);
   const type = typeProp === "password" && isEmpty ? "text" : typeProp;
 
-  const { descriptionProps, errorMessageProps, inputProps, labelProps } =
-    useTextField(
-      { ...rest, type, defaultValue, value: isEmpty ? "—" : value },
-      inputRef,
-    );
+  // const { descriptionProps, errorMessageProps, inputProps, labelProps } =
+  // useTextField(
+  //   { ...rest, type, defaultValue, value: isEmpty ? "—" : value },
+  //   inputRef,
+  // );
 
   if (props.placeholder != null) {
     // eslint-disable-next-line no-console
@@ -37,14 +37,14 @@ function TextInput(props: TextInputProps, ref: TextInputRef) {
   return (
     <TextInputBase
       {...props}
-      descriptionProps={descriptionProps}
-      errorMessageProps={errorMessageProps}
-      inputProps={{
-        ...inputProps,
-        spellCheck,
-      }}
+      // descriptionProps={descriptionProps}
+      // errorMessageProps={errorMessageProps}
+      // inputProps={{
+      //   ...inputProps,
+      //   spellCheck,
+      // }}
       inputRef={inputRef}
-      labelProps={labelProps}
+      // labelProps={labelProps}
       ref={ref}
     />
   );

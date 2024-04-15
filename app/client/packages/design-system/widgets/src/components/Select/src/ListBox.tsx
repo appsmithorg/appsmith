@@ -1,6 +1,7 @@
 import React, { useRef } from "react";
 import { useListBox } from "@react-aria/listbox";
 import { Option } from "./Option";
+import { popoverStyles } from "../../../styles";
 
 export const ListBox = (props: any) => {
   const ref = useRef(null);
@@ -10,14 +11,14 @@ export const ListBox = (props: any) => {
   return (
     <ul
       {...listBoxProps}
+      className={popoverStyles.popoverList}
       ref={listBoxRef}
       style={{
         margin: 0,
         padding: 0,
         listStyle: "none",
-        maxHeight: 150,
+        maxHeight: "150px",
         overflow: "auto",
-        width: "100%",
       }}
     >
       {[...state.collection].map((item) => (

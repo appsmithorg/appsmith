@@ -1,0 +1,12 @@
+import { Canvas, Meta, Story } from "@storybook/addon-docs";
+import { SelectExample } from "./SelectExample";
+
+<Meta title="Design-system/Widgets/Select" component={SelectExample} />
+
+export const Template = () => {
+  return <SelectExample />;
+};
+
+<Canvas>
+  <Story name="Select">{Template.bind({})}</Story>
+</Canvas>

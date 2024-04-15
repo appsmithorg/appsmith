@@ -19,6 +19,7 @@ export function usePopover({
   defaultOpen = false,
   dismissClickOutside = false,
   duration = 0,
+  floatingRef,
   initialFocus,
   isOpen: controlledOpen,
   modal = false,
@@ -38,6 +39,10 @@ export function usePopover({
     placement,
     strategy: "fixed",
     whileElementsMounted: autoUpdate,
+    elements: {
+      reference: triggerRef?.current,
+      floating: floatingRef?.current,
+    },
     middleware: [
       offset(offsetProp),
       flip({
@@ -84,6 +89,7 @@ export function usePopover({
       setDescriptionId,
       duration,
       triggerRef,
+      floatingRef,
       initialFocus,
       onClose,
     }),
@@ -96,6 +102,7 @@ export function usePopover({
       labelId,
       descriptionId,
       triggerRef,
+      floatingRef,
       initialFocus,
       onClose,
     ],

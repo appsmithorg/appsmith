@@ -51,6 +51,8 @@ export interface PopoverProps {
    * @default false
    */
   dismissClickOutside?: boolean;
+
+  floatingRef?: MutableRefObject<HTMLElement | null>;
 }
 
 export interface PopoverContentProps {

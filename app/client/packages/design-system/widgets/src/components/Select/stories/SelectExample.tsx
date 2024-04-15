@@ -1,7 +1,8 @@
 import React from "react";
-import { Autocomplete } from "@design-system/headless";
+import { Select } from "@design-system/widgets";
+import { Item } from "@react-stately/collections";
 
-export const AutocompleteExample = () => {
+export const SelectExample = () => {
   const options = [
     { id: 1, name: "Aerospace" },
     { id: 2, name: "Mechanical" },
@@ -14,5 +15,11 @@ export const AutocompleteExample = () => {
     { id: 9, name: "Electrical" },
   ];
 
-  return <Autocomplete defaultItems={options} label="asdasda" />;
+  // return <Select defaultItems={options} label="asdasda" />;
+
+  return (
+    <Select items={options} label="Example">
+      {(item: any) => <Item key={item.name}>{item.name}</Item>}
+    </Select>
+  );
 };
