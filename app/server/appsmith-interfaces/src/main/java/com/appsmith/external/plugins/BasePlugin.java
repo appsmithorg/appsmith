@@ -9,7 +9,7 @@ import org.pf4j.PluginWrapper;
 public abstract class BasePlugin extends Plugin {
 
     protected static final ObjectMapper objectMapper =
-            SerializationUtils.getBasicObjectMapper(null).setSerializationInclusion(JsonInclude.Include.ALWAYS);
+            SerializationUtils.getBasicObjectMapper(null).setSerializationInclusion(JsonInclude.Include.USE_DEFAULTS);
 
     public BasePlugin(PluginWrapper wrapper) {
         super(wrapper);

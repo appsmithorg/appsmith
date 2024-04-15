@@ -8,14 +8,10 @@ import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStructure;
-import com.appsmith.external.views.Git;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.git.converters.GsonDoubleToLongConverter;
 import com.appsmith.git.converters.GsonUnorderedToOrderedConverter;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectReader;
-import com.fasterxml.jackson.databind.ObjectWriter;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonElement;
@@ -66,10 +62,6 @@ public class FileOperationsCEImpl implements FileOperationsCE {
     private final GitExecutor gitExecutor;
     private final Gson gson;
 
-    protected final ObjectMapper objectMapper;
-    protected final ObjectReader objectReader;
-    protected final ObjectWriter objectWriter;
-
     protected final ObservationHelper observationHelper;
 
     private static final String EDIT_MODE_URL_TEMPLATE = "{{editModeUrl}}";
@@ -87,7 +79,6 @@ public class FileOperationsCEImpl implements FileOperationsCE {
             GitServiceConfig gitServiceConfig,
             GitExecutor gitExecutor,
             GsonBuilder gsonBuilder,
-            ObjectMapper objectMapper,
             ObservationHelper observationHelper) {
         this.gitServiceConfig = gitServiceConfig;
         this.gitExecutor = gitExecutor;
@@ -106,10 +97,6 @@ public class FileOperationsCEImpl implements FileOperationsCE {
                 .disableHtmlEscaping()
                 .setPrettyPrinting()
                 .create();
-
-        this.objectMapper = objectMapper;
-        this.objectReader = objectMapper.readerWithView(Git.class);
-        this.objectWriter = objectMapper.writerWithView(Git.class);
 
         this.observationHelper = observationHelper;
     }

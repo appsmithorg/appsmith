@@ -11,7 +11,9 @@ import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.CommonConstants;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectReader;
@@ -57,11 +59,11 @@ public class FileOperationsCE2Impl extends FileOperationsCEImpl implements FileO
             GitServiceConfig gitServiceConfig,
             GitExecutor gitExecutor,
             GsonBuilder gsonBuilder,
-            ObjectMapper objectMapper,
+            PrettyPrinter prettyPrinter,
             ObservationHelper observationHelper) {
-        super(gitServiceConfig, gitExecutor, gsonBuilder, objectMapper, observationHelper);
+        super(gitServiceConfig, gitExecutor, gsonBuilder, observationHelper);
 
-        this.objectMapper = objectMapper;
+        this.objectMapper = SerializationUtils.getBasicObjectMapper(prettyPrinter);
         this.objectReader = objectMapper.readerWithView(Git.class);
         this.objectWriter = objectMapper.writerWithView(Git.class);
 

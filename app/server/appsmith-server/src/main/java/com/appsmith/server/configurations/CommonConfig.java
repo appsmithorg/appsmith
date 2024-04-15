@@ -98,8 +98,8 @@ public class CommonConfig {
     }
 
     @Bean
-    public ObjectMapper objectMapper(PrettyPrinter prettyPrinter) {
-        return SerializationUtils.getDefaultObjectMapper(prettyPrinter);
+    public ObjectMapper objectMapper() {
+        return SerializationUtils.getDefaultObjectMapper(null);
     }
 
     @Bean
