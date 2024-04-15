@@ -48,10 +48,10 @@ import {
   ThemeProvider as WDSThemeProvider,
   useTheme,
 } from "@design-system/theming";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { KBViewerFloatingButton } from "@appsmith/pages/AppViewer/KnowledgeBase/KBViewerFloatingButton";
 import urlBuilder from "@appsmith/entities/URLRedirect/URLAssembly";
 import { getHideWatermark } from "@appsmith/selectors/tenantSelectors";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 const AppViewerBody = styled.section<{
   hasPages: boolean;
@@ -101,7 +101,7 @@ function AppViewer(props: Props) {
   const currentApplicationDetails: ApplicationPayload | undefined = useSelector(
     getCurrentApplication,
   );
-  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
   const themeSetting = useSelector(getAppThemeSettings);
   const themeProps = {
     borderRadius: selectedTheme.properties.borderRadius.appBorderRadius,
@@ -117,7 +117,7 @@ function AppViewer(props: Props) {
     userDensity: themeSetting.density,
     iconStyle: themeSetting.iconStyle.toLowerCase(),
   };
-  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : themeProps);
+  const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : themeProps);
   const focusRef = useWidgetFocus();
   const isAutoLayout = useSelector(getIsAutoLayout);
 
@@ -200,7 +200,7 @@ function AppViewer(props: Props) {
   const renderChildren = () => {
     return (
       <EditorContextProvider renderMode="PAGE">
-        {!isWDSEnabled && (
+        {!isAnvilLayout && (
           <WidgetGlobaStyles
             fontFamily={selectedTheme.properties.fontFamily.appFont}
             primaryColor={selectedTheme.properties.colors.primaryColor}
@@ -212,7 +212,7 @@ function AppViewer(props: Props) {
         />
         <AppViewerBodyContainer
           backgroundColor={
-            isWDSEnabled ? "" : selectedTheme.properties.colors.backgroundColor
+            isAnvilLayout ? "" : selectedTheme.properties.colors.backgroundColor
           }
         >
           <AppViewerBody
@@ -242,7 +242,7 @@ function AppViewer(props: Props) {
     );
   };
 
-  if (isWDSEnabled) {
+  if (isAnvilLayout) {
     return (
       <WDSThemeProvider theme={theme}>{renderChildren()}</WDSThemeProvider>
     );
