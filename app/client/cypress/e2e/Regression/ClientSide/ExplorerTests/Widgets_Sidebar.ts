@@ -3,7 +3,6 @@ import {
   agHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Entity explorer tests related to widgets and validation",
