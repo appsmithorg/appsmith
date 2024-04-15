@@ -1,7 +1,6 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
@@ -164,17 +163,16 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Optional<NewPage> findPageByBranchNameAndDefaultPageId(
             String branchName, String defaultPageId, AclPermission permission) {
-        final String defaultResources = NewPage.Fields.defaultResources;
 
         final BridgeQuery<NewPage> q =
                 // defaultPageIdCriteria
-                Bridge.<NewPage>equal(defaultResources + "." + FieldName.PAGE_ID, defaultPageId);
+                Bridge.equal(NewPage.Fields.defaultResources_pageId, defaultPageId);
 
         if (branchName != null) {
             // branchCriteria
-            q.equal(defaultResources + "." + FieldName.BRANCH_NAME, branchName);
+            q.equal(NewPage.Fields.defaultResources_branchName, branchName);
         } else {
-            q.isNull(defaultResources + "." + FieldName.BRANCH_NAME);
+            q.isNull(NewPage.Fields.defaultResources_branchName);
         }
 
         return queryBuilder().criteria(q).permission(permission).one();
@@ -203,11 +201,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
     @Override
     public Optional<NewPage> findByGitSyncIdAndDefaultApplicationId(
             String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
 
         // defaultAppIdCriteria
         final BridgeQuery<NewPage> q =
-                Bridge.equal(defaultResources + "." + NewPage.Fields.applicationId, defaultApplicationId);
+                Bridge.equal(NewPage.Fields.defaultResources_applicationId, defaultApplicationId);
 
         if (gitSyncId != null) {
             // gitSyncIdCriteria

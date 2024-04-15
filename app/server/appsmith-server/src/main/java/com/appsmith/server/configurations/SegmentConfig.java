@@ -60,27 +60,11 @@ public class SegmentConfig {
                 .build();
         logProcessorWithErrorHandler.onError(logData -> {
             final Throwable error = logData.getError();
-
-            if (logData.getMessage() == null) {
-                log.error("Message is null for log data: {}", logData);
-                return;
-            }
-
-            if (error == null) {
-                log.error("Error is null for log: {}", logData.getMessage());
-                return;
-            }
-
-            if (error.getMessage() == null) {
-                log.error("Error message is null for log: {}", logData.getMessage());
-                return;
-            }
-
             analyticsOnAnalytics.enqueue(TrackMessage.builder("segment_error")
                     .userId("segmentError")
                     .properties(Map.of(
                             "message", logData.getMessage(),
-                            "error", error.getMessage(),
+                            "error", error == null ? "" : error.getMessage(),
                             "args", ObjectUtils.defaultIfNull(logData.getArgs(), Collections.emptyList()),
                             "stackTrace", ExceptionUtils.getStackTrace(error))));
         });
