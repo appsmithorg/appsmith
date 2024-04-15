@@ -1,18 +1,13 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
-import { get } from "lodash";
 import {
-  getBasePropertyPath,
   hideByColumnType,
-  updateColumnLevelEditability,
   updateColumnOrderWhenFrozen,
-  updateInlineEditingOptionDropdownVisibilityHook,
 } from "../../../widget/propertyUtils";
-import { isColumnTypeEditable } from "../../../widget/utilities";
-import { composePropertyUpdateHook } from "widgets/WidgetUtils";
-import { ButtonVariantTypes } from "components/constants";
 import { StickyType } from "widgets/wds/WDSTableWidget/component/Constants";
+import { BUTTON_VARIANTS } from "@design-system/widgets";
+import capitalize from "lodash/capitalize";
 
 export default {
   sectionName: "General",
@@ -104,7 +99,7 @@ export default {
           ColumnTypes.URL,
         ]);
       },
-    }, 
+    },
     {
       propertyName: "sticky",
       helpText:
@@ -141,11 +136,28 @@ export const GeneralStyle = {
     {
       propertyName: "buttonVariant",
       label: "Button variant",
-      controlType: "ICON_TABS",
-      fullWidth: true,
+      controlType: "DROP_DOWN",
       customJSControl: "TABLE_COMPUTE_VALUE",
+      fullWidth: true,
+      helpText: "Sets the variant of the button",
+      options: Object.values(BUTTON_VARIANTS).map((variant) => ({
+        label: capitalize(variant),
+        value: variant,
+      })),
+      defaultValue: BUTTON_VARIANTS.filled,
       isJSConvertible: true,
-      helpText: "Sets the variant",
+      isBindProperty: true,
+      isTriggerProperty: false,
+      validation: {
+        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
+        params: {
+          type: ValidationTypes.TEXT,
+          params: {
+            allowedValues: Object.values(BUTTON_VARIANTS),
+            default: BUTTON_VARIANTS.filled,
+          },
+        },
+      },
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
           ColumnTypes.ICON_BUTTON,
@@ -153,109 +165,6 @@ export const GeneralStyle = {
         ]);
       },
       dependencies: ["primaryColumns", "columnOrder"],
-      options: [
-        {
-          label: "Primary",
-          value: ButtonVariantTypes.PRIMARY,
-        },
-        {
-          label: "Secondary",
-          value: ButtonVariantTypes.SECONDARY,
-        },
-        {
-          label: "Tertiary",
-          value: ButtonVariantTypes.TERTIARY,
-        },
-      ],
-      defaultValue: ButtonVariantTypes.PRIMARY,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            default: ButtonVariantTypes.PRIMARY,
-            allowedValues: [
-              ButtonVariantTypes.PRIMARY,
-              ButtonVariantTypes.SECONDARY,
-              ButtonVariantTypes.TERTIARY,
-            ],
-          },
-        },
-      },
-    },
-    {
-      propertyName: "menuVariant",
-      label: "Button variant",
-      controlType: "ICON_TABS",
-      fullWidth: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
-      helpText: "Sets the variant of the menu button",
-      options: [
-        {
-          label: "Primary",
-          value: ButtonVariantTypes.PRIMARY,
-        },
-        {
-          label: "Secondary",
-          value: ButtonVariantTypes.SECONDARY,
-        },
-        {
-          label: "Tertiary",
-          value: ButtonVariantTypes.TERTIARY,
-        },
-      ],
-      isJSConvertible: true,
-      dependencies: ["primaryColumns", "columnOrder"],
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.MENU_BUTTON]);
-      },
-      isBindProperty: true,
-      isTriggerProperty: false,
-      defaultValue: ButtonVariantTypes.PRIMARY,
-      validation: {
-        type: ValidationTypes.ARRAY_OF_TYPE_OR_TYPE,
-        params: {
-          type: ValidationTypes.TEXT,
-          params: {
-            default: ButtonVariantTypes.PRIMARY,
-            allowedValues: [
-              ButtonVariantTypes.PRIMARY,
-              ButtonVariantTypes.SECONDARY,
-              ButtonVariantTypes.TERTIARY,
-            ],
-          },
-        },
-      },
-    },
-    {
-      propertyName: "imageSize",
-      dependencies: ["primaryColumns", "columnType"],
-      label: "Image Size",
-      helpText: "Sets the size of the image",
-      defaultValue: "DEFAULT",
-      controlType: "ICON_TABS",
-      fullWidth: true,
-      options: [
-        {
-          label: "Default",
-          value: "DEFAULT",
-        },
-        {
-          label: "Medium",
-          value: "MEDIUM",
-        },
-        {
-          label: "Large",
-          value: "LARGE",
-        },
-      ],
-      isBindProperty: false,
-      isTriggerProperty: false,
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [ColumnTypes.IMAGE]);
-      },
     },
   ],
 };

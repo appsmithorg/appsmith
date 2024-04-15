@@ -1,16 +1,14 @@
-import React, { lazy, Suspense } from "react";
 import log from "loglevel";
+import React, { lazy, Suspense } from "react";
 import memoizeOne from "memoize-one";
 
 import _, {
   filter,
-  isArray,
   isEmpty,
   isNil,
   isNumber,
   isObject,
   isString,
-  orderBy,
   pickBy,
   union,
   without,
@@ -20,9 +18,8 @@ import _, {
 
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { RenderModes } from "constants/WidgetConstants";
+import { FontStyleTypes, RenderModes } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
 import type {
   ColumnProperties,
@@ -44,7 +41,7 @@ import type {
 } from "../constants";
 import {
   ActionColumnTypes,
-  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING, 
+  ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   defaultEditableCell,
   EditableCellActions,
   ORIGINAL_INDEX_KEY,
@@ -69,12 +66,13 @@ import {
   updateAndSyncTableLocalColumnOrders,
 } from "./utilities";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
-import type { IconName } from "@blueprintjs/icons";
-import { IconNames } from "@blueprintjs/icons";
-import { Colors } from "constants/Colors";
 import equal from "fast-deep-equal/es6";
 import { sanitizeKey } from "widgets/WidgetUtils";
-import { PlainTextCell } from "../component/cellComponents";
+import {
+  PlainTextCell,
+  URLCell,
+  ButtonCell,
+} from "../component/cellComponents";
 
 import { klona as clone } from "klona";
 import { CellWrapper } from "../component/TableStyledWrappers";
@@ -1593,7 +1591,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     const isHidden = !column.isVisible;
-    const { 
+    const {
       filteredTableData = [],
       multiRowSelection,
       selectedRowIndex,
@@ -1621,8 +1619,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
      * on the data thus original index is needed to identify the column's cell property.
      */
     const cellProperties = getCellProperties(column, originalIndex, isNewRow);
-    const alias = props.cell.column.columnProperties.alias;  
-
 
     if (this.props.isAddRowInProgress) {
       cellProperties.isCellDisabled = rowIndex !== 0;
@@ -1633,16 +1629,43 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     }
 
     switch (column.columnType) {
-      default:  
+      case "url":
         return (
-          <PlainTextCell
-            cellColor={cellProperties.cellColor} 
+          <URLCell
+            allowCellWrapping={cellProperties.allowCellWrapping}
+            cellColor={cellProperties.cellColor}
             fontStyle={cellProperties.fontStyle}
-            horizontalAlignment={cellProperties.horizontalAlignment}
+            href={props.cell.value}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isHidden={isHidden}
-            value={props.cell.value}
+            text={cellProperties.displayText}
+          />
+        );
+      case "button":
+        return (
+          <ButtonCell
+            buttonLabel={cellProperties.buttonLabel || "Action"}
+            buttonVariant={cellProperties.buttonVariant}
+            cellColor={cellProperties.cellColor}
+            fontStyle={cellProperties.fontStyle}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+          />
+        );
+      default:
+        return (
+          <PlainTextCell
             allowCellWrapping={cellProperties.allowCellWrapping}
+            cellColor={cellProperties.cellColor}
+            fontStyle={cellProperties.fontStyle}
+            isBold={cellProperties.fontStyle?.includes(FontStyleTypes.BOLD)}
+            isCellVisible={cellProperties.isCellVisible ?? true}
+            isHidden={isHidden}
+            isItalic={cellProperties.fontStyle?.includes(FontStyleTypes.ITALIC)}
+            isUnderline={cellProperties.fontStyle?.includes(
+              FontStyleTypes.UNDERLINE,
+            )}
+            value={props.cell.value}
           />
         );
     }

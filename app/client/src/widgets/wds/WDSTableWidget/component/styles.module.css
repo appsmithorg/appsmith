@@ -1,7 +1,6 @@
 /* TODO(pawan): can we access css module variable from packages/widgets */
 @value colors: accent, neutral, negative, warning, positive;
 
-
 .table {
   --th-height: calc(
     var(--caption-line-height) + var(--caption-margin-end) +
@@ -76,7 +75,8 @@
    * TH
    *-------------------------------------------------------------------------- */
   & thead [role="columnheader"] {
-    padding-inline: var(--outer-spacing-1);
+    padding-inline-start: var(--outer-spacing-3);
+    padding-inline-end: var(--outer-spacing-1);
     padding-block: var(--outer-spacing-1);
     background: var(--color-bg-elevation-3);
     font-weight: bold;
@@ -111,7 +111,7 @@
     inset: 0;
     display: flex;
     align-items: items;
-    padding-inline: var(--outer-spacing-2);
+    padding-inline: var(--outer-spacing-3);
     padding-inline-end: var(--padding-inline-end);
   }
 
@@ -208,16 +208,31 @@
   /*-------------------------------------------------------------------------
   * Column Types
   *-------------------------------------------------------------------------- */
-  & [role="cell"]:is([data-column-type="text"], [data-column-type="number"]) {
-    padding: var(--outer-spacing-4);
+  &
+    [role="cell"]:is(
+      [data-column-type="text"],
+      [data-column-type="number"],
+      [data-column-type="url"]
+    ) {
+    padding: var(--outer-spacing-4) var(--outer-spacing-3);
+  }
+
+  & [role="cell"]:is([data-column-type="button"]) {
+    align-items: center !important;
+    justify-content: center !important;
   }
 
   @each $color in colors {
-    & [role="cell"][data-cell-color="$(color)"]:is([data-column-type="text"], [data-column-type="number"]) {
+    & [role="cell"][data-cell-color="$(color)"] {
       background-color: var(--color-bg-$(color)-subtle);
     }
-  }
 
+    &
+      [role="row"][aria-checked="true"]
+      [role="cell"][data-cell-color="$(color)"] {
+      background-color: var(--color-bg-$(color)-subtle-active);
+    }
+  }
 
   /* --------------------------------------------------------------------------
   * Resizor

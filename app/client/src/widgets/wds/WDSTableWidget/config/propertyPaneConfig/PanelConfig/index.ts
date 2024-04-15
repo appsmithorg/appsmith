@@ -1,7 +1,6 @@
 import { updateCustomColumnAliasOnLabelChange } from "../../../widget/propertyUtils";
 import Alignment from "./Alignment";
 import Basic from "./Basic";
-import BorderAndShadow from "./BorderAndShadow";
 import Color from "./Color";
 import Data from "./Data";
 import DiscardButtonproperties, {
@@ -13,7 +12,6 @@ import Icon from "./Icon";
 import SaveButtonProperties, {
   saveButtonStyleConfig,
 } from "./SaveButtonProperties";
-import Select from "./Select";
 import TextFormatting from "./TextFormatting";
 import Validations from "./Validation";
 import DateProperties from "./DateProperties";
@@ -30,7 +28,6 @@ export default {
     Validations,
     SaveButtonProperties,
     DiscardButtonproperties,
-    Select,
     Events,
     DateProperties,
   ],
@@ -42,7 +39,6 @@ export default {
     Color,
     saveButtonStyleConfig,
     discardButtonStyleConfig,
-    BorderAndShadow,
   ],
   updateHook: updateCustomColumnAliasOnLabelChange,
 };
