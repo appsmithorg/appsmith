@@ -68,7 +68,7 @@ import {
   getWidgetLayoutMetaInfo,
   type WidgetLayoutPositionInfo,
 } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -1495,10 +1495,10 @@ export function getNextWidgetName(
 export function* createWidgetCopy(widget: FlattenedWidgetProps) {
   const allWidgets: { [widgetId: string]: FlattenedWidgetProps } =
     yield select(getWidgets);
-  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   const widgetsToStore = getAllWidgetsInTree(widget.widgetId, allWidgets);
   let widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
-  if (widget.parentId && layoutSystemType === LayoutSystemTypes.ANVIL) {
+  if (widget.parentId && isAnvilLayout) {
     widgetPositionInfo = getWidgetLayoutMetaInfo(
       allWidgets[widget?.parentId]?.layout[0] ?? null,
       widget.widgetId,
