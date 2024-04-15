@@ -15,7 +15,7 @@ import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
 import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
-import { getDraggedBlocks, getDraggedWidgetTypes } from "./utils";
+import { getDraggedBlocks, getDraggedWidgetTypes } from "../utils/utils";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];

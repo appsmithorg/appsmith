@@ -130,11 +130,7 @@ abstract class BaseLayoutComponent extends PureComponent<
   static rendersWidgets: boolean = false;
 
   render(): JSX.Element | null {
-    return (
-      <FlexLayout {...this.getFlexLayoutProps()}>
-        {this.renderContent()}
-      </FlexLayout>
-    );
+    return <>{this.renderContent()}</>;
   }
 
   protected renderContent(): React.ReactNode {
@@ -147,13 +143,17 @@ abstract class BaseLayoutComponent extends PureComponent<
     return (
       <>
         {this.renderDraggingArena()}
-        {this.renderChildren()}
+        {this.renderViewMode()}
       </>
     );
   }
 
   renderViewMode(): React.ReactNode {
-    return <>{this.renderChildren()}</>;
+    return (
+      <FlexLayout {...this.getFlexLayoutProps()}>
+        {this.renderChildren()}
+      </FlexLayout>
+    );
   }
 
   renderChildren(): React.ReactNode {

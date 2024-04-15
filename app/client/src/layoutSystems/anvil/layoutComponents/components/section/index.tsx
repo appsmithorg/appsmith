@@ -44,6 +44,7 @@ class Section extends WidgetRow {
       <>
         {super.renderDraggingArena()}
         {this.renderSectionSpaceDistributor()}
+        {this.renderViewMode()}
       </>
     );
   }
@@ -51,7 +52,7 @@ class Section extends WidgetRow {
   render(): JSX.Element {
     return (
       <SectionRow {...this.getFlexLayoutProps()}>
-        {this.renderContent()}
+        {super.renderChildren()}
       </SectionRow>
     );
   }

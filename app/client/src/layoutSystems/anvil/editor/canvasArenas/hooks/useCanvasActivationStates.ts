@@ -12,7 +12,7 @@ import {
   getDraggedBlocks,
   getDraggedWidgetHierarchy,
   getDraggedWidgetTypes,
-} from "./utils";
+} from "../utils/utils";
 import type { AnvilDraggedWidgetTypes } from "../types";
 
 export interface AnvilCanvasActivationStates {

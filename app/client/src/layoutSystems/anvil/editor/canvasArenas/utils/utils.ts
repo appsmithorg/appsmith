@@ -10,6 +10,65 @@ import { AnvilDraggedWidgetTypesEnum } from "../types";
 import { anvilWidgets } from "widgets/anvil/constants";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
+import type { LayoutElementPosition } from "layoutSystems/common/types";
+
+export const computeCanvasToLayoutGap = (
+  layoutPositions: LayoutElementPosition,
+  slidingArena: HTMLDivElement,
+) => {
+  const { height, width } = slidingArena.getBoundingClientRect();
+  return {
+    top: (height - layoutPositions.height) * 0.5,
+    left: (width - layoutPositions.width) * 0.5,
+  };
+};
+
+export const getEdgeHighlightOffset = (
+  highlightPositions: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  },
+  currentLayoutPositions: LayoutElementPosition,
+  canvasToLayoutGap: { left: number; top: number },
+  isVertical: boolean,
+) => {
+  const {
+    height: highlightHeight,
+    left: highlightLeft,
+    top: highlightTop,
+    width: highlightWidth,
+  } = highlightPositions;
+  const { height: layoutHeight, width: layoutWidth } = currentLayoutPositions;
+  // add offset only for the highlights at the edge of layout
+  const isTopEdge = highlightTop === canvasToLayoutGap.top;
+  const isLeftEdge = highlightLeft === canvasToLayoutGap.left;
+  const isRightEdge =
+    highlightLeft + highlightWidth === canvasToLayoutGap.left + layoutWidth;
+  const isBottomEdge =
+    highlightTop + highlightHeight === canvasToLayoutGap.top + layoutHeight;
+  const topGap = (canvasToLayoutGap.top + highlightHeight) * 0.5;
+  const leftGap = (canvasToLayoutGap.left + highlightWidth) * 0.5;
+  const topOffset = !isVertical
+    ? isTopEdge
+      ? -topGap
+      : isBottomEdge
+      ? topGap
+      : 0
+    : 0;
+  const leftOffset = isVertical
+    ? isLeftEdge
+      ? -leftGap
+      : isRightEdge
+      ? leftGap
+      : 0
+    : 0;
+  return {
+    topOffset,
+    leftOffset,
+  };
+};
 
 /**
  * Determines whether a canvas can be activated for a dragged widget based on specific conditions.

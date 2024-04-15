@@ -3,82 +3,16 @@ import { useEffect, useRef } from "react";
 import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/editor/canvasArenas/AnvilHighlightingCanvas";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
-import { getAbsolutePixels } from "utils/helpers";
 import { getNearestParentCanvas } from "utils/generators";
-import { getClosestHighlight } from "./utils";
+import { computeCanvasToLayoutGap, getClosestHighlight } from "../utils/utils";
 import { AnvilCanvasZIndex } from "layoutSystems/anvil/editor/canvas/hooks/useCanvasActivation";
-import { AnvilReduxActionTypes } from "layoutSystems/anvil/integrations/actions/actionTypes";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
-import { PADDING_FOR_HORIZONTAL_HIGHLIGHT } from "layoutSystems/anvil/utils/constants";
-import memoize from "micro-memoize";
-
-const setHighlightsDrawn = (highlight?: AnvilHighlightInfo) => {
-  return {
-    type: AnvilReduxActionTypes.ANVIL_SET_HIGHLIGHT_SHOWN,
-    payload: {
-      highlight,
-    },
-  };
-};
-
-/**
- * Function to render UX to denote that the widget type cannot be dropped in the layout
- */
-const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
-  slidingArena.style.backgroundColor = "#EB714D";
-  slidingArena.style.color = "white";
-  slidingArena.innerText = "This Layout doesn't support the widget";
-
-  slidingArena.style.textAlign = "center";
-  slidingArena.style.opacity = "0.8";
-};
-
-const getDropIndicatorColor = memoize(() => {
-  const rootStyles = getComputedStyle(document.documentElement);
-  return rootStyles.getPropertyValue("--anvil-drop-indicator");
-});
-
-/**
- * Function to stroke a rectangle on the canvas that looks like a highlight/drop area.
- */
-const renderBlocksOnCanvas = (
-  stickyCanvas: HTMLCanvasElement,
-  blockToRender: AnvilHighlightInfo,
-  shouldDraw: boolean,
-) => {
-  if (!shouldDraw) {
-    return;
-  }
-  // Calculating offset based on the position of the canvas
-  const topOffset = getAbsolutePixels(stickyCanvas.style.top);
-  const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
-  const dropIndicatorColor = getDropIndicatorColor();
-  const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
-
-  // Clearing previous drawings on the canvas
-  canvasCtx.clearRect(0, 0, stickyCanvas.width, stickyCanvas.height);
-  canvasCtx.beginPath();
-  // Extracting dimensions of the block to render
-  const { height, posX, posY, width } = blockToRender;
-  // using custom function to draw a rounded rectangle to achieve more sharper rounder corners
-  const horizontalPadding = blockToRender.isVertical
-    ? 0
-    : PADDING_FOR_HORIZONTAL_HIGHLIGHT;
-  const verticalPadding = blockToRender.isVertical
-    ? PADDING_FOR_HORIZONTAL_HIGHLIGHT / 2
-    : 0;
-  canvasCtx.roundRect(
-    posX - leftOffset + horizontalPadding,
-    posY - topOffset + verticalPadding,
-    width - horizontalPadding * 2,
-    height - verticalPadding * 2,
-    2,
-  );
-  canvasCtx.fillStyle = dropIndicatorColor;
-  canvasCtx.fill();
-  canvasCtx.closePath();
-};
+import { setHighlightsDrawnAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
+import {
+  renderBlocksOnCanvas,
+  renderDisallowOnCanvas,
+} from "../utils/canvasRenderUtils";
 
 /**
  *
@@ -96,7 +30,7 @@ export const useCanvasDragging = (
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
   props: AnvilHighlightingCanvasProps,
 ) => {
-  const { anvilDragStates, deriveAllHighlightsFn, onDrop } = props;
+  const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop } = props;
   const {
     activateOverlayWidgetDrop,
     allowToDrop,
@@ -107,6 +41,7 @@ export const useCanvasDragging = (
     mainCanvasLayoutId,
   } = anvilDragStates;
   const dispatch = useDispatch();
+  const canvasToLayoutGap = useRef({ left: 0, top: 0 });
   /**
    * Provides auto-scroll functionality
    */
@@ -120,6 +55,7 @@ export const useCanvasDragging = (
    * Ref to store highlights derived in real time once dragging starts
    */
   const allHighlightsRef = useRef([] as AnvilHighlightInfo[]);
+  const currentLayoutPositions = layoutElementPositions[layoutId];
 
   /**
    * Function to calculate and store highlights
@@ -189,7 +125,7 @@ export const useCanvasDragging = (
           slidingArenaRef.current.style.color = "unset";
           slidingArenaRef.current.innerText = "";
           canvasIsDragging.current = false;
-          dispatch(setHighlightsDrawn());
+          dispatch(setHighlightsDrawnAction());
         }
       };
 
@@ -218,7 +154,13 @@ export const useCanvasDragging = (
             // Calculate highlights when the mouse enters the canvas
             calculateHighlights();
             canvasIsDragging.current = true;
-            onMouseMove(e);
+            if (currentLayoutPositions) {
+              canvasToLayoutGap.current = computeCanvasToLayoutGap(
+                currentLayoutPositions,
+                slidingArenaRef.current,
+              );
+            }
+            requestAnimationFrame(() => onMouseMove(e));
           }
         };
         // make sure rendering highlights on canvas and highlighting cell happens once every 50ms
@@ -229,12 +171,14 @@ export const useCanvasDragging = (
               canvasIsDragging.current &&
               isCurrentDraggedCanvas
             ) {
-              dispatch(setHighlightsDrawn(currentRectanglesToDraw));
+              dispatch(setHighlightsDrawnAction(currentRectanglesToDraw));
               // Render blocks on the canvas based on the highlight
               renderBlocksOnCanvas(
                 stickyCanvasRef.current,
                 currentRectanglesToDraw,
+                currentLayoutPositions,
                 canvasIsDragging.current,
+                canvasToLayoutGap.current,
               );
             }
           },
@@ -348,6 +292,7 @@ export const useCanvasDragging = (
     isDragging,
     layoutElementPositions,
     mainCanvasLayoutId,
+    currentLayoutPositions,
   ]);
 
   return {
