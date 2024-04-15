@@ -54,6 +54,7 @@ export function PageContextMenu(props: {
   isDefaultPage: boolean;
   isHidden: boolean;
   hasExportPermission: boolean;
+  onItemSelected?: () => void;
 }) {
   const dispatch = useDispatch();
   const isPartialImportExportEnabled = useFeatureFlag(
@@ -145,8 +146,12 @@ export function PageContextMenu(props: {
     ],
   );
 
-  const openPartialExportModal = () => setShowPartialExportModal(true);
-  const openPartialImportModal = () => setShowPartialImportModal(true);
+  const openPartialExportModal = () => {
+    setShowPartialExportModal(true);
+  };
+  const openPartialImportModal = () => {
+    setShowPartialImportModal(true);
+  };
 
   const pagePermissions =
     useSelector(getPageById(props.pageId))?.userPermissions || [];

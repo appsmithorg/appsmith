@@ -3,9 +3,9 @@ import {
   Flex,
   Text,
   Icon,
-  Menu,
-  MenuTrigger,
-  MenuContent,
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
 } from "design-system";
 
 import { createMessage, HEADER_TITLES } from "@appsmith/constants/messages";
@@ -26,9 +26,14 @@ const PageSwitchTrigger = styled.div<{ active: boolean }>`
 const EditorTitle = ({ title }: { title: string }) => {
   const [active, setActive] = useState(false);
 
+  const closeMenu = () => {
+    setActive(false);
+    // debugger;
+  };
+
   return (
-    <Menu onOpenChange={setActive} open={active}>
-      <MenuTrigger>
+    <Popover onOpenChange={setActive} open={active}>
+      <PopoverTrigger>
         <PageSwitchTrigger
           active={active}
           className="flex align-center justify-center"
@@ -57,17 +62,15 @@ const EditorTitle = ({ title }: { title: string }) => {
             />
           </Flex>
         </PageSwitchTrigger>
-      </MenuTrigger>
-      <MenuContent
+      </PopoverTrigger>
+      <PopoverContent
         align="start"
-        onEscapeKeyDown={() => {
-          setActive(false);
-        }}
-        width="300px"
+        className="!p-0 !pb-1"
+        onEscapeKeyDown={closeMenu}
       >
-        <PagesSection />
-      </MenuContent>
-    </Menu>
+        <PagesSection onItemSelected={closeMenu} />
+      </PopoverContent>
+    </Popover>
   );
 };
 

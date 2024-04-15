@@ -43,7 +43,7 @@ const Header = styled.div`
   }
 `;
 
-const PagesSection = () => {
+const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const pages: Page[] = useSelector(selectAllPages);
@@ -82,7 +82,10 @@ const PagesSection = () => {
   const onMenuClose = useCallback(() => setIsMenuOpen(false), [setIsMenuOpen]);
 
   const pageElements = useMemo(
-    () => pages.map((page) => <PageElement key={page.pageId} page={page} />),
+    () =>
+      pages.map((page) => (
+        <PageElement key={page.pageId} onClick={onItemSelected} page={page} />
+      )),
     [pages, location.pathname],
   );
 
@@ -100,6 +103,7 @@ const PagesSection = () => {
             buttonSize="sm"
             className={`${EntityClassNames.ADD_BUTTON} group pages`}
             createPageCallback={createPageCallback}
+            onItemSelected={onItemSelected}
             onMenuClose={onMenuClose}
             openMenu={isMenuOpen}
           />
