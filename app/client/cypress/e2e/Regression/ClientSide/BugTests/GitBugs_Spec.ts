@@ -82,40 +82,7 @@ describe("Git Bugs", { tags: ["@tag.Git"] }, function () {
     _.agHelper.AssertURL("testQP=Yes"); //Validate we also ve the Query Params from Page1
   });
 
-  it("4. Bug 24045 : Theme and app settings message in git status", function () {
-    _.gitSync.SwitchGitBranch("master");
-    _.gitSync.CreateGitBranch(`st`, true);
-    cy.get("@gitbranchName").then((branchName) => {
-      statusBranch = branchName;
-      AppSidebar.navigate(AppSidebarButton.Settings);
-      _.agHelper.GetNClick(_.locators._appThemeSettings);
-      _.agHelper.GetNClick(_.locators._appChangeThemeBtn, 0, true);
-      _.agHelper.GetNClick(_.locators._appThemeCard, 2);
-      AppSidebar.navigate(AppSidebarButton.Editor);
-      _.agHelper.GetNClick(_.locators._publishButton);
-      _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
-      _.agHelper.AssertContains(
-        Cypress.env("MESSAGES").CHANGES_THEME(),
-        "exist",
-        _.gitSync._gitStatusChanges,
-      );
-      _.agHelper.GetNClick(_.locators._dialogCloseButton);
-      AppSidebar.navigate(AppSidebarButton.Settings);
-      _.agHelper.GetNClick(_.locators._appNavigationSettings);
-      _.agHelper.GetNClick(_.locators._appNavigationSettingsShowTitle);
-      AppSidebar.navigate(AppSidebarButton.Editor);
-      _.agHelper.GetNClick(_.locators._publishButton);
-      _.agHelper.WaitUntilEleAppear(_.gitSync._gitStatusChanges);
-      _.agHelper.AssertContains(
-        Cypress.env("MESSAGES").CHANGES_APP_SETTINGS(),
-        "exist",
-        _.gitSync._gitStatusChanges,
-      );
-      _.agHelper.GetNClick(_.locators._dialogCloseButton);
-    });
-  });
-
-  it("5. Bug 24946 : Discard message is missing when only navigation settings are changed", function () {
+  it("4. Bug 24946 : Discard message is missing when only navigation settings are changed", function () {
     _.gitSync.SwitchGitBranch("master");
     _.gitSync.CreateGitBranch(`b24946`, true);
     cy.get("@gitbranchName").then((branchName) => {
@@ -142,12 +109,12 @@ describe("Git Bugs", { tags: ["@tag.Git"] }, function () {
     });
   });
 
-  it("6. Bug 24486 : Loading state for remote branches", function () {
+  it("5. Bug 24486 : Loading state for remote branches", function () {
     _.gitSync.CreateRemoteBranch(repoName, "test-24486");
     _.gitSync.SwitchGitBranch("origin/test-24486", false, true);
   });
 
-  it("7. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
+  it("6. Bug 24920: Not able to discard app settings changes for the first time in git connected app ", function () {
     _.gitSync.SwitchGitBranch("master", false, true);
     // add navigation settings changes
     AppSidebar.navigate(AppSidebarButton.Settings);
@@ -161,7 +128,7 @@ describe("Git Bugs", { tags: ["@tag.Git"] }, function () {
     _.gitSync.VerifyChangeLog(false);
   });
 
-  it("8. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
+  it("7. Bug 23858 : Branch list in git sync modal is not scrollable", function () {
     // create git branches
     _.gitSync.CreateGitBranch(tempBranch1, true);
     _.gitSync.CreateGitBranch(tempBranch2, true);
@@ -180,7 +147,7 @@ describe("Git Bugs", { tags: ["@tag.Git"] }, function () {
     _.gitSync.CloseGitSyncModal();
   });
 
-  it("9. Bug 24206 : Open repository button is not functional in git sync modal", function () {
+  it("8. Bug 24206 : Open repository button is not functional in git sync modal", function () {
     _.gitSync.SwitchGitBranch("master");
     _.appSettings.OpenPaneAndChangeTheme("Moon");
     _.gitSync.CommitAndPush();

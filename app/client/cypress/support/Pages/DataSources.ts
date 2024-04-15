@@ -495,6 +495,7 @@ export class DataSources {
     const databaseName = shouldAddTrailingSpaces
       ? this.dataManager.dsValues[environment].postgres_databaseName + "  "
       : this.dataManager.dsValues[environment].postgres_databaseName;
+    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].postgres_port.toString(),
@@ -565,6 +566,7 @@ export class DataSources {
     const hostAddress = shouldAddTrailingSpaces
       ? this.dataManager.dsValues[environment].mongo_host + "  "
       : this.dataManager.dsValues[environment].mongo_host;
+    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     this.agHelper.UpdateInputValue(this._host(), hostAddress);
     this.agHelper.UpdateInputValue(
       this._port,
@@ -1008,7 +1010,6 @@ export class DataSources {
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
   ) {
     this.ReconnectModalValidation(dbName, dsName);
-    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();

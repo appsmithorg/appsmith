@@ -60,9 +60,8 @@ function* getUpdatedTabs(newId: string, currentTabs: string[]) {
   let newTabs = isTabsRevampEnabled
     ? [...currentTabs, newId]
     : [newId, ...currentTabs];
-  if (newTabs.length > 5) {
-    // take last 5 since new tab gets added to the end of the array
-    newTabs = newTabs.slice(-5);
+  if (!isTabsRevampEnabled && newTabs.length > 5) {
+    newTabs = newTabs.slice(0, 5);
   }
   return newTabs;
 }
