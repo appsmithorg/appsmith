@@ -271,21 +271,6 @@ export const handlers = {
       }
     });
   },
-  [ReduxActionTypes.MOVE_ACTION_INIT]: (
-    draftMetaState: ActionDataState,
-    action: ReduxAction<{
-      id: string;
-      destinationPageId: string;
-      name: string;
-    }>,
-  ) => {
-    draftMetaState.forEach((a) => {
-      if (a.config.id === action.payload.id) {
-        a.config.name = action.payload.name;
-        a.config.pageId = action.payload.destinationPageId;
-      }
-    });
-  },
   [ReduxActionTypes.MOVE_ACTION_SUCCESS]: (
     draftMetaState: ActionDataState,
     action: ReduxAction<Action>,
@@ -296,73 +281,16 @@ export const handlers = {
       }
     });
   },
-  [ReduxActionErrorTypes.MOVE_ACTION_ERROR]: (
-    draftMetaState: ActionDataState,
-    action: ReduxAction<{ id: string; originalPageId: string }>,
-  ) => {
-    draftMetaState.forEach((a) => {
-      if (a.config.id === action.payload.id) {
-        a.config.pageId = action.payload.originalPageId;
-      }
-    });
-  },
-  [ReduxActionTypes.COPY_ACTION_INIT]: (
-    draftMetaState: ActionDataState,
-    action: ReduxAction<{
-      id: string;
-      destinationPageId: string;
-      name: string;
-    }>,
-  ) => {
-    return draftMetaState.concat(
-      draftMetaState
-        .filter((a) => a.config.id === action.payload.id)
-        .map((a) => ({
-          ...a,
-          data: undefined,
-          config: {
-            ...a.config,
-            id: "TEMP_COPY_ID",
-            name: action.payload.name,
-            pageId: action.payload.destinationPageId,
-          },
-        })),
-    );
-  },
   [ReduxActionTypes.COPY_ACTION_SUCCESS]: (
     draftMetaState: ActionDataState,
     action: ReduxAction<Action>,
   ) => {
-    draftMetaState.forEach((a) => {
-      if (
-        a.config.pageId === action.payload.pageId &&
-        a.config.name === action.payload.name
-      ) {
-        a.config = action.payload;
-      }
-    });
-  },
-  [ReduxActionErrorTypes.COPY_ACTION_ERROR]: (
-    draftMetaState: ActionDataState,
-    action: ReduxAction<{
-      id: string;
-      destinationPageId: string;
-      name: string;
-    }>,
-  ) => {
-    return draftMetaState.filter((a) => {
-      if (a.config.pageId === action.payload.destinationPageId) {
-        if (
-          a.config.id === action.payload.id ||
-          a.config.id === "TEMP_COPY_ID"
-        ) {
-          return a.config.name !== action.payload.name;
-        }
-        return true;
-      }
-
-      return true;
-    });
+    return draftMetaState.concat([
+      {
+        config: { ...action.payload },
+        isLoading: false,
+      },
+    ]);
   },
   [ReduxActionTypes.SET_ACTION_TO_EXECUTE_ON_PAGELOAD]: (
     draftMetaState: ActionDataState,
