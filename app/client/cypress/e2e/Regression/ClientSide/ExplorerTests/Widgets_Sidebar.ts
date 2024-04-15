@@ -11,7 +11,6 @@ describe(
   function () {
     // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
     const WIDGET_TAGS: Record<string, string> = {
-      BUILDING_BLOCKS: "Building Blocks",
       SUGGESTED_WIDGETS: "Suggested",
       INPUTS: "Inputs",
       BUTTONS: "Buttons",
@@ -37,27 +36,6 @@ describe(
 
     // When adding a new widget or tag, we need to manually add it to this list.
     const WIDGETS_CATALOG: Record<string, string[]> = {
-      "Building Blocks": [
-        "View Data",
-        "Edit Data",
-        "Table Lookup",
-        "Update Data",
-        "Sort & Filter",
-        "Date Filter",
-        "Validated Form",
-        "Insert Data",
-        "Delete Data",
-        "Conditional Formating",
-        "Upload Files",
-        "Camera Upload",
-        "Login Flow",
-        "Chart & Filters",
-        "Editable Table",
-        "Sort & Filter List",
-        "Action List",
-        "Address Map",
-        "Refresh on Click",
-      ],
       Suggested: ["Input", "JSON Form", "List", "Select", "Table", "Text"],
       Inputs: [
         "Currency Input",
@@ -118,7 +96,9 @@ describe(
     });
 
     it("2. All widgets should be present within their tags and these tags should be collapsible", () => {
-      featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
+      featureFlagIntercept({
+        release_drag_drop_building_blocks_enabled: false,
+      });
       agHelper.GetElement(entityExplorer._widgetTagsList).each(($widgetTag) => {
         // check that tags are collapsible
         cy.wrap($widgetTag).find(locators._adsV2CollapsibleHeader).click({
@@ -209,7 +189,9 @@ describe(
     });
 
     it("4. Widget search should work", () => {
-      featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
+      featureFlagIntercept({
+        release_drag_drop_building_blocks_enabled: false,
+      });
       agHelper.TypeText(entityExplorer._widgetSearchInput, "text");
       agHelper.AssertElementLength(entityExplorer._widgetCards, 3);
 
