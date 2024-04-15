@@ -119,7 +119,7 @@ public class GitAutoCommitHelperImplTest {
                         anyString(), anyString(), any(AclPermission.class)))
                 .thenReturn(Mono.just(application));
 
-        StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
+        StepVerifier.create(gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName))
                 .assertNext(aBoolean -> {
                     assertThat(aBoolean).isFalse();
                 })
@@ -146,7 +146,7 @@ public class GitAutoCommitHelperImplTest {
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitArtifactMetadata.class), eq(branchName)))
                 .thenReturn(Mono.just(Boolean.FALSE));
 
-        StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
+        StepVerifier.create(gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName))
                 .assertNext(aBoolean -> {
                     assertThat(aBoolean).isFalse();
                 })
@@ -171,7 +171,7 @@ public class GitAutoCommitHelperImplTest {
 
         Mono<Boolean> autoCommitMono = redisUtils
                 .startAutoCommit(defaultApplicationId, branchName)
-                .then(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName));
+                .then(gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName));
 
         StepVerifier.create(autoCommitMono)
                 .assertNext(aBoolean -> {
@@ -310,7 +310,7 @@ public class GitAutoCommitHelperImplTest {
         Mockito.when(gitPrivateRepoHelper.isBranchProtected(any(GitArtifactMetadata.class), eq(branchName)))
                 .thenReturn(Mono.just(Boolean.FALSE));
 
-        StepVerifier.create(gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName))
+        StepVerifier.create(gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName))
                 .assertNext(aBoolean -> {
                     assertThat(aBoolean).isFalse();
                 })

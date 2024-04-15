@@ -3,19 +3,23 @@ package com.appsmith.server.solutions.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.server.applications.solutions.ApplicationSolution;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.services.AnalyticsService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,8 +40,11 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.git.constants.GitConstants.PAGE_LIST;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
+import static com.appsmith.server.constants.SerialiseArtifactObjective.VERSION_CONTROL;
 import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
 import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
+import static java.lang.Boolean.TRUE;
 
 @RequiredArgsConstructor
 @Slf4j
@@ -49,6 +56,9 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private final GitExecutor gitExecutor;
     private final ProjectProperties projectProperties;
     private final AnalyticsService analyticsService;
+    private final ImportService importService;
+    private final ExportService exportService;
+    private final ApplicationSolution applicationSolution;
 
     public static final String AUTO_COMMIT_MSG_FORMAT =
             "System generated commit, to support new features in Appsmith %s";
@@ -150,9 +160,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                             false,
                                             false)
                                     .then(triggerAnalyticsEvent(
-                                            AnalyticsEvents.GIT_COMMIT,
-                                            autoCommitEvent,
-                                            Map.of("isAutoCommit", Boolean.TRUE)));
+                                            AnalyticsEvents.GIT_COMMIT, autoCommitEvent, Map.of("isAutoCommit", TRUE)));
                         })
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 80))
                         .flatMap(result -> {
@@ -173,9 +181,9 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                                             return triggerAnalyticsEvent(
                                                     AnalyticsEvents.GIT_PUSH,
                                                     autoCommitEvent,
-                                                    Map.of("isAutoCommit", Boolean.TRUE));
+                                                    Map.of("isAutoCommit", TRUE));
                                         }
-                                        return Mono.just(Boolean.TRUE);
+                                        return Mono.just(TRUE);
                                     });
                         })
                         .defaultIfEmpty(Boolean.FALSE))
@@ -217,9 +225,8 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         analyticsProps.putAll(attributes);
 
         return analyticsService
-                .sendEvent(
-                        analyticsEvent.getEventName(), autoCommitEvent.getAuthorEmail(), analyticsProps, Boolean.TRUE)
-                .thenReturn(Boolean.TRUE);
+                .sendEvent(analyticsEvent.getEventName(), autoCommitEvent.getAuthorEmail(), analyticsProps, TRUE)
+                .thenReturn(TRUE);
     }
 
     /**
@@ -302,5 +309,117 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                             .thenReturn(pageDTO.getName());
                 })
                 .collectList();
+    }
+
+    /**
+     * Event for initiating server side autocommit.
+     * @param autoCommitEvent: event for server side autocommit
+     * @return
+     */
+    @Override
+    public Mono<Boolean> autoCommitServerMigration(AutoCommitEvent autoCommitEvent) {
+
+        String defaultApplicationId = autoCommitEvent.getApplicationId();
+        String branchName = autoCommitEvent.getBranchName();
+        String workspaceId = autoCommitEvent.getWorkspaceId();
+        String repoName = autoCommitEvent.getRepoName();
+
+        // add file lock
+        // reset the file_system.
+        // retrieve and create application json from the file system
+        // import the file in a same workspace
+        // export and retrieve the application json
+        // write it in the application json
+        // commit application
+        // push to remote
+        // release file lock
+
+        return addFileLock(defaultApplicationId)
+                .flatMap(isFileLocked -> redisUtils.startAutoCommit(defaultApplicationId, branchName))
+                .flatMap(autoCommitLocked -> resetUncommittedChanges(autoCommitEvent))
+                .flatMap(isBranchCheckedOut -> fileUtils.reconstructApplicationJsonFromGitRepo(
+                        workspaceId, defaultApplicationId, repoName, branchName))
+                .flatMap(applicationJson ->
+                        importService.importArtifactInWorkspaceFromGit(workspaceId, null, applicationJson, branchName))
+                .flatMap(artifact -> {
+                    String artifactId = artifact.getId();
+                    Mono<? extends ArtifactExchangeJson> appJsonMono =
+                            exportService.exportByArtifactId(artifactId, VERSION_CONTROL, APPLICATION);
+                    return Mono.zip(Mono.just(artifactId), appJsonMono);
+                })
+                .flatMap(tuple2 -> {
+                    String artifactId = tuple2.getT1();
+                    ApplicationJson applicationJson = (ApplicationJson) tuple2.getT2();
+                    return deleteApplication(workspaceId, artifactId)
+                            .then(saveApplicationJsonToFileSystem(applicationJson, autoCommitEvent));
+                })
+                .flatMap(baseRepoPath -> commitAndPush(autoCommitEvent, baseRepoPath))
+                .flatMap(result -> {
+                    log.info(
+                            "server side auto commit finished. added commit: {}, application: {}, branch: {}",
+                            result,
+                            autoCommitEvent.getApplicationId(),
+                            autoCommitEvent.getBranchName());
+                    return cleanUp(autoCommitEvent, result, false);
+                })
+                .onErrorResume(throwable -> {
+                    log.error(
+                            "Failed to auto-commit application: {} branch {}",
+                            autoCommitEvent.getApplicationId(),
+                            autoCommitEvent.getBranchName(),
+                            throwable);
+                    return cleanUp(autoCommitEvent, Boolean.FALSE, true);
+                });
+    }
+
+    /**
+     * Delete the newly created application
+     * @return
+     */
+    protected Mono<Void> deleteApplication(String workspaceId, String applicationId) {
+        // components
+        // application
+        // pages
+        // actions
+        // action collections
+        // datasource
+        return applicationSolution.archiveApplicationAndItsComponents(applicationId);
+    }
+
+    protected Mono<Boolean> commitAndPush(AutoCommitEvent autoCommitEvent, Path baseRepoPath) {
+
+        // commit the application
+        return gitExecutor
+                .commitArtifact(
+                        baseRepoPath,
+                        String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
+                        autoCommitEvent.getAuthorName(),
+                        autoCommitEvent.getAuthorEmail(),
+                        false,
+                        false)
+                .then(triggerAnalyticsEvent(AnalyticsEvents.GIT_COMMIT, autoCommitEvent, Map.of("isAutoCommit", TRUE)))
+                .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 80))
+                .flatMap(result -> {
+                    Path baseRepoSuffix = Paths.get(
+                            autoCommitEvent.getWorkspaceId(),
+                            autoCommitEvent.getApplicationId(),
+                            autoCommitEvent.getRepoName());
+
+                    return gitExecutor
+                            .pushApplication(
+                                    baseRepoSuffix,
+                                    autoCommitEvent.getRepoUrl(),
+                                    autoCommitEvent.getPublicKey(),
+                                    autoCommitEvent.getPrivateKey(),
+                                    autoCommitEvent.getBranchName())
+                            .flatMap(pushResponse -> {
+                                if (!pushResponse.contains("REJECTED")) { // push was successful
+                                    return triggerAnalyticsEvent(
+                                            AnalyticsEvents.GIT_PUSH, autoCommitEvent, Map.of("isAutoCommit", TRUE));
+                                }
+                                return Mono.just(TRUE);
+                            });
+                })
+                .defaultIfEmpty(Boolean.FALSE);
     }
 }
