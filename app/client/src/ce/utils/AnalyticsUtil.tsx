@@ -7,8 +7,12 @@ import type { User } from "constants/userConstants";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
-import { getUserSource } from "@appsmith/utils";
 
+export function getUserSource() {
+  const { cloudHosting, segment } = getAppsmithConfigs();
+  const source = cloudHosting || segment.apiKey ? "cloud" : "ce";
+  return source;
+}
 declare global {
   interface Window {
     // Zipy is added via script tags in index.html

@@ -13,7 +13,7 @@ import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
-import { getUserSource } from "@appsmith/utils";
+import { getUserSource } from "@appsmith/utils/AnalyticsUtil";
 
 export interface UserAndAppDetails {
   pageId: string;

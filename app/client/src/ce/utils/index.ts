@@ -1,4 +1,3 @@
-import { getAppsmithConfigs } from "@appsmith/configs";
 import _ from "lodash";
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
@@ -40,10 +39,4 @@ export function getSnippetUrl(
   method: string,
 ) {
   return url;
-}
-
-export function getUserSource() {
-  const { cloudHosting, segment } = getAppsmithConfigs();
-  const source = cloudHosting || segment.apiKey ? "cloud" : "ce";
-  return source;
 }
