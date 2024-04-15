@@ -1,6 +1,5 @@
 import React from "react";
 import { Select } from "@design-system/widgets";
-import { Item } from "@react-stately/collections";
 
 export const SelectExample = () => {
   const options = [
@@ -13,13 +12,23 @@ export const SelectExample = () => {
     { id: 7, name: "Chemical" },
     { id: 8, name: "Agricultural" },
     { id: 9, name: "Electrical" },
+    { id: 11, name: "Aerospace" },
+    { id: 12, name: "Mechanical" },
+    { id: 13, name: "Civil" },
+    { id: 14, name: "Biomedical" },
+    { id: 15, name: "Nuclear" },
+    { id: 16, name: "Industrial" },
+    { id: 17, name: "Chemical" },
+    { id: 18, name: "Agricultural" },
+    { id: 19, name: "Electrical" },
   ];
 
-  // return <Select defaultItems={options} label="asdasda" />;
-
   return (
-    <Select items={options} label="Example">
-      {(item: any) => <Item key={item.name}>{item.name}</Item>}
-    </Select>
+    <Select
+      disabledKeys={[2]}
+      items={options}
+      label="Example"
+      onSelectionChange={(e) => console.log(e)}
+    />
   );
 };
