@@ -71,7 +71,7 @@ public class GitUtilsTest {
                 .verifyComplete();
 
         StepVerifier.create(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://git@example.test.net:user/test/tests/testRepo.git")))
+                        "ssh://git@example.test.net/user/test/tests/testRepo.git")))
                 .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
                 .verifyComplete();
 
