@@ -71,11 +71,14 @@ export function Row(props: RowType) {
           ...cellProperties.style,
           display: "flex",
           alignItems: columns[cellIndex].columnProperties.verticalAlignment,
+          justifyContent:
+            columns[cellIndex].columnProperties.horizontalAlignment,
           left:
             columns[cellIndex].sticky === StickyType.LEFT && multiRowSelection
               ? cell.column.totalLeft + MULTISELECT_CHECKBOX_WIDTH
               : cellProperties?.style?.left,
         };
+
         return (
           <div
             {...cellProperties}
@@ -91,11 +94,11 @@ export function Row(props: RowType) {
                       : ""
                   }`
             }
+            data-cell-color={columns[cellIndex].columnProperties.cellColor}
             data-colindex={cellIndex}
+            data-column-type={columns[cellIndex].columnProperties.columnType}
             data-rowindex={props.index}
             key={cellIndex}
-            data-column-type={columns[cellIndex].columnProperties.columnType}
-            data-cell-color={columns[cellIndex].columnProperties.cellColor}
           >
             {cell.render("Cell")}
           </div>

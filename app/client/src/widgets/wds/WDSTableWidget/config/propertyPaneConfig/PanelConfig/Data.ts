@@ -33,21 +33,13 @@ export default {
           value: ColumnTypes.BUTTON,
         },
         {
-          label: "Checkbox",
-          value: ColumnTypes.CHECKBOX,
-        },
-        {
-          label: "Icon button",
-          value: ColumnTypes.ICON_BUTTON,
-        },
-        {
           label: "Number",
           value: ColumnTypes.NUMBER,
         },
         {
           label: "Plain text",
           value: ColumnTypes.TEXT,
-        }, 
+        },
         {
           label: "URL",
           value: ColumnTypes.URL,

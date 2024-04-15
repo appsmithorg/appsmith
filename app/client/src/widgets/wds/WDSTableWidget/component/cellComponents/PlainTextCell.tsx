@@ -1,22 +1,34 @@
 import React, { memo } from "react";
-import { COLORS, Text } from "@design-system/widgets";
+import type { COLORS } from "@design-system/widgets";
+import { Text } from "@design-system/widgets";
 
 import type { BaseCellComponentProps } from "../Constants";
 
-export type PlainTextCellProps = {
+export interface PlainTextCellProps {
   value: any;
-  cellColor?: keyof typeof COLORS
-};
+  cellColor?: keyof typeof COLORS;
+  isBold?: boolean;
+  isUnderline?: boolean;
+  isItalic?: boolean;
+}
 
 function PlainTextCell(props: PlainTextCellProps & BaseCellComponentProps) {
-  let { value, cellColor, allowCellWrapping } = props;
+  const { allowCellWrapping, cellColor, isBold, isItalic, value } = props;
   const lineClamp = allowCellWrapping ? undefined : 1;
 
   return (
-    <Text color={cellColor} variant="body" lineClamp={lineClamp}>{value}</Text>  
+    <Text
+      color={cellColor}
+      isBold={isBold}
+      isItalic={isItalic}
+      lineClamp={lineClamp}
+      variant="body"
+    >
+      {value}
+    </Text>
   );
 }
 
-const MemoizedPlainText =  memo(PlainTextCell);
+const MemoizedPlainText = memo(PlainTextCell);
 
 export { MemoizedPlainText as PlainTextCell };

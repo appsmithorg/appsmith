@@ -18,6 +18,7 @@ import type { ColumnTypes } from "../constants";
 import type { TimePrecision } from "widgets/DatePickerWidget2/constants";
 import { generateReactKey } from "widgets/WidgetUtils";
 import type { PlainTextCellProps } from "./cellComponents/PlainTextCell";
+import type { ButtonCellProps } from "./cellComponents/ButtonCell";
 
 export interface TableSizes {
   COLUMN_HEADER_HEIGHT: number;
@@ -154,7 +155,7 @@ export interface CellWrappingProperties {
 }
 
 export interface ButtonCellProperties {
-  buttonVariant: ButtonVariant;
+  buttonVariant: ButtonCellProps["buttonVariant"];
   buttonColor?: string;
   buttonLabel?: string;
   isCompact?: boolean;
@@ -212,20 +213,18 @@ export interface BaseCellProperties {
   textColor?: string;
   cellBackground?: string;
   isVisible?: boolean;
-  isDisabled?: boolean; 
+  isDisabled?: boolean;
   isCellVisible: boolean;
   isCellDisabled?: boolean;
 }
 
 export interface CellLayoutProperties
-  extends
-    CellWrappingProperties,
+  extends CellWrappingProperties,
     ButtonCellProperties,
     URLCellProperties,
-    BaseCellProperties 
-    {
-      cellColor?: PlainTextCellProps["cellColor"];
-    }
+    BaseCellProperties {
+  cellColor?: PlainTextCellProps["cellColor"];
+}
 
 export interface TableColumnMetaProps {
   isHidden: boolean;
@@ -365,7 +364,7 @@ export interface ColumnProperties
   iconButtonStyle?: ButtonStyleType;
   imageSize?: ImageSize;
   sticky?: StickyType;
-  getVisibleItems?: () => Array<MenuItem>; 
+  getVisibleItems?: () => Array<MenuItem>;
   configureMenuItems?: ConfigureMenuItems;
   sourceData?: Array<Record<string, unknown>>;
   cellColor?: PlainTextCellProps["cellColor"];
