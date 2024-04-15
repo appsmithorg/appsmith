@@ -38,15 +38,10 @@ import { toast } from "design-system";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona as clone } from "klona/full";
-import {
-  getWidgetLayoutMetaInfo,
-  type WidgetLayoutPositionInfo,
-} from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import { isFunction } from "lodash";
 import omit from "lodash/omit";
 import log from "loglevel";
@@ -64,7 +59,6 @@ import {
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getNextEntityName } from "utils/AppsmithUtils";
@@ -96,6 +90,7 @@ import {
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
+import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -532,6 +527,119 @@ function* addNewTabChildSaga(
   yield put(updateAndSaveLayout(updatedWidgets));
 }
 
+function* addBuildingBlockActionsToApp(dragDetails: DragDetails) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const buildingblockName = dragDetails.newWidget.displayName;
+  const buildingBlocks: Template[] = yield select(getTemplatesSelector);
+  const currentPageId: string = yield select(getCurrentPageId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  const selectedBuildingBlock = buildingBlocks.find(
+    (buildingBlock) => buildingBlock.title === buildingblockName,
+  ) as Template;
+
+  const body: ImportBuildingBlockToApplicationRequest = {
+    pageId: currentPageId,
+    applicationId,
+    workspaceId,
+    templateId: selectedBuildingBlock.id,
+  };
+
+  // api call adds DS, queries and JS to page and returns new page dsl with building block
+  const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
+    yield call(ApplicationApi.importBuildingBlockToApplication, body);
+
+  return response;
+}
+
+function* saveBuildingBlockWidgetsToStore(
+  response: ApiResponse<ImportBuildingBlockToApplicationResponse>,
+) {
+  const buildingBlockDsl = JSON.parse(response.data.widgetDsl);
+  const buildingBlockWidgets = buildingBlockDsl.children;
+  const flattenedBlockWidgets = buildingBlockWidgets.map(
+    (widget: WidgetProps) => flattenDSL(widget),
+  );
+
+  const widgetsToPasteInCanvas: CopiedWidgetData[] = yield all(
+    flattenedBlockWidgets.map((widget: FlattenedWidgetProps, index: number) => {
+      const widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
+      return {
+        hierarchy: getWidgetHierarchy(
+          buildingBlockWidgets[index].type,
+          buildingBlockWidgets[index].widgetId,
+        ),
+        list: Object.values(widget)
+          .map((obj) => ({ ...obj }))
+          .reverse(),
+        parentId: MAIN_CONTAINER_WIDGET_ID,
+        widgetId: buildingBlockWidgets[index].widgetId,
+        widgetPositionInfo,
+      };
+    }),
+  );
+
+  yield saveCopiedWidgets(
+    JSON.stringify({
+      widgets: widgetsToPasteInCanvas,
+      flexLayers: [],
+    }),
+  );
+}
+
+function* getBuildingBlocksDropMousePosition(
+  topRow: number,
+  leftColumn: number,
+) {
+  const canvasWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
+  let mousePosition = { x: 0, y: 0 };
+
+  // convert grid position to mouse position for paste functionality
+  const { canvasDOM, canvasId, containerWidget } =
+    getDefaultCanvas(canvasWidgets);
+  if (!canvasDOM || !containerWidget || !canvasId) {
+    mousePosition = { x: 0, y: 0 };
+  } else {
+    const canvasRect = canvasDOM.getBoundingClientRect();
+    const { padding, snapGrid } = getSnappedGrid(
+      containerWidget,
+      canvasRect.width,
+    );
+    mousePosition = getMousePositionFromCanvasGridPosition(
+      topRow,
+      leftColumn,
+      snapGrid,
+      padding,
+      canvasId as string,
+    );
+  }
+
+  return mousePosition;
+}
+
+function* runNewlyCreatedActions(
+  actionsBeforeAddingBuildingBlock: ActionDataState,
+  actionsAfterAddingBuildingBlocks: ActionDataState,
+) {
+  // Extract unique ids from the actionsBeforeAddingBuildingBlocks array
+  const actionIdsBeforeAddingBB = actionsBeforeAddingBuildingBlock.map(
+    (obj) => obj.config.id,
+  );
+
+  // Filter the after array to find new actions not present in actionsBeforeAddingBuildingBlocks array
+  const newlyAddedActions = actionsAfterAddingBuildingBlocks.filter(
+    (obj) => !actionIdsBeforeAddingBB.includes(obj.config.id),
+  );
+
+  // run all newly created actions
+  if (newlyAddedActions && newlyAddedActions.length > 0) {
+    yield all(
+      newlyAddedActions.map(function* (action) {
+        yield put(runAction(action.config.id));
+      }),
+    );
+  }
+}
+
 export function* addBuildingBlockToApplication(
   buildingBlockWidget: WidgetAddChild,
   skeletonLoaderId: string,
@@ -539,28 +647,10 @@ export function* addBuildingBlockToApplication(
   const { leftColumn, topRow } = buildingBlockWidget;
   try {
     const dragDetails: DragDetails = yield select(getDragDetails);
-    const buildingblockName = dragDetails.newWidget.displayName;
-    const buildingBlocks: Template[] = yield select(getTemplatesSelector);
     const applicationId: string = yield select(getCurrentApplicationId);
-    const currentPageId: string = yield select(getCurrentPageId);
     const actionsBeforeAddingBuildingBlock: ActionDataState =
       yield select(getActions);
-    const workspaceId: string = yield select(getCurrentWorkspaceId);
     const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
-    const canvasWidgets: CanvasWidgetsReduxState =
-      yield select(getCanvasWidgets);
-    const selectedBuildingBlock = buildingBlocks.find(
-      (buildingBlock) => buildingBlock.title === buildingblockName,
-    ) as Template;
-    const layoutSystemType: LayoutSystemTypes =
-      yield select(getLayoutSystemType);
-
-    const body: ImportBuildingBlockToApplicationRequest = {
-      pageId: currentPageId,
-      applicationId,
-      workspaceId,
-      templateId: selectedBuildingBlock.id,
-    };
 
     // start loading for dragging building blocks
     yield put({
@@ -570,74 +660,18 @@ export function* addBuildingBlockToApplication(
     // makes sure updateAndSaveLayout completes first for skeletonWidget addition
     yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
 
-    // api call adds DS, queries and JS to page and returns new page dsl with building block
     const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
-      yield call(ApplicationApi.importBuildingBlockToApplication, body);
-
+      yield call(addBuildingBlockActionsToApp, dragDetails);
     const isValid: boolean = yield validateResponse(response);
 
     if (isValid) {
-      const buildingBlockDsl = JSON.parse(response.data.widgetDsl);
-      const buildingBlockWidgets = buildingBlockDsl.children;
-      const flattenedBlockWidgets = buildingBlockWidgets.map(
-        (widget: WidgetProps) => flattenDSL(widget),
-      );
+      yield saveBuildingBlockWidgetsToStore(response);
 
-      const widgetsToPasteInCanvas: CopiedWidgetData[] = yield all(
-        flattenedBlockWidgets.map(
-          (widget: FlattenedWidgetProps, index: number) => {
-            let widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
-            if (
-              widget.parentId &&
-              layoutSystemType === LayoutSystemTypes.ANVIL
-            ) {
-              widgetPositionInfo = getWidgetLayoutMetaInfo(
-                canvasWidgets[widget?.parentId]?.layout[0] ?? null,
-                widget.widgetId,
-              );
-            }
-            return {
-              hierarchy: getWidgetHierarchy(
-                buildingBlockWidgets[index].type,
-                buildingBlockWidgets[index].widgetId,
-              ),
-              list: Object.values(widget)
-                .map((obj) => ({ ...obj }))
-                .reverse(),
-              parentId: MAIN_CONTAINER_WIDGET_ID,
-              widgetId: buildingBlockWidgets[index].widgetId,
-              widgetPositionInfo,
-            };
-          },
-        ),
+      const mousePosition: { x: number; y: number } = yield call(
+        getBuildingBlocksDropMousePosition,
+        topRow,
+        leftColumn,
       );
-      yield saveCopiedWidgets(
-        JSON.stringify({
-          widgets: widgetsToPasteInCanvas,
-          flexLayers: [],
-        }),
-      );
-      let mousePosition = { x: 0, y: 0 };
-
-      // convert grid position to mouse position for paste functionality
-      const { canvasDOM, canvasId, containerWidget } =
-        getDefaultCanvas(canvasWidgets);
-      if (!canvasDOM || !containerWidget || !canvasId) {
-        mousePosition = { x: 0, y: 0 };
-      } else {
-        const canvasRect = canvasDOM.getBoundingClientRect();
-        const { padding, snapGrid } = getSnappedGrid(
-          containerWidget,
-          canvasRect.width,
-        );
-        mousePosition = getMousePositionFromCanvasGridPosition(
-          topRow,
-          leftColumn,
-          snapGrid,
-          padding,
-          canvasId as string,
-        );
-      }
 
       // remove skeleton loader just before pasting the building block
       yield put({
@@ -663,29 +697,10 @@ export function* addBuildingBlockToApplication(
       const actionsAfterAddingBuildingBlocks: ActionDataState =
         yield select(getActions);
 
-      // Extract unique ids from the actionsBeforeAddingBuildingBlocks array
-      const actionIdsBeforeAddingBB = actionsBeforeAddingBuildingBlock.map(
-        (obj) => obj.config.id,
+      yield runNewlyCreatedActions(
+        actionsBeforeAddingBuildingBlock,
+        actionsAfterAddingBuildingBlocks,
       );
-
-      // Filter the after array to find new actions not present in actionsBeforeAddingBuildingBlocks array
-      const newlyAddedActions = actionsAfterAddingBuildingBlocks.filter(
-        (obj) => !actionIdsBeforeAddingBB.includes(obj.config.id),
-      );
-
-      const actionsToRun =
-        actionsBeforeAddingBuildingBlock.length === 1
-          ? actionsBeforeAddingBuildingBlock
-          : newlyAddedActions;
-
-      // run all newly created actions
-      if (actionsToRun && actionsToRun.length > 0) {
-        yield all(
-          actionsToRun.map(function* (action) {
-            yield put(runAction(action.config.id));
-          }),
-        );
-      }
 
       if (existingCopiedWidgets) {
         yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
