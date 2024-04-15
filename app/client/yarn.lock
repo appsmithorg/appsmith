@@ -13314,6 +13314,7 @@ __metadata:
     marked: ^4.0.18
     memoize-one: ^6.0.0
     micro-memoize: ^4.0.10
+    microdiff: ^1.4.0
     moment: 2.29.4
     moment-timezone: ^0.5.35
     msw: ^0.28.0
@@ -24704,6 +24705,13 @@ __metadata:
   version: 4.0.14
   resolution: "micro-memoize@npm:4.0.14"
   checksum: 9a1c236c3e626b9a0cf323cd7ede18f972fd4474f1bcdea8e1340d9a49a1fee629f60d35baa2df8ba0d880230886d92587525d4b9c9dc14100cc39545506e1b9
+  languageName: node
+  linkType: hard
+
+"microdiff@npm:^1.4.0":
+  version: 1.4.0
+  resolution: "microdiff@npm:1.4.0"
+  checksum: 4cae2ec4d0540b65656837a7c47a17d6428a1be2909d268a579921183c9c21a86e0dfa0c8ade8c60f9127887783a17d54ce7be16d5556708a0e58312bca8803d
   languageName: node
   linkType: hard
 

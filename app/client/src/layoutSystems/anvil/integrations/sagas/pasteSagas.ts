@@ -19,13 +19,12 @@ import type {
   PasteDestinationInfo,
   PastePayload,
 } from "../../utils/paste/types";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { getCopiedWidgets } from "utils/storage";
 import { getDestinedParent } from "layoutSystems/anvil/utils/paste/destinationUtils";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
+import { getIsAnvilLayout } from "../selectors";
 
 function* pasteWidgetSagas() {
   try {
@@ -124,8 +123,8 @@ function* pasteWidgetSagas() {
 }
 
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
-  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
-  if (layoutSystemType === LayoutSystemTypes.ANVIL) {
+  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+  if (isAnvilLayout) {
     yield call(saga, action);
   }
 }

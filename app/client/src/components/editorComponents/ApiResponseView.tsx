@@ -1,10 +1,9 @@
-import type { PropsWithChildren, RefObject } from "react";
+import type { RefObject } from "react";
 import React, { useCallback, useRef, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import ReactJson from "react-json-view";
 import styled from "styled-components";
 import type { ActionResponse } from "api/ActionAPI";
-import { formatBytes } from "utils/helpers";
 import type { SourceEntity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
@@ -18,7 +17,6 @@ import {
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
 } from "@appsmith/constants/messages";
-import { Text as BlueprintText } from "@blueprintjs/core";
 import { EditorTheme } from "./CodeEditor/EditorConfig";
 import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
@@ -48,16 +46,11 @@ import { SegmentedControlContainer } from "../../pages/Editor/QueryEditor/Editor
 import ActionExecutionInProgressView from "./ActionExecutionInProgressView";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
 import { EMPTY_RESPONSE } from "./emptyResponse";
-import BindDataButton from "../../pages/Editor/QueryEditor/BindDataButton";
 import { setApiPaneDebuggerState } from "actions/apiPaneActions";
 import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
-
-interface TextStyleProps {
-  accent: "primary" | "secondary" | "error";
-}
-export const BaseText = styled(BlueprintText)<TextStyleProps>``;
+import ApiResponseMeta from "./ApiResponseMeta";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
@@ -69,30 +62,6 @@ const ResponseContainer = styled.div`
   .CodeMirror-code {
     font-size: 12px;
   }
-`;
-const ResponseMetaInfo = styled.div`
-  display: flex;
-  ${BaseText} {
-    color: var(--ads-v2-color-fg);
-    margin-left: ${(props) => props.theme.spaces[9]}px;
-  }
-
-  & [type="p3"] {
-    color: var(--ads-v2-color-fg-muted);
-  }
-
-  & [type="h5"] {
-    color: var(--ads-v2-color-fg);
-  }
-`;
-
-const ResponseMetaWrapper = styled.div`
-  align-items: center;
-  display: flex;
-  position: absolute;
-  right: ${(props) => props.theme.spaces[17] + 1}px;
-  top: ${(props) => props.theme.spaces[2] + 3}px;
-  z-index: 6;
 `;
 
 const ResponseTabWrapper = styled.div`
@@ -125,16 +94,6 @@ const TabbedViewWrapper = styled.div`
     .ads-v2-tabs__panel {
       height: calc(100% - ${TAB_MIN_HEIGHT});
     }
-  }
-`;
-
-const FlexContainer = styled.div`
-  display: flex;
-  align-items: center;
-  margin-left: 20px;
-
-  span:first-child {
-    margin-right: ${(props) => props.theme.spaces[1] + 1}px;
   }
 `;
 
@@ -180,20 +139,6 @@ interface Props {
   actionResponse?: ActionResponse;
   isRunning: boolean;
 }
-
-const StatusCodeText = styled(BaseText)<PropsWithChildren<{ code: string }>>`
-  color: ${(props) =>
-    props.code.startsWith("2")
-      ? "var(--ads-v2-color-fg-success)"
-      : "var(--ads-v2-color-fg-error)"};
-  cursor: pointer;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  &:hover {
-    width: 100%;
-  }
-`;
 
 const ResponseDataContainer = styled.div`
   flex: 1;
@@ -431,6 +376,10 @@ function ApiResponseView(props: Props) {
       title: "Response",
       panelComponent: (
         <ResponseTabWrapper>
+          <ApiResponseMeta
+            actionName={currentActionConfig?.name}
+            actionResponse={actionResponse}
+          />
           {Array.isArray(messages) && messages.length > 0 && (
             <HelpSection>
               {messages.map((msg, i) => (
@@ -503,7 +452,7 @@ function ApiResponseView(props: Props) {
                     responseTabs.length > 0 &&
                     selectedTabIndex !== -1 ? (
                     <SegmentedControlContainer>
-                      <Flex justifyContent="space-between">
+                      <Flex>
                         <SegmentedControl
                           data-testid="t--response-tab-segmented-control"
                           defaultValue={segmentedControlOptions[0]?.value}
@@ -514,11 +463,6 @@ function ApiResponseView(props: Props) {
                           }}
                           options={segmentedControlOptions}
                           value={selectedControl}
-                        />
-                        <BindDataButton
-                          actionName={currentActionConfig?.name || ""}
-                          hasResponse={!!actionResponse}
-                          suggestedWidgets={actionResponse.suggestedWidgets}
                         />
                       </Flex>
                       {responseTabComponent(
@@ -613,49 +557,6 @@ function ApiResponseView(props: Props) {
         snapToHeight={ActionExecutionResizerHeight}
       />
       <TabbedViewWrapper>
-        {actionResponse.statusCode && (
-          <ResponseMetaWrapper>
-            {actionResponse.statusCode && (
-              <FlexContainer>
-                <Text type={TextType.P3}>Status: </Text>
-                <StatusCodeText
-                  accent="secondary"
-                  className="t--response-status-code"
-                  code={actionResponse.statusCode.toString()}
-                >
-                  {actionResponse.statusCode}
-                </StatusCodeText>
-              </FlexContainer>
-            )}
-            <ResponseMetaInfo>
-              {actionResponse.duration && (
-                <FlexContainer>
-                  <Text type={TextType.P3}>Time: </Text>
-                  <Text type={TextType.H5}>{actionResponse.duration} ms</Text>
-                </FlexContainer>
-              )}
-              {actionResponse.size && (
-                <FlexContainer>
-                  <Text type={TextType.P3}>Size: </Text>
-                  <Text type={TextType.H5}>
-                    {formatBytes(parseInt(actionResponse.size))}
-                  </Text>
-                </FlexContainer>
-              )}
-              {!isEmpty(actionResponse?.body) &&
-                Array.isArray(actionResponse?.body) && (
-                  <FlexContainer>
-                    <Text type={TextType.P3}>Result: </Text>
-                    <Text type={TextType.H5}>
-                      {`${actionResponse?.body.length} Record${
-                        actionResponse?.body.length > 1 ? "s" : ""
-                      }`}
-                    </Text>
-                  </FlexContainer>
-                )}
-            </ResponseMetaInfo>
-          </ResponseMetaWrapper>
-        )}
         <EntityBottomTabs
           expandedHeight={`${ActionExecutionResizerHeight}px`}
           onSelect={updateSelectedResponseTab}

@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import {
   EditorEntityTab,
   EditorEntityTabState,
@@ -30,6 +31,11 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getIsAltFocusWidget, getWidgetSelectionBlock } from "selectors/ui";
 import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
+import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
+import { TabSelectors } from "./EditorTabs/constants";
+import { closeJSActionTab } from "actions/jsActionActions";
+import { closeQueryActionTab } from "actions/pluginActionActions";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -255,3 +261,39 @@ export function useWidgetSelectionBlockListener() {
     }
   };
 }
+
+export const useIDETabClickHandlers = () => {
+  const dispatch = useDispatch();
+  const onJSAddClick = useJSAdd();
+  const onQueryAddClick = useQueryAdd();
+  const { segment, segmentMode } = useCurrentEditorState();
+  const tabsConfig = TabSelectors[segment];
+  const pageId = useSelector(getCurrentPageId);
+
+  const addClickHandler = useCallback(() => {
+    if (segment === EditorEntityTab.JS) onJSAddClick();
+    if (segment === EditorEntityTab.QUERIES) onQueryAddClick();
+  }, [segment, segmentMode, onQueryAddClick, onJSAddClick]);
+
+  const tabClickHandler = useCallback(
+    (item: EntityItem) => {
+      const navigateToUrl = tabsConfig.itemUrlSelector(item, pageId);
+      history.push(navigateToUrl, {
+        invokedBy: NavigationMethod.EditorTabs,
+      });
+    },
+    [segment, pageId],
+  );
+
+  const closeClickHandler = useCallback(
+    (actionId: string) => {
+      if (segment === EditorEntityTab.JS)
+        dispatch(closeJSActionTab({ id: actionId }));
+      if (segment === EditorEntityTab.QUERIES)
+        dispatch(closeQueryActionTab({ id: actionId }));
+    },
+    [segment, dispatch],
+  );
+
+  return { addClickHandler, tabClickHandler, closeClickHandler };
+};

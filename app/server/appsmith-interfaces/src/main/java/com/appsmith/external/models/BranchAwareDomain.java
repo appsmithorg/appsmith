@@ -28,5 +28,8 @@ public abstract class BranchAwareDomain extends BaseDomain {
                 dotted(defaultResources, DefaultResources.Fields.applicationId);
         public static final String defaultResources_branchName =
                 dotted(defaultResources, DefaultResources.Fields.branchName);
+        public static final String defaultResources_pageId = dotted(defaultResources, DefaultResources.Fields.pageId);
+        public static final String defaultResources_actionId =
+                dotted(defaultResources, DefaultResources.Fields.actionId);
     }
 }

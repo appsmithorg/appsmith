@@ -87,7 +87,10 @@ import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import {
+  selectFeatureFlagCheck,
+  selectFeatureFlags,
+} from "@appsmith/selectors/featureFlagsSelectors";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import DatasourceTabs from "../DatasourceInfo/DatasorceTabs";
 import { getCurrentApplicationIdForCreateNewApp } from "@appsmith/selectors/applicationSelectors";
@@ -851,7 +854,7 @@ const mapStateToProps = (state: AppState, props: any) => {
     showDebugger,
     scopeValue,
     isPluginAuthFailed,
-    featureFlags: state.ui.users.featureFlag.data,
+    featureFlags: selectFeatureFlags(state),
     isPluginAllowedToPreviewData,
   };
 };

@@ -57,6 +57,18 @@ export const useJSAdd = () => {
   ]);
 };
 
+export const useIsJSAddLoading = () => {
+  const moduleCreationOptions = useModuleOptions();
+  const jsModuleCreationOptions = moduleCreationOptions.filter(
+    (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
+  );
+  const { isCreating } = useSelector((state) => state.ui.jsPane);
+  if (jsModuleCreationOptions.length === 0) {
+    return isCreating;
+  }
+  return false;
+};
+
 export const useGroupedAddJsOperations = (): GroupedAddOperations => {
   return [
     {

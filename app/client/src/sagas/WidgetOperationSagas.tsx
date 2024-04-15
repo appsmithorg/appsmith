@@ -188,6 +188,7 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import { shouldShowSlashCommandMenu } from "components/editorComponents/CodeEditor/codeEditorUtils";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -2192,8 +2193,8 @@ function* widgetBatchUpdatePropertySaga() {
 }
 
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
-  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
-  if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+  if (!isAnvilLayout) {
     yield call(saga, action);
   }
 }
