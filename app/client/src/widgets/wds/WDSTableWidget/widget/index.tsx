@@ -1650,6 +1650,15 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             fontStyle={cellProperties.fontStyle}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isHidden={isHidden}
+            onClick={(onComplete: () => void) =>
+              this.onColumnEvent({
+                rowIndex,
+                action: column.onClick,
+                onComplete,
+                triggerPropertyName: "onClick",
+                eventType: EventType.ON_CLICK,
+              })
+            }
           />
         );
       default:
