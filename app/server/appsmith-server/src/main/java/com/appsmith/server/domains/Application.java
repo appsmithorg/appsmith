@@ -340,7 +340,6 @@ public class Application extends BaseDomain implements Artifact {
         }
     }
 
-    @JsonView(Views.Internal.class)
     public ApplicationDetail getApplicationDetail() {
         return Boolean.TRUE.equals(viewMode) ? publishedApplicationDetail : unpublishedApplicationDetail;
     }
