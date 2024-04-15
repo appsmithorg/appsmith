@@ -50,7 +50,6 @@ function useToolTip(
       const element = ref.current?.querySelector("div") as HTMLDivElement;
 
       /*
-      asd
        * Using setTimeout to simulate hoverOpenDelay of the tooltip
        * during initial render
        */
