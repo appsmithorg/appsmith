@@ -9,7 +9,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import { EntityIcon, JsFileIconV2 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
-import { Icon } from "design-system";
+import { Button, Icon } from "design-system";
 import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -121,10 +121,10 @@ export function Command(props: {
   );
 
   return (
-    <div className="command-container relative group cursor-pointer w-full">
+    <div className="command-container relative cursor-pointer w-full">
       <div className="command flex w-full">
         <div className="self-center shrink-0">{props.icon}</div>
-        <div className="flex grow relative overflow-hidden">
+        <div className="flex grow">
           <div className="flex flex-col gap-1 grow w-full">
             <div className="whitespace-nowrap flex flex-row items-center gap-2 text-[color:var(--ads-v2\-colors-content-label-default-fg)] relative">
               <span className="flex items-center overflow-hidden overflow-ellipsis slash-command-hint-text">
@@ -137,12 +137,14 @@ export function Command(props: {
             ) : null}
           </div>
           {props.url ? (
-            <span
-              className="hidden group-hover:inline self-center h-full px-2 text-xs absolute right-0 command-suggestion-edit"
+            <Button
+              className="hidden group-hover:flex items-center self-center h-full px-2 text-xs !absolute command-suggestion-edit right-0 top-0"
+              kind="tertiary"
               onClick={switchToAction}
+              size="sm"
             >
               {createMessage(EDIT)}
-            </span>
+            </Button>
           ) : null}
         </div>
       </div>
@@ -203,7 +205,7 @@ export const generateQuickCommands = (
           ? `{{${name}.}}`
           : `{{${name}}}`,
       displayText: `${name}`,
-      className: "CodeMirror-commands",
+      className: "CodeMirror-commands group relative",
       data: suggestion,
       triggerCompletionsPostPick: suggestion.type !== ENTITY_TYPE.ACTION,
       render: (element: HTMLElement, _: unknown, data: CommandsCompletion) => {

@@ -1,6 +1,6 @@
-package com.appsmith.server.annotations;
+package com.appsmith.external.annotations;
 
-import com.appsmith.server.featureflags.FeatureFlagEnum;
+import com.appsmith.external.enums.FeatureFlagEnum;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
