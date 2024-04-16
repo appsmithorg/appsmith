@@ -2076,6 +2076,14 @@ Cypress.Commands.add("stubPricingPage", () => {
   });
 });
 
+Cypress.Commands.add("stubCustomerPortalPage", () => {
+  cy.window().then((win) => {
+    cy.stub(win, "open", (url) => {
+      win.location.href = "https://customer.appsmith.com?";
+    }).as("customerPortalPage");
+  });
+});
+
 /**
  * @param testID
  * @returns
