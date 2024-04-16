@@ -1106,9 +1106,6 @@ export const BRANCH_PROTECTION_RULE_3 = () =>
   "You can still pull the latest changes and create new branches to edit the app.";
 export const BRANCH_PROTECTION_CHANGE_RULE = () =>
   "You can remove protection on your default branch in Git settings.";
-export const BRANCH_TOOLTIP_TITLE = () => "🚫 This is a protected branch";
-export const BRANCH_TOOLTIP_MESSAGE = () =>
-  "Please create a new branch or checkout an existing one to edit the app.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
@@ -1118,6 +1115,14 @@ export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
   `Updated default branch ${!!branchName ? `to ${branchName}` : ""}`;
 export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
+export const BRANCH_PROTECTION_CALLOUT_MSG = () =>
+  "Branch protection enabled. Feel free to pull changes or create a new branch to continue your work.";
+export const BRANCH_PROTECTION_CALLOUT_CREATE_BRANCH = () =>
+  "Create a new branch";
+export const BRANCH_PROTECTION_CALLOUT_UNPROTECT = () => "Unprotect the branch";
+export const BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING = () =>
+  "Unprotecting the branch ...";
+
 // Git Branch Protection end
 
 export const GENERAL = () => "General";
