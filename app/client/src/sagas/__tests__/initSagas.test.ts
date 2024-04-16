@@ -5,6 +5,7 @@ import AppEngineFactory from "entities/Engine/factory";
 import { call } from "redux-saga/effects";
 import { getInitResponses } from "sagas/InitSagas";
 import { startAppEngine } from "sagas/InitSagas";
+import mockResponse from "./mockConsolidatedApiResponse.json";
 
 jest.mock("../../api/Api", () => ({
   __esModule: true,
@@ -16,9 +17,10 @@ describe("tests the sagas in initSagas", () => {
     const action = {
       type: ReduxActionTypes.INITIALIZE_EDITOR,
       payload: {
-        applicationId: "appId",
+        applicationId: "applicationId",
         pageId: "pageId",
         mode: APP_MODE.EDIT,
+        branch: "",
       },
     };
     const gen = startAppEngine(action);
@@ -33,13 +35,10 @@ describe("tests the sagas in initSagas", () => {
     expect(gen.next().value).toStrictEqual(
       call(getInitResponses, action.payload),
     );
-    const someInitResponse = {
-      pages: { responseMeta: {}, data: {}, code: "232" },
-    } as any;
 
-    expect(JSON.stringify(gen.next(someInitResponse).value)).toStrictEqual(
+    expect(JSON.stringify(gen.next(mockResponse as any).value)).toStrictEqual(
       JSON.stringify(
-        call(engine.loadAppData, action.payload, someInitResponse),
+        call(engine.loadAppData, action.payload, mockResponse as any),
       ),
     );
     expect(
@@ -60,7 +59,7 @@ describe("tests the sagas in initSagas", () => {
           engine.loadAppEntities,
           action.payload.pageId,
           action.payload.applicationId,
-          someInitResponse,
+          mockResponse as any,
         ),
       ),
     );
