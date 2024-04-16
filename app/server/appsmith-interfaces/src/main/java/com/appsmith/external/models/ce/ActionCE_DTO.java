@@ -17,7 +17,6 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.views.FromRequest;
-import com.appsmith.external.views.ToResponse;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -90,7 +89,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
 
     // this attribute carries error messages while processing the actionCollection
     @Transient
-    @JsonView(ToResponse.class)
+    @JsonView(Views.Public.class)
     List<ErrorDTO> errorReports;
 
     @JsonView({Views.Public.class, FromRequest.class})
@@ -106,19 +105,19 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView({Views.Public.class, FromRequest.class})
     List<Property> dynamicBindingPathList;
 
-    @JsonView(ToResponse.class)
+    @JsonView(Views.Public.class)
     Boolean isValid;
 
-    @JsonView(ToResponse.class)
+    @JsonView(Views.Public.class)
     Set<String> invalids;
 
     @Transient
-    @JsonView(ToResponse.class)
+    @JsonView(Views.Public.class)
     Set<String> messages = new HashSet<>();
 
     // This is a list of keys that the client whose values the client needs to send during action execution.
     // These are the Mustache keys that the server will replace before invoking the API
-    @JsonView(ToResponse.class)
+    @JsonView(Views.Public.class)
     Set<String> jsonPathKeys;
 
     @JsonView(Views.Internal.class)

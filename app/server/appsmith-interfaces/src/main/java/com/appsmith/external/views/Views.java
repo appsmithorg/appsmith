@@ -12,7 +12,7 @@ public interface Views {
     /**
      * Used with JsonView annotation to denote that a field should be visible to the client.
      */
-    interface Public extends ToResponse {}
+    interface Public {}
 
     /**
      * Used with JsonView annotation to denote that a field should be exported when exporting the Domain/DTOs.
