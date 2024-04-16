@@ -1,0 +1,5 @@
+{
+  "devDependencies": {
+    "redux-saga-test-plan": "^4.0.6"
+  }
+}
