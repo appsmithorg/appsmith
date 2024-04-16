@@ -4,6 +4,7 @@ import EditorNavigation, {
   AppSidebarButton,
   EntityType,
 } from "./EditorNavigation";
+import { EntityItems } from "./AssertHelper";
 
 class PageList {
   private locators = {
@@ -55,6 +56,7 @@ class PageList {
     ObjectsRegistry.EntityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: pageName,
       action: "Clone",
+      entityType: EntityItems.Page,
     });
     ObjectsRegistry.AssertHelper.AssertNetworkStatus("@clonePage", 201);
   }

@@ -270,7 +270,6 @@ export class EntityExplorer {
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,
         action: "Edit name",
-        entityType,
       });
     else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
     cy.xpath(this.locator._entityNameEditing(entityName))

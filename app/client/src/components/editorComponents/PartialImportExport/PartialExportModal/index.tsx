@@ -264,6 +264,7 @@ const PartialExportModel = () => {
   const handleModalClose = (open: boolean) => {
     if (!open) {
       dispatch(openPartialExportModal(false));
+      setSelectedParams(selectedParamsInitValue);
     }
   };
 
