@@ -43,6 +43,14 @@ const buildingBlockReducer = createReducer(initialState, {
       buildingBlockDragStartTimestamp: action.payload.startTime,
     };
   },
+  [ReduxActionTypes.RESET_BUILDING_BLOCK_DRAG_START_TIME]: (
+    state: BuildingBlocksReduxState,
+  ) => {
+    return {
+      ...state,
+      buildingBlockDragStartTimestamp: null,
+    };
+  },
 });
 
 export interface BuildingBlocksReduxState {

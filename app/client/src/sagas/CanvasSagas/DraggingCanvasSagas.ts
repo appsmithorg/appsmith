@@ -45,6 +45,7 @@ import {
 } from "sagas/selectors";
 import {
   getCanvasWidth,
+  getCurrentApplicationId,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
@@ -157,6 +158,8 @@ function* addBuildingBlockAndMoveWidgetsSaga(
     canvasId: string;
   }>,
 ) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const workspaceId: string = yield select(getCurrentApplicationId);
   const dragDetails: DragDetails = yield select(getDragDetails);
   const buildingblockName = dragDetails.newWidget.displayName;
   const skeletonWidgetName = `loading_${buildingblockName
@@ -176,6 +179,18 @@ function* addBuildingBlockAndMoveWidgetsSaga(
         widgetId: MAIN_CONTAINER_WIDGET_ID,
       },
     },
+  });
+  AnalyticsUtil.logEvent("DRAG_BUILDING_BLOCK", {
+    applicationId,
+    workspaceId,
+    source: "explorer",
+    eventData: {
+      buildingBlockName: buildingblockName,
+    },
+  });
+  yield put({
+    type: ReduxActionTypes.SET_BUILDING_BLOCK_DRAG_START_TIME,
+    payload: { startTime: Date.now() },
   });
 
   const skeletonWidget: FlattenedWidgetProps = yield select(

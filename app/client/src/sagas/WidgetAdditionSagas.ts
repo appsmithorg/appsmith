@@ -654,6 +654,9 @@ export function* addBuildingBlockToApplication(
     const actionsBeforeAddingBuildingBlock: ActionDataState =
       yield select(getActions);
     const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
+    const buildingBlockDragStartTimestamp: number = yield select(
+      getBuildingBlockDragStartTimestamp,
+    );
 
     // start loading for dragging building blocks
     yield put({
@@ -688,8 +691,10 @@ export function* addBuildingBlockToApplication(
       });
 
       yield put(pasteWidget(false, mousePosition));
+      const timeTakenToDropWidgetsInSec =
+        (Date.now() - buildingBlockDragStartTimestamp) / 1000;
       yield call(postPageAdditionSaga, applicationId);
-      // remove selecting of recently pasted widgets
+      // remove selecting of recently pasted widgets caused by pasteWidget
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       // stop loading after pasting process is complete
@@ -700,17 +705,23 @@ export function* addBuildingBlockToApplication(
       const actionsAfterAddingBuildingBlocks: ActionDataState =
         yield select(getActions);
 
-      yield runNewlyCreatedActions(
-        actionsBeforeAddingBuildingBlock,
-        actionsAfterAddingBuildingBlocks,
-      );
+      if (
+        response.data.onPageLoadActions &&
+        response.data.onPageLoadActions.length > 0
+      ) {
+        yield runNewlyCreatedActions(
+          actionsBeforeAddingBuildingBlock,
+          actionsAfterAddingBuildingBlocks,
+        );
 
-      const buildingBlockDragStartTimestamp: number = yield select(
-        getBuildingBlockDragStartTimestamp,
-      );
-      const timeTakenValue = buildingBlockDragStartTimestamp
+        // wait for all action runs to complete before tracking time of completion
+        yield take(ReduxActionTypes.RUN_ACTION_SUCCESS);
+      }
+
+      const timeTakenToCompleteInMs = buildingBlockDragStartTimestamp
         ? Date.now() - buildingBlockDragStartTimestamp
         : 0;
+      const timeTakenToCompleteInSeconds = timeTakenToCompleteInMs / 1000;
 
       AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK", {
         applicationId,
@@ -718,12 +729,12 @@ export function* addBuildingBlockToApplication(
         source: "explorer",
         eventData: {
           buildingBlockName: dragDetails.newWidget.displayName,
-          timeTaken: timeTakenValue,
+          timeTakenToCompletion: timeTakenToCompleteInSeconds,
+          timeTakenToDropWidgets: timeTakenToDropWidgetsInSec,
         },
       });
       yield put({
-        type: ReduxActionTypes.SET_BUILDING_BLOCK_DRAG_START_TIME,
-        payload: { startTime: null },
+        type: ReduxActionTypes.RESET_BUILDING_BLOCK_DRAG_START_TIME,
       });
 
       if (existingCopiedWidgets) {
@@ -747,6 +758,8 @@ export function* addBuildingBlockToApplication(
 }
 
 function* addBuildingBlockSaga(addEntityAction: ReduxAction<WidgetAddChild>) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
   const dragDetails: DragDetails = yield select(getDragDetails);
   const buildingblockName = dragDetails.newWidget.displayName;
   const skeletonWidgetName = `loading_${buildingblockName
@@ -765,6 +778,18 @@ function* addBuildingBlockSaga(addEntityAction: ReduxAction<WidgetAddChild>) {
       shouldReplay: false,
     },
   };
+  AnalyticsUtil.logEvent("DRAG_BUILDING_BLOCK", {
+    applicationId,
+    workspaceId,
+    source: "explorer",
+    eventData: {
+      buildingBlockName: buildingblockName,
+    },
+  });
+  yield put({
+    type: ReduxActionTypes.SET_BUILDING_BLOCK_DRAG_START_TIME,
+    payload: { startTime: Date.now() },
+  });
   yield call(addChildSaga, addSkeletonWidgetAction);
   const skeletonWidget: FlattenedWidgetProps = yield select(
     getWidgetByName,

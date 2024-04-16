@@ -7,11 +7,6 @@ import { generateReactKey } from "utils/generators";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { Text } from "design-system";
 import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
-import { BUILDING_BLOCK_EXPLORER_TYPE } from "constants/WidgetConstants";
-import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { useDispatch, useSelector } from "react-redux";
-import { getCurrentApplicationId } from "selectors/editorSelectors";
-import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 
 interface CardProps {
   details: WidgetCardProps;
@@ -79,9 +74,6 @@ const THUMBNAIL_HEIGHT = 76;
 const THUMBNAIL_WIDTH = 72;
 
 function WidgetCard(props: CardProps) {
-  const dispatch = useDispatch();
-  const workspaceId = useSelector(getCurrentWorkspaceId);
-  const applicationId = useSelector(getCurrentApplicationId);
   const { setDraggingNewWidget } = useWidgetDragResize();
   const { deselectAll } = useWidgetSelection();
   const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
@@ -93,20 +85,6 @@ function WidgetCard(props: CardProps) {
       widgetType: props.details.type,
       widgetName: props.details.displayName,
     });
-    if (props.details.type === BUILDING_BLOCK_EXPLORER_TYPE) {
-      AnalyticsUtil.logEvent("DRAG_BUILDING_BLOCK", {
-        applicationId,
-        workspaceId,
-        source: "explorer",
-        eventData: {
-          buildingBlockName: props.details.displayName,
-        },
-      });
-      dispatch({
-        type: ReduxActionTypes.SET_BUILDING_BLOCK_DRAG_START_TIME,
-        payload: { startTime: Date.now() },
-      });
-    }
     setDraggingNewWidget &&
       setDraggingNewWidget(true, {
         ...props.details,
