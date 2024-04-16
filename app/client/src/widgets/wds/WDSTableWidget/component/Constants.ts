@@ -223,7 +223,7 @@ export interface CellLayoutProperties
     ButtonCellProperties,
     URLCellProperties,
     BaseCellProperties {
-  cellColor?: PlainTextCellProps["cellColor"];
+  cellColor?: "default" | PlainTextCellProps["cellColor"];
 }
 
 export interface TableColumnMetaProps {

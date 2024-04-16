@@ -1,13 +1,15 @@
 import React, { memo } from "react";
-import type { COLORS } from "@design-system/widgets";
 import { Link } from "@design-system/widgets";
 
-import type { BaseCellComponentProps } from "../Constants";
+import type {
+  BaseCellComponentProps,
+  CellLayoutProperties,
+} from "../Constants";
 
 export interface NumberCellProps {
   href?: string;
   text?: string;
-  cellColor?: keyof typeof COLORS;
+  cellColor?: CellLayoutProperties["cellColor"];
 }
 
 function URLCell(props: NumberCellProps & BaseCellComponentProps) {
@@ -15,7 +17,12 @@ function URLCell(props: NumberCellProps & BaseCellComponentProps) {
   const lineClamp = allowCellWrapping ? undefined : 1;
 
   return (
-    <Link color={cellColor} href={href} lineClamp={lineClamp} variant="body">
+    <Link
+      color={cellColor === "default" ? undefined : cellColor}
+      href={href}
+      lineClamp={lineClamp}
+      variant="body"
+    >
       {text}
     </Link>
   );
