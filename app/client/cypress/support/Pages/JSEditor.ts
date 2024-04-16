@@ -319,11 +319,7 @@ export class JSEditor {
   //   this.agHelper.GetNClick(this._closeSettings)
   // }
 
-  public VerifyAsyncFuncSettings(
-    funName: string,
-    onLoad = true,
-    bfrCalling = true,
-  ) {
+  public VerifyAsyncFuncSettings(funName: string, onLoad = true) {
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_ONPAGELOAD()), onLoad)
     // this.agHelper.AssertExistingToggleState(this._functionSetting(Cypress.env("MESSAGES").JS_SETTINGS_CONFIRM_EXECUTION()), bfrCalling)
 
@@ -332,26 +328,13 @@ export class JSEditor {
       this._onPageLoadSwitchStatus(funName),
       onLoad.toString(),
     );
-    this.agHelper.AssertExistingCheckedState(
-      this._confirmBeforeExecuteSwitchStatus(funName),
-      bfrCalling.toString(),
-    );
   }
 
-  public EnableDisableAsyncFuncSettings(
-    funName: string,
-    onLoad = true,
-    bfrCalling = true,
-  ) {
+  public EnableDisableAsyncFuncSettings(funName: string, onLoad = true) {
     // Navigate to Settings tab
     this.agHelper.GetNClick(this._settingsTab);
     // Set onPageLoad
     this.agHelper.CheckUncheck(this._onPageLoadSwitch(funName), onLoad);
-    // Set confirmBeforeExecute
-    this.agHelper.CheckUncheck(
-      this._confirmBeforeExecuteSwitch(funName),
-      bfrCalling,
-    );
     // Return to code tab
     this.agHelper.GetNClick(this._codeTab);
   }
@@ -377,7 +360,6 @@ export class JSEditor {
   }
 
   public ConfirmationClick(type: "Yes" | "No") {
-    //this.agHelper.GetNClick(this._confirmationModalBtns(type), 0, true);
     this.agHelper
       .GetElement(this._confirmationModalBtns(type))
       .eq(0)

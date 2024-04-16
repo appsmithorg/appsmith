@@ -43,11 +43,10 @@ import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { protectedModeSelector } from "./gitSyncSelectors";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -307,16 +306,15 @@ export const getCurrentPageName = createSelector(
 
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
-  (_state: AppState) =>
-    selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
-  (isAutoLayout, isWDSEnabled) => {
+  getIsAnvilLayout,
+  (isAutoLayout, isAnvilLayout) => {
     const widgetConfigs = WidgetFactory.getConfigs();
 
     const cards = Object.values(widgetConfigs).filter((config) => {
-      // if wds_vs is not enabled, hide all wds_v2 widgets
+      // if anvil is not enabled, hide all wds widgets
       if (
         Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
-        isWDSEnabled === false
+        !isAnvilLayout
       ) {
         return false;
       }
@@ -325,8 +323,8 @@ export const getWidgetCards = createSelector(
         return config.widgetName !== "Map" && !config.hideCard;
       }
 
-      // if wds is enabled, only show the wds_v2 widgets
-      if (isWDSEnabled === true) {
+      // if anvil is enabled, only show the wds widgets
+      if (isAnvilLayout) {
         return Object.values(WDS_V2_WIDGET_MAP).includes(config.type);
       }
 

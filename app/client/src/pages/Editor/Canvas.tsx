@@ -5,7 +5,6 @@ import * as Sentry from "@sentry/react";
 import { useSelector } from "react-redux";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import useWidgetFocus from "utils/hooks/useWidgetFocus";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getSelectedAppTheme } from "selectors/appThemingSelectors";
 import { getViewportClassName } from "layoutSystems/autolayout/utils/AutoLayoutUtils";
@@ -19,6 +18,7 @@ import { renderAppsmithCanvas } from "layoutSystems/CanvasFactory";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
 import CodeModeTooltip from "pages/Editor/WidgetsEditor/components/CodeModeTooltip";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 interface CanvasProps {
   widgetsStructure: CanvasWidgetStructure;
@@ -35,7 +35,6 @@ const Wrapper = styled.section<{
   background: string;
   width: number;
   $enableMainCanvasResizer: boolean;
-  $padBackground: boolean;
 }>`
   flex: 1;
   background: ${({ background }) => background};
@@ -49,7 +48,7 @@ const Canvas = (props: CanvasProps) => {
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
   const selectedTheme = useSelector(getSelectedAppTheme);
-  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
 
   const themeSetting = useSelector(getAppThemeSettings);
   const wdsThemeProps = {
@@ -63,7 +62,7 @@ const Canvas = (props: CanvasProps) => {
   } as Parameters<typeof useTheme>[0];
   // in case of non-WDS theme, we will pass an empty object to useTheme hook
   // so that fixedLayout theme does not break because of calculations done in useTheme
-  const { theme } = useTheme(isWDSEnabled ? wdsThemeProps : {});
+  const { theme } = useTheme(isAnvilLayout ? wdsThemeProps : {});
 
   /**
    * background for canvas
@@ -88,14 +87,13 @@ const Canvas = (props: CanvasProps) => {
       <CodeModeTooltip>
         <Wrapper
           $enableMainCanvasResizer={!!props.enableMainCanvasResizer}
-          $padBackground={!isPreviewMode}
-          background={isWDSEnabled ? "" : backgroundForCanvas}
+          background={isAnvilLayout ? "" : backgroundForCanvas}
           className={`relative t--canvas-artboard ${paddingBottomClass} transition-all duration-400  ${marginHorizontalClass} ${getViewportClassName(
             canvasWidth,
           )}`}
           data-testid={"t--canvas-artboard"}
           id={CANVAS_ART_BOARD}
-          ref={isWDSEnabled ? undefined : focusRef}
+          ref={isAnvilLayout ? undefined : focusRef}
           width={canvasWidth}
         >
           {props.widgetsStructure.widgetId &&
@@ -106,7 +104,7 @@ const Canvas = (props: CanvasProps) => {
   };
 
   try {
-    if (isWDSEnabled) {
+    if (isAnvilLayout) {
       return (
         <StyledWDSThemeProvider theme={theme}>
           {renderChildren()}

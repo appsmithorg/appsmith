@@ -1,7 +1,7 @@
 name: Test, build and push Docker Image
 
 run-name: >
-  ${{ github.workflow }} with TED:${{ inputs.ted_tag }}
+  ${{ github.workflow }} with TED:${{ inputs.ted_tag || 'latest' }}
 
 on:
   # This workflow will run everyday at 7:00AM, 1:00PM IST on weekdays

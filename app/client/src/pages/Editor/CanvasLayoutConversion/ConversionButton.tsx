@@ -26,13 +26,17 @@ import {
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { useConversionForm } from "./hooks/useConversionForm";
 import type { AppState } from "@appsmith/reducers";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 
 function ConversionButton() {
   const [showModal, setShowModal] = React.useState(false);
   const isAutoLayout = useRef(getIsAutoLayout(store.getState()));
   const formProps = useConversionForm({ isAutoLayout: isAutoLayout.current });
   const dispatch = useDispatch();
-
+  const isConversionFlowEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_layout_conversion_enabled,
+  );
   const conversionState = useSelector(
     (state: AppState) => state.ui.layoutConversion.conversionState,
   );
@@ -68,7 +72,7 @@ function ConversionButton() {
     conversionState === CONVERSION_STATES.CONVERSION_SPINNER ||
     conversionState === CONVERSION_STATES.SNAPSHOT_SPINNER;
 
-  return (
+  return isConversionFlowEnabled ? (
     <>
       <Button
         className="w-full !mb-5"
@@ -99,7 +103,7 @@ function ConversionButton() {
         </ModalContent>
       </Modal>
     </>
-  );
+  ) : null;
 }
 
 ConversionButton.displayName = "ConversionButton";
