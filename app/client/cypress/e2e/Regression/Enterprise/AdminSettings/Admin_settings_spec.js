@@ -123,8 +123,10 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@customerPortalPage").should("be.called");
       cy.wait(2000);
-      cy.go(-1);
-      cy.go(-1);
+      agHelper.VisitNAssert(
+        adminSettingsHelper.routes.GENERAL,
+        "getEnvVariables",
+      );
       cy.get(adminsSettings.auditLogs).within(() => {
         cy.get(adminsSettings.businessTag)
           .should("exist")
@@ -136,8 +138,10 @@ describe("Admin settings page", { tags: ["@tag.Settings"] }, function () {
       cy.xpath(adminsSettings.upgrade).click();
       cy.get("@customerPortalPage").should("be.called");
       cy.wait(2000);
-      cy.go(-1);
-      cy.go(-1);
+      agHelper.VisitNAssert(
+        adminSettingsHelper.routes.GENERAL,
+        "getEnvVariables",
+      );
       cy.get(adminsSettings.provisioning).within(() => {
         cy.get(adminsSettings.enterpriseTag)
           .should("exist")
