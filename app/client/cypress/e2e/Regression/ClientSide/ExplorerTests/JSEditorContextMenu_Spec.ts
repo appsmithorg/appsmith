@@ -50,7 +50,7 @@ describe(
     it("2. Validate Move JSObject", function () {
       const newPageId = "Page2";
       PageList.AddNewPage();
-      PageLeftPane.assertPresence(newPageId);
+      PageList.assertPresence(newPageId);
       EditorNavigation.SelectEntityByName(pageId, EntityType.Page);
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "RenamedJSObjectCopy",

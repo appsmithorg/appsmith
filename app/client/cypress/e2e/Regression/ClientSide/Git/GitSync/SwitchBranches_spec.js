@@ -103,14 +103,10 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     // A switch here should not show a 404 page
     cy.switchGitBranch(parentBranchKey);
     // When entity not found, takes them to the home page
-    cy.get(`.t--entity.page`)
-      .contains("Page1")
-      .closest(".t--entity")
-      .should("be.visible")
-      .should("have.class", "activePage");
+    PageList.VerifyIsCurrentPage("Page1");
 
     EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
-    PageLeftPane.assertAbsence("ChildPage1");
+    PageList.assertAbsence("ChildPage1");
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertAbsence("ChildApi1");
     PageLeftPane.switchSegment(PagePaneSegment.JS);
