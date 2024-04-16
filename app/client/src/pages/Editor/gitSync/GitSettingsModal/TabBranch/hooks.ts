@@ -1,4 +1,4 @@
-import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
+import { getInstanceId, isFreePlan } from "@appsmith/selectors/tenantSelectors";
 import { useSelector } from "react-redux";
 import { ENTERPRISE_PRICING_PAGE } from "constants/ThirdPartyConstants";
 import { useMemo } from "react";
@@ -6,7 +6,11 @@ import { getUserSource } from "@appsmith/utils/AnalyticsUtil";
 
 export const useAppsmithEnterpriseLink = (feature: string) => {
   const instanceId = useSelector(getInstanceId);
-  const source = getUserSource();
+  const freePlan = useSelector(isFreePlan);
+  let source = getUserSource();
+  if (source === "ee" && freePlan) {
+    source = "ce";
+  }
   const constructedUrl = useMemo(() => {
     const url = new URL(ENTERPRISE_PRICING_PAGE);
     if (source) url.searchParams.append("source", source);
