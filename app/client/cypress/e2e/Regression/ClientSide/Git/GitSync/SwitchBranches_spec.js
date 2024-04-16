@@ -226,11 +226,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       cy.get(gitSyncLocators.branchListItem).contains("master").click();
       cy.wait(4000);
       PageLeftPane.switchSegment(PagePaneSegment.UI);
-      cy.get(`.t--entity.page`)
-        .contains("Page1")
-        .closest(".t--entity")
-        .should("be.visible")
-        .should("have.class", "activePage");
+      PageList.VerifyIsCurrentPage("Page1");
       cy.get(".t--canvas-artboard").should("be.visible");
     });
     agHelper.RefreshPage();

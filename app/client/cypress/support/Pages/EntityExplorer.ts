@@ -281,6 +281,10 @@ export class EntityExplorer {
       .type("{enter}")
       .wait(300);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
-    PageList.assertPresence(renameVal);
+    if (entityType === EntityItems.Page) {
+      PageList.assertPresence(renameVal);
+    } else {
+      PageLeftPane.assertPresence(renameVal);
+    }
   }
 }
