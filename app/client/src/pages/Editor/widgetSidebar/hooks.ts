@@ -10,19 +10,17 @@ import {
 } from "selectors/templatesSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { groupWidgetCardsByTags } from "../utils";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
+import { isFixedLayoutSelector } from "selectors/layoutSystemSelectors";
 
 /**
  * Custom hook for managing UI explorer items including widgets and building blocks.
- * @returns Object containing grouped cards and cards.
+ * @returns Object containing cards, grouped cards and entity loading states.
  */
 export const useUIExplorerItems = () => {
   const releaseDragDropBuildingBlocks = useFeatureFlag(
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
-  const layoutSystemType = useSelector(getLayoutSystemType);
-  const isFixedLayout = layoutSystemType === LayoutSystemTypes.FIXED;
+  const isFixedLayout = useSelector(isFixedLayoutSelector);
   const dispatch = useDispatch();
   // check if entities have loaded
   const isBuildingBlocksLoaded = useSelector(templatesCountSelector) > 0;
