@@ -27,13 +27,13 @@ export const StyledLabel = styled.div`
   margin-bottom: 4px;
   display: flex;
   align-items: center;
+  gap: var(--ads-v2-spaces-3);
 
   .admin-settings-form-group-label {
     font-weight: var(--ads-v2-h5-font-weight);
   }
 
   .help-icon {
-    margin-left: 8px;
     cursor: pointer;
   }
 `;
@@ -46,7 +46,6 @@ export const StyledSubtext = styled(Text)`
 
 export const StyledAsterisk = styled(Text)`
   color: var(--ads-v2-color-fg-error);
-  margin-left: 2px;
   font-weight: 500;
 `;
 
@@ -58,18 +57,20 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
     >
       <StyledLabel className="styled-label">
         {setting.label && (
-          <Text
-            className="admin-settings-form-group-label"
-            color="var(--ads-v2-color-fg)"
-            data-testid="admin-settings-form-group-label"
-            kind="body-m"
-            renderAs="label"
-          >
-            {setting.label || ""}
-          </Text>
-        )}
-        {setting.isRequired && (
-          <StyledAsterisk renderAs="span">*</StyledAsterisk>
+          <div>
+            <Text
+              className="admin-settings-form-group-label"
+              color="var(--ads-v2-color-fg)"
+              data-testid="admin-settings-form-group-label"
+              kind="body-m"
+              renderAs="label"
+            >
+              {setting.label || ""}
+            </Text>
+            {setting.isRequired && (
+              <StyledAsterisk renderAs="span">*</StyledAsterisk>
+            )}
+          </div>
         )}
         {setting.helpText && (
           <Tooltip content={createMessage(() => setting.helpText || "")}>
@@ -82,14 +83,8 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
             />
           </Tooltip>
         )}
-        <div className="ml-2">
-          {setting.isFeatureEnabled === false &&
-            (setting.isEnterprise === true ? (
-              <EnterpriseTag />
-            ) : (
-              <BusinessTag />
-            ))}
-        </div>
+        {setting.isFeatureEnabled === false &&
+          (setting.isEnterprise === true ? <EnterpriseTag /> : <BusinessTag />)}
       </StyledLabel>
       {children}
       {setting.subText && (
