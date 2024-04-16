@@ -47,7 +47,7 @@ import static com.appsmith.external.git.constants.ce.GitConstantsCE.GitMetricCon
 @Getter
 @Component
 @Import({GitServiceConfig.class})
-public class FileOperationsCE2Impl extends FileOperationsCEImpl implements FileOperationsCE {
+public class FileOperationsCEv2Impl extends FileOperationsCEImpl implements FileOperationsCE {
 
     protected final ObjectMapper objectMapper;
     protected final ObjectReader objectReader;
@@ -55,7 +55,7 @@ public class FileOperationsCE2Impl extends FileOperationsCEImpl implements FileO
 
     private final ObservationHelper observationHelper;
 
-    public FileOperationsCE2Impl(
+    public FileOperationsCEv2Impl(
             GitServiceConfig gitServiceConfig,
             GitExecutor gitExecutor,
             GsonBuilder gsonBuilder,

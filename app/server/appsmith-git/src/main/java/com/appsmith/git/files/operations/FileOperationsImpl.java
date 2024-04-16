@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @Primary
 @Import({GitServiceConfig.class})
-public class FileOperationsImpl extends FileOperationsCE2Impl implements FileOperations {
+public class FileOperationsImpl extends FileOperationsCEv2Impl implements FileOperations {
     public FileOperationsImpl(
             GitServiceConfig gitServiceConfig,
             GitExecutor gitExecutor,

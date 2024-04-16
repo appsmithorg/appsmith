@@ -10,10 +10,29 @@ public class JSONPrettyPrinter extends DefaultPrettyPrinter {
 
     public JSONPrettyPrinter() {
         super();
+        /*
+         [
+           a,
+           b
+         ]
+         instead of
+         [ a, b ]
+        */
         this._arrayIndenter = DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
+        /*
+         {
+           k1: v1,
+           k2: v2
+         }
+         instead of
+         { k1: v1, k2: v2 }
+        */
         this._objectIndenter = DefaultIndenter.SYSTEM_LINEFEED_INSTANCE;
+        // {} instead of { }
         this._objectEmptySeparator = "";
+        // [] instead of [ ]
         this._arrayEmptySeparator = "";
+        // { k: v } instead of { k : v }
         this._objectFieldValueSeparatorWithSpaces = _separators.getObjectFieldValueSeparator() + " ";
         this._separators = this._separators
                 .withObjectFieldValueSpacing(Separators.Spacing.AFTER)

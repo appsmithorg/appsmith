@@ -194,6 +194,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         /* Get all feature flags data */
         Mono<ResponseDTO<Map>> featureFlagsForCurrentUserResponseDTOMonoCache = userDataService
                 .getFeatureFlagsForCurrentUser()
+                .doOnNext(res -> res.put("release_layout_conversion_enabled", true))
                 .map(res -> (Map) res)
                 .map(this::getSuccessResponse)
                 .onErrorResume(error -> getErrorResponseMono(error, Map.class))
