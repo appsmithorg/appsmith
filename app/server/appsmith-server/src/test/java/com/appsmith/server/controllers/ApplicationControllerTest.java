@@ -27,7 +27,10 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
+import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
+import org.springframework.boot.autoconfigure.web.reactive.ReactiveMultipartAutoConfiguration;
+import org.springframework.boot.test.autoconfigure.web.reactive.AutoConfigureWebTestClient;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
@@ -44,7 +47,9 @@ import java.io.IOException;
 import static org.mockito.ArgumentMatchers.any;
 
 @ExtendWith(SpringExtension.class)
-@WebFluxTest(ApplicationController.class)
+@SpringBootTest
+@AutoConfigureWebTestClient
+@EnableAutoConfiguration(exclude = ReactiveMultipartAutoConfiguration.class)
 @Import({SecurityTestConfig.class, RedisUtils.class, RedisTestContainerConfig.class})
 public class ApplicationControllerTest {
     @MockBean
@@ -74,9 +79,6 @@ public class ApplicationControllerTest {
     @MockBean
     UserDataService userDataService;
 
-    @Autowired
-    private WebTestClient webTestClient;
-
     @MockBean
     AnalyticsService analyticsService;
 
@@ -94,6 +96,9 @@ public class ApplicationControllerTest {
 
     @MockBean
     ProjectProperties projectProperties;
+
+    @Autowired
+    private WebTestClient webTestClient;
 
     private String getFileName(int length) {
         StringBuilder fileName = new StringBuilder();

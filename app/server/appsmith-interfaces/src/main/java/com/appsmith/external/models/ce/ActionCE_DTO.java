@@ -17,6 +17,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
 import com.appsmith.external.views.FromRequest;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -65,26 +66,26 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView({Views.Public.class, FromRequest.class})
     String pluginId;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     String name;
 
     // The FQN for an action will also include any collection it is a part of as collectionName.actionName
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     String fullyQualifiedName;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     Datasource datasource;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     String pageId;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     CreatorContextType contextType;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     String collectionId;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     ActionConfiguration actionConfiguration;
 
     // this attribute carries error messages while processing the actionCollection
@@ -92,17 +93,17 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Public.class)
     List<ErrorDTO> errorReports;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     Boolean executeOnLoad;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     Boolean clientSideExecution;
 
     /*
      * This is a list of fields specified by the client to signify which fields have dynamic bindings in them.
      * TODO: The server can use this field to simplify our Mustache substitutions in the future
      */
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     List<Property> dynamicBindingPathList;
 
     @JsonView(Views.Public.class)
@@ -123,10 +124,10 @@ public class ActionCE_DTO implements Identifiable, Executable {
     @JsonView(Views.Internal.class)
     String cacheResponse;
 
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Internal.class, Git.class})
     Boolean userSetOnLoad = false;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     Boolean confirmBeforeExecute = false;
 
     @Transient
@@ -175,7 +176,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     ActionCreationSourceTypeEnum source;
 
     @Override
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Internal.class})
     public String getValidName() {
         if (this.fullyQualifiedName == null) {
             return this.name;
@@ -185,6 +186,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     }
 
     @Override
+    @JsonView({Views.Internal.class})
     public Set<String> getExecutableNames() {
         String validName = this.getValidName();
         HashSet<String> validNames = new HashSet<>();
@@ -230,6 +232,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
     }
 
     @Override
+    @JsonView({Views.Internal.class})
     public Set<String> getSelfReferencingDataPaths() {
         if (this.getActionConfiguration() == null) {
             return new HashSet<>();
@@ -238,26 +241,31 @@ public class ActionCE_DTO implements Identifiable, Executable {
     }
 
     @Override
+    @JsonView({Views.Internal.class})
     public ActionConfiguration getExecutableConfiguration() {
         return this.getActionConfiguration();
     }
 
     @Override
+    @JsonView({Views.Internal.class})
     public String getConfigurationPath() {
         return this.getUserExecutableName() + ".actionConfiguration";
     }
 
     @Override
+    @JsonView({Views.Internal.class})
     public String getCompleteDynamicBindingPath(String fieldPath) {
         return this.getConfigurationPath() + "." + fieldPath;
     }
 
     @Override
+    @JsonView({Views.Internal.class})
     public boolean hasExtractableBinding() {
         return PluginType.JS.equals(this.getPluginType());
     }
 
     @Override
+    @JsonView({Views.Internal.class})
     public DslExecutableDTO getDslExecutable() {
         DslExecutableDTO dslExecutableDTO = new DslExecutableDTO();
 

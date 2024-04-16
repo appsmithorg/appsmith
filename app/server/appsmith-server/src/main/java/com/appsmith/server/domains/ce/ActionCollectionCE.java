@@ -3,6 +3,7 @@ package com.appsmith.server.domains.ce;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -30,7 +31,7 @@ public class ActionCollectionCE extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     ActionCollectionDTO unpublishedCollection;
 
     @JsonView(Views.Public.class)
