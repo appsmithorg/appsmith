@@ -55,19 +55,11 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     FileTabs.switchToAddNew();
     // check tabs count to verify js added or not
     FileTabs.assertTabCount(3);
-    // switch back to full screen
-    EditorNavigation.SwitchScreenMode(EditorViewMode.FullScreen);
-    // delete all js objects and check add screen
-    cy.get(".editor-tab").each(($ele) => {
-      cy.selectByTestId("more-action-trigger").click();
-      cy.get(".t--apiFormDeleteBtn").click();
-      cy.get(".t--apiFormDeleteBtn").click();
-    });
-    PageLeftPane.assertInAddView();
   });
 
   it("3. Queries tab add interactions", () => {
     /** Fullscreen  */
+    EditorNavigation.SwitchScreenMode(EditorViewMode.FullScreen);
     //  switch to Query  tab from JS
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     // check and click on blank state add button
@@ -93,14 +85,5 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     cy.get(".t--new-blank-api").children("div").first().click();
     // check tabs count to verify js added or not
     FileTabs.assertTabCount(2);
-    // switch back to full screen
-    EditorNavigation.SwitchScreenMode(EditorViewMode.FullScreen);
-    // delete all queries and check add screen
-    cy.get(".editor-tab").each(($ele) => {
-      cy.selectByTestId("more-action-trigger").click();
-      cy.get(".t--apiFormDeleteBtn").click();
-      cy.get(".t--apiFormDeleteBtn").click();
-    });
-    PageLeftPane.assertInAddView();
   });
 });

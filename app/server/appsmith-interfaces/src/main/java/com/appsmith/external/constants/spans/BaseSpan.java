@@ -7,4 +7,6 @@ public class BaseSpan {
      * This prefix is for all the git flows
      */
     public static final String GIT_SPAN_PREFIX = "git.";
+
+    public static final String APPLICATION_SPAN_PREFIX = "application.";
 }

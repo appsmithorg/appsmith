@@ -20,7 +20,7 @@ import _, {
 
 import type { WidgetState } from "widgets/BaseWidget";
 import BaseWidget from "widgets/BaseWidget";
-import { RenderModes, WIDGET_PADDING } from "constants/WidgetConstants";
+import { RenderModes } from "constants/WidgetConstants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import Skeleton from "components/utils/Skeleton";
 import { noop, retryPromise } from "utils/AppsmithUtils";
@@ -910,8 +910,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       document
         .getElementById(getAnvilWidgetDOMId(this.props.widgetId))
         ?.getBoundingClientRect().width || this.props.componentWidth;
-    // (2 * WIDGET_PADDING) gives the total horizontal padding (i.e. paddingLeft + paddingRight)
-    componentWidth = componentWidth - 2 * WIDGET_PADDING;
+    componentWidth = componentWidth;
     return { componentHeight: 300, componentWidth };
   };
 

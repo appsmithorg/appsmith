@@ -1,14 +1,14 @@
-import React, { useLayoutEffect } from "react";
+import React from "react";
 import type {
   Row as ReactTableRowType,
   TableBodyPropGetter,
   TableBodyProps,
 } from "react-table";
-import type { ListChildComponentProps, ReactElementType } from "react-window";
-import { FixedSizeList, areEqual } from "react-window";
-import { EmptyRows, EmptyRow, Row } from "./Row";
-import type { ReactTableColumnProps, TableSizes } from "../Constants";
+import type { ReactTableColumnProps } from "../Constants";
 import type { HeaderComponentProps } from "../Table";
+import { StaticTableBody } from "./StaticTableBody";
+import { VirtualTableBody } from "./VirtualTableBody";
+import type { VirtualTableBodyProps } from "./types";
 
 export type BodyContextType = {
   accentColor: string;
@@ -46,97 +46,8 @@ export const BodyContext = React.createContext<BodyContextType>({
   totalColumnsWidth: 0,
 });
 
-const rowRenderer = React.memo((rowProps: ListChildComponentProps) => {
-  const { data, index, style } = rowProps;
-
-  if (index < data.length) {
-    const row = data[index];
-
-    return (
-      <Row
-        className="t--virtual-row"
-        index={index}
-        key={index}
-        row={row}
-        style={style}
-      />
-    );
-  } else {
-    return <EmptyRow style={style} />;
-  }
-}, areEqual);
-
-interface BodyPropsType {
-  getTableBodyProps(
-    propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
-  ): TableBodyProps;
-  pageSize: number;
-  rows: ReactTableRowType<Record<string, unknown>>[];
-  height: number;
-  width?: number;
-  tableSizes: TableSizes;
-  innerElementType?: ReactElementType;
-}
-
-const TableVirtualBodyComponent = (props: BodyPropsType) => {
-  const ref = React.useRef<HTMLDivElement>(null);
-  const [horizontalScrollbarHeight, setHorizontalScrollbarHeight] =
-    React.useState(0);
-
-  useLayoutEffect(() => {
-    if (ref.current) {
-      const horizontalScrollbar = ref.current;
-      if (horizontalScrollbar) {
-        setHorizontalScrollbarHeight(
-          horizontalScrollbar.offsetHeight - horizontalScrollbar.clientHeight,
-        );
-      }
-    }
-  }, [ref.current]);
-
-  return (
-    <FixedSizeList
-      data-virtual-list=""
-      height={
-        props.height +
-        props.tableSizes.COLUMN_HEADER_HEIGHT +
-        horizontalScrollbarHeight
-      }
-      innerElementType={props.innerElementType}
-      itemCount={Math.max(props.rows.length, props.pageSize)}
-      itemData={props.rows}
-      itemSize={props.tableSizes.ROW_HEIGHT}
-      outerRef={ref}
-      style={{
-        overflow: "auto",
-        scrollbarColor: "initial",
-      }}
-      width="100cqw"
-    >
-      {rowRenderer}
-    </FixedSizeList>
-  );
-};
-
-const TableBodyComponent = (props: BodyPropsType) => {
-  return (
-    <div
-      {...props.getTableBodyProps()}
-      className="tbody body"
-      style={{ height: props.height }}
-    >
-      {props.rows.map((row, index) => {
-        return <Row index={index} key={index} row={row} />;
-      })}
-      {props.pageSize > props.rows.length && (
-        <EmptyRows rowCount={props.pageSize - props.rows.length} />
-      )}
-    </div>
-  );
-};
-
 export const TableBody = (
-  props: BodyPropsType & BodyContextType & { useVirtual: boolean },
+  props: VirtualTableBodyProps & BodyContextType & { useVirtual: boolean },
 ) => {
   const {
     accentColor,
@@ -203,9 +114,9 @@ export const TableBody = (
       }}
     >
       {useVirtual ? (
-        <TableVirtualBodyComponent rows={rows} width={width} {...restOfProps} />
+        <VirtualTableBody rows={rows} width={width} {...restOfProps} />
       ) : (
-        <TableBodyComponent rows={rows} {...restOfProps} />
+        <StaticTableBody rows={rows} {...restOfProps} />
       )}
     </BodyContext.Provider>
   );

@@ -18,6 +18,7 @@ import type {
 } from "WidgetProvider/constants";
 import { Colors } from "constants/Colors";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import type {
   SnipingModeProperty,
   PropertyUpdates,
@@ -108,6 +109,7 @@ class RateWidget extends BaseWidget<RateWidgetProps, WidgetState> {
     return {
       name: "Rating",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.CONTENT],
       needsMeta: true,
       searchTags: ["stars", "rate"],

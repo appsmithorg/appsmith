@@ -12,15 +12,13 @@ import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.Criteria;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static org.springframework.data.mongodb.core.query.Criteria.where;
+import static com.appsmith.external.helpers.StringUtils.dotted;
 
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
         implements CustomActionCollectionRepositoryCE {
@@ -67,27 +65,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         return bridgeQuery;
     }
 
-    /**
-     * Keeping it here temporarily till EE file is migrated because EE file uses it. It will be removed as part of the
-     * EE PR.
-     */
-    protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, boolean viewMode) {
-        List<Criteria> criteria = new ArrayList<>();
-
-        Criteria applicationCriterion =
-                where(ActionCollection.Fields.applicationId).is(applicationId);
-        criteria.add(applicationCriterion);
-
-        if (Boolean.FALSE.equals(viewMode)) {
-            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
-            // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriterion = where(ActionCollection.Fields.unpublishedCollection_deletedAt)
-                    .is(null);
-            criteria.add(deletedCriterion);
-        }
-        return criteria;
-    }
-
     @Override
     public Flux<ActionCollection> findByApplicationIdAndViewMode(
             String applicationId, boolean viewMode, AclPermission aclPermission) {
@@ -107,7 +84,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
          */
         BridgeQuery<ActionCollection> bridgeQuery = Bridge.query();
         if (!StringUtils.isEmpty(branchName)) {
-            bridgeQuery.equal(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME, branchName);
+            bridgeQuery.equal(ActionCollection.Fields.defaultResources_branchName, branchName);
         }
 
         // Fetch published actions
@@ -118,8 +95,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                String pageIdFieldPath = String.join(
-                        ".",
+                String pageIdFieldPath = dotted(
                         ActionCollection.Fields.publishedCollection,
                         ActionCollectionDTO.Fields.defaultResources,
                         DefaultResources.Fields.pageId);
@@ -133,8 +109,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                String pageIdFieldPath = String.join(
-                        ".",
+                String pageIdFieldPath = dotted(
                         ActionCollection.Fields.unpublishedCollection,
                         ActionCollectionDTO.Fields.defaultResources,
                         DefaultResources.Fields.pageId);
@@ -147,71 +122,6 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
         }
 
         return bridgeQuery;
-    }
-
-    /**
-     * Keeping it here temporarily till EE file is migrated because EE file uses it. It will be removed as part of the
-     * EE PR.
-     */
-    protected List<Criteria> getCriteriaForFindAllActionCollectionsByNameDefaultPageIdsViewModeAndBranch(
-            String branchName, boolean viewMode, String name, List<String> pageIds) {
-        /**
-         * TODO : This function is called by get(params) to get all actions by params and hence
-         * only covers criteria of few fields like page id, name, etc. Make this generic to cover
-         * all possible fields
-         */
-        List<Criteria> criteriaList = new ArrayList<>();
-
-        if (!StringUtils.isEmpty(branchName)) {
-            criteriaList.add(where(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME)
-                    .is(branchName));
-        }
-
-        // Fetch published actions
-        if (Boolean.TRUE.equals(viewMode)) {
-
-            if (name != null) {
-                Criteria nameCriteria =
-                        where(ActionCollection.Fields.publishedCollection_name).is(name);
-                criteriaList.add(nameCriteria);
-            }
-
-            if (pageIds != null && !pageIds.isEmpty()) {
-                String pageIdFieldPath = String.join(
-                        ".",
-                        ActionCollection.Fields.publishedCollection,
-                        ActionCollectionDTO.Fields.defaultResources,
-                        DefaultResources.Fields.pageId);
-                Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
-                criteriaList.add(pageCriteria);
-            }
-        }
-        // Fetch unpublished actions
-        else {
-
-            if (name != null) {
-                Criteria nameCriteria = where(ActionCollection.Fields.unpublishedCollection_name)
-                        .is(name);
-                criteriaList.add(nameCriteria);
-            }
-
-            if (pageIds != null && !pageIds.isEmpty()) {
-                String pageIdFieldPath = String.join(
-                        ".",
-                        ActionCollection.Fields.unpublishedCollection,
-                        ActionCollectionDTO.Fields.defaultResources,
-                        DefaultResources.Fields.pageId);
-                Criteria pageCriteria = where(pageIdFieldPath).in(pageIds);
-                criteriaList.add(pageCriteria);
-            }
-
-            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
-            // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(ActionCollection.Fields.unpublishedCollection_deletedAt)
-                    .is(null);
-            criteriaList.add(deletedCriteria);
-        }
-        return criteriaList;
     }
 
     @Override

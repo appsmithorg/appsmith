@@ -1,20 +1,18 @@
-import { LayoutSystemTypes } from "layoutSystems/types";
 import { useSelector } from "react-redux";
 import { previewModeSelector } from "selectors/editorSelectors";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import {
   LayoutSystemFeatures,
   useLayoutSystemFeatures,
 } from "../useLayoutSystemFeatures";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export const useMainContainerResizer = () => {
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
   const [enableMainContainerResizer] = checkLayoutSystemFeatures([
     LayoutSystemFeatures.ENABLE_MAIN_CONTAINER_RESIZER,
   ]);
-  const layoutSystemType = useSelector(getLayoutSystemType);
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
   const isPreviewMode = useSelector(previewModeSelector);
-  const canShowResizer =
-    layoutSystemType === LayoutSystemTypes.ANVIL ? isPreviewMode : true;
+  const canShowResizer = isAnvilLayout ? isPreviewMode : true;
   return { enableMainContainerResizer, canShowResizer };
 };
