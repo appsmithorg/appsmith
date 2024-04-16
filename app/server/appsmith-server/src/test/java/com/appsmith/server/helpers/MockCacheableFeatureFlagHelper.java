@@ -17,9 +17,9 @@ import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATURE;
-import static com.appsmith.server.featureflags.FeatureFlagEnum.TEST_FEATURE_1;
-import static com.appsmith.server.featureflags.FeatureFlagEnum.TEST_FEATURE_2;
+import static com.appsmith.external.enums.FeatureFlagEnum.TENANT_TEST_FEATURE;
+import static com.appsmith.external.enums.FeatureFlagEnum.TEST_FEATURE_1;
+import static com.appsmith.external.enums.FeatureFlagEnum.TEST_FEATURE_2;
 
 @Profile("test")
 @Primary
