@@ -352,9 +352,18 @@ function getWidgetElementToScroll(
   }
 }
 
-export const toValidPageName = (value: string, limit?: number) => {
-  // Ensure that `/`, `\` and `:` are not allowed in page names, aligning with server-side validation.
-  return value.replaceAll(/[/\\:]+/g, "").slice(0, limit || 30);
+export const resolveAsSpaceChar = (value: string, limit?: number) => {
+  // ensures that all special characters are disallowed
+  // while allowing all utf-8 characters
+  const removeSpecialCharsRegex =
+    /`|\~|\!|\@|\#|\$|\%|\^|\&|\*|\(|\)|\+|\=|\[|\{|\]|\}|\||\\|\'|\<|\,|\.|\>|\?|\/|\""|\;|\:|\s/;
+  const duplicateSpaceRegex = /\s+/;
+  return value
+    .split(removeSpecialCharsRegex)
+    .join(" ")
+    .split(duplicateSpaceRegex)
+    .join(" ")
+    .slice(0, limit || 30);
 };
 
 export const PLATFORM_OS = {

@@ -18,7 +18,7 @@ import {
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { StyledEntity } from "pages/Editor/Explorer/Common/components";
-import { toValidPageName } from "utils/helpers";
+import { resolveAsSpaceChar } from "utils/helpers";
 import { updatePage } from "actions/pageActions";
 import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
 import AnalyticsUtil from "utils/AnalyticsUtil";
@@ -103,7 +103,7 @@ const PageElement = ({ page }: { page: Page }) => {
       isDefaultExpanded={isCurrentPage}
       key={page.pageId}
       name={page.pageName}
-      onNameEdit={toValidPageName}
+      onNameEdit={resolveAsSpaceChar}
       ref={ref}
       searchKeyword={""}
       step={1}
