@@ -36,7 +36,7 @@ function Container(props: ContainerProps) {
       className={`gap-14 my-auto flex items-center justify-center min-w-min`}
       data-testid={testId}
     >
-      {cloudHosting && <LeftSideContent />}
+      {cloudHosting && !isMobileDevice && <LeftSideContent />}
       <div
         className={`bg-white border border-[color:var(--ads-v2-color-border)] px-6 py-8 gap-4 flex flex-col t--login-container rounded-[var(--ads-v2-border-radius)] ${
           isMobileDevice ? "w-full" : "w-[min(400px,80%)]"
