@@ -1,5 +1,8 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.views.FromRequest;
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -12,5 +15,6 @@ import java.util.Map;
 @ToString
 @NoArgsConstructor
 public class AnalyticsInfo {
+    @JsonView({Views.Public.class, FromRequest.class})
     private Map<String, Object> analyticsData;
 }
