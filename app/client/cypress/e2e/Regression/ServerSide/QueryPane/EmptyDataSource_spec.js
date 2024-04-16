@@ -23,7 +23,7 @@ describe(
       dataSources.RunQuery({ toValidateResponse: false });
       cy.wait(500);
       cy.get("[data-testid=t--query-error]").contains(
-        "[Missing endpoint., Missing username for authentication.]",
+        "[Missing username for authentication., Missing hostname.]",
       );
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
