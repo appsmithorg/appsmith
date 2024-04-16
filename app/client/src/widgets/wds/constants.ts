@@ -1,3 +1,4 @@
+import { getCanvasClassName } from "utils/generators";
 import { anvilWidgets } from "widgets/anvil/constants";
 
 export const WDS_V2_WIDGET_MAP = {
@@ -26,4 +27,4 @@ export const WDS_V2_WIDGET_MAP = {
   ZONE_WIDGET: anvilWidgets.ZONE_WIDGET,
 };
 
-export const WDS_MODAL_WIDGET_CLASSNAME = "appsmith-modal-body";
+export const WDS_MODAL_WIDGET_CLASSNAME = `appsmith-modal-body ${getCanvasClassName()}`;

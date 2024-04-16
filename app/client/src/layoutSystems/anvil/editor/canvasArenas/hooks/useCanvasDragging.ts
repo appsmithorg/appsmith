@@ -4,15 +4,17 @@ import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/editor/ca
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { getNearestParentCanvas } from "utils/generators";
-import { computeCanvasToLayoutGap, getClosestHighlight } from "../utils/utils";
+import {
+  computeCanvasToLayoutGap,
+  getClosestHighlight,
+  getEdgeHighlightOffset,
+} from "../utils/utils";
 import { AnvilCanvasZIndex } from "layoutSystems/anvil/editor/canvas/hooks/useCanvasActivation";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
 import { setHighlightsDrawnAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
-import {
-  renderBlocksOnCanvas,
-  renderDisallowOnCanvas,
-} from "../utils/canvasRenderUtils";
+import { renderDisallowOnCanvas } from "../utils/canvasRenderUtils";
+import { getAbsolutePixels } from "utils/helpers";
 
 /**
  *
@@ -29,6 +31,7 @@ export const useCanvasDragging = (
   slidingArenaRef: React.RefObject<HTMLDivElement>,
   stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
   props: AnvilHighlightingCanvasProps,
+  setHighlightShown: (highlight: AnvilHighlightInfo | null) => void,
 ) => {
   const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop } = props;
   const {
@@ -167,19 +170,42 @@ export const useCanvasDragging = (
         const throttledRenderOnCanvas = throttle(
           () => {
             if (
+              slidingArenaRef.current &&
               stickyCanvasRef.current &&
               canvasIsDragging.current &&
               isCurrentDraggedCanvas
             ) {
-              dispatch(setHighlightsDrawnAction(currentRectanglesToDraw));
-              // Render blocks on the canvas based on the highlight
-              renderBlocksOnCanvas(
-                stickyCanvasRef.current,
-                currentRectanglesToDraw,
-                currentLayoutPositions,
-                canvasIsDragging.current,
-                canvasToLayoutGap.current,
+              const topOffset = getAbsolutePixels(
+                slidingArenaRef.current.getAttribute("topOffset"),
               );
+              const leftOffset = getAbsolutePixels(
+                slidingArenaRef.current.getAttribute("leftOffset"),
+              );
+              const { height, posX, posY, width } = currentRectanglesToDraw;
+              const left = posX - leftOffset + canvasToLayoutGap.current.left;
+              const top = posY - topOffset + canvasToLayoutGap.current.top;
+              const edgeOffset = getEdgeHighlightOffset(
+                { left, top, width, height },
+                currentLayoutPositions,
+                canvasToLayoutGap.current,
+                currentRectanglesToDraw.isVertical,
+              );
+              const positionUpdatedHighlightInfo = {
+                ...currentRectanglesToDraw,
+                posX: left + edgeOffset.leftOffset,
+                posY: top + edgeOffset.topOffset,
+              };
+              dispatch(setHighlightsDrawnAction(positionUpdatedHighlightInfo));
+              setHighlightShown(positionUpdatedHighlightInfo);
+              // Render blocks on the canvas based on the highlight
+              // renderBlocksOnCanvas(
+              //   slidingArenaRef.current,
+              //   stickyCanvasRef.current,
+              //   currentRectanglesToDraw,
+              //   currentLayoutPositions,
+              //   canvasIsDragging.current,
+              //   canvasToLayoutGap.current,
+              // );
             }
           },
           50,

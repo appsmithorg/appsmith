@@ -26,6 +26,7 @@ export const getDropIndicatorColor = memoize(() => {
  * Function to stroke a rectangle on the canvas that looks like a highlight/drop area.
  */
 export const renderBlocksOnCanvas = (
+  slidingArea: HTMLDivElement,
   stickyCanvas: HTMLCanvasElement,
   blockToRender: AnvilHighlightInfo,
   currentLayoutPositions: LayoutElementPosition,
@@ -36,8 +37,10 @@ export const renderBlocksOnCanvas = (
     return;
   }
   // Calculating offset based on the position of the canvas
-  const topOffset = getAbsolutePixels(stickyCanvas.style.top);
-  const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
+  // const topOffset = getAbsolutePixels(stickyCanvas.style.top);
+  // const leftOffset = getAbsolutePixels(stickyCanvas.style.left);
+  const topOffset = getAbsolutePixels(slidingArea.getAttribute("topOffset"));
+  const leftOffset = getAbsolutePixels(slidingArea.getAttribute("leftOffset"));
   const dropIndicatorColor = getDropIndicatorColor();
   const canvasCtx = stickyCanvas.getContext("2d") as CanvasRenderingContext2D;
 
