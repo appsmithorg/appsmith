@@ -30,7 +30,7 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     });
   });
 
-  it("1. Tc #2354, #2204 - Oracle placeholder & mandatory mark verification", () => {
+  it("1. Tc #2354, #2204 - Oracle placeholder, port default value & mandatory mark verification", () => {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Oracle");
     agHelper.GetNAssertContains(locators._dsName, "Untitled datasource");
@@ -45,6 +45,7 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
       "placeholder",
       "myapp.abcde.oracle.net",
     );
+    agHelper.AssertAttribute(dataSources._port, "value", "1521");
     agHelper.AssertAttribute(
       dataSources._databaseName,
       "placeholder",

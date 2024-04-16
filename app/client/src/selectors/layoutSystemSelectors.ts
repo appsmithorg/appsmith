@@ -47,3 +47,6 @@ export const getWidgetSelectorByWidgetId = (
       return widgetId;
   }
 };
+
+export const isFixedLayoutSelector = (state: AppState) =>
+  getLayoutSystemType(state) === LayoutSystemTypes.FIXED;
