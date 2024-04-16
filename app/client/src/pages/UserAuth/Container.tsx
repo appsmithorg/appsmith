@@ -25,6 +25,19 @@ const ContainerWrapper = styled.div`
   }
 `;
 
+const BoxWrapper = styled.div<{ isMobileView: boolean }>`
+  box-shadow: 0px 1px 20px 0px rgba(76, 86, 100, 0.11);
+  border-radius: var(--ads-v2-border-radius);
+  background: var(--ads-v2-color-bg);
+  display: flex;
+  flex-direction: column;
+  gap: var(--ads-v2-spaces-2);
+  padding: 32px 24px;
+
+  ${({ isMobileView }) =>
+    isMobileView ? "border: 1px solid var(--ads-v2-color-border);" : ""}
+`;
+
 function Container(props: ContainerProps) {
   const { children, footer, subtitle, testId, title } = props;
   const tenantConfig = useSelector(getTenantConfig);
@@ -37,10 +50,11 @@ function Container(props: ContainerProps) {
       data-testid={testId}
     >
       {cloudHosting && !isMobileDevice && <LeftSideContent />}
-      <div
-        className={`bg-white border border-[color:var(--ads-v2-color-border)] px-6 py-8 gap-4 flex flex-col t--login-container rounded-[var(--ads-v2-border-radius)] ${
+      <BoxWrapper
+        className={`t--login-container ${
           isMobileDevice ? "w-full" : "w-[min(400px,80%)]"
         }`}
+        isMobileView={isMobileDevice}
       >
         {!isMobileDevice && (
           <img
@@ -62,7 +76,7 @@ function Container(props: ContainerProps) {
           {children}
           {footer}
         </div>
-      </div>
+      </BoxWrapper>
     </ContainerWrapper>
   );
 }

@@ -20,6 +20,7 @@ const Wrapper = styled.div`
     margin: 0 auto;
     font-size: 16px;
     font-style: italic;
+    color: var(--ads-v2-color-gray-800);
   }
 
   .left-description-author {
@@ -30,6 +31,7 @@ const Wrapper = styled.div`
 
   .left-description-author > div {
     font-weight: 500;
+    font-size: 12px;
   }
 
   .dot {
@@ -89,12 +91,6 @@ function LeftSideContent() {
           Used by more than 10,000 organisations across the globe
         </div>
         <div className="client-logo-section">
-          <img
-            alt="Northeastern university logo"
-            src={`${getAssetUrl(
-              `${ASSETS_CDN_URL}/northeastern-university-logo.svg`,
-            )}`}
-          />
           <img
             alt="GSK logo"
             src={`${getAssetUrl(`${ASSETS_CDN_URL}/gsk-logo-grey.svg`)}`}

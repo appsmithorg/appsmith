@@ -3,7 +3,7 @@ import { Link } from "design-system";
 import styled from "styled-components";
 
 const FooterWrapper = styled.div`
-  width: 75%;
+  width: 85%;
   margin: 0 auto;
   text-align: center;
   a {

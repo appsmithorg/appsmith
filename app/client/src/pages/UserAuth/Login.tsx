@@ -129,9 +129,9 @@ export function Login(props: LoginFormProps) {
 
   const footerSection = isFormLoginEnabled && (
     <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
-      {createMessage(NEW_TO_APPSMITH)}
+      {createMessage(NEW_TO_APPSMITH)}&nbsp;
       <Link
-        className="t--sign-up t--signup-link pl-[var(--ads-v2\-spaces-3)]"
+        className="t--sign-up t--signup-link"
         kind="primary"
         target="_self"
         to={signupURL}
