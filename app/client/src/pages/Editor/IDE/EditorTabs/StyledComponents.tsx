@@ -16,10 +16,9 @@ import { DEFAULT_SPLIT_SCREEN_WIDTH } from "constants/AppConstants";
  * 127px
  *
  */
-export const StyledTab = styled(Flex)`
+export const StyledTab = styled(Flex)<{ showOverflow: boolean }>`
   position: relative;
   top: 1px;
-  padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-4);
   font-size: 12px;
   color: var(--ads-v2-colors-text-default);
   cursor: pointer;
@@ -29,7 +28,13 @@ export const StyledTab = styled(Flex)`
   border-top-right-radius: var(--ads-v2-border-radius);
   align-items: center;
   justify-content: center;
-  max-width: calc((${DEFAULT_SPLIT_SCREEN_WIDTH} - 127px) / 5);
+  ${({ showOverflow }) =>
+    showOverflow
+      ? `padding: var(--ads-v2-spaces-3);`
+      : `
+        padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-4);
+        max-width: calc((${DEFAULT_SPLIT_SCREEN_WIDTH} - 127px) / 5);
+    `}
 
   // After element - the seperator in between tabs
   &:not(&.active):not(:has(+ .active)):after {
@@ -47,6 +52,16 @@ export const StyledTab = styled(Flex)`
     border-top: 2px solid var(--ads-v2-color-bg-brand);
     border-left: 1px solid var(--ads-v2-color-border);
     border-right: 1px solid var(--ads-v2-color-border);
+  }
+
+  & > .tab-close {
+    position: relative;
+    right: -2px;
+    visibility: hidden;
+  }
+
+  &:hover > .tab-close {
+    visibility: visible;
   }
 `;
 

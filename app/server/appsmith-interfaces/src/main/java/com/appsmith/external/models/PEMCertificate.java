@@ -8,7 +8,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
@@ -16,7 +15,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@Document
 public class PEMCertificate implements AppsmithDomain {
 
     UploadedFile file;
