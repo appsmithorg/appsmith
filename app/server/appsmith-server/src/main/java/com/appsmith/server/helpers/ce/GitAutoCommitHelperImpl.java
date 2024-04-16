@@ -1,5 +1,6 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -8,7 +9,6 @@ import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
