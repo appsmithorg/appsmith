@@ -1,5 +1,5 @@
-import type { CSSProperties, MutableRefObject } from "react";
-import React, { useCallback, useEffect, useRef } from "react";
+import type { CSSProperties, ForwardedRef } from "react";
+import React, { forwardRef, useCallback, useEffect, useRef } from "react";
 import { shouldSelectOrFocus } from "layoutSystems/anvil/integrations/onCanvasUISelectors";
 import { useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -8,110 +8,25 @@ import styled from "styled-components";
 import WidgetFactory from "WidgetProvider/factory";
 import type { AppState } from "@appsmith/reducers";
 
-// import memoize from "proxy-memoize";
+import {
+  computePosition,
+  autoUpdate,
+  flip,
+  shift,
+  offset,
+} from "@floating-ui/dom";
+
+import { FloatingPortal } from "@floating-ui/react";
+
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import debounce from "lodash/debounce";
-class IntersectionObserverManager {
-  _observer: IntersectionObserver;
-  _observedNodes: Set<Element>;
-  constructor(observer: IntersectionObserver) {
-    this._observer = observer;
-    this._observedNodes = new Set();
-  }
-  observe(node: Element) {
-    this._observedNodes.add(node);
-    this._observer.observe(node);
-  }
-  unobserve(node: Element) {
-    this._observedNodes.delete(node);
-    this._observer.unobserve(node);
-  }
-  disconnect() {
-    this._observedNodes.clear();
-    this._observer.disconnect();
-  }
-  refresh() {
-    for (const node of this._observedNodes) {
-      this._observer.unobserve(node);
-      this._observer.observe(node);
-    }
-  }
-}
-const getWidgets = (state: AppState) =>
-  Object.values(state.entities.canvasWidgets).map((widget) => ({
-    widgetId: widget.widgetId,
-    widgetName: widget.widgetName,
-    widgetType: widget.type,
-    parentId: widget.parentId,
-  }));
-// const getMemoizedWidgets = memoize(getWidgets);
-
-function handleScroll(isHidden: MutableRefObject<boolean>) {
-  if (isHidden.current === false) {
-    const nameEls: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-      "[id*='widget-name-']",
-    );
-    nameEls.forEach((el: HTMLDivElement) => {
-      el.style.opacity = "0";
-    });
-    isHidden.current = true;
-  }
-}
-function handleScrollEnd(isHidden: MutableRefObject<boolean>) {
-  if (isHidden.current === true) {
-    isHidden.current = false;
-    ObserverQueue.forEach((manager) => {
-      manager.refresh();
-    });
-  }
-}
-export function useScrollHandlerForWidgetNameComponent() {
-  const isHidden = useRef(false);
-  // TODO(abhinav): This is really bad. Figure out a better way
-  const hasModalWidgetType = !!document.querySelector(".appsmith-modal-body");
-  useEffect(() => {
-    const scrollableNodes = document.querySelectorAll(
-      ".appsmith-modal-body, .canvas.scrollbar-thin",
-    );
-
-    scrollableNodes.forEach((node) => {
-      node.addEventListener("scroll", () => handleScroll(isHidden), {
-        passive: false,
-      });
-      node.addEventListener("scrollend", () => handleScrollEnd(isHidden), {
-        passive: false,
-      });
-    });
-    return () => {
-      scrollableNodes.forEach((node) => {
-        node.removeEventListener("scroll", () => handleScroll(isHidden));
-        node.removeEventListener("scrollend", () => handleScrollEnd(isHidden));
-      });
-    };
-  }, [hasModalWidgetType]);
-}
-
-function getNearestScrollableAncestor(widgetElement: Element) {
-  const nearestScrollableModalBody = widgetElement.closest(
-    ".appsmith-modal-body",
-  );
-  if (
-    nearestScrollableModalBody &&
-    nearestScrollableModalBody.scrollHeight >
-      nearestScrollableModalBody?.clientHeight
-  ) {
-    return nearestScrollableModalBody;
-  }
-  return widgetElement.closest("#widgets-editor");
-}
 
 const widgetNameStyles: CSSProperties = {
-  height: "22px",
+  height: "23px",
+  width: "max-content",
   position: "fixed",
   top: 0,
   left: 0,
-  zIndex: 1000000,
-  opacity: 0,
+  visibility: "hidden",
 };
 
 const SplitButtonWrapper = styled.div<{
@@ -163,7 +78,6 @@ const SplitButtonWrapper = styled.div<{
   & span {
     inline-size: 3ch;
     cursor: pointer;
-    position: relative;
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -187,18 +101,21 @@ const SplitButtonWrapper = styled.div<{
   }
 `;
 
-export function SplitButton(props: {
-  text: string;
-  id: string;
-  onClick: React.MouseEventHandler;
-  onMouseOverCapture: React.MouseEventHandler;
-  styles: CSSProperties;
-  bGCSSVar: string;
-  colorCSSVar: string;
-  disableParentToggle: boolean;
-  onSpanClick: React.MouseEventHandler;
-  className: string;
-}) {
+export function SplitButton(
+  props: {
+    text: string;
+    id: string;
+    onClick: React.MouseEventHandler;
+    onMouseOverCapture: React.MouseEventHandler;
+    styles: CSSProperties;
+    bGCSSVar: string;
+    colorCSSVar: string;
+    disableParentToggle: boolean;
+    onSpanClick: React.MouseEventHandler;
+    className: string;
+  },
+  ref: ForwardedRef<HTMLDivElement>,
+) {
   return (
     <SplitButtonWrapper
       $BGCSSVar={props.bGCSSVar}
@@ -207,6 +124,7 @@ export function SplitButton(props: {
       className={props.className}
       id={props.id}
       onMouseMoveCapture={props.onMouseOverCapture}
+      ref={ref}
       style={props.styles}
     >
       {!props.disableParentToggle && (
@@ -236,21 +154,25 @@ export function SplitButton(props: {
   );
 }
 
-export function WidgetNameComponent(props: {
-  name: string;
-  widgetId: string;
-  selectionBGCSSVar: string;
-  selectionColorCSSVar: string;
-  focusBGCSSVar: string;
-  focusColorCSSVar: string;
-  disableParentSelection: boolean;
-}) {
-  const nameComponentState: "select" | "focus" | "none" = useSelector(
-    shouldSelectOrFocus(props.widgetId),
-  );
+const ForwardedSplitButton = forwardRef(SplitButton);
+
+export function WidgetNameComponent(
+  props: {
+    name: string;
+    widgetId: string;
+    selectionBGCSSVar: string;
+    selectionColorCSSVar: string;
+    bGCSSVar: string;
+    colorCSSVar: string;
+    disableParentSelection: boolean;
+  },
+  ref: ForwardedRef<HTMLDivElement>,
+) {
+  const { widgetId } = props;
   const parentId: string | undefined = useSelector(
-    (state: AppState) => state.entities.canvasWidgets[props.widgetId]?.parentId,
+    (state: AppState) => state.entities.canvasWidgets[widgetId]?.parentId,
   );
+
   const { selectWidget } = useWidgetSelection();
 
   const handleSelectParent = useCallback(
@@ -271,193 +193,98 @@ export function WidgetNameComponent(props: {
     e.stopPropagation();
   }, []);
 
-  if (nameComponentState === "none") {
-    widgetNameStyles.opacity = 0;
-  } else {
-    widgetNameStyles.opacity = 1;
-  }
-
-  const bGCSSVar =
-    nameComponentState === "focus"
-      ? props.focusBGCSSVar
-      : props.selectionBGCSSVar;
-  const colorCSSVar =
-    nameComponentState === "focus"
-      ? props.focusColorCSSVar
-      : props.selectionColorCSSVar;
-
-  if (nameComponentState === "focus") {
-    widgetNameStyles.zIndex = 9000001;
-  } else {
-    widgetNameStyles.zIndex = 9000000;
-  }
-
-  let _disableParentSelection = props.disableParentSelection;
-  if (nameComponentState === "focus") {
-    _disableParentSelection = true;
-  }
-
   return (
-    <SplitButton
-      bGCSSVar={bGCSSVar}
+    <ForwardedSplitButton
+      bGCSSVar={props.bGCSSVar}
       className="on-canvas-ui"
-      colorCSSVar={colorCSSVar}
-      disableParentToggle={_disableParentSelection}
-      id={`widget-name-${props.widgetId}`}
+      colorCSSVar={props.colorCSSVar}
+      disableParentToggle={props.disableParentSelection}
+      id={`widget-name-${widgetId}`}
       onClick={handleSelect}
       onMouseOverCapture={handleMouseOver}
       onSpanClick={handleSelectParent}
+      ref={ref}
       styles={widgetNameStyles}
       text={props.name}
     />
   );
 }
 
-function intersectionObserverCallback(entries: IntersectionObserverEntry[]) {
-  entries.forEach((entry: IntersectionObserverEntry) => {
-    const widgetId = entry.target.id.split("_")[2];
-    const widgetNameComponent: HTMLDivElement | null = document.querySelector(
-      "#widget-name-" + widgetId,
-    );
-    const editorElement = document.getElementById("widgets-editor");
-    const editorRect = editorElement?.getBoundingClientRect();
-    if (widgetNameComponent) {
-      if (
-        entry.isIntersecting &&
-        Math.floor(entry.intersectionRect.top) ===
-          Math.floor(entry.boundingClientRect.top) &&
-        editorRect
-      ) {
-        widgetNameComponent.style.transform = `translate3d(${
-          entry.boundingClientRect.left - 6
-        }px, ${entry.boundingClientRect.top - 30}px, 20px)`;
-      } else {
-        widgetNameComponent.style.opacity = "0";
-      }
-    }
-  });
-}
+const ForwardedWidgetNameComponent = forwardRef(WidgetNameComponent);
 
-function resizeObserverCallback() {
-  ObserverQueue.forEach((manager) => {
-    manager.refresh();
-  });
-}
+export function useWidgetName(widgetId: string, widgetName: string) {
+  const widgetNameRef = useRef<HTMLDivElement | null>(null);
+  const widgetNameComponent = widgetNameRef.current;
 
-const debouncedResizeObserverCallback = debounce(resizeObserverCallback, 100);
-
-const resizeObserver = new ResizeObserver(debouncedResizeObserverCallback);
-
-const options = {
-  root: null,
-  threshold: 0.1,
-};
-const viewPortObserver = new IntersectionObserver(
-  intersectionObserverCallback,
-  options,
-);
-const ObserverQueue = new Map<string, IntersectionObserverManager>();
-ObserverQueue.set(
-  "viewport",
-  new IntersectionObserverManager(viewPortObserver),
-);
-
-let isVisible = true;
-if (visualViewport) {
-  visualViewport.onresize = () => {
-    regularFn();
-    // debouncedFn();
-  };
-
-  const regularFn = () => {
-    if (isVisible) {
-      const nameEls: NodeListOf<HTMLDivElement> = document.querySelectorAll(
-        "[id*='widget-name-']",
-      );
-      nameEls.forEach((el: HTMLDivElement) => {
-        el.style.opacity = "0";
-      });
-      isVisible = false;
-    }
-  };
-
-  // const debouncedFn = debounce(function () {
-  //   console.log("###### Calling this:");
-  //   ObserverQueue.forEach((manager) => {
-  //     manager.refresh();
-  //   });
-  //   isVisible = true;
-  // }, 1500);
-}
-
-export function OnCanvasUIWidgetNameComponents() {
-  useScrollHandlerForWidgetNameComponent();
-  const widgets = useSelector(getWidgets);
-
-  let widgetElementCount = 0;
-
-  const renderedNameComponents = widgets.map(
-    ({ parentId, widgetId, widgetName, widgetType }) => {
-      if (widgetId === MAIN_CONTAINER_WIDGET_ID) return null;
-      const widgetElementSelector = `#anvil_widget_${widgetId}`;
-      const widgetElement = document.querySelector(widgetElementSelector);
-      if (widgetElement) widgetElementCount++;
-      if (widgetElement) {
-        resizeObserver.observe(widgetElement);
-        const nearestScrollableAncestor =
-          getNearestScrollableAncestor(widgetElement);
-
-        const options = {
-          root: nearestScrollableAncestor,
-          threshold: [0.1, 1],
-        };
-        if (nearestScrollableAncestor) {
-          const observerManager = ObserverQueue.get(
-            parentId || MAIN_CONTAINER_WIDGET_ID,
-          );
-          if (!observerManager) {
-            const observer = new IntersectionObserver(
-              intersectionObserverCallback,
-              options,
-            );
-            const manager = new IntersectionObserverManager(observer);
-            manager.observe(widgetElement);
-            // TODO(abhinav): This doesn't really work because the parent could be a zone
-            // or a section and not the Modal Widget. Maybe have the getNearestScrollableAncestor
-            // return the modal widget Id.
-            ObserverQueue.set(parentId || MAIN_CONTAINER_WIDGET_ID, manager);
-          } else {
-            observerManager.observe(widgetElement);
-          }
-        } else {
-          const observerManager = ObserverQueue.get("viewport");
-          if (observerManager) observerManager.observe(widgetElement);
-        }
-      }
-
-      const config = WidgetFactory.getConfig(widgetType);
-      const onCanvasUI = config?.onCanvasUI || {
-        disableParentSelection: false,
-        focusBGCSSVar: "--ads-widget-focus",
-        focusColorCSSVar: "--ads-widget-selection",
-        selectionBGCSSVar: "--ads-widget-selection",
-        selectionColorCSSVar: "--ads-widget-focus",
-      };
-      return (
-        <WidgetNameComponent
-          disableParentSelection={onCanvasUI.disableParentSelection}
-          focusBGCSSVar={onCanvasUI.focusBGCSSVar}
-          focusColorCSSVar={onCanvasUI.focusColorCSSVar}
-          key={widgetId}
-          name={widgetName}
-          selectionBGCSSVar={onCanvasUI.selectionBGCSSVar}
-          selectionColorCSSVar={onCanvasUI.selectionColorCSSVar}
-          widgetId={widgetId}
-        />
-      );
-    },
+  const nameComponentState: "select" | "focus" | "none" = useSelector(
+    shouldSelectOrFocus(widgetId),
   );
-  if (widgetElementCount === 0) return null;
-  widgetElementCount = 0;
-  return renderedNameComponents;
+  const widgetType = useSelector(
+    (state: AppState) => state.entities.canvasWidgets[widgetId].type,
+  );
+
+  const widgetElement = document.querySelector(
+    "#anvil_widget_" + widgetId,
+  ) as HTMLDivElement | null;
+  let cleanup = () => {};
+  useEffect(() => {
+    if (widgetElement && widgetNameComponent) {
+      cleanup = autoUpdate(widgetElement, widgetNameComponent, () => {
+        computePosition(widgetElement as HTMLDivElement, widgetNameComponent, {
+          placement: "top-start",
+          strategy: "fixed",
+          middleware: [flip(), shift(), offset({ mainAxis: 8, crossAxis: -5 })],
+        }).then(({ x, y }) => {
+          Object.assign(widgetNameComponent.style, {
+            left: `${x}px`,
+            top: `${y}px`,
+            visibility: nameComponentState === "none" ? "hidden" : "visible",
+            zIndex: nameComponentState === "focus" ? 9000001 : 9000000,
+            // transform: `translate(${roundByDPR(x)}px,${roundByDPR(y)}px,0)`,
+          });
+        });
+      });
+    }
+    return () => {
+      cleanup();
+    };
+  }, [nameComponentState, widgetElement, widgetNameComponent]);
+  if (widgetId === MAIN_CONTAINER_WIDGET_ID) return null;
+
+  const config = WidgetFactory.getConfig(widgetType);
+  const onCanvasUI = config?.onCanvasUI || {
+    disableParentSelection: false,
+    focusBGCSSVar: "--ads-widget-focus",
+    focusColorCSSVar: "--ads-widget-selection",
+    selectionBGCSSVar: "--ads-widget-selection",
+    selectionColorCSSVar: "--ads-widget-focus",
+  };
+  const bGCSSVar =
+    nameComponentState === "focus"
+      ? onCanvasUI.focusBGCSSVar
+      : onCanvasUI.selectionBGCSSVar;
+  const colorCSSVar =
+    nameComponentState === "focus"
+      ? onCanvasUI.focusColorCSSVar
+      : onCanvasUI.selectionColorCSSVar;
+
+  let _disableParentSelection = onCanvasUI.disableParentSelection;
+  if (nameComponentState === "focus") {
+    _disableParentSelection = true;
+  }
+  return (
+    <FloatingPortal>
+      <ForwardedWidgetNameComponent
+        bGCSSVar={bGCSSVar}
+        colorCSSVar={colorCSSVar}
+        disableParentSelection={_disableParentSelection}
+        key={widgetId}
+        name={widgetName}
+        ref={widgetNameRef}
+        selectionBGCSSVar={onCanvasUI.selectionBGCSSVar}
+        selectionColorCSSVar={onCanvasUI.selectionColorCSSVar}
+        widgetId={widgetId}
+      />
+    </FloatingPortal>
+  );
 }

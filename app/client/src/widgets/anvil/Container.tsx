@@ -22,7 +22,6 @@ const StyledContainerComponent = styled.div<
   width: 100%;
   outline: none;
   border: none;
-  position: relative;
   /* If the elevatedBackground is true, then apply the elevation styles */
   ${(props) => {
     if (props.elevatedBackground) {
