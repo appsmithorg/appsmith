@@ -118,7 +118,7 @@ describe(
     after(
       "Verify Deletion of the datasource after all created queries are deleted",
       () => {
-        deployMode.NavigateBacktoEditor("ran successfully"); //runAstros triggered on PageLaoad of Edit page!
+        deployMode.NavigateBacktoEditor(); //runAstros triggered on PageLaoad of Edit page!
         PageLeftPane.switchSegment(PagePaneSegment.JS);
         entityExplorer.ActionContextMenuByEntityName({
           entityNameinLeftSidebar: "JSObject1",
