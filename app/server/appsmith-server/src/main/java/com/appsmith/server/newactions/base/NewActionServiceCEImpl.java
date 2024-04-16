@@ -560,6 +560,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     actionDTO.getDefaultResources().setActionId(defaults.getActionId());
                     actionDTO.getDefaultResources().setApplicationId(defaults.getApplicationId());
+                    // Added this condition to get a value for updatedAt field since createdAt will always be present
+                    if (newAction.getUpdatedAt() != null) {
+                        actionDTO.setUpdatedAt(newAction.getUpdatedAt());
+                    } else {
+                        actionDTO.setUpdatedAt(newAction.getCreatedAt());
+                    }
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
