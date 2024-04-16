@@ -194,16 +194,6 @@ public class ActionCE_DTO implements Identifiable, Executable {
         }
     }
 
-    public Instant getUpdatedAt() {
-        if (this.updatedAt != null) {
-            return this.updatedAt;
-        } else if (this.createdAt != null) {
-            return this.createdAt;
-        } else {
-            return Instant.now();
-        }
-    }
-
     @Override
     public Set<String> getExecutableNames() {
         String validName = this.getValidName();
