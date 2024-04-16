@@ -91,6 +91,8 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+import AnalyticsUtil from "utils/AnalyticsUtil";
+import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -648,6 +650,7 @@ export function* addBuildingBlockToApplication(
   try {
     const dragDetails: DragDetails = yield select(getDragDetails);
     const applicationId: string = yield select(getCurrentApplicationId);
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
     const actionsBeforeAddingBuildingBlock: ActionDataState =
       yield select(getActions);
     const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
@@ -686,7 +689,7 @@ export function* addBuildingBlockToApplication(
 
       yield put(pasteWidget(false, mousePosition));
       yield call(postPageAdditionSaga, applicationId);
-      // remove selecting of recently imported widgets
+      // remove selecting of recently pasted widgets
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       // stop loading after pasting process is complete
@@ -701,6 +704,27 @@ export function* addBuildingBlockToApplication(
         actionsBeforeAddingBuildingBlock,
         actionsAfterAddingBuildingBlocks,
       );
+
+      const buildingBlockDragStartTimestamp: number = yield select(
+        getBuildingBlockDragStartTimestamp,
+      );
+      const timeTakenValue = buildingBlockDragStartTimestamp
+        ? Date.now() - buildingBlockDragStartTimestamp
+        : 0;
+
+      AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK", {
+        applicationId,
+        workspaceId,
+        source: "explorer",
+        eventData: {
+          buildingBlockName: dragDetails.newWidget.displayName,
+          timeTaken: timeTakenValue,
+        },
+      });
+      yield put({
+        type: ReduxActionTypes.SET_BUILDING_BLOCK_DRAG_START_TIME,
+        payload: { startTime: null },
+      });
 
       if (existingCopiedWidgets) {
         yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));

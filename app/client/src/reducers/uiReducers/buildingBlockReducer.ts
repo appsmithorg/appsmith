@@ -1,3 +1,4 @@
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
@@ -33,10 +34,20 @@ const buildingBlockReducer = createReducer(initialState, {
       isDraggingBuildingBlockToCanvas: false,
     };
   },
+  [ReduxActionTypes.SET_BUILDING_BLOCK_DRAG_START_TIME]: (
+    state: BuildingBlocksReduxState,
+    action: ReduxAction<{ startTime: number }>,
+  ) => {
+    return {
+      ...state,
+      buildingBlockDragStartTimestamp: action.payload.startTime,
+    };
+  },
 });
 
 export interface BuildingBlocksReduxState {
   isDraggingBuildingBlocksToCanvas: boolean;
+  buildingBlockDragStartTimestamp?: number;
 }
 
 export default buildingBlockReducer;
