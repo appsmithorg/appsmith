@@ -43,6 +43,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.time.Instant;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -406,6 +407,7 @@ public class ConsolidatedAPIServiceImplTest {
 
         ActionDTO sampleActionDTO = new ActionDTO();
         sampleActionDTO.setName("sampleActionDTO");
+        sampleActionDTO.setUpdatedAt(Instant.now());
         doReturn(Flux.just(sampleActionDTO))
                 .when(spyNewActionService)
                 .getUnpublishedActions(any(), anyString(), anyBoolean());
@@ -565,6 +567,18 @@ public class ConsolidatedAPIServiceImplTest {
                                     .getName());
 
                     assertNotNull(consolidatedAPIResponseDTO.getPagesWithMigratedDsl());
+                    assertNotNull(consolidatedAPIResponseDTO.getUnpublishedActions());
+                    assertEquals(
+                            1,
+                            consolidatedAPIResponseDTO
+                                    .getUnpublishedActions()
+                                    .getData()
+                                    .size());
+                    assertNotNull(consolidatedAPIResponseDTO
+                            .getUnpublishedActions()
+                            .getData()
+                            .get(0)
+                            .getUpdatedAt());
                     assertEquals(
                             1,
                             consolidatedAPIResponseDTO

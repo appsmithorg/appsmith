@@ -371,7 +371,6 @@ def main():
     convert("PermissionGroup")
     convert("ApplicationSnapshot")
     convert("CustomJSLib")
-    convert("GitDeployKeys")
     convert("Datasource")
     convert("Theme")
     convert("EmailVerificationToken")
