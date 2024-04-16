@@ -3,19 +3,13 @@ package com.appsmith.external.models;
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
 
-@Getter
-@Setter
-@ToString
-@EqualsAndHashCode
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PEMCertificate implements AppsmithDomain {
+public class PEMCertificate {
 
     UploadedFile file;
 
