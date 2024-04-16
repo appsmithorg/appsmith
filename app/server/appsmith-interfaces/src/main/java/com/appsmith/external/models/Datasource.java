@@ -1,7 +1,7 @@
 package com.appsmith.external.models;
 
-import com.appsmith.external.views.Git;
 import com.appsmith.external.views.FromRequest;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
