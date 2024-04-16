@@ -263,13 +263,14 @@ export class EntityExplorer {
     entityType?: EntityItemsType,
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    if (entityType === EntityItems.Page) {
+    if (entityType === EntityItems.Page && !viaMenu) {
       PageList.ShowList();
     }
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,
         action: "Edit name",
+        entityType,
       });
     else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
     cy.xpath(this.locator._entityNameEditing(entityName))
@@ -278,9 +279,6 @@ export class EntityExplorer {
       .type("{enter}")
       .wait(300);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
-    PageLeftPane.assertPresence(renameVal);
-    if (entityType === EntityItems.Page) {
-      PageList.HideList();
-    }
+    PageList.assertPresence(renameVal);
   }
 }

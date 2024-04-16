@@ -938,7 +938,7 @@ Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
       ee.RenameEntityFromExplorer(
         oldPageName,
         pageName,
-        true,
+        false,
         EntityItems.Page,
       );
     }
