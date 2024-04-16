@@ -2314,6 +2314,7 @@ export const EDITOR_PANE_TEXTS = {
   js_create_tab_title: () => "Create JS object",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
+  loading_building_blocks: () => "Loading building blocks",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {

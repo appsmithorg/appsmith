@@ -492,3 +492,10 @@ export function* fetchJSCollectionsForViewModeSaga(
     });
   }
 }
+
+export function* closeJSActionTabSaga(
+  actionPayload: ReduxAction<{ id: string }>,
+) {
+  const id = actionPayload.payload.id;
+  yield call(handleJSEntityRedirect, id);
+}

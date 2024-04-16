@@ -1,4 +1,4 @@
-package com.appsmith.server.featureflags;
+package com.appsmith.external.enums;
 
 public enum FeatureFlagEnum {
     // ------------------- These features are only for JUnit testing. DO NOT use these features in your code path.--- //
