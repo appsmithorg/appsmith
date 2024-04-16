@@ -148,7 +148,7 @@ function FormTitle(props: FormTitleProps) {
         placeholder="Datasource name"
         type="text"
         underline
-        updating
+        updating={saveStatus.isSaving}
       />
     </Wrapper>
   );
