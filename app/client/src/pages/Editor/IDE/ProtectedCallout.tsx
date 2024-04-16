@@ -37,14 +37,18 @@ function ProtectedCallout() {
   };
 
   return (
+    // @ts-expect-error Key is valid but does not exist in CalloutProps
     <StyledCallout
+      data-testid="t--git-protected-branch-callout"
       kind="info"
       links={[
         {
+          key: "create-branch",
           children: createMessage(BRANCH_PROTECTION_CALLOUT_CREATE_BRANCH),
           onClick: handleClickOnNewBranch,
         },
         {
+          key: "unprotect",
           children: isLoading
             ? createMessage(BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING)
             : createMessage(BRANCH_PROTECTION_CALLOUT_UNPROTECT),
