@@ -1,11 +1,11 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.constants.FeatureMigrationType;
 import com.appsmith.server.constants.LicensePlan;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
@@ -33,11 +33,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import static com.appsmith.external.enums.FeatureFlagEnum.TENANT_TEST_FEATURE;
+import static com.appsmith.external.enums.FeatureFlagEnum.TEST_FEATURE_2;
 import static com.appsmith.server.constants.MigrationStatus.COMPLETED;
 import static com.appsmith.server.constants.MigrationStatus.IN_PROGRESS;
 import static com.appsmith.server.exceptions.AppsmithErrorCode.FEATURE_FLAG_MIGRATION_FAILURE;
-import static com.appsmith.server.featureflags.FeatureFlagEnum.TENANT_TEST_FEATURE;
-import static com.appsmith.server.featureflags.FeatureFlagEnum.TEST_FEATURE_2;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
