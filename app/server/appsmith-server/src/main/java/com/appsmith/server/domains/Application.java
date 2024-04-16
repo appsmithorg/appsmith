@@ -131,7 +131,7 @@ public class Application extends BaseDomain implements Artifact {
     @JsonView({Views.Public.class, Git.class})
     EmbedSetting embedSetting;
 
-    @JsonView(Git.class)
+    @JsonView({Views.Public.class, Git.class})
     Boolean collapseInvisibleWidgets;
 
     /**
