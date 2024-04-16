@@ -1,19 +1,9 @@
 import { EditorState, type EntityItem } from "@appsmith/entities/IDE/constants";
 import { PluginType } from "entities/Action";
 import * as FocusEntityObj from "navigation/FocusEntity";
-import { RedirectAction, getNextEntityAfterDelete } from "./IDESaga";
+import { RedirectAction, getNextEntityAfterRemove } from "./IDESaga";
 import { FocusEntity } from "navigation/FocusEntity";
 
-/**
- *
- * @return action   -> RedirectAction.NA if the deleted item is not current one
- * @return action   -> RedirectAction.LIST if no items left in the list
- * @return action   -> RedirectAction.ITEM if there is no item left in the same group
- *         payload  -> first item from the all items list
- * @return action   -> RedirectAction.ITEM if there is there are items left in the same group
- *         payload  -> first item from the grouped list
- *
- */
 describe("getNextEntityAfterDelete function", () => {
   const items: EntityItem[] = [
     {
@@ -40,34 +30,35 @@ describe("getNextEntityAfterDelete function", () => {
     }));
 
   it("1. Deleted item is not the current item then no redirect", () => {
-    expect(getNextEntityAfterDelete("5", [])).toEqual({
+    expect(getNextEntityAfterRemove("5", [], [])).toEqual({
       action: RedirectAction.NA,
     });
   });
 
   it("2. Redirect to add, if nothing left after deletion", () => {
-    expect(getNextEntityAfterDelete("2", [])).toEqual({
+    expect(getNextEntityAfterRemove("2", [], [])).toEqual({
       action: RedirectAction.LIST,
     });
   });
 
-  it("3. Redirect to the first item, if nothing left in the same group", () => {
-    expect(getNextEntityAfterDelete("2", items)).toEqual({
+  it("3. Redirect to the first item, if nothing left in the tabs", () => {
+    expect(getNextEntityAfterRemove("2", items, ["2"])).toEqual({
       action: RedirectAction.ITEM,
       payload: items[0],
     });
   });
 
-  it("4. Redirect to the first item in the group", () => {
-    items.push({
-      title: "Google sheet 2",
-      type: PluginType.SAAS,
-      key: "3",
-      group: "AbGsheet",
-    });
-    expect(getNextEntityAfterDelete("2", items)).toEqual({
+  it("4. Redirect to the previous item if current tab is not the first one", () => {
+    expect(getNextEntityAfterRemove("2", items, ["1", "2"])).toEqual({
       action: RedirectAction.ITEM,
-      payload: items[2],
+      payload: items[0],
+    });
+  });
+
+  it("5. Redirect to the next item if current tab is the first one", () => {
+    expect(getNextEntityAfterRemove("2", items, ["2", "1"])).toEqual({
+      action: RedirectAction.ITEM,
+      payload: items[0],
     });
   });
 });

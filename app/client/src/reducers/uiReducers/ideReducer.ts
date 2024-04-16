@@ -80,7 +80,7 @@ const ideReducer = createReducer(initialState, {
       showCreateModal: action.payload,
     };
   },
-  [ReduxActionTypes.CLOSE_JS_ACTION_TAB]: (
+  [ReduxActionTypes.CLOSE_JS_ACTION_TAB_SUCCESS]: (
     state: IDEState,
     action: ReduxAction<{ id: string }>,
   ) => ({
@@ -92,7 +92,7 @@ const ideReducer = createReducer(initialState, {
       ),
     },
   }),
-  [ReduxActionTypes.CLOSE_QUERY_ACTION_TAB]: (
+  [ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCESS]: (
     state: IDEState,
     action: ReduxAction<{ id: string }>,
   ) => ({

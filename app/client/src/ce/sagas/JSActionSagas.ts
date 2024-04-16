@@ -13,6 +13,7 @@ import {
 } from "actions/pluginActionActions";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
+  closeJsActionTabSuccess,
   copyJSCollectionError,
   copyJSCollectionSuccess,
   createJSCollectionSuccess,
@@ -498,4 +499,5 @@ export function* closeJSActionTabSaga(
 ) {
   const id = actionPayload.payload.id;
   yield call(handleJSEntityRedirect, id);
+  yield put(closeJsActionTabSuccess({ id }));
 }

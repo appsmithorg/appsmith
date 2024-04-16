@@ -18,8 +18,6 @@ import {
   queryAddURL,
   queryListURL,
 } from "@appsmith/RouteBuilder";
-import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
-import { groupAndSortEntitySegmentList } from "@appsmith/selectors/appIDESelectors";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import {
   getCurrentPageId,
@@ -68,8 +66,13 @@ function* getUpdatedTabs(newId: string, currentTabs: string[]) {
 
 export function* handleJSEntityRedirect(deletedId: string) {
   const pageId: string = yield select(getCurrentPageId);
+  const jsTabs: string[] = yield select(getJSTabs);
   const allJsItems: EntityItem[] = yield select(getJSSegmentItems);
-  const redirectAction = getNextEntityAfterDelete(deletedId, allJsItems);
+  const redirectAction = getNextEntityAfterRemove(
+    deletedId,
+    allJsItems,
+    jsTabs,
+  );
   switch (redirectAction.action) {
     case RedirectAction.LIST:
       history.push(jsCollectionListURL({ pageId }));
@@ -89,7 +92,12 @@ export function* handleJSEntityRedirect(deletedId: string) {
 export function* handleQueryEntityRedirect(deletedId: string) {
   const pageId: string = yield select(getCurrentPageId);
   const allQueryItems: EntityItem[] = yield select(getQuerySegmentItems);
-  const redirectAction = getNextEntityAfterDelete(deletedId, allQueryItems);
+  const queryTabs: string[] = yield select(getQueryTabs);
+  const redirectAction = getNextEntityAfterRemove(
+    deletedId,
+    allQueryItems,
+    queryTabs,
+  );
   switch (redirectAction.action) {
     case RedirectAction.LIST:
       history.push(queryListURL({ pageId }));
@@ -123,53 +131,62 @@ interface RedirectActionDescription {
   payload?: EntityItem;
 }
 
-export function getNextEntityAfterDelete(
-  deletedId: string,
+export function getNextEntityAfterRemove(
+  removeId: string,
   allItems: EntityItem[],
+  tabs: string[],
 ): RedirectActionDescription {
   const currentSelectedEntity = identifyEntityFromPath(
     window.location.pathname,
   );
-  const isSelectedActionDeleted = currentSelectedEntity.id === deletedId;
+  const isSelectedActionRemoved = currentSelectedEntity.id === removeId;
 
-  // If deleted item is not currently selected, don't redirect
-  if (!isSelectedActionDeleted) {
+  // If removed item is not currently selected, don't redirect
+  if (!isSelectedActionRemoved) {
     return {
       action: RedirectAction.NA,
     };
   }
 
-  const otherItems = allItems.filter((a) => deletedId !== a.key);
-  // If no other action is remaining, navigate to the creation url
-  if (otherItems.length === 0) {
-    return {
-      action: RedirectAction.LIST,
-    };
-  }
-
-  // Check if another action is present in the group and redirect to it, or else
-  // navigate to tht top of the list
-  const currentSortedList: EditorSegmentList =
-    groupAndSortEntitySegmentList(allItems);
-
-  let remainingGroupEntities: EntityItem[] = [];
-  for (const { items } of currentSortedList) {
-    if (items.find((a) => a.key === deletedId)) {
-      remainingGroupEntities = items.filter((a) => a.key !== deletedId);
-      break;
-    }
-  }
-
-  if (remainingGroupEntities.length === 0) {
-    return {
-      action: RedirectAction.ITEM,
-      payload: otherItems[0],
-    };
-  } else {
-    return {
-      action: RedirectAction.ITEM,
-      payload: remainingGroupEntities[0],
-    };
+  // tab - 1 if removed item is present in open tabs
+  // if it is first tab, then tab + 1
+  const indexOfTab = tabs.indexOf(removeId);
+  const otherItems = allItems.filter((a) => removeId !== a.key);
+  switch (indexOfTab) {
+    case -1:
+      // If no other action is remaining, navigate to the creation url
+      if (otherItems.length === 0) {
+        return {
+          action: RedirectAction.LIST,
+        };
+      } else {
+        return {
+          action: RedirectAction.ITEM,
+          payload: otherItems[0],
+        };
+      }
+    case 0:
+      // if the removed item is first item, then if tabs present, tabs + 1
+      // else otherItems[0] -> TODO: consider changing this logic after discussion with
+      // design team. May be new listing UI for side by side
+      if (tabs.length > 1) {
+        const newItem = allItems.filter((a) => tabs[1] === a.key);
+        return {
+          action: RedirectAction.ITEM,
+          payload: newItem[0],
+        };
+      } else {
+        return {
+          action: RedirectAction.ITEM,
+          payload: otherItems[0],
+        };
+      }
+    default:
+      const newItem = allItems.filter((a) => tabs[indexOfTab - 1] === a.key);
+      return {
+        action: RedirectAction.ITEM,
+        payload: newItem[0],
+      };
   }
 }
 
