@@ -1116,12 +1116,12 @@ export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
 export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
 export const BRANCH_PROTECTION_CALLOUT_MSG = () =>
-  "Branch protection enabled. Feel free to pull changes or create a new branch to continue your work.";
+  "The branch is protected; please switch to or create a new branch to edit the app.";
 export const BRANCH_PROTECTION_CALLOUT_CREATE_BRANCH = () =>
-  "Create a new branch";
-export const BRANCH_PROTECTION_CALLOUT_UNPROTECT = () => "Unprotect the branch";
+  "Create new branch";
+export const BRANCH_PROTECTION_CALLOUT_UNPROTECT = () => "Unprotect branch";
 export const BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING = () =>
-  "Unprotecting the branch ...";
+  "Unprotecting branch ...";
 export const BRANCH_PROTECTION_PROTECTED = () => "Protected";
 
 // Git Branch Protection end
