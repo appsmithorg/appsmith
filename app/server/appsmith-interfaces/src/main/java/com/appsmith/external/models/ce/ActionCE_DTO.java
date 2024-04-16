@@ -231,6 +231,7 @@ public class ActionCE_DTO implements Identifiable, Executable {
         this.resetTransientFields();
         this.setEventData(null);
         this.setDefaultResources(null);
+        this.setUpdatedAt(null);
         this.setCacheResponse(null);
         if (this.getDatasource() != null) {
             this.getDatasource().setCreatedAt(null);
