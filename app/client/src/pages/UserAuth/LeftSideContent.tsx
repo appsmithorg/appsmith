@@ -51,7 +51,6 @@ const Wrapper = styled.div`
   }
 
   .client-logo-container img {
-    flex: 1;
     height: 30px;
   }
 
