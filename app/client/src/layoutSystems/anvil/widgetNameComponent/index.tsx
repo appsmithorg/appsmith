@@ -132,7 +132,7 @@ export function SplitButton(
           aria-expanded="false"
           aria-haspopup="true"
           onClick={props.onSpanClick}
-          title="Select Parent"
+          title="Select parent widget"
         >
           <svg
             aria-hidden="true"
@@ -240,7 +240,6 @@ export function useWidgetName(widgetId: string, widgetName: string) {
             top: `${y}px`,
             visibility: nameComponentState === "none" ? "hidden" : "visible",
             zIndex: nameComponentState === "focus" ? 9000001 : 9000000,
-            // transform: `translate(${roundByDPR(x)}px,${roundByDPR(y)}px,0)`,
           });
         });
       });

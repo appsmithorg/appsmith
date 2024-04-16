@@ -23,7 +23,7 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
       )} t--widget-${props.widgetName.toLowerCase()} drop-target-${
         props.layoutId
       } row-index-${props.rowIndex} 
-      ${styles.disableAnvilWidgetInteraction}`,
+      ${styles.disableAnvilWidgetInteraction} ${styles.editorBorderRadius} `,
     [
       props.parentId,
       props.widgetId,

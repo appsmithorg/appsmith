@@ -4,3 +4,16 @@
     pointer-events: none;
   }
 }
+
+.editorBorderRadius {
+  /* border-radius: calc(var(--border-radius-elevation-3) + min(3px, 3*var(--border-radius-elevation-3))); */
+  border-radius: 0px;
+
+  &:has(div[elevation="1"]) {
+    border-radius: calc(var(--border-radius-elevation-1));
+  }
+
+  &:has(div[elevation="2"]) {
+    border-radius: calc(var(--border-radius-elevation-2));
+  }
+}
