@@ -992,3 +992,30 @@ export const isNotEntity = (entity: DataTreeEntity) => {
 export const isEntityAction = (entity: DataTreeEntity) => {
   return isAction(entity);
 };
+export const convertMicroDiffToDeepDiff = (
+  microDiffDifferences: Record<string, any>[],
+) =>
+  microDiffDifferences.map((v: Record<string, any>) => {
+    const { oldValue, path, type, value } = v;
+    //convert microDiff format to deepDiff format
+    if (type === "CREATE") {
+      return {
+        kind: "N",
+        path,
+        rhs: value,
+      };
+    }
+    if (type === "REMOVE") {
+      return {
+        kind: "D",
+        path,
+        lhs: oldValue,
+      };
+    }
+    return {
+      kind: "E",
+      path,
+      lhs: oldValue,
+      rhs: value,
+    };
+  });

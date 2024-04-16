@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.helpers.Identifiable;
+import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -37,7 +38,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, FromRequest.class})
     private String id;
 
     @JsonView(Views.Internal.class)

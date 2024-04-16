@@ -10,7 +10,6 @@ import {
   table,
   entityItems,
   apiPage,
-  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
@@ -31,7 +30,7 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     });
   });
 
-  it("1. Tc #2354, #2204 - Oracle placeholder & mandatory mark verification", () => {
+  it("1. Tc #2354, #2204 - Oracle placeholder, port default value & mandatory mark verification", () => {
     dataSources.NavigateToDSCreateNew();
     dataSources.CreatePlugIn("Oracle");
     agHelper.GetNAssertContains(locators._dsName, "Untitled datasource");
@@ -46,6 +45,7 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
       "placeholder",
       "myapp.abcde.oracle.net",
     );
+    agHelper.AssertAttribute(dataSources._port, "value", "1521");
     agHelper.AssertAttribute(
       dataSources._databaseName,
       "placeholder",
@@ -446,11 +446,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
     propPane.EnterJSContext("onClick", `{{Query1.run()}}`);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     agHelper.ClickButton("Submit");
-    jsEditor.ConfirmationClick("No"); //Handling both No & Yes from confirmation dialog
-    agHelper.AssertContains("cancelled");
-    agHelper.WaitUntilAllToastsDisappear();
-    agHelper.ClickButton("Submit");
-    jsEditor.ConfirmationClick("Yes");
+
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();
   });

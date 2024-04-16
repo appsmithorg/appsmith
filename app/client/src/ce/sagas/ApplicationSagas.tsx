@@ -114,8 +114,6 @@ import {
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   getApplicationsOfWorkspace,
@@ -123,6 +121,7 @@ import {
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
@@ -551,10 +550,7 @@ export function* createApplicationSaga(
       /** SPECIAL HANDLING FOR ANVIL DURING EXPERIMENTATION */
       // Check if Anvil is enabled for the user
       // If so, default to using Anvil as the layout system for the new app
-      const isAnvilEnabled: boolean = yield select(
-        selectFeatureFlagCheck,
-        FEATURE_FLAG.release_anvil_enabled,
-      );
+      const isAnvilEnabled: boolean = yield select(getIsAnvilLayoutEnabled);
 
       if (isAnvilEnabled) {
         request.layoutSystemType = LayoutSystemTypes.ANVIL;
