@@ -1122,6 +1122,7 @@ export const BRANCH_PROTECTION_CALLOUT_CREATE_BRANCH = () =>
 export const BRANCH_PROTECTION_CALLOUT_UNPROTECT = () => "Unprotect the branch";
 export const BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING = () =>
   "Unprotecting the branch ...";
+export const BRANCH_PROTECTION_PROTECTED = () => "Protected";
 
 // Git Branch Protection end
 
