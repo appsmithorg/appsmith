@@ -32,12 +32,10 @@ import { get, keyBy } from "lodash";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import Disabler from "pages/common/Disabler";
 import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
-import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 import { Icon } from "design-system";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
@@ -159,10 +157,6 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     dispatch(deleteAction({ id: apiId, name: apiName }));
   }, [getPageName, pages, pageId, apiName]);
 
-  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
-
-  const closeEditorLink = useMemo(() => <CloseEditor />, []);
-
   const notification = useMemo(() => {
     if (!isConverting) return null;
 
@@ -172,7 +166,6 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   return (
     <ApiEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
-      closeEditorLink={isEditorPaneEnabled ? null : closeEditorLink}
       handleDeleteClick={handleDeleteClick}
       handleRunClick={handleRunClick}
       moreActionsMenu={moreActionsMenu}
