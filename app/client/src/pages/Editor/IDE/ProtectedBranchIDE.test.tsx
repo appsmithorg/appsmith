@@ -50,7 +50,6 @@ describe("Protected view for IDE", () => {
       </Provider>,
     );
     expect(getByTestId("t--git-protected-branch-callout")).toBeInTheDocument();
-    // Your test goes here
   });
 
   it("should not render the protected view if branch is not protected", () => {
