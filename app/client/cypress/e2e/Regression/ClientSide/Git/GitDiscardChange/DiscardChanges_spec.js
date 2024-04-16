@@ -100,7 +100,7 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     PageList.assertAbsence(page2);
     gitSync.DiscardChanges();
     // verify page2 is recovered back
-    PageLeftPane.assertPresence(page2);
+    PageList.assertPresence(page2);
     EditorNavigation.SelectEntityByName(page2, EntityType.Page);
     cy.wait("@getPage");
     // verify data binding on page2

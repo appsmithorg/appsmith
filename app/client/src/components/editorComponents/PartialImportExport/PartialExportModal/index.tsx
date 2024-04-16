@@ -259,6 +259,7 @@ const PartialExportModel = () => {
         widgets: selectOnlyParentIds(canvasWidgets!, selectedParams.widgets),
       }),
     );
+    setSelectedParams(selectedParamsInitValue);
   };
 
   const handleModalClose = (open: boolean) => {

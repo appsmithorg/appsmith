@@ -9,6 +9,7 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 describe(
   "Validate basic operations on Entity explorer JSEditor structure",
@@ -56,6 +57,7 @@ describe(
         action: "Move to page",
         subAction: newPageId,
         toastToValidate: "moved to page",
+        entityType: EntityItems.Page,
       });
       EditorNavigation.SelectEntityByName(newPageId, EntityType.Page);
       PageLeftPane.switchSegment(PagePaneSegment.JS);

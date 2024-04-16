@@ -71,7 +71,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     entityExplorer.RenameEntityFromExplorer(
       "Page2",
       "ParentPage1",
-      true,
+      false,
       EntityItems.Page,
     );
     dataSources.NavigateToDSCreateNew();
@@ -89,7 +89,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     entityExplorer.RenameEntityFromExplorer(
       "Page2",
       "ChildPage1",
-      true,
+      false,
       EntityItems.Page,
     );
     dataSources.NavigateToDSCreateNew();
@@ -124,7 +124,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     entityExplorer.RenameEntityFromExplorer(
       "ParentPage1",
       "ParentPageRenamed",
-      true,
+      false,
       EntityItems.Page,
     );
     agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
@@ -133,8 +133,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
 
     cy.switchGitBranch(parentBranchKey);
 
-    PageList.ShowList();
-    PageLeftPane.assertAbsence("ParentPageRenamed");
+    PageList.assertAbsence("ParentPageRenamed");
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.assertAbsence("ParentApiRenamed");
   });

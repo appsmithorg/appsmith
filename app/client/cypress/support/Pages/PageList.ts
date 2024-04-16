@@ -78,7 +78,7 @@ class PageList {
         .parent()
         .attr("data-state");
       if (isActive === "open") {
-        cy.get("body").type("{esc}");
+        cy.get(this.locators.switcher).click({ force: true });
       }
     });
   }
