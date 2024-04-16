@@ -46,6 +46,7 @@ export const StyledSubtext = styled(Text)`
 
 export const StyledAsterisk = styled(Text)`
   color: var(--ads-v2-color-fg-error);
+  margin-left: 2px;
   font-weight: 500;
 `;
 
@@ -57,20 +58,18 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
     >
       <StyledLabel className="styled-label">
         {setting.label && (
-          <div>
-            <Text
-              className="admin-settings-form-group-label"
-              color="var(--ads-v2-color-fg)"
-              data-testid="admin-settings-form-group-label"
-              kind="body-m"
-              renderAs="label"
-            >
-              {setting.label || ""}
-            </Text>
+          <Text
+            className="admin-settings-form-group-label"
+            color="var(--ads-v2-color-fg)"
+            data-testid="admin-settings-form-group-label"
+            kind="body-m"
+            renderAs="label"
+          >
+            {setting.label || ""}
             {setting.isRequired && (
               <StyledAsterisk renderAs="span">*</StyledAsterisk>
             )}
-          </div>
+          </Text>
         )}
         {setting.helpText && (
           <Tooltip content={createMessage(() => setting.helpText || "")}>
