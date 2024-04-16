@@ -1,73 +1,104 @@
-import React, { useCallback } from "react";
-import { ToggleButton } from "design-system";
+import React from "react";
+import { Flex, Spinner, ToggleButton } from "design-system";
 
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import {
+  getIDEViewMode,
+  getIsSideBySideEnabled,
+  getIsTabsRevampEnabled,
+} from "selectors/ideSelectors";
 import Container from "./Container";
-import { useCurrentEditorState } from "../hooks";
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
-import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
+import { useIsJSAddLoading } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { TabSelectors } from "./constants";
-import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import history, { NavigationMethod } from "utils/history";
 import { includes } from "lodash";
 import ListButton from "./ListButton";
 import { Announcement } from "../EditorPane/components/Announcement";
+import { SearchableFilesList } from "./SearchableFilesList";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
+  const isTabsRevampEnabled = useSelector(getIsTabsRevampEnabled);
   const { segment, segmentMode } = useCurrentEditorState();
-
-  const onJSAddClick = useJSAdd();
-  const onQueryAddClick = useQueryAdd();
-  const onAddClick = useCallback(() => {
-    if (segment === EditorEntityTab.JS) onJSAddClick();
-    if (segment === EditorEntityTab.QUERIES) onQueryAddClick();
-  }, [segment, segmentMode, onQueryAddClick, onJSAddClick]);
+  const { addClickHandler, closeClickHandler, tabClickHandler } =
+    useIDETabClickHandlers();
+  const isJSLoading = useIsJSAddLoading();
 
   const tabsConfig = TabSelectors[segment];
-  const pageId = useSelector(getCurrentPageId);
 
   const files = useSelector(tabsConfig.tabsSelector);
   const allFilesList = useSelector(tabsConfig.listSelector);
-
-  const onClick = useCallback(
-    (item: EntityItem) => {
-      const navigateToUrl = tabsConfig.itemUrlSelector(item, pageId);
-      history.push(navigateToUrl, {
-        invokedBy: NavigationMethod.EditorTabs,
-      });
-    },
-    [segment, pageId],
-  );
 
   const overflowList = allFilesList.filter((item) => !includes(files, item));
 
   if (!isSideBySideEnabled) return null;
   if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
+
+  const AddButton = () => {
+    if (isJSLoading) {
+      return (
+        <Flex px="spaces-2">
+          <Spinner size="md" />
+        </Flex>
+      );
+    }
+    return (
+      <ToggleButton
+        data-testid="t--ide-split-screen-add-button"
+        icon="add-line"
+        id="tabs-add-toggle"
+        isSelected={segmentMode === EditorEntityTabState.Add}
+        onClick={addClickHandler}
+        size="md"
+      />
+    );
+  };
+
+  // TODO: Remove this once release_ide_tabs_revamp_enabled is lifted
+  const Content = () => {
+    if (isTabsRevampEnabled) {
+      return (
+        <>
+          <SearchableFilesList
+            allItems={allFilesList}
+            navigateToTab={tabClickHandler}
+            openTabs={files}
+          />
+          <FileTabs
+            navigateToTab={tabClickHandler}
+            onClose={closeClickHandler}
+            tabs={files}
+          />
+          <AddButton />
+        </>
+      );
+    }
+    return (
+      <>
+        <AddButton />
+        <FileTabs
+          navigateToTab={tabClickHandler}
+          onClose={closeClickHandler}
+          tabs={files}
+        />
+        <ListButton items={overflowList} navigateToTab={tabClickHandler} />
+      </>
+    );
+  };
+
   return (
     <>
       {files.length > 0 ? (
         <Container>
-          <ToggleButton
-            data-testid="t--ide-split-screen-add-button"
-            icon="add-line"
-            id="tabs-add-toggle"
-            isSelected={segmentMode === EditorEntityTabState.Add}
-            onClick={onAddClick}
-            size="md"
-          />
-          <FileTabs navigateToTab={onClick} tabs={files} />
-          <ListButton items={overflowList} navigateToTab={onClick} />
+          <Content />
         </Container>
       ) : null}
       <Announcement />

@@ -105,9 +105,11 @@ public class QueryAllParams<T extends BaseDomain> {
             return this;
         }
 
-        if (c instanceof BridgeQuery<?> bq && bq.getCriteriaObject().isEmpty()) {
-            throw new IllegalArgumentException(
-                    "Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.");
+        if (c instanceof BridgeQuery<?> bq && bq.isEmpty()) {
+            // Empty bridge criteria leads to subtle bugs. Just don't call `.criteria()` in such cases.
+            // So ignore it and act as if this method hasn't been called at all, because there's some styles of using
+            // this API that make such use just so convenient.
+            return this;
         }
 
         criteria.add(c);

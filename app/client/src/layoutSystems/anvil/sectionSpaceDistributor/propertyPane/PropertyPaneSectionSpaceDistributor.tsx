@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import {
-  convertFlexGrowToFlexBasis,
+  convertFlexGrowToFlexBasisForPropPane,
   getDistributionHandleId,
   getPropertyPaneDistributionHandleId,
   getPropertyPaneZoneId,
@@ -66,7 +66,7 @@ export const PropertyPaneSectionSpaceDistributor = ({
         const distributionHandleId = getDistributionHandleId(zoneId);
         const propPaneZoneId = getPropertyPaneZoneId(zoneId);
         const propPaneHandleId = getPropertyPaneDistributionHandleId(zoneId);
-        const flexBasisValue = convertFlexGrowToFlexBasis(zoneValue);
+        const flexBasisValue = convertFlexGrowToFlexBasisForPropPane(zoneValue);
         return (
           // Render mocked zone and distribution handle for each zone
           <>

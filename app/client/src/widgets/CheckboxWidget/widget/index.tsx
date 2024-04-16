@@ -25,6 +25,7 @@ import type {
 } from "WidgetProvider/constants";
 
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
@@ -34,6 +35,7 @@ class CheckboxWidget extends BaseWidget<CheckboxWidgetProps, WidgetState> {
     return {
       name: "Checkbox",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.TOGGLES],
       needsMeta: true,
       searchTags: ["boolean"],

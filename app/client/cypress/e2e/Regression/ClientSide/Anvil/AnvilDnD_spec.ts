@@ -5,7 +5,7 @@ import {
   anvilLayout,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
-import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/canvas/utils";
+import { getAnvilCanvasId } from "../../../../../src/layoutSystems/anvil/viewer/canvas/utils";
 import { ANVIL_EDITOR_TEST } from "../../../../support/Constants";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
@@ -17,7 +17,6 @@ describe(
       // intercept features call for Anvil + WDS tests
       featureFlagIntercept({
         release_anvil_enabled: true,
-        ab_wds_enabled: true,
       });
       // Cleanup the canvas before each test
       agHelper.SelectAllWidgets();

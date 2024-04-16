@@ -1066,10 +1066,7 @@ Cypress.Commands.add("startServerAndRoutes", () => {
 
   if (Cypress.currentTest.titlePath[0].includes(ANVIL_EDITOR_TEST)) {
     // intercept features call for creating pages that support Anvil + WDS tests
-    featureFlagIntercept(
-      { release_anvil_enabled: true, ab_wds_enabled: true },
-      false,
-    );
+    featureFlagIntercept({ release_anvil_enabled: true }, false);
   } else {
     featureFlagIntercept({}, false);
   }
@@ -2076,6 +2073,14 @@ Cypress.Commands.add("stubPricingPage", () => {
     cy.stub(win, "open", (url) => {
       win.location.href = "https://www.appsmith.com/pricing?";
     }).as("pricingPage");
+  });
+});
+
+Cypress.Commands.add("stubCustomerPortalPage", () => {
+  cy.window().then((win) => {
+    cy.stub(win, "open", (url) => {
+      win.location.href = "https://customer.appsmith.com?";
+    }).as("customerPortalPage");
   });
 });
 

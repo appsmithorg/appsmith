@@ -19,6 +19,10 @@ import reactor.util.context.Context;
 import java.util.Map;
 import java.util.UUID;
 
+import static com.appsmith.external.constants.MDCConstants.REQUEST_ID_LOG;
+import static com.appsmith.external.constants.MDCConstants.SESSION_ID_LOG;
+import static com.appsmith.external.constants.MDCConstants.THREAD;
+import static com.appsmith.external.constants.MDCConstants.USER_EMAIL;
 import static java.util.stream.Collectors.toMap;
 
 /**
@@ -31,11 +35,7 @@ public class MDCFilter implements WebFilter {
 
     private static final String MDC_HEADER_PREFIX = "X-MDC-";
     private static final String REQUEST_ID_HEADER = "X-REQUEST-ID";
-    public static final String USER_EMAIL = "userEmail";
-    public static final String REQUEST_ID_LOG = "requestId";
-    private static final String SESSION_ID_LOG = "sessionId";
     private static final String SESSION = "SESSION";
-    public static final String THREAD = "thread";
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {

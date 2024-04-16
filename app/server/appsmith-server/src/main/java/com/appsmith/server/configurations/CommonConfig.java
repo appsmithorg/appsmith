@@ -1,6 +1,8 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.util.JSONPrettyPrinter;
 import com.appsmith.util.SerializationUtils;
+import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -66,6 +68,9 @@ public class CommonConfig {
     @Value("${appsmith.rts.port:8091}")
     private String rtsPort;
 
+    @Value("${appsmith.micrometer.tracing.detail.enabled:false}")
+    private boolean tracingDetail;
+
     private List<String> allowedDomains;
 
     private String mongoDBVersion;
@@ -88,8 +93,13 @@ public class CommonConfig {
     }
 
     @Bean
+    public PrettyPrinter prettyPrinter() {
+        return new JSONPrettyPrinter();
+    }
+
+    @Bean
     public ObjectMapper objectMapper() {
-        return SerializationUtils.getDefaultObjectMapper();
+        return SerializationUtils.getDefaultObjectMapper(null);
     }
 
     @Bean

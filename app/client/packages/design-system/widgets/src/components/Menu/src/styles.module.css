@@ -81,6 +81,11 @@
   padding: 0;
 }
 
+/* this is required so that separator ( <Item isSeprator /> ) if passed with a text as children, the text is hidden */
+.menuList li[data-separator] > * {
+  display: none;
+}
+
 /* making sure the first and last child are not displayed when they have the data-separator attribute */
 .menuList li:is(:first-child, :last-child):is([data-separator]) {
   display: none;

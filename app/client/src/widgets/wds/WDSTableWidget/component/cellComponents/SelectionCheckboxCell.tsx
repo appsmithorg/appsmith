@@ -23,6 +23,7 @@ export const renderBodyCheckBoxCell = (
     data-sticky-td="true"
     isCellVisible
     isChecked={isChecked}
+    role="cell"
   >
     <CellCheckbox>
       {isChecked && <CheckBoxCheckIcon className="th-svg" />}

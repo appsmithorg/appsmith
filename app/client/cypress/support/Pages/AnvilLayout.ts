@@ -22,7 +22,7 @@ export class AnvilLayout {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   private agHelper = ObjectsRegistry.AggregateHelper;
-
+  public mainCanvasSelector = "#anvil-canvas-0";
   private getAnvilDropTargetSelectorFromOptions = (
     dropTarget?: DropTargetDetails,
   ) => {
