@@ -12,7 +12,7 @@ export const defaultsConfig = {
   label: "Data",
   widgetName: "Table",
   searchKey: "",
-  horizontalAlignment: "left",
+  horizontalAlignment: "start",
   verticalAlignment: "center",
   totalRecordsCount: 0,
   defaultPageSize: 0,

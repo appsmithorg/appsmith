@@ -6,7 +6,7 @@ import type { BaseCellComponentProps } from "../Constants";
 
 export interface PlainTextCellProps {
   value: any;
-  cellColor?: keyof typeof COLORS;
+  cellColor?: "default" | keyof typeof COLORS;
   isBold?: boolean;
   isUnderline?: boolean;
   isItalic?: boolean;
@@ -18,7 +18,7 @@ function PlainTextCell(props: PlainTextCellProps & BaseCellComponentProps) {
 
   return (
     <Text
-      color={cellColor}
+      color={cellColor === "default" ? undefined : cellColor}
       isBold={isBold}
       isItalic={isItalic}
       lineClamp={lineClamp}

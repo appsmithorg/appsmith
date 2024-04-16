@@ -6,7 +6,7 @@ import type { BaseCellComponentProps } from "../Constants";
 
 export interface ButtonCellProps {
   buttonLabel?: string;
-  cellColor?: keyof typeof COLORS;
+  cellColor?: "default" | keyof typeof COLORS;
   buttonVariant?: ButtonProps["variant"];
   onClick?: (onComplete: () => void) => void;
 }
@@ -29,7 +29,7 @@ function ButtonCell(props: ButtonCellProps & BaseCellComponentProps) {
 
   return (
     <Button
-      color={cellColor}
+      color={cellColor === "default" ? "accent" : cellColor}
       isLoading={isLoading}
       onPress={onClick}
       variant={buttonVariant}
