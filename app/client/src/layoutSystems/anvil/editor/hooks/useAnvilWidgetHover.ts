@@ -34,7 +34,14 @@ export const useAnvilWidgetHover = (
       // Prevent the event from propagating further
       e.stopPropagation();
     },
-    [focusWidget, isFocused, isDistributingSpace, isPreviewMode, widgetId],
+    [
+      focusWidget,
+      isFocused,
+      isDistributingSpace,
+      isPreviewMode,
+      widgetId,
+      isDragging,
+    ],
   );
 
   // Callback function for handling mouseleave events

@@ -28,13 +28,19 @@ const checkIfMousePositionIsInsideBlock = (
   mainCanvasRect: DOMRect,
   layoutElementPosition: LayoutElementPosition,
 ) => {
+  const offsetLeft = layoutElementPosition.offsetLeft || 0;
+  const offsetTop = layoutElementPosition.offsetTop || 0;
+  const layoutLeft = layoutElementPosition.left - offsetLeft;
+  const layoutRight =
+    layoutElementPosition.left + layoutElementPosition.width + 2 * offsetLeft;
+  const layoutTop = layoutElementPosition.top - offsetTop;
+  const layoutBottom =
+    layoutElementPosition.top + layoutElementPosition.height + 2 * offsetTop;
   return (
-    layoutElementPosition.left <= e.clientX - mainCanvasRect.left &&
-    e.clientX - mainCanvasRect.left <=
-      layoutElementPosition.left + layoutElementPosition.width &&
-    layoutElementPosition.top <= e.clientY - mainCanvasRect.top &&
-    e.clientY - mainCanvasRect.top <=
-      layoutElementPosition.top + layoutElementPosition.height
+    layoutLeft <= e.clientX - mainCanvasRect.left &&
+    e.clientX - mainCanvasRect.left <= layoutRight &&
+    layoutTop <= e.clientY - mainCanvasRect.top &&
+    e.clientY - mainCanvasRect.top <= layoutBottom
   );
 };
 
@@ -167,25 +173,43 @@ export const useCanvasActivation = () => {
         ? dragDetails.dragGroupActualParent
         : smallToLargeSortedDroppableLayoutIds.find((each) => {
             const currentCanvasPositions = { ...layoutElementPositions[each] };
+            const layoutInfo = allLayouts[each];
+            const parentId = layoutInfo.canvasId;
+            const parentPositions = layoutElementPositions[parentId];
+            let parentToChildDiff = { left: 0, top: 0 };
+            if (parentPositions) {
+              parentToChildDiff = {
+                left:
+                  (currentCanvasPositions.left - parentPositions.left) * 0.7,
+                top: (currentCanvasPositions.top - parentPositions.top) * 0.7,
+              };
+            }
             if (each === mainCanvasLayoutId) {
               currentCanvasPositions.left -= MAIN_CANVAS_BUFFER;
               currentCanvasPositions.top -= MAIN_CANVAS_BUFFER;
               currentCanvasPositions.width += 2 * MAIN_CANVAS_BUFFER;
               currentCanvasPositions.height += 2 * MAIN_CANVAS_BUFFER;
             }
-            const layoutInfo = allLayouts[each];
             if (layoutInfo.layoutType === LayoutComponentTypes.SECTION) {
-              currentCanvasPositions.top += SECTION_BUFFER;
-              currentCanvasPositions.height -= 2 * SECTION_BUFFER;
-              currentCanvasPositions.width += 2 * SECTION_BUFFER;
-              currentCanvasPositions.left -= SECTION_BUFFER;
+              const buffer =
+                currentCanvasPositions.height > 4 * SECTION_BUFFER
+                  ? SECTION_BUFFER
+                  : 0.5 * SECTION_BUFFER;
+              currentCanvasPositions.top += buffer;
+              currentCanvasPositions.height -= 2 * buffer;
+              currentCanvasPositions.width += 2 * buffer;
+              currentCanvasPositions.left -= buffer;
             }
             if (currentCanvasPositions) {
-              return checkIfMousePositionIsInsideBlock(
-                e,
-                mainCanvasRect,
-                currentCanvasPositions,
-              );
+              return checkIfMousePositionIsInsideBlock(e, mainCanvasRect, {
+                ...currentCanvasPositions,
+                left: currentCanvasPositions.left - parentToChildDiff.left,
+                top: currentCanvasPositions.top - parentToChildDiff.top,
+                height:
+                  currentCanvasPositions.height + 2 * parentToChildDiff.top,
+                width:
+                  currentCanvasPositions.width + 2 * parentToChildDiff.left,
+              });
             }
           });
 

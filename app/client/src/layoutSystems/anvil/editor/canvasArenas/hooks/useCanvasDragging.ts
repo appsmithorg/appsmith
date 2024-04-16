@@ -229,7 +229,10 @@ export const useCanvasDragging = (
             }
             // Get the closest highlight based on the mouse position
             const processedHighlight = getClosestHighlight(
-              e,
+              {
+                x: e.offsetX - canvasToLayoutGap.current.left,
+                y: e.offsetY - canvasToLayoutGap.current.top,
+              },
               allHighlightsRef.current,
             );
             if (processedHighlight) {
