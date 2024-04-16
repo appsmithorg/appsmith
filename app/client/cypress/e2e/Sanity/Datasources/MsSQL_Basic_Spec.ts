@@ -343,6 +343,13 @@ describe(
       table.WaitUntilTableLoad();
     });
 
+    it("7. Verify the default port for the datasource", function () {
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("Microsoft SQL Server");
+
+      agHelper.AssertAttribute(dataSources._port, "value", "1433");
+    });
+
     after("Verify Deletion of the datasource", () => {
       cy.intercept("DELETE", "/api/v1/datasources/*").as("deleteDatasource"); //Since intercept from before is not working
       dataSources.DeleteDatasourceFromWithinDS(dsName, 409); //since CRUD pages are still active
