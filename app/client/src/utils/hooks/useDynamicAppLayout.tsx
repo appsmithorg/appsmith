@@ -42,6 +42,10 @@ export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
 
 export const useDynamicAppLayout = () => {
   const dispatch = useDispatch();
+  // TODO(abhinav): Ashok has a new selector for this
+  // Also, check with Ashok about any edge scenarios
+  const isAnvilLayout =
+    useSelector(getLayoutSystemType) === LayoutSystemTypes.ANVIL;
   const explorerWidth = useSelector(getExplorerWidth);
   const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   const appMode: APP_MODE | undefined = useSelector(getAppMode);
@@ -266,6 +270,7 @@ export const useDynamicAppLayout = () => {
    *  - device changes to/from mobile
    */
   useEffect(() => {
+    if (!isAnvilLayout) return;
     resizeToLayout();
   }, [
     appLayout,
@@ -282,6 +287,7 @@ export const useDynamicAppLayout = () => {
     currentApplicationDetails?.applicationDetail?.navigationSetting?.navStyle,
     isMobile,
     currentPageId, //TODO: preet - remove this after first merge.
+    isAnvilLayout,
   ]);
 
   useEffect(() => {

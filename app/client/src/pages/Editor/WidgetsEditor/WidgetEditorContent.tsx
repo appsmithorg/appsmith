@@ -7,6 +7,7 @@ import CrudInfoModal from "pages/Editor/GeneratePage/components/CrudInfoModal";
 import { WidgetEditorContentWrapper } from "./components/WidgetEditorContentWrapper";
 import { NavigationAdjustedPageViewer } from "./components/NavigationAdjustedPageViewer";
 import { LayoutSystemBasedPageViewer } from "./components/LayoutSystemBasedPageViewer";
+import { OnCanvasUIWidgetNameComponents } from "layoutSystems/anvil/widgetNameComponent";
 
 /**
  * WidgetEditorContent
@@ -24,6 +25,7 @@ export const WidgetEditorContent = () => {
         <LayoutSystemBasedPageViewer navigationHeight={navigationHeight} />
       </NavigationAdjustedPageViewer>
       <CrudInfoModal />
+      {OnCanvasUIWidgetNameComponents()}
     </WidgetEditorContentWrapper>
   );
 };

@@ -31,7 +31,6 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
-import { OnCanvasUIWidgetNameComponents } from "layoutSystems/anvil/widgetNameComponent";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 interface MainCanvasWrapperProps {
@@ -142,15 +141,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
   const isAnvilLayout = layoutSystemType === LayoutSystemTypes.ANVIL;
   const headerHeight = "40px";
 
-  const widgets = useSelector((state: AppState) => {
-    // return Object.keys(state.entities.canvasWidgets);
-    return Object.values(state.entities.canvasWidgets).map((widget) => ({
-      widgetId: widget.widgetId,
-      widgetName: widget.widgetName,
-      widgetType: widget.type,
-    }));
-  });
-
   useEffect(() => {
     return () => {
       dispatch(forceOpenWidgetPanel(false));
@@ -239,7 +229,6 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         )}
         {node}
       </Wrapper>
-      {OnCanvasUIWidgetNameComponents(widgets)}
 
       <MainContainerResizer
         currentPageId={currentPageId}

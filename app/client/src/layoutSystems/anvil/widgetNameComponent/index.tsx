@@ -7,6 +7,45 @@ import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import styled from "styled-components";
 import WidgetFactory from "WidgetProvider/factory";
 import type { AppState } from "@appsmith/reducers";
+
+// import memoize from "proxy-memoize";
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import debounce from "lodash/debounce";
+class IntersectionObserverManager {
+  _observer: IntersectionObserver;
+  _observedNodes: Set<Element>;
+  constructor(observer: IntersectionObserver) {
+    this._observer = observer;
+    this._observedNodes = new Set();
+  }
+  observe(node: Element) {
+    this._observedNodes.add(node);
+    this._observer.observe(node);
+  }
+  unobserve(node: Element) {
+    this._observedNodes.delete(node);
+    this._observer.unobserve(node);
+  }
+  disconnect() {
+    this._observedNodes.clear();
+    this._observer.disconnect();
+  }
+  refresh() {
+    for (const node of this._observedNodes) {
+      this._observer.unobserve(node);
+      this._observer.observe(node);
+    }
+  }
+}
+const getWidgets = (state: AppState) =>
+  Object.values(state.entities.canvasWidgets).map((widget) => ({
+    widgetId: widget.widgetId,
+    widgetName: widget.widgetName,
+    widgetType: widget.type,
+    parentId: widget.parentId,
+  }));
+// const getMemoizedWidgets = memoize(getWidgets);
+
 function handleScroll(isHidden: MutableRefObject<boolean>) {
   if (isHidden.current === false) {
     const nameEls: NodeListOf<HTMLDivElement> = document.querySelectorAll(
@@ -21,6 +60,9 @@ function handleScroll(isHidden: MutableRefObject<boolean>) {
 function handleScrollEnd(isHidden: MutableRefObject<boolean>) {
   if (isHidden.current === true) {
     isHidden.current = false;
+    ObserverQueue.forEach((manager) => {
+      manager.refresh();
+    });
   }
 }
 export function useScrollHandlerForWidgetNameComponent() {
@@ -33,8 +75,12 @@ export function useScrollHandlerForWidgetNameComponent() {
     );
 
     scrollableNodes.forEach((node) => {
-      node.addEventListener("scroll", () => handleScroll(isHidden));
-      node.addEventListener("scrollend", () => handleScrollEnd(isHidden));
+      node.addEventListener("scroll", () => handleScroll(isHidden), {
+        passive: false,
+      });
+      node.addEventListener("scrollend", () => handleScrollEnd(isHidden), {
+        passive: false,
+      });
     });
     return () => {
       scrollableNodes.forEach((node) => {
@@ -225,7 +271,11 @@ export function WidgetNameComponent(props: {
     e.stopPropagation();
   }, []);
 
-  if (nameComponentState === "none") return null;
+  if (nameComponentState === "none") {
+    widgetNameStyles.opacity = 0;
+  } else {
+    widgetNameStyles.opacity = 1;
+  }
 
   const bGCSSVar =
     nameComponentState === "focus"
@@ -242,12 +292,17 @@ export function WidgetNameComponent(props: {
     widgetNameStyles.zIndex = 9000000;
   }
 
+  let _disableParentSelection = props.disableParentSelection;
+  if (nameComponentState === "focus") {
+    _disableParentSelection = true;
+  }
+
   return (
     <SplitButton
       bGCSSVar={bGCSSVar}
       className="on-canvas-ui"
       colorCSSVar={colorCSSVar}
-      disableParentToggle={props.disableParentSelection}
+      disableParentToggle={_disableParentSelection}
       id={`widget-name-${props.widgetId}`}
       onClick={handleSelect}
       onMouseOverCapture={handleMouseOver}
@@ -258,49 +313,126 @@ export function WidgetNameComponent(props: {
   );
 }
 
-export function OnCanvasUIWidgetNameComponents(
-  widgets: Array<{ widgetId: string; widgetName: string; widgetType: string }>,
-) {
+function intersectionObserverCallback(entries: IntersectionObserverEntry[]) {
+  entries.forEach((entry: IntersectionObserverEntry) => {
+    const widgetId = entry.target.id.split("_")[2];
+    const widgetNameComponent: HTMLDivElement | null = document.querySelector(
+      "#widget-name-" + widgetId,
+    );
+    const editorElement = document.getElementById("widgets-editor");
+    const editorRect = editorElement?.getBoundingClientRect();
+    if (widgetNameComponent) {
+      if (
+        entry.isIntersecting &&
+        Math.floor(entry.intersectionRect.top) ===
+          Math.floor(entry.boundingClientRect.top) &&
+        editorRect
+      ) {
+        widgetNameComponent.style.transform = `translate3d(${
+          entry.boundingClientRect.left - 6
+        }px, ${entry.boundingClientRect.top - 30}px, 20px)`;
+      } else {
+        widgetNameComponent.style.opacity = "0";
+      }
+    }
+  });
+}
+
+function resizeObserverCallback() {
+  ObserverQueue.forEach((manager) => {
+    manager.refresh();
+  });
+}
+
+const debouncedResizeObserverCallback = debounce(resizeObserverCallback, 100);
+
+const resizeObserver = new ResizeObserver(debouncedResizeObserverCallback);
+
+const options = {
+  root: null,
+  threshold: 0.1,
+};
+const viewPortObserver = new IntersectionObserver(
+  intersectionObserverCallback,
+  options,
+);
+const ObserverQueue = new Map<string, IntersectionObserverManager>();
+ObserverQueue.set(
+  "viewport",
+  new IntersectionObserverManager(viewPortObserver),
+);
+
+let isVisible = true;
+if (visualViewport) {
+  visualViewport.onresize = () => {
+    regularFn();
+    // debouncedFn();
+  };
+
+  const regularFn = () => {
+    if (isVisible) {
+      const nameEls: NodeListOf<HTMLDivElement> = document.querySelectorAll(
+        "[id*='widget-name-']",
+      );
+      nameEls.forEach((el: HTMLDivElement) => {
+        el.style.opacity = "0";
+      });
+      isVisible = false;
+    }
+  };
+
+  // const debouncedFn = debounce(function () {
+  //   console.log("###### Calling this:");
+  //   ObserverQueue.forEach((manager) => {
+  //     manager.refresh();
+  //   });
+  //   isVisible = true;
+  // }, 1500);
+}
+
+export function OnCanvasUIWidgetNameComponents() {
   useScrollHandlerForWidgetNameComponent();
+  const widgets = useSelector(getWidgets);
+
+  let widgetElementCount = 0;
 
   const renderedNameComponents = widgets.map(
-    ({ widgetId, widgetName, widgetType }) => {
-      const callback: IntersectionObserverCallback = (entries) => {
-        entries.forEach((entry: IntersectionObserverEntry) => {
-          const widgetNameComponent: HTMLDivElement | null =
-            document.querySelector("#widget-name-" + widgetId);
-          const editorElement = document.getElementById("widgets-editor");
-          const editorRect = editorElement?.getBoundingClientRect();
-          if (widgetNameComponent) {
-            if (
-              entry.isIntersecting &&
-              Math.floor(entry.intersectionRect.top) ===
-                Math.floor(entry.boundingClientRect.top)
-            ) {
-              widgetNameComponent.style.transform = `translate3d(${
-                entry.boundingClientRect.left - 6 - (editorRect?.left || 0)
-              }px, ${entry.boundingClientRect.top - 30 - 40}px, 20px)`;
-              widgetNameComponent.style.opacity = "1";
-            } else {
-              widgetNameComponent.style.opacity = "0";
-            }
-          }
-        });
-      };
-
+    ({ parentId, widgetId, widgetName, widgetType }) => {
+      if (widgetId === MAIN_CONTAINER_WIDGET_ID) return null;
       const widgetElementSelector = `#anvil_widget_${widgetId}`;
       const widgetElement = document.querySelector(widgetElementSelector);
-
+      if (widgetElement) widgetElementCount++;
       if (widgetElement) {
+        resizeObserver.observe(widgetElement);
         const nearestScrollableAncestor =
           getNearestScrollableAncestor(widgetElement);
+
         const options = {
           root: nearestScrollableAncestor,
-          threshold: 0.1,
+          threshold: [0.1, 1],
         };
-        const observer = new IntersectionObserver(callback, options);
-
-        observer.observe(widgetElement);
+        if (nearestScrollableAncestor) {
+          const observerManager = ObserverQueue.get(
+            parentId || MAIN_CONTAINER_WIDGET_ID,
+          );
+          if (!observerManager) {
+            const observer = new IntersectionObserver(
+              intersectionObserverCallback,
+              options,
+            );
+            const manager = new IntersectionObserverManager(observer);
+            manager.observe(widgetElement);
+            // TODO(abhinav): This doesn't really work because the parent could be a zone
+            // or a section and not the Modal Widget. Maybe have the getNearestScrollableAncestor
+            // return the modal widget Id.
+            ObserverQueue.set(parentId || MAIN_CONTAINER_WIDGET_ID, manager);
+          } else {
+            observerManager.observe(widgetElement);
+          }
+        } else {
+          const observerManager = ObserverQueue.get("viewport");
+          if (observerManager) observerManager.observe(widgetElement);
+        }
       }
 
       const config = WidgetFactory.getConfig(widgetType);
@@ -325,6 +457,7 @@ export function OnCanvasUIWidgetNameComponents(
       );
     },
   );
-
+  if (widgetElementCount === 0) return null;
+  widgetElementCount = 0;
   return renderedNameComponents;
 }
