@@ -1,10 +1,7 @@
 import React from "react";
-
 import { Tooltip } from "../../Tooltip";
 import { IconButton } from "../../IconButton";
-import type { TextInputProps } from "./TextInput";
-
-export type ContextualProps = TextInputProps;
+import type { ContextualProps } from "./types";
 
 const _ContextualHelp = (props: ContextualProps) => {
   const { contextualHelp } = props;
