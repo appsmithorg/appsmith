@@ -37,6 +37,7 @@ import type {
 import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
 import { ENTITY_TYPE } from "@appsmith/entities/DataTree/types";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
+import { convertMicroDiffToDeepDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 
 import {
   addDependantsOfNestedPropertyPaths,
@@ -127,6 +128,7 @@ import { DependencyMapUtils } from "entities/DependencyMap/DependencyMapUtils";
 import { isWidgetActionOrJsObject } from "@appsmith/entities/DataTree/utils";
 import DataStore from "workers/Evaluation/dataStore";
 import { updateTreeWithData } from "workers/Evaluation/dataStore/utils";
+import microDiff from "microdiff";
 import {
   profileFn,
   type WebworkerSpanData,
@@ -501,7 +503,6 @@ export default class DataTreeEvaluator {
     //get difference in js collection body to be parsed
     const oldUnEvalTreeJSCollections = getJSEntities(this.oldUnEvalTree);
     const localUnEvalTreeJSCollection = getJSEntities(localUnEvalTree);
-
     const jsDifferences: Diff<
       Record<string, JSActionEntity>,
       Record<string, JSActionEntity>
@@ -509,12 +510,13 @@ export default class DataTreeEvaluator {
       "SetupUpdateTree.Diff1",
       undefined,
       webworkerTelemetry,
-      () => {
-        return (
-          diff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) || []
-        );
-      },
+      () =>
+        convertMicroDiffToDeepDiff(
+          microDiff(oldUnEvalTreeJSCollections, localUnEvalTreeJSCollection) ||
+            [],
+        ),
     );
+
     const jsTranslatedDiffs = flatten(
       jsDifferences.map((diff) =>
         translateDiffEventToDataTreeDiffEvent(diff, localUnEvalTree),

@@ -80,6 +80,30 @@ const ideReducer = createReducer(initialState, {
       showCreateModal: action.payload,
     };
   },
+  [ReduxActionTypes.CLOSE_JS_ACTION_TAB]: (
+    state: IDEState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    tabs: {
+      ...state.tabs,
+      [EditorEntityTab.JS]: state.tabs[EditorEntityTab.JS].filter(
+        (tab) => tab !== action.payload.id,
+      ),
+    },
+  }),
+  [ReduxActionTypes.CLOSE_QUERY_ACTION_TAB]: (
+    state: IDEState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    tabs: {
+      ...state.tabs,
+      [EditorEntityTab.QUERIES]: state.tabs[EditorEntityTab.QUERIES].filter(
+        (tab) => tab !== action.payload.id,
+      ),
+    },
+  }),
 });
 
 export interface IDEState {

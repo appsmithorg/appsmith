@@ -11,6 +11,7 @@
     max-inline-size: 100%;
     isolation: isolate;
     padding-inline: var(--inner-spacing-2);
+    box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle);
   }
 
   & [data-field-input] :is(input, textarea) {
@@ -46,7 +47,7 @@
 
   & [data-field-input][data-hovered] {
     background-color: var(--color-bg-neutral-subtle-hover);
-    box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-hover);
+    box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle-hover);
   }
 
   /**
@@ -142,10 +143,11 @@
   * DISABLED
   *-----------------------------------------------------------------------------
   */
-  &[data-disabled],
-  &[data-disabled] :is(input, textarea),
-  &[data-disabled] label {
+  & [data-disabled],
+  & [data-disabled] :is(input, textarea),
+  & [data-disabled] label {
     cursor: not-allowed;
+    box-shadow: none;
   }
 
   /**
@@ -170,7 +172,7 @@
   * SIZE
   *-----------------------------------------------------------------------------
   */
-  &:has(input[data-size="small"]) [data-field-input] {
+  & [data-field-input] input[data-size="small"] {
     padding-block: var(--inner-spacing-2);
   }
 }

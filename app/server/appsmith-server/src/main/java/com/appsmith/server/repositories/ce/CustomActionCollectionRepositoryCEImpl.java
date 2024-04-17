@@ -18,6 +18,8 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 import java.util.Optional;
 
+import static com.appsmith.external.helpers.StringUtils.dotted;
+
 public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<ActionCollection>
         implements CustomActionCollectionRepositoryCE {
 
@@ -82,7 +84,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
          */
         BridgeQuery<ActionCollection> bridgeQuery = Bridge.query();
         if (!StringUtils.isEmpty(branchName)) {
-            bridgeQuery.equal(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME, branchName);
+            bridgeQuery.equal(ActionCollection.Fields.defaultResources_branchName, branchName);
         }
 
         // Fetch published actions
@@ -93,8 +95,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                String pageIdFieldPath = String.join(
-                        ".",
+                String pageIdFieldPath = dotted(
                         ActionCollection.Fields.publishedCollection,
                         ActionCollectionDTO.Fields.defaultResources,
                         DefaultResources.Fields.pageId);
@@ -108,8 +109,7 @@ public class CustomActionCollectionRepositoryCEImpl extends BaseAppsmithReposito
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                String pageIdFieldPath = String.join(
-                        ".",
+                String pageIdFieldPath = dotted(
                         ActionCollection.Fields.unpublishedCollection,
                         ActionCollectionDTO.Fields.defaultResources,
                         DefaultResources.Fields.pageId);

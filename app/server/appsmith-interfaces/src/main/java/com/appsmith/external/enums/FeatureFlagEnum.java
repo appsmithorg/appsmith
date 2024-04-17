@@ -1,4 +1,4 @@
-package com.appsmith.server.featureflags;
+package com.appsmith.external.enums;
 
 public enum FeatureFlagEnum {
     // ------------------- These features are only for JUnit testing. DO NOT use these features in your code path.--- //
@@ -15,5 +15,6 @@ public enum FeatureFlagEnum {
     release_embed_hide_share_settings_enabled,
     rollout_datasource_test_rate_limit_enabled,
     release_git_autocommit_feature_enabled,
+    release_git_cleanup_feature_enabled,
     // Add EE flags below this line, to avoid conflicts.
 }
