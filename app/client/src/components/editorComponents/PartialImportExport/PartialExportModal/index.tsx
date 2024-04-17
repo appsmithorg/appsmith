@@ -46,7 +46,7 @@ const selectedParamsInitValue: PartialExportParams = {
   widgets: [],
   queries: [],
 };
-const PartialExportModel = () => {
+export const PartialExportModal = () => {
   const [customJsLibraries, setCustomJsLibraries] = useState<JSLibrary[]>([]);
   const dispatch = useDispatch();
   const [selectedParams, setSelectedParams] = useState<PartialExportParams>(
@@ -339,5 +339,3 @@ const PartialExportModel = () => {
     </Modal>
   );
 };
-
-export default PartialExportModel;

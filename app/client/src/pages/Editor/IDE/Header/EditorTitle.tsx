@@ -28,7 +28,6 @@ const EditorTitle = ({ title }: { title: string }) => {
 
   const closeMenu = () => {
     setActive(false);
-    // debugger;
   };
 
   return (

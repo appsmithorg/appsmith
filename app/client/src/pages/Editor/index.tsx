@@ -45,8 +45,8 @@ import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
 import GitSettingsModal from "./gitSync/GitSettingsModal";
 import ReconfigureCDKeyModal from "@appsmith/components/gitComponents/ReconfigureCDKeyModal";
 import DisableCDModal from "@appsmith/components/gitComponents/DisableCDModal";
-import PartialExportModel from "../../components/editorComponents/PartialImportExport/PartialExportModal";
-import PartialImportModal from "../../components/editorComponents/PartialImportExport/PartialImportModal";
+import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
+import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -180,7 +180,7 @@ class Editor extends Component<Props> {
             <ImportedApplicationSuccessModal />
             <ReconnectDatasourceModal />
             <SignpostingOverlay />
-            <PartialExportModel />
+            <PartialExportModal />
             <PartialImportModal />
           </GlobalHotKeys>
         </div>

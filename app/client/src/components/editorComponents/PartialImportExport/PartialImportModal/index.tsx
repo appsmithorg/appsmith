@@ -133,7 +133,7 @@ const StatusbarWrapper = styled.div`
   }
 `;
 
-function PartialImportModal() {
+export function PartialImportModal() {
   const [appFileToBeUploaded, setAppFileToBeUploaded] = useState<{
     file: File;
     setProgress: SetProgress;
@@ -250,5 +250,3 @@ function PartialImportModal() {
     </Modal>
   );
 }
-
-export default PartialImportModal;
