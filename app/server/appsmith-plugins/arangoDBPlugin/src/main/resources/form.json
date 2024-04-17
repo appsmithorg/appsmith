@@ -19,7 +19,6 @@
               "label": "Port",
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
-              "initialValue": ["8529"],
               "controlType": "KEYVALUE_ARRAY",
               "placeholderText": "8529"
             }
