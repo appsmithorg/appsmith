@@ -67,6 +67,7 @@ const StyledLabel = styled.label<StyledLabelProps>`
 const StyledLabelTextWrapper = styled.div<StyledLabelTextWrapperProps>`
   align-items: center;
   display: flex;
+  flex: 1;
   margin-bottom: ${({ direction }) =>
     direction === "row" ? 0 : LABEL_TEXT_WRAPPER_MARGIN_BOTTOM}px;
 
@@ -82,7 +83,6 @@ const StyledRequiredMarker = styled.div`
 
 const StyledLabelText = styled.p<StyledLabelTextProps>`
   margin-bottom: 0;
-  white-space: nowrap;
   margin-right: ${({ isRequiredField }) =>
     isRequiredField ? LABEL_TEXT_MARGIN_RIGHT_WITH_REQUIRED : DEFAULT_GAP}px;
   color: ${({ color }) => color};
