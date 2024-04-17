@@ -63,24 +63,21 @@ function SinglePageChange({ page, status }: SinglePageChangeProps) {
 
   const titleText = useMemo(() => {
     let text = `${page} `;
-    if (
-      changeFlags.isPageModified ||
-      changeFlags.isJsObjectModified ||
-      changeFlags.isQueryModified
-    ) {
+    if (changeFlags.isPageAdded) {
+      text += "added";
+    } else if (changeFlags.isPageRemoved) {
+      text += "removed";
+    } else if (changeFlags.isPageModified) {
       text += "modified";
     } else if (
-      changeFlags.isPageAdded ||
+      changeFlags.isJsObjectModified ||
+      changeFlags.isQueryModified ||
       changeFlags.isJsObjectAdded ||
-      changeFlags.isQueryAdded
-    ) {
-      text += "added";
-    } else if (
-      changeFlags.isPageRemoved ||
+      changeFlags.isQueryAdded ||
       changeFlags.isJsObjectRemoved ||
       changeFlags.isQueryRemoved
     ) {
-      text += "removed";
+      text += "modified";
     }
     return text;
   }, [page, changeFlags]);

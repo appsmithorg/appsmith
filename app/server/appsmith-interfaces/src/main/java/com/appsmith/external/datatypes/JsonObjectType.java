@@ -4,6 +4,7 @@ import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
@@ -21,7 +22,8 @@ import java.util.regex.Matcher;
 public class JsonObjectType implements AppsmithType {
 
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter = new Gson().getAdapter(JsonObject.class);
-    private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final ObjectMapper objectMapper =
+            new ObjectMapper().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature());
 
     @Override
     public boolean test(String s) {

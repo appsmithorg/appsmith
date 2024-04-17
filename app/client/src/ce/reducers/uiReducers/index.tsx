@@ -8,6 +8,7 @@ import datasourcePaneReducer from "reducers/uiReducers/datasourcePaneReducer";
 import authReducer from "reducers/uiReducers/authReducer";
 import workspaceReducer from "@appsmith/reducers/uiReducers/workspaceReducer";
 import templateReducer from "reducers/uiReducers/templateReducer";
+import buildingBlockReducer from "reducers/uiReducers/buildingBlockReducer";
 import usersReducer from "reducers/uiReducers/usersReducer";
 import { widgetDraggingReducer } from "reducers/uiReducers/dragResizeReducer";
 import importReducer from "reducers/uiReducers/importReducer";
@@ -61,6 +62,7 @@ export const uiReducerObject = {
   apiPane: apiPaneReducer,
   auth: authReducer,
   templates: templateReducer,
+  buildingBlocks: buildingBlockReducer,
   workspaces: workspaceReducer,
   selectedWorkspace: selectedWorkspaceReducer,
   users: usersReducer,

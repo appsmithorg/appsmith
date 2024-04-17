@@ -4,7 +4,6 @@ import com.appsmith.external.models.DatasourceStorageStructure;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
@@ -18,6 +17,6 @@ public class CustomDatasourceStorageStructureRepositoryCEImpl
         return queryBuilder()
                 .criteria(Bridge.equal(DatasourceStorageStructure.Fields.datasourceId, datasourceId)
                         .equal(DatasourceStorageStructure.Fields.environmentId, environmentId))
-                .updateFirst(Update.update(DatasourceStorageStructure.Fields.structure, structure));
+                .updateFirst(Bridge.update().set(DatasourceStorageStructure.Fields.structure, structure));
     }
 }

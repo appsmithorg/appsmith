@@ -13,6 +13,7 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.services.WorkspaceService;
 import com.google.gson.Gson;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -105,7 +106,24 @@ public class ServerSchemaMigrationEnforcerTest {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(any())).thenReturn(Mono.just(new MockPluginExecutor()));
     }
 
-    public static void verifyAssertions(
+    /**
+     * Each entity in the map is a separate file in git file-system, it's imperative that we compare them separately
+     * If the comparison fails then it would essentially mean that users would see the diff,
+     * hence it should not be ignored
+     * @param target
+     * @param source
+     */
+    public void verifyMapAssertions(JsonObject target, JsonObject source) {
+        for (String key : source.keySet()) {
+            assertThat(convertElementToString(source.get(key))).isEqualTo(convertElementToString(target.get(key)));
+        }
+    }
+
+    public String convertElementToString(JsonElement element) {
+        return gson.toJson(element);
+    }
+
+    public void verifyAssertions(
             JsonObject exportedApplicationJsonObject, JsonObject importApplicationGitReferenceObject) {
 
         assertThat(exportedApplicationJsonObject.get(EXPORTED_APPLICATION).getAsJsonObject())
@@ -119,31 +137,33 @@ public class ServerSchemaMigrationEnforcerTest {
         assertThat(exportedApplicationJsonObject.get("theme").getAsJsonObject())
                 .isEqualTo(importApplicationGitReferenceObject.get("theme").getAsJsonObject());
 
-        assertThat(exportedApplicationJsonObject.get("actions").getAsJsonObject())
-                .isEqualTo(importApplicationGitReferenceObject.get("actions").getAsJsonObject());
+        verifyMapAssertions(
+                exportedApplicationJsonObject.get("actions").getAsJsonObject(),
+                importApplicationGitReferenceObject.get("actions").getAsJsonObject());
 
-        assertThat(exportedApplicationJsonObject.get("actionBody").getAsJsonObject())
-                .isEqualTo(importApplicationGitReferenceObject.get("actionBody").getAsJsonObject());
+        verifyMapAssertions(
+                exportedApplicationJsonObject.get("actionBody").getAsJsonObject(),
+                importApplicationGitReferenceObject.get("actionBody").getAsJsonObject());
 
-        assertThat(exportedApplicationJsonObject.get("actionCollections").getAsJsonObject())
-                .isEqualTo(importApplicationGitReferenceObject
-                        .get("actionCollections")
-                        .getAsJsonObject());
+        verifyMapAssertions(
+                exportedApplicationJsonObject.get("actionCollections").getAsJsonObject(),
+                importApplicationGitReferenceObject.get("actionCollections").getAsJsonObject());
 
-        assertThat(exportedApplicationJsonObject.get("actionCollectionBody").getAsJsonObject())
-                .isEqualTo(importApplicationGitReferenceObject
-                        .get("actionCollectionBody")
-                        .getAsJsonObject());
+        verifyMapAssertions(
+                exportedApplicationJsonObject.get("actionCollectionBody").getAsJsonObject(),
+                importApplicationGitReferenceObject.get("actionCollectionBody").getAsJsonObject());
 
-        assertThat(exportedApplicationJsonObject.get("pages").getAsJsonObject())
-                .isEqualTo(importApplicationGitReferenceObject.get("pages").getAsJsonObject());
+        verifyMapAssertions(
+                exportedApplicationJsonObject.get("pages").getAsJsonObject(),
+                importApplicationGitReferenceObject.get("pages").getAsJsonObject());
 
-        assertThat(exportedApplicationJsonObject.get("pageDsl").getAsJsonObject())
-                .isEqualTo(importApplicationGitReferenceObject.get("pageDsl").getAsJsonObject());
+        verifyMapAssertions(
+                exportedApplicationJsonObject.get("pageDsl").getAsJsonObject(),
+                importApplicationGitReferenceObject.get("pageDsl").getAsJsonObject());
 
-        assertThat(exportedApplicationJsonObject.get("datasources").getAsJsonObject())
-                .isEqualTo(
-                        importApplicationGitReferenceObject.get("datasources").getAsJsonObject());
+        verifyMapAssertions(
+                exportedApplicationJsonObject.get("datasources").getAsJsonObject(),
+                importApplicationGitReferenceObject.get("datasources").getAsJsonObject());
     }
 
     @Test

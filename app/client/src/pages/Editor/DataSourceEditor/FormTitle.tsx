@@ -15,7 +15,6 @@ import {
   saveDatasourceName,
   updateDatasourceName,
 } from "actions/datasourceActions";
-import { Spinner } from "@blueprintjs/core";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 
 const Wrapper = styled.div`
@@ -151,7 +150,6 @@ function FormTitle(props: FormTitleProps) {
         underline
         updating={saveStatus.isSaving}
       />
-      {saveStatus.isSaving && <Spinner size={16} />}
     </Wrapper>
   );
 }
