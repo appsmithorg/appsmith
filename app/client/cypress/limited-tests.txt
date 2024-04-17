@@ -1,6 +1,10 @@
 # To run only limited tests - give the spec names in below format:
-cypress/e2e/Regression/ClientSide/Templates/Fork_Template_spec.js
-
+cypress/e2e/Regression/ClientSide/Widgets/Iframe/Iframe_onSrcDocChange_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/Iframe/Iframe_spec.js
+cypress/e2e/Regression/ServerSide/ApiTests/API_Bugs_Spec.js
+cypress/e2e/Regression/ClientSide/Widgets/ListV2/ListV2_SerververSide_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV1/Table_Column_Resize_spec.js
+cypress/e2e/Regression/ClientSide/Widgets/TableV2/TableV2_Column_Resize_spec.js
 # For running all specs - uncomment below:
 #cypress/e2e/**/**/*
 
