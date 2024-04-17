@@ -1,10 +1,10 @@
 package com.appsmith.server.aspect;
 
-import com.appsmith.server.annotations.FeatureFlagged;
+import com.appsmith.external.annotations.FeatureFlagged;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.featureflags.CachedFeatures;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.services.FeatureFlagService;
 import lombok.RequiredArgsConstructor;
@@ -32,16 +32,16 @@ public class FeatureFlaggedMethodInvokerAspect {
     private final ApplicationContext applicationContext;
 
     /**
-     * Intercepts method calls that are annotated with {@link com.appsmith.server.annotations.FeatureFlagged}.
+     * Intercepts method calls that are annotated with {@link FeatureFlagged}.
      * This advice method wraps the intercepted method call, allowing conditional execution based on the state
      * of the specified feature flag.
      *
      * @param joinPoint The join point representing the intercepted method call.
      * @return The result of the intercepted method call
      *
-     * @see com.appsmith.server.annotations.FeatureFlagged
+     * @see FeatureFlagged
      */
-    @Around("execution(public * *(..)) && @annotation(com.appsmith.server.annotations.FeatureFlagged)")
+    @Around("execution(public * *(..)) && @annotation(com.appsmith.external.annotations.FeatureFlagged)")
     public Object invokeMethodAtMethodLevelAnnotation(ProceedingJoinPoint joinPoint) throws IllegalAccessException {
         Method method = ((MethodSignature) joinPoint.getSignature()).getMethod();
         FeatureFlagged annotation = method.getAnnotation(FeatureFlagged.class);
@@ -81,6 +81,9 @@ public class FeatureFlaggedMethodInvokerAspect {
             Method superMethod = targetSuperClass.getMethod(method.getName(), method.getParameterTypes());
             return superMethod.invoke(service, joinPoint.getArgs());
         } catch (Throwable e) {
+            if (e instanceof AppsmithException) {
+                throw (AppsmithException) e;
+            }
             String errorMessage = "Exception while invoking super class method";
             AppsmithException exception = getInvalidAnnotationUsageException(method, errorMessage);
             log.error(exception.getMessage(), e);

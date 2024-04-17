@@ -40,7 +40,7 @@ const VerificationPending = (props: RouteComponentProps<{ email: string }>) => {
         <Text kind={"body-m"}>
           {createMessage(VERIFICATION_PENDING_BODY)} <Email>{email}</Email>
         </Text>
-        <Link kind="primary" to={AUTH_LOGIN_URL}>
+        <Link kind="primary" target="_self" to={AUTH_LOGIN_URL}>
           {createMessage(VERIFICATION_PENDING_NOT_YOU)}
         </Link>
       </Body>

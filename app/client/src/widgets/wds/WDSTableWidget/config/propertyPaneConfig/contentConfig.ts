@@ -59,7 +59,6 @@ export const contentConfig = [
         ) => triggerFlag && isDynamic && !isToggleDisabled,
       },
       {
-        helpText: "Columns",
         propertyName: "primaryColumns",
         controlType: "PRIMARY_COLUMNS_V2",
         label: "Columns",
@@ -146,6 +145,17 @@ export const contentConfig = [
   {
     sectionName: "Pagination",
     children: [
+      {
+        propertyName: "pageSize",
+        helpText: "Number of rows to be displayed at a time",
+        label: "Page size",
+        controlType: "NUMERIC_INPUT",
+        isJSConvertible: true,
+        defaultValue: 10,
+        isBindProperty: true,
+        isTriggerProperty: false,
+        validation: { type: ValidationTypes.NUMBER },
+      },
       {
         propertyName: "isVisiblePagination",
         helpText: "Toggle visibility of the pagination",

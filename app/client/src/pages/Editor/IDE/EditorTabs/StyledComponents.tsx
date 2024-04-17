@@ -8,18 +8,17 @@ import { DEFAULT_SPLIT_SCREEN_WIDTH } from "constants/AppConstants";
  * 4px  tabs + add icon container left padding
  * 4px  tabs + add icon container right padding
  * 4px  gap between tabs and add icon
- * 4px  gap between every tabs * 4 (since max tab count is 5,
+ * 16px 4px gap between every tabs * 4 (since max tab count is 5,
  *      there will be 5 gaps)
  * 26px Add button width
  * 62px show more list button(considering 3 digit width as max)
  * ======================================
- * 116px
+ * 127px
  *
  */
-export const StyledTab = styled(Flex)`
+export const StyledTab = styled(Flex)<{ showOverflow: boolean }>`
   position: relative;
   top: 1px;
-  padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-4);
   font-size: 12px;
   color: var(--ads-v2-colors-text-default);
   cursor: pointer;
@@ -29,10 +28,16 @@ export const StyledTab = styled(Flex)`
   border-top-right-radius: var(--ads-v2-border-radius);
   align-items: center;
   justify-content: center;
-  max-width: calc((${DEFAULT_SPLIT_SCREEN_WIDTH} - 116px) / 5);
+  ${({ showOverflow }) =>
+    showOverflow
+      ? `padding: var(--ads-v2-spaces-3);`
+      : `
+        padding: var(--ads-v2-spaces-2) var(--ads-v2-spaces-4);
+        max-width: calc((${DEFAULT_SPLIT_SCREEN_WIDTH} - 127px) / 5);
+    `}
 
   // After element - the seperator in between tabs
-  &:not(&.active):not(:has(+ .active)):not(:last-child):after {
+  &:not(&.active):not(:has(+ .active)):after {
     content: "";
     position: absolute;
     right: 0;
@@ -47,6 +52,16 @@ export const StyledTab = styled(Flex)`
     border-top: 2px solid var(--ads-v2-color-bg-brand);
     border-left: 1px solid var(--ads-v2-color-border);
     border-right: 1px solid var(--ads-v2-color-border);
+  }
+
+  & > .tab-close {
+    position: relative;
+    right: -2px;
+    visibility: hidden;
+  }
+
+  &:hover > .tab-close {
+    visibility: visible;
   }
 `;
 

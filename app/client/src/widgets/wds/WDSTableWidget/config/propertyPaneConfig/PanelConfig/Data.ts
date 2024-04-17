@@ -13,7 +13,6 @@ import {
   updateCurrencyDefaultValues,
   updateMenuItemsSource,
   updateNumberColumnTypeTextAlignment,
-  updateThemeStylesheetsInColumns,
 } from "../../../widget/propertyUtils";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { composePropertyUpdateHook } from "widgets/WidgetUtils";
@@ -84,7 +83,6 @@ export default {
       ],
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
-        updateThemeStylesheetsInColumns,
         updateMenuItemsSource,
         updateCurrencyDefaultValues,
       ]),

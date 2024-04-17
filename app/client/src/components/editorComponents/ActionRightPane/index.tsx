@@ -106,7 +106,7 @@ function ActionSidebar({
         {actionRightPaneBackLink}
         <CollapsibleGroupContainer>
           {additionalSections && (
-            <CollapsibleGroup maxHeight={"50%"}>
+            <CollapsibleGroup height={"100%"}>
               {additionalSections}
             </CollapsibleGroup>
           )}

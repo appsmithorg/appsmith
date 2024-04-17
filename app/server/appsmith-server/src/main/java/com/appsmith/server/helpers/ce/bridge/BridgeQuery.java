@@ -22,6 +22,11 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
+    public BridgeQuery<T> equal(@NonNull String key, @NonNull int value) {
+        checks.add(Criteria.where(key).is(value));
+        return this;
+    }
+
     public BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
         checks.add(Criteria.where(key).ne(value));
         return this;
@@ -50,6 +55,11 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
      */
     public BridgeQuery<T> equal(@NonNull String key, boolean value) {
         checks.add(Criteria.where(key).is(value));
+        return this;
+    }
+
+    public BridgeQuery<T> regexMatchIgnoreCase(@NonNull String key, @NonNull String regexPattern) {
+        checks.add(Criteria.where(key).regex(regexPattern, "i"));
         return this;
     }
 
@@ -117,5 +127,9 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         }
 
         return new Criteria().andOperator(checks.toArray(new Criteria[0])).getCriteriaObject();
+    }
+
+    public boolean isEmpty() {
+        return checks.isEmpty();
     }
 }

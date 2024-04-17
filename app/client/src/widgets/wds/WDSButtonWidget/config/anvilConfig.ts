@@ -5,6 +5,6 @@ export const anvilConfig = {
       base: "100%",
       "280px": "sizing-70",
     },
-    minWidth: "sizing-14",
+    minWidth: "sizing-9",
   },
 };

@@ -8,6 +8,7 @@ import BaseWidget from "widgets/BaseWidget";
 import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_PADDING, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type {
@@ -48,6 +49,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
     return {
       name: "Custom",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       needsMeta: true,
       isCanvas: false,
       tags: [WIDGET_TAGS.DISPLAY],
@@ -70,6 +72,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       uncompiledSrcDoc: defaultApp.uncompiledSrcDoc,
       theme: "{{appsmith.theme}}",
       dynamicBindingPathList: [{ key: "theme" }],
+      dynamicTriggerPathList: [{ key: "onResetClick" }],
       borderColor: Colors.GREY_5,
       borderWidth: "1",
       backgroundColor: "#FFFFFF",
@@ -245,7 +248,8 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
             controlConfig: {
               allowEdit: true,
               onEdit: (widget: CustomWidgetProps, newLabel: string) => {
-                return {
+                const triggerPaths = [];
+                const updatedProperties = {
                   events: widget.events.map((e) => {
                     if (e === event) {
                       return newLabel;
@@ -253,6 +257,19 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
 
                     return e;
                   }),
+                };
+
+                if (
+                  widget.dynamicTriggerPathList
+                    ?.map((d) => d.key)
+                    .includes(event)
+                ) {
+                  triggerPaths.push(newLabel);
+                }
+
+                return {
+                  modify: updatedProperties,
+                  triggerPaths,
                 };
               },
               allowDelete: true,
@@ -262,7 +279,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
                 };
               },
             },
-            dependencies: ["events"],
+            dependencies: ["events", "dynamicTriggerPathList"],
             helpText: "when the event is triggered from custom widget",
           }));
         },

@@ -39,6 +39,9 @@ public interface CommonGitServiceCE {
     Mono<List<GitLogDTO>> getCommitHistory(String branchName, String defaultArtifactId, ArtifactType artifactType);
 
     Mono<BranchTrackingStatus> fetchRemoteChanges(
+            Artifact defaultArtifact, Artifact branchedArtifact, String branchName, boolean isFileLock);
+
+    Mono<BranchTrackingStatus> fetchRemoteChanges(
             String defaultApplicationId, String branchName, boolean isFileLock, ArtifactType artifactType);
 
     Mono<GitPullDTO> pullArtifact(String defaultArtifactId, String branchName, ArtifactType artifactType);

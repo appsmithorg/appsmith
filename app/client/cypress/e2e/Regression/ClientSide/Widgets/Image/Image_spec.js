@@ -74,7 +74,7 @@ describe(
       cy.openPropertyPane("imagewidget");
       // Invalid image url
       const invalidImageUrl =
-        "http://host.docker.internal:8001/photo-not-exists.jpeg";
+        "http://host.docker.internal:5000/photo-not-exists.jpeg";
       cy.testCodeMirror(invalidImageUrl);
 
       // Show off error message

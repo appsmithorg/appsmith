@@ -7,6 +7,7 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManagerFactory;
 import java.io.ByteArrayInputStream;
+import java.nio.charset.StandardCharsets;
 import java.security.KeyStore;
 import java.security.PrivateKey;
 import java.security.SecureRandom;
@@ -23,7 +24,7 @@ public class MutualTLSCertValidatingFactory extends WrappedFactory {
 
         // Client certificate
         ByteArrayInputStream clientCertIS =
-                new ByteArrayInputStream(Base64.getDecoder().decode(info.getProperty("clientCertString")));
+                new ByteArrayInputStream(info.getProperty("clientCertString").getBytes(StandardCharsets.UTF_8));
         X509Certificate clientCertificate = (X509Certificate) cf.generateCertificate(clientCertIS);
 
         // Client key and this assumes we are using RSA keys
@@ -39,7 +40,7 @@ public class MutualTLSCertValidatingFactory extends WrappedFactory {
 
         // CA certificate for verifying the server
         ByteArrayInputStream caCertIS =
-                new ByteArrayInputStream(Base64.getDecoder().decode(info.getProperty("serverCACertString")));
+                new ByteArrayInputStream(info.getProperty("serverCACertString").getBytes(StandardCharsets.UTF_8));
         X509Certificate caCertificate = (X509Certificate) cf.generateCertificate(caCertIS);
 
         // Client keystore

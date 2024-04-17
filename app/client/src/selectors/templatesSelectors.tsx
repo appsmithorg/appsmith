@@ -74,11 +74,19 @@ export const getBuildingBlockExplorerCards = createSelector(
   (buildingBlocks) => {
     const adjustedBuildingBlocks: WidgetCardProps[] = buildingBlocks.map(
       (buildingBlock) => ({
-        rows: DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
-        columns: DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
+        rows:
+          buildingBlock.templateGridRowSize ||
+          DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS,
+        columns:
+          buildingBlock.templateGridColumnSize ||
+          DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS,
         type: "BUILDING_BLOCK",
         displayName: buildingBlock.title,
         icon:
+          buildingBlock.screenshotUrls.length > 1
+            ? buildingBlock.screenshotUrls[1]
+            : buildingBlock.screenshotUrls[0],
+        thumbnail:
           buildingBlock.screenshotUrls.length > 1
             ? buildingBlock.screenshotUrls[1]
             : buildingBlock.screenshotUrls[0],

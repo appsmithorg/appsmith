@@ -44,10 +44,10 @@ describe(
       }
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
-        ["100", "100:100:true:string:number:AS:USD"],
-        ["1000", "1,000:1000:true:string:number:AS:USD"],
-        ["100.22", "10,022:10022:true:string:number:AS:USD"],
-        ["1000.22", "100,022:100022:true:string:number:AS:USD"],
+        ["100", "100:100:true:string:number:US:USD"],
+        ["1000", "1,000:1000:true:string:number:US:USD"],
+        ["100.22", "10,022:10022:true:string:number:US:USD"],
+        ["1000.22", "100,022:100022:true:string:number:US:USD"],
       ].forEach((d) => {
         enterAndTest(d[0], d[1]);
       });
@@ -57,10 +57,10 @@ describe(
 
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
-        ["100", "100:100:true:string:number:AS:USD"],
-        ["1000", "1,000:1000:true:string:number:AS:USD"],
-        ["100.22", "100.2:100.2:true:string:number:AS:USD"],
-        ["1000.22", "1,000.2:1000.2:true:string:number:AS:USD"],
+        ["100", "100:100:true:string:number:US:USD"],
+        ["1000", "1,000:1000:true:string:number:US:USD"],
+        ["100.22", "100.2:100.2:true:string:number:US:USD"],
+        ["1000.22", "1,000.2:1000.2:true:string:number:US:USD"],
       ].forEach((d) => {
         enterAndTest(d[0], d[1]);
       });
@@ -70,10 +70,10 @@ describe(
 
       [
         //[input, {{CurrencyInput1.text}}:{{CurrencyInput1.value}}:{{CurrencyInput1.isValid}}:{{typeof CurrencyInput1.text}}:{{typeof CurrencyInput1.value}}:{{CurrencyInput1.countryCode}}:{{CurrencyInput1.currencyCode}}]
-        ["100", "100:100:true:string:number:AS:USD"],
-        ["1000", "1,000:1000:true:string:number:AS:USD"],
-        ["100.22", "100.22:100.22:true:string:number:AS:USD"],
-        ["1000.22", "1,000.22:1000.22:true:string:number:AS:USD"],
+        ["100", "100:100:true:string:number:US:USD"],
+        ["1000", "1,000:1000:true:string:number:US:USD"],
+        ["100.22", "100.22:100.22:true:string:number:US:USD"],
+        ["1000.22", "1,000.22:1000.22:true:string:number:US:USD"],
       ].forEach((d) => {
         enterAndTest(d[0], d[1]);
       });

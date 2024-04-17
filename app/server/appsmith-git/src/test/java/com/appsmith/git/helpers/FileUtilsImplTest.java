@@ -1,8 +1,13 @@
 package com.appsmith.git.helpers;
 
+import com.appsmith.external.git.operations.FileOperations;
+import com.appsmith.external.helpers.ObservationHelper;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.git.configurations.GitServiceConfig;
+import com.appsmith.git.files.FileUtilsImpl;
+import com.appsmith.git.files.operations.FileOperationsImpl;
 import com.appsmith.git.service.GitExecutorImpl;
+import com.google.gson.GsonBuilder;
 import org.apache.commons.io.FileUtils;
 import org.eclipse.jgit.api.errors.GitAPIException;
 import org.junit.jupiter.api.AfterEach;
@@ -34,6 +39,8 @@ public class FileUtilsImplTest {
     @MockBean
     private GitExecutorImpl gitExecutor;
 
+    private FileOperations fileOperations;
+
     private GitServiceConfig gitServiceConfig;
     private static final String localTestDirectory = "localTestDirectory";
     private static final Path localTestDirectoryPath = Path.of(localTestDirectory);
@@ -42,7 +49,9 @@ public class FileUtilsImplTest {
     public void setUp() {
         gitServiceConfig = new GitServiceConfig();
         gitServiceConfig.setGitRootPath(localTestDirectoryPath.toString());
-        fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor);
+        fileOperations =
+                new FileOperationsImpl(gitServiceConfig, gitExecutor, new GsonBuilder(), null, ObservationHelper.NOOP);
+        fileUtils = new FileUtilsImpl(gitServiceConfig, gitExecutor, fileOperations, ObservationHelper.NOOP);
     }
 
     @AfterEach
@@ -63,6 +72,7 @@ public class FileUtilsImplTest {
 
         ApplicationGitReference applicationGitReference = new ApplicationGitReference();
         applicationGitReference.setApplication(new Object());
+        applicationGitReference.setTheme(new Object());
         applicationGitReference.setMetadata(new Object());
         applicationGitReference.setPages(new HashMap<>());
         applicationGitReference.setActions(new HashMap<>());

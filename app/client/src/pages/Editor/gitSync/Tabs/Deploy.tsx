@@ -46,7 +46,6 @@ import {
   clearDiscardErrorState,
   commitToRepoInit,
   discardChanges,
-  fetchGitStatusInit,
   gitPullInit,
 } from "actions/gitSyncActions";
 import StatusLoader from "../components/StatusLoader";
@@ -155,7 +154,6 @@ function Deploy() {
   const commitButtonText = createMessage(COMMIT_AND_PUSH);
 
   useEffect(() => {
-    dispatch(fetchGitStatusInit({ compareRemote: true }));
     return () => {
       dispatch(clearCommitSuccessfulState());
     };
@@ -165,12 +163,7 @@ function Deploy() {
     !hasChangesToCommit || !commitMessage || commitMessage.trim().length < 1;
   const commitButtonLoading = isCommittingInProgress;
 
-  const commitRequired =
-    !!gitStatus?.modifiedPages ||
-    !!gitStatus?.modifiedQueries ||
-    !!gitStatus?.modifiedJSObjects ||
-    !!gitStatus?.modifiedDatasources ||
-    !!gitStatus?.modifiedJSLibs;
+  const commitRequired = !gitStatus?.isClean;
   const isConflicting = !isFetchingGitStatus && !!pullFailed;
   const commitInputDisabled =
     isConflicting ||

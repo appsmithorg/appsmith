@@ -67,7 +67,6 @@ jobs:
       tags: ${{ inputs.tags }}
       matrix: ${{ inputs.matrix }}
 
-
   ci-test-result:
     needs: [ci-test]
     # Only run if the ci-test with matrices step is successful
@@ -77,6 +76,9 @@ jobs:
       run:
         shell: bash
     steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
       - name: Dump the client payload context
         env:
           PAYLOAD_CONTEXT: ${{ toJson(github.event) }}
@@ -84,9 +86,9 @@ jobs:
 
       - name: Setup node
         if: needs.ci-test.result != 'success'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: app/client/package.json
 
       - name: Install pg
         if: needs.ci-test.result != 'success'
@@ -174,57 +176,58 @@ jobs:
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '1'
         uses: nefrob/pr-description@v1.1.1
         with:
-            content: |
-              <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!CAUTION]  
-              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
-              > Commit: `${{ github.event.pull_request.head.sha }}`
-              > Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
-              > The following are new failures, please fix them before merging the PR: <ol>
-              ${{env.new_failed_spec_env}} </ol>
-              > To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
+          content: |
+            <!-- This is an auto-generated comment: Cypress test results  -->
+            > [!CAUTION]
+            > 🔴 🔴 🔴 Some tests have failed.
+            > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+            > Commit: ${{ github.event.pull_request.head.sha }}
+            > Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
+            > The following are new failures, please fix them before merging the PR: <ol>
+            ${{env.new_failed_spec_env}} </ol>
+            > To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
 
-              <!-- end of auto-generated comment: Cypress test results  -->
+            <!-- end of auto-generated comment: Cypress test results  -->
 
-            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
-            regexFlags: ims
-            token: ${{ secrets.GITHUB_TOKEN }}
+          regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+          regexFlags: ims
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Modify test response in the PR when ci-test is failed but no specs found
         if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '0'
         uses: nefrob/pr-description@v1.1.1
         with:
-            content: |
-              <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!WARNING]  
-              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
-              > Commit: `${{ github.event.pull_request.head.sha }}`
-              > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
-              > It seems like **no tests ran** 😔. We are not able to recognize it, please check workflow <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
+          content: |
+            <!-- This is an auto-generated comment: Cypress test results  -->
+            > [!WARNING]
+            > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+            > Commit: ${{ github.event.pull_request.head.sha }}
+            > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+            > It seems like **no tests ran** 😔. We are not able to recognize it, please check workflow <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
 
-              <!-- end of auto-generated comment: Cypress test results  -->
+            <!-- end of auto-generated comment: Cypress test results  -->
 
-            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
-            regexFlags: ims
-            token: ${{ secrets.GITHUB_TOKEN }}
+          regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+          regexFlags: ims
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Modify test response in the PR when ci-test is success
         if: needs.ci-test.result == 'success' && steps.combine_ci.outputs.specs_failed == '0'
         uses: nefrob/pr-description@v1.1.1
         with:
-            content: |
-              <!-- This is an auto-generated comment: Cypress test results  -->
-              > [!IMPORTANT]  
-              > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
-              > Commit: `${{ github.event.pull_request.head.sha }}`
-              > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
-              > All cypress tests have passed 🎉🎉🎉
+          content: |
+            <!-- This is an auto-generated comment: Cypress test results  -->
+            > [!TIP]
+            > 🟢 🟢 🟢 All cypress tests have passed! 🎉 🎉 🎉
+            > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+            > Commit: ${{ github.event.pull_request.head.sha }}
+            > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
 
-              <!-- end of auto-generated comment: Cypress test results  -->
+            <!-- end of auto-generated comment: Cypress test results  -->
 
-            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
-            regexFlags: ims
-            token: ${{ secrets.GITHUB_TOKEN }}
+          regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+          regexFlags: ims
+          token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Check ci-test set status
         if: needs.ci-test.result != 'success'

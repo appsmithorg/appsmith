@@ -115,6 +115,8 @@ export class LightModeTheme implements ColorModeTheme {
 
       bdOnAccent: this.bdOnAccent.to("sRGB").toString(),
       bdOnNeutral: this.bdOnNeutral.to("sRGB").toString(),
+      bdOnNeutralSubtle: this.bdOnNeutralSubtle.to("sRGB").toString(),
+      bdOnNeutralSubtleHover: this.bdOnNeutralSubtleHover.to("sRGB").toString(),
       bdOnPositive: this.bdOnPositive.to("sRGB").toString(),
       bdOnNegative: this.bdOnNegative.to("sRGB").toString(),
       bdOnWarning: this.bdOnWarning.to("sRGB").toString(),
@@ -992,6 +994,7 @@ export class LightModeTheme implements ColorModeTheme {
 
   private get bdNeutral() {
     // Desatured version of the seed for harmonious combination with backgrounds and accents.
+    // Used in checkbox, radio button
     const color = this.bdAccent.clone();
 
     color.oklch.c = 0.001;
@@ -1011,19 +1014,19 @@ export class LightModeTheme implements ColorModeTheme {
     const color = this.bdNeutral.clone();
 
     if (this.bdNeutral.oklch.l < 0.06) {
-      color.oklch.l += 0.95;
+      color.oklch.l += 0.6;
     }
 
     if (this.bdNeutral.oklch.l >= 0.06 && this.bdNeutral.oklch.l < 0.25) {
-      color.oklch.l += 0.75;
+      color.oklch.l += 0.4;
     }
 
     if (this.bdNeutral.oklch.l >= 0.25 && this.bdNeutral.oklch.l < 0.5) {
-      color.oklch.l += 0.5;
+      color.oklch.l += 0.25;
     }
 
     if (this.bdNeutral.oklch.l >= 0.5) {
-      color.oklch.l += 0.3;
+      color.oklch.l += 0.1;
     }
 
     return color;
@@ -1179,6 +1182,23 @@ export class LightModeTheme implements ColorModeTheme {
     if (this.bgNeutral.oklch.l < 0.15) {
       color.oklch.l += 0.47;
     }
+
+    return color;
+  }
+
+  private get bdOnNeutralSubtle() {
+    // Low contrast indicator of interactivity in TextInput and similar
+    const color = this.bgNeutralSubtle.clone();
+
+    color.oklch.l -= 0.06;
+
+    return color;
+  }
+
+  private get bdOnNeutralSubtleHover() {
+    const color = this.bdOnNeutralSubtle.clone();
+
+    color.oklch.l += 0.03;
 
     return color;
   }

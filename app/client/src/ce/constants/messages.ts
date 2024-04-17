@@ -624,6 +624,12 @@ export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
 
+export const REMOVE_CONFIRM_BEFORE_CALLING_HEADING = () =>
+  `Remove 'Confirm before calling' `;
+export const REMOVE_CONFIRM_BEFORE_CALLING_DESCRIPTION =
+  () => `By turning off this setting, you won't be able to undo or turn on this setting again,
+as it has been deprecated. Are you sure you want to proceed?`;
+
 // Import/Export Application features
 export const ERROR_IMPORTING_APPLICATION_TO_WORKSPACE = () =>
   "Error importing application. No workspace found";
@@ -2308,6 +2314,7 @@ export const EDITOR_PANE_TEXTS = {
   js_create_tab_title: () => "Create JS object",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
+  loading_building_blocks: () => "Loading building blocks",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
@@ -2463,4 +2470,15 @@ export const SPLITPANE_ANNOUNCEMENT = {
   TITLE: () => "Code and UI, side-by-side",
   DESCRIPTION: () =>
     "Write queries and JS functions while you refer to the UI on the side! This is a beta version that we will continue to improve with your feedback.",
+};
+
+export const CANVAS_VIEW_MODE_TOOLTIP = (shortcutKey: string) =>
+  `💡 ${shortcutKey} click a widget to navigate to UI mode.`;
+
+// searchable files list
+export const SEARCHABLE_FILES_LIST = {
+  GROUP_LABEL: (type: string) => `Open a ${type}`,
+  OPENED_GROUP_LABEL: () => `Opened`,
+  QUERY_TEXT: `query`,
+  JS_OBJECT_TEXT: `JS object`,
 };

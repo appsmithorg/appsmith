@@ -6,7 +6,7 @@
     "./lib/*": "./lib/*.js"
   },
   "engines": {
-    "node": "^18.17.1",
+    "node": "^20.11.1",
     "yarn": "^3.5.1"
   },
   "packageManager": "yarn@3.5.1",
@@ -64,6 +64,7 @@
     "@loadable/component": "^5.15.3",
     "@manaflair/redux-batch": "^1.0.0",
     "@mantine/hooks": "^5.10.1",
+    "@newrelic/browser-agent": "^1.255.0",
     "@opentelemetry/auto-instrumentations-web": "^0.33.2",
     "@opentelemetry/context-zone": "^1.17.1",
     "@opentelemetry/exporter-trace-otlp-proto": "^0.44.0",
@@ -77,7 +78,7 @@
     "@shared/ast": "workspace:^",
     "@shared/dsl": "workspace:^",
     "@tanstack/virtual-core": "^3.0.0-beta.18",
-    "@tinymce/tinymce-react": "^3.13.0",
+    "@tinymce/tinymce-react": "^5.0.0",
     "@types/babel__standalone": "^7.1.7",
     "@types/d3-geo": "^3.1.0",
     "@types/google.maps": "^3.51.0",
@@ -145,6 +146,7 @@
     "marked": "^4.0.18",
     "memoize-one": "^6.0.0",
     "micro-memoize": "^4.0.10",
+    "microdiff": "^1.4.0",
     "moment": "2.29.4",
     "moment-timezone": "^0.5.35",
     "nanoid": "^2.0.4",

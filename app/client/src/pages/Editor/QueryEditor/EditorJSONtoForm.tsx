@@ -116,6 +116,7 @@ const Wrapper = styled.div`
   display: flex;
   flex-direction: row;
   height: calc(100% - 50px);
+  overflow: hidden;
   width: 100%;
 `;
 
@@ -333,7 +334,9 @@ export function EditorJSONtoForm(props: Props) {
                     className="tab-panel"
                     value={EDITOR_TABS.QUERY}
                   >
-                    <SettingsWrapper>
+                    <SettingsWrapper
+                      data-testid={`t--action-form-${plugin?.type}`}
+                    >
                       <FormRender
                         editorConfig={editorConfig}
                         formData={props.formData}

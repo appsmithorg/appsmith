@@ -26,6 +26,7 @@ class Section extends WidgetRow {
       ...super.getFlexLayoutProps(),
       alignSelf: "stretch",
       direction: "row",
+      gap: "spacing-4",
     };
   }
 

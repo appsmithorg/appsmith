@@ -69,6 +69,8 @@ export interface ColorModeTheme {
     // bd on bg*
     bdOnAccent: string;
     bdOnNeutral: string;
+    bdOnNeutralSubtle: string;
+    bdOnNeutralSubtleHover: string;
     bdOnPositive: string;
     bdOnNegative: string;
     bdOnWarning: string;

@@ -24,6 +24,7 @@ import { DEFAULT_FONT_SIZE, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { OverflowTypes } from "../constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import type {
@@ -42,6 +43,7 @@ class TextWidget extends BaseWidget<TextWidgetProps, WidgetState> {
     return {
       name: "Text",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.CONTENT],
       searchTags: ["typography", "paragraph", "label"],
     };

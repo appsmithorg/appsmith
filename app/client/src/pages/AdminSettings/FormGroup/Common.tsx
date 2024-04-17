@@ -21,17 +21,21 @@ export const StyledFormGroup = styled.div`
       width: 100%;
     }
   }
-  & svg:hover {
-    cursor: default;
-    path {
-    }
-  }
 `;
 
 export const StyledLabel = styled.div`
   margin-bottom: 4px;
   display: flex;
   align-items: center;
+  gap: var(--ads-v2-spaces-3);
+
+  .admin-settings-form-group-label {
+    font-weight: var(--ads-v2-h5-font-weight);
+  }
+
+  .help-icon {
+    cursor: pointer;
+  }
 `;
 
 export const StyledSubtext = styled(Text)`
@@ -62,29 +66,24 @@ export function FormGroup({ children, className, setting }: FieldHelperProps) {
             renderAs="label"
           >
             {setting.label || ""}
+            {setting.isRequired && (
+              <StyledAsterisk renderAs="span">*</StyledAsterisk>
+            )}
           </Text>
-        )}
-        {setting.isRequired && (
-          <StyledAsterisk renderAs="span">*</StyledAsterisk>
         )}
         {setting.helpText && (
           <Tooltip content={createMessage(() => setting.helpText || "")}>
             <Icon
-              color="white"
+              className={"help-icon"}
+              color="var(--ads-v2-color-fg)"
               data-testid="admin-settings-form-group-helptext"
-              name="help"
-              size="sm"
+              name="question-line"
+              size="md"
             />
           </Tooltip>
         )}
-        <div className="ml-2">
-          {setting.isFeatureEnabled === false &&
-            (setting.isEnterprise === true ? (
-              <EnterpriseTag />
-            ) : (
-              <BusinessTag />
-            ))}
-        </div>
+        {setting.isFeatureEnabled === false &&
+          (setting.isEnterprise === true ? <EnterpriseTag /> : <BusinessTag />)}
       </StyledLabel>
       {children}
       {setting.subText && (

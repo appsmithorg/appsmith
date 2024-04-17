@@ -72,7 +72,7 @@ jobs:
         uses: depot/setup-action@v1
 
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
@@ -135,7 +135,7 @@ jobs:
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id != 0
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: cicontainer.tar.gz
           key: docker-image-${{ inputs.previous-workflow-run-id }}
@@ -143,7 +143,7 @@ jobs:
       # In case of run-id is 0 download the artifact from the current run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id == 0
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: cicontainer.tar.gz
           key: docker-image-${{github.run_id}}
@@ -210,18 +210,20 @@ jobs:
             cicontainer
 
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
 
-      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # actions/setup-node@v4 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
-          path: app/client/.yarn/cache
+          path: |
+            app/client/.yarn/cache
+            app/client/node_modules/.cache/webpack/
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
       # Install all the dependencies

@@ -3,6 +3,7 @@ package com.external.utils;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import graphql.parser.InvalidSyntaxException;
 import graphql.parser.Parser;
@@ -19,7 +20,8 @@ import static com.appsmith.external.helpers.SmartSubstitutionHelper.APPSMITH_SUB
 public class GraphQLDataTypeUtils {
     public static final String GRAPHQL_BODY_ENDS_WITH_PARAM_REGEX = "[\\w\\W]+:$";
 
-    public static final ObjectMapper objectMapper = new ObjectMapper();
+    public static final ObjectMapper objectMapper =
+            new ObjectMapper().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature());
 
     public static String smartlyReplaceGraphQLQueryBodyPlaceholderWithValue(
             String queryBody, String replacement, List<Map.Entry<String, String>> insertedParams) {

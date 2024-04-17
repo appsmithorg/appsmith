@@ -32,8 +32,8 @@ import { updateAppSettingsPaneSelectedTabAction } from "actions/appSettingsPaneA
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { Divider } from "design-system";
 import { ImportAppSettings } from "./ImportAppSettings";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import BetaCard from "components/editorComponents/BetaCard";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export enum AppSettingsTabs {
   General,
@@ -84,7 +84,7 @@ function AppSettings() {
   const { context } = useSelector(getAppSettingsPane);
   const pages: Page[] = useSelector(selectAllPages);
   const dispatch = useDispatch();
-  const isWDSEnabled = useFeatureFlag("ab_wds_enabled");
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
 
   const [selectedTab, setSelectedTab] = useState<SelectedTab>({
     type: context?.type || AppSettingsTabs.General,
@@ -245,7 +245,7 @@ function AppSettings() {
                     </SectionTitle>
                   </div>
                   <ThemeContentWrapper>
-                    {isWDSEnabled ? (
+                    {isAnvilLayout ? (
                       <WDSThemePropertyPane />
                     ) : (
                       <ThemePropertyPane />

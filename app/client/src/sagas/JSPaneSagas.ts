@@ -39,6 +39,7 @@ import {
   getDifferenceInJSCollection,
   pushLogsForObjectUpdate,
   createDummyJSCollectionActions,
+  createSingleFunctionJsCollection,
 } from "utils/JSPaneUtils";
 import type {
   CreateJSCollectionRequest,
@@ -55,6 +56,7 @@ import {
   updateJSFunction,
   executeJSFunctionInit,
   setJsPaneDebuggerState,
+  createNewJSCollection,
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -66,7 +68,6 @@ import {
   JS_EXECUTION_FAILURE,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
-  JS_FUNCTION_UPDATE_SUCCESS,
   JS_EXECUTION_SUCCESS_TOASTER,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
@@ -83,7 +84,6 @@ import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
 import { jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { ApiResponse } from "api/ApiResponses";
-import { shouldBeDefined } from "utils/helpers";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
@@ -102,6 +102,10 @@ import {
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
 import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
+import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { setIdeEditorViewMode } from "actions/ideActions";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 export interface GenerateDefaultJSObjectProps {
   name: string;
@@ -115,11 +119,15 @@ const CONSOLE_DOT_LOG_INVOCATION_REGEX =
   /console.log[.call | .apply]*\s*\(.*?\)/gm;
 
 function* handleCreateNewJsActionSaga(
-  action: ReduxAction<{ pageId: string; from: EventLocation }>,
+  action: ReduxAction<{
+    pageId: string;
+    from: EventLocation;
+    functionName?: string;
+  }>,
 ) {
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const applicationId: string = yield select(getCurrentApplicationId);
-  const { from, pageId } = action.payload;
+  const { from, functionName, pageId } = action.payload;
 
   if (pageId) {
     const jsActions: JSCollectionDataState = yield select(getJSCollections);
@@ -127,12 +135,12 @@ function* handleCreateNewJsActionSaga(
       (a: JSCollectionData) => a.config.pageId === pageId,
     );
     const newJSCollectionName = createNewJSFunctionName(pageJSActions, pageId);
-    const { actions, body, variables } = createDummyJSCollectionActions(
-      workspaceId,
-      {
-        pageId,
-      },
-    );
+
+    const { actions, body, variables } = functionName
+      ? createSingleFunctionJsCollection(workspaceId, functionName, { pageId })
+      : createDummyJSCollectionActions(workspaceId, {
+          pageId,
+        });
 
     const defaultJSObject: CreateJSCollectionRequest =
       yield generateDefaultJSObject({
@@ -310,7 +318,7 @@ function* updateJSCollection(data: {
     jsAction = yield select(getJSCollection, jsActionId);
   }
   try {
-    const { deletedActions, jsCollection, newActions, updatedActions } = data;
+    const { deletedActions, jsCollection, newActions } = data;
     if (jsCollection) {
       const response: JSCollectionCreateUpdateResponse =
         yield JSActionAPI.updateJSCollection(jsCollection);
@@ -321,13 +329,6 @@ function* updateJSCollection(data: {
             newActions,
             jsCollection,
             createMessage(JS_FUNCTION_CREATE_SUCCESS),
-          );
-        }
-        if (updatedActions && updatedActions.length) {
-          pushLogsForObjectUpdate(
-            updatedActions,
-            jsCollection,
-            createMessage(JS_FUNCTION_UPDATE_SUCCESS),
           );
         }
         if (deletedActions && deletedActions.length) {
@@ -346,7 +347,6 @@ function* updateJSCollection(data: {
 
         yield put(
           updateJSCollectionSuccess({
-            // @ts-expect-error: data is of type unknown
             data: response?.data,
           }),
         );
@@ -613,7 +613,6 @@ function* handleUpdateJSCollectionBody(
         // since server is not sending the info about whether the js collection is main or not
         // we are retaining it manually
         const updatedJSCollection: JSCollection = {
-          // @ts-expect-error: response is of type unknown
           ...response.data,
           isMainJSCollection: !!jsCollection.isMainJSCollection,
         };
@@ -749,23 +748,6 @@ function* handleUpdateJSFunctionPropertySaga(
         yield JSActionAPI.updateJSCollection(collection);
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
-        const fieldToBeUpdated = propertyName.replace(
-          "actionConfiguration",
-          "config",
-        );
-        AppsmithConsole.info({
-          logType: LOG_TYPE.ACTION_UPDATE,
-          text: "Configuration updated",
-          source: {
-            type: ENTITY_TYPE.JSACTION,
-            name: collection.name + "." + action.name,
-            id: action.collectionId,
-            propertyPath: fieldToBeUpdated,
-          },
-          state: {
-            [fieldToBeUpdated]: value,
-          },
-        });
         yield put({
           type: ReduxActionTypes.UPDATE_JS_FUNCTION_PROPERTY_SUCCESS,
           payload: {
@@ -791,13 +773,6 @@ function* toggleFunctionExecuteOnLoadSaga(
 ) {
   try {
     const { actionId, collectionId, shouldExecute } = action.payload;
-    const collection = shouldBeDefined<JSCollection>(
-      yield select(getJSCollection, collectionId),
-      `JS Collection not found for id - ${collectionId}`,
-    );
-    const jsAction = collection.actions.find(
-      (action: JSAction) => actionId === action.id,
-    );
     const response: ApiResponse = yield call(
       ActionAPI.toggleActionExecuteOnLoad,
       actionId,
@@ -805,19 +780,6 @@ function* toggleFunctionExecuteOnLoadSaga(
     );
     const isValidResponse: boolean = yield validateResponse(response);
     if (isValidResponse) {
-      AppsmithConsole.info({
-        logType: LOG_TYPE.ACTION_UPDATE,
-        text: "Configuration updated",
-        source: {
-          type: ENTITY_TYPE.JSACTION,
-          name: collection.name + "." + jsAction?.name,
-          id: collectionId,
-          propertyPath: "executeOnLoad",
-        },
-        state: {
-          ["executeOnLoad"]: shouldExecute,
-        },
-      });
       yield put({
         type: ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_SUCCESS,
         payload: {
@@ -833,6 +795,37 @@ function* toggleFunctionExecuteOnLoadSaga(
       payload: error,
     });
   }
+}
+
+function* handleCreateNewJSFromActionCreator(
+  action: ReduxAction<(bindingValue: string) => void>,
+) {
+  // We name the newly created function similar to the property the function will be called from
+  // eg: Button1OnClick
+  const currentFocusedProperty: string = yield select(
+    getFocusablePropertyPaneField,
+  );
+  const functionName = currentFocusedProperty.split(".").join("");
+
+  // Side by Side ramp. Switch to SplitScreen mode to allow user to edit JS function
+  // created while having context of the canvas
+  const isSideBySideEnabled: boolean = yield select(getIsSideBySideEnabled);
+  if (isSideBySideEnabled) {
+    yield put(setIdeEditorViewMode(EditorViewMode.SplitScreen));
+  }
+
+  // Create the JS Object with the given function name
+  const pageId: string = yield select(getCurrentPageId);
+  yield put(createNewJSCollection(pageId, "ACTION_SELECTOR", functionName));
+
+  // Wait for it to be created
+  const JSAction: ReduxAction<JSCollection> = yield take(
+    ReduxActionTypes.CREATE_JS_ACTION_SUCCESS,
+  );
+
+  // Call the payload callback with the binding value of the new function created
+  const bindingValue = JSAction.payload.name + "." + functionName;
+  action.payload(bindingValue);
 }
 
 export default function* root() {
@@ -870,6 +863,10 @@ export default function* root() {
     takeLatest(
       ReduxActionTypes.TOGGLE_FUNCTION_EXECUTE_ON_LOAD_INIT,
       toggleFunctionExecuteOnLoadSaga,
+    ),
+    takeLatest(
+      ReduxActionTypes.CREATE_NEW_JS_FROM_ACTION_CREATOR,
+      handleCreateNewJSFromActionCreator,
     ),
   ]);
 }
