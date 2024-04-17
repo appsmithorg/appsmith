@@ -105,8 +105,7 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
-                    assertThat(snapshot.getApplicationId()).isNotNull();
-                    // assertThat(snapshot.getData()).isNull();
+                    assertThat(snapshot.applicationId()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -132,8 +131,7 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
-                    assertThat(snapshot.getApplicationId()).isNotNull();
-                    // assertThat(snapshot.getData()).isNull();
+                    assertThat(snapshot.applicationId()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -165,8 +163,7 @@ public class ApplicationSnapshotServiceTest {
                 .assertNext(objects -> {
                     ApplicationSnapshotProjectionWithoutData applicationSnapshot = objects.getT1();
                     Application application = objects.getT2();
-                    // assertThat(applicationSnapshot.getData()).isNull();
-                    assertThat(applicationSnapshot.getApplicationId()).isEqualTo(application.getId());
+                    assertThat(applicationSnapshot.applicationId()).isEqualTo(application.getId());
                 })
                 .verifyComplete();
     }
@@ -313,8 +310,7 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(applicationSnapshotMono)
                 .assertNext(applicationSnapshot -> {
-                    // assertThat(applicationSnapshot.getId()).isNull();
-                    assertThat(applicationSnapshot.getApplicationId()).isNull();
+                    assertThat(applicationSnapshot.applicationId()).isNull();
                 })
                 .verifyComplete();
     }

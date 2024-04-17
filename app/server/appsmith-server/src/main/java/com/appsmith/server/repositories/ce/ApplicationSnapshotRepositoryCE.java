@@ -12,5 +12,6 @@ public interface ApplicationSnapshotRepositoryCE
 
     Mono<Void> deleteAllByApplicationId(String applicationId);
 
-    Mono<ApplicationSnapshotProjectionWithoutData> findFirstByApplicationId(String applicationId);
+    Mono<ApplicationSnapshotProjectionWithoutData> findByApplicationIdAndChunkOrder(
+            String applicationId, Integer chunkOrder);
 }

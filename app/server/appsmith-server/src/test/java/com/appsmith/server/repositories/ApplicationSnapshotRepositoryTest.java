@@ -37,12 +37,12 @@ public class ApplicationSnapshotRepositoryTest {
 
         Mono<ApplicationSnapshotProjectionWithoutData> snapshotMono = applicationSnapshotRepository
                 .saveAll(List.of(snapshot1, snapshot2))
-                .then(applicationSnapshotRepository.findFirstByApplicationId(testAppId2));
+                .then(applicationSnapshotRepository.findByApplicationIdAndChunkOrder(testAppId2, 1));
 
         StepVerifier.create(snapshotMono)
                 .assertNext(applicationSnapshot -> {
-                    assertThat(applicationSnapshot.getApplicationId()).isEqualTo(testAppId2);
-                    assertThat(applicationSnapshot.getChunkOrder()).isEqualTo(1);
+                    assertThat(applicationSnapshot.applicationId()).isEqualTo(testAppId2);
+                    assertThat(applicationSnapshot.chunkOrder()).isEqualTo(1);
                 })
                 .verifyComplete();
     }
@@ -63,12 +63,12 @@ public class ApplicationSnapshotRepositoryTest {
 
         Mono<ApplicationSnapshotProjectionWithoutData> snapshotMono = applicationSnapshotRepository
                 .saveAll(List.of(snapshot1, snapshot2))
-                .then(applicationSnapshotRepository.findFirstByApplicationId(testAppId1));
+                .then(applicationSnapshotRepository.findByApplicationIdAndChunkOrder(testAppId1, 1));
 
         StepVerifier.create(snapshotMono)
                 .assertNext(applicationSnapshot -> {
-                    assertThat(applicationSnapshot.getApplicationId()).isEqualTo(testAppId1);
-                    assertThat(applicationSnapshot.getChunkOrder()).isEqualTo(1);
+                    assertThat(applicationSnapshot.applicationId()).isEqualTo(testAppId1);
+                    assertThat(applicationSnapshot.chunkOrder()).isEqualTo(1);
                 })
                 .verifyComplete();
     }

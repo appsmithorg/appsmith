@@ -73,8 +73,9 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
         // get application first to check the permission and get child aka branched application ID
         return applicationService
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
-                .flatMap(applicationSnapshotRepository::findFirstByApplicationId)
-                .defaultIfEmpty(new ApplicationSnapshotProjectionWithoutData());
+                .flatMap(branchedApplicationId ->
+                        applicationSnapshotRepository.findByApplicationIdAndChunkOrder(branchedApplicationId, 1))
+                .defaultIfEmpty(new ApplicationSnapshotProjectionWithoutData(null, null, null, null));
     }
 
     @Override
