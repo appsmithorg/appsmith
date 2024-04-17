@@ -6,13 +6,14 @@ import mockResponse from "./mockConsolidatedApiResponse.json";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import { fetchPage, fetchPublishedPage } from "actions/pageActions";
 
-describe("ee/PageSaga", () => {
+describe("ce/PageSaga", () => {
   it("should put setupPageSaga with pageWithMigratedDsl", () => {
     const action: ReduxAction<FetchPageRequest> = {
       type: ReduxActionTypes.SETUP_PAGE_INIT,
       payload: {
         id: "pageId",
-        pageWithMigratedDsl: mockResponse.data.pageWithMigratedDsl as any,
+        pageWithMigratedDsl: mockResponse.data
+          .pageWithMigratedDsl as FetchPageResponse,
       },
     };
 
@@ -43,7 +44,8 @@ describe("ee/PageSaga", () => {
       type: ReduxActionTypes.SETUP_PAGE_INIT,
       payload: {
         pageId: "pageId",
-        pageWithMigratedDsl: mockResponse.data.pageWithMigratedDsl as any,
+        pageWithMigratedDsl: mockResponse.data
+          .pageWithMigratedDsl as FetchPageResponse,
         bustCache: false,
         firstLoad: true,
       },
