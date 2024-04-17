@@ -121,7 +121,7 @@ abstract class BaseLayoutComponent extends PureComponent<
         )}
         layoutId={layoutId}
         layoutType={layoutType}
-        widgetId={widgetId}
+        widgetId={canvasId}
       />
     );
   }
