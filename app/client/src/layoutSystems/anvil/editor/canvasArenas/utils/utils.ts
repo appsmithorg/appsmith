@@ -11,6 +11,10 @@ import { anvilWidgets } from "widgets/anvil/constants";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import type { LayoutElementPosition } from "layoutSystems/common/types";
+import {
+  getAnvilLayoutDOMId,
+  getAnvilWidgetDOMId,
+} from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 export const computeCanvasToLayoutGap = (
   layoutPositions: LayoutElementPosition,
@@ -23,6 +27,16 @@ export const computeCanvasToLayoutGap = (
   };
 };
 
+export const getCompensatorElementId = (
+  layoutId: string,
+  canvasId: string,
+  mainCanvasLayoutId: string,
+) => {
+  return layoutId === mainCanvasLayoutId
+    ? getAnvilLayoutDOMId(canvasId, layoutId)
+    : getAnvilWidgetDOMId(canvasId);
+};
+
 export const getEdgeHighlightOffset = (
   highlightPositions: {
     left: number;
@@ -30,9 +44,10 @@ export const getEdgeHighlightOffset = (
     width: number;
     height: number;
   },
+  compensatorElementId: string,
   currentLayoutPositions: LayoutElementPosition,
-  canvasToLayoutGap: { left: number; top: number },
   isVertical: boolean,
+  canvasToLayoutGap: { left: number; top: number },
 ) => {
   const {
     height: highlightHeight,
@@ -41,15 +56,38 @@ export const getEdgeHighlightOffset = (
     width: highlightWidth,
   } = highlightPositions;
   const { height: layoutHeight, width: layoutWidth } = currentLayoutPositions;
+  const layoutDom = document.getElementById(compensatorElementId);
+  if (!layoutDom) {
+    return {
+      topOffset: 0,
+      leftOffset: 0,
+    };
+  }
+  // reduce padding margin border values
+  const layoutStyle = window.getComputedStyle(layoutDom);
+
+  // Get the padding values
+  const paddingTop = parseInt(layoutStyle.paddingTop);
+  const paddingLeft = parseInt(layoutStyle.paddingLeft);
+  const borderTop = parseInt(layoutStyle.borderTopWidth);
+  const borderLeft = parseInt(layoutStyle.borderLeftWidth);
+  const marginTop = parseInt(layoutStyle.marginTop);
+  const marginLeft = parseInt(layoutStyle.marginLeft);
+  const compensatorTop =
+    paddingTop + borderTop + marginTop + canvasToLayoutGap.top;
+  const compensatorLeft =
+    paddingLeft + borderLeft + marginLeft + canvasToLayoutGap.left;
   // add offset only for the highlights at the edge of layout
-  const isTopEdge = highlightTop === canvasToLayoutGap.top;
-  const isLeftEdge = highlightLeft === canvasToLayoutGap.left;
+  const isTopEdge = Math.round(highlightTop) === Math.round(compensatorTop);
+  const isLeftEdge = Math.round(highlightLeft) === Math.round(compensatorLeft);
   const isRightEdge =
-    highlightLeft + highlightWidth === canvasToLayoutGap.left + layoutWidth;
+    Math.round(highlightLeft + highlightWidth) ===
+    Math.round(compensatorLeft + layoutWidth);
   const isBottomEdge =
-    highlightTop + highlightHeight === canvasToLayoutGap.top + layoutHeight;
-  const topGap = (canvasToLayoutGap.top + highlightHeight) * 0.5;
-  const leftGap = (canvasToLayoutGap.left + highlightWidth) * 0.5;
+    Math.round(highlightTop + highlightHeight) ===
+    Math.round(compensatorTop + layoutHeight);
+  const topGap = (compensatorTop + highlightHeight) * 0.5;
+  const leftGap = (compensatorLeft + highlightWidth) * 0.5;
   const topOffset = !isVertical
     ? isTopEdge
       ? -topGap

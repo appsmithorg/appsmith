@@ -7,6 +7,7 @@ import { getNearestParentCanvas } from "utils/generators";
 import {
   computeCanvasToLayoutGap,
   getClosestHighlight,
+  getCompensatorElementId,
   getEdgeHighlightOffset,
 } from "../utils/utils";
 import { AnvilCanvasZIndex } from "layoutSystems/anvil/editor/canvas/hooks/useCanvasActivation";
@@ -14,7 +15,6 @@ import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
 import { setHighlightsDrawnAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import { renderDisallowOnCanvas } from "../utils/canvasRenderUtils";
-import { getAbsolutePixels } from "utils/helpers";
 
 /**
  *
@@ -33,7 +33,8 @@ export const useCanvasDragging = (
   props: AnvilHighlightingCanvasProps,
   setHighlightShown: (highlight: AnvilHighlightInfo | null) => void,
 ) => {
-  const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop } = props;
+  const { anvilDragStates, canvasId, deriveAllHighlightsFn, layoutId, onDrop } =
+    props;
   const {
     activateOverlayWidgetDrop,
     allowToDrop,
@@ -95,6 +96,7 @@ export const useCanvasDragging = (
         slidingArenaRef.current.style.color = "unset";
         slidingArenaRef.current.innerText = "";
         canvasIsDragging.current = false;
+        setHighlightShown(null);
       } else {
         // If currently dragged, set the z-index to activate the canvas
         slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.activated;
@@ -129,6 +131,7 @@ export const useCanvasDragging = (
           slidingArenaRef.current.innerText = "";
           canvasIsDragging.current = false;
           dispatch(setHighlightsDrawnAction());
+          setHighlightShown(null);
         }
       };
 
@@ -175,20 +178,26 @@ export const useCanvasDragging = (
               canvasIsDragging.current &&
               isCurrentDraggedCanvas
             ) {
-              const topOffset = getAbsolutePixels(
-                slidingArenaRef.current.getAttribute("topOffset"),
-              );
-              const leftOffset = getAbsolutePixels(
-                slidingArenaRef.current.getAttribute("leftOffset"),
-              );
+              // const topOffset = getAbsolutePixels(
+              //   slidingArenaRef.current.getAttribute("topOffset"),
+              // );
+              // const leftOffset = getAbsolutePixels(
+              //   slidingArenaRef.current.getAttribute("leftOffset"),
+              // );
               const { height, posX, posY, width } = currentRectanglesToDraw;
-              const left = posX - leftOffset + canvasToLayoutGap.current.left;
-              const top = posY - topOffset + canvasToLayoutGap.current.top;
+              const left = posX + canvasToLayoutGap.current.left;
+              const top = posY + canvasToLayoutGap.current.top;
+              const compensatorElementId = getCompensatorElementId(
+                layoutId,
+                canvasId,
+                mainCanvasLayoutId,
+              );
               const edgeOffset = getEdgeHighlightOffset(
                 { left, top, width, height },
+                compensatorElementId,
                 currentLayoutPositions,
-                canvasToLayoutGap.current,
                 currentRectanglesToDraw.isVertical,
+                canvasToLayoutGap.current,
               );
               const positionUpdatedHighlightInfo = {
                 ...currentRectanglesToDraw,

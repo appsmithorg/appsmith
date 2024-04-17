@@ -52,6 +52,7 @@ export const AnvilCanvasDraggingArena = (
     <>
       <AnvilHighlightingCanvas
         anvilDragStates={anvilDragStates}
+        canvasId={canvasId}
         deriveAllHighlightsFn={deriveAllHighlightsFn}
         layoutId={layoutId}
         onDrop={onDrop}

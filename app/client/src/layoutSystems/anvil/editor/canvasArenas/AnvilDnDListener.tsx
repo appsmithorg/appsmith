@@ -85,13 +85,14 @@ const shouldUpdateCanvas = (
   return true;
 };
 
-const StyledCanvasSlider = styled.div<{ paddingBottom: number }>`
+const StyledCanvasSlider = styled.div<{ sectionPadding: number }>`
   position: absolute;
   pointer-events: all;
   top: 0px;
-  left: 0px;
-  height: calc(100% + ${(props) => props.paddingBottom}px);
-  width: 100%;
+  left: ${(props) => -props.sectionPadding}px;
+  height: 100%;
+  width: calc(100% + ${(props) => 2 * props.sectionPadding}px);
+  padding-inline: ${(props) => props.sectionPadding}px;
   image-rendering: -moz-crisp-edges;
   image-rendering: -webkit-crisp-edges;
   image-rendering: pixelated;
@@ -141,11 +142,11 @@ export const AnvilDnDListener = forwardRef(
       // set data attribute to record leftoffset and topoffset
       slidingArenaRef.current.setAttribute(
         "topOffset",
-        calculatedTopOffset.toString(),
+        calculatedTopOffset + "px",
       );
       slidingArenaRef.current.setAttribute(
         "leftOffset",
-        calculatedLeftOffset.toString(),
+        calculatedLeftOffset + "px",
       );
     };
 
@@ -228,8 +229,8 @@ export const AnvilDnDListener = forwardRef(
           data-testid={sliderId}
           data-type={"canvas-slider"}
           id={sliderId}
-          paddingBottom={canvasPadding}
           ref={slidingArenaRef}
+          sectionPadding={canvasPadding}
         />
       </>
     );

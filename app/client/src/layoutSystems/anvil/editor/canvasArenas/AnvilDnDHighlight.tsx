@@ -1,4 +1,5 @@
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
+import { PADDING_FOR_HORIZONTAL_HIGHLIGHT } from "layoutSystems/anvil/utils/constants";
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
@@ -12,8 +13,10 @@ const AnvilStyledHighlight = styled.div`
 
 export const AnvilDnDHighlight = ({
   highlightShown,
+  padding = 0,
 }: {
   highlightShown: AnvilHighlightInfo | null;
+  padding?: number;
 }) => {
   const highlightDimensionStyles = useMemo(() => {
     if (!highlightShown) {
@@ -24,12 +27,19 @@ export const AnvilDnDHighlight = ({
         width: 0,
       };
     }
+    const horizontalPadding = highlightShown.isVertical
+      ? 0
+      : PADDING_FOR_HORIZONTAL_HIGHLIGHT;
+    const verticalPadding = highlightShown.isVertical
+      ? PADDING_FOR_HORIZONTAL_HIGHLIGHT
+      : 0;
+
     // use highlight info to calculate the dimension styles
     return {
-      height: highlightShown.height,
-      left: highlightShown.posX,
-      top: highlightShown.posY,
-      width: highlightShown.width,
+      height: highlightShown.height - verticalPadding * 2,
+      left: highlightShown.posX + horizontalPadding - padding,
+      top: highlightShown.posY + verticalPadding,
+      width: highlightShown.width - horizontalPadding * 2,
     };
   }, [highlightShown]);
   return highlightShown ? (

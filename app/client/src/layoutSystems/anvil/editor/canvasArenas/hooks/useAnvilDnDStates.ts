@@ -35,6 +35,7 @@ export interface AnvilDnDStates {
   layoutElementPositions: LayoutElementPositions;
   dragMeta: AnvilDragMeta;
   mainCanvasLayoutId: string;
+  isSection: boolean;
 }
 
 /**
@@ -149,6 +150,7 @@ export const useAnvilDnDStates = ({
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,
+    isSection,
     mainCanvasLayoutId,
     layoutElementPositions,
   };

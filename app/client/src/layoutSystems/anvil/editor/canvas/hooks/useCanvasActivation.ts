@@ -66,6 +66,7 @@ export const useCanvasActivation = () => {
     selectedWidgets,
   } = useCanvasActivationStates();
   const allWidgets: CanvasWidgetsReduxState = useSelector(getWidgets);
+  // const currentlyOpenModal = useSelector(getCurrentlyOpenAnvilModal);
   // Getting the main canvas DOM node
   const mainContainerDOMNode = document.getElementById(CANVAS_ART_BOARD);
 
@@ -174,14 +175,20 @@ export const useCanvasActivation = () => {
         : smallToLargeSortedDroppableLayoutIds.find((each) => {
             const currentCanvasPositions = { ...layoutElementPositions[each] };
             const layoutInfo = allLayouts[each];
-            const parentId = layoutInfo.canvasId;
+            const isSectionLayout =
+              layoutInfo.layoutType === LayoutComponentTypes.SECTION;
+            const parentId = isSectionLayout
+              ? mainCanvasLayoutId
+              : layoutInfo.canvasId;
             const parentPositions = layoutElementPositions[parentId];
             let parentToChildDiff = { left: 0, top: 0 };
             if (parentPositions) {
               parentToChildDiff = {
                 left:
                   (currentCanvasPositions.left - parentPositions.left) * 0.7,
-                top: (currentCanvasPositions.top - parentPositions.top) * 0.7,
+                top: isSectionLayout
+                  ? 0
+                  : (currentCanvasPositions.top - parentPositions.top) * 0.7,
               };
             }
             if (each === mainCanvasLayoutId) {
@@ -190,7 +197,7 @@ export const useCanvasActivation = () => {
               currentCanvasPositions.width += 2 * MAIN_CANVAS_BUFFER;
               currentCanvasPositions.height += 2 * MAIN_CANVAS_BUFFER;
             }
-            if (layoutInfo.layoutType === LayoutComponentTypes.SECTION) {
+            if (isSectionLayout) {
               const buffer =
                 currentCanvasPositions.height > 4 * SECTION_BUFFER
                   ? SECTION_BUFFER

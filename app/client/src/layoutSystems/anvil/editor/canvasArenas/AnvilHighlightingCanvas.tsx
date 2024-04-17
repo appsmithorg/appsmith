@@ -13,6 +13,7 @@ import { AnvilDnDHighlight } from "./AnvilDnDHighlight";
 
 export interface AnvilHighlightingCanvasProps {
   anvilDragStates: AnvilDnDStates;
+  canvasId: string;
   layoutId: string;
   deriveAllHighlightsFn: (
     layoutElementPositions: LayoutElementPositions,
@@ -23,6 +24,7 @@ export interface AnvilHighlightingCanvasProps {
 
 export function AnvilHighlightingCanvas({
   anvilDragStates,
+  canvasId,
   deriveAllHighlightsFn,
   layoutId,
   onDrop,
@@ -37,6 +39,7 @@ export function AnvilHighlightingCanvas({
     stickyCanvasRef,
     {
       anvilDragStates,
+      canvasId,
       deriveAllHighlightsFn,
       layoutId,
       onDrop,
@@ -51,11 +54,14 @@ export function AnvilHighlightingCanvas({
   return showDraggingCanvas ? (
     <>
       {isCurrentDraggedCanvas && (
-        <AnvilDnDHighlight highlightShown={highlightShown} />
+        <AnvilDnDHighlight
+          highlightShown={highlightShown}
+          padding={anvilDragStates.isSection ? 16 : 0}
+        />
       )}
       <AnvilDnDListener
         canvasId={`canvas-dragging-${layoutId}`}
-        canvasPadding={0}
+        canvasPadding={anvilDragStates.isSection ? 16 : 0}
         getRelativeScrollingParent={getNearestParentCanvas}
         ref={canvasRef}
         // increases pixel density of the canvas
