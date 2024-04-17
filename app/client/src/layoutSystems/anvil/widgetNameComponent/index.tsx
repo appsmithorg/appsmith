@@ -1,5 +1,5 @@
 import type { CSSProperties, ForwardedRef } from "react";
-import React, { forwardRef, useCallback, useEffect, useRef } from "react";
+import React, { forwardRef, useCallback, useEffect, useState } from "react";
 import { shouldSelectOrFocus } from "layoutSystems/anvil/integrations/onCanvasUISelectors";
 import { useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -8,12 +8,14 @@ import styled from "styled-components";
 import WidgetFactory from "WidgetProvider/factory";
 import type { AppState } from "@appsmith/reducers";
 
+import type { MiddlewareState } from "@floating-ui/dom";
 import {
   computePosition,
   autoUpdate,
   flip,
   shift,
   offset,
+  detectOverflow,
 } from "@floating-ui/dom";
 
 import { FloatingPortal } from "@floating-ui/react";
@@ -212,9 +214,31 @@ export function WidgetNameComponent(
 
 const ForwardedWidgetNameComponent = forwardRef(WidgetNameComponent);
 
+function floatingUIMiddlewareOverflow(boundaryEl: HTMLDivElement) {
+  return {
+    name: "containWithinCanvas",
+    async fn(state: MiddlewareState) {
+      const overflow = await detectOverflow(state, {
+        boundary: boundaryEl,
+      });
+      return {
+        data: {
+          shouldShift: overflow.right >= 0,
+        },
+      };
+    },
+  };
+}
+
 export function useWidgetName(widgetId: string, widgetName: string) {
-  const widgetNameRef = useRef<HTMLDivElement | null>(null);
-  const widgetNameComponent = widgetNameRef.current;
+  const [widgetNameComponent, setWidgetNameElement] =
+    useState<HTMLDivElement | null>(null);
+
+  const widgetNameRef = useCallback((node) => {
+    if (node !== null) {
+      setWidgetNameElement(node);
+    }
+  }, []);
 
   const nameComponentState: "select" | "focus" | "none" = useSelector(
     shouldSelectOrFocus(widgetId),
@@ -226,6 +250,9 @@ export function useWidgetName(widgetId: string, widgetName: string) {
   const widgetElement = document.querySelector(
     "#anvil_widget_" + widgetId,
   ) as HTMLDivElement | null;
+
+  const WidgetsEditorElement = document.getElementById("widgets-editor");
+
   let cleanup = () => {};
   useEffect(() => {
     if (widgetElement && widgetNameComponent) {
@@ -233,10 +260,25 @@ export function useWidgetName(widgetId: string, widgetName: string) {
         computePosition(widgetElement as HTMLDivElement, widgetNameComponent, {
           placement: "top-start",
           strategy: "fixed",
-          middleware: [flip(), shift(), offset({ mainAxis: 8, crossAxis: -5 })],
-        }).then(({ x, y }) => {
+          middleware: [
+            flip(),
+            shift(),
+            offset({ mainAxis: 8, crossAxis: -5 }),
+            floatingUIMiddlewareOverflow(
+              WidgetsEditorElement as HTMLDivElement,
+            ),
+          ],
+        }).then(({ middlewareData, x, y }) => {
+          let shiftOffset = 0;
+          if (middlewareData.containWithinCanvas.shouldShift) {
+            shiftOffset = 15;
+            if (nameComponentState === "select") {
+              shiftOffset = 35;
+            }
+          }
+
           Object.assign(widgetNameComponent.style, {
-            left: `${x}px`,
+            left: `${x - shiftOffset}px`,
             top: `${y}px`,
             visibility: nameComponentState === "none" ? "hidden" : "visible",
             zIndex: nameComponentState === "focus" ? 9000001 : 9000000,
