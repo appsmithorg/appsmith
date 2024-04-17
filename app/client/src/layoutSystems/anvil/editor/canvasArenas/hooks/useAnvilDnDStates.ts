@@ -19,7 +19,7 @@ import { getDraggedBlocks, getDraggedWidgetTypes } from "../utils/utils";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
-  canvasId: string;
+  widgetId: string;
   layoutId: string;
   layoutType: LayoutComponentTypes;
 }

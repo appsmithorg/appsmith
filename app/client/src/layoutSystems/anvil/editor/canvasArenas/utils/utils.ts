@@ -29,12 +29,12 @@ export const computeCanvasToLayoutGap = (
 
 export const getCompensatorElementId = (
   layoutId: string,
-  canvasId: string,
+  widgetId: string,
   mainCanvasLayoutId: string,
 ) => {
   return layoutId === mainCanvasLayoutId
-    ? getAnvilLayoutDOMId(canvasId, layoutId)
-    : getAnvilWidgetDOMId(canvasId);
+    ? getAnvilLayoutDOMId(widgetId, layoutId)
+    : getAnvilWidgetDOMId(widgetId);
 };
 
 export const getEdgeHighlightOffset = (

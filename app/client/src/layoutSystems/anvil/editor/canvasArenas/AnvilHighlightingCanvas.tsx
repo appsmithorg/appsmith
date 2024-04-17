@@ -15,7 +15,7 @@ import { getWidgetByID } from "sagas/selectors";
 
 export interface AnvilHighlightingCanvasProps {
   anvilDragStates: AnvilDnDStates;
-  canvasId: string;
+  widgetId: string;
   layoutId: string;
   deriveAllHighlightsFn: (
     layoutElementPositions: LayoutElementPositions,
@@ -26,10 +26,10 @@ export interface AnvilHighlightingCanvasProps {
 
 export function AnvilHighlightingCanvas({
   anvilDragStates,
-  canvasId,
   deriveAllHighlightsFn,
   layoutId,
   onDrop,
+  widgetId,
 }: AnvilHighlightingCanvasProps) {
   const anvilDnDListenerRef = React.useRef<HTMLDivElement>(null);
   const [highlightShown, setHighlightShown] =
@@ -39,7 +39,7 @@ export function AnvilHighlightingCanvas({
     anvilDnDListenerRef,
     {
       anvilDragStates,
-      canvasId,
+      widgetId,
       deriveAllHighlightsFn,
       layoutId,
       onDrop,
@@ -47,8 +47,8 @@ export function AnvilHighlightingCanvas({
     setHighlightShown,
   );
   const { isCurrentDraggedCanvas } = anvilDragStates;
-  const widget = useSelector(getWidgetByID(canvasId));
-  const hierarchy = getWidgetHierarchy(widget.type, canvasId);
+  const widget = useSelector(getWidgetByID(widgetId));
+  const hierarchy = getWidgetHierarchy(widget.type, widgetId);
   return showDraggingCanvas ? (
     <>
       {isCurrentDraggedCanvas && (

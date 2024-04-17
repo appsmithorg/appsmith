@@ -29,7 +29,7 @@ export const useCanvasDragging = (
   props: AnvilHighlightingCanvasProps,
   setHighlightShown: (highlight: AnvilHighlightInfo | null) => void,
 ) => {
-  const { anvilDragStates, canvasId, deriveAllHighlightsFn, layoutId, onDrop } =
+  const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop, widgetId } =
     props;
   const {
     activateOverlayWidgetDrop,
@@ -140,7 +140,7 @@ export const useCanvasDragging = (
               const top = posY + canvasToLayoutGap.current.top;
               const compensatorElementId = getCompensatorElementId(
                 layoutId,
-                canvasId,
+                widgetId,
                 mainCanvasLayoutId,
               );
               const edgeOffset = getEdgeHighlightOffset(

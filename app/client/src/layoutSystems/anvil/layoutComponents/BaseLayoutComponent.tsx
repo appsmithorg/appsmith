@@ -16,7 +16,7 @@ import {
 } from "../utils/layouts/layoutUtils";
 import { RenderModes } from "constants/WidgetConstants";
 import LayoutFactory from "./LayoutFactory";
-import { AnvilCanvasDraggingArena } from "../editor/canvasArenas/AnvilCanvasDraggingArena";
+import { AnvilDraggingArena } from "../editor/canvasArenas/AnvilDraggingArena";
 import { FlexLayout, type FlexLayoutProps } from "./components/FlexLayout";
 import { defaultHighlightPayload } from "../utils/constants";
 
@@ -111,9 +111,8 @@ abstract class BaseLayoutComponent extends PureComponent<
       this.props;
     if (!isDropTarget) return null;
     return (
-      <AnvilCanvasDraggingArena
+      <AnvilDraggingArena
         allowedWidgetTypes={this.props.allowedWidgetTypes || []}
-        canvasId={canvasId}
         deriveAllHighlightsFn={LayoutFactory.getDeriveHighlightsFn(layoutType)(
           this.props,
           canvasId,
@@ -122,6 +121,7 @@ abstract class BaseLayoutComponent extends PureComponent<
         )}
         layoutId={layoutId}
         layoutType={layoutType}
+        widgetId={widgetId}
       />
     );
   }
