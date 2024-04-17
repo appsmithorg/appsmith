@@ -49,7 +49,6 @@ import {
 import {
   AppIconCollection,
   Classes,
-  EditableText,
   MenuItem as ListItem,
   Text,
   TextType,
@@ -449,9 +448,6 @@ export const WorkspaceNameWrapper = styled.div<{ disabled?: boolean }>`
     margin-left: 8px;
     color: ${(props) => props.theme.colors.applications.iconColor};
   }
-`;
-export const WorkspaceRename = styled(EditableText)`
-  padding: 0 2px;
 `;
 
 export const NoSearchResultImg = styled.img`

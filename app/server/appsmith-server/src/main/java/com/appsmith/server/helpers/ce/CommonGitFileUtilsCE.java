@@ -9,7 +9,7 @@ import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.git.constants.CommonConstants;
-import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;

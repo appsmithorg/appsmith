@@ -264,7 +264,7 @@ export function* saveWorkspaceSaga(action: ReduxAction<SaveWorkspaceRequest>) {
     yield put({
       type: ReduxActionErrorTypes.SAVE_WORKSPACE_ERROR,
       payload: {
-        error: (error as Error).message,
+        error,
       },
     });
   }
