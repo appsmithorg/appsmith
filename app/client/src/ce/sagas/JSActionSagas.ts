@@ -325,6 +325,7 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
+      yield put(closeJsActionTabSuccess({ id }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
@@ -498,6 +499,8 @@ export function* closeJSActionTabSaga(
   actionPayload: ReduxAction<{ id: string }>,
 ) {
   const id = actionPayload.payload.id;
+  const currentUrl = window.location.pathname;
+  yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
   yield call(handleJSEntityRedirect, id);
   yield put(closeJsActionTabSuccess({ id }));
 }
