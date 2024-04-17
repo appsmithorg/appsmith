@@ -18,6 +18,7 @@ import com.external.plugins.exceptions.SaaSErrorMessages;
 import com.external.plugins.exceptions.SaaSPluginError;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -60,7 +61,8 @@ public class SaasPlugin extends BasePlugin {
         // Setting max content length. This would've been coming from `spring.codec.max-in-memory-size` property if the
         // `WebClient` instance was loaded as an auto-wired bean.
         private final ExchangeStrategies EXCHANGE_STRATEGIES;
-        private final ObjectMapper saasObjectMapper = new ObjectMapper();
+        private final ObjectMapper saasObjectMapper =
+                new ObjectMapper().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature());
 
         public SaasPluginExecutor(SharedConfig sharedConfig) {
             this.sharedConfig = sharedConfig;

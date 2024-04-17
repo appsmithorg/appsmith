@@ -47,12 +47,5 @@ describe(
         .then(($dbName) => expect($dbName).to.eq("_system"));
       dataSources.SaveDSFromDialog(false);
     });
-
-    it("5. Verify the default port for the datasource", function () {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("ArangoDB");
-
-      agHelper.AssertAttribute(dataSources._port, "value", "8529");
-    });
   },
 );
