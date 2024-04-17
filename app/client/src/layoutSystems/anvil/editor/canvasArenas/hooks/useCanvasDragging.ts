@@ -1,20 +1,18 @@
 import type React from "react";
 import { useEffect, useRef } from "react";
 import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/editor/canvasArenas/AnvilHighlightingCanvas";
-import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
-import { getNearestParentCanvas } from "utils/generators";
 import {
   computeCanvasToLayoutGap,
   getClosestHighlight,
   getCompensatorElementId,
   getEdgeHighlightOffset,
 } from "../utils/utils";
-import { AnvilCanvasZIndex } from "layoutSystems/anvil/editor/canvas/hooks/useCanvasActivation";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
 import { setHighlightsDrawnAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import { renderDisallowOnCanvas } from "../utils/canvasRenderUtils";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 
 /**
  *
@@ -24,12 +22,10 @@ import { renderDisallowOnCanvas } from "../utils/canvasRenderUtils";
  *  - track mouse position on canvas
  *  - render highlights on the canvas
  *  - render warning to denote that a particular widget type is not allowed to drop on canvas
- *  - auto scroll canvas when needed.
  *  - invoke onDrop callback as per the anvilDragStates
  */
 export const useCanvasDragging = (
-  slidingArenaRef: React.RefObject<HTMLDivElement>,
-  stickyCanvasRef: React.RefObject<HTMLCanvasElement>,
+  anvilDnDListenerRef: React.RefObject<HTMLDivElement>,
   props: AnvilHighlightingCanvasProps,
   setHighlightShown: (highlight: AnvilHighlightInfo | null) => void,
 ) => {
@@ -46,14 +42,7 @@ export const useCanvasDragging = (
   } = anvilDragStates;
   const dispatch = useDispatch();
   const canvasToLayoutGap = useRef({ left: 0, top: 0 });
-  /**
-   * Provides auto-scroll functionality
-   */
-  const canScroll = useCanvasDragToScroll(
-    slidingArenaRef,
-    isCurrentDraggedCanvas && !activateOverlayWidgetDrop,
-    isDragging,
-  );
+  const { setDraggingCanvas } = useWidgetDragResize();
 
   /**
    * Ref to store highlights derived in real time once dragging starts
@@ -78,57 +67,26 @@ export const useCanvasDragging = (
 
   useEffect(() => {
     // Effect to handle changes in isCurrentDraggedCanvas
-    if (stickyCanvasRef.current && slidingArenaRef.current) {
+    if (anvilDnDListenerRef.current) {
       if (!isCurrentDraggedCanvas) {
-        // If not currently dragged, reset the canvas and styles
-        const canvasCtx = stickyCanvasRef.current.getContext(
-          "2d",
-        ) as CanvasRenderingContext2D;
-        canvasCtx.clearRect(
-          0,
-          0,
-          stickyCanvasRef.current.width,
-          stickyCanvasRef.current.height,
-        );
-        slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.deactivated;
-        stickyCanvasRef.current.style.zIndex = AnvilCanvasZIndex.deactivated;
-        slidingArenaRef.current.style.backgroundColor = "unset";
-        slidingArenaRef.current.style.color = "unset";
-        slidingArenaRef.current.innerText = "";
+        anvilDnDListenerRef.current.style.backgroundColor = "unset";
+        anvilDnDListenerRef.current.style.color = "unset";
+        anvilDnDListenerRef.current.innerText = "";
         canvasIsDragging.current = false;
         setHighlightShown(null);
-      } else {
-        // If currently dragged, set the z-index to activate the canvas
-        slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.activated;
-        stickyCanvasRef.current.style.zIndex = AnvilCanvasZIndex.activated;
       }
     }
   }, [isCurrentDraggedCanvas]);
 
   useEffect(() => {
-    if (slidingArenaRef.current && isDragging) {
-      const scrollParent: Element | null = getNearestParentCanvas(
-        slidingArenaRef.current,
-      );
-
+    if (anvilDnDListenerRef.current && isDragging) {
       let currentRectanglesToDraw: AnvilHighlightInfo;
-      const scrollObj: any = {};
       const resetCanvasState = () => {
         // Resetting the canvas state when necessary
-        if (stickyCanvasRef.current && slidingArenaRef.current) {
-          const canvasCtx = stickyCanvasRef.current.getContext(
-            "2d",
-          ) as CanvasRenderingContext2D;
-          canvasCtx.clearRect(
-            0,
-            0,
-            stickyCanvasRef.current.width,
-            stickyCanvasRef.current.height,
-          );
-          slidingArenaRef.current.style.zIndex = AnvilCanvasZIndex.deactivated;
-          slidingArenaRef.current.style.backgroundColor = "unset";
-          slidingArenaRef.current.style.color = "unset";
-          slidingArenaRef.current.innerText = "";
+        if (anvilDnDListenerRef.current) {
+          anvilDnDListenerRef.current.style.backgroundColor = "unset";
+          anvilDnDListenerRef.current.style.color = "unset";
+          anvilDnDListenerRef.current.innerText = "";
           canvasIsDragging.current = false;
           dispatch(setHighlightsDrawnAction());
           setHighlightShown(null);
@@ -155,7 +113,7 @@ export const useCanvasDragging = (
             isCurrentDraggedCanvas &&
             isDragging &&
             !canvasIsDragging.current &&
-            slidingArenaRef.current
+            anvilDnDListenerRef.current
           ) {
             // Calculate highlights when the mouse enters the canvas
             calculateHighlights();
@@ -163,7 +121,7 @@ export const useCanvasDragging = (
             if (currentLayoutPositions) {
               canvasToLayoutGap.current = computeCanvasToLayoutGap(
                 currentLayoutPositions,
-                slidingArenaRef.current,
+                anvilDnDListenerRef.current,
               );
             }
             requestAnimationFrame(() => onMouseMove(e));
@@ -173,17 +131,10 @@ export const useCanvasDragging = (
         const throttledRenderOnCanvas = throttle(
           () => {
             if (
-              slidingArenaRef.current &&
-              stickyCanvasRef.current &&
+              anvilDnDListenerRef.current &&
               canvasIsDragging.current &&
               isCurrentDraggedCanvas
             ) {
-              // const topOffset = getAbsolutePixels(
-              //   slidingArenaRef.current.getAttribute("topOffset"),
-              // );
-              // const leftOffset = getAbsolutePixels(
-              //   slidingArenaRef.current.getAttribute("leftOffset"),
-              // );
               const { height, posX, posY, width } = currentRectanglesToDraw;
               const left = posX + canvasToLayoutGap.current.left;
               const top = posY + canvasToLayoutGap.current.top;
@@ -206,15 +157,6 @@ export const useCanvasDragging = (
               };
               dispatch(setHighlightsDrawnAction(positionUpdatedHighlightInfo));
               setHighlightShown(positionUpdatedHighlightInfo);
-              // Render blocks on the canvas based on the highlight
-              // renderBlocksOnCanvas(
-              //   slidingArenaRef.current,
-              //   stickyCanvasRef.current,
-              //   currentRectanglesToDraw,
-              //   currentLayoutPositions,
-              //   canvasIsDragging.current,
-              //   canvasToLayoutGap.current,
-              // );
             }
           },
           50,
@@ -228,12 +170,11 @@ export const useCanvasDragging = (
           if (
             isCurrentDraggedCanvas &&
             canvasIsDragging.current &&
-            slidingArenaRef.current &&
-            stickyCanvasRef.current
+            anvilDnDListenerRef.current
           ) {
             if (!allowToDrop) {
               // Render disallow message if dropping is not allowed
-              renderDisallowOnCanvas(slidingArenaRef.current);
+              renderDisallowOnCanvas(anvilDnDListenerRef.current);
               return;
             }
             // Get the closest highlight based on the mouse position
@@ -247,13 +188,6 @@ export const useCanvasDragging = (
             if (processedHighlight) {
               currentRectanglesToDraw = processedHighlight;
               throttledRenderOnCanvas();
-              // Store information for auto-scroll functionality
-              scrollObj.lastMouseMoveEvent = {
-                offsetX: e.offsetX,
-                offsetY: e.offsetY,
-              };
-              scrollObj.lastScrollTop = scrollParent?.scrollTop;
-              scrollObj.lastScrollHeight = scrollParent?.scrollHeight;
             }
           } else {
             // Call onFirstMoveOnCanvas for the initial move on the canvas
@@ -261,61 +195,54 @@ export const useCanvasDragging = (
           }
         };
 
-        // Adding setTimeout to make sure this gets called after
-        // the onscroll that resets intersectionObserver in StickyCanvasArena.tsx
-        const onScroll = () =>
-          setTimeout(() => {
-            const { lastMouseMoveEvent, lastScrollHeight, lastScrollTop } =
-              scrollObj;
-            if (
-              lastMouseMoveEvent &&
-              lastScrollHeight &&
-              lastScrollTop &&
-              scrollParent &&
-              canScroll.current
-            ) {
-              // Adjusting mouse position based on scrolling for auto-scroll
-              const delta =
-                scrollParent?.scrollHeight +
-                scrollParent?.scrollTop -
-                (lastScrollHeight + lastScrollTop);
-              onMouseMove({
-                offsetX: lastMouseMoveEvent.offsetX,
-                offsetY: lastMouseMoveEvent.offsetY + delta,
-              });
-            }
-          }, 0);
+        const onMouseOver = (e: any) => {
+          setDraggingCanvas(layoutId);
+          e.stopPropagation();
+        };
 
-        if (
-          slidingArenaRef.current &&
-          stickyCanvasRef.current &&
-          scrollParent
-        ) {
+        const onMouseOut = () => {
+          setDraggingCanvas("");
+        };
+        if (anvilDnDListenerRef.current) {
+          anvilDnDListenerRef.current.addEventListener(
+            "mouseover",
+            onMouseOver,
+          );
+          anvilDnDListenerRef.current.addEventListener("mouseout", onMouseOut);
           // Initialize listeners
-          slidingArenaRef.current?.addEventListener(
+          anvilDnDListenerRef.current?.addEventListener(
             "mousemove",
             onMouseMove,
             false,
           );
-          slidingArenaRef.current?.addEventListener(
+          anvilDnDListenerRef.current?.addEventListener(
             "mouseup",
             onMouseUp,
             false,
           );
           // To make sure drops on the main canvas boundary buffer are processed in the capturing phase.
           document.addEventListener("mouseup", onMouseUp, true);
-          scrollParent?.addEventListener("scroll", onScroll, false);
         }
 
         return () => {
+          anvilDnDListenerRef.current?.removeEventListener(
+            "mouseover",
+            onMouseOver,
+          );
+          anvilDnDListenerRef.current?.removeEventListener(
+            "mouseout",
+            onMouseOut,
+          );
           // Cleanup listeners on component unmount
-          slidingArenaRef.current?.removeEventListener(
+          anvilDnDListenerRef.current?.removeEventListener(
             "mousemove",
             onMouseMove,
           );
-          slidingArenaRef.current?.removeEventListener("mouseup", onMouseUp);
+          anvilDnDListenerRef.current?.removeEventListener(
+            "mouseup",
+            onMouseUp,
+          );
           document.removeEventListener("mouseup", onMouseUp, true);
-          scrollParent?.removeEventListener("scroll", onScroll);
         };
       } else {
         // Reset canvas state if not dragging

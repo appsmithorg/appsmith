@@ -1,4 +1,3 @@
-import { getNearestParentCanvas } from "utils/generators";
 import { useCanvasDragging } from "./hooks/useCanvasDragging";
 import React from "react";
 import type {
@@ -10,6 +9,9 @@ import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { AnvilDnDListener } from "./AnvilDnDListener";
 import { AnvilDnDHighlight } from "./AnvilDnDHighlight";
+import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
+import { useSelector } from "react-redux";
+import { getWidgetByID } from "sagas/selectors";
 
 export interface AnvilHighlightingCanvasProps {
   anvilDragStates: AnvilDnDStates;
@@ -29,14 +31,12 @@ export function AnvilHighlightingCanvas({
   layoutId,
   onDrop,
 }: AnvilHighlightingCanvasProps) {
-  const slidingArenaRef = React.useRef<HTMLDivElement>(null);
-  const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
+  const anvilDnDListenerRef = React.useRef<HTMLDivElement>(null);
   const [highlightShown, setHighlightShown] =
     React.useState<AnvilHighlightInfo | null>(null);
   // showDraggingCanvas indicates if the current dragging canvas i.e. the html canvas renders
   const { showCanvas: showDraggingCanvas } = useCanvasDragging(
-    slidingArenaRef,
-    stickyCanvasRef,
+    anvilDnDListenerRef,
     {
       anvilDragStates,
       canvasId,
@@ -46,11 +46,9 @@ export function AnvilHighlightingCanvas({
     },
     setHighlightShown,
   );
-  const canvasRef = React.useRef({
-    stickyCanvasRef,
-    slidingArenaRef,
-  });
   const { isCurrentDraggedCanvas } = anvilDragStates;
+  const widget = useSelector(getWidgetByID(canvasId));
+  const hierarchy = getWidgetHierarchy(widget.type, canvasId);
   return showDraggingCanvas ? (
     <>
       {isCurrentDraggedCanvas && (
@@ -60,15 +58,10 @@ export function AnvilHighlightingCanvas({
         />
       )}
       <AnvilDnDListener
-        canvasId={`canvas-dragging-${layoutId}`}
-        canvasPadding={anvilDragStates.isSection ? 16 : 0}
-        getRelativeScrollingParent={getNearestParentCanvas}
-        ref={canvasRef}
-        // increases pixel density of the canvas
-        scaleFactor={2}
-        shouldObserveIntersection={anvilDragStates.isDragging}
-        showCanvas={showDraggingCanvas}
-        sliderId={`div-dragarena-${layoutId}`}
+        paddingLeft={anvilDragStates.isSection ? 16 : 0}
+        paddingTop={0}
+        ref={anvilDnDListenerRef}
+        zIndex={hierarchy === 2 ? 0 : 1}
       />
     </>
   ) : null;
