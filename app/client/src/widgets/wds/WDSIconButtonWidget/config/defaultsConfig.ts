@@ -1,8 +1,8 @@
-import { BUTTON_VARIANTS, COLORS, ICONS } from "@design-system/widgets";
+import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export const defaultsConfig = {
-  iconName: ICONS.plus,
+  iconName: "plus",
   buttonVariant: BUTTON_VARIANTS.filled,
   buttonColor: COLORS.accent,
   isDisabled: false,
