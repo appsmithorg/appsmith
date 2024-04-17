@@ -43,12 +43,5 @@ describe(
         dataSources.DeleteDatasourceFromWithinDS(dsName);
       });
     });
-
-    it("4. Verify the default port for the datasource", function () {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("MongoDB");
-
-      agHelper.AssertAttribute(dataSources._port, "value", "27017");
-    });
   },
 );

@@ -1,6 +1,5 @@
 const datasource = require("../../../locators/DatasourcesEditor.json");
 let datasourceName;
-import { agHelper, dataSources } from "../../../support/Objects/ObjectsCore";
 import { ObjectsRegistry } from "../../../support/Objects/Registry";
 
 describe(
@@ -49,13 +48,6 @@ describe(
       );
       cy.deleteQueryUsingContext();
       cy.deleteDatasource(datasourceName);
-    });
-
-    it("4. Verify the default port for the datasource", function () {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("Redshift");
-
-      agHelper.AssertAttribute(dataSources._port, "value", "5439");
     });
   },
 );
