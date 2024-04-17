@@ -129,7 +129,7 @@ describe(
       homePage.LogOutviaAPI();
       // visit the app as anonymous user and validate redirection to login page
       agHelper.VisitNAssert(currentUrl);
-      agHelper.AssertContains("Welcome back", "be.visible");
+      agHelper.AssertContains("Sign in to your account", "be.visible");
     });
   },
 );
