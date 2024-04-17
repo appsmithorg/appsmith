@@ -410,7 +410,7 @@ export const closeQueryActionTab = (payload: { id: string }) => {
 
 export const closeQueryActionTabSuccess = (payload: { id: string }) => {
   return {
-    type: ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCESS,
+    type: ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCCESS,
     payload,
   };
 };

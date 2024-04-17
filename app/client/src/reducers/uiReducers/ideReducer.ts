@@ -92,7 +92,7 @@ const ideReducer = createReducer(initialState, {
       ),
     },
   }),
-  [ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCESS]: (
+  [ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCCESS]: (
     state: IDEState,
     action: ReduxAction<{ id: string }>,
   ) => ({
