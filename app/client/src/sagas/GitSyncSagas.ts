@@ -39,6 +39,7 @@ import {
   fetchGitProtectedBranchesInit,
   updateGitProtectedBranchesInit,
   clearCommitSuccessfulState,
+  setShowBranchPopupAction,
 } from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
@@ -386,7 +387,7 @@ function* switchBranch(action: ReduxAction<string>) {
         return;
       }
     }
-
+    yield put(setShowBranchPopupAction(false));
     // Page exists, so we will try to go to the destination
     history.push(destinationHref);
 

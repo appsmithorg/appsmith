@@ -7,7 +7,6 @@ import {
   createNewBranchInit,
   fetchBranchesInit,
   fetchGitProtectedBranchesInit,
-  setShowBranchPopupAction,
   switchGitBranchInit,
 } from "actions/gitSyncActions";
 import {
@@ -308,7 +307,6 @@ export default function BranchList(props: {
       source: "BRANCH_LIST_POPUP_FROM_BOTTOM_BAR",
     });
     dispatch(switchGitBranchInit(branch));
-    dispatch(setShowBranchPopupAction(false));
   };
 
   const handleUpKey = () => setActiveHoverIndex(activeHoverIndex - 1);
