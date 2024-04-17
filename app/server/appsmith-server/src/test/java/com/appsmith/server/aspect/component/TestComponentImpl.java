@@ -1,10 +1,10 @@
 package com.appsmith.server.aspect.component;
 
-import com.appsmith.server.annotations.FeatureFlagged;
+import com.appsmith.external.annotations.FeatureFlagged;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.aspect.component.ce_compatible.TestComponentCECompatibleImpl;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
