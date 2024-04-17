@@ -1,4 +1,4 @@
-import { useCanvasDragging } from "./hooks/useCanvasDragging";
+import { useAnvilDnDEvents } from "./hooks/useAnvilDnDEvents";
 import React from "react";
 import type {
   AnvilHighlightInfo,
@@ -35,7 +35,7 @@ export function AnvilHighlightingCanvas({
   const [highlightShown, setHighlightShown] =
     React.useState<AnvilHighlightInfo | null>(null);
   // showDraggingCanvas indicates if the current dragging canvas i.e. the html canvas renders
-  const { showCanvas: showDraggingCanvas } = useCanvasDragging(
+  const { showCanvas: showDraggingCanvas } = useAnvilDnDEvents(
     anvilDnDListenerRef,
     {
       anvilDragStates,

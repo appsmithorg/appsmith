@@ -24,7 +24,7 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
  *  - render warning to denote that a particular widget type is not allowed to drop on canvas
  *  - invoke onDrop callback as per the anvilDragStates
  */
-export const useCanvasDragging = (
+export const useAnvilDnDEvents = (
   anvilDnDListenerRef: React.RefObject<HTMLDivElement>,
   props: AnvilHighlightingCanvasProps,
   setHighlightShown: (highlight: AnvilHighlightInfo | null) => void,
