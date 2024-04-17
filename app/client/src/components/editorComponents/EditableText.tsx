@@ -6,7 +6,7 @@ import {
 } from "@blueprintjs/core";
 import styled from "styled-components";
 import _ from "lodash";
-import { Button, toast, Tooltip } from "design-system";
+import { Button, Spinner, toast, Tooltip } from "design-system";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -221,13 +221,8 @@ export function EditableText(props: EditableTextProps) {
     [valueTransform, isInvalid],
   );
 
-  const showEditIcon = !(
-    disabled ||
-    minimal ||
-    hideEditIcon ||
-    updating ||
-    isEditing
-  );
+  const showEditIcon = !(disabled || minimal || hideEditIcon || isEditing);
+
   return (
     <EditableTextWrapper
       isEditing={isEditing}
@@ -265,15 +260,18 @@ export function EditableText(props: EditableTextProps) {
             selectAllOnFocus
             value={value}
           />
-          {showEditIcon && (
-            <Button
-              className="t--action-name-edit-icon"
-              isIconButton
-              kind="tertiary"
-              size="md"
-              startIcon="pencil-line"
-            />
-          )}
+          {showEditIcon &&
+            (updating ? (
+              <Spinner size="md" />
+            ) : (
+              <Button
+                className="t--action-name-edit-icon"
+                isIconButton
+                kind="tertiary"
+                size="md"
+                startIcon="pencil-line"
+              />
+            ))}
         </TextContainer>
       </Tooltip>
     </EditableTextWrapper>

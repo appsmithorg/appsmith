@@ -8,7 +8,7 @@ import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
