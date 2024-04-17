@@ -11,12 +11,6 @@ Fixes `Issue URL`
 > [!WARNING]  
 > _If no issue exists, please create an issue first, and check with the maintainers if the issue is valid._
 
-## Communication
-Should the DevRel and Marketing teams inform users about this change?
-- [ ] Yes
-- [ ] No
-
-
 ## Automation
 
 /ok-to-test tags=""
@@ -27,3 +21,9 @@ Should the DevRel and Marketing teams inform users about this change?
 > If you modify the content in this section, you are likely to disrupt the CI result for your PR.
 
 <!-- end of auto-generated comment: Cypress test results  -->
+
+
+## Communication
+Should the DevRel and Marketing teams inform users about this change?
+- [ ] Yes
+- [ ] No
