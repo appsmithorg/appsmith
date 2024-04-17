@@ -31,7 +31,7 @@ const BoxWrapper = styled.div<{ isMobileView: boolean }>`
   background: var(--ads-v2-color-bg);
   display: flex;
   flex-direction: column;
-  gap: var(--ads-v2-spaces-2);
+  gap: var(--ads-v2-spaces-5);
   padding: 32px 24px;
 
   ${({ isMobileView }) =>
