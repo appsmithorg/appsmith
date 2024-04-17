@@ -9,7 +9,7 @@ import { removeSpecialChars } from "utils/helpers";
 import type { AppState } from "@appsmith/reducers";
 
 import { saveActionName } from "actions/pluginActionActions";
-import { Flex, Spinner } from "design-system";
+import { Flex } from "design-system";
 import { getAction, getPlugin } from "@appsmith/selectors/entitiesSelector";
 import NameEditorComponent, {
   IconBox,
@@ -116,7 +116,6 @@ function ActionNameEditor(props: ActionNameEditorProps) {
               updating={saveStatus.isSaving}
               valueTransform={removeSpecialChars}
             />
-            {saveStatus.isSaving && <Spinner size="md" />}
           </Flex>
         </NameWrapper>
       )}
