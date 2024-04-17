@@ -1,6 +1,5 @@
 package com.appsmith.server.newactions.base;
 
-import com.appsmith.external.constants.DatasourceQueryType;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
@@ -560,6 +559,12 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     }
                     actionDTO.getDefaultResources().setActionId(defaults.getActionId());
                     actionDTO.getDefaultResources().setApplicationId(defaults.getApplicationId());
+                    // Added this condition to get a value for updatedAt field since createdAt will always be present
+                    if (newAction.getUpdatedAt() != null) {
+                        actionDTO.setUpdatedAt(newAction.getUpdatedAt());
+                    } else {
+                        actionDTO.setUpdatedAt(newAction.getCreatedAt());
+                    }
                     newAction.setUnpublishedAction(actionDTO);
                     return newAction;
                 })
@@ -674,18 +679,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                     setValueSafelyInFormData(formData, NATIVE_QUERY_PATH_DATA, e.getMessage());
                     return Mono.just(action);
                 });
-    }
-
-    private Mono<ActionDTO> setQueryTypeInUnpublishedAction(ActionDTO action) {
-        Mono<Plugin> pluginMono = pluginService.getById(action.getPluginId());
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
-
-        return pluginExecutorMono.flatMap(pluginExecutor -> pluginExecutor
-                .getQueryType(action.getActionConfiguration())
-                .flatMap(queryType -> {
-                    action.setQueryType((DatasourceQueryType) queryType);
-                    return Mono.just(action);
-                }));
     }
 
     @Override
@@ -1012,7 +1005,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .collectList()
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
                 .flatMap(this::setTransientFieldsInUnpublishedAction)
-                .flatMap(this::setQueryTypeInUnpublishedAction)
                 // this generates four different tags, (ApplicationId, FieldId) *(True, False)
                 .tag(
                         "includeJsAction",

@@ -137,12 +137,9 @@ public class ServerSchemaMigrationEnforcerTest {
         assertThat(exportedApplicationJsonObject.get("theme").getAsJsonObject())
                 .isEqualTo(importApplicationGitReferenceObject.get("theme").getAsJsonObject());
 
-        /**
-         * This piece of assertion is commented out because of the flakiness
-         */
-        //        verifyMapAssertions(
-        //                exportedApplicationJsonObject.get("actions").getAsJsonObject(),
-        //                importApplicationGitReferenceObject.get("actions").getAsJsonObject());
+        verifyMapAssertions(
+                exportedApplicationJsonObject.get("actions").getAsJsonObject(),
+                importApplicationGitReferenceObject.get("actions").getAsJsonObject());
 
         verifyMapAssertions(
                 exportedApplicationJsonObject.get("actionBody").getAsJsonObject(),

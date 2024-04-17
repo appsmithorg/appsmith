@@ -3,7 +3,6 @@ import {
   agHelper,
   locators,
 } from "../../../../support/Objects/ObjectsCore";
-import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   "Entity explorer tests related to widgets and validation",
@@ -111,6 +110,11 @@ describe(
         // check that all widgets are present within their tags
         const widgetsInThisTag: string[] = [];
 
+        // click the see more button for building blocks first to show all widgets
+        cy.wrap($widgetTag)
+          .find(entityExplorer._widgetSeeMoreButton)
+          .click({ force: true });
+
         cy.wrap($widgetTag)
           .find(entityExplorer._widgetCardTitle)
           .each(($widgetName) => {
@@ -134,10 +138,10 @@ describe(
       });
     });
 
-    it("3. All widgets should be ordered alphabetically within their tags, except Essential widgets, which should be sorted by their static rank.", () => {
+    it("3. All widgets other than building blocks should be ordered alphabetically within their tags, except Essential widgets, which should be sorted by their static rank.", () => {
       agHelper
         .GetElement(
-          `${entityExplorer._widgetTagsList}:not(${entityExplorer._widgetTagSuggestedWidgets})`,
+          `${entityExplorer._widgetTagsList}:not(${entityExplorer._widgetTagSuggestedWidgets}):not(${entityExplorer._widgetTagBuildingBlocks})`,
         )
         .each(($widgetTag) => {
           const widgetsInThisTag: string[] = [];
@@ -192,6 +196,12 @@ describe(
       agHelper.AssertElementExist(".t--widget-card-draggable-customwidget");
 
       agHelper.ClearTextField(entityExplorer._widgetSearchInput);
+      // click to show all building blocks
+      agHelper.GetElement(entityExplorer._widgetTagsList).each(($widgetTag) => {
+        cy.wrap($widgetTag)
+          .find(entityExplorer._widgetSeeMoreButton)
+          .click({ force: true });
+      });
 
       agHelper.AssertElementLength(
         entityExplorer._widgetCards,
