@@ -1,6 +1,7 @@
 import {
   agHelper,
   dataSources,
+  debuggerHelper,
   deployMode,
   entityExplorer,
   homePage,
@@ -68,6 +69,35 @@ describe(
       homePage.DeleteApplication("JSOnLoadFailureTest");
       homePage.DeleteApplication("JSOnLoadFailureTest (1)");
       //homePage.DeleteWorkspace("JSOnLoadTest");
+    });
+
+    it("6. Tc #1910 - Verify that JSObject functions set to run on pageLoad are executed on page refresh", () => {
+      homePage.CreateAppInWorkspace("JSOnLoadTest");
+      jsEditor.CreateJSObject(
+        `export default {
+        astros: () => {
+          return "test"	},
+        city: () => {
+          return "test2"
+        }
+      }`,
+        {
+          paste: true,
+          completeReplace: true,
+          toRun: false,
+          shouldCreateNewJSObj: true,
+        },
+      );
+
+      jsEditor.EnableDisableAsyncFuncSettings("astros", true);
+
+      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      agHelper.RefreshPage();
+
+      debuggerHelper.ClickDebuggerIcon();
+      debuggerHelper.ClickLogsTab();
+      debuggerHelper.DebuggerLogsFilter("JSObject1.astros");
+      debuggerHelper.DoesConsoleLogExist("JS Function executed successfully");
     });
 
     function AssertJSOnPageLoad(
