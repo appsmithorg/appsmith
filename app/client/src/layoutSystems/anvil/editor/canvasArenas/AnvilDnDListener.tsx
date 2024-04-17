@@ -20,11 +20,6 @@ const StyledDnDListener = styled.div<{
   height: 100%;
   width: calc(100% + ${(props) => 2 * props.sectionPadding}px);
   padding-inline: ${(props) => props.sectionPadding}px;
-  image-rendering: -moz-crisp-edges;
-  image-rendering: -webkit-crisp-edges;
-  image-rendering: pixelated;
-  image-rendering: crisp-edges;
-  overflow-y: auto;
   z-index: ${(props) => props.zIndex};
 `;
 
