@@ -90,6 +90,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
 
+    private Map<String, String> entityNameMap;
+
     @Override
     public Mono<Application> importResourceInPage(
             String workspaceId, String applicationId, String pageId, String branchName, Part file) {
@@ -195,7 +197,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                     applicationJson))
                             .thenReturn("done")
                             // Update the pageName map for actions and action collection
-                            .then(paneNameMapForActionAndActionCollectionInAppJson(
+                            .then(pageNameMapForActionAndActionCollectionInAppJson(
                                     branchedPageIdMono, applicationJson, mappedImportableResourcesDTO))
                             .thenReturn("done")
                             // Import Actions and action collection
@@ -233,6 +235,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 })
                 // Update the refactored names of the actions and action collections in the DSL bindings
                 .flatMap(application -> {
+                    entityNameMap = Map.copyOf(mappedImportableResourcesDTO.getRefactoringNameReference());
+
                     // Partial export can have no pages
                     if (applicationJson.getPageList() == null) {
                         return Mono.just(application);
@@ -356,7 +360,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
         return actionMono.then(actionCollectionMono).then();
     }
 
-    private Mono<String> paneNameMapForActionAndActionCollectionInAppJson(
+    private Mono<String> pageNameMapForActionAndActionCollectionInAppJson(
             Mono<String> branchedPageIdMono,
             ApplicationJson applicationJson,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
@@ -435,7 +439,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 .forEach(dslExecutableDTOS -> {
                                     dslExecutableDTOS.forEach(dslExecutableDTO -> {
                                         if (dslExecutableDTO.getName() != null) {
-                                            newOnPageLoadActionNames.add(dslExecutableDTO.getName());
+                                            newOnPageLoadActionNames.add(entityNameMap.get(dslExecutableDTO.getName()));
+                                            dslExecutableDTO.setName(entityNameMap.get(dslExecutableDTO.getName()));
                                             buildingBlockResponseDTO
                                                     .getOnPageLoadActions()
                                                     .add(dslExecutableDTO);
