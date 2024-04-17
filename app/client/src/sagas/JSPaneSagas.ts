@@ -98,6 +98,7 @@ import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import {
   getJSActionNameToDisplay,
   getJSActionPathNameToDisplay,
+  isBrowserExecutionAllowed,
 } from "@appsmith/utils/actionExecutionUtils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
@@ -436,14 +437,22 @@ export function* handleExecuteJSFunctionSaga(data: {
   );
 
   try {
-    const { isDirty, result } = yield call(
-      executeJSFunction,
-      action,
-      collection,
-      onPageLoad,
-    );
-    // open response tab in debugger on runnning or page load js action.
+    const localExecutionAllowed = isBrowserExecutionAllowed(collection, action);
+    let isDirty = false;
+    let result: any = null;
 
+    if (localExecutionAllowed) {
+      const response: { isDirty: false; result: any } = yield call(
+        executeJSFunction,
+        action,
+        collection,
+        onPageLoad,
+      );
+      result = response.result;
+      isDirty = response.isDirty;
+    }
+
+    // open response tab in debugger on runnning or page load js action.
     if (doesURLPathContainCollectionId || openDebugger) {
       yield put(setJsPaneDebuggerState({ open: true }));
 
@@ -457,6 +466,9 @@ export function* handleExecuteJSFunctionSaga(data: {
         }),
       );
     }
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, true, collectionId, isDirty);
+
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -465,38 +477,42 @@ export function* handleExecuteJSFunctionSaga(data: {
         isDirty,
       },
     });
+    if (localExecutionAllowed) {
+      yield put(
+        logActionExecutionForAudit({
+          actionName: action.name,
+          actionId: action.id,
+          collectionId: collectionId,
+          pageId: action.pageId,
+          pageName: yield select(getCurrentPageName),
+        }),
+      );
 
-    if (!!collection.isMainJSCollection)
-      logMainJsActionExecution(actionId, true, collectionId, isDirty);
+      const jsActionNameToDisplay = getJSActionNameToDisplay(action);
 
-    yield put(
-      logActionExecutionForAudit({
-        actionName: action.name,
-        actionId: action.id,
-        collectionId: collectionId,
-        pageId: action.pageId,
-        pageName: yield select(getCurrentPageName),
-      }),
-    );
+      AppsmithConsole.info({
+        text: createMessage(JS_EXECUTION_SUCCESS),
+        source: {
+          type: ENTITY_TYPE.JSACTION,
+          name: jsActionPathNameToDisplay,
+          id: collectionId,
+        },
+        state: { response: result },
+      });
+      const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
 
-    const jsActionNameToDisplay = getJSActionNameToDisplay(action);
-
-    AppsmithConsole.info({
-      text: createMessage(JS_EXECUTION_SUCCESS),
-      source: {
-        type: ENTITY_TYPE.JSACTION,
-        name: jsActionPathNameToDisplay,
-        id: collectionId,
-      },
-      state: { response: result },
-    });
-    const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
-
-    if (
-      showSuccessToast &&
-      isExecuteJSFunc &&
-      !doesURLPathContainCollectionId
-    ) {
+      if (
+        showSuccessToast &&
+        isExecuteJSFunc &&
+        !doesURLPathContainCollectionId
+      ) {
+        toast.show(
+          createMessage(JS_EXECUTION_SUCCESS_TOASTER, jsActionNameToDisplay),
+          {
+            kind: "success",
+          },
+        );
+      }
       toast.show(
         createMessage(JS_EXECUTION_SUCCESS_TOASTER, jsActionNameToDisplay),
         {
