@@ -5954,7 +5954,6 @@ export default {
                 label: "Port",
                 configProperty: "datasourceConfiguration.endpoints[*].port",
                 dataType: "NUMBER",
-                initialValue: ["5432"],
                 controlType: "KEYVALUE_ARRAY",
                 placeholderText: "5432",
               },

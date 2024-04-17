@@ -5,9 +5,13 @@ import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.models.DatasourceStructure;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonInclude;
+import com.fasterxml.jackson.core.PrettyPrinter;
+import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.MapperFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import com.fasterxml.jackson.databind.cfg.JsonNodeFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.boot.autoconfigure.gson.GsonBuilderCustomizer;
 import org.springframework.http.HttpMethod;
@@ -24,12 +28,29 @@ public class SerializationUtils {
         HTTP_METHOD_MODULE = new HttpMethodConverter.HttpMethodModule();
     }
 
-    public static ObjectMapper configureObjectMapper(ObjectMapper objectMapper) {
-        objectMapper.registerModule(JAVA_TIME_MODULE);
-        objectMapper.registerModule(HTTP_METHOD_MODULE);
-        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
-        objectMapper.setSerializationInclusion(JsonInclude.Include.NON_NULL);
+    public static ObjectMapper getBasicObjectMapper(PrettyPrinter prettyPrinter) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        objectMapper
+                .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
+                .configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false)
+                .enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature())
+                .registerModules(JAVA_TIME_MODULE, HTTP_METHOD_MODULE)
+                .setSerializationInclusion(JsonInclude.Include.NON_NULL);
+
+        if (prettyPrinter != null) {
+            objectMapper
+                    .setDefaultPrettyPrinter(prettyPrinter)
+                    .configure(SerializationFeature.ORDER_MAP_ENTRIES_BY_KEYS, true)
+                    .configure(JsonNodeFeature.WRITE_PROPERTIES_SORTED, true)
+                    .configure(MapperFeature.SORT_PROPERTIES_ALPHABETICALLY, true)
+                    .enable(SerializationFeature.INDENT_OUTPUT);
+        }
+
+        return objectMapper;
+    }
+
+    public static ObjectMapper getDefaultObjectMapper(PrettyPrinter prettyPrinter) {
+        ObjectMapper objectMapper = getBasicObjectMapper(prettyPrinter);
 
         /*
          Setting Views.Public as default view class for the serializer.
@@ -39,10 +60,6 @@ public class SerializationUtils {
         objectMapper.setConfig(objectMapper.getSerializationConfig().withView(Views.Public.class));
 
         return objectMapper;
-    }
-
-    public static ObjectMapper getDefaultObjectMapper() {
-        return configureObjectMapper(new ObjectMapper());
     }
 
     public static GsonBuilderCustomizer typeAdapterRegistration() {
