@@ -16,6 +16,7 @@ import {
   shift,
   offset,
   detectOverflow,
+  hide,
 } from "@floating-ui/dom";
 
 import { FloatingPortal } from "@floating-ui/react";
@@ -23,7 +24,7 @@ import { FloatingPortal } from "@floating-ui/react";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 
 const widgetNameStyles: CSSProperties = {
-  height: "23px",
+  height: "24px",
   width: "max-content",
   position: "fixed",
   top: 0,
@@ -267,6 +268,8 @@ export function useWidgetName(widgetId: string, widgetName: string) {
             floatingUIMiddlewareOverflow(
               WidgetsEditorElement as HTMLDivElement,
             ),
+            hide({ strategy: "referenceHidden" }),
+            hide({ strategy: "escaped" }),
           ],
         }).then(({ middlewareData, x, y }) => {
           let shiftOffset = 0;
@@ -280,7 +283,11 @@ export function useWidgetName(widgetId: string, widgetName: string) {
           Object.assign(widgetNameComponent.style, {
             left: `${x - shiftOffset}px`,
             top: `${y}px`,
-            visibility: nameComponentState === "none" ? "hidden" : "visible",
+            visibility:
+              nameComponentState === "none" ||
+              middlewareData.hide?.referenceHidden
+                ? "hidden"
+                : "visible",
             zIndex: nameComponentState === "focus" ? 9000001 : 9000000,
           });
         });
@@ -291,6 +298,7 @@ export function useWidgetName(widgetId: string, widgetName: string) {
     };
   }, [nameComponentState, widgetElement, widgetNameComponent]);
   if (widgetId === MAIN_CONTAINER_WIDGET_ID) return null;
+  if (!widgetElement) return null;
 
   const config = WidgetFactory.getConfig(widgetType);
   const onCanvasUI = config?.onCanvasUI || {
