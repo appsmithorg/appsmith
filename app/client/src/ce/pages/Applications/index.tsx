@@ -126,6 +126,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -644,7 +646,7 @@ export function ApplicationsSection(props: any) {
       <div className="flex flex-col items-center justify-center mt-[180px]">
         <img
           className="mb-6"
-          src="https://assets.appsmith.com/no-workspace-found.svg"
+          src={`${getAssetUrl(`${ASSETS_CDN_URL}/no-workspace-found.svg`)}`}
         />
         <NewText className="!mb-3 !font-semibold" kind="heading-s">
           {createMessage(NO_WORKSPACE_HEADING)}
