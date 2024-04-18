@@ -102,17 +102,14 @@ public class CustomUserDataRepositoryTest {
     }
 
     @Test
-    public void removeIdFromRecentlyUsedList_WhenWorkspaceIdAndAppIdExists_BothAreRemoved() {
+    public void removeIdFromRecentlyUsedList_WhenWorkspaceIdExists_BothAreRemoved() {
         // create a user data with 3 app id in the recently used appId list
         String sampleUserId = "abcd";
         Mono<UserData> createUserDataMono = createUser(sampleUserId, List.of("abc", "efg", "hij"));
 
-        // remove the 345 org id from the recently used workspaceId list
+        // remove the efg workspace id from the recently used workspaceId list
         Mono<Void> updateResultMono = createUserDataMono.flatMap(
-                // workspaceId does not matter
-                userData -> userDataRepository.removeEntitiesFromRecentlyUsedList(
-                        userData.getUserId(), "efg") // remove 123 and 789
-                );
+                userData -> userDataRepository.removeEntitiesFromRecentlyUsedList(userData.getUserId(), "efg"));
 
         // read the userdata
         Mono<UserData> readUserDataMono = userDataRepository.findByUserId(sampleUserId);
