@@ -13395,6 +13395,7 @@ __metadata:
     redux-form: ^8.2.6
     redux-mock-store: ^1.5.4
     redux-saga: ^1.1.3
+    redux-saga-test-plan: ^4.0.6
     remixicon-react: ^1.0.0
     reselect: ^4.0.0
     sass: ^1.70.0
@@ -20055,6 +20056,13 @@ __metadata:
   languageName: node
   linkType: hard
 
+"fsm-iterator@npm:^1.1.0":
+  version: 1.1.0
+  resolution: "fsm-iterator@npm:1.1.0"
+  checksum: ca35f89a6607df2542711faac62b4b9fdd1c90887bd7fbb0ed106d0d658a92376e996bdfc6db605665e25a63c510e5ea5986d054e3836becf95696ee928b0f6b
+  languageName: node
+  linkType: hard
+
 "fsu@npm:^1.1.1":
   version: 1.1.1
   resolution: "fsu@npm:1.1.1"
@@ -24135,6 +24143,13 @@ __metadata:
   version: 3.0.9
   resolution: "lodash.isfunction@npm:3.0.9"
   checksum: 99e54c34b1e8a9ba75c034deb39cedbd2aca7af685815e67a2a8ec4f73ec9748cda6ebee5a07d7de4b938e90d421fd280e9c385cc190f903ac217ac8aff30314
+  languageName: node
+  linkType: hard
+
+"lodash.ismatch@npm:^4.4.0":
+  version: 4.4.0
+  resolution: "lodash.ismatch@npm:4.4.0"
+  checksum: a393917578842705c7fc1a30fb80613d1ac42d20b67eb26a2a6004d6d61ee90b419f9eb320508ddcd608e328d91eeaa2651411727eaa9a12534ed6ccb02fc705
   languageName: node
   linkType: hard
 
@@ -30083,6 +30098,21 @@ __metadata:
   dependencies:
     lodash.isplainobject: ^4.0.6
   checksum: 571eab2cca3e46321969025af865ddd780804c811be9db277fddf772d86e3ea67b4ef1b19ea3866417d41eb1b73605103020321f68cf68f379a52679a6823d12
+  languageName: node
+  linkType: hard
+
+"redux-saga-test-plan@npm:^4.0.6":
+  version: 4.0.6
+  resolution: "redux-saga-test-plan@npm:4.0.6"
+  dependencies:
+    fsm-iterator: ^1.1.0
+    lodash.isequal: ^4.5.0
+    lodash.ismatch: ^4.4.0
+  peerDependencies:
+    "@redux-saga/is": ^1.0.1
+    "@redux-saga/symbols": ^1.0.1
+    redux-saga: ^1.0.1
+  checksum: a3220210a42a51271c0dc8740ceaacf5cd0aa84cf46b986d5839a89133de00954940e5dde80145e1b4c69d7c0d61b9578d86da8776d2c0b5151dc498bc595685
   languageName: node
   linkType: hard
 
