@@ -1,6 +1,7 @@
 package com.appsmith.server.domains;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -24,11 +25,11 @@ public class Theme extends BaseDomain {
 
     // name will be used internally to identify system themes for import, export application and theme migration
     // it'll never change. We need to remove this from API response in future when FE uses displayName everywhere
-    @JsonView({Views.Public.class})
+    @JsonView({Views.Public.class, Git.class})
     private String name;
 
     // displayName will be visible to users. Users can set their own input when saving/customising a theme
-    @JsonView({Views.Public.class})
+    @JsonView({Views.Public.class, Git.class})
     private String displayName;
 
     @JsonView(Views.Public.class)
@@ -47,7 +48,7 @@ public class Theme extends BaseDomain {
     private Map<String, Object> stylesheet;
 
     @JsonProperty("isSystemTheme") // manually setting property name to make sure it's compatible with Gson
-    @JsonView({Views.Public.class})
+    @JsonView({Views.Public.class, Git.class})
     private boolean isSystemTheme = false; // should be false by default
 
     @Data

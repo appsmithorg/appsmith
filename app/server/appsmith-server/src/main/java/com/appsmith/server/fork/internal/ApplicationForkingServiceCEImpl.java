@@ -516,6 +516,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         application.setPages(new ArrayList<>());
         application.setPublishedPages(new ArrayList<>());
         application.setIsPublic(false);
+        application.setIsCommunityTemplate(false);
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
