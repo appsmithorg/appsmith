@@ -197,7 +197,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                     applicationJson))
                             .thenReturn("done")
                             // Update the pageName map for actions and action collection
-                            .then(pageNameMapForActionAndActionCollectionInAppJson(
+                            .then(paneNameMapForActionAndActionCollectionInAppJson(
                                     branchedPageIdMono, applicationJson, mappedImportableResourcesDTO))
                             .thenReturn("done")
                             // Import Actions and action collection
@@ -235,8 +235,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                 })
                 // Update the refactored names of the actions and action collections in the DSL bindings
                 .flatMap(application -> {
-                    entityNameMap = Map.copyOf(mappedImportableResourcesDTO.getRefactoringNameReference());
-
                     // Partial export can have no pages
                     if (applicationJson.getPageList() == null) {
                         return Mono.just(application);
@@ -284,6 +282,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             BuildingBlockImportDTO buildingBlockImportDTO = new BuildingBlockImportDTO();
             buildingBlockImportDTO.setApplication(application);
             buildingBlockImportDTO.setWidgetDsl(applicationJson.getWidgets());
+            buildingBlockImportDTO.setRefactoredEntityNameMap(
+                    mappedImportableResourcesDTO.getRefactoringNameReference());
 
             return analyticsService
                     .sendEvent(AnalyticsEvents.PARTIAL_IMPORT.getEventName(), user.getUsername(), data)
@@ -439,6 +439,15 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 .forEach(dslExecutableDTOS -> {
                                     dslExecutableDTOS.forEach(dslExecutableDTO -> {
                                         if (dslExecutableDTO.getName() != null) {
+                                            // Use the refactored names to get the correct ids
+                                            if (buildingBlockImportDTO
+                                                            .getRefactoredEntityNameMap()
+                                                            .get(dslExecutableDTO.getName())
+                                                    != null) {
+                                                dslExecutableDTO.setName(buildingBlockImportDTO
+                                                        .getRefactoredEntityNameMap()
+                                                        .get(dslExecutableDTO.getName()));
+                                            }
                                             newOnPageLoadActionNames.add(entityNameMap.get(dslExecutableDTO.getName()));
                                             dslExecutableDTO.setName(entityNameMap.get(dslExecutableDTO.getName()));
                                             buildingBlockResponseDTO

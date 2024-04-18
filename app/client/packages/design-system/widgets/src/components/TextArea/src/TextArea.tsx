@@ -8,7 +8,7 @@ import { TextArea as HeadlessTextArea } from "@design-system/headless";
 
 import textAreaStyles from "./styles.module.css";
 import { textInputStyles, fieldStyles } from "../../../styles";
-import { ContextualHelp } from "../../TextInput/src/ContextualHelp";
+import { ContextualHelp } from "../../ContextualHelp";
 import { getTypographyClassName } from "@design-system/theming";
 
 export interface TextAreaProps extends HeadlessTextAreaProps {

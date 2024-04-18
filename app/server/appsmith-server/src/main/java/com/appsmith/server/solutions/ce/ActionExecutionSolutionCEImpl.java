@@ -38,7 +38,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
@@ -104,7 +103,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
     private final ActionPermission actionPermission;
     private final ObservationRegistry observationRegistry;
     private final ObjectMapper objectMapper;
-    private final NewActionRepository repository;
     private final DatasourceService datasourceService;
     private final PluginService pluginService;
     private final DatasourceContextService datasourceContextService;
@@ -132,7 +130,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
             ActionPermission actionPermission,
             ObservationRegistry observationRegistry,
             ObjectMapper objectMapper,
-            NewActionRepository repository,
             DatasourceService datasourceService,
             PluginService pluginService,
             DatasourceContextService datasourceContextService,
@@ -151,7 +148,6 @@ public class ActionExecutionSolutionCEImpl implements ActionExecutionSolutionCE 
         this.actionPermission = actionPermission;
         this.observationRegistry = observationRegistry;
         this.objectMapper = objectMapper;
-        this.repository = repository;
         this.datasourceService = datasourceService;
         this.pluginService = pluginService;
         this.datasourceContextService = datasourceContextService;
