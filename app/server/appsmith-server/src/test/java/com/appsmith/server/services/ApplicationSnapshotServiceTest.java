@@ -10,7 +10,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.newpages.base.NewPageService;
-import com.appsmith.server.projections.ApplicationSnapshotProjectionWithoutData;
+import com.appsmith.server.projections.DefaultTimestampOnly;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import org.junit.jupiter.api.AfterEach;
@@ -92,7 +92,7 @@ public class ApplicationSnapshotServiceTest {
         Application testApplication = new Application();
         testApplication.setName("Test app for snapshot");
         testApplication.setWorkspaceId(workspace.getId());
-        Mono<ApplicationSnapshotProjectionWithoutData> snapshotMono = applicationPageService
+        Mono<DefaultTimestampOnly> snapshotMono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application -> {
                     assert application.getId() != null;
@@ -105,7 +105,8 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
-                    assertThat(snapshot.applicationId()).isNotNull();
+                    assertThat(snapshot.updatedAt()).isNotNull();
+                    assertThat(snapshot.createdAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -116,7 +117,7 @@ public class ApplicationSnapshotServiceTest {
         Application testApplication = new Application();
         testApplication.setName("Test app for snapshot");
         testApplication.setWorkspaceId(workspace.getId());
-        Mono<ApplicationSnapshotProjectionWithoutData> snapshotMono = applicationPageService
+        Mono<DefaultTimestampOnly> snapshotMono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application -> {
                     assert application.getId() != null;
@@ -131,7 +132,8 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(snapshotMono)
                 .assertNext(snapshot -> {
-                    assertThat(snapshot.applicationId()).isNotNull();
+                    assertThat(snapshot.updatedAt()).isNotNull();
+                    assertThat(snapshot.createdAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -151,7 +153,7 @@ public class ApplicationSnapshotServiceTest {
         gitArtifactMetadata.setDefaultApplicationId(testDefaultAppId);
         gitArtifactMetadata.setBranchName(testBranchName);
         testApplication.setGitApplicationMetadata(gitArtifactMetadata);
-        Mono<Tuple2<ApplicationSnapshotProjectionWithoutData, Application>> tuple2Mono = applicationPageService
+        Mono<Tuple2<DefaultTimestampOnly, Application>> tuple2Mono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application -> applicationSnapshotService
                         .createApplicationSnapshot(testDefaultAppId, testBranchName)
@@ -161,9 +163,9 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(tuple2Mono)
                 .assertNext(objects -> {
-                    ApplicationSnapshotProjectionWithoutData applicationSnapshot = objects.getT1();
-                    Application application = objects.getT2();
-                    assertThat(applicationSnapshot.applicationId()).isEqualTo(application.getId());
+                    DefaultTimestampOnly applicationSnapshot = objects.getT1();
+                    assertThat(applicationSnapshot.updatedAt()).isNotNull();
+                    assertThat(applicationSnapshot.createdAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -302,7 +304,7 @@ public class ApplicationSnapshotServiceTest {
         Application testApplication = new Application();
         testApplication.setName("Test app for snapshot");
         testApplication.setWorkspaceId(workspace.getId());
-        Mono<ApplicationSnapshotProjectionWithoutData> applicationSnapshotMono = applicationPageService
+        Mono<DefaultTimestampOnly> applicationSnapshotMono = applicationPageService
                 .createApplication(testApplication)
                 .flatMap(application1 -> {
                     return applicationSnapshotService.getWithoutDataByApplicationId(application1.getId(), null);
@@ -310,7 +312,7 @@ public class ApplicationSnapshotServiceTest {
 
         StepVerifier.create(applicationSnapshotMono)
                 .assertNext(applicationSnapshot -> {
-                    assertThat(applicationSnapshot.applicationId()).isNull();
+                    assertThat(applicationSnapshot.updatedAt()).isNull();
                 })
                 .verifyComplete();
     }

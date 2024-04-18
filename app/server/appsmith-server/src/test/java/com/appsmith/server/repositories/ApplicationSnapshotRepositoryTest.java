@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
-import com.appsmith.server.projections.ApplicationSnapshotProjectionWithoutData;
+import com.appsmith.server.projections.DefaultTimestampOnly;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,14 +35,14 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot2.setApplicationId(testAppId2);
         snapshot2.setChunkOrder(1);
 
-        Mono<ApplicationSnapshotProjectionWithoutData> snapshotMono = applicationSnapshotRepository
+        Mono<DefaultTimestampOnly> snapshotMono = applicationSnapshotRepository
                 .saveAll(List.of(snapshot1, snapshot2))
                 .then(applicationSnapshotRepository.findByApplicationIdAndChunkOrder(testAppId2, 1));
 
         StepVerifier.create(snapshotMono)
                 .assertNext(applicationSnapshot -> {
-                    assertThat(applicationSnapshot.applicationId()).isEqualTo(testAppId2);
-                    assertThat(applicationSnapshot.chunkOrder()).isEqualTo(1);
+                    assertThat(applicationSnapshot.updatedAt()).isNotNull();
+                    assertThat(applicationSnapshot.createdAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -61,14 +61,14 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot2.setApplicationId(testAppId1);
         snapshot2.setChunkOrder(2);
 
-        Mono<ApplicationSnapshotProjectionWithoutData> snapshotMono = applicationSnapshotRepository
+        Mono<DefaultTimestampOnly> snapshotMono = applicationSnapshotRepository
                 .saveAll(List.of(snapshot1, snapshot2))
                 .then(applicationSnapshotRepository.findByApplicationIdAndChunkOrder(testAppId1, 1));
 
         StepVerifier.create(snapshotMono)
                 .assertNext(applicationSnapshot -> {
-                    assertThat(applicationSnapshot.applicationId()).isEqualTo(testAppId1);
-                    assertThat(applicationSnapshot.chunkOrder()).isEqualTo(1);
+                    assertThat(applicationSnapshot.createdAt()).isNotNull();
+                    assertThat(applicationSnapshot.updatedAt()).isNotNull();
                 })
                 .verifyComplete();
     }
