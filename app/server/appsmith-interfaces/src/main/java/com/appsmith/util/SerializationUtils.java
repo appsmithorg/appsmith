@@ -69,4 +69,8 @@ public class SerializationUtils {
             builder.registerTypeAdapter(HttpMethod.class, new HttpMethodConverter());
         };
     }
+
+    public static ObjectMapper getObjectMapperWithSourceInLocationEnabled() {
+        return new ObjectMapper().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature());
+    }
 }

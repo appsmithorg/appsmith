@@ -21,7 +21,7 @@ export const lintOptions = (globalData: Record<string, boolean>) =>
     sub: true, // Don't force dot notation
     expr: true, // suppresses warnings about the use of expressions where normally you would expect to see assignments or function calls
     // environments
-    browser: true,
+    browser: false,
     worker: true,
     mocha: false,
     // global values
