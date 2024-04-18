@@ -197,7 +197,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                     applicationJson))
                             .thenReturn("done")
                             // Update the pageName map for actions and action collection
-                            .then(paneNameMapForActionAndActionCollectionInAppJson(
+                            .then(pageNameMapForActionAndActionCollectionInAppJson(
                                     branchedPageIdMono, applicationJson, mappedImportableResourcesDTO))
                             .thenReturn("done")
                             // Import Actions and action collection
