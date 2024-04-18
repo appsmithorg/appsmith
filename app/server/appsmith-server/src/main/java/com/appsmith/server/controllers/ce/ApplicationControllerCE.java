@@ -30,7 +30,7 @@ import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
-import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.UserReleaseNotes;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
@@ -66,7 +66,7 @@ public class ApplicationControllerCE {
 
     protected final ApplicationService service;
     private final ApplicationPageService applicationPageService;
-    private final ApplicationFetcher applicationFetcher;
+    private final UserReleaseNotes userReleaseNotes;
     private final ApplicationForkingService applicationForkingService;
     private final ThemeService themeService;
     private final ApplicationSnapshotService applicationSnapshotService;
@@ -136,9 +136,7 @@ public class ApplicationControllerCE {
     @GetMapping("/new")
     public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
         log.debug("Going to get all applications grouped by workspace");
-        return applicationFetcher
-                .getAllApplications()
-                .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
+        return Mono.error(new AppsmithException(AppsmithError.DEPRECATED_API));
     }
 
     @JsonView(Views.Public.class)
@@ -155,7 +153,7 @@ public class ApplicationControllerCE {
     @GetMapping(Url.RELEASE_ITEMS)
     public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
         log.debug("Going to get version release items");
-        return applicationFetcher
+        return userReleaseNotes
                 .getReleaseItems()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }

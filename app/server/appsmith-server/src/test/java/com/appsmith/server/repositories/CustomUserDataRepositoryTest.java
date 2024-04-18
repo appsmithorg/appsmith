@@ -47,7 +47,7 @@ public class CustomUserDataRepositoryTest {
 
         // remove the 345 org id from the recently used workspaceId list
         Mono<Void> updateResultMono = createUserDataMono.flatMap(
-                userData -> userDataRepository.removeIdFromRecentlyUsedList(userData.getUserId(), "345", List.of()));
+                userData -> userDataRepository.removeIdFromRecentlyUsedList(userData.getUserId(), "345"));
 
         // read the userdata
         Mono<UserData> readUserDataMono = userDataRepository.findByUserId(sampleUserId);
@@ -73,7 +73,7 @@ public class CustomUserDataRepositoryTest {
 
         // remove the 345 org id from the recently used workspaceId list
         Mono<Void> updateResultMono = createUserDataMono.flatMap(
-                userData -> userDataRepository.removeIdFromRecentlyUsedList(userData.getUserId(), "678", List.of()));
+                userData -> userDataRepository.removeIdFromRecentlyUsedList(userData.getUserId(), "678"));
 
         // read the userdata
         Mono<UserData> readUserDataMono = userDataRepository.findByUserId(sampleUserId);
@@ -101,7 +101,7 @@ public class CustomUserDataRepositoryTest {
         Mono<Void> updateResultMono = createUserDataMono.flatMap(
                 // workspaceId does not matter
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
-                        userData.getUserId(), "345", List.of("123", "789")) // remove 123 and 789
+                        userData.getUserId(), "345") // remove 123 and 789
                 );
 
         // read the userdata
@@ -130,7 +130,7 @@ public class CustomUserDataRepositoryTest {
         Mono<Void> updateResultMono = createUserDataMono.flatMap(
                 // workspaceId does not matter
                 userData -> userDataRepository.removeIdFromRecentlyUsedList(
-                        userData.getUserId(), "efg", List.of("123", "789")) // remove 123 and 789
+                        userData.getUserId(), "efg") // remove 123 and 789
                 );
 
         // read the userdata
