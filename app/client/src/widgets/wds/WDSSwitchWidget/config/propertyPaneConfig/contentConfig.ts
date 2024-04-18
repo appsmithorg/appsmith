@@ -38,7 +38,7 @@ export const propertyPaneContentConfig = [
         propertyName: "defaultSwitchState",
         label: "Default state",
         helpText:
-          "On / Off the Switch by default. Changes to the default selection update the widget state",
+          "Toggle the switch to the default selection. Changes to the default selection will update the widget state.",
         controlType: "SWITCH",
         isJSConvertible: true,
         isBindProperty: true,
