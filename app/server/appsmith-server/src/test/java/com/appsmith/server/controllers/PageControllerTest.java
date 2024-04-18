@@ -38,7 +38,11 @@ public class PageControllerTest {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = {"../malicious", "..\\malicious", "/malicious", "C:\\malicious"})
+    @ValueSource(
+            strings = {
+                "../mal", "..\\mal", "/mal", "C:\\mal", "mal/", "/mal/", "\\mal", "mal\\", "\\mal\\", ":mal", ":mal/",
+                ":mal\\"
+            })
     @WithMockUser
     void invalidName(String name) {
         client.put()
