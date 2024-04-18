@@ -20,6 +20,11 @@ jobs:
       matrix: ${{ steps.checkAll.outputs.matrix }}
     steps:
 
+      # Checkout the code in the current branch in case the workflow is called because of a branch push event
+      - name: Checkout the head commit of the branch
+        if: inputs.pr == 0
+        uses: actions/checkout@v4
+
       # Checks for ok-to-test label presence in PR
       - name: Check label
         run: |
@@ -72,6 +77,41 @@ jobs:
         if: steps.parseTags.outputs.outcome != 'success'
         run: exit 1
 
+      - name: Check Tags
+        env:
+          TAG_LIST: ${{ steps.getTags.outputs.tags }}
+        id: checkTags
+        run: |
+                export IFS=","
+                for tag in ${TAG_LIST//[[:blank:]]/}; do
+                    if [[ `cat app/client/cypress/tags.js|grep -w $tag|wc -l` != 1  &&  $tag != "@tag.All" ]]; then
+                        echo "Incorrect Tags"
+                        echo "outcome=failure" >> $GITHUB_OUTPUT
+                    fi
+                done
+        shell: bash
+
+      # In case of incorrect tags, guides towards correct tags
+      - name: Add test response with tags list link
+        if: steps.checkTags.outputs.outcome == 'failure'
+        uses: nefrob/pr-description@v1.1.1
+        with:
+            content: |
+              <!-- This is an auto-generated comment: Cypress test results  -->
+              > [!WARNING]
+              > The provided command contains incorrect tags. Please modify PR body, specifying the tags you want to include or use `/ok-to-test tags="@tag.All"` to run all specs.
+              > Please find complete list of tags [here](https://github.com/appsmithorg/appsmith/blob/release/app/client/cypress/tags.js)
+
+              <!-- end of auto-generated comment: Cypress test results  -->
+            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+            regexFlags: ims
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+      # In case of incorrect tags, exit the workflow with failure
+      - name: Stop the workflow run if tags are incorrect
+        if: steps.checkTags.outputs.outcome == 'failure'
+        run: exit 1
+    
       # In case of a run with all test cases, allocate a larger matrix
       - name: Check if @tag.All is present in tags
         id: checkAll

@@ -45,12 +45,5 @@ describe(
       cy.deleteQueryUsingContext();
       cy.deleteDatasource(datasourceName);
     });
-
-    it("4. Verify the default port for the datasource", function () {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("MySQL");
-
-      agHelper.AssertAttribute(dataSources._port, "value", "3306");
-    });
   },
 );

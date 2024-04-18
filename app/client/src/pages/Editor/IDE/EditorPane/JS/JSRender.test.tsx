@@ -15,7 +15,6 @@ import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,
-  rollout_editor_pane_segments_enabled: true,
 };
 describe("IDE Render: JS", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");

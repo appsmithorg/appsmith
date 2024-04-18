@@ -4,13 +4,12 @@ import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 
 export const defaultsConfig = {
   animateLoading: true,
-  text: "Submit",
+  text: "Do something",
   buttonVariant: BUTTON_VARIANTS.filled,
   buttonColor: COLORS.accent,
   widgetName: "Button",
   isDisabled: false,
   isVisible: true,
-  isDefaultClickDisabled: true,
   disabledWhenInvalid: false,
   resetFormOnClick: false,
   recaptchaType: RecaptchaTypes.V3,
