@@ -260,6 +260,7 @@ class AudioRecorderWidget extends BaseWidget<
       URL.revokeObjectURL(this.props.blobURL);
     }
 
+    this.props.updateWidgetMetaProperty("blobURL", null);
     this.props.updateWidgetMetaProperty("dataURL", undefined);
     this.props.updateWidgetMetaProperty("rawBinary", undefined);
 
