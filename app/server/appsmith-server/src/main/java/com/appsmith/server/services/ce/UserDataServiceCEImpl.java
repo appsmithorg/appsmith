@@ -354,7 +354,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 .findIdsByWorkspaceId(workspaceId)
                 .map(IdOnly::id)
                 .collectList()
-                .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId));
+                .flatMap(appIdsList -> repository.removeEntitiesFromRecentlyUsedList(userId, workspaceId));
     }
 
     /**

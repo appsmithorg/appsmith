@@ -21,7 +21,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     }
 
     @Override
-    public Mono<Void> removeIdFromRecentlyUsedList(String userId, String workspaceId) {
+    public Mono<Void> removeEntitiesFromRecentlyUsedList(String userId, String workspaceId) {
         BridgeUpdate update = new BridgeUpdate();
         RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
         recentlyUsedEntityDTO.setWorkspaceId(workspaceId);
