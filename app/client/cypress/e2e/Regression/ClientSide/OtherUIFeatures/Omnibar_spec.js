@@ -32,10 +32,7 @@ describe("Omnibar functionality test cases", () => {
       .eq(0)
       .should("have.text", "Navigate")
       .next()
-      .should(
-        "have.text",
-        createMessage(NAV_DESCRIPTION),
-      );
+      .should("have.text", createMessage(NAV_DESCRIPTION));
     cy.get(omnibar.categoryTitle)
       .eq(1)
       .should("have.text", "Create new")
