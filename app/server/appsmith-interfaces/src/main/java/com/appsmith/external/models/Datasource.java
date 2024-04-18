@@ -27,11 +27,6 @@ import java.util.Set;
 @FieldNameConstants
 public class Datasource extends BranchAwareDomain {
 
-    public Datasource(String id, Set<Policy> policies) {
-        this.setId(id);
-        this.setPolicies(policies);
-    }
-
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled datasource";
 

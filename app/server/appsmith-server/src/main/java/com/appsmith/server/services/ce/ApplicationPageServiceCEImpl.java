@@ -1472,7 +1472,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
-                .findIdAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewPage newPage = new NewPage();
                     newPage.setId(idPoliciesOnly.id());
@@ -1540,9 +1540,11 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .collect(Collectors.toSet());
                 })
                 .flatMapMany(datasourceIds -> datasourceRepository
-                        .findIdAndPoliciesByIdIn(datasourceIds)
+                        .findIdsAndPoliciesByIdIn(datasourceIds)
                         .flatMap(idPolicy -> {
-                            Datasource datasource = new Datasource(idPolicy.id(), idPolicy.policies());
+                            Datasource datasource = new Datasource();
+                            datasource.setId(idPolicy.id());
+                            datasource.setPolicies(idPolicy.policies());
                             return datasourceRepository.setUserPermissionsInObject(datasource);
                         }));
 

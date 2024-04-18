@@ -18,5 +18,5 @@ public interface DatasourceRepositoryCE extends BaseRepository<Datasource, Strin
 
     Mono<Long> countByDeletedAtNull();
 
-    Flux<IdPoliciesOnly> findIdAndPoliciesByIdIn(Set<String> datasourceIds);
+    Flux<IdPoliciesOnly> findIdsAndPoliciesByIdIn(Set<String> datasourceIds);
 }

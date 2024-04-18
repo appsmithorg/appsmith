@@ -693,7 +693,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
             // Normal Application forking with developer/edit access
             Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
-                    .findIdAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                    .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                     .map(idPoliciesOnly -> {
                         NewPage newPage = new NewPage();
                         newPage.setId(idPoliciesOnly.id());
