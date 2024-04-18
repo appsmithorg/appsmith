@@ -3,7 +3,6 @@ package com.appsmith.server.configurations;
 import com.appsmith.external.exceptions.BaseException;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.LogHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.Assertions;
@@ -20,6 +19,8 @@ import reactor.util.context.Context;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.appsmith.external.constants.MDCConstants.THREAD;
+
 @Slf4j
 @SpringBootTest
 class MDCConfigTest {
@@ -29,7 +30,7 @@ class MDCConfigTest {
     @BeforeEach
     public void setUpEach() {
         initialMap = new HashMap<>();
-        initialMap.put(MDCFilter.THREAD, "mockThread");
+        initialMap.put(THREAD, "mockThread");
         initialMap.put("constantKey", "constantValue");
     }
 
@@ -37,7 +38,7 @@ class MDCConfigTest {
     public void testReactiveContextSwitch_forSingleMono_retainsThreadAcrossSignals() {
         Mono.fromSupplier(() -> "testString")
                 .doOnNext((value) -> {
-                    final String currentThread = MDC.get(MDCFilter.THREAD);
+                    final String currentThread = MDC.get(THREAD);
                     log.debug("Current thread {}", currentThread);
                     Assertions.assertFalse(MDC.getCopyOfContextMap().isEmpty());
                     Assertions.assertNotEquals(currentThread, "mockThread");
@@ -56,7 +57,7 @@ class MDCConfigTest {
     public void testReactiveContextSwitch_forScheduledMono_switchesThreadAcrossSignals() {
         Mono.fromSupplier(() -> "testString")
                 .flatMap((firstValue) -> {
-                    final String firstThread = MDC.get(MDCFilter.THREAD);
+                    final String firstThread = MDC.get(THREAD);
                     log.debug(
                             "First thread -> {} ; Context thread -> {}",
                             Thread.currentThread().getName(),
@@ -68,7 +69,7 @@ class MDCConfigTest {
 
                     return Mono.fromSupplier(() -> "secondString")
                             .doOnEach((secondValue) -> {
-                                final String secondThread = MDC.get(MDCFilter.THREAD);
+                                final String secondThread = MDC.get(THREAD);
                                 log.debug(
                                         "Second thread -> {} ; Context thread -> {} ; on signal {}",
                                         Thread.currentThread().getName(),
@@ -94,7 +95,7 @@ class MDCConfigTest {
     public void testReactiveContextSwitch_forScheduledErrorSignal_switchesThreadAcrossSignals() {
         Mono.fromSupplier(() -> "testString")
                 .flatMap((firstValue) -> {
-                    final String firstThread = MDC.get(MDCFilter.THREAD);
+                    final String firstThread = MDC.get(THREAD);
                     log.debug(
                             "First thread -> {} ; Context thread -> {}",
                             Thread.currentThread().getName(),
@@ -106,7 +107,7 @@ class MDCConfigTest {
 
                     return Mono.error(() -> new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR))
                             .doOnEach((errorValue) -> {
-                                final String secondThread = MDC.get(MDCFilter.THREAD);
+                                final String secondThread = MDC.get(THREAD);
                                 log.debug(
                                         "Error thread -> {} ; Context thread -> {} ; on signal {}",
                                         Thread.currentThread().getName(),
@@ -123,7 +124,7 @@ class MDCConfigTest {
                                 final Map<String, String> contextMap =
                                         ((BaseException) errorValue.get()).getContextMap();
                                 Assertions.assertEquals(contextMap.get("constantKey"), "constantValue");
-                                Assertions.assertEquals(contextMap.get(MDCFilter.THREAD), secondThread);
+                                Assertions.assertEquals(contextMap.get(THREAD), secondThread);
                             })
                             .subscribeOn(Schedulers.boundedElastic());
                 })

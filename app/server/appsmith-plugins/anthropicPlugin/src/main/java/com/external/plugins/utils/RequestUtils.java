@@ -25,7 +25,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static com.external.plugins.constants.AnthropicConstants.ANTHROPIC_API_ENDPOINT;
-import static com.external.plugins.constants.AnthropicConstants.COMPLETION_API;
+import static com.external.plugins.constants.AnthropicConstants.MESSAGE_API;
 
 public class RequestUtils {
 
@@ -40,8 +40,8 @@ public class RequestUtils {
     }
 
     public static URI createUriFromCommand(String command) {
-        if (AnthropicConstants.CHAT.equals(command)) {
-            return URI.create(ANTHROPIC_API_ENDPOINT + COMPLETION_API);
+        if (AnthropicConstants.CHAT.equals(command) || AnthropicConstants.VISION.equals(command)) {
+            return URI.create(ANTHROPIC_API_ENDPOINT + MESSAGE_API);
         } else if (AnthropicConstants.MODEL.equals(command)) {
             return URI.create("");
         } else {

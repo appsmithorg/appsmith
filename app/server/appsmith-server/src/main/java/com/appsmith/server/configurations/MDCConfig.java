@@ -1,6 +1,5 @@
 package com.appsmith.server.configurations;
 
-import com.appsmith.server.filters.MDCFilter;
 import com.appsmith.server.helpers.LogHelper;
 import io.micrometer.observation.Observation;
 import io.micrometer.tracing.handler.TracingObservationHandler;
@@ -17,13 +16,15 @@ import reactor.util.context.Context;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.appsmith.external.constants.MDCConstants.OBSERVATION;
+import static com.appsmith.external.constants.MDCConstants.SPAN_ID;
+import static com.appsmith.external.constants.MDCConstants.THREAD;
+import static com.appsmith.external.constants.MDCConstants.TRACE_ID;
+
 @Configuration
 public class MDCConfig {
 
     private static final String MDC_CONTEXT_REACTOR_KEY = "MDCConfig";
-    private static final String OBSERVATION = "micrometer.observation";
-    private static final String TRACE_ID = "traceId";
-    private static final String SPAN_ID = "spanId";
 
     @PostConstruct
     void contextOperatorHook() {
@@ -83,7 +84,7 @@ public class MDCConfig {
             if (!context.isEmpty() && context.hasKey(LogHelper.CONTEXT_MAP)) {
                 Map<String, String> map = context.get(LogHelper.CONTEXT_MAP);
 
-                map.put(MDCFilter.THREAD, Thread.currentThread().getName());
+                map.put(THREAD, Thread.currentThread().getName());
                 Optional<Observation> observationOptional = context.getOrEmpty(OBSERVATION);
                 observationOptional.ifPresent(observation -> {
                     TracingObservationHandler.TracingContext tracingContext =
