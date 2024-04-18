@@ -27,7 +27,7 @@ import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewData
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
 import ApiEditor from "pages/Editor/APIEditor";
 import QueryEditor from "pages/Editor/QueryEditor";
-import JSEditor from "pages/Editor/JSEditor";
+// import JSEditor from "pages/Editor/JSEditor";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 import ListView from "pages/Editor/SaaSEditor/ListView";
 import {
@@ -41,7 +41,7 @@ import DataSourceEditor from "pages/Editor/DataSourceEditor";
 import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankState";
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
-import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
+// import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
@@ -196,24 +196,24 @@ function useRoutes(path: string): RouteReturnType[] {
         `${path}${QUERIES_EDITOR_ID_ADD_PATH}`,
       ],
     },
-    {
-      key: "JSEditorList",
-      component: JSBlankState,
-      exact: true,
-      path: [
-        `${path}${JS_COLLECTION_EDITOR_PATH}`,
-        `${path}${JS_COLLECTION_EDITOR_PATH}${ADD_PATH}`,
-      ],
-    },
-    {
-      key: "JSEditor File",
-      component: JSEditor,
-      exact: true,
-      path: [
-        `${path}${JS_COLLECTION_ID_PATH}`,
-        `${path}${JS_COLLECTION_ID_PATH}${ADD_PATH}`,
-      ],
-    },
+    // {
+    //   key: "JSEditorList",
+    //   component: JSBlankState,
+    //   exact: true,
+    //   path: [
+    //     `${path}${JS_COLLECTION_EDITOR_PATH}`,
+    //     `${path}${JS_COLLECTION_EDITOR_PATH}${ADD_PATH}`,
+    //   ],
+    // },
+    // {
+    //   key: "JSEditor File",
+    //   component: JSEditor,
+    //   exact: true,
+    //   path: [
+    //     `${path}${JS_COLLECTION_ID_PATH}`,
+    //     `${path}${JS_COLLECTION_ID_PATH}${ADD_PATH}`,
+    //   ],
+    // },
     {
       key: "CurlImportEditor",
       component: CurlImportEditor,

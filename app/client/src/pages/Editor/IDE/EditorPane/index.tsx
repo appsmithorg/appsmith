@@ -5,18 +5,18 @@ import { Switch } from "react-router";
 
 import { SentryRoute } from "@appsmith/AppRouter";
 import { ADD_PATH } from "constants/routes";
-import EditorPaneSegments from "./EditorPaneSegments";
 import GlobalAdd from "./GlobalAdd";
 import { useEditorPaneWidth } from "../hooks";
 import EntityProperties from "pages/Editor/Explorer/Entity/EntityProperties";
 import { PagesSection } from "./PagesSection";
+import { SideBySideEditorPane } from "./SideBySideEditorPane";
 
 const EditorPane = ({ match: { path } }: RouteComponentProps) => {
   const width = useEditorPaneWidth();
 
   return (
     <Flex
-      className="ide-editor-left-pane"
+      className="ide-editor-left-pane transition-all"
       flexDirection="column"
       gap="spacing-2"
       height="100%"
@@ -30,7 +30,7 @@ const EditorPane = ({ match: { path } }: RouteComponentProps) => {
 
       <Switch>
         <SentryRoute component={GlobalAdd} exact path={`${path}${ADD_PATH}`} />
-        <SentryRoute component={EditorPaneSegments} />
+        <SentryRoute component={SideBySideEditorPane} />
       </Switch>
     </Flex>
   );

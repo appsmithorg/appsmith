@@ -4,7 +4,7 @@ import { Flex, Spinner, ToggleButton } from "design-system";
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
 import {
-  getIDEViewMode,
+  // getIDEViewMode,
   getIsSideBySideEnabled,
   getIsTabsRevampEnabled,
 } from "selectors/ideSelectors";
@@ -13,7 +13,7 @@ import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 import {
   EditorEntityTab,
   EditorEntityTabState,
-  EditorViewMode,
+  // EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
 import { useIsJSAddLoading } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { TabSelectors } from "./constants";
@@ -24,7 +24,7 @@ import { SearchableFilesList } from "./SearchableFilesList";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
-  const ideViewMode = useSelector(getIDEViewMode);
+  // const ideViewMode = useSelector(getIDEViewMode);
   const isTabsRevampEnabled = useSelector(getIsTabsRevampEnabled);
   const { segment, segmentMode } = useCurrentEditorState();
   const { addClickHandler, closeClickHandler, tabClickHandler } =
@@ -39,7 +39,7 @@ const SplitScreenTabs = () => {
   const overflowList = allFilesList.filter((item) => !includes(files, item));
 
   if (!isSideBySideEnabled) return null;
-  if (ideViewMode === EditorViewMode.FullScreen) return null;
+  // if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
 
   const AddButton = () => {

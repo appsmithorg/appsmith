@@ -24,6 +24,7 @@ import pickBy from "lodash/pickBy";
 import { getFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import {
+  APP_SIDEBAR_WIDTH,
   DEFAULT_EDITOR_PANE_WIDTH,
   DEFAULT_SPLIT_SCREEN_WIDTH,
 } from "constants/AppConstants";
@@ -123,13 +124,24 @@ export const useEditorPaneWidth = (): string => {
   const { segment } = useCurrentEditorState();
   const propertyPaneWidth = useSelector(getPropertyPaneWidth);
   useEffect(() => {
-    if (
-      isSideBySideEnabled &&
-      editorMode === EditorViewMode.SplitScreen &&
-      segment !== EditorEntityTab.UI
-    ) {
-      // 1px is propertypane border width
-      setWidth(DEFAULT_SPLIT_SCREEN_WIDTH);
+    if (isSideBySideEnabled) {
+      if (editorMode === EditorViewMode.FullScreen) {
+        if (segment !== EditorEntityTab.UI) {
+          // In full screen mode, we want to extend the editor pane completely unless it is in ui mode
+          // this is because the editor will show the code on the right side
+          setWidth(`calc(100vw - ${APP_SIDEBAR_WIDTH}px)`);
+        } else {
+          // Normal editor pane width
+          setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
+        }
+      } else {
+        if (segment !== EditorEntityTab.UI) {
+          // In split screen, we do not want to extend the editor pane and only have it cover part of the area
+          setWidth(DEFAULT_SPLIT_SCREEN_WIDTH);
+        } else {
+          setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
+        }
+      }
     } else {
       setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
     }
