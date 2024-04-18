@@ -70,6 +70,7 @@ public enum AppsmithErrorCode {
     GENERIC_BAD_REQUEST("AE-BAD-4000", "Generic bad request"),
     MALFORMED_REQUEST("AE-BAD-4001", "Malformed request body"),
     GOOGLE_RECAPTCHA_FAILED("AE-CAP-4035", "Google recaptcha failed"),
+    GOOGLE_RECAPTCHA_INVITE_FLOW_FAILED("AE-CAP-4100", "Google recaptcha failed"),
     INVALID_CRUD_PAGE_REQUEST("AE-CRD-4039", "Invalid crud page request"),
     EMPTY_CURL_INPUT_STATEMENT("AE-CRL-4054", "Invalid CURL input statement"),
     INVALID_CURL_COMMAND("AE-CRL-4029", "Invalid curl command"),
@@ -133,6 +134,7 @@ public enum AppsmithErrorCode {
     DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),
     TRIGGER_PARAMETERS_EMPTY("AE-DS-4001", "Trigger parameters empty."),
+    INSUFFICIENT_PASSWORD_STRENGTH("AE-PSW-4002", "Insufficient password strength"),
     ;
     private final String code;
     private final String description;

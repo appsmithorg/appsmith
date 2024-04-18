@@ -27,6 +27,13 @@ function shouldSetState(
   if (
     state &&
     state.invokedBy &&
+    NavigationMethod.AppNavigation === state.invokedBy
+  ) {
+    return false;
+  }
+  if (
+    state &&
+    state.invokedBy &&
     [NavigationMethod.CommandClick, NavigationMethod.Omnibar].includes(
       state.invokedBy,
     )
@@ -34,6 +41,7 @@ function shouldSetState(
     // If it is a direct navigation, we will set the state
     return true;
   }
+
   const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
   const currFocusEntityInfo = identifyEntityFromPath(currPath);
   const isSamePage = !isPageChange(prevPath, currPath);
@@ -73,6 +81,16 @@ const isPageChange = (prevPath: string, currentPath: string) => {
   );
 };
 
+export const createEditorFocusInfo = (pageId: string, branch?: string) => ({
+  key: `EDITOR_STATE.${pageId}#${branch}`,
+  entityInfo: {
+    id: `EDITOR.${pageId}`,
+    appState: EditorState.EDITOR,
+    entity: FocusEntity.EDITOR,
+    params: {},
+  },
+});
+
 export const AppIDEFocusStrategy: FocusStrategy = {
   focusElements: AppIDEFocusElements,
   getEntitiesForSet: function* (
@@ -94,15 +112,11 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       (prevEntityInfo.params.pageId !== currentEntityInfo.params.pageId ||
         prevEntityInfo.appState !== currentEntityInfo.appState)
     ) {
-      entities.push({
-        key: `EDITOR_STATE.${currentEntityInfo.params.pageId}#${branch}`,
-        entityInfo: {
-          id: `EDITOR.${currentEntityInfo.params.pageId}`,
-          appState: EditorState.EDITOR,
-          entity: FocusEntity.EDITOR,
-          params: {},
-        },
-      });
+      if (currentEntityInfo.params.pageId) {
+        entities.push(
+          createEditorFocusInfo(currentEntityInfo.params.pageId, branch),
+        );
+      }
     }
 
     entities.push({
@@ -120,7 +134,7 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     // If the entity has a parent defined, store the state of the parent as well.
     if (prevFocusEntityInfo.entity in FocusStoreHierarchy) {
       const parentEntity = FocusStoreHierarchy[prevFocusEntityInfo.entity];
-      if (parentEntity) {
+      if (parentEntity && parentEntity !== currentFocusEntityInfo.entity) {
         const parentPath = AppIDEFocusStrategy.getEntityParentUrl(
           prevFocusEntityInfo,
           parentEntity,

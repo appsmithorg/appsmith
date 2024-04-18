@@ -1,20 +1,19 @@
 import type { ReactNode } from "react";
-import React, { useMemo } from "react";
+import React from "react";
 import {
   dbQueryIcon,
   ApiMethodIcon,
   EntityIcon,
   ENTITY_ICON_SIZE,
 } from "../ExplorerIcons";
-import { isGraphqlPlugin, PluginType } from "entities/Action";
+import {
+  isGraphqlPlugin,
+  PluginPackageName,
+  PluginType,
+} from "entities/Action";
 import { generateReactKey } from "utils/generators";
 
 import type { Plugin } from "api/PluginApi";
-import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { groupBy } from "lodash";
-import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   apiEditorIdURL,
   queryEditorIdURL,
@@ -48,13 +47,13 @@ export interface ResolveActionURLProps {
 export const resolveActionURL = ({
   id,
   parentEntityId,
-  plugin,
   pluginType,
 }: ResolveActionURLProps) => {
-  if (!!plugin && pluginType === PluginType.SAAS) {
+  if (pluginType === PluginType.SAAS) {
     return saasEditorApiIdURL({
       parentEntityId,
-      pluginPackageName: plugin.packageName,
+      // It is safe to assume at this date, that only Google Sheets uses and will use PluginType.SAAS
+      pluginPackageName: PluginPackageName.GOOGLE_SHEETS,
       apiId: id,
     });
   } else if (
@@ -126,33 +125,3 @@ export const getActionConfig = (type: PluginType) =>
     (configByType: ActionGroupConfig | undefined) =>
       configByType?.types.includes(type),
   );
-
-export const useNewActionName = () => {
-  // This takes into consideration only the current page widgets
-  // If we're moving to a different page, there could be a widget
-  // with the same name as the generated API name
-  // TODO: Figure out how to handle this scenario
-  const actions = useSelector((state: AppState) => state.entities.actions);
-  const groupedActions = useMemo(() => {
-    return groupBy(actions, "config.pageId");
-  }, [actions]);
-  return (
-    name: string,
-    destinationPageId: string,
-    isCopyOperation?: boolean,
-  ) => {
-    const pageActions = groupedActions[destinationPageId];
-    // Get action names of the destination page only
-    const actionNames = pageActions
-      ? pageActions.map((action: ActionData) => action.config.name)
-      : [];
-
-    return actionNames.indexOf(name) > -1
-      ? getNextEntityName(
-          isCopyOperation ? `${name}Copy` : name,
-          actionNames,
-          true,
-        )
-      : name;
-  };
-};

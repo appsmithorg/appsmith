@@ -148,6 +148,7 @@ export interface UpdateActionNameRequest {
   newName: string;
   oldName: string;
   moduleId?: string;
+  workflowId?: string;
   contextType?: ActionParentEntityTypeInterface;
 }
 

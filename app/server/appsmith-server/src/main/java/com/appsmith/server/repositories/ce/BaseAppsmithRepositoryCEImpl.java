@@ -7,14 +7,14 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
-import com.querydsl.core.types.Path;
-import jakarta.validation.constraints.NotNull;
 import lombok.NonNull;
 import org.bson.Document;
 import org.bson.types.ObjectId;
@@ -45,7 +45,6 @@ import java.util.stream.Collectors;
 
 import static org.apache.commons.collections.CollectionUtils.isEmpty;
 import static org.apache.commons.lang3.StringUtils.isBlank;
-import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 /**
  * In case you are wondering why we have two different repository implementation classes i.e.
@@ -64,59 +63,44 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
  * the understanding of these interfaces.
  * ```
  * Ref: https://theappsmith.slack.com/archives/CPQNLFHTN/p1669100205502599?thread_ts=1668753437.497369&cid=CPQNLFHTN
+ * <p>
+ * Note, we use the {@code @Autowired} annotation for bean injection here, instead of using constructor injection. This
+ * is an intentional exception to the usual recommendation. The reason is that this class is a base class for all other
+ * repository classes, and using constructor params would require all repository classes to have the same constructor
+ * params, and corresponding {@code super} calls. This was causing a lot of conflicts between CE and EE, and other
+ * additional overhead, with very little value to speak for. Hence, we are using {@code @Autowired} here.
+ * <p>
+ * <a href="https://theappsmith.slack.com/archives/CPQNLFHTN/p1711966160274399">Ref Slack thread</a>.
  */
 public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
-    protected final ReactiveMongoOperations mongoOperations;
+    @Autowired
+    private ReactiveMongoOperations mongoOperations;
 
     protected final Class<T> genericDomain;
 
-    protected final MongoConverter mongoConverter;
+    @Autowired
+    private MongoConverter mongoConverter;
 
-    protected final CacheableRepositoryHelper cacheableRepositoryHelper;
+    @Autowired
+    private CacheableRepositoryHelper cacheableRepositoryHelper;
 
     public static final int NO_RECORD_LIMIT = -1;
 
     public static final int NO_SKIP = 0;
 
-    @Autowired
     @SuppressWarnings("unchecked")
-    public BaseAppsmithRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper) {
-        this.mongoOperations = mongoOperations;
-        this.mongoConverter = mongoConverter;
-        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
+    public BaseAppsmithRepositoryCEImpl() {
         this.genericDomain =
                 (Class<T>) GenericTypeResolver.resolveTypeArgument(getClass(), BaseAppsmithRepositoryCEImpl.class);
     }
 
-    public static String fieldName(Path<?> path) {
-        return Optional.ofNullable(path).map(p -> p.getMetadata().getName()).orElse("");
-    }
-
-    public static String completeFieldName(@NotNull Path<?> path) {
-        StringBuilder sb = new StringBuilder();
-
-        while (!path.getMetadata().isRoot()) {
-            sb.insert(0, "." + fieldName(path));
-            path = path.getMetadata().getParent();
-        }
-        sb.deleteCharAt(0);
-        return sb.toString();
-    }
-
-    public static Criteria notDeleted() {
-        return new Criteria()
-                .andOperator(
-                        // Older check for deleted
-                        new Criteria()
-                                .orOperator(
-                                        where(FieldName.DELETED).exists(false),
-                                        where(FieldName.DELETED).is(false)),
-                        // New check for deleted
-                        where(FieldName.DELETED_AT).isNull());
+    public static <T extends BaseDomain> BridgeQuery<T> notDeleted() {
+        return Bridge.and(
+                // Older check for deleted
+                Bridge.or(Bridge.notExists(FieldName.DELETED), Bridge.isFalse(FieldName.DELETED)),
+                // New check for deleted
+                Bridge.isNull(FieldName.DELETED_AT));
     }
 
     public static Criteria userAcl(Set<String> permissionGroups, AclPermission permission) {
@@ -129,10 +113,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                         .in(permissionGroups)
                         .and("permission")
                         .is(permission.getValue()));
-    }
-
-    protected Criteria getIdCriteria(Object id) {
-        return where("id").is(id);
     }
 
     protected DBObject getDbObject(Object o) {
@@ -451,14 +431,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
     }
 
-    /*
-    Db query methods
-     */
-
-    public Flux<T> queryAllWithoutPermissions(List<Criteria> criterias, List<String> includeFields) {
-        return queryBuilder().criteria(criterias).fields(includeFields).all();
-    }
-
     /**
      * Updates a document in the database that matches the provided query and returns the modified document.
      * This method performs a find-and-modify operation internally to atomically update a document in the database.
@@ -473,7 +445,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
      *
      * @see FindAndModifyOptions
      */
-    public Mono<T> updateAndReturn(String id, Update updateObj, Optional<AclPermission> permission) {
+    public Mono<T> updateAndReturn(String id, UpdateDefinition updateObj, Optional<AclPermission> permission) {
         Query query = new Query(Criteria.where("id").is(id));
 
         FindAndModifyOptions findAndModifyOptions =

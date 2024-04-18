@@ -290,11 +290,10 @@ export function CurlIconV2() {
   );
 }
 
-// TODO (workflows): replace with actual workflow icon
 export function WorkflowIcon() {
   return (
     <EntityIcon>
-      <Icon name="fork" size="lg" />
+      <Icon name="workflows" size="lg" />
     </EntityIcon>
   );
 }
@@ -339,20 +338,10 @@ export function ActionUrlIcon(url: string) {
   return <img src={url} />;
 }
 
-export function ModuleIcon(
-  height = 18,
-  width = 18,
-  noBackground = false,
-  noBorder = false,
-) {
+export function DefaultModuleIcon() {
   return (
-    <EntityIcon
-      height={height + "px"}
-      noBackground={noBackground}
-      noBorder={noBorder}
-      width={width + "px"}
-    >
-      <Icon name="module" size="md" />
+    <EntityIcon>
+      <Icon name="module" size="sm" />
     </EntityIcon>
   );
 }

@@ -269,6 +269,8 @@ export interface ActionOperation {
   focusEntityType?: FocusEntity;
   dsName?: string;
   entityExplorerTitle?: string;
+  isBeta?: boolean;
+  tooltip?: string;
 }
 
 export const actionOperations: ActionOperation[] = [

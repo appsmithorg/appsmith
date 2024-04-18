@@ -7,5 +7,4 @@ export interface CheckboxWidgetProps extends WidgetProps {
   isDisabled?: boolean;
   onCheckChange?: string;
   isRequired?: boolean;
-  labelPosition?: "left" | "right";
 }

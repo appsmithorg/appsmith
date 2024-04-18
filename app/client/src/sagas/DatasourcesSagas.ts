@@ -83,7 +83,6 @@ import {
   ToastMessageType,
 } from "entities/Datasource";
 import {
-  INTEGRATION_EDITOR_MODES,
   INTEGRATION_TABS,
   RESPONSE_STATUS,
   SHOW_FILE_PICKER_KEY,
@@ -169,12 +168,12 @@ import {
 } from "@appsmith/selectors/environmentSelectors";
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
-import { removeFocusHistoryRequest } from "../actions/focusHistoryActions";
-import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import FocusRetention from "./FocusRetentionSaga";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
 import { executeGoogleApi } from "./loadGoogleApi";
+import type { ActionParentEntityTypeInterface } from "@appsmith/entities/Engine/actionHelpers";
 
 function* fetchDatasourcesSaga(
   action: ReduxAction<
@@ -424,58 +423,17 @@ export function* deleteDatasourceSaga(
     const id = actionPayload.payload.id;
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.deleteDatasource(id);
-    const pageId: string = yield select(getCurrentPageId);
 
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      const pluginPackageName = shouldBeDefined<string>(
-        yield select((state: AppState) =>
-          getPluginPackageFromDatasourceId(state, id),
-        ),
-        `Plugin package not found for the given id - ${id}`,
-      );
-      const datasourcePathWithoutQuery = trimQueryString(
-        datasourcesEditorIdURL({
-          pageId,
-          datasourceId: id,
-        }),
-      );
-
-      const saasPathWithoutQuery = trimQueryString(
-        saasEditorDatasourceIdURL({
-          pageId,
-          pluginPackageName,
-          datasourceId: id,
-        }),
-      );
-      const isEditorPaneSegmentsEnabled: boolean = yield select(
-        getIsEditorPaneSegmentsEnabled,
-      );
       const currentUrl = `${window.location.pathname}`;
-      if (isEditorPaneSegmentsEnabled) {
-        yield call(handleDatasourceDeleteRedirect, id);
-      } else if (
-        currentUrl === datasourcePathWithoutQuery ||
-        currentUrl === saasPathWithoutQuery
-      ) {
-        history.push(
-          integrationEditorURL({
-            pageId,
-            selectedTab: INTEGRATION_TABS.NEW,
-            params: {
-              ...getQueryParams(),
-              mode: INTEGRATION_EDITOR_MODES.AUTO,
-            },
-          }),
-        );
-      }
+      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+      yield call(handleDatasourceDeleteRedirect, id);
 
       toast.show(createMessage(DATASOURCE_DELETE, response.data.name), {
         kind: "success",
       });
-
-      yield put(removeFocusHistoryRequest(currentUrl));
 
       yield put({
         type: ReduxActionTypes.DELETE_DATASOURCE_SUCCESS,
@@ -711,12 +669,14 @@ function* updateDatasourceSaga(
 
 function* redirectAuthorizationCodeSaga(
   actionPayload: ReduxAction<{
+    contextId: string;
+    contextType: ActionParentEntityTypeInterface;
     datasourceId: string;
-    pageId: string;
     pluginType: PluginType;
   }>,
 ) {
-  const { datasourceId, pageId, pluginType } = actionPayload.payload;
+  const { contextId, contextType, datasourceId, pluginType } =
+    actionPayload.payload;
   const isImport: string = yield select(getWorkspaceIdForImport);
   const branchName: string | undefined = yield select(getCurrentGitBranch);
 
@@ -724,7 +684,7 @@ function* redirectAuthorizationCodeSaga(
     const currentEnvironment: string = yield select(
       getCurrentEditingEnvironmentId,
     );
-    let windowLocation = `/api/v1/datasources/${datasourceId}/pages/${pageId}/code?environmentId=${currentEnvironment}`;
+    let windowLocation = `/api/v1/datasources/${datasourceId}/pages/${contextId}/code?environmentId=${currentEnvironment}`;
     if (!!branchName) {
       windowLocation = windowLocation + `&branchName=` + branchName;
     }
@@ -734,7 +694,8 @@ function* redirectAuthorizationCodeSaga(
       // Get an "appsmith token" from the server
       const response: ApiResponse<string> = yield OAuthApi.getAppsmithToken(
         datasourceId,
-        pageId,
+        contextId,
+        contextType,
         !!isImport,
       );
 

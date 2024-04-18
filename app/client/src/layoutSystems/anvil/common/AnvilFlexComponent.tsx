@@ -13,11 +13,10 @@ import type { WidgetConfigProps } from "WidgetProvider/constants";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { Layers } from "constants/Layers";
 import { noop } from "utils/AppsmithUtils";
+import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
-  // overflow is set to make sure widgets internal components/divs don't overflow this boundary causing scrolls
-  overflow: "hidden",
   zIndex: Layers.positionedWidget,
   // add transition ease-in animation when there is a flexgrow value change
   transition: "flex-grow 0.1s ease-in",
@@ -68,21 +67,37 @@ export const AnvilFlexComponent = forwardRef(
     // If the widget is being resized => update width and height to auto.
     const flexProps: FlexProps = useMemo(() => {
       const { isFillWidget, verticalAlignment } = widgetConfigProps;
+      let flexBasis = "auto";
+      if (flexGrow) {
+        // flexGrow is a widget property present only for zone widgets which represents the number of columns the zone occupies in a section.
+        // pls refer to convertFlexGrowToFlexBasis for more details.
+        flexBasis = convertFlexGrowToFlexBasis(flexGrow);
+      } else if (isFillWidget) {
+        flexBasis = "0%";
+      }
       const data: FlexProps = {
         alignSelf: verticalAlignment || FlexVerticalAlignment.Top,
-        flexGrow: flexGrow ? flexGrow : isFillWidget ? 1 : 0,
+        flexGrow: isFillWidget ? 1 : 0,
         flexShrink: isFillWidget ? 1 : 0,
-        flexBasis: isFillWidget ? "0%" : "auto",
-        padding: "spacing-1",
+        flexBasis,
         alignItems: "center",
         width: "max-content",
       };
       if (widgetSize) {
-        const { maxHeight, maxWidth, minHeight, minWidth } = widgetSize;
+        const {
+          maxHeight,
+          maxWidth,
+          minHeight,
+          minWidth,
+          paddingBottom,
+          paddingTop,
+        } = widgetSize;
         data.maxHeight = maxHeight;
         data.maxWidth = maxWidth;
         data.minHeight = minHeight;
         data.minWidth = minWidth;
+        data.paddingTop = paddingTop;
+        data.paddingBottom = paddingBottom;
       }
       return data;
     }, [widgetConfigProps, widgetSize, flexGrow]);
@@ -90,6 +105,7 @@ export const AnvilFlexComponent = forwardRef(
     // Render the Anvil Flex Component using the Flex component from WDS
     return (
       <Flex
+        isInner
         {...flexProps}
         className={_className}
         id={getAnvilWidgetDOMId(widgetId)}
@@ -98,7 +114,7 @@ export const AnvilFlexComponent = forwardRef(
         ref={ref}
         style={anvilWidgetStyleProps}
       >
-        <div className="h-full w-full">{children}</div>
+        {children}
       </Flex>
     );
   },

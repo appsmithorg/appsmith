@@ -16,6 +16,7 @@ const initialState: IDEState = {
   view: EditorViewMode.FullScreen,
   pagesActive: false,
   tabs: IDETabsDefaultValue,
+  showCreateModal: false,
 };
 
 const ideReducer = createReducer(initialState, {
@@ -68,12 +69,48 @@ const ideReducer = createReducer(initialState, {
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
   },
+  [ReduxActionTypes.SET_SHOW_QUERY_CREATE_NEW_MODAL]: (
+    state: IDEState,
+    action: {
+      payload: boolean;
+    },
+  ) => {
+    return {
+      ...state,
+      showCreateModal: action.payload,
+    };
+  },
+  [ReduxActionTypes.CLOSE_JS_ACTION_TAB]: (
+    state: IDEState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    tabs: {
+      ...state.tabs,
+      [EditorEntityTab.JS]: state.tabs[EditorEntityTab.JS].filter(
+        (tab) => tab !== action.payload.id,
+      ),
+    },
+  }),
+  [ReduxActionTypes.CLOSE_QUERY_ACTION_TAB]: (
+    state: IDEState,
+    action: ReduxAction<{ id: string }>,
+  ) => ({
+    ...state,
+    tabs: {
+      ...state.tabs,
+      [EditorEntityTab.QUERIES]: state.tabs[EditorEntityTab.QUERIES].filter(
+        (tab) => tab !== action.payload.id,
+      ),
+    },
+  }),
 });
 
 export interface IDEState {
   view: EditorViewMode;
   pagesActive: boolean;
   tabs: IDETabs;
+  showCreateModal: boolean;
 }
 
 export interface IDETabs {

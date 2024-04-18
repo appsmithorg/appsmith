@@ -10,7 +10,7 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.GitArtifactMetadata;
@@ -76,7 +76,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
-import static com.mongodb.assertions.Assertions.assertNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -226,7 +225,7 @@ public class LayoutActionServiceTest {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
                     return applicationService.save(application1).zipWhen(application11 -> exportService
                             .exportByArtifactIdAndBranchName(
-                                    application11.getId(), gitData.getBranchName(), ArtifactJsonType.APPLICATION)
+                                    application11.getId(), gitData.getBranchName(), ArtifactType.APPLICATION)
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application
@@ -1127,7 +1126,7 @@ public class LayoutActionServiceTest {
         newActionArray[0] = newAction1;
         newActionArray[1] = newAction2;
         Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
-        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any()))
+        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.anyString()))
                 .thenReturn(newActionFlux);
 
         Mono<LayoutDTO> updateLayoutMono =
@@ -1199,7 +1198,7 @@ public class LayoutActionServiceTest {
         NewAction[] newActionArray = new NewAction[1];
         newActionArray[0] = newAction1;
         Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
-        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any()))
+        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.anyString()))
                 .thenReturn(newActionFlux);
 
         Mono<LayoutDTO> updateLayoutMono =
@@ -1279,7 +1278,7 @@ public class LayoutActionServiceTest {
         // by default there should be no error in the layout, hence no error should be sent to ActionDTO/ errorReports
         // will be null
         assertNotNull(createdAction);
-        assertNull(createdAction.getErrorReports());
+        assertThat(createdAction.getErrorReports()).isNull();
 
         // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated
         // layoutOnLoadActionErrors

@@ -633,21 +633,36 @@ const PropertyControl = memo((props: Props) => {
     if (hasRenamingError()) {
       return;
     } else if (editedName.trim() && editedName !== props.propertyName) {
-      let update = {
+      let modify = {
         [editedName]: widgetProperties[props.propertyName],
       };
+
+      let triggerPaths: string[] = [];
 
       if (
         props.controlConfig &&
         typeof props.controlConfig.onEdit === "function"
       ) {
-        update = {
-          ...update,
-          ...props.controlConfig.onEdit(widgetProperties, editedName),
+        const updates = props.controlConfig.onEdit(
+          widgetProperties,
+          editedName,
+        );
+
+        modify = {
+          ...modify,
+          ...updates.modify,
         };
+
+        triggerPaths = updates.triggerPaths;
       }
 
-      onBatchUpdateProperties(update);
+      dispatch(
+        batchUpdateWidgetProperty(widgetProperties.widgetId, {
+          modify,
+          triggerPaths,
+        }),
+      );
+
       onDeleteProperties([props.propertyName]);
     }
     resetEditing();
@@ -657,7 +672,7 @@ const PropertyControl = memo((props: Props) => {
     });
   }, [
     props,
-    onBatchUpdateProperties,
+    batchUpdateWidgetProperty,
     onDeleteProperties,
     props.propertyName,
     editedName,

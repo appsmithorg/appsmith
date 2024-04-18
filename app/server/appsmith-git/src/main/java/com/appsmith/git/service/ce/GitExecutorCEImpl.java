@@ -7,6 +7,7 @@ import com.appsmith.external.dtos.GitLogDTO;
 import com.appsmith.external.dtos.GitStatusDTO;
 import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.git.constants.GitSpan;
 import com.appsmith.external.helpers.Stopwatch;
 import com.appsmith.git.configurations.GitServiceConfig;
 import com.appsmith.git.constants.AppsmithBotAsset;
@@ -16,6 +17,7 @@ import com.appsmith.git.constants.GitDirectories;
 import com.appsmith.git.helpers.RepositoryHelper;
 import com.appsmith.git.helpers.SshTransportConfigCallback;
 import com.appsmith.git.helpers.StopwatchHelpers;
+import io.micrometer.observation.ObservationRegistry;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.CreateBranchCommand;
@@ -40,6 +42,7 @@ import org.eclipse.jgit.transport.RefSpec;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.stereotype.Component;
 import org.springframework.util.FileSystemUtils;
+import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
@@ -55,12 +58,19 @@ import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
+import static com.appsmith.external.git.constants.GitConstants.GitMetricConstants.CHECKOUT_REMOTE;
+import static com.appsmith.external.git.constants.GitConstants.GitMetricConstants.HARD_RESET;
 import static com.appsmith.git.constants.CommonConstants.FILE_MIGRATION_MESSAGE;
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 
 @RequiredArgsConstructor
 @Component
@@ -70,6 +80,8 @@ public class GitExecutorCEImpl implements GitExecutor {
     private final RepositoryHelper repositoryHelper = new RepositoryHelper();
 
     private final GitServiceConfig gitServiceConfig;
+
+    protected final ObservationRegistry observationRegistry;
 
     public static final DateTimeFormatter ISO_FORMATTER =
             DateTimeFormatter.ISO_INSTANT.withZone(ZoneId.from(ZoneOffset.UTC));
@@ -89,7 +101,7 @@ public class GitExecutorCEImpl implements GitExecutor {
      * @return if the commit was successful
      */
     @Override
-    public Mono<String> commitApplication(
+    public Mono<String> commitArtifact(
             Path path,
             String commitMessage,
             String authorName,
@@ -104,7 +116,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         return Mono.fromCallable(() -> {
                     log.debug("Trying to commit to local repo path, {}", path);
                     Path repoPath = path;
-                    if (Boolean.TRUE.equals(isSuffixedPath)) {
+                    if (TRUE.equals(isSuffixedPath)) {
                         repoPath = createRepoPath(repoPath);
                     }
                     Stopwatch processStopwatch =
@@ -130,6 +142,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpan.FS_COMMIT)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -232,10 +246,12 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpan.FS_PUSH)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
-    /** Clone the repo to the file path : container-volume/orgId/defaultAppId/repo/applicationData
+    /** Clone the repo to the file path : container-volume/orgId/defaultAppId/repo/<Data>
      *
      *  @param repoSuffix combination of orgId, defaultId and repoName
      *  @param remoteUrl ssh url of the git repo(we support cloning via ssh url only with deploy key)
@@ -244,7 +260,8 @@ public class GitExecutorCEImpl implements GitExecutor {
      *  @return defaultBranchName of the repo
      * */
     @Override
-    public Mono<String> cloneApplication(Path repoSuffix, String remoteUrl, String privateKey, String publicKey) {
+    public Mono<String> cloneRemoteIntoArtifactRepo(
+            Path repoSuffix, String remoteUrl, String privateKey, String publicKey) {
 
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_CLONE.getEventName());
@@ -271,6 +288,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return branchName;
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpan.FS_CLONE_REPO)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -288,7 +307,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     try (Git git = Git.open(baseRepoPath.toFile())) {
                         // Create and checkout to new branch
                         git.checkout()
-                                .setCreateBranch(Boolean.TRUE)
+                                .setCreateBranch(TRUE)
                                 .setName(branchName)
                                 .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                                 .call();
@@ -299,6 +318,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpan.FS_CREATE_BRANCH)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -317,16 +338,18 @@ public class GitExecutorCEImpl implements GitExecutor {
                         // Create and checkout to new branch
                         List<String> deleteBranchList = git.branchDelete()
                                 .setBranchNames(branchName)
-                                .setForce(Boolean.TRUE)
+                                .setForce(TRUE)
                                 .call();
                         processStopwatch.stopAndLogTimeInMillis();
                         if (deleteBranchList.isEmpty()) {
                             return Boolean.FALSE;
                         }
-                        return Boolean.TRUE;
+                        return TRUE;
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpan.FS_DELETE_BRANCH)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -344,7 +367,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     try (Git git = Git.open(baseRepoPath.toFile())) {
                         if (StringUtils.equalsIgnoreCase(
                                 branchName, git.getRepository().getBranch())) {
-                            return Boolean.TRUE;
+                            return TRUE;
                         }
                         // Create and checkout to new branch
                         String checkedOutBranch = git.checkout()
@@ -360,6 +383,9 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .tag(CHECKOUT_REMOTE, FALSE.toString())
+                .name(GitSpan.FS_CHECKOUT_BRANCH)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -420,6 +446,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                         }
                     })
                     .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                    .name(GitSpan.FS_PULL)
+                    .tap(Micrometer.observation(observationRegistry))
                     .subscribeOn(scheduler);
         }
     }
@@ -495,17 +523,27 @@ public class GitExecutorCEImpl implements GitExecutor {
                                 + branchName);
                         Status status = git.status().call();
                         GitStatusDTO response = new GitStatusDTO();
-                        Set<String> modifiedAssets = new HashSet<>();
-                        modifiedAssets.addAll(status.getModified());
-                        modifiedAssets.addAll(status.getAdded());
-                        modifiedAssets.addAll(status.getRemoved());
-                        modifiedAssets.addAll(status.getUncommittedChanges());
-                        modifiedAssets.addAll(status.getUntracked());
-                        response.setAdded(status.getAdded());
-                        response.setRemoved(status.getRemoved());
 
-                        populateModifiedEntities(status, response, modifiedAssets);
+                        // resource changes
+                        Set<String> modified = Stream.concat(
+                                        status.getChanged().stream(), status.getModified().stream())
+                                .collect(Collectors.toSet());
+                        Set<String> added = Stream.concat(status.getAdded().stream(), status.getUntracked().stream())
+                                .collect(Collectors.toSet());
+                        Set<String> removed = Stream.concat(status.getRemoved().stream(), status.getMissing().stream())
+                                .collect(Collectors.toSet());
 
+                        response.setModified(modified);
+                        response.setAdded(added);
+                        response.setRemoved(removed);
+
+                        populateModifiedEntities(response);
+
+                        // conflicts changes
+                        response.setConflicting(status.getConflicting());
+                        response.setIsClean(status.isClean());
+
+                        // remote status changes
                         BranchTrackingStatus trackingStatus = BranchTrackingStatus.of(git.getRepository(), branchName);
                         if (trackingStatus != null) {
                             response.setAheadCount(trackingStatus.getAheadCount());
@@ -535,80 +573,176 @@ public class GitExecutorCEImpl implements GitExecutor {
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                 .flatMap(response -> response)
+                .name(GitSpan.FS_STATUS)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
-    protected void populateModifiedEntities(Status status, GitStatusDTO response, Set<String> modifiedAssets) {
-        Set<String> queriesModified = new HashSet<>();
-        Set<String> jsObjectsModified = new HashSet<>();
-        Set<String> pagesModified = new HashSet<>();
-        int modifiedPages = 0;
-        int modifiedQueries = 0;
-        int modifiedJSObjects = 0;
-        int modifiedDatasources = 0;
-        int modifiedJSLibs = 0;
-        for (String x : modifiedAssets) {
-            // begins with pages and filename and parent name should be same or contains widgets
-            if (x.contains(CommonConstants.WIDGETS)) {
-                if (!pagesModified.contains(getPageName(x))) {
-                    pagesModified.add(getPageName(x));
-                    modifiedPages++;
-                }
-            } else if (isAModifiedPage(x)) {
-                if (!pagesModified.contains(getPageName(x))) {
-                    pagesModified.add(getPageName(x));
-                    modifiedPages++;
-                }
-            } else if (x.contains(GitDirectories.ACTION_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
-                String queryName = x.split(GitDirectories.ACTION_DIRECTORY + CommonConstants.DELIMITER_PATH)[1];
-                int position = queryName.indexOf(CommonConstants.DELIMITER_PATH);
-                if (position != -1) {
-                    queryName = queryName.substring(0, position);
-                    String pageName = x.split(CommonConstants.DELIMITER_PATH)[1];
-                    if (!queriesModified.contains(pageName + queryName)) {
-                        queriesModified.add(pageName + queryName);
-                        modifiedQueries++;
-                    }
-                }
-            } else if (x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
-                String queryName = x.substring(x.lastIndexOf(CommonConstants.DELIMITER_PATH) + 1);
-                String pageName = x.split(CommonConstants.DELIMITER_PATH)[1];
-                if (!jsObjectsModified.contains(pageName + queryName)) {
-                    jsObjectsModified.add(pageName + queryName);
-                    modifiedJSObjects++;
-                }
-            } else if (x.contains(GitDirectories.DATASOURCE_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
-                modifiedDatasources++;
-            } else if (x.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
-                modifiedJSLibs++;
-                // remove this code in future when all the older format js libs are migrated to new
-                // format
-
-                if (x.contains("js.json")) {
-                    /*
-                    As this updated filename has color(:), it means this is the older format js
-                    lib file that we're going to rename with the format without colon.
-                    Hence, we need to show a message to user saying this might be a system level change.
-                     */
-                    response.setMigrationMessage(FILE_MIGRATION_MESSAGE);
-                }
-            }
-        }
-        response.setModified(modifiedAssets);
-        response.setConflicting(status.getConflicting());
-        response.setIsClean(status.isClean());
-        response.setModifiedPages(modifiedPages);
-        response.setModifiedQueries(modifiedQueries);
-        response.setModifiedJSObjects(modifiedJSObjects);
-        response.setModifiedDatasources(modifiedDatasources);
-        response.setModifiedJSLibs(modifiedJSLibs);
+    protected void populateModifiedEntities(GitStatusDTO response) {
+        populatePageChanges(response);
+        populateQueryChanges(response);
+        populateJsObjectChanges(response);
+        populateDatasourceChanges(response);
+        populateJsLibsChanges(response);
+        legacyPopulateJsLibMigrationMessage(response);
     }
 
     protected boolean isAModifiedPage(String x) {
-        return !x.contains(CommonConstants.WIDGETS)
-                && x.startsWith(GitDirectories.PAGE_DIRECTORY)
+        return x.startsWith(GitDirectories.PAGE_DIRECTORY)
                 && !x.contains(GitDirectories.ACTION_DIRECTORY)
                 && !x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY);
+    }
+
+    protected void populatePageChanges(GitStatusDTO response) {
+
+        Predicate<String> isPageAddedOrRemoved = x -> {
+            if (isAModifiedPage(x)) {
+                String[] pageNameArray = x.split(CommonConstants.DELIMITER_PATH);
+                String folderName = pageNameArray[1];
+                String fileName =
+                        pageNameArray[2].replace(CommonConstants.JSON_EXTENSION, CommonConstants.EMPTY_STRING);
+                return folderName.equals(fileName);
+            }
+            return false;
+        };
+
+        Function<String, String> getName = x -> x.split(CommonConstants.DELIMITER_PATH)[1];
+
+        Set<String> pagesAdded = response.getAdded().stream()
+                .filter(isPageAddedOrRemoved)
+                .map(getName)
+                .collect(Collectors.toSet());
+        Set<String> pagesRemoved = response.getRemoved().stream()
+                .filter(isPageAddedOrRemoved)
+                .map(getName)
+                .collect(Collectors.toSet());
+        Set<String> pagesModified = Stream.concat(
+                        response.getModified().stream(),
+                        Stream.concat(response.getAdded().stream(), response.getRemoved().stream()))
+                .filter(this::isAModifiedPage)
+                .map(getName)
+                .filter(x -> !pagesAdded.contains(x))
+                .filter(x -> !pagesRemoved.contains(x))
+                .collect(Collectors.toSet());
+
+        response.setPagesModified(pagesModified);
+        response.setPagesAdded(pagesAdded);
+        response.setPagesRemoved(pagesRemoved);
+        response.setModifiedPages(pagesModified.size() + pagesAdded.size() + pagesRemoved.size());
+    }
+
+    protected void populateQueryChanges(GitStatusDTO response) {
+        Predicate<String> condition = x -> {
+            if (x.contains(GitDirectories.ACTION_DIRECTORY + CommonConstants.DELIMITER_PATH)) {
+                String queryName = x.split(CommonConstants.DELIMITER_PATH)[3];
+                return !queryName.contains(CommonConstants.DELIMITER_HYPHEN);
+            }
+            return false;
+        };
+
+        Function<String, String> getName = x -> {
+            String pageName = x.split(CommonConstants.DELIMITER_PATH)[1];
+            String queryName = x.split(CommonConstants.DELIMITER_PATH)[3];
+            return pageName + CommonConstants.DELIMITER_PATH + queryName;
+        };
+
+        Set<String> queriesModified =
+                response.getModified().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> queriesAdded =
+                response.getAdded().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> queriesRemoved =
+                response.getRemoved().stream().filter(condition).map(getName).collect(Collectors.toSet());
+
+        response.setQueriesModified(queriesModified);
+        response.setQueriesAdded(queriesAdded);
+        response.setQueriesRemoved(queriesRemoved);
+        response.setModifiedQueries(queriesModified.size() + queriesAdded.size() + queriesRemoved.size());
+    }
+
+    protected void populateJsObjectChanges(GitStatusDTO response) {
+        Predicate<String> condition =
+                x -> x.contains(GitDirectories.ACTION_COLLECTION_DIRECTORY + CommonConstants.DELIMITER_PATH)
+                        && !x.contains(CommonConstants.METADATA + CommonConstants.JSON_EXTENSION);
+
+        Function<String, String> getName = x -> {
+            String pageName = x.split(CommonConstants.DELIMITER_PATH)[1];
+            String jsObjectName = x.substring(
+                    x.lastIndexOf(CommonConstants.DELIMITER_PATH) + 1, x.lastIndexOf(CommonConstants.DELIMITER_POINT));
+            return pageName + CommonConstants.DELIMITER_PATH + jsObjectName;
+        };
+
+        Set<String> jsObjectsModified =
+                response.getModified().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> jsObjectsAdded =
+                response.getAdded().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> jsObjectsRemoved =
+                response.getRemoved().stream().filter(condition).map(getName).collect(Collectors.toSet());
+
+        response.setJsObjectsModified(jsObjectsModified);
+        response.setJsObjectsAdded(jsObjectsAdded);
+        response.setJsObjectsRemoved(jsObjectsRemoved);
+        response.setModifiedJSObjects(jsObjectsModified.size() + jsObjectsAdded.size() + jsObjectsRemoved.size());
+    }
+
+    protected void populateDatasourceChanges(GitStatusDTO response) {
+        Predicate<String> condition =
+                x -> x.contains(GitDirectories.DATASOURCE_DIRECTORY + CommonConstants.DELIMITER_PATH);
+
+        Function<String, String> getName = x -> x.substring(
+                x.lastIndexOf(CommonConstants.DELIMITER_PATH) + 1, x.lastIndexOf(CommonConstants.DELIMITER_POINT));
+
+        Set<String> datasourcesModified =
+                response.getModified().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> datasourcesAdded =
+                response.getAdded().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> datasourcesRemoved =
+                response.getRemoved().stream().filter(condition).map(getName).collect(Collectors.toSet());
+
+        response.setDatasourcesModified(datasourcesModified);
+        response.setDatasourcesAdded(datasourcesAdded);
+        response.setDatasourcesRemoved(datasourcesRemoved);
+        response.setModifiedDatasources(
+                datasourcesModified.size() + datasourcesAdded.size() + datasourcesRemoved.size());
+    }
+
+    protected void populateJsLibsChanges(GitStatusDTO response) {
+        Predicate<String> condition = x -> x.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH);
+
+        Function<String, String> getName = x -> {
+            String filename = x.split(CommonConstants.DELIMITER_PATH)[1];
+            return filename.substring(0, filename.lastIndexOf(CommonConstants.SEPARATOR_UNDERSCORE));
+        };
+        Set<String> jsLibsModified =
+                response.getModified().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> jsLibsAdded =
+                response.getAdded().stream().filter(condition).map(getName).collect(Collectors.toSet());
+        Set<String> jsLibsRemoved =
+                response.getRemoved().stream().filter(condition).map(getName).collect(Collectors.toSet());
+
+        response.setJsLibsModified(jsLibsModified);
+        response.setJsLibsAdded(jsLibsAdded);
+        response.setJsLibsRemoved(jsLibsRemoved);
+        response.setModifiedJSLibs(jsLibsModified.size() + jsLibsAdded.size() + jsLibsRemoved.size());
+    }
+
+    protected void legacyPopulateJsLibMigrationMessage(GitStatusDTO response) {
+        /*
+           LEGACY: Remove this code in future when all the older format js libs are migrated to new format
+
+           As this updated filename has color, it means this is the older format js
+           lib file that we're going to rename with the format without colon.
+           Hence, we need to show a message to user saying this might be a system level change.
+        */
+        Predicate<String> condition = x ->
+                x.contains(GitDirectories.JS_LIB_DIRECTORY + CommonConstants.DELIMITER_PATH) && x.contains("js.json");
+
+        Boolean isModified = response.getModified().stream().anyMatch(condition);
+        Boolean isAdded = response.getAdded().stream().anyMatch(condition);
+        Boolean isRemoved = response.getAdded().stream().anyMatch(condition);
+
+        if (isModified || isAdded || isRemoved) {
+            response.setMigrationMessage(FILE_MIGRATION_MESSAGE);
+        }
     }
 
     private String getPageName(String path) {
@@ -655,6 +789,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpan.FS_MERGE)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -668,12 +804,12 @@ public class GitExecutorCEImpl implements GitExecutor {
             boolean isFetchAll) {
         Stopwatch processStopwatch =
                 StopwatchHelpers.startStopwatch(repoSuffix, AnalyticsEvents.GIT_FETCH.getEventName());
-        Path repoPath = Boolean.TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
+        Path repoPath = TRUE.equals(isRepoPath) ? repoSuffix : createRepoPath(repoSuffix);
         return Mono.fromCallable(() -> {
                     TransportConfigCallback config = new SshTransportConfigCallback(privateKey, publicKey);
                     try (Git git = Git.open(repoPath.toFile())) {
                         String fetchMessages;
-                        if (Boolean.TRUE.equals(isFetchAll)) {
+                        if (TRUE.equals(isFetchAll)) {
                             fetchMessages = git.fetch()
                                     .setRemoveDeletedRefs(true)
                                     .setTransportConfigCallback(config)
@@ -698,6 +834,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return Mono.error(error);
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpan.FS_FETCH_REMOTE)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -792,7 +930,7 @@ public class GitExecutorCEImpl implements GitExecutor {
                     try (Git git = Git.open(baseRepoPath.toFile())) {
                         // Create and checkout to new branch
                         git.checkout()
-                                .setCreateBranch(Boolean.TRUE)
+                                .setCreateBranch(TRUE)
                                 .setName(branchName)
                                 .setUpstreamMode(CreateBranchCommand.SetupUpstreamMode.TRACK)
                                 .setStartPoint("origin/" + branchName)
@@ -806,6 +944,9 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .tag(CHECKOUT_REMOTE, TRUE.toString())
+                .name(GitSpan.FS_CHECKOUT_BRANCH)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -838,6 +979,9 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return ref;
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .tag(HARD_RESET, Boolean.FALSE.toString())
+                .name(GitSpan.FS_RESET)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -871,6 +1015,9 @@ public class GitExecutorCEImpl implements GitExecutor {
                     return Mono.just(false);
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .tag(HARD_RESET, TRUE.toString())
+                .name(GitSpan.FS_RESET)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -900,6 +1047,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpan.FS_REBASE)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 
@@ -911,6 +1060,8 @@ public class GitExecutorCEImpl implements GitExecutor {
                     }
                 })
                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                .name(GitSpan.FS_BRANCH_TRACK)
+                .tap(Micrometer.observation(observationRegistry))
                 .subscribeOn(scheduler);
     }
 }

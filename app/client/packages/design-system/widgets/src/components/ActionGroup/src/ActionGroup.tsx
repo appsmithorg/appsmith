@@ -6,13 +6,13 @@ import { Item, Menu, MenuList } from "../../Menu";
 import { useListState } from "@react-stately/list";
 
 import styles from "./styles.module.css";
-import type { ActionGroupProps } from "./types";
+import type { ButtonGroupProps } from "../../../index";
 import { useActionGroup } from "./useActionGroup";
 import { IconButton } from "../../IconButton";
 import { ActionGroupItem } from "./ActionGroupItem";
 
 const _ActionGroup = <T extends object>(
-  props: ActionGroupProps<T>,
+  props: ButtonGroupProps<T>,
   ref: DOMRef<HTMLDivElement>,
 ) => {
   const {
@@ -28,7 +28,7 @@ const _ActionGroup = <T extends object>(
   } = props;
   const domRef = useDOMRef(ref);
   const state = useListState({ ...props, suppressTextValueWarning: true });
-  const { actionGroupProps, isMeasuring, visibleItems } = useActionGroup(
+  const { actionGroupProps, visibleItems } = useActionGroup(
     props,
     state,
     domRef,
@@ -38,62 +38,72 @@ const _ActionGroup = <T extends object>(
   const menuChildren = children.slice(visibleItems);
   children = children.slice(0, visibleItems);
 
-  const style = {
-    flexBasis: isMeasuring ? "100%" : undefined,
-    display: "flex",
-  };
-
   return (
     <FocusScope>
       <div
-        style={{
-          ...style,
-        }}
+        className={styles.actionGroup}
+        data-density={Boolean(density) ? density : undefined}
+        data-orientation={orientation}
+        data-overflow={overflowMode}
+        ref={domRef}
+        {...actionGroupProps}
+        {...others}
       >
-        <div
-          className={styles.actionGroup}
-          data-density={density ? density : undefined}
-          data-orientation={orientation}
-          data-overflow={overflowMode}
-          ref={domRef}
-          {...actionGroupProps}
-          {...others}
-        >
-          {children.map((item) => {
-            if (Boolean(item.props.isSeparator))
-              return <div data-separator="" />;
+        {children.map((item) => {
+          if (Boolean(item.props.isSeparator)) {
+            return <div data-separator="" key={item.key} />;
+          }
 
-            return (
-              <ActionGroupItem
-                color={color}
-                icon={item.props.icon}
-                iconPosition={item.props.iconPosition}
-                isDisabled={
-                  Boolean(state.disabledKeys.has(item.key)) || isDisabled
-                }
-                isLoading={item.props.isLoading}
-                item={item}
-                key={item.key}
-                onPress={() => onAction?.(item.key)}
-                size={Boolean(size) ? size : undefined}
-                state={state}
-                variant={variant}
-              />
-            );
-          })}
-          {menuChildren?.length > 0 && (
-            <Menu onAction={onAction}>
-              <IconButton color={color} icon="dots" variant={variant} />
-              <MenuList>
-                {menuChildren.map((item) => (
-                  <Item isSeparator={item.props.isSeparator} key={item.key}>
+          return (
+            <ActionGroupItem
+              color={color}
+              icon={item.props.icon}
+              iconPosition={item.props.iconPosition}
+              isDisabled={
+                Boolean(state.disabledKeys.has(item.key)) || isDisabled
+              }
+              isLoading={item.props.isLoading}
+              item={item}
+              key={item.key}
+              onPress={() => onAction?.(item.key)}
+              size={Boolean(size) ? size : undefined}
+              state={state}
+              variant={variant}
+            />
+          );
+        })}
+        {menuChildren?.length > 0 && (
+          <Menu
+            disabledKeys={[
+              ...state.disabledKeys,
+              ...menuChildren
+                // filtering out separators so that they can't be clicked or navigated
+                .filter((item) => item.props.isSeparator)
+                .map((item) => item.key),
+            ]}
+            onAction={onAction}
+          >
+            <IconButton
+              color={color}
+              icon="dots"
+              size={size}
+              variant={variant}
+            />
+            <MenuList>
+              {menuChildren.map((item) => {
+                return (
+                  <Item
+                    icon={item.props.icon}
+                    isSeparator={item.props.isSeparator}
+                    key={item.key}
+                  >
                     {item.rendered}
                   </Item>
-                ))}
-              </MenuList>
-            </Menu>
-          )}
-        </div>
+                );
+              })}
+            </MenuList>
+          </Menu>
+        )}
       </div>
     </FocusScope>
   );

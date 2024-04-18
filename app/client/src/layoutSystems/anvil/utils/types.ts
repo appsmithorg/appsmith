@@ -15,7 +15,7 @@ export interface AnvilFlexComponentProps {
   widgetSize?: SizeConfig;
   widgetType: WidgetType;
   onClick?: (e: any) => void;
-  onClickCapture?: () => void;
+  onClickCapture?: React.MouseEventHandler;
 }
 
 export type PositionValues =

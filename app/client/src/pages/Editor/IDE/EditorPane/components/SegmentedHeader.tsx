@@ -1,6 +1,10 @@
-import React from "react";
-import { Button, Flex, SegmentedControl } from "design-system";
-import { createMessage, EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
+import React, { useCallback } from "react";
+import { Button, Flex, SegmentedControl, Tooltip } from "design-system";
+import {
+  createMessage,
+  EDITOR_PANE_TEXTS,
+  MAXIMIZE_BUTTON_TOOLTIP,
+} from "@appsmith/constants/messages";
 import {
   EditorEntityTab,
   EditorViewMode,
@@ -14,6 +18,7 @@ import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import AnalyticsUtil from "utils/AnalyticsUtil";
 import { setIdeEditorViewMode } from "actions/ideActions";
 
 const Container = styled(Flex)`
@@ -40,6 +45,13 @@ const SegmentedHeader = () => {
   };
   const { segment } = useCurrentEditorState();
   const { onSegmentChange } = useSegmentNavigation();
+
+  const handleMaximizeButtonClick = useCallback(() => {
+    AnalyticsUtil.logEvent("EDITOR_MODE_CHANGE", {
+      to: EditorViewMode.FullScreen,
+    });
+    dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen));
+  }, []);
 
   return (
     <Container
@@ -82,15 +94,16 @@ const SegmentedHeader = () => {
       {isSideBySideEnabled &&
       editorMode === EditorViewMode.SplitScreen &&
       segment !== EditorEntityTab.UI ? (
-        <Button
-          id="editor-mode-maximize"
-          isIconButton
-          kind="tertiary"
-          onClick={() =>
-            dispatch(setIdeEditorViewMode(EditorViewMode.FullScreen))
-          }
-          startIcon="maximize-v3"
-        />
+        <Tooltip content={createMessage(MAXIMIZE_BUTTON_TOOLTIP)}>
+          <Button
+            data-testid="t--ide-maximize"
+            id="editor-mode-maximize"
+            isIconButton
+            kind="tertiary"
+            onClick={handleMaximizeButtonClick}
+            startIcon="maximize-v3"
+          />
+        </Tooltip>
       ) : null}
     </Container>
   );

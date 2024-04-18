@@ -176,7 +176,7 @@ export function getStartPosition(
     case FlexLayerAlignment.End:
       return size - HIGHLIGHT_SIZE;
     default:
-      return HIGHLIGHT_SIZE / 2;
+      return 0;
   }
 }
 

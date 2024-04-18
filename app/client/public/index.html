@@ -40,29 +40,6 @@
         const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
         const ZIPY_KEY = parseConfig('{{env "APPSMITH_ZIPY_SDK_KEY"}}');
         const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
-        // NREUM variable is required when we are we are are dynamically loading new relic browser agent script
-        NREUM = undefined
-      </script>
-      <script>
-
-        const enableNewRelic=parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ENABLE"}}');
-      //only when newRelic is enabled do we load the browser agent script
-      if (!!enableNewRelic) {
-          const accountId = parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ID"}}');
-          const applicationId = parseConfig('{{env "APPSMITH_NEW_RELIC_APPLICATION_ID"}}');
-          const browserAgentlicenseKey = parseConfig('{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY"}}');
-          const script = document.createElement("script");
-          //we load the new relic browser agent script from our CDN.
-          script.src = "https://assets.appsmith.com/newRelicBrowserAgent1.js";
-          script.onload = () => {
-            // we have defined and init function within the Browser agent script.
-            // This init fn gets assigned to a global var called NEW_RELIC_BROWSER_AGENT, when the script tag element loads
-            // we call the init fn with all env vars. Through this step browser agent has the required license key to push telemetry info to new relic.
-            NEW_RELIC_BROWSER_AGENT && NEW_RELIC_BROWSER_AGENT.init([accountId,applicationId,browserAgentlicenseKey]);
-          };
-          const head = document.getElementsByTagName("head")[0];
-          head && head.appendChild(script);
-        }
       </script>
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
@@ -246,6 +223,7 @@
           accountId: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ID"}}'),
           applicationId: parseConfig('{{env "APPSMITH_NEW_RELIC_APPLICATION_ID"}}'),
           browserAgentlicenseKey: parseConfig('{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY"}}'),
+          browserAgentEndpoint: parseConfig('{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT"}}'),
           otlpLicenseKey: parseConfig('{{env "APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY"}}'),
           //OTLP following the naming convention of Sdk initialisation
           otlpServiceName: parseConfig('{{env "APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME"}}'),

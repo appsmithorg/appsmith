@@ -22,6 +22,7 @@ import { klona as clone } from "klona/full";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 
 class ButtonGroupWidget extends BaseWidget<
@@ -34,6 +35,7 @@ class ButtonGroupWidget extends BaseWidget<
     return {
       name: "Button Group", // The display name which will be made in uppercase and show in the widgets panel ( can have spaces )
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       needsMeta: false, // Defines if this widget adds any meta properties
       isCanvas: false, // Defines if this widget has a canvas within in which we can drop other widgets
       searchTags: ["click", "submit"],

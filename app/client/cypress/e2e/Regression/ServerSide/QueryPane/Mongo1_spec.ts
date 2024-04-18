@@ -14,7 +14,6 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -291,7 +290,7 @@ describe(
       assertHelper.AssertNetworkStatus("@trigger");
 
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "Find document(s)",
         "Insert document(s)",
       );
@@ -330,7 +329,7 @@ describe(
         "AuthorNAwards",
         "Find",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
       dataSources.RunQueryNVerifyResponseViews(1, false);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
@@ -344,7 +343,7 @@ describe(
         "AuthorNAwards",
         "Find by id",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
       agHelper.EnterValue(`{"_id": ObjectId("51df07b094c6acd67e492f41")}`, {
         propFieldName: "",
         directInput: false,
@@ -416,7 +415,7 @@ describe(
         "AuthorNAwards",
         "Insert",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Insert document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Insert document(s)");
       agHelper.EnterValue(insertauthorNAwards, {
         propFieldName: "",
         directInput: false,
@@ -442,7 +441,7 @@ describe(
         "AuthorNAwards",
         "Update",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Update document(s)");
       agHelper.EnterValue(`{"_id": 3}`, {
         propFieldName: "",
         directInput: false,
@@ -475,7 +474,7 @@ describe(
         "AuthorNAwards",
         "Update",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Update document(s)");
       agHelper.EnterValue(
         `{
       "name.first": "John",
@@ -518,7 +517,7 @@ describe(
         "AuthorNAwards",
         "Update",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Update document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Update document(s)");
       agHelper.EnterValue(`{"_id": 4}`, {
         propFieldName: "",
         directInput: false,
@@ -556,7 +555,7 @@ describe(
         "AuthorNAwards",
         "Delete",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Delete document(s)");
       agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f43") }`, {
         propFieldName: "",
         directInput: false,
@@ -583,7 +582,7 @@ describe(
         "AuthorNAwards",
         "Delete",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Delete document(s)");
       agHelper.EnterValue(`{ "_id": ObjectId("51df07b094c6acd67e492f41") }`, {
         propFieldName: "",
         directInput: false,
@@ -612,7 +611,7 @@ describe(
         "AuthorNAwards",
         "Delete",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Delete document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Delete document(s)");
       agHelper.EnterValue(`{ "awards.award": "Rosing Prize" }`, {
         propFieldName: "",
         directInput: false,
@@ -645,7 +644,7 @@ describe(
         "AuthorNAwards",
         "Count",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Count");
+      dataSources.ValidateNSelectDropdown("Command", "Count");
       dataSources.RunQuery();
       cy.get("@postExecute").then((resObj: any) => {
         expect(Number(JSON.stringify(resObj.response.body.data.body.n))).to.eq(
@@ -666,7 +665,7 @@ describe(
         "AuthorNAwards",
         "Distinct",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Distinct");
+      dataSources.ValidateNSelectDropdown("Command", "Distinct");
       agHelper.EnterValue(
         `{ "awards.award": "National Medal of Technology" }`,
         {
@@ -699,7 +698,7 @@ describe(
         "AuthorNAwards",
         "Aggregate",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Aggregate");
+      dataSources.ValidateNSelectDropdown("Command", "Aggregate");
       dataSources.RunQueryNVerifyResponseViews(7, false);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
@@ -728,7 +727,7 @@ describe(
       deployMode.NavigateBacktoEditor();
       table.WaitUntilTableLoad(0, 0, "v2");
       //Delete the test data
-      PageLeftPane.expandCollapseItem("Pages");
+      PageList.ShowList();
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "AuthorNAwards",
         action: "Delete",
@@ -740,11 +739,7 @@ describe(
       const dropCollection = `{ "drop": "AuthorNAwards" }`;
       dataSources.CreateQueryForDS(dsName);
 
-      dataSources.ValidateNSelectDropdown(
-        "Commands",
-        "Find document(s)",
-        "Raw",
-      );
+      dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
       agHelper.RenameWithInPane("DropAuthorNAwards"); //Due to template appearing after renaming
       agHelper.GetNClick(dataSources._templateMenu);
       dataSources.EnterQuery(dropCollection);
@@ -763,11 +758,7 @@ describe(
     it("18. Verify application does not break when user runs the query with wrong collection name", function () {
       const dropCollection = `{ "drop": "AuthorNAwards" }`;
       dataSources.CreateQueryForDS(dsName);
-      dataSources.ValidateNSelectDropdown(
-        "Commands",
-        "Find document(s)",
-        "Raw",
-      );
+      dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
       agHelper.GetNClick(dataSources._templateMenu);
       agHelper.RenameWithInPane("DropAuthorNAwards");
       dataSources.EnterQuery(dropCollection);
@@ -830,7 +821,7 @@ describe(
       assertHelper.AssertNetworkStatus("@trigger");
 
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "Find document(s)",
         "Insert document(s)",
       );
@@ -868,7 +859,7 @@ describe(
         "BirthNDeath",
         "Find",
       );
-      dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+      dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
       dataSources.RunQueryNVerifyResponseViews(4, false);
       agHelper.ActionContextMenuWithInPane({
         action: "Delete",
@@ -878,11 +869,7 @@ describe(
       const dropCollection = `{ "drop": "BirthNDeath" }`;
 
       dataSources.CreateQueryForDS(dsName);
-      dataSources.ValidateNSelectDropdown(
-        "Commands",
-        "Find document(s)",
-        "Raw",
-      );
+      dataSources.ValidateNSelectDropdown("Command", "Find document(s)", "Raw");
       agHelper.GetNClick(dataSources._templateMenu);
       agHelper.RenameWithInPane("DropBirthNDeath");
       dataSources.EnterQuery(dropCollection);

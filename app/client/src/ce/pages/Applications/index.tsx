@@ -12,7 +12,6 @@ import {
   createMessage,
   INVITE_USERS_PLACEHOLDER,
   NO_APPS_FOUND,
-  NO_WORKSPACE_DESCRIPTION,
   NO_WORKSPACE_HEADING,
   WORKSPACES_HEADING,
 } from "@appsmith/constants/messages";
@@ -50,7 +49,6 @@ import {
 import {
   AppIconCollection,
   Classes,
-  EditableText,
   MenuItem as ListItem,
   Text,
   TextType,
@@ -115,7 +113,6 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 import { resetEditorRequest } from "actions/initActions";
-import { resetCurrentApplicationIdForCreateNewApp } from "actions/onboardingActions";
 import { setHeaderMeta } from "actions/themeActions";
 import FormDialogComponent from "components/editorComponents/form/FormDialogComponent";
 import { MOBILE_MAX_WIDTH } from "constants/AppConstants";
@@ -129,6 +126,8 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -370,7 +369,6 @@ export function WorkspaceMenuItem({
         isFetchingWorkspaces ? 100 : 22
       } /* this is to avoid showing tooltip for loaders */
       icon="group-2-line"
-      key={workspace?.id}
       onSelect={handleWorkspaceClick}
       selected={selected}
       text={workspace?.name}
@@ -387,8 +385,8 @@ export const submitCreateWorkspaceForm = async (data: any, dispatch: any) => {
 export interface LeftPaneProps {
   isBannerVisible?: boolean;
   isFetchingWorkspaces: boolean;
-  workspaces: any;
-  activeWorkspaceId: string | undefined;
+  workspaces: Workspace[];
+  activeWorkspaceId?: string;
 }
 
 export function LeftPane(props: LeftPaneProps) {
@@ -396,7 +394,7 @@ export function LeftPane(props: LeftPaneProps) {
     activeWorkspaceId,
     isBannerVisible = false,
     isFetchingWorkspaces,
-    workspaces,
+    workspaces = [],
   } = props;
   const isMobile = useIsMobileDevice();
 
@@ -409,18 +407,14 @@ export function LeftPane(props: LeftPaneProps) {
         isFetchingWorkspaces={isFetchingWorkspaces}
       >
         <WorkpsacesNavigator data-testid="t--left-panel">
-          {workspaces &&
-            workspaces.map(
-              (workspace: any) =>
-                workspace && (
-                  <WorkspaceMenuItem
-                    isFetchingWorkspaces={isFetchingWorkspaces}
-                    key={workspace?.id}
-                    selected={workspace?.id === activeWorkspaceId}
-                    workspace={workspace}
-                  />
-                ),
-            )}
+          {workspaces.map((workspace) => (
+            <WorkspaceMenuItem
+              isFetchingWorkspaces={isFetchingWorkspaces}
+              key={workspace.id}
+              selected={workspace.id === activeWorkspaceId}
+              workspace={workspace}
+            />
+          ))}
         </WorkpsacesNavigator>
       </LeftPaneSection>
     </LeftPaneWrapper>
@@ -456,9 +450,6 @@ export const WorkspaceNameWrapper = styled.div<{ disabled?: boolean }>`
     margin-left: 8px;
     color: ${(props) => props.theme.colors.applications.iconColor};
   }
-`;
-export const WorkspaceRename = styled(EditableText)`
-  padding: 0 2px;
 `;
 
 export const NoSearchResultImg = styled.img`
@@ -565,11 +556,14 @@ export function ApplicationsSection(props: any) {
     setSelectedWorkspaceIdForImportApplication,
   ]);
 
-  const leaveWS = (workspaceId: string) => {
-    setWarnLeavingWorkspace(false);
-    setWorkspaceToOpenMenu(null);
-    dispatch(leaveWorkspace(workspaceId));
-  };
+  const leaveWS = useCallback(
+    (workspaceId: string) => {
+      setWarnLeavingWorkspace(false);
+      setWorkspaceToOpenMenu(null);
+      dispatch(leaveWorkspace(workspaceId));
+    },
+    [dispatch],
+  );
 
   const handleDeleteWorkspace = useCallback(
     (workspaceId: string) => {
@@ -652,13 +646,10 @@ export function ApplicationsSection(props: any) {
       <div className="flex flex-col items-center justify-center mt-[180px]">
         <img
           className="mb-6"
-          src="https://assets.appsmith.com/no-workspace-found.svg"
+          src={`${getAssetUrl(`${ASSETS_CDN_URL}/no-workspace-found.svg`)}`}
         />
         <NewText className="!mb-3 !font-semibold" kind="heading-s">
           {createMessage(NO_WORKSPACE_HEADING)}
-        </NewText>
-        <NewText className="w-[328px]" kind="heading-xs">
-          {createMessage(NO_WORKSPACE_DESCRIPTION)}
         </NewText>
       </div>
     );
@@ -896,7 +887,9 @@ export const ApplictionsMainPage = (props: any) => {
   if (!isFetchingWorkspaces) {
     workspaces = fetchedWorkspaces;
   } else {
-    workspaces = loadingUserWorkspaces as any;
+    workspaces = loadingUserWorkspaces.map(
+      (loadingWorkspaces) => loadingWorkspaces.workspace,
+    ) as any;
   }
 
   const [activeWorkspaceId, setActiveWorkspaceId] = useState<
@@ -1012,7 +1005,6 @@ export interface ApplicationProps {
   queryModuleFeatureFlagEnabled: boolean;
   resetCurrentWorkspace: () => void;
   currentApplicationIdForCreateNewApp?: string;
-  resetCurrentApplicationIdForCreateNewApp: () => void;
   currentWorkspaceId: string;
   isReconnectModalOpen: boolean;
 }
@@ -1060,7 +1052,6 @@ export class Applications<
           currentApplicationIdForCreateNewApp={
             this.props.currentApplicationIdForCreateNewApp
           }
-          onClickBack={this.props.resetCurrentApplicationIdForCreateNewApp}
         />
       );
     } else {
@@ -1117,8 +1108,6 @@ export const mapDispatchToProps = (dispatch: any) => ({
     dispatch(setHeaderMeta(hideHeaderShadow, showHeaderSeparator));
   },
   resetCurrentWorkspace: () => dispatch(resetCurrentWorkspace()),
-  resetCurrentApplicationIdForCreateNewApp: () =>
-    dispatch(resetCurrentApplicationIdForCreateNewApp()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(Applications);

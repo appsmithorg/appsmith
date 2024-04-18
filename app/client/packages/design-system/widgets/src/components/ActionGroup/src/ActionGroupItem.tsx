@@ -1,11 +1,11 @@
 import React, { forwardRef } from "react";
 import { Button } from "@design-system/widgets";
 
-import type { ActionGroupItemProps } from "./types";
+import type { ButtonGroupItemProps } from "../../../";
 import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
 
 const _ActionGroupItem = <T extends object>(
-  props: ActionGroupItemProps<T>,
+  props: ButtonGroupItemProps<T>,
   ref: HeadlessButtonRef,
 ) => {
   const { color, item, variant, ...rest } = props;

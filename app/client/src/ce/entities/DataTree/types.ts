@@ -85,7 +85,7 @@ export interface JSActionEntityConfig extends EntityConfig {
   dynamicBindingPathList: DynamicPath[];
   bindingPaths: Record<string, EvaluationSubstitutionType>;
   reactivePaths: Record<string, EvaluationSubstitutionType>;
-  variables: Array<string>;
+  variables?: Array<string>;
   dependencyMap: DependencyMap;
   pluginType: PluginType.JS;
   name: string;
@@ -98,7 +98,7 @@ export interface JSActionEntityConfig extends EntityConfig {
 
 export interface JSActionEntity {
   [propName: string]: any;
-  body: string;
+  body?: string;
   ENTITY_TYPE: typeof ENTITY_TYPE.JSACTION;
   actionId: string;
 }

@@ -1,13 +1,15 @@
 package com.appsmith.server.services;
 
 import com.appsmith.external.models.BaseDomain;
-import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
+import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,16 +22,10 @@ import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
-import java.util.function.Function;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
-
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
-import static java.util.stream.Collectors.toSet;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -61,7 +57,7 @@ public abstract class BaseService<
         //   too fragile to touch right now. Need to dig in slow and deep to fix this.
         return repository
                 .queryBuilder()
-                .criteria(bridge().equal(key, (String) id))
+                .criteria(Bridge.equal(key, (String) id))
                 .updateFirst(resource)
                 .flatMap(obj -> repository.findById(id))
                 .flatMap(savedResource ->
@@ -69,22 +65,17 @@ public abstract class BaseService<
     }
 
     protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
-        List<Criteria> criterias = new ArrayList<>();
+        final QueryAllParams<T> builder = repository.queryBuilder();
 
         if (params != null && !params.isEmpty()) {
-            criterias = params.entrySet().stream()
-                    .map(entry -> {
-                        String key = entry.getKey();
-                        List<String> values = entry.getValue();
-                        return Criteria.where(key).in(values);
-                    })
-                    .collect(Collectors.toList());
+            final BridgeQuery<BaseDomain> query = Bridge.query();
+            for (String key : params.keySet()) {
+                query.in(key, params.get(key));
+            }
+            builder.criteria(query);
         }
-        return repository
-                .queryBuilder()
-                .criteria(criterias)
-                .permission(aclPermission)
-                .all();
+
+        return builder.permission(aclPermission).all();
     }
 
     @Override
@@ -138,15 +129,9 @@ public abstract class BaseService<
         });
     }
 
-    private Map<String, Set<Policy>> getAllPoliciesAsMap(Set<Policy> policies) {
-        return policies.stream()
-                .collect(
-                        Collectors.groupingBy(Policy::getPermission, Collectors.mapping(Function.identity(), toSet())));
-    }
-
     @Override
     public Map<String, Object> getAnalyticsProperties(T savedResource) {
-        return null;
+        return new HashMap<>();
     }
 
     /**

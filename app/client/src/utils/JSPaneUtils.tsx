@@ -43,7 +43,7 @@ export const getDifferenceInJSCollection = (
         if (
           preExisted.actionConfiguration.body !== action.body ||
           !getDifferenceInJSArgumentArrays(
-            preExisted.actionConfiguration.jsArguments,
+            preExisted.actionConfiguration?.jsArguments,
             action.arguments,
           )
         ) {
@@ -245,6 +245,37 @@ export const createDummyJSCollectionActions = (
       value: {},
     },
   ];
+
+  return {
+    actions,
+    body,
+    variables,
+  };
+};
+
+export const createSingleFunctionJsCollection = (
+  workspaceId: string,
+  functionName: string,
+  additionalParams: Record<string, unknown> = {},
+) => {
+  const body = `export default {\n\t${functionName} () {\n\t\t//\twrite code here\n\t}\n}`;
+
+  const actions = [
+    {
+      name: functionName,
+      workspaceId,
+      executeOnLoad: false,
+      actionConfiguration: {
+        body: "function (){\n\t\t//\twrite code here\n\t}",
+        timeoutInMillisecond: 0,
+        jsArguments: [],
+      },
+      clientSideExecution: true,
+      ...additionalParams,
+    },
+  ];
+
+  const variables: Variable[] = [];
 
   return {
     actions,

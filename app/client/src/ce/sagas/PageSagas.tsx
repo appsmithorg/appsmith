@@ -139,12 +139,14 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { ActionExecutionContext } from "entities/Action";
+import type { LayoutSystemTypes } from "layoutSystems/types";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -299,6 +301,7 @@ export function* handleFetchedPage({
   isFirstLoad?: boolean;
 }) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   const mainCanvasProps: MainCanvasReduxState =
     yield select(getMainCanvasProps);
   const dslTransformer = getLayoutSystemDSLTransformer(
@@ -358,7 +361,7 @@ export function* handleFetchedPage({
     // If the type of the layoutSystem is ANVIL, then we need to save the layout
     // This is because we have updated the DSL
     // using the AnvilDSLTransformer when we called the getCanvasWidgetsPayload function
-    if (willPageBeMigrated || layoutSystemType === LayoutSystemTypes.ANVIL) {
+    if (willPageBeMigrated || isAnvilLayout) {
       yield put(saveLayout());
     }
   }
@@ -977,7 +980,11 @@ export function* clonePageSaga(
       }
 
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+      yield put(
+        fetchAllPageEntityCompletion([
+          executePageLoadActions(ActionExecutionContext.CLONE_PAGE),
+        ]),
+      );
 
       // TODO: Update URL params here.
 
@@ -1374,7 +1381,11 @@ export function* generateTemplatePageSaga(
       if (!afterActionsFetch) {
         throw new Error("Failed generating template");
       }
-      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+      yield put(
+        fetchAllPageEntityCompletion([
+          executePageLoadActions(ActionExecutionContext.GENERATE_CRUD_PAGE),
+        ]),
+      );
 
       history.replace(
         builderURL({

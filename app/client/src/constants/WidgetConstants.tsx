@@ -228,6 +228,7 @@ export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
 export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
 
 export const WIDGET_TAGS = {
+  BUILDING_BLOCKS: "Building Blocks",
   SUGGESTED_WIDGETS: "Suggested",
   INPUTS: "Inputs",
   BUTTONS: "Buttons",
@@ -245,6 +246,13 @@ export type WidgetTags = (typeof WIDGET_TAGS)[keyof typeof WIDGET_TAGS];
 
 export type WidgetCardsGroupedByTags = Record<WidgetTags, WidgetCardProps[]>;
 
+// Initial items to display as default when loading entities in the explorer
+export const initialEntityCountForExplorerTag: Partial<
+  Record<WidgetTags, number>
+> = {
+  "Building Blocks": 9, // render only 9 items initially
+};
+
 export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
   TABLE_WIDGET_V2: 1,
   JSON_FORM_WIDGET: 2,
@@ -256,3 +264,9 @@ export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
 
 // Constant key to show walkthrough for a widget -> stores widget id
 export const WIDGET_ID_SHOW_WALKTHROUGH = "WIDGET_ID_SHOW_WALKTHROUGH";
+
+export const DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS = 60;
+export const DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS = 62;
+export const BUILDING_BLOCK_MIN_HORIZONTAL_LIMIT = 2000;
+export const BUILDING_BLOCK_MIN_VERTICAL_LIMIT = 800;
+export const BUILDING_BLOCK_EXPLORER_TYPE = "BUILDING_BLOCK";

@@ -595,6 +595,14 @@ public enum AppsmithError {
             "Google recaptcha verification failed",
             ErrorType.INTERNAL_ERROR,
             null),
+    GOOGLE_RECAPTCHA_INVITE_FLOW_FAILED(
+            400,
+            AppsmithErrorCode.GOOGLE_RECAPTCHA_INVITE_FLOW_FAILED.getCode(),
+            "Google recaptcha verification failed. Please try again.",
+            AppsmithErrorAction.DEFAULT,
+            "Google recaptcha verification failed",
+            ErrorType.INTERNAL_ERROR,
+            null),
     UNKNOWN_ACTION_RESULT_DATA_TYPE(
             500,
             AppsmithErrorCode.UNKNOWN_ACTION_RESULT_DATA_TYPE.getCode(),
@@ -743,9 +751,9 @@ public enum AppsmithError {
     GENERIC_JSON_IMPORT_ERROR(
             400,
             AppsmithErrorCode.GENERIC_JSON_IMPORT_ERROR.getCode(),
-            "Unable to import application in workspace {0}. {1}",
+            "Unable to import artifact in workspace {0}. {1}",
             AppsmithErrorAction.DEFAULT,
-            "Unable to import application in workspace",
+            "Unable to import artifact in workspace",
             ErrorType.BAD_REQUEST,
             null),
     FILE_PART_DATA_BUFFER_ERROR(
@@ -1019,6 +1027,14 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Trigger parameters empty.",
             ErrorType.INTERNAL_ERROR,
+            null),
+    INSUFFICIENT_PASSWORD_STRENGTH(
+            400,
+            AppsmithErrorCode.INSUFFICIENT_PASSWORD_STRENGTH.getCode(),
+            "Password must be {0}-{1} characters long and include at least one uppercase letter, one lowercase letter, one number, one symbol, and no whitespaces.",
+            AppsmithErrorAction.DEFAULT,
+            "Insufficient password strength",
+            ErrorType.ARGUMENT_ERROR,
             null),
     ;
 

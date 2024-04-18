@@ -32,20 +32,23 @@ import { useShowPropertyPane } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { calculateDropTargetRows } from "./DropTargetUtils";
 
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { EditorState as IDEAppState } from "@appsmith/entities/IDE/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { getWidgetSelectionBlock } from "selectors/ui";
 import {
   isAutoHeightEnabledForWidget,
   isAutoHeightEnabledForWidgetWithLimits,
 } from "widgets/WidgetUtils";
 import DragLayerComponent from "./DragLayerComponent";
 import StarterBuildingBlocks from "./starterBuildingBlocks";
-import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import BuildingBlockExplorerDropTarget from "./buildingBlockExplorerDropTarget";
+import { isDraggingBuildingBlockToCanvas } from "selectors/buildingBlocksSelectors";
 
 export type DropTargetComponentProps = PropsWithChildren<{
   snapColumnSpace: number;
@@ -71,30 +74,55 @@ const StyledDropTarget = styled.div`
 
 function Onboarding() {
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
+  const isDraggingBuildingBlock = useSelector(isDraggingBuildingBlockToCanvas);
   const appState = useCurrentAppState();
   const isAirgappedInstance = isAirgapped();
 
-  const showStarterTemplatesInsteadofBlankCanvas = useFeatureFlag(
+  const showStarterTemplatesInsteadOfBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
+  );
+  const releaseDragDropBuildingBlocksEnabled = useFeatureFlag(
+    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
 
   const shouldShowStarterTemplates = useMemo(
     () =>
-      showStarterTemplatesInsteadofBlankCanvas &&
+      showStarterTemplatesInsteadOfBlankCanvas &&
       !isMobileCanvas &&
-      !isAirgappedInstance,
-    [isMobileCanvas, isAirgappedInstance],
+      !isAirgappedInstance &&
+      !releaseDragDropBuildingBlocksEnabled, // Hide starter templates when drag-drop building blocks are available
+    [
+      showStarterTemplatesInsteadOfBlankCanvas,
+      isMobileCanvas,
+      isAirgappedInstance,
+      releaseDragDropBuildingBlocksEnabled,
+    ],
   );
 
-  if (shouldShowStarterTemplates && appState === IDEAppState.EDITOR)
+  const shouldShowBuildingBlocksDropTarget = useMemo(
+    () => releaseDragDropBuildingBlocksEnabled && !isDraggingBuildingBlock,
+    [releaseDragDropBuildingBlocksEnabled, isDraggingBuildingBlock],
+  );
+
+  const isEditorState = appState === IDEAppState.EDITOR;
+
+  if (shouldShowStarterTemplates && isEditorState) {
     return <StarterBuildingBlocks />;
-  else if (!shouldShowStarterTemplates && appState === IDEAppState.EDITOR)
+  } else if (shouldShowBuildingBlocksDropTarget && isEditorState) {
+    return <BuildingBlockExplorerDropTarget />;
+  } else if (
+    !shouldShowBuildingBlocksDropTarget &&
+    !shouldShowStarterTemplates &&
+    !isDraggingBuildingBlock
+  ) {
     return (
       <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
         Drag and drop a widget here
       </h2>
     );
-  else return null;
+  } else {
+    return null;
+  }
 }
 
 /*
@@ -249,6 +277,7 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
   );
   // Are we changing the auto height limits by dragging the signifiers?
   const { isAutoHeightWithLimitsChanging } = useAutoHeightUIState();
+  const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
 
   const dispatch = useDispatch();
 
@@ -317,7 +346,12 @@ export function DropTargetComponent(props: DropTargetComponentProps) {
       (e.target as HTMLDivElement).dataset.testid === selectionDiv ||
       (e.target as HTMLDivElement).dataset.testid === mainCanvasId;
 
-    if (!isResizing && !isDragging && !isAutoHeightWithLimitsChanging) {
+    if (
+      !isResizing &&
+      !isDragging &&
+      !isAutoHeightWithLimitsChanging &&
+      !isWidgetSelectionBlocked
+    ) {
       // Check if Target is the MainCanvas
       if (isTargetMainCanvas) {
         goToWidgetAdd();

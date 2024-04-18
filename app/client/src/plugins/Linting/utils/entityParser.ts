@@ -55,7 +55,7 @@ export class JSLintEntityParser implements EntityParser {
     parsedEntityConfig: {},
   };
   parse(entity: TJSActionEntity, entityConfig: JSActionEntityConfig) {
-    const jsEntityBody = entity.body;
+    const jsEntityBody = entity.body || "";
     if (
       this.#parsedJSCache &&
       jsEntityBody === this.#parsedJSCache.parsedEntity.body

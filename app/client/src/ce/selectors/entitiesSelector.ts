@@ -66,6 +66,14 @@ import {
 } from "pages/Editor/Explorer/ExplorerIcons";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
+export enum GROUP_TYPES {
+  API = "APIs",
+  JS_ACTIONS = "JS Objects",
+  AI = "AI Queries",
+  WORKFLOWS = "Workflows",
+  PACKAGES = "Packages",
+}
+
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
 
@@ -86,6 +94,8 @@ export interface NewEntityNameOptions {
   prefix: string;
   parentEntityId: string;
   parentEntityKey: CreateNewActionKeyInterface;
+  suffix?: string;
+  startWithoutIndex?: boolean;
 }
 
 export type DatasourceGroupByPluginCategory = Record<
@@ -1042,20 +1052,20 @@ export const selectFilesForExplorer = createSelector(
       ...workflowActions,
       ...workflowJsActions,
     ].reduce((acc, file) => {
-      let group = "";
+      let group;
       if (file.config.pluginType === PluginType.JS) {
-        group = "JS Objects";
+        group = GROUP_TYPES.JS_ACTIONS;
       } else if (file.config.pluginType === PluginType.API) {
         group = isEmbeddedRestDatasource(file.config.datasource)
-          ? "APIs"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+          ? GROUP_TYPES.API
+          : datasourceIdToNameMap[file.config.datasource.id] ?? GROUP_TYPES.API;
       } else if (file.config.pluginType === PluginType.AI) {
         group = isEmbeddedAIDataSource(file.config.datasource)
-          ? "AI Queries"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
+          ? GROUP_TYPES.AI
+          : datasourceIdToNameMap[file.config.datasource.id] ?? GROUP_TYPES.AI;
       } else if (file.config.pluginType === PluginType.INTERNAL) {
         // TODO: Add a group for internal actions, currently only Workflow actions are internal
-        group = "Workflows";
+        group = GROUP_TYPES.WORKFLOWS;
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }
@@ -1454,7 +1464,13 @@ export const getNewEntityName = createSelector(
   getJSCollections,
   (_state: AppState, options: NewEntityNameOptions) => options,
   (actions, jsCollections, options) => {
-    const { parentEntityId, parentEntityKey, prefix } = options;
+    const {
+      parentEntityId,
+      parentEntityKey,
+      prefix,
+      startWithoutIndex = false,
+      suffix = "",
+    } = options;
 
     const actionNames = actions
       .filter((a) => a.config[parentEntityKey] === parentEntityId)
@@ -1463,7 +1479,15 @@ export const getNewEntityName = createSelector(
       .filter((a) => a.config[parentEntityKey] === parentEntityId)
       .map((a) => a.config.name);
 
-    return getNextEntityName(prefix, actionNames.concat(jsActionNames));
+    const entityNames = actionNames.concat(jsActionNames);
+
+    const prefixExists = entityNames.indexOf(`${prefix}`) > -1;
+
+    return getNextEntityName(
+      prefixExists ? `${prefix}${suffix}` : prefix,
+      entityNames,
+      startWithoutIndex,
+    );
   },
 );
 

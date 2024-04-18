@@ -1,0 +1,234 @@
+name: Cypress test suite
+
+on:
+  workflow_call:
+    inputs:
+      tags:
+        required: true
+        type: string
+      matrix:
+        required: true
+        type: string
+
+jobs:
+  server-build:
+    if: success()
+    name: server-build
+    uses: ./.github/workflows/server-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.number }}
+      skip-tests: true
+
+  client-build:
+    if: success()
+    name: client-build
+    uses: ./.github/workflows/client-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.number }}
+      check-test-files: "true"
+
+  rts-build:
+    if: success()
+    name: rts-build
+    uses: ./.github/workflows/rts-build.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.number }}
+
+  test-appsmithctl:
+    if: success()
+    name: appsmithctl
+    uses: ./.github/workflows/appsmithctl.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.number }}
+
+  build-docker-image:
+    needs: [client-build, server-build, rts-build]
+    # Only run if the build step is successful
+    if: success()
+    name: build-docker-image
+    uses: ./.github/workflows/build-docker-image.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.number }}
+
+  ci-test:
+    needs: [build-docker-image]
+    # Only run if the build step is successful
+    if: success()
+    name: ci-test
+    uses: ./.github/workflows/ci-test-custom-script.yml
+    secrets: inherit
+    with:
+      pr: ${{ github.event.number }}
+      tags: ${{ inputs.tags }}
+      matrix: ${{ inputs.matrix }}
+
+  ci-test-result:
+    needs: [ci-test]
+    # Only run if the ci-test with matrices step is successful
+    if: always()
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Dump the client payload context
+        env:
+          PAYLOAD_CONTEXT: ${{ toJson(github.event) }}
+        run: echo "$PAYLOAD_CONTEXT"
+
+      - name: Setup node
+        if: needs.ci-test.result != 'success'
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: app/client/package.json
+
+      - name: Install pg
+        if: needs.ci-test.result != 'success'
+        run: npm install pg
+
+      - name: Fetch the failed specs
+        if: needs.ci-test.result != 'success'
+        id: failed_specs
+        env:
+          DB_HOST: ${{ secrets.CYPRESS_DB_HOST }}
+          DB_NAME: ${{ secrets.CYPRESS_DB_NAME }}
+          DB_USER: ${{ secrets.CYPRESS_DB_USER }}
+          DB_PWD: ${{ secrets.CYPRESS_DB_PWD }}
+          RUN_ID: ${{ github.run_id }}
+          ATTEMPT_NUMBER: ${{ github.run_attempt }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const { Pool } = require("pg");
+            const { DB_HOST, DB_NAME, DB_USER, DB_PWD, RUN_ID, ATTEMPT_NUMBER } = process.env
+
+            const client = await new Pool({
+              user: DB_USER,
+              host: DB_HOST,
+              database: DB_NAME,
+              password: DB_PWD,
+              port: 5432,
+              connectionTimeoutMillis: 60000,
+            }).connect();
+
+            const result = await client.query(
+              `SELECT DISTINCT name FROM public."specs"
+                WHERE "matrixId" IN
+                (SELECT id FROM public."matrix"
+                WHERE "attemptId" = (
+                  SELECT id FROM public."attempt" WHERE "workflowId" = $1 and "attempt" = $2
+                  )
+                ) AND status = 'fail'`,
+              [RUN_ID, ATTEMPT_NUMBER],
+            );
+            client.release();
+            return result.rows.map((spec) => spec.name);
+
+      # In case for any ci job failure, create combined failed spec
+      - name: Combine all specs for CI
+        id: combine_ci
+        if: needs.ci-test.result != 'success'
+        run: |
+          failed_specs=$(echo ${{steps.failed_specs.outputs.result}} | sed 's/\[\|\]//g' | tr -d ' ' | tr ',' '\n')
+          while read -r line; do
+            echo "$line" >> ~/combined_failed_spec_ci
+          done <<< "$failed_specs"
+          if [[ -z $(grep '[^[:space:]]' ~/combined_failed_spec_ci) ]] ; then
+            echo "specs_failed=0" >> $GITHUB_OUTPUT
+          else
+            echo "specs_failed=1" >> $GITHUB_OUTPUT
+          fi
+
+      # Upload combined failed CI spec list to a file
+      # This is done for debugging
+      - name: Upload combined failed spec
+        if: needs.ci-test.result != 'success'
+        uses: actions/upload-artifact@v3
+        with:
+          name: combined_failed_spec_ci
+          path: ~/combined_failed_spec_ci
+
+      - name: Get Latest flaky Tests
+        shell: bash
+        run: |
+          curl --request POST --url https://yatin-s-workspace-jk8ru5.us-east-1.xata.sh/db/CypressKnownFailures:main/tables/CypressKnownFailuires/query --header 'Authorization: Bearer ${{ secrets.XATA_TOKEN }}' --header 'Content-Type: application/json'|jq -r |grep Spec|cut -d ':' -f 2 2> /dev/null|sed 's/"//g'|sed 's/,//g' >  ~/knownfailures
+
+      # Verify CI test failures against known failures
+      - name: Verify CI test failures against known failures
+        if: needs.ci-test.result != 'success'
+        shell: bash
+        run: |
+          new_failed_spec_env="$(comm -1 -3 <(sort ~/knownfailures) <(sort -u ~/combined_failed_spec_ci) | sed 's/|cypress|cypress/\n/g' | sed 's/^/> <li>/')"
+          echo "$new_failed_spec_env"
+          echo "new_failed_spec_env<<EOF" >> $GITHUB_ENV
+          echo "$new_failed_spec_env" >> $GITHUB_ENV
+          echo "EOF" >> $GITHUB_ENV
+
+      - name: Modify test response in the PR with new CI failures
+        if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '1'
+        uses: nefrob/pr-description@v1.1.1
+        with:
+          content: |
+            <!-- This is an auto-generated comment: Cypress test results  -->
+            > [!CAUTION]
+            > 🔴 🔴 🔴 Some tests have failed.
+            > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+            > Commit: ${{ github.event.pull_request.head.sha }}
+            > Cypress dashboard: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail" target="_blank"> Click here!</a>
+            > The following are new failures, please fix them before merging the PR: <ol>
+            ${{env.new_failed_spec_env}} </ol>
+            > To know the list of identified flaky tests - <a href="https://internal.appsmith.com/app/cypress-dashboard/identified-flaky-tests-65890b3c81d7400d08fa9ee3?branch=master" target="_blank">Refer here</a>
+
+            <!-- end of auto-generated comment: Cypress test results  -->
+
+          regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+          regexFlags: ims
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Modify test response in the PR when ci-test is failed but no specs found
+        if: needs.ci-test.result != 'success' && steps.combine_ci.outputs.specs_failed == '0'
+        uses: nefrob/pr-description@v1.1.1
+        with:
+          content: |
+            <!-- This is an auto-generated comment: Cypress test results  -->
+            > [!WARNING]
+            > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+            > Commit: ${{ github.event.pull_request.head.sha }}
+            > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+            > It seems like **no tests ran** 😔. We are not able to recognize it, please check workflow <a href="${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}" target="_blank">here.</a>
+
+            <!-- end of auto-generated comment: Cypress test results  -->
+
+          regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+          regexFlags: ims
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Modify test response in the PR when ci-test is success
+        if: needs.ci-test.result == 'success' && steps.combine_ci.outputs.specs_failed == '0'
+        uses: nefrob/pr-description@v1.1.1
+        with:
+          content: |
+            <!-- This is an auto-generated comment: Cypress test results  -->
+            > [!TIP]
+            > 🟢 🟢 🟢 All cypress tests have passed! 🎉 🎉 🎉
+            > Workflow run: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+            > Commit: ${{ github.event.pull_request.head.sha }}
+            > Cypress dashboard url: <a href="https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}" target="_blank">Click here!</a>
+
+            <!-- end of auto-generated comment: Cypress test results  -->
+
+          regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+          regexFlags: ims
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Check ci-test set status
+        if: needs.ci-test.result != 'success'
+        run: exit 1

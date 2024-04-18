@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.internal.partial;
 
 import com.appsmith.external.models.Datasource;
+import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.CustomJSLib;
@@ -9,10 +10,13 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationTemplateService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
 import com.appsmith.server.solutions.ActionPermission;
@@ -20,6 +24,7 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.WorkspacePermission;
+import com.appsmith.server.widgets.refactors.WidgetRefactorUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -50,7 +55,12 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             ImportableService<NewAction> newActionImportableService,
             ImportableService<ActionCollection> actionCollectionImportableService,
             NewPageService newPageService,
-            RefactoringService refactoringService) {
+            RefactoringService refactoringService,
+            ApplicationTemplateService applicationTemplateService,
+            WidgetRefactorUtil widgetRefactorUtil,
+            ApplicationPageService applicationPageService,
+            NewActionService newActionService,
+            ActionCollectionService actionCollectionService) {
         super(
                 importService,
                 workspaceService,
@@ -71,6 +81,11 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
                 newActionImportableService,
                 actionCollectionImportableService,
                 newPageService,
-                refactoringService);
+                refactoringService,
+                applicationTemplateService,
+                widgetRefactorUtil,
+                applicationPageService,
+                newActionService,
+                actionCollectionService);
     }
 }

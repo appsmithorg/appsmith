@@ -1,4 +1,3 @@
-import type { OptionProps } from "design-system-old";
 import { css } from "styled-components";
 import type { JSActionDropdownOption } from "./utils";
 
@@ -19,35 +18,32 @@ export const NO_FUNCTION_DROPDOWN_OPTION: JSActionDropdownOption = {
   value: "",
   data: null,
 };
+
+export const CONFIRM_BEFORE_CALLING_HEADING = {
+  text: "Confirm before calling ",
+  hasInfo: true,
+  info: `Ask for confirmation before executing function.`,
+  key: "run_before_calling",
+  hidden: true,
+};
+
 export const SETTINGS_HEADINGS = [
   {
     text: "Function name",
     hasInfo: false,
     key: "func_name",
+    hidden: undefined,
   },
   {
     text: "Run on page load",
     hasInfo: true,
     info: "Allow function run when page loads",
     key: "run_on_pageload",
+    hidden: undefined,
   },
-  {
-    text: "Confirm before calling ",
-    hasInfo: true,
-    info: "Ask for confirmation before executing function",
-    key: "run_before_calling",
-  },
+  CONFIRM_BEFORE_CALLING_HEADING,
 ];
-export const RADIO_OPTIONS: OptionProps[] = [
-  {
-    label: "Yes",
-    value: "true",
-  },
-  {
-    label: "No",
-    value: "false",
-  },
-];
+
 export const RUN_GUTTER_ID = "run-gutter";
 export const RUN_GUTTER_CLASSNAME = "run-marker-gutter";
 export const JS_OBJECT_HOTKEYS_CLASSNAME = "js-object-hotkeys";

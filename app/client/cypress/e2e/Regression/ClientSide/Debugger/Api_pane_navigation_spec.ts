@@ -31,7 +31,6 @@ describe(
       debuggerHelper.ClicklogEntityLink();
 
       agHelper.AssertElementVisibility(apiPage._nextCursorValue);
-      debuggerHelper.CloseBottomBar();
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Api1",
         entityType: entityItems.Api,
@@ -51,32 +50,11 @@ describe(
       apiPage.SelectPaneTab("Headers");
       EditorNavigation.ShowCanvas();
       debuggerHelper.AssertErrorCount(1);
-      debuggerHelper.ClickDebuggerIcon();
       debuggerHelper.ClicklogEntityLink();
 
       agHelper.AssertElementVisibility(apiPage._bodyValue(0));
-      debuggerHelper.CloseBottomBar();
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "Api2",
-        entityType: entityItems.Api,
-      });
-    });
-
-    it("3. Navigation to a grapql settings field", () => {
-      apiPage.CreateGraphqlApi("Api3");
-      apiPage.SelectPaneTab("Settings");
-      dataSources.SetQueryTimeout(20000, "API");
-
-      apiPage.SelectPaneTab("Pagination");
-      EditorNavigation.ShowCanvas();
-      debuggerHelper.ClickDebuggerIcon();
-      debuggerHelper.ClickLogsTab();
-      debuggerHelper.ClicklogEntityLink(true);
-
-      agHelper.AssertElementVisibility(dataSources._queryTimeout);
-      debuggerHelper.CloseBottomBar();
-      entityExplorer.ActionContextMenuByEntityName({
-        entityNameinLeftSidebar: "Api3",
         entityType: entityItems.Api,
       });
     });

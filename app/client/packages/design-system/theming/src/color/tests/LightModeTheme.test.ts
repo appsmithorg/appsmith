@@ -3,27 +3,27 @@ import { LightModeTheme } from "../src/LightModeTheme";
 describe("bg color", () => {
   it("should return correct color when lightness > 0.93", () => {
     const { bg } = new LightModeTheme("oklch(0.95 0.09 231)").getColors();
-    expect(bg).toBe("rgb(84.831% 87.516% 88.974%)");
+    expect(bg).toBe("rgb(86.508% 87.102% 87.426%)");
   });
 
   it("should return correct color when lightness < 0.93", () => {
     const { bg } = new LightModeTheme("oklch(0.92 0.09 231)").getColors();
-    expect(bg).toBe("rgb(92.567% 95.296% 96.777%)");
+    expect(bg).toBe("rgb(95.576% 96.181% 96.511%)");
   });
 
   it("should return correct color when hue > 120 && hue < 300", () => {
     const { bg } = new LightModeTheme("oklch(0.95 0.07 231)").getColors();
-    expect(bg).toBe("rgb(84.831% 87.516% 88.974%)");
+    expect(bg).toBe("rgb(86.508% 87.102% 87.426%)");
   });
 
   it("should return correct color when hue < 120 or hue > 300", () => {
     const { bg } = new LightModeTheme("oklch(0.92 0.07 110)").getColors();
-    expect(bg).toBe("rgb(94.827% 94.982% 92.913%)");
+    expect(bg).toBe("rgb(96.069% 96.092% 95.796%)");
   });
 
   it("should return correct color when chroma < 0.04", () => {
     const { bg } = new LightModeTheme("oklch(0.92 0.02 110)").getColors();
-    expect(bg).toBe("rgb(94.752% 94.752% 94.752%)");
+    expect(bg).toBe("rgb(96.059% 96.059% 96.059%)");
   });
 });
 
@@ -203,7 +203,7 @@ describe("bgNeutral color", () => {
 
   it("should return correct color when lightness is between 0.25 and 0.85", () => {
     const { bgNeutral } = new LightModeTheme("oklch(0.5 0.09 231)").getColors();
-    expect(bgNeutral).toEqual("rgb(21.658% 29.368% 33.367%)");
+    expect(bgNeutral).toEqual("rgb(27.672% 28.158% 28.423%)");
   });
 
   it("should return correct color when chroma < 0.04", () => {
@@ -217,12 +217,12 @@ describe("bgNeutral color", () => {
     const { bgNeutral } = new LightModeTheme(
       "oklch(0.95 0.06 240)",
     ).getColors();
-    expect(bgNeutral).toEqual("rgb(87.409% 95.47% 100%)");
+    expect(bgNeutral).toEqual("rgb(93.666% 94.196% 94.597%)");
   });
 
   it("should return correct color when hue is not between 120 and 300 and chroma is not less than 0.04", () => {
     const { bgNeutral } = new LightModeTheme("oklch(0.95 0.06 30)").getColors();
-    expect(bgNeutral).toEqual("rgb(98.083% 92.81% 91.842%)");
+    expect(bgNeutral).toEqual("rgb(94.37% 94.015% 93.949%)");
   });
 });
 
@@ -231,7 +231,7 @@ describe("bgNeutralOpacity color", () => {
     const { bgNeutralOpacity } = new LightModeTheme(
       "oklch(0.51 0.24 279)",
     ).getColors();
-    expect(bgNeutralOpacity).toEqual("rgb(27.662% 28.6% 35.606% / 0.5)");
+    expect(bgNeutralOpacity).toEqual("rgb(29.012% 29.087% 29.559% / 0.5)");
   });
 });
 
@@ -240,35 +240,35 @@ describe("bgNeutralHover color", () => {
     const { bgNeutralHover } = new LightModeTheme(
       "oklch(0.05 0.03 170)",
     ).getColors();
-    expect(bgNeutralHover).toEqual("rgb(16.952% 16.952% 16.952%)");
+    expect(bgNeutralHover).toEqual("rgb(14.087% 14.087% 14.087%)");
   });
 
   it("should return correct color when lightness is between 0.06 and 0.14", () => {
     const { bgNeutralHover } = new LightModeTheme(
       "oklch(0.10 0.03 170)",
     ).getColors();
-    expect(bgNeutralHover).toEqual("rgb(12.222% 12.222% 12.222%)");
+    expect(bgNeutralHover).toEqual("rgb(10.396% 10.396% 10.396%)");
   });
 
   it("should return correct color when lightness is between 0.14 and 0.21", () => {
     const { bgNeutralHover } = new LightModeTheme(
       "oklch(0.17 0.03 170)",
     ).getColors();
-    expect(bgNeutralHover).toEqual("rgb(12.222% 12.222% 12.222%)");
+    expect(bgNeutralHover).toEqual("rgb(11.304% 11.304% 11.304%)");
   });
 
   it("should return correct color when lightness is between 0.21 and 0.7", () => {
     const { bgNeutralHover } = new LightModeTheme(
       "oklch(0.35 0.03 170)",
     ).getColors();
-    expect(bgNeutralHover).toEqual("rgb(17.924% 17.924% 17.924%)");
+    expect(bgNeutralHover).toEqual("rgb(16.952% 16.952% 16.952%)");
   });
 
   it("should return correct color when lightness is between 0.7 and 0.955", () => {
     const { bgNeutralHover } = new LightModeTheme(
       "oklch(0.75 0.03 170)",
     ).getColors();
-    expect(bgNeutralHover).toEqual("rgb(62.05% 62.05% 62.05%)");
+    expect(bgNeutralHover).toEqual("rgb(60.846% 60.846% 60.846%)");
   });
 
   it("should return correct color when lightness >  or equal to 0.955", () => {
@@ -307,28 +307,28 @@ describe("bgNeutralSubtle color", () => {
     const { bgNeutralSubtle } = new LightModeTheme(
       "oklch(0.95 0.03 170)",
     ).getColors();
-    expect(bgNeutralSubtle).toEqual("rgb(94.099% 94.099% 94.099%)");
+    expect(bgNeutralSubtle).toEqual("rgb(98.026% 98.026% 98.026%)");
   });
 
   it("should return correct color when lightness < or equal to 0.93", () => {
     const { bgNeutralSubtle } = new LightModeTheme(
       "oklch(0.92 0.03 170)",
     ).getColors();
-    expect(bgNeutralSubtle).toEqual("rgb(90.851% 90.851% 90.851%)");
+    expect(bgNeutralSubtle).toEqual("rgb(91.499% 91.499% 91.499%)");
   });
 
   it("should return correct color when seedChroma >  0.01", () => {
     const { bgNeutralSubtle } = new LightModeTheme(
       "oklch(0.92 0.1 170)",
     ).getColors();
-    expect(bgNeutralSubtle).toEqual("rgb(88.517% 91.796% 90.467%)");
+    expect(bgNeutralSubtle).toEqual("rgb(91.268% 91.594% 91.461%)");
   });
 
   it("should return correct color when chroma < 0.04", () => {
     const { bgNeutralSubtle } = new LightModeTheme(
       "oklch(0.92 0.03 170)",
     ).getColors();
-    expect(bgNeutralSubtle).toEqual("rgb(90.851% 90.851% 90.851%)");
+    expect(bgNeutralSubtle).toEqual("rgb(91.499% 91.499% 91.499%)");
   });
 });
 
@@ -338,7 +338,7 @@ describe("bgNeutralSubtleHover color", () => {
       "oklch(0.92 0.1 170)",
     ).getColors();
 
-    expect(bgNeutralSubtleHover).toEqual("rgb(91.102% 94.398% 93.061%)");
+    expect(bgNeutralSubtleHover).toEqual("rgb(93.867% 94.195% 94.061%)");
   });
 });
 
@@ -348,7 +348,7 @@ describe("bgNeutralSubtleActive color", () => {
       "oklch(0.92 0.1 170)",
     ).getColors();
 
-    expect(bgNeutralSubtleActive).toEqual("rgb(87.229% 90.5% 89.174%)");
+    expect(bgNeutralSubtleActive).toEqual("rgb(89.974% 90.299% 90.166%)");
   });
 });
 
@@ -575,7 +575,7 @@ describe("fg color", () => {
   it("should return correct color when chroma >  0.04", () => {
     const { fg } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
 
-    expect(fg).toEqual("rgb(5.4369% 1.2901% 0%)");
+    expect(fg).toEqual("rgb(2.8027% 2.0973% 1.6301%)");
   });
 });
 
@@ -603,13 +603,13 @@ describe("fgNeutral color", () => {
   it("should return correct color when chroma >  0.04 and hue is between 120 and 300", () => {
     const { fgNeutral } = new LightModeTheme("oklch(0.45 0.1 150)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(25.52% 36.593% 27.669%)");
+    expect(fgNeutral).toEqual("rgb(32.964% 33.592% 33.055%)");
   });
 
   it("should return correct color when chroma >  0.04 and hue is not between 120 and 300", () => {
     const { fgNeutral } = new LightModeTheme("oklch(0.45 0.1 110)").getColors();
 
-    expect(fgNeutral).toEqual("rgb(33.531% 33.77% 30.07%)");
+    expect(fgNeutral).toEqual("rgb(33.392% 33.411% 33.167%)");
   });
 });
 
@@ -703,7 +703,7 @@ describe("fgOnAccent color ", () => {
   it("should return correct color when chroma >  0.04", () => {
     const { fgOnAccent } = new LightModeTheme("oklch(0.45 0.1 60)").getColors();
 
-    expect(fgOnAccent).toEqual("rgb(100% 92.634% 85.713%)");
+    expect(fgOnAccent).toEqual("rgb(97.954% 93.998% 90.979%)");
   });
 });
 
@@ -760,7 +760,7 @@ describe("fgOnWarning color ", () => {
 describe("bd color", () => {
   it("should return correct color", () => {
     const { bd } = new LightModeTheme("oklch(0.45 0.5 60)").getColors();
-    expect(bd).toEqual("rgb(80.718% 72.709% 66.526%)");
+    expect(bd).toEqual("rgb(75.553% 74.037% 72.885%)");
   });
 });
 
@@ -784,22 +784,22 @@ describe("bdFocus color", () => {
 
   it("should return correct color when lightness > 0.8", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.85 0.03 60)").getColors();
-    expect(bdFocus).toEqual("rgb(31.389% 9.8% 0%)");
+    expect(bdFocus).toEqual("rgb(26.226% 2.7922% 0%)");
   });
 
   it("should return correct color when chroma < 0.15", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.85 0.1 60)").getColors();
-    expect(bdFocus).toEqual("rgb(64.667% 36.271% 0%)");
+    expect(bdFocus).toEqual("rgb(49.321% 26.506% 0%)");
   });
 
   it("should return correct color when hue is between 0 and 55", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.85 0.1 30)").getColors();
-    expect(bdFocus).toEqual("rgb(72.468% 27.962% 22.197%)");
+    expect(bdFocus).toEqual("rgb(59.176% 15.217% 10.565%)");
   });
 
   it("should return correct color when hue >  340", () => {
     const { bdFocus } = new LightModeTheme("oklch(0.85 0.1 350)").getColors();
-    expect(bdFocus).toEqual("rgb(68.494% 27.322% 49.304%)");
+    expect(bdFocus).toEqual("rgb(55.484% 14.961% 37.943%)");
   });
 });
 
@@ -851,7 +851,7 @@ describe("bdNegativeHover", () => {
     const { bdNegativeHover } = new LightModeTheme(
       "oklch(0.45 0.03 60)",
     ).getColors();
-    expect(bdNegativeHover).toEqual("rgb(97.525% 25.712% 23.78%)");
+    expect(bdNegativeHover).toEqual("rgb(94.628% 22.524% 21.261%)");
   });
 });
 

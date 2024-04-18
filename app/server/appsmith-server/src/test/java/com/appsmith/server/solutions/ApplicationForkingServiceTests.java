@@ -20,7 +20,7 @@ import com.appsmith.external.models.UploadedFile;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
@@ -97,7 +97,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.function.Function;
@@ -364,7 +363,7 @@ public class ApplicationForkingServiceTests {
                                 application.getWorkspaceId(),
                                 application.getId(),
                                 application,
-                                ArtifactJsonType.APPLICATION)))
+                                ArtifactType.APPLICATION)))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono.zipWhen(applicationImportDTO -> Mono.zip(
@@ -494,7 +493,7 @@ public class ApplicationForkingServiceTests {
         final Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(sourceAppId, testUserWorkspaceId, sourceEnvironmentId)
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, ArtifactType.APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1276,7 +1275,7 @@ public class ApplicationForkingServiceTests {
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, ArtifactType.APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1306,7 +1305,7 @@ public class ApplicationForkingServiceTests {
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, ArtifactType.APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1336,7 +1335,7 @@ public class ApplicationForkingServiceTests {
         Mono<ApplicationImportDTO> resultMono = applicationForkingService
                 .forkApplicationToWorkspaceWithEnvironment(srcApp.getId(), targetWorkspaceId, srcDefaultEnvironmentId)
                 .flatMap(application -> importService.getArtifactImportDTO(
-                        application.getWorkspaceId(), application.getId(), application, ArtifactJsonType.APPLICATION))
+                        application.getWorkspaceId(), application.getId(), application, ArtifactType.APPLICATION))
                 .map(importableArtifactDTO -> (ApplicationImportDTO) importableArtifactDTO);
 
         StepVerifier.create(resultMono)
@@ -1360,7 +1359,7 @@ public class ApplicationForkingServiceTests {
                                 .findByWorkspaceId(workspace.getId(), READ_APPLICATIONS)
                                 .map(data.applications::add),
                         datasourceService
-                                .getAllByWorkspaceIdWithStorages(workspace.getId(), Optional.of(READ_DATASOURCES))
+                                .getAllByWorkspaceIdWithStorages(workspace.getId(), READ_DATASOURCES)
                                 .map(data.datasources::add),
                         getActionsInWorkspace(workspace).map(data.actions::add),
                         getActionCollectionsInWorkspace(workspace).map(data.actionCollections::add),
@@ -1453,6 +1452,9 @@ public class ApplicationForkingServiceTests {
                             new SSLDetails(
                                     SSLDetails.AuthType.ALLOW,
                                     SSLDetails.CACertificateType.NONE,
+                                    new UploadedFile("keyFile", "key file content"),
+                                    new UploadedFile("certFile", "cert file content"),
+                                    new UploadedFile("caCertFile", "caCert file content"),
                                     new UploadedFile("keyFile", "key file content"),
                                     new UploadedFile("certFile", "cert file content"),
                                     new UploadedFile("caCertFile", "caCert file content"),
@@ -1682,6 +1684,9 @@ public class ApplicationForkingServiceTests {
                             new SSLDetails(
                                     SSLDetails.AuthType.ALLOW,
                                     SSLDetails.CACertificateType.NONE,
+                                    new UploadedFile("keyFile", "key file content"),
+                                    new UploadedFile("certFile", "cert file content"),
+                                    new UploadedFile("caCertFile", "caCert file content"),
                                     new UploadedFile("keyFile", "key file content"),
                                     new UploadedFile("certFile", "cert file content"),
                                     new UploadedFile("caCertFile", "caCert file content"),

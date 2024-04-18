@@ -1,0 +1,158 @@
+name: PR Automation test suite
+
+on:
+  pull_request:
+    branches: [release]
+    types:
+      - opened
+      - labeled
+
+jobs:
+  parse-tags:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    defaults:
+      run:
+        shell: bash
+    outputs:
+      tags: ${{ steps.checkAll.outputs.tags }}
+      matrix: ${{ steps.checkAll.outputs.matrix }}
+    steps:
+
+      # Checks for ok-to-test label presence in PR
+      - name: Check label
+        run: |
+              if [[ '${{ github.event.label.name }}' != 'ok-to-test' ]]; then
+                echo "Irrelevant label '${{ github.event.label.name }}' added! "
+                exit 1
+              fi
+
+      # Reads the PR description to retrieve /ok-to-test slash command
+      - name: Get tags
+        id: getTags
+        env:
+          PR_BODY: ${{ github.event.pull_request.body }}
+        run: |
+          REGEX='/ok-to-test tags="([^"]*)"';
+          if [[ $PR_BODY =~ $REGEX ]]; then
+            echo "tags=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+          fi
+
+      # Parses the retrieved /ok-to-test slash command to retrieve tags
+      - name: Parse tags
+        id: parseTags
+        run: |
+              if [[ '${{ steps.getTags.outputs.tags }}' != '' ]]; then
+                echo "tags=${{ steps.getTags.outputs.tags }}" >> $GITHUB_OUTPUT
+                echo "outcome=success" >> $GITHUB_OUTPUT
+              else
+                echo "Tags were not found!"
+                echo "outcome=failure" >> $GITHUB_OUTPUT
+              fi
+
+      # In case of missing tags, guides towards correct usage in test response
+      - name: Add test response with tags documentation link
+        if: steps.parseTags.outputs.outcome != 'success'
+        uses: nefrob/pr-description@v1.1.1
+        with:
+            content: |
+              <!-- This is an auto-generated comment: Cypress test results  -->
+              > [!WARNING]
+              > The provided command lacks proper tags. Please modify PR body, specifying the tags you want to include or use `/ok-to-test tags="@tag.All"` to run all specs.
+              > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
+
+              <!-- end of auto-generated comment: Cypress test results  -->
+            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+            regexFlags: ims
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+      # In case of missing tags, exit the workflow with failure
+      - name: Stop the workflow run if tags are not present
+        if: steps.parseTags.outputs.outcome != 'success'
+        run: exit 1
+
+      # In case of a run with all test cases, allocate a larger matrix
+      - name: Check if @tag.All is present in tags
+        id: checkAll
+        run: |
+          tags="${{ steps.parseTags.outputs.tags }}"
+          if [[ ($tags == *"ALL"* || $tags == *"All"*  || $tags == *"all"*) && $tags != *"@tag.All"* ]]; then
+            echo "invalid_tags_all=$tags" >> $GITHUB_OUTPUT
+          elif [[ $tags == *"@tag.All"* ]]; then
+            echo "tags=" >> $GITHUB_OUTPUT
+            echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32, 33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57, 58, 59]" >> $GITHUB_OUTPUT
+          else
+            echo "tags=$tags" >> $GITHUB_OUTPUT
+            echo "matrix=[0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]" >> $GITHUB_OUTPUT
+          fi
+
+      # In case of incorrect usage for all test cases, inform the PR author of correct usage
+      - name: Add test response to use correct @tag.All format
+        if: steps.checkAll.outputs.invalid_tags_all != ''
+        uses: nefrob/pr-description@v1.1.1
+        with:
+            content: |
+              <!-- This is an auto-generated comment: Cypress test results  -->
+              > [!WARNING]
+              > Please use `/ok-to-test tags="@tag.All"` to run all specs.
+              > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
+
+              <!-- end of auto-generated comment: Cypress test results  -->
+
+            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+            regexFlags: ims
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+      # In case of incorrect usage for all test cases, exit the workflow with failure
+      - name: Stop the workflow run if given @tag.All format is wrong
+        if: steps.checkAll.outputs.invalid_tags_all != ''
+        run: exit 1
+
+      # In case of a run with all test cases, inform the PR author of better usage
+      - name: Add test response to use @tag.All
+        if: steps.checkAll.outputs.tags == ''
+        uses: nefrob/pr-description@v1.1.1
+        with:
+            content: |
+              <!-- This is an auto-generated comment: Cypress test results  -->
+              > [!WARNING]
+              > Whoa, @tag.All spotted in your test suite! 🚀
+              > While @tag.All is cool, like a catch-all net, why not try specific tags? 🏷️
+              > Narrow down your suite with specific tags for quicker and more accurate tests! 🚀 Less waiting, more zipping through tests like a ninja!
+              > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
+
+              <!-- end of auto-generated comment: Cypress test results  -->
+
+            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+            regexFlags: ims
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+      # In case of a runnable command, update the PR with run details
+      - name: Add test response with link to workflow run
+        uses: nefrob/pr-description@v1.1.1
+        with:
+            content: |
+              <!-- This is an auto-generated comment: Cypress test results  -->
+              > [!IMPORTANT]
+              > 🟣 🟣 🟣 Your tests are running.
+              > Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>
+              > Commit: ${{ github.event.pull_request.head.sha }}
+              > Workflow: `${{ github.workflow }}`
+              > Tags: `${{ steps.checkAll.outputs.tags }}`
+
+              <!-- end of auto-generated comment: Cypress test results  -->
+
+            regex: "<!-- This is an auto-generated comment: Cypress test results  -->.*?<!-- end of auto-generated comment: Cypress test results  -->"
+            regexFlags: ims
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+  # Call the workflow to run Cypress tests
+  perform-test:
+    needs: [parse-tags]
+    if: success()
+    uses: ./.github/workflows/pr-cypress.yml
+    secrets: inherit
+    with:
+      tags: ${{ needs.parse-tags.outputs.tags}}
+      matrix: ${{ needs.parse-tags.outputs.matrix}}

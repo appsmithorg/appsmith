@@ -1,11 +1,18 @@
 .switch {
+  position: relative;
+  width: auto;
+
   [data-icon] {
     --gutter: 2px;
-    --knob-size: var(--sizing-3);
+    --knob-size: var(--sizing-4);
 
-    position: relative;
+    /**
+      Checkbox icon are positioned absolutely because we need to align the elements along the baseline
+      but icon takes more space than the text content.
+    */
+    position: absolute;
     width: var(--sizing-8);
-    height: var(--sizing-4);
+    height: var(--sizing-5);
     background-color: var(--color-bd-neutral);
     border-radius: var(--knob-size);
     color: var(--color-bg);
@@ -29,6 +36,36 @@
 
   &[data-hovered]:not([data-disabled]) [data-icon] {
     background-color: var(--color-bd-neutral-hover);
+  }
+
+  /**
+  * ----------------------------------------------------------------------------
+  * LABEL POSITION
+  *-----------------------------------------------------------------------------
+  */
+  &[data-label-position="end"] {
+    padding-inline-start: calc(var(--sizing-8) + var(--inner-spacing-2));
+    justify-content: flex-end;
+  }
+
+  &[data-label-position="end"] [data-icon] {
+    left: 0;
+  }
+
+  &[data-label-position="end"] .text {
+    margin-inline-start: auto;
+  }
+
+  &[data-label-position="start"] {
+    padding-inline-end: calc(var(--sizing-8) + var(--inner-spacing-2));
+  }
+
+  &[data-label-position="start"] [data-icon] {
+    right: 0;
+  }
+
+  &[data-label-position="start"] .text {
+    margin-inline-end: auto;
   }
 
   /**

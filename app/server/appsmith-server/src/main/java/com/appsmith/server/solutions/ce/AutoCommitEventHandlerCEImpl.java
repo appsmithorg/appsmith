@@ -35,7 +35,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static com.appsmith.external.constants.GitConstants.PAGE_LIST;
+import static com.appsmith.external.git.constants.GitConstants.PAGE_LIST;
 import static com.appsmith.server.helpers.GitUtils.MAX_RETRIES;
 import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
 
@@ -142,7 +142,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                         .flatMap(baseRepoPath -> {
                             // commit the application
                             return gitExecutor
-                                    .commitApplication(
+                                    .commitArtifact(
                                             baseRepoPath,
                                             String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
                                             autoCommitEvent.getAuthorName(),

@@ -1,7 +1,7 @@
 package com.appsmith.server.services.ce;
 
+import com.appsmith.external.enums.WorkspaceResourceContext;
 import com.appsmith.server.constants.FieldName;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.domains.User;
@@ -10,6 +10,7 @@ import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.projections.UserDataProfilePhotoProjection;
 import com.appsmith.server.repositories.ApplicationRepository;
@@ -22,7 +23,6 @@ import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.solutions.ReleaseNotesService;
-import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +38,6 @@ import java.util.List;
 import java.util.Map;
 
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
-import static com.appsmith.server.helpers.ce.bridge.Bridge.bridge;
 
 public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserData, String>
         implements UserDataServiceCE {
@@ -53,8 +52,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     private final FeatureFlagService featureFlagService;
 
-    private final UserChangedHandler userChangedHandler;
-
     private final ApplicationRepository applicationRepository;
 
     private final TenantService tenantService;
@@ -63,7 +60,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
     private static final int MAX_RECENT_WORKSPACES_LIMIT = 10;
 
-    private static final int MAX_RECENT_APPLICATIONS_LIMIT = 20;
+    private static final int MAX_RECENT_WORKSPACE_RESOURCE_LIMIT = 20;
 
     @Autowired
     public UserDataServiceCEImpl(
@@ -75,7 +72,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
             AssetService assetService,
             ReleaseNotesService releaseNotesService,
             FeatureFlagService featureFlagService,
-            UserChangedHandler userChangedHandler,
             ApplicationRepository applicationRepository,
             TenantService tenantService) {
         super(validator, repository, analyticsService);
@@ -84,7 +80,6 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         this.assetService = assetService;
         this.sessionUserService = sessionUserService;
         this.featureFlagService = featureFlagService;
-        this.userChangedHandler = userChangedHandler;
         this.applicationRepository = applicationRepository;
         this.tenantService = tenantService;
     }
@@ -152,7 +147,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
         return repository
                 .queryBuilder()
-                .criteria(bridge().equal(UserData.Fields.userId, userId))
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
                 .updateFirst(resource)
                 .flatMap(count -> count == 0 ? Mono.empty() : repository.findByUserId(userId))
                 .flatMap(analyticsService::sendUpdateEvent);
@@ -179,7 +174,17 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                         .getDefaultTenantId()
                         .flatMap(tenantId -> userRepository.findByEmailAndTenantId(user.getEmail(), tenantId))
                         .flatMap(user1 -> Mono.justOrEmpty(user1.getId())))
-                .flatMap(userId -> repository.saveReleaseNotesViewedVersion(userId, version))
+                .flatMap(userId -> repository
+                        .saveReleaseNotesViewedVersion(userId, version)
+                        .flatMap(count -> {
+                            if (count == 0) {
+                                final UserData userData = new UserData();
+                                userData.setReleaseNotesViewedVersion(version);
+                                userData.setUserId(user.getId());
+                                return repository.save(userData).then();
+                            }
+                            return Mono.empty();
+                        }))
                 .thenReturn(user);
     }
 
@@ -240,48 +245,47 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
                 .flatMap(assetId -> assetService.makeImageResponse(exchange, assetId));
     }
 
-    /**
-     * This function is used to update the recently used application and workspace for the user
-     *
-     * @param application
-     * @return Updated {@link UserData}
-     */
     @Override
-    public Mono<UserData> updateLastUsedAppAndWorkspaceList(Application application) {
+    public Mono<UserData> updateLastUsedResourceAndWorkspaceList(
+            String resourceId, String workspaceId, WorkspaceResourceContext context) {
         return sessionUserService
                 .getCurrentUser()
                 .zipWhen(this::getForUser)
                 .flatMap(tuple -> {
                     final User user = tuple.getT1();
                     final UserData userData = tuple.getT2();
-                    // TODO remove the updated to deprecated fields once client starts consuming the updated API
-                    // set recently used workspace ids
-                    userData.setRecentlyUsedWorkspaceIds(addIdToRecentList(
-                            userData.getRecentlyUsedWorkspaceIds(),
-                            application.getWorkspaceId(),
-                            MAX_RECENT_WORKSPACES_LIMIT));
-                    // set recently used application ids
-                    userData.setRecentlyUsedAppIds(addIdToRecentList(
-                            userData.getRecentlyUsedAppIds(), application.getId(), MAX_RECENT_APPLICATIONS_LIMIT));
-
                     // Update recently used workspace and corresponding application ids
                     List<RecentlyUsedEntityDTO> recentlyUsedEntities = reorderWorkspacesInRecentlyUsedOrderForUser(
-                            userData.getRecentlyUsedEntityIds(),
-                            application.getWorkspaceId(),
-                            MAX_RECENT_WORKSPACES_LIMIT);
+                            userData.getRecentlyUsedEntityIds(), workspaceId, MAX_RECENT_WORKSPACES_LIMIT);
 
                     if (!CollectionUtils.isNullOrEmpty(recentlyUsedEntities)) {
                         RecentlyUsedEntityDTO latest = recentlyUsedEntities.get(0);
+                        // Get the correct resource id based on the context
+                        List<String> existingResourceIds = getResourceIds(latest, context);
                         // Add the current applicationId to the list
-                        latest.setApplicationIds(addIdToRecentList(
-                                latest.getApplicationIds(), application.getId(), MAX_RECENT_APPLICATIONS_LIMIT));
+                        setResourceIds(
+                                latest,
+                                context,
+                                addIdToRecentList(
+                                        existingResourceIds, resourceId, MAX_RECENT_WORKSPACE_RESOURCE_LIMIT));
                     }
                     userData.setRecentlyUsedEntityIds(recentlyUsedEntities);
                     return Mono.zip(
-                            analyticsService.identifyUser(user, userData, application.getWorkspaceId()),
-                            repository.save(userData));
+                            analyticsService.identifyUser(user, userData, workspaceId), repository.save(userData));
                 })
                 .map(Tuple2::getT2);
+    }
+
+    protected void setResourceIds(
+            RecentlyUsedEntityDTO recentlyUsedEntityDTO,
+            WorkspaceResourceContext workspaceResourceContext,
+            List<String> resourceIds) {
+        recentlyUsedEntityDTO.setApplicationIds(resourceIds);
+    }
+
+    protected List<String> getResourceIds(
+            RecentlyUsedEntityDTO recentlyUsedEntityDTO, WorkspaceResourceContext context) {
+        return recentlyUsedEntityDTO.getApplicationIds();
     }
 
     protected List<String> addIdToRecentList(List<String> srcIdList, String newId, int maxSize) {
@@ -296,7 +300,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
         }
         // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
         if (srcIdList.size() > maxSize) {
-            srcIdList = srcIdList.subList(0, maxSize);
+            srcIdList.subList(maxSize, srcIdList.size()).clear();
         }
         return srcIdList;
     }
@@ -327,7 +331,7 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
 
         // keeping the last maxSize ids, there may be a lot of ids which are not used anymore
         if (srcIdList.size() > maxSize) {
-            srcIdList = srcIdList.subList(0, maxSize);
+            srcIdList.subList(maxSize, srcIdList.size()).clear();
         }
         return srcIdList;
     }

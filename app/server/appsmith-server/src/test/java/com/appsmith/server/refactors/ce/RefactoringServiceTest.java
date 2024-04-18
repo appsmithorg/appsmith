@@ -55,7 +55,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
-import static com.appsmith.server.constants.ArtifactJsonType.APPLICATION;
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -248,9 +248,9 @@ public class RefactoringServiceTest {
         ActionCollectionDTO mockActionCollectionDTO = new ActionCollectionDTO();
         mockActionCollectionDTO.setName("testCollection");
 
-        Mockito.when(actionCollectionService.getCollectionsByPageIdAndViewMode(
-                        Mockito.any(), Mockito.anyBoolean(), Mockito.any()))
-                .thenReturn(Flux.just(mockActionCollectionDTO));
+        Mockito.doReturn(Flux.just(mockActionCollectionDTO))
+                .when(actionCollectionService)
+                .getCollectionsByPageIdAndViewMode(Mockito.any(), Mockito.anyBoolean(), Mockito.any());
 
         Mono<Boolean> nameAllowedMono = refactoringService.isNameAllowed(
                 testPage.getId(),

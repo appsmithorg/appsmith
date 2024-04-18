@@ -14,7 +14,7 @@ const generateTestLogString = () => {
   return logString;
 };
 
-describe("Debugger logs", function () {
+describe("Debugger logs", { tags: ["@tag.Debugger"] }, function () {
   this.beforeEach(() => {
     logString = generateTestLogString();
   });
@@ -285,7 +285,8 @@ describe("Debugger logs", function () {
     });
 
     EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    _.agHelper.GetNClick(_.locators._errorTab);
+    _.agHelper.AssertElementVisibility(".t--debugger-count");
+    _.debuggerHelper.ClickDebuggerIcon();
 
     _.debuggerHelper.ClicklogEntityLink();
 

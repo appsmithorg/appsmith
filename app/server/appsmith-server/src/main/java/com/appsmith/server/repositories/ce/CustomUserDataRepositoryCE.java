@@ -8,7 +8,7 @@ import java.util.List;
 
 public interface CustomUserDataRepositoryCE extends AppsmithRepository<UserData> {
 
-    Mono<Void> saveReleaseNotesViewedVersion(String userId, String version);
+    Mono<Integer> saveReleaseNotesViewedVersion(String userId, String version);
 
     Mono<Void> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds);
 

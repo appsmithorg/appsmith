@@ -75,7 +75,7 @@ jobs:
         id: changed-files-specific
         uses: tj-actions/changed-files@v41
         with:
-          files: 'app/server/**'
+          files: "app/server/**"
 
       - name: Run step if any file(s) in the server folder change
         if: steps.changed-files-specific.outputs.any_changed == 'true'
@@ -89,7 +89,7 @@ jobs:
       - name: Restore the previous run result
         if: inputs.skip-tests != 'true' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         id: cache-appsmith
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             ~/run_result
@@ -128,7 +128,7 @@ jobs:
       # Setup Java
       - name: Set up JDK 17
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        uses: actions/setup-java@v3
+        uses: actions/setup-java@v4
         with:
           distribution: "temurin"
           java-version: "17"
@@ -136,7 +136,7 @@ jobs:
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         env:
           cache-name: cache-maven-dependencies
         with:
@@ -178,15 +178,20 @@ jobs:
           args=()
           if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
             failed_tests="${{ steps.failed_tests.outputs.tests }}"
-            args+=("-DfailIfNoTests=false" "-Dtest=${failed_tests}")
+            args+=("-DfailIfNoTests=false" "-Dsurefire.failIfNoSpecifiedTests=false" "-Dtest=${failed_tests}")
           fi
-          args+=("-DtestResultFile=$PWD/failed-server-tests.txt")
           if ! mvn test "${args[@]}"; then
-            if [[ -s failed-server-tests.txt ]]; then
+            echo "Generating failed test list:"
+            failed_tests_file="$PWD/failed-server-tests.txt"
+            gawk -F\" '/<testcase / {cur_test = $4 "#" $2} /<(failure|error) / {print cur_test}' $(find . -type f -name 'TEST-*.xml') \
+              | sort -u \
+              | tee "$failed_tests_file"
+            echo "Saved to $failed_tests_file"
+            if [[ -s $failed_tests_file ]]; then
               content="$(
                 echo "## Failed server tests"
                 echo
-                sed 's/^/- /' 'failed-server-tests.txt' | sort -u
+                sed 's/^/- /' "$failed_tests_file"
               )"
               echo "$content" >> "$GITHUB_STEP_SUMMARY"
               # Add a comment to the PR with the list of failed tests.
@@ -209,7 +214,7 @@ jobs:
       # Force store previous run result to cache
       - name: Store the previous run result
         if: failure()
-        uses: actions/cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             ~/run_result
@@ -249,7 +254,7 @@ jobs:
       # Restore the previous built bundle if present. If not push the newly built into the cache
       - name: Restore the previous bundle
         if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: |
             app/server/dist/

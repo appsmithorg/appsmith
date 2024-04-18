@@ -1,5 +1,6 @@
 package com.appsmith.server;
 
+import com.appsmith.server.annotations.ConditionalOnMicrometerMetricsEnabled;
 import com.appsmith.server.configurations.ProjectProperties;
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -23,11 +24,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 
 import java.time.Duration;
 
 @SpringBootApplication
+@ComponentScan({"com.appsmith"})
 @EnableScheduling
 @Slf4j
 public class ServerApplication {
@@ -64,16 +67,19 @@ public class ServerApplication {
     }
 
     @Bean
+    @ConditionalOnMicrometerMetricsEnabled
     public TimedAspect timedAspect(MeterRegistry registry) {
         return new TimedAspect(registry);
     }
 
     @Bean
+    @ConditionalOnMicrometerMetricsEnabled
     public MeterRegistry meterRegistry(OpenTelemetry openTelemetry) {
         return OpenTelemetryMeterRegistry.builder(openTelemetry).build();
     }
 
     @Bean
+    @ConditionalOnMicrometerMetricsEnabled
     public OpenTelemetry openTelemetry() {
         return OpenTelemetrySdk.builder()
                 .setMeterProvider(SdkMeterProvider.builder()

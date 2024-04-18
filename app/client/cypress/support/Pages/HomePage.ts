@@ -1,9 +1,8 @@
-import { ObjectsRegistry } from "../Objects/Registry";
-import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
+import { CURRENT_REPO, REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
+import { ObjectsRegistry } from "../Objects/Registry";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
-
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -60,6 +59,10 @@ export class HomePage {
   _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = " .createnew";
   _newButtonCreateApplication = "[data-testid=t--workspace-action-create-app]";
+  _newButtonCreateApplicationFromTemplates =
+    "[data-testid=t--workspace-action-create-app-from-template]";
+  _createAppFromTemplatesDialog =
+    "[data-testid=t--create-app-from-templates-dialog-component]";
   _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   _applicationName = ".t--application-name";
@@ -325,6 +328,12 @@ export class HomePage {
     if (appname) this.RenameApplication(appname);
   }
 
+  public OpenTemplatesDialogInStartFromTemplates() {
+    this.agHelper.GetNClick(this._homePageAppCreateBtn, 0, true);
+    this.agHelper.GetNClick(this._newButtonCreateApplicationFromTemplates);
+    this.agHelper.AssertElementVisibility(this._createAppFromTemplatesDialog);
+  }
+
   //Maps to AppSetupForRename in command.js
   public RenameApplication(appName: string) {
     this.onboarding.closeIntroModal();
@@ -428,7 +437,11 @@ export class HomePage {
     }
   }
 
-  public SignUp(uname: string, pswd: string) {
+  public SignUp(
+    uname: string,
+    pswd: string,
+    skipToApplication: boolean = true,
+  ) {
     this.agHelper.VisitNAssert("/user/signup");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
@@ -449,6 +462,15 @@ export class HomePage {
           this.agHelper.ClickButton("Get started");
         }
       });
+
+    this.assertHelper.AssertNetworkStatus("@getApplicationsOfWorkspace");
+
+    if (skipToApplication) {
+      this.agHelper.WaitUntilEleAppear(
+        this.onboarding.locators.skipStartFromData,
+      );
+      this.agHelper.GetNClick(this.onboarding.locators.skipStartFromData);
+    }
     this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
   }
 

@@ -5,6 +5,8 @@ import type { VersionUpdateState } from "../sagas/WebsocketSagas/versionUpdatePr
 import { isNumber } from "lodash";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import type { OverriddenFeatureFlags } from "./hooks/useFeatureFlagOverride";
+import { AvailableFeaturesToOverride } from "./hooks/useFeatureFlagOverride";
 
 export const STORAGE_KEYS: {
   [id: string]: string;
@@ -38,6 +40,8 @@ export const STORAGE_KEYS: {
   AI_KNOWLEDGE_BASE: "AI_KNOWLEDGE_BASE",
   PARTNER_PROGRAM_CALLOUT: "PARTNER_PROGRAM_CALLOUT",
   IDE_VIEW_MODE: "IDE_VIEW_MODE",
+  CODE_WIDGET_NAVIGATION_USED: "CODE_WIDGET_NAVIGATION_USED",
+  OVERRIDDEN_FEATURE_FLAGS: "OVERRIDDEN_FEATURE_FLAGS",
 };
 
 const store = localforage.createInstance({
@@ -880,5 +884,66 @@ export const retrieveIDEViewMode = async (): Promise<
   } catch (error) {
     log.error("An error occurred while fetching IDE_VIEW_MODE");
     log.error(error);
+  }
+};
+
+export const storeCodeWidgetNavigationUsed = async (count: number) => {
+  try {
+    await store.setItem(STORAGE_KEYS.CODE_WIDGET_NAVIGATION_USED, count);
+    return true;
+  } catch (error) {
+    log.error("An error occurred while setting CODE_WIDGET_NAVIGATION_USED");
+    log.error(error);
+  }
+};
+
+export const retrieveCodeWidgetNavigationUsed = async (): Promise<number> => {
+  try {
+    const mode = (await store.getItem(
+      STORAGE_KEYS.CODE_WIDGET_NAVIGATION_USED,
+    )) as number;
+    return mode || 0;
+  } catch (error) {
+    log.error("An error occurred while fetching CODE_WIDGET_NAVIGATION_USED");
+    log.error(error);
+    return 0;
+  }
+};
+
+/**
+
+
+Retrieves the overridden values for feature flags.
+
+
+@param flagsToFetch - The feature flags to fetch the overridden values for.
+
+@returns An object containing the overridden values for each feature flag.
+*/
+export const getFeatureFlagOverrideValues = async (
+  flagsToFetch = AvailableFeaturesToOverride,
+) => {
+  const featureFlagValues: OverriddenFeatureFlags = {};
+  for (const flag of flagsToFetch) {
+    featureFlagValues[flag] = (await store.getItem(flag)) as boolean;
+  }
+  return featureFlagValues;
+};
+
+/**
+
+
+Sets the override values for feature flags.
+
+
+@param featureFlagValues - An object containing the feature flags and their corresponding override values.
+
+@returns {Promise<void>} - A promise that resolves when all the feature flags have been set.
+*/
+export const setFeatureFlagOverrideValues = async (
+  featureFlagValues: OverriddenFeatureFlags,
+) => {
+  for (const [flag, value] of Object.entries(featureFlagValues)) {
+    await store.setItem(flag, value);
   }
 };

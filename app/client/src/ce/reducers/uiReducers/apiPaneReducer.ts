@@ -6,32 +6,38 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import type { Action } from "entities/Action";
 import type { UpdateActionPropertyActionPayload } from "actions/pluginActionActions";
+import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 
 export const initialState: ApiPaneReduxState = {
   isCreating: false,
-  isFetching: false,
   isRunning: {},
   isSaving: {},
   isDeleting: {},
   isDirty: {},
-  currentCategory: "",
   extraformData: {},
   selectedConfigTabIndex: 0,
-  selectedResponseTab: "",
+  debugger: {
+    open: false,
+    responseTabHeight: ActionExecutionResizerHeight,
+  },
 };
+
+export interface ApiPaneDebuggerState {
+  open: boolean;
+  responseTabHeight: number;
+  selectedTab?: string;
+}
 
 export interface ApiPaneReduxState {
   isCreating: boolean; // RR
-  isFetching: boolean; // RR
   isRunning: Record<string, boolean>;
   isSaving: Record<string, boolean>; // RN
   isDeleting: Record<string, boolean>;
   isDirty: Record<string, boolean>;
-  currentCategory: string;
   extraformData: Record<string, any>;
   selectedConfigTabIndex: number;
-  selectedResponseTab: string;
   selectedRightPaneTab?: string;
+  debugger: ApiPaneDebuggerState;
 }
 
 export const handlers = {
@@ -73,6 +79,10 @@ export const handlers = {
     isRunning: {
       ...state.isRunning,
       [action.payload.id]: true,
+    },
+    debugger: {
+      ...state.debugger,
+      open: true,
     },
   }),
   [ReduxActionTypes.RUN_ACTION_SUCCESS]: (
@@ -183,14 +193,6 @@ export const handlers = {
     },
   }),
 
-  [ReduxActionTypes.SET_CURRENT_CATEGORY]: (
-    state: ApiPaneReduxState,
-    action: ReduxAction<{ category: string }>,
-  ) => ({
-    ...state,
-    currentCategory: action.payload.category,
-  }),
-
   /**
    * This redux action sets the extraformData field for an action. This is used to select the
    * appropriate body type tab selection in the Rest API plugin based on the content-type.
@@ -231,6 +233,18 @@ export const handlers = {
     return {
       ...state,
       selectedRightPaneTab: selectedTab,
+    };
+  },
+  [ReduxActionTypes.SET_API_PANE_DEBUGGER_STATE]: (
+    state: ApiPaneReduxState,
+    action: ReduxAction<Partial<ApiPaneDebuggerState>>,
+  ) => {
+    return {
+      ...state,
+      debugger: {
+        ...state.debugger,
+        ...action.payload,
+      },
     };
   },
 };
