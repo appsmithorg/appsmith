@@ -38,34 +38,26 @@ export class DependencyMapUtils {
     }
   }
 
-  static makeParentsDependOnChildren(
-    dependencyMap: DependencyMap,
-    affectedPaths?: any,
-  ) {
+  static makeParentsDependOnChildren(dependencyMap: DependencyMap) {
     const dependencies = dependencyMap.rawDependencies;
 
-    if (!affectedPaths) {
-      for (const [node, deps] of dependencies.entries()) {
-        this.makeParentsDependOnChild(dependencyMap, node);
-        deps.forEach((dep) => {
-          this.makeParentsDependOnChild(dependencyMap, dep);
-        });
-      }
-    } else {
-      [...dependencies.keys()]
-        .filter((key) => affectedPaths.some((p: any) => key.startsWith(p)))
-        .forEach((node) => {
-          const deps = dependencies.get(node);
-          this.makeParentsDependOnChild(dependencyMap, node);
-          if (deps) {
-            deps.forEach((dep) => {
-              this.makeParentsDependOnChild(dependencyMap, dep);
-            });
-          }
-        });
+    for (const [node, deps] of dependencies.entries()) {
+      this.makeParentsDependOnChild(dependencyMap, node);
+      deps.forEach((dep) => {
+        this.makeParentsDependOnChild(dependencyMap, dep);
+      });
     }
+
     return dependencyMap;
   }
+  public static makeParentsDependOnChildCollection = (
+    dependencyMap: DependencyMap,
+    childCollection: string[],
+  ) => {
+    childCollection.forEach((child) => {
+      this.makeParentsDependOnChild(dependencyMap, child);
+    });
+  };
 
   private static makeParentsDependOnChild = (
     dependencyMap: DependencyMap,

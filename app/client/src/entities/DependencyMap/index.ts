@@ -126,6 +126,7 @@ export default class DependencyMap {
     // Now set the new deps and invalidDeps
     this.#dependencies.set(node, validDependencies);
     this.#invalidDependencies.set(node, invalidDependencies);
+    return validDependencies;
   };
 
   private removeDependency = (node: string) => {
@@ -150,12 +151,12 @@ export default class DependencyMap {
    * @param nodes
    */
 
-  addNodes = (nodes: Record<string, true>, strict = true) => {
+  addNodes = (nodes: Record<string, true>, strict = true): string[] => {
     const nodesToAdd = strict
       ? Object.keys(nodes)
       : sort(Object.keys(nodes)).desc((node) => node.split(".").length);
 
-    let didUpdateGraph = false;
+    const didUpdateGraph = [];
     for (const newNode of nodesToAdd) {
       if (this.#nodes.has(newNode)) continue;
       // New node introduced to the graph.
@@ -187,7 +188,7 @@ export default class DependencyMap {
         // since the invalid node is now valid, add it to the valid dependencies.
         this.#dependencies.get(iNode)?.add(newNode);
         this.#invalidDependencies.get(iNode)?.delete(newNode);
-        didUpdateGraph = true;
+        didUpdateGraph.push(newNode);
         if (this.#dependenciesInverse.has(newNode)) {
           this.#dependenciesInverse.get(newNode)?.add(iNode);
         } else {
