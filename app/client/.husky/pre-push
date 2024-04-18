@@ -1,0 +1,79 @@
+#!/bin/bash
+
+echo "pre push hook called"
+
+# An example hook script to verify what is about to be pushed.  Called by "git
+# push" after it has checked the remote status, but before anything has been
+# pushed.  If this script exits with a non-zero status nothing will be pushed.
+#
+# This hook is called with the following parameters:
+#
+# $1 -- Name of the remote to which the push is being done
+# $2 -- URL to which the push is being done
+#
+# If pushing without using a named remote those arguments will be equal.
+#
+# Information about the commits which are being pushed is supplied as lines to
+# the standard input in the form:
+#
+#   <local ref> <local oid> <remote ref> <remote oid>
+
+#!/bin/sh
+
+# Function to get list of files between two commits
+do_commits_contain_ee_files() {
+    # Store the commit hashes
+    from_commit=$1
+    to_commit=$2
+    string_to_match="app/client/src/ee"
+
+    # Get the list of files between the two commits
+    files=$(git diff --name-only $from_commit $to_commit)
+
+    #echo "$files"
+
+    # Iterate over each file
+    for file in $files; do
+        # Check if the file path contains the string
+        echo $file
+        if [[ "$file" == *"$string_to_match"* ]]; then
+            echo "File '$file' matches the string '$string_to_match'"
+            return 0
+        fi
+    done
+    return 1
+}
+
+ee_changes_verified() {
+    if [ "$1" = "1" ]; then
+        return 0
+    else
+        return 1
+    fi
+}
+
+
+remote="$1"
+url="$2"
+DEFAULT_VALUE_FOR_VERIFIED_EE_CHANGES="0"
+VERIFIED_EE_CHANGES="${VERIFIED_EE_CHANGES:-$DEFAULT_VALUE_FOR_VERIFIED_EE_CHANGES}"
+
+while read local_ref local_sha remote_ref remote_sha
+do
+    echo "pushing from $remote_sha to $local_sha"
+
+    if do_commits_contain_ee_files $remote_sha $local_sha
+    then
+        echo -e "Found EE changes in the commits\n"
+        if ee_changes_verified "$VERIFIED_EE_CHANGES"; then
+            echo "EE changes have been verified"
+            exit 0
+        else
+            echo "EE changes have not been verified"
+            exit 1
+        fi
+    else
+        echo -e "Didn't find ee changes in the commit\n"
+        exit 0
+    fi
+done
