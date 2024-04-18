@@ -9,10 +9,10 @@ import com.google.gson.Gson;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ApplicationGitFileUtils extends ApplicationGitFileUtilsCE
+public class ApplicationGitFileUtilsImpl extends ApplicationGitFileUtilsCEImpl
         implements ArtifactGitFileUtils<ApplicationGitReference> {
 
-    public ApplicationGitFileUtils(
+    public ApplicationGitFileUtilsImpl(
             Gson gson,
             NewActionService newActionService,
             FileInterface fileUtils,

@@ -66,7 +66,7 @@ import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.removeUnwanted
 @Component
 @RequiredArgsConstructor
 @Import({FileUtilsImpl.class})
-public class ApplicationGitFileUtilsCE implements ArtifactGitFileUtilsCE<ApplicationGitReference> {
+public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<ApplicationGitReference> {
 
     private final Gson gson;
     private final NewActionService newActionService;
