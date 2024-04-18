@@ -27,6 +27,7 @@ import {
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 
 const newPage = "ApiCalls_1";
 const pageName = "crudpage_1";
@@ -102,7 +103,12 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       expect(cellData).to.be.equal("New Config");
     });
     // rename page to crud_page
-    entityExplorer.RenameEntityFromExplorer("Page1", pageName);
+    entityExplorer.RenameEntityFromExplorer(
+      "Page1",
+      pageName,
+      false,
+      EntityItems.Page,
+    );
     EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     // create a clone of page
     cy.get(`.t--entity-item:contains(${pageName})`).within(() => {
