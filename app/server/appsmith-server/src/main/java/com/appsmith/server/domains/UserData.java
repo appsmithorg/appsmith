@@ -105,5 +105,8 @@ public class UserData extends BaseDomain {
         this.userId = userId;
     }
 
-    public static class Fields extends BaseDomain.Fields {}
+    public static class Fields extends BaseDomain.Fields {
+        // public static final String recentlyUsedEntityIds_workspaceId =
+        // dotted(recentlyUsedEntityIds, RecentlyUsedEntityDTO.Fields.workspaceId);
+    }
 }
