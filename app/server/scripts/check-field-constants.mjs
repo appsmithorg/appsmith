@@ -16,7 +16,9 @@ async function findInnerClassDefinitions(directory) {
       const stats = await fs.stat(filePath);
 
       if (stats.isDirectory()) {
-        await findInnerClassDefinitions(filePath);
+        if (!await findInnerClassDefinitions(filePath)) {
+          isPass = false;
+        }
       } else if (path.extname(filePath) === ".java") {
         if (!await processJavaFile(filePath)) {
           isPass = false;
