@@ -1,11 +1,12 @@
 import React from "react";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
-import { useJSSegmentRoutes } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+import { CodeRoutes } from "./CodeRoutes";
+import { ListRoutes } from "./ListRoutes";
 
-const JSSegment = () => {
+export const CodeJSSegment = () => {
   const { path } = useRouteMatch();
-  const routes = useJSSegmentRoutes(path);
+  const routes = CodeRoutes(path);
   return (
     <Switch>
       {routes.map((route) => (
@@ -20,4 +21,19 @@ const JSSegment = () => {
   );
 };
 
-export default JSSegment;
+export const ListJSSegment = () => {
+  const { path } = useRouteMatch();
+  const routes = ListRoutes(path);
+  return (
+    <Switch>
+      {routes.map((route) => (
+        <SentryRoute
+          component={route.component}
+          exact={route.exact}
+          key={route.key}
+          path={route.path}
+        />
+      ))}
+    </Switch>
+  );
+};

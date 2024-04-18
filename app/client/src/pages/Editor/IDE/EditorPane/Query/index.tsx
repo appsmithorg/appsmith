@@ -3,7 +3,8 @@ import { Flex } from "design-system";
 import styled from "styled-components";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
-import { useQuerySegmentRoutes } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
+import { CodeRoutes } from "./CodeRoutes";
+import { ListRoutes } from "./ListRoutes";
 
 const QueriesContainer = styled(Flex)`
   & .t--entity-item {
@@ -16,9 +17,9 @@ const QueriesContainer = styled(Flex)`
   }
 `;
 
-const QueriesSegment = () => {
+export const ListQueriesSegment = () => {
   const { path } = useRouteMatch();
-  const routes = useQuerySegmentRoutes(path);
+  const routes = ListRoutes(path);
   return (
     <QueriesContainer
       className="ide-editor-left-pane__content-queries"
@@ -40,4 +41,19 @@ const QueriesSegment = () => {
   );
 };
 
-export default QueriesSegment;
+export const CodeQuerySegment = () => {
+  const { path } = useRouteMatch();
+  const routes = CodeRoutes(path);
+  return (
+    <Switch>
+      {routes.map((route) => (
+        <SentryRoute
+          component={route.component}
+          exact={route.exact}
+          key={route.key}
+          path={route.path}
+        />
+      ))}
+    </Switch>
+  );
+};

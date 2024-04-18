@@ -25,11 +25,11 @@ import {
 } from "constants/routes";
 import CreateNewDatasourceTab from "pages/Editor/IntegrationEditor/CreateNewDatasourceTab";
 import OnboardingChecklist from "pages/Editor/FirstTimeUserOnboarding/Checklist";
-import ApiEditor from "pages/Editor/APIEditor";
-import QueryEditor from "pages/Editor/QueryEditor";
+// import ApiEditor from "pages/Editor/APIEditor";
+// import QueryEditor from "pages/Editor/QueryEditor";
 // import JSEditor from "pages/Editor/JSEditor";
-import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
-import ListView from "pages/Editor/SaaSEditor/ListView";
+// import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
+// import ListView from "pages/Editor/SaaSEditor/ListView";
 import {
   SAAS_EDITOR_API_ID_ADD_PATH,
   SAAS_EDITOR_API_ID_PATH,
@@ -42,7 +42,7 @@ import DatasourceBlankState from "pages/Editor/DataSourceEditor/DatasourceBlankS
 import GeneratePage from "pages/Editor/GeneratePage";
 import type { RouteProps } from "react-router";
 // import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
-import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
+// import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
@@ -170,79 +170,10 @@ function useRoutes(path: string): RouteReturnType[] {
       path: `${path}${BUILDER_CHECKLIST_PATH}`,
     },
     {
-      key: "ApiEditor",
-      component: ApiEditor,
-      exact: true,
-      path: [
-        `${path}${API_EDITOR_ID_PATH}`,
-        `${path}${API_EDITOR_ID_ADD_PATH}`,
-      ],
-    },
-    {
-      key: "QueryEditorList",
-      component: QueriesBlankState,
-      exact: true,
-      path: [
-        `${path}${QUERIES_EDITOR_BASE_PATH}`,
-        `${path}${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`,
-      ],
-    },
-    {
-      key: "QueryEditor",
-      component: QueryEditor,
-      exact: true,
-      path: [
-        `${path}${QUERIES_EDITOR_ID_PATH}`,
-        `${path}${QUERIES_EDITOR_ID_ADD_PATH}`,
-      ],
-    },
-    // {
-    //   key: "JSEditorList",
-    //   component: JSBlankState,
-    //   exact: true,
-    //   path: [
-    //     `${path}${JS_COLLECTION_EDITOR_PATH}`,
-    //     `${path}${JS_COLLECTION_EDITOR_PATH}${ADD_PATH}`,
-    //   ],
-    // },
-    // {
-    //   key: "JSEditor File",
-    //   component: JSEditor,
-    //   exact: true,
-    //   path: [
-    //     `${path}${JS_COLLECTION_ID_PATH}`,
-    //     `${path}${JS_COLLECTION_ID_PATH}${ADD_PATH}`,
-    //   ],
-    // },
-    {
-      key: "CurlImportEditor",
-      component: CurlImportEditor,
-      exact: true,
-      path: [
-        `${path}${CURL_IMPORT_PAGE_PATH}`,
-        `${path}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
-      ],
-    },
-    {
-      key: "SAASList",
-      component: ListView,
-      exact: true,
-      path: `${path}${SAAS_EDITOR_PATH}`,
-    },
-    {
       key: "SAASDatasourceEditor",
       component: DatasourceForm,
       exact: true,
       path: `${path}${SAAS_EDITOR_DATASOURCE_ID_PATH}`,
-    },
-    {
-      key: "SAASEditor",
-      component: QueryEditor,
-      exact: true,
-      path: [
-        `${path}${SAAS_EDITOR_API_ID_PATH}`,
-        `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
-      ],
     },
     {
       key: "DatasourceEditor",
