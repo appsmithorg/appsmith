@@ -1,7 +1,6 @@
-import type { PropertyPaneConfig } from "constants/PropertyControlConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 
-export const propertyPaneContentConfig: PropertyPaneConfig[] = [
+export const propertyPaneContentConfig = [
   {
     sectionName: "General",
     children: [
@@ -54,6 +53,7 @@ export const propertyPaneContentConfig: PropertyPaneConfig[] = [
         dependencies: ["showHeader"],
         isBindProperty: false,
         isTriggerProperty: false,
+        placeholderText: "Record details",
       },
     ],
   },
@@ -87,6 +87,7 @@ export const propertyPaneContentConfig: PropertyPaneConfig[] = [
         dependencies: ["showSubmitButton", "showFooter"],
         isBindProperty: false,
         isTriggerProperty: false,
+        placeholderText: "Submit",
       },
       {
         propertyName: "cancelButtonText",
@@ -97,6 +98,7 @@ export const propertyPaneContentConfig: PropertyPaneConfig[] = [
         dependencies: ["showCancelButton", "showFooter"],
         isBindProperty: false,
         isTriggerProperty: false,
+        placeholderText: "Cancel",
       },
     ],
   },

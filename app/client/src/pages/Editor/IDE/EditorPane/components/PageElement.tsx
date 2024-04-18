@@ -25,7 +25,13 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import history, { NavigationMethod } from "utils/history";
 
-const PageElement = ({ page }: { page: Page }) => {
+const PageElement = ({
+  onClick,
+  page,
+}: {
+  page: Page;
+  onClick?: () => void;
+}) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigateToUrl = useGetPageFocusUrl(page.pageId);
@@ -72,6 +78,9 @@ const PageElement = ({ page }: { page: Page }) => {
       history.push(navigateToUrl, {
         invokedBy: NavigationMethod.EntityExplorer,
       });
+      if (onClick) {
+        onClick();
+      }
     },
     [location.pathname, currentPageId, navigateToUrl],
   );
@@ -86,6 +95,7 @@ const PageElement = ({ page }: { page: Page }) => {
       isHidden={!!page.isHidden}
       key={page.pageId + "_context-menu"}
       name={page.pageName}
+      onItemSelected={onClick}
       pageId={page.pageId}
     />
   );
@@ -106,7 +116,7 @@ const PageElement = ({ page }: { page: Page }) => {
       onNameEdit={resolveAsSpaceChar}
       ref={ref}
       searchKeyword={""}
-      step={1}
+      step={0}
       updateEntityName={(id, name) =>
         updatePage({ id, name, isHidden: !!page.isHidden })
       }
