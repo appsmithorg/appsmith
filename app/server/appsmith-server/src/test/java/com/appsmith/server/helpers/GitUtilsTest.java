@@ -30,7 +30,7 @@ public class GitUtilsTest {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@example.in:test/testRepo.git"))
                 .isEqualTo("https://example.in/test/testRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://git@example.test.net:user/test/tests/testRepo.git"))
+                        "ssh://git@example.test.net/user/test/tests/testRepo.git"))
                 .isEqualTo("https://example.test.net/user/test/tests/testRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
                         "git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
@@ -38,10 +38,10 @@ public class GitUtilsTest {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk.git"))
+                        "ssh://git@tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk.git"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://git@tim.tam.example.com:v3/sladeping/pyhe/SpaceJunk"))
+                        "ssh://git@tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@127.0.0.1:test/newRepo.git"))
                 .isEqualTo("https://127.0.0.1/test/newRepo");
@@ -49,6 +49,17 @@ public class GitUtilsTest {
                 .isEqualTo("https://localhost/test/newRepo");
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("git@absolute.path.com:/test/newRepo.git"))
                 .isEqualTo("https://absolute.path.com/test/newRepo");
+
+        // Custom SSH port:
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "ssh://git@example.test.net:1234/user/test/tests/testRepo.git"))
+                .isEqualTo("https://example.test.net/user/test/tests/testRepo");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "ssh://git@tim.tam.example.com:5678/v3/sladeping/pyhe/SpaceJunk.git"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "ssh://git@tim.tam.example.com:9876/v3/sladeping/pyhe/SpaceJunk"))
+                .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
     }
 
     @Test
@@ -60,7 +71,7 @@ public class GitUtilsTest {
                 .verifyComplete();
 
         StepVerifier.create(GitUtils.isRepoPrivate(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://git@example.test.net:user/test/tests/testRepo.git")))
+                        "ssh://git@example.test.net/user/test/tests/testRepo.git")))
                 .assertNext(isRepoPrivate -> assertThat(isRepoPrivate).isEqualTo(Boolean.TRUE))
                 .verifyComplete();
 

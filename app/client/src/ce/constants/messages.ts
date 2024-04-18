@@ -57,8 +57,7 @@ export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
-export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
-  `Enter your email address`;
+export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Enter your email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
   `Enter your password`;
 export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
@@ -66,25 +65,28 @@ export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
   `Reset password`;
 export const NEW_TO_APPSMITH = () => `Don't have an account?`;
-export const LOGIN_PAGE_TITLE = () => `Sign in`;
+export const LOGIN_PAGE_TITLE = () => `Sign in to your account`;
 export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot password`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
-export const SIGNUP_PAGE_TITLE = () => `Create your free account`;
+export const SIGNUP_PAGE_TITLE = () => `Create your account`;
 export const SIGNUP_PAGE_SUBTITLE = () => `Use your workspace email`;
 export const SIGNUP_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
-export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
+export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Enter your email`;
 export const SIGNUP_PAGE_NAME_INPUT_PLACEHOLDER = () => `Name`;
 export const SIGNUP_PAGE_NAME_INPUT_LABEL = () => `Name`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
-export const SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
+export const SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
+  `Enter your password`;
 export const SIGNUP_PAGE_LOGIN_LINK_TEXT = () => `Sign in`;
 export const SIGNUP_PAGE_NAME_INPUT_SUBTEXT = () => `How should we call you?`;
 export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign up`;
 export const ALREADY_HAVE_AN_ACCOUNT = () => `Already have an account?`;
+export const LOOKING_TO_SELF_HOST = () => "Looking to self-host Appsmith?";
+export const VISIT_OUR_DOCS = () => "Visit our docs";
 
 export const SIGNUP_PAGE_SUCCESS = () =>
   `Awesome! You have successfully registered.`;
@@ -110,11 +112,14 @@ export const RESET_PASSWORD_INVALID_TOKEN = () =>
 export const RESET_PASSWORD_FORGOT_PASSWORD_LINK = () => `Forgot password`;
 
 export const FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
-export const FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
+export const FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
+  `Enter your email`;
 export const FORGOT_PASSWORD_PAGE_TITLE = () => `Reset password`;
+export const FORGOT_PASSWORD_PAGE_SUB_TITLE = () =>
+  `Enter the email address associated with your account`;
 export const FORGOT_PASSWORD_PAGE_SUBTITLE = () =>
   `We will send a reset link to the email below`;
-export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
+export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Send reset link`;
 export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
   `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
@@ -122,12 +127,12 @@ export const VERIFICATION_PENDING_TITLE = () => `Check your inbox`;
 export const VERIFICATION_PENDING_BODY = () =>
   `To finish your account setup click on the verification link we have sent in an email to `;
 
-export const VERIFICATION_PENDING_NOT_YOU = () => `(not you?)`;
+export const VERIFICATION_PENDING_NOT_YOU = () => `Not you?`;
 
 export const VERIFICATION_PENDING_NO_EMAIL = () =>
   `No email in your inbox or spam folder?`;
 
-export const VERIFICATION_PENDING_RESEND_LINK = () => `Resend the link`;
+export const VERIFICATION_PENDING_RESEND_LINK = () => `Resend link`;
 
 export const VERIFY_ERROR_ALREADY_VERIFIED_TITLE = () =>
   `Email already verified`;
