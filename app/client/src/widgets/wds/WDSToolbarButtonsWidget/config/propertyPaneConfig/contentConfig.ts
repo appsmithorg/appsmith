@@ -38,7 +38,7 @@ export const propertyPaneContentConfig = [
                   helpText: "Sets the label of the button",
                   label: "Text",
                   controlType: "INPUT_TEXT",
-                  placeholderText: "Enter label",
+                  placeholderText: "Do something",
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: { type: ValidationTypes.TEXT },

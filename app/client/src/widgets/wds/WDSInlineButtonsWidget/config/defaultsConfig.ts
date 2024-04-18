@@ -37,7 +37,7 @@ export const defaultsConfig = {
       buttonColor: "accent",
     },
     button4: {
-      label: "Save",
+      label: "Save Changes",
       isVisible: true,
       isDisabled: false,
       widgetId: "",

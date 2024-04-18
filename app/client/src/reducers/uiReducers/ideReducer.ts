@@ -14,7 +14,6 @@ export const IDETabsDefaultValue = {
 
 const initialState: IDEState = {
   view: EditorViewMode.FullScreen,
-  pagesActive: false,
   tabs: IDETabsDefaultValue,
   showCreateModal: false,
 };
@@ -24,10 +23,6 @@ const ideReducer = createReducer(initialState, {
     state: IDEState,
     action: ReduxAction<{ view: EditorViewMode }>,
   ) => ({ ...state, view: action.payload.view }),
-  [ReduxActionTypes.SET_IDE_EDITOR_PAGES_ACTIVE_STATUS]: (
-    state: IDEState,
-    action: ReduxAction<{ pagesActive: boolean }>,
-  ) => ({ ...state, pagesActive: action.payload.pagesActive }),
   [ReduxActionTypes.SET_IDE_JS_TABS]: (
     state: IDEState,
     action: ReduxAction<string[]>,
@@ -108,7 +103,6 @@ const ideReducer = createReducer(initialState, {
 
 export interface IDEState {
   view: EditorViewMode;
-  pagesActive: boolean;
   tabs: IDETabs;
   showCreateModal: boolean;
 }

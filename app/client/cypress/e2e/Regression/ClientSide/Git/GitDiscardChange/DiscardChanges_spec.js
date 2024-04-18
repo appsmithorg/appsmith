@@ -97,11 +97,10 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
   it("4. Delete page2 and trigger discard flow, page2 should be available again", () => {
     PageList.DeletePage(page2);
     // verify page is deleted
-    //entityExplorer.ExpandCollapseEntity("Pages");
-    PageLeftPane.assertAbsence(page2);
+    PageList.assertAbsence(page2);
     gitSync.DiscardChanges();
     // verify page2 is recovered back
-    PageLeftPane.assertPresence(page2);
+    PageList.assertPresence(page2);
     EditorNavigation.SelectEntityByName(page2, EntityType.Page);
     cy.wait("@getPage");
     // verify data binding on page2
@@ -161,14 +160,13 @@ describe("Git discard changes:", { tags: ["@tag.Git"] }, function () {
     // discard changes
     gitSync.DiscardChanges();
     // verify page3 is removed
-    PageList.ShowList();
-    PageLeftPane.assertAbsence(page3);
+    PageList.assertAbsence(page3);
   });
 
   it(`8. Add new page i.e page3, discard changes should not throw error: "resource not found"`, () => {
     cy.Createpage(page3);
     gitSync.DiscardChanges();
-    PageLeftPane.assertAbsence(page3);
+    PageList.assertAbsence(page3);
   });
 
   it("9. On discard failure an error message should be show and user should be able to discard again", () => {

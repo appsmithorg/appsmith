@@ -288,7 +288,7 @@ describe(
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "ListingAndReviews",
         action: "Delete",
-        entityType: entityItems.Datasource,
+        entityType: entityItems.Page,
       });
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     });
