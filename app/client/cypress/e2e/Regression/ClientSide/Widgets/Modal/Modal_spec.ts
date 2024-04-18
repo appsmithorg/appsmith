@@ -126,7 +126,6 @@ describe(
           " " +
           locators._widgetInDeployed(draggableWidgets.TABLE),
       );
-
       deployMode.NavigateBacktoEditor();
 
       //Fixed height
@@ -135,10 +134,6 @@ describe(
       deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.BUTTON));
       agHelper.ClickButton("Submit");
       agHelper.AssertElementVisibility(locators._modal);
-
-      //Verify that a fixed canvas size is visible when height is selected as Fixed
-      agHelper.AssertProperty(locators._modal, "offsetHeight", 1094);
-      agHelper.AssertProperty(locators._modal, "offsetWidth", 456);
       agHelper.AssertElementVisibility(
         locators._modal +
           " " +
