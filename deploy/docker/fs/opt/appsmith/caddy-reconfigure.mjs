@@ -192,8 +192,8 @@ function finalizeIndexHtml() {
     APPSMITH_VERSION_RELEASE_DATE: info?.imageBuiltAt ?? "",
   }
 
-  const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replace(
-    /\b\{\{env\s+"(APPSMITH_[A-Z0-9_]+)"\}\}\b/g,
+  const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replaceAll(
+    /\{\{env\s+"(APPSMITH_[A-Z0-9_]+)"}}/g,
     (_, name) => (process.env[name] || extraEnv[name] || "")
   )
 
