@@ -22,8 +22,9 @@ jobs:
 
       # Checkout the code in the current branch in case the workflow is called because of a branch push event
       - name: Checkout the head commit of the branch
-        if: inputs.pr == 0
         uses: actions/checkout@v4
+        with:
+            repository: appsmithorg/appsmith
 
       # Checks for ok-to-test label presence in PR
       - name: Check label
