@@ -69,7 +69,6 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getWidgets } from "sagas/selectors";
 import FocusRetention from "sagas/FocusRetentionSaga";
-import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
@@ -303,11 +302,8 @@ export function* deleteJSCollectionSaga(
       toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
         kind: "success",
       });
-      const isEditorPaneSegmentsEnabled: boolean = yield select(
-        getIsEditorPaneSegmentsEnabled,
-      );
       yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
-      if (isEditorPaneSegmentsEnabled && ideType === IDE_TYPE.App) {
+      if (ideType === IDE_TYPE.App) {
         yield call(handleJSEntityRedirect, id);
       } else {
         history.push(builderURL({ pageId }));
