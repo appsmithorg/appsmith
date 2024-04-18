@@ -344,8 +344,7 @@ export class GitSync {
           "Unable to import application in workspace",
         ),
       );
-      this.agHelper.AssertElementExist(this.locator._btnSpinner);
-      this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
+      this.agHelper.WaitUntilEleAppear(this._branchName(branch + uid));
       this.agHelper.AssertElementVisibility(this._branchName(branch + uid));
       this.assertHelper.AssertNetworkStatus("getBranch");
       cy.wrap(branch + uid).as("gitbranchName");
