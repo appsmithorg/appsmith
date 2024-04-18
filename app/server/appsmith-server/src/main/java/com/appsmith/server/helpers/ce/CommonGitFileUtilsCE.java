@@ -16,7 +16,6 @@ import com.appsmith.server.dtos.ArtifactExchangeJson;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ArtifactGitFileUtils;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -33,15 +32,11 @@ import reactor.core.Exceptions;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.git.constants.CommonConstants.CLIENT_SCHEMA_VERSION;
 import static com.appsmith.git.constants.CommonConstants.FILE_FORMAT_VERSION;
 import static com.appsmith.git.constants.CommonConstants.SERVER_SCHEMA_VERSION;
@@ -237,24 +232,6 @@ public class CommonGitFileUtilsCE {
         ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
         return artifactGitFileUtils.reconstructArtifactExchangeJsonFromFilesInRepository(
                 workspaceId, defaultApplicationId, repoName, branchName);
-    }
-
-    protected <T> List<T> getApplicationResource(Map<String, Object> resources, Type type) {
-
-        List<T> deserializedResources = new ArrayList<>();
-        if (!CollectionUtils.isNullOrEmpty(resources)) {
-            for (Map.Entry<String, Object> resource : resources.entrySet()) {
-                deserializedResources.add(getApplicationResource(resource.getValue(), type));
-            }
-        }
-        return deserializedResources;
-    }
-
-    public <T> T getApplicationResource(Object resource, Type type) {
-        if (resource == null) {
-            return null;
-        }
-        return gson.fromJson(gson.toJson(resource), type);
     }
 
     /**

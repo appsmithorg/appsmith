@@ -6,7 +6,7 @@ import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -50,7 +50,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
-import static com.appsmith.external.constants.ce.GitConstantsCE.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.server.constants.ce.FieldNameCE.ACTION_COLLECTION_LIST;
@@ -107,6 +106,7 @@ public class ApplicationGitFileUtilsCE implements ArtifactGitFileUtilsCE<Applica
         ApplicationGitReference applicationReference = (ApplicationGitReference) artifactGitReference;
 
         setApplicationInApplicationReference(applicationJson, applicationReference);
+
         setThemesInApplicationReference(applicationJson, applicationReference);
 
         setApplicationMetadataInApplicationReference(applicationJson, applicationReference);

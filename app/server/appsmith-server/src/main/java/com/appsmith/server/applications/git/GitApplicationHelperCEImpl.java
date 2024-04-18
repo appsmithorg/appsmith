@@ -74,11 +74,31 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     }
 
     @Override
+    public AclPermission getArtifactAutoCommitPermission() {
+        return applicationPermission.getManageAutoCommitPermission();
+    }
+
+    @Override
+    public AclPermission getArtifactManageProtectedBranchPermission() {
+        return applicationPermission.getManageProtectedBranchPermission();
+    }
+
+    @Override
+    public AclPermission getArtifactManageDefaultBranchPermission() {
+        return applicationPermission.getManageDefaultBranchPermission();
+    }
+
+    @Override
     public Mono<Application> getArtifactById(String applicationId, AclPermission aclPermission) {
         return applicationService
                 .findById(applicationId, aclPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION, applicationId)));
+    }
+
+    @Override
+    public Flux<Application> getAllArtifactByDefaultId(String defaultArtifactId, AclPermission aclPermission) {
+        return applicationService.findAllApplicationsByDefaultApplicationId(defaultArtifactId, aclPermission);
     }
 
     @Override
@@ -130,6 +150,11 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         update.setIsManualUpdate(false);
 
         return applicationService.update(artifact.getId(), update);
+    }
+
+    @Override
+    public Mono<Void> updateArtifactWithProtectedBranches(String defaultArtifactId, List<String> branchNames) {
+        return applicationService.updateProtectedBranches(defaultArtifactId, branchNames);
     }
 
     @Override
@@ -197,6 +222,11 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
                 .flatMap(branchName ->
                         getArtifactByDefaultIdAndBranchName(defaultArtifactId, branchName, appEditPermission))
                 .flatMap(applicationPageService::deleteApplicationByResource);
+    }
+
+    @Override
+    public Mono<Application> deleteArtifactByResource(Artifact artifact) {
+        return applicationPageService.deleteApplicationByResource((Application) artifact);
     }
 
     /**
