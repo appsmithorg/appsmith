@@ -2,7 +2,6 @@ import React from "react";
 import Container from "./Container";
 import {
   createMessage,
-  VERIFICATION_PENDING_BODY,
   VERIFICATION_PENDING_NO_EMAIL,
   VERIFICATION_PENDING_NOT_YOU,
   VERIFICATION_PENDING_RESEND_LINK,
@@ -33,16 +32,21 @@ const VerificationPending = (props: RouteComponentProps<{ email: string }>) => {
 
   return (
     <Container
+      footer={
+        <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+          <Link kind="primary" target="_self" to={AUTH_LOGIN_URL}>
+            {createMessage(VERIFICATION_PENDING_NOT_YOU)}
+          </Link>
+        </div>
+      }
       testId="verification-pending"
       title={createMessage(VERIFICATION_PENDING_TITLE)}
     >
       <Body>
         <Text kind={"body-m"}>
-          {createMessage(VERIFICATION_PENDING_BODY)} <Email>{email}</Email>
+          Click the verification link sent to <Email>{email}</Email> to finish
+          setting up your account.
         </Text>
-        <Link kind="primary" target="_self" to={AUTH_LOGIN_URL}>
-          {createMessage(VERIFICATION_PENDING_NOT_YOU)}
-        </Link>
       </Body>
       <Body>
         <Text kind="body-m">
