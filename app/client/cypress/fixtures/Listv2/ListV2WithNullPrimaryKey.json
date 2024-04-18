@@ -25,7 +25,7 @@
                 "triggeredItemView": "{{{}}}",
                 "widgetName": "List1",
                 "requiresFlatWidgetChildren": true,
-                "listData": "{{Api1.data}}",
+                "listData": "[{{Api1.data}}]",
                 "isCanvas": true,
                 "displayName": "List V2",
                 "iconSVG": "/static/media/icon.9925ee17dee37bf1ba7374412563a8a7.svg",
