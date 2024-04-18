@@ -1,5 +1,6 @@
 package com.appsmith.server.domains;
 
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Entity;
@@ -20,11 +21,13 @@ import org.springframework.data.annotation.Transient;
 @Entity
 @Where(clause = "deleted_at IS NULL")
 public class ApplicationPage {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String id;
+    @JsonView({Views.Public.class, Views.Export.class, Git.class})
+    String id;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     Boolean isDefault;
 
     @Transient

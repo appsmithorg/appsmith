@@ -3,7 +3,7 @@ import { useVisuallyHidden } from "@react-aria/visually-hidden";
 import { Button as HeadlessButton } from "@design-system/headless";
 import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
 import type { SIZES } from "../../../shared";
-
+import clsx from "clsx";
 import { Text } from "../../Text";
 import { Spinner } from "../../Spinner";
 import styles from "./styles.module.css";
@@ -25,6 +25,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
     onKeyUp,
     variant = "filled",
     visuallyDisabled = false,
+    className,
     ...rest
   } = props;
   const { visuallyHiddenProps } = useVisuallyHidden();
@@ -67,7 +68,7 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       aria-disabled={
         visuallyDisabled || isLoading || isDisabled ? true : undefined
       }
-      className={styles.button}
+      className={clsx(className, styles.button)}
       data-button=""
       data-color={color}
       data-icon-position={iconPosition === "start" ? "start" : "end"}

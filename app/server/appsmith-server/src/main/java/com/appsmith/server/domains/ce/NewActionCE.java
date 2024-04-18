@@ -7,6 +7,7 @@ import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.Documentation;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
@@ -33,10 +34,10 @@ public class NewActionCE extends BranchAwareDomain {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     PluginType pluginType;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String pluginId;
 
     @JsonView(Views.Public.class)
@@ -45,9 +46,9 @@ public class NewActionCE extends BranchAwareDomain {
     Documentation documentation; // Documentation for the template using which this action was created
 
     // Action specific fields that are allowed to change between published and unpublished versions
-    @JsonView(Views.Public.class)
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
+    @JsonView({Views.Public.class, Git.class})
     ActionDTO unpublishedAction;
 
     @JsonView(Views.Public.class)

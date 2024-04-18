@@ -14,14 +14,14 @@ import {
   FORM_VALIDATION_EMPTY_EMAIL,
   FORM_VALIDATION_INVALID_EMAIL,
   FORGOT_PASSWORD_SUCCESS_TEXT,
-  FORGOT_PASSWORD_PAGE_LOGIN_LINK,
   createMessage,
+  FORGOT_PASSWORD_PAGE_SUB_TITLE,
 } from "@appsmith/constants/messages";
 import { AUTH_LOGIN_URL } from "constants/routes";
 import { FORGOT_PASSWORD_FORM_NAME } from "@appsmith/constants/forms";
 import FormTextField from "components/utils/ReduxFormTextField";
 import { FormGroup } from "design-system-old";
-import { Button, Link, Callout } from "design-system";
+import { Button, Link, Callout, Icon } from "design-system";
 import { isEmail, isEmptyString } from "utils/formhelpers";
 import type { ForgotPasswordFormValues } from "./helpers";
 import { forgotPasswordSubmitHandler } from "./helpers";
@@ -58,18 +58,25 @@ export const ForgotPassword = (props: ForgotPasswordProps) => {
     }
   }, [props.emailValue]);
 
+  const footerSection = (
+    <div className="px-2 flex items-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+      <Icon name="arrow-left-line" size="md" />
+      &nbsp;Back to&nbsp;
+      <Link
+        className="text-sm justify-center"
+        kind="primary"
+        target="_self"
+        to={AUTH_LOGIN_URL}
+      >
+        Sign in
+      </Link>
+    </div>
+  );
+
   return (
     <Container
-      subtitle={
-        <Link
-          className="text-sm justify-center"
-          startIcon="arrow-left-line"
-          target="_self"
-          to={AUTH_LOGIN_URL}
-        >
-          {createMessage(FORGOT_PASSWORD_PAGE_LOGIN_LINK)}
-        </Link>
-      }
+      footer={footerSection}
+      subtitle={createMessage(FORGOT_PASSWORD_PAGE_SUB_TITLE)}
       title={createMessage(FORGOT_PASSWORD_PAGE_TITLE)}
     >
       <FormMessagesContainer>

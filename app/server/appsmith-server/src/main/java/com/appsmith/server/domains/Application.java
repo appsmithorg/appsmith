@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.dtos.CustomJSLibContextDTO;
@@ -57,7 +58,7 @@ public class Application extends BaseDomain implements Artifact {
 
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     List<ApplicationPage> pages;
 
     @Type(CustomJsonType.class)
@@ -70,7 +71,7 @@ public class Application extends BaseDomain implements Artifact {
     Boolean viewMode = false;
 
     @Transient
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     boolean appIsExample = false;
 
     @Transient
@@ -82,7 +83,7 @@ public class Application extends BaseDomain implements Artifact {
 
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Internal.class, Git.class})
     ApplicationDetail unpublishedApplicationDetail;
 
     @Type(CustomJsonType.class)
@@ -90,16 +91,16 @@ public class Application extends BaseDomain implements Artifact {
     @JsonView(Views.Internal.class)
     ApplicationDetail publishedApplicationDetail;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String color;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String icon;
 
     @JsonView(Views.Public.class)
     private String slug;
 
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Internal.class, Git.class})
     AppLayout unpublishedAppLayout;
 
     @JsonView(Views.Internal.class)
@@ -125,7 +126,7 @@ public class Application extends BaseDomain implements Artifact {
     Instant lastDeployedAt; // when this application was last deployed
 
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     Integer evaluationVersion;
 
     /**
@@ -135,7 +136,7 @@ public class Application extends BaseDomain implements Artifact {
      * so that they can update their application.
      * Once updated, we should set applicationVersion to latest version as well.
      */
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     Integer applicationVersion;
 
     /**
@@ -148,9 +149,10 @@ public class Application extends BaseDomain implements Artifact {
 
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     EmbedSetting embedSetting;
 
+    @JsonView({Views.Public.class, Git.class})
     Boolean collapseInvisibleWidgets;
 
     /**
@@ -192,10 +194,10 @@ public class Application extends BaseDomain implements Artifact {
 
     // To convey current schema version for client and server. This will be used to check if we run the migration
     // between 2 commits if the application is connected to git
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Internal.class, Git.class})
     Integer clientSchemaVersion;
 
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Internal.class, Git.class})
     Integer serverSchemaVersion;
 
     @JsonView(Views.Internal.class)
@@ -372,7 +374,7 @@ public class Application extends BaseDomain implements Artifact {
     }
 
     @Override
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Internal.class})
     public ArtifactType getArtifactType() {
         return ArtifactType.APPLICATION;
     }
@@ -381,7 +383,7 @@ public class Application extends BaseDomain implements Artifact {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class AppLayout implements Serializable {
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         Type type;
 
         public enum Type {
@@ -399,13 +401,13 @@ public class Application extends BaseDomain implements Artifact {
     @Data
     public static class EmbedSetting {
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String height;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String width;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private Boolean showNavigationBar;
     }
 
@@ -414,31 +416,31 @@ public class Application extends BaseDomain implements Artifact {
      */
     @Data
     public static class NavigationSetting {
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private Boolean showNavbar;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String orientation;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String navStyle;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String position;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String itemStyle;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String colorStyle;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String logoAssetId;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String logoConfiguration;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private Boolean showSignIn;
     }
 
@@ -448,7 +450,7 @@ public class Application extends BaseDomain implements Artifact {
     @Data
     @NoArgsConstructor
     public static class AppPositioning {
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         Type type;
 
         public AppPositioning(Type type) {
@@ -466,25 +468,25 @@ public class Application extends BaseDomain implements Artifact {
     @NoArgsConstructor
     public static class ThemeSetting {
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String accentColor;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String borderRadius;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private float sizing = 1;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private float density = 1;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         private String fontFamily;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         Type colorMode;
 
-        @JsonView(Views.Public.class)
+        @JsonView({Views.Public.class, Git.class})
         IconStyle iconStyle;
 
         public ThemeSetting(Type colorMode) {

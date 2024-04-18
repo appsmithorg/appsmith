@@ -2,6 +2,7 @@ package com.appsmith.server.domains;
 
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BranchAwareDomain;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.PageDTO;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -26,7 +27,7 @@ public class NewPage extends BranchAwareDomain implements Context {
 
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     PageDTO unpublishedPage;
 
     @Type(CustomJsonType.class)
