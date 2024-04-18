@@ -64,7 +64,7 @@ describe(
       homePage.Signout();
       // validating sso with github is enabled
       assertHelper.AssertContains(
-        "Continue with Github",
+        "Github",
         "be.visible",
         adminSettingsLocators.loginWithGithub,
       );
@@ -110,7 +110,7 @@ describe(
       homePage.Signout();
       // validating sso with github is disabled
       assertHelper.AssertContains(
-        "Continue with Github",
+        "Github",
         "not.exist",
         adminSettingsLocators.loginWithGithub,
       );
