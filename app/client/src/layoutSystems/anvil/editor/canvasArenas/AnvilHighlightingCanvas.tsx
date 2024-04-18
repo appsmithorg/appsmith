@@ -9,9 +9,9 @@ import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { AnvilDnDListener } from "./AnvilDnDListener";
 import { AnvilDnDHighlight } from "./AnvilDnDHighlight";
-import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import { useSelector } from "react-redux";
 import { getWidgetByID } from "sagas/selectors";
+import { getHighlightCompensationValues } from "./utils/utils";
 
 export interface AnvilHighlightingCanvasProps {
   anvilDragStates: AnvilDnDStates;
@@ -34,8 +34,18 @@ export function AnvilHighlightingCanvas({
   const anvilDnDListenerRef = React.useRef<HTMLDivElement>(null);
   const [highlightShown, setHighlightShown] =
     React.useState<AnvilHighlightInfo | null>(null);
+
+  const { isCurrentDraggedCanvas } = anvilDragStates;
+  const widget = useSelector(getWidgetByID(widgetId));
+  const highlightCompensatorValues = getHighlightCompensationValues(
+    widgetId,
+    widget.type,
+    layoutId,
+    anvilDragStates.mainCanvasLayoutId,
+    anvilDragStates.layoutElementPositions,
+  );
   // showDraggingCanvas indicates if the current dragging canvas i.e. the html canvas renders
-  const { showCanvas: showDraggingCanvas } = useAnvilDnDEvents(
+  const { showDnDListener } = useAnvilDnDEvents(
     anvilDnDListenerRef,
     {
       anvilDragStates,
@@ -44,24 +54,25 @@ export function AnvilHighlightingCanvas({
       layoutId,
       onDrop,
     },
+    highlightCompensatorValues,
     setHighlightShown,
   );
-  const { isCurrentDraggedCanvas } = anvilDragStates;
-  const widget = useSelector(getWidgetByID(widgetId));
-  const hierarchy = getWidgetHierarchy(widget.type, widgetId);
-  return showDraggingCanvas ? (
+  return showDnDListener ? (
     <>
       {isCurrentDraggedCanvas && (
         <AnvilDnDHighlight
           highlightShown={highlightShown}
-          padding={anvilDragStates.isSection ? 16 : 0}
+          padding={
+            anvilDragStates.isSection ? highlightCompensatorValues.left : 0
+          }
         />
       )}
       <AnvilDnDListener
-        paddingLeft={anvilDragStates.isSection ? 16 : 0}
-        paddingTop={0}
+        paddingLeft={
+          anvilDragStates.isSection ? highlightCompensatorValues.left : 0
+        }
         ref={anvilDnDListenerRef}
-        zIndex={hierarchy === 2 ? 0 : 1}
+        zIndex={anvilDragStates.isSection ? 0 : 1}
       />
     </>
   ) : null;

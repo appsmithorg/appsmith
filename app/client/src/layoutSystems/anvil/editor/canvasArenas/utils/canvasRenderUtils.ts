@@ -1,5 +1,3 @@
-import { memoize } from "lodash";
-
 export const getNearestScrollParent: any = (element: HTMLElement | null) => {
   if (!element) return null;
   if (element.scrollHeight > element.clientHeight) {
@@ -19,8 +17,3 @@ export const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
   slidingArena.style.textAlign = "center";
   slidingArena.style.opacity = "0.8";
 };
-
-export const getDropIndicatorColor = memoize(() => {
-  const rootStyles = getComputedStyle(document.documentElement);
-  return rootStyles.getPropertyValue("--anvil-drop-indicator");
-});

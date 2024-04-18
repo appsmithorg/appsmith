@@ -4,22 +4,21 @@ import styled from "styled-components";
 
 interface AnvilDnDListenerProps {
   paddingLeft: number;
-  paddingTop: number;
   ref: RefObject<HTMLDivElement>;
   zIndex: number;
 }
 
 const StyledDnDListener = styled.div<{
-  sectionPadding: number;
+  paddingLeft: number;
   zIndex: number;
 }>`
   position: absolute;
   pointer-events: all;
   top: 0px;
-  left: ${(props) => -props.sectionPadding}px;
+  left: ${(props) => -props.paddingLeft}px;
   height: 100%;
-  width: calc(100% + ${(props) => 2 * props.sectionPadding}px);
-  padding-inline: ${(props) => props.sectionPadding}px;
+  width: calc(100% + ${(props) => 2 * props.paddingLeft}px);
+  padding-inline: ${(props) => props.paddingLeft}px;
   z-index: ${(props) => props.zIndex};
 `;
 
@@ -30,8 +29,8 @@ export const AnvilDnDListener = forwardRef(
     return (
       <StyledDnDListener
         data-type={"canvas-slider"}
+        paddingLeft={paddingLeft}
         ref={ref}
-        sectionPadding={paddingLeft}
         zIndex={zIndex}
       />
     );

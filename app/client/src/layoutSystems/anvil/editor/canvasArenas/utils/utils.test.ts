@@ -17,6 +17,12 @@ describe("Highlight selection algos", () => {
         canvasId: "canvasId",
         rowIndex: 0,
         layoutOrder: [],
+        edgeDetails: {
+          bottom: false,
+          left: false,
+          right: false,
+          top: false,
+        },
       },
       {
         layoutId: "",
@@ -29,6 +35,12 @@ describe("Highlight selection algos", () => {
         canvasId: "canvasId",
         rowIndex: 1,
         layoutOrder: [],
+        edgeDetails: {
+          bottom: false,
+          left: false,
+          right: false,
+          top: false,
+        },
       },
       {
         layoutId: "",
@@ -41,6 +53,12 @@ describe("Highlight selection algos", () => {
         canvasId: "canvasId",
         rowIndex: 0,
         layoutOrder: [],
+        edgeDetails: {
+          bottom: false,
+          left: false,
+          right: false,
+          top: false,
+        },
       },
       // Add other highlights as needed...
     ];

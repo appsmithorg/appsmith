@@ -21,6 +21,12 @@ const overlayWidgetHighlight: AnvilHighlightInfo = {
   posY: 0,
   rowIndex: 0,
   width: 0,
+  edgeDetails: {
+    bottom: false,
+    left: false,
+    right: false,
+    top: false,
+  },
 };
 
 const DetachedWidgetsDropArenaWrapper = styled.span`

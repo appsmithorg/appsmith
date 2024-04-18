@@ -24,6 +24,12 @@ export const defaultHighlightRenderInfo: HighlightRenderInfo = {
   posX: 0,
   posY: 0,
   width: 0,
+  edgeDetails: {
+    bottom: false,
+    left: false,
+    right: false,
+    top: false,
+  },
 };
 
 // Constants for the minimum and maximum zone count

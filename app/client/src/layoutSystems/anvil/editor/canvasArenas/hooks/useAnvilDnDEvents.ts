@@ -5,8 +5,7 @@ import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import {
   computeCanvasToLayoutGap,
   getClosestHighlight,
-  getCompensatorElementId,
-  getEdgeHighlightOffset,
+  getCompensatingOffsetValues,
 } from "../utils/utils";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
@@ -27,10 +26,10 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 export const useAnvilDnDEvents = (
   anvilDnDListenerRef: React.RefObject<HTMLDivElement>,
   props: AnvilHighlightingCanvasProps,
+  highlightCompensatorValues: { top: number; left: number },
   setHighlightShown: (highlight: AnvilHighlightInfo | null) => void,
 ) => {
-  const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop, widgetId } =
-    props;
+  const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop } = props;
   const {
     activateOverlayWidgetDrop,
     allowToDrop,
@@ -135,25 +134,34 @@ export const useAnvilDnDEvents = (
               canvasIsDragging.current &&
               isCurrentDraggedCanvas
             ) {
-              const { height, posX, posY, width } = currentRectanglesToDraw;
-              const left = posX + canvasToLayoutGap.current.left;
-              const top = posY + canvasToLayoutGap.current.top;
-              const compensatorElementId = getCompensatorElementId(
-                layoutId,
-                widgetId,
-                mainCanvasLayoutId,
-              );
-              const edgeOffset = getEdgeHighlightOffset(
-                { left, top, width, height },
-                compensatorElementId,
-                currentLayoutPositions,
+              const canvasGapAdjustedHighlight = {
+                ...currentRectanglesToDraw,
+                posX:
+                  currentRectanglesToDraw.posX + canvasToLayoutGap.current.left,
+                posY:
+                  currentRectanglesToDraw.posY + canvasToLayoutGap.current.top,
+              };
+              const {
+                height,
+                posX: left,
+                posY: top,
+                width,
+              } = canvasGapAdjustedHighlight;
+              const compensatingOffsetValues = getCompensatingOffsetValues(
+                {
+                  left: currentRectanglesToDraw.posX,
+                  top: currentRectanglesToDraw.posY,
+                  width,
+                  height,
+                },
+                currentRectanglesToDraw.edgeDetails,
+                highlightCompensatorValues,
                 currentRectanglesToDraw.isVertical,
-                canvasToLayoutGap.current,
               );
               const positionUpdatedHighlightInfo = {
-                ...currentRectanglesToDraw,
-                posX: left + edgeOffset.leftOffset,
-                posY: top + edgeOffset.topOffset,
+                ...canvasGapAdjustedHighlight,
+                posX: left + compensatingOffsetValues.leftOffset,
+                posY: top + compensatingOffsetValues.topOffset,
               };
               dispatch(setHighlightsDrawnAction(positionUpdatedHighlightInfo));
               setHighlightShown(positionUpdatedHighlightInfo);
@@ -261,6 +269,6 @@ export const useAnvilDnDEvents = (
   ]);
 
   return {
-    showCanvas: isDragging && !activateOverlayWidgetDrop,
+    showDnDListener: isDragging && !activateOverlayWidgetDrop,
   };
 };
