@@ -126,12 +126,5 @@ describe(
         expect(thisTestEmail.attachments.length).equal(1);
       });
     });
-
-    it("4. Verify the default port for the datasource", function () {
-      dataSources.NavigateToDSCreateNew();
-      dataSources.CreatePlugIn("SMTP");
-
-      agHelper.AssertAttribute(dataSources._port, "value", "25");
-    });
   },
 );

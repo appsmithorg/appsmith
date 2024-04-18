@@ -17,8 +17,6 @@ import {
   useWidgetDragResize,
 } from "utils/hooks/dragResizeHooks";
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 
 const DraggableWrapper = styled.div<{ draggable: boolean }>`
   display: block;
@@ -57,8 +55,8 @@ const WidgetBoundaries = styled.div`
 `;
 
 function DraggableComponent(props: DraggableComponentProps) {
-  // Dispatch hook handy to set a widget as focused/selected
-  const { focusWidget, selectWidget } = useWidgetSelection();
+  // Dispatch hook handy to set a widget as selected
+  const { selectWidget } = useWidgetSelection();
 
   const shouldAllowDrag = useSelector(getShouldAllowDrag);
   // Dispatch hook handy to set any `DraggableComponent` as dragging/ not dragging
@@ -76,9 +74,6 @@ function DraggableComponent(props: DraggableComponentProps) {
     (state: AppState) => state.ui.widgetDragResize.isResizing,
   );
 
-  // This state tells us whether space redistribution is in process
-  const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
-
   // This state tells us whether a `DraggableComponent` is dragging
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
@@ -89,31 +84,12 @@ function DraggableComponent(props: DraggableComponentProps) {
       state.ui.widgetDragResize?.dragDetails?.draggedOn === props.parentId,
   );
 
-  const isPreviewMode = useSelector(combinedPreviewModeSelector);
-
   // True when any widget is dragging or resizing, including this one
   const isResizingOrDragging = !!isResizing || !!isDragging;
   const isCurrentWidgetDragging = isDragging && isSelected;
   const isCurrentWidgetResizing = isResizing && isSelected;
   const showBoundary =
     !props.isFlexChild && (isCurrentWidgetDragging || isDraggingSibling);
-
-  // When mouse is over this draggable
-  const handleMouseOver = (e: React.MouseEvent) => {
-    focusWidget &&
-      !isResizingOrDragging &&
-      !isFocused &&
-      !isDistributingSpace &&
-      !props.resizeDisabled &&
-      !isPreviewMode &&
-      focusWidget(props.widgetId, e.metaKey);
-    e.stopPropagation();
-  };
-
-  const handleMouseLeave = () => {
-    // on leaving a widget, we reset the focused widget
-    focusWidget && focusWidget();
-  };
 
   // Display this draggable based on the current drag state
   const dragWrapperStyle: CSSProperties = {
@@ -156,8 +132,6 @@ function DraggableComponent(props: DraggableComponentProps) {
       data-testid={isSelected ? "t--selected" : ""}
       draggable={allowDrag}
       onDragStart={onDragStart}
-      onMouseLeave={handleMouseLeave}
-      onMouseOver={handleMouseOver}
       ref={draggableRef}
       style={dragWrapperStyle}
     >

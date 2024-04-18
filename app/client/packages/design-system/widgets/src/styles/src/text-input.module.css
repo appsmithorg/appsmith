@@ -172,7 +172,7 @@
   * SIZE
   *-----------------------------------------------------------------------------
   */
-  &:has(input[data-size="small"]) [data-field-input] {
+  & [data-field-input] input[data-size="small"] {
     padding-block: var(--inner-spacing-2);
   }
 }
