@@ -47,7 +47,7 @@ describe("Visual regression tests", { tags: ["@tag.Visual"] }, () => {
     cy.get(homePage.signOutIcon).click();
     cy.wait(500);
     // validating all the fields on login page
-    cy.xpath("//h1").should("have.text", "Sign in");
+    cy.xpath("//h1").should("have.text", "Sign in to your account");
     cy.get(".bp3-label").first().should("have.text", "Email ");
     cy.get(".bp3-label").last().should("have.text", "Password ");
     cy.xpath('//span[text()="Sign in"]').should("be.visible");
