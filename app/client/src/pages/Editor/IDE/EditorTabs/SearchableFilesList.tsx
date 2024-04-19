@@ -85,6 +85,7 @@ const SearchableFilesList = (props: Props) => {
     <Menu onOpenChange={setOpen} open={isOpen}>
       <MenuTrigger>
         <StyledButton
+          className="!min-w-fit"
           data-testid="t--files-list-trigger"
           isActive={isOpen}
           isIconButton

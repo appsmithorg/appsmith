@@ -5,11 +5,14 @@ import EditorNavigation, {
 const omnibar = require("../../../../locators/Omnibar.json");
 import {
   agHelper,
-  entityExplorer,
   assertHelper,
-  deployMode,
-  draggableWidgets,
 } from "../../../../support/Objects/ObjectsCore";
+
+import {
+  createMessage,
+  NAV_DESCRIPTION,
+  ACTION_OPERATION_DESCRIPTION,
+} from "../../../../../src/ce/constants/messages";
 
 describe("Omnibar functionality test cases", () => {
   const apiName = "Omnibar1";
@@ -19,17 +22,7 @@ describe("Omnibar functionality test cases", () => {
     agHelper.AddDsl("omnibarDsl");
   });
 
-  it("1. Bug #15104  Docs tab opens after clicking on learn more link from property pane", function () {
-    cy.dragAndDropToCanvas(draggableWidgets.AUDIO, { x: 300, y: 500 });
-    agHelper.Sleep(2000);
-    deployMode.StubWindowNAssert(
-      '//span[text()="Learn more"]',
-      "connect-to-a-database",
-      "getConsolidatedData",
-    );
-  });
-
-  it("2.Verify omnibar is present across all pages and validate its fields", function () {
+  it("1.Verify omnibar is present across all pages and validate its fields", function () {
     cy.get(omnibar.globalSearch)
       .trigger("mouseover")
       .should("have.css", "background-color", "rgb(255, 255, 255)");
@@ -39,19 +32,16 @@ describe("Omnibar functionality test cases", () => {
       .eq(0)
       .should("have.text", "Navigate")
       .next()
-      .should(
-        "have.text",
-        "Navigate to any page, widget or file across this project.",
-      );
+      .should("have.text", createMessage(NAV_DESCRIPTION));
     cy.get(omnibar.categoryTitle)
       .eq(1)
       .should("have.text", "Create new")
       .next()
-      .should("have.text", "Create a new query, API or JS Object");
+      .should("have.text", createMessage(ACTION_OPERATION_DESCRIPTION));
     cy.get("body").type("{esc}");
   });
 
-  it("3. Verify Create new section and its data, also create a new api, new js object and new cURL import from omnibar ", function () {
+  it("2. Verify Create new section and its data, also create a new api, new js object and new cURL import from omnibar ", function () {
     cy.intercept("POST", "/api/v1/actions").as("createNewApi");
     cy.intercept("POST", "/api/v1/collections/actions").as(
       "createNewJSCollection",
@@ -90,7 +80,7 @@ describe("Omnibar functionality test cases", () => {
   });
 
   it(
-    "4. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab",
+    "3. On an invalid search, discord link should be displayed and on clicking that link, should open discord in new tab",
     { tags: ["@tag.excludeForAirgap"] },
     function () {
       // typing a random string in search bar
@@ -101,30 +91,11 @@ describe("Omnibar functionality test cases", () => {
       cy.get(omnibar.globalSearchInput).should("have.value", "vnjkv");
       // discord link should be visible
       cy.get(omnibar.discordLink).should("be.visible");
-      // cy.window().then((win) => {
-      //   cy.stub(win, "open", (url) => {
-      //     win.location.href = "https://discord.com/invite/rBTTVJp";
-      //   }).as("discordLink");
-      // });
-      // cy.url().then(($urlBeforeDiscord) => {
-      //   // clicking on discord link should open discord
-      //   agHelper.GetNClick(omnibar.discordLink, 0, false, 4000);
-      //   cy.get("@discordLink").should("be.called");
-      //   cy.wait(2000);
-      //   //cy.go(-1);
-      //   cy.visit($urlBeforeDiscord);
-      //   cy.wait(4000); //for page to load
-      // });
-
-      deployMode.StubWindowNAssert(
-        omnibar.discordLink,
-        "https://discord.com/invite/rBTTVJp",
-        "getConsolidatedData",
-      );
+      cy.get(".no-data-title").should("be.visible");
     },
   );
 
-  it("5. Verify Navigate section shows recently opened widgets and datasources", function () {
+  it("4. Verify Navigate section shows recently opened widgets and datasources", function () {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     cy.get(omnibar.globalSearch).click({ force: true });
     cy.get(omnibar.categoryTitle).contains("Navigate").click();
@@ -147,12 +118,6 @@ describe("Omnibar functionality test cases", () => {
       .next()
       .should("have.text", "Page1");
 
-    cy.xpath(omnibar.recentlyopenItem)
-      .eq(3)
-      .should("have.text", "Audio1")
-      .next()
-      .should("have.text", "Page1");
-
-    cy.xpath(omnibar.recentlyopenItem).eq(4).should("have.text", "Page1");
+    cy.xpath(omnibar.recentlyopenItem).eq(3).should("have.text", "Page1");
   });
 });

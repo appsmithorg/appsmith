@@ -30,6 +30,7 @@ import type {
   SetActionPropertyPayload,
 } from "actions/pluginActionActions";
 import {
+  closeQueryActionTabSuccess,
   copyActionError,
   copyActionSuccess,
   createActionInit,
@@ -654,6 +655,7 @@ export function* deleteActionSaga(
     });
 
     yield put(deleteActionSuccess({ id }));
+    yield put(closeQueryActionTabSuccess({ id }));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
@@ -1198,5 +1200,8 @@ export function* closeActionTabSaga(
   }>,
 ) {
   const id = actionPayload.payload.id;
+  const currentUrl = window.location.pathname;
+  yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
   yield call(handleQueryEntityRedirect, id);
+  yield put(closeQueryActionTabSuccess({ id }));
 }

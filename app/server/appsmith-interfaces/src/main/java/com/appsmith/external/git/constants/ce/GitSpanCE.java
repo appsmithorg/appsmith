@@ -31,6 +31,7 @@ public class GitSpanCE {
     public static final String OPS_FETCH_REMOTE = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "ops_fetch_remote";
     public static final String OPS_DETACH_REMOTE = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "ops_detach_remote";
     public static final String OPS_DISCARD_CHANGES = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "ops_discard_changes";
+    public static final String OPS_MERGE_BRANCH = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "ops_merge_branch";
     public static final String FILE_WRITE = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "file_write";
     public static final String FILE_READ = APPSMITH_SPAN_PREFIX + GIT_SPAN_PREFIX + "file_read";
 }

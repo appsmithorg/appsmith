@@ -225,6 +225,7 @@ public class GitExecutorCEImpl implements GitExecutor {
 
                         StringBuilder result = new StringBuilder("Pushed successfully with status : ");
                         git.push()
+                                .setAtomic(true)
                                 .setTransportConfigCallback(transportConfigCallback)
                                 .setRemote(remoteUrl)
                                 .call()
