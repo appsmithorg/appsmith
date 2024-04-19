@@ -5,7 +5,7 @@ import WalkthroughContext from "./walkthroughContext";
 import { createPortal } from "react-dom";
 import { retryPromise } from "utils/AppsmithUtils";
 import { useLocation } from "react-router-dom";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { isElementVisible } from "./utils";
 import { hideIndicator } from "components/utils/Indicator";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";

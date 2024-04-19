@@ -94,7 +94,7 @@ import {
   DATASOURCE_REST_API_FORM,
 } from "@appsmith/constants/forms";
 import { validateResponse } from "./ErrorSagas";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { GetFormData } from "selectors/formSelectors";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";

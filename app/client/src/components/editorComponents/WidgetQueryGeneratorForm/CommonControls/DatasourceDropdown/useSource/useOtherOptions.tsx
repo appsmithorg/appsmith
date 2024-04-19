@@ -3,7 +3,7 @@ import { Icon } from "design-system";
 import history from "utils/history";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import { INTEGRATION_TABS } from "constants/routes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import { useParams } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
