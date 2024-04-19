@@ -26,7 +26,7 @@ import {
   getIsAutocommitToggling,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import {
   useHasConnectToGitPermission,

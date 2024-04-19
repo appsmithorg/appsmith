@@ -5,7 +5,7 @@ import {
   PRICING_PAGE_URL,
 } from "constants/ThirdPartyConstants";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { pricingPageUrlSource } from "@appsmith/utils/licenseHelpers";
 import type {

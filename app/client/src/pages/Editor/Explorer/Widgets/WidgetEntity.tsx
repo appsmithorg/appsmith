@@ -9,7 +9,7 @@ import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureRed
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import WidgetIcon from "./WidgetIcon";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { useLocation } from "react-router";
 import { getPagePermissions } from "selectors/editorSelectors";
