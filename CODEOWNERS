@@ -101,7 +101,7 @@ app/client/src/widgets/MetaHOC.tsx @appsmithorg/ui-builders
 app/client/src/widgets/withWidgetProps.tsx @appsmithorg/ui-builders
 
 # Git Pod
-app/server/appsmith-git/* @appsmithorg/git-be-reviewers
+app/server/appsmith-git/ @appsmithorg/git-be-reviewers
 app/server/**/git/** @appsmithorg/git-be-reviewers
 app/server/**/import/** @appsmithorg/git-be-reviewers
 app/server/**/export/** @appsmithorg/git-be-reviewers
@@ -109,8 +109,8 @@ app/server/**/*Git*.java @appsmithorg/git-be-reviewers
 app/server/**/*Import*.java @appsmithorg/git-be-reviewers
 app/server/**/*Export*.java @appsmithorg/git-be-reviewers
 
-app/client/src/pages/Editor/gitSync/* @appsmithorg/git-fe-reviewers
-app/client/packages/dsl/* @appsmithorg/git-fe-reviewers
+app/client/src/pages/Editor/gitSync/ @appsmithorg/git-fe-reviewers
+app/client/packages/dsl/ @appsmithorg/git-fe-reviewers
 
 # Data Platform
 
