@@ -227,6 +227,13 @@
           "placeholderText": "UTC or any valid timezone"
         }
       ]
+    },
+    {
+      "label": "TinyInt1isBit",
+      "configProperty": "datasourceConfiguration.properties[2].value",
+      "controlType": "SWITCH",
+      "subtitle": "Will convert tinyint1 to bit",
+      "initialValue": true
     }
   ]
 }

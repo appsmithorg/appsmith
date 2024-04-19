@@ -1629,4 +1629,97 @@ public class MySqlPluginTest {
                 })
                 .verifyComplete();
     }
+
+    private static DatasourceConfiguration createDatasourceConfiguration(List<Property> additionalProperties) {
+        DBAuth authDTO = new DBAuth();
+        authDTO.setAuthType(DBAuth.Type.USERNAME_PASSWORD);
+        authDTO.setUsername(username);
+        authDTO.setPassword(password);
+        authDTO.setDatabaseName(database);
+
+        Endpoint endpoint = new Endpoint();
+        endpoint.setHost(address);
+        endpoint.setPort(port.longValue());
+
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+
+        /* set endpoint */
+        datasourceConfiguration.setAuthentication(authDTO);
+        datasourceConfiguration.setEndpoints(List.of(endpoint));
+
+        /* set ssl mode */
+        datasourceConfiguration.setConnection(new com.appsmith.external.models.Connection());
+        datasourceConfiguration.getConnection().setSsl(new SSLDetails());
+        datasourceConfiguration.getConnection().getSsl().setAuthType(SSLDetails.AuthType.DEFAULT);
+
+        /* Set connection method toggle to `Standard` */
+        ArrayList<Property> properties = new ArrayList<>();
+        properties.add(null);
+        properties.add(new Property("Connection method", "Standard"));
+        properties.addAll(additionalProperties);
+        datasourceConfiguration.setProperties(properties);
+
+        return datasourceConfiguration;
+    }
+
+    private void testExecute(String query, String expectedResult, DatasourceConfiguration datasourceConfiguration) {
+        Mono<ConnectionContext<ConnectionPool>> connectionContextMono =
+                pluginExecutor.datasourceCreate(datasourceConfiguration);
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setBody(query);
+        Mono<Object> executeMono = connectionContextMono.flatMap(conn ->
+                pluginExecutor.executeParameterized(conn, new ExecuteActionDTO(), dsConfig, actionConfiguration));
+        StepVerifier.create(executeMono)
+                .assertNext(obj -> {
+                    ActionExecutionResult result = (ActionExecutionResult) obj;
+                    assertNotNull(result);
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    if (expectedResult != null) {
+                        assertEquals(expectedResult, result.getBody().toString());
+                    }
+                })
+                .verifyComplete();
+    }
+
+    /**
+     * check tinyint1bit
+     */
+    @Test
+    public void testTinyInt1isBit() throws AppsmithPluginException {
+        String query_create_table_numeric_types =
+                "create table test_tinyint_types (c_tinyint TINYINT, c_tinyInt1isBit TINYINT(1));";
+        String inert1 = "insert into test_tinyint_types values (0,0);";
+        String inert2 = "insert into test_tinyint_types values (1,1);";
+        String inert3 = "insert into test_tinyint_types values (2,2);";
+
+        String query_select_from_test_numeric_types = "select * from test_tinyint_types;";
+
+        String expected_open_tinyint1bit =
+                "[{\"c_tinyint\":0,\"c_tinyInt1isBit\":false},{\"c_tinyint\":1,\"c_tinyInt1isBit\":true},{\"c_tinyint\":2,\"c_tinyInt1isBit\":true}]";
+        String expected_close_tinyint1bit =
+                "[{\"c_tinyint\":0,\"c_tinyInt1isBit\":0},{\"c_tinyint\":1,\"c_tinyInt1isBit\":1},{\"c_tinyint\":2,\"c_tinyInt1isBit\":2}]";
+
+        Mono.from(getConnectionMonoFromContainer(mySQLContainer))
+                .map(connection -> {
+                    return connection
+                            .createBatch()
+                            .add(query_create_table_numeric_types)
+                            .add(inert1)
+                            .add(inert2)
+                            .add(inert3);
+                })
+                .flatMapMany(batch -> Flux.from(batch.execute()))
+                .blockLast(); // wait until completion of all the queries
+
+        /* Test tinyInt1isBit open */
+        testExecute(query_select_from_test_numeric_types, expected_open_tinyint1bit);
+
+        /* Test tinyInt1isBit close */
+        Property tinyInt1isBit = new Property("", false);
+        List<Property> properties = new ArrayList<>();
+        properties.add(tinyInt1isBit);
+        DatasourceConfiguration datasourceConfiguration = createDatasourceConfiguration(properties);
+        testExecute(query_select_from_test_numeric_types, expected_close_tinyint1bit, datasourceConfiguration);
+    }
 }

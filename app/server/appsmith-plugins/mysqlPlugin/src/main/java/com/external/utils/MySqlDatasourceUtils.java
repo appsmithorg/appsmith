@@ -249,9 +249,20 @@ public class MySqlDatasourceUtils {
             throws AppsmithPluginException {
         ConnectionFactoryOptions.Builder ob = getBuilder(datasourceConfiguration, connectionContext);
         ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
+
+        boolean tinyInt1isBit = true;
+        if (datasourceConfiguration.getProperties().size() > 2
+                && datasourceConfiguration.getProperties().get(2) != null) {
+            Object value = datasourceConfiguration.getProperties().get(2).getValue();
+            if (value instanceof Boolean) {
+                tinyInt1isBit = (boolean) value;
+            }
+        }
+
         MariadbConnectionFactory connectionFactory =
                 MariadbConnectionFactory.from(MariadbConnectionConfiguration.fromOptions(ob.build())
                         .allowPublicKeyRetrieval(true)
+                        .tinyInt1isBit(tinyInt1isBit)
                         .build());
 
         /**
