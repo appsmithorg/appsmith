@@ -1,7 +1,6 @@
 import toposort from "toposort";
 import type DependencyMap from ".";
 import { IMMEDIATE_PARENT_REGEX } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { union } from "lodash";
 
 type SortDependencies =
   | {
@@ -61,9 +60,13 @@ export class DependencyMapUtils {
       const immediateParent = matches[1];
       const existingImmediateParentDeps =
         dependencyMap.getDirectDependencies(immediateParent) || [];
-      const newDeps = union(existingImmediateParentDeps, [curKey]);
-
-      dependencyMap.addDependency(immediateParent, newDeps);
+      const existingImmediateParentDepsSet = new Set(
+        existingImmediateParentDeps,
+      );
+      if (!existingImmediateParentDepsSet.has(curKey)) {
+        const newDeps = [...existingImmediateParentDeps, curKey];
+        dependencyMap.addDependency(immediateParent, newDeps);
+      }
       curKey = immediateParent;
     }
   };
