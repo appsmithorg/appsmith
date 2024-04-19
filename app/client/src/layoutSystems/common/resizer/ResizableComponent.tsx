@@ -28,7 +28,7 @@ import {
   isMultiSelectedWidget,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import {
   getWidgetHeight,

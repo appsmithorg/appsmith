@@ -51,7 +51,6 @@ import {
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";

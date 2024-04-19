@@ -8,7 +8,7 @@ import {
   batchUpdateWidgetDynamicProperty,
   batchUpdateWidgetProperty,
 } from "actions/controlActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 import {
   SNIPING_NOT_SUPPORTED,

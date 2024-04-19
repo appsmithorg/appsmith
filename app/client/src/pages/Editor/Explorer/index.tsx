@@ -8,7 +8,7 @@ import type { AppState } from "@appsmith/reducers";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { trimQueryString } from "utils/helpers";
 import history from "utils/history";
 import EntityExplorer from "./EntityExplorer";

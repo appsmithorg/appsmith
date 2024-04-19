@@ -9,7 +9,7 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import { DatasourceImage, ImageWrapper } from "../../../styles";
 import { getDatatype } from "utils/AppsmithUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { DropdownOptionType } from "../../../types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";

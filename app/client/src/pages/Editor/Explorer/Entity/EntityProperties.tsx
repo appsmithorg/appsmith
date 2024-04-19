@@ -10,7 +10,7 @@ import type { AppState } from "@appsmith/reducers";
 import classNames from "classnames";
 import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { EntityClassNames } from ".";
 import { Button } from "design-system";
 import { getEntityProperties } from "@appsmith/pages/Editor/Explorer/Entity/getEntityProperties";

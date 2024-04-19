@@ -21,7 +21,7 @@ import { StyledEntity } from "pages/Editor/Explorer/Common/components";
 import { toValidPageName } from "utils/helpers";
 import { updatePage } from "actions/pageActions";
 import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import history, { NavigationMethod } from "utils/history";
 

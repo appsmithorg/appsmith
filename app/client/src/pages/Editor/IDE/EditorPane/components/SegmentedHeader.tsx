@@ -18,7 +18,7 @@ import styled from "styled-components";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { setIdeEditorViewMode } from "actions/ideActions";
 
 const Container = styled(Flex)`
