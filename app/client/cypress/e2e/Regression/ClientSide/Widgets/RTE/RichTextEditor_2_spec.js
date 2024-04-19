@@ -97,8 +97,7 @@ describe(
       // Check if the cursor is at the end when input Type is HTML
       setRTEContent(testString);
       testCursorPoistion(testStringLen, tinyMceId);
-      setRTEContent("{selectAll}");
-      setRTEContent("{backspace}");
+      setRTEContent("{selectAll}{del}");
 
       // Changing the input type to markdown and again testing the cursor position
       cy.openPropertyPane("richtexteditorwidget");
