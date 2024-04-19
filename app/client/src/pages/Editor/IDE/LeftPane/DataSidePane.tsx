@@ -17,6 +17,7 @@ import {
 import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
 import { countBy, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
+import type { RouteComponentProps } from "react-router";
 import { useLocation } from "react-router";
 import {
   createMessage,
@@ -54,7 +55,13 @@ const StyledList = styled(List)`
   gap: 0;
 `;
 
-const DataSidePane = () => {
+interface DataSidePaneProps extends RouteComponentProps<Record<string, never>> {
+  actionCount?: Record<string, number>;
+  entityName?: string;
+}
+
+const DataSidePane = (props: DataSidePaneProps) => {
+  const { entityName = "queries" } = props;
   const editorType = useEditorType(history.location.pathname);
   const pageId = useSelector(getCurrentPageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
@@ -65,7 +72,8 @@ const DataSidePane = () => {
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
   const actions = useSelector(getActions);
-  const actionCount = countBy(actions, "config.datasource.id");
+  const actionCount =
+    props.actionCount || countBy(actions, "config.datasource.id");
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
@@ -137,7 +145,7 @@ const DataSidePane = () => {
                   onClick: () => goToDatasource(data.id),
                   description: `${
                     actionCount[data.id] || "No"
-                  } queries in this ${editorType}`,
+                  } ${entityName} in this ${editorType}`,
                   descriptionType: "block",
                   isSelected: currentSelectedDatasource === data.id,
                   startIcon: (
