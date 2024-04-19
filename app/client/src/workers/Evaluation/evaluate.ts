@@ -12,7 +12,10 @@ import type { EventType } from "constants/AppsmithActionConstants/ActionConstant
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import indirectEval from "./indirectEval";
 import DOM_APIS from "./domApis";
-import { JSLibraries, libraryReservedIdentifiers } from "../common/JSLibrary";
+import {
+  JSLibraryAccessor,
+  libraryReservedIdentifiers,
+} from "../common/JSLibrary";
 import {
   ActionInDataFieldErrorModifier,
   errorModifier,
@@ -90,9 +93,7 @@ const ignoreGlobalObjectKeys = new Set([
 ]);
 
 function resetWorkerGlobalScope() {
-  const jsLibraryAccessorSet = new Set(
-    JSLibraries.flatMap((lib) => lib.accessor),
-  );
+  const jsLibraryAccessorSet = JSLibraryAccessor.getSet();
 
   for (const key of Object.keys(self)) {
     if (topLevelWorkerAPIs[key] || DOM_APIS[key]) continue;
