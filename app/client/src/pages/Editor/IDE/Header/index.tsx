@@ -75,7 +75,8 @@ import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
 import { DefaultTitle } from "./DeaultTitle";
 import { EditorState } from "@appsmith/entities/IDE/constants";
-import { EditorSaveIndicator } from "../../EditorSaveIndicator";
+import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -84,6 +85,41 @@ const StyledDivider = styled(Divider)`
 `;
 
 const { cloudHosting } = getAppsmithConfigs();
+
+interface HeaderTitleProps {
+  appState: EditorState;
+  currentPage?: Page;
+}
+
+const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
+  switch (appState) {
+    case EditorState.DATA:
+      return (
+        <DefaultTitle
+          key={appState}
+          title={createMessage(HEADER_TITLES.DATA)}
+        />
+      );
+    case EditorState.EDITOR:
+      return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
+    case EditorState.SETTINGS:
+      return (
+        <DefaultTitle
+          key={appState}
+          title={createMessage(HEADER_TITLES.SETTINGS)}
+        />
+      );
+    case EditorState.LIBRARIES:
+      return (
+        <DefaultTitle
+          key={appState}
+          title={createMessage(HEADER_TITLES.LIBRARIES)}
+        />
+      );
+    default:
+      return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
+  }
+};
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -184,21 +220,6 @@ const Header = () => {
     [dispatch, handlePublish],
   );
 
-  const TitleComponent = () => {
-    switch (appState) {
-      case EditorState.DATA:
-        return <DefaultTitle title={createMessage(HEADER_TITLES.DATA)} />;
-      case EditorState.EDITOR:
-        return <EditorTitle title={currentPage?.pageName || ""} />;
-      case EditorState.SETTINGS:
-        return <DefaultTitle title={createMessage(HEADER_TITLES.SETTINGS)} />;
-      case EditorState.LIBRARIES:
-        return <DefaultTitle title={createMessage(HEADER_TITLES.LIBRARIES)} />;
-      default:
-        return <EditorTitle title={currentPage?.pageName || ""} />;
-    }
-  };
-
   return (
     <Flex
       alignItems={"center"}
@@ -219,7 +240,7 @@ const Header = () => {
       >
         <AppsmithLink />
         <Divider orientation="vertical" />
-        <TitleComponent />
+        <HeaderTitleComponent appState={appState} currentPage={currentPage} />
         <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
       </Flex>
       <Flex

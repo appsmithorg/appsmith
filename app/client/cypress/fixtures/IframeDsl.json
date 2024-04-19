@@ -32,7 +32,7 @@
           "topRow": 4,
           "bottomRow": 36,
           "parentRowSpace": 10,
-          "source": "https://www.example.com",
+          "source": "http://host.docker.internal:8000/a.txt",
           "type": "IFRAME_WIDGET",
           "hideCard": false,
           "borderOpacity": 100,
