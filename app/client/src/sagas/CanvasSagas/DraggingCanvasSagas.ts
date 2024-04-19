@@ -180,7 +180,7 @@ function* addBuildingBlockAndMoveWidgetsSaga(
       },
     },
   });
-  AnalyticsUtil.logEvent("DRAG_BUILDING_BLOCK", {
+  AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK_INITIATED", {
     applicationId,
     workspaceId,
     source: "explorer",

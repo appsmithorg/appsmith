@@ -637,6 +637,7 @@ function* runNewlyCreatedActions(
     yield all(
       newlyAddedActions.map(function* (action) {
         yield put(runAction(action.config.id));
+        yield take(ReduxActionTypes.RUN_ACTION_SUCCESS);
       }),
     );
   }
@@ -723,7 +724,7 @@ export function* addBuildingBlockToApplication(
         : 0;
       const timeTakenToCompleteInSeconds = timeTakenToCompleteInMs / 1000;
 
-      AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK", {
+      AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK_COMPLETED", {
         applicationId,
         workspaceId,
         source: "explorer",
@@ -778,7 +779,7 @@ function* addBuildingBlockSaga(addEntityAction: ReduxAction<WidgetAddChild>) {
       shouldReplay: false,
     },
   };
-  AnalyticsUtil.logEvent("DRAG_BUILDING_BLOCK", {
+  AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK_INITIATED", {
     applicationId,
     workspaceId,
     source: "explorer",
