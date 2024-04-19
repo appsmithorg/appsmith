@@ -25,7 +25,7 @@ export const menuItemsConfig = {
           helpText: "Sets the label of a menu item",
           label: "Label",
           controlType: "INPUT_TEXT",
-          placeholderText: "Download",
+          placeholderText: "Do Something",
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.TEXT },

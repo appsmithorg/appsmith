@@ -50,9 +50,9 @@ export const propertyPaneContentConfig = [
         helpText:
           "Sets the default text of the widget. The text is updated if the default text changes",
         propertyName: "defaultText",
-        label: "Default value",
+        label: "Value",
         controlType: "INPUT_TEXT",
-        placeholderText: "John Doe",
+        placeholderText: "Value",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {

@@ -8,6 +8,7 @@ import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PageUpdateDTO;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
@@ -166,7 +167,7 @@ public class PageControllerCE {
     @PutMapping("/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> updatePage(
             @PathVariable String defaultPageId,
-            @RequestBody PageDTO resource,
+            @RequestBody @Valid PageUpdateDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to update page with id: {}, branchName: {}", defaultPageId, branchName);
         return newPageService
