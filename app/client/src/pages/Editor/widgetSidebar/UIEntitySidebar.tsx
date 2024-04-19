@@ -17,7 +17,13 @@ import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
 
-function UIEntitySidebar({ isActive }: { isActive: boolean }) {
+function UIEntitySidebar({
+  focusSearchInput,
+  isActive,
+}: {
+  isActive: boolean;
+  focusSearchInput?: boolean;
+}) {
   const { cards, entityLoading, groupedCards } = useUIExplorerItems();
   const [filteredCards, setFilteredCards] =
     useState<WidgetCardsGroupedByTags>(groupedCards);
@@ -77,9 +83,14 @@ function UIEntitySidebar({ isActive }: { isActive: boolean }) {
     filterCards(value.toLowerCase());
   }, 300);
 
+  // update widgets list after building blocks have been fetched async
   useEffect(() => {
     setFilteredCards(groupedCards);
-  }, [groupedCards]);
+  }, [entityLoading[WIDGET_TAGS.BUILDING_BLOCKS]]);
+
+  useEffect(() => {
+    if (focusSearchInput) searchInputRef.current?.focus();
+  }, [focusSearchInput]);
 
   return (
     <div

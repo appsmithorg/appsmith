@@ -110,8 +110,8 @@ jobs:
           issue-number: ${{ fromJson(steps.args.outputs.pr) }}
           body: |
             Tests running at: <${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}>.
-            Workflow: `ci-test-limited`.
-            PR: ${{ fromJson(steps.args.outputs.pr) }}.
+            [Cypress dashboard](https://internal.appsmith.com/app/cypress-dashboard/rundetails-65890b3c81d7400d08fa9ee5?branch=master&workflowId=${{ github.run_id }}&attempt=${{ github.run_attempt }}&selectiontype=test&testsstatus=failed&specsstatus=fail)
+            PR: #${{ fromJson(steps.args.outputs.pr) }}.
 
   server-build:
     name: server-build
@@ -186,9 +186,9 @@ jobs:
     steps:
       - name: Setup node
         if: needs.ci-test-limited.result != 'success'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: app/client/package.json
 
       - name: install pg
         if: needs.ci-test-limited.result != 'success'
@@ -303,9 +303,9 @@ jobs:
     steps:
       - name: Setup node
         if: needs.ci-test-limited-existing-docker-image.result != 'success'
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version-file: app/client/package.json
 
       - name: install pg
         if: needs.ci-test-limited-existing-docker-image.result != 'success'

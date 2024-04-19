@@ -68,7 +68,7 @@ export const StyledLink = styled(Link)<{ $active: boolean }>`
 
   .ads-v2-text {
     display: flex;
-    gap: 12px;
+    gap: var(--ads-v2-spaces-3);
     align-items: center;
   }
 

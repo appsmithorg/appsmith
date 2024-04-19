@@ -6,6 +6,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -47,17 +48,17 @@ public class ActionCollectionCE_DTO {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String name;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String pageId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     CreatorContextType contextType;
 
     // This field will only be populated if this collection is bound to one plugin (eg: JS)
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String pluginId;
 
     // this attribute carries error messages while processing the actionCollection
@@ -66,7 +67,7 @@ public class ActionCollectionCE_DTO {
     @JsonView(Views.Public.class)
     List<ErrorDTO> errorReports;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     PluginType pluginType;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
@@ -109,7 +110,7 @@ public class ActionCollectionCE_DTO {
     String body;
 
     // This list is currently used to record constants
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     List<JSValue> variables;
 
     // This will be used to store the defaultPageId but other fields like branchName, applicationId will act as
@@ -158,6 +159,7 @@ public class ActionCollectionCE_DTO {
         this.setUserPermissions(Set.of());
     }
 
+    @JsonView({Views.Internal.class})
     public String getUserExecutableName() {
         return this.getName();
     }

@@ -3361,7 +3361,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -6803,7 +6803,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -7004,8 +7004,7 @@ export const defaultAppState = {
                     isRequired: true,
                     label: "Message SID",
                     placeholderText: "MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-                    subtitle:
-                      "Specify the SID of the messaging Service used with the message.",
+                    subtitle: "Specify the SID of the message.",
                     tooltipText:
                       "The Twilio-provided string that uniquely identifies the message resource to fetch.",
                   },
@@ -7097,8 +7096,7 @@ export const defaultAppState = {
                     isRequired: true,
                     tooltipText:
                       "The Twilio-provided string that uniquely identifies the message resource to fetch.",
-                    subtitle:
-                      "Specify the SID of the messaging Service used with the message.",
+                    subtitle: "Specify the SID of the message.",
                     label: "Message SID",
                     placeholderText: "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                     configProperty: "actionConfiguration.formData.MESSAGE_SID",
@@ -7133,8 +7131,7 @@ export const defaultAppState = {
                     isRequired: true,
                     label: "Message SID",
                     placeholderText: "MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-                    subtitle:
-                      "Specify the SID of the messaging Service used with the message.",
+                    subtitle: "Specify the SID of the message.",
                     tooltipText:
                       "The Twilio-provided string that uniquely identifies the message resource to delete.",
                   },
@@ -7217,7 +7214,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -9186,7 +9183,7 @@ export const defaultAppState = {
             identifier: "SELECTOR",
             children: [
               {
-                label: "Commands",
+                label: "Command",
                 description:
                   "Choose method you would like to use to query the database",
                 configProperty: "actionConfiguration.formData.command.data",
@@ -9769,7 +9766,7 @@ export const defaultAppState = {
               },
               {
                 label: "Use Prepared Statement",
-                info: "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+                info: "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
                 configProperty:
                   "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 controlType: "SWITCH",
@@ -10085,7 +10082,7 @@ export const defaultAppState = {
               {
                 label: "Use Prepared Statement",
                 subtitle:
-                  "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+                  "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
                 configProperty:
                   "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 controlType: "SWITCH",
@@ -11121,8 +11118,10 @@ export const defaultAppState = {
         isFetchingAllUsers: false,
       },
       partialImportExport: {
+        isExportModalOpen: false,
         isExporting: false,
         isExportDone: false,
+        isImportModalOpen: false,
         isImporting: false,
         isImportDone: false,
       },
@@ -12754,7 +12753,6 @@ export const defaultAppState = {
           release_appnavigationlogoupload_enabled: false,
           release_embed_hide_share_settings_enabled: false,
           ab_gsheet_schema_enabled: true,
-          ab_wds_enabled: false,
           release_table_serverside_filtering_enabled: false,
           release_custom_echarts_enabled: false,
           license_branding_enabled: false,
@@ -12775,7 +12773,6 @@ export const defaultAppState = {
           release_show_new_sidebar_announcement_enabled: false,
           rollout_app_sidebar_enabled: false,
           release_show_partial_import_export_enabled: true,
-          release_show_new_sidebar_pages_pane_enabled: false,
           ab_one_click_learning_popover_enabled: false,
           release_side_by_side_ide_enabled: false,
           release_global_add_pane_enabled: false,
@@ -12797,7 +12794,6 @@ export const defaultAppState = {
           rollout_datasource_test_rate_limit_enabled: false,
           license_scheduled_backup_enabled: false,
           ab_ai_button_sql_enabled: true,
-          rollout_consolidated_page_load_fetch_enabled: true,
           license_message_listener_enabled: false,
           license_custom_environments_enabled: false,
           license_pac_enabled: false,

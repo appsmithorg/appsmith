@@ -25,6 +25,13 @@ export const convertFlexGrowToFlexBasis = (flexGrow: number) => {
   return `calc(100% / ${columns} - (${columns} - 1) * var(--outer-spacing-4) / ${columns})`;
 };
 
+export const convertFlexGrowToFlexBasisForPropPane = (
+  flexGrow: number,
+  columns = SectionColumns,
+): string => {
+  return `${(flexGrow / columns) * 100}%`;
+};
+
 /**
  * Utility function to convert pixel values to numbers.
  */

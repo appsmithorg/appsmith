@@ -21,7 +21,6 @@ import {
   dispatchTestKeyboardEventWithCode,
   MockApplication,
   mockCreateCanvasWidget,
-  mockGetCanvasWidgetDsl,
   mockGetWidgetEvalValues,
   MockPageDSL,
   useMockDsl,
@@ -50,7 +49,6 @@ describe("Canvas Hot Keys", () => {
   });
 
   const mockGetIsFetchingPage = jest.spyOn(utilities, "getIsFetchingPage");
-  const spyGetCanvasWidgetDsl = jest.spyOn(utilities, "getCanvasWidgetDsl");
 
   function UpdatedEditor({ dsl }: any) {
     useMockDsl(dsl);
@@ -106,7 +104,6 @@ describe("Canvas Hot Keys", () => {
       const dsl: any = widgetCanvasFactory.build({
         children,
       });
-      spyGetCanvasWidgetDsl.mockImplementation(mockGetCanvasWidgetDsl);
       mockGetIsFetchingPage.mockImplementation(() => false);
       const spyWidgetSelection = jest.spyOn(
         widgetSelectionsActions,

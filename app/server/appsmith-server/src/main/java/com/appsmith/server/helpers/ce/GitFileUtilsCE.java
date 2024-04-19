@@ -8,7 +8,7 @@ import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -57,7 +57,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
+import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.server.constants.FieldName.ACTION_COLLECTION_LIST;

@@ -53,6 +53,7 @@
           "controlType": "DROP_DOWN",
           "initialValue": "ROWS",
           "isRequired": true,
+          "setFirstOptionAsDefault": true,
           "options": [
             {
               "disabled": "{{ ['INSERT_ONE', 'UPDATE_ONE', 'DELETE_ONE', 'FETCH_MANY', 'UPDATE_MANY', 'INSERT_MANY'].includes(actionConfiguration.formData.command.data) === false }}",

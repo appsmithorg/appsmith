@@ -25,9 +25,6 @@ export const getIDEViewMode = createSelector(
   },
 );
 
-export const getPagesActiveStatus = (state: AppState) =>
-  state.ui.ide.pagesActive;
-
 export const getActionsCount = (pageId: string) =>
   createSelector(getPageActions(pageId), (actions) => {
     return actions.length || 0;
@@ -49,3 +46,10 @@ export const getQueryTabs = (state: AppState) =>
   state.ui.ide.tabs[EditorEntityTab.QUERIES];
 
 export const getIDETabs = (state: AppState) => state.ui.ide.tabs;
+
+export const getIsTabsRevampEnabled = createSelector(
+  selectFeatureFlags,
+  (flags) => flags.release_ide_tabs_revamp_enabled,
+);
+export const getShowCreateNewModal = (state: AppState) =>
+  state.ui.ide.showCreateModal;

@@ -16,15 +16,6 @@ export const restoreIDEEditorViewMode = () => {
   };
 };
 
-export const setIdeEditorPagesActiveStatus = (active: boolean) => {
-  return {
-    type: ReduxActionTypes.SET_IDE_EDITOR_PAGES_ACTIVE_STATUS,
-    payload: {
-      pagesActive: active,
-    },
-  };
-};
-
 export const setJSTabs = (tabs: string[]) => {
   return {
     type: ReduxActionTypes.SET_IDE_JS_TABS,
@@ -36,5 +27,11 @@ export const setQueryTabs = (tabs: string[]) => {
   return {
     type: ReduxActionTypes.SET_IDE_QUERIES_TABS,
     payload: tabs,
+  };
+};
+export const setShowQueryCreateNewModal = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_SHOW_QUERY_CREATE_NEW_MODAL,
+    payload,
   };
 };

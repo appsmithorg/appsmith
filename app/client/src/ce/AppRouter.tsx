@@ -46,20 +46,13 @@ import { useDispatch, useSelector } from "react-redux";
 import * as Sentry from "@sentry/react";
 import { getSafeCrash, getSafeCrashCode } from "selectors/errorSelectors";
 import UserProfile from "pages/UserProfile";
-import {
-  getCurrentUserLoading,
-  getFeatureFlagsFetching,
-} from "selectors/usersSelectors";
 import Setup from "pages/setup";
 import SettingsLoader from "pages/AdminSettings/loader";
 import SignupSuccess from "pages/setup/SignupSuccess";
 import type { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import TemplatesListLoader from "pages/Templates/loader";
 import { getCurrentUser as getCurrentUserSelector } from "selectors/usersSelectors";
-import {
-  getTenantPermissions,
-  isTenantLoading,
-} from "@appsmith/selectors/tenantSelectors";
+import { getTenantPermissions } from "@appsmith/selectors/tenantSelectors";
 import useBrandingTheme from "utils/hooks/useBrandingTheme";
 import RouteChangeListener from "RouteChangeListener";
 import { initCurrentPage } from "../actions/initActions";
@@ -70,6 +63,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import CustomWidgetBuilderLoader from "pages/Editor/CustomWidgetBuilder/loader";
 import { getIsConsolidatedPageLoading } from "selectors/ui";
+import { useFeatureFlagOverride } from "utils/hooks/useFeatureFlagOverride";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -79,6 +73,7 @@ export function Routes() {
   const user = useSelector(getCurrentUserSelector);
   const tenantPermissions = useSelector(getTenantPermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  useFeatureFlagOverride();
 
   return (
     <Switch>
@@ -154,14 +149,8 @@ export function Routes() {
 export default function AppRouter() {
   const safeCrash: boolean = useSelector(getSafeCrash);
   const safeCrashCode: ERROR_CODES | undefined = useSelector(getSafeCrashCode);
-  const tenantIsLoading = useSelector(isTenantLoading);
-  const currentUserIsLoading = useSelector(getCurrentUserLoading);
-  const featuresIsLoading = useSelector(getFeatureFlagsFetching);
   const isConsolidatedPageLoading = useSelector(getIsConsolidatedPageLoading);
   const dispatch = useDispatch();
-  const isConsolidatedFetchEnabled = useFeatureFlag(
-    FEATURE_FLAG.rollout_consolidated_page_load_fetch_enabled,
-  );
 
   useEffect(() => {
     dispatch(initCurrentPage());
@@ -169,12 +158,7 @@ export default function AppRouter() {
 
   useBrandingTheme();
 
-  let isLoading: boolean;
-  if (isConsolidatedFetchEnabled) {
-    isLoading = isConsolidatedPageLoading;
-  } else {
-    isLoading = tenantIsLoading || currentUserIsLoading || featuresIsLoading;
-  }
+  const isLoading = isConsolidatedPageLoading;
   // hide the top loader once the tenant is loaded
   useEffect(() => {
     if (!isLoading) {

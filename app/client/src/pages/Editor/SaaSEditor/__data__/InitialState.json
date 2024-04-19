@@ -878,7 +878,7 @@
                 "value": "RAW"
               }
             ],
-            "label": "Commands",
+            "label": "Command",
             "description": "Choose method you would like to use to query the database",
             "configProperty": "actionConfiguration.formData.command",
             "controlType": "DROP_DOWN",
@@ -1288,7 +1288,7 @@
               },
               {
                 "label": "Use Prepared Statement",
-                "info": "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+                "info": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "controlType": "SWITCH",
                 "initialValue": true
@@ -2207,7 +2207,7 @@
                 "value": "DELETE_FILE"
               }
             ],
-            "label": "Commands",
+            "label": "Command",
             "description": "Choose method you would like to use",
             "configProperty": "actionConfiguration.formData.command",
             "controlType": "DROP_DOWN",
@@ -2589,7 +2589,7 @@
               },
               {
                 "label": "Use Prepared Statement",
-                "info": "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+                "info": "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
                 "configProperty": "actionConfiguration.pluginSpecifiedTemplates[0].value",
                 "controlType": "SWITCH",
                 "initialValue": true

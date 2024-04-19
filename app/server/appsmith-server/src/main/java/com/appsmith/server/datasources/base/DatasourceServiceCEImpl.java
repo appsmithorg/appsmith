@@ -1,6 +1,7 @@
 package com.appsmith.server.datasources.base;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.DatasourceStorage;
@@ -20,7 +21,6 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.plugins.base.PluginService;
 import com.appsmith.server.ratelimiting.RateLimitService;
@@ -674,8 +674,7 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     }
 
     @Override
-    public Mono<Datasource> findByNameAndWorkspaceId(
-            String name, String workspaceId, Optional<AclPermission> permission) {
+    public Mono<Datasource> findByNameAndWorkspaceId(String name, String workspaceId, AclPermission permission) {
         return repository.findByNameAndWorkspaceId(name, workspaceId, permission);
     }
 
@@ -759,20 +758,14 @@ public class DatasourceServiceCEImpl implements DatasourceServiceCE {
     public Flux<Datasource> getAllWithStorages(MultiValueMap<String, String> params) {
         String workspaceId = params.getFirst(Datasource.Fields.workspaceId);
         if (workspaceId != null) {
-            return this.getAllByWorkspaceIdWithStorages(
-                    workspaceId, Optional.of(datasourcePermission.getReadPermission()));
+            return this.getAllByWorkspaceIdWithStorages(workspaceId, datasourcePermission.getReadPermission());
         }
 
         return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
     }
 
     @Override
-    public Flux<Datasource> getAllByWorkspaceIdWithoutStorages(String workspaceId, Optional<AclPermission> permission) {
-        return repository.findAllByWorkspaceId(workspaceId, permission);
-    }
-
-    @Override
-    public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, Optional<AclPermission> permission) {
+    public Flux<Datasource> getAllByWorkspaceIdWithStorages(String workspaceId, AclPermission permission) {
 
         return repository
                 .findAllByWorkspaceId(workspaceId, permission)

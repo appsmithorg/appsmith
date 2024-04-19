@@ -51,6 +51,7 @@ import reactor.core.scheduler.Schedulers;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.nio.charset.StandardCharsets;
 import java.sql.Array;
 import java.sql.Connection;
 import java.sql.Date;
@@ -1199,25 +1200,31 @@ public class PostgresPlugin extends BasePlugin {
                 config.addDataSourceProperty("sslfactory", MutualTLSCertValidatingFactory.class.getName());
                 config.addDataSourceProperty(
                         "clientCertString",
-                        datasourceConfiguration
-                                .getConnection()
-                                .getSsl()
-                                .getCertificateFile()
-                                .getBase64Content());
+                        new String(
+                                datasourceConfiguration
+                                        .getConnection()
+                                        .getSsl()
+                                        .getClientCACertificateFile()
+                                        .getDecodedContent(),
+                                StandardCharsets.UTF_8));
                 config.addDataSourceProperty(
                         "clientKeyString",
-                        datasourceConfiguration
-                                .getConnection()
-                                .getSsl()
-                                .getKeyFile()
-                                .getBase64Content());
+                        new String(
+                                datasourceConfiguration
+                                        .getConnection()
+                                        .getSsl()
+                                        .getClientKeyCertificateFile()
+                                        .getDecodedContent(),
+                                StandardCharsets.UTF_8));
                 config.addDataSourceProperty(
                         "serverCACertString",
-                        datasourceConfiguration
-                                .getConnection()
-                                .getSsl()
-                                .getCaCertificateFile()
-                                .getBase64Content());
+                        new String(
+                                datasourceConfiguration
+                                        .getConnection()
+                                        .getSsl()
+                                        .getServerCACertificateFile()
+                                        .getDecodedContent(),
+                                StandardCharsets.UTF_8));
 
                 break;
 

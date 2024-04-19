@@ -6,6 +6,7 @@ export const PluginIDs = {
   [PluginPackageName.REST_API]: "65e58df196506a506bd7069d",
   [PluginPackageName.MONGO]: "65e58df196506a506bd7069e",
   [PluginPackageName.GOOGLE_SHEETS]: "65e58df296506a506bd706a9",
+  [PluginPackageName.JS]: "65e58df296506a506bd706ad",
 };
 
 export default {
@@ -536,7 +537,7 @@ export default {
       actionUiConfig: {
         editor: [
           {
-            label: "Commands",
+            label: "Command",
             description: "Select the method to run",
             configProperty: "actionConfiguration.formData.command",
             controlType: "DROP_DOWN",
@@ -3911,7 +3912,7 @@ export default {
       actionUiConfig: {
         editor: [
           {
-            label: "Commands",
+            label: "Command",
             description: "Select the method to run",
             configProperty: "actionConfiguration.formData.command",
             controlType: "DROP_DOWN",
@@ -4111,8 +4112,7 @@ export default {
                 isRequired: true,
                 label: "Message SID",
                 placeholderText: "MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-                subtitle:
-                  "Specify the SID of the messaging Service used with the message.",
+                subtitle: "Specify the SID of the message.",
                 tooltipText:
                   "The Twilio-provided string that uniquely identifies the message resource to fetch.",
               },
@@ -4204,8 +4204,7 @@ export default {
                 isRequired: true,
                 tooltipText:
                   "The Twilio-provided string that uniquely identifies the message resource to fetch.",
-                subtitle:
-                  "Specify the SID of the messaging Service used with the message.",
+                subtitle: "Specify the SID of the message.",
                 label: "Message SID",
                 placeholderText: "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                 configProperty: "actionConfiguration.formData.MESSAGE_SID",
@@ -4240,8 +4239,7 @@ export default {
                 isRequired: true,
                 label: "Message SID",
                 placeholderText: "MMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-                subtitle:
-                  "Specify the SID of the messaging Service used with the message.",
+                subtitle: "Specify the SID of the message.",
                 tooltipText:
                   "The Twilio-provided string that uniquely identifies the message resource to delete.",
               },
@@ -4325,7 +4323,7 @@ export default {
       actionUiConfig: {
         editor: [
           {
-            label: "Commands",
+            label: "Command",
             description: "Select the method to run",
             configProperty: "actionConfiguration.formData.command",
             controlType: "DROP_DOWN",
@@ -6926,7 +6924,7 @@ export default {
           },
           {
             label: "Use Prepared Statement",
-            info: "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+            info: "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
             configProperty:
               "actionConfiguration.pluginSpecifiedTemplates[0].value",
             controlType: "SWITCH",
@@ -7126,7 +7124,7 @@ export default {
           {
             label: "Use Prepared Statement",
             subtitle:
-              "Turning on Prepared Statement makes your queries resilient against bad things like SQL injections. However, it cannot be used if your dynamic binding contains any SQL keywords like 'SELECT', 'WHERE', 'AND', etc.",
+              "Prepared statements prevent SQL injections on your queries but do not support dynamic bindings outside values in your SQL",
             configProperty:
               "actionConfiguration.pluginSpecifiedTemplates[0].value",
             controlType: "SWITCH",
