@@ -637,7 +637,6 @@ function* runNewlyCreatedActions(
     yield all(
       newlyAddedActions.map(function* (action) {
         yield put(runAction(action.config.id));
-        yield take(ReduxActionTypes.RUN_ACTION_SUCCESS);
       }),
     );
   }
@@ -663,9 +662,6 @@ export function* addBuildingBlockToApplication(
     yield put({
       type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_INIT,
     });
-
-    // makes sure updateAndSaveLayout completes first for skeletonWidget addition
-    yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
 
     const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
       yield call(addBuildingBlockActionsToApp, dragDetails);
