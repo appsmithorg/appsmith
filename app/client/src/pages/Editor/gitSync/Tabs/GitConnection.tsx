@@ -498,8 +498,8 @@ function GitConnection({ isImport }: Props) {
             {isImport
               ? createMessage(IMPORT_BTN_LABEL)
               : isGitConnected
-              ? createMessage(UPDATE_CONFIG)
-              : createMessage(CONNECT_BTN_LABEL)}
+                ? createMessage(UPDATE_CONFIG)
+                : createMessage(CONNECT_BTN_LABEL)}
           </Button>
         ) : null}
       </ModalFooter>

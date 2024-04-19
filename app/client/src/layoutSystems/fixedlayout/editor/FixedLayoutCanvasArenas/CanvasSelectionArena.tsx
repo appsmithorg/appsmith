@@ -310,13 +310,13 @@ export function CanvasSelectionArena({
           startPositions.left = xInRange
             ? startPoints.x - left
             : outOfMinBounds.x
-            ? width - bufferFromBoundary
-            : bufferFromBoundary;
+              ? width - bufferFromBoundary
+              : bufferFromBoundary;
           startPositions.top = yInRange
             ? startPoints.y - top
             : outOfMinBounds.y
-            ? height - bufferFromBoundary
-            : bufferFromBoundary;
+              ? height - bufferFromBoundary
+              : bufferFromBoundary;
         }
         return startPositions;
       };
