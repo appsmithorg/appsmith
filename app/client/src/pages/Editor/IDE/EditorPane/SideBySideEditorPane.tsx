@@ -6,7 +6,6 @@ import {
   EditorEntityTab,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import EditorTabs from "../EditorTabs/SplitScreenTabs";
 import SegmentedHeader from "./components/SegmentedHeader";
 import { Switch, useRouteMatch } from "react-router";
 import { SentryRoute } from "@appsmith/AppRouter";
@@ -28,6 +27,7 @@ import {
   DEFAULT_SPLIT_SCREEN_WIDTH,
 } from "constants/AppConstants";
 import { useCurrentEditorState } from "../hooks";
+import FullScreenTabs from "../EditorTabs/FullScreenTabs";
 
 export const SideBySideEditorPane = () => {
   const editorMode = useSelector(getIDEViewMode);
@@ -77,7 +77,7 @@ export const SideBySideEditorPane = () => {
         )}
       </Flex>
       <Flex flex={1} flexDirection="column" height="100%">
-        <EditorTabs />
+        <FullScreenTabs />
         {segment !== EditorEntityTab.UI && (
           <Flex
             className="ide-editor-left-pane__content"

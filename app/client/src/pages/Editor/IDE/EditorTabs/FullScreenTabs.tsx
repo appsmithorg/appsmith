@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { Button, Tooltip } from "design-system";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import {
   EditorEntityTab,
   EditorViewMode,
@@ -20,7 +20,6 @@ import AnalyticsUtil from "utils/AnalyticsUtil";
 const FullScreenTabs = () => {
   const dispatch = useDispatch();
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
-  const ideViewMode = useSelector(getIDEViewMode);
   const { segment } = useCurrentEditorState();
   const { closeClickHandler, tabClickHandler } = useIDETabClickHandlers();
 
@@ -35,7 +34,6 @@ const FullScreenTabs = () => {
   const files = useSelector(tabsConfig.tabsSelector);
 
   if (!isSideBySideEnabled) return null;
-  if (ideViewMode === EditorViewMode.SplitScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
   return (
     <Container>
