@@ -52,6 +52,7 @@ import {
 } from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import AnalyticsUtil from "utils/AnalyticsUtil";
+import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 
@@ -180,17 +181,10 @@ function* addBuildingBlockAndMoveWidgetsSaga(
       },
     },
   });
-  AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK_INITIATED", {
+  yield call(initiateBuildingBlockDropEvent, {
     applicationId,
     workspaceId,
-    source: "explorer",
-    eventData: {
-      buildingBlockName: buildingblockName,
-    },
-  });
-  yield put({
-    type: ReduxActionTypes.SET_BUILDING_BLOCK_DRAG_START_TIME,
-    payload: { startTime: Date.now() },
+    buildingblockName,
   });
 
   const skeletonWidget: FlattenedWidgetProps = yield select(

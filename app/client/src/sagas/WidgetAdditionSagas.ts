@@ -93,6 +93,7 @@ import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsR
 import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 import AnalyticsUtil from "utils/AnalyticsUtil";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
+import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -775,18 +776,13 @@ function* addBuildingBlockSaga(addEntityAction: ReduxAction<WidgetAddChild>) {
       shouldReplay: false,
     },
   };
-  AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK_INITIATED", {
+
+  yield call(initiateBuildingBlockDropEvent, {
     applicationId,
     workspaceId,
-    source: "explorer",
-    eventData: {
-      buildingBlockName: buildingblockName,
-    },
+    buildingblockName,
   });
-  yield put({
-    type: ReduxActionTypes.SET_BUILDING_BLOCK_DRAG_START_TIME,
-    payload: { startTime: Date.now() },
-  });
+
   yield call(addChildSaga, addSkeletonWidgetAction);
   const skeletonWidget: FlattenedWidgetProps = yield select(
     getWidgetByName,
