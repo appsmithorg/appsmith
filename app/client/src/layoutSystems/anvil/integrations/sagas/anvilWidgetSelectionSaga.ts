@@ -1,4 +1,5 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import type { AppState } from "@appsmith/reducers";
 import { focusWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import log from "loglevel";
@@ -12,6 +13,7 @@ import {
 } from "selectors/widgetSelectors";
 import { NavigationMethod } from "utils/history";
 import type { WidgetProps } from "widgets/BaseWidget";
+import { getWidgetErrorObject } from "../selectors";
 
 /**
  * This saga selects widgets in the Anvil Layout system
@@ -77,6 +79,16 @@ export function* selectAnvilWidget(
   log.debug("Time taken to select widget", performance.now() - start, "ms");
 }
 
+//TODO(abhinav): Speak to the IDE pod and move this appropriately.
+export function* debugWidget(action: ReduxAction<{ widgetId: string }>) {
+  const widgetId = action.payload.widgetId;
+  const errors: Record<string, unknown> = yield select((state: AppState) =>
+    getWidgetErrorObject(state, widgetId),
+  );
+  log.debug("Widget Errors", errors);
+}
+
 export default function* selectAnvilWidgetSaga() {
   yield takeLatest("ANVIL_WIDGET_SELECTION_CLICK", selectAnvilWidget);
+  yield takeLatest("DEBUG_WIDGET", debugWidget);
 }

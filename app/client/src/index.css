@@ -26,6 +26,10 @@
   --ads-widget-focus: #ffe5fe;
   --ads-zone-focus: #f0ebff;
   --ads-section-focus: #e6efff;
+
+  --ads-widget-error: #ee0132;
+
+  --ads-on-canvas-ui-zindex: 998;
 }
 
 body {

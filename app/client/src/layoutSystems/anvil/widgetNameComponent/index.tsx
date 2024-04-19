@@ -1,7 +1,13 @@
 import type { CSSProperties, ForwardedRef } from "react";
-import React, { forwardRef, useCallback, useEffect, useState } from "react";
+import React, {
+  forwardRef,
+  useCallback,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { shouldSelectOrFocus } from "layoutSystems/anvil/integrations/onCanvasUISelectors";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import styled from "styled-components";
@@ -22,6 +28,8 @@ import {
 import { FloatingPortal } from "@floating-ui/react";
 
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { getWidgetErrorCount } from "../integrations/selectors";
+import { debugWidget } from "../integrations/actions";
 
 const widgetNameStyles: CSSProperties = {
   height: "24px",
@@ -30,12 +38,14 @@ const widgetNameStyles: CSSProperties = {
   top: 0,
   left: 0,
   visibility: "hidden",
+  isolation: "isolate",
 };
 
 const SplitButtonWrapper = styled.div<{
   $BGCSSVar: string;
   $ColorCSSVar: string;
-  $disableSpan: boolean;
+  $disableLeftSpan: boolean;
+  $disableRightSpan: boolean;
 }>`
   display: inline-flex;
   border-radius: var(--ads-radius-1);
@@ -70,12 +80,12 @@ const SplitButtonWrapper = styled.div<{
     color: var(${(props) => props.$ColorCSSVar});
     outline-color: var(${(props) => props.$BGCSSVar});
     outline-offset: -5px;
-    border-start-end-radius: var(--ads-radius-1);
-    border-end-end-radius: var(--ads-radius-1);
     ${(props) =>
-      props.$disableSpan
-        ? "border-start-start-radius: var(--ads-radius-1); border-end-start-radius: var(--ads-radius-1);"
-        : ""}
+      props.$disableLeftSpan &&
+      "border-start-start-radius: var(--ads-radius-1); border-end-start-radius: var(--ads-radius-1);"}
+    ${(props) =>
+      props.$disableRightSpan &&
+      "border-end-end-radius: var(--ads-radius-1); border-start-end-radius: var(--ads-radius-1);"}
   }
 
   & span {
@@ -88,6 +98,7 @@ const SplitButtonWrapper = styled.div<{
     border-start-start-radius: var(--ads-radius-1);
     border-end-start-radius: var(--ads-radius-1);
     background: var(${(props) => props.$BGCSSVar});
+    color: var(${(props) => props.$ColorCSSVar});
 
     &:is(:hover, :focus-visible) {
       filter: brightness(0.8);
@@ -102,6 +113,14 @@ const SplitButtonWrapper = styled.div<{
       filter: brightness(0.6);
     }
   }
+
+  & span:nth-of-type(2) {
+    border-inline-end: var(--ads-radius-1);
+    border-start-start-radius: 0px;
+    border-end-start-radius: 0px;
+    border-end-end-radius: var(--ads-radius-1);
+    border-start-end-radius: var(--ads-radius-1);
+  }
 `;
 
 export function SplitButton(
@@ -113,8 +132,16 @@ export function SplitButton(
     styles: CSSProperties;
     bGCSSVar: string;
     colorCSSVar: string;
-    disableParentToggle: boolean;
-    onSpanClick: React.MouseEventHandler;
+    leftToggle: {
+      disable: boolean;
+      onClick: React.MouseEventHandler;
+      title: string;
+    };
+    rightToggle: {
+      disable: boolean;
+      onClick: React.MouseEventHandler;
+      title: string;
+    };
     className: string;
   },
   ref: ForwardedRef<HTMLDivElement>,
@@ -123,39 +150,76 @@ export function SplitButton(
     <SplitButtonWrapper
       $BGCSSVar={props.bGCSSVar}
       $ColorCSSVar={props.colorCSSVar}
-      $disableSpan={props.disableParentToggle}
+      $disableLeftSpan={props.leftToggle.disable}
+      $disableRightSpan={props.rightToggle.disable}
       className={props.className}
       id={props.id}
       onMouseMoveCapture={props.onMouseOverCapture}
       ref={ref}
       style={props.styles}
     >
-      {!props.disableParentToggle && (
+      {!props.leftToggle.disable && (
         <span
           aria-expanded="false"
           aria-haspopup="true"
-          onClick={props.onSpanClick}
-          title="Select parent widget"
+          onClick={props.leftToggle.onClick}
+          title={props.leftToggle.title}
         >
-          <svg
-            aria-hidden="true"
-            height="15"
-            viewBox="0 0 15 15"
-            width="15"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              d="M7.5 11V3.5M7.5 3.5L10.5 6.5M7.5 3.5L4.5 6.5"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
+          {selectParentSVG}
         </span>
       )}
       <button onClick={props.onClick}>{props.text}</button>
+      {!props.rightToggle.disable && (
+        <span
+          aria-expanded="false"
+          aria-haspopup="true"
+          onClick={props.rightToggle.onClick}
+          title={props.rightToggle.title}
+        >
+          {errorSVG}
+        </span>
+      )}
     </SplitButtonWrapper>
   );
 }
+const selectParentSVG = (
+  <svg
+    aria-hidden="true"
+    height="15"
+    viewBox="0 0 15 15"
+    width="15"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <path
+      d="M7.5 11V3.5M7.5 3.5L10.5 6.5M7.5 3.5L4.5 6.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+const errorSVG = (
+  <svg
+    fill="none"
+    height="15"
+    viewBox="0 0 15 15"
+    width="15"
+    xmlns="http://www.w3.org/2000/svg"
+  >
+    <circle cx="7.49999" cy="7.50005" r="5.85723" stroke="white" />
+    <path
+      d="M7.5 4.5V8.5"
+      stroke="white"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M7.5 10.51V10.5"
+      stroke="white"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
 
 const ForwardedSplitButton = forwardRef(SplitButton);
 
@@ -171,9 +235,14 @@ export function WidgetNameComponent(
   },
   ref: ForwardedRef<HTMLDivElement>,
 ) {
+  const dispatch = useDispatch();
   const { widgetId } = props;
   const parentId: string | undefined = useSelector(
     (state: AppState) => state.entities.canvasWidgets[widgetId]?.parentId,
+  );
+
+  const showError = useSelector((state) =>
+    getWidgetErrorCount(state, widgetId),
   );
 
   const { selectWidget } = useWidgetSelection();
@@ -186,6 +255,15 @@ export function WidgetNameComponent(
     [parentId],
   );
 
+  const handleDebugClick = useCallback(
+    (e: React.MouseEvent) => {
+      dispatch(debugWidget(widgetId));
+      e.stopPropagation();
+      e.preventDefault();
+    },
+    [widgetId],
+  );
+
   const handleSelect = useCallback((e: React.MouseEvent) => {
     selectWidget(SelectionRequestType.One, [props.widgetId]);
     e.stopPropagation();
@@ -196,17 +274,40 @@ export function WidgetNameComponent(
     e.stopPropagation();
   }, []);
 
+  const leftToggle = useMemo(() => {
+    return {
+      disable: props.disableParentSelection,
+      onClick: handleSelectParent,
+      title: "Select parent widget",
+    };
+  }, [props.disableParentSelection, handleSelectParent]);
+
+  const rightToggle = useMemo(() => {
+    return {
+      disable: !showError,
+      onClick: handleDebugClick,
+      title: "Debug issue",
+    };
+  }, [showError, handleDebugClick]);
+
+  let _bgCSSVar = props.bGCSSVar;
+  let _colorCSSVar = props.colorCSSVar;
+  if (showError) {
+    _bgCSSVar = "--ads-widget-error";
+    _colorCSSVar = "--ads-color-black-0";
+  }
+
   return (
     <ForwardedSplitButton
-      bGCSSVar={props.bGCSSVar}
+      bGCSSVar={_bgCSSVar}
       className="on-canvas-ui"
-      colorCSSVar={props.colorCSSVar}
-      disableParentToggle={props.disableParentSelection}
+      colorCSSVar={_colorCSSVar}
       id={`widget-name-${widgetId}`}
+      leftToggle={leftToggle}
       onClick={handleSelect}
       onMouseOverCapture={handleMouseOver}
-      onSpanClick={handleSelectParent}
       ref={ref}
+      rightToggle={rightToggle}
       styles={widgetNameStyles}
       text={props.name}
     />
@@ -225,6 +326,7 @@ function floatingUIMiddlewareOverflow(boundaryEl: HTMLDivElement) {
       return {
         data: {
           shouldShift: overflow.right >= 0,
+          overflowAmount: overflow.right,
         },
       };
     },
@@ -273,11 +375,8 @@ export function useWidgetName(widgetId: string, widgetName: string) {
           ],
         }).then(({ middlewareData, x, y }) => {
           let shiftOffset = 0;
-          if (middlewareData.containWithinCanvas.shouldShift) {
-            shiftOffset = 15;
-            if (nameComponentState === "select") {
-              shiftOffset = 35;
-            }
+          if (middlewareData.containWithinCanvas.overflowAmount > 0) {
+            shiftOffset = middlewareData.containWithinCanvas.overflowAmount + 5;
           }
 
           Object.assign(widgetNameComponent.style, {
@@ -288,7 +387,10 @@ export function useWidgetName(widgetId: string, widgetName: string) {
               middlewareData.hide?.referenceHidden
                 ? "hidden"
                 : "visible",
-            zIndex: nameComponentState === "focus" ? 9000001 : 9000000,
+            zIndex:
+              nameComponentState === "focus"
+                ? "calc(var(--ads-on-canvas-ui-zindex) + 1)"
+                : "var(--ads-on-canvas-ui-zindex)",
           });
         });
       });
