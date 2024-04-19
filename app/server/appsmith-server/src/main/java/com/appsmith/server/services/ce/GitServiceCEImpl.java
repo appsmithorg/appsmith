@@ -3077,11 +3077,11 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 auth.getPublicKey(),
                                 auth.getPrivateKey(),
                                 gitArtifactMetadata.getBranchName())
-                        .map(pushResult -> {
+                        .flatMap(pushResult -> {
                             if (pushResult.contains("REJECTED")) {
-                                throw new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES);
+                                return Mono.error(new AppsmithException(AppsmithError.GIT_UPSTREAM_CHANGES));
                             }
-                            return pushResult;
+                            return Mono.just(pushResult);
                         }));
     }
 
