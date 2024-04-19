@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.projections.PluginNameAndPackageName;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import reactor.core.publisher.Flux;
 
@@ -16,7 +17,7 @@ public class CustomPluginRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Plu
         List<String> projections = List.of(Plugin.Fields.name, Plugin.Fields.packageName, Plugin.Fields.iconLocation);
         return queryBuilder()
                 .criteria(Bridge.isTrue(Plugin.Fields.defaultInstall))
-                .fields(projections)
+                .projection(PluginNameAndPackageName.class)
                 .all();
     }
 

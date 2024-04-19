@@ -32,8 +32,10 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -238,6 +240,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 query.with(params.getSort());
             }
 
+            if (params.getProjection() != null) {
+                List<String> fields = Arrays.stream(params.getProjection().getDeclaredFields())
+                        .map(Field::getName)
+                        .toList();
+                query.fields().include(fields.toArray(new String[0]));
+            }
+
             return mongoOperations
                     .query(this.genericDomain)
                     .matching(query.cursorBatchSize(10_000))
@@ -247,14 +256,17 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<T> queryOneExecute(QueryAllParams<T> params) {
+        final Query query = createQueryWithPermission(
+                params.getCriteria(), params.getFields(), params.getPermissionGroups(), params.getPermission());
+        if (params.getProjection() != null) {
+            List<String> fields = Arrays.stream(params.getProjection().getDeclaredFields())
+                    .map(Field::getName)
+                    .toList();
+            query.fields().include(fields.toArray(new String[0]));
+        }
         return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> mongoOperations
                 .query(this.genericDomain)
-                .matching(createQueryWithPermission(
-                                params.getCriteria(),
-                                params.getFields(),
-                                params.getPermissionGroups(),
-                                params.getPermission())
-                        .cursorBatchSize(10_000))
+                .matching(query.cursorBatchSize(10_000))
                 .one()
                 .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()))));
     }

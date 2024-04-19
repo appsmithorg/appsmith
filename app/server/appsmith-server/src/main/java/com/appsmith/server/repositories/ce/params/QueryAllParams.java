@@ -26,7 +26,11 @@ public class QueryAllParams<T extends BaseDomain> {
     // TODO(Shri): There's a cyclic dependency between the repository and this class. Remove it.
     private final BaseAppsmithRepositoryCEImpl<T> repo;
     private final List<Criteria> criteria = new ArrayList<>();
+
+    @Deprecated
     private final List<String> fields = new ArrayList<>();
+
+    private Class<?> projection;
     private AclPermission permission;
     private Set<String> permissionGroups;
     private Sort sort;
@@ -121,15 +125,27 @@ public class QueryAllParams<T extends BaseDomain> {
         return criteria(id == null ? w.isNull() : w.is(id));
     }
 
+    /**
+     * @deprecated Use {@link #fields(Collection)} instead.
+     * @param fields
+     * @return
+     */
+    @Deprecated(forRemoval = true)
     public QueryAllParams<T> fields(String... fields) {
         return fields(List.of(fields));
     }
 
+    @Deprecated(forRemoval = true)
     public QueryAllParams<T> fields(Collection<String> fields) {
         if (fields == null) {
             return this;
         }
         this.fields.addAll(fields);
+        return this;
+    }
+
+    public QueryAllParams<T> projection(Class<?> projectionClass) {
+        this.projection = projectionClass;
         return this;
     }
 
