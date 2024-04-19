@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import React, { useCallback, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   clonePageInit,

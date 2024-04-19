@@ -18,10 +18,10 @@ import {
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { StyledEntity } from "pages/Editor/Explorer/Common/components";
-import { resolveAsSpaceChar } from "utils/helpers";
+import { toValidPageName } from "utils/helpers";
 import { updatePage } from "actions/pageActions";
 import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
 import history, { NavigationMethod } from "utils/history";
 
@@ -113,7 +113,7 @@ const PageElement = ({
       isDefaultExpanded={isCurrentPage}
       key={page.pageId}
       name={page.pageName}
-      onNameEdit={resolveAsSpaceChar}
+      onNameEdit={toValidPageName}
       ref={ref}
       searchKeyword={""}
       step={0}

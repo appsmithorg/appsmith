@@ -13,7 +13,7 @@ import {
   getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import EntityDeps from "./EntityDependecies";

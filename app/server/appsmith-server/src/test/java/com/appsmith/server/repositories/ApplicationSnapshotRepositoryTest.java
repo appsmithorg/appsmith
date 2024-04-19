@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
-import com.appsmith.server.projections.DefaultTimestampOnly;
+import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -35,7 +35,7 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot2.setApplicationId(testAppId2);
         snapshot2.setChunkOrder(1);
 
-        Mono<DefaultTimestampOnly> snapshotMono = applicationSnapshotRepository
+        Mono<ApplicationSnapshotResponseDTO> snapshotMono = applicationSnapshotRepository
                 .saveAll(List.of(snapshot1, snapshot2))
                 .then(applicationSnapshotRepository.findByApplicationIdAndChunkOrder(testAppId2, 1));
 
@@ -61,7 +61,7 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot2.setApplicationId(testAppId1);
         snapshot2.setChunkOrder(2);
 
-        Mono<DefaultTimestampOnly> snapshotMono = applicationSnapshotRepository
+        Mono<ApplicationSnapshotResponseDTO> snapshotMono = applicationSnapshotRepository
                 .saveAll(List.of(snapshot1, snapshot2))
                 .then(applicationSnapshotRepository.findByApplicationIdAndChunkOrder(testAppId1, 1));
 
