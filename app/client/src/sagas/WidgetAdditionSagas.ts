@@ -688,7 +688,7 @@ export function* addBuildingBlockToApplication(
       });
 
       yield put(pasteWidget(false, mousePosition));
-      const timeTakenToDropWidgetsInSec =
+      const timeTakenToDropWidgetsInSeconds =
         (Date.now() - buildingBlockDragStartTimestamp) / 1000;
       yield call(postPageAdditionSaga, applicationId);
       // remove selecting of recently pasted widgets caused by pasteWidget
@@ -727,7 +727,7 @@ export function* addBuildingBlockToApplication(
         eventData: {
           buildingBlockName: dragDetails.newWidget.displayName,
           timeTakenToCompletion: timeTakenToCompleteInSeconds,
-          timeTakenToDropWidgets: timeTakenToDropWidgetsInSec,
+          timeTakenToDropWidgets: timeTakenToDropWidgetsInSeconds,
         },
       });
       yield put({
