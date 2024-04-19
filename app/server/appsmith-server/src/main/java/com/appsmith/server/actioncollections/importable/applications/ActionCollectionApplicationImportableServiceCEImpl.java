@@ -19,14 +19,10 @@ import com.appsmith.server.imports.importable.artifactbased.ArtifactBasedImporta
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Service
@@ -147,7 +143,7 @@ public class ActionCollectionApplicationImportableServiceCEImpl
 
         // generate gitSyncId if it's not present
         if (actionCollection.getGitSyncId() == null) {
-            actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + new ObjectId());
+            actionCollection.setGitSyncId(actionCollection.getApplicationId() + "_" + UUID.randomUUID());
         }
     }
 }
