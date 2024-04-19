@@ -86,7 +86,6 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     ActionPermission actionPermission;
 
-    @MockBean
     ObservationRegistry observationRegistry;
 
     @SpyBean
@@ -140,6 +139,8 @@ class ActionExecutionSolutionCEImplTest {
 
     @BeforeEach
     public void beforeEach() {
+        observationRegistry = Mockito.mock(ObservationRegistry.class);
+
         actionExecutionSolution = new ActionExecutionSolutionCEImpl(
                 newActionService,
                 actionPermission,
