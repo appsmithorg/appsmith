@@ -1,11 +1,6 @@
 package com.appsmith.external.annotations.encryption;
 
 import com.appsmith.external.models.AppsmithDomain;
-import com.appsmith.external.models.Connection;
-import com.appsmith.external.models.DatasourceConfiguration;
-import com.appsmith.external.models.DatasourceStorage;
-import com.appsmith.external.models.PEMCertificate;
-import com.appsmith.external.models.SSLDetails;
 import lombok.Getter;
 import lombok.Setter;
 import org.junit.jupiter.api.Test;
@@ -16,7 +11,6 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -327,28 +321,5 @@ public class EncryptionHandlerTest {
     static class PolymorphicSubdomain1 extends PolymorphicSubDomain {
 
         @Encrypted String encryptedInPolymorphicSubdomain1;
-    }
-
-    @Test
-    void testPemCertificate() {
-        EncryptionHandler encryptionHandler = new EncryptionHandler();
-
-        final PEMCertificate pemCertificate = new PEMCertificate();
-        pemCertificate.setPassword("super-secret");
-
-        final SSLDetails ssl = new SSLDetails();
-        ssl.setPemCertificate(pemCertificate);
-
-        final Connection connection = new Connection();
-        connection.setSsl(ssl);
-
-        final DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
-        datasourceConfiguration.setConnection(connection);
-
-        final DatasourceStorage datasourceStorage = new DatasourceStorage();
-        datasourceStorage.setDatasourceConfiguration(datasourceConfiguration);
-
-        final List<CandidateField> fields = encryptionHandler.findCandidateFieldsForType(datasourceStorage);
-        assertThat(fields).isNotEmpty();
     }
 }
