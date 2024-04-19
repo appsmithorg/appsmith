@@ -1,4 +1,5 @@
 import React, { createRef, memo, useEffect, useState } from "react";
+import type { PopoverPosition } from "@blueprintjs/core";
 import { Tooltip } from "@blueprintjs/core";
 import { CellWrapper, ColumnWrapper } from "./TableStyledWrappers";
 import type { CellLayoutProperties } from "./Constants";
@@ -38,6 +39,7 @@ interface Props {
   cellProperties?: CellLayoutProperties;
   tableWidth?: number;
   columnType?: string;
+  position?: PopoverPosition;
 }
 
 function LinkWrapper(props: Props) {
@@ -121,7 +123,7 @@ function AutoToolTipComponent(props: Props) {
               </TooltipContentWrapper>
             }
             hoverOpenDelay={1000}
-            position="top"
+            position={props.position || "top"}
           >
             <Content ref={ref}>{props.children}</Content>
           </Tooltip>
