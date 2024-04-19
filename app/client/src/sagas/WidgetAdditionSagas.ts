@@ -633,7 +633,8 @@ function* runNewlyCreatedActions(
     (obj) => !actionIdsBeforeAddingBB.includes(obj.config.id),
   );
 
-  // Run each action sequentially
+  // Run each action sequentially. We have a max of 2-3 actions per building block.
+  // If we run this in parallel, we will have a racing condition when multiple building blocks are drag and dropped quickly.
   for (const action of newlyAddedActions) {
     if (action.config.executeOnLoad) {
       yield runSingleAction(action.config.id);
