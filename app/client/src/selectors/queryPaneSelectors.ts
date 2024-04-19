@@ -1,22 +1,12 @@
 import type { AppState } from "@appsmith/reducers";
-import { getQuerySegmentItems } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentPageId } from "./editorSelectors";
 import type { FocusEntityInfo } from "../navigation/FocusEntity";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
+import { selectQuerySegmentEditorTabs } from "@appsmith/selectors/appIDESelectors";
 
 export const getQueryPaneConfigSelectedTabIndex = (state: AppState) =>
   state.ui.queryPane.selectedConfigTabIndex;
-
-export const getFirstQuery = (state: AppState): FocusEntityInfo | undefined => {
-  const queryItems = getQuerySegmentItems(state);
-  const pageId = getCurrentPageId(state);
-  if (queryItems.length) {
-    const url = getQueryEntityItemUrl(queryItems[0], pageId);
-    const urlWithoutQueryParams = url.split("?")[0];
-    return identifyEntityFromPath(urlWithoutQueryParams);
-  }
-};
 
 export const getQueryPaneDebuggerState = (state: AppState) =>
   state.ui.queryPane.debugger;
@@ -29,4 +19,16 @@ export const getQueryRunErrorMessage = (state: AppState, id: string) => {
 export const getQueryIsRunning = (state: AppState, id: string): boolean => {
   const { isRunning } = state.ui.queryPane;
   return !!isRunning[id];
+};
+
+export const getLastQueryTab = (
+  state: AppState,
+): FocusEntityInfo | undefined => {
+  const tabs = selectQuerySegmentEditorTabs(state);
+  const pageId = getCurrentPageId(state);
+  if (tabs.length) {
+    const url = getQueryEntityItemUrl(tabs[tabs.length - 1], pageId);
+    const urlWithoutQueryParams = url.split("?")[0];
+    return identifyEntityFromPath(urlWithoutQueryParams);
+  }
 };

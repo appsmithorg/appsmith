@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomNewPageRepository;
 
@@ -12,4 +13,6 @@ public interface NewPageRepositoryCE extends BaseRepository<NewPage, String>, Cu
     List<NewPage> findByApplicationId(String applicationId);
 
     Optional<Long> countByDeletedAtNull();
+
+    List<IdPoliciesOnly> findIdsAndPoliciesByApplicationIdIn(List<String> applicationIds);
 }

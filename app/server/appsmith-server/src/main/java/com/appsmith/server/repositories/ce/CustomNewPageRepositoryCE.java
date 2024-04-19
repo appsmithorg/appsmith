@@ -10,10 +10,7 @@ import java.util.Optional;
 
 public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
 
-    @Deprecated
     List<NewPage> findByApplicationId(String applicationId, AclPermission aclPermission);
-
-    List<NewPage> findByApplicationId(String applicationId, Optional<AclPermission> permission);
 
     List<NewPage> findByApplicationIdAndNonDeletedEditMode(String applicationId, AclPermission aclPermission);
 

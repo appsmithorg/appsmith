@@ -15,7 +15,7 @@ export const propertyPaneContentConfig = [
         propertyName: "defaultText",
         label: "Default value",
         controlType: "INPUT_TEXT",
-        placeholderText: "100",
+        placeholderText: "42",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {

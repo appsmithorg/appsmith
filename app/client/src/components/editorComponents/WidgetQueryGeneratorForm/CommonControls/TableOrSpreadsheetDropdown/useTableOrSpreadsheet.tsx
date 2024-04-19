@@ -21,7 +21,7 @@ import type { AppState } from "@appsmith/reducers";
 import { DropdownOption as Option } from "../DatasourceDropdown/DropdownOption";
 import type { DropdownOptionType } from "../../types";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
 import type { DatasourceStructure } from "entities/Datasource";
 

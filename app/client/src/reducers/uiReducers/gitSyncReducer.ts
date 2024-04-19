@@ -27,6 +27,7 @@ const initialState: GitSyncReducerState = {
   branches: [],
   fetchingBranches: false,
   localGitConfig: { authorEmail: "", authorName: "" },
+  showBranchPopup: false,
 
   isDiscarding: false,
 
@@ -654,6 +655,13 @@ const gitSyncReducer = createReducer(initialState, {
     isGitSettingsModalOpen: action.payload.open,
     activeGitSettingsModalTab: action.payload.tab || GitSettingsTab.GENERAL,
   }),
+  [ReduxActionTypes.GIT_SHOW_BRANCH_POPUP]: (
+    state,
+    action: ReduxAction<{ show: boolean }>,
+  ) => ({
+    ...state,
+    showBranchPopup: action.payload.show,
+  }),
 });
 
 export interface GitStatusData {
@@ -780,6 +788,7 @@ export type GitSyncReducerState = GitBranchDeleteState & {
   globalGitConfig: GitConfig;
 
   branches: Array<{ branchName: string; default: boolean }>;
+  showBranchPopup: boolean;
 
   localGitConfig: GitConfig;
   gitStatus?: GitStatusData;

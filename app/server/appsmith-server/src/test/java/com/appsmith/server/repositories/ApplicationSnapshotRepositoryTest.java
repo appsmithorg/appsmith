@@ -1,8 +1,8 @@
 package com.appsmith.server.repositories;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
+import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;
-import com.google.gson.Gson;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -21,9 +21,6 @@ public class ApplicationSnapshotRepositoryTest {
     @Autowired
     private ApplicationSnapshotRepositoryCake applicationSnapshotRepository;
 
-    @Autowired
-    private Gson gson;
-
     @Test
     @WithUserDetails("api_user")
     public void findWithoutData_WhenMatched_ReturnsMatchedDocumentWithoutData() {
@@ -39,15 +36,14 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot2.setApplicationId(testAppId2);
         snapshot2.setChunkOrder(1);
 
-        Mono<ApplicationSnapshot> snapshotMono = applicationSnapshotRepository
+        Mono<ApplicationSnapshotResponseDTO> snapshotMono = applicationSnapshotRepository
                 .saveAll(List.of(snapshot1, snapshot2))
-                .then(applicationSnapshotRepository.findWithoutData(testAppId2));
+                .then(applicationSnapshotRepository.findByApplicationIdAndChunkOrder(testAppId2, 1));
 
         StepVerifier.create(snapshotMono)
                 .assertNext(applicationSnapshot -> {
-                    assertThat(applicationSnapshot.getApplicationId()).isEqualTo(testAppId2);
-                    assertThat(applicationSnapshot.getData()).isNull();
-                    assertThat(applicationSnapshot.getChunkOrder()).isEqualTo(1);
+                    assertThat(applicationSnapshot.updatedAt()).isNotNull();
+                    assertThat(applicationSnapshot.createdAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -66,14 +62,14 @@ public class ApplicationSnapshotRepositoryTest {
         snapshot2.setApplicationId(testAppId1);
         snapshot2.setChunkOrder(2);
 
-        Mono<ApplicationSnapshot> snapshotMono = applicationSnapshotRepository
+        Mono<ApplicationSnapshotResponseDTO> snapshotMono = applicationSnapshotRepository
                 .saveAll(List.of(snapshot1, snapshot2))
-                .then(applicationSnapshotRepository.findWithoutData(testAppId1));
+                .then(applicationSnapshotRepository.findByApplicationIdAndChunkOrder(testAppId1, 1));
 
         StepVerifier.create(snapshotMono)
                 .assertNext(applicationSnapshot -> {
-                    assertThat(applicationSnapshot.getApplicationId()).isEqualTo(testAppId1);
-                    assertThat(applicationSnapshot.getChunkOrder()).isEqualTo(1);
+                    assertThat(applicationSnapshot.createdAt()).isNotNull();
+                    assertThat(applicationSnapshot.updatedAt()).isNotNull();
                 })
                 .verifyComplete();
     }

@@ -12,4 +12,5 @@ export const defaultsConfig = {
   allowDialCodeChange: false,
   allowFormatting: true,
   responsiveBehavior: ResponsiveBehavior.Fill,
+  label: "Phone number",
 } as WidgetDefaultProps;

@@ -8,7 +8,6 @@ import org.springframework.data.domain.Sort;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Datasource>
         implements CustomDatasourceRepositoryCE {
@@ -29,13 +28,5 @@ public class CustomDatasourceRepositoryCEImpl extends BaseAppsmithRepositoryImpl
                 .criteria(Bridge.equal(Datasource.Fields.name, name).equal(Datasource.Fields.workspaceId, workspaceId))
                 .permission(aclPermission)
                 .one();
-    }
-
-    @Override
-    public List<Datasource> findAllByIdsWithoutPermission(Set<String> ids, List<String> includeFields) {
-        return queryBuilder()
-                .criteria(Bridge.in(Datasource.Fields.id, ids))
-                .fields(includeFields)
-                .all();
     }
 }

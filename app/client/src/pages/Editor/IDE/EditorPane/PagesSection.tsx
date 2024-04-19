@@ -1,8 +1,7 @@
-import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { Flex } from "design-system";
+import React, { useCallback, useMemo, useState } from "react";
+import { Flex, Text } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
-import { animated, useSpring } from "react-spring";
 
 import { selectAllPages } from "@appsmith/selectors/entitiesSelector";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
@@ -19,14 +18,32 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
-import { getPagesActiveStatus } from "selectors/ideSelectors";
-import PaneHeader from "../LeftPane/PaneHeader";
+import styled from "styled-components";
 
-const AnimatedFlex = animated(Flex);
-const defaultAnimationState = { height: "0%" };
-const expandedAnimationState = { height: "21.5%" };
+const Container = styled(Flex)`
+  & .t--entity-item {
+    grid-template-columns: 0 auto 1fr auto auto auto auto auto;
+    height: 32px;
 
-const PagesSection = () => {
+    & .t--entity-name {
+      padding-left: var(--ads-v2-spaces-3);
+    }
+  }
+`;
+
+const Header = styled.div`
+  padding: var(--ads-v2-spaces-3);
+  padding-right: var(--ads-v2-spaces-2);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  height: 40px;
+  span {
+    line-height: 20px;
+  }
+`;
+
+const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const pages: Page[] = useSelector(selectAllPages);
@@ -36,14 +53,6 @@ const PagesSection = () => {
   );
   const workspaceId = useSelector(getCurrentWorkspaceId);
   const instanceId = useSelector(getInstanceId);
-  const pagesActive = useSelector(getPagesActiveStatus);
-
-  const [springs, api] = useSpring(() => ({
-    from: defaultAnimationState,
-    config: {
-      duration: 200,
-    },
-  }));
 
   const [isMenuOpen, setIsMenuOpen] = useState(false);
 
@@ -53,22 +62,6 @@ const PagesSection = () => {
     isFeatureEnabled,
     userAppPermissions,
   );
-
-  useEffect(() => {
-    if (pagesActive) {
-      api.start({
-        to: expandedAnimationState,
-      });
-    } else {
-      api.start({
-        to: defaultAnimationState,
-      });
-    }
-
-    return () => {
-      api.stop();
-    };
-  }, [pagesActive, api]);
 
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
@@ -89,43 +82,44 @@ const PagesSection = () => {
   const onMenuClose = useCallback(() => setIsMenuOpen(false), [setIsMenuOpen]);
 
   const pageElements = useMemo(
-    () => pages.map((page) => <PageElement key={page.pageId} page={page} />),
+    () =>
+      pages.map((page) => (
+        <PageElement key={page.pageId} onClick={onItemSelected} page={page} />
+      )),
     [pages, location.pathname],
   );
 
   return (
-    <AnimatedFlex
+    <Container
       flexDirection={"column"}
-      height={"21.5%"}
       justifyContent={"center"}
+      maxHeight={"300px"}
       overflow={"hidden"}
-      style={springs}
     >
-      <PaneHeader
-        className="pages"
-        rightIcon={
-          canCreatePages ? (
-            <AddPageContextMenu
-              buttonSize="sm"
-              className={`${EntityClassNames.ADD_BUTTON} group pages`}
-              createPageCallback={createPageCallback}
-              onMenuClose={onMenuClose}
-              openMenu={isMenuOpen}
-            />
-          ) : null
-        }
-        title={`All Pages (${pages.length})`}
-      />
+      <Header className="pages">
+        <Text kind="heading-xs">{`All Pages (${pages.length})`}</Text>
+        {canCreatePages ? (
+          <AddPageContextMenu
+            buttonSize="sm"
+            className={`${EntityClassNames.ADD_BUTTON} group pages`}
+            createPageCallback={createPageCallback}
+            onItemSelected={onItemSelected}
+            onMenuClose={onMenuClose}
+            openMenu={isMenuOpen}
+          />
+        ) : null}
+      </Header>
       <Flex
         alignItems={"center"}
         flex={"1"}
         flexDirection={"column"}
         overflow={"auto"}
+        px="spaces-2"
         width={"100%"}
       >
         {pageElements}
       </Flex>
-    </AnimatedFlex>
+    </Container>
   );
 };
 
