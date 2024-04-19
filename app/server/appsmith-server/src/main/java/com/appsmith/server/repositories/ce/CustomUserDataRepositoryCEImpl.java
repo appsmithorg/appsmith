@@ -17,7 +17,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     public Mono<Integer> saveReleaseNotesViewedVersion(String userId, String version) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
-                .updateFirst(new BridgeUpdate().set(UserData.Fields.releaseNotesViewedVersion, version));
+                .updateFirst(Bridge.update().set(UserData.Fields.releaseNotesViewedVersion, version));
     }
 
     @Override

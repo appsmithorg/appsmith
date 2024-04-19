@@ -44,14 +44,14 @@ public class UserReleaseNotesCEImpl implements UserReleaseNotesCE {
                 .defaultIfEmpty(new UserData())
                 .cache();
 
-        return userMono.flatMap(user -> Mono.zip(
-                        Mono.just(user),
+        return Mono.zip(
+                        userMono,
                         releaseNotesService
                                 .getReleaseNodes()
                                 // In case of an error or empty response from CS Server, continue without this data.
                                 .onErrorResume(error -> Mono.empty())
                                 .defaultIfEmpty(Collections.emptyList()),
-                        userDataMono))
+                        userDataMono)
                 .flatMap(tuple -> {
                     User user = tuple.getT1();
                     final List<ReleaseNode> releaseNodes = tuple.getT2();

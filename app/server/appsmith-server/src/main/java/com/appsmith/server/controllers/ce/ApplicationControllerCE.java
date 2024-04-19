@@ -20,7 +20,6 @@ import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
@@ -129,14 +128,6 @@ public class ApplicationControllerCE {
         return applicationPageService
                 .deleteApplication(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
-    }
-
-    @Deprecated
-    @JsonView(Views.Public.class)
-    @GetMapping("/new")
-    public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
-        log.debug("Going to get all applications grouped by workspace");
-        return Mono.error(new AppsmithException(AppsmithError.DEPRECATED_API));
     }
 
     @JsonView(Views.Public.class)
