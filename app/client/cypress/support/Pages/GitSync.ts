@@ -44,7 +44,7 @@ export class GitSync {
 
   public _discardChanges = ".t--discard-button";
   public _discardCallout = "[data-testid='t--discard-callout']";
-  public _gitStatusChanges = "[data-testid='t--git-change-statuses']";
+  public _gitStatusChanges = "[data-testid='t--git-status-changes']";
   private _gitSyncBranches = ".t--sync-branches";
   learnMoreSshUrl = ".t--learn-more-ssh-url";
   repoLimitExceededErrorModal = ".t--git-repo-limited-modal";
@@ -344,8 +344,7 @@ export class GitSync {
           "Unable to import application in workspace",
         ),
       );
-      this.agHelper.AssertElementExist(this.locator._btnSpinner);
-      this.agHelper.AssertElementAbsence(this.locator._btnSpinner, 70000); //Since page taking more time to laod in some cases
+      this.agHelper.WaitUntilEleAppear(this._branchName(branch + uid));
       this.agHelper.AssertElementVisibility(this._branchName(branch + uid));
       this.assertHelper.AssertNetworkStatus("getBranch");
       cy.wrap(branch + uid).as("gitbranchName");

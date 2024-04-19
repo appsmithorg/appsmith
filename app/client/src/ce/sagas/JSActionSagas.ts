@@ -25,6 +25,7 @@ import {
 } from "actions/jsActionActions";
 import {
   getJSCollection,
+  getNewEntityName,
   getPageNameByPageId,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
@@ -68,10 +69,10 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getWidgets } from "sagas/selectors";
 import FocusRetention from "sagas/FocusRetentionSaga";
-import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -140,10 +141,17 @@ export function* copyJSCollectionSaga(
     getJSCollection,
     action.payload.id,
   );
+  const newName: string = yield select(getNewEntityName, {
+    prefix: action.payload.name,
+    parentEntityId: action.payload.destinationPageId,
+    parentEntityKey: CreateNewActionKey.PAGE,
+    suffix: "Copy",
+    startWithoutIndex: true,
+  });
   try {
     if (!actionObject) throw new Error("Could not find js collection to copy");
     const copyJSCollection = Object.assign({}, actionObject, {
-      name: action.payload.name,
+      name: newName,
       pageId: action.payload.destinationPageId,
     }) as Partial<JSCollection>;
     delete copyJSCollection.id;
@@ -186,10 +194,9 @@ export function* copyJSCollectionSaga(
 }
 
 export function* handleMoveOrCopySaga(
-  actionPayload: ReduxAction<{ id: string }>,
+  actionPayload: ReduxAction<JSCollection>,
 ) {
-  const { id } = actionPayload.payload;
-  const { pageId }: JSCollection = yield select(getJSCollection, id);
+  const { id, pageId } = actionPayload.payload;
   history.push(
     jsCollectionIdURL({
       pageId: pageId,
@@ -209,11 +216,17 @@ export function* moveJSCollectionSaga(
     getJSCollection,
     action.payload.id,
   );
+  const newName: string = yield select(getNewEntityName, {
+    prefix: action.payload.name,
+    parentEntityId: action.payload.destinationPageId,
+    parentEntityKey: CreateNewActionKey.PAGE,
+    startWithoutIndex: true,
+  });
   try {
     const response: ApiResponse = yield JSActionAPI.moveJSCollection({
       collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
-      name: action.payload.name,
+      name: newName,
     });
 
     const isValidResponse: boolean = yield validateResponse(response);
@@ -289,11 +302,8 @@ export function* deleteJSCollectionSaga(
       toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
         kind: "success",
       });
-      const isEditorPaneSegmentsEnabled: boolean = yield select(
-        getIsEditorPaneSegmentsEnabled,
-      );
       yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
-      if (isEditorPaneSegmentsEnabled && ideType === IDE_TYPE.App) {
+      if (ideType === IDE_TYPE.App) {
         yield call(handleJSEntityRedirect, id);
       } else {
         history.push(builderURL({ pageId }));
@@ -477,4 +487,11 @@ export function* fetchJSCollectionsForViewModeSaga(
       payload: { error },
     });
   }
+}
+
+export function* closeJSActionTabSaga(
+  actionPayload: ReduxAction<{ id: string }>,
+) {
+  const id = actionPayload.payload.id;
+  yield call(handleJSEntityRedirect, id);
 }

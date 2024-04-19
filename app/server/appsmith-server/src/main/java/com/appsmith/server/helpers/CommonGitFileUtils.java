@@ -1,7 +1,7 @@
 package com.appsmith.server.helpers;
 
 import com.appsmith.external.git.FileInterface;
-import com.appsmith.git.helpers.FileUtilsImpl;
+import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.applications.git.ApplicationGitFileUtils;
 import com.appsmith.server.helpers.ce.CommonGitFileUtilsCE;
 import com.appsmith.server.services.AnalyticsService;

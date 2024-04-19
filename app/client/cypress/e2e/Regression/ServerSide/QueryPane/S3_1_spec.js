@@ -58,7 +58,7 @@ describe(
       entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2);
       propPane.UpdatePropertyFieldValue("Default value", "AutoTest");
       dataSources.CreateQueryForDS(datasourceName);
-      dataSources.ValidateNSelectDropdown("Commands", "List files in bucket");
+      dataSources.ValidateNSelectDropdown("Command", "List files in bucket");
       dataSources.RunQuery({ toValidateResponse: false });
       cy.wait("@postExecute").should(({ response }) => {
         expect(response.body.data.isExecutionSuccess).to.eq(false);
@@ -98,7 +98,7 @@ describe(
       dataSources.CreateQueryForDS(datasourceName);
       cy.setQueryTimeout(30000);
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "List files in bucket",
         "Create a new file",
       );
@@ -183,7 +183,7 @@ describe(
 
     it("3. Validate List Files in bucket command for new file, Verify possible error msgs, run & delete the query", () => {
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "Create a new file",
         "List files in bucket",
       );
@@ -256,7 +256,7 @@ describe(
 
       //cy.setQueryTimeout(30000);
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "List files in bucket",
         "Read file",
       );
@@ -344,7 +344,7 @@ describe(
       dataSources.CreateQueryForDS(datasourceName);
       cy.setQueryTimeout(30000);
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "List files in bucket",
         "Delete file",
       );
@@ -390,7 +390,7 @@ describe(
 
       //Validating List Files in bucket command after new file is deleted
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "Delete file",
         "List files in bucket",
       );
@@ -408,7 +408,7 @@ describe(
       //Creating new file in bucket
       dataSources.CreateQueryForDS(datasourceName);
       dataSources.ValidateNSelectDropdown(
-        "Commands",
+        "Command",
         "List files in bucket",
         "Create a new file",
       );

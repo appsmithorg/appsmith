@@ -13,6 +13,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
+import com.appsmith.server.dtos.PageUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -527,10 +528,11 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
+    public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(
+            String defaultPageId, PageUpdateDTO page, String branchName) {
         return repository
                 .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(newPage -> updatePage(newPage.getId(), page))
+                .flatMap(newPage -> updatePage(newPage.getId(), page.toPageDTO()))
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 

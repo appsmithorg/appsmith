@@ -25,7 +25,9 @@ public class CommonConstants {
     public static final String MAIN_CONTAINER = "MainContainer";
     public static final String DELIMITER_POINT = ".";
     public static final String DELIMITER_PATH = "/";
+    public static final String DELIMITER_HYPHEN = "-";
     public static final String EMPTY_STRING = "";
+    public static final String SEPARATOR_UNDERSCORE = "_";
     public static final String FILE_MIGRATION_MESSAGE =
             "Some of the changes above are due to an improved file structure. You can safely commit them to your repository.";
 
