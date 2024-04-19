@@ -121,6 +121,9 @@ export const getCurrentGitBranch = (state: AppState): string | undefined => {
   return gitApplicationMetadata?.branchName;
 };
 
+export const showBranchPopupSelector = (state: AppState) =>
+  state.ui.gitSync.showBranchPopup;
+
 export const getPullFailed = (state: AppState) => state.ui.gitSync.pullFailed;
 
 export const getPullInProgress = (state: AppState) =>

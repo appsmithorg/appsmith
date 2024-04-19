@@ -62,7 +62,6 @@
                   "label": "MySQL port",
                   "configProperty": "datasourceConfiguration.endpoints[*].port",
                   "dataType": "NUMBER",
-                  "initialValue": ["3306"],
                   "controlType": "KEYVALUE_ARRAY",
                   "placeholderText": "3306"
                 }
