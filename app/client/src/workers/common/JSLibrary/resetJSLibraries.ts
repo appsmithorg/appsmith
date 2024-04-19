@@ -1,7 +1,7 @@
 import _ from "./lodash-wrapper";
 import moment from "moment-timezone";
 import forge from "node-forge";
-import { defaultLibraries } from "./index";
+import { defaultLibraries, JSLibraryAccessor } from "./index";
 import { JSLibraries, libraryReservedIdentifiers } from "./index";
 import { invalidEntityIdentifiers } from "../DependencyMap/utils";
 const defaultLibImplementations = {
@@ -15,6 +15,7 @@ const defaultLibImplementations = {
 export function resetJSLibraries() {
   JSLibraries.length = 0;
   JSLibraries.push(...defaultLibraries);
+  JSLibraryAccessor.regenerateSet();
   const defaultLibraryAccessors = defaultLibraries.map(
     (lib) => lib.accessor[0],
   );
