@@ -108,6 +108,7 @@ export function ActionButton({ method }: { method: AuthMethodType }) {
     logEventData: { method: method.label },
     featureName: RampFeature.Sso,
     sectionName: RampSection.AdminSettings,
+    isEnterprise: true,
   });
 
   const onClickHandler = (method: AuthMethodType) => {

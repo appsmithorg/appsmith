@@ -136,7 +136,6 @@ import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import FocusRetention from "./FocusRetentionSaga";
-import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
 import { EditorViewMode, IDE_TYPE } from "@appsmith/entities/IDE/constants";
@@ -625,11 +624,8 @@ export function* deleteActionSaga(
       });
     }
     yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
-    const isEditorPaneSegmentsEnabled: boolean = yield select(
-      getIsEditorPaneSegmentsEnabled,
-    );
 
-    if (isEditorPaneSegmentsEnabled && ideType === IDE_TYPE.App) {
+    if (ideType === IDE_TYPE.App) {
       yield call(handleQueryEntityRedirect, action.id);
     } else {
       if (!!actionPayload.payload.onSuccess) {

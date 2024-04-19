@@ -1,6 +1,5 @@
 package com.appsmith.server.newactions.base;
 
-import com.appsmith.external.constants.DatasourceQueryType;
 import com.appsmith.external.dtos.ExecutePluginDTO;
 import com.appsmith.external.dtos.RemoteDatasourceDTO;
 import com.appsmith.external.helpers.AppsmithBeanUtils;
@@ -682,18 +681,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 });
     }
 
-    private Mono<ActionDTO> setQueryTypeInUnpublishedAction(ActionDTO action) {
-        Mono<Plugin> pluginMono = pluginService.getById(action.getPluginId());
-        Mono<PluginExecutor> pluginExecutorMono = pluginExecutorHelper.getPluginExecutor(pluginMono);
-
-        return pluginExecutorMono.flatMap(pluginExecutor -> pluginExecutor
-                .getQueryType(action.getActionConfiguration())
-                .flatMap(queryType -> {
-                    action.setQueryType((DatasourceQueryType) queryType);
-                    return Mono.just(action);
-                }));
-    }
-
     @Override
     public Mono<ActionDTO> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission permission) {
         return repository
@@ -1018,7 +1005,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
                 .collectList()
                 .flatMapMany(this::addMissingPluginDetailsIntoAllActions)
                 .flatMap(this::setTransientFieldsInUnpublishedAction)
-                .flatMap(this::setQueryTypeInUnpublishedAction)
                 // this generates four different tags, (ApplicationId, FieldId) *(True, False)
                 .tag(
                         "includeJsAction",

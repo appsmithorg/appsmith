@@ -32,13 +32,11 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import Disabler from "pages/common/Disabler";
 import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
 import { PluginType } from "entities/Action";
-import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
 import { Icon } from "design-system";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
@@ -166,10 +164,6 @@ function QueryEditor(props: QueryEditorProps) {
     [pageId, history, integrationEditorURL],
   );
 
-  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
-
-  const closeEditorLink = useMemo(() => <CloseEditor />, []);
-
   const notification = useMemo(() => {
     if (!isConverting) return null;
 
@@ -186,7 +180,6 @@ function QueryEditor(props: QueryEditorProps) {
     <QueryEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
       changeQueryPage={changeQueryPage}
-      closeEditorLink={isEditorPaneEnabled ? null : closeEditorLink}
       moreActionsMenu={moreActionsMenu}
       notification={notification}
       onCreateDatasourceClick={onCreateDatasourceClick}

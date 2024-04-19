@@ -597,12 +597,7 @@ describe("Drag and Drop widgets into Main container", () => {
     const canvasWidgets = component.queryAllByTestId("test-widget");
     // empty canvas
     expect(canvasWidgets.length).toBe(0);
-    const allAddEntityButtons: any =
-      component.container.querySelectorAll(".t--entity-add-btn");
-    const widgetAddButton = allAddEntityButtons[1];
-    act(() => {
-      fireEvent.click(widgetAddButton);
-    });
+
     const containerButton: any = component.queryAllByText("Container");
 
     act(() => {

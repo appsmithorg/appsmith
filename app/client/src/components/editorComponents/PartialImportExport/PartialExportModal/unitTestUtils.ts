@@ -12771,7 +12771,6 @@ export const defaultAppState = {
           release_show_new_sidebar_announcement_enabled: false,
           rollout_app_sidebar_enabled: false,
           release_show_partial_import_export_enabled: true,
-          release_show_new_sidebar_pages_pane_enabled: false,
           ab_one_click_learning_popover_enabled: false,
           release_side_by_side_ide_enabled: false,
           release_global_add_pane_enabled: false,

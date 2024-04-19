@@ -182,7 +182,6 @@ class AnalyticsUtil {
           userId: userData.username,
           email: userData.email,
           appId,
-          source,
         };
       } else {
         const userId = userData.username;
@@ -192,12 +191,12 @@ class AnalyticsUtil {
         }
         user = {
           userId: AnalyticsUtil.cachedAnonymoustId,
-          source,
         };
       }
       finalEventData = {
         ...eventData,
-        userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
+        userData:
+          user.userId === ANONYMOUS_USERNAME ? undefined : { ...user, source },
       };
     }
     finalEventData = {
