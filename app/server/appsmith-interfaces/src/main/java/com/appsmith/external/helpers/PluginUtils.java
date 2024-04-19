@@ -10,8 +10,8 @@ import com.appsmith.external.models.DatasourceConfiguration;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.Property;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -47,8 +47,7 @@ import static com.appsmith.external.constants.CommonFieldName.VALUE;
 @Slf4j
 public class PluginUtils {
 
-    private static final ObjectMapper objectMapper =
-            new ObjectMapper().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature());
+    private static final ObjectMapper objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
     public static final TypeReference<String> STRING_TYPE = new TypeReference<>() {
         @Override
         public Type getType() {

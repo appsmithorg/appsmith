@@ -4,9 +4,9 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.DatasourceStructure;
+import com.appsmith.util.SerializationUtils;
 import com.external.plugins.exceptions.MongoPluginError;
 import com.external.plugins.exceptions.MongoPluginErrorMessages;
-import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -33,8 +33,7 @@ import static com.external.plugins.constants.FieldName.COLLECTION;
 public abstract class MongoCommand {
     String collection;
     List<String> fieldNamesWithNoConfiguration;
-    protected static final ObjectMapper objectMapper =
-            new ObjectMapper().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature());
+    protected static final ObjectMapper objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
 
     public MongoCommand(ActionConfiguration actionConfiguration) {
 

@@ -52,8 +52,10 @@ export const initialState: ApplicationsReduxState = {
     isFetchingAllUsers: false,
   },
   partialImportExport: {
+    isExportModalOpen: false,
     isExporting: false,
     isExportDone: false,
+    isImportModalOpen: false,
     isImporting: false,
     isImportDone: false,
   },
@@ -267,6 +269,7 @@ export const handlers = {
     ...state,
     partialImportExport: {
       ...state.partialImportExport,
+      isImportModalOpen: false,
       isImporting: false,
       isImportDone: true,
     },
@@ -277,6 +280,7 @@ export const handlers = {
     ...state,
     partialImportExport: {
       ...state.partialImportExport,
+      isImportModalOpen: false,
       isImporting: false,
       isImportDone: true,
     },
@@ -656,6 +660,26 @@ export const handlers = {
       currentApplicationIdForCreateNewApp: undefined,
     };
   },
+  [ReduxActionTypes.PARTIAL_IMPORT_MODAL_OPEN]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isImportModalOpen: action.payload,
+    },
+  }),
+  [ReduxActionTypes.PARTIAL_EXPORT_MODAL_OPEN]: (
+    state: ApplicationsReduxState,
+    action: ReduxAction<boolean>,
+  ) => ({
+    ...state,
+    partialImportExport: {
+      ...state.partialImportExport,
+      isExportModalOpen: action.payload,
+    },
+  }),
   [ReduxActionTypes.PARTIAL_EXPORT_INIT]: (state: ApplicationsReduxState) => ({
     ...state,
     partialImportExport: {
@@ -670,6 +694,7 @@ export const handlers = {
     ...state,
     partialImportExport: {
       ...state.partialImportExport,
+      isExportModalOpen: false,
       isExporting: false,
       isExportDone: true,
     },
@@ -680,6 +705,7 @@ export const handlers = {
     ...state,
     partialImportExport: {
       ...state.partialImportExport,
+      isExportModalOpen: false,
       isExporting: false,
       isExportDone: true,
     },
@@ -736,8 +762,10 @@ export interface ApplicationsReduxState {
   };
   currentApplicationIdForCreateNewApp?: string;
   partialImportExport: {
+    isExportModalOpen: boolean;
     isExporting: boolean;
     isExportDone: boolean;
+    isImportModalOpen: boolean;
     isImporting: boolean;
     isImportDone: boolean;
   };
