@@ -3184,7 +3184,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
                                 GitPullDTO gitPullDTO = new GitPullDTO();
                                 gitPullDTO.setMergeStatus(status);
-                                gitPullDTO.setApplication(
+                                gitPullDTO.setArtifact(
                                         responseUtils.updateApplicationWithDefaultResources(application));
 
                                 // Make commit and push after pull is successful to have a clean repo

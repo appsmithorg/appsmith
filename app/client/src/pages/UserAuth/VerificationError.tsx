@@ -13,7 +13,7 @@ import {
 import { useResendEmailVerification } from "./helpers";
 import type { RouteComponentProps } from "react-router-dom";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const Body = styled.div`
   display: flex;

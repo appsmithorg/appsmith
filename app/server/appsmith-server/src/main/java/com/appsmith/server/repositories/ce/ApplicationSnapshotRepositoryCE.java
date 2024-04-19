@@ -1,7 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
-import com.appsmith.server.projections.DefaultTimestampOnly;
+import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.repositories.BaseRepository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -12,5 +12,5 @@ public interface ApplicationSnapshotRepositoryCE
 
     Mono<Void> deleteAllByApplicationId(String applicationId);
 
-    Mono<DefaultTimestampOnly> findByApplicationIdAndChunkOrder(String applicationId, Integer chunkOrder);
+    Mono<ApplicationSnapshotResponseDTO> findByApplicationIdAndChunkOrder(String applicationId, Integer chunkOrder);
 }

@@ -11,7 +11,7 @@ import {
 import type { noop } from "lodash";
 
 import type { CommonComponentProps } from "design-system-old";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { MenuTypes } from "./types";
 
 export interface MenuItemData {

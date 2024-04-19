@@ -27,7 +27,6 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
@@ -46,6 +45,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
@@ -132,7 +132,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
 
     protected void setGitSyncIdInActionCollection(ActionCollection collection) {
         if (collection.getGitSyncId() == null) {
-            collection.setGitSyncId(collection.getApplicationId() + "_" + new ObjectId());
+            collection.setGitSyncId(collection.getApplicationId() + "_" + UUID.randomUUID());
         }
     }
 

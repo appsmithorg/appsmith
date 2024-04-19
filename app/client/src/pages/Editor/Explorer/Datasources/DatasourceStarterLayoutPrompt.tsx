@@ -19,6 +19,7 @@ import {
 } from "@appsmith/constants/messages";
 import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { hideStarterBuildingBlockDatasourcePrompt } from "actions/templateActions";
 import { Colors } from "constants/Colors";
 import { INTEGRATION_TABS } from "constants/routes";
@@ -31,7 +32,6 @@ import {
   currentForkingBuildingBlockName,
   starterBuildingBlockDatasourcePromptSelector,
 } from "selectors/templatesSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
 import history from "utils/history";
 
 function DatasourceStarterLayoutPrompt() {

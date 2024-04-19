@@ -2,7 +2,7 @@ import React, { useContext, useMemo } from "react";
 import type { ReactNode } from "react";
 import { get, omit } from "lodash";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";

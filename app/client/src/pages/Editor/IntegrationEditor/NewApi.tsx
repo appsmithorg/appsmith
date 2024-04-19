@@ -9,7 +9,7 @@ import type { AppState } from "@appsmith/reducers";
 import CurlLogo from "assets/images/Curl-logo.svg";
 import PlusLogo from "assets/images/Plus-logo.svg";
 import type { GenerateCRUDEnabledPluginMap, Plugin } from "api/PluginApi";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { CURL } from "constants/AppsmithActionConstants/ActionConstants";
 import { PluginPackageName, PluginType } from "entities/Action";
 import { getQueryParams } from "utils/URLUtils";

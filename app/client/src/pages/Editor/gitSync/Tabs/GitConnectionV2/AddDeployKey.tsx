@@ -23,7 +23,7 @@ import {
 } from "design-system";
 import styled from "styled-components";
 import { CopyButton } from "../../components/CopyButton";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   ADD_DEPLOY_KEY_STEP_TITLE,
   CONSENT_ADDED_DEPLOY_KEY,

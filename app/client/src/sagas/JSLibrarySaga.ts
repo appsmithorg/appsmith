@@ -28,7 +28,7 @@ import { EvalWorker } from "./EvaluationsSaga";
 import log from "loglevel";
 import { APP_MODE } from "entities/App";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { JSLibrary } from "workers/common/JSLibrary";
 import { getUsedActionNames } from "selectors/actionSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";

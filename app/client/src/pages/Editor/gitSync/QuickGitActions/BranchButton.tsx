@@ -12,9 +12,9 @@ import {
   protectedModeSelector,
   showBranchPopupSelector,
 } from "selectors/gitSyncSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Button, Icon, Tooltip } from "design-system";
-import { isEllipsisActive } from "../../../../utils/helpers";
+import { isEllipsisActive } from "utils/helpers";
 import { importRemixIcon } from "design-system-old";
 import { setShowBranchPopupAction } from "actions/gitSyncActions";
 

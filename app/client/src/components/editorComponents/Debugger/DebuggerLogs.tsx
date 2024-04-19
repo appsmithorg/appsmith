@@ -21,7 +21,7 @@ import bootIntercom from "utils/bootIntercom";
 import type { Theme } from "constants/DefaultTheme";
 import { thinScrollbar } from "constants/DefaultTheme";
 import type { IconName } from "@blueprintjs/core";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getDebuggerSelectedFilter } from "selectors/debuggerSelectors";
 import { setDebuggerSelectedFilter } from "actions/debuggerActions";
 

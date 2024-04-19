@@ -19,7 +19,7 @@ import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
 import { getCurrentAppGitMetaData } from "@appsmith/selectors/applicationSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { GitSettingsTab } from "reducers/uiReducers/gitSyncReducer";
 
 const Container = styled.div``;

@@ -76,7 +76,7 @@ import {
   validateResponse,
 } from "sagas/ErrorSagas";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
 import { PluginType } from "entities/Action";
