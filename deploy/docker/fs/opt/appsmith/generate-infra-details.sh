@@ -5,7 +5,7 @@ set -e
 infra_file="$TMP/infra.json"
 mount_path="/appsmith-stacks"
 
-## Check for the cloud provider
+## Get cloudProvider details
 function get_cloud_provider() {
   release_details=$(uname -r)
   if [[ $release_details == *"amzn"* ]];then
@@ -19,7 +19,7 @@ function get_cloud_provider() {
   fi
 }
 
-## Get if it is deployed on docker or kubernetes
+## Get deployment tool details
 function get_tool() {
   if [[ -z "${KUBERNETES_SERVICE_HOST}" ]]; then
     dep_tool="docker";
@@ -37,17 +37,25 @@ function check_for_efs() {
 }
 }
 
-## Check the hostname and IP
-function get_username_ip() {
+## Check hostname
+function get_hostname() {
   hostname="$(cat /etc/hostname)"
 }
 
+## Get current Time
+function get_current_time(){
+  currentTime="$(date -u -Iseconds)"
+}
+
+## Main Block
 get_cloud_provider
 get_tool
-get_username_ip
+get_hostname
 check_for_efs
+get_current_time
 
-infra_json='{"cloudProvider":"'"$cloud_provider"'","tool":"'"$dep_tool"'","EFS":"'"$efs"'","hostname":"'"$hostname"'"}'
-echo $infra_json
+
+infra_json='{"cloudProvider":"'"$cloud_provider"'","tool":"'"$dep_tool"'","EFS":"'"$efs"'","hostname":"'"$hostname"'", "currentTime": "'"$currentTime"'"}'
+echo "$infra_json"
 
 echo $infra_json > $infra_file
