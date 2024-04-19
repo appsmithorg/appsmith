@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
@@ -14,7 +13,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @EqualsAndHashCode
 @AllArgsConstructor
 @NoArgsConstructor
-@Document
 public class SSLDetails implements AppsmithDomain {
 
     public enum AuthType {
