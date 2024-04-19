@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class PEMCertificate {
+public class PEMCertificate implements AppsmithDomain {
 
     UploadedFile file;
 
