@@ -11,7 +11,6 @@ import com.appsmith.external.models.DatasourceStorageDTO;
 import com.appsmith.external.models.Endpoint;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.OAuth2;
-import com.appsmith.external.models.PEMCertificate;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
@@ -1457,11 +1456,7 @@ public class ApplicationForkingServiceTests {
                                     new UploadedFile("caCertFile", "caCert file content"),
                                     new UploadedFile("keyFile", "key file content"),
                                     new UploadedFile("certFile", "cert file content"),
-                                    new UploadedFile("caCertFile", "caCert file content"),
-                                    true,
-                                    new PEMCertificate(
-                                            new UploadedFile("pemCertFile", "pem cert file content"),
-                                            "pem cert file password")),
+                                    new UploadedFile("caCertFile", "caCert file content")),
                             "default db"));
 
                     dc.setEndpoints(List.of(new Endpoint("host1", 1L), new Endpoint("host2", 2L)));
@@ -1689,11 +1684,7 @@ public class ApplicationForkingServiceTests {
                                     new UploadedFile("caCertFile", "caCert file content"),
                                     new UploadedFile("keyFile", "key file content"),
                                     new UploadedFile("certFile", "cert file content"),
-                                    new UploadedFile("caCertFile", "caCert file content"),
-                                    true,
-                                    new PEMCertificate(
-                                            new UploadedFile("pemCertFile", "pem cert file content"),
-                                            "pem cert file password")),
+                                    new UploadedFile("caCertFile", "caCert file content")),
                             "default db"));
 
                     dc.setEndpoints(List.of(new Endpoint("host1", 1L), new Endpoint("host2", 2L)));
