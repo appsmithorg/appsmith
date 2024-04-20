@@ -195,7 +195,11 @@ const renderCell = (props: any) => {
   }
 
   return (
-    <AutoToolTipComponent position="left" title={displayValue}>
+    <AutoToolTipComponent
+      boundary="viewport"
+      position="left"
+      title={displayValue}
+    >
       {displayValue}
     </AutoToolTipComponent>
   );
@@ -352,6 +356,7 @@ function Table(props: TableProps) {
                           }
                         >
                           <AutoToolTipComponent
+                            boundary="viewport"
                             position="left"
                             title={column.render("Header")}
                           >
