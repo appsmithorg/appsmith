@@ -2708,4 +2708,41 @@ describe("Tests for DependencyMapUtils", () => {
       "Api1",
     ]);
   }
+  describe("makeParentsDependOnChild", () => {
+    const dependencyMap = new DependencyMap();
+    dependencyMap.addNodes({
+      tableWidget: true,
+      apiData: true,
+      "tableWidget.tableData": true,
+      "apiData.data": true,
+    });
+    dependencyMap.addDependency("tableWidget", [
+      "tableWidget.tableData",
+      "apiData.data",
+    ]);
+    dependencyMap.addDependency("apiData", []);
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+    test("should trigger addDependency when the child node isn't there ", () => {
+      const spy = jest.spyOn(dependencyMap, "addDependency");
+      DependencyMapUtils.makeParentsDependOnChild(
+        dependencyMap,
+        "apiData.data",
+      );
+      expect(spy).toHaveBeenCalledTimes(1);
+    });
+    test("should not trigger addDependency when the child node is there ", () => {
+      //when apiData.data child node is already there
+      expect(dependencyMap.getDirectDependencies("apiData")).toEqual([
+        "apiData.data",
+      ]);
+      const spy = jest.spyOn(dependencyMap, "addDependency");
+      DependencyMapUtils.makeParentsDependOnChild(
+        dependencyMap,
+        "apiData.data",
+      );
+      expect(spy).toHaveBeenCalledTimes(0);
+    });
+  });
 });

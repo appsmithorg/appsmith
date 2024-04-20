@@ -49,7 +49,7 @@ export class DependencyMapUtils {
     return dependencyMap;
   }
 
-  private static makeParentsDependOnChild = (
+  static makeParentsDependOnChild = (
     dependencyMap: DependencyMap,
     child: string,
   ) => {
@@ -63,6 +63,8 @@ export class DependencyMapUtils {
       const existingImmediateParentDepsSet = new Set(
         existingImmediateParentDeps,
       );
+      // Add child to immediate parent's dependencies if not already present
+      // don't perform addDependency unnecessarily
       if (!existingImmediateParentDepsSet.has(curKey)) {
         const newDeps = [...existingImmediateParentDeps, curKey];
         dependencyMap.addDependency(immediateParent, newDeps);
