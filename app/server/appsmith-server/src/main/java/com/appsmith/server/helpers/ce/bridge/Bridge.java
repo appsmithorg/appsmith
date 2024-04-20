@@ -6,6 +6,7 @@ import org.bson.types.ObjectId;
 import org.springframework.data.mongodb.core.query.Criteria;
 
 import java.util.Collection;
+import java.util.Set;
 
 public final class Bridge {
     private Bridge() {}
@@ -30,6 +31,12 @@ public final class Bridge {
         return q;
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> or(Collection<BridgeQuery<T>> items) {
+        final BridgeQuery<T> q = new BridgeQuery<>();
+        q.checks.add(new Criteria().orOperator(items.toArray(new Criteria[0])));
+        return q;
+    }
+
     @SafeVarargs
     public static <T extends BaseDomain> BridgeQuery<T> and(BridgeQuery<T>... items) {
         final BridgeQuery<T> q = new BridgeQuery<>();
@@ -45,7 +52,7 @@ public final class Bridge {
         return Bridge.<T>query().equal(key, value);
     }
 
-    private static <T extends BaseDomain> BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
+    public static <T extends BaseDomain> BridgeQuery<T> notEqual(@NonNull String key, @NonNull String value) {
         return Bridge.<T>query().notEqual(key, value);
     }
 
@@ -78,6 +85,20 @@ public final class Bridge {
 
     public static <T extends BaseDomain> BridgeQuery<T> in(@NonNull String key, @NonNull Collection<String> value) {
         return Bridge.<T>query().in(key, value);
+    }
+
+    /**
+     * Query that the array pointed to by `key` contains the string in `value`.
+     */
+    public static <T extends BaseDomain> BridgeQuery<T> contains(@NonNull String key, @NonNull String needle) {
+        return Bridge.<T>query().contains(key, needle);
+    }
+
+    /**
+     * Query that the array pointed to by `key` contains at least one of the strings in `values`.
+     */
+    public static <T extends BaseDomain> BridgeQuery<T> containsAny(@NonNull String key, @NonNull Set<String> values) {
+        return Bridge.<T>query().containsAny(key, values);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> exists(@NonNull String key) {
