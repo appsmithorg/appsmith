@@ -9,6 +9,7 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Set;
 import java.util.regex.Pattern;
 
 @SuppressWarnings("UnusedReturnValue")
@@ -22,7 +23,7 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
         return this;
     }
 
-    public BridgeQuery<T> equal(@NonNull String key, @NonNull int value) {
+    public BridgeQuery<T> equal(@NonNull String key, int value) {
         checks.add(Criteria.where(key).is(value));
         return this;
     }
@@ -65,6 +66,26 @@ public final class BridgeQuery<T extends BaseDomain> extends Criteria {
 
     public BridgeQuery<T> in(@NonNull String key, @NonNull Collection<String> value) {
         checks.add(Criteria.where(key).in(value));
+        return this;
+    }
+
+    /**
+     * Query that the array pointed to by `key` contains the string in `value`.
+     */
+    public BridgeQuery<T> contains(String key, String needle) {
+        // In MongoDB, `in` works as `contains` as well.
+        // But we want separate methods to make the intent of the query explicit.
+        checks.add(Criteria.where(key).in(needle));
+        return this;
+    }
+
+    /**
+     * Query that the array pointed to by `key` contains at least one of the strings in `values`.
+     */
+    public BridgeQuery<T> containsAny(String key, Set<String> values) {
+        // In MongoDB, `in` works as `containsAny` as well.
+        // But we want separate methods to make the intent of the query explicit.
+        checks.add(Criteria.where(key).in(values));
         return this;
     }
 
