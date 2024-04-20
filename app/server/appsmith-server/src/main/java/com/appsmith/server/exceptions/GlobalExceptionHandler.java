@@ -17,6 +17,7 @@ import io.micrometer.core.instrument.util.StringUtils;
 import io.sentry.Sentry;
 import io.sentry.SentryLevel;
 import io.sentry.protocol.User;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.eclipse.jgit.api.errors.JGitInternalException;
 import org.eclipse.jgit.errors.LockFailedException;
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.WebExchangeBindException;
+import org.springframework.web.server.MethodNotAllowedException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
@@ -44,6 +46,7 @@ import java.util.Map;
  * sending it to the client.
  */
 @ControllerAdvice
+@RequiredArgsConstructor
 @Slf4j
 public class GlobalExceptionHandler {
 
@@ -54,17 +57,6 @@ public class GlobalExceptionHandler {
     private final GitFileUtils fileUtils;
 
     private final SessionUserService sessionUserService;
-
-    public GlobalExceptionHandler(
-            RedisUtils redisUtils,
-            AnalyticsService analyticsService,
-            GitFileUtils fileUtils,
-            SessionUserService sessionUserService) {
-        this.redisUtils = redisUtils;
-        this.analyticsService = analyticsService;
-        this.fileUtils = fileUtils;
-        this.sessionUserService = sessionUserService;
-    }
 
     private void doLog(Throwable error) {
         if (error instanceof BaseException baseException && baseException.isHideStackTraceInLogs()) {
@@ -272,6 +264,25 @@ public class GlobalExceptionHandler {
         AppsmithError appsmithError = AppsmithError.FILE_PART_DATA_BUFFER_ERROR;
         exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
         doLog(e);
+        String urlPath = exchange.getRequest().getPath().toString();
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
+                appsmithError.getHttpErrorCode(),
+                new ErrorDTO(
+                        appsmithError.getAppErrorCode(),
+                        appsmithError.getErrorType(),
+                        appsmithError.getMessage(e.getMessage()),
+                        appsmithError.getTitle()));
+
+        return getResponseDTOMono(urlPath, response);
+    }
+
+    @ExceptionHandler
+    @ResponseBody
+    public Mono<ResponseDTO<ErrorDTO>> catchMethodNotAllowed(MethodNotAllowedException e, ServerWebExchange exchange) {
+        AppsmithError appsmithError = AppsmithError.HTTP_METHOD_NOT_ALLOWED;
+
+        exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
+
         String urlPath = exchange.getRequest().getPath().toString();
         ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
                 appsmithError.getHttpErrorCode(),
