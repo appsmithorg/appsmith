@@ -161,6 +161,13 @@ export const importApplication = (appDetails: ImportApplicationRequest) => {
   };
 };
 
+export const openPartialImportModal = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.PARTIAL_IMPORT_MODAL_OPEN,
+    payload,
+  };
+};
+
 export const importPartialApplication = (appPartialDetails: {
   applicationFile: File;
 }) => {

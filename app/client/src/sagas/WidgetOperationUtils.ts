@@ -1,13 +1,14 @@
-import {
-  getFocusedWidget,
-  getSelectedWidget,
-  getWidgetMetaProps,
-  getWidgets,
-} from "./selectors";
-import _, { find, isString, reduce, remove } from "lodash";
+import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
+import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
+import WidgetFactory from "WidgetProvider/factory";
+import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
+import type {
+  OccupiedSpace,
+  WidgetSpace,
+} from "constants/CanvasEditorConstants";
 import type { WidgetType } from "constants/WidgetConstants";
-import { AUTO_LAYOUT_CONTAINER_PADDING } from "constants/WidgetConstants";
 import {
+  AUTO_LAYOUT_CONTAINER_PADDING,
   CONTAINER_GRID_PADDING,
   FLEXBOX_PADDING,
   GridDefaults,
@@ -15,31 +16,29 @@ import {
   RenderModes,
   WIDGET_PADDING,
 } from "constants/WidgetConstants";
-import { all, call } from "redux-saga/effects";
+import {
+  POSITIONED_WIDGET,
+  getBaseWidgetClassName,
+  getSlidingArenaName,
+  getStickyCanvasName,
+} from "constants/componentClassNameConstants";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { select } from "redux-saga/effects";
-import { getCopiedWidgets } from "utils/storage";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { getSelectedWidgets } from "selectors/ui";
-import { generateReactKey } from "utils/generators";
+import {
+  getWidgetLayoutMetaInfo,
+  type WidgetLayoutPositionInfo,
+} from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
+import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
+import { Positioning } from "layoutSystems/common/utils/constants";
+import { LayoutSystemTypes } from "layoutSystems/types";
+import _, { find, isString, reduce, remove } from "lodash";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getDataTree } from "selectors/dataTreeSelectors";
-import type { DynamicPath } from "utils/DynamicBindingUtils";
-import {
-  getDynamicBindings,
-  combineDynamicBindings,
-} from "utils/DynamicBindingUtils";
-import { getNextEntityName } from "utils/AppsmithUtils";
-import WidgetFactory from "WidgetProvider/factory";
-import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
-import type {
-  OccupiedSpace,
-  WidgetSpace,
-} from "constants/CanvasEditorConstants";
-import { areIntersecting } from "utils/boxHelpers";
+import type { MetaState } from "reducers/entityReducers/metaReducer";
+import { all, call, select } from "redux-saga/effects";
+import { reflow } from "reflow";
 import type {
   GridProps,
   PrevReflowState,
@@ -47,27 +46,27 @@ import type {
   SpaceMap,
 } from "reflow/reflowTypes";
 import { ReflowDirection } from "reflow/reflowTypes";
-import {
-  getBaseWidgetClassName,
-  getStickyCanvasName,
-  getSlidingArenaName,
-  POSITIONED_WIDGET,
-} from "constants/componentClassNameConstants";
+import { getDataTree } from "selectors/dataTreeSelectors";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
-import { reflow } from "reflow";
-import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
-import type { WidgetEntity } from "@appsmith/entities/DataTree/types";
-import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
-import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
-import type { MetaState } from "reducers/entityReducers/metaReducer";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { Positioning } from "layoutSystems/common/utils/constants";
-import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
-import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
+import { getSelectedWidgets } from "selectors/ui";
+import { getNextEntityName } from "utils/AppsmithUtils";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
-  getWidgetLayoutMetaInfo,
-  type WidgetLayoutPositionInfo,
-} from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+  combineDynamicBindings,
+  getDynamicBindings,
+} from "utils/DynamicBindingUtils";
+import { areIntersecting } from "utils/boxHelpers";
+import { generateReactKey } from "utils/generators";
+import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
+import { getCopiedWidgets } from "utils/storage";
+import type { WidgetProps } from "widgets/BaseWidget";
+import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
+import {
+  getFocusedWidget,
+  getSelectedWidget,
+  getWidgetMetaProps,
+  getWidgets,
+} from "./selectors";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export interface CopiedWidgetGroup {
@@ -693,6 +692,49 @@ export const getSelectedWidgetWhenPasting = function* () {
   return selectedWidget;
 };
 
+function getStickyCanvasDOM(canvasId: string) {
+  // get DOM of the overall canvas including it's total scroll height
+  const stickyCanvasDOM = document.querySelector(
+    `#${getSlidingArenaName(canvasId)}`,
+  );
+  return stickyCanvasDOM;
+}
+
+/**
+ * calculates mouse positions given canvas grid positions
+ *
+ * @param canvasRect canvas DOM rect
+ * @param canvasId Id of the canvas widget
+ * @param snapGrid grid parameters
+ * @param padding padding inside of widget
+ * @param canvasPosition position in canvas rows and columns
+ * @returns
+ */
+export function getMousePositionFromCanvasGridPosition(
+  top: number,
+  left: number,
+  snapGrid: { snapRowSpace: number; snapColumnSpace: number },
+  padding: number,
+  canvasId: string,
+) {
+  // Get the canvas element
+  const stickyCanvasDOM = getStickyCanvasDOM(canvasId);
+
+  if (!stickyCanvasDOM) return { x: 0, y: 0 };
+
+  const canvasRect = stickyCanvasDOM.getBoundingClientRect();
+
+  // Calculate actual mouse positions
+  const x = left * snapGrid.snapColumnSpace + padding;
+  const y = top * snapGrid.snapRowSpace + padding;
+
+  // Calculate actual mouse positions relative to the window
+  const actualX = x + canvasRect.left;
+  const actualY = y + canvasRect.top;
+
+  return { x: actualX, y: actualY };
+}
+
 /**
  * calculates mouse positions in terms of grid values
  *
@@ -722,10 +764,8 @@ export function getMousePositions(
   )
     return;
 
-  //get DOM of the overall canvas including it's total scroll height
-  const stickyCanvasDOM = document.querySelector(
-    `#${getSlidingArenaName(canvasId)}`,
-  );
+  const stickyCanvasDOM = getStickyCanvasDOM(canvasId);
+
   if (!stickyCanvasDOM) return;
 
   const rect = stickyCanvasDOM.getBoundingClientRect();

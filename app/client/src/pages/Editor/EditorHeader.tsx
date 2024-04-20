@@ -1,7 +1,7 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { ThemeProvider } from "styled-components";
 import AppInviteUsersForm from "pages/workspace/AppInviteUsersForm";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   getCurrentApplicationId,
   getCurrentPageId,

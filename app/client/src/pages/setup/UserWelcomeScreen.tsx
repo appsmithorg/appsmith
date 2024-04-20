@@ -6,7 +6,7 @@ import {
   WELCOME_HEADER,
 } from "@appsmith/constants/messages";
 import NonSuperUserProfilingQuestions from "./NonSuperUserProfilingQuestions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import WelcomeBackground from "./WelcomeBackground";
 import SetupForm from "./SetupForm";
 

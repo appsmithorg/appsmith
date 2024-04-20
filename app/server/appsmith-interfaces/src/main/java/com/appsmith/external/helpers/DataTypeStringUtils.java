@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException
 import com.appsmith.external.models.Param;
 import com.appsmith.external.models.ParsedDataType;
 import com.appsmith.external.plugins.SmartSubstitutionInterface;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -53,7 +54,7 @@ public class DataTypeStringUtils {
 
     public static Pattern placeholderPattern = Pattern.compile(APPSMITH_SUBSTITUTION_PLACEHOLDER);
 
-    private static ObjectMapper objectMapper = new ObjectMapper();
+    private static ObjectMapper objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
 
     private static final TypeAdapter<JsonObject> strictGsonObjectAdapter = new Gson().getAdapter(JsonObject.class);
 

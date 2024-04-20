@@ -26,7 +26,7 @@ import {
   CUSTOM_ROLE_TEXT,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
 import { Callout, Checkbox } from "design-system";
 import {

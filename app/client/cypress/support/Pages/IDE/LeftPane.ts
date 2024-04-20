@@ -91,9 +91,12 @@ export class LeftPane {
         }
       });
   }
-  public selectedItem(): Cypress.Chainable {
+  public selectedItem(
+    exists?: "exist" | "not.exist" | "noVerify",
+  ): Cypress.Chainable {
     return ObjectsRegistry.AggregateHelper.GetElement(
       this.locators.activeItemSelector,
+      exists,
     );
   }
 

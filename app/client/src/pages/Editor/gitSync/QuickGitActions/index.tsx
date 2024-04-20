@@ -42,7 +42,7 @@ import {
 import SpinnerLoader from "pages/common/SpinnerLoader";
 import { getTypographyByKey } from "design-system-old";
 import { Button, Icon, Tooltip } from "design-system";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import AutocommitStatusbar from "./AutocommitStatusbar";

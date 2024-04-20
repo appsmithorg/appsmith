@@ -41,7 +41,7 @@ import {
   NEED_EMPTY_REPO_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 
 const WellInnerContainer = styled.div`

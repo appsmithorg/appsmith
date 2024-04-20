@@ -38,7 +38,6 @@ import type { AppState } from "@appsmith/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "design-system";
-import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/Query/BlankStateContainer";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 
@@ -160,7 +159,7 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
       },
       {
         key: "QueryEmpty",
-        component: BlankStateContainer,
+        component: ListQuery,
         exact: true,
         path: [path],
       },
