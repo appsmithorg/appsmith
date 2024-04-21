@@ -2,7 +2,6 @@ package com.appsmith.server.newpages.base;
 
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.helpers.ResponseUtils;
-import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.UserDataService;
@@ -24,8 +23,7 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
             UserDataService userDataService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            PagePermission pagePermission,
-            ApplicationSnapshotRepository applicationSnapshotRepository) {
+            PagePermission pagePermission) {
 
         super(
                 validator,
@@ -35,7 +33,6 @@ public class NewPageServiceImpl extends NewPageServiceCEImpl implements NewPageS
                 userDataService,
                 responseUtils,
                 applicationPermission,
-                pagePermission,
-                applicationSnapshotRepository);
+                pagePermission);
     }
 }

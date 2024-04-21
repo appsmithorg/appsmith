@@ -12,7 +12,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
-import com.appsmith.server.projections.DefaultTimestampOnly;
+import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.repositories.ApplicationSnapshotRepository;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.google.gson.Gson;
@@ -68,13 +68,13 @@ public class ApplicationSnapshotServiceCEImpl implements ApplicationSnapshotServ
     }
 
     @Override
-    public Mono<DefaultTimestampOnly> getWithoutDataByApplicationId(String applicationId, String branchName) {
+    public Mono<ApplicationSnapshotResponseDTO> getWithoutDataByApplicationId(String applicationId, String branchName) {
         // get application first to check the permission and get child aka branched application ID
         return applicationService
                 .findBranchedApplicationId(branchName, applicationId, applicationPermission.getEditPermission())
                 .flatMap(branchedApplicationId ->
                         applicationSnapshotRepository.findByApplicationIdAndChunkOrder(branchedApplicationId, 1))
-                .defaultIfEmpty(new DefaultTimestampOnly(null, null));
+                .defaultIfEmpty(new ApplicationSnapshotResponseDTO());
     }
 
     @Override

@@ -24,7 +24,7 @@ import { getCurrentUser } from "selectors/usersSelectors";
 import { EMAIL_SETUP_DOC } from "constants/ThirdPartyConstants";
 import { getCurrentTenant } from "@appsmith/actions/tenantActions";
 import { toast } from "design-system";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   MIGRATION_STATUS,
   RESTART_POLL_INTERVAL,

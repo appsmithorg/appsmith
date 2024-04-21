@@ -1,33 +1,56 @@
 package com.appsmith.server.applications.git;
 
+import com.appsmith.external.git.FileInterface;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.external.models.ArtifactGitReference;
+import com.appsmith.external.models.DatasourceStorage;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.git.files.FileUtilsImpl;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
+import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.domains.Theme;
+import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
+import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.ArtifactGitFileUtilsCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.google.gson.Gson;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
+import net.minidev.json.parser.JSONParser;
+import net.minidev.json.parser.ParseException;
+import org.apache.commons.collections.PredicateUtils;
+import org.apache.commons.lang3.StringUtils;
+import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Component;
+import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Type;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
+import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNestedNonNullProperties;
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyProperties;
 import static com.appsmith.server.constants.ce.FieldNameCE.ACTION_COLLECTION_LIST;
 import static com.appsmith.server.constants.ce.FieldNameCE.ACTION_LIST;
@@ -39,11 +62,15 @@ import static com.appsmith.server.constants.ce.FieldNameCE.EXPORTED_APPLICATION;
 import static com.appsmith.server.constants.ce.FieldNameCE.PAGE_LIST;
 import static com.appsmith.server.helpers.ce.CommonGitFileUtilsCE.removeUnwantedFieldsFromBaseDomain;
 
+@Slf4j
 @Component
 @RequiredArgsConstructor
-public class ApplicationGitFileUtilsCE implements ArtifactGitFileUtilsCE<ApplicationGitReference> {
+@Import({FileUtilsImpl.class})
+public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<ApplicationGitReference> {
 
+    private final Gson gson;
     private final NewActionService newActionService;
+    private final FileInterface fileUtils;
     private final ActionCollectionService actionCollectionService;
 
     // Only include the application helper fields in metadata object
@@ -79,6 +106,7 @@ public class ApplicationGitFileUtilsCE implements ArtifactGitFileUtilsCE<Applica
         ApplicationGitReference applicationReference = (ApplicationGitReference) artifactGitReference;
 
         setApplicationInApplicationReference(applicationJson, applicationReference);
+
         setThemesInApplicationReference(applicationJson, applicationReference);
 
         setApplicationMetadataInApplicationReference(applicationJson, applicationReference);
@@ -321,5 +349,203 @@ public class ApplicationGitFileUtilsCE implements ArtifactGitFileUtilsCE<Applica
         actionCollection.setPublishedCollection(null);
         actionCollection.getUnpublishedCollection().sanitiseForExport();
         removeUnwantedFieldsFromBaseDomain(actionCollection);
+    }
+
+    // reconstruct applicationJson
+
+    @Override
+    public Mono<ArtifactExchangeJson> reconstructArtifactExchangeJsonFromFilesInRepository(
+            String workspaceId, String defaultArtifactId, String repoName, String branchName) {
+        Mono<ApplicationGitReference> appReferenceMono = fileUtils.reconstructApplicationReferenceFromGitRepo(
+                workspaceId, defaultArtifactId, repoName, branchName);
+        return appReferenceMono.map(applicationReference -> {
+            // Extract application metadata from the json
+            ApplicationJson metadata =
+                    getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
+            ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
+            copyNestedNonNullProperties(metadata, applicationJson);
+            return applicationJson;
+        });
+    }
+
+    public <T> T getApplicationResource(Object resource, Type type) {
+        if (resource == null) {
+            return null;
+        }
+        return gson.fromJson(gson.toJson(resource), type);
+    }
+
+    protected ApplicationJson getApplicationJsonFromGitReference(ApplicationGitReference applicationReference) {
+        ApplicationJson applicationJson = new ApplicationJson();
+
+        setApplicationInApplicationJson(applicationReference, applicationJson);
+
+        setThemesInApplicationJson(applicationReference, applicationJson);
+
+        setCustomJsLibsInApplicationJson(applicationReference, applicationJson);
+
+        setNewPagesInApplicationJson(applicationReference, applicationJson);
+
+        setNewActionsInApplicationJson(applicationReference, applicationJson);
+
+        setActionCollectionsInApplicationJson(applicationReference, applicationJson);
+
+        setDatasourcesInApplicationJson(applicationReference, applicationJson);
+
+        return applicationJson;
+    }
+
+    private void setApplicationInApplicationJson(
+            ApplicationGitReference applicationReference, ApplicationJson applicationJson) {
+        // Extract application data from the json
+        Application application = getApplicationResource(applicationReference.getApplication(), Application.class);
+        applicationJson.setExportedApplication(application);
+
+        if (application != null && !CollectionUtils.isNullOrEmpty(application.getPages())) {
+            // Remove null values
+            org.apache.commons.collections.CollectionUtils.filter(
+                    application.getPages(), PredicateUtils.notNullPredicate());
+            // Create a deep clone of application pages to update independently
+            application.setViewMode(false);
+            final List<ApplicationPage> applicationPages =
+                    new ArrayList<>(application.getPages().size());
+            application
+                    .getPages()
+                    .forEach(applicationPage ->
+                            applicationPages.add(gson.fromJson(gson.toJson(applicationPage), ApplicationPage.class)));
+            application.setPublishedPages(applicationPages);
+        }
+    }
+
+    private void setThemesInApplicationJson(
+            ApplicationGitReference applicationReference, ApplicationJson applicationJson) {
+        applicationJson.setEditModeTheme(getApplicationResource(applicationReference.getTheme(), Theme.class));
+        // Clone the edit mode theme to published theme as both should be same for git connected application because we
+        // do deploy and push as a single operation
+        applicationJson.setPublishedTheme(applicationJson.getEditModeTheme());
+    }
+
+    private void setDatasourcesInApplicationJson(
+            ApplicationGitReference applicationReference, ApplicationJson applicationJson) {
+        // Extract datasources
+        applicationJson.setDatasourceList(
+                getApplicationResource(applicationReference.getDatasources(), DatasourceStorage.class));
+    }
+
+    private void setActionCollectionsInApplicationJson(
+            ApplicationGitReference applicationReference, ApplicationJson applicationJson) {
+        // Extract actionCollection
+        if (CollectionUtils.isNullOrEmpty(applicationReference.getActionCollections())) {
+            applicationJson.setActionCollectionList(new ArrayList<>());
+        } else {
+            Map<String, String> actionCollectionBody = applicationReference.getActionCollectionBody();
+            List<ActionCollection> actionCollections =
+                    getApplicationResource(applicationReference.getActionCollections(), ActionCollection.class);
+            // Remove null values if present
+            org.apache.commons.collections.CollectionUtils.filter(actionCollections, PredicateUtils.notNullPredicate());
+            actionCollections.forEach(actionCollection -> {
+                // Set the js object body to the unpublished collection
+                // Since file version v3 we are splitting the js object code and metadata separately
+                String keyName = actionCollection.getUnpublishedCollection().getName()
+                        + actionCollection.getUnpublishedCollection().getPageId();
+                if (actionCollectionBody != null && actionCollectionBody.containsKey(keyName)) {
+                    actionCollection.getUnpublishedCollection().setBody(actionCollectionBody.get(keyName));
+                }
+                // As we are publishing the app and then committing to git we expect the published and unpublished
+                // actionCollectionDTO will be same, so we create a deep copy for the published version for
+                // actionCollection from unpublishedActionCollectionDTO
+                actionCollection.setPublishedCollection(gson.fromJson(
+                        gson.toJson(actionCollection.getUnpublishedCollection()), ActionCollectionDTO.class));
+            });
+            applicationJson.setActionCollectionList(actionCollections);
+        }
+    }
+
+    private void setNewActionsInApplicationJson(
+            ApplicationGitReference applicationReference, ApplicationJson applicationJson) {
+        // Extract actions
+        if (CollectionUtils.isNullOrEmpty(applicationReference.getActions())) {
+            applicationJson.setActionList(new ArrayList<>());
+        } else {
+            Map<String, String> actionBody = applicationReference.getActionBody();
+            List<NewAction> actions = getApplicationResource(applicationReference.getActions(), NewAction.class);
+            // Remove null values if present
+            org.apache.commons.collections.CollectionUtils.filter(actions, PredicateUtils.notNullPredicate());
+            actions.forEach(newAction -> {
+                // With the file version v4 we have split the actions and metadata separately into two files
+                // So we need to set the body to the unpublished action
+                String keyName = newAction.getUnpublishedAction().getName()
+                        + newAction.getUnpublishedAction().getPageId();
+                if (actionBody != null
+                        && (actionBody.containsKey(keyName))
+                        && !StringUtils.isEmpty(actionBody.get(keyName))) {
+                    // For REMOTE plugin like Twilio the user actions are stored in key value pairs and hence they need
+                    // to be
+                    // deserialized separately unlike the body which is stored as string in the db.
+                    if (newAction.getPluginType().toString().equals("REMOTE")) {
+                        Map<String, Object> formData = gson.fromJson(actionBody.get(keyName), Map.class);
+                        newAction
+                                .getUnpublishedAction()
+                                .getActionConfiguration()
+                                .setFormData(formData);
+                    } else {
+                        newAction
+                                .getUnpublishedAction()
+                                .getActionConfiguration()
+                                .setBody(actionBody.get(keyName));
+                    }
+                }
+                // As we are publishing the app and then committing to git we expect the published and unpublished
+                // actionDTO will be same, so we create a deep copy for the published version for action from
+                // unpublishedActionDTO
+                newAction.setPublishedAction(
+                        gson.fromJson(gson.toJson(newAction.getUnpublishedAction()), ActionDTO.class));
+            });
+            applicationJson.setActionList(actions);
+        }
+    }
+
+    private void setCustomJsLibsInApplicationJson(
+            ApplicationGitReference applicationReference, ApplicationJson applicationJson) {
+        List<CustomJSLib> customJSLibList =
+                getApplicationResource(applicationReference.getJsLibraries(), CustomJSLib.class);
+
+        // remove the duplicate js libraries if there is any
+        List<CustomJSLib> customJSLibListWithoutDuplicates = new ArrayList<>(new HashSet<>(customJSLibList));
+
+        applicationJson.setCustomJSLibList(customJSLibListWithoutDuplicates);
+    }
+
+    private void setNewPagesInApplicationJson(
+            ApplicationGitReference applicationReference, ApplicationJson applicationJson) {
+        // Extract pages
+        List<NewPage> pages = getApplicationResource(applicationReference.getPages(), NewPage.class);
+        // Remove null values
+        org.apache.commons.collections.CollectionUtils.filter(pages, PredicateUtils.notNullPredicate());
+        // Set the DSL to page object before saving
+        Map<String, String> pageDsl = applicationReference.getPageDsl();
+        pages.forEach(page -> {
+            JSONParser jsonParser = new JSONParser();
+            try {
+                if (pageDsl != null && pageDsl.get(page.getUnpublishedPage().getName()) != null) {
+                    page.getUnpublishedPage().getLayouts().get(0).setDsl((JSONObject) jsonParser.parse(
+                            pageDsl.get(page.getUnpublishedPage().getName())));
+                }
+            } catch (ParseException e) {
+                log.error(
+                        "Error parsing the page dsl for page: {}",
+                        page.getUnpublishedPage().getName(),
+                        e);
+                throw new AppsmithException(
+                        AppsmithError.JSON_PROCESSING_ERROR,
+                        page.getUnpublishedPage().getName());
+            }
+        });
+        pages.forEach(newPage -> {
+            // As we are publishing the app and then committing to git we expect the published and unpublished PageDTO
+            // will be same, so we create a deep copy for the published version for page from the unpublishedPageDTO
+            newPage.setPublishedPage(gson.fromJson(gson.toJson(newPage.getUnpublishedPage()), PageDTO.class));
+        });
+        applicationJson.setPageList(pages);
     }
 }

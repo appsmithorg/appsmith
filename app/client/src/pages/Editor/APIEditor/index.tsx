@@ -9,7 +9,7 @@ import {
   getPlugins,
 } from "@appsmith/selectors/entitiesSelector";
 import { deleteAction, runAction } from "actions/pluginActionActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import BackToCanvas from "components/common/BackToCanvas";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";

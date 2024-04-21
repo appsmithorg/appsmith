@@ -37,7 +37,7 @@ import {
   FormActions,
   EmailFormWrapper,
 } from "pages/UserAuth/StyledComponents";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { LOGIN_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import PerformanceTracker, {
   PerformanceTransactionName,

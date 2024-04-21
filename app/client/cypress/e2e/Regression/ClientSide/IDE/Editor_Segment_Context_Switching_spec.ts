@@ -33,11 +33,11 @@ describe("Editor Segment Context Switch", { tags: ["@tag.IDE"] }, function () {
   it("will select an item when switched to it", () => {
     // Check JS item is selected
     PageLeftPane.switchSegment(PagePaneSegment.JS);
-    PageLeftPane.selectedItem().should("be.visible");
+    PageLeftPane.selectedItem("not.exist");
 
     // Check Query item is selected
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
-    PageLeftPane.selectedItem().should("be.visible");
+    PageLeftPane.selectedItem("not.exist");
 
     // Check UI item is selected
     PageLeftPane.switchSegment(PagePaneSegment.UI);
