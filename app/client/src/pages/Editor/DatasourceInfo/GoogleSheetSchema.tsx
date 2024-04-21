@@ -21,7 +21,7 @@ import {
   DATASOURCE_GENERATE_PAGE_BUTTON,
   GSHEET_SEARCH_PLACEHOLDER,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { getDatasource } from "@appsmith/selectors/entitiesSelector";

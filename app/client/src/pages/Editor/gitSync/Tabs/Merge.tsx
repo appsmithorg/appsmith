@@ -52,7 +52,7 @@ import {
   ModalFooter,
   ModalBody,
 } from "design-system";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`

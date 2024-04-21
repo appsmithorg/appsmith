@@ -8,6 +8,11 @@ import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { sha256 } from "js-sha256";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 
+export function getUserSource() {
+  const { cloudHosting, segment } = getAppsmithConfigs();
+  const source = cloudHosting || segment.apiKey ? "cloud" : "ce";
+  return source;
+}
 declare global {
   interface Window {
     // Zipy is added via script tags in index.html
@@ -18,7 +23,7 @@ declare global {
   }
 }
 
-const parentContextTypeTokens = ["pkg", "workflow"];
+export const parentContextTypeTokens = ["pkg", "workflow"];
 
 /**
  * Function to check the current URL and return the parent context.
@@ -27,7 +32,7 @@ const parentContextTypeTokens = ["pkg", "workflow"];
  * @param location current location object based on URL
  * @returns object {id, type} where type is either pkg or workflow and id is the id of the pkg or workflow
  */
-function getParentContextFromURL(location: Location) {
+export function getParentContextFromURL(location: Location) {
   const pathSplit = location.pathname.split("/");
   let type = parentContextTypeTokens[0];
   const editorIndex = pathSplit.findIndex((path) =>
@@ -42,7 +47,7 @@ function getParentContextFromURL(location: Location) {
   }
 }
 
-function getApplicationId(location: Location) {
+export function getApplicationId(location: Location) {
   const pathSplit = location.pathname.split("/");
   const applicationsIndex = pathSplit.findIndex(
     (path) => path === "applications",
@@ -170,13 +175,13 @@ class AnalyticsUtil {
     const appId = getApplicationId(windowDoc.location);
     const { appVersion, segment } = getAppsmithConfigs();
     if (userData) {
+      const source = getUserSource();
       let user: any = {};
       if (segment.apiKey) {
         user = {
           userId: userData.username,
           email: userData.email,
           appId,
-          source: "cloud",
         };
       } else {
         const userId = userData.username;
@@ -186,12 +191,12 @@ class AnalyticsUtil {
         }
         user = {
           userId: AnalyticsUtil.cachedAnonymoustId,
-          source: "ce",
         };
       }
       finalEventData = {
         ...eventData,
-        userData: user.userId === ANONYMOUS_USERNAME ? undefined : user,
+        userData:
+          user.userId === ANONYMOUS_USERNAME ? undefined : { ...user, source },
       };
     }
     finalEventData = {
@@ -214,13 +219,14 @@ class AnalyticsUtil {
     const windowDoc: any = window;
     const userId = userData.username;
     if (windowDoc.analytics) {
+      const source = getUserSource();
       // This flag is only set on Appsmith Cloud. In this case, we get more detailed analytics of the user
       if (segment.apiKey) {
         const userProperties = {
+          userId: userId,
+          source,
           email: userData.email,
           name: userData.name,
-          userId: userId,
-          source: "cloud",
           emailVerified: userData.emailVerified,
         };
         AnalyticsUtil.user = userData;
@@ -234,7 +240,7 @@ class AnalyticsUtil {
         }
         const userProperties = {
           userId: AnalyticsUtil.cachedAnonymoustId,
-          source: "ce",
+          source,
           ...(sendAdditionalData
             ? {
                 id: AnalyticsUtil.cachedAnonymoustId,

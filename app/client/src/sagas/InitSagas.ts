@@ -62,7 +62,7 @@ import {
 } from "@appsmith/pages/Editor/Explorer/helpers";
 import { APP_MODE } from "../entities/App";
 import { GIT_BRANCH_QUERY_KEY, matchViewerPath } from "../constants/routes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { getDebuggerErrors } from "selectors/debuggerSelectors";
 import { deleteErrorLog } from "actions/debuggerActions";

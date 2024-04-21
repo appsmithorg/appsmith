@@ -18,7 +18,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { select } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,

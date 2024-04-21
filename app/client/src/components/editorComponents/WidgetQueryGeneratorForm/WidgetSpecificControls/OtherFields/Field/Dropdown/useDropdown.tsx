@@ -24,7 +24,7 @@ import {
 } from "@appsmith/constants/messages";
 import type { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 export interface OneClickDropdownFieldProps {
   label: string;

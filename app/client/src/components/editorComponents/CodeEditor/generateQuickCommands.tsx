@@ -12,7 +12,7 @@ import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { Button, Icon } from "design-system";
 import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
 import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
