@@ -1420,7 +1420,7 @@ export default [
       },
       {
         helpText:
-          "Assigns a unique column which helps maintain selectedRows and triggeredRows based on value",
+          "Assigns a unique column which helps maintain selectedRows and triggeredRows based on this value",
         propertyName: "primaryColumnId",
         dependencies: ["primaryColumns"],
         label: "Primary key column",
