@@ -13,7 +13,6 @@ const apiwidget = require("../../../../locators/apiWidgetslocator.json");
 const pageid = "MyPage";
 
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
-import { createMessage } from "../../../../support/Objects/CommonErrorMessages";
 
 let ee = ObjectsRegistry.EntityExplorer,
   agHelper = ObjectsRegistry.AggregateHelper,
