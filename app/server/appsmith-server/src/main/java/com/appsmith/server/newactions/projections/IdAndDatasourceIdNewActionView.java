@@ -1,4 +1,4 @@
-package com.appsmith.server.projections;
+package com.appsmith.server.newactions.projections;
 
 import lombok.Getter;
 
