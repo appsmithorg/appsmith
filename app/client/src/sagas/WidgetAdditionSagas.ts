@@ -50,7 +50,7 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
+import { all, call, put, select, takeEvery } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getCanvasWidth,
@@ -712,9 +712,6 @@ export function* addBuildingBlockToApplication(
           actionsBeforeAddingBuildingBlock,
           actionsAfterAddingBuildingBlocks,
         );
-
-        // wait for all action runs to complete before tracking time of completion
-        yield take(ReduxActionTypes.RUN_ACTION_SUCCESS);
       }
 
       const timeTakenToCompleteInMs = buildingBlockDragStartTimestamp
