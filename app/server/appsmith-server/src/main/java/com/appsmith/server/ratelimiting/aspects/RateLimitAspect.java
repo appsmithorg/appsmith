@@ -5,7 +5,7 @@ import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.ratelimiting.RateLimitService;
-import com.appsmith.server.ratelimiting.annotations.*;
+import com.appsmith.server.ratelimiting.annotations.RateLimit;
 import com.appsmith.server.services.SessionUserService;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;

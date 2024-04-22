@@ -40,11 +40,11 @@ describe(
       );
       cy.wait(1000);
       cy.get(template.templateDialogBox).should("be.visible");
-      cy.xpath("//h1[text()='Slack Bot']").scrollIntoView().wait(500).click();
+      cy.get(template.templateCard).first().click();
       cy.get(template.templateViewForkButton).first().click();
       cy.waitUntil(() => cy.xpath("//span[text()='Setting up the template']"), {
         errorMsg: "Setting Templates did not finish even after 75 seconds",
-        timeout: 950000,
+        timeout: 75000,
         interval: 5000,
       }).then(($ele) => {
         cy.wrap($ele).should("have.length", 0);
