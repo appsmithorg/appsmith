@@ -187,7 +187,8 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     // cy.get("@gitbranchName").then((branName) => {
     //   tempBranch = branName;
     // });
-    cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
+    // rename branch API missing in TED.
+    // cy.renameBranchViaGithubApi(repoName, tempBranch, tempBranchRenamed);
     cy.get(gitSyncLocators.branchButton).click();
     cy.get(gitSyncLocators.branchSearchInput).type(`{selectall}${tempBranch}`);
     const tempBranchRegex = new RegExp(`^${tempBranch}$`);
