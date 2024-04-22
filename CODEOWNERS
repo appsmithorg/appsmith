@@ -30,9 +30,9 @@ app/client/src/widgets/anvil/* @appsmithorg/anvil-team
 # App viewers pod
 app/client/src/widgets/* @appsmithorg/app-viewers
 app/client/src/components/propertyControls/* @appsmithorg/app-viewers
-app/client/src/sagas/OneClickBindingSaga.ts @sbalaji1192
-app/client/src/WidgetQueryGenerators/* @sbalaji1192
-app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @sbalaji1192
+app/client/src/sagas/OneClickBindingSaga.ts @appsmithorg/app-viewers
+app/client/src/WidgetQueryGenerators/* @appsmithorg/app-viewers
+app/client/src/components/editorComponents/WidgetQueryGeneratorForm/* @appsmithorg/app-viewers
 app/client/src/pages/AppViewer/* @appsmithorg/app-viewers
 
 # New Developers Pod
@@ -101,19 +101,16 @@ app/client/src/widgets/MetaHOC.tsx @appsmithorg/ui-builders
 app/client/src/widgets/withWidgetProps.tsx @appsmithorg/ui-builders
 
 # Git Pod
-app/server/appsmith-git/* @AnaghHegde
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ImportExportApplicationServiceCEImpl.java @AnaghHegde
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/ce/ImportExportApplicationServiceCE.java @AnaghHegde
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/GitServiceCEImpl.java @AnaghHegde
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/ce/GitServiceCE.java @AnaghHegde
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitCloudServicesUtils.java @AnaghHegde
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitDeployKeyGenerator.java @AnaghHegde
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitFileUtils.java @AnaghHegde
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/GitUtils.java @AnaghHegde
-app/client/src/pages/Editor/gitSync/* @brayn003
+app/server/appsmith-git/ @appsmithorg/git-be-reviewers
+app/server/**/git/** @appsmithorg/git-be-reviewers
+app/server/**/import/** @appsmithorg/git-be-reviewers
+app/server/**/export/** @appsmithorg/git-be-reviewers
+app/server/**/*Git*.java @appsmithorg/git-be-reviewers
+app/server/**/*Import*.java @appsmithorg/git-be-reviewers
+app/server/**/*Export*.java @appsmithorg/git-be-reviewers
 
-# DSL Package
-app/client/packages/dsl/* @brayn003
+app/client/src/pages/Editor/gitSync/ @appsmithorg/git-fe-reviewers
+app/client/packages/dsl/ @appsmithorg/git-fe-reviewers
 
 # Data Platform
 
@@ -149,41 +146,12 @@ app/client/src/transformers/RestAPIDatasourceFormTransformer.ts @ayushpahwa
 
 
 # Followed Globstar paths in combination with wildcard paths. Reference https://docs.gitlab.com/ee/user/project/codeowners/reference.html#globstar-paths
-# Data Platform server - Interfaces
-app/server/appsmith-interfaces/src/main/java/com/appsmith/external/**/Action* @nidhi-nair @sondermanish
-app/server/appsmith-interfaces/src/main/java/com/appsmith/external/**/Datasource* @nidhi-nair @sondermanish
-app/server/appsmith-interfaces/src/main/java/com/appsmith/external/**/OAuth2* @nidhi-nair @sondermanish
-
-# Data Platform server - Controllers
-app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/**/Action* @nidhi-nair @sondermanish
-app/server/appsmith-server/src/main/java/com/appsmith/server/controllers/**/Datasource* @nidhi-nair @sondermanish
-
-# Data Platform server - Domains
-app/server/appsmith-server/src/main/java/com/appsmith/server/domains/**/Action* @nidhi-nair @sondermanish
-app/server/appsmith-server/src/main/java/com/appsmith/server/domains/**/Datasource* @nidhi-nair @sondermanish
-
-# Data Platform server - DTOs
-app/server/appsmith-server/src/main/java/com/appsmith/server/dtos/**/Action* @nidhi-nair @sondermanish
-app/server/appsmith-server/src/main/java/com/appsmith/server/dtos/**/Datasource* @nidhi-nair @sondermanish
-
-# Data Platform server - Repositories
-app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/**/*Action* @nidhi-nair @sondermanish
-app/server/appsmith-server/src/main/java/com/appsmith/server/repositories/**/*Datasource* @nidhi-nair @sondermanish
-
-# Data Platform server - Services
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/**/*Action* @nidhi-nair @sondermanish
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/**/*Datasource* @nidhi-nair @sondermanish
-app/server/appsmith-server/src/main/java/com/appsmith/server/services/**/*Authentication* @nidhi-nair @sondermanish
-
-# Data Platform server - Solutions
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Action* @nidhi-nair @sondermanish
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Datasource* @nidhi-nair @sondermanish
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Authentication* @nidhi-nair @sondermanish
-app/server/appsmith-server/src/main/java/com/appsmith/server/solutions/**/*Environment* @nidhi-nair @sondermanish
-
-# Data Platform server - Misc
-app/server/appsmith-server/src/main/java/com/appsmith/server/helpers/**/Datasource* @nidhi-nair @sondermanish
-app/server/appsmith-server/src/main/java/com/appsmith/server/exceptions/AppsmithError* @nidhi-nair @sondermanish
+# Data Platform Pod
+app/server/**/*Action* @nidhi-nair @sondermanish
+app/server/**/*Datasource* @nidhi-nair @sondermanish
+app/server/**/*OAuth2* @nidhi-nair @sondermanish
+app/server/**/*Authentication* @nidhi-nair @sondermanish
+app/server/**/*Environment* @nidhi-nair @sondermanish
 
 # Team Managers pod
 app/client/src/pages/Settings/**/* @ankitakinger

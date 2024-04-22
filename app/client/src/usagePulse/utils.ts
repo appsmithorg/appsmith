@@ -4,7 +4,7 @@ import { isNil } from "lodash";
 import nanoid from "nanoid";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import store from "store";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { FALLBACK_KEY } from "@appsmith/constants/UsagePulse";
 
 //TODO (Dipyaman): We should return a promise that will get resolved only on success or rejected after the retries

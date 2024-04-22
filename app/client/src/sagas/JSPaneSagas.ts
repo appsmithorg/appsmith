@@ -68,7 +68,6 @@ import {
   JS_EXECUTION_FAILURE,
   JS_FUNCTION_CREATE_SUCCESS,
   JS_FUNCTION_DELETE_SUCCESS,
-  JS_EXECUTION_SUCCESS_TOASTER,
 } from "@appsmith/constants/messages";
 import { validateResponse } from "./ErrorSagas";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -87,18 +86,13 @@ import type { ApiResponse } from "api/ApiResponses";
 import { ModalType } from "reducers/uiReducers/modalActionReducer";
 import { requestModalConfirmationSaga } from "sagas/UtilSagas";
 import { UserCancelledActionExecutionError } from "sagas/ActionExecution/errorUtils";
-import { APP_MODE } from "entities/App";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
-import {
-  getJSActionNameToDisplay,
-  getJSActionPathNameToDisplay,
-  isBrowserExecutionAllowed,
+import { getJSActionPathNameToDisplay   isBrowserExecutionAllowed,
 } from "@appsmith/utils/actionExecutionUtils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
@@ -402,16 +396,9 @@ export function* handleExecuteJSFunctionSaga(data: {
   onPageLoad: boolean;
   openDebugger?: boolean;
 }) {
-  const {
-    action,
-    collection,
-    isExecuteJSFunc,
-    onPageLoad,
-    openDebugger = false,
-  } = data;
+  const { action, collection, onPageLoad, openDebugger = false } = data;
   const { id: collectionId } = collection;
   const actionId = action.id;
-  const appMode: APP_MODE = yield select(getAppMode);
   yield put(
     executeJSFunctionInit({
       collection,
@@ -477,6 +464,19 @@ export function* handleExecuteJSFunctionSaga(data: {
         isDirty,
       },
     });
+
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, true, collectionId, isDirty);
+
+    yield put(
+      logActionExecutionForAudit({
+        actionName: action.name,
+        actionId: action.id,
+        collectionId: collectionId,
+        pageId: action.pageId,
+        pageName: yield select(getCurrentPageName),
+      }),
+    );
     if (localExecutionAllowed) {
       yield put(
         logActionExecutionForAudit({
@@ -490,36 +490,15 @@ export function* handleExecuteJSFunctionSaga(data: {
 
       const jsActionNameToDisplay = getJSActionNameToDisplay(action);
 
-      AppsmithConsole.info({
-        text: createMessage(JS_EXECUTION_SUCCESS),
-        source: {
-          type: ENTITY_TYPE.JSACTION,
-          name: jsActionPathNameToDisplay,
-          id: collectionId,
-        },
-        state: { response: result },
-      });
-      const showSuccessToast = appMode === APP_MODE.EDIT && !isDirty;
-
-      if (
-        showSuccessToast &&
-        isExecuteJSFunc &&
-        !doesURLPathContainCollectionId
-      ) {
-        toast.show(
-          createMessage(JS_EXECUTION_SUCCESS_TOASTER, jsActionNameToDisplay),
-          {
-            kind: "success",
-          },
-        );
-      }
-      toast.show(
-        createMessage(JS_EXECUTION_SUCCESS_TOASTER, jsActionNameToDisplay),
-        {
-          kind: "success",
-        },
-      );
-    }
+    AppsmithConsole.info({
+      text: createMessage(JS_EXECUTION_SUCCESS),
+      source: {
+        type: ENTITY_TYPE.JSACTION,
+        name: jsActionPathNameToDisplay,
+        id: collectionId,
+      },
+      state: { response: result },
+    });
   } catch (error) {
     // open response tab in debugger on runnning js action.
     if (doesURLPathContainCollectionId) {

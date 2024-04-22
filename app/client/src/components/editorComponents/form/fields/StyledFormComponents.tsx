@@ -109,9 +109,9 @@ const StyledFormLabel = styled.label<{
     props.extraStyles?.minWidth
       ? props.extraStyles?.minWidth
       : props.config?.controlType === "SWITCH" ||
-        props.config?.controlType === "CHECKBOX"
-      ? "auto;"
-      : "270px;"}
+          props.config?.controlType === "CHECKBOX"
+        ? "auto;"
+        : "270px;"}
   font-weight: 400;
   font-size: 14px;
   line-height: 16px;
@@ -120,8 +120,8 @@ const StyledFormLabel = styled.label<{
     props.extraStyles?.marginBottom
       ? props.extraStyles?.marginBottom
       : props.config?.controlType === "CHECKBOX"
-      ? "0;"
-      : "4px;"};
+        ? "0;"
+        : "4px;"};
   &:first-child {
     margin-left: 0;
   }

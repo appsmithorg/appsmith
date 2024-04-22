@@ -22,7 +22,7 @@
     "clsx": "^2.0.0",
     "colorjs.io": "^0.4.3",
     "lodash": "*",
-    "react-aria-components": "^1.0.0-rc.0"
+    "react-aria-components": "^1.1.1"
   },
   "devDependencies": {
     "@types/fs-extra": "^11.0.4",
