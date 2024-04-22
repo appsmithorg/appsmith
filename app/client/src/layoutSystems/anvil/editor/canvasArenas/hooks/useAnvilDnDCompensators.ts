@@ -10,14 +10,15 @@ export const useAnvilDnDCompensators = (
   isMainCanvas: boolean,
   isSection: boolean,
   isModalLayout: boolean,
+  isEmptyLayout: boolean,
 ) => {
   const { mainCanvasSpacing, zoneSpacing } =
     getWidgetSpacingCSSVariableValues();
   const modalSpacing = mainCanvasSpacing;
-
+  const emptyModal = isModalLayout && isEmptyLayout;
   const widgetCompensatorValues = {
-    left: isSection ? mainCanvasSpacing : 0,
-    top: isModalLayout ? modalSpacing : 0,
+    left: isSection && !emptyModal ? mainCanvasSpacing : 0,
+    top: isModalLayout ? (isEmptyLayout ? 0 : modalSpacing) : 0,
   };
 
   // Define compensator values for edges
@@ -25,6 +26,8 @@ export const useAnvilDnDCompensators = (
     left: calculateEdgeLeftCompensator(
       isMainCanvas,
       isSection,
+      isModalLayout,
+      isEmptyLayout,
       mainCanvasSpacing,
       zoneSpacing,
     ),
@@ -32,6 +35,7 @@ export const useAnvilDnDCompensators = (
       isMainCanvas,
       isSection,
       isModalLayout,
+      isEmptyLayout,
       mainCanvasSpacing,
       zoneSpacing,
       modalSpacing,
@@ -44,6 +48,7 @@ export const useAnvilDnDCompensators = (
       isMainCanvas,
       isSection,
       isModalLayout,
+      isEmptyLayout,
       mainCanvasSpacing,
       zoneSpacing,
     ),
@@ -51,6 +56,7 @@ export const useAnvilDnDCompensators = (
       isMainCanvas,
       isSection,
       isModalLayout,
+      isEmptyLayout,
       zoneSpacing,
       modalSpacing,
     ),

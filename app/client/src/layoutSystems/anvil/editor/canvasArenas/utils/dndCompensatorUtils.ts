@@ -1,4 +1,6 @@
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
+import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { getAnvilCanvasId } from "layoutSystems/anvil/viewer/canvas/utils";
 
 const WidgetSpacing = {
@@ -37,15 +39,20 @@ export const getWidgetSpacingCSSVariableValues = () => {
 export const calculateEdgeLeftCompensator = (
   isMainCanvas: boolean,
   isSection: boolean,
+  isModalLayout: boolean,
+  isEmptyLayout: boolean,
   mainCanvasSpacing: number,
   zoneSpacing: number,
 ) => {
-  if (isMainCanvas) {
-    return 0;
-  } else if (isSection) {
-    return mainCanvasSpacing;
-  } else {
-    return zoneSpacing;
+  switch (true) {
+    case isMainCanvas:
+      return isEmptyLayout ? -mainCanvasSpacing : 0;
+    case isSection:
+      return mainCanvasSpacing;
+    case isModalLayout:
+      return 0;
+    default:
+      return zoneSpacing;
   }
 };
 
@@ -54,18 +61,26 @@ export const calculateEdgeTopCompensator = (
   isMainCanvas: boolean,
   isSection: boolean,
   isModalLayout: boolean,
+  isEmptyLayout: boolean,
   mainCanvasSpacing: number,
   zoneSpacing: number,
   modalSpacing: number,
 ) => {
-  if (isSection) {
-    return 0;
-  } else if (isMainCanvas) {
-    return mainCanvasSpacing;
-  } else if (isModalLayout) {
-    return modalSpacing * 0.5;
-  } else {
-    return zoneSpacing;
+  switch (true) {
+    case isSection:
+      return 0;
+    case isMainCanvas:
+      if (isEmptyLayout) {
+        return -mainCanvasSpacing;
+      }
+      return mainCanvasSpacing;
+    case isModalLayout:
+      if (isEmptyLayout) {
+        return 0;
+      }
+      return modalSpacing * 0.5;
+    default:
+      return zoneSpacing;
   }
 };
 
@@ -74,15 +89,22 @@ export const calculateLayoutLeftCompensator = (
   isMainCanvas: boolean,
   isSection: boolean,
   isModalLayout: boolean,
+  isEmptyLayout: boolean,
   mainCanvasSpacing: number,
   zoneSpacing: number,
 ) => {
-  if (isMainCanvas || isModalLayout) {
-    return 0;
-  } else if (isSection) {
-    return mainCanvasSpacing;
-  } else {
-    return zoneSpacing;
+  switch (true) {
+    case isMainCanvas:
+      return 0;
+    case isModalLayout:
+      if (isEmptyLayout) {
+        return HIGHLIGHT_SIZE;
+      }
+      return 0;
+    case isSection:
+      return mainCanvasSpacing;
+    default:
+      return zoneSpacing;
   }
 };
 
@@ -91,17 +113,21 @@ export const calculateLayoutTopCompensator = (
   isMainCanvas: boolean,
   isSection: boolean,
   isModalLayout: boolean,
+  isEmptyLayout: boolean,
   zoneSpacing: number,
   modalSpacing: number,
 ) => {
-  if (isSection) {
-    return 0;
-  } else if (isMainCanvas) {
-    return 0;
-  } else if (isModalLayout) {
-    return modalSpacing;
-  } else {
-    return zoneSpacing;
+  switch (true) {
+    case isSection:
+    case isMainCanvas:
+      return 0;
+    case isModalLayout:
+      if (isEmptyLayout) {
+        return HIGHLIGHT_SIZE;
+      }
+      return modalSpacing;
+    default:
+      return zoneSpacing;
   }
 };
 
@@ -124,25 +150,18 @@ const calculateEdgeLeftOffset = (
 };
 
 export const getCompensatingOffsetValues = (
-  highlightPositions: {
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-  },
-  edgeDetails: {
-    top: boolean;
-    left: boolean;
-    right: boolean;
-    bottom: boolean;
-  },
+  highlight: AnvilHighlightInfo,
   highlightCompensatorValues: {
     top: number;
     left: number;
   },
-  isVertical: boolean,
 ) => {
-  const { height: highlightHeight, width: highlightWidth } = highlightPositions;
+  const {
+    edgeDetails,
+    height: highlightHeight,
+    isVertical,
+    width: highlightWidth,
+  } = highlight;
   const compensatorTop = highlightCompensatorValues.top;
   const compensatorLeft = highlightCompensatorValues.left;
   const {

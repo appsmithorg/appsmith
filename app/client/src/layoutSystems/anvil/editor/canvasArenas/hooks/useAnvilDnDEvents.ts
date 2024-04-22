@@ -132,22 +132,10 @@ export const useAnvilDnDEvents = (
                 posY:
                   currentRectanglesToDraw.posY + layoutCompensatorValues.top,
               };
-              const {
-                height,
-                posX: left,
-                posY: top,
-                width,
-              } = canvasGapAdjustedHighlight;
+              const { posX: left, posY: top } = canvasGapAdjustedHighlight;
               const compensatingOffsetValues = getCompensatingOffsetValues(
-                {
-                  left: currentRectanglesToDraw.posX,
-                  top: currentRectanglesToDraw.posY,
-                  width,
-                  height,
-                },
-                currentRectanglesToDraw.edgeDetails,
+                currentRectanglesToDraw,
                 edgeCompensatorValues,
-                currentRectanglesToDraw.isVertical,
               );
               const positionUpdatedHighlightInfo = {
                 ...canvasGapAdjustedHighlight,

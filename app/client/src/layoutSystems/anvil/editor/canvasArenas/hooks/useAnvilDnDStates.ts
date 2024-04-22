@@ -155,12 +155,21 @@ export const useAnvilDnDStates = ({
     : AnvilDropTargetTypesEnum.ZONE;
   const currentlyOpenModal = useSelector(getCurrentlyOpenAnvilModal);
   const isModalLayout = currentlyOpenModal === widgetId;
+  const isEmptyLayout =
+    (allWidgets[widgetId].children || []).filter(
+      (each) => !allWidgets[each].detachFromLayout,
+    ).length === 0;
   const {
     edgeCompensatorValues,
     layoutCompensatorValues,
     widgetCompensatorValues,
     zIndex,
-  } = useAnvilDnDCompensators(isMainCanvas, isSection, isModalLayout);
+  } = useAnvilDnDCompensators(
+    isMainCanvas,
+    isSection,
+    isModalLayout,
+    isEmptyLayout,
+  );
   return {
     activateOverlayWidgetDrop,
     allowToDrop,
