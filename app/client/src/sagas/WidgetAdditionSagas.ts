@@ -91,9 +91,10 @@ import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "./WidgetSelectUtils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
