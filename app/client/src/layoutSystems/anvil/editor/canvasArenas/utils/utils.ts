@@ -10,83 +10,6 @@ import { AnvilDraggedWidgetTypesEnum } from "../types";
 import { anvilWidgets } from "widgets/anvil/constants";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
-import type {
-  LayoutElementPosition,
-  LayoutElementPositions,
-} from "layoutSystems/common/types";
-import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import { SectionWidget } from "widgets/anvil/SectionWidget";
-import { ZoneWidget } from "widgets/anvil/ZoneWidget";
-
-export const computeCanvasToLayoutGap = (
-  layoutPositions: LayoutElementPosition,
-  slidingArena: HTMLDivElement,
-) => {
-  const { height, width } = slidingArena.getBoundingClientRect();
-  return {
-    top: (height - layoutPositions.height) * 0.5,
-    left: (width - layoutPositions.width) * 0.5,
-  };
-};
-
-const computeGapAddedByLayout = (layoutDom: HTMLElement) => {
-  const layoutStyle = window.getComputedStyle(layoutDom);
-  const paddingTop = parseInt(layoutStyle.paddingTop);
-  const paddingLeft = parseInt(layoutStyle.paddingLeft);
-  const borderTop = parseInt(layoutStyle.borderTopWidth);
-  const borderLeft = parseInt(layoutStyle.borderLeftWidth);
-  const marginTop = parseInt(layoutStyle.marginTop);
-  const marginLeft = parseInt(layoutStyle.marginLeft);
-  return {
-    top: paddingTop + borderTop + marginTop,
-    left: paddingLeft + borderLeft + marginLeft,
-  };
-};
-
-export const getHighlightCompensationValues = (
-  widgetId: string,
-  widgetType: string,
-  layoutId: string,
-  mainCanvasLayoutId: string,
-  currentLayoutPositions: LayoutElementPositions,
-): {
-  top: number;
-  left: number;
-} => {
-  const compensationValues = {
-    top: 0,
-    left: 0,
-  };
-  const isMainCanvas = widgetId === MAIN_CONTAINER_WIDGET_ID;
-  const isSection = widgetType === SectionWidget.type;
-  const isZone = widgetType === ZoneWidget.type;
-  switch (true) {
-    case isMainCanvas:
-    case isSection:
-      const mainCanvasDomId = getAnvilLayoutDOMId(
-        MAIN_CONTAINER_WIDGET_ID,
-        mainCanvasLayoutId,
-      );
-      const mainCanvasDom = document.getElementById(mainCanvasDomId);
-      if (!mainCanvasDom) return compensationValues;
-      const gapValues = computeGapAddedByLayout(mainCanvasDom);
-      compensationValues.top = isMainCanvas ? gapValues.top : 0;
-      compensationValues.left = isSection ? gapValues.left : 0;
-      break;
-    case isZone:
-      const zoneWidgetPositions = currentLayoutPositions[widgetId];
-      const zoneLayoutPositions = currentLayoutPositions[layoutId];
-      if (zoneLayoutPositions && zoneWidgetPositions) {
-        compensationValues.top =
-          zoneLayoutPositions.top - zoneWidgetPositions.top;
-        compensationValues.left =
-          zoneLayoutPositions.left - zoneWidgetPositions.left;
-      }
-      break;
-  }
-  return compensationValues;
-};
 
 export const getCompensatingOffsetValues = (
   highlightPositions: {
@@ -254,11 +177,6 @@ export const getClosestHighlight = (
 ) => {
   if (!highlights || !highlights.length) return;
 
-  // Current mouse coordinates.
-  // const pos: XYCord = {
-  //   x: e.offsetX,
-  //   y: e.offsetY,
-  // };
   /**
    * Filter highlights that  span the current mouse position.
    */

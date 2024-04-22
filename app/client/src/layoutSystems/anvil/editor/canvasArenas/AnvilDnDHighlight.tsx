@@ -3,11 +3,11 @@ import { PADDING_FOR_HORIZONTAL_HIGHLIGHT } from "layoutSystems/anvil/utils/cons
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
-const AnvilStyledHighlight = styled.div`
+const AnvilStyledHighlight = styled.div<{ zIndex: number }>`
   background-color: var(--anvil-drop-indicator);
   border-radius: 2px;
   position: absolute;
-  z-index: 10000;
+  z-index: ${(props) => props.zIndex};
   pointer-events: none;
 `;
 
@@ -17,12 +17,14 @@ export const AnvilDnDHighlight = ({
     top: 0,
   },
   highlightShown,
+  zIndex = 0,
 }: {
   compensatorValues?: {
     left: number;
     top: number;
   };
   highlightShown: AnvilHighlightInfo | null;
+  zIndex?: number;
 }) => {
   const highlightDimensionStyles = useMemo(() => {
     if (!highlightShown) {
@@ -49,6 +51,6 @@ export const AnvilDnDHighlight = ({
     };
   }, [highlightShown]);
   return highlightShown ? (
-    <AnvilStyledHighlight style={highlightDimensionStyles} />
+    <AnvilStyledHighlight style={highlightDimensionStyles} zIndex={zIndex} />
   ) : null;
 };

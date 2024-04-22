@@ -25,7 +25,6 @@ import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 export const useAnvilDnDEvents = (
   anvilDnDListenerRef: React.RefObject<HTMLDivElement>,
   props: AnvilHighlightingCanvasProps,
-  highlightCompensatorValues: { top: number; left: number },
   setHighlightShown: (highlight: AnvilHighlightInfo | null) => void,
 ) => {
   const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop } = props;

@@ -9,9 +9,6 @@ import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { AnvilDnDListener } from "./AnvilDnDListener";
 import { AnvilDnDHighlight } from "./AnvilDnDHighlight";
-import { useSelector } from "react-redux";
-import { getWidgetByID } from "sagas/selectors";
-import { getHighlightCompensationValues } from "./utils/utils";
 
 export interface AnvilHighlightingCanvasProps {
   anvilDragStates: AnvilDnDStates;
@@ -36,14 +33,6 @@ export function AnvilHighlightingCanvas({
     React.useState<AnvilHighlightInfo | null>(null);
 
   const { isCurrentDraggedCanvas } = anvilDragStates;
-  const widget = useSelector(getWidgetByID(widgetId));
-  const highlightCompensatorValues = getHighlightCompensationValues(
-    widgetId,
-    widget.type,
-    layoutId,
-    anvilDragStates.mainCanvasLayoutId,
-    anvilDragStates.layoutElementPositions,
-  );
   // showDraggingCanvas indicates if the current dragging canvas i.e. the html canvas renders
   const { showDnDListener } = useAnvilDnDEvents(
     anvilDnDListenerRef,
@@ -54,7 +43,6 @@ export function AnvilHighlightingCanvas({
       layoutId,
       onDrop,
     },
-    highlightCompensatorValues,
     setHighlightShown,
   );
   return showDnDListener ? (
@@ -63,6 +51,7 @@ export function AnvilHighlightingCanvas({
         <AnvilDnDHighlight
           compensatorValues={anvilDragStates.widgetCompensatorValues}
           highlightShown={highlightShown}
+          zIndex={anvilDragStates.zIndex + 1}
         />
       )}
       <AnvilDnDListener
