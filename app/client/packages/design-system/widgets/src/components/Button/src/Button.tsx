@@ -1,7 +1,7 @@
+import type { ForwardedRef } from "react";
 import React, { forwardRef } from "react";
 import { useVisuallyHidden } from "@react-aria/visually-hidden";
-import { Button as HeadlessButton } from "@design-system/headless";
-import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
+import { Button as HeadlessButton } from "react-aria-components";
 import type { SIZES } from "../../../shared";
 import clsx from "clsx";
 import { Text } from "../../Text";
@@ -10,8 +10,7 @@ import styles from "./styles.module.css";
 import type { ButtonProps } from "./types";
 import { Icon } from "../../Icon";
 
-const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
-  props = useVisuallyDisabled(props);
+const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
   const {
     children,
     color = "accent",
@@ -75,41 +74,13 @@ const _Button = (props: ButtonProps, ref: HeadlessButtonRef) => {
       data-loading={isLoading ? "" : undefined}
       data-size={Boolean(size) ? size : undefined}
       data-variant={variant}
-      draggable
       isDisabled={isDisabled}
       ref={ref}
       {...rest}
     >
       {renderChildren()}
-      <span aria-hidden="true" className={styles.dragContainer} />
     </HeadlessButton>
   );
 };
 
 export const Button = forwardRef(_Button);
-
-/**
- * This hook is used to disable all click/press events on a button
- * when the button is visually disabled
- */
-const useVisuallyDisabled = (props: ButtonProps) => {
-  const { isLoading = false, visuallyDisabled = false } = props;
-  let computedProps = props;
-
-  if (visuallyDisabled || isLoading) {
-    computedProps = {
-      ...props,
-      isDisabled: false,
-      // disabling click/press events
-      onPress: undefined,
-      onPressStart: undefined,
-      onPressEnd: undefined,
-      onPressChange: undefined,
-      onPressUp: undefined,
-      onKeyDown: undefined,
-      onKeyUp: undefined,
-    };
-  }
-
-  return computedProps;
-};

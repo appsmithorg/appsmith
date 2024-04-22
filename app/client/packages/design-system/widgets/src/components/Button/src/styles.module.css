@@ -21,7 +21,7 @@
         background-color: var(--color-bg-$(color)-hover);
       }
 
-      &[data-active]:not([aria-disabled]) {
+      &[data-pressed]:not([aria-disabled]) {
         background-color: var(--color-bg-$(color)-active);
       }
     }
@@ -37,7 +37,7 @@
         background-color: var(--color-bg-$(color)-subtle-hover);
       }
 
-      &[data-active]:not([aria-disabled]) {
+      &[data-pressed]:not([aria-disabled]) {
         background-color: var(--color-bg-$(color)-subtle-active);
       }
     }
@@ -50,7 +50,7 @@
         background: var(--color-bg-$(color)-subtle-hover);
       }
 
-      &[data-active]:not([aria-disabled]) {
+      &[data-pressed]:not([aria-disabled]) {
         background: var(--color-bg-$(color)-subtle-active);
       }
     }
@@ -83,10 +83,10 @@
 
   /**
   * ----------------------------------------------------------------------------
-  * FOCUSSED
+  * FOCUS VISIBLE
   *-----------------------------------------------------------------------------
   */
-  &[data-focused] {
+  &[data-focus-visible] {
     box-shadow:
       0 0 0 2px var(--color-bg),
       0 0 0 4px var(--color-bd-focus);
@@ -196,22 +196,5 @@
   &[data-icon-position="start"][data-size="medium"]
     [data-content]:has([data-icon]):has([data-text]) {
     padding-inline-start: calc(var(--icon-size-2) + var(--inner-spacing-1));
-  }
-}
-
-/**
- * We have this Bug in Firefox where we are unable to drag
- * buttons - https://bugzilla.mozilla.org/show_bug.cgi?id=568313
- *
- * We found a solution here - https://stackoverflow.com/a/43888410
- */
-.dragContainer {
-  &:after {
-    content: "";
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    position: absolute;
   }
 }
