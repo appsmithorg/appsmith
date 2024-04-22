@@ -84,7 +84,7 @@ public class NewPageImportableServiceCEImpl implements ImportableServiceCE<NewPa
         // For git-sync this will not be empty
         Mono<List<NewPage>> existingPagesMono = importableArtifactMono
                 .flatMap(application -> newPageService
-                        .findNewPagesByApplicationId(application.getId(), Optional.empty())
+                        .findNewPagesByApplicationId(application.getId(), null)
                         .collectList())
                 .cache();
 

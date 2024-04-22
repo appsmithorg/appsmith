@@ -2,7 +2,7 @@ import React from "react";
 import type { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { generateReactKey } from "utils/generators";
 import { Text } from "design-system";
 

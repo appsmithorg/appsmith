@@ -58,7 +58,6 @@ import io.micrometer.observation.ObservationRegistry;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.LinkedCaseInsensitiveMap;
@@ -79,6 +78,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -467,7 +467,7 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
 
     protected void setGitSyncIdInNewAction(NewAction newAction) {
         if (newAction.getGitSyncId() == null) {
-            newAction.setGitSyncId(newAction.getApplicationId() + "_" + new ObjectId());
+            newAction.setGitSyncId(newAction.getApplicationId() + "_" + UUID.randomUUID());
         }
     }
 

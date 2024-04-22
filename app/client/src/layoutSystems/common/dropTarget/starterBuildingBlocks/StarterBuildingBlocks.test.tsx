@@ -19,7 +19,7 @@ jest.mock("actions/templateActions", () => ({
   importStarterBuildingBlockIntoApplication: jest.fn(),
   showTemplatesModal: jest.fn(),
 }));
-jest.mock("utils/AnalyticsUtil", () => ({
+jest.mock("@appsmith/utils/AnalyticsUtil", () => ({
   logEvent: jest.fn(),
 }));
 
