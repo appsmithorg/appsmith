@@ -1326,4 +1326,14 @@ public class GraphQLPluginTest {
                         .toList()
                         .size());
     }
+
+    @Test
+    public void validateSubstituteValueInInput() {
+        Object input = "{\n" + "  country(code: #_appsmith_placeholder#) {\n" + "    name\n" + "\t}\n" + "}";
+        Param param = new Param("Text1.text", "US", ClientDataType.STRING, null, "k0");
+        Object actualValue = pluginExecutor.substituteValueInInput(
+                1, "Text1.text", "US", input, new ArrayList<Map.Entry<String, String>>(), true, param);
+        Object expectedValue = "{\n" + "  country(code: \"US\") {\n" + "    name\n" + "\t}\n" + "}";
+        assertEquals(expectedValue, actualValue);
+    }
 }
