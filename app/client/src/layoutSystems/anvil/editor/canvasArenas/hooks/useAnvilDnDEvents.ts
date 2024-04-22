@@ -9,7 +9,7 @@ import {
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
 import { setHighlightsDrawnAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
-import { renderDisallowOnCanvas } from "../utils/canvasRenderUtils";
+import { renderDisallowOnCanvas } from "../utils/utils";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 
 /**
