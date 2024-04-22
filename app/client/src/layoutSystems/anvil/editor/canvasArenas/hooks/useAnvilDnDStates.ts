@@ -16,6 +16,8 @@ import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
 import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
 import { getDraggedBlocks, getDraggedWidgetTypes } from "../utils/utils";
+import { getCurrentlyOpenAnvilModal } from "layoutSystems/anvil/integrations/modalSelectors";
+import { getAnvilCanvasId } from "layoutSystems/anvil/viewer/canvas/utils";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -36,7 +38,53 @@ export interface AnvilDnDStates {
   dragMeta: AnvilDragMeta;
   mainCanvasLayoutId: string;
   isSection: boolean;
+  widgetCompensatorValues: {
+    left: number;
+    top: number;
+  };
+  edgeCompensatorValues: {
+    left: number;
+    top: number;
+  };
+  layoutCompensatorValues: {
+    left: number;
+    top: number;
+  };
+  zIndex: number;
 }
+
+const WidgetSpacing = {
+  MAIN_CANVAS: "--outer-spacing-4",
+  ZONE: "--outer-spacing-3",
+};
+
+const extractSpacingStyleValues = (mainCanvasDom: HTMLElement) => {
+  const computedStyles = getComputedStyle(mainCanvasDom);
+
+  return {
+    mainCanvasSpacing: parseInt(
+      computedStyles.getPropertyValue(WidgetSpacing.MAIN_CANVAS),
+      10,
+    ),
+    zoneSpacing: parseInt(
+      computedStyles.getPropertyValue(WidgetSpacing.ZONE),
+      10,
+    ),
+  };
+};
+
+const getWidgetSpacingCSSVariableValues = () => {
+  const mainCanvasDom = document.getElementById(
+    getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID),
+  );
+  if (!mainCanvasDom) {
+    return {
+      mainCanvasSpacing: 0,
+      zoneSpacing: 0,
+    };
+  }
+  return extractSpacingStyleValues(mainCanvasDom);
+};
 
 /**
  * function to validate if the widget(s) being dragged is supported by the canvas.
@@ -68,6 +116,7 @@ export const useAnvilDnDStates = ({
   allowedWidgetTypes,
   layoutId,
   layoutType,
+  widgetId,
 }: AnvilDnDStatesProps): AnvilDnDStates => {
   const mainCanvasLayoutId: string = useSelector((state) =>
     getDropTargetLayoutId(state, MAIN_CONTAINER_WIDGET_ID),
@@ -137,7 +186,44 @@ export const useAnvilDnDStates = ({
     : isSection
     ? AnvilDropTargetTypesEnum.SECTION
     : AnvilDropTargetTypesEnum.ZONE;
+  const currentlyOpenModal = useSelector(getCurrentlyOpenAnvilModal);
+  const isModalLayout = currentlyOpenModal === widgetId;
 
+  const { mainCanvasSpacing, zoneSpacing } =
+    getWidgetSpacingCSSVariableValues();
+  const modalSpacing = mainCanvasSpacing;
+  const widgetCompensatorValues = {
+    left: isSection ? mainCanvasSpacing : 0,
+    top: isModalLayout ? modalSpacing : 0,
+  };
+
+  const edgeCompensatorValues = {
+    left: isMainCanvas ? 0 : isSection ? mainCanvasSpacing : zoneSpacing,
+    top: isSection
+      ? 0
+      : isMainCanvas
+      ? mainCanvasSpacing
+      : isModalLayout
+      ? modalSpacing * 0.5
+      : zoneSpacing,
+  };
+
+  const layoutCompensatorValues = {
+    left:
+      isMainCanvas || isModalLayout
+        ? 0
+        : isSection
+        ? mainCanvasSpacing
+        : zoneSpacing,
+    top: isSection
+      ? 0
+      : isMainCanvas
+      ? 0
+      : isModalLayout
+      ? modalSpacing
+      : zoneSpacing,
+  };
+  const zIndex = isSection || isModalLayout ? 0 : 1;
   return {
     activateOverlayWidgetDrop,
     allowToDrop,
@@ -153,5 +239,9 @@ export const useAnvilDnDStates = ({
     isSection,
     mainCanvasLayoutId,
     layoutElementPositions,
+    widgetCompensatorValues,
+    edgeCompensatorValues,
+    layoutCompensatorValues,
+    zIndex,
   };
 };

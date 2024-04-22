@@ -12,11 +12,17 @@ const AnvilStyledHighlight = styled.div`
 `;
 
 export const AnvilDnDHighlight = ({
+  compensatorValues = {
+    left: 0,
+    top: 0,
+  },
   highlightShown,
-  padding = 0,
 }: {
+  compensatorValues?: {
+    left: number;
+    top: number;
+  };
   highlightShown: AnvilHighlightInfo | null;
-  padding?: number;
 }) => {
   const highlightDimensionStyles = useMemo(() => {
     if (!highlightShown) {
@@ -37,8 +43,8 @@ export const AnvilDnDHighlight = ({
     // use highlight info to calculate the dimension styles
     return {
       height: highlightShown.height - verticalPadding * 2,
-      left: highlightShown.posX + horizontalPadding - padding,
-      top: highlightShown.posY + verticalPadding,
+      left: highlightShown.posX + horizontalPadding - compensatorValues.left,
+      top: highlightShown.posY + verticalPadding - compensatorValues.top,
       width: highlightShown.width - horizontalPadding * 2,
     };
   }, [highlightShown]);

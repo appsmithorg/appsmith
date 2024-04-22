@@ -61,18 +61,14 @@ export function AnvilHighlightingCanvas({
     <>
       {isCurrentDraggedCanvas && (
         <AnvilDnDHighlight
+          compensatorValues={anvilDragStates.widgetCompensatorValues}
           highlightShown={highlightShown}
-          padding={
-            anvilDragStates.isSection ? highlightCompensatorValues.left : 0
-          }
         />
       )}
       <AnvilDnDListener
-        paddingLeft={
-          anvilDragStates.isSection ? highlightCompensatorValues.left : 0
-        }
+        compensatorValues={anvilDragStates.widgetCompensatorValues}
         ref={anvilDnDListenerRef}
-        zIndex={anvilDragStates.isSection ? 0 : 1}
+        zIndex={anvilDragStates.zIndex}
       />
     </>
   ) : null;

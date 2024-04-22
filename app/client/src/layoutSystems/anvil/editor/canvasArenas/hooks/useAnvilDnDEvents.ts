@@ -3,7 +3,6 @@ import { useEffect, useRef } from "react";
 import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/editor/canvasArenas/AnvilHighlightingCanvas";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import {
-  computeCanvasToLayoutGap,
   getClosestHighlight,
   getCompensatingOffsetValues,
 } from "../utils/utils";
@@ -34,13 +33,14 @@ export const useAnvilDnDEvents = (
     activateOverlayWidgetDrop,
     allowToDrop,
     draggedBlocks,
+    edgeCompensatorValues,
     isCurrentDraggedCanvas,
     isDragging,
+    layoutCompensatorValues,
     layoutElementPositions,
     mainCanvasLayoutId,
   } = anvilDragStates;
   const dispatch = useDispatch();
-  const canvasToLayoutGap = useRef({ left: 0, top: 0 });
   const { setDraggingCanvas } = useWidgetDragResize();
 
   /**
@@ -117,12 +117,6 @@ export const useAnvilDnDEvents = (
             // Calculate highlights when the mouse enters the canvas
             calculateHighlights();
             canvasIsDragging.current = true;
-            if (currentLayoutPositions) {
-              canvasToLayoutGap.current = computeCanvasToLayoutGap(
-                currentLayoutPositions,
-                anvilDnDListenerRef.current,
-              );
-            }
             requestAnimationFrame(() => onMouseMove(e));
           }
         };
@@ -137,9 +131,9 @@ export const useAnvilDnDEvents = (
               const canvasGapAdjustedHighlight = {
                 ...currentRectanglesToDraw,
                 posX:
-                  currentRectanglesToDraw.posX + canvasToLayoutGap.current.left,
+                  currentRectanglesToDraw.posX + layoutCompensatorValues.left,
                 posY:
-                  currentRectanglesToDraw.posY + canvasToLayoutGap.current.top,
+                  currentRectanglesToDraw.posY + layoutCompensatorValues.top,
               };
               const {
                 height,
@@ -155,7 +149,7 @@ export const useAnvilDnDEvents = (
                   height,
                 },
                 currentRectanglesToDraw.edgeDetails,
-                highlightCompensatorValues,
+                edgeCompensatorValues,
                 currentRectanglesToDraw.isVertical,
               );
               const positionUpdatedHighlightInfo = {
@@ -188,8 +182,8 @@ export const useAnvilDnDEvents = (
             // Get the closest highlight based on the mouse position
             const processedHighlight = getClosestHighlight(
               {
-                x: e.offsetX - canvasToLayoutGap.current.left,
-                y: e.offsetY - canvasToLayoutGap.current.top,
+                x: e.offsetX - layoutCompensatorValues.left,
+                y: e.offsetY - layoutCompensatorValues.top,
               },
               allHighlightsRef.current,
             );
@@ -266,6 +260,8 @@ export const useAnvilDnDEvents = (
     layoutElementPositions,
     mainCanvasLayoutId,
     currentLayoutPositions,
+    layoutCompensatorValues,
+    edgeCompensatorValues,
   ]);
 
   return {
