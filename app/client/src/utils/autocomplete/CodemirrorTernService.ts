@@ -18,7 +18,7 @@ import {
   getCodeMirrorNamespaceFromDoc,
   getCodeMirrorNamespaceFromEditor,
 } from "../getCodeMirrorNamespace";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { findIndex, isString } from "lodash";
 import { renderTernTooltipContent } from "./ternDocTooltip";
 

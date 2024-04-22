@@ -19,7 +19,6 @@ import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.NewActionRepository;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
-import org.bson.types.ObjectId;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 
@@ -27,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 
 @RequiredArgsConstructor
 @Service
@@ -144,7 +144,7 @@ public class NewActionApplicationImportableServiceCEImpl
 
         // generate gitSyncId if it's not present
         if (newAction.getGitSyncId() == null) {
-            newAction.setGitSyncId(newAction.getApplicationId() + "_" + new ObjectId());
+            newAction.setGitSyncId(newAction.getApplicationId() + "_" + UUID.randomUUID());
         }
     }
 }

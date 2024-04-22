@@ -6,7 +6,6 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
@@ -28,6 +27,7 @@ import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
 import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.imports.internal.partial.PartialImportService;
+import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
 import com.appsmith.server.solutions.ApplicationFetcher;
@@ -232,7 +232,7 @@ public class ApplicationControllerCE {
 
     @JsonView(Views.Public.class)
     @GetMapping("/snapshot/{id}")
-    public Mono<ResponseDTO<ApplicationSnapshot>> getSnapshotWithoutApplicationJson(
+    public Mono<ResponseDTO<ApplicationSnapshotResponseDTO>> getSnapshotWithoutApplicationJson(
             @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get snapshot with application id: {}, branch: {}", id, branchName);
 

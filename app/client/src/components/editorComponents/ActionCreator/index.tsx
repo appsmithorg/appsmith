@@ -12,7 +12,7 @@ import { useSelector } from "react-redux";
 import { selectEvaluationVersion } from "@appsmith/selectors/applicationSelectors";
 import { generateReactKey } from "../../../utils/generators";
 import { useApisQueriesAndJsActionOptions } from "./helpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getActionTypeLabel } from "./viewComponents/ActionBlockTree/utils";
 import { AppsmithFunction } from "./constants";
 

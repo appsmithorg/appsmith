@@ -9,7 +9,7 @@ import {
   GENERATE_NEW_PAGE_BUTTON_TEXT,
   createMessage,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import history from "utils/history";
 import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import {

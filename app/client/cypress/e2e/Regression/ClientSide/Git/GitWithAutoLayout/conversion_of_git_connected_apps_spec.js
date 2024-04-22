@@ -10,6 +10,7 @@ import EditorNavigation, {
   EntityType,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 
 let parentBranchKey = "ParentBranch",
   childBranchKey = "ChildBranch";
@@ -58,6 +59,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
 
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page2",
+      entityType: EntityItems.Page,
     });
   });
 

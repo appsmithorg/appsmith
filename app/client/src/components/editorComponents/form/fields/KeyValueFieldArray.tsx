@@ -223,11 +223,11 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         props.placeholder
                           ? `${props.placeholder} ${index + 1}`
                           : props.actionConfig[index].mandatory &&
-                            props.actionConfig[index].type
-                          ? `${props.actionConfig[index].type}`
-                          : props.actionConfig[index].type
-                          ? `${props.actionConfig[index].type} (optional)`
-                          : `(optional)`
+                              props.actionConfig[index].type
+                            ? `${props.actionConfig[index].type}`
+                            : props.actionConfig[index].type
+                              ? `${props.actionConfig[index].type} (optional)`
+                              : `(optional)`
                       }
                       showLightningMenu={
                         props.actionConfig[index].editable ||

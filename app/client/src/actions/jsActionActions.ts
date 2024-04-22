@@ -168,6 +168,13 @@ export const closeJSActionTab = (payload: { id: string }) => {
   };
 };
 
+export const closeJsActionTabSuccess = (payload: { id: string }) => {
+  return {
+    type: ReduxActionTypes.CLOSE_JS_ACTION_TAB_SUCCESS,
+    payload,
+  };
+};
+
 export default {
   fetchJSCollections,
   deleteJSCollection,

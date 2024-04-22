@@ -6,7 +6,7 @@ import type {
 import type { CommandsCompletion } from "utils/autocomplete/CodemirrorTernService";
 import { generateQuickCommands } from "./generateQuickCommands";
 import type { Datasource } from "entities/Datasource";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import log from "loglevel";
 import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import {

@@ -5,7 +5,11 @@ import { AUTH_LOGIN_URL } from "constants/routes";
 import { SIGNUP_FORM_NAME } from "@appsmith/constants/forms";
 import type { RouteComponentProps } from "react-router-dom";
 import { useHistory, useLocation, withRouter } from "react-router-dom";
-import { SpacedSubmitForm, FormActions } from "pages/UserAuth/StyledComponents";
+import {
+  SpacedSubmitForm,
+  FormActions,
+  OrWithLines,
+} from "pages/UserAuth/StyledComponents";
 import {
   SIGNUP_PAGE_TITLE,
   SIGNUP_PAGE_EMAIL_INPUT_LABEL,
@@ -19,8 +23,9 @@ import {
   SIGNUP_PAGE_SUBMIT_BUTTON_TEXT,
   ALREADY_HAVE_AN_ACCOUNT,
   createMessage,
-  SIGNUP_PAGE_SUBTITLE,
   GOOGLE_RECAPTCHA_KEY_ERROR,
+  LOOKING_TO_SELF_HOST,
+  VISIT_OUR_DOCS,
 } from "@appsmith/constants/messages";
 import FormTextField from "components/utils/ReduxFormTextField";
 import ThirdPartyAuth from "pages/UserAuth/ThirdPartyAuth";
@@ -29,7 +34,7 @@ import { Button, Link, Callout } from "design-system";
 import { isEmail, isStrongPassword, isEmptyString } from "utils/formhelpers";
 
 import type { SignupFormValues } from "pages/UserAuth/helpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 import { SIGNUP_SUBMIT_PATH } from "@appsmith/constants/ApiConstants";
 import { connect, useSelector } from "react-redux";
@@ -54,13 +59,14 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHTMLPageTitle } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
 import log from "loglevel";
+import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
 
 declare global {
   interface Window {
     grecaptcha: any;
   }
 }
-const { googleRecaptchaSiteKey } = getAppsmithConfigs();
+const { cloudHosting, googleRecaptchaSiteKey } = getAppsmithConfigs();
 
 const validate = (values: SignupFormValues) => {
   const errors: SignupFormValues = {};
@@ -171,25 +177,40 @@ export function SignUp(props: SignUpFormProps) {
   };
 
   const footerSection = (
-    <div className="px-2 py-4 flex align-center justify-center text-base text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
-      {createMessage(ALREADY_HAVE_AN_ACCOUNT)}
-      <Link
-        className="t--sign-up t--signup-link pl-[var(--ads-v2\-spaces-3)]"
-        kind="primary"
-        target="_self"
-        to={AUTH_LOGIN_URL}
-      >
-        {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
-      </Link>
-    </div>
+    <>
+      <div className="px-2 flex align-center justify-center text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+        {createMessage(ALREADY_HAVE_AN_ACCOUNT)}&nbsp;
+        <Link
+          className="t--sign-up t--signup-link"
+          kind="primary"
+          target="_self"
+          to={AUTH_LOGIN_URL}
+        >
+          {createMessage(SIGNUP_PAGE_LOGIN_LINK_TEXT)}
+        </Link>
+      </div>
+      {cloudHosting && (
+        <>
+          <OrWithLines>or</OrWithLines>
+          <div className="px-2 text-center text-[color:var(--ads-v2\-color-fg)] text-[14px]">
+            {createMessage(LOOKING_TO_SELF_HOST)}
+            <Link
+              className="t--visit-docs t--visit-docs-link pl-[var(--ads-v2\-spaces-3)] justify-center"
+              kind="primary"
+              onClick={() => AnalyticsUtil.logEvent("VISIT_SELF_HOST_DOCS")}
+              target="_self"
+              to={`${SELF_HOSTING_DOC}?utm_source=cloudSignup`}
+            >
+              {createMessage(VISIT_OUR_DOCS)}
+            </Link>
+          </div>
+        </>
+      )}
+    </>
   );
 
   return (
-    <Container
-      footer={footerSection}
-      subtitle={createMessage(SIGNUP_PAGE_SUBTITLE)}
-      title={createMessage(SIGNUP_PAGE_TITLE)}
-    >
+    <Container footer={footerSection} title={createMessage(SIGNUP_PAGE_TITLE)}>
       <Helmet>
         <title>{htmlPageTitle}</title>
       </Helmet>

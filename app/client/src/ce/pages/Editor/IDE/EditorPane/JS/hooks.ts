@@ -16,7 +16,6 @@ import JSEditor from "pages/Editor/JSEditor";
 import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
 import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
 import ListJS from "pages/Editor/IDE/EditorPane/JS/List";
-import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/JS/BlankStateContainer";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -105,7 +104,7 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
       },
       {
         key: "JSEmpty",
-        component: BlankStateContainer,
+        component: ListJS,
         exact: true,
         path: [path],
       },
