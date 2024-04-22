@@ -616,27 +616,29 @@ function* getBuildingBlocksDropMousePosition(
   return mousePosition;
 }
 
+function* runSingleAction(actionId: string) {
+  yield put(runAction(actionId));
+  yield take(ReduxActionTypes.RUN_ACTION_SUCCESS);
+}
+
 function* runNewlyCreatedActions(
   actionsBeforeAddingBuildingBlock: ActionDataState,
   actionsAfterAddingBuildingBlocks: ActionDataState,
 ) {
-  // Extract unique ids from the actionsBeforeAddingBuildingBlocks array
   const actionIdsBeforeAddingBB = actionsBeforeAddingBuildingBlock.map(
     (obj) => obj.config.id,
   );
 
-  // Filter the after array to find new actions not present in actionsBeforeAddingBuildingBlocks array
   const newlyAddedActions = actionsAfterAddingBuildingBlocks.filter(
     (obj) => !actionIdsBeforeAddingBB.includes(obj.config.id),
   );
 
-  // run all newly created actions
-  if (newlyAddedActions && newlyAddedActions.length > 0) {
-    yield all(
-      newlyAddedActions.map(function* (action) {
-        yield put(runAction(action.config.id));
-      }),
-    );
+  // Run each action sequentially. We have a max of 2-3 actions per building block.
+  // If we run this in parallel, we will have a racing condition when multiple building blocks are drag and dropped quickly.
+  for (const action of newlyAddedActions) {
+    if (action.config.executeOnLoad) {
+      yield runSingleAction(action.config.id);
+    }
   }
 }
 
