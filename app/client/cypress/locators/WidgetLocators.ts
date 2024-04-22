@@ -165,6 +165,7 @@ export const datePickerlocators = {
   year: (yearToSelect: string) => `//*[@data-value='${yearToSelect}']`,
   date: (dateToSelect: string) =>
     `//*[contains(@class,'datepicker__day--${dateToSelect}')]`,
+  selectWidgetMenu: ".select-popover-wrapper .menu-virtual-list"
 };
 
 export const buttongroupwidgetlocators = {

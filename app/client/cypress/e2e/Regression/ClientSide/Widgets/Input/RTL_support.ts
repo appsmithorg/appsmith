@@ -4,6 +4,7 @@ import {
   draggableWidgets,
   entityExplorer,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
@@ -16,7 +17,7 @@ describe("Select Widget", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
       license_widget_rtl_support_enabled: false,
     });
 
-    agHelper.AssertElementAbsence(".t--property-control-enablertl");
+    agHelper.AssertElementAbsence(`${locators._propertyControl}enablertl`);
 
     featureFlagIntercept({
       license_widget_rtl_support_enabled: true,
@@ -24,28 +25,42 @@ describe("Select Widget", { tags: ["@tag.Widget", "@tag.Input"] }, () => {
 
     agHelper.RefreshPage();
 
-    agHelper.Sleep(2000);
-
-    agHelper.AssertElementExist(".t--property-control-enablertl");
+    agHelper.AssertElementExist(`${locators._propertyControl}enablertl`);
 
     propPane.TogglePropertyState("Enable RTL", "On");
 
-    agHelper.AssertElementExist(
-      ".t--widget-inputwidgetv2 .bp3-input-group.rtl",
+    agHelper.AssertCSS(
+      `${locators._widgetInDeployed(
+        draggableWidgets.INPUT_V2,
+      )} .label-container`,
+      "direction",
+      "rtl",
     );
 
-    agHelper.AssertElementExist(
-      ".t--widget-inputwidgetv2 .label-container[dir='rtl']",
+    agHelper.AssertProperty(
+      `${locators._widgetInDeployed(
+        draggableWidgets.INPUT_V2,
+      )} .label-container`,
+      "dir",
+      "rtl",
     );
 
     propPane.TogglePropertyState("Enable RTL", "Off");
 
-    agHelper.AssertElementAbsence(
-      ".t--widget-inputwidgetv2 .bp3-input-group.rtl",
+    agHelper.AssertCSS(
+      `${locators._widgetInDeployed(
+        draggableWidgets.INPUT_V2,
+      )} .label-container`,
+      "direction",
+      "ltr",
     );
 
-    agHelper.AssertElementAbsence(
-      ".t--widget-inputwidgetv2 .label-container[dir='rtl']",
+    agHelper.AssertProperty(
+      `${locators._widgetInDeployed(
+        draggableWidgets.INPUT_V2,
+      )} .label-container`,
+      "dir",
+      "ltr",
     );
   });
 });

@@ -4,6 +4,8 @@ import {
   draggableWidgets,
   entityExplorer,
   propPane,
+  locators,
+  widgetLocators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
@@ -15,51 +17,55 @@ describe("Select Widget", { tags: ["@tag.Widget", "@tag.Select"] }, () => {
     featureFlagIntercept({
       license_widget_rtl_support_enabled: false,
     });
-    agHelper.AssertElementAbsence(".t--property-control-enablertl");
+    agHelper.AssertElementAbsence(`${locators._propertyControl}enablertl`);
     featureFlagIntercept({
       license_widget_rtl_support_enabled: true,
     });
 
-    agHelper.Sleep(2000);
-
-    agHelper.AssertElementExist(".t--property-control-enablertl");
+    agHelper.AssertElementExist(`${locators._propertyControl}enablertl`);
 
     propPane.TogglePropertyState("Enable RTL", "On");
 
-    agHelper.GetElement(".t--widget-selectwidget .select-button").click();
+    agHelper.GetNClick(
+      `${locators._widgetInDeployed(draggableWidgets.SELECT)}`,
+    );
 
-    agHelper
-      .GetElement(".t--widget-selectwidget .label-container")
-      .should("have.css", "direction", "rtl");
+    agHelper.AssertCSS(
+      `${locators._widgetInDeployed(draggableWidgets.SELECT)} .label-container`,
+      "direction",
+      "rtl",
+    );
 
-    agHelper
-      .GetElement(".t--widget-selectwidget .select-button")
-      .should("have.css", "direction", "rtl");
+    agHelper.AssertCSS(
+      `${locators._widgetInDeployed(draggableWidgets.SELECT)} ${
+        widgetLocators.selectWidgetBtn
+      }`,
+      "direction",
+      "rtl",
+    );
 
-    agHelper
-      .GetElement(".select-popover-wrapper input.bp3-input")
-      .should("have.css", "direction", "rtl");
+    agHelper.AssertCSS(widgetLocators.selectWidgetFilter, "direction", "rtl");
 
-    agHelper
-      .GetElement(".select-popover-wrapper .menu-virtual-list")
-      .should("have.css", "direction", "rtl");
+    agHelper.AssertCSS(widgetLocators.selectWidgetMenu, "direction", "rtl");
 
     propPane.TogglePropertyState("Enable RTL", "Off");
 
-    agHelper
-      .GetElement(".t--widget-selectwidget .label-container")
-      .should("have.css", "direction", "ltr");
+    agHelper.AssertCSS(
+      `${locators._widgetInDeployed(draggableWidgets.SELECT)} .label-container`,
+      "direction",
+      "ltr",
+    );
 
-    agHelper
-      .GetElement(".t--widget-selectwidget .select-button")
-      .should("have.css", "direction", "ltr");
+    agHelper.AssertCSS(
+      `${locators._widgetInDeployed(draggableWidgets.SELECT)} ${
+        widgetLocators.selectWidgetBtn
+      }`,
+      "direction",
+      "ltr",
+    );
 
-    agHelper
-      .GetElement(".select-popover-wrapper input.bp3-input")
-      .should("have.css", "direction", "ltr");
+    agHelper.AssertCSS(widgetLocators.selectWidgetFilter, "direction", "ltr");
 
-    agHelper
-      .GetElement(".select-popover-wrapper .menu-virtual-list")
-      .should("have.css", "direction", "ltr");
+    agHelper.AssertCSS(widgetLocators.selectWidgetMenu, "direction", "ltr");
   });
 });

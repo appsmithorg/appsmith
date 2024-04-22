@@ -4,6 +4,7 @@ import {
   draggableWidgets,
   entityExplorer,
   propPane,
+  locators,
 } from "../../../../../support/Objects/ObjectsCore";
 
 describe("Select Widget", { tags: ["@tag.Widget", "@tag.Multiselect"] }, () => {
@@ -16,7 +17,7 @@ describe("Select Widget", { tags: ["@tag.Widget", "@tag.Multiselect"] }, () => {
       license_widget_rtl_support_enabled: false,
     });
 
-    agHelper.AssertElementAbsence(".t--property-control-enablertl");
+    agHelper.AssertElementAbsence(`${locators._propertyControl}enablertl`);
 
     featureFlagIntercept({
       license_widget_rtl_support_enabled: true,
@@ -24,52 +25,62 @@ describe("Select Widget", { tags: ["@tag.Widget", "@tag.Multiselect"] }, () => {
 
     agHelper.RefreshPage();
 
-    agHelper.Sleep(2000);
-
-    agHelper.AssertElementExist(".t--property-control-enablertl");
+    agHelper.AssertElementExist(`${locators._propertyControl}enablertl`);
 
     propPane.TogglePropertyState("Enable RTL", "On");
 
-    agHelper
-      .GetElement(".t--widget-multiselectwidgetv2 .rc-select-selector")
-      .click();
+    agHelper.GetNClick(
+      locators._widgetInDeployed(draggableWidgets.MULTISELECT),
+    );
 
-    agHelper
-      .GetElement(
-        ".t--widget-multiselectwidgetv2 [data-testid='multiselect-container']",
-      )
-      .should("have.css", "direction", "rtl");
+    agHelper.AssertCSS(
+      `${locators._widgetInDeployed(draggableWidgets.MULTISELECT)} ${
+        locators._multiSelectContainer
+      }`,
+      "direction",
+      "rtl",
+    );
 
-    agHelper
-      .GetElement(".t--widget-multiselectwidgetv2 .rc-select-selector")
-      .should("have.css", "direction", "rtl");
+    agHelper.AssertCSS(
+      `${locators._widgetInDeployed(
+        draggableWidgets.MULTISELECT,
+      )} .rc-select-selector`,
+      "direction",
+      "rtl",
+    );
 
-    agHelper
-      .GetElement(".multi-select-dropdown input.bp3-input")
-      .should("have.css", "direction", "rtl");
+    agHelper.AssertCSS(
+      `${locators._multiSelectDropdown} ${locators._input}`,
+      "direction",
+      "rtl",
+    );
 
-    agHelper
-      .GetElement(".rc-select-dropdown [dir='rtl']", "exist")
-      .should("exist");
+    agHelper.AssertElementExist(".rc-select-dropdown [dir='rtl']");
 
     propPane.TogglePropertyState("Enable RTL", "Off");
 
-    agHelper
-      .GetElement(
-        ".t--widget-multiselectwidgetv2 [data-testid='multiselect-container']",
-      )
-      .should("have.css", "direction", "ltr");
+    agHelper.AssertCSS(
+      `${locators._widgetInDeployed(draggableWidgets.MULTISELECT)} ${
+        locators._multiSelectContainer
+      }`,
+      "direction",
+      "ltr",
+    );
 
-    agHelper
-      .GetElement(".t--widget-multiselectwidgetv2 .rc-select-selector")
-      .should("have.css", "direction", "ltr");
+    agHelper.AssertCSS(
+      `${locators._widgetInDeployed(
+        draggableWidgets.MULTISELECT,
+      )} .rc-select-selector`,
+      "direction",
+      "ltr",
+    );
 
-    agHelper
-      .GetElement(".multi-select-dropdown input.bp3-input")
-      .should("have.css", "direction", "ltr");
+    agHelper.AssertCSS(
+      `${locators._multiSelectDropdown} ${locators._input}`,
+      "direction",
+      "ltr",
+    );
 
-    agHelper
-      .GetElement(".rc-select-dropdown [dir='rtl']", "not.exist")
-      .should("not.exist");
+    agHelper.AssertElementExist(".rc-select-dropdown [dir='ltr']");
   });
 });
