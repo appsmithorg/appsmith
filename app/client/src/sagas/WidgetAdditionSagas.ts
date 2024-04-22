@@ -667,6 +667,9 @@ export function* addBuildingBlockToApplication(
       type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_INIT,
     });
 
+    // makes sure updateAndSaveLayout completes first for skeletonWidget addition
+    yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
+
     const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
       yield call(addBuildingBlockActionsToApp, dragDetails);
     const isValid: boolean = yield validateResponse(response);
