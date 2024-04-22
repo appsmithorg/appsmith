@@ -143,6 +143,7 @@ function WDSThemePropertyPane() {
                     accentColor: color,
                   });
                   inputRef.current?.focus();
+                  setAccentColor(color);
                 }}
                 style={{ backgroundColor: color, color }}
               >
