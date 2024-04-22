@@ -622,7 +622,6 @@ function* getBuildingBlocksDropMousePosition(
 
 function* runSingleAction(actionId: string) {
   yield put(runAction(actionId));
-  yield take(ReduxActionTypes.RUN_ACTION_SUCCESS);
 }
 
 function* runNewlyCreatedActions(
