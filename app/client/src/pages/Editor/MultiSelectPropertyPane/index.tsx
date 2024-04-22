@@ -3,6 +3,7 @@ import * as Sentry from "@sentry/react";
 import {
   createMessage,
   MULTI_SELECT_PROPERTY_PANE_MESSAGE,
+  WIDGET_MULTI_SELECT,
 } from "@appsmith/constants/messages";
 import { Text, Button } from "design-system";
 import { useSelector } from "react-redux";
@@ -20,7 +21,7 @@ function MultiSelectPropertyPane() {
     <div className="relative space-y-3">
       <div className="px-3 py-3">
         <Text kind="heading-s" renderAs="h3">
-          Multi
+          {createMessage(WIDGET_MULTI_SELECT)}
         </Text>
       </div>
 
