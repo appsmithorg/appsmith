@@ -289,8 +289,8 @@ export class AggregateHelper {
     return exists === "noVerify"
       ? locator // Return the locator without verification if exists is "noVerify"
       : exists === "exist"
-      ? locator.should("have.length.at.least", 1)
-      : locator.should("have.length", 0);
+        ? locator.should("have.length.at.least", 1)
+        : locator.should("have.length", 0);
   }
 
   public GetNAssertElementText(
