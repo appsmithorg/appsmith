@@ -30,7 +30,7 @@ import {
 } from "selectors/editorSelectors";
 import { INTEGRATION_TABS } from "constants/routes";
 import { Colors } from "constants/Colors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { STARTER_BUILDING_BLOCK_TEMPLATE_NAME } from "constants/TemplatesConstants";
 import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
 

@@ -5,6 +5,7 @@ import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.helpers.DataTypeStringUtils;
+import com.appsmith.util.SerializationUtils;
 import com.external.plugins.exceptions.FirestoreErrorMessages;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.cloud.firestore.FieldPath;
@@ -19,7 +20,7 @@ import java.util.List;
 
 public class WhereConditionUtils {
 
-    protected static final ObjectMapper objectMapper = new ObjectMapper();
+    protected static final ObjectMapper objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
 
     public static Query applyWhereConditional(Query query, String strPath, String operatorString, String strValue)
             throws AppsmithPluginException {

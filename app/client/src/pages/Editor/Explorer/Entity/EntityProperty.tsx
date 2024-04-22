@@ -13,7 +13,7 @@ import { EntityClassNames } from ".";
 import { Tooltip, Icon } from "design-system";
 import { COPY_ELEMENT, createMessage } from "@appsmith/constants/messages";
 import CollapseToggle from "./CollapseToggle";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { EntityProperty as EntityPropertyType } from "@appsmith/pages/Editor/Explorer/Entity/getEntityProperties";
 
 const Wrapper = styled.div`

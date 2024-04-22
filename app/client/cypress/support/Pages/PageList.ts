@@ -4,13 +4,14 @@ import EditorNavigation, {
   AppSidebarButton,
   EntityType,
 } from "./EditorNavigation";
+import { EntityItems } from "./AssertHelper";
 
 class PageList {
   private locators = {
     pageListItem: (pageName: string) =>
       `.t--entity.page:contains('${pageName}')`,
     newButton: ".pages .t--entity-add-btn",
-    newPageOption: (option: string) => `//span[text()='${option}']/parent::div`,
+    newPageOption: ".ads-v2-menu__menu-item-children",
     switcher: `.t--pages-switcher`,
   };
 
@@ -23,9 +24,9 @@ class PageList {
     AppSidebar.navigate(AppSidebarButton.Editor);
     this.ShowList();
     ObjectsRegistry.AggregateHelper.GetNClick(this.locators.newButton);
-    ObjectsRegistry.AggregateHelper.GetNClick(
-      this.locators.newPageOption(option),
-    );
+    cy.get(this.locators.newPageOption)
+      .contains(option, { matchCase: false })
+      .click({ force: true });
     if (option === "New blank page") {
       ObjectsRegistry.AssertHelper.AssertNetworkStatus("@createPage", 201);
 
@@ -40,28 +41,44 @@ class PageList {
     ObjectsRegistry.AggregateHelper.GetElement(
       this.locators.pageListItem(pageName),
     ).should("have.class", "activePage");
+    this.HideList();
   }
 
   public SelectedPageItem(): Cypress.Chainable {
+    this.ShowList();
     return cy.get(".t--entity.page > .active");
+    this.HideList();
   }
 
   public ClonePage(pageName = "Page1") {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    this.ShowList();
     EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     ObjectsRegistry.EntityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: pageName,
       action: "Clone",
+      entityType: EntityItems.Page,
     });
     ObjectsRegistry.AssertHelper.AssertNetworkStatus("@clonePage", 201);
   }
 
   public ShowList() {
     cy.get(this.locators.switcher).then(($switcher) => {
-      const isActive: string | undefined = $switcher.attr("data-active");
-      if (isActive === "false") {
+      const isActive: string | undefined = $switcher
+        .parent()
+        .attr("data-state");
+      if (isActive === "closed") {
         cy.get(this.locators.switcher).click();
+      }
+    });
+  }
+
+  public HideList() {
+    cy.get(this.locators.switcher).then(($switcher) => {
+      const isActive: string | undefined = $switcher
+        .parent()
+        .attr("data-state");
+      if (isActive === "open") {
+        cy.get(this.locators.switcher).click({ force: true });
       }
     });
   }
@@ -71,6 +88,7 @@ class PageList {
     ObjectsRegistry.AggregateHelper.AssertElementVisibility(
       this.locators.pageListItem(pageName),
     );
+    this.HideList();
   }
 
   assertAbsence(pageName: string) {
@@ -78,6 +96,7 @@ class PageList {
     ObjectsRegistry.AggregateHelper.AssertElementAbsence(
       this.locators.pageListItem(pageName),
     );
+    this.HideList();
   }
 
   DeletePage(name: string) {
@@ -91,6 +110,7 @@ class PageList {
     cy.wait("@deletePage")
       .its("response.body.responseMeta.status")
       .should("eq", 200);
+    this.HideList();
   }
 }
 

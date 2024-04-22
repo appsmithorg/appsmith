@@ -25,12 +25,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnExpression;
 import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.boot.builder.SpringApplicationBuilder;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 
 import java.time.Duration;
 
 @SpringBootApplication
+@ComponentScan({"com.appsmith"})
 @EnableScheduling
 @EntityScan({"com.appsmith.external.models", "com.appsmith.server.domains", "com.appsmith.server.dtos"})
 @EnableTransactionManagement

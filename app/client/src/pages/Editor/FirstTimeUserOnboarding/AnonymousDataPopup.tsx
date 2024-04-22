@@ -26,7 +26,7 @@ import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { deleteCanvasCardsState } from "actions/editorActions";
 import styled from "styled-components";
 import { showAnonymousDataPopup } from "actions/onboardingActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const Wrapper = styled.div`
   margin: ${(props) =>

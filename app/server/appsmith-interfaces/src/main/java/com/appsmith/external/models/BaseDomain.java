@@ -3,6 +3,8 @@ package com.appsmith.external.models;
 import com.appsmith.external.annotations.encryption.EncryptionEntityListener;
 import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.helpers.Identifiable;
+import com.appsmith.external.views.FromRequest;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
@@ -46,6 +48,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     private static final long serialVersionUID = 7459916000501322517L;
 
     @Id
+    @JsonView({Views.Public.class, FromRequest.class, Git.class})
     protected String id;
 
     @JsonView(Views.Internal.class)
@@ -107,7 +110,7 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     // This field will only be used for git related functionality to sync the action object across different instances.
     // This field will be deprecated once we move to the new git sync implementation.
     @JsonProperty(access = JsonProperty.Access.READ_ONLY)
-    @JsonView(Views.Internal.class)
+    @JsonView({Views.Internal.class, Git.class})
     String gitSyncId;
 
     public void sanitiseToExportDBObject() {

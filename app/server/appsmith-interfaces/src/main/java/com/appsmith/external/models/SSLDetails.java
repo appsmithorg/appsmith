@@ -71,8 +71,4 @@ public class SSLDetails implements AppsmithDomain {
     UploadedFile clientKeyCertificateFile;
 
     UploadedFile serverCACertificateFile;
-
-    Boolean usePemCertificate;
-
-    PEMCertificate pemCertificate;
 }

@@ -13,12 +13,12 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageNameIdDTO;
+import com.appsmith.server.dtos.PageUpdateDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.repositories.NewPageRepository;
-import com.appsmith.server.repositories.cakes.ApplicationSnapshotRepositoryCake;
 import com.appsmith.server.repositories.cakes.NewPageRepositoryCake;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -61,7 +61,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     private final ResponseUtils responseUtils;
     private final ApplicationPermission applicationPermission;
     private final PagePermission pagePermission;
-    private final ApplicationSnapshotRepositoryCake applicationSnapshotRepository;
 
     @Autowired
     public NewPageServiceCEImpl(
@@ -73,15 +72,13 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
             UserDataService userDataService,
             ResponseUtils responseUtils,
             ApplicationPermission applicationPermission,
-            PagePermission pagePermission,
-            ApplicationSnapshotRepositoryCake applicationSnapshotRepository) {
+            PagePermission pagePermission) {
         super(validator, repositoryDirect, repository, analyticsService);
         this.applicationService = applicationService;
         this.userDataService = userDataService;
         this.responseUtils = responseUtils;
         this.applicationPermission = applicationPermission;
         this.pagePermission = pagePermission;
-        this.applicationSnapshotRepository = applicationSnapshotRepository;
     }
 
     @Override
@@ -476,11 +473,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Flux<NewPage> findNewPagesByApplicationId(String applicationId, Optional<AclPermission> permission) {
-        return repository.findByApplicationId(applicationId, permission);
-    }
-
-    @Override
     public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
         return findNewPagesByApplicationId(applicationId, permission)
                 .flatMap((NewPage entity) -> repository.archive(entity))
@@ -529,11 +521,12 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(String defaultPageId, PageDTO page, String branchName) {
+    public Mono<PageDTO> updatePageByDefaultPageIdAndBranch(
+            String defaultPageId, PageUpdateDTO page, String branchName) {
         return repository
                 .findPageByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                .flatMap(newPage -> updatePage(newPage.getId(), page))
-                .map(responseUtils::updatePageDTOWithDefaultResources); // */
+                .flatMap(newPage -> updatePage(newPage.getId(), page.toPageDTO()))
+                .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
     @Override
@@ -579,7 +572,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         pages.stream()
                 .filter(newPage -> newPage.getGitSyncId() == null)
                 .forEach(newPage -> newPage.setGitSyncId(newPage.getId() + "_" + UUID.randomUUID()));
-        return repository.saveAll(pages); // */
+        return repository.saveAll(pages);
     }
 
     @Override

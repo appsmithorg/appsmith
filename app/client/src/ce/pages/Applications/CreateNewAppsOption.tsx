@@ -18,7 +18,7 @@ import { getApplicationsOfWorkspace } from "@appsmith/selectors/selectedWorkspac
 import { default as React, useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import history from "utils/history";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getDatasource, getPlugin } from "@appsmith/selectors/entitiesSelector";
