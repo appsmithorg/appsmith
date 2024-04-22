@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 public class FileNameValidator implements ConstraintValidator<FileName, String> {
 
     // Checks built to exclude characters listed in https://stackoverflow.com/a/31976060/151048.
-    private static final Pattern DISALLOWED_CHARS = Pattern.compile("[\\\\/:<>\"|?*\\x00-\\x31]");
+    private static final Pattern DISALLOWED_CHARS = Pattern.compile("[\\\\/:<>\"|?*\\x00-\\x1f]");
 
     // These are not allowed on Windows, even with an extension.
     private static final Set<String> DISALLOWED_NAMES = Set.of(
