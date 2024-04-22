@@ -16,7 +16,6 @@ import io.micrometer.observation.ObservationRegistry;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Import;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 
 @Slf4j
 @Service
@@ -32,7 +31,6 @@ public class CommonGitServiceImpl extends CommonGitServiceCECompatibleImpl imple
             UserDataService userDataService,
             UserService userService,
             EmailConfig emailConfig,
-            TransactionalOperator transactionalOperator,
             AnalyticsService analyticsService,
             ObservationRegistry observationRegistry,
             ExportService exportService,
@@ -49,7 +47,6 @@ public class CommonGitServiceImpl extends CommonGitServiceCECompatibleImpl imple
                 userDataService,
                 userService,
                 emailConfig,
-                transactionalOperator,
                 analyticsService,
                 observationRegistry,
                 exportService,

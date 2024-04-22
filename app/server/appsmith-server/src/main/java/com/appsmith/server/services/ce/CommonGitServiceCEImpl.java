@@ -64,7 +64,6 @@ import org.eclipse.jgit.lib.BranchTrackingStatus;
 import org.eclipse.jgit.util.StringUtils;
 import org.springframework.dao.DuplicateKeyException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.reactive.TransactionalOperator;
 import reactor.core.Exceptions;
 import reactor.core.observability.micrometer.Micrometer;
 import reactor.core.publisher.Flux;
@@ -116,7 +115,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
     private final UserDataService userDataService;
     protected final UserService userService;
     private final EmailConfig emailConfig;
-    private final TransactionalOperator transactionalOperator;
+    // private final TransactionalOperator transactionalOperator;
 
     protected final AnalyticsService analyticsService;
     private final ObservationRegistry observationRegistry;
@@ -3426,32 +3425,31 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         Mono<? extends Artifact> defaultArtifactMono =
                 gitArtifactHelper.getArtifactById(defaultArtifactId, artifactManageProtectedBranchPermission);
 
-        return defaultArtifactMono
-                .flatMap(defaultArtifact -> {
-                    GitArtifactMetadata metadata = defaultArtifact.getGitArtifactMetadata();
-                    String defaultBranchName = metadata.getDefaultBranchName();
+        return defaultArtifactMono.flatMap(defaultArtifact -> {
+            GitArtifactMetadata metadata = defaultArtifact.getGitArtifactMetadata();
+            String defaultBranchName = metadata.getDefaultBranchName();
 
-                    if (branchNames.isEmpty()
-                            || (branchNames.size() == 1 && branchNames.get(0).equals(defaultBranchName))) {
-                        // keep a copy of old protected branches as it's required to send analytics event later
-                        List<String> oldProtectedBranches = metadata.getBranchProtectionRules() != null
-                                ? metadata.getBranchProtectionRules()
-                                : List.of();
+            if (branchNames.isEmpty()
+                    || (branchNames.size() == 1 && branchNames.get(0).equals(defaultBranchName))) {
+                // keep a copy of old protected branches as it's required to send analytics event later
+                List<String> oldProtectedBranches =
+                        metadata.getBranchProtectionRules() != null ? metadata.getBranchProtectionRules() : List.of();
 
-                        // user wants to unprotect all branches or user wants to protect only default branch
-                        metadata.setBranchProtectionRules(branchNames);
-                        return gitArtifactHelper
-                                .saveArtifact(defaultArtifact)
-                                .then(gitArtifactHelper.updateArtifactWithProtectedBranches(
-                                        defaultArtifactId, branchNames))
-                                .then(sendBranchProtectionAnalytics(defaultArtifact, oldProtectedBranches, branchNames))
-                                .thenReturn(branchNames);
-                    } else {
-                        // user want to protect multiple branches, not allowed
-                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                    }
-                })
-                .as(transactionalOperator::transactional);
+                // user wants to unprotect all branches or user wants to protect only default branch
+                metadata.setBranchProtectionRules(branchNames);
+                return gitArtifactHelper
+                        .saveArtifact(defaultArtifact)
+                        .then(gitArtifactHelper.updateArtifactWithProtectedBranches(defaultArtifactId, branchNames))
+                        .then(sendBranchProtectionAnalytics(defaultArtifact, oldProtectedBranches, branchNames))
+                        .thenReturn(branchNames);
+            } else {
+                // user want to protect multiple branches, not allowed
+                return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+            }
+        });
+        /*
+        .as(transactionalOperator::transactional);
+         */
     }
 
     /**
