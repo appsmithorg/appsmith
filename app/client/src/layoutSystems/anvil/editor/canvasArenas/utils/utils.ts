@@ -11,56 +11,6 @@ import { anvilWidgets } from "widgets/anvil/constants";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 
-export const getCompensatingOffsetValues = (
-  highlightPositions: {
-    left: number;
-    top: number;
-    width: number;
-    height: number;
-  },
-  edgeDetails: {
-    top: boolean;
-    left: boolean;
-    right: boolean;
-    bottom: boolean;
-  },
-  highlightCompensatorValues: {
-    top: number;
-    left: number;
-  },
-  isVertical: boolean,
-) => {
-  const { height: highlightHeight, width: highlightWidth } = highlightPositions;
-  const compensatorTop = highlightCompensatorValues.top;
-  const compensatorLeft = highlightCompensatorValues.left;
-  const {
-    bottom: isBottomEdge,
-    left: isLeftEdge,
-    right: isRightEdge,
-    top: isTopEdge,
-  } = edgeDetails;
-  const topGap = (compensatorTop + highlightHeight) * 0.5;
-  const leftGap = (compensatorLeft + highlightWidth) * 0.5;
-  const topOffset = !isVertical
-    ? isTopEdge
-      ? -topGap
-      : isBottomEdge
-      ? topGap
-      : 0
-    : 0;
-  const leftOffset = isVertical
-    ? isLeftEdge
-      ? -leftGap
-      : isRightEdge
-      ? leftGap
-      : 0
-    : 0;
-  return {
-    topOffset,
-    leftOffset,
-  };
-};
-
 /**
  * Determines whether a canvas can be activated for a dragged widget based on specific conditions.
  * @param draggedWidgetTypes - Type of widget being dragged (e.g., SECTION, ZONE).

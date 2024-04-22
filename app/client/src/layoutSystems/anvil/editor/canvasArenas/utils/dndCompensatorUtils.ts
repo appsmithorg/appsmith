@@ -104,3 +104,69 @@ export const calculateLayoutTopCompensator = (
     return zoneSpacing;
   }
 };
+
+const calculateEdgeTopOffset = (
+  isVertical: boolean,
+  isTopEdge: boolean,
+  isBottomEdge: boolean,
+  topGap: number,
+) => {
+  return !isVertical ? (isTopEdge ? -topGap : isBottomEdge ? topGap : 0) : 0;
+};
+
+const calculateEdgeLeftOffset = (
+  isVertical: boolean,
+  isLeftEdge: boolean,
+  isRightEdge: boolean,
+  leftGap: number,
+) => {
+  return isVertical ? (isLeftEdge ? -leftGap : isRightEdge ? leftGap : 0) : 0;
+};
+
+export const getCompensatingOffsetValues = (
+  highlightPositions: {
+    left: number;
+    top: number;
+    width: number;
+    height: number;
+  },
+  edgeDetails: {
+    top: boolean;
+    left: boolean;
+    right: boolean;
+    bottom: boolean;
+  },
+  highlightCompensatorValues: {
+    top: number;
+    left: number;
+  },
+  isVertical: boolean,
+) => {
+  const { height: highlightHeight, width: highlightWidth } = highlightPositions;
+  const compensatorTop = highlightCompensatorValues.top;
+  const compensatorLeft = highlightCompensatorValues.left;
+  const {
+    bottom: isBottomEdge,
+    left: isLeftEdge,
+    right: isRightEdge,
+    top: isTopEdge,
+  } = edgeDetails;
+  const topGap = (compensatorTop + highlightHeight) * 0.5;
+  const leftGap = (compensatorLeft + highlightWidth) * 0.5;
+  const topOffset = calculateEdgeTopOffset(
+    isVertical,
+    isTopEdge,
+    isBottomEdge,
+    topGap,
+  );
+  const leftOffset = calculateEdgeLeftOffset(
+    isVertical,
+    isLeftEdge,
+    isRightEdge,
+    leftGap,
+  );
+  return {
+    topOffset,
+    leftOffset,
+  };
+};

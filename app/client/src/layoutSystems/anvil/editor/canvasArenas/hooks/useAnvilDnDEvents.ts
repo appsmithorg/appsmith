@@ -2,10 +2,8 @@ import type React from "react";
 import { useEffect, useRef } from "react";
 import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/editor/canvasArenas/AnvilHighlightingCanvas";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
-import {
-  getClosestHighlight,
-  getCompensatingOffsetValues,
-} from "../utils/utils";
+import { getClosestHighlight } from "../utils/utils";
+import { getCompensatingOffsetValues } from "../utils/dndCompensatorUtils";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
 import { setHighlightsDrawnAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
