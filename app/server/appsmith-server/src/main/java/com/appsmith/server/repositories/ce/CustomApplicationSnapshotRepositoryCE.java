@@ -1,6 +1,7 @@
 package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.ApplicationSnapshot;
+import com.appsmith.server.projections.CustomSnapshotProjection;
 import com.appsmith.server.repositories.AppsmithRepository;
 
 import java.util.Optional;

@@ -25,6 +25,7 @@ public class QueryAllParams<T extends BaseDomain> {
     private final BaseAppsmithRepositoryCEImpl<T> repo;
     private final List<Specification<T>> specifications = new ArrayList<>();
     private final List<String> fields = new ArrayList<>();
+    private Class<?> projection;
     private AclPermission permission;
     private Set<String> permissionGroups;
     private Sort sort;
@@ -138,6 +139,11 @@ public class QueryAllParams<T extends BaseDomain> {
 
     public QueryAllParams<T> skip(int skip) {
         this.skip = skip;
+        return this;
+    }
+
+    public QueryAllParams<T> projection(Class<?> projectionClass) {
+        this.projection = projectionClass;
         return this;
     }
 

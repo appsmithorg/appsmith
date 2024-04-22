@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.projections.CustomSnapshotProjection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 
 import java.util.List;
@@ -22,6 +23,6 @@ public class CustomApplicationSnapshotRepositoryCEImpl extends BaseAppsmithRepos
                 ApplicationSnapshot.Fields.chunkOrder,
                 ApplicationSnapshot.Fields.createdAt,
                 ApplicationSnapshot.Fields.updatedAt);
-        return queryBuilder().criteria(query).fields(fieldNames).one();
+        return queryBuilder().criteria(query).projection(CustomSnapshotProjection.class).one();
     }
 }

@@ -13,6 +13,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
+import com.appsmith.server.projections.CustomSnapshotProjection;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
@@ -44,9 +45,11 @@ import org.springframework.security.core.context.ReactiveSecurityContextHolder;
 import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Mono;
 
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -55,6 +58,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -94,6 +98,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
+
+    @Autowired
+    ObjectMapper objectMapper;
+
 
     public static final int NO_RECORD_LIMIT = -1;
 
@@ -330,7 +338,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-                    final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
+                    final CriteriaQuery<?> cq;
+                    if (params.getProjection() != null) {
+                        cq = cb.createQuery(Object[].class);
+                    } else {
+                        cq = cb.createQuery(genericDomain);
+                    }
                     final Root<T> root = cq.from(genericDomain);
 
                     final List<Specification<T>> specifications = new ArrayList<>(params.getSpecifications());
@@ -339,10 +352,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                             Specification.allOf(specifications).toPredicate(root, cq, cb),
                             root.get(FieldName.DELETED_AT).isNull());
 
-                    if (!CollectionUtils.isEmpty(params.getFields())) {
+                    if (params.getProjection() != null) {
                         List<Selection<?>> selectionList = new ArrayList<>();
-                        params.getFields().forEach(f -> selectionList.add(root.get(f)));
+                        List<String> fields = Arrays.stream(params.getProjection().getDeclaredFields()).map(Field::getName).toList();
+                        fields.forEach(f -> selectionList.add(root.get(f)));
                         cq.multiselect(selectionList);
+                        //cq.select(cb.construct(params.getProjection(), selectionList.toArray(new Selection[0])));
                     }
                     if (!permissionGroups.isEmpty()) {
                         Map<String, String> fnVars = new HashMap<>();
@@ -362,7 +377,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                             root.get(PermissionGroup.Fields.policies),
                                             cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
                                                     + String.join(" || ", conditions) + ")))"),
-                                            cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
+                                            cb.literal(objectMapper.writeValueAsString(fnVars)))));
                         } catch (JsonProcessingException e) {
                             // This should never happen, were serializing a Map<String, String>, which ideally should
                             // never fail.
@@ -375,7 +390,33 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     // All public access is via a single permission group. Fetch the same and set the cache with it.
                     return Mono.fromSupplier(entityManager.createQuery(cq)::getSingleResult)
                             .onErrorResume(NoResultException.class, e -> Mono.empty())
-                            .map(obj -> setUserPermissionsInObject(obj, permissionGroups));
+                            .map(obj -> {
+                                if (params.getProjection() != null) {
+                                    Object[] test = (Object[]) obj;
+                                    test = Arrays.stream(test).map(f -> {
+                                        if (f instanceof Instant) {
+                                            return ((Instant) f).toString();
+                                        } else {
+                                            return f;
+                                        }
+                                    }).toArray();
+                                    try {
+                                        Class<?>[] types = Arrays.stream(params.getProjection().getDeclaredFields()).map(f -> {
+                                            try {
+                                                return Class.forName(f.getType().getTypeName());
+                                            } catch (ClassNotFoundException e) {
+                                                throw new RuntimeException(e);
+                                            }
+                                        }).toArray(Class[]::new);
+                                        Object object = params.getProjection().getConstructor(types).newInstance(test);
+                                        String jsonString = objectMapper.writeValueAsString(object);
+                                        return objectMapper.readValue(jsonString, genericDomain);
+                                    } catch (Exception e) {
+                                        throw new RuntimeException(e);
+                                    }
+                                }
+                                return setUserPermissionsInObject(genericDomain.cast(obj), permissionGroups);
+                            });
                 })
                 .blockOptional();
     }

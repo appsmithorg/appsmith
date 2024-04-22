@@ -25,6 +25,7 @@ import java.time.Instant;
 @FieldNameConstants
 public class ApplicationSnapshot extends BaseDomain {
 
+    /*
     // Constructor needed to de-serialise the object from the database for projection queries
     public ApplicationSnapshot(String applicationId, int chunkOrder, Instant createdAt, Instant updatedAt) {
         this.applicationId = applicationId;
@@ -32,6 +33,8 @@ public class ApplicationSnapshot extends BaseDomain {
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
     }
+
+     */
 
     private String applicationId;
 
