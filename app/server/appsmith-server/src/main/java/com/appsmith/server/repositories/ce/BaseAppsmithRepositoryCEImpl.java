@@ -30,7 +30,6 @@ import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import jakarta.persistence.criteria.Selection;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.NonNull;
@@ -339,11 +338,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                             Specification.allOf(specifications).toPredicate(root, cq, cb),
                             root.get(FieldName.DELETED_AT).isNull());
 
-                    if (!CollectionUtils.isEmpty(params.getFields())) {
-                        List<Selection<?>> selectionList = new ArrayList<>();
-                        params.getFields().forEach(f -> selectionList.add(root.get(f)));
-                        cq.multiselect(selectionList);
-                    }
                     if (!permissionGroups.isEmpty()) {
                         Map<String, String> fnVars = new HashMap<>();
                         fnVars.put("p", params.getPermission().getValue());

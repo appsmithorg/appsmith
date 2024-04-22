@@ -10,8 +10,6 @@ import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.hibernate.annotations.Where;
 
-import java.time.Instant;
-
 /**
  * This stores a snapshot of an application. If a snapshot is more than 15 MB, we'll break it into smaller chunks.
  * Both the root chunk and the child chunks will be stored in this collection.
@@ -24,15 +22,6 @@ import java.time.Instant;
 @Where(clause = "deleted_at IS NULL")
 @FieldNameConstants
 public class ApplicationSnapshot extends BaseDomain {
-
-    // Constructor needed to de-serialise the object from the database for projection queries
-    public ApplicationSnapshot(String applicationId, int chunkOrder, Instant createdAt, Instant updatedAt) {
-        this.applicationId = applicationId;
-        this.chunkOrder = chunkOrder;
-        this.createdAt = createdAt;
-        this.updatedAt = updatedAt;
-    }
-
     private String applicationId;
 
     /**
