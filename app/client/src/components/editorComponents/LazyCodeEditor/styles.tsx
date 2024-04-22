@@ -40,8 +40,8 @@ export const HighlighedCodeContainer = styled("div")<{
       contentKind === ContentKind.CODE
         ? CodeEditorColors.KEYWORD
         : contentKind === ContentKind.PLACEHOLDER
-        ? "#858282"
-        : "inherit"} !important;
+          ? "#858282"
+          : "inherit"} !important;
   }
 `;
 
@@ -62,8 +62,8 @@ export const ContentWrapper = styled("div")<{
     !!height
       ? height
       : contentKind === ContentKind.PLACEHOLDER
-      ? "36px"
-      : "auto"};
+        ? "36px"
+        : "auto"};
   min-height: 36px;
   border: ${(props) => (props.borderLess ? "none" : "1px solid")};
   border-color: inherit;

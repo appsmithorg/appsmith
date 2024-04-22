@@ -860,8 +860,8 @@ const PropertyControl = memo((props: Props) => {
     const JSToggleTooltip = isToggleDisabled
       ? JS_TOGGLE_DISABLED_MESSAGE
       : !isDynamic
-      ? JS_TOGGLE_SWITCH_JS_MESSAGE
-      : "";
+        ? JS_TOGGLE_SWITCH_JS_MESSAGE
+        : "";
 
     try {
       return (
