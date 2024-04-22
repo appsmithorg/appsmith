@@ -28,9 +28,15 @@ describe(
       homePage.CreateAppInWorkspace("EmptyMsgCheck");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan(createMessage(EDITOR_PANE_TEXTS.widget_blank_state_description)),
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.widget_blank_state_description),
+        ),
       );
-      agHelper.AssertElementVisibility(locator._visibleTextSpan(createMessage(EDITOR_PANE_TEXTS.widget_add_button)));
+      agHelper.AssertElementVisibility(
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.widget_add_button),
+        ),
+      );
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
@@ -38,23 +44,31 @@ describe(
         ),
       );
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan(createMessage(EDITOR_PANE_TEXTS.query_blank_state)),
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.query_blank_state),
+        ),
       );
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan(createMessage(EDITOR_PANE_TEXTS.query_add_button)),
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.query_add_button),
+        ),
       );
 
       PageLeftPane.switchSegment(PagePaneSegment.JS);
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-         createMessage(EDITOR_PANE_TEXTS.js_blank_state_description)
+         createMessage(EDITOR_PANE_TEXTS.js_blank_state_description),
         ),
       );
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan(createMessage(EDITOR_PANE_TEXTS.js_blank_state)),
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.js_blank_state),
+        ),
       );
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan(createMessage(EDITOR_PANE_TEXTS.js_add_button)),
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.js_add_button),
+        ),
       );
     });
 
