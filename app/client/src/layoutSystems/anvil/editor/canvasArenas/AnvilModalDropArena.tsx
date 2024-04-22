@@ -6,10 +6,10 @@ import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { DropWidgetsHereMessage } from "layoutSystems/anvil/common/messages";
 
 const StyledEmptyModalDropArenaWrapper = styled.div<{ isModalEmpty: boolean }>`
+  position: relative;
   ${(props) =>
     props.isModalEmpty &&
     `
-  position: relative;
   height: 100% !important;
   padding: 4px;
   `}

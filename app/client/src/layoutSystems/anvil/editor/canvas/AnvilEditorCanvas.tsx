@@ -1,7 +1,7 @@
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilViewerCanvas } from "layoutSystems/anvil/viewer/canvas/AnvilViewerCanvas";
 import React, { useCallback, useEffect, useRef } from "react";
-import { useCanvasActivation } from "./hooks/useCanvasActivation";
+import { useAnvilDnDDeactivation } from "./hooks/useAnvilDnDDeactivation";
 import { useSelectWidgetListener } from "./hooks/useSelectWidgetListener";
 import { useClickToClearSelections } from "./hooks/useClickToClearSelections";
 import "./styles/anvilEditorVariables.css";
@@ -45,7 +45,7 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
   }, []);
   /* End of click event listener */
 
-  useCanvasActivation();
+  useAnvilDnDDeactivation();
   useSelectWidgetListener();
   return <AnvilViewerCanvas {...props} ref={canvasRef} />;
 };

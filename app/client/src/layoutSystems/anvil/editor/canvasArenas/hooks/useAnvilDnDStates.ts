@@ -15,11 +15,13 @@ import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
 import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
-import { getDraggedBlocks, getDraggedWidgetTypes } from "./utils";
+import { getDraggedBlocks, getDraggedWidgetTypes } from "../utils/utils";
+import { getCurrentlyOpenAnvilModal } from "layoutSystems/anvil/integrations/modalSelectors";
+import { useAnvilDnDCompensators } from "./useAnvilDnDCompensators";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
-  canvasId: string;
+  widgetId: string;
   layoutId: string;
   layoutType: LayoutComponentTypes;
 }
@@ -35,6 +37,20 @@ export interface AnvilDnDStates {
   layoutElementPositions: LayoutElementPositions;
   dragMeta: AnvilDragMeta;
   mainCanvasLayoutId: string;
+  isSection: boolean;
+  widgetCompensatorValues: {
+    left: number;
+    top: number;
+  };
+  edgeCompensatorValues: {
+    left: number;
+    top: number;
+  };
+  layoutCompensatorValues: {
+    left: number;
+    top: number;
+  };
+  zIndex: number;
 }
 
 /**
@@ -67,6 +83,7 @@ export const useAnvilDnDStates = ({
   allowedWidgetTypes,
   layoutId,
   layoutType,
+  widgetId,
 }: AnvilDnDStatesProps): AnvilDnDStates => {
   const mainCanvasLayoutId: string = useSelector((state) =>
     getDropTargetLayoutId(state, MAIN_CONTAINER_WIDGET_ID),
@@ -134,8 +151,25 @@ export const useAnvilDnDStates = ({
   const draggedOn = isMainCanvas
     ? AnvilDropTargetTypesEnum.MAIN_CANVAS
     : isSection
-      ? AnvilDropTargetTypesEnum.SECTION
-      : AnvilDropTargetTypesEnum.ZONE;
+    ? AnvilDropTargetTypesEnum.SECTION
+    : AnvilDropTargetTypesEnum.ZONE;
+  const currentlyOpenModal = useSelector(getCurrentlyOpenAnvilModal);
+  const isModalLayout = currentlyOpenModal === widgetId;
+  const isEmptyLayout =
+    (allWidgets[widgetId].children || []).filter(
+      (each) => !allWidgets[each].detachFromLayout,
+    ).length === 0;
+  const {
+    edgeCompensatorValues,
+    layoutCompensatorValues,
+    widgetCompensatorValues,
+    zIndex,
+  } = useAnvilDnDCompensators(
+    isMainCanvas,
+    isSection,
+    isModalLayout,
+    isEmptyLayout,
+  );
 
   return {
     activateOverlayWidgetDrop,
@@ -149,7 +183,12 @@ export const useAnvilDnDStates = ({
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,
+    isSection,
     mainCanvasLayoutId,
     layoutElementPositions,
+    widgetCompensatorValues,
+    edgeCompensatorValues,
+    layoutCompensatorValues,
+    zIndex,
   };
 };

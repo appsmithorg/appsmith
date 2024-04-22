@@ -1,6 +1,4 @@
-import { getNearestParentCanvas } from "utils/generators";
-import { useCanvasDragging } from "./hooks/useCanvasDragging";
-import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
+import { useAnvilDnDEvents } from "./hooks/useAnvilDnDEvents";
 import React from "react";
 import type {
   AnvilHighlightInfo,
@@ -9,9 +7,12 @@ import type {
 } from "layoutSystems/anvil/utils/anvilTypes";
 import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
+import { AnvilDnDListener } from "./AnvilDnDListener";
+import { AnvilDnDHighlight } from "./AnvilDnDHighlight";
 
 export interface AnvilHighlightingCanvasProps {
   anvilDragStates: AnvilDnDStates;
+  widgetId: string;
   layoutId: string;
   deriveAllHighlightsFn: (
     layoutElementPositions: LayoutElementPositions,
@@ -25,35 +26,39 @@ export function AnvilHighlightingCanvas({
   deriveAllHighlightsFn,
   layoutId,
   onDrop,
+  widgetId,
 }: AnvilHighlightingCanvasProps) {
-  const slidingArenaRef = React.useRef<HTMLDivElement>(null);
-  const stickyCanvasRef = React.useRef<HTMLCanvasElement>(null);
+  const anvilDnDListenerRef = React.useRef<HTMLDivElement>(null);
+  const [highlightShown, setHighlightShown] =
+    React.useState<AnvilHighlightInfo | null>(null);
+
+  const { isCurrentDraggedCanvas } = anvilDragStates;
   // showDraggingCanvas indicates if the current dragging canvas i.e. the html canvas renders
-  const { showCanvas: showDraggingCanvas } = useCanvasDragging(
-    slidingArenaRef,
-    stickyCanvasRef,
+  const { showDnDListener } = useAnvilDnDEvents(
+    anvilDnDListenerRef,
     {
       anvilDragStates,
+      widgetId,
       deriveAllHighlightsFn,
       layoutId,
       onDrop,
     },
+    setHighlightShown,
   );
-  const canvasRef = React.useRef({
-    stickyCanvasRef,
-    slidingArenaRef,
-  });
-  return showDraggingCanvas ? (
-    <StickyCanvasArena
-      canvasId={`canvas-dragging-${layoutId}`}
-      canvasPadding={0}
-      getRelativeScrollingParent={getNearestParentCanvas}
-      ref={canvasRef}
-      // increases pixel density of the canvas
-      scaleFactor={2}
-      shouldObserveIntersection={anvilDragStates.isDragging}
-      showCanvas={showDraggingCanvas}
-      sliderId={`div-dragarena-${layoutId}`}
-    />
+  return showDnDListener ? (
+    <>
+      {isCurrentDraggedCanvas && (
+        <AnvilDnDHighlight
+          compensatorValues={anvilDragStates.widgetCompensatorValues}
+          highlightShown={highlightShown}
+          zIndex={anvilDragStates.zIndex + 1}
+        />
+      )}
+      <AnvilDnDListener
+        compensatorValues={anvilDragStates.widgetCompensatorValues}
+        ref={anvilDnDListenerRef}
+        zIndex={anvilDragStates.zIndex}
+      />
+    </>
   ) : null;
 }
