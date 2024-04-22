@@ -103,7 +103,7 @@ import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
 import { evalErrorHandler } from "./EvalErrorHandler";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();

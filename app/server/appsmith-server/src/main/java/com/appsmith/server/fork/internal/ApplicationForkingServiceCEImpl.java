@@ -693,11 +693,23 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
             // Normal Application forking with developer/edit access
             Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
-                    .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                    .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                    .map(idPoliciesOnly -> {
+                        NewPage newPage = new NewPage();
+                        newPage.setId(idPoliciesOnly.id());
+                        newPage.setPolicies(idPoliciesOnly.policies());
+                        return newPage;
+                    })
                     .flatMap(newPageRepository::setUserPermissionsInObject));
 
             Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
-                    .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                    .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                    .map(idPoliciesOnly -> {
+                        NewAction newAction = new NewAction();
+                        newAction.setId(idPoliciesOnly.id());
+                        newAction.setPolicies(idPoliciesOnly.policies());
+                        return newAction;
+                    })
                     .flatMap(newActionRepository::setUserPermissionsInObject));
 
             Flux<BaseDomain> actionCollectionFlux =

@@ -1,7 +1,7 @@
 import equal from "fast-deep-equal/es6";
 import { difference, isEmpty } from "lodash";
 import log from "loglevel";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import type { MetaInternalFieldState } from ".";

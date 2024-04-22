@@ -110,8 +110,8 @@ class ComputeTablePropertyControl extends BaseControl<ComputeTablePropertyContro
             tableId,
           )
         : propertyValue
-        ? propertyValue
-        : defaultValue;
+          ? propertyValue
+          : defaultValue;
     const evaluatedProperties = this.props.widgetProperties;
 
     const columns: Record<string, ColumnProperties> =

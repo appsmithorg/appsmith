@@ -40,7 +40,7 @@ import {
 } from "@appsmith/actions/applicationActions";
 import type { Datasource } from "entities/Datasource";
 import DatasourceForm from "../DataSourceEditor";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useQuery } from "../utils";
 import ListItemWrapper from "./components/DatasourceListItem";
 import { getDefaultPageId } from "@appsmith/sagas/ApplicationSagas";
@@ -305,8 +305,8 @@ function ReconnectDatasourceModal() {
           currentEnvDetails.id,
         )
       : ds.datasourceStorages
-      ? isEnvironmentConfigured(ds, currentEnvDetails.id)
-      : false;
+        ? isEnvironmentConfigured(ds, currentEnvDetails.id)
+        : false;
     return output;
   };
 

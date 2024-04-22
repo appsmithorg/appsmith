@@ -612,8 +612,6 @@ export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
 export const JS_SETTINGS_ONPAGELOAD = () => "Run function on page load (Beta)";
-export const JS_EXECUTION_SUCCESS_TOASTER = (actionName: string) =>
-  `${actionName} ran successfully`;
 export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
   "Will refresh data every time page is reloaded";
 export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
@@ -1111,9 +1109,6 @@ export const BRANCH_PROTECTION_RULE_3 = () =>
   "You can still pull the latest changes and create new branches to edit the app.";
 export const BRANCH_PROTECTION_CHANGE_RULE = () =>
   "You can remove protection on your default branch in Git settings.";
-export const BRANCH_TOOLTIP_TITLE = () => "🚫 This is a protected branch";
-export const BRANCH_TOOLTIP_MESSAGE = () =>
-  "Please create a new branch or checkout an existing one to edit the app.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
@@ -1123,6 +1118,15 @@ export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
   `Updated default branch ${!!branchName ? `to ${branchName}` : ""}`;
 export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
+export const BRANCH_PROTECTION_CALLOUT_MSG = () =>
+  "The branch is protected; please switch to or create a new branch to edit the app.";
+export const BRANCH_PROTECTION_CALLOUT_CREATE_BRANCH = () =>
+  "Create new branch";
+export const BRANCH_PROTECTION_CALLOUT_UNPROTECT = () => "Unprotect branch";
+export const BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING = () =>
+  "Unprotecting branch ...";
+export const BRANCH_PROTECTION_PROTECTED = () => "Protected";
+
 // Git Branch Protection end
 
 export const GENERAL = () => "General";
@@ -1531,6 +1535,7 @@ export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
+export const WIDGET_MULTI_SELECT = () => "Multiple selected";
 export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
   `Drag the latest ${widgetName} to unlock new features and prevent end-of-life headaches for this widget.`;
 
@@ -2309,13 +2314,13 @@ export const EDITOR_PANE_TEXTS = {
   js_blank_state_description: () =>
     "Use JS to transform your data or write business logic",
   widget_blank_state_description: () =>
-    "Drag & drop widgets to create your app",
+    "Drag & drop UI elements to create your app",
   query_add_button: () => "New query / API",
   js_add_button: () => "New JS object",
   js_blank_object_item: () => "Blank JS object",
-  widget_add_button: () => "New widget",
+  widget_add_button: () => "New UI element",
   query_create_tab_title: () => "Create new query / API",
-  widgets_create_tab_title: () => "Drag & drop a widget",
+  widgets_create_tab_title: () => "Drag & drop UI elements",
   js_create_tab_title: () => "Create JS object",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
@@ -2448,7 +2453,9 @@ export const CUSTOM_WIDGET_FEATURE = {
 };
 
 export const WIDGET_PANEL_EMPTY_MESSAGE = () =>
-  "We couldn’t find any widgets called";
+  "We couldn’t find any UI elements called";
+
+export const UI_ELEMENT_PANEL_SEARCH_TEXT = () => "Search UI elements";
 
 export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;
 

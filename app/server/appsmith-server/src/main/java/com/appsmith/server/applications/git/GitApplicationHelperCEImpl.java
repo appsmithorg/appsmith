@@ -8,8 +8,10 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Artifact;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
+import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -33,6 +35,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -56,6 +59,11 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     private final ResponseUtils responseUtils;
 
     @Override
+    public AclPermission getArtifactReadPermission() {
+        return applicationPermission.getReadPermission();
+    }
+
+    @Override
     public AclPermission getArtifactEditPermission() {
         return applicationPermission.getEditPermission();
     }
@@ -63,6 +71,21 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     @Override
     public AclPermission getArtifactGitConnectPermission() {
         return applicationPermission.getGitConnectPermission();
+    }
+
+    @Override
+    public AclPermission getArtifactAutoCommitPermission() {
+        return applicationPermission.getManageAutoCommitPermission();
+    }
+
+    @Override
+    public AclPermission getArtifactManageProtectedBranchPermission() {
+        return applicationPermission.getManageProtectedBranchPermission();
+    }
+
+    @Override
+    public AclPermission getArtifactManageDefaultBranchPermission() {
+        return applicationPermission.getManageDefaultBranchPermission();
     }
 
     @Override
@@ -74,9 +97,39 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
     }
 
     @Override
+    public Flux<Application> getAllArtifactByDefaultId(String defaultArtifactId, AclPermission aclPermission) {
+        return applicationService.findAllApplicationsByDefaultApplicationId(defaultArtifactId, aclPermission);
+    }
+
+    @Override
     public Mono<Application> getArtifactByDefaultIdAndBranchName(
             String defaultArtifactId, String branchName, AclPermission aclPermission) {
         return applicationService.findByBranchNameAndDefaultApplicationId(branchName, defaultArtifactId, aclPermission);
+    }
+
+    @Override
+    public Mono<GitAuthDTO> getSshKeys(String defaultArtifactId) {
+        return applicationService.getSshKey(defaultArtifactId);
+    }
+
+    @Override
+    public Mono<Application> createNewArtifactForCheckout(Artifact sourceArtifact, String branchName) {
+        GitArtifactMetadata sourceBranchGitData = sourceArtifact.getGitArtifactMetadata();
+        sourceBranchGitData.setBranchName(branchName);
+        sourceBranchGitData.setIsRepoPrivate(null);
+        // Save new artifact in DB and update from the parent branch application
+        sourceBranchGitData.setGitAuth(null);
+        sourceBranchGitData.setLastCommittedAt(Instant.now());
+
+        Application sourceApplication = (Application) sourceArtifact;
+        sourceApplication.setId(null);
+        sourceApplication.setPages(null);
+        sourceApplication.setPublishedPages(null);
+        sourceApplication.setEditModeThemeId(null);
+        sourceApplication.setPublishedModeThemeId(null);
+        sourceApplication.setGitApplicationMetadata(sourceBranchGitData);
+
+        return applicationService.save(sourceApplication);
     }
 
     @Override
@@ -97,6 +150,11 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
         update.setIsManualUpdate(false);
 
         return applicationService.update(artifact.getId(), update);
+    }
+
+    @Override
+    public Mono<Void> updateArtifactWithProtectedBranches(String defaultArtifactId, List<String> branchNames) {
+        return applicationService.updateProtectedBranches(defaultArtifactId, branchNames);
     }
 
     @Override
@@ -164,6 +222,11 @@ public class GitApplicationHelperCEImpl implements GitArtifactHelperCE<Applicati
                 .flatMap(branchName ->
                         getArtifactByDefaultIdAndBranchName(defaultArtifactId, branchName, appEditPermission))
                 .flatMap(applicationPageService::deleteApplicationByResource);
+    }
+
+    @Override
+    public Mono<Application> deleteArtifactByResource(Artifact artifact) {
+        return applicationPageService.deleteApplicationByResource((Application) artifact);
     }
 
     /**
