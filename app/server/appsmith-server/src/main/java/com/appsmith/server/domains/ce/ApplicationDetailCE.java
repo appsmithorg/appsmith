@@ -6,6 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
@@ -14,6 +15,7 @@ import org.hibernate.annotations.Type;
 @Getter
 @Setter
 @ToString
+@EqualsAndHashCode
 public class ApplicationDetailCE {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
