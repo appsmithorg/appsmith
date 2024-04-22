@@ -81,6 +81,14 @@ The command uninstalls the release and removes all Kubernetes resources associat
 | `image.repository`	| Appsmith image repository		| `appsmith/appsmith-ce` 	 |
 | `image.tag`					| Appsmith image tag					| `latest` 										      |
 | `image.pullPolicy`	| Appsmith image pull policy	| `IfNotPresent` 							   |
+| `initContainer.redis.registry`		| Redis image registry			| `docker.io` 					  |
+| `initContainer.redis.repository`	| Redis image repository		| `bitnami/redis-cluster` 	 |
+| `initContainer.redis.tag`					| Redis image tag					| `7.0.13-debian-11-r10` 										      |
+| `initContainer.redis.pullPolicy`	| Redis image pull policy	| `IfNotPresent` 							   |
+| `initContainer.mongodb.registry`		| Mongodb image registry			| `docker.io` 					  |
+| `initContainer.mongodb.repository`	| Mongodb image repository		| `bitnami/mongodb` 	 |
+| `initContainer.mongodb.tag`					| Mongodb image tag					| `5.0.21-debian-11-r5` 										      |
+| `initContainer.mongodb.pullPolicy`	| Mongodb image pull policy	| `IfNotPresent` 							   |
 
 ### Appsmith deployment parameters
 | Name 											 	| Description 																				| Value 					|
