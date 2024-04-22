@@ -451,5 +451,4 @@ export class GitSync {
     }
     this.CloseGitSyncModal();
   }
-
 }
