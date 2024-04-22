@@ -256,8 +256,8 @@ function ImportModal(props: ImportModalProps) {
             {toEditor
               ? null
               : isImporting
-              ? createMessage(UPLOADING_JSON)
-              : mainDescription}
+                ? createMessage(UPLOADING_JSON)
+                : mainDescription}
           </Text>
         </TextWrapper>
         {!isImporting && (

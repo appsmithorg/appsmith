@@ -50,4 +50,4 @@ jobs:
           projectToken: ${{ secrets.CHROMATIC_PROJECT_TOKEN }}
           workingDir: ./app/client/packages/storybook
           exitOnceUploaded: true
-          buildScriptName: "build"
+          buildScriptName: "build-storybook"

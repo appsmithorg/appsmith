@@ -22,10 +22,10 @@ const ItemLoadingIndicator = ({ type }: { type: LoadingItemType }) => {
           type === "SPREADSHEET"
             ? GSHEET_SPREADSHEET_LOADING
             : type === "SHEET"
-            ? GSHEET_SHEET_LOADING
-            : type === "SCHEMA"
-            ? LOADING_SCHEMA
-            : GSHEET_DATA_LOADING,
+              ? GSHEET_SHEET_LOADING
+              : type === "SCHEMA"
+                ? LOADING_SCHEMA
+                : GSHEET_DATA_LOADING,
         )}
       </Text>
     </MessageWrapper>
