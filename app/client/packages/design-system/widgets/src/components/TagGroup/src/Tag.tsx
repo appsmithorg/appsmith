@@ -24,7 +24,7 @@ function Tag({ children, ...props }: HeadlessTagProps) {
           <span>{children}</span>
           {allowsRemoving && (
             <HeadlessButton slot="remove">
-              <Icon name="cross" />
+              <Icon name="x" />
             </HeadlessButton>
           )}
         </>

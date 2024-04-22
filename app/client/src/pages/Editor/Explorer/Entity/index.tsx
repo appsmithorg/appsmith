@@ -110,8 +110,8 @@ export const EntityItem = styled.div<{
     props.active
       ? `var(--ads-v2-color-bg-muted)`
       : props.isSticky
-      ? "var(--ads-v2-color-bg)"
-      : "none"};
+        ? "var(--ads-v2-color-bg)"
+        : "none"};
   height: 36px;
   width: 100%;
   display: inline-grid;

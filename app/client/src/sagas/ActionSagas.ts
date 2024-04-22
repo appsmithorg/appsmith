@@ -233,8 +233,8 @@ export function* createDefaultActionPayload({
       plugin?.type === PluginType.API
         ? defaultApiActionConfig
         : !!defaultActionConfig
-        ? defaultActionConfig
-        : {},
+          ? defaultActionConfig
+          : {},
     name: newActionName,
   };
 

@@ -204,12 +204,12 @@ const InputComponentWrapper = styled((props) => (
       labelPosition === LabelPosition.Top
         ? `flex-start`
         : compactMode
-        ? `center`
-        : labelPosition === LabelPosition.Left
-        ? checkInputTypeText(inputType)
-          ? `stretch`
-          : `center`
-        : `flex-start`};
+          ? `center`
+          : labelPosition === LabelPosition.Left
+            ? checkInputTypeText(inputType)
+              ? `stretch`
+              : `center`
+            : `flex-start`};
   }
 `;
 
