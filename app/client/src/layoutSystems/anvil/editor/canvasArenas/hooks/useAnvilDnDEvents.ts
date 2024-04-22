@@ -115,6 +115,8 @@ export const useAnvilDnDEvents = (
             calculateHighlights();
             canvasIsDragging.current = true;
             requestAnimationFrame(() => onMouseMove(e));
+          } else {
+            onMouseOver(e);
           }
         };
         // make sure rendering highlights on canvas and highlighting cell happens once every 50ms
@@ -191,9 +193,17 @@ export const useAnvilDnDEvents = (
           setDraggingCanvas("");
         };
         if (anvilDnDListenerRef.current) {
+          anvilDnDListenerRef.current?.addEventListener(
+            "mouseenter",
+            onMouseOver,
+          );
           anvilDnDListenerRef.current.addEventListener(
             "mouseover",
             onMouseOver,
+          );
+          anvilDnDListenerRef.current.addEventListener(
+            "mouseleave",
+            onMouseOut,
           );
           anvilDnDListenerRef.current.addEventListener("mouseout", onMouseOut);
           // Initialize listeners
@@ -215,6 +225,14 @@ export const useAnvilDnDEvents = (
           anvilDnDListenerRef.current?.removeEventListener(
             "mouseover",
             onMouseOver,
+          );
+          anvilDnDListenerRef.current?.removeEventListener(
+            "mouseenter",
+            onMouseOver,
+          );
+          anvilDnDListenerRef.current?.removeEventListener(
+            "mouseleave",
+            onMouseOut,
           );
           anvilDnDListenerRef.current?.removeEventListener(
             "mouseout",
