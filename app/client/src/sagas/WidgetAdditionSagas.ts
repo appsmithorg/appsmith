@@ -50,7 +50,7 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { all, call, put, select, takeEvery } from "redux-saga/effects";
+import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getCanvasWidth,
@@ -622,6 +622,7 @@ function* getBuildingBlocksDropMousePosition(
 
 function* runSingleAction(actionId: string) {
   yield put(runAction(actionId));
+  yield take(ReduxActionTypes.RUN_ACTION_SUCCESS);
 }
 
 function* runNewlyCreatedActions(
