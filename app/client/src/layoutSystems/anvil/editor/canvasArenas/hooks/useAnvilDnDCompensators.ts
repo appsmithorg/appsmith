@@ -1,3 +1,4 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import {
   calculateEdgeLeftCompensator,
   calculateEdgeTopCompensator,
@@ -11,6 +12,7 @@ export const useAnvilDnDCompensators = (
   isSection: boolean,
   isModalLayout: boolean,
   isEmptyLayout: boolean,
+  widgetProps: FlattenedWidgetProps,
 ) => {
   const { mainCanvasSpacing, zoneSpacing } =
     getWidgetSpacingCSSVariableValues();
@@ -20,6 +22,7 @@ export const useAnvilDnDCompensators = (
     left: isSection && !emptyModal ? mainCanvasSpacing : 0,
     top: isModalLayout ? (isEmptyLayout ? 0 : modalSpacing) : 0,
   };
+  const dynamicZoneSpacing = !!widgetProps.elevatedBackground ? zoneSpacing : 0;
 
   // Define compensator values for edges
   const edgeCompensatorValues = {
@@ -29,7 +32,7 @@ export const useAnvilDnDCompensators = (
       isModalLayout,
       isEmptyLayout,
       mainCanvasSpacing,
-      zoneSpacing,
+      dynamicZoneSpacing,
     ),
     top: calculateEdgeTopCompensator(
       isMainCanvas,
@@ -37,7 +40,7 @@ export const useAnvilDnDCompensators = (
       isModalLayout,
       isEmptyLayout,
       mainCanvasSpacing,
-      zoneSpacing,
+      dynamicZoneSpacing,
       modalSpacing,
     ),
   };
@@ -50,14 +53,14 @@ export const useAnvilDnDCompensators = (
       isModalLayout,
       isEmptyLayout,
       mainCanvasSpacing,
-      zoneSpacing,
+      dynamicZoneSpacing,
     ),
     top: calculateLayoutTopCompensator(
       isMainCanvas,
       isSection,
       isModalLayout,
       isEmptyLayout,
-      zoneSpacing,
+      dynamicZoneSpacing,
       modalSpacing,
     ),
   };

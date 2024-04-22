@@ -151,12 +151,13 @@ export const useAnvilDnDStates = ({
   const draggedOn = isMainCanvas
     ? AnvilDropTargetTypesEnum.MAIN_CANVAS
     : isSection
-    ? AnvilDropTargetTypesEnum.SECTION
-    : AnvilDropTargetTypesEnum.ZONE;
+      ? AnvilDropTargetTypesEnum.SECTION
+      : AnvilDropTargetTypesEnum.ZONE;
   const currentlyOpenModal = useSelector(getCurrentlyOpenAnvilModal);
   const isModalLayout = currentlyOpenModal === widgetId;
+  const widgetProps = allWidgets[widgetId];
   const isEmptyLayout =
-    (allWidgets[widgetId].children || []).filter(
+    (widgetProps.children || []).filter(
       (each) => !allWidgets[each].detachFromLayout,
     ).length === 0;
   const {
@@ -169,6 +170,7 @@ export const useAnvilDnDStates = ({
     isSection,
     isModalLayout,
     isEmptyLayout,
+    widgetProps,
   );
 
   return {
