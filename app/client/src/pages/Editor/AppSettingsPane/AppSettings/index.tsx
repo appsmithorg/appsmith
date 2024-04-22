@@ -237,21 +237,22 @@ function AppSettings() {
               );
             case AppSettingsTabs.Theme:
               return (
-                <>
-                  <div className="px-4">
-                    <SectionTitle className="flex items-center gap-2">
-                      {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
-                      <BetaCard />
-                    </SectionTitle>
-                  </div>
-                  <ThemeContentWrapper>
-                    {isAnvilLayout ? (
-                      <WDSThemePropertyPane />
-                    ) : (
+                <ThemeContentWrapper>
+                  {isAnvilLayout ? (
+                    <WDSThemePropertyPane />
+                  ) : (
+                    <>
+                      <div className="px-4">
+                        <SectionTitle className="flex items-center gap-2">
+                          {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
+                          <BetaCard />
+                        </SectionTitle>
+                      </div>
+
                       <ThemePropertyPane />
-                    )}
-                  </ThemeContentWrapper>
-                </>
+                    </>
+                  )}
+                </ThemeContentWrapper>
               );
             case AppSettingsTabs.Page:
               return (
