@@ -24,6 +24,7 @@ describe(
       });
     });
 
+
     it("1. `See more` functionality should filter `Building blocks` in add a page from templates modal", function () {
       agHelper.GetNClick(onboarding.locators.seeMoreButtonOnCanvas, 0, true);
 
