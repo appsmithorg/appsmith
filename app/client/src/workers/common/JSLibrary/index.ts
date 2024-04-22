@@ -34,15 +34,16 @@ export const defaultLibraries: JSLibrary[] = [
 export const JSLibraries = [...defaultLibraries];
 
 const JSLibraryAccessorModifier = () => {
-  let jsLibraryAccessorSet = Object.freeze(
-    new Set(JSLibraries.flatMap((lib) => lib.accessor)),
+  let jsLibraryAccessorSet = new Set(
+    JSLibraries.flatMap((lib) => lib.accessor),
   );
+
   return {
     regenerateSet: () => {
       jsLibraryAccessorSet = new Set(
         JSLibraries.flatMap((lib) => lib.accessor),
       );
-      Object.freeze(jsLibraryAccessorSet);
+
       return;
     },
     getSet: () => {
