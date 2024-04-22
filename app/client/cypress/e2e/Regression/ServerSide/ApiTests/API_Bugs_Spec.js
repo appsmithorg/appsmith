@@ -73,15 +73,15 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
         //expect($src).contains("cat");
       });
 
-    // cy.wait("@postExecute").then(({ response }) => {
-    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
-    //   expect(response.body.data.body[0].url.length).to.be.above(0); //Cat image
-    // });
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+      expect(response.body.data.body[0].url.length).to.be.above(0); //Cat image
+    });
 
-    // cy.wait("@postExecute").then(({ response }) => {
-    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
-    //   expect(response.body.data.body.message.length).to.be.above(0); //Dog Image
-    // });
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+      expect(response.body.data.body.message.length).to.be.above(0); //Dog Image
+    });
 
     //Flower2 Image
     cy.xpath("//img/parent::div")
@@ -93,10 +93,10 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
         //expect($src).contains("dog");
       });
 
-    // cy.wait("@postExecute").then(({ response }) => {
-    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
-    //   expect(response.body.data.body.length).to.be.above(0); //Number fact
-    // });
+    cy.wait("@postExecute").then(({ response }) => {
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+      expect(response.body.data.body.length).to.be.above(0); //Number fact
+    });
 
     cy.get(".t--widget-buttonwidget").scrollIntoView();
 
@@ -105,11 +105,11 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
       .invoke("text")
       .then(($txt) => expect($txt).to.have.length.greaterThan(20));
 
-    // cy.wait("@postExecute").then(({ response }) => {
-    //   //cy.log("Response is :"+ JSON.stringify(response.body))
-    //   expect(response.body.data.isExecutionSuccess).to.eq(true);
-    //   expect(response.body.data.request.url.length).to.be.above(0); //Cocktail
-    // });
+    cy.wait("@postExecute").then(({ response }) => {
+      //cy.log("Response is :"+ JSON.stringify(response.body))
+      expect(response.body.data.isExecutionSuccess).to.eq(true);
+      expect(response.body.data.request.url.length).to.be.above(0); //Cocktail
+    });
 
     //Cocktail DB
     cy.xpath("//img/parent::div")
@@ -122,21 +122,21 @@ describe("Rest Bugs tests", { tags: ["@tag.Datasource"] }, function () {
       });
 
     //Spread to check later!
-    // cy.wait(['@postExecute', '@postExecute', '@postExecute', '@postExecute'], { timeout: 8000 }).spread(
-    //     (postExecute1, postExecute2, postExecute3, postExecute4) => {
-    //         expect(postExecute1.body.data.isExecutionSuccess).to.eq(true);
-    //         expect(postExecute1.body.data.body.url.length).to.be.above(0);
+    cy.wait(['@postExecute', '@postExecute', '@postExecute', '@postExecute'], { timeout: 8000 }).spread(
+        (postExecute1, postExecute2, postExecute3, postExecute4) => {
+            expect(postExecute1.body.data.isExecutionSuccess).to.eq(true);
+            expect(postExecute1.body.data.body.url.length).to.be.above(0);
 
-    //         expect(postExecute2.body.data.isExecutionSuccess).to.eq(true);
-    //         expect(postExecute2.body.data.body.type).to.eq('cat');
+            expect(postExecute2.body.data.isExecutionSuccess).to.eq(true);
+            expect(postExecute2.body.data.body.type).to.eq('cat');
 
-    //         expect(postExecute3.body.data.isExecutionSuccess).to.eq(true);
-    //         expect(postExecute3.body.data.body.message.length).to.be.above(0);
+            expect(postExecute3.body.data.isExecutionSuccess).to.eq(true);
+            expect(postExecute3.body.data.body.message.length).to.be.above(0);
 
-    //         expect(postExecute4.body.data.isExecutionSuccess).to.eq(true);
-    //         expect(postExecute4.body.data.body.type).to.eq('dog');
+            expect(postExecute4.body.data.isExecutionSuccess).to.eq(true);
+            expect(postExecute4.body.data.body.type).to.eq('dog');
 
-    //     })
+        })
   });
 
   it("2. Bug 6863: Clicking on 'debug' crashes the appsmith application", function () {
