@@ -2730,18 +2730,22 @@ describe("Tests for DependencyMapUtils", () => {
         dependencyMap,
         "apiData.data",
       );
+      // addDependency is called
       expect(spy).toHaveBeenCalledTimes(1);
-    });
-    test("should not trigger addDependency when the child node is there ", () => {
-      //when apiData.data child node is already there
       expect(dependencyMap.getDirectDependencies("apiData")).toEqual([
         "apiData.data",
       ]);
+    });
+    test("should not trigger addDependency when the child node is there ", () => {
+      //ensure that the child node is a depedency
+      dependencyMap.addDependency("apiData", ["apiData.data"]);
+
       const spy = jest.spyOn(dependencyMap, "addDependency");
       DependencyMapUtils.makeParentsDependOnChild(
         dependencyMap,
         "apiData.data",
       );
+      // addDependency is not called
       expect(spy).toHaveBeenCalledTimes(0);
     });
   });

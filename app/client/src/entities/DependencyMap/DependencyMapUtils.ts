@@ -66,8 +66,11 @@ export class DependencyMapUtils {
       // Add child to immediate parent's dependencies if not already present
       // don't perform addDependency unnecessarily
       if (!existingImmediateParentDepsSet.has(curKey)) {
-        const newDeps = [...existingImmediateParentDeps, curKey];
-        dependencyMap.addDependency(immediateParent, newDeps);
+        existingImmediateParentDeps.push(curKey);
+        dependencyMap.addDependency(
+          immediateParent,
+          existingImmediateParentDeps,
+        );
       }
       curKey = immediateParent;
     }
