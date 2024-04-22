@@ -57,7 +57,7 @@ describe(
       PageLeftPane.switchSegment(PagePaneSegment.JS);
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-         createMessage(EDITOR_PANE_TEXTS.js_blank_state_description),
+          createMessage(EDITOR_PANE_TEXTS.js_blank_state_description),
         ),
       );
       agHelper.AssertElementVisibility(
