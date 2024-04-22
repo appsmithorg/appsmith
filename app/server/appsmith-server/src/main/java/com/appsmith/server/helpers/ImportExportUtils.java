@@ -9,8 +9,8 @@ import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ArtifactExchangeJson;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.TransactionException;
 import org.springframework.dao.InvalidDataAccessApiUsageException;
-import org.springframework.transaction.TransactionException;
 
 import java.time.Instant;
 import java.util.Map;
