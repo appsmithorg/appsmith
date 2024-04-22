@@ -29,6 +29,7 @@ export const useAnvilDnDEvents = (
   const {
     activateOverlayWidgetDrop,
     allowToDrop,
+    canActivate,
     draggedBlocks,
     edgeCompensatorValues,
     isCurrentDraggedCanvas,
@@ -89,7 +90,7 @@ export const useAnvilDnDEvents = (
         }
       };
 
-      if (isDragging) {
+      if (isDragging && canActivate) {
         const onMouseUp = () => {
           if (
             isDragging &&
@@ -158,6 +159,7 @@ export const useAnvilDnDEvents = (
         const onMouseMove = (e: any) => {
           if (
             isCurrentDraggedCanvas &&
+            canActivate &&
             canvasIsDragging.current &&
             anvilDnDListenerRef.current
           ) {
@@ -185,8 +187,10 @@ export const useAnvilDnDEvents = (
         };
 
         const onMouseOver = (e: any) => {
-          setDraggingCanvas(layoutId);
-          e.stopPropagation();
+          if (canActivate) {
+            setDraggingCanvas(layoutId);
+            e.stopPropagation();
+          }
         };
 
         const onMouseOut = () => {
@@ -257,6 +261,7 @@ export const useAnvilDnDEvents = (
   }, [
     isDragging,
     allowToDrop,
+    canActivate,
     draggedBlocks,
     isCurrentDraggedCanvas,
     isDragging,
@@ -268,6 +273,6 @@ export const useAnvilDnDEvents = (
   ]);
 
   return {
-    showDnDListener: isDragging && !activateOverlayWidgetDrop,
+    showDnDListener: isDragging && !activateOverlayWidgetDrop && canActivate,
   };
 };
