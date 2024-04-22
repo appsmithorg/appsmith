@@ -257,8 +257,8 @@ export function generateVerticalHighlights(data: {
             item.alignment === FlexLayerAlignment.Start
               ? childCount
               : item.alignment === FlexLayerAlignment.Center
-              ? childCount + startChildren.length
-              : childCount + startChildren.length + centerChildren.length,
+                ? childCount + startChildren.length
+                : childCount + startChildren.length + centerChildren.length,
           layerIndex,
           alignment: item.alignment,
           maxHeight,

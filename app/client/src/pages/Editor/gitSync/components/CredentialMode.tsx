@@ -40,9 +40,9 @@ export const Radio = styled.label<{
         flex-basis: calc(100% / ${props.columns});
         `
       : props.rows && props.rows > 0
-      ? `
+        ? `
         margin-bottom: ${props.theme.spaces[11] + 1}px;`
-      : null};
+        : null};
 
   input {
     position: absolute;

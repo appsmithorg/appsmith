@@ -170,6 +170,7 @@ export const useAnvilDnDStates = ({
     isModalLayout,
     isEmptyLayout,
   );
+
   return {
     activateOverlayWidgetDrop,
     allowToDrop,

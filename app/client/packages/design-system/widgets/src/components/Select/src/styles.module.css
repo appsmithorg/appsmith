@@ -77,7 +77,8 @@
   z-index: var(--z-index-99);
   box-shadow: var(--box-shadow-1);
   min-inline-size: var(--trigger-width);
-  max-height: var(--sizing-150);
+  max-height: inherit;
+  min-height: unset;
   overflow-y: auto;
 }
 
