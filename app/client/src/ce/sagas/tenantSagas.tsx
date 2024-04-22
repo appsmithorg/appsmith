@@ -12,7 +12,7 @@ import { safeCrashAppRequest } from "actions/errorActions";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
 import { defaultBrandingConfig as CE_defaultBrandingConfig } from "@appsmith/reducers/tenantReducer";
 import { toast } from "design-system";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 
 // On CE we don't expose tenant config so this shouldn't make any API calls and should just return necessary permissions for the user

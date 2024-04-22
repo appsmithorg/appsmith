@@ -10,7 +10,7 @@ import * as log from "loglevel";
 import { osName } from "react-device-detect";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import AnalyticsUtil from "./AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 

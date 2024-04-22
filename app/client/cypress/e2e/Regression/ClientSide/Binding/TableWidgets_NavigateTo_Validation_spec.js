@@ -1,7 +1,7 @@
 import EditorNavigation, {
   EntityType,
-  PageLeftPane,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 const widgetsPage = require("../../../../locators/Widgets.json");
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -32,7 +32,7 @@ describe(
     it("1. Create MyPage and valdiate if its successfully created", function () {
       cy.Createpage(pageid);
       agHelper.AddDsl("displayWidgetDsl");
-      PageLeftPane.assertPresence(pageid);
+      PageList.assertPresence(pageid);
       //Table Widget Functionality with multiple page
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       EditorNavigation.SelectEntityByName("Table1", EntityType.Widget, {}, [

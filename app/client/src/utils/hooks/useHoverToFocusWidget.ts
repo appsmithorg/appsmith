@@ -5,6 +5,8 @@ import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integration
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import type { AppState } from "@appsmith/reducers";
 import type React from "react";
+import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import { EditorState } from "@appsmith/entities/IDE/constants";
 
 export const useHoverToFocusWidget = (
   widgetId: string,
@@ -15,6 +17,11 @@ export const useHoverToFocusWidget = (
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
   const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
+
+  // This state tells the current IDE state
+  const ideState = useCurrentAppState();
+  // Check if in the editor state
+  const isEditor = ideState === EditorState.EDITOR;
 
   // This state tells us whether a `ResizableComponent` is resizing
   const isResizing = useSelector(
@@ -34,6 +41,7 @@ export const useHoverToFocusWidget = (
     focusWidget &&
       !isResizingOrDragging &&
       !isFocused &&
+      isEditor &&
       !isDistributingSpace &&
       !resizeDisabled &&
       !isPreviewMode &&
