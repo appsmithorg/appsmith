@@ -2,7 +2,7 @@ import React, { useContext, useEffect, useMemo } from "react";
 import { useSelector } from "react-redux";
 import { getPluginImages } from "@appsmith/selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
 import type { AppState } from "@appsmith/reducers";
 import {

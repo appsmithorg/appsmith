@@ -4,7 +4,7 @@ import { FilePickerActionStatus } from "entities/Datasource";
 import { useDispatch } from "react-redux";
 import { filePickerCallbackAction } from "actions/datasourceActions";
 import { GOOGLE_SHEET_FILE_PICKER_OVERLAY_CLASS } from "constants/Datasource";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   createMessage,
   GOOGLE_SHEETS_FILE_PICKER_TITLE,

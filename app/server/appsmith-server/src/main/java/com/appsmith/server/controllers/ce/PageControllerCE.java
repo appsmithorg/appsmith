@@ -8,9 +8,8 @@ import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PageUpdateDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
@@ -30,7 +29,6 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @RequestMapping(Url.PAGE_URL)
@@ -56,9 +54,7 @@ public class PageControllerCE {
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<PageDTO>> createPage(
             @Valid @RequestBody PageDTO resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = "Origin", required = false) String originHeader,
-            ServerWebExchange exchange) {
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to create resource {}", resource.getClass().getName());
         return applicationPageService
                 .createPageWithBranchName(resource, branchName)
@@ -136,13 +132,6 @@ public class PageControllerCE {
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
-    @JsonView(Views.Public.class)
-    @GetMapping("{pageName}/application/{applicationName}/view")
-    public Mono<ResponseDTO<PageDTO>> getPageViewByName(
-            @PathVariable String applicationName, @PathVariable String pageName) {
-        return Mono.error(new AppsmithException(AppsmithError.DEPRECATED_API));
-    }
-
     /**
      * This only deletes the unpublished version of the page.
      * In case the page has never been published, the page gets deleted.
@@ -178,7 +167,7 @@ public class PageControllerCE {
     @PutMapping("/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> updatePage(
             @PathVariable String defaultPageId,
-            @RequestBody PageDTO resource,
+            @RequestBody @Valid PageUpdateDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to update page with id: {}, branchName: {}", defaultPageId, branchName);
         return newPageService

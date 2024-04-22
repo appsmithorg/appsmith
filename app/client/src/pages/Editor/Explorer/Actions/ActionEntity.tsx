@@ -15,7 +15,7 @@ import type { Action, StoredDatasource } from "entities/Action";
 import { PluginType } from "entities/Action";
 import { keyBy } from "lodash";
 import { getActionConfig } from "./helpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useLocation } from "react-router";
 import type { Datasource } from "entities/Datasource";
 import {

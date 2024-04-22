@@ -10,7 +10,7 @@ import {
 } from "@appsmith/constants/messages";
 import CustomWidgetBuilderService from "utils/CustomWidgetBuilderService";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { xor } from "lodash";
 
 interface ButtonControlState {

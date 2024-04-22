@@ -3,7 +3,7 @@ import styled from "styled-components";
 import type { SocialLoginType } from "@appsmith/constants/SocialLogin";
 import { getSocialLoginButtonProps } from "@appsmith/constants/SocialLogin";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";
 import PerformanceTracker, {
   PerformanceTransactionName,
@@ -12,11 +12,23 @@ import { Button } from "design-system";
 
 const ThirdPartyAuthWrapper = styled.div`
   display: flex;
-  flex-direction: column;
   gap: var(--ads-v2-spaces-3);
+  width: 100%;
+  flex-wrap: wrap;
+`;
+
+const StyledButton = styled(Button)`
+  flex: 1 0 171px;
 `;
 
 type SignInType = "SIGNIN" | "SIGNUP";
+
+const startIcon: {
+  [key: string]: string;
+} = {
+  Google: "google-colored",
+  Github: "github-fill",
+};
 
 function SocialLoginButton(props: {
   logo: string;
@@ -33,7 +45,7 @@ function SocialLoginButton(props: {
     url += `?redirectUrl=${encodeURIComponent(redirectUrl)}`;
   }
   return (
-    <Button
+    <StyledButton
       href={url}
       kind="secondary"
       onClick={() => {
@@ -55,14 +67,14 @@ function SocialLoginButton(props: {
       size="md"
       startIcon={
         ["Google", "Github"].includes(props.name)
-          ? props.name.toLowerCase() + `-fill`
+          ? startIcon[props.name]
           : "key-2-line"
       }
     >
       <div className="login-method" data-testid={`login-with-${props.name}`}>
-        {props.label ?? `Continue with ${props.name}`}
+        {props.label ?? `${props.name}`}
       </div>
-    </Button>
+    </StyledButton>
   );
 }
 

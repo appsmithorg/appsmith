@@ -58,7 +58,7 @@ import {
 import { getModalWidgetType } from "selectors/widgetSelectors";
 import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
 import { getAppViewerPageIdFromPath } from "@appsmith/pages/Editor/Explorer/helpers";
-import AnalyticsUtil from "../utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 // The following is computed to be used in the entity explorer

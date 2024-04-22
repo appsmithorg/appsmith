@@ -63,24 +63,21 @@ function SinglePageChange({ page, status }: SinglePageChangeProps) {
 
   const titleText = useMemo(() => {
     let text = `${page} `;
-    if (
-      changeFlags.isPageModified ||
-      changeFlags.isJsObjectModified ||
-      changeFlags.isQueryModified
-    ) {
+    if (changeFlags.isPageAdded) {
+      text += "added";
+    } else if (changeFlags.isPageRemoved) {
+      text += "removed";
+    } else if (changeFlags.isPageModified) {
       text += "modified";
     } else if (
-      changeFlags.isPageAdded ||
+      changeFlags.isJsObjectModified ||
+      changeFlags.isQueryModified ||
       changeFlags.isJsObjectAdded ||
-      changeFlags.isQueryAdded
-    ) {
-      text += "added";
-    } else if (
-      changeFlags.isPageRemoved ||
+      changeFlags.isQueryAdded ||
       changeFlags.isJsObjectRemoved ||
       changeFlags.isQueryRemoved
     ) {
-      text += "removed";
+      text += "modified";
     }
     return text;
   }, [page, changeFlags]);
@@ -151,23 +148,35 @@ export default function PageChanges({ status }: PageChangesProps) {
     queriesRemoved,
   } = status;
 
-  const allPagesChangedSet = new Set([
+  const staticPageChangeSet = new Set([
+    ...pagesModified,
+    ...pagesAdded,
+    ...pagesRemoved,
+  ]);
+
+  const staticPageChanges = Array.from(staticPageChangeSet).sort();
+
+  const expandablePageChangeSet = new Set([
     ...jsObjectsModified.map((jsObject) => jsObject.split("/")[0]),
     ...jsObjectsAdded.map((jsObject) => jsObject.split("/")[0]),
     ...jsObjectsRemoved.map((jsObject) => jsObject.split("/")[0]),
     ...queriesModified.map((query) => query.split("/")[0]),
     ...queriesAdded.map((query) => query.split("/")[0]),
     ...queriesRemoved.map((query) => query.split("/")[0]),
-    ...pagesModified,
-    ...pagesAdded,
-    ...pagesRemoved,
   ]);
 
-  if (allPagesChangedSet.size === 0) return null;
+  const expandablePageChanges = Array.from(expandablePageChangeSet).sort();
+
+  const allPagesChangeSet = new Set([
+    ...staticPageChanges,
+    ...expandablePageChanges,
+  ]);
+
+  if (allPagesChangeSet.size === 0) return null;
 
   return (
     <>
-      {Array.from(allPagesChangedSet).map((page) => {
+      {Array.from(allPagesChangeSet).map((page) => {
         return <SinglePageChange key={page} page={page} status={status} />;
       })}
     </>

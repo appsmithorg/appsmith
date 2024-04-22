@@ -23,7 +23,7 @@ import {
   getCurrentApplicationId,
 } from "selectors/editorSelectors";
 import { isImportingStarterBuildingBlockToAppSelector } from "selectors/templatesSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   IconContainer,
   TemplateLayoutContainer,

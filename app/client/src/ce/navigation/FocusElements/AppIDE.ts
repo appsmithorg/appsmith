@@ -59,9 +59,9 @@ import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getExplorerWidth } from "selectors/explorerSelector";
 import {
-  getFirstJSObject,
   getJSPaneConfigSelectedTab,
   getJsPaneDebuggerState,
+  getLastJSTab,
 } from "selectors/jsPaneSelectors";
 import {
   getFocusablePropertyPaneField,
@@ -69,7 +69,7 @@ import {
   getSelectedPropertyPanel,
 } from "selectors/propertyPaneSelectors";
 import {
-  getFirstQuery,
+  getLastQueryTab,
   getQueryPaneConfigSelectedTabIndex,
   getQueryPaneDebuggerState,
 } from "selectors/queryPaneSelectors";
@@ -254,14 +254,13 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       selector: getQueryTabs,
       setter: setQueryTabs,
       defaultValue: [],
-      persist: true,
     },
     {
       type: FocusElementConfigType.URL,
       name: FocusElement.SelectedQuery,
       selector: identifyEntityFromPath,
       setter: setSelectedQuery,
-      defaultValue: getFirstQuery,
+      defaultValue: getLastQueryTab,
     },
   ],
   [FocusEntity.JS_OBJECT_LIST]: [
@@ -270,7 +269,7 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       name: FocusElement.SelectedJSObject,
       selector: identifyEntityFromPath,
       setter: setSelectedJSObject,
-      defaultValue: getFirstJSObject,
+      defaultValue: getLastJSTab,
     },
     {
       type: FocusElementConfigType.Redux,
@@ -278,7 +277,6 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
       selector: getJSTabs,
       setter: setJSTabs,
       defaultValue: [],
-      persist: true,
     },
   ],
   [FocusEntity.WIDGET_LIST]: [

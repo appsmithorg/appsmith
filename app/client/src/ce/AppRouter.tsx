@@ -73,6 +73,7 @@ export function Routes() {
   const user = useSelector(getCurrentUserSelector);
   const tenantPermissions = useSelector(getTenantPermissions);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+  useFeatureFlagOverride();
 
   return (
     <Switch>
@@ -150,7 +151,6 @@ export default function AppRouter() {
   const safeCrashCode: ERROR_CODES | undefined = useSelector(getSafeCrashCode);
   const isConsolidatedPageLoading = useSelector(getIsConsolidatedPageLoading);
   const dispatch = useDispatch();
-  useFeatureFlagOverride();
 
   useEffect(() => {
     dispatch(initCurrentPage());

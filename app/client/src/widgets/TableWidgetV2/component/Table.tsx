@@ -422,8 +422,8 @@ export function Table(props: TableProps) {
             props.isLoading
               ? Classes.SKELETON
               : shouldUseVirtual
-              ? "tableWrap virtual"
-              : "tableWrap"
+                ? "tableWrap virtual"
+                : "tableWrap"
           }
           ref={tableWrapperRef}
         >

@@ -473,6 +473,13 @@ export const updateGitProtectedBranchesInit = (payload: {
   };
 };
 
+export const setShowBranchPopupAction = (show: boolean) => {
+  return {
+    type: ReduxActionTypes.GIT_SHOW_BRANCH_POPUP,
+    payload: { show },
+  };
+};
+
 export const toggleAutocommitEnabledInit = () => ({
   type: ReduxActionTypes.GIT_TOGGLE_AUTOCOMMIT_ENABLED_INIT,
 });

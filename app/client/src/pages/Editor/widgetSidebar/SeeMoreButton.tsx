@@ -9,9 +9,7 @@ interface Props {
 
 const SeeMoreButton = (props: Props) => {
   const SEE_MORE_LESS_TEXT = !props.showSeeLess ? "See more" : "See less";
-  const SEE_MORE_ARROW = !props.showSeeLess
-    ? "arrow-down-s-line"
-    : "arrow-up-s-line";
+  const SEE_MORE_ARROW = !props.showSeeLess ? "down-arrow-2" : "arrow-up-line";
 
   return (
     <Button

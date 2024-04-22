@@ -1,6 +1,7 @@
 import {
   agHelper,
   dataSources,
+  debuggerHelper,
   deployMode,
   entityExplorer,
   homePage,
@@ -70,44 +71,14 @@ describe(
       //homePage.DeleteWorkspace("JSOnLoadTest");
     });
 
-    it("6. Tc #1910 - Verify the Number of confirmation models of JS Object on page load", () => {
+    it("6. Tc #1910 - Verify that JSObject functions set to run on pageLoad are executed on page refresh", () => {
       homePage.CreateAppInWorkspace("JSOnLoadTest");
-      entityExplorer.DragDropWidgetNVerify("buttonwidget", 100, 100);
-      dataSources.CreateDataSource("Postgres");
-      cy.get("@dsName").then((dsName) => {
-        datasourceName = dsName;
-        dataSources.CreateQueryAfterDSSaved(
-          `SELECT * FROM public."astronauts" LIMIT 1;`,
-          "getastronauts",
-        );
-        dataSources.CreateQueryFromOverlay(
-          datasourceName,
-          `SELECT * FROM public."category" LIMIT 1;`,
-          "getcategory",
-        );
-        dataSources.CreateQueryFromOverlay(
-          datasourceName,
-          `SELECT * FROM public."city" LIMIT 1;`,
-          "getcity",
-        );
-        dataSources.CreateQueryFromOverlay(
-          datasourceName,
-          `SELECT * FROM public."film" LIMIT 1;`,
-          "getfilm",
-        );
-        dataSources.CreateQueryFromOverlay(
-          datasourceName,
-          `SELECT * FROM public."hogwartsstudents" LIMIT 1;`,
-          "gethogwartsstudents",
-        );
-      });
-
       jsEditor.CreateJSObject(
         `export default {
         astros: () => {
-          return getastronauts.run();	},
+          return "test"	},
         city: () => {
-          return getcity.run()
+          return "test2"
         }
       }`,
         {
@@ -119,57 +90,14 @@ describe(
       );
 
       jsEditor.EnableDisableAsyncFuncSettings("astros", true);
-      jsEditor.EnableDisableAsyncFuncSettings("city", true);
-
-      jsEditor.CreateJSObject(
-        `export default {
-        cat: () => {
-          return getcategory.run();	},
-        hogwartsstudents: () => {
-          return gethogwartsstudents.run();
-        }
-      }`,
-        {
-          paste: true,
-          completeReplace: true,
-          toRun: false,
-          shouldCreateNewJSObj: true,
-        },
-      );
-
-      jsEditor.EnableDisableAsyncFuncSettings("cat", true);
-      jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true);
-
-      jsEditor.CreateJSObject(
-        `export default {
-        film: async () => {
-          return getfilm.run();
-        }
-      }`,
-        {
-          paste: true,
-          completeReplace: true,
-          toRun: false,
-          shouldCreateNewJSObj: true,
-        },
-      );
-      jsEditor.EnableDisableAsyncFuncSettings("film", true);
-    });
-
-    it("7. Tc #1909 - Verify the sequence of of JS Object on page load", () => {
-      EditorNavigation.SelectEntityByName("JSObject1", EntityType.JSObject);
-      jsEditor.EnableDisableAsyncFuncSettings("astros", true);
-      jsEditor.EnableDisableAsyncFuncSettings("city", true);
-      EditorNavigation.SelectEntityByName("JSObject2", EntityType.JSObject);
-      jsEditor.EnableDisableAsyncFuncSettings("cat", true);
-      jsEditor.EnableDisableAsyncFuncSettings("hogwartsstudents", true);
-      EditorNavigation.SelectEntityByName("JSObject3", EntityType.JSObject);
-      jsEditor.EnableDisableAsyncFuncSettings("film", true);
 
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
       agHelper.RefreshPage();
 
-      agHelper.ValidateToastMessage("ran successfully", 0, 5);
+      debuggerHelper.ClickDebuggerIcon();
+      debuggerHelper.ClickLogsTab();
+      debuggerHelper.DebuggerLogsFilter("JSObject1.astros");
+      debuggerHelper.DoesConsoleLogExist("JS Function executed successfully");
     });
 
     function AssertJSOnPageLoad(

@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Icon, Input, Text, toast, Tooltip } from "design-system";
 
 export const BodyContainer = styled.div`

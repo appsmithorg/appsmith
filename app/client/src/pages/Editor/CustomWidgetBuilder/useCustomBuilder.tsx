@@ -16,7 +16,7 @@ import {
   type CustomWidgetBuilderContextType,
 } from "./types";
 import { compileSrcDoc } from "./utility";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 let connectionTimeout: number;
 
