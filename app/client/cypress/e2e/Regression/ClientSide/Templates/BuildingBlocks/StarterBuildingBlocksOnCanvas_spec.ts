@@ -24,8 +24,18 @@ describe(
       });
     });
 
+    it("1. `Connect your data` pop up should come up when we fork a building block from canvas.", function () {
+      agHelper.GetNClick(templates.locators._buildingBlockCardOnCanvas);
 
-    it("1. `See more` functionality should filter `Building blocks` in add a page from templates modal", function () {
+      agHelper.WaitUntilEleDisappear("Importing template");
+      agHelper.AssertElementVisibility(
+        templates.locators._datasourceConnectPromptSubmitBtn,
+      );
+      agHelper.GetNClick(templates.locators._datasourceConnectPromptSubmitBtn);
+      cy.url().should("include", "datasources/NEW");
+    });
+
+    it("2. `See more` functionality should filter `Building blocks` in add a page from templates modal", function () {
       agHelper.GetNClick(onboarding.locators.seeMoreButtonOnCanvas, 0, true);
 
       agHelper.AssertElementVisibility(template.templateDialogBox);
@@ -40,6 +50,20 @@ describe(
         .first()
         .prev()
         .should("have.text", "Building Blocks");
+    });
+
+    it("3. `Connect your data` pop up should NOT come up when user already has a datasource.", function () {
+      dataSources.CreateMockDB("Users");
+      AppSidebar.navigate(AppSidebarButton.Editor);
+
+      agHelper.GetNClick(templates.locators._buildingBlockCardOnCanvas, 0);
+
+      agHelper.WaitUntilEleDisappear("Importing template");
+
+      agHelper.AssertElementAbsence(
+        templates.locators._datasourceConnectPromptSubmitBtn,
+        4000,
+      );
     });
   },
 );
