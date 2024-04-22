@@ -2709,22 +2709,26 @@ describe("Tests for DependencyMapUtils", () => {
     ]);
   }
   describe("makeParentsDependOnChild", () => {
-    const dependencyMap = new DependencyMap();
-    dependencyMap.addNodes({
-      tableWidget: true,
-      apiData: true,
-      "tableWidget.tableData": true,
-      "apiData.data": true,
-    });
-    dependencyMap.addDependency("tableWidget", [
-      "tableWidget.tableData",
-      "apiData.data",
-    ]);
-    dependencyMap.addDependency("apiData", []);
+    const createSomeDependencyMap = () => {
+      const dependencyMap = new DependencyMap();
+      dependencyMap.addNodes({
+        tableWidget: true,
+        apiData: true,
+        "tableWidget.tableData": true,
+        "apiData.data": true,
+      });
+      dependencyMap.addDependency("tableWidget", [
+        "tableWidget.tableData",
+        "apiData.data",
+      ]);
+      dependencyMap.addDependency("apiData", []);
+      return dependencyMap;
+    };
     afterEach(() => {
       jest.clearAllMocks();
     });
     test("should trigger addDependency when the child node isn't there ", () => {
+      const dependencyMap = createSomeDependencyMap();
       const spy = jest.spyOn(dependencyMap, "addDependency");
       DependencyMapUtils.makeParentsDependOnChild(
         dependencyMap,
@@ -2737,9 +2741,13 @@ describe("Tests for DependencyMapUtils", () => {
       ]);
     });
     test("should not trigger addDependency when the child node is there ", () => {
+      const dependencyMap = createSomeDependencyMap();
       //ensure that the child node is a depedency
       dependencyMap.addDependency("apiData", ["apiData.data"]);
 
+      expect(dependencyMap.getDirectDependencies("apiData")).toEqual([
+        "apiData.data",
+      ]);
       const spy = jest.spyOn(dependencyMap, "addDependency");
       DependencyMapUtils.makeParentsDependOnChild(
         dependencyMap,
