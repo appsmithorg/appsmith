@@ -92,8 +92,7 @@ import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
-import { getJSActionPathNameToDisplay   isBrowserExecutionAllowed,
-} from "@appsmith/utils/actionExecutionUtils";
+import { getJSActionPathNameToDisplay } from "@appsmith/utils/actionExecutionUtils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
 import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
@@ -424,22 +423,14 @@ export function* handleExecuteJSFunctionSaga(data: {
   );
 
   try {
-    const localExecutionAllowed = isBrowserExecutionAllowed(collection, action);
-    let isDirty = false;
-    let result: any = null;
-
-    if (localExecutionAllowed) {
-      const response: { isDirty: false; result: any } = yield call(
-        executeJSFunction,
-        action,
-        collection,
-        onPageLoad,
-      );
-      result = response.result;
-      isDirty = response.isDirty;
-    }
-
+    const { isDirty, result } = yield call(
+      executeJSFunction,
+      action,
+      collection,
+      onPageLoad,
+    );
     // open response tab in debugger on runnning or page load js action.
+
     if (doesURLPathContainCollectionId || openDebugger) {
       yield put(setJsPaneDebuggerState({ open: true }));
 
@@ -453,9 +444,6 @@ export function* handleExecuteJSFunctionSaga(data: {
         }),
       );
     }
-    if (!!collection.isMainJSCollection)
-      logMainJsActionExecution(actionId, true, collectionId, isDirty);
-
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -477,18 +465,6 @@ export function* handleExecuteJSFunctionSaga(data: {
         pageName: yield select(getCurrentPageName),
       }),
     );
-    if (localExecutionAllowed) {
-      yield put(
-        logActionExecutionForAudit({
-          actionName: action.name,
-          actionId: action.id,
-          collectionId: collectionId,
-          pageId: action.pageId,
-          pageName: yield select(getCurrentPageName),
-        }),
-      );
-
-      const jsActionNameToDisplay = getJSActionNameToDisplay(action);
 
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
