@@ -264,8 +264,8 @@ export function getDefaultTemplateActionConfig(
         defaultTableName = !!dsPreviewTable
           ? dsPreviewTable
           : !!dsStructure.tables && dsStructure.tables.length > 0
-          ? dsStructure.tables[0].name
-          : "";
+            ? dsStructure.tables[0].name
+            : "";
       }
     }
 

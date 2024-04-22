@@ -1142,14 +1142,14 @@ export function calculateNewWidgetPosition(
       !isThereACollision && shouldGroup
         ? widget.topRow
         : parentBottomRow
-        ? nextAvailableRow + widget.topRow
-        : nextAvailableRow,
+          ? nextAvailableRow + widget.topRow
+          : nextAvailableRow,
     bottomRow:
       !isThereACollision && shouldGroup
         ? widget.bottomRow
         : parentBottomRow
-        ? nextAvailableRow + widget.bottomRow
-        : nextAvailableRow + (widget.bottomRow - widget.topRow),
+          ? nextAvailableRow + widget.bottomRow
+          : nextAvailableRow + (widget.bottomRow - widget.topRow),
   };
 }
 

@@ -405,8 +405,8 @@ function DatasourceCard(props: DatasourceCardProps) {
                         {isDeletingDatasource
                           ? createMessage(CONFIRM_CONTEXT_DELETING)
                           : confirmDelete
-                          ? createMessage(CONFIRM_CONTEXT_DELETE)
-                          : createMessage(CONTEXT_DELETE)}
+                            ? createMessage(CONFIRM_CONTEXT_DELETE)
+                            : createMessage(CONTEXT_DELETE)}
                       </MenuItem>
                     )}
                   </MenuContent>

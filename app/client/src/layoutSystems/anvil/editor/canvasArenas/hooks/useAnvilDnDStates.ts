@@ -134,8 +134,8 @@ export const useAnvilDnDStates = ({
   const draggedOn = isMainCanvas
     ? AnvilDropTargetTypesEnum.MAIN_CANVAS
     : isSection
-    ? AnvilDropTargetTypesEnum.SECTION
-    : AnvilDropTargetTypesEnum.ZONE;
+      ? AnvilDropTargetTypesEnum.SECTION
+      : AnvilDropTargetTypesEnum.ZONE;
 
   return {
     activateOverlayWidgetDrop,

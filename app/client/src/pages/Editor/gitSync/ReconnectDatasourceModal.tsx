@@ -305,8 +305,8 @@ function ReconnectDatasourceModal() {
           currentEnvDetails.id,
         )
       : ds.datasourceStorages
-      ? isEnvironmentConfigured(ds, currentEnvDetails.id)
-      : false;
+        ? isEnvironmentConfigured(ds, currentEnvDetails.id)
+        : false;
     return output;
   };
 
