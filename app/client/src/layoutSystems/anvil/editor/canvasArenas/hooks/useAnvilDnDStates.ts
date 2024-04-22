@@ -17,7 +17,7 @@ import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whiteli
 import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
 import { getDraggedBlocks, getDraggedWidgetTypes } from "../utils/utils";
 import { getCurrentlyOpenAnvilModal } from "layoutSystems/anvil/integrations/modalSelectors";
-import { getAnvilCanvasId } from "layoutSystems/anvil/viewer/canvas/utils";
+import { useAnvilDnDCompensators } from "./useAnvilDnDCompensators";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -52,39 +52,6 @@ export interface AnvilDnDStates {
   };
   zIndex: number;
 }
-
-const WidgetSpacing = {
-  MAIN_CANVAS: "--outer-spacing-4",
-  ZONE: "--outer-spacing-3",
-};
-
-const extractSpacingStyleValues = (mainCanvasDom: HTMLElement) => {
-  const computedStyles = getComputedStyle(mainCanvasDom);
-
-  return {
-    mainCanvasSpacing: parseInt(
-      computedStyles.getPropertyValue(WidgetSpacing.MAIN_CANVAS),
-      10,
-    ),
-    zoneSpacing: parseInt(
-      computedStyles.getPropertyValue(WidgetSpacing.ZONE),
-      10,
-    ),
-  };
-};
-
-const getWidgetSpacingCSSVariableValues = () => {
-  const mainCanvasDom = document.getElementById(
-    getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID),
-  );
-  if (!mainCanvasDom) {
-    return {
-      mainCanvasSpacing: 0,
-      zoneSpacing: 0,
-    };
-  }
-  return extractSpacingStyleValues(mainCanvasDom);
-};
 
 /**
  * function to validate if the widget(s) being dragged is supported by the canvas.
@@ -188,42 +155,12 @@ export const useAnvilDnDStates = ({
     : AnvilDropTargetTypesEnum.ZONE;
   const currentlyOpenModal = useSelector(getCurrentlyOpenAnvilModal);
   const isModalLayout = currentlyOpenModal === widgetId;
-
-  const { mainCanvasSpacing, zoneSpacing } =
-    getWidgetSpacingCSSVariableValues();
-  const modalSpacing = mainCanvasSpacing;
-  const widgetCompensatorValues = {
-    left: isSection ? mainCanvasSpacing : 0,
-    top: isModalLayout ? modalSpacing : 0,
-  };
-
-  const edgeCompensatorValues = {
-    left: isMainCanvas ? 0 : isSection ? mainCanvasSpacing : zoneSpacing,
-    top: isSection
-      ? 0
-      : isMainCanvas
-      ? mainCanvasSpacing
-      : isModalLayout
-      ? modalSpacing * 0.5
-      : zoneSpacing,
-  };
-
-  const layoutCompensatorValues = {
-    left:
-      isMainCanvas || isModalLayout
-        ? 0
-        : isSection
-        ? mainCanvasSpacing
-        : zoneSpacing,
-    top: isSection
-      ? 0
-      : isMainCanvas
-      ? 0
-      : isModalLayout
-      ? modalSpacing
-      : zoneSpacing,
-  };
-  const zIndex = isSection || isModalLayout ? 0 : 1;
+  const {
+    edgeCompensatorValues,
+    layoutCompensatorValues,
+    widgetCompensatorValues,
+    zIndex,
+  } = useAnvilDnDCompensators(isMainCanvas, isSection, isModalLayout);
   return {
     activateOverlayWidgetDrop,
     allowToDrop,
