@@ -40,6 +40,7 @@ import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import type { ListItemProps } from "design-system";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
+import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -110,62 +111,22 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
 
-  if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
-    return [
-      {
-        key: "ApiEditor",
-        component: ApiEditor,
-        exact: true,
-        path: [
-          BUILDER_PATH + API_EDITOR_ID_PATH,
-          BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
-          BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
-        ],
-      },
-      {
-        key: "AddQuery",
-        exact: true,
-        component: AddQuery,
-        path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
-      },
-      {
-        key: "SAASEditor",
-        component: QueryEditor,
-        exact: true,
-        path: [
-          BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
-          BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
-          BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
-        ],
-      },
-      {
-        key: "CurlImportEditor",
-        component: CurlImportEditor,
-        exact: true,
-        path: [
-          BUILDER_PATH + CURL_IMPORT_PAGE_PATH,
-          BUILDER_CUSTOM_PATH + CURL_IMPORT_PAGE_PATH,
-          BUILDER_PATH_DEPRECATED + CURL_IMPORT_PAGE_PATH,
-          BUILDER_PATH + CURL_IMPORT_PAGE_PATH + ADD_PATH,
-          BUILDER_CUSTOM_PATH + CURL_IMPORT_PAGE_PATH + ADD_PATH,
-          BUILDER_PATH_DEPRECATED + CURL_IMPORT_PAGE_PATH + ADD_PATH,
-        ],
-      },
-      {
-        key: "QueryEditor",
-        component: QueryEditor,
-        exact: true,
-        path: [path + "/:queryId"],
-      },
-      {
-        key: "QueryEmpty",
-        component: ListQuery,
-        exact: true,
-        path: [path],
-      },
-    ];
-  }
+  const BlankStateRoute =
+    isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen
+      ? ListQuery
+      : QueriesBlankState;
+
   return [
+    {
+      key: "ApiEditor",
+      component: ApiEditor,
+      exact: true,
+      path: [
+        BUILDER_PATH + API_EDITOR_ID_PATH,
+        BUILDER_CUSTOM_PATH + API_EDITOR_ID_PATH,
+        BUILDER_PATH_DEPRECATED + API_EDITOR_ID_PATH,
+      ],
+    },
     {
       key: "AddQuery",
       exact: true,
@@ -173,9 +134,38 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
       path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
     },
     {
-      key: "ListQuery",
-      exact: false,
-      component: ListQuery,
+      key: "SAASEditor",
+      component: QueryEditor,
+      exact: true,
+      path: [
+        BUILDER_PATH + SAAS_EDITOR_API_ID_PATH,
+        BUILDER_CUSTOM_PATH + SAAS_EDITOR_API_ID_PATH,
+        BUILDER_PATH_DEPRECATED + SAAS_EDITOR_API_ID_PATH,
+      ],
+    },
+    {
+      key: "CurlImportEditor",
+      component: CurlImportEditor,
+      exact: true,
+      path: [
+        BUILDER_PATH + CURL_IMPORT_PAGE_PATH,
+        BUILDER_CUSTOM_PATH + CURL_IMPORT_PAGE_PATH,
+        BUILDER_PATH_DEPRECATED + CURL_IMPORT_PAGE_PATH,
+        BUILDER_PATH + CURL_IMPORT_PAGE_PATH + ADD_PATH,
+        BUILDER_CUSTOM_PATH + CURL_IMPORT_PAGE_PATH + ADD_PATH,
+        BUILDER_PATH_DEPRECATED + CURL_IMPORT_PAGE_PATH + ADD_PATH,
+      ],
+    },
+    {
+      key: "QueryEditor",
+      component: QueryEditor,
+      exact: true,
+      path: [path + "/:queryId"],
+    },
+    {
+      key: "QueryEmpty",
+      component: BlankStateRoute,
+      exact: true,
       path: [path],
     },
   ];

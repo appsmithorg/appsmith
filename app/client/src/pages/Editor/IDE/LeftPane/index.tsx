@@ -13,7 +13,7 @@ import {
 import AppSettingsPane from "./AppSettings";
 import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
-import EditorPane from "../EditorPane";
+import { EditorPane } from "./EditorPane";
 
 export const LeftPaneContainer = styled.div`
   height: 100%;

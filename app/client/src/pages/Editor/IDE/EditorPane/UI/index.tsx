@@ -21,6 +21,7 @@ const UISegment = () => {
   return (
     <Flex
       className="ide-editor-left-pane__content-widgets"
+      flex={"1"}
       flexDirection="column"
       gap="spaces-3"
       overflow="hidden"

@@ -21,6 +21,7 @@ import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { useModuleOptions } from "@appsmith/utils/moduleInstanceHelpers";
 import { getJSUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
+import { JSBlankState } from "pages/Editor/JSEditor/JSBlankState";
 
 export const useJSAdd = () => {
   const pageId = useSelector(getCurrentPageId);
@@ -88,28 +89,12 @@ export const useGroupedAddJsOperations = (): GroupedAddOperations => {
 export const useJSSegmentRoutes = (path: string): UseRoutes => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
-  if (isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen) {
-    return [
-      {
-        exact: true,
-        key: "AddJS",
-        component: AddJS,
-        path: [`${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
-      },
-      {
-        exact: true,
-        key: "JSEditor",
-        component: JSEditor,
-        path: [path + "/:collectionId"],
-      },
-      {
-        key: "JSEmpty",
-        component: ListJS,
-        exact: true,
-        path: [path],
-      },
-    ];
-  }
+
+  const BlankState =
+    isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen
+      ? ListJS
+      : JSBlankState;
+
   return [
     {
       exact: true,
@@ -118,9 +103,15 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
       path: [`${path}${ADD_PATH}`, `${path}/:collectionId${ADD_PATH}`],
     },
     {
-      exact: false,
-      key: "ListJS",
-      component: ListJS,
+      exact: true,
+      key: "JSEditor",
+      component: JSEditor,
+      path: [path + "/:collectionId"],
+    },
+    {
+      key: "JSEmpty",
+      component: BlankState,
+      exact: true,
       path: [path],
     },
   ];

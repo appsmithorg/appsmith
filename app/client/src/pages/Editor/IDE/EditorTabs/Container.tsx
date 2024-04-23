@@ -9,6 +9,7 @@ const Container = (props: { children: ReactNode }) => {
       backgroundColor="#FFFFFF"
       borderBottom="1px solid var(--ads-v2-color-border)"
       gap="spaces-2"
+      justifyContent="space-between"
       maxHeight="32px"
       minHeight="32px"
       px="spaces-2"
