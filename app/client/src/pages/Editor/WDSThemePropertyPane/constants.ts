@@ -1,11 +1,11 @@
 export const THEME_SETTINGS_COLOR_MODE_OPTIONS = [
   {
-    label: "Dark",
-    value: "DARK",
-  },
-  {
     label: "Light",
     value: "LIGHT",
+  },
+  {
+    label: "Dark",
+    value: "DARK",
   },
 ];
 

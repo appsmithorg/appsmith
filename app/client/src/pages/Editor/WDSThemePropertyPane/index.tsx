@@ -1,4 +1,3 @@
-import { SegmentedControl, Tooltip, Select, Option, Icon } from "design-system";
 import { debounce } from "lodash";
 import styled from "styled-components";
 import { isValidColor } from "utils/helpers";
@@ -14,6 +13,7 @@ import {
   LeftIcon,
   StyledInputGroup,
 } from "components/propertyControls/ColorPickerComponentV2";
+import { SegmentedControl, Tooltip, Select, Option, Icon } from "design-system";
 
 import styles from "./styles.module.css";
 
@@ -157,6 +157,7 @@ function WDSThemePropertyPane() {
                 id="color-picker"
                 onChange={debouncedOnColorChange}
                 type="color"
+                value={theme.accentColor}
               />
             </label>
           </div>
