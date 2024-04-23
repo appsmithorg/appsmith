@@ -102,7 +102,7 @@ function WDSThemePropertyPane() {
       });
 
       (document.querySelector("#color-picker") as HTMLInputElement).value =
-        color;
+        e.target.value;
     }
 
     setAccentColor(e.target.value);
