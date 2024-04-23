@@ -1,12 +1,9 @@
+import React from "react";
 import { IconButton, Text } from "@design-system/widgets";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
-import React from "react";
+
+import type { ReactTableColumnProps } from "../Constants";
 import { PageNumberInput } from "./PageNumberInput";
-import type {
-  ReactTableColumnProps,
-  ReactTableFilter,
-  TableSizes,
-} from "../Constants";
 
 export interface PaginationProps {
   updatePageNo: (pageNo: number, event?: EventType) => void;
@@ -15,29 +12,11 @@ export interface PaginationProps {
   pageNo: number;
   totalRecordsCount?: number;
   tableData: Array<Record<string, unknown>>;
-  tableColumns: ReactTableColumnProps[];
   pageCount: number;
   currentPageIndex: number;
-  pageOptions: number[];
   columns: ReactTableColumnProps[];
-  hiddenColumns?: string[];
-  widgetName: string;
-  widgetId: string;
-  searchKey: string;
-  searchTableData: (searchKey: any) => void;
   serverSidePaginationEnabled: boolean;
-  filters?: ReactTableFilter[];
-  applyFilter: (filters: ReactTableFilter[]) => void;
-  tableSizes: TableSizes;
-  isVisibleDownload?: boolean;
-  isVisibleFilters?: boolean;
   isVisiblePagination?: boolean;
-  isVisibleSearch?: boolean;
-  delimiter: string;
-  allowAddNewRow: boolean;
-  onAddNewRow: () => void;
-  disableAddNewRow: boolean;
-  width: number;
 }
 
 export const Pagination = (props: PaginationProps) => {
