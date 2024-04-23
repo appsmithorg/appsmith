@@ -1,6 +1,5 @@
 package com.appsmith.server.services.ce;
 
-import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
@@ -41,8 +40,6 @@ import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.InviteUsersDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
-import com.appsmith.server.dtos.UserHomepageDTO;
-import com.appsmith.server.dtos.WorkspaceApplicationsDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.exports.internal.ExportService;
@@ -71,13 +68,13 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.ApplicationFetcher;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.PagePermission;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
+import com.appsmith.server.solutions.UserReleaseNotes;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -205,7 +202,7 @@ public class ApplicationServiceCETest {
     PluginExecutorHelper pluginExecutorHelper;
 
     @Autowired
-    ApplicationFetcher applicationFetcher;
+    UserReleaseNotes userReleaseNotes;
 
     @Autowired
     NewPageService newPageService;
@@ -896,124 +893,6 @@ public class ApplicationServiceCETest {
                     assertThat(second.getName()).isEqualTo("Ghost app");
                     assertThat(first.isDeleted()).isTrue();
                     assertThat(second.isDeleted()).isFalse();
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void getAllApplicationsForHome() {
-        Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
-
-        Mono<UserHomepageDTO> allApplications = applicationFetcher.getAllApplications();
-
-        StepVerifier.create(allApplications)
-                .assertNext(userHomepageDTO -> {
-                    assertThat(userHomepageDTO).isNotNull();
-                    // In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
-                    assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
-
-                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs =
-                            userHomepageDTO.getWorkspaceApplications();
-                    assertThat(workspaceApplicationsDTOs.size()).isPositive();
-
-                    for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
-                        if (workspaceApplicationDTO.getWorkspace().getName().equals("Spring Test Workspace")) {
-                            assertThat(workspaceApplicationDTO.getWorkspace().getUserPermissions())
-                                    .contains("read:workspaces");
-
-                            Application application =
-                                    workspaceApplicationDTO.getApplications().get(0);
-                            assertThat(application.getUserPermissions()).contains("read:applications");
-                            assertThat(application.isAppIsExample()).isFalse();
-                            assertThat(workspaceApplicationDTO.getUsers()).isNotEmpty();
-                            assertThat(workspaceApplicationDTO.getUsers().get(0).getRoles())
-                                    .hasSize(1);
-                            assertThat(workspaceApplicationDTO
-                                            .getUsers()
-                                            .get(0)
-                                            .getRoles()
-                                            .get(0)
-                                            .getName())
-                                    .startsWith(FieldName.ADMINISTRATOR);
-                        }
-                    }
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
-    public void getOnlyDefaultApplicationsConnectedToGitForHome() {
-        Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
-
-        Mono<UserHomepageDTO> allApplications = applicationFetcher.getAllApplications();
-
-        Application branchedApplication = new Application();
-        GitArtifactMetadata childBranchGitData = new GitArtifactMetadata();
-        AppsmithBeanUtils.copyNestedNonNullProperties(gitConnectedApp.getGitApplicationMetadata(), childBranchGitData);
-        childBranchGitData.setBranchName("childBranch");
-        branchedApplication.setGitApplicationMetadata(childBranchGitData);
-        branchedApplication.setWorkspaceId(workspaceId);
-        branchedApplication.setName(gitConnectedApp.getName());
-
-        Mono<Application> branchedApplicationMono = applicationPageService.createApplication(branchedApplication);
-
-        Mono<List<Application>> gitConnectedAppsMono = applicationService
-                .findByWorkspaceId(workspaceId, READ_APPLICATIONS)
-                .filter(application -> application.getGitApplicationMetadata() != null)
-                .collectList();
-
-        StepVerifier.create(branchedApplicationMono.then(Mono.zip(allApplications, gitConnectedAppsMono)))
-                .assertNext(tuple -> {
-                    UserHomepageDTO userHomepageDTO = tuple.getT1();
-                    List<Application> gitConnectedApps = tuple.getT2();
-
-                    assertThat(userHomepageDTO).isNotNull();
-                    // In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
-                    assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
-
-                    List<WorkspaceApplicationsDTO> workspaceApplicationsDTOs =
-                            userHomepageDTO.getWorkspaceApplications();
-                    assertThat(workspaceApplicationsDTOs.size()).isPositive();
-
-                    for (WorkspaceApplicationsDTO workspaceApplicationDTO : workspaceApplicationsDTOs) {
-                        if (workspaceApplicationDTO.getWorkspace().getId().equals(workspaceId)) {
-                            List<Application> applications = workspaceApplicationDTO.getApplications().stream()
-                                    .filter(application -> application.getGitApplicationMetadata() != null)
-                                    .collect(Collectors.toList());
-                            assertThat(applications).hasSize(1);
-                            assertThat(applications.get(0).getId()).isEqualTo(gitConnectedApp.getId());
-                            assertThat(gitConnectedApps).hasSize(2);
-                        }
-                    }
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "usertest@usertest.com")
-    public void getAllApplicationsForHomeWhenNoApplicationPresent() {
-        Mockito.when(releaseNotesService.getReleaseNodes()).thenReturn(Mono.empty());
-
-        // Create an workspace for this user first.
-        Workspace workspace = new Workspace();
-        workspace.setName("usertest's workspace");
-        Mono<Workspace> workspaceMono = workspaceService.create(workspace);
-
-        Mono<UserHomepageDTO> allApplications = workspaceMono.then(applicationFetcher.getAllApplications());
-
-        StepVerifier.create(allApplications)
-                .assertNext(userHomepageDTO -> {
-                    assertThat(userHomepageDTO).isNotNull();
-                    // In case of anonymous user, we should have errored out. Assert that the user is not anonymous.
-                    assertThat(userHomepageDTO.getUser().getIsAnonymous()).isFalse();
-
-                    List<WorkspaceApplicationsDTO> workspaceApplications = userHomepageDTO.getWorkspaceApplications();
-
-                    // There should be atleast one workspace present in the output.
-                    WorkspaceApplicationsDTO orgAppDto = workspaceApplications.get(0);
-                    assertThat(orgAppDto.getWorkspace().getUserPermissions()).contains("read:workspaces");
                 })
                 .verifyComplete();
     }
