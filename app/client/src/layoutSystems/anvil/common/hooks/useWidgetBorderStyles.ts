@@ -1,6 +1,9 @@
 import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "WidgetProvider/factory";
-import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
+import {
+  getAnvilSpaceDistributionStatus,
+  getWidgetErrorCount,
+} from "layoutSystems/anvil/integrations/selectors";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
@@ -14,6 +17,9 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   );
   const isCanvasResizing: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
+  const showError = useSelector(
+    (state) => getWidgetErrorCount(state, widgetId) > 0,
   );
   const isDistributingSpace: boolean = useSelector(
     getAnvilSpaceDistributionStatus,
@@ -34,6 +40,9 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
     borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
     borderWidth = "2px";
   }
+  if (showError) {
+    borderColor = `var(--ads-widget-error)`;
+  }
   const shouldHideBorder =
     isDragging || isCanvasResizing || isDistributingSpace;
   const canShowBorder = !shouldHideBorder && (isFocused || isSelected);
@@ -43,5 +52,6 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
       canShowBorder ? borderColor : "transparent"
     }`,
     outlineOffset: "3px",
+    borderRadius: "var(--ads-on-canvas-ui-border-radius)",
   };
 }

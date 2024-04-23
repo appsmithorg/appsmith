@@ -106,6 +106,7 @@ export function useAddBordersToDetachedWidgets(
   if (element) {
     element.style.outlineOffset = borderStyled.outlineOffset ?? "unset";
     element.style.outline = borderStyled.outline ?? "none";
+    element.style.borderRadius = borderStyled.borderRadius ?? "unset";
   }
 }
 

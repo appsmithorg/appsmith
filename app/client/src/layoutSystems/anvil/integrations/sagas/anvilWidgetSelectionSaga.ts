@@ -1,4 +1,7 @@
-import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
+import {
+  ReduxActionTypes,
+  type ReduxAction,
+} from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import { focusWidget } from "actions/widgetActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -14,6 +17,8 @@ import {
 import { NavigationMethod } from "utils/history";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { getWidgetErrorObject } from "../selectors";
+import { getWidget } from "sagas/selectors";
+import type { DSLWidget } from "WidgetProvider/constants";
 
 /**
  * This saga selects widgets in the Anvil Layout system
@@ -82,10 +87,46 @@ export function* selectAnvilWidget(
 //TODO(abhinav): Speak to the IDE pod and move this appropriately.
 export function* debugWidget(action: ReduxAction<{ widgetId: string }>) {
   const widgetId = action.payload.widgetId;
-  const errors: Record<string, unknown> = yield select((state: AppState) =>
-    getWidgetErrorObject(state, widgetId),
+  const errors: Record<string, Array<unknown>> = yield select(
+    (state: AppState) => getWidgetErrorObject(state, widgetId),
   );
-  log.debug("Widget Errors", errors);
+  const widget: DSLWidget = yield select(getWidget, widgetId);
+  let firstErrorFieldPath = "";
+  const errorValues = Object.values(errors);
+  const totalKeys = errorValues.length;
+  let index = 0;
+  while (index < totalKeys && firstErrorFieldPath.length === 0) {
+    if (errorValues[index] && errorValues[index].length > 0) {
+      firstErrorFieldPath = Object.keys(errors)[index];
+    }
+    index++;
+  }
+
+  Object.values(errors).forEach((error: Array<unknown>, index: number) => {
+    if (error && error.length > 0) {
+      firstErrorFieldPath = Object.keys(errors)[index];
+    }
+  });
+  const fullPath = `${widget.widgetName}.${firstErrorFieldPath}`;
+  yield put({
+    type: ReduxActionTypes.SET_ACTIVE_EDITOR_FIELD,
+    payload: { field: fullPath },
+  });
+  yield put({
+    type: ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD,
+    payload: { path: fullPath },
+  });
+  yield put({
+    type: ReduxActionTypes.SET_EVAL_POPUP_STATE,
+    payload: {
+      key: fullPath,
+      evalPopupState: {
+        type: false,
+        value: true,
+        example: false,
+      },
+    },
+  });
 }
 
 export default function* selectAnvilWidgetSaga() {

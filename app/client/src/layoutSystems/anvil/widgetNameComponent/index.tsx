@@ -30,6 +30,7 @@ import { FloatingPortal } from "@floating-ui/react";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import { getWidgetErrorCount } from "../integrations/selectors";
 import { debugWidget } from "../integrations/actions";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 
 const widgetNameStyles: CSSProperties = {
   height: "24px",
@@ -114,7 +115,7 @@ const SplitButtonWrapper = styled.div<{
     }
   }
 
-  & span:nth-of-type(2) {
+  & span:nth-of-type(${(props) => (props.$disableLeftSpan ? 1 : 2)}) {
     border-inline-end: var(--ads-radius-1);
     border-start-start-radius: 0px;
     border-end-start-radius: 0px;
@@ -143,6 +144,7 @@ export function SplitButton(
       title: string;
     };
     className: string;
+    onDragStart: React.DragEventHandler;
   },
   ref: ForwardedRef<HTMLDivElement>,
 ) {
@@ -153,7 +155,9 @@ export function SplitButton(
       $disableLeftSpan={props.leftToggle.disable}
       $disableRightSpan={props.rightToggle.disable}
       className={props.className}
+      draggable
       id={props.id}
+      onDragStart={props.onDragStart}
       onMouseMoveCapture={props.onMouseOverCapture}
       ref={ref}
       style={props.styles}
@@ -232,6 +236,7 @@ export function WidgetNameComponent(
     bGCSSVar: string;
     colorCSSVar: string;
     disableParentSelection: boolean;
+    onDragStart: React.DragEventHandler;
   },
   ref: ForwardedRef<HTMLDivElement>,
 ) {
@@ -241,8 +246,8 @@ export function WidgetNameComponent(
     (state: AppState) => state.entities.canvasWidgets[widgetId]?.parentId,
   );
 
-  const showError = useSelector((state) =>
-    getWidgetErrorCount(state, widgetId),
+  const showError = useSelector(
+    (state) => getWidgetErrorCount(state, widgetId) > 0,
   );
 
   const { selectWidget } = useWidgetSelection();
@@ -305,6 +310,7 @@ export function WidgetNameComponent(
       id={`widget-name-${widgetId}`}
       leftToggle={leftToggle}
       onClick={handleSelect}
+      onDragStart={props.onDragStart}
       onMouseOverCapture={handleMouseOver}
       ref={ref}
       rightToggle={rightToggle}
@@ -333,22 +339,47 @@ function floatingUIMiddlewareOverflow(boundaryEl: HTMLDivElement) {
   };
 }
 
-export function useWidgetName(widgetId: string, widgetName: string) {
+export function useWidgetName(
+  widgetId: string,
+  widgetName: string,
+  parentId?: string,
+) {
   const [widgetNameComponent, setWidgetNameElement] =
     useState<HTMLDivElement | null>(null);
-
-  const widgetNameRef = useCallback((node) => {
-    if (node !== null) {
-      setWidgetNameElement(node);
-    }
-  }, []);
-
   const nameComponentState: "select" | "focus" | "none" = useSelector(
     shouldSelectOrFocus(widgetId),
   );
   const widgetType = useSelector(
     (state: AppState) => state.entities.canvasWidgets[widgetId].type,
   );
+  const { setDraggingState } = useWidgetDragResize();
+
+  const onDragStart = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (nameComponentState === "select") {
+        const startPoints = {
+          top: 0,
+          left: 0,
+        };
+        setDraggingState({
+          isDragging: true,
+          dragGroupActualParent: parentId,
+          draggingGroupCenter: { widgetId },
+          startPoints,
+          draggedOn: parentId,
+        });
+      }
+    },
+    [setDraggingState, nameComponentState],
+  );
+
+  const widgetNameRef = useCallback((node) => {
+    if (node !== null) {
+      setWidgetNameElement(node);
+    }
+  }, []);
 
   const widgetElement = document.querySelector(
     "#anvil_widget_" + widgetId,
@@ -423,6 +454,7 @@ export function useWidgetName(widgetId: string, widgetName: string) {
   if (nameComponentState === "focus") {
     _disableParentSelection = true;
   }
+
   return (
     <FloatingPortal>
       <ForwardedWidgetNameComponent
@@ -431,6 +463,7 @@ export function useWidgetName(widgetId: string, widgetName: string) {
         disableParentSelection={_disableParentSelection}
         key={widgetId}
         name={widgetName}
+        onDragStart={onDragStart}
         ref={widgetNameRef}
         selectionBGCSSVar={onCanvasUI.selectionBGCSSVar}
         selectionColorCSSVar={onCanvasUI.selectionColorCSSVar}
