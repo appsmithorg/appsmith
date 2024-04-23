@@ -315,12 +315,16 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Modifying
     @Transactional
     public Optional<Void> publishActions(String applicationId, AclPermission permission) {
-        queryBuilder()
-                .permission(permission)
-                .criteria(getCriterionForFindByApplicationId(applicationId))
-                .updateAll(Bridge.update()
-                        .setToValueFromField(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
+        return copyUnpublishedActionToPublishedAction(getCriterionForFindByApplicationId(applicationId), permission);
+    }
 
+    protected Optional<Void> copyUnpublishedActionToPublishedAction(
+        BridgeQuery<NewAction> criteria, AclPermission permission) {
+        queryBuilder()
+            .permission(permission)
+            .criteria(criteria)
+            .updateAll(Bridge.update()
+                .setToValueFromField(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
         return Optional.empty();
     }
 
