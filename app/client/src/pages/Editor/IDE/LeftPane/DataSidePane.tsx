@@ -17,7 +17,6 @@ import {
 import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
 import { countBy, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
-import type { RouteComponentProps } from "react-router";
 import { useLocation } from "react-router";
 import {
   createMessage,
@@ -55,7 +54,7 @@ const StyledList = styled(List)`
   gap: 0;
 `;
 
-interface DataSidePaneProps extends RouteComponentProps<Record<string, never>> {
+interface DataSidePaneProps {
   actionCount?: Record<string, number>;
   entityName?: string;
 }
