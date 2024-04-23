@@ -84,7 +84,6 @@ export const useAnvilDnDListenerStates = ({
 }: AnvilDnDListenerStatesProps): AnvilDnDListenerStates => {
   const {
     activateOverlayWidgetDrop,
-    currentlyOpenModal,
     dragDetails,
     draggedBlocks,
     draggedWidgetHierarchy,
@@ -130,7 +129,6 @@ export const useAnvilDnDListenerStates = ({
     : isSection
       ? AnvilDropTargetTypesEnum.SECTION
       : AnvilDropTargetTypesEnum.ZONE;
-  const isModalLayout = currentlyOpenModal === widgetId;
   const isEmptyLayout =
     (widgetProps.children || []).filter(
       (each) => !allWidgets[each].detachFromLayout,
@@ -144,9 +142,6 @@ export const useAnvilDnDListenerStates = ({
     canActivate,
     draggedWidgetHierarchy,
     currentWidgetHierarchy,
-    isMainCanvas,
-    isSection,
-    isModalLayout,
     isEmptyLayout,
     widgetProps,
   );
