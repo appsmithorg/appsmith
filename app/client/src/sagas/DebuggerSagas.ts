@@ -43,7 +43,9 @@ import { getConfigTree } from "selectors/dataTreeSelectors";
 import { createLogTitleString } from "components/editorComponents/Debugger/helpers";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
-import AnalyticsUtil, { AnalyticsEventType } from "utils/AnalyticsUtil";
+import AnalyticsUtil, {
+  AnalyticsEventType,
+} from "@appsmith/utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";

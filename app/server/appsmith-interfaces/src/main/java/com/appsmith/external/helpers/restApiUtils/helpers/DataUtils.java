@@ -7,8 +7,8 @@ import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.Property;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -77,7 +77,7 @@ public class DataUtils {
     }
 
     public DataUtils() {
-        this.objectMapper = new ObjectMapper().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature());
+        this.objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
         this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 

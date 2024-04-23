@@ -24,7 +24,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import GitSyncStatusbar from "../../components/Statusbar";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const StyledModalBody = styled(ModalBody)`
   flex: 1;

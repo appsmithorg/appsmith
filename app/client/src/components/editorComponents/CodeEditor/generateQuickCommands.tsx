@@ -12,7 +12,7 @@ import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { Button, Icon } from "design-system";
 import { APPSMITH_AI } from "@appsmith/components/editorComponents/GPT/trigger";
 import { DatasourceCreateEntryPoints } from "constants/Datasource";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import BetaCard from "../BetaCard";
 import type { NavigationData } from "selectors/navigationSelectors";
 import type { AIEditorContext } from "@appsmith/components/editorComponents/GPT";
@@ -202,8 +202,8 @@ export const generateQuickCommands = (
         suggestion.type === ENTITY_TYPE.ACTION
           ? `{{${name}.data}}`
           : suggestion.type === ENTITY_TYPE.JSACTION
-          ? `{{${name}.}}`
-          : `{{${name}}}`,
+            ? `{{${name}.}}`
+            : `{{${name}}}`,
       displayText: `${name}`,
       className: "CodeMirror-commands group relative",
       data: suggestion,

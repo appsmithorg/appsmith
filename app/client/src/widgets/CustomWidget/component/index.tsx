@@ -21,7 +21,7 @@ import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getAppsmithConfigs } from "@appsmith/configs";

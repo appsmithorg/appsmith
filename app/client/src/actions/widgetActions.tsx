@@ -144,6 +144,13 @@ export const groupWidgets = () => {
   };
 };
 
+export const openPartialExportModal = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.PARTIAL_EXPORT_MODAL_OPEN,
+    payload,
+  };
+};
+
 export const partialExportWidgets = (params: PartialExportParams) => {
   return {
     type: ReduxActionTypes.PARTIAL_EXPORT_INIT,

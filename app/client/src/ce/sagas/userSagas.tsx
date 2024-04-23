@@ -40,7 +40,7 @@ import {
   fetchProductAlertFailure,
   fetchFeatureFlagsInit,
 } from "actions/userActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { INVITE_USERS_TO_WORKSPACE_FORM } from "@appsmith/constants/forms";
 import PerformanceTracker, {
   PerformanceTransactionName,

@@ -22,7 +22,7 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useAppsmithEnterpriseLink } from "./hooks";
 import { REMOTE_BRANCH_PREFIX } from "../../constants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { DOCS_BRANCH_PROTECTION_URL } from "constants/ThirdPartyConstants";
 
 const Container = styled.div`

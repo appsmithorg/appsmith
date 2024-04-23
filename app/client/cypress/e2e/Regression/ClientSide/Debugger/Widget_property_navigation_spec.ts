@@ -50,7 +50,7 @@ describe(
       _.propPane.NavigateBackToPropertyPane();
       _.debuggerHelper.ClickDebuggerIcon();
       _.debuggerHelper.ClicklogEntityLink();
-      _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Menu Item 1");
+      _.agHelper.GetNAssertContains(_.propPane._paneTitle, "Menu Item");
       _.propPane.AssertIfPropertyIsVisible("icon");
       _.debuggerHelper.CloseBottomBar();
       EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);

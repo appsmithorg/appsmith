@@ -1,38 +1,38 @@
-import React, { useCallback, useMemo } from "react";
 import {
+  Button,
   Popover,
+  PopoverBody,
   PopoverContent,
   PopoverHeader,
-  PopoverBody,
   PopoverTrigger,
   Text,
-  Button,
 } from "design-system";
-import { useSelector, useDispatch } from "react-redux";
-import styled from "styled-components";
 import { importSvg } from "design-system-old";
+import React, { useCallback, useMemo } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import styled from "styled-components";
 
-import {
-  buildingBlocksSourcePageIdSelector,
-  starterBuildingBlockDatasourcePromptSelector,
-} from "selectors/templatesSelectors";
-import { hideStarterBuildingBlockDatasourcePrompt } from "actions/templateActions";
+import { integrationEditorURL } from "@appsmith/RouteBuilder";
 import {
   STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
 } from "@appsmith/constants/messages";
-import history from "utils/history";
-import { integrationEditorURL } from "@appsmith/RouteBuilder";
+import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { hideStarterBuildingBlockDatasourcePrompt } from "actions/templateActions";
+import { Colors } from "constants/Colors";
+import { INTEGRATION_TABS } from "constants/routes";
 import {
   getCurrentApplicationId,
   getCurrentPageId,
 } from "selectors/editorSelectors";
-import { INTEGRATION_TABS } from "constants/routes";
-import { Colors } from "constants/Colors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { STARTER_BUILDING_BLOCK_TEMPLATE_NAME } from "constants/TemplatesConstants";
-import { useAppWideAndOtherDatasource } from "@appsmith/pages/Editor/Explorer/hooks";
+import {
+  buildingBlocksSourcePageIdSelector,
+  currentForkingBuildingBlockName,
+  starterBuildingBlockDatasourcePromptSelector,
+} from "selectors/templatesSelectors";
+import history from "utils/history";
 
 function DatasourceStarterLayoutPrompt() {
   const dispatch = useDispatch();
@@ -42,6 +42,9 @@ function DatasourceStarterLayoutPrompt() {
   const pageId = useSelector(getCurrentPageId);
   const showDatasourcePrompt = useSelector(
     starterBuildingBlockDatasourcePromptSelector,
+  );
+  const currentForkedBuildingBlockName = useSelector(
+    currentForkingBuildingBlockName,
   );
   const buildingBlockSourcePageId = useSelector(
     buildingBlocksSourcePageIdSelector,
@@ -76,7 +79,7 @@ function DatasourceStarterLayoutPrompt() {
       workspaceId: currentWorkspaceId,
       source: "canvas",
       eventData: {
-        templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
+        templateAppName: currentForkedBuildingBlockName,
       },
     });
   }, [pageId]);

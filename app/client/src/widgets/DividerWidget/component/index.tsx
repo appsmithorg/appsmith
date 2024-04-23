@@ -61,8 +61,8 @@ const CapWrapper = styled.div<{
         ? "left: 0px;"
         : "top: 0px;"
       : props.isHorizontal
-      ? "right: 0px;"
-      : "bottom: 0px;"}
+        ? "right: 0px;"
+        : "bottom: 0px;"}
   ${(props) => (props.isHorizontal ? "top" : "left")}: 50%;
   ${(props) =>
     props.isHorizontal
@@ -83,8 +83,8 @@ const CapWrapper = styled.div<{
             ? "transform: rotate(0deg);"
             : "transform: rotate(90deg);"
           : props.isHorizontal
-          ? "transform: rotate(180deg);"
-          : "transform: rotate(270deg);"}
+            ? "transform: rotate(180deg);"
+            : "transform: rotate(270deg);"}
 
       path {
         transform: translateX(-3px);

@@ -5,7 +5,7 @@ import { getTypographyByKey, Text, TextType } from "design-system-old";
 import { Icon } from "design-system";
 import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { HELPBAR_PLACEHOLDER } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { modText } from "utils/helpers";
 import { filterCategories, SEARCH_CATEGORY_ID } from "./utils";
 import { protectedModeSelector } from "selectors/gitSyncSelectors";

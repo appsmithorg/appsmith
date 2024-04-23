@@ -8,7 +8,7 @@ import { ToggleButton, Tooltip, Button } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import {
   batchUpdateMultipleWidgetProperties,
@@ -860,8 +860,8 @@ const PropertyControl = memo((props: Props) => {
     const JSToggleTooltip = isToggleDisabled
       ? JS_TOGGLE_DISABLED_MESSAGE
       : !isDynamic
-      ? JS_TOGGLE_SWITCH_JS_MESSAGE
-      : "";
+        ? JS_TOGGLE_SWITCH_JS_MESSAGE
+        : "";
 
     try {
       return (

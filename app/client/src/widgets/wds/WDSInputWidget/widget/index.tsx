@@ -37,10 +37,9 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneContentConfig() {
-    return mergeWidgetConfig(
-      config.propertyPaneContentConfig,
-      super.getPropertyPaneContentConfig(),
-    );
+    const parentConfig = super.getPropertyPaneContentConfig();
+
+    return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
   }
 
   static getPropertyPaneStyleConfig() {
