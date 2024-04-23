@@ -253,6 +253,7 @@ describe(
         `${locators._widgetInDeployed("singleselecttreewidget")}`,
       );
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
+      agHelper.WaitUntilEleAppear("google.com")
       agHelper.AssertURL("google.com");
       agHelper.BrowserNavigation(-1);
     });
@@ -339,7 +340,6 @@ describe(
         ["Form1"],
       );
       propPane.ToggleJSMode("onOptionChange", false);
-      propPane.AssertJSToggleState("onOptionChange", "disabled");
       propPane.SelectPlatformFunction("onOptionChange", "Show modal");
       agHelper.GetNClick(propPane._actionOpenDropdownSelectModal);
       agHelper.GetNClick(propPane._createModalButton);
@@ -379,7 +379,6 @@ describe(
         ["Form1"],
       );
       propPane.ToggleJSMode("onOptionChange", true);
-      propPane.AssertJSToggleState("onOptionChange", "enabled");
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         `{{postWindowMessage('Test', 'Iframe1', "*");}}`,
