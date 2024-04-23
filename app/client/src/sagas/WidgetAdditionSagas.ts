@@ -10,9 +10,11 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getActions,
   getCanvasWidgets,
+  getJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { flattenDSL } from "@shared/dsl";
@@ -27,6 +29,7 @@ import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
 import { pasteWidget } from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
 import {
@@ -38,6 +41,7 @@ import { toast } from "design-system";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona as clone } from "klona/full";
+import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
@@ -58,6 +62,7 @@ import {
   getCurrentPageId,
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
+  getJSCollectionById,
 } from "selectors/editorSelectors";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import AppsmithConsole from "utils/AppsmithConsole";
@@ -81,20 +86,19 @@ import {
   getMousePositionFromCanvasGridPosition,
   getSnappedGrid,
 } from "./WidgetOperationUtils";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 import {
   getDragDetails,
   getWidget,
   getWidgetByName,
   getWidgets,
 } from "./selectors";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "./WidgetSelectUtils";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import type { JSCollectionDataState } from "@appsmith/reducers/entityReducers/jsActionsReducer";
+import type { JSCollection } from "entities/JSCollection";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -646,6 +650,62 @@ function* runNewlyCreatedActions(
   }
 }
 
+function* runNewlyCreatedJSActions(
+  jsActionsBeforeAddingBuildingBlock: JSCollectionDataState,
+  jsActionsAfterAddingBuildingBlocks: JSCollectionDataState,
+) {
+  const jsCollectionIdsBeforeAddingBB = jsActionsBeforeAddingBuildingBlock.map(
+    (obj) => obj.config.id,
+  );
+
+  const newlyAddedJSCollections = jsActionsAfterAddingBuildingBlocks.filter(
+    (obj) => !jsCollectionIdsBeforeAddingBB.includes(obj.config.id),
+  );
+
+  // Run each action sequentially. We have a max of 2-3 actions per building block.
+  // If we run this in parallel, we will have a racing condition when multiple building blocks are drag and dropped quickly.
+  for (const collection of newlyAddedJSCollections) {
+    const jsCollection: JSCollection = yield select(getJSCollectionById, {
+      match: {
+        params: {
+          collectionId: collection.config.id,
+        },
+      },
+    });
+    // console.log("🚀 ~ jsCollection:", jsCollection);
+    for (const action of jsCollection.actions) {
+      // console.log("🚀 ~ action:", action);
+      if (action.executeOnLoad) {
+        yield put({
+          type: ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
+          payload: {
+            action,
+            collection: jsCollection,
+            from: "KEYBOARD_SHORTCUT",
+            openDebugger: false,
+          },
+        });
+        yield take(ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS);
+      }
+    }
+    // const jsActionsInCollection: JSAction = yield select(
+    //   getJSActionFromJSCollection,
+    //   collection,
+    // );
+    // console.log("🚀 ~ jsActionsInCollection:", jsActionsInCollection);
+    // yield put({
+    //   type: ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
+    //   payload: {
+    //     action: jsActionsInCollection,
+    //     collection: jsCollection,
+    //     from: "KEYBOARD_SHORTCUT",
+    //     openDebugger: false,
+    //   },
+    // });
+    // yield take(ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS);
+  }
+}
+
 export function* addBuildingBlockToApplication(
   buildingBlockWidget: WidgetAddChild,
   skeletonLoaderId: string,
@@ -657,6 +717,8 @@ export function* addBuildingBlockToApplication(
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const actionsBeforeAddingBuildingBlock: ActionDataState =
       yield select(getActions);
+    const jsCollectionsBeforeAddingBuildingBlock: JSCollectionDataState =
+      yield select(getJSCollections);
     const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
     const buildingBlockDragStartTimestamp: number = yield select(
       getBuildingBlockDragStartTimestamp,
@@ -708,6 +770,8 @@ export function* addBuildingBlockToApplication(
 
       const actionsAfterAddingBuildingBlocks: ActionDataState =
         yield select(getActions);
+      const jsCollectionsAfterAddingBuildingBlocks: JSCollectionDataState =
+        yield select(getJSCollections);
 
       if (
         response.data.onPageLoadActions &&
@@ -716,6 +780,11 @@ export function* addBuildingBlockToApplication(
         yield runNewlyCreatedActions(
           actionsBeforeAddingBuildingBlock,
           actionsAfterAddingBuildingBlocks,
+        );
+
+        yield runNewlyCreatedJSActions(
+          jsCollectionsBeforeAddingBuildingBlock,
+          jsCollectionsAfterAddingBuildingBlocks,
         );
       }
 
