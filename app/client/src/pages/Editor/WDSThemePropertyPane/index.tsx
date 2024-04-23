@@ -100,6 +100,9 @@ function WDSThemePropertyPane() {
         ...theme,
         accentColor: e.target.value,
       });
+
+      (document.querySelector("#color-picker") as HTMLInputElement).value =
+        color;
     }
 
     setAccentColor(e.target.value);
@@ -144,6 +147,9 @@ function WDSThemePropertyPane() {
                   });
                   inputRef.current?.focus();
                   setAccentColor(color);
+                  (
+                    document.querySelector("#color-picker") as HTMLInputElement
+                  ).value = color;
                 }}
                 style={{ backgroundColor: color, color }}
               >
@@ -154,10 +160,10 @@ function WDSThemePropertyPane() {
             ))}
             <label htmlFor="color-picker">
               <input
+                defaultValue={theme.accentColor}
                 id="color-picker"
                 onChange={debouncedOnColorChange}
                 type="color"
-                value={theme.accentColor}
               />
             </label>
           </div>
