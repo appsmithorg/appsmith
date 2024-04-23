@@ -19,7 +19,6 @@ import type {
   StickyType,
 } from "./Constants";
 import { TABLE_SIZES, CompactModeTypes } from "./Constants";
-import { Colors } from "constants/Colors";
 import type { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { EditableCell, TableVariant } from "../constants";
 import "simplebar-react/dist/simplebar.min.css";
@@ -72,7 +71,6 @@ export interface TableProps {
   triggerRowSelection: boolean;
   onSearch: (searchKey: any) => void;
   filters?: ReactTableFilter[];
-  applyFilter: (filters: ReactTableFilter[]) => void;
   compactMode?: CompactMode;
   isVisibleDownload?: boolean;
   isVisibleFilters?: boolean;
@@ -115,7 +113,7 @@ export interface HeaderComponentProps {
     e: React.MouseEvent<HTMLDivElement, MouseEvent>,
   ) => void;
   handleReorderColumn: (columnOrder: string[]) => void;
-  columnOrder?: string[]; 
+  columnOrder?: string[];
   headerGroups: any;
   canFreezeColumn?: boolean;
   editMode: boolean;
@@ -179,7 +177,6 @@ export function Table(props: TableProps) {
     getTableProps,
     headerGroups,
     page,
-    pageOptions,
     prepareRow,
     state,
     totalColumnsWidth,
@@ -289,37 +286,20 @@ export function Table(props: TableProps) {
       >
         {isHeaderVisible && (
           <TableHeader
-            allowAddNewRow={props.allowAddNewRow}
-            applyFilter={props.applyFilter}
             columns={tableHeadercolumns}
             currentPageIndex={currentPageIndex}
-            delimiter={props.delimiter}
-            disableAddNewRow={!!props.editableCell?.column}
-            disabledAddNewRowSave={props.disabledAddNewRowSave}
-            filters={props.filters}
-            isAddRowInProgress={props.isAddRowInProgress}
-            isVisibleDownload={props.isVisibleDownload}
-            isVisibleFilters={props.isVisibleFilters}
             isVisiblePagination={props.isVisiblePagination}
             isVisibleSearch={props.isVisibleSearch}
             nextPageClick={props.nextPageClick}
-            onAddNewRow={props.onAddNewRow}
-            onAddNewRowAction={props.onAddNewRowAction}
             onSearch={props.onSearch}
             pageCount={pageCount}
             pageNo={props.pageNo}
-            pageOptions={pageOptions}
             prevPageClick={props.prevPageClick}
             searchKey={props.searchKey}
             serverSidePaginationEnabled={props.serverSidePaginationEnabled}
-            tableColumns={columns}
             tableData={data}
-            tableSizes={tableSizes}
             totalRecordsCount={props.totalRecordsCount}
             updatePageNo={props.updatePageNo}
-            widgetId={props.widgetId}
-            widgetName={props.widgetName}
-            width={props.width}
           />
         )}
         <div
