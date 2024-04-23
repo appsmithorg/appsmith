@@ -690,7 +690,7 @@
       {
         "boxShadow": "none",
         "widgetName": "InsertButton",
-        "onClick": "{{showModal('InsertModal')}}",
+        "onClick": "{{showModal(InsertModal.name)}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "dynamicPropertyPathList": [
           {
@@ -740,7 +740,7 @@
       {
         "boxShadow": "none",
         "widgetName": "UpdateButton",
-        "onClick": "{{showModal('UpdateModal')}}",
+        "onClick": "{{showModal(UpdateModal.name)}}",
         "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
         "dynamicPropertyPathList": [],
         "displayName": "Button",

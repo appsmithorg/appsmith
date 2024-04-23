@@ -145,7 +145,7 @@
                     "key": "accentColor"
                   }
                 ],
-                "onSelectionChange": "{{showModal('Modal1')}}",
+                "onSelectionChange": "{{showModal(Modal1.name)}}",
                 "dynamicTriggerPathList": [
                   {
                     "key": "onSelectionChange"

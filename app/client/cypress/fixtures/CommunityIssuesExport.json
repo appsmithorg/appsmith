@@ -2362,7 +2362,7 @@
                 {
                   "boxShadow": "none",
                   "widgetName": "AddIssue",
-                  "onClick": "{{showModal('add_issue_modal')}}",
+                  "onClick": "{{showModal(add_issue_modal.name)}}",
                   "buttonColor": "#2E3D49",
                   "displayName": "Icon Button",
                   "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -4127,7 +4127,7 @@
                       "boxShadow": "none",
                       "customAlias": "",
                       "iconName": "caret-up",
-                      "onClick": "{{showModal('upvote_modal');}}",
+                      "onClick": "{{showModal(upvote_modal.name);}}",
                       "buttonVariant": "SECONDARY"
                     }
                   },
@@ -6281,7 +6281,7 @@
                 {
                   "boxShadow": "NONE",
                   "widgetName": "AddIssue",
-                  "onClick": "{{showModal('add_issue_modal')}}",
+                  "onClick": "{{showModal(add_issue_modal.name)}}",
                   "buttonColor": "#2E3D49",
                   "displayName": "Icon Button",
                   "iconSVG": "/static/media/icon.1a0c634a.svg",
@@ -7280,7 +7280,7 @@
                       "iconName": "caret-up",
                       "borderRadius": "ROUNDED",
                       "buttonVariant": "SECONDARY",
-                      "onClick": "{{showModal('upvote_modal')}}",
+                      "onClick": "{{showModal(upvote_modal.name)}}",
                       "horizontalAlignment": "LEFT",
                       "textSize": "PARAGRAPH"
                     },

@@ -291,7 +291,7 @@
                               {
                                 "boxShadow": "none",
                                 "widgetName": "IconButton1",
-                                "onClick": "{{showModal('Modal1')}}",
+                                "onClick": "{{showModal(Modal1.name)}}",
                                 "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
                                 "displayName": "Icon button",
                                 "iconSVG": "/static/media/icon.1a0c634ac75f9fa6b6ae7a8df882a3ba.svg",
@@ -484,7 +484,7 @@
                                   }
                                 ],
                                 "labelPosition": "Top",
-                                "onSelectionChange": "{{showModal('Modal2')}}",
+                                "onSelectionChange": "{{showModal(Modal2.name)}}",
                                 "options": [
                                   {
                                     "label": "Yes",
@@ -544,7 +544,7 @@
                                   }
                                 ],
                                 "labelPosition": "Top",
-                                "onSelectionChange": "{{showModal('Modal2')}}",
+                                "onSelectionChange": "{{showModal(Modal2.name)}}",
                                 "options": [
                                   {
                                     "label": "Blue",

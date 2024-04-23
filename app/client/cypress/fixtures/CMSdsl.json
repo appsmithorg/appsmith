@@ -252,7 +252,7 @@
                       {
                         "resetFormOnClick": true,
                         "widgetName": "FormButton1",
-                        "onClick": "{{showModal('Modal1')}}",
+                        "onClick": "{{showModal(Modal1.name)}}",
                         "buttonColor": "#03B365",
                         "dynamicPropertyPathList": [{ "key": "onClick" }],
                         "displayName": "FormButton",
@@ -609,7 +609,7 @@
               },
               {
                 "widgetName": "Button4",
-                "onClick": "{{showModal('Modal2')}}",
+                "onClick": "{{showModal(Modal2.name)}}",
                 "buttonColor": "#03B365",
                 "dynamicPropertyPathList": [{ "key": "onClick" }],
                 "displayName": "Button",
