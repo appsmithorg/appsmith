@@ -5,7 +5,7 @@ import {
   ReduxActionTypes,
   type Page,
 } from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getQueryStringfromObject } from "@appsmith/entities/URLRedirect/URLAssembly";

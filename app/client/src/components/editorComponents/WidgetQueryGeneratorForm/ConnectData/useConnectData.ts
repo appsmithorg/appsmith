@@ -3,7 +3,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { getWidget } from "sagas/selectors";
 import { getPluginPackageFromDatasourceId } from "@appsmith/selectors/entitiesSelector";
 import { getisOneClickBindingConnectingForWidget } from "selectors/oneClickBindingSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { isValidGsheetConfig } from "../utils";
 import { useContext, useMemo } from "react";
 import { WidgetQueryGeneratorFormContext } from "../index";

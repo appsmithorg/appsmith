@@ -180,8 +180,8 @@ export const renderCell = (
           {value && columnType === ColumnTypes.URL && cellProperties.displayText
             ? cellProperties.displayText
             : !isNil(value) && !isNaN(value)
-            ? value.toString()
-            : ""}
+              ? value.toString()
+              : ""}
         </AutoToolTipComponent>
       );
   }

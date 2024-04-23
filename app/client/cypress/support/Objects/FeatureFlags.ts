@@ -3,7 +3,6 @@ import { ObjectsRegistry } from "./Registry";
 import produce from "immer";
 
 const defaultFlags = {
-  release_show_new_sidebar_pages_pane_enabled: true,
   release_side_by_side_ide_enabled: true,
 };
 

@@ -8,7 +8,7 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentApplication } from "selectors/editorSelectors";
 import { getCurrentUser } from "selectors/usersSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   PublishPageAppSettingContainer,
   PublishPageBodyContainer,

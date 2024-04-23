@@ -3,8 +3,8 @@ package com.appsmith.external.datatypes;
 import com.appsmith.external.constants.DataType;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.StreamReadFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import reactor.core.Exceptions;
 
@@ -16,8 +16,7 @@ import java.util.regex.Matcher;
 
 public class TimeType implements AppsmithType {
 
-    private static final ObjectMapper objectMapper =
-            new ObjectMapper().enable(StreamReadFeature.INCLUDE_SOURCE_IN_LOCATION.mappedFeature());
+    private static final ObjectMapper objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
 
     @Override
     public boolean test(String s) {
