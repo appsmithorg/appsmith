@@ -46,7 +46,7 @@ public class PageControllerTest {
     @Test
     @WithMockUser
     void noBody() {
-        client.post().uri("/api/v1/pages/abcdef").exchange().expectStatus().isBadRequest();
+        client.post().uri("/api/v1/pages").exchange().expectStatus().isBadRequest();
         client.put().uri("/api/v1/pages/abcdef").exchange().expectStatus().isBadRequest();
     }
 
@@ -154,7 +154,7 @@ public class PageControllerTest {
     @WithMockUser
     void invalidName(String name) {
         client.post()
-                .uri("/api/v1/pages/abcdef")
+                .uri("/api/v1/pages")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(Map.of("name", name)))
                 .exchange()
@@ -202,7 +202,7 @@ public class PageControllerTest {
     @WithMockUser
     void invalidCustomSlug(String slug) {
         client.post()
-                .uri("/api/v1/pages/abcdef")
+                .uri("/api/v1/pages")
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(BodyInserters.fromValue(Map.of("customSlug", slug)))
                 .exchange()
@@ -231,16 +231,6 @@ public class PageControllerTest {
     @Test
     @WithMockUser
     void emptyCustomSlugShouldBeOkay() {
-        doReturn(Mono.just(new PageDTO())).when(applicationPageService).createPageWithBranchName(any(), anyString());
-
-        client.post()
-                .uri("/api/v1/pages/abcdef")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(Map.of("customSlug", "")))
-                .exchange();
-
-        verify(applicationPageService, times(1)).createPageWithBranchName(any(), anyString());
-
         doReturn(Mono.just(new PageDTO()))
                 .when(newPageService)
                 .updatePageByDefaultPageIdAndBranch(anyString(), any(), anyString());
