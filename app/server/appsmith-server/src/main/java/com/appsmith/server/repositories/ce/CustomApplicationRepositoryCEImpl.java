@@ -130,6 +130,7 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
+    @Transactional
     public int setPages(String applicationId, List<ApplicationPage> pages) {
         return queryBuilder().byId(applicationId).updateFirst(Bridge.update().set(Application.Fields.pages, pages));
     }
@@ -231,7 +232,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    @Modifying
     @Transactional
     public int setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
