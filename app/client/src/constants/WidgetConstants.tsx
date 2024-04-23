@@ -165,7 +165,6 @@ export const WIDGET_STATIC_PROPS = {
   height: false,
   topRowBeforeCollapse: false,
   bottomRowBeforeCollapse: false,
-  layout: true,
 };
 
 export const WIDGET_DSL_STRUCTURE_PROPS = {
@@ -179,6 +178,7 @@ export const WIDGET_DSL_STRUCTURE_PROPS = {
   topRow: true,
   type: true,
   widgetId: true,
+  layout: true,
 };
 
 export type TextSize = keyof typeof TextSizes;
