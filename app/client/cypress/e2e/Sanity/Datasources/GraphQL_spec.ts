@@ -23,7 +23,7 @@ const GRAPHQL_QUERY = `query ($myid: Int!) {
   }
 }`;
 
-let POST_ID = "{{Text1.text}}";
+let POST_ID: string | number = "{{Input1.text}}";
 
 let GRAPHQL_VARIABLES = `{
     "myid": ${POST_ID}
@@ -79,6 +79,8 @@ describe(
         action: "Delete",
         entityType: entityItems.Api,
       });
+
+      POST_ID = 4;
     });
 
     it("2. Pagination for limit based should work without offset", function () {
