@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Container, Space } from "../components/StyledComponents";
 
 import {
+  BRANCH_PROTECTION_PROTECTED,
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
   createMessage,
   FETCH_GIT_STATUS,
@@ -51,7 +52,7 @@ import {
   ModalFooter,
   ModalBody,
 } from "design-system";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`
@@ -113,10 +114,7 @@ export default function Merge() {
       if (index === gitBranches.length) break;
       const branchObj = gitBranches[index];
 
-      if (
-        currentBranch !== branchObj.branchName &&
-        !protectedBranches.includes(branchObj.branchName)
-      ) {
+      if (currentBranch !== branchObj.branchName) {
         if (!branchObj.default) {
           branchOptions.push({
             label: branchObj.branchName,
@@ -248,9 +246,19 @@ export default function Merge() {
               size="md"
               value={selectedBranchOption}
             >
-              {branchList.map((branch) => (
-                <Option key={branch.value}>{branch.value}</Option>
-              ))}
+              {branchList.map((branch) => {
+                const isProtected = protectedBranches.includes(
+                  branch?.value ?? "",
+                );
+                return (
+                  <Option disabled={isProtected} key={branch.value}>
+                    {branch.value}
+                    {isProtected
+                      ? ` (${createMessage(BRANCH_PROTECTION_PROTECTED)})`
+                      : ""}
+                  </Option>
+                );
+              })}
             </Select>
 
             <Space horizontal size={3} />

@@ -12,7 +12,7 @@ import {
 } from "selectors/datasourceSelectors";
 import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getWidget } from "sagas/selectors";
 
 export function useSheets() {

@@ -1,6 +1,5 @@
 import { getCurrentUser } from "selectors/usersSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
-import { getAppsmithConfigs } from "@appsmith/configs";
 import { call, select } from "redux-saga/effects";
 import type { APP_MODE } from "entities/App";
 import {
@@ -10,16 +9,11 @@ import {
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";
 import { TriggerKind } from "constants/AppsmithActionConstants/ActionConstants";
 import { isArray } from "lodash";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/entitiesSelector";
 import type { AppState } from "@appsmith/reducers";
 import { getWidget } from "sagas/selectors";
-
-export function getUserSource() {
-  const { cloudHosting } = getAppsmithConfigs();
-  const source = cloudHosting ? "cloud" : "ce";
-  return source;
-}
+import { getUserSource } from "@appsmith/utils/AnalyticsUtil";
 
 export interface UserAndAppDetails {
   pageId: string;

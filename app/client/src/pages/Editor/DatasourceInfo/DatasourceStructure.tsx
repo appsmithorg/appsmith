@@ -13,7 +13,7 @@ import { getPagePermissions } from "selectors/editorSelectors";
 import { Menu, MenuTrigger, Button, Tooltip, MenuContent } from "design-system";
 import { SHOW_TEMPLATES, createMessage } from "@appsmith/constants/messages";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
 import { omit } from "lodash";
 import { Virtuoso } from "react-virtuoso";

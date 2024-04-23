@@ -1,4 +1,5 @@
 import { ObjectsRegistry } from "../Objects/Registry";
+import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
 import EditorNavigation, {
   EntityType,
@@ -38,8 +39,7 @@ interface EntityActionParams {
     | "Export"
     | "Import";
   subAction?: string;
-  //@ts-expect-error: type mismatch
-  entityType?: EntityItems;
+  entityType?: EntityItemsType;
   toAssertAction?: boolean;
   toastToValidate?: string;
 }
@@ -69,6 +69,8 @@ export class EntityExplorer {
   _widgetSearchInput = "#entity-explorer-search";
   _widgetCardTitle = ".t--widget-card-draggable span.ads-v2-text";
   _widgetTagSuggestedWidgets = ".widget-tag-collapisble-suggested";
+  _widgetTagBuildingBlocks = ".widget-tag-collapisble-building-blocks";
+  _widgetSeeMoreButton = "[data-testid='t--explorer-ui-entity-tag-see-more']";
 
   public ActionContextMenuByEntityName({
     action = "Delete",
@@ -80,6 +82,9 @@ export class EntityExplorer {
   }: EntityActionParams) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     this.agHelper.Sleep();
+    if (entityType === EntityItems.Page) {
+      PageList.ShowList();
+    }
     cy.xpath(this._contextMenu(entityNameinLeftSidebar))
       .scrollIntoView()
       .last()
@@ -95,6 +100,9 @@ export class EntityExplorer {
         force: true,
         toastToValidate: toastToValidate,
       });
+    }
+    if (entityType === EntityItems.Page) {
+      PageList.HideList();
     }
   }
 
@@ -166,10 +174,10 @@ export class EntityExplorer {
       dropTargetId
         ? dropTargetId + this.locator._dropHere
         : parentWidgetType
-        ? this.locator._widgetInCanvas(parentWidgetType) +
-          " " +
-          this.locator._dropHere
-        : this.locator._dropHere,
+          ? this.locator._widgetInCanvas(parentWidgetType) +
+            " " +
+            this.locator._dropHere
+          : this.locator._dropHere,
     )
       .first()
       .trigger("mousemove", x, y, {
@@ -254,13 +262,17 @@ export class EntityExplorer {
     entityName: string,
     renameVal: string,
     viaMenu = false,
+    entityType?: EntityItemsType,
   ) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageList.ShowList();
+    if (entityType === EntityItems.Page && !viaMenu) {
+      PageList.ShowList();
+    }
     if (viaMenu)
       this.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: entityName,
         action: "Edit name",
+        entityType,
       });
     else cy.xpath(PageLeftPane.listItemSelector(entityName)).dblclick();
     cy.xpath(this.locator._entityNameEditing(entityName))
@@ -269,6 +281,10 @@ export class EntityExplorer {
       .type("{enter}")
       .wait(300);
     this.agHelper.Sleep(); //allowing time for name change to reflect in EntityExplorer
-    PageLeftPane.assertPresence(renameVal);
+    if (entityType === EntityItems.Page) {
+      PageList.assertPresence(renameVal);
+    } else {
+      PageLeftPane.assertPresence(renameVal);
+    }
   }
 }

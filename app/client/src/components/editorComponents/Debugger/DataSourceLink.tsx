@@ -1,5 +1,5 @@
 import React from "react";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { DebuggerEntityLink, type EntityLinkProps } from "./DebuggerEntityLink";
 import { useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";

@@ -20,8 +20,11 @@ public class GitUtils {
     public static final Duration RETRY_DELAY = Duration.ofSeconds(1);
     public static final Integer MAX_RETRIES = 20;
 
-    public static final Pattern GIT_SSH_URL_PATTERN =
-            Pattern.compile("^(ssh://)?git@(?<host>.+?):/*(?<path>.+?)(\\.git)?$");
+    public static final Pattern URL_PATTERN_WITH_SCHEME =
+            Pattern.compile("^ssh://git@(?<host>.+?)(:(?<port>\\d+))?/+(?<path>.+?)(\\.git)?$");
+
+    public static final Pattern URL_PATTERN_WITHOUT_SCHEME =
+            Pattern.compile("^git@(?<host>.+?):/*(?<path>.+?)(\\.git)?$");
 
     /**
      * Sample repo urls :
@@ -37,7 +40,10 @@ public class GitUtils {
             throw new AppsmithException(AppsmithError.INVALID_PARAMETER, "ssh url");
         }
 
-        final Matcher match = GIT_SSH_URL_PATTERN.matcher(sshUrl);
+        Matcher match = URL_PATTERN_WITH_SCHEME.matcher(sshUrl);
+        if (!match.matches()) {
+            match = URL_PATTERN_WITHOUT_SCHEME.matcher(sshUrl);
+        }
 
         if (!match.matches()) {
             throw new AppsmithException(
