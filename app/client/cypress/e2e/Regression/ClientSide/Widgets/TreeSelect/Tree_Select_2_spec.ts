@@ -243,6 +243,7 @@ describe(
         ["Form1"],
       );
       propPane.ToggleJSMode("onOptionChange", true);
+      propPane.AssertJSToggleState("onOptionChange", "enabled");
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         "{{navigateTo('www.google.com', {}, 'SAME_WINDOW');}}",
@@ -338,6 +339,7 @@ describe(
         ["Form1"],
       );
       propPane.ToggleJSMode("onOptionChange", false);
+      propPane.AssertJSToggleState("onOptionChange", "disabled");
       propPane.SelectPlatformFunction("onOptionChange", "Show modal");
       agHelper.GetNClick(propPane._actionOpenDropdownSelectModal);
       agHelper.GetNClick(propPane._createModalButton);
@@ -377,6 +379,7 @@ describe(
         ["Form1"],
       );
       propPane.ToggleJSMode("onOptionChange", true);
+      propPane.AssertJSToggleState("onOptionChange", "enabled");
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         `{{postWindowMessage('Test', 'Iframe1', "*");}}`,
