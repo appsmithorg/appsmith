@@ -3,6 +3,10 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../support/Pages/EditorNavigation";
+import {
+  createMessage,
+  EDITOR_PANE_TEXTS,
+} from "../../../../../src/ce/constants/messages";
 
 const testdata = require("../../../../fixtures/testdata.json");
 const apiwidget = require("../../../../locators/apiWidgetslocator.json");
@@ -24,33 +28,47 @@ describe(
       homePage.CreateAppInWorkspace("EmptyMsgCheck");
       PageLeftPane.switchSegment(PagePaneSegment.UI);
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan("Drag & drop widgets to create your app"),
-      );
-      agHelper.AssertElementVisibility(locator._visibleTextSpan("New widget"));
-      PageLeftPane.switchSegment(PagePaneSegment.Queries);
-      agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          "Write your first query or API to access data",
+          createMessage(EDITOR_PANE_TEXTS.widget_blank_state_description),
         ),
       );
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan("No queries to display"),
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.widget_add_button),
+        ),
+      );
+      PageLeftPane.switchSegment(PagePaneSegment.Queries);
+      agHelper.AssertElementVisibility(
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.query_blank_state_description),
+        ),
       );
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan("New query / API"),
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.query_blank_state),
+        ),
+      );
+      agHelper.AssertElementVisibility(
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.query_add_button),
+        ),
       );
 
       PageLeftPane.switchSegment(PagePaneSegment.JS);
       agHelper.AssertElementVisibility(
         locator._visibleTextSpan(
-          "Use JS to transform your data or write business logic",
+          createMessage(EDITOR_PANE_TEXTS.js_blank_state_description),
         ),
       );
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan("No JS objects to display"),
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.js_blank_state),
+        ),
       );
       agHelper.AssertElementVisibility(
-        locator._visibleTextSpan("New JS object"),
+        locator._visibleTextSpan(
+          createMessage(EDITOR_PANE_TEXTS.js_add_button),
+        ),
       );
     });
 

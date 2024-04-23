@@ -7,7 +7,7 @@ import type { JSAction } from "entities/JSCollection";
 import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { CONFIRM_BEFORE_CALLING_HEADING, SETTINGS_HEADINGS } from "./constants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Icon, Tooltip, Switch } from "design-system";
 import RemoveConfirmationModal from "./RemoveConfirmBeforeCallingDialog";
 

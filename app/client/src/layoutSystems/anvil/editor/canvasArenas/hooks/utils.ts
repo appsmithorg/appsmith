@@ -57,10 +57,10 @@ export const getDraggedWidgetTypes = (draggedBlocks: DraggedWidget[]) => {
     extractWidgetTypesDragged.length > 1
       ? AnvilDraggedWidgetTypesEnum.WIDGETS
       : extractWidgetTypesDragged[0] === anvilWidgets.ZONE_WIDGET
-      ? AnvilDraggedWidgetTypesEnum.ZONE
-      : extractWidgetTypesDragged[0] === anvilWidgets.SECTION_WIDGET
-      ? AnvilDraggedWidgetTypesEnum.SECTION
-      : AnvilDraggedWidgetTypesEnum.WIDGETS;
+        ? AnvilDraggedWidgetTypesEnum.ZONE
+        : extractWidgetTypesDragged[0] === anvilWidgets.SECTION_WIDGET
+          ? AnvilDraggedWidgetTypesEnum.SECTION
+          : AnvilDraggedWidgetTypesEnum.WIDGETS;
 
   // Returning the final dragged widget type
   return draggedWidgetTypes;

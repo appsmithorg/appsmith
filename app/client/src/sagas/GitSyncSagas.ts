@@ -39,6 +39,7 @@ import {
   fetchGitProtectedBranchesInit,
   updateGitProtectedBranchesInit,
   clearCommitSuccessfulState,
+  setShowBranchPopupAction,
 } from "actions/gitSyncActions";
 import {
   commitToRepoSuccess,
@@ -377,6 +378,10 @@ function* switchBranch(action: ReduxAction<string>) {
     const page = response.data.pages.find(
       (page) => page.id === entityInfo.params.pageId,
     );
+
+    yield put(setShowBranchPopupAction(false));
+    yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_SUCCESS });
+
     const homePage = response.data.pages.find((page) => page.isDefault);
     if (!page) {
       if (homePage) {
@@ -386,7 +391,6 @@ function* switchBranch(action: ReduxAction<string>) {
         return;
       }
     }
-
     // Page exists, so we will try to go to the destination
     history.push(destinationHref);
 
@@ -421,8 +425,6 @@ function* switchBranch(action: ReduxAction<string>) {
         );
       }
     }
-
-    yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_SUCCESS });
   } catch (e) {
     // non api error
     yield put({ type: ReduxActionTypes.SWITCH_GIT_BRANCH_ERROR });

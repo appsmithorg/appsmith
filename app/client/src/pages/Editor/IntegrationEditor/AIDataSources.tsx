@@ -4,7 +4,7 @@ import styled from "styled-components";
 import { createTempDatasourceFromForm } from "actions/datasourceActions";
 import type { AppState } from "@appsmith/reducers";
 import type { Plugin } from "api/PluginApi";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { PluginType } from "entities/Action";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 

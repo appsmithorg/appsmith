@@ -15,7 +15,7 @@ import {
   MINIMIZE_BUTTON_TOOLTIP,
   createMessage,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const FullScreenTabs = () => {
   const dispatch = useDispatch();

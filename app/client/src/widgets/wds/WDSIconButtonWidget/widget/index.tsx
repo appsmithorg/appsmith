@@ -1,6 +1,7 @@
 import React from "react";
 import BaseWidget from "widgets/BaseWidget";
 import type { SetterConfig } from "entities/AppTheming";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 
 import * as config from "./../config";
@@ -26,7 +27,7 @@ class WDSIconButtonWidget extends BaseWidget<
   }
 
   static getDefaults() {
-    return config.defaultsConfig;
+    return config.defaultsConfig as unknown as WidgetDefaultProps;
   }
 
   static getAnvilConfig() {

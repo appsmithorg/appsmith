@@ -14,7 +14,7 @@ import { Text } from "../../Text";
 import styles from "./styles.module.css";
 import { getTypographyClassName } from "@design-system/theming";
 
-interface TagGroupProps<T>
+export interface TagGroupProps<T>
   extends Omit<HeadlessTagGroupProps, "children">,
     Pick<HeadlessTagListProps<T>, "items" | "children" | "renderEmptyState"> {
   label?: string;
