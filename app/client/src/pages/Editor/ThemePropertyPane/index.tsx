@@ -36,12 +36,10 @@ export function ThemePropertyPane() {
 
   return (
     <>
-      <div className="px-4">
-        <SectionTitle className="flex items-center gap-2">
-          {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
-          <BetaCard />
-        </SectionTitle>
-      </div>
+      <SectionTitle className="flex items-center gap-2 px-2">
+        {THEME_SETTINGS_SECTION_CONTENT_HEADER()}
+        <BetaCard />
+      </SectionTitle>
       <div className="relative">{propertyPane}</div>
     </>
   );
