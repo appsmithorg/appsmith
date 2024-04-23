@@ -291,6 +291,7 @@ function ReconnectDatasourceModal() {
   const [datasource, setDatasource] = useState<Datasource | null>(null);
   const [isImport, setIsImport] = useState(queryIsImport);
   const [isTesting, setIsTesting] = useState(false);
+  const [isConfiguredDs, setIsConfiguredDs] = useState(false);
   const queryDS = datasources.find((ds) => ds.id === queryDatasourceId);
   const dsName = queryDS?.name;
   const orgId = queryDS?.workspaceId;
@@ -465,6 +466,7 @@ function ReconnectDatasourceModal() {
 
   const onSelectDatasource = useCallback((ds: Datasource) => {
     setIsTesting(false);
+    setIsConfiguredDs(true);
     setSelectedDatasourceId(ds.id);
     setDatasource(ds);
     AnalyticsUtil.logEvent("RECONNECTING_DATASOURCE_ITEM_CLICK", {
@@ -520,19 +522,21 @@ function ReconnectDatasourceModal() {
         }
         // goto next pending datasource
         const next: Datasource = pending[0];
-        if (next && next.id) {
-          setSelectedDatasourceId(next.id);
-          setDatasource(next);
-          // when refresh, it should be opened.
-          const appInfo = {
-            appId: appId,
-            pageId: pageId,
-            datasourceId: next.id,
-          };
-          localStorage.setItem(
-            "importedAppPendingInfo",
-            JSON.stringify(appInfo),
-          );
+        if (isConfiguredDs !== true) {
+          if (next && next.id) {
+            setSelectedDatasourceId(next.id);
+            setDatasource(next);
+            // when refresh, it should be opened.
+            const appInfo = {
+              appId: appId,
+              pageId: pageId,
+              datasourceId: next.id,
+            };
+            localStorage.setItem(
+              "importedAppPendingInfo",
+              JSON.stringify(appInfo),
+            );
+          }
         }
       }
       // When datasources are present and pending datasources are 0,
@@ -544,7 +548,14 @@ function ReconnectDatasourceModal() {
         window.open(editorURL, "_self");
       }
     }
-  }, [datasources, editorURL, isModalOpen, isTesting, queryIsImport]);
+  }, [
+    datasources,
+    editorURL,
+    isModalOpen,
+    isTesting,
+    queryIsImport,
+    isConfiguredDs,
+  ]);
 
   const mappedDataSources = datasources.map((ds: Datasource) => {
     return (
