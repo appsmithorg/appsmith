@@ -3,6 +3,7 @@ import { PADDING_FOR_HORIZONTAL_HIGHLIGHT } from "layoutSystems/anvil/utils/cons
 import React, { useMemo } from "react";
 import styled from "styled-components";
 
+// Styled component for the highlight element
 const AnvilStyledHighlight = styled.div<{ zIndex: number }>`
   background-color: var(--anvil-drop-indicator);
   border-radius: 2px;
@@ -26,8 +27,10 @@ export const AnvilDnDHighlight = ({
   highlightShown: AnvilHighlightInfo | null;
   zIndex?: number;
 }) => {
+  // Memoized calculation of highlight dimensions styles
   const highlightDimensionStyles = useMemo(() => {
     if (!highlightShown) {
+      // If no highlight info is provided, return default dimensions
       return {
         height: 0,
         left: 0,
@@ -35,6 +38,7 @@ export const AnvilDnDHighlight = ({
         width: 0,
       };
     }
+    // Calculate padding based on highlight orientation
     const horizontalPadding = highlightShown.isVertical
       ? 0
       : PADDING_FOR_HORIZONTAL_HIGHLIGHT;
@@ -42,7 +46,7 @@ export const AnvilDnDHighlight = ({
       ? PADDING_FOR_HORIZONTAL_HIGHLIGHT
       : 0;
 
-    // use highlight info to calculate the dimension styles
+    // Calculate dimension styles based on highlight info
     return {
       height: highlightShown.height - verticalPadding * 2,
       left: highlightShown.posX + horizontalPadding - compensatorValues.left,
@@ -50,7 +54,9 @@ export const AnvilDnDHighlight = ({
       width: highlightShown.width - horizontalPadding * 2,
     };
   }, [highlightShown]);
+
+  // Render the highlight element if highlight info is provided
   return highlightShown ? (
     <AnvilStyledHighlight style={highlightDimensionStyles} zIndex={zIndex} />
-  ) : null;
+  ) : null; // Otherwise, return null
 };

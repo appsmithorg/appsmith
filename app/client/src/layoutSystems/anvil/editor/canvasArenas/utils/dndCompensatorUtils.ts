@@ -149,7 +149,7 @@ const calculateEdgeLeftOffset = (
   return isVertical ? (isLeftEdge ? -leftGap : isRightEdge ? leftGap : 0) : 0;
 };
 
-export const getCompensatingOffsetValues = (
+const getEdgeCompensatingOffsetValues = (
   highlight: AnvilHighlightInfo,
   highlightCompensatorValues: {
     top: number;
@@ -188,4 +188,33 @@ export const getCompensatingOffsetValues = (
     topOffset,
     leftOffset,
   };
+};
+
+export const getPositionCompensatedHighlight = (
+  highlight: AnvilHighlightInfo,
+  layoutCompensatorValues: {
+    top: number;
+    left: number;
+  },
+  edgeCompensatorValues: {
+    top: number;
+    left: number;
+  },
+): AnvilHighlightInfo => {
+  const layoutCompensatedHighlight = {
+    ...highlight,
+    posX: highlight.posX + layoutCompensatorValues.left,
+    posY: highlight.posY + layoutCompensatorValues.top,
+  };
+  const { posX: left, posY: top } = layoutCompensatedHighlight;
+  const compensatingOffsetValues = getEdgeCompensatingOffsetValues(
+    highlight,
+    edgeCompensatorValues,
+  );
+  const positionUpdatedHighlightInfo = {
+    ...layoutCompensatedHighlight,
+    posX: left + compensatingOffsetValues.leftOffset,
+    posY: top + compensatingOffsetValues.topOffset,
+  };
+  return positionUpdatedHighlightInfo;
 };

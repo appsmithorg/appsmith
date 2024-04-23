@@ -1,25 +1,14 @@
 import { useEffect } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
-import { useSelector } from "react-redux";
-import { getDragDetails } from "sagas/selectors";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import type { AppState } from "@appsmith/reducers";
 
 /**
  * This hook handles the activation and deactivation of the canvas(Drop targets) while dragging.
  */
 
-export const useAnvilDnDDeactivation = () => {
-  const dragDetails: DragDetails = useSelector(getDragDetails);
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
-
-  const { dragGroupActualParent: dragParent, newWidget } = dragDetails;
-  /**
-   * boolean to indicate if the widget being dragged is a new widget
-   */
-  const isNewWidget = !!newWidget && !dragParent;
+export const useAnvilDnDDeactivation = (
+  isDragging: boolean,
+  isNewWidget: boolean,
+) => {
   // Destructuring hook functions for drag and resize functionality
   const { setDraggingNewWidget, setDraggingState } = useWidgetDragResize();
 

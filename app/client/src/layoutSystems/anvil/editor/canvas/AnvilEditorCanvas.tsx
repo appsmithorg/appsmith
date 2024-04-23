@@ -1,7 +1,6 @@
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilViewerCanvas } from "layoutSystems/anvil/viewer/canvas/AnvilViewerCanvas";
 import React, { useCallback, useEffect, useRef } from "react";
-import { useAnvilDnDDeactivation } from "./hooks/useAnvilDnDDeactivation";
 import { useSelectWidgetListener } from "./hooks/useSelectWidgetListener";
 import { useClickToClearSelections } from "./hooks/useClickToClearSelections";
 import "./styles/anvilEditorVariables.css";
@@ -54,8 +53,9 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
   }, []);
   /* End of click event listener */
 
-  useAnvilDnDDeactivation();
   useSelectWidgetListener();
+  // Fetching all states used in Anvil DnD using the useAnvilGlobalDnDStates hook
+  // using AnvilDnDStatesContext to provide the states to the child AnvilDraggingArena
   const anvilGlobalDnDStates = useAnvilGlobalDnDStates();
   return (
     <AnvilDnDStatesContext.Provider value={anvilGlobalDnDStates}>

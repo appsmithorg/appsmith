@@ -33,7 +33,6 @@ export function AnvilHighlightingCanvas({
     React.useState<AnvilHighlightInfo | null>(null);
 
   const { isCurrentDraggedCanvas } = anvilDragStates;
-  // showDraggingCanvas indicates if the current dragging canvas i.e. the html canvas renders
   const { showDnDListener } = useAnvilDnDEvents(
     anvilDnDListenerRef,
     {
