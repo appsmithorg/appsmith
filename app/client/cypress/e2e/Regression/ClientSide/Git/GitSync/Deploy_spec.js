@@ -55,6 +55,5 @@ describe("Git sync modal: deploy tab", { tags: ["@tag.Git"] }, function () {
 
   after(() => {
     _.gitSync.DeleteTestGithubRepo(repoName);
-    //cy.deleteTestGithubRepo(repoName);
   });
 });

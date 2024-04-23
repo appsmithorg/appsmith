@@ -7,6 +7,7 @@ import type { Def } from "tern";
 import { invalidEntityIdentifiers } from "workers/common/DependencyMap/utils";
 import {
   JSLibraries,
+  JSLibraryAccessor,
   libraryReservedIdentifiers,
 } from "../../common/JSLibrary";
 import type { JSLibrary } from "../../common/JSLibrary";
@@ -307,6 +308,7 @@ export async function loadLibraries(
       }
     }
     JSLibraries.push(...libs);
+    JSLibraryAccessor.regenerateSet();
     return { success: true, message };
   } catch (e) {
     message = (e as Error).message;
