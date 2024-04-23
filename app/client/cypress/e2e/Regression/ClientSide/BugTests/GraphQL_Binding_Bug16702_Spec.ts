@@ -20,7 +20,7 @@ describe(
   "Binding Expressions should not be truncated in Url and path extraction",
   { tags: ["@tag.Datasource", "@tag.Binding"] },
   function () {
-    it("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function () {
+    it.skip("Bug 16702, Moustache+Quotes formatting goes wrong in graphql body resulting in autocomplete failure", function () {
       const jsObjectBody = `export default {
       limitValue: 1,
       offsetValue: 1,

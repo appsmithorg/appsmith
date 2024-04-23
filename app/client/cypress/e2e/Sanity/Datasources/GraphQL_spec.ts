@@ -7,6 +7,8 @@ import {
   dataManager,
   propPane,
   assertHelper,
+  draggableWidgets,
+  entityExplorer,
 } from "../../../support/Objects/ObjectsCore";
 
 let datasourceName = "GraphQL_DS";
@@ -21,7 +23,7 @@ const GRAPHQL_QUERY = `query ($myid: Int!) {
   }
 }`;
 
-let POST_ID = 4;
+let POST_ID = "{{Text1.text}}";
 
 let GRAPHQL_VARIABLES = `{
     "myid": ${POST_ID}
@@ -56,10 +58,12 @@ describe(
         //apiName = `${apiName}${uid}`;
         authoemail = `ci${uid}@appsmith.com`;
       });
-      dataSources.CreateDataSource("UnAuthenticatedGraphQL");
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
     });
 
     it("1. Should execute the API and validate the response", function () {
+      propPane.UpdatePropertyFieldValue("Text", "4");
+      dataSources.CreateDataSource("UnAuthenticatedGraphQL");
       apiPage.SelectPaneTab("Body");
       dataSources.UpdateGraphqlQueryAndVariable({
         query: GRAPHQL_QUERY,
