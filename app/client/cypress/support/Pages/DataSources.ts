@@ -499,6 +499,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].postgres_port.toString(),
+      true,
     );
     this.agHelper.UpdateInputValue(this._host(), hostAddress);
     this.agHelper.ClearNType(this._databaseName, databaseName);
@@ -545,6 +546,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].oracle_port.toString(),
+      true,
     );
     cy.get(this._databaseName).type(databaseName);
     cy.get(this._username).type(
@@ -571,6 +573,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].mongo_port.toString(),
+      true,
     );
     this.agHelper.ClearTextField(this._databaseName);
     const databaseName = shouldAddTrailingSpaces
@@ -594,6 +597,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].mysql_port.toString(),
+      true,
     );
     this.agHelper.ClearNType(this._databaseName, databaseName);
     this.agHelper.UpdateInputValue(
@@ -616,6 +620,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].mssql_port.toString(),
+      true,
     );
 
     if (leaveDBNameEmpty) {
@@ -662,6 +667,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].arango_port.toString(),
+      true,
     );
     //Validating db name is _system, currently unable to create DB via curl in Arango
     this.agHelper
@@ -721,6 +727,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].elastic_port.toString(),
+      true,
     );
     this.agHelper.UpdateInputValue(
       this._username,
@@ -790,6 +797,7 @@ export class DataSources {
     this.agHelper.UpdateInputValue(
       this._port,
       this.dataManager.dsValues[environment].redis_port.toString(),
+      true,
     );
   }
 
