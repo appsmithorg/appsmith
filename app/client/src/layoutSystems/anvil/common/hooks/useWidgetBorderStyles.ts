@@ -1,17 +1,23 @@
 import type { AppState } from "@appsmith/reducers";
 import WidgetFactory from "WidgetProvider/factory";
-import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
+import {
+  getAnvilHighlightShown,
+  getAnvilSpaceDistributionStatus,
+} from "layoutSystems/anvil/integrations/selectors";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 
 export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
-  const isFocused = useSelector(isWidgetFocused(widgetId));
-  const isSelected = useSelector(isWidgetSelected(widgetId));
-  const onCanvasUI = WidgetFactory.getConfig(widgetType)?.onCanvasUI;
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
+  const highlightShown = useSelector(getAnvilHighlightShown);
+  const showDraggedOnBorder =
+    highlightShown && highlightShown.canvasId === widgetId;
+  const isFocused = useSelector(isWidgetFocused(widgetId));
+  const isSelected = useSelector(isWidgetSelected(widgetId));
+  const onCanvasUI = WidgetFactory.getConfig(widgetType)?.onCanvasUI;
   const isCanvasResizing: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
   );
@@ -26,7 +32,7 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
 
   let borderColor = "transparent";
   let borderWidth = "2px";
-  if (isFocused) {
+  if (isFocused || showDraggedOnBorder) {
     borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
     borderWidth = "1px";
   }
@@ -35,11 +41,12 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
     borderWidth = "2px";
   }
   const shouldHideBorder =
-    isDragging || isCanvasResizing || isDistributingSpace;
-  const canShowBorder = !shouldHideBorder && (isFocused || isSelected);
-
+    isCanvasResizing || isDistributingSpace || isDragging;
+  const canShowBorder =
+    showDraggedOnBorder || (!shouldHideBorder && (isFocused || isSelected));
+  const borderStyle = showDraggedOnBorder ? "dashed" : "solid";
   return {
-    outline: `${borderWidth} solid ${
+    outline: `${borderWidth} ${borderStyle} ${
       canShowBorder ? borderColor : "transparent"
     }`,
     outlineOffset: "3px",
