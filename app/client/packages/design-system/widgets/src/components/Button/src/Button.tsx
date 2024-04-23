@@ -11,8 +11,10 @@ import type { ButtonProps } from "./types";
 import { Icon } from "../../Icon";
 
 const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
+  props = useVisuallyDisabled(props);
   const {
     children,
+    className,
     color = "accent",
     icon,
     iconPosition = "start",
@@ -20,11 +22,7 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
     isLoading = false,
     loadingText = "Loading...",
     size = "medium",
-    // eslint-disable-next-line -- TODO add onKeyUp when the bug is fixed https://github.com/adobe/react-spectrum/issues/4350
-    onKeyUp,
     variant = "filled",
-    visuallyDisabled = false,
-    className,
     ...rest
   } = props;
   const { visuallyHiddenProps } = useVisuallyHidden();
@@ -63,10 +61,6 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
 
   return (
     <HeadlessButton
-      aria-busy={isLoading ? true : undefined}
-      aria-disabled={
-        visuallyDisabled || isLoading || isDisabled ? true : undefined
-      }
       className={clsx(className, styles.button)}
       data-button=""
       data-color={color}
@@ -84,3 +78,28 @@ const _Button = (props: ButtonProps, ref: ForwardedRef<HTMLButtonElement>) => {
 };
 
 export const Button = forwardRef(_Button);
+
+/**
+ * This hook is used to disable all click/press events on a button
+ * when the button is visually disabled
+ */
+const useVisuallyDisabled = (props: ButtonProps) => {
+  const { isLoading = false } = props;
+  let computedProps = props;
+
+  if (isLoading) {
+    computedProps = {
+      ...props,
+      isDisabled: false,
+      onPress: undefined,
+      onPressStart: undefined,
+      onPressEnd: undefined,
+      onPressChange: undefined,
+      onPressUp: undefined,
+      onKeyDown: undefined,
+      onKeyUp: undefined,
+    };
+  }
+
+  return computedProps;
+};

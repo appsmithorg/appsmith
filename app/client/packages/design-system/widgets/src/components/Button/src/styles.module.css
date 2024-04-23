@@ -17,11 +17,11 @@
       background-color: var(--color-bg-$(color));
       color: var(--color-fg-on-$(color));
 
-      &[data-hovered]:not([aria-disabled]) {
+      &[data-hovered]:not([data-loading]) {
         background-color: var(--color-bg-$(color)-hover);
       }
 
-      &[data-pressed]:not([aria-disabled]) {
+      &[data-pressed]:not([data-loading]) {
         background-color: var(--color-bg-$(color)-active);
       }
     }
@@ -33,11 +33,11 @@
       outline: var(--border-width-1) solid var(--color-bd-$(color)) !important;
       outline-offset: calc(-1 * var(--border-width-1)) !important;
 
-      &[data-hovered]:not([aria-disabled]) {
+      &[data-hovered]:not([data-loading]) {
         background-color: var(--color-bg-$(color)-subtle-hover);
       }
 
-      &[data-pressed]:not([aria-disabled]) {
+      &[data-pressed]:not([data-loading]) {
         background-color: var(--color-bg-$(color)-subtle-active);
       }
     }
@@ -46,11 +46,11 @@
       background: transparent;
       color: var(--color-fg-$(color));
 
-      &[data-hovered]:not([aria-disabled]) {
+      &[data-hovered]:not([data-loading]) {
         background: var(--color-bg-$(color)-subtle-hover);
       }
 
-      &[data-pressed]:not([aria-disabled]) {
+      &[data-pressed]:not([data-loading]) {
         background: var(--color-bg-$(color)-subtle-active);
       }
     }
@@ -86,7 +86,7 @@
   * FOCUS VISIBLE
   *-----------------------------------------------------------------------------
   */
-  &[data-focus-visible] {
+  &[data-focus-visible]:not([data-loading]) {
     box-shadow:
       0 0 0 2px var(--color-bg),
       0 0 0 4px var(--color-bd-focus);
@@ -97,7 +97,7 @@
   * DISABLED
   *-----------------------------------------------------------------------------
   */
-  &[aria-disabled] {
+  &[data-disabled] {
     cursor: not-allowed;
     opacity: var(--opacity-disabled);
   }
@@ -109,8 +109,6 @@
   */
   &[data-loading] {
     cursor: default;
-    /** adding opacity 1 here because we are lowering opacity for aria-disabled and when loading is true, aria-disabled is also true  */
-    opacity: 1;
   }
 
   &[data-loading] [data-content] {
