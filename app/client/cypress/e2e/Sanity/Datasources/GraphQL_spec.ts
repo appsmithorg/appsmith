@@ -58,11 +58,12 @@ describe(
         //apiName = `${apiName}${uid}`;
         authoemail = `ci${uid}@appsmith.com`;
       });
-      entityExplorer.DragDropWidgetNVerify(draggableWidgets.TEXT);
+      entityExplorer.DragDropWidgetNVerify(draggableWidgets.INPUT_V2, 200, 200);
+      propPane.SelectPropertiesDropDown("Data type", "Number");
+      propPane.UpdatePropertyFieldValue("Default value", "4");
     });
 
     it("1. Should execute the API and validate the response", function () {
-      propPane.UpdatePropertyFieldValue("Text", "4");
       dataSources.CreateDataSource("UnAuthenticatedGraphQL");
       apiPage.SelectPaneTab("Body");
       dataSources.UpdateGraphqlQueryAndVariable({
