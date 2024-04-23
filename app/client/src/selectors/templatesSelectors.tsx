@@ -34,6 +34,8 @@ export const isImportingStarterBuildingBlockToAppSelector = (state: AppState) =>
   state.ui.templates.isImportingStarterBuildingBlockToApp;
 export const starterBuildingBlockDatasourcePromptSelector = (state: AppState) =>
   state.ui.templates.starterBuildingBlockDatasourcePrompt;
+export const currentForkingBuildingBlockName = (state: AppState) =>
+  state.ui.templates.currentForkingTemplateInfo.buildingBlock.name;
 export const buildingBlocksSourcePageIdSelector = (state: AppState) =>
   state.ui.templates.buildingBlockSourcePageId;
 export const showTemplateNotificationSelector = (state: AppState) =>
