@@ -262,7 +262,7 @@ export function* evaluateTreeSaga(
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
 
-  const isDebugLevel = log.getLevel() === log.levels.DEBUG;
+  const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
 
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
@@ -275,7 +275,7 @@ export function* evaluateTreeSaga(
     metaWidgets,
     appMode,
     widgetsMeta,
-    isDebugLevel,
+    shouldRespondWithLogs,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(

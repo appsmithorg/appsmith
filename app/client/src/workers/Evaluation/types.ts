@@ -43,7 +43,7 @@ export interface EvalTreeRequestData {
   metaWidgets: MetaWidgetsReduxState;
   appMode?: APP_MODE;
   widgetsMeta: Record<string, any>;
-  isDebugLevel?: boolean;
+  shouldRespondWithLogs?: boolean;
 }
 
 export interface EvalTreeResponseData {
