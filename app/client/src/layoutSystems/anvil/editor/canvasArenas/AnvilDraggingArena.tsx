@@ -1,16 +1,18 @@
 import type { LayoutElementPositions } from "layoutSystems/common/types";
-import React from "react";
+import React, { useContext } from "react";
 import type {
   DraggedWidget,
   HighlightPayload,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
 import { AnvilHighlightingCanvas } from "./AnvilHighlightingCanvas";
-import { useAnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import { useAnvilWidgetDrop } from "./hooks/useAnvilWidgetDrop";
 import { DetachedWidgetsDropArena } from "./DetachedWidgetsDropArena";
 import { useSelector } from "react-redux";
 import { isEditOnlyModeSelector } from "selectors/editorSelectors";
+import { useAnvilDnDListenerStates } from "./hooks/useAnvilDnDListenerStates";
+import { AnvilDnDStatesContext } from "../canvas/AnvilEditorCanvas";
+import type { AnvilGlobalDnDStates } from "../canvas/hooks/useAnvilGlobalDnDStates";
 
 // Props interface for AnvilCanvasDraggingArena component
 interface AnvilCanvasDraggingArenaProps {
@@ -24,7 +26,13 @@ interface AnvilCanvasDraggingArenaProps {
   ) => HighlightPayload;
 }
 
-export const AnvilDraggingArena = (props: AnvilCanvasDraggingArenaProps) => {
+const AnvilDraggingArenaComponent = ({
+  anvilGlobalDragStates,
+  dragArenaProps,
+}: {
+  dragArenaProps: AnvilCanvasDraggingArenaProps;
+  anvilGlobalDragStates: AnvilGlobalDnDStates;
+}) => {
   const isEditOnlyMode = useSelector(isEditOnlyModeSelector);
   const {
     allowedWidgetTypes,
@@ -32,11 +40,11 @@ export const AnvilDraggingArena = (props: AnvilCanvasDraggingArenaProps) => {
     layoutId,
     layoutType,
     widgetId,
-  } = props;
-
+  } = dragArenaProps;
   // Fetching all states used in Anvil DnD using the useAnvilDnDStates hook
-  const anvilDragStates = useAnvilDnDStates({
+  const anvilDragStates = useAnvilDnDListenerStates({
     allowedWidgetTypes,
+    anvilGlobalDragStates,
     widgetId,
     layoutId,
     layoutType,
@@ -45,7 +53,7 @@ export const AnvilDraggingArena = (props: AnvilCanvasDraggingArenaProps) => {
   // Using the useAnvilWidgetDrop hook to handle widget dropping
   const onDrop = useAnvilWidgetDrop(widgetId, anvilDragStates);
   const isMainCanvasDropArena =
-    anvilDragStates.mainCanvasLayoutId === props.layoutId;
+    anvilGlobalDragStates.mainCanvasLayoutId === layoutId;
   return isEditOnlyMode ? (
     <>
       <AnvilHighlightingCanvas
@@ -57,10 +65,20 @@ export const AnvilDraggingArena = (props: AnvilCanvasDraggingArenaProps) => {
       />
       {isMainCanvasDropArena && (
         <DetachedWidgetsDropArena
-          anvilDragStates={anvilDragStates}
+          anvilGlobalDragStates={anvilGlobalDragStates}
           onDrop={onDrop}
         />
       )}
     </>
+  ) : null;
+};
+
+export const AnvilDraggingArena = (props: AnvilCanvasDraggingArenaProps) => {
+  const anvilGlobalDragStates = useContext(AnvilDnDStatesContext);
+  return anvilGlobalDragStates ? (
+    <AnvilDraggingArenaComponent
+      anvilGlobalDragStates={anvilGlobalDragStates}
+      dragArenaProps={props}
+    />
   ) : null;
 };

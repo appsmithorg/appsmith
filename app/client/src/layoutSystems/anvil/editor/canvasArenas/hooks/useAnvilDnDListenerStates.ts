@@ -1,38 +1,28 @@
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import type { AppState } from "@appsmith/reducers";
-import { getDragDetails, getWidgets } from "sagas/selectors";
 import { useSelector } from "react-redux";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { useMemo } from "react";
 import { getSelectedWidgets } from "selectors/ui";
 import {
   type DraggedWidget,
   LayoutComponentTypes,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import { getDropTargetLayoutId } from "layoutSystems/anvil/integrations/selectors";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
 import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
-import {
-  canActivateCanvasForDraggedWidget,
-  getDraggedBlocks,
-  getDraggedWidgetHierarchy,
-  getDraggedWidgetTypes,
-} from "../utils/utils";
-import { getCurrentlyOpenAnvilModal } from "layoutSystems/anvil/integrations/modalSelectors";
+import { canActivateCanvasForDraggedWidget } from "../utils/utils";
 import { useAnvilDnDCompensators } from "./useAnvilDnDCompensators";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
+import type { AnvilGlobalDnDStates } from "../../canvas/hooks/useAnvilGlobalDnDStates";
+import { getWidgets } from "sagas/selectors";
 
-interface AnvilDnDStatesProps {
+interface AnvilDnDListenerStatesProps {
+  anvilGlobalDragStates: AnvilGlobalDnDStates;
   allowedWidgetTypes: string[];
   widgetId: string;
   layoutId: string;
   layoutType: LayoutComponentTypes;
 }
-
-export interface AnvilDnDStates {
+export interface AnvilDnDListenerStates {
   activateOverlayWidgetDrop: boolean;
   allowToDrop: boolean;
   canActivate: boolean;
@@ -44,7 +34,6 @@ export interface AnvilDnDStates {
   layoutElementPositions: LayoutElementPositions;
   dragMeta: AnvilDragMeta;
   mainCanvasLayoutId: string;
-  isSection: boolean;
   widgetCompensatorValues: {
     left: number;
     top: number;
@@ -86,52 +75,31 @@ const checkIfWidgetTypeDraggedIsAllowedToDrop = (
   return areWidgetsWhitelisted(draggedWidgetTypes, allowedWidgetTypes);
 };
 
-export const useAnvilDnDStates = ({
+export const useAnvilDnDListenerStates = ({
   allowedWidgetTypes,
+  anvilGlobalDragStates,
   layoutId,
   layoutType,
   widgetId,
-}: AnvilDnDStatesProps): AnvilDnDStates => {
-  const mainCanvasLayoutId: string = useSelector((state) =>
-    getDropTargetLayoutId(state, MAIN_CONTAINER_WIDGET_ID),
-  );
-  const layoutElementPositions = useSelector(getLayoutElementPositions);
+}: AnvilDnDListenerStatesProps): AnvilDnDListenerStates => {
+  const {
+    activateOverlayWidgetDrop,
+    currentlyOpenModal,
+    dragDetails,
+    draggedBlocks,
+    draggedWidgetHierarchy,
+    draggedWidgetTypes,
+    isDragging,
+    isNewWidget,
+    layoutElementPositions,
+    mainCanvasLayoutId,
+  } = anvilGlobalDragStates;
   const allWidgets = useSelector(getWidgets);
   const widgetProps = allWidgets[widgetId];
   const selectedWidgets = useSelector(getSelectedWidgets);
-  // dragDetails contains of info needed for a container jump:
-  // which parent the dragging widget belongs,
-  // which canvas is active(being dragged on),
-  // which widget is grabbed while dragging started,
-  // relative position of mouse pointer wrt to the last grabbed widget.
-  const dragDetails: DragDetails = useSelector(getDragDetails);
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
-
-  const { dragGroupActualParent: dragParent, newWidget } = dragDetails;
-  /**
-   * boolean to indicate if the widget being dragged is a new widget
-   */
-  const isNewWidget = !!newWidget && !dragParent;
-  // process drag blocks only once and per first render
-  // this is by taking advantage of the fact that isNewWidget and dragDetails are unchanged states during the dragging action.
-  const draggedBlocks = useMemo(
-    () =>
-      isDragging
-        ? getDraggedBlocks(
-            isNewWidget,
-            dragDetails,
-            selectedWidgets,
-            allWidgets,
-          )
-        : [],
-    [isDragging, selectedWidgets],
-  );
   /**
    * boolean to indicate if the widget is being dragged on this particular canvas.
    */
-  const draggedWidgetHierarchy = getDraggedWidgetHierarchy(draggedBlocks);
   const currentWidgetHierarchy = getWidgetHierarchy(widgetProps.type, widgetId);
   const canActivate = canActivateCanvasForDraggedWidget(
     draggedWidgetHierarchy,
@@ -155,20 +123,13 @@ export const useAnvilDnDStates = ({
   /**
    * boolean that indicates if the widget being dragged in an overlay widget like the Modal widget.
    */
-  const activateOverlayWidgetDrop =
-    isNewWidget && newWidget.detachFromLayout === true;
   const isMainCanvas: boolean = layoutId === mainCanvasLayoutId;
   const isSection: boolean = layoutType === LayoutComponentTypes.SECTION;
-  const draggedWidgetTypes = useMemo(
-    () => getDraggedWidgetTypes(draggedBlocks),
-    [draggedBlocks],
-  );
   const draggedOn = isMainCanvas
     ? AnvilDropTargetTypesEnum.MAIN_CANVAS
     : isSection
       ? AnvilDropTargetTypesEnum.SECTION
       : AnvilDropTargetTypesEnum.ZONE;
-  const currentlyOpenModal = useSelector(getCurrentlyOpenAnvilModal);
   const isModalLayout = currentlyOpenModal === widgetId;
   const isEmptyLayout =
     (widgetProps.children || []).filter(
@@ -203,7 +164,6 @@ export const useAnvilDnDStates = ({
     isCurrentDraggedCanvas,
     isDragging,
     isNewWidget,
-    isSection,
     mainCanvasLayoutId,
     layoutElementPositions,
     widgetCompensatorValues,

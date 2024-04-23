@@ -5,6 +5,15 @@ import { useAnvilDnDDeactivation } from "./hooks/useAnvilDnDDeactivation";
 import { useSelectWidgetListener } from "./hooks/useSelectWidgetListener";
 import { useClickToClearSelections } from "./hooks/useClickToClearSelections";
 import "./styles/anvilEditorVariables.css";
+import {
+  useAnvilGlobalDnDStates,
+  type AnvilGlobalDnDStates,
+} from "./hooks/useAnvilGlobalDnDStates";
+
+export const AnvilDnDStatesContext = React.createContext<
+  AnvilGlobalDnDStates | undefined
+>(undefined);
+
 /**
  * Anvil Main Canvas is just a wrapper around AnvilCanvas.
  * Why do we need this?
@@ -47,5 +56,10 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
 
   useAnvilDnDDeactivation();
   useSelectWidgetListener();
-  return <AnvilViewerCanvas {...props} ref={canvasRef} />;
+  const anvilGlobalDnDStates = useAnvilGlobalDnDStates();
+  return (
+    <AnvilDnDStatesContext.Provider value={anvilGlobalDnDStates}>
+      <AnvilViewerCanvas {...props} ref={canvasRef} />
+    </AnvilDnDStatesContext.Provider>
+  );
 };
