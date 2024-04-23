@@ -7,6 +7,7 @@ import {
   locators,
   propPane,
 } from "../../../../support/Objects/ObjectsCore";
+import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 describe("Slug URLs", () => {
   let applicationName;
@@ -41,7 +42,12 @@ describe("Slug URLs", () => {
         expect(pathname).to.be.equal(`/app/${appName}/page1-${pageId}/edit`);
       });
     });
-    entityExplorer.RenameEntityFromExplorer("Page1", "Renamed");
+    entityExplorer.RenameEntityFromExplorer(
+      "Page1",
+      "Renamed",
+      false,
+      EntityItems.Page,
+    );
     assertHelper.AssertNetworkStatus("updatePage");
     // cy.location("pathname").then((pathname) => {
     cy.url().then((url) => {

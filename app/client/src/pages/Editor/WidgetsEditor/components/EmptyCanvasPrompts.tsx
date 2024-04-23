@@ -6,7 +6,7 @@ import {
   selectURLSlugs,
   showCanvasTopSectionSelector,
 } from "selectors/editorSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import history from "utils/history";
 import { generateTemplateFormURL } from "@appsmith/RouteBuilder";
 import { useParams } from "react-router";

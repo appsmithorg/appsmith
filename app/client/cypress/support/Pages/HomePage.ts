@@ -513,7 +513,7 @@ export class HomePage {
   public EditAppFromSearch(appName: string, element?: string) {
     this.agHelper.WaitUntilEleAppear(`[data-testid="${appName}"]`);
     this.agHelper.GetNClick(`[data-testid="${appName}"]`);
-    this.assertHelper.AssertNetworkStatus("viewPage");
+    this.assertHelper.AssertNetworkStatus("getConsolidatedData");
     this.AssertViewPageLoad(element);
     this.deployHelper.NavigateBacktoEditor();
   }

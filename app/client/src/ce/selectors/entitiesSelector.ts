@@ -1357,8 +1357,9 @@ export const getDatasourceScopeValue = (
   const options = formConfig[0]?.children?.find(
     (child: any) => child?.configProperty === configProperty,
   )?.options;
-  const label = options?.find((option: any) => option.value === scopeValue)
-    ?.label;
+  const label = options?.find(
+    (option: any) => option.value === scopeValue,
+  )?.label;
   return label;
 };
 

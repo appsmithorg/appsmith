@@ -93,9 +93,7 @@ Cypress.Commands.add(
       : datasourceFormData["postgres-databaseName"];
 
     cy.get(datasourceEditor.host).type(hostAddress);
-    cy.get(datasourceEditor.port)
-      .clear()
-      .type(datasourceFormData["postgres-port"]);
+    cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["postgres-username"],
@@ -115,9 +113,7 @@ Cypress.Commands.add(
     const headerValue = "Bearer token";
 
     cy.get(datasourceEditor.host).type(hostAddress);
-    cy.get(datasourceEditor.port)
-      .clear()
-      .type(datasourceFormData["postgres-port"]);
+    cy.get(datasourceEditor.port).type(datasourceFormData["postgres-port"]);
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor.username).type(
       datasourceFormData["postgres-username"],
@@ -140,9 +136,7 @@ Cypress.Commands.add(
       : datasourceFormData["mysql-databaseName"];
 
     cy.get(datasourceEditor.host).type(hostAddress);
-    cy.get(datasourceEditor.port)
-      .clear()
-      .type(datasourceFormData["mysql-port"]);
+    cy.get(datasourceEditor.port).type(datasourceFormData["mysql-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["mysql-username"],
@@ -164,9 +158,7 @@ Cypress.Commands.add(
       : datasourceFormData["mssql-databaseName"];
 
     cy.get(datasourceEditor.host).type(hostAddress);
-    cy.get(datasourceEditor.port)
-      .clear()
-      .type(datasourceFormData["mssql-port"]);
+    cy.get(datasourceEditor.port).type(datasourceFormData["mssql-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["mssql-username"],
@@ -188,9 +180,7 @@ Cypress.Commands.add(
       : datasourceFormData["arango-databaseName"];
 
     cy.get(datasourceEditor.host).type(hostAddress);
-    cy.get(datasourceEditor.port)
-      .clear()
-      .type(datasourceFormData["arango-port"]);
+    cy.get(datasourceEditor.port).type(datasourceFormData["arango-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
 
     cy.get(datasourceEditor.username).type(
@@ -213,9 +203,7 @@ Cypress.Commands.add(
       : datasourceFormData["redshift-databaseName"];
 
     cy.get(datasourceEditor.host).type(hostAddress);
-    cy.get(datasourceEditor.port)
-      .clear()
-      .type(datasourceFormData["redshift-port"]);
+    cy.get(datasourceEditor.port).type(datasourceFormData["redshift-port"]);
     cy.get(datasourceEditor.databaseName).clear().type(databaseName);
     cy.get(datasourceEditor.username).type(
       datasourceFormData["redshift-username"],
@@ -262,7 +250,7 @@ Cypress.Commands.add(
       ? datasourceFormData["smtp-host"] + "  "
       : datasourceFormData["smtp-host"];
     cy.get(datasourceEditor.host).type(hostAddress);
-    cy.get(datasourceEditor.port).clear().type(datasourceFormData["smtp-port"]);
+    cy.get(datasourceEditor.port).type(datasourceFormData["smtp-port"]);
     cy.get(datasourceEditor.sectionAuthentication).click();
     cy.get(datasourceEditor.username).type(datasourceFormData["smtp-username"]);
     cy.get(datasourceEditor.password).type(datasourceFormData["smtp-password"]);

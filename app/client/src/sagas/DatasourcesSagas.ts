@@ -83,7 +83,6 @@ import {
   ToastMessageType,
 } from "entities/Datasource";
 import {
-  INTEGRATION_EDITOR_MODES,
   INTEGRATION_TABS,
   RESPONSE_STATUS,
   SHOW_FILE_PICKER_KEY,
@@ -95,7 +94,7 @@ import {
   DATASOURCE_REST_API_FORM,
 } from "@appsmith/constants/forms";
 import { validateResponse } from "./ErrorSagas";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { GetFormData } from "selectors/formSelectors";
 import { getFormData } from "selectors/formSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
@@ -170,7 +169,6 @@ import {
 import { waitForFetchEnvironments } from "@appsmith/sagas/EnvironmentSagas";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import FocusRetention from "./FocusRetentionSaga";
-import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
 import { identifyEntityFromPath } from "../navigation/FocusEntity";
 import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants";
 import { getFromServerWhenNoPrefetchedResult } from "./helper";
@@ -425,53 +423,13 @@ export function* deleteDatasourceSaga(
     const id = actionPayload.payload.id;
     const response: ApiResponse<Datasource> =
       yield DatasourcesApi.deleteDatasource(id);
-    const pageId: string = yield select(getCurrentPageId);
 
     const isValidResponse: boolean = yield validateResponse(response);
 
     if (isValidResponse) {
-      const pluginPackageName = shouldBeDefined<string>(
-        yield select((state: AppState) =>
-          getPluginPackageFromDatasourceId(state, id),
-        ),
-        `Plugin package not found for the given id - ${id}`,
-      );
-      const datasourcePathWithoutQuery = trimQueryString(
-        datasourcesEditorIdURL({
-          pageId,
-          datasourceId: id,
-        }),
-      );
-
-      const saasPathWithoutQuery = trimQueryString(
-        saasEditorDatasourceIdURL({
-          pageId,
-          pluginPackageName,
-          datasourceId: id,
-        }),
-      );
       const currentUrl = `${window.location.pathname}`;
       yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
-      const isEditorPaneSegmentsEnabled: boolean = yield select(
-        getIsEditorPaneSegmentsEnabled,
-      );
-      if (isEditorPaneSegmentsEnabled) {
-        yield call(handleDatasourceDeleteRedirect, id);
-      } else if (
-        currentUrl === datasourcePathWithoutQuery ||
-        currentUrl === saasPathWithoutQuery
-      ) {
-        history.push(
-          integrationEditorURL({
-            pageId,
-            selectedTab: INTEGRATION_TABS.NEW,
-            params: {
-              ...getQueryParams(),
-              mode: INTEGRATION_EDITOR_MODES.AUTO,
-            },
-          }),
-        );
-      }
+      yield call(handleDatasourceDeleteRedirect, id);
 
       toast.show(createMessage(DATASOURCE_DELETE, response.data.name), {
         kind: "success",

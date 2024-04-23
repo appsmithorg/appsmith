@@ -22,7 +22,7 @@ import {
   MERGE,
   IMPORT_APP,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Modal, ModalContent, ModalHeader } from "design-system";
 import GitConnectionV2 from "../Tabs/GitConnectionV2";
 import { GitSyncModalTab } from "entities/GitSync";

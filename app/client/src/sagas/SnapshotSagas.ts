@@ -7,7 +7,7 @@ import ApplicationApi from "@appsmith/api/ApplicationApi";
 import type { PageDefaultMeta } from "@appsmith/api/ApplicationApi";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import log from "loglevel";
-import type { SnapShotDetails } from "reducers/uiReducers/layoutConversionReducer";
+import type { SnapshotDetails } from "reducers/uiReducers/layoutConversionReducer";
 import { CONVERSION_STATES } from "reducers/uiReducers/layoutConversionReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
@@ -15,7 +15,7 @@ import { getLogToSentryFromResponse } from "utils/helpers";
 import { validateResponse } from "./ErrorSagas";
 import { updateApplicationLayoutType } from "./AutoLayoutUpdateSagas";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 //Saga to create application snapshot
@@ -43,7 +43,7 @@ export function* createSnapshotSaga() {
 
 //Saga to fetch application snapshot
 export function* fetchSnapshotSaga() {
-  let response: ApiResponse<SnapShotDetails> | undefined;
+  let response: ApiResponse<SnapshotDetails> | undefined;
   try {
     const applicationId: string = yield select(getCurrentApplicationId);
     response = yield ApplicationApi.getSnapShotDetails({
@@ -57,9 +57,7 @@ export function* fetchSnapshotSaga() {
     );
 
     if (isValidResponse) {
-      const snapShotDetails = response?.data;
-
-      return snapShotDetails;
+      return response?.data;
     }
   } catch (error) {
     if (getLogToSentryFromResponse(response)) {
@@ -169,15 +167,9 @@ export function* deleteApplicationSnapshotSaga() {
 //Saga to update snapshot details by fetching info from backend
 function* updateSnapshotDetailsSaga() {
   try {
-    const snapShotDetails: { updatedTime: Date } | undefined =
+    const snapshotDetails: SnapshotDetails | undefined =
       yield call(fetchSnapshotSaga);
-    yield put(
-      updateSnapshotDetails(
-        snapShotDetails && snapShotDetails.updatedTime
-          ? { lastUpdatedTime: snapShotDetails.updatedTime?.toString() }
-          : undefined,
-      ),
-    );
+    yield put(updateSnapshotDetails(snapshotDetails));
   } catch (error) {
     throw error;
   }
