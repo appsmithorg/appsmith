@@ -253,7 +253,7 @@ describe(
         `${locators._widgetInDeployed("singleselecttreewidget")}`,
       );
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-      agHelper.WaitUntilEleAppear("google.com")
+      agHelper.AssertProperty("body", "baseURI", "https://www.google.com/");
       agHelper.AssertURL("google.com");
       agHelper.BrowserNavigation(-1);
     });
