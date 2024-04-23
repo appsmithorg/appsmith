@@ -66,6 +66,7 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     allActionValidationConfig,
     appMode,
     forceEvaluation,
+    isDebugLevel,
     metaWidgets,
     shouldReplay,
     theme,
@@ -292,7 +293,9 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     evaluationOrder: evalOrder,
     jsUpdates,
     webworkerTelemetry,
-    logs,
+    // be weary of the payload size of logs it can be huge and contribute to transmission overhead
+    // we are only sending logs in local debug mode
+    logs: isDebugLevel ? logs : [],
     unEvalUpdates,
     isCreateFirstTree,
     configTree,
