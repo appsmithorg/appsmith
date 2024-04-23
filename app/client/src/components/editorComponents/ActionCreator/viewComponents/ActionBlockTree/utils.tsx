@@ -149,12 +149,14 @@ function getActionHeading(
 
     case AppsmithFunction.showModal:
       return (
-        FIELD_CONFIG[FieldType.SHOW_MODAL_FIELD].getter(code) || "Select modal"
+        FIELD_CONFIG[FieldType.SHOW_MODAL_FIELD].getter(code).split(".")[0] ||
+        "Select modal"
       );
 
     case AppsmithFunction.closeModal:
       return (
-        FIELD_CONFIG[FieldType.CLOSE_MODAL_FIELD].getter(code) || "Select modal"
+        FIELD_CONFIG[FieldType.CLOSE_MODAL_FIELD].getter(code).split(".")[0] ||
+        "Select modal"
       );
 
     case AppsmithFunction.resetWidget:

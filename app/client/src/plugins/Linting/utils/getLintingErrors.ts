@@ -6,6 +6,7 @@ import { get, isEmpty, isNumber, keys } from "lodash";
 import type {
   MemberExpressionData,
   AssignmentExpressionData,
+  CallExpressionData,
 } from "@shared/ast";
 import {
   extractExpressionsFromCode,
@@ -384,6 +385,7 @@ function getCustomErrorsFromScript(
 ): LintError[] {
   let invalidTopLevelMemberExpressions: MemberExpressionData[] = [];
   let assignmentExpressions: AssignmentExpressionData[] = [];
+  let callExpressions: CallExpressionData[] = [];
   try {
     const value = extractExpressionsFromCode(
       script,
@@ -393,6 +395,7 @@ function getCustomErrorsFromScript(
     invalidTopLevelMemberExpressions =
       value.invalidTopLevelMemberExpressionsArray;
     assignmentExpressions = value.assignmentExpressionsData;
+    callExpressions = value.callExpressionsData;
   } catch (e) {}
 
   const invalidWidgetPropertySetterErrors =
@@ -422,10 +425,18 @@ function getCustomErrorsFromScript(
       data,
     });
 
+  const invalidActionModalErrors = getActionModalStringValueErrors({
+    callExpressions,
+    script,
+    scriptPos,
+    originalBinding,
+  });
+
   return [
     ...invalidPropertyErrors,
     ...invalidWidgetPropertySetterErrors,
     ...invalidAppsmithStorePropertyErrors,
+    ...invalidActionModalErrors,
   ];
 }
 
@@ -454,4 +465,58 @@ function getPositionInEvaluationScript(type: EvaluationScriptType): Position {
   const lastLine = last(lines) || "";
 
   return { line: lines.length, ch: lastLine.length };
+}
+
+function getActionModalStringValueErrors({
+  callExpressions,
+  originalBinding,
+  script,
+  scriptPos,
+}: {
+  callExpressions: CallExpressionData[];
+  scriptPos: Position;
+  originalBinding: string;
+  script: string;
+}) {
+  const actionModalLintErrors: LintError[] = [];
+
+  for (const { params, property } of callExpressions) {
+    if (property.name === "showModal" || property.name === "closeModal") {
+      if (params[0] && isLiteralNode(params[0])) {
+        const lintErrorMessage = CUSTOM_LINT_ERRORS[
+          CustomLintErrorCode.ACTION_MODAL_STRING
+        ](params[0].value);
+        const callExpressionsString = generate(params[0]);
+
+        // line position received after AST parsing is 1 more than the actual line of code, hence we subtract 1 to get the actual line number
+        const objectStartLine = params[0].loc.start.line - 1;
+
+        // AST parsing start column position from index 0 whereas codemirror start ch position from index 1, hence we add 1 to get the actual ch position
+        const objectStartCol = params[0].loc.start.column + 1;
+
+        actionModalLintErrors.push({
+          errorType: PropertyEvaluationErrorType.LINT,
+          raw: script,
+          severity: getLintSeverity(
+            CustomLintErrorCode.ACTION_MODAL_STRING,
+            lintErrorMessage,
+          ),
+          errorMessage: {
+            name: "LintingError",
+            message: lintErrorMessage,
+          },
+          errorSegment: callExpressionsString,
+          originalBinding,
+          variables: [callExpressionsString, null, null],
+          code: CustomLintErrorCode.ACTION_MODAL_STRING,
+          line: objectStartLine - scriptPos.line,
+          ch:
+            objectStartLine === scriptPos.line
+              ? objectStartCol - scriptPos.ch
+              : objectStartCol,
+        });
+      }
+    }
+  }
+  return actionModalLintErrors;
 }
