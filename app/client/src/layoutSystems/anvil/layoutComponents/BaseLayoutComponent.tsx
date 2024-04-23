@@ -142,8 +142,8 @@ abstract class BaseLayoutComponent extends PureComponent<
   renderEditMode(): JSX.Element {
     return (
       <>
-        {this.renderDraggingArena()}
         {this.renderViewMode()}
+        {this.renderDraggingArena()}
       </>
     );
   }

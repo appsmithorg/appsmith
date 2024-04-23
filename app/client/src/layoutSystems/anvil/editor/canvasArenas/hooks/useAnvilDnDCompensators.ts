@@ -1,3 +1,4 @@
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import {
   calculateEdgeLeftCompensator,
   calculateEdgeTopCompensator,
@@ -7,10 +8,14 @@ import {
 } from "../utils/dndCompensatorUtils";
 
 export const useAnvilDnDCompensators = (
+  canActivate: boolean,
+  draggedWidgetHierarchy: number,
+  currentWidgetHierarchy: number,
   isMainCanvas: boolean,
   isSection: boolean,
   isModalLayout: boolean,
   isEmptyLayout: boolean,
+  widgetProps: FlattenedWidgetProps,
 ) => {
   const { mainCanvasSpacing, zoneSpacing } =
     getWidgetSpacingCSSVariableValues();
@@ -20,6 +25,7 @@ export const useAnvilDnDCompensators = (
     left: isSection && !emptyModal ? mainCanvasSpacing : 0,
     top: isModalLayout ? (isEmptyLayout ? 0 : modalSpacing) : 0,
   };
+  const dynamicZoneSpacing = !!widgetProps.elevatedBackground ? zoneSpacing : 0;
 
   // Define compensator values for edges
   const edgeCompensatorValues = {
@@ -29,7 +35,7 @@ export const useAnvilDnDCompensators = (
       isModalLayout,
       isEmptyLayout,
       mainCanvasSpacing,
-      zoneSpacing,
+      dynamicZoneSpacing,
     ),
     top: calculateEdgeTopCompensator(
       isMainCanvas,
@@ -37,7 +43,7 @@ export const useAnvilDnDCompensators = (
       isModalLayout,
       isEmptyLayout,
       mainCanvasSpacing,
-      zoneSpacing,
+      dynamicZoneSpacing,
       modalSpacing,
     ),
   };
@@ -50,19 +56,21 @@ export const useAnvilDnDCompensators = (
       isModalLayout,
       isEmptyLayout,
       mainCanvasSpacing,
-      zoneSpacing,
+      dynamicZoneSpacing,
     ),
     top: calculateLayoutTopCompensator(
       isMainCanvas,
       isSection,
       isModalLayout,
       isEmptyLayout,
-      zoneSpacing,
+      dynamicZoneSpacing,
       modalSpacing,
     ),
   };
-
-  const zIndex = isSection || isModalLayout ? 0 : 1;
+  // to make sure main canvas and modal are both treated alike
+  const currentHierarchy = Math.max(currentWidgetHierarchy, 1);
+  const zIndex =
+    canActivate && currentHierarchy < draggedWidgetHierarchy - 1 ? 0 : 1;
   return {
     edgeCompensatorValues,
     layoutCompensatorValues,

@@ -15,9 +15,15 @@ import { getLayoutElementPositions } from "layoutSystems/common/selectors";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { areWidgetsWhitelisted } from "layoutSystems/anvil/utils/layouts/whitelistUtils";
 import { AnvilDropTargetTypesEnum, type AnvilDragMeta } from "../types";
-import { getDraggedBlocks, getDraggedWidgetTypes } from "../utils/utils";
+import {
+  canActivateCanvasForDraggedWidget,
+  getDraggedBlocks,
+  getDraggedWidgetHierarchy,
+  getDraggedWidgetTypes,
+} from "../utils/utils";
 import { getCurrentlyOpenAnvilModal } from "layoutSystems/anvil/integrations/modalSelectors";
 import { useAnvilDnDCompensators } from "./useAnvilDnDCompensators";
+import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 
 interface AnvilDnDStatesProps {
   allowedWidgetTypes: string[];
@@ -29,6 +35,7 @@ interface AnvilDnDStatesProps {
 export interface AnvilDnDStates {
   activateOverlayWidgetDrop: boolean;
   allowToDrop: boolean;
+  canActivate: boolean;
   draggedBlocks: DraggedWidget[];
   dragDetails: DragDetails;
   isCurrentDraggedCanvas: boolean;
@@ -90,6 +97,7 @@ export const useAnvilDnDStates = ({
   );
   const layoutElementPositions = useSelector(getLayoutElementPositions);
   const allWidgets = useSelector(getWidgets);
+  const widgetProps = allWidgets[widgetId];
   const selectedWidgets = useSelector(getSelectedWidgets);
   // dragDetails contains of info needed for a container jump:
   // which parent the dragging widget belongs,
@@ -106,23 +114,6 @@ export const useAnvilDnDStates = ({
    * boolean to indicate if the widget being dragged is a new widget
    */
   const isNewWidget = !!newWidget && !dragParent;
-  /**
-   * boolean to indicate if the widget is being dragged on this particular canvas.
-   */
-  const isCurrentDraggedCanvas = dragDetails.draggedOn === layoutId;
-  /**
-   * boolean to indicate if the widgets being dragged are all allowed to drop in this particular canvas.
-   * ex: In a From widget the header will not accept widgets like Table/List.
-   */
-  const allowToDrop =
-    isDragging &&
-    checkIfWidgetTypeDraggedIsAllowedToDrop(
-      allowedWidgetTypes,
-      isNewWidget,
-      dragDetails,
-      selectedWidgets,
-      allWidgets,
-    );
   // process drag blocks only once and per first render
   // this is by taking advantage of the fact that isNewWidget and dragDetails are unchanged states during the dragging action.
   const draggedBlocks = useMemo(
@@ -138,6 +129,30 @@ export const useAnvilDnDStates = ({
     [isDragging, selectedWidgets],
   );
   /**
+   * boolean to indicate if the widget is being dragged on this particular canvas.
+   */
+  const draggedWidgetHierarchy = getDraggedWidgetHierarchy(draggedBlocks);
+  const currentWidgetHierarchy = getWidgetHierarchy(widgetProps.type, widgetId);
+  const canActivate = canActivateCanvasForDraggedWidget(
+    draggedWidgetHierarchy,
+    widgetProps.widgetId,
+    widgetProps.type,
+  );
+  const isCurrentDraggedCanvas = dragDetails.draggedOn === layoutId;
+  /**
+   * boolean to indicate if the widgets being dragged are all allowed to drop in this particular canvas.
+   * ex: In a From widget the header will not accept widgets like Table/List.
+   */
+  const allowToDrop =
+    isDragging &&
+    checkIfWidgetTypeDraggedIsAllowedToDrop(
+      allowedWidgetTypes,
+      isNewWidget,
+      dragDetails,
+      selectedWidgets,
+      allWidgets,
+    );
+  /**
    * boolean that indicates if the widget being dragged in an overlay widget like the Modal widget.
    */
   const activateOverlayWidgetDrop =
@@ -151,12 +166,12 @@ export const useAnvilDnDStates = ({
   const draggedOn = isMainCanvas
     ? AnvilDropTargetTypesEnum.MAIN_CANVAS
     : isSection
-    ? AnvilDropTargetTypesEnum.SECTION
-    : AnvilDropTargetTypesEnum.ZONE;
+      ? AnvilDropTargetTypesEnum.SECTION
+      : AnvilDropTargetTypesEnum.ZONE;
   const currentlyOpenModal = useSelector(getCurrentlyOpenAnvilModal);
   const isModalLayout = currentlyOpenModal === widgetId;
   const isEmptyLayout =
-    (allWidgets[widgetId].children || []).filter(
+    (widgetProps.children || []).filter(
       (each) => !allWidgets[each].detachFromLayout,
     ).length === 0;
   const {
@@ -165,15 +180,20 @@ export const useAnvilDnDStates = ({
     widgetCompensatorValues,
     zIndex,
   } = useAnvilDnDCompensators(
+    canActivate,
+    draggedWidgetHierarchy,
+    currentWidgetHierarchy,
     isMainCanvas,
     isSection,
     isModalLayout,
     isEmptyLayout,
+    widgetProps,
   );
 
   return {
     activateOverlayWidgetDrop,
     allowToDrop,
+    canActivate,
     draggedBlocks,
     dragDetails,
     dragMeta: {
