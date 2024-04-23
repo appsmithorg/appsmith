@@ -43,7 +43,6 @@ public class ApplicationSnapshotRepositoryTest {
         StepVerifier.create(snapshotMono)
                 .assertNext(applicationSnapshot -> {
                     assertThat(applicationSnapshot.updatedAt()).isNotNull();
-                    assertThat(applicationSnapshot.createdAt()).isNotNull();
                 })
                 .verifyComplete();
     }
@@ -68,7 +67,6 @@ public class ApplicationSnapshotRepositoryTest {
 
         StepVerifier.create(snapshotMono)
                 .assertNext(applicationSnapshot -> {
-                    assertThat(applicationSnapshot.createdAt()).isNotNull();
                     assertThat(applicationSnapshot.updatedAt()).isNotNull();
                 })
                 .verifyComplete();

@@ -354,7 +354,7 @@ function getWidgetElementToScroll(
 
 export const toValidPageName = (value: string) => {
   // Ensure that `/`, `\` and `:` are not allowed in page names, aligning with server-side validation.
-  return value.replaceAll(/[/\\:]+/g, "").slice(0, 30);
+  return value.replaceAll(/[\\/:<>"|?*\x00-\x1f]+/g, "").slice(0, 30);
 };
 
 export const PLATFORM_OS = {

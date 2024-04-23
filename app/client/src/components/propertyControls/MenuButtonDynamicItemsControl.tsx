@@ -121,8 +121,8 @@ class MenuButtonDynamicItemsControl extends BaseControl<MenuButtonDynamicItemsCo
             widgetProperties.primaryColumns,
           )
         : propertyValue
-        ? propertyValue
-        : defaultValue;
+          ? propertyValue
+          : defaultValue;
     let sourceData;
 
     if (widgetType === "TABLE_WIDGET_V2") {

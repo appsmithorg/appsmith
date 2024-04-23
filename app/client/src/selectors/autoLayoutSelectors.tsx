@@ -25,7 +25,7 @@ export const getFlexLayers = (parentId: string) => {
 };
 
 export const getSnapshotUpdatedTime = (state: AppState) =>
-  state.ui.layoutConversion.snapshotDetails?.lastUpdatedTime;
+  state.ui.layoutConversion.snapshotDetails?.updatedTime;
 
 export const getLayerIndex = (widgetId: string, parentId: string) => {
   return createSelector(

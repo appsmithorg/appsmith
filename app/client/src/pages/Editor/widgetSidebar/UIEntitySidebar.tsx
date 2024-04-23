@@ -1,4 +1,5 @@
 import {
+  UI_ELEMENT_PANEL_SEARCH_TEXT,
   WIDGET_PANEL_EMPTY_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -103,7 +104,7 @@ function UIEntitySidebar({
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
-          placeholder="Search widgets"
+          placeholder={createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT)}
           ref={searchInputRef}
           type="text"
         />

@@ -4,7 +4,7 @@ import lombok.Getter;
 
 @Getter
 public enum AppsmithErrorCode {
-    HTTP_METHOD_NOT_ALLOWED("AE-APP-4001", "HTTP method not allowed"),
+    HTTP_METHOD_NOT_ALLOWED("AE-APP-4002", "HTTP method not allowed"),
     INVALID_ACTION_COLLECTION("AE-ACC-4038", "Invalid action collection"),
     UNAUTHORIZED_ACCESS("AE-ACL-4003", "Unauthorized access"),
     ACL_NO_RESOURCE_FOUND("AE-ACL-4004", "Acl no resource found"),
