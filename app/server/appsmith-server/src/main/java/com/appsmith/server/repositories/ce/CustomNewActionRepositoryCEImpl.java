@@ -38,7 +38,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 @RequiredArgsConstructor
-public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
+public abstract class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepositoryCE {
 
     private final ReactiveMongoOperations mongoOperations;
@@ -402,6 +402,19 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
                 .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
                 .fields(includeFields)
                 .all();
+    }
+
+    @Override
+    public Flux<NewAction> findAllByCollectionIds(
+            List<String> collectionIds, boolean viewMode, AclPermission aclPermission) {
+        String collectionIdPath;
+        if (viewMode) {
+            collectionIdPath = NewAction.Fields.publishedAction_collectionId;
+        } else {
+            collectionIdPath = NewAction.Fields.unpublishedAction_collectionId;
+        }
+        BridgeQuery<NewAction> q = Bridge.in(collectionIdPath, collectionIds);
+        return queryBuilder().criteria(q).permission(aclPermission).all();
     }
 
     @Override

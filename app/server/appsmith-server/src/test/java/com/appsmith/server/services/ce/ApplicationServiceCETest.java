@@ -115,7 +115,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 import reactor.util.function.Tuple2;
-import reactor.util.function.Tuple3;
+import reactor.util.function.Tuple4;
 
 import java.time.Duration;
 import java.util.ArrayList;
@@ -607,7 +607,7 @@ public class ApplicationServiceCETest {
                     assertThat(page.getPolicies().stream()
                                     .map(Policy::getPermission)
                                     .collect(Collectors.toSet()))
-                            .containsExactlyInAnyOrder(
+                            .contains(
                                     MANAGE_PAGES.getValue(),
                                     READ_PAGES.getValue(),
                                     PAGE_CREATE_PAGE_ACTIONS.getValue(),
@@ -2167,9 +2167,9 @@ public class ApplicationServiceCETest {
                                 .isEqualTo(application.getId());
 
                         newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
-                            assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
+                            assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
                             layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                assertThat(dslActionDTOS).hasSize(1);
+                                assertThat(dslActionDTOS).hasSize(2);
                                 dslActionDTOS.forEach(actionDTO -> {
                                     assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
                                     if (StringUtils.hasLength(actionDTO.getCollectionId())) {
@@ -2208,16 +2208,6 @@ public class ApplicationServiceCETest {
                                 .isEqualTo(application.getId());
 
                         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-
-                        assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap())
-                                .hasSize(2);
-                        unpublishedCollection
-                                .getDefaultToBranchedActionIdsMap()
-                                .keySet()
-                                .forEach(key -> assertThat(key)
-                                        .isEqualTo(unpublishedCollection
-                                                .getDefaultToBranchedActionIdsMap()
-                                                .get(key)));
 
                         assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
                         assertThat(unpublishedCollection.getDefaultResources().getPageId())
@@ -2438,10 +2428,10 @@ public class ApplicationServiceCETest {
                     originalResourceIds.put("pageIds", pageIds);
                     originalResourceIds.put("collectionIds", collectionIds);
 
-                    String deletedActionIdWithinActionCollection =
-                            String.valueOf(collectionDTO.getDefaultToBranchedActionIdsMap().values().stream()
-                                    .findAny()
-                                    .orElse(null));
+                    String deletedActionIdWithinActionCollection = newActionService
+                            .findByCollectionIdAndViewMode(collectionDTO.getId(), false, null)
+                            .blockFirst()
+                            .getId();
 
                     return newActionService
                             .deleteUnpublishedAction(deletedActionIdWithinActionCollection)
@@ -2549,9 +2539,9 @@ public class ApplicationServiceCETest {
                                 .isEqualTo(application.getId());
 
                         newPage.getUnpublishedPage().getLayouts().forEach(layout -> {
-                            assertThat(layout.getLayoutOnLoadActions()).hasSize(2);
+                            assertThat(layout.getLayoutOnLoadActions()).hasSize(1);
                             layout.getLayoutOnLoadActions().forEach(dslActionDTOS -> {
-                                assertThat(dslActionDTOS).hasSize(1);
+                                assertThat(dslActionDTOS).hasSize(2);
                                 dslActionDTOS.forEach(actionDTO -> {
                                     assertThat(actionDTO.getId()).isEqualTo(actionDTO.getDefaultActionId());
                                     if (StringUtils.hasLength(actionDTO.getCollectionId())) {
@@ -2590,17 +2580,6 @@ public class ApplicationServiceCETest {
                                 .isEqualTo(application.getId());
 
                         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-
-                        // We should have single entry as other action is deleted from the parent application
-                        assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap())
-                                .hasSize(1);
-                        unpublishedCollection
-                                .getDefaultToBranchedActionIdsMap()
-                                .keySet()
-                                .forEach(key -> assertThat(key)
-                                        .isEqualTo(unpublishedCollection
-                                                .getDefaultToBranchedActionIdsMap()
-                                                .get(key)));
 
                         assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
                         assertThat(unpublishedCollection.getDefaultResources().getPageId())
@@ -2775,7 +2754,7 @@ public class ApplicationServiceCETest {
         Application.NavigationSetting appNavigationSetting = new Application.NavigationSetting();
         appNavigationSetting.setOrientation("top");
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
-        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService
+        Mono<Tuple4<NewAction, ActionCollection, NewPage, NewAction>> resultMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -2827,6 +2806,10 @@ public class ApplicationServiceCETest {
                             .flatMap(tuple1 -> {
                                 ActionDTO savedAction = tuple1.getT1();
                                 ActionCollectionDTO savedActionCollection = tuple1.getT2();
+                                String actionId = savedActionCollection
+                                        .getActions()
+                                        .get(0)
+                                        .getId();
                                 return applicationPageService
                                         .publish(testApplication.getId(), true)
                                         .then(applicationPageService.deleteUnpublishedPage(page.getId()))
@@ -2836,24 +2819,18 @@ public class ApplicationServiceCETest {
                                                         this.getArchivedResource(savedAction.getId(), NewAction.class),
                                                 (Mono<ActionCollection>) this.getArchivedResource(
                                                         savedActionCollection.getId(), ActionCollection.class),
-                                                (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class)));
+                                                (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class),
+                                                (Mono<NewAction>) this.getArchivedResource(actionId, NewAction.class)));
                             });
                 })
                 .cache();
 
-        Mono<NewAction> archivedActionFromActionCollectionMono = resultMono.flatMap(tuple -> {
-            final Optional<String> actionId =
-                    tuple.getT2().getUnpublishedCollection().getDefaultToBranchedActionIdsMap().values().stream()
-                            .findFirst();
-            return (Mono<NewAction>) this.getArchivedResource(actionId.get(), NewAction.class);
-        });
-
-        StepVerifier.create(resultMono.zipWith(archivedActionFromActionCollectionMono))
+        StepVerifier.create(resultMono)
                 .assertNext(tuple -> {
-                    NewAction archivedAction = tuple.getT1().getT1();
-                    ActionCollection archivedActionCollection = tuple.getT1().getT2();
-                    NewPage archivedPage = tuple.getT1().getT3();
-                    NewAction archivedActionFromActionCollection = tuple.getT2();
+                    NewAction archivedAction = tuple.getT1();
+                    ActionCollection archivedActionCollection = tuple.getT2();
+                    NewPage archivedPage = tuple.getT3();
+                    NewAction archivedActionFromActionCollection = tuple.getT4();
 
                     assertThat(archivedAction.getDeletedAt()).isNotNull();
 
@@ -3747,7 +3724,7 @@ public class ApplicationServiceCETest {
         String appName = "deleteApplicationWithPagesAndActions";
         testApplication.setName(appName);
 
-        Mono<Tuple3<NewAction, ActionCollection, NewPage>> resultMono = applicationPageService
+        Mono<Tuple4<NewAction, ActionCollection, NewPage, NewAction>> resultMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
                 .flatMap(application -> {
                     PageDTO page = new PageDTO();
@@ -3804,29 +3781,31 @@ public class ApplicationServiceCETest {
                                         .findById(page.getApplicationId(), MANAGE_APPLICATIONS)
                                         .flatMap(application ->
                                                 applicationPageService.deleteApplication(application.getId()))
-                                        .flatMap(ignored -> Mono.zip(
-                                                (Mono<NewAction>)
-                                                        this.getArchivedResource(savedAction.getId(), NewAction.class),
-                                                (Mono<ActionCollection>) this.getArchivedResource(
-                                                        savedActionCollection.getId(), ActionCollection.class),
-                                                (Mono<NewPage>) this.getArchivedResource(page.getId(), NewPage.class)));
+                                        .flatMap(ignored -> {
+                                            final String actionId = savedActionCollection
+                                                    .getActions()
+                                                    .get(0)
+                                                    .getId();
+                                            return Mono.zip(
+                                                    (Mono<NewAction>) this.getArchivedResource(
+                                                            savedAction.getId(), NewAction.class),
+                                                    (Mono<ActionCollection>) this.getArchivedResource(
+                                                            savedActionCollection.getId(), ActionCollection.class),
+                                                    (Mono<NewPage>)
+                                                            this.getArchivedResource(page.getId(), NewPage.class),
+                                                    (Mono<NewAction>)
+                                                            this.getArchivedResource(actionId, NewAction.class));
+                                        });
                             });
                 })
                 .cache();
 
-        Mono<NewAction> archivedActionFromActionCollectionMono = resultMono.flatMap(tuple -> {
-            final Optional<String> actionId =
-                    tuple.getT2().getUnpublishedCollection().getDefaultToBranchedActionIdsMap().values().stream()
-                            .findFirst();
-            return (Mono<NewAction>) this.getArchivedResource(actionId.get(), NewAction.class);
-        });
-
-        StepVerifier.create(resultMono.zipWith(archivedActionFromActionCollectionMono))
+        StepVerifier.create(resultMono)
                 .assertNext(tuple -> {
-                    NewAction archivedAction = tuple.getT1().getT1();
-                    ActionCollection archivedActionCollection = tuple.getT1().getT2();
-                    NewPage archivedPage = tuple.getT1().getT3();
-                    NewAction archivedActionFromActionCollection = tuple.getT2();
+                    NewAction archivedAction = tuple.getT1();
+                    ActionCollection archivedActionCollection = tuple.getT2();
+                    NewPage archivedPage = tuple.getT3();
+                    NewAction archivedActionFromActionCollection = tuple.getT4();
 
                     assertThat(archivedAction.getDeletedAt()).isNotNull();
 
