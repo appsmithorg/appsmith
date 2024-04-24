@@ -94,13 +94,9 @@ const getSectionCompensators = (mainCanvasSpacing: number) => {
     left: mainCanvasSpacing,
     top: 0,
   };
-  const edgeCompensatorValues = {
-    left: mainCanvasSpacing * 1.5,
-    top: 0,
-  };
   return {
     widgetCompensatorValues,
-    edgeCompensatorValues,
+    edgeCompensatorValues: widgetCompensatorValues,
     layoutCompensatorValues: widgetCompensatorValues,
   };
 };
