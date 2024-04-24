@@ -2,14 +2,14 @@ import { useEffect } from "react";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 
 /**
- * This hook handles the activation and deactivation of the canvas(Drop targets) while dragging.
+ * This hook handles the deactivation of the DnD Listeners while dragging.
  */
 
 export const useAnvilDnDDeactivation = (
   isDragging: boolean,
   isNewWidget: boolean,
 ) => {
-  // Destructuring hook functions for drag and resize functionality
+  // Destructuring hook functions for dragging new widgets and setting dragging state
   const { setDraggingNewWidget, setDraggingState } = useWidgetDragResize();
 
   // Callback function to handle mouse up events and reset dragging state
