@@ -9,6 +9,8 @@ import { getAnvilCanvasId } from "layoutSystems/anvil/viewer/canvas/utils";
 const WidgetSpacing = {
   MAIN_CANVAS: "--outer-spacing-4",
   ZONE: "--outer-spacing-3",
+  MODAL_TOP: "--outer-spacing-2",
+  MODAL_LEFT: "--outer-spacing-4",
 };
 
 /**
@@ -26,12 +28,22 @@ const extractSpacingStyleValues = (mainCanvasDom: HTMLElement) => {
       computedStyles.getPropertyValue(WidgetSpacing.ZONE),
       10,
     ),
+    modalSpacing: {
+      top: parseInt(
+        computedStyles.getPropertyValue(WidgetSpacing.MODAL_TOP),
+        10,
+      ),
+      left: parseInt(
+        computedStyles.getPropertyValue(WidgetSpacing.MODAL_LEFT),
+        10,
+      ),
+    },
   };
 };
 /**
  * Get widget spacing CSS variable values
  */
-export const getWidgetSpacingCSSVariableValues = () => {
+const getWidgetSpacingCSSVariableValues = () => {
   const mainCanvasDom = document.getElementById(
     getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID),
   );
@@ -39,6 +51,10 @@ export const getWidgetSpacingCSSVariableValues = () => {
     return {
       mainCanvasSpacing: 0,
       zoneSpacing: 0,
+      modalSpacing: {
+        top: 0,
+        left: 0,
+      },
     };
   }
   return extractSpacingStyleValues(mainCanvasDom);
@@ -87,18 +103,24 @@ const getSectionCompensators = (mainCanvasSpacing: number) => {
 /**
  * Get compensators for the modal widget
  */
-const getModalCompensators = (isEmptyLayout: boolean, modalSpacing: number) => {
+const getModalCompensators = (
+  isEmptyLayout: boolean,
+  modalSpacing: {
+    top: number;
+    left: number;
+  },
+) => {
   const widgetCompensatorValues = {
     left: 0,
-    top: isEmptyLayout ? 0 : modalSpacing,
+    top: isEmptyLayout ? 0 : modalSpacing.top,
   };
   const edgeCompensatorValues = {
     left: 0,
-    top: isEmptyLayout ? 0 : modalSpacing * 0.5,
+    top: isEmptyLayout ? 0 : modalSpacing.top,
   };
   const layoutCompensatorValues = {
     left: isEmptyLayout ? HIGHLIGHT_SIZE : 0,
-    top: isEmptyLayout ? HIGHLIGHT_SIZE : modalSpacing,
+    top: isEmptyLayout ? HIGHLIGHT_SIZE : modalSpacing.top,
   };
   return {
     widgetCompensatorValues,
@@ -110,14 +132,18 @@ const getModalCompensators = (isEmptyLayout: boolean, modalSpacing: number) => {
 /**
  * Get compensators for the zone widget
  */
-const getZoneCompensators = (zoneSpacing: number) => {
+const getZoneCompensators = (
+  zoneSpacing: number,
+  isElevatedWidget: boolean,
+) => {
+  const dynamicZoneSpacing = isElevatedWidget ? zoneSpacing : 0;
   const widgetCompensatorValues = {
     left: 0,
     top: 0,
   };
   const edgeCompensatorValues = {
-    left: zoneSpacing,
-    top: zoneSpacing,
+    left: dynamicZoneSpacing,
+    top: dynamicZoneSpacing,
   };
   return {
     widgetCompensatorValues,
@@ -132,10 +158,10 @@ const getZoneCompensators = (zoneSpacing: number) => {
 export const getCompensatorsForHierarchy = (
   hierarchy: number,
   isEmptyLayout: boolean,
-  mainCanvasSpacing: number,
-  zoneSpacing: number,
-  modalSpacing: number,
+  isElevatedWidget: boolean,
 ) => {
+  const { mainCanvasSpacing, modalSpacing, zoneSpacing } =
+    getWidgetSpacingCSSVariableValues();
   /**
    * Get compensators based on hierarchy
    * widgetCompensatorValues - compensates for the widget's additional dragging space outside widget and its layout ( Section Widget)
@@ -150,7 +176,7 @@ export const getCompensatorsForHierarchy = (
     case hierarchy === 2:
       return getSectionCompensators(mainCanvasSpacing);
     case hierarchy === 3:
-      return getZoneCompensators(zoneSpacing);
+      return getZoneCompensators(zoneSpacing, isElevatedWidget);
     default:
       return {
         widgetCompensatorValues: {
