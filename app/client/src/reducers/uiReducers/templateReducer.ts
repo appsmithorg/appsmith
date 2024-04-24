@@ -30,6 +30,11 @@ const initialState: TemplatesReduxState = {
     isOpen: false,
     isOpenFromCanvas: false,
   },
+  currentForkingTemplateInfo: {
+    buildingBlock: {
+      name: "",
+    },
+  },
 };
 
 const templateReducer = createReducer(initialState, {
@@ -203,6 +208,19 @@ const templateReducer = createReducer(initialState, {
       starterBuildingBlockDatasourcePrompt: true,
     };
   },
+  [ReduxActionTypes.SET_CURRENT_FORKING_BUILDING_BLOCK_NAME]: (
+    state: TemplatesReduxState,
+    action: ReduxAction<string>,
+  ) => {
+    return {
+      ...state,
+      currentForkingTemplateInfo: {
+        buildingBlock: {
+          name: action.payload,
+        },
+      },
+    };
+  },
   [ReduxActionTypes.HIDE_STARTER_BUILDING_BLOCK_DATASOURCE_PROMPT]: (
     state: TemplatesReduxState,
   ) => {
@@ -313,6 +331,11 @@ export interface TemplatesReduxState {
     isOpenFromCanvas: boolean;
   };
   loadingFilters: boolean;
+  currentForkingTemplateInfo: {
+    buildingBlock: {
+      name: string;
+    };
+  };
 }
 
 export default templateReducer;

@@ -20,7 +20,11 @@ export const AnvilEditorWrapper = (props: WidgetProps) => {
       : AnvilEditorWidgetOnion;
   }, [props.type]);
 
-  const widgetName = useWidgetName(props.widgetId, props.widgetName);
+  const widgetName = useWidgetName(
+    props.widgetId,
+    props.widgetName,
+    props.parentId,
+  );
 
   return (
     <>

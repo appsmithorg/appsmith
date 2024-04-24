@@ -3,6 +3,7 @@ import WidgetFactory from "WidgetProvider/factory";
 import {
   getAnvilHighlightShown,
   getAnvilSpaceDistributionStatus,
+  getWidgetErrorCount,
 } from "layoutSystems/anvil/integrations/selectors";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
@@ -20,6 +21,9 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   const onCanvasUI = WidgetFactory.getConfig(widgetType)?.onCanvasUI;
   const isCanvasResizing: boolean = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isAutoCanvasResizing,
+  );
+  const showError = useSelector(
+    (state) => getWidgetErrorCount(state, widgetId) > 0,
   );
   const isDistributingSpace: boolean = useSelector(
     getAnvilSpaceDistributionStatus,
@@ -40,6 +44,9 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
     borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
     borderWidth = "2px";
   }
+  if (showError) {
+    borderColor = `var(--ads-widget-error)`;
+  }
   const shouldHideBorder =
     isCanvasResizing || isDistributingSpace || isDragging;
   const canShowBorder =
@@ -50,5 +57,6 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
       canShowBorder ? borderColor : "transparent"
     }`,
     outlineOffset: "3px",
+    borderRadius: "var(--ads-on-canvas-ui-border-radius)",
   };
 }

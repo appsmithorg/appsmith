@@ -10,12 +10,12 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getActions,
   getCanvasWidgets,
 } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { flattenDSL } from "@shared/dsl";
 import type { WidgetBlueprint } from "WidgetProvider/constants";
 import {
   BlueprintOperationTypes,
@@ -27,6 +27,7 @@ import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
 import { pasteWidget } from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
 import {
@@ -38,8 +39,6 @@ import { toast } from "design-system";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona as clone } from "klona/full";
-import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
-import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { isFunction } from "lodash";
@@ -67,6 +66,7 @@ import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { saveBuildingBlockWidgetsToStore } from "./BuildingBlocksSagas";
 import { validateResponse } from "./ErrorSagas";
 import { postPageAdditionSaga } from "./TemplatesSagas";
 import {
@@ -81,16 +81,13 @@ import {
   getMousePositionFromCanvasGridPosition,
   getSnappedGrid,
 } from "./WidgetOperationUtils";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 import {
   getDragDetails,
   getWidget,
   getWidgetByName,
   getWidgets,
 } from "./selectors";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "./WidgetSelectUtils";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
 
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
@@ -553,41 +550,6 @@ function* addBuildingBlockActionsToApp(dragDetails: DragDetails) {
     yield call(ApplicationApi.importBuildingBlockToApplication, body);
 
   return response;
-}
-
-function* saveBuildingBlockWidgetsToStore(
-  response: ApiResponse<ImportBuildingBlockToApplicationResponse>,
-) {
-  const buildingBlockDsl = JSON.parse(response.data.widgetDsl);
-  const buildingBlockWidgets = buildingBlockDsl.children;
-  const flattenedBlockWidgets = buildingBlockWidgets.map(
-    (widget: WidgetProps) => flattenDSL(widget),
-  );
-
-  const widgetsToPasteInCanvas: CopiedWidgetData[] = yield all(
-    flattenedBlockWidgets.map((widget: FlattenedWidgetProps, index: number) => {
-      const widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
-      return {
-        hierarchy: getWidgetHierarchy(
-          buildingBlockWidgets[index].type,
-          buildingBlockWidgets[index].widgetId,
-        ),
-        list: Object.values(widget)
-          .map((obj) => ({ ...obj }))
-          .reverse(),
-        parentId: MAIN_CONTAINER_WIDGET_ID,
-        widgetId: buildingBlockWidgets[index].widgetId,
-        widgetPositionInfo,
-      };
-    }),
-  );
-
-  yield saveCopiedWidgets(
-    JSON.stringify({
-      widgets: widgetsToPasteInCanvas,
-      flexLayers: [],
-    }),
-  );
 }
 
 function* getBuildingBlocksDropMousePosition(

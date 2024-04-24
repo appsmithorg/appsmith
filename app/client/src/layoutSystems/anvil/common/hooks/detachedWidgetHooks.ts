@@ -58,8 +58,9 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
 
     // The handler for focusing on a detached widget
     // It makes sure to check if the app mode is preview or not
-    const handleWidgetFocus = () => {
-      // console.log("##### Hovering", e.eventPhase, widgetId, e);
+    const handleWidgetFocus: EventListener = (e) => {
+      e.stopImmediatePropagation();
+      e.preventDefault();
       !isPreviewMode && dispatch(focusWidget(widgetId));
     };
 
@@ -106,6 +107,7 @@ export function useAddBordersToDetachedWidgets(
   if (element) {
     element.style.outlineOffset = borderStyled.outlineOffset ?? "unset";
     element.style.outline = borderStyled.outline ?? "none";
+    element.style.borderRadius = borderStyled.borderRadius ?? "unset";
   }
 }
 

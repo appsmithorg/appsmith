@@ -30,6 +30,8 @@
   --ads-widget-error: #ee0132;
 
   --ads-on-canvas-ui-zindex: 998;
+
+  --ads-on-canvas-ui-border-radius: 4px;
 }
 
 body {
