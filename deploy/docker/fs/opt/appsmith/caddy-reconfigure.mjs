@@ -55,6 +55,8 @@ parts.push(`
   file_server {
     precompressed br gzip
     disable_canonical_uris
+    @staticAssets path *.css *.js
+    header @staticAssets Cache-Control "max-age=31536000, must-revalidate"
   }
 }
 
