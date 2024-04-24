@@ -132,9 +132,8 @@ export function* updateDataTreeHandler(
   const { evalTreeResponse, requiresLogging, unevalTree } = data;
   const postEvalActionsToDispatch: Array<AnyReduxAction> =
     postEvalActions || [];
-
+  const { configTree } = yield select(getUnevaluatedDataTree);
   const {
-    configTree,
     dependencies,
     errors,
     evalMetaUpdates = [],
