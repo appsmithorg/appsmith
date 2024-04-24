@@ -106,8 +106,8 @@ function WidgetCard(props: CardProps) {
   };
 
   const type = `${props.details.type.split("_").join("").toLowerCase()}`;
-  const className = `t--widget-card-draggable t--widget-card-draggable-${type}
-  }`;
+  const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
+  const Thumbnail = props.details.thumbnail;
 
   return (
     <Wrapper
@@ -118,7 +118,12 @@ function WidgetCard(props: CardProps) {
       onDragStart={onDragStart}
     >
       <ThumbnailWrapper height={THUMBNAIL_HEIGHT} width={THUMBNAIL_WIDTH}>
-        <img src={props.details.thumbnail} />
+        {typeof props.details.thumbnail === "string" && (
+          <img src={props.details.thumbnail} />
+        )}
+        {typeof props.details.thumbnail !== "string" &&
+          Thumbnail != null &&
+          React.isValidElement(<Thumbnail />) && <Thumbnail />}
       </ThumbnailWrapper>
       <Text kind="body-s">{props.details.displayName}</Text>
       {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}

@@ -1,11 +1,10 @@
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { SwitchGroupIcon, SwitchGroupThumbnail } from "appsmith-icons";
 
 export const metaConfig = {
   name: "Switch Group",
-  iconSVG: IconSVG,
-  thumbnailSVG: ThumbnailSVG,
+  iconSVG: SwitchGroupIcon,
+  thumbnailSVG: SwitchGroupThumbnail,
   tags: [WIDGET_TAGS.TOGGLES],
   needsMeta: true,
 };
