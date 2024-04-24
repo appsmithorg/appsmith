@@ -1,11 +1,10 @@
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { CheckboxGroupIcon, CheckboxGroupThumbnail } from "appsmith-icons";
 
 export const metaConfig = {
   name: "Checkbox Group",
-  iconSVG: IconSVG,
-  thumbnailSVG: ThumbnailSVG,
+  iconSVG: CheckboxGroupIcon,
+  thumbnailSVG: CheckboxGroupThumbnail,
   tags: [WIDGET_TAGS.TOGGLES],
   needsMeta: true,
 };

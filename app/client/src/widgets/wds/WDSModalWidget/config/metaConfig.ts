@@ -1,11 +1,10 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
+import { ModalThumbnail, ModalIcon } from "appsmith-icons";
 
 export const metaConfig = {
   name: "Modal",
-  iconSVG: IconSVG,
-  thumbnailSVG: ThumbnailSVG,
+  iconSVG: ModalIcon,
+  thumbnailSVG: ModalThumbnail,
   tags: [WIDGET_TAGS.LAYOUT],
   needsMeta: true,
   searchTags: ["dialog", "popup", "notification"],

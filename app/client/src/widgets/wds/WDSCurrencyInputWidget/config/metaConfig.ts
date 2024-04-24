@@ -1,12 +1,10 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-
-import ThumbnailSVG from "../thumbnail.svg";
-import IconSVG from "../icon.svg";
+import { InputCurrencyIcon, InputCurrencyThumbnail } from "appsmith-icons";
 
 export const metaConfig = {
   name: "Currency Input",
-  iconSVG: IconSVG,
-  thumbnailSVG: ThumbnailSVG,
+  iconSVG: InputCurrencyIcon,
+  thumbnailSVG: InputCurrencyThumbnail,
   tags: [WIDGET_TAGS.INPUTS],
   needsMeta: true,
   searchTags: ["amount", "total"],
