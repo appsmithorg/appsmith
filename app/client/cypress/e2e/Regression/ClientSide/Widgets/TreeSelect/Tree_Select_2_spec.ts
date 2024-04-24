@@ -7,6 +7,7 @@ import {
   apiPage,
   dataSources,
   draggableWidgets,
+  assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -243,7 +244,6 @@ describe(
         ["Form1"],
       );
       propPane.ToggleJSMode("onOptionChange", true);
-      propPane.AssertJSToggleState("onOptionChange", "enabled");
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         "{{navigateTo('www.google.com', {}, 'SAME_WINDOW');}}",
@@ -253,13 +253,21 @@ describe(
         `${locators._widgetInDeployed("singleselecttreewidget")}`,
       );
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
+      agHelper.AssertElementVisibility('[alt="Google"]')
       agHelper.AssertProperty("body", "baseURI", "https://www.google.com/");
-      agHelper.AssertURL("google.com");
       agHelper.BrowserNavigation(-1);
+      deployMode.NavigateBacktoEditor();
+      EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
+      EditorNavigation.SelectEntityByName(
+        "TreeSelect1",
+        EntityType.Widget,
+        {},
+        ["Form1"],
+      );
+      propPane.AssertJSToggleState("onOptionChange", "enabled");
     });
 
     it("8. Verify onOptionChange with Alert", () => {
-      deployMode.NavigateBacktoEditor();
       // Alert
       EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
       EditorNavigation.SelectEntityByName(
