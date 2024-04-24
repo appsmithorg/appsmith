@@ -35,6 +35,8 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
                     ActionDTO actionDTO = action.getUnpublishedAction();
                     DefaultResources defaultResources = new DefaultResources();
                     defaultResources.setPageId(clonedPageDefaultResources.getPageId());
+                    defaultResources.setBranchName(clonedPageDefaultResources.getBranchName());
+                    defaultResources.setApplicationId(clonedPageDefaultResources.getApplicationId());
                     actionDTO.setDefaultResources(defaultResources);
 
                     actionDTO.setPageId(clonePageMetaDTO.getClonedPageDTO().getId());
