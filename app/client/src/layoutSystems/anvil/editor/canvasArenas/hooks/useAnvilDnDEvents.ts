@@ -2,13 +2,7 @@ import type React from "react";
 import { useEffect, useRef } from "react";
 import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/editor/canvasArenas/AnvilHighlightingCanvas";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
-import { getClosestHighlight } from "../utils/utils";
-import { getPositionCompensatedHighlight } from "../utils/dndCompensatorUtils";
-import { useDispatch } from "react-redux";
-import { throttle } from "lodash";
-import { setHighlightsDrawnAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
-import { renderDisallowOnCanvas } from "../utils/utils";
-import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import { useAnvilDnDEventCallbacks } from "./useAnvilDnDEventCallbacks";
 
 /**
  * Hook to handle Anvil DnD events
@@ -21,38 +15,14 @@ export const useAnvilDnDEvents = (
   const { anvilDragStates, deriveAllHighlightsFn, layoutId, onDrop } = props;
   const {
     activateOverlayWidgetDrop,
-    allowToDrop,
     canActivate,
-    draggedBlocks,
-    edgeCompensatorValues,
     isCurrentDraggedCanvas,
     isDragging,
-    layoutCompensatorValues,
-    layoutElementPositions,
-    mainCanvasLayoutId,
   } = anvilDragStates;
-  const dispatch = useDispatch();
-  const { setDraggingCanvas } = useWidgetDragResize();
 
   /**
    * Ref to store highlights derived in real time once dragging starts
    */
-  const allHighlightsRef = useRef([] as AnvilHighlightInfo[]);
-  const currentLayoutPositions = layoutElementPositions[layoutId];
-
-  /**
-   * Function to calculate and store highlights
-   */
-  const calculateHighlights = () => {
-    if (activateOverlayWidgetDrop) {
-      allHighlightsRef.current = [];
-    } else {
-      allHighlightsRef.current = deriveAllHighlightsFn(
-        layoutElementPositions,
-        draggedBlocks,
-      )?.highlights;
-    }
-  };
   const canvasIsDragging = useRef(false);
 
   useEffect(() => {
@@ -67,190 +37,73 @@ export const useAnvilDnDEvents = (
       }
     }
   }, [isCurrentDraggedCanvas]);
-
+  const { onMouseMove, onMouseOut, onMouseOver, onMouseUp, resetCanvasState } =
+    useAnvilDnDEventCallbacks({
+      anvilDragStates,
+      anvilDnDListenerRef,
+      canvasIsDragging,
+      deriveAllHighlightsFn,
+      layoutId,
+      onDrop,
+      setHighlightShown,
+    });
   useEffect(() => {
     if (anvilDnDListenerRef.current && isDragging) {
-      let currentRectanglesToDraw: AnvilHighlightInfo;
-      const resetCanvasState = () => {
-        // Resetting the canvas state when necessary
-        if (anvilDnDListenerRef.current) {
-          anvilDnDListenerRef.current.style.backgroundColor = "unset";
-          anvilDnDListenerRef.current.style.color = "unset";
-          anvilDnDListenerRef.current.innerText = "";
-          canvasIsDragging.current = false;
-          dispatch(setHighlightsDrawnAction());
-          setHighlightShown(null);
-        }
-      };
+      // Initialize listeners
+      anvilDnDListenerRef.current?.addEventListener("mouseenter", onMouseOver);
+      anvilDnDListenerRef.current.addEventListener("mouseover", onMouseOver);
+      anvilDnDListenerRef.current.addEventListener("mouseleave", onMouseOut);
+      anvilDnDListenerRef.current.addEventListener("mouseout", onMouseOut);
+      anvilDnDListenerRef.current?.addEventListener(
+        "mousemove",
+        onMouseMove,
+        false,
+      );
+      anvilDnDListenerRef.current?.addEventListener(
+        "mouseup",
+        onMouseUp,
+        false,
+      );
+      // To make sure drops on the main canvas boundary buffer are processed in the capturing phase.
+      document.addEventListener("mouseup", onMouseUp, true);
 
-      if (isDragging && canActivate) {
-        const onMouseUp = () => {
-          if (
-            isDragging &&
-            canvasIsDragging.current &&
-            currentRectanglesToDraw &&
-            !currentRectanglesToDraw.existingPositionHighlight &&
-            allowToDrop
-          ) {
-            // Invoke onDrop callback with the appropriate highlight info
-            onDrop(currentRectanglesToDraw);
-          }
-          resetCanvasState();
-        };
-
-        const onFirstMoveOnCanvas = (e: MouseEvent) => {
-          if (
-            isCurrentDraggedCanvas &&
-            isDragging &&
-            !canvasIsDragging.current &&
-            anvilDnDListenerRef.current
-          ) {
-            // Calculate highlights when the mouse enters the canvas
-            calculateHighlights();
-            canvasIsDragging.current = true;
-            requestAnimationFrame(() => onMouseMove(e));
-          } else {
-            onMouseOver(e);
-          }
-        };
-        // make sure rendering highlights on dnd listener and highlighting cell happens once every 50ms
-        const throttledRenderOnCanvas = throttle(
-          () => {
-            if (
-              anvilDnDListenerRef.current &&
-              canvasIsDragging.current &&
-              isCurrentDraggedCanvas
-            ) {
-              const compensatedHighlight = getPositionCompensatedHighlight(
-                currentRectanglesToDraw,
-                layoutCompensatorValues,
-                edgeCompensatorValues,
-              );
-              dispatch(setHighlightsDrawnAction(compensatedHighlight));
-              setHighlightShown(compensatedHighlight);
-            }
-          },
-          50,
-          {
-            leading: true,
-            trailing: true,
-          },
+      return () => {
+        anvilDnDListenerRef.current?.removeEventListener(
+          "mouseover",
+          onMouseOver,
         );
-
-        const onMouseMove = (e: any) => {
-          if (
-            isCurrentDraggedCanvas &&
-            canActivate &&
-            canvasIsDragging.current &&
-            anvilDnDListenerRef.current
-          ) {
-            if (!allowToDrop) {
-              // Render disallow message if dropping is not allowed
-              renderDisallowOnCanvas(anvilDnDListenerRef.current);
-              return;
-            }
-            // Get the closest highlight based on the mouse position
-            const processedHighlight = getClosestHighlight(
-              {
-                x: e.offsetX - layoutCompensatorValues.left,
-                y: e.offsetY - layoutCompensatorValues.top,
-              },
-              allHighlightsRef.current,
-            );
-            if (processedHighlight) {
-              currentRectanglesToDraw = processedHighlight;
-              throttledRenderOnCanvas();
-            }
-          } else {
-            // Call onFirstMoveOnCanvas for the initial move on the canvas
-            onFirstMoveOnCanvas(e);
-          }
-        };
-
-        const onMouseOver = (e: any) => {
-          if (canActivate) {
-            setDraggingCanvas(layoutId);
-            e.stopPropagation();
-          }
-        };
-
-        const onMouseOut = () => {
-          setDraggingCanvas("");
-        };
-        if (anvilDnDListenerRef.current) {
-          anvilDnDListenerRef.current?.addEventListener(
-            "mouseenter",
-            onMouseOver,
-          );
-          anvilDnDListenerRef.current.addEventListener(
-            "mouseover",
-            onMouseOver,
-          );
-          anvilDnDListenerRef.current.addEventListener(
-            "mouseleave",
-            onMouseOut,
-          );
-          anvilDnDListenerRef.current.addEventListener("mouseout", onMouseOut);
-          // Initialize listeners
-          anvilDnDListenerRef.current?.addEventListener(
-            "mousemove",
-            onMouseMove,
-            false,
-          );
-          anvilDnDListenerRef.current?.addEventListener(
-            "mouseup",
-            onMouseUp,
-            false,
-          );
-          // To make sure drops on the main canvas boundary buffer are processed in the capturing phase.
-          document.addEventListener("mouseup", onMouseUp, true);
-        }
-
-        return () => {
-          anvilDnDListenerRef.current?.removeEventListener(
-            "mouseover",
-            onMouseOver,
-          );
-          anvilDnDListenerRef.current?.removeEventListener(
-            "mouseenter",
-            onMouseOver,
-          );
-          anvilDnDListenerRef.current?.removeEventListener(
-            "mouseleave",
-            onMouseOut,
-          );
-          anvilDnDListenerRef.current?.removeEventListener(
-            "mouseout",
-            onMouseOut,
-          );
-          // Cleanup listeners on component unmount
-          anvilDnDListenerRef.current?.removeEventListener(
-            "mousemove",
-            onMouseMove,
-          );
-          anvilDnDListenerRef.current?.removeEventListener(
-            "mouseup",
-            onMouseUp,
-          );
-          document.removeEventListener("mouseup", onMouseUp, true);
-        };
-      } else {
-        // Reset canvas state if not dragging
-        resetCanvasState();
-      }
+        anvilDnDListenerRef.current?.removeEventListener(
+          "mouseenter",
+          onMouseOver,
+        );
+        anvilDnDListenerRef.current?.removeEventListener(
+          "mouseleave",
+          onMouseOut,
+        );
+        anvilDnDListenerRef.current?.removeEventListener(
+          "mouseout",
+          onMouseOut,
+        );
+        // Cleanup listeners on component unmount
+        anvilDnDListenerRef.current?.removeEventListener(
+          "mousemove",
+          onMouseMove,
+        );
+        anvilDnDListenerRef.current?.removeEventListener("mouseup", onMouseUp);
+        document.removeEventListener("mouseup", onMouseUp, true);
+      };
+    } else {
+      canvasIsDragging.current = false;
+      // Reset canvas state if not dragging
+      resetCanvasState();
     }
   }, [
     isDragging,
-    allowToDrop,
-    canActivate,
-    draggedBlocks,
-    isCurrentDraggedCanvas,
-    isDragging,
-    layoutElementPositions,
-    mainCanvasLayoutId,
-    currentLayoutPositions,
-    layoutCompensatorValues,
-    edgeCompensatorValues,
+    onMouseMove,
+    onMouseOut,
+    onMouseOver,
+    onMouseUp,
+    resetCanvasState,
   ]);
 
   return {

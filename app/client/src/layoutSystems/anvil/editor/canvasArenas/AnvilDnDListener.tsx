@@ -34,7 +34,7 @@ export const AnvilDnDListener = forwardRef(
 
     return (
       <StyledDnDListener
-        data-type={"canvas-slider"}
+        data-type={"anvil-dnd-listener"}
         paddingLeft={compensatorValues.left}
         paddingTop={compensatorValues.top}
         ref={ref}

@@ -26,18 +26,20 @@ export const AnvilViewerWidgetOnion = (props: BaseWidgetProps) => {
     [isPreviewMode, props.type],
   );
   return (
-    <AnvilFlexComponent
-      flexGrow={props.flexGrow}
-      isVisible={!!props.isVisible}
-      layoutId={props.layoutId}
-      parentId={props.parentId}
-      rowIndex={props.rowIndex}
-      widgetId={props.widgetId}
-      widgetName={props.widgetName}
-      widgetSize={widgetSize}
-      widgetType={props.type}
-    >
-      <AnvilWidgetComponent {...props}>{props.children}</AnvilWidgetComponent>
-    </AnvilFlexComponent>
+    <AnvilWidgetComponent {...props}>
+      <AnvilFlexComponent
+        flexGrow={props.flexGrow}
+        isVisible={!!props.isVisible}
+        layoutId={props.layoutId}
+        parentId={props.parentId}
+        rowIndex={props.rowIndex}
+        widgetId={props.widgetId}
+        widgetName={props.widgetName}
+        widgetSize={widgetSize}
+        widgetType={props.type}
+      >
+        {props.children}
+      </AnvilFlexComponent>
+    </AnvilWidgetComponent>
   );
 };
