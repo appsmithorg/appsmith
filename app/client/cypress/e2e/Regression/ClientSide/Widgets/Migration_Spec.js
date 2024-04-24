@@ -190,13 +190,12 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
       cy.getTableDataSelector("2", "19").then((selector) => {
         cy.window().then((win) => {
           // Stub `window.open` to prevent new tabs
-          cy.stub(win, 'open').as('windowOpenStub');
-          cy.get(selector + " span")
-            .then(($link) => {
-              cy.wrap($link).click();
-              cy.get('@windowOpenStub').should('have.been.called');
-            });
+          cy.stub(win, "open").as("windowOpenStub");
+          cy.get(selector + " span").then(($link) => {
+            cy.wrap($link).click();
+            cy.get("@windowOpenStub").should("have.been.called");
           });
+        });
       });
 
       // cy.wait(4000);
@@ -313,5 +312,5 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
       .invoke("attr", "value")
       .should("contain", "#FFC13D");
     cy.validateCodeEditorContent(".t--property-control-textsize", "1.5rem");
-  }); 
+  });
 });
