@@ -23,7 +23,11 @@ const SortFilterTable = importSvg(
     import("../assets/icons/templates/canvas-starter-sort-filter-table.svg"),
 );
 
-export const STARTER_BUILDING_BLOCK_TEMPLATE_NAME = "Starter Building Block";
+const STARTER_BUILDING_BLOCK_TEMPLATE_NAME = {
+  RECORD_DETAILS: "Record Details",
+  RECORD_EDIT: "Record Edit",
+  SORT_FILTER_TABLE: "Sort and Filter Table",
+};
 
 export const STARTER_BUILDING_BLOCKS = {
   DATASOURCE_PROMPT_DELAY: 3000,
@@ -39,9 +43,8 @@ export const STARTER_BUILDING_BLOCKS = {
       icon: <RecordDetails />,
       screenshot:
         "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-detail.png",
-      templateId: "6530e343fa63b553e4be0266",
-      templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-      templatePageName: "Record Details",
+      templateId: "65606f5ffce72e426f7bd6bd",
+      templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME.RECORD_DETAILS,
     },
     {
       id: 1,
@@ -54,9 +57,8 @@ export const STARTER_BUILDING_BLOCKS = {
       icon: <RecordEdit />,
       screenshot:
         "https://s3.us-east-2.amazonaws.com/template.appsmith.com/canvas-starter-page-layout-record-edit.png",
-      templateId: "6530e343fa63b553e4be0266",
-      templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-      templatePageName: "Record Edit",
+      templateId: "656071bcb1a65d2b45cabfcf",
+      templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME.RECORD_EDIT,
     },
     {
       id: 3,
@@ -69,9 +71,8 @@ export const STARTER_BUILDING_BLOCKS = {
       icon: <SortFilterTable />,
       screenshot:
         "https://images.ctfassets.net/lpvian6u6i39/55ERsTeUvbAzJVaBBsInZr/0009fee0adb710b91c18a5bdc989deeb/canvas-starter-building-block-sort-filter-table.png?fm=png&q=50",
-      templateId: "6530e343fa63b553e4be0266",
-      templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-      templatePageName: "Sort and Filter Table",
+      templateId: "655f0d1d90cdac3d6797d048",
+      templateName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME.SORT_FILTER_TABLE,
     },
   ],
 };

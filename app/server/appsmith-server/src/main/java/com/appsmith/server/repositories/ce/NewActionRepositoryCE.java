@@ -2,6 +2,7 @@ package com.appsmith.server.repositories.ce;
 
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
+import com.appsmith.server.newactions.projections.IdAndDatasourceIdNewActionView;
 import com.appsmith.server.projections.IdPoliciesOnly;
 import com.appsmith.server.repositories.BaseRepository;
 import com.appsmith.server.repositories.CustomNewActionRepository;
@@ -21,6 +22,8 @@ public interface NewActionRepositoryCE extends BaseRepository<NewAction, String>
     Optional<Long> countByDeletedAtNull();
 
     List<IdPoliciesOnly> findIdsAndPoliciesByApplicationIdIn(List<String> applicationIds);
+
+    List<IdAndDatasourceIdNewActionView> findIdAndDatasourceIdByApplicationIdIn(List<String> applicationIds);
 
     @Query(
             """

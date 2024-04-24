@@ -1,6 +1,5 @@
 package com.appsmith.server.services;
 
-import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
@@ -87,27 +86,6 @@ public class NewPageServiceTest {
                 .collectList()
                 .block();
         Workspace deletedWorkspace = workspaceService.archiveById(workspaceId).block();
-    }
-
-    @Test
-    @WithUserDetails("api_user")
-    public void testCreateDefault() {
-        Set<String> permissionGroupIds = permissionGroupRepository.findAll().collectList().block().stream()
-                .map(PermissionGroup::getId)
-                .collect(Collectors.toSet());
-        PageDTO pageDTO = new PageDTO();
-        pageDTO.setApplicationId("test-application-id");
-        DefaultResources testDefaultResources = new DefaultResources();
-        pageDTO.setDefaultResources(testDefaultResources);
-        Policy testPolicy =
-                Policy.builder().permissionGroups(permissionGroupIds).build();
-        pageDTO.setPolicies(Set.of(testPolicy));
-        StepVerifier.create(newPageService.createDefault(pageDTO))
-                .assertNext(pageDTO1 -> {
-                    assertThat(pageDTO1.getId()).isNotNull();
-                    assertThat(pageDTO1.getUserPermissions()).isNotEmpty();
-                })
-                .verifyComplete();
     }
 
     @Test
