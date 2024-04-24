@@ -1,3 +1,3 @@
-export default function JSRemoteExecutionView() {
+export default function JSRemoteExecutionView({}: any) {
   return null;
 }

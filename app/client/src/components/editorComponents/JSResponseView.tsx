@@ -286,7 +286,9 @@ function JSResponseView(props: Props) {
                     )}
                   </>
                 )}
-                {!localExecutionAllowed && <JSRemoteExecutionView />}
+                {!localExecutionAllowed && (
+                  <JSRemoteExecutionView collectionData={jsCollectionData} />
+                )}
                 {responseStatus === JSResponseState.IsUpdating && (
                   <LoadingOverlayScreen theme={props.theme}>
                     {createMessage(UPDATING_JS_COLLECTION)}
