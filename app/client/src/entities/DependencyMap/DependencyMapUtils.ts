@@ -48,6 +48,14 @@ export class DependencyMapUtils {
     }
     return dependencyMap;
   }
+  public static makeParentsDependOnChildCollection = (
+    dependencyMap: DependencyMap,
+    childCollection: string[],
+  ) => {
+    childCollection.forEach((child) => {
+      this.makeParentsDependOnChild(dependencyMap, child);
+    });
+  };
 
   static makeParentsDependOnChild = (
     dependencyMap: DependencyMap,

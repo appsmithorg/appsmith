@@ -141,7 +141,14 @@ export const updateDependencyMap = ({
                   ([path, pathDependencies]) => {
                     const { errors: extractDependencyErrors, references } =
                       extractInfoFromBindings(pathDependencies, allKeys);
-                    dependencyMap.addDependency(path, references);
+                    const affectedNodes = dependencyMap.addDependency(
+                      path,
+                      references,
+                    );
+                    DependencyMapUtils.makeParentsDependOnChildCollection(
+                      dependencyMap,
+                      affectedNodes,
+                    );
                     didUpdateDependencyMap = true;
                     dataTreeEvalErrors = dataTreeEvalErrors.concat(
                       extractDependencyErrors,
@@ -158,7 +165,14 @@ export const updateDependencyMap = ({
               );
               const { errors: extractDependencyErrors, references } =
                 extractInfoFromBindings(entityPathDependencies, allKeys);
-              dependencyMap.addDependency(fullPropertyPath, references);
+              const affectedNodes = dependencyMap.addDependency(
+                fullPropertyPath,
+                references,
+              );
+              DependencyMapUtils.makeParentsDependOnChildCollection(
+                dependencyMap,
+                affectedNodes,
+              );
               didUpdateDependencyMap = true;
               dataTreeEvalErrors = dataTreeEvalErrors.concat(
                 extractDependencyErrors,
@@ -218,7 +232,15 @@ export const updateDependencyMap = ({
             );
             const { errors: extractDependencyErrors, references } =
               extractInfoFromBindings(entityPathDependencies, allKeys);
-            dependencyMap.addDependency(fullPropertyPath, references);
+
+            const affectedNodes = dependencyMap.addDependency(
+              fullPropertyPath,
+              references,
+            );
+            DependencyMapUtils.makeParentsDependOnChildCollection(
+              dependencyMap,
+              affectedNodes,
+            );
             didUpdateDependencyMap = true;
             dataTreeEvalErrors = dataTreeEvalErrors.concat(
               extractDependencyErrors,

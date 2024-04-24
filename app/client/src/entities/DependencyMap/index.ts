@@ -63,9 +63,9 @@ export default class DependencyMap {
    * @param node
    * @param dependencies
    */
-  public addDependency = (node: string, dependencies: string[]) => {
+  public addDependency = (node: string, dependencies: string[]): string[] => {
     // Only add dependencies for nodes present in the graph
-    if (!this.#nodes.has(node)) return;
+    if (!this.#nodes.has(node)) return [];
     const validDependencies = new Set<string>();
     const invalidDependencies = new Set<string>();
 
@@ -126,6 +126,7 @@ export default class DependencyMap {
     // Now set the new deps and invalidDeps
     this.#dependencies.set(node, validDependencies);
     this.#invalidDependencies.set(node, invalidDependencies);
+    return [node, ...Array.from(validDependencies)] || [];
   };
 
   private removeDependency = (node: string) => {
