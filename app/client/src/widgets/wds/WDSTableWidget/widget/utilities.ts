@@ -1,7 +1,6 @@
 import { Colors } from "constants/Colors";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import _, { filter, isBoolean, isObject, uniq, without } from "lodash";
-import tinycolor from "tinycolor2";
 import type {
   CellLayoutProperties,
   ColumnProperties,
@@ -9,11 +8,7 @@ import type {
   TableColumnProps,
   TableStyles,
 } from "../component/Constants";
-import {
-  CellAlignmentTypes,
-  StickyType,
-  VerticalAlignmentTypes,
-} from "../component/Constants";
+import { StickyType } from "../component/Constants";
 import {
   ColumnTypes,
   DEFAULT_BUTTON_COLOR,
@@ -23,11 +18,9 @@ import {
 } from "../constants";
 import { SelectColumnOptionsValidations } from "./propertyUtils";
 import type { TableWidgetProps } from "../constants";
-import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import { dateFormatOptions } from "WidgetProvider/constants";
 import moment from "moment";
-import type { Stylesheet } from "entities/AppTheming";
 import { getKeysFromSourceDataForEventAutocomplete } from "widgets/MenuButtonWidget/widget/helper";
 import log from "loglevel";
 import type React from "react";
@@ -297,15 +290,10 @@ export const getArrayPropertyValue = (value: unknown, index: number) => {
 export const getCellProperties = (
   columnProperties: ColumnProperties,
   rowIndex: number,
-  isAddRowInProgress = false,
 ) => {
   if (columnProperties) {
     return {
-      cellColor: getPropertyValue(
-        columnProperties.cellColor,
-        rowIndex,
-        true,
-      ),
+      cellColor: getPropertyValue(columnProperties.cellColor, rowIndex, true),
       horizontalAlignment: getPropertyValue(
         columnProperties.horizontalAlignment,
         rowIndex,
@@ -361,7 +349,7 @@ export const getCellProperties = (
       allowCellWrapping: getBooleanPropertyValue(
         columnProperties.allowCellWrapping,
         rowIndex,
-      ), 
+      ),
     } as CellLayoutProperties;
   }
   return {} as CellLayoutProperties;
@@ -389,62 +377,6 @@ export function getSelectColumnTypeOptions(value: unknown) {
   const result = SelectColumnOptionsValidations(value, {}, _);
   return result.parsed;
 }
-
-/**
- * returns selected row bg color
- *
- * if the color is dark, use 80% lighter color for selected row
- * if color is light, use 10% darker color for selected row
- *
- * @param accentColor
- */
-export const getSelectedRowBgColor = (accentColor: string) => {
-  const tinyAccentColor = tinycolor(accentColor);
-  const brightness = tinycolor(accentColor).greyscale().getBrightness();
-
-  const percentageBrightness = (brightness / 255) * 100;
-  let nextBrightness = 0;
-
-  switch (true) {
-    case percentageBrightness > 70:
-      nextBrightness = 10;
-      break;
-    case percentageBrightness > 50:
-      nextBrightness = 35;
-      break;
-    case percentageBrightness > 50:
-      nextBrightness = 55;
-      break;
-    default:
-      nextBrightness = 60;
-  }
-
-  if (brightness > 180) {
-    return tinyAccentColor.darken(10).toString();
-  } else {
-    return tinyAccentColor.lighten(nextBrightness).toString();
-  }
-};
-
-/**
- * this is a getter function to get stylesheet value of the property from the config
- *
- * @param props
- * @param propertyPath
- * @param widgetStylesheet
- * @returns
- */
-export const getStylesheetValue = (
-  props: TableWidgetProps,
-  propertyPath: string,
-  widgetStylesheet?: Stylesheet,
-) => {
-  const propertyName = propertyPath.split(".").slice(-1)[0];
-  const columnName = propertyPath.split(".").slice(-2)[0];
-  const columnType = get(props, `primaryColumns.${columnName}.columnType`);
-
-  return get(widgetStylesheet, `childStylesheet.${columnType}.${propertyName}`);
-};
 
 export const reorderColumns = (
   columns: Record<string, ColumnProperties>,
