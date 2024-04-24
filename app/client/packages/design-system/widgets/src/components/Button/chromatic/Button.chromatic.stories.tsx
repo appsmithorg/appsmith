@@ -18,8 +18,8 @@ type Story = StoryObj<typeof Button>;
 const states = [
   "",
   "data-hovered",
-  "data-active",
-  "data-focused",
+  "data-pressed",
+  "data-focus-visible",
   "aria-disabled",
 ];
 

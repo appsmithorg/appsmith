@@ -90,7 +90,7 @@ public class AuthenticationServiceTest {
     @BeforeEach
     public void setup() {
         Workspace newWorkspace = new Workspace();
-        newWorkspace.setName("ApplicationFetcherTest");
+        newWorkspace.setName("TestWorkspace");
         workspace = workspaceService.create(newWorkspace).block();
     }
 

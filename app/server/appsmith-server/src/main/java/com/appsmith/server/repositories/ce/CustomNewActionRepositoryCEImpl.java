@@ -319,12 +319,12 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     protected Optional<Void> copyUnpublishedActionToPublishedAction(
-        BridgeQuery<NewAction> criteria, AclPermission permission) {
+            BridgeQuery<NewAction> criteria, AclPermission permission) {
         queryBuilder()
-            .permission(permission)
-            .criteria(criteria)
-            .updateAll(Bridge.update()
-                .setToValueFromField(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
+                .permission(permission)
+                .criteria(criteria)
+                .updateAll(Bridge.update()
+                        .setToValueFromField(NewAction.Fields.publishedAction, NewAction.Fields.unpublishedAction));
         return Optional.empty();
     }
 

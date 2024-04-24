@@ -1,6 +1,8 @@
 package com.appsmith.server.helpers.ce.bridge;
 
 import lombok.Getter;
+import lombok.NonNull;
+import org.apache.commons.lang3.NotImplementedException;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -12,6 +14,10 @@ public class BridgeUpdate {
     public BridgeUpdate set(String key, Object value) {
         setOps.add(new SetOp(key, value));
         return this;
+    }
+
+    public BridgeUpdate pull(@NonNull String key, @NonNull Object value) {
+        throw new NotImplementedException();
     }
 
     /**

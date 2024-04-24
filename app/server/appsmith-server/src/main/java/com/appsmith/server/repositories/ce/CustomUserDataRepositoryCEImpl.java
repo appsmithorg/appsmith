@@ -13,7 +13,6 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.util.CollectionUtils;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -32,7 +31,17 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     @Override
     @Transactional
     @Modifying
-    public Optional<Void> removeIdFromRecentlyUsedList(String userId, String workspaceId, List<String> applicationIds) {
+    public Optional<Void> removeEntitiesFromRecentlyUsedList(String userId, String workspaceId) {
+        /* Move to this piece of code, instead of direct entityManager use.
+        BridgeUpdate update = new BridgeUpdate();
+        RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
+        recentlyUsedEntityDTO.setWorkspaceId(workspaceId);
+        update.pull(UserData.Fields.recentlyUsedEntityIds, recentlyUsedEntityDTO);
+        return queryBuilder()
+                .criteria(Bridge.equal(UserData.Fields.userId, userId))
+                .updateFirst(update)
+                .then();
+        */
 
         var entityManager = getEntityManager();
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
@@ -47,30 +56,6 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
                         Object.class,
                         cb.function("coalesce", List.class, recentlyUsedEntityIdsField, cb.literal("[]")),
                         cb.literal("$[*] ? (@.workspaceId != \"" + workspaceId + "\")")));
-
-        final Path<Expression<?>> recentlyUsedWorkspaceIdsField = root.get(UserData.Fields.recentlyUsedWorkspaceIds);
-        cu.set(
-                recentlyUsedWorkspaceIdsField,
-                cb.function(
-                        "jsonb_minus",
-                        Object.class,
-                        cb.function("coalesce", List.class, recentlyUsedWorkspaceIdsField, cb.literal("[]")),
-                        cb.literal(workspaceId).as(String.class)));
-
-        if (!CollectionUtils.isEmpty(applicationIds)) {
-            final Path<Expression<?>> recentlyUsedAppIdsField = root.get(UserData.Fields.recentlyUsedAppIds);
-            final List<String> parts = new ArrayList<>();
-            for (String applicationId : applicationIds) {
-                parts.add("@ != \"" + applicationId + "\"");
-            }
-            cu.set(
-                    recentlyUsedAppIdsField,
-                    cb.function(
-                            "jsonb_path_query_array",
-                            Object.class,
-                            cb.function("coalesce", List.class, recentlyUsedAppIdsField, cb.literal("[]")),
-                            cb.literal("$[*] ? (" + String.join(" && ", parts) + ")")));
-        }
 
         cu.where(cb.equal(root.get(UserData.Fields.userId), userId));
 
