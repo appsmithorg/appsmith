@@ -62,7 +62,6 @@ import {
   getDerivedColumns,
   getSelectRowIndex,
   getSelectRowIndices,
-  getTableStyles,
   updateAndSyncTableLocalColumnOrders,
 } from "./utilities";
 import type { BatchPropertyUpdatePayload } from "actions/controlActions";
@@ -323,16 +322,15 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       return;
     }
 
-    const existingColumnIds = Object.keys(primaryColumns);
+    const existingColumnsKeys = Object.keys(primaryColumns);
     const newTableColumns: Record<string, ColumnProperties> = {};
-    const tableStyles = getTableStyles(this.props);
-    const columnKeys: string[] = getAllTableColumnKeys(tableData);
+    const allPosibleColumnsKeys: string[] = getAllTableColumnKeys(tableData);
 
     /*
      * Generate default column properties for all columns
      * But do not replace existing columns with the same id
      */
-    columnKeys.forEach((columnKey, index) => {
+    allPosibleColumnsKeys.forEach((columnKey, index) => {
       const existingColumn = this.getColumnByOriginalId(columnKey);
 
       if (!!existingColumn) {
@@ -340,7 +338,10 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         newTableColumns[existingColumn.id] = existingColumn;
       } else {
         const hashedColumnKey = sanitizeKey(columnKey, {
-          existingKeys: union(existingColumnIds, Object.keys(newTableColumns)),
+          existingKeys: union(
+            existingColumnsKeys,
+            Object.keys(newTableColumns),
+          ),
         });
         // Create column properties for the new column
         const columnType = getColumnType(tableData, columnKey);
@@ -355,7 +356,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
 
         newTableColumns[columnProperties.id] = {
           ...columnProperties,
-          ...tableStyles,
         };
       }
     });
@@ -376,7 +376,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     const newColumnIds = Object.keys(newTableColumns);
 
     // check if the columns ids differ
-    if (_.xor(existingColumnIds, newColumnIds).length > 0) {
+    if (_.xor(existingColumnsKeys, newColumnIds).length > 0) {
       return newTableColumns;
     } else {
       return;
