@@ -129,7 +129,7 @@ export const useEditorPaneWidth = (): string => {
         if (segment !== EditorEntityTab.UI) {
           // In full screen mode, we want to extend the editor pane completely unless it is in ui mode
           // this is because the editor will show the code on the right side
-          setWidth(`${windowWidth - APP_SIDEBAR_WIDTH}px)`);
+          setWidth(`${windowWidth - APP_SIDEBAR_WIDTH}px`);
         } else {
           // Normal editor pane width
           setWidth(DEFAULT_EDITOR_PANE_WIDTH + "px");
