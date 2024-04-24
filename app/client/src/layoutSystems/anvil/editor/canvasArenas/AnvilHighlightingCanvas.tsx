@@ -5,13 +5,13 @@ import type {
   DraggedWidget,
   HighlightPayload,
 } from "layoutSystems/anvil/utils/anvilTypes";
-import type { AnvilDnDStates } from "./hooks/useAnvilDnDStates";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
 import { AnvilDnDListener } from "./AnvilDnDListener";
 import { AnvilDnDHighlight } from "./AnvilDnDHighlight";
+import type { AnvilDnDListenerStates } from "./hooks/useAnvilDnDListenerStates";
 
 export interface AnvilHighlightingCanvasProps {
-  anvilDragStates: AnvilDnDStates;
+  anvilDragStates: AnvilDnDListenerStates;
   widgetId: string;
   layoutId: string;
   deriveAllHighlightsFn: (
@@ -33,7 +33,6 @@ export function AnvilHighlightingCanvas({
     React.useState<AnvilHighlightInfo | null>(null);
 
   const { isCurrentDraggedCanvas } = anvilDragStates;
-  // showDraggingCanvas indicates if the current dragging canvas i.e. the html canvas renders
   const { showDnDListener } = useAnvilDnDEvents(
     anvilDnDListenerRef,
     {

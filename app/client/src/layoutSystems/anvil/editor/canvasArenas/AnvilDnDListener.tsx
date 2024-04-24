@@ -7,10 +7,11 @@ interface AnvilDnDListenerProps {
     left: number;
     top: number;
   };
-  ref: RefObject<HTMLDivElement>;
-  zIndex: number;
+  ref: RefObject<HTMLDivElement>; // Ref object for the div element
+  zIndex: number; // Z-index of the listener
 }
 
+// Styled component for the DnD listener
 const StyledDnDListener = styled.div<{
   paddingLeft: number;
   paddingTop: number;

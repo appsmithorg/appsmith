@@ -3,7 +3,7 @@ import { useEffect, useRef } from "react";
 import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/editor/canvasArenas/AnvilHighlightingCanvas";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { getClosestHighlight } from "../utils/utils";
-import { getCompensatingOffsetValues } from "../utils/dndCompensatorUtils";
+import { getPositionCompensatedHighlight } from "../utils/dndCompensatorUtils";
 import { useDispatch } from "react-redux";
 import { throttle } from "lodash";
 import { setHighlightsDrawnAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
@@ -11,14 +11,7 @@ import { renderDisallowOnCanvas } from "../utils/utils";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 
 /**
- *
- *  This hook is written to accumulate all logic that is needed to
- *  - initialize event listeners for canvas
- *  - adjust z-index of canvas
- *  - track mouse position on canvas
- *  - render highlights on the canvas
- *  - render warning to denote that a particular widget type is not allowed to drop on canvas
- *  - invoke onDrop callback as per the anvilDragStates
+ * Hook to handle Anvil DnD events
  */
 export const useAnvilDnDEvents = (
   anvilDnDListenerRef: React.RefObject<HTMLDivElement>,
@@ -120,7 +113,7 @@ export const useAnvilDnDEvents = (
             onMouseOver(e);
           }
         };
-        // make sure rendering highlights on canvas and highlighting cell happens once every 50ms
+        // make sure rendering highlights on dnd listener and highlighting cell happens once every 50ms
         const throttledRenderOnCanvas = throttle(
           () => {
             if (
@@ -128,25 +121,13 @@ export const useAnvilDnDEvents = (
               canvasIsDragging.current &&
               isCurrentDraggedCanvas
             ) {
-              const canvasGapAdjustedHighlight = {
-                ...currentRectanglesToDraw,
-                posX:
-                  currentRectanglesToDraw.posX + layoutCompensatorValues.left,
-                posY:
-                  currentRectanglesToDraw.posY + layoutCompensatorValues.top,
-              };
-              const { posX: left, posY: top } = canvasGapAdjustedHighlight;
-              const compensatingOffsetValues = getCompensatingOffsetValues(
+              const compensatedHighlight = getPositionCompensatedHighlight(
                 currentRectanglesToDraw,
+                layoutCompensatorValues,
                 edgeCompensatorValues,
               );
-              const positionUpdatedHighlightInfo = {
-                ...canvasGapAdjustedHighlight,
-                posX: left + compensatingOffsetValues.leftOffset,
-                posY: top + compensatingOffsetValues.topOffset,
-              };
-              dispatch(setHighlightsDrawnAction(positionUpdatedHighlightInfo));
-              setHighlightShown(positionUpdatedHighlightInfo);
+              dispatch(setHighlightsDrawnAction(compensatedHighlight));
+              setHighlightShown(compensatedHighlight);
             }
           },
           50,
