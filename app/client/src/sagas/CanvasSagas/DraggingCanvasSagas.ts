@@ -3,6 +3,7 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
@@ -45,12 +46,13 @@ import {
 } from "sagas/selectors";
 import {
   getCanvasWidth,
+  getCurrentApplicationId,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
 
@@ -157,6 +159,8 @@ function* addBuildingBlockAndMoveWidgetsSaga(
     canvasId: string;
   }>,
 ) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const workspaceId: string = yield select(getCurrentApplicationId);
   const dragDetails: DragDetails = yield select(getDragDetails);
   const buildingblockName = dragDetails.newWidget.displayName;
   const skeletonWidgetName = `loading_${buildingblockName
@@ -176,6 +180,11 @@ function* addBuildingBlockAndMoveWidgetsSaga(
         widgetId: MAIN_CONTAINER_WIDGET_ID,
       },
     },
+  });
+  yield call(initiateBuildingBlockDropEvent, {
+    applicationId,
+    workspaceId,
+    buildingblockName,
   });
 
   const skeletonWidget: FlattenedWidgetProps = yield select(

@@ -22,6 +22,11 @@ public class BridgeUpdate implements UpdateDefinition {
         return this;
     }
 
+    public BridgeUpdate pull(@NonNull String key, @NonNull Object value) {
+        update.pull(key, value);
+        return this;
+    }
+
     /**
      * Set the value of the field `key`, to the current value of the field `valueKey`.
      */

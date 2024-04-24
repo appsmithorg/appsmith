@@ -10,12 +10,12 @@ import {
   WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
+import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import {
   getActions,
   getCanvasWidgets,
 } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
-import { flattenDSL } from "@shared/dsl";
 import type { WidgetBlueprint } from "WidgetProvider/constants";
 import {
   BlueprintOperationTypes,
@@ -27,6 +27,7 @@ import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
 import { pasteWidget } from "actions/widgetActions";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
 import {
@@ -38,8 +39,6 @@ import { toast } from "design-system";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import produce from "immer";
 import { klona as clone } from "klona/full";
-import type { CopiedWidgetData } from "layoutSystems/anvil/utils/paste/types";
-import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import { getWidgetMinMaxDimensionsInPixel } from "layoutSystems/autolayout/utils/flexWidgetUtils";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { isFunction } from "lodash";
@@ -67,6 +66,7 @@ import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
+import { saveBuildingBlockWidgetsToStore } from "./BuildingBlocksSagas";
 import { validateResponse } from "./ErrorSagas";
 import { postPageAdditionSaga } from "./TemplatesSagas";
 import {
@@ -81,16 +81,17 @@ import {
   getMousePositionFromCanvasGridPosition,
   getSnappedGrid,
 } from "./WidgetOperationUtils";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 import {
   getDragDetails,
   getWidget,
   getWidgetByName,
   getWidgets,
 } from "./selectors";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
-import { SelectionRequestType } from "./WidgetSelectUtils";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import type { WidgetLayoutPositionInfo } from "layoutSystems/anvil/utils/layouts/widgetPositionUtils";
+
+import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
+import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -551,41 +552,6 @@ function* addBuildingBlockActionsToApp(dragDetails: DragDetails) {
   return response;
 }
 
-function* saveBuildingBlockWidgetsToStore(
-  response: ApiResponse<ImportBuildingBlockToApplicationResponse>,
-) {
-  const buildingBlockDsl = JSON.parse(response.data.widgetDsl);
-  const buildingBlockWidgets = buildingBlockDsl.children;
-  const flattenedBlockWidgets = buildingBlockWidgets.map(
-    (widget: WidgetProps) => flattenDSL(widget),
-  );
-
-  const widgetsToPasteInCanvas: CopiedWidgetData[] = yield all(
-    flattenedBlockWidgets.map((widget: FlattenedWidgetProps, index: number) => {
-      const widgetPositionInfo: WidgetLayoutPositionInfo | null = null;
-      return {
-        hierarchy: getWidgetHierarchy(
-          buildingBlockWidgets[index].type,
-          buildingBlockWidgets[index].widgetId,
-        ),
-        list: Object.values(widget)
-          .map((obj) => ({ ...obj }))
-          .reverse(),
-        parentId: MAIN_CONTAINER_WIDGET_ID,
-        widgetId: buildingBlockWidgets[index].widgetId,
-        widgetPositionInfo,
-      };
-    }),
-  );
-
-  yield saveCopiedWidgets(
-    JSON.stringify({
-      widgets: widgetsToPasteInCanvas,
-      flexLayers: [],
-    }),
-  );
-}
-
 function* getBuildingBlocksDropMousePosition(
   topRow: number,
   leftColumn: number,
@@ -650,9 +616,13 @@ export function* addBuildingBlockToApplication(
   try {
     const dragDetails: DragDetails = yield select(getDragDetails);
     const applicationId: string = yield select(getCurrentApplicationId);
+    const workspaceId: string = yield select(getCurrentWorkspaceId);
     const actionsBeforeAddingBuildingBlock: ActionDataState =
       yield select(getActions);
     const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
+    const buildingBlockDragStartTimestamp: number = yield select(
+      getBuildingBlockDragStartTimestamp,
+    );
 
     // start loading for dragging building blocks
     yield put({
@@ -687,8 +657,10 @@ export function* addBuildingBlockToApplication(
       });
 
       yield put(pasteWidget(false, mousePosition));
+      const timeTakenToDropWidgetsInSeconds =
+        (Date.now() - buildingBlockDragStartTimestamp) / 1000;
       yield call(postPageAdditionSaga, applicationId);
-      // remove selecting of recently imported widgets
+      // remove selecting of recently pasted widgets caused by pasteWidget
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       // stop loading after pasting process is complete
@@ -699,10 +671,34 @@ export function* addBuildingBlockToApplication(
       const actionsAfterAddingBuildingBlocks: ActionDataState =
         yield select(getActions);
 
-      yield runNewlyCreatedActions(
-        actionsBeforeAddingBuildingBlock,
-        actionsAfterAddingBuildingBlocks,
-      );
+      if (
+        response.data.onPageLoadActions &&
+        response.data.onPageLoadActions.length > 0
+      ) {
+        yield runNewlyCreatedActions(
+          actionsBeforeAddingBuildingBlock,
+          actionsAfterAddingBuildingBlocks,
+        );
+      }
+
+      const timeTakenToCompleteInMs = buildingBlockDragStartTimestamp
+        ? Date.now() - buildingBlockDragStartTimestamp
+        : 0;
+      const timeTakenToCompleteInSeconds = timeTakenToCompleteInMs / 1000;
+
+      AnalyticsUtil.logEvent("DROP_BUILDING_BLOCK_COMPLETED", {
+        applicationId,
+        workspaceId,
+        source: "explorer",
+        eventData: {
+          buildingBlockName: dragDetails.newWidget.displayName,
+          timeTakenToCompletion: timeTakenToCompleteInSeconds,
+          timeTakenToDropWidgets: timeTakenToDropWidgetsInSeconds,
+        },
+      });
+      yield put({
+        type: ReduxActionTypes.RESET_BUILDING_BLOCK_DRAG_START_TIME,
+      });
 
       if (existingCopiedWidgets) {
         yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
@@ -725,6 +721,8 @@ export function* addBuildingBlockToApplication(
 }
 
 function* addBuildingBlockSaga(addEntityAction: ReduxAction<WidgetAddChild>) {
+  const applicationId: string = yield select(getCurrentApplicationId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
   const dragDetails: DragDetails = yield select(getDragDetails);
   const buildingblockName = dragDetails.newWidget.displayName;
   const skeletonWidgetName = `loading_${buildingblockName
@@ -743,6 +741,13 @@ function* addBuildingBlockSaga(addEntityAction: ReduxAction<WidgetAddChild>) {
       shouldReplay: false,
     },
   };
+
+  yield call(initiateBuildingBlockDropEvent, {
+    applicationId,
+    workspaceId,
+    buildingblockName,
+  });
+
   yield call(addChildSaga, addSkeletonWidgetAction);
   const skeletonWidget: FlattenedWidgetProps = yield select(
     getWidgetByName,
