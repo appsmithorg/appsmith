@@ -44,5 +44,5 @@ export function sendMessage(
   this: Worker | typeof globalThis,
   message: TMessage<unknown>,
 ) {
-  this.postMessage(message);
+  this.postMessage(JSON.parse(JSON.stringify(message)));
 }
