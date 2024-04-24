@@ -38,7 +38,7 @@ import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
 @RequiredArgsConstructor
-public abstract class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
+public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepositoryCE {
 
     private final ReactiveMongoOperations mongoOperations;
@@ -56,7 +56,8 @@ public abstract class CustomNewActionRepositoryCEImpl extends BaseAppsmithReposi
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId)
-                        .isNull(NewAction.Fields.unpublishedAction_deletedAt))
+                        .isN
+                        .ull(NewAction.Fields.unpublishedAction_deletedAt))
                 .permission(aclPermission.orElse(null))
                 .sort(sort.orElse(null))
                 .all();
