@@ -253,7 +253,7 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
       0,
     );
 
-    propPane.EnterJSContext("onClick", "{{closeModal('Modal1')}}", true, false);
+    propPane.EnterJSContext("onClick", "{{closeModal(Modal1.name)}}", true, false);
     propPane.ToggleJSMode("onClick", false);
 
     agHelper.GetNAssertElementText(
