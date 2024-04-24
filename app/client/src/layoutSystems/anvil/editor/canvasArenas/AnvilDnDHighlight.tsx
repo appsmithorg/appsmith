@@ -57,6 +57,10 @@ export const AnvilDnDHighlight = ({
 
   // Render the highlight element if highlight info is provided
   return highlightShown ? (
-    <AnvilStyledHighlight style={highlightDimensionStyles} zIndex={zIndex} />
+    <AnvilStyledHighlight
+      data-type="anvil-dnd-highlight"
+      style={highlightDimensionStyles}
+      zIndex={zIndex}
+    />
   ) : null; // Otherwise, return null
 };

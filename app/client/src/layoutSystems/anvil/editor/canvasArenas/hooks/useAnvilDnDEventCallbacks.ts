@@ -102,7 +102,6 @@ export const useAnvilDnDEventCallbacks = ({
     throttle(
       () => {
         if (
-          anvilDnDListenerRef.current &&
           canvasIsDragging.current &&
           isCurrentDraggedCanvas &&
           currentSelectedHighlight.current
@@ -140,9 +139,9 @@ export const useAnvilDnDEventCallbacks = ({
 
   const checkForHighlights = useCallback(
     (e: MouseEvent) => {
-      if (canvasIsDragging.current && anvilDnDListenerRef.current) {
+      if (canvasIsDragging.current) {
         {
-          if (!allowToDrop) {
+          if (anvilDnDListenerRef.current && !allowToDrop) {
             // Render disallow message if dropping is not allowed
             renderDisallowOnCanvas(anvilDnDListenerRef.current);
             return;
