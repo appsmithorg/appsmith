@@ -259,7 +259,7 @@ export const updateDependencyMap = ({
   const updateChangedDependenciesStart = performance.now();
 
   if (didUpdateDependencyMap) {
-    DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
+    // DependencyMapUtils.makeParentsDependOnChildren(dependencyMap);
     dataTreeEvalRef.sortedDependencies = dataTreeEvalRef.sortDependencies(
       dependencyMap,
       translatedDiffs,
