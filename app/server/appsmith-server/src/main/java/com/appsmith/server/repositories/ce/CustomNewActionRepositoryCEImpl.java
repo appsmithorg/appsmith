@@ -56,8 +56,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
         return queryBuilder()
                 .criteria(getCriterionForFindByApplicationId(applicationId)
-                        .isN
-                        .ull(NewAction.Fields.unpublishedAction_deletedAt))
+                        .isNull(NewAction.Fields.unpublishedAction_deletedAt))
                 .permission(aclPermission.orElse(null))
                 .sort(sort.orElse(null))
                 .all();
