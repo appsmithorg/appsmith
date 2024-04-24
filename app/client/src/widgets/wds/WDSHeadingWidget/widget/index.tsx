@@ -2,9 +2,7 @@ import { klona as clone } from "klona";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { WDSParagraphWidget } from "widgets/wds/WDSParagraphWidget";
-
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
+import { HeadingIcon, HeadingThumbnail } from "appsmith-icons";
 
 class WDSHeadingWidget extends WDSParagraphWidget {
   static type = "WDS_HEADING_WIDGET";
@@ -14,8 +12,8 @@ class WDSHeadingWidget extends WDSParagraphWidget {
       ...super.getConfig(),
       tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.CONTENT],
       name: "Heading",
-      iconSVG: IconSVG,
-      thumbnailSVG: ThumbnailSVG,
+      iconSVG: HeadingIcon,
+      thumbnailSVG: HeadingThumbnail,
     };
   }
 

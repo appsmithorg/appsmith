@@ -1,12 +1,10 @@
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
-
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { InlineButtonsIcon, InlineButtonsThumbnail } from "appsmith-icons";
 
 export const metaConfig = {
   name: "Inline Buttons",
-  iconSVG: IconSVG,
-  thumbnailSVG: ThumbnailSVG,
+  iconSVG: InlineButtonsIcon,
+  thumbnailSVG: InlineButtonsThumbnail,
   needsMeta: false,
   isCanvas: false,
   searchTags: ["click", "submit"],
