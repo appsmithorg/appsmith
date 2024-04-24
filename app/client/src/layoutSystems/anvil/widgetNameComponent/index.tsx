@@ -49,7 +49,7 @@ const SplitButtonWrapper = styled.div<{
   $disableRightSpan: boolean;
 }>`
   display: inline-flex;
-  border-radius: var(--ads-radius-1);
+  border-radius: var(--ads-on-canvas-ui-border-radius);
   color: var(${(props) => props.$ColorCSSVar});
   fill: var(${(props) => props.$ColorCSSVar});
   stroke: var(${(props) => props.$ColorCSSVar});
@@ -83,10 +83,10 @@ const SplitButtonWrapper = styled.div<{
     outline-offset: -5px;
     ${(props) =>
       props.$disableLeftSpan &&
-      "border-start-start-radius: var(--ads-radius-1); border-end-start-radius: var(--ads-radius-1);"}
+      "border-start-start-radius: var(--ads-on-canvas-ui-border-radius); border-end-start-radius: var(--ads-on-canvas-ui-border-radius);"}
     ${(props) =>
       props.$disableRightSpan &&
-      "border-end-end-radius: var(--ads-radius-1); border-start-end-radius: var(--ads-radius-1);"}
+      "border-end-end-radius: var(--ads-on-canvas-ui-border-radius); border-start-end-radius: var(--ads-on-canvas-ui-border-radius);"}
   }
 
   & span {
@@ -95,9 +95,9 @@ const SplitButtonWrapper = styled.div<{
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-inline-start: var(--ads-radius-1);
-    border-start-start-radius: var(--ads-radius-1);
-    border-end-start-radius: var(--ads-radius-1);
+    border-inline-start: var(--ads-on-canvas-ui-border-radius);
+    border-start-start-radius: var(--ads-on-canvas-ui-border-radius);
+    border-end-start-radius: var(--ads-on-canvas-ui-border-radius);
     background: var(${(props) => props.$BGCSSVar});
     color: var(${(props) => props.$ColorCSSVar});
 
@@ -116,11 +116,11 @@ const SplitButtonWrapper = styled.div<{
   }
 
   & span:nth-of-type(${(props) => (props.$disableLeftSpan ? 1 : 2)}) {
-    border-inline-end: var(--ads-radius-1);
+    border-inline-end: var(--ads-on-canvas-ui-border-radius);
     border-start-start-radius: 0px;
     border-end-start-radius: 0px;
-    border-end-end-radius: var(--ads-radius-1);
-    border-start-end-radius: var(--ads-radius-1);
+    border-end-end-radius: var(--ads-on-canvas-ui-border-radius);
+    border-start-end-radius: var(--ads-on-canvas-ui-border-radius);
   }
 `;
 
@@ -381,9 +381,15 @@ export function useWidgetName(
     }
   }, []);
 
-  const widgetElement = document.querySelector(
+  let widgetElement = document.querySelector(
     "#anvil_widget_" + widgetId,
   ) as HTMLDivElement | null;
+
+  if (!widgetElement) {
+    widgetElement = document.getElementsByClassName(
+      "anvil_widget_" + widgetId,
+    )[0] as HTMLDivElement | null;
+  }
 
   const WidgetsEditorElement = document.getElementById("widgets-editor");
 
