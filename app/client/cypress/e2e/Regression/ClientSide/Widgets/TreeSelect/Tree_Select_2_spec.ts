@@ -248,6 +248,7 @@ describe(
         "onOptionChange",
         "{{navigateTo('www.google.com', {}, 'SAME_WINDOW');}}",
       );
+      propPane.AssertJSToggleState("onOptionChange", "enabled");
       deployMode.DeployApp();
       agHelper.GetNClick(
         `${locators._widgetInDeployed("singleselecttreewidget")}`,
