@@ -12,7 +12,7 @@ async function generateIndex() {
   const entries = await fg("./src/components/**/*.tsx");
 
   entries.map(async (filepath: PathLike) => {
-    fs.readFile(filepath, "utf-8", (err) => {
+    await fs.readFile(filepath, "utf-8", async (err) => {
       if (err) {
         // eslint-disable-next-line no-console
         return console.error(err);
@@ -24,8 +24,8 @@ async function generateIndex() {
       const name = path.basename(filepath as string).replace(".tsx", "");
 
       // Clearing the data in the file
-      fs.writeFile(`./src/index.ts`, "");
-      fs.appendFile(
+      await fs.writeFile(`./src/index.ts`, "");
+      await fs.appendFile(
         `./src/index.ts`,
         createIndexItem(name, dir),
         "utf8",
