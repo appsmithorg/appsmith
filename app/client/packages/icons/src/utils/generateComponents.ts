@@ -13,7 +13,7 @@ async function generateComponents() {
   const entries = await fg("./src/icons/**/*.svg");
 
   entries.map(async (filepath: PathLike) => {
-    fs.readFile(filepath, "utf-8", (err, file) => {
+    await fs.readFile(filepath, "utf-8", async (err, file) => {
       if (err) {
         // eslint-disable-next-line no-console
         return console.error(err);
@@ -31,7 +31,7 @@ async function generateComponents() {
           break;
       }
 
-      fs.writeFile(
+      await fs.writeFile(
         `./src/components/${dir}/${name}.tsx`,
         createReactComponent(name, file),
         "utf8",

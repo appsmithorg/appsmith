@@ -9,13 +9,13 @@ async function optimizeIcons() {
   const entries = await fg("./src/icons/**/*.svg");
 
   entries.map(async (filepath: PathLike) => {
-    fs.readFile(filepath, "utf-8", (err, file) => {
+    await fs.readFile(filepath, "utf-8", async (err, file) => {
       if (err) {
         // eslint-disable-next-line no-console
         return console.error(err);
       }
 
-      fs.writeFile(filepath, optimize(file).data, "utf8", function (err) {
+      await fs.writeFile(filepath, optimize(file).data, "utf8", function (err) {
         // eslint-disable-next-line no-console
         if (err) return console.error(err);
       });
