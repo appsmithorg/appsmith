@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { Flex, List, Text } from "design-system";
 import { useSelector } from "react-redux";
 import {
-  getActions,
   getCurrentPageId,
+  getDatasourceUsageCountForApp,
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
   getPlugins,
@@ -15,7 +15,7 @@ import {
   integrationEditorURL,
 } from "@appsmith/RouteBuilder";
 import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
-import { countBy, keyBy } from "lodash";
+import { keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
 import { useLocation } from "react-router";
 import {
@@ -33,6 +33,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { EmptyState } from "../EditorPane/components/EmptyState";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import type { Selector } from "reselect";
 
 const PaneContainer = styled.div`
   width: 300px;
@@ -55,12 +56,11 @@ const StyledList = styled(List)`
 `;
 
 interface DataSidePaneProps {
-  actionCount?: Record<string, number>;
-  entityName?: string;
+  dsUsageSelector?: Selector<AppState, Record<string, string>>;
 }
 
 const DataSidePane = (props: DataSidePaneProps) => {
-  const { entityName = "queries" } = props;
+  const { dsUsageSelector = getDatasourceUsageCountForApp } = props;
   const editorType = useEditorType(history.location.pathname);
   const pageId = useSelector(getCurrentPageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
@@ -70,9 +70,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
-  const actions = useSelector(getActions);
-  const actionCount =
-    props.actionCount || countBy(actions, "config.datasource.id");
+  const dsUsageMap = useSelector((state) => dsUsageSelector(state, editorType));
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
@@ -142,9 +140,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
                   className: "t--datasource",
                   title: data.name,
                   onClick: () => goToDatasource(data.id),
-                  description: `${
-                    actionCount[data.id] || "No"
-                  } ${entityName} in this ${editorType}`,
+                  description: dsUsageMap[data.id as string],
                   descriptionType: "block",
                   isSelected: currentSelectedDatasource === data.id,
                   startIcon: (

@@ -1,127 +1,49 @@
 import React from "react";
 import "@testing-library/jest-dom";
-import { Provider } from "react-redux";
-import { ThemeProvider } from "styled-components";
-import store from "store";
-import { BrowserRouter as Router } from "react-router-dom";
-import { lightTheme } from "selectors/themeSelectors";
-import { render, screen } from "@testing-library/react";
+import { screen } from "@testing-library/react";
 import DataSidePane from "./DataSidePane";
-import {
-  getActions,
-  getCurrentPageId,
-  getDatasources,
-  getDatasourcesGroupedByPluginCategory,
-  getPlugins,
-} from "@appsmith/selectors/entitiesSelector";
+import { datasourceFactory } from "test/factories/DatasourceFactory";
+import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
+import { PostgresFactory } from "test/factories/Actions/Postgres";
+import type { AppState } from "@appsmith/reducers";
+import { render } from "test/testUtils";
 
-const DEFAULT_PAGE_ID = "page-id";
-const DEFAULT_DATASOURCES = [
-  {
-    id: "66177fc3594faa7345b28dd1",
-    name: "Products",
-    pluginId: "66163a54594faa7345b28cfe",
-    workspaceId: "66163a78594faa7345b28d36",
+const productsDS = datasourceFactory().build({
+  name: "Products",
+  id: "products-ds-id",
+});
+const usersDS = datasourceFactory().build({ name: "Users", id: "users-ds-id" });
+const ordersDS = datasourceFactory().build({
+  name: "Orders",
+  id: "orders-ds-id",
+});
+const usersAction1 = PostgresFactory.build({
+  datasource: {
+    id: usersDS.id,
   },
-  {
-    id: "66163c9f594faa7345b28d4a",
-
-    name: "Users",
-    pluginId: "66163a54594faa7345b28cfe",
-    workspaceId: "66163a78594faa7345b28d36",
+});
+const usersAction2 = PostgresFactory.build({
+  datasource: {
+    id: usersDS.id,
   },
-];
-
-const DEFAULT_GROUPED_DS = {
-  Databases: [
-    {
-      id: "66177fc3594faa7345b28dd1",
-      name: "Products",
-      pluginId: "66163a54594faa7345b28cfe",
-    },
-    {
-      id: "66163c9f594faa7345b28d4a",
-
-      name: "Users",
-      pluginId: "66163a54594faa7345b28cfe",
-    },
-  ],
-};
-
-const DEFAULT_PLUGINS = [
-  {
-    id: "66163a54594faa7345b28cfe",
-    userPermissions: [],
-    name: "PostgreSQL",
-    type: "DB",
-    packageName: "postgres-plugin",
-    iconLocation: "https://assets.appsmith.com/logo/postgresql.svg",
-    documentationLink:
-      "https://docs.appsmith.com/reference/datasources/querying-postgres#create-crud-queries",
-    responseType: "TABLE",
-    uiComponent: "DbEditorForm",
-    datasourceComponent: "AutoForm",
-    generateCRUDPageComponent: "PostgreSQL",
-    allowUserDatasources: true,
-    isRemotePlugin: false,
+});
+const ordersAction1 = PostgresFactory.build({
+  datasource: {
+    id: ordersDS.id,
   },
-];
-
-const DEFAULT_ACTIONS = [
-  {
-    config: {
-      datasource: {
-        id: "66163c9f594faa7345b28d4a",
-      },
-      pageId: "66163a79594faa7345b28d40",
-    },
-  },
-  {
-    config: {
-      id: "6625e0365633023bc8aa95b6",
-      name: "Query2",
-      datasource: {
-        id: "66163c9f594faa7345b28d4a",
-      },
-      pageId: "66163a79594faa7345b28d40",
-    },
-  },
-  {
-    config: {
-      id: "66177fd1594faa7345b28dd6",
-      name: "Api1",
-      datasource: {
-        name: "DEFAULT_REST_DATASOURCE",
-      },
-    },
-  },
-];
-
-jest.mock("@appsmith/selectors/entitiesSelector");
+});
 
 describe("DataSidePane", () => {
-  beforeEach(() => {
-    jest.resetAllMocks();
+  it("renders the ds and count by using the default selector if dsUsageSelector not passed as a props", () => {
+    const state = getIDETestState({
+      actions: [usersAction1, usersAction2, ordersAction1],
+      datasources: [productsDS, usersDS, ordersDS],
+    }) as AppState;
+    render(<DataSidePane />, {
+      url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
+      initialState: state,
+    });
 
-    (getCurrentPageId as jest.Mock).mockReturnValue(DEFAULT_PAGE_ID);
-    (getDatasources as jest.Mock).mockReturnValue(DEFAULT_DATASOURCES);
-    (getPlugins as jest.Mock).mockReturnValue(DEFAULT_PLUGINS);
-    (getActions as jest.Mock).mockReturnValue(DEFAULT_ACTIONS);
-    (
-      getDatasourcesGroupedByPluginCategory as unknown as jest.Mock
-    ).mockReturnValue(DEFAULT_GROUPED_DS);
-  });
-
-  it("renders entityName as 'queries' when it's not passed as prop", () => {
-    render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <Router>
-            <DataSidePane />
-          </Router>
-        </ThemeProvider>
-      </Provider>,
-    );
     expect(screen.getByText("Databases")).toBeInTheDocument();
     expect(screen.getByText("Products")).toBeInTheDocument();
     expect(screen.getByText("Users")).toBeInTheDocument();
@@ -135,50 +57,30 @@ describe("DataSidePane", () => {
       screen.getByText("Products").parentElement?.parentElement;
 
     expect(productsDSParentElement).toHaveTextContent("No queries in this app");
+
+    const ortdersDSParentElement =
+      screen.getByText("Orders").parentElement?.parentElement;
+
+    expect(ortdersDSParentElement).toHaveTextContent("1 queries in this app");
   });
 
-  it("renders entityName correctly when passed as prop", () => {
-    render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <Router>
-            <DataSidePane entityName="testEntity" />
-          </Router>
-        </ThemeProvider>
-      </Provider>,
-    );
-    expect(screen.getByText("Databases")).toBeInTheDocument();
-    expect(screen.getByText("Products")).toBeInTheDocument();
-    expect(screen.getByText("Users")).toBeInTheDocument();
+  it("it uses the selector dsUsageSelector passed as prop", () => {
+    const state = getIDETestState({
+      datasources: [productsDS, usersDS, ordersDS],
+    }) as AppState;
 
-    const usersDSParentElement =
-      screen.getByText("Users").parentElement?.parentElement;
-
-    expect(usersDSParentElement).toHaveTextContent("2 testEntity in this app");
-
-    const productsDSParentElement =
-      screen.getByText("Products").parentElement?.parentElement;
-
-    expect(productsDSParentElement).toHaveTextContent(
-      "No testEntity in this app",
-    );
-  });
-
-  it("renders the count from actionCount when passed as prop", () => {
-    const actionCount = {
-      "66163c9f594faa7345b28d4a": 10, // Users DS
-      "66177fc3594faa7345b28dd1": 20, // Products DS
+    const usageSelector = () => {
+      return {
+        [usersDS.id]: "Rendering description for users",
+        [productsDS.id]: "Rendering description for products",
+      };
     };
 
-    render(
-      <Provider store={store}>
-        <ThemeProvider theme={lightTheme}>
-          <Router>
-            <DataSidePane actionCount={actionCount} entityName="testEntity" />
-          </Router>
-        </ThemeProvider>
-      </Provider>,
-    );
+    render(<DataSidePane dsUsageSelector={usageSelector} />, {
+      url: "app/untitled-application-1/page1/edit/datasource/users-ds-id",
+      initialState: state,
+    });
+
     expect(screen.getByText("Databases")).toBeInTheDocument();
     expect(screen.getByText("Products")).toBeInTheDocument();
     expect(screen.getByText("Users")).toBeInTheDocument();
@@ -186,13 +88,15 @@ describe("DataSidePane", () => {
     const usersDSParentElement =
       screen.getByText("Users").parentElement?.parentElement;
 
-    expect(usersDSParentElement).toHaveTextContent("10 testEntity in this app");
+    expect(usersDSParentElement).toHaveTextContent(
+      "Rendering description for users",
+    );
 
     const productsDSParentElement =
       screen.getByText("Products").parentElement?.parentElement;
 
     expect(productsDSParentElement).toHaveTextContent(
-      "20 testEntity in this app",
+      "Rendering description for products",
     );
   });
 });
