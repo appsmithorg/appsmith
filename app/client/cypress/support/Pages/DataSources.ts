@@ -500,7 +500,7 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].postgres_port.toString(),
     );
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
+    this.agHelper.ClearNType(this._host(), hostAddress);
     this.agHelper.ClearNType(this._databaseName, databaseName);
     cy.get(this._username).type(
       username == ""
@@ -541,7 +541,7 @@ export class DataSources {
     const databaseName = shouldAddTrailingSpaces
       ? this.dataManager.dsValues[environment].oracle_service + "  "
       : this.dataManager.dsValues[environment].oracle_service;
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
+    this.agHelper.ClearNType(this._host(), hostAddress);
     this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].oracle_port.toString(),
@@ -567,7 +567,7 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].mongo_host + "  "
       : this.dataManager.dsValues[environment].mongo_host;
     this.ValidateNSelectDropdown("Connection mode", "Read / Write");
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
+    this.agHelper.ClearNType(this._host(), hostAddress);
     this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].mongo_port.toString(),
@@ -590,7 +590,7 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].mysql_databaseName + "  "
       : this.dataManager.dsValues[environment].mysql_databaseName;
 
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
+    this.agHelper.ClearNType(this._host(), hostAddress);
     this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].mysql_port.toString(),
@@ -609,7 +609,7 @@ export class DataSources {
     environment = this.dataManager.defaultEnviorment,
     leaveDBNameEmpty = true,
   ) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].mssql_host,
     );
@@ -655,7 +655,7 @@ export class DataSources {
   }
 
   public FillArangoDSForm(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].arango_host,
     );
@@ -714,7 +714,7 @@ export class DataSources {
   public FillElasticSearchDSForm(
     environment = this.dataManager.defaultEnviorment,
   ) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].elastic_host,
     );
@@ -783,7 +783,7 @@ export class DataSources {
   }
 
   public FillRedisDSForm(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].redis_host,
     );
