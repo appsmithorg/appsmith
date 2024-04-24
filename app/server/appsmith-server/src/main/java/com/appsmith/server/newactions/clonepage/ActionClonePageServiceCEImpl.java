@@ -33,13 +33,17 @@ public class ActionClonePageServiceCEImpl implements ClonePageServiceCE<NewActio
                     final DefaultResources clonedPageDefaultResources =
                             clonePageMetaDTO.getClonedPageDTO().getDefaultResources();
                     ActionDTO actionDTO = action.getUnpublishedAction();
-                    actionDTO.setDefaultResources(clonedPageDefaultResources);
+                    DefaultResources defaultResources = new DefaultResources();
+                    defaultResources.setPageId(clonedPageDefaultResources.getPageId());
+                    actionDTO.setDefaultResources(defaultResources);
 
                     actionDTO.setPageId(clonePageMetaDTO.getClonedPageDTO().getId());
-                    String clonedActionCollectionId =
-                            clonePageMetaDTO.getOldToNewCollectionIds().get(actionDTO.getCollectionId());
-                    actionDTO.setCollectionId(clonedActionCollectionId);
-                    actionDTO.getDefaultResources().setCollectionId(clonedActionCollectionId);
+                    if (actionDTO.getCollectionId() != null) {
+                        String clonedActionCollectionId =
+                                clonePageMetaDTO.getOldToNewCollectionIds().get(actionDTO.getCollectionId());
+                        actionDTO.setCollectionId(clonedActionCollectionId);
+                        actionDTO.getDefaultResources().setCollectionId(clonedActionCollectionId);
+                    }
                     /*
                      * - Now create the new action from the template of the source action.
                      * - Use CLONE_PAGE context to make sure that page / application clone quirks are
