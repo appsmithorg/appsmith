@@ -4,7 +4,7 @@ import { anvilWidgets } from "widgets/anvil/constants";
 
 export const MOBILE_BREAKPOINT = 480;
 
-export const HIGHLIGHT_SIZE = 4;
+export const HIGHLIGHT_SIZE = 2;
 export const PADDING_FOR_HORIZONTAL_HIGHLIGHT = 2;
 export const DEFAULT_VERTICAL_HIGHLIGHT_HEIGHT = 60;
 export const AlignmentIndexMap: { [key: string]: number } = {
