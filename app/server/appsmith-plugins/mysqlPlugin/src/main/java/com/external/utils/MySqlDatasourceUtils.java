@@ -251,7 +251,7 @@ public class MySqlDatasourceUtils {
         ob = addSslOptionsToBuilder(datasourceConfiguration, ob);
 
         boolean tinyInt1isBit = true;
-        if (datasourceConfiguration.getProperties().size() > 2
+        if (datasourceConfiguration.getProperties() != null && datasourceConfiguration.getProperties().size() > 2
                 && datasourceConfiguration.getProperties().get(2) != null) {
             Object value = datasourceConfiguration.getProperties().get(2).getValue();
             if (value instanceof Boolean) {
