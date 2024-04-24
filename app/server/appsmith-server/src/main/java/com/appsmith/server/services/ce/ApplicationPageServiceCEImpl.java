@@ -641,10 +641,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             return page;
                         }));
 
-        final Flux<ActionCollection> sourceActionCollectionsFlux = getCloneableActionCollections(pageId);
-
-        Flux<NewAction> sourceActionFlux = getCloneableActions(pageId);
-
         return sourcePageMono
                 .flatMap(page -> {
                     clonePageMetaDTO.setBranchedSourcePageId(page.getId());
@@ -703,10 +699,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     protected Mono<Void> clonePageDependentEntities(ClonePageMetaDTO clonePageMetaDTO) {
-        return actionClonePageService
+        return actionCollectionClonePageService
                 .cloneEntities(clonePageMetaDTO)
-                .then(Mono.defer(() -> actionCollectionClonePageService.cloneEntities(clonePageMetaDTO)))
-                .then(Mono.defer(() -> actionCollectionClonePageService.updateClonedEntities(clonePageMetaDTO)));
+                .then(Mono.defer(() -> actionClonePageService.cloneEntities(clonePageMetaDTO)));
     }
 
     protected Mono<PageDTO> updateClonedPageLayout(PageDTO savedPage) {
@@ -1527,8 +1522,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private Mono<Boolean> validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
         Flux<BaseDomain> datasourceFlux = applicationMono
-                .flatMapMany(application ->
-                        newActionRepository.findIdAndDatasourceIdByApplicationIdIn(List.of(application.getId())))
+                .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
+                        List.of(application.getId()),
+                        List.of(NewAction.Fields.id, NewAction.Fields.unpublishedAction_datasource_id)))
                 .collectList()
                 .map(actions -> {
                     return actions.stream()
