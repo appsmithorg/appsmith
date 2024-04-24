@@ -287,6 +287,7 @@ export class ApiPage {
       | "JSON"
       | "FORM_URLENCODED"
       | "MULTIPART_FORM_DATA"
+      | "BINARY"
       | "RAW",
   ) {
     this.agHelper.GetNClick(this._bodySubTab(subTabName));

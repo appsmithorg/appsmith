@@ -40,6 +40,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -49,6 +50,8 @@ import java.util.stream.Collectors;
 public class DataUtils {
 
     public static String FIELD_API_CONTENT_TYPE = "apiContentType";
+
+    public static String BASE64_DELIMITER = ";base64,";
 
     /**
      * this Gson builder has three parameters for creating a gson instances which is required to maintain the JSON as received
@@ -99,6 +102,8 @@ public class DataUtils {
                 return parseMultipartFileData((List<Property>) body);
             case MediaType.TEXT_PLAIN_VALUE:
                 return BodyInserters.fromValue((String) body);
+            case MediaType.APPLICATION_OCTET_STREAM_VALUE:
+                return parseMultimediaData((String) body);
             default:
                 return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
         }
@@ -152,6 +157,17 @@ public class DataUtils {
                     return key + "=" + value;
                 })
                 .collect(Collectors.joining("&"));
+    }
+
+    public BodyInserter<?, ?> parseMultimediaData(String requestBodyObj) {
+        if (requestBodyObj.contains(BASE64_DELIMITER)) {
+            List<String> bodyArrayList = Arrays.asList(requestBodyObj.split(BASE64_DELIMITER));
+            requestBodyObj = bodyArrayList.get(bodyArrayList.size() - 1);
+            byte[] payload = Base64.getMimeDecoder().decode(bodyArrayList.get(bodyArrayList.size() - 1));
+            return BodyInserters.fromValue(payload);
+        }
+
+        return BodyInserters.fromValue(requestBodyObj);
     }
 
     public BodyInserter<?, ?> parseMultipartFileData(List<Property> bodyFormData) {

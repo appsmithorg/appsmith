@@ -141,6 +141,21 @@ function PostBodyData(props: Props) {
             />
           </JSONEditorFieldWrapper>
         );
+      case POST_BODY_FORMAT_OPTIONS.BINARY:
+        return (
+          <JSONEditorFieldWrapper key={key}>
+            <DynamicTextField
+              border={CodeEditorBorder.ALL_SIDE}
+              dataTreePath={`${dataTreePath}.body`}
+              mode={EditorModes.TEXT_WITH_BINDING}
+              name="actionConfiguration.body"
+              placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
+              size={EditorSize.EXTENDED}
+              tabBehaviour={TabBehaviour.INDENT}
+              theme={theme}
+            />
+          </JSONEditorFieldWrapper>
+        );
     }
   };
 
