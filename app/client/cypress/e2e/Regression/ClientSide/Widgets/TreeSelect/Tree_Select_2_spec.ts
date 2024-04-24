@@ -253,7 +253,7 @@ describe(
         `${locators._widgetInDeployed("singleselecttreewidget")}`,
       );
       agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-      agHelper.AssertElementVisibility('[alt="Google"]')
+      agHelper.AssertElementVisibility('[alt="Google"]');
       agHelper.AssertProperty("body", "baseURI", "https://www.google.com/");
       agHelper.BrowserNavigation(-1);
       deployMode.NavigateBacktoEditor();
