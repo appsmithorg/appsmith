@@ -136,19 +136,32 @@ const getZoneCompensators = (
   zoneSpacing: number,
   isElevatedWidget: boolean,
 ) => {
-  const dynamicZoneSpacing = isElevatedWidget ? zoneSpacing : 0;
   const widgetCompensatorValues = {
     left: 0,
     top: 0,
   };
-  const edgeCompensatorValues = {
-    left: dynamicZoneSpacing,
-    top: dynamicZoneSpacing,
-  };
+  const edgeCompensatorValues = isElevatedWidget
+    ? {
+        left: zoneSpacing,
+        top: zoneSpacing,
+      }
+    : {
+        left: 2 * HIGHLIGHT_SIZE,
+        top: 2 * HIGHLIGHT_SIZE,
+      };
+  const layoutCompensatorValues = isElevatedWidget
+    ? {
+        left: zoneSpacing,
+        top: zoneSpacing,
+      }
+    : {
+        left: 0,
+        top: 0,
+      };
   return {
     widgetCompensatorValues,
     edgeCompensatorValues,
-    layoutCompensatorValues: edgeCompensatorValues,
+    layoutCompensatorValues,
   };
 };
 
