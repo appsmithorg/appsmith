@@ -57,16 +57,16 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
 
          */
         return queryBuilder()
-            .criteria((root, cq, cb) -> cb.and(
-                cb.isTrue(cb.function(
-                    "jsonb_path_exists",
-                    Boolean.class,
-                    root.get(PermissionGroup.Fields.assignedToUserIds),
-                    cb.literal("$[*] ? (@ == \"" + userId + "\")"))),
-                cb.equal(root.get(PermissionGroup.Fields.defaultDomainId), workspaceId),
-                cb.equal(root.get(PermissionGroup.Fields.defaultDomainType), Workspace.class.getSimpleName())))
-            .permission(permission)
-            .all();
+                .criteria((root, cq, cb) -> cb.and(
+                        cb.isTrue(cb.function(
+                                "jsonb_path_exists",
+                                Boolean.class,
+                                root.get(PermissionGroup.Fields.assignedToUserIds),
+                                cb.literal("$[*] ? (@ == \"" + userId + "\")"))),
+                        cb.equal(root.get(PermissionGroup.Fields.defaultDomainId), workspaceId),
+                        cb.equal(root.get(PermissionGroup.Fields.defaultDomainType), Workspace.class.getSimpleName())))
+                .permission(permission)
+                .all();
     }
 
     @Override
