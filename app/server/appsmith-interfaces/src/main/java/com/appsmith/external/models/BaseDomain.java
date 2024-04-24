@@ -87,11 +87,6 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
     @JsonView(Views.Internal.class)
     protected Set<Policy> policies = new HashSet<>();
 
-    @Type(CustomJsonType.class)
-    @Column(columnDefinition = "jsonb")
-    @JsonView(Views.Internal.class)
-    protected PolicyMap policyMap;
-
     @Transient
     @JsonView(Views.Public.class)
     public boolean isNew() {
@@ -154,8 +149,6 @@ public abstract class BaseDomain implements Persistable<String>, AppsmithDomain,
             // TODO: Use custom generation strategy instead of this.
             setId(UUID.randomUUID().toString());
         }
-
-        policyMap = PolicyMap.fromPolicies(policies);
     }
 
     public static class Fields {}
