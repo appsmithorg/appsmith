@@ -1527,9 +1527,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
     private Mono<Boolean> validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
         Flux<BaseDomain> datasourceFlux = applicationMono
-                .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
-                        List.of(application.getId()),
-                        List.of(NewAction.Fields.id, NewAction.Fields.unpublishedAction_datasource_id)))
+                .flatMapMany(application ->
+                        newActionRepository.findIdAndDatasourceIdByApplicationIdIn(List.of(application.getId())))
                 .collectList()
                 .map(actions -> {
                     return actions.stream()

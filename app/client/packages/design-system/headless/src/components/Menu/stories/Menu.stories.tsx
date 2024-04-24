@@ -1,6 +1,7 @@
 import React from "react";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Menu, Button, MenuList, Item } from "@design-system/headless";
+import { Menu, MenuList, Item } from "@design-system/headless";
+import { Button } from "react-aria-components";
 
 /**
  * A menu displays a list of actions or options that a user can choose.
