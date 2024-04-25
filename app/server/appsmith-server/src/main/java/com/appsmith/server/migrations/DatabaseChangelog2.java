@@ -4,6 +4,7 @@ import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Datasource;
+import com.appsmith.external.models.GitSyncedDomain;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
@@ -115,7 +116,7 @@ public class DatabaseChangelog2 {
                 ActionCollection.class,
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                GitSyncedDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
@@ -124,7 +125,7 @@ public class DatabaseChangelog2 {
                 NewAction.class,
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                GitSyncedDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
@@ -133,7 +134,7 @@ public class DatabaseChangelog2 {
                 NewPage.class,
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
-                                BaseDomain.Fields.gitSyncId,
+                                GitSyncedDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
     }
