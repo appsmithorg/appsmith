@@ -3031,6 +3031,7 @@ __metadata:
     "@storybook/react-vite": ^8.0.8
     "@storybook/theming": ^8.0.8
     "@vitejs/plugin-react": ^4.2.1
+    appsmith-icons: "workspace:^"
     babel-loader: 9.1.2
     chromatic: ^11.3.0
     colorjs.io: ^0.4.3

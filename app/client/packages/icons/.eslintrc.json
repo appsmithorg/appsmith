@@ -1,4 +1,4 @@
 {
   "extends": ["../../.eslintrc.base.json"],
-  "ignorePatterns": ["icons", "components"]
+  "ignorePatterns": ["icons", "components", "stories"]
 }
