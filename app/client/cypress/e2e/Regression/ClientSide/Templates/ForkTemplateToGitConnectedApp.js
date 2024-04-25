@@ -33,12 +33,8 @@ describe(
 
     it("1.Bug #17002 Forking a template into an existing app which is connected to git makes the application go into a bad state ", function () {
       cy.get(template.startFromTemplateCard).click();
-      cy.wait("@fetchTemplate", { timeout: 30000 }).should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.wait(1000);
+      _.assertHelper.AssertNetworkStatus("fetchTemplate");
+
       cy.get(template.templateDialogBox).should("be.visible");
       cy.get(template.templateCard).first().click();
       cy.get(template.templateViewForkButton).first().click();

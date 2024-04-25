@@ -26,7 +26,7 @@ import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATAS
 @NoArgsConstructor
 @Document
 @FieldNameConstants
-public class DatasourceStorage extends BaseDomain {
+public class DatasourceStorage extends GitSyncedDomain {
 
     @JsonView(Views.Public.class)
     String datasourceId;

@@ -1,6 +1,7 @@
 package com.appsmith.server.imports.importable.artifactbased;
 
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.GitSyncedDomain;
 import com.appsmith.server.domains.Artifact;
 import com.appsmith.server.domains.Context;
 import com.appsmith.server.dtos.ImportingMetaDTO;
@@ -35,11 +36,19 @@ public interface ArtifactBasedImportableServiceCE<T extends BaseDomain, U extend
             MappedImportableResourcesDTO mappedImportableResourcesDTO,
             Map<String, T> entityInCurrentArtifact,
             T entity) {
-        return entityInCurrentArtifact.get(entity.getGitSyncId());
+        if (entity instanceof GitSyncedDomain gitSyncedEntity) {
+            return entityInCurrentArtifact.get(gitSyncedEntity.getGitSyncId());
+        } else {
+            return entity;
+        }
     }
 
     default T getExistingEntityInOtherBranchForImportedEntity(
             MappedImportableResourcesDTO mappedImportableResourcesDTO, Map<String, T> entityInOtherArtifact, T entity) {
-        return entityInOtherArtifact.get(entity.getGitSyncId());
+        if (entity instanceof GitSyncedDomain gitSyncedEntity) {
+            return entityInOtherArtifact.get(gitSyncedEntity.getGitSyncId());
+        } else {
+            return entity;
+        }
     }
 }

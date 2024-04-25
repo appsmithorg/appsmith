@@ -32,7 +32,7 @@ while read -r line
         fi
       fi
     fi
-  done <<< $(supervisorctl status all)
+  done <<< $(supervisorctl status editor rts backend)
 if [ $healthy == true ]; then
   exit 0
 else

@@ -166,22 +166,6 @@ jobs:
       - if: steps.ads_check.outputs.ads_non_compliant_count != 0 && inputs.ads-compliant-check == 'true' && inputs.pr != 0 && github.pull_request.base.ref == 'release'
         run: exit 1
 
-      - name: Install postgres-dependencies
-        run: |
-          sudo apt update -y
-          sudo apt install -y postgresql-client
-
-      # Create a run record exactly at the time of merge to release to
-      # ensure we compare run details with code at this point
-      - name: Create Perf Meta
-        if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'
-        continue-on-error: true
-        run: |
-          PGPASSWORD='${{secrets.APPSMITH_PERFORMANCE_DB_PASSWORD}}' psql -h '${{secrets.APPSMITH_PERFORMANCE_DB_HOST}}' \
-          -U aforce_admin -d perf-infra -c \
-          "INSERT INTO public.run_meta (repo, gh_run_id, gh_run_attempt, is_active)
-          VALUES ('${{github.repository}}', '${{github.run_id}}', '${{github.run_attempt}}', FALSE)"
-
       # In case this is second attempt try restoring status of the prior attempt from cache
       - name: Restore the previous run result
         if: steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule'

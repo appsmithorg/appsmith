@@ -5,8 +5,8 @@ import {
   PopoverTrigger,
   PopoverContent,
   PopoverModalContent,
-  Button,
 } from "@design-system/headless";
+import { Button } from "react-aria-components";
 import { ControlledPopover as ControlledPopoverExample } from "./ControlledPopover";
 
 /**

@@ -4,8 +4,8 @@ import {
   TooltipRoot,
   TooltipTrigger,
   TooltipContent,
-  Button,
 } from "@design-system/headless";
+import { Button } from "react-aria-components";
 
 /**
  * A tooltip is a small pop-up that appears when a user places their cursor over an element such as a link or button. Tooltips can be used to provide users with additional information about an element without having to clutter up the UI with additional text.
