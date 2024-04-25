@@ -126,13 +126,14 @@ export function* updateDataTreeHandler(
     evalTreeResponse: EvalTreeResponseData;
     unevalTree: UnEvalTree;
     requiresLogging: boolean;
+    configTree: any;
   },
   postEvalActions?: Array<AnyReduxAction>,
 ) {
-  const { evalTreeResponse, requiresLogging, unevalTree } = data;
+  const { configTree, evalTreeResponse, requiresLogging, unevalTree } = data;
   const postEvalActionsToDispatch: Array<AnyReduxAction> =
     postEvalActions || [];
-  const { configTree } = yield select(getUnevaluatedDataTree);
+
   const {
     dependencies,
     errors,
@@ -285,7 +286,12 @@ export function* evaluateTreeSaga(
 
   yield call(
     updateDataTreeHandler,
-    { evalTreeResponse: workerResponse, unevalTree, requiresLogging },
+    {
+      evalTreeResponse: workerResponse,
+      unevalTree,
+      configTree: unEvalAndConfigTree.configTree,
+      requiresLogging,
+    },
     postEvalActions,
   );
 }
