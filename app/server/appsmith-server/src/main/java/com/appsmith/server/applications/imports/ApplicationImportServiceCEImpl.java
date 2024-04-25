@@ -310,8 +310,10 @@ public class ApplicationImportServiceCEImpl
         }
 
         if (applicationJson.getCustomJSLibList() != null) {
-            List<CustomJSLib> importedCustomJSLibList =
-                    applicationJson.getCustomJSLibList().stream().collect(Collectors.toList());
+            List<CustomJSLib> importedCustomJSLibList = applicationJson.getCustomJSLibList().stream()
+                    .peek(customJSLib -> customJSLib.setGitSyncId(
+                            null)) // setting this null so that this custom js lib can be imported again
+                    .collect(Collectors.toList());
             applicationJson.setCustomJSLibList(importedCustomJSLibList);
         }
     }
