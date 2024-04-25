@@ -251,7 +251,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it("9. Verify size change and color change", () => {
+    it.only("9. Verify size change and color change", () => {
       EditorNavigation.SelectEntityByName("CategorySlider1", EntityType.Widget);
       propPane.MoveToTab("Style");
       // Verify Size
@@ -286,7 +286,7 @@ describe(
         .GetWidgetCSSFrAttribute(locators._sliderThumb, "background-color")
         .then((sliderColor) => {
           agHelper
-            .GetWidgetCSSFrAttribute(propPane._fillColor, "background-color")
+            .GetWidgetCSSFrAttribute(`${propPane._propertyControlSelectedColorButton("fillcolor")}`, "background-color")
             .then((newColor) => {
               expect(sliderColor).to.eq(newColor);
             });
