@@ -244,7 +244,7 @@ describe(
         ["Form1"],
       );
       propPane.ToggleJSMode("onOptionChange", true);
-      propPane.VerifyJSToggleActive("onOptionChange");
+      propPane.ToggleJS("onOptionChange");
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         "{{navigateTo('www.google.com', {}, 'NEW_WINDOW');}}",
