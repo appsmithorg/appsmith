@@ -2,7 +2,6 @@ import React from "react";
 import type { ControlProps } from "./BaseControl";
 import BaseControl from "./BaseControl";
 import { generateReactKey } from "utils/generators";
-import { getNextEntityName } from "utils/AppsmithUtils";
 import orderBy from "lodash/orderBy";
 import isString from "lodash/isString";
 import isUndefined from "lodash/isUndefined";
@@ -178,17 +177,13 @@ class ButtonListControl extends BaseControl<
     let groupButtons = this.props.propertyValue;
     const groupButtonsArray = this.getMenuItems();
     const newGroupButtonId = generateReactKey({ prefix: "groupButton" });
-    const newGroupButtonLabel = getNextEntityName(
-      "Group Button ",
-      groupButtonsArray.map((groupButton: any) => groupButton.label),
-    );
 
     groupButtons = {
       ...groupButtons,
       [newGroupButtonId]: {
         id: newGroupButtonId,
         index: groupButtonsArray.length,
-        label: isSeparator ? "Separator" : newGroupButtonLabel,
+        label: isSeparator ? "Separator" : "Do Something",
         widgetId: generateReactKey(),
         isDisabled: false,
         itemType: isSeparator ? "SEPARATOR" : "BUTTON",
