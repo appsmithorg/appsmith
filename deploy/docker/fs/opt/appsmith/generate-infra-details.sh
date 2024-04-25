@@ -55,7 +55,7 @@ check_for_efs
 get_current_time
 
 
-infra_json='{"cloudProvider":"'"$cloud_provider"'","tool":"'"$dep_tool"'","EFS":"'"$efs"'","hostname":"'"$hostname"'", "currentTime": "'"$currentTime"'"}'
+infra_json='{"cloudProvider":"'"$cloud_provider"'","tool":"'"$dep_tool"'","efs":"'"$efs"'","hostname":"'"$hostname"'", "currentTime": "'"$currentTime"'"}'
 echo "$infra_json"
 
 echo $infra_json > $infra_file
