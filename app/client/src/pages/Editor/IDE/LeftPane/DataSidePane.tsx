@@ -15,7 +15,7 @@ import {
   integrationEditorURL,
 } from "@appsmith/RouteBuilder";
 import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
-import { keyBy } from "lodash";
+import { get, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
 import { useLocation } from "react-router";
 import {
@@ -33,7 +33,6 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { EmptyState } from "../EditorPane/components/EmptyState";
 import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
-import type { Selector } from "reselect";
 
 const PaneContainer = styled.div`
   width: 300px;
@@ -56,7 +55,7 @@ const StyledList = styled(List)`
 `;
 
 interface DataSidePaneProps {
-  dsUsageSelector?: Selector<AppState, Record<string, string>>;
+  dsUsageSelector?: (...args: any[]) => Record<string, string>;
 }
 
 const DataSidePane = (props: DataSidePaneProps) => {
@@ -140,7 +139,7 @@ const DataSidePane = (props: DataSidePaneProps) => {
                   className: "t--datasource",
                   title: data.name,
                   onClick: () => goToDatasource(data.id),
-                  description: dsUsageMap[data.id as string],
+                  description: get(dsUsageMap, data.id, ""),
                   descriptionType: "block",
                   isSelected: currentSelectedDatasource === data.id,
                   startIcon: (
