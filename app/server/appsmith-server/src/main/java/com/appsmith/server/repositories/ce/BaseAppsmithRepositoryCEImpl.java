@@ -94,6 +94,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @Autowired
     private CacheableRepositoryHelper cacheableRepositoryHelper;
 
+    private static final ObjectMapper objectMapper = new ObjectMapper();
+
     public static final int NO_RECORD_LIMIT = -1;
 
     public static final int NO_SKIP = 0;
@@ -280,7 +282,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                             root.get(PermissionGroup.Fields.policies),
                                             cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
                                                     + String.join(" || ", conditions) + ")))"),
-                                            cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
+                                            cb.literal(objectMapper.writeValueAsString(fnVars)))));
                         } catch (JsonProcessingException e) {
                             // This should never happen, were serializing a Map<String, String>, which ideally should
                             // never fail.
@@ -358,7 +360,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                             root.get(PermissionGroup.Fields.policies),
                                             cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
                                                     + String.join(" || ", conditions) + ")))"),
-                                            cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
+                                            cb.literal(objectMapper.writeValueAsString(fnVars)))));
                         } catch (JsonProcessingException e) {
                             // This should never happen, were serializing a Map<String, String>, which ideally should
                             // never fail.
@@ -415,7 +417,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                             root.get(PermissionGroup.Fields.policies),
                                             cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
                                                     + String.join(" || ", conditions) + ")))"),
-                                            cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
+                                            cb.literal(objectMapper.writeValueAsString(fnVars)))));
                         } catch (JsonProcessingException e) {
                             // This should never happen, were serializing a Map<String, String>, which ideally should
                             // never fail.
@@ -519,7 +521,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                 root.get(PermissionGroup.Fields.policies),
                                 cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
                                         + String.join(" || ", conditions) + ")))"),
-                                cb.literal(new ObjectMapper().writeValueAsString(fnVars)))));
+                                cb.literal(objectMapper.writeValueAsString(fnVars)))));
             } catch (JsonProcessingException e) {
                 // This should never happen, were serializing a Map<String, String>, which ideally should
                 // never fail.
@@ -540,10 +542,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         // Without it, we see a compile error.
                         cu.<Object>set(
                                 root.get(key),
-                                cb.function(
-                                        "json",
-                                        Object.class,
-                                        cb.literal(new ObjectMapper().writeValueAsString(value))));
+                                cb.function("json", Object.class, cb.literal(objectMapper.writeValueAsString(value))));
                     } catch (JsonProcessingException e) {
                         throw new RuntimeException(e);
                     }
@@ -563,6 +562,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     private boolean isJsonColumn(Class<?> cls, String fieldName) {
         Field field = null;
 
+        // If the field is nested, then check if the first part of the field is a json column.
+        if (fieldName.contains(".")) {
+            fieldName = fieldName.split("\\.")[0];
+        }
         while (!Object.class.equals(cls)) {
             try {
                 field = cls.getDeclaredField(fieldName);
