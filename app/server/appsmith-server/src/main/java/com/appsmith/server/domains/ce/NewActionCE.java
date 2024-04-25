@@ -13,6 +13,7 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
+import org.springframework.util.StringUtils;
 
 import static com.appsmith.external.helpers.StringUtils.dotted;
 
@@ -44,6 +45,16 @@ public class NewActionCE extends BranchAwareDomain {
 
     @JsonView(Views.Public.class)
     ActionDTO publishedAction;
+
+    @Override
+    public String getDefaultId() {
+        if (this.getDefaultResources() != null
+                && StringUtils.hasLength(this.getDefaultResources().getActionId())) {
+            return this.getDefaultResources().getActionId();
+        } else {
+            return super.getDefaultId();
+        }
+    }
 
     @Override
     public void sanitiseToExportDBObject() {
