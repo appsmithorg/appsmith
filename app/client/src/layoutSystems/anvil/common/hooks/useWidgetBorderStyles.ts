@@ -14,8 +14,7 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
   const highlightShown = useSelector(getAnvilHighlightShown);
-  const showDraggedOnBorder =
-    highlightShown && highlightShown.canvasId === widgetId;
+
   const isFocused = useSelector(isWidgetFocused(widgetId));
   const isSelected = useSelector(isWidgetSelected(widgetId));
   const onCanvasUI = WidgetFactory.getConfig(widgetType)?.onCanvasUI;
@@ -34,15 +33,23 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
     return {};
   }
 
+  const showDraggedOnBorder =
+    (highlightShown && highlightShown.canvasId === widgetId) ||
+    (isDistributingSpace && isSelected);
+
   let borderColor = "transparent";
   let borderWidth = "2px";
-  if (isFocused || showDraggedOnBorder) {
+  if (isFocused) {
     borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
     borderWidth = "1px";
   }
   if (isSelected) {
     borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
     borderWidth = "2px";
+  }
+  if (showDraggedOnBorder) {
+    borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
+    borderWidth = "1px";
   }
   if (showError) {
     borderColor = `var(--ads-widget-error)`;

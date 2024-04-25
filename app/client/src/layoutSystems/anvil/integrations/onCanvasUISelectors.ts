@@ -4,6 +4,7 @@ import { createSelector } from "reselect";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getIsDragging, getIsResizing } from "selectors/widgetDragSelectors";
 import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
+import { getAnvilHighlightShown } from "./selectors";
 
 export const getIsEditorOpen = createSelector(
   combinedPreviewModeSelector,
@@ -18,21 +19,27 @@ export function shouldSelectOrFocus(widgetId: string) {
     getIsEditorOpen,
     getIsDragging,
     getIsResizing,
+    getAnvilHighlightShown,
     isWidgetSelected(widgetId),
     isWidgetFocused(widgetId),
     (
       isEditorOpen,
       isDragging,
       isResizing,
+      highlightShown,
       isWidgetSelected,
       isWidgetFocused,
     ) => {
       const baseCondition = isEditorOpen && !isDragging && !isResizing;
+      let onCanvasUIState: "none" | "select" | "focus" = "none";
       if (baseCondition) {
-        if (isWidgetSelected) return "select";
-        if (isWidgetFocused) return "focus";
+        if (isWidgetSelected) onCanvasUIState = "select";
+        if (isWidgetFocused && !isWidgetSelected) onCanvasUIState = "focus";
       }
-      return "none";
+      if (highlightShown && highlightShown.canvasId === widgetId) {
+        onCanvasUIState = "focus";
+      }
+      return onCanvasUIState;
     },
   );
 }
