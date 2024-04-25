@@ -513,6 +513,9 @@ public class PartialImportServiceTest {
                                     .getLayouts()
                                     .get(0)
                                     .getDsl());
+                    BuildingBlockResponseDTO1.getOnPageLoadActions().forEach(action -> {
+                        assertThat(action.getName()).isIn("updateProductVariant1", "getProducts1", "updateProduct1");
+                    });
                 })
                 .verifyComplete();
     }

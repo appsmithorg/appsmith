@@ -478,6 +478,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                                                         .getUnpublishedCollection()
                                                                         .getName())) {
                                                             dslExecutableDTO.setId(actionCollection.getId());
+                                                            dslExecutableDTO.setCollectionId(actionCollection.getId());
                                                         }
                                                     });
                                         }
