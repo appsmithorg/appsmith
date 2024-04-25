@@ -24,7 +24,5 @@ describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
     deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     cy.url().should("include", "google.com");
-    // go back to appsmith
-    //cy.go(-1);
   });
 });
