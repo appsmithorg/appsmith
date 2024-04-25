@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationPage;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
@@ -31,6 +32,7 @@ import java.util.Set;
 
 import static com.appsmith.server.helpers.ReactorUtils.asFlux;
 import static com.appsmith.server.helpers.ReactorUtils.asMonoDirect;
+import static java.lang.Boolean.TRUE;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -281,15 +283,26 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
+    @Transactional
     public int unprotectAllBranches(String applicationId, AclPermission permission) {
-        String isProtectedFieldPath = Application.Fields.gitApplicationMetadata_isProtectedBranch;
 
-        BridgeUpdate unsetProtected = Bridge.update().set(isProtectedFieldPath, false);
-
-        return queryBuilder()
-                .criteria(Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId))
+        // TODO : This is a temporary solution to unprotect all branches. Replace with a better solution once the field
+        //  level updates are possible for jsonb column.
+        List<Application> applicationList = queryBuilder()
+                .criteria(Bridge.equal(Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId)
+                        .isTrue(Application.Fields.gitApplicationMetadata_isProtectedBranch))
                 .permission(permission)
-                .updateAll(unsetProtected);
+                .all();
+        applicationList.forEach(application -> {
+            GitArtifactMetadata metadata = application.getGitApplicationMetadata();
+            if (metadata != null) {
+                metadata.setIsProtectedBranch(false);
+                queryBuilder()
+                        .criteria(Bridge.equal(Application.Fields.id, application.getId()))
+                        .updateFirst(Bridge.update().set(Application.Fields.gitApplicationMetadata, metadata));
+            }
+        });
+        return applicationList.size();
     }
 
     /**
@@ -300,14 +313,27 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
      * @return Mono<Void>
      */
     @Override
+    @Transactional
     public int protectBranchedApplications(String applicationId, List<String> branchNames, AclPermission permission) {
         final BridgeQuery<Application> q = Bridge.<Application>equal(
                         Application.Fields.gitApplicationMetadata_defaultApplicationId, applicationId)
                 .in(Application.Fields.gitApplicationMetadata_branchName, branchNames);
 
-        BridgeUpdate setProtected =
-                Bridge.update().set(Application.Fields.gitApplicationMetadata_isProtectedBranch, true);
-
-        return queryBuilder().criteria(q).permission(permission).updateAll(setProtected);
+        // TODO : This is a temporary solution to unprotect all branches. Replace with a better solution once the field
+        //  level updates are possible for jsonb column.
+        List<Application> applicationList =
+                queryBuilder().criteria(q).permission(permission).all();
+        int count = 0;
+        for (Application application : applicationList) {
+            GitArtifactMetadata metadata = application.getGitApplicationMetadata();
+            if (metadata != null && !TRUE.equals(metadata.getIsProtectedBranch())) {
+                metadata.setIsProtectedBranch(true);
+                queryBuilder()
+                        .criteria(Bridge.equal(Application.Fields.id, application.getId()))
+                        .updateFirst(Bridge.update().set(Application.Fields.gitApplicationMetadata, metadata));
+                count++;
+            }
+        }
+        return count;
     }
 }
