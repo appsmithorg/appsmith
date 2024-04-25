@@ -13,10 +13,27 @@ import {
 } from "constants/routes";
 import ListWidgets from "./List";
 import AddWidgets from "./Add";
+import { useSelector } from "react-redux";
+import { getPagePermissions } from "selectors/editorSelectors";
+import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 
 const UISegment = () => {
   const { path } = useRouteMatch();
   const [focusSearchInput, setFocusSearchInput] = React.useState(false);
+
+  const pagePermissions = useSelector(getPagePermissions);
+  const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
+
+  const canManagePages = getHasManagePagePermission(
+    isFeatureEnabled,
+    pagePermissions,
+  );
+
+  if (!canManagePages) {
+    return <ListWidgets setFocusSearchInput={setFocusSearchInput} />;
+  }
 
   return (
     <Flex
