@@ -509,7 +509,7 @@ export class DataSources {
         ? this.dataManager.dsValues[environment].postgres_username
         : username,
     );
-    
+
     this.agHelper.ClearNType(
       this._password,
       password == ""
@@ -550,10 +550,7 @@ export class DataSources {
       this._port,
       this.dataManager.dsValues[environment].oracle_port.toString(),
     );
-    this.agHelper.ClearNType(
-      this._databaseName,
-      databaseName,
-    );
+    this.agHelper.ClearNType(this._databaseName, databaseName);
     this.agHelper.ClearNType(
       this._username,
       username == ""
@@ -804,14 +801,8 @@ export class DataSources {
   }
 
   public FillS3DSForm() {
-    this.agHelper.ClearNType(
-      this._username,
-      Cypress.env("S3_ACCESS_KEY"),
-    );
-    this.agHelper.ClearNType(
-      this._password,
-      Cypress.env("S3_SECRET_KEY"),
-    );
+    this.agHelper.ClearNType(this._username, Cypress.env("S3_ACCESS_KEY"));
+    this.agHelper.ClearNType(this._password, Cypress.env("S3_SECRET_KEY"));
   }
 
   public FillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
@@ -1512,7 +1503,7 @@ export class DataSources {
       "No",
       "Yes",
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this.locator._inputFieldByName("Connection string URI") + "//input",
       this.dataManager.mongo_uri(environment),
     );

@@ -31,16 +31,16 @@ describe(
         dataSources.TestDatasource(false);
         agHelper.ValidateToastMessage("Missing database name.");
         agHelper.WaitUntilAllToastsDisappear();
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._host(),
           dataManager.dsValues[dataManager.defaultEnviorment].postgres_host,
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._databaseName,
           dataManager.dsValues[dataManager.defaultEnviorment]
             .postgres_databaseName,
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._username,
           dataManager.dsValues[dataManager.defaultEnviorment].postgres_username,
         );
@@ -58,7 +58,7 @@ describe(
           "Disable",
         ]);
         dataSources.ValidateNSelectDropdown("SSL mode", "Default", "Disable");
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._password,
           dataManager.dsValues[dataManager.defaultEnviorment].postgres_password,
         );
@@ -88,16 +88,16 @@ describe(
         dataSources.TestDatasource(false);
         agHelper.ValidateToastMessage("Missing database name.");
         agHelper.WaitUntilAllToastsDisappear();
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._host(),
           dataManager.dsValues[dataManager.defaultEnviorment].mysql_host,
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._databaseName,
           dataManager.dsValues[dataManager.defaultEnviorment]
             .mysql_databaseName,
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._username,
           dataManager.dsValues[dataManager.defaultEnviorment].mysql_username,
         );
@@ -111,7 +111,7 @@ describe(
           "Disabled",
         ]);
         dataSources.ValidateNSelectDropdown("SSL mode", "Default", "Required");
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._password,
           dataManager.dsValues[dataManager.defaultEnviorment].mysql_password,
         );
@@ -147,7 +147,7 @@ describe(
         agHelper.ValidateToastMessage(
           "'Mongo Connection string URI' field is empty. Please edit the 'Mongo Connection URI' field to provide a connection uri to connect with.",
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           locators._inputFieldByName("Connection string URI") + "//input",
           dataManager.mongo_uri(dataManager.defaultEnviorment),
         );
@@ -171,11 +171,11 @@ describe(
         agHelper.ValidateToastMessage(
           "REPLICA_SET connections should not be given a port. If you are trying to specify all the shards, please add more than one.",
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._host(),
           dataManager.dsValues[dataManager.defaultEnviorment].mongo_host,
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._port,
           dataManager.dsValues[
             dataManager.defaultEnviorment

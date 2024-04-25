@@ -259,15 +259,15 @@ describe(
         agHelper.ClearTextField(dataSources._databaseName);
         dataSources.TestDatasource(false);
         agHelper.WaitUntilAllToastsDisappear();
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._host(),
           dataManager.dsValues[dataManager.defaultEnviorment].mssql_host,
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._username,
           dataManager.dsValues[dataManager.defaultEnviorment].mssql_username,
         );
-        agHelper.UpdateInputValue(
+        agHelper.ClearNType(
           dataSources._password,
           dataManager.dsValues[dataManager.defaultEnviorment].mssql_password,
         );

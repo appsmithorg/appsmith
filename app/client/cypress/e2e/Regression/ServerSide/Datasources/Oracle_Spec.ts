@@ -55,7 +55,7 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     agHelper.AssertAttribute(dataSources._password, "placeholder", "password");
     agHelper.AssertElementLength(dataSources._mandatoryMark, 4); //verifyng all 4 fields are mandatory
     agHelper.AssertText(dataSources._host(), "val", "");
-    agHelper.UpdateInputValue(
+    agHelper.ClearNType(
       dataSources._host(),
       dataManager.dsValues[dataManager.environments[1]].oracle_host,
     );
@@ -82,11 +82,11 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     agHelper.ValidateToastMessage("Missing authentication details");
     agHelper.WaitUntilAllToastsDisappear();
 
-    agHelper.UpdateInputValue(
+    agHelper.ClearNType(
       dataSources._host(),
       dataManager.dsValues[dataManager.defaultEnviorment].oracle_host,
     );
-    agHelper.UpdateInputValue(
+    agHelper.ClearNType(
       dataSources._databaseName,
       dataManager.dsValues[dataManager.defaultEnviorment].oracle_service,
     );
@@ -94,11 +94,11 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     agHelper.ValidateToastMessage("Missing username for authentication");
     agHelper.ValidateToastMessage("Missing password for authentication");
 
-    agHelper.UpdateInputValue(
+    agHelper.ClearNType(
       dataSources._username,
       dataManager.dsValues[dataManager.defaultEnviorment].oracle_username,
     );
-    agHelper.UpdateInputValue(
+    agHelper.ClearNType(
       dataSources._password,
       dataManager.dsValues[dataManager.defaultEnviorment].oracle_password,
     );
