@@ -1,8 +1,10 @@
 import { getWidgetSelector } from "../../../../locators/WidgetLocators";
+import { locators } from "../../../../support/Objects/ObjectsCore";
 import * as _ from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+const commonlocators = require("../../../../locators/commonlocators.json");
 
 describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
   before(() => {
@@ -94,7 +96,7 @@ describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
       });
   });
 
-  it.only("6. Bug 27978 Check assignment should not get overridden by evaluation", () => {
+  it("6. Bug 27978 Check assignment should not get overridden by evaluation", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 400, 400);
     _.propPane.TypeTextIntoField(
       "Text",
@@ -128,7 +130,7 @@ describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
-    _.agHelper.GetNAssertContains('.rc-select-selection-item', "getData");
+    _.agHelper.GetNAssertContains(locators._selectionItem, "getData");
     _.jsEditor.SelectFunctionDropdown("myFun1");
     _.jsEditor.RunJSObj();
     EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
