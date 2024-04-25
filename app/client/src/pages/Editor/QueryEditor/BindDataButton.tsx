@@ -28,7 +28,7 @@ import { getWidgets } from "sagas/selectors";
 import type { FlattenedWidgetProps } from "reducers/entityReducers/canvasWidgetsStructureReducer";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
 import { getNextWidgetName } from "sagas/WidgetOperationUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { addSuggestedWidget } from "actions/widgetActions";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
@@ -44,6 +44,7 @@ import { bindDataOnCanvas } from "actions/pluginActionActions";
 import { bindDataToWidget } from "actions/propertyPaneActions";
 import { useParams } from "react-router";
 import styled from "styled-components";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 interface BindDataButtonProps {
   suggestedWidgets?: SuggestedWidget[];
@@ -262,9 +263,9 @@ function BindDataButton(props: BindDataButtonProps) {
 
   const pages = useSelector(getPageList);
 
-  const isWDSEnabled = useFeatureFlag(FEATURE_FLAG.ab_wds_enabled);
+  const isAnvilLayout = useSelector(getIsAnvilLayout);
   const filteredSuggestedWidgets =
-    isWDSEnabled && suggestedWidgets
+    isAnvilLayout && suggestedWidgets
       ? suggestedWidgets.filter((each) =>
           Object.keys(WDS_V2_WIDGET_MAP).includes(each.type),
         )

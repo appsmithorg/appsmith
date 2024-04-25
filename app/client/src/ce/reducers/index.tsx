@@ -80,6 +80,7 @@ import type { LayoutElementPositionsReduxState } from "layoutSystems/anvil/integ
 import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
+import type { BuildingBlocksReduxState } from "reducers/uiReducers/buildingBlockReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -104,6 +105,7 @@ export interface AppState {
     apiPane: ApiPaneReduxState;
     auth: AuthState;
     templates: TemplatesReduxState;
+    buildingBlocks: BuildingBlocksReduxState;
     workspaces: WorkspaceReduxState;
     selectedWorkspace: SelectedWorkspaceReduxState;
     users: UsersReduxState;

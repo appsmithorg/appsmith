@@ -16,7 +16,6 @@ import JSEditor from "pages/Editor/JSEditor";
 import AddJS from "pages/Editor/IDE/EditorPane/JS/Add";
 import { ADD_PATH } from "@appsmith/constants/routes/appRoutes";
 import ListJS from "pages/Editor/IDE/EditorPane/JS/List";
-import { BlankStateContainer } from "pages/Editor/IDE/EditorPane/JS/BlankStateContainer";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import history from "utils/history";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -57,6 +56,18 @@ export const useJSAdd = () => {
   ]);
 };
 
+export const useIsJSAddLoading = () => {
+  const moduleCreationOptions = useModuleOptions();
+  const jsModuleCreationOptions = moduleCreationOptions.filter(
+    (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
+  );
+  const { isCreating } = useSelector((state) => state.ui.jsPane);
+  if (jsModuleCreationOptions.length === 0) {
+    return isCreating;
+  }
+  return false;
+};
+
 export const useGroupedAddJsOperations = (): GroupedAddOperations => {
   return [
     {
@@ -93,7 +104,7 @@ export const useJSSegmentRoutes = (path: string): UseRoutes => {
       },
       {
         key: "JSEmpty",
-        component: BlankStateContainer,
+        component: ListJS,
         exact: true,
         path: [path],
       },

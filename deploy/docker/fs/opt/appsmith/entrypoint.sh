@@ -458,11 +458,16 @@ function setup_auto_heal(){
    fi
 }
 
+print_appsmith_info(){
+  tr '\n' ' ' < /opt/appsmith/info.json
+}
+
 function capture_infra_details(){
   bash /opt/appsmith/generate-infra-details.sh || true
 }
 
 # Main Section
+print_appsmith_info
 init_loading_pages
 init_env_file
 setup_proxy_variables

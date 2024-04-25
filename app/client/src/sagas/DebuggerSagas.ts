@@ -1,4 +1,7 @@
-import type { LogDebuggerErrorAnalyticsPayload } from "actions/debuggerActions";
+import type {
+  DeleteErrorLogPayload,
+  LogDebuggerErrorAnalyticsPayload,
+} from "actions/debuggerActions";
 import {
   addErrorLogs,
   debuggerLog,
@@ -40,7 +43,9 @@ import { getConfigTree } from "selectors/dataTreeSelectors";
 import { createLogTitleString } from "components/editorComponents/Debugger/helpers";
 import AppsmithConsole from "utils/AppsmithConsole";
 import { getWidget } from "./selectors";
-import AnalyticsUtil, { AnalyticsEventType } from "utils/AnalyticsUtil";
+import AnalyticsUtil, {
+  AnalyticsEventType,
+} from "@appsmith/utils/AnalyticsUtil";
 import type { Plugin } from "api/PluginApi";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -49,6 +54,10 @@ import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutio
 import { isWidget } from "@appsmith/workers/Evaluation/evaluationUtils";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 import { getActiveEditorField } from "selectors/activeEditorFieldSelectors";
+import {
+  transformAddErrorLogsSaga,
+  transformDeleteErrorLogsSaga,
+} from "@appsmith/sagas/helpers";
 
 let blockedSource: string | null = null;
 
@@ -400,7 +409,10 @@ function* logDebuggerErrorAnalyticsSaga(
 }
 
 function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
-  const errorLogs = action.payload;
+  const errorLogs: Log[] = yield call(
+    transformAddErrorLogsSaga,
+    action.payload,
+  );
   const currentDebuggerErrors: Record<string, Log> =
     yield select(getDebuggerErrors);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);
@@ -538,9 +550,12 @@ function* addDebuggerErrorLogsSaga(action: ReduxAction<Log[]>) {
 }
 
 function* deleteDebuggerErrorLogsSaga(
-  action: ReduxAction<{ id: string; analytics: Log["analytics"] }[]>,
+  action: ReduxAction<DeleteErrorLogPayload>,
 ) {
-  const { payload } = action;
+  const payload: DeleteErrorLogPayload = yield call(
+    transformDeleteErrorLogsSaga,
+    action.payload,
+  );
   const currentDebuggerErrors: Record<string, Log> =
     yield select(getDebuggerErrors);
   const appMode: ReturnType<typeof getAppMode> = yield select(getAppMode);

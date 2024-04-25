@@ -103,7 +103,7 @@ import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
 import { evalErrorHandler } from "./EvalErrorHandler";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
@@ -262,6 +262,8 @@ export function* evaluateTreeSaga(
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
 
+  const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
+
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
@@ -273,6 +275,7 @@ export function* evaluateTreeSaga(
     metaWidgets,
     appMode,
     widgetsMeta,
+    shouldRespondWithLogs,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(

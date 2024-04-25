@@ -3,7 +3,7 @@ import type {
   StringsFromNavigationSetting,
 } from "constants/AppConstants";
 import { keysOfNavigationSetting } from "constants/AppConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   APP_NAVIGATION_SETTING,
   createMessage,

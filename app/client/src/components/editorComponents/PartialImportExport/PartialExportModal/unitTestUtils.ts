@@ -3361,7 +3361,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -6803,7 +6803,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -7214,7 +7214,7 @@ export const defaultAppState = {
           actionUiConfig: {
             editor: [
               {
-                label: "Commands",
+                label: "Command",
                 description: "Select the method to run",
                 configProperty: "actionConfiguration.formData.command",
                 controlType: "DROP_DOWN",
@@ -9183,7 +9183,7 @@ export const defaultAppState = {
             identifier: "SELECTOR",
             children: [
               {
-                label: "Commands",
+                label: "Command",
                 description:
                   "Choose method you would like to use to query the database",
                 configProperty: "actionConfiguration.formData.command.data",
@@ -11118,8 +11118,10 @@ export const defaultAppState = {
         isFetchingAllUsers: false,
       },
       partialImportExport: {
+        isExportModalOpen: false,
         isExporting: false,
         isExportDone: false,
+        isImportModalOpen: false,
         isImporting: false,
         isImportDone: false,
       },
@@ -12751,7 +12753,6 @@ export const defaultAppState = {
           release_appnavigationlogoupload_enabled: false,
           release_embed_hide_share_settings_enabled: false,
           ab_gsheet_schema_enabled: true,
-          ab_wds_enabled: false,
           release_table_serverside_filtering_enabled: false,
           release_custom_echarts_enabled: false,
           license_branding_enabled: false,
@@ -12772,7 +12773,6 @@ export const defaultAppState = {
           release_show_new_sidebar_announcement_enabled: false,
           rollout_app_sidebar_enabled: false,
           release_show_partial_import_export_enabled: true,
-          release_show_new_sidebar_pages_pane_enabled: false,
           ab_one_click_learning_popover_enabled: false,
           release_side_by_side_ide_enabled: false,
           release_global_add_pane_enabled: false,

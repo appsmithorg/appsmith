@@ -16,7 +16,7 @@ import { setIsGitSyncModalOpen } from "actions/gitSyncActions";
 import { GitSyncModalTab } from "entities/GitSync";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import Statusbar from "pages/Editor/gitSync/components/Statusbar";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 import { Icon, Modal, ModalContent, ModalHeader, Text } from "design-system";
 import useMessages from "@appsmith/hooks/importModal/useMessages";
@@ -256,8 +256,8 @@ function ImportModal(props: ImportModalProps) {
             {toEditor
               ? null
               : isImporting
-              ? createMessage(UPLOADING_JSON)
-              : mainDescription}
+                ? createMessage(UPLOADING_JSON)
+                : mainDescription}
           </Text>
         </TextWrapper>
         {!isImporting && (

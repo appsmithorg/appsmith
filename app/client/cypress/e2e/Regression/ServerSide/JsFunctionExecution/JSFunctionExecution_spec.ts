@@ -367,12 +367,12 @@ describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
                 isMarkedAsync ? "async" : ""
               } ()=>"${functionName}",`
             : i === functionsLength - 1
-            ? `
+              ? `
             ${functionName}: ${
               isMarkedAsync ? "async" : ""
             } ()=>"${functionName}",
           }`
-            : `
+              : `
             ${functionName}: ${
               isMarkedAsync ? "async" : ""
             } ()=> "${functionName}",`;
@@ -411,12 +411,6 @@ describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
 
     agHelper.RefreshPage();
     agHelper.Sleep(2000); //for confirmatiom modal to appear before clicking on "Yes" button for CI runs
-    // click "Yes" button for all onPageload && ConfirmExecute functions
-    for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
-      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
-      jsEditor.ConfirmationClick("Yes");
-      agHelper.Sleep(2000);
-    }
     // Switch to settings tab and assert order
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);
@@ -461,12 +455,7 @@ describe("JS Function Execution", { tags: ["@tag.JS"] }, function () {
     agHelper.Sleep();
     agHelper.WaitUntilAllToastsDisappear();
     agHelper.Sleep();
-    // click "Yes" button for all onPageload && ConfirmExecute functions
-    for (let i = 0; i <= onPageLoadAndConfirmExecuteFunctionsLength - 1; i++) {
-      //agHelper.AssertElementPresence(jsEditor._dialog("Confirmation Dialog")); // Not working in edit mode
-      jsEditor.ConfirmationClick("Yes");
-      agHelper.Sleep(2000); //for current pop up to close & next to appear!
-    }
+
     EditorNavigation.SelectEntityByName(jsObj, EntityType.JSObject);
     agHelper.GetNClick(jsEditor._settingsTab);
     assertAsyncFunctionsOrder(FUNCTIONS_SETTINGS_DEFAULT_DATA);

@@ -1,0 +1,122 @@
+{
+  "responseMeta": {
+    "status": 200,
+    "success": true
+  },
+  "data": {
+    "pageWithMigratedDsl": {
+      "responseMeta": {
+        "status": 200,
+        "success": true
+      },
+      "data": {
+        "id": "661c28791c2412092c170119",
+        "name": "Page1",
+        "slug": "page1",
+        "applicationId": "661c28791c2412092c170116",
+        "layouts": [
+          {
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 4896,
+              "snapColumns": 64,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 380,
+              "containerStyle": "none",
+              "snapRows": 124,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 89,
+              "minHeight": 1292,
+              "dynamicTriggerPathList": [],
+              "parentColumnSpace": 1,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": [
+                {
+                  "needsErrorInfo": false,
+                  "mobileBottomRow": 12,
+                  "widgetName": "Text1",
+                  "displayName": "Text",
+                  "iconSVG": "/static/media/icon.a55b701a2ae86aa2c6718ecb7b4083f0.svg",
+                  "searchTags": ["typography", "paragraph", "label"],
+                  "topRow": 8,
+                  "bottomRow": 12,
+                  "parentRowSpace": 10,
+                  "type": "TEXT_WIDGET",
+                  "hideCard": false,
+                  "mobileRightColumn": 15,
+                  "animateLoading": true,
+                  "overflow": "NONE",
+                  "fontFamily": "{{appsmith.theme.fontFamily.appFont}}",
+                  "parentColumnSpace": 16.390625,
+                  "dynamicTriggerPathList": [],
+                  "leftColumn": 0,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "truncateButtonColor"
+                    },
+                    {
+                      "key": "fontFamily"
+                    },
+                    {
+                      "key": "borderRadius"
+                    }
+                  ],
+                  "shouldTruncate": false,
+                  "truncateButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "text": "",
+                  "key": "bz2lkn7wbc",
+                  "isDeprecated": false,
+                  "rightColumn": 15,
+                  "thumbnailSVG": "/static/media/thumbnail.0c129b82c9b3e4cd4920563b289659ab.svg",
+                  "textAlign": "LEFT",
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "widgetId": "xv30fhgoz3",
+                  "minWidth": 450,
+                  "isVisible": true,
+                  "fontStyle": "BOLD",
+                  "textColor": "#231F20",
+                  "version": 1,
+                  "parentId": "0",
+                  "tags": ["Suggested", "Content"],
+                  "renderMode": "CANVAS",
+                  "isLoading": false,
+                  "mobileTopRow": 8,
+                  "responsiveBehavior": "fill",
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "mobileLeftColumn": 0,
+                  "maxDynamicHeight": 9000,
+                  "fontSize": "1rem",
+                  "minDynamicHeight": 4
+                }
+              ]
+            },
+            "layoutOnLoadActions": [],
+            "layoutOnLoadActionErrors": [],
+            "id": "661c28791c2412092c170117",
+            "userPermissions": []
+          }
+        ],
+        "userPermissions": [
+          "create:moduleInstancesInPage",
+          "read:pages",
+          "manage:pages",
+          "create:pageActions",
+          "delete:pages"
+        ],
+        "lastUpdatedTime": 1713194519,
+        "defaultResources": {
+          "applicationId": "661c28791c2412092c170116",
+          "pageId": "661c28791c2412092c170119"
+        }
+      },
+      "errorDisplay": ""
+    }
+  },
+  "errorDisplay": ""
+}

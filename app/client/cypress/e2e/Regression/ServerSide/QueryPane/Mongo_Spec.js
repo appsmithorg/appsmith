@@ -288,7 +288,7 @@ describe(
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "ListingAndReviews",
         action: "Delete",
-        entityType: entityItems.Datasource,
+        entityType: entityItems.Page,
       });
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     });
@@ -488,7 +488,7 @@ describe(
       });
 
       // //Update document - All matching documents
-      // cy.validateNSelectDropdown("Commands", "Find document(s)", "Update document(s)");
+      // cy.validateNSelectDropdown("Command", "Find document(s)", "Update document(s)");
       // cy.typeValueNValidate("{_id: {$gte:2}}", "Query");
       // cy.typeValueNValidate("{$set:{ 'Frõ': 'InActive'}}", "Update");
       // cy.validateNSelectDropdown("Limit", "Single document", "All matching documents");
@@ -498,7 +498,7 @@ describe(
       // });
 
       // //Verify Updation Successful:
-      // cy.validateNSelectDropdown("Commands", "Update document(s)", "Find document(s)");
+      // cy.validateNSelectDropdown("Command", "Update document(s)", "Find document(s)");
       // cy.runQuery()
       // cy.wait("@postExecute").then(({ response }) => {
       //   expect(response.body.data.body[0].Frõ).to.eq('InActive');

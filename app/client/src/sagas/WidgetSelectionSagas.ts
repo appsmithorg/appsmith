@@ -56,11 +56,10 @@ import {
   getWidgets,
 } from "./selectors";
 import { getModalWidgetType } from "selectors/widgetSelectors";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getWidgetSelectorByWidgetId } from "selectors/layoutSystemSelectors";
 import { getAppViewerPageIdFromPath } from "@appsmith/pages/Editor/Explorer/helpers";
-import AnalyticsUtil from "../utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 // The following is computed to be used in the entity explorer
 // Every time a widget is selected, we need to expand widget entities
@@ -328,8 +327,8 @@ function* openOrCloseModalSaga(action: ReduxAction<{ widgetIds: string[] }>) {
       modalWidgetToOpen = widgetAncestry[indexOfParentModalWidget];
     }
   }
-  const featureFlags: FeatureFlags = yield select(selectFeatureFlags);
-  if (featureFlags.ab_wds_enabled) {
+  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+  if (isAnvilLayout) {
     // If widget is modal and modal is already open, skip opening it
     const modalProps = allWidgets[modalWidgetToOpen];
     const metaProps: Record<string, unknown> = yield select(

@@ -41,7 +41,7 @@ import {
   getIsAutoLayout,
   getIsAutoLayoutMobileBreakPoint,
 } from "selectors/editorSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { convertToString } from "utils/AppsmithUtils";
 import type {
   BatchUpdateDynamicPropertyUpdates,
@@ -188,6 +188,7 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { addSuggestedWidgetAnvilAction } from "layoutSystems/anvil/integrations/actions/draggingActions";
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import { shouldShowSlashCommandMenu } from "components/editorComponents/CodeEditor/codeEditorUtils";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export function* resizeSaga(resizeAction: ReduxAction<WidgetResize>) {
   try {
@@ -1141,14 +1142,14 @@ export function calculateNewWidgetPosition(
       !isThereACollision && shouldGroup
         ? widget.topRow
         : parentBottomRow
-        ? nextAvailableRow + widget.topRow
-        : nextAvailableRow,
+          ? nextAvailableRow + widget.topRow
+          : nextAvailableRow,
     bottomRow:
       !isThereACollision && shouldGroup
         ? widget.bottomRow
         : parentBottomRow
-        ? nextAvailableRow + widget.bottomRow
-        : nextAvailableRow + (widget.bottomRow - widget.topRow),
+          ? nextAvailableRow + widget.bottomRow
+          : nextAvailableRow + (widget.bottomRow - widget.topRow),
   };
 }
 
@@ -2192,8 +2193,8 @@ function* widgetBatchUpdatePropertySaga() {
 }
 
 function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
-  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
-  if (layoutSystemType !== LayoutSystemTypes.ANVIL) {
+  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+  if (!isAnvilLayout) {
     yield call(saga, action);
   }
 }

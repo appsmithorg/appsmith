@@ -12,7 +12,7 @@ import {
   ReplayReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { WidgetOperation } from "widgets/BaseWidget";
 import type {
   FetchPageRequest,

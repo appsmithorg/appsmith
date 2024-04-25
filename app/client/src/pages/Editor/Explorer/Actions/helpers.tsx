@@ -1,5 +1,5 @@
 import type { ReactNode } from "react";
-import React, { useMemo } from "react";
+import React from "react";
 import {
   dbQueryIcon,
   ApiMethodIcon,
@@ -14,11 +14,6 @@ import {
 import { generateReactKey } from "utils/generators";
 
 import type { Plugin } from "api/PluginApi";
-import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
-import { groupBy } from "lodash";
-import type { ActionData } from "@appsmith/reducers/entityReducers/actionsReducer";
-import { getNextEntityName } from "utils/AppsmithUtils";
 import {
   apiEditorIdURL,
   queryEditorIdURL,
@@ -126,37 +121,6 @@ export const ACTION_PLUGIN_MAP: Array<ActionGroupConfig | undefined> = [
 ];
 
 export const getActionConfig = (type: PluginType) =>
-  ACTION_PLUGIN_MAP.find(
-    (configByType: ActionGroupConfig | undefined) =>
-      configByType?.types.includes(type),
+  ACTION_PLUGIN_MAP.find((configByType: ActionGroupConfig | undefined) =>
+    configByType?.types.includes(type),
   );
-
-export const useNewActionName = () => {
-  // This takes into consideration only the current page widgets
-  // If we're moving to a different page, there could be a widget
-  // with the same name as the generated API name
-  // TODO: Figure out how to handle this scenario
-  const actions = useSelector((state: AppState) => state.entities.actions);
-  const groupedActions = useMemo(() => {
-    return groupBy(actions, "config.pageId");
-  }, [actions]);
-  return (
-    name: string,
-    destinationPageId: string,
-    isCopyOperation?: boolean,
-  ) => {
-    const pageActions = groupedActions[destinationPageId];
-    // Get action names of the destination page only
-    const actionNames = pageActions
-      ? pageActions.map((action: ActionData) => action.config.name)
-      : [];
-
-    return actionNames.indexOf(name) > -1
-      ? getNextEntityName(
-          isCopyOperation ? `${name}Copy` : name,
-          actionNames,
-          true,
-        )
-      : name;
-  };
-};
