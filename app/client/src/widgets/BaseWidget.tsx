@@ -556,11 +556,13 @@ export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
   displayName: string;
-  icon: (() => JSX.Element) | string;
-  thumbnail?: (() => JSX.Element) | string;
+  icon: string;
+  thumbnail?: string;
   isBeta?: boolean;
   tags?: WidgetTags[];
   isSearchWildcard?: boolean;
+  IconCmp?: () => JSX.Element;
+  ThumbnailCmp?: () => JSX.Element;
 }
 
 export const WidgetOperations = {

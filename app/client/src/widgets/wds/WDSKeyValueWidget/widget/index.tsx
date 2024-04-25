@@ -8,8 +8,6 @@ class WDSKeyValueWidget extends WDSInputWidget {
     return {
       ...super.getConfig(),
       name: "KeyValue",
-      iconSVG: KeyValueIcon,
-      thumbnailSVG: KeyValueThumbnail,
     };
   }
 
@@ -18,6 +16,14 @@ class WDSKeyValueWidget extends WDSInputWidget {
       ...super.getDefaults(),
       isReadOnly: true,
       widgetName: "KeyValue",
+    };
+  }
+
+  static getMethods() {
+    return {
+      ...super.getMethods(),
+      IconCmp: KeyValueIcon,
+      ThumbnailCmp: KeyValueThumbnail,
     };
   }
 }

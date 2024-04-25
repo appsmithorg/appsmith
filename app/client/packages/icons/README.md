@@ -4,9 +4,15 @@ We automatically import icons from Figma, optimise and prepare some of them for 
 
 ## How to use?
 
-To update the icons, you only need to run the **generate-icons** script — `yarn run generate-icons`.
+To update the icons, you only need to run the **generate-icons** script — `yarn run build`.
 
 To make everything work right, you just need to set [Figma token](https://www.figma.com/developers/api#authentication) (press **Get personal access token**) in the `.env` file. It's easy to create `.env` file, just copy `.env.example`.
+
+```typescript
+import { ButtonIcon } from "appsmith-icons";
+
+<ButtonIcon />
+```
 
 ## Used packages
 

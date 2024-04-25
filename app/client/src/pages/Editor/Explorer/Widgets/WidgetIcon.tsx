@@ -11,13 +11,12 @@ function WidgetIcon(props: {
 }) {
   const { height = ENTITY_ICON_SIZE, type, width = ENTITY_ICON_SIZE } = props;
 
-  const Svg = useWidgetConfig(type, "iconSVG");
+  const svg = useWidgetConfig(type, "iconSVG");
 
-  if (Svg) {
+  if (svg) {
     return (
       <IconWrapper height={height} width={width}>
-        {typeof Svg === "string" && <img src={Svg} />}
-        {typeof Svg !== "string" && React.isValidElement(<Svg />) && <Svg />}
+        <img src={svg} />
       </IconWrapper>
     );
   }

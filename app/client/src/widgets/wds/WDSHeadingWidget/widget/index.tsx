@@ -12,8 +12,6 @@ class WDSHeadingWidget extends WDSParagraphWidget {
       ...super.getConfig(),
       tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.CONTENT],
       name: "Heading",
-      iconSVG: HeadingIcon,
-      thumbnailSVG: HeadingThumbnail,
     };
   }
 
@@ -23,6 +21,14 @@ class WDSHeadingWidget extends WDSParagraphWidget {
       fontSize: "heading",
       widgetName: "Heading",
       text: "Header",
+    };
+  }
+
+  static getMethods() {
+    return {
+      ...super.getMethods(),
+      IconCmp: HeadingIcon,
+      ThumbnailCmp: HeadingThumbnail,
     };
   }
 
