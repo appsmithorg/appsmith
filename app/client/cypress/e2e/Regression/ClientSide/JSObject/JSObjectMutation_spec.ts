@@ -94,7 +94,7 @@ describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
       });
   });
 
-  it("6. Bug 27978 Check assignment should not get overridden by evaluation", () => {
+  it.only("6. Bug 27978 Check assignment should not get overridden by evaluation", () => {
     _.entityExplorer.DragDropWidgetNVerify(_.draggableWidgets.TEXT, 400, 400);
     _.propPane.TypeTextIntoField(
       "Text",
@@ -128,6 +128,7 @@ describe("JSObject testing", { tags: ["@tag.JS"] }, () => {
       toRun: false,
       shouldCreateNewJSObj: true,
     });
+    _.agHelper.GetNAssertContains('.rc-select-selection-item', "getData");
     _.jsEditor.SelectFunctionDropdown("myFun1");
     _.jsEditor.RunJSObj();
     EditorNavigation.SelectEntityByName("Text2", EntityType.Widget);
