@@ -15,7 +15,7 @@ export const PluginIDs: Record<PluginPackageName, string> = {
   [PluginPackageName.APPSMITH_AI]: "65e58fe2225bee69e71c536a",
   [PluginPackageName.MS_SQL]: "65e58df296506a506bd706a5",
   [PluginPackageName.ORACLE]: "65e58df396506a506bd706bf",
-  [PluginPackageName.WORKFLOW]: "65e58df396506a506bd706bf",
+  [PluginPackageName.WORKFLOW]: "<replace-me-with-default-plugin-id>", // this is added for the typing of PluginIDs to pass
 };
 
 export default {
