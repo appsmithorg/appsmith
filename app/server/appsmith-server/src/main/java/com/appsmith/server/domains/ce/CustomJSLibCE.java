@@ -1,17 +1,20 @@
 package com.appsmith.server.domains.ce;
 
+import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
+import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.FieldNameConstants;
+import org.hibernate.annotations.Type;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,16 +37,20 @@ public class CustomJSLibCE extends BranchAwareDomain {
      * JS library
      */
     @JsonView({Views.Public.class, Git.class})
+    @Column(columnDefinition="text")
     String uidString;
 
     /**
      * These are the namespaces under which the library functions reside. User would access lib methods like
      * `accessor.method`
      */
+    @Type(CustomJsonType.class)
+    @Column(columnDefinition = "jsonb")
     @JsonView({Views.Public.class, Git.class})
     Set<String> accessor;
 
     /* Library UMD src url */
+    @Column(columnDefinition="text")
     @JsonView({Views.Public.class, Git.class})
     String url;
 
@@ -57,6 +64,7 @@ public class CustomJSLibCE extends BranchAwareDomain {
 
     /* `Tern` tool definitions - it defines the methods exposed by the library. It helps us with auto-complete
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
+    @Column(columnDefinition="text")
     @JsonView({Views.Public.class, Git.class})
     String defs;
 
