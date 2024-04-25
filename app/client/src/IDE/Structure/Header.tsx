@@ -1,6 +1,6 @@
 import React from "react";
 import { Divider, Flex } from "design-system";
-import { AppsmithLink } from "pages/Editor/AppsmithLink";
+import { AppsmithLink } from "../../pages/Editor/AppsmithLink";
 
 interface Props {
   left: React.ReactNode;

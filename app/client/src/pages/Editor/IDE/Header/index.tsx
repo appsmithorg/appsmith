@@ -72,11 +72,10 @@ import { viewerURL } from "@appsmith/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
-import { DefaultTitle } from "./DeaultTitle";
 import { EditorState } from "@appsmith/entities/IDE/constants";
 import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
 import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import { IDEHeader } from "IDE";
+import { IDEHeader, IDEHeaderTitle } from "IDE";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -95,7 +94,7 @@ const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
   switch (appState) {
     case EditorState.DATA:
       return (
-        <DefaultTitle
+        <IDEHeaderTitle
           key={appState}
           title={createMessage(HEADER_TITLES.DATA)}
         />
@@ -104,14 +103,14 @@ const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
       return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
     case EditorState.SETTINGS:
       return (
-        <DefaultTitle
+        <IDEHeaderTitle
           key={appState}
           title={createMessage(HEADER_TITLES.SETTINGS)}
         />
       );
     case EditorState.LIBRARIES:
       return (
-        <DefaultTitle
+        <IDEHeaderTitle
           key={appState}
           title={createMessage(HEADER_TITLES.LIBRARIES)}
         />
