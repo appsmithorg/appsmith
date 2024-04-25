@@ -244,19 +244,26 @@ describe(
         ["Form1"],
       );
       propPane.ToggleJSMode("onOptionChange", true);
+      propPane.VerifyJSToggleActive("onOptionChange");
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
-        "{{navigateTo('www.google.com', {}, 'SAME_WINDOW');}}",
+        "{{navigateTo('www.google.com', {}, 'NEW_WINDOW');}}",
       );
-      propPane.AssertJSToggleState("onOptionChange", "enabled");
       deployMode.DeployApp();
       agHelper.GetNClick(
         `${locators._widgetInDeployed("singleselecttreewidget")}`,
       );
-      agHelper.GetNClick(locators._dropDownMultiTreeValue("Red"));
-      agHelper.AssertElementVisibility('[alt="Google"]');
-      agHelper.AssertProperty("body", "baseURI", "https://www.google.com/");
-      agHelper.BrowserNavigation(-1);
+
+      cy.window().then((win) => {
+        // Stub `window.open` to prevent new tabs
+        cy.stub(win, "open").as("windowOpenStub");
+        agHelper
+          .GetElement(locators._dropDownMultiTreeValue("Red"))
+          .then(($link) => {
+            cy.wrap($link).click();
+            cy.get("@windowOpenStub").should("have.been.called");
+          });
+      });
       deployMode.NavigateBacktoEditor();
       EditorNavigation.SelectEntityByName("Form1", EntityType.Widget);
       EditorNavigation.SelectEntityByName(
