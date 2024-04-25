@@ -216,9 +216,23 @@ class ButtonListControl extends BaseControl<
       };
     }
 
-    // if the widget is a WDS_INLINE_BUTTONS_WIDGET, and button already have filled button variant in groupButtons,
-    // then we should add a secondary button ( outlined button ) instead of simple button
     if (this.props.widgetProperties.type === "WDS_INLINE_BUTTONS_WIDGET") {
+      // if buttonVariant and buttonColor values ar present in session storage, then we should use those values
+      const buttonVariantSessionValue = sessionStorage.getItem(
+        "WDS_INLINE_BUTTONS_WIDGET.buttonVariant",
+      );
+      const buttonColorSessionValue = sessionStorage.getItem(
+        "WDS_INLINE_BUTTONS_WIDGET.buttonColor",
+      );
+
+      groupButtons[newGroupButtonId] = {
+        ...groupButtons[newGroupButtonId],
+        buttonVariant: buttonVariantSessionValue || "filled",
+        buttonColor: buttonColorSessionValue || "accent",
+      };
+
+      // if the widget is a WDS_INLINE_BUTTONS_WIDGET, and button already have filled button variant in groupButtons,
+      // then we should add a secondary button ( outlined button ) instead of simple button
       const filledButtonVariant = groupButtonsArray.find(
         (groupButton: any) => groupButton.buttonVariant === "filled",
       );
@@ -226,7 +240,7 @@ class ButtonListControl extends BaseControl<
       if (filledButtonVariant) {
         groupButtons[newGroupButtonId] = {
           ...groupButtons[newGroupButtonId],
-          buttonVariant: "outlined",
+          buttonVariant: buttonVariantSessionValue || "outlined",
         };
       }
     }
