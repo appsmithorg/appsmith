@@ -1,4 +1,4 @@
-import type { ButtonProps as HeadlessButtonProps } from "@design-system/headless";
+import type { ButtonProps as HeadlessButtonProps } from "react-aria-components";
 
 import type { IconProps } from "../../Icon";
 import type { COLORS, SIZES } from "../../../shared";
@@ -31,8 +31,6 @@ export interface ButtonProps extends HeadlessButtonProps {
    * @default accent
    */
   iconPosition?: keyof typeof BUTTON_ICON_POSITIONS;
-  /** Makes the button visually and functionaly disabled but focusable */
-  visuallyDisabled?: boolean;
   /** Indicates the loading text that will be used by screen readers
    * when the button is in loading state
    * @default Loading...

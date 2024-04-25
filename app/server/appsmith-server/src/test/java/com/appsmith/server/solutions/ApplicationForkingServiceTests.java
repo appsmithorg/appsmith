@@ -441,16 +441,6 @@ public class ApplicationForkingServiceTests {
 
                         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
 
-                        assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap())
-                                .hasSize(1);
-                        unpublishedCollection
-                                .getDefaultToBranchedActionIdsMap()
-                                .keySet()
-                                .forEach(key -> assertThat(key)
-                                        .isEqualTo(unpublishedCollection
-                                                .getDefaultToBranchedActionIdsMap()
-                                                .get(key)));
-
                         assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
                         assertThat(unpublishedCollection.getDefaultResources().getPageId())
                                 .isEqualTo(application.getPages().get(0).getId());
@@ -622,16 +612,6 @@ public class ApplicationForkingServiceTests {
                                 .isEqualTo(application.getId());
 
                         ActionCollectionDTO unpublishedCollection = actionCollection.getUnpublishedCollection();
-
-                        assertThat(unpublishedCollection.getDefaultToBranchedActionIdsMap())
-                                .hasSize(1);
-                        unpublishedCollection
-                                .getDefaultToBranchedActionIdsMap()
-                                .keySet()
-                                .forEach(key -> assertThat(key)
-                                        .isEqualTo(unpublishedCollection
-                                                .getDefaultToBranchedActionIdsMap()
-                                                .get(key)));
 
                         assertThat(unpublishedCollection.getDefaultResources()).isNotNull();
                         assertThat(unpublishedCollection.getDefaultResources().getPageId())

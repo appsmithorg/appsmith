@@ -63,7 +63,7 @@ const SplitScreenTabs = () => {
   };
 
   // TODO: Remove this once release_ide_tabs_revamp_enabled is lifted
-  const Content = () => {
+  const renderContent = () => {
     if (isTabsRevampEnabled) {
       return (
         <>
@@ -96,11 +96,7 @@ const SplitScreenTabs = () => {
 
   return (
     <>
-      {files.length > 0 ? (
-        <Container>
-          <Content />
-        </Container>
-      ) : null}
+      {files.length > 0 ? <Container>{renderContent()}</Container> : null}
       <Announcement />
     </>
   );
