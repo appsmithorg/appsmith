@@ -30,6 +30,7 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
                 configService,
                 userUtils,
                 projectProperties,
+                deploymentProperties,
                 userDataRepository);
     }
 }

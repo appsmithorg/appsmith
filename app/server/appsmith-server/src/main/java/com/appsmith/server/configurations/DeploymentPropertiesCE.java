@@ -19,7 +19,7 @@ public class DeploymentPropertiesCE {
     private String tool;
     private String efs;
     private String hostname;
-    private String currentTime;
+    private String deployedAt;
 
     public String getEdition() {
         return "CE";
@@ -36,7 +36,7 @@ public class DeploymentPropertiesCE {
                 tool = deploymentInfo.getTool();
                 efs = deploymentInfo.getEfs();
                 hostname = deploymentInfo.getHostname();
-                currentTime = deploymentInfo.getCurrentTime();
+                deployedAt = deploymentInfo.getCurrentTime();
             }
         } catch (IOException e) {
             log.debug("Error reading deployment properties from {} {}", INFO_JSON_PATH, e.getMessage());

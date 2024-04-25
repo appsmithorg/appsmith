@@ -67,15 +67,6 @@ public class ServerApplication {
         String version = projectProperties.getVersion();
         String commitId = projectProperties.getCommitSha();
         log.info("Application started with build version {}, and commitSha {}", version, commitId);
-        // To delete
-        log.info(
-                "Deployment properties : {}, {}, {}, {}, {}, {}",
-                deploymentProperties.getCloudProvider(),
-                deploymentProperties.getEdition(),
-                deploymentProperties.getEfs(),
-                deploymentProperties.getTool(),
-                deploymentProperties.getHostname(),
-                deploymentProperties.getCurrentTime());
     }
 
     @Bean
