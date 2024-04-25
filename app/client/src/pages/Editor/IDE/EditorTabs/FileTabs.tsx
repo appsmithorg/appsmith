@@ -53,7 +53,12 @@ const FileTabs = (props: Props) => {
                 y: "hidden",
               },
             }
-          : {}
+          : {
+              overflow: {
+                x: "hidden",
+                y: "hidden",
+              },
+            }
       }
       size={"sm"}
     >
