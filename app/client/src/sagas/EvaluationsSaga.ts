@@ -84,7 +84,11 @@ import {
   getAllJSActionsData,
 } from "@appsmith/selectors/entitiesSelector";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
-import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
+import type {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
 import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
@@ -126,7 +130,7 @@ export function* updateDataTreeHandler(
     evalTreeResponse: EvalTreeResponseData;
     unevalTree: UnEvalTree;
     requiresLogging: boolean;
-    configTree: any;
+    configTree: ConfigTree;
   },
   postEvalActions?: Array<AnyReduxAction>,
 ) {
