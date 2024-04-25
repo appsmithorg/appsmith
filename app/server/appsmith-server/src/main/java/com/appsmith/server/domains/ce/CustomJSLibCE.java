@@ -37,7 +37,7 @@ public class CustomJSLibCE extends BranchAwareDomain {
      * JS library
      */
     @JsonView({Views.Public.class, Git.class})
-    @Column(columnDefinition="text")
+    @Column(columnDefinition = "text")
     String uidString;
 
     /**
@@ -50,7 +50,7 @@ public class CustomJSLibCE extends BranchAwareDomain {
     Set<String> accessor;
 
     /* Library UMD src url */
-    @Column(columnDefinition="text")
+    @Column(columnDefinition = "text")
     @JsonView({Views.Public.class, Git.class})
     String url;
 
@@ -64,7 +64,7 @@ public class CustomJSLibCE extends BranchAwareDomain {
 
     /* `Tern` tool definitions - it defines the methods exposed by the library. It helps us with auto-complete
     feature i.e. the function name showing up as suggestion when user has partially typed it. */
-    @Column(columnDefinition="text")
+    @Column(columnDefinition = "text")
     @JsonView({Views.Public.class, Git.class})
     String defs;
 

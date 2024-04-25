@@ -233,7 +233,9 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     protected Set<String> getCurrentUserPermissionGroups(boolean includeAnonymousUserPermissions) {
         final Set<String> permissionGroups = ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication().getPrincipal())
-                .map(principal -> includeAnonymousUserPermissions ? getAllPermissionGroupsForUser((User) principal) : getStrictPermissionGroupsForUser((User) principal))
+                .map(principal -> includeAnonymousUserPermissions
+                        ? getAllPermissionGroupsForUser((User) principal)
+                        : getStrictPermissionGroupsForUser((User) principal))
                 .block();
         return permissionGroups == null ? Collections.emptySet() : permissionGroups;
     }
@@ -678,7 +680,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     @Transactional
     @Modifying
     public T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
-        int modifiedCount = queryBuilder().byId(id).permission(permission.orElse(null)).updateFirst(updateObj);
+        int modifiedCount =
+                queryBuilder().byId(id).permission(permission.orElse(null)).updateFirst(updateObj);
         return queryBuilder().byId(id).permission(permission.orElse(null)).one().orElse(null);
     }
 

@@ -251,19 +251,19 @@ public class SeedData {
                         .build(),
                 // TODO remove following plugins from Seed data once the migrations are in place
                 Plugin.builder()
-                    .name("Google Sheets")
-                    .packageName("google-sheets-plugin")
-                    .type(PluginType.SAAS)
-                    .uiComponent("UQIDbEditorForm")
-                    .defaultInstall(true)
-                    .build(),
+                        .name("Google Sheets")
+                        .packageName("google-sheets-plugin")
+                        .type(PluginType.SAAS)
+                        .uiComponent("UQIDbEditorForm")
+                        .defaultInstall(true)
+                        .build(),
                 Plugin.builder()
-                    .name("JS Functions")
-                    .packageName("js-plugin")
-                    .type(PluginType.JS)
-                    .uiComponent("JSEditorForm")
-                    .defaultInstall(true)
-                    .build());
+                        .name("JS Functions")
+                        .packageName("js-plugin")
+                        .type(PluginType.JS)
+                        .uiComponent("JSEditorForm")
+                        .defaultInstall(true)
+                        .build());
 
         for (final Plugin plugin : plugins) {
             Plugin pluginToSave = pluginRepository
