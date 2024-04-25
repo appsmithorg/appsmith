@@ -1,5 +1,5 @@
-import * as fs from "fs";
 import { dirname } from "path";
+import * as fs from "fs";
 import { spawnSync } from "child_process";
 import { X509Certificate } from "crypto";
 
@@ -57,16 +57,16 @@ parts.push(`
   order rate_limit before basicauth
 }
 
-@staticAssets {
-  path *.css *.js
-}
-
 (file_server) {
+  @staticAssets {
+    path *.css *.js
+  }
+
   file_server {
     precompressed br gzip
     disable_canonical_uris
+    header @staticAssets Cache-Control "max-age=31536000, must-revalidate"
   }
-  header @staticAssets Cache-Control "max-age=31536000, must-revalidate"
 }
 
 (reverse_proxy) {
