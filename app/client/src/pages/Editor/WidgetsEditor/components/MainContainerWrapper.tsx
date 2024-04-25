@@ -28,6 +28,7 @@ import type { AppState } from "@appsmith/reducers";
 import { getIsAnonymousDataPopupVisible } from "selectors/onboardingSelectors";
 import { MainContainerResizer } from "layoutSystems/common/mainContainerResizer/MainContainerResizer";
 import { useMainContainerResizer } from "layoutSystems/common/mainContainerResizer/useMainContainerResizer";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 interface MainCanvasWrapperProps {
@@ -116,6 +117,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
     isProtectedMode,
     shouldShowSnapShotBanner,
   } = props;
+  const { focusWidget } = useWidgetSelection();
 
   const isFetchingPage = useSelector(getIsFetchingPage);
   const widgetsStructure = useSelector(getCanvasWidgetsStructure, equal);
@@ -205,6 +207,8 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         }
         isPreviewingNavigation={isPreviewingNavigation}
         navigationHeight={navigationHeight}
+        onMouseLeave={() => focusWidget()}
+        onMouseOver={() => focusWidget()}
         style={{
           height: isPreviewMode ? `calc(100% - ${headerHeight})` : "auto",
           fontFamily: fontFamily,
@@ -224,6 +228,7 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
         )}
         {node}
       </Wrapper>
+
       <MainContainerResizer
         currentPageId={currentPageId}
         enableMainCanvasResizer={enableMainContainerResizer && canShowResizer}
@@ -234,5 +239,4 @@ function MainContainerWrapper(props: MainCanvasWrapperProps) {
     </>
   );
 }
-
 export default MainContainerWrapper;

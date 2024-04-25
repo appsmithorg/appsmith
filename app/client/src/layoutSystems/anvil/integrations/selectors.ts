@@ -4,6 +4,10 @@ import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelector
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
+import get from "lodash/get";
+import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
+import { createSelector } from "reselect";
+import { getErrorCount } from "layoutSystems/common/widgetName/utils";
 
 export const getIsAnvilLayoutEnabled = (state: AppState) => {
   return selectFeatureFlagCheck(state, FEATURE_FLAG.release_anvil_enabled);
@@ -71,3 +75,16 @@ export function getShouldHighLightCellSelector(
   // If no highlight is shown, do not highlight the cell
   return false;
 }
+
+//TODO(abhinav): Move this appropriately
+export function getWidgetErrorObject(state: AppState, widgetId: string) {
+  const widgetObj = Object.values(state.evaluations.tree).find(
+    (entity) => entity.ENTITY_TYPE === "WIDGET" && entity.widgetId === widgetId,
+  );
+  return get(widgetObj, EVAL_ERROR_PATH, {});
+}
+
+export const getWidgetErrorCount = createSelector(
+  [getWidgetErrorObject],
+  (errorObj) => getErrorCount(errorObj),
+);

@@ -22,3 +22,14 @@ export const selectAnvilWidget = (widgetId: string, evt: CustomEvent) => {
     },
   };
 };
+
+//TODO(abhinav): Move this to the correct place after speaking to the IDE pod.
+
+export const debugWidget = (widgetId: string) => {
+  return {
+    type: AnvilReduxActionTypes.DEBUG_WIDGET,
+    payload: {
+      widgetId,
+    },
+  };
+};

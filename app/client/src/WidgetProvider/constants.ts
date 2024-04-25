@@ -87,6 +87,13 @@ export interface WidgetBaseConfiguration {
   searchTags?: string[];
   tags?: WidgetTags[];
   needsHeightForContent?: boolean;
+  onCanvasUI?: {
+    selectionBGCSSVar: string;
+    focusBGCSSVar: string;
+    selectionColorCSSVar: string;
+    focusColorCSSVar: string;
+    disableParentSelection: boolean;
+  };
 
   // Flag to tell platform to disaplay this widget when search key
   // is not matching any widget.

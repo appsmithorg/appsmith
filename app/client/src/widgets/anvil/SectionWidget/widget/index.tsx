@@ -137,6 +137,7 @@ class SectionWidget extends BaseWidget<SectionWidgetProps, WidgetState> {
   getWidgetView(): ReactNode {
     return (
       <ContainerComponent
+        attachHandle
         elevatedBackground={this.props.elevatedBackground}
         elevation={Elevations.SECTION_ELEVATION}
         {...this.props}

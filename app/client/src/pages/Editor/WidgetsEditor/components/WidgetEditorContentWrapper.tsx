@@ -58,7 +58,7 @@ export const WidgetEditorContentWrapper = (props: { children: ReactNode }) => {
   const wrapperStyle = useMemo(
     () => ({
       fontFamily,
-      contain: isAutoLayout ? "content" : "strict",
+      // contain: isAutoLayout ? "content" : "strict",
     }),
     [fontFamily, isAutoLayout],
   );

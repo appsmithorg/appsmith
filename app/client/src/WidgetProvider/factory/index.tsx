@@ -12,6 +12,7 @@ import type {
   CanvasWidgetStructure,
   FlattenedWidgetProps,
   WidgetConfigProps,
+  WidgetDefaultProps,
   WidgetMethods,
 } from "WidgetProvider/constants";
 import {
@@ -40,6 +41,21 @@ import type {
   PasteDestinationInfo,
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
+
+const DEFAULT_WIDGET_ON_CANVAS_UI = {
+  selectionBGCSSVar: "--ads-widget-selection",
+  focusBGCSSVar: "--ads-widget-focus",
+  selectionColorCSSVar: "--ads-widget-focus",
+  focusColorCSSVar: "--ads-widget-selection",
+  disableParentSelection: false,
+};
+
+function getDefaultOnCanvasUIConfig(config: WidgetDefaultProps) {
+  return {
+    ...DEFAULT_WIDGET_ON_CANVAS_UI,
+    disableParentSelection: !!config.detachFromLayout,
+  };
+}
 
 type WidgetDerivedPropertyType = any;
 export type DerivedPropertiesMap = Record<string, string>;
@@ -97,6 +113,10 @@ class WidgetFactory {
       });
     }
 
+    const defaultConfig: WidgetDefaultProps = widget.getDefaults();
+
+    const onCanvasUI =
+      config.onCanvasUI || getDefaultOnCanvasUIConfig(defaultConfig);
     const _config = {
       type: widget.type,
       ...widget.getDefaults(),
@@ -113,6 +133,7 @@ class WidgetFactory {
       isCanvas: config.isCanvas,
       needsHeightForContent: config.needsHeightForContent,
       isSearchWildcard: config.isSearchWildcard,
+      onCanvasUI,
       needsErrorInfo: !!config.needsErrorInfo,
     };
 

@@ -9,4 +9,11 @@ export const baseConfig: WidgetBaseConfiguration = {
   tags: [WIDGET_TAGS.LAYOUT],
   isCanvas: true,
   searchTags: ["div", "parent", "group"],
+  onCanvasUI: {
+    selectionBGCSSVar: "--ads-section-selection",
+    focusBGCSSVar: "--ads-section-focus",
+    selectionColorCSSVar: "--ads-section-focus",
+    focusColorCSSVar: "--ads-section-selection",
+    disableParentSelection: true,
+  },
 };
