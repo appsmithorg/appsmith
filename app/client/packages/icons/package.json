@@ -5,7 +5,7 @@
   "license": "MIT",
   "main": "src/index.ts",
   "scripts": {
-    "generate": "yarn cleanup && figmagic && yarn optimize-icons && yarn generate-components && yarn generate-index && yarn generate-stories  && yarn prettier . --write --log-level=silent",
+    "build": "yarn cleanup && figmagic && yarn optimize-icons && yarn generate-components && yarn generate-index && yarn generate-stories  && yarn prettier . --write --log-level=silent",
     "cleanup": "ts-node ./src/utils/cleanup.ts",
     "optimize-icons": "ts-node ./src/utils/optimizeIcons.ts",
     "generate-components": "ts-node ./src/utils/generateComponents.ts",
