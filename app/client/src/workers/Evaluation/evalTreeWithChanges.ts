@@ -1,8 +1,4 @@
-import type {
-  ConfigTree,
-  DataTree,
-  UnEvalTree,
-} from "entities/DataTree/dataTreeTypes";
+import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
@@ -35,7 +31,6 @@ export function evalTreeWithChanges(
   let staleMetaIds: string[] = [];
   const removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let unevalTree: UnEvalTree = {};
-  let configTree: ConfigTree = {};
 
   if (dataTreeEvaluator) {
     const setupUpdateTreeResponse =
@@ -62,7 +57,6 @@ export function evalTreeWithChanges(
 
     staleMetaIds = updateResponse.staleMetaIds;
     unevalTree = dataTreeEvaluator.getOldUnevalTree();
-    configTree = dataTreeEvaluator.oldConfigTree;
   }
   const allUnevalUpdates = unEvalUpdates.map(
     (update) => update.payload.propertyPath,
@@ -94,7 +88,6 @@ export function evalTreeWithChanges(
     logs,
     unEvalUpdates,
     isCreateFirstTree,
-    configTree,
     staleMetaIds,
     removedPaths,
     isNewWidgetAdded: false,
