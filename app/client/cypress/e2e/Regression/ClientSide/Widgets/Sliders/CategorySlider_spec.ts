@@ -251,7 +251,7 @@ describe(
       deployMode.NavigateBacktoEditor();
     });
 
-    it.only("9. Verify size change and color change", () => {
+    it("9. Verify size change and color change", () => {
       EditorNavigation.SelectEntityByName("CategorySlider1", EntityType.Widget);
       propPane.MoveToTab("Style");
       // Verify Size
