@@ -171,7 +171,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .map(ctx -> (User) ctx.getAuthentication().getPrincipal())
                 .block();
 
-        final Set<String> permissionGroups = permission != null ? getAllPermissionGroupsForUser(user) : Set.of();
+        final Set<String> permissionGroups = permission != null ? getCurrentUserPermissionGroups(true) : Set.of();
 
         return Optional.of(findById(id, permission)
                 .map(entityFromDB -> {
@@ -233,7 +233,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     protected Set<String> getCurrentUserPermissionGroups(boolean includeAnonymousUserPermissions) {
         final Set<String> permissionGroups = ReactiveSecurityContextHolder.getContext()
                 .map(ctx -> ctx.getAuthentication().getPrincipal())
-                .map(principal -> getAllPermissionGroupsForUser((User) principal))
+                .map(principal -> includeAnonymousUserPermissions ? getAllPermissionGroupsForUser((User) principal) : getStrictPermissionGroupsForUser((User) principal))
                 .block();
         return permissionGroups == null ? Collections.emptySet() : permissionGroups;
     }
@@ -648,18 +648,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * 2. Get all the permission groups associated with anonymous user
      * 3. Return the set of all the permission groups.
      */
-    protected Mono<Set<String>> getStrictPermissionGroupsForUser(User user) {
+    protected Set<String> getStrictPermissionGroupsForUser(User user) {
 
-        Mono<User> userMono = Mono.just(user);
         if (user.getTenantId() == null) {
-            userMono = cacheableRepositoryHelper.getDefaultTenantId().map(tenantId -> {
-                user.setTenantId(tenantId);
-                return user;
-            });
+            String tenantId = cacheableRepositoryHelper.getDefaultTenantId().block();
+            user.setTenantId(tenantId);
         }
-
-        return userMono.flatMap(cacheableRepositoryHelper::getPermissionGroupsOfUser)
-                .map(HashSet::new);
+        return cacheableRepositoryHelper.getPermissionGroupsOfUser(user).block();
     }
 
     protected Mono<Set<String>> getAnonymousUserPermissionGroups() {
