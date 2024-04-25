@@ -62,6 +62,7 @@ import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { savePropertyInSessionStorageIfRequired } from "./helpers";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -574,6 +575,13 @@ const PropertyControl = memo((props: Props) => {
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.
         onBatchUpdatePropertiesOfMultipleWidgets(allPropertiesToUpdates);
+
+        savePropertyInSessionStorageIfRequired({
+          isReusable: !!props.isReusable,
+          widgetProperties,
+          propertyName,
+          propertyValue,
+        });
       }
     },
     [
@@ -860,8 +868,8 @@ const PropertyControl = memo((props: Props) => {
     const JSToggleTooltip = isToggleDisabled
       ? JS_TOGGLE_DISABLED_MESSAGE
       : !isDynamic
-        ? JS_TOGGLE_SWITCH_JS_MESSAGE
-        : "";
+      ? JS_TOGGLE_SWITCH_JS_MESSAGE
+      : "";
 
     try {
       return (

@@ -106,8 +106,7 @@ function WidgetCard(props: CardProps) {
   };
 
   const type = `${props.details.type.split("_").join("").toLowerCase()}`;
-  const className = `t--widget-card-draggable t--widget-card-draggable-${type}
-  }`;
+  const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
 
   return (
     <Wrapper
