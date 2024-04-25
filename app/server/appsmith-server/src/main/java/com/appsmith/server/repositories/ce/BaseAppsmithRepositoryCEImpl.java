@@ -677,9 +677,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      *
      * @implNote
      * The `findAndModify` method operates at the database level and does not automatically handle encryption or decryption of fields. If the document contains encrypted fields, it is the responsibility of the caller to handle encryption and decryption both before and after using this method.
+     *
+     * TODO check if this can be implemented with single DB call
      */
+    @Transactional
+    @Modifying
     public T updateAndReturn(String id, BridgeUpdate updateObj, Optional<AclPermission> permission) {
-        throw new ex.Marker("updateAndReturn WIP");
+        int modifiedCount = queryBuilder().byId(id).permission(permission.orElse(null)).updateFirst(updateObj);
+        return queryBuilder().byId(id).permission(permission.orElse(null)).one().orElse(null);
     }
 
     public Optional<Void> bulkInsert(BaseRepository<T, String> baseRepository, List<T> entities) {
