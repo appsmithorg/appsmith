@@ -1,6 +1,7 @@
 package com.appsmith.server;
 
 import com.appsmith.server.annotations.ConditionalOnMicrometerMetricsEnabled;
+import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -42,6 +43,7 @@ public class ServerApplication {
     public static final int MICROMETER_COLLECTION_INTERVAL_SECONDS = 60;
 
     private final ProjectProperties projectProperties;
+    private final DeploymentProperties deploymentProperties;
 
     @Value("${appsmith.newrelic.micrometer.metrics.application.name}")
     private String newRelicApplicationName;
@@ -49,8 +51,9 @@ public class ServerApplication {
     @Value("${appsmith.newrelic.licensekey}")
     private String newRelicKey;
 
-    public ServerApplication(ProjectProperties projectProperties) {
+    public ServerApplication(ProjectProperties projectProperties, DeploymentProperties deploymentProperties) {
         this.projectProperties = projectProperties;
+        this.deploymentProperties = deploymentProperties;
         printBuildInfo();
     }
 
@@ -64,6 +67,15 @@ public class ServerApplication {
         String version = projectProperties.getVersion();
         String commitId = projectProperties.getCommitSha();
         log.info("Application started with build version {}, and commitSha {}", version, commitId);
+        // To delete
+        log.info(
+                "Deployment properties : {}, {}, {}, {}, {}, {}",
+                deploymentProperties.getCloudProvider(),
+                deploymentProperties.getEdition(),
+                deploymentProperties.getEfs(),
+                deploymentProperties.getTool(),
+                deploymentProperties.getHostname(),
+                deploymentProperties.getCurrentTime());
     }
 
     @Bean
