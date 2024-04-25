@@ -125,6 +125,7 @@ function* getChildWidgetProps(
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
+  const widgetSessionValues = getWidgetSessionValues(type);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
@@ -169,6 +170,7 @@ function* getChildWidgetProps(
     widgetId: newWidgetId,
     renderMode: RenderModes.CANVAS,
     ...themeDefaultConfig,
+    ...widgetSessionValues,
   };
 
   const { minWidth } = getWidgetMinMaxDimensionsInPixel(
@@ -786,4 +788,34 @@ export default function* widgetAdditionSagas() {
     takeEvery(WidgetReduxActionTypes.WIDGET_ADD_CHILD, addUIEntitySaga),
     takeEvery(ReduxActionTypes.WIDGET_ADD_NEW_TAB_CHILD, addNewTabChildSaga),
   ]);
+}
+
+/**
+ * retrieves the values from session storage for the widget properties
+ * for hydration of the widget when we create widget on drop
+ */
+export function getWidgetSessionValues(type: string) {
+  // we don't need to hydrate widget for following widgets
+  if (["WDS_INLINE_BUTTONS_WIDGET"].includes(type)) return;
+
+  let widgetType = type;
+  const configMap = WidgetFactory.widgetConfigMap.get(type);
+  const widgetSessionValues: any = {};
+
+  // in case we are dropping WDS_ICON_BUTTON_WIDGET, we want to reuse the values of BUTTON_WIDGET
+  if (type === "WDS_ICON_BUTTON_WIDGET") {
+    widgetType = "WDS_BUTTON_WIDGET";
+  }
+
+  for (const key in configMap) {
+    if (configMap[key]) {
+      const valueFromSession = sessionStorage.getItem(`${widgetType}.${key}`);
+
+      if (valueFromSession) {
+        widgetSessionValues[key] = valueFromSession;
+      }
+    }
+  }
+
+  return widgetSessionValues;
 }
