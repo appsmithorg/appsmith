@@ -10,7 +10,7 @@ import {
   propPane,
 } from "../../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
-EntityType,
+  EntityType,
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
@@ -288,7 +288,8 @@ describe(
           agHelper
             .GetWidgetCSSFrAttribute(
               `${propPane._propertyControlSelectedColorButton("fillcolor")}`,
-              "background-color")
+              "background-color",
+            )
             .then((newColor) => {
               expect(sliderColor).to.eq(newColor);
             });

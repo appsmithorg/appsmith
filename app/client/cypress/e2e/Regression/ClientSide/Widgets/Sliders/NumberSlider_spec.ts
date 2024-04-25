@@ -379,7 +379,7 @@ describe("Number Slider spec", { tags: ["@tag.Widget", "@tag.Slider"] }, () => {
         agHelper
           .GetWidgetCSSFrAttribute(
             `${propPane._propertyControlSelectedColorButton("fillcolor")}`,
-            "background-color"
+            "background-color",
           )
           .then((newColor) => {
             expect(sliderColor).to.eq(newColor);
