@@ -34,6 +34,8 @@ export function shouldSelectOrFocus(widgetId: string) {
       let onCanvasUIState: "none" | "select" | "focus" = "none";
       if (baseCondition) {
         if (isWidgetSelected) onCanvasUIState = "select";
+        // TODO(abhinav): Focus Widget action should check if widget is selected before enabling focus.
+        // TODO(abhinav): On widget select, focus should be removed on the widget.
         if (isWidgetFocused && !isWidgetSelected) onCanvasUIState = "focus";
       }
       if (highlightShown && highlightShown.canvasId === widgetId) {
