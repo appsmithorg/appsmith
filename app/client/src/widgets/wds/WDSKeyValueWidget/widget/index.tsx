@@ -1,6 +1,5 @@
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
 import { WDSInputWidget } from "widgets/wds/WDSInputWidget";
+import { KeyValueIcon, KeyValueThumbnail } from "appsmith-icons";
 
 class WDSKeyValueWidget extends WDSInputWidget {
   static type = "WDS_KEY_VALUE_WIDGET";
@@ -9,8 +8,8 @@ class WDSKeyValueWidget extends WDSInputWidget {
     return {
       ...super.getConfig(),
       name: "KeyValue",
-      iconSVG: IconSVG,
-      thumbnailSVG: ThumbnailSVG,
+      iconSVG: KeyValueIcon,
+      thumbnailSVG: KeyValueThumbnail,
     };
   }
 

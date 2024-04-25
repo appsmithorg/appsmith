@@ -556,8 +556,8 @@ export interface WidgetCardProps {
   type: WidgetType;
   key?: string;
   displayName: string;
-  icon: string;
-  thumbnail?: string;
+  icon: (() => JSX.Element) | string;
+  thumbnail?: (() => JSX.Element) | string;
   isBeta?: boolean;
   tags?: WidgetTags[];
   isSearchWildcard?: boolean;

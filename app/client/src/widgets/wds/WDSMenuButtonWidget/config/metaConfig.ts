@@ -1,10 +1,9 @@
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
+import { MenuButtonIcon, MenuButtonThumbnail } from "appsmith-icons";
 
 export const metaConfig = {
   name: "Menu Button",
-  iconSVG: IconSVG,
-  thumbnailSVG: ThumbnailSVG,
+  iconSVG: MenuButtonIcon,
+  thumbnailSVG: MenuButtonThumbnail,
   tags: [WIDGET_TAGS.BUTTONS],
 };

@@ -1,12 +1,10 @@
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-
-import IconSVG from "../icon.svg";
-import ThumbnailSVG from "../thumbnail.svg";
+import { PhoneInputIcon, PhoneInputThumbnail } from "appsmith-icons";
 
 export const metaConfig = {
   name: "Phone Input",
-  iconSVG: IconSVG,
-  thumbnailSVG: ThumbnailSVG,
+  iconSVG: PhoneInputIcon,
+  thumbnailSVG: PhoneInputThumbnail,
   tags: [WIDGET_TAGS.INPUTS],
   needsMeta: true,
   searchTags: ["call"],
