@@ -124,3 +124,5 @@ export const FEATURE_WALKTHROUGH_INDEX_KEY = "FEATURE_WALKTHROUGH";
 export const USER_SIGN_UP_INDEX_KEY = "USER_SIGN_UP";
 
 export const LICENSE_FEATURE_FLAGS = ["license_audit_logs_enabled"];
+
+export const PASSWORD_FOR_SIGNUP = "qwerty123";
