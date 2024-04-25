@@ -35,7 +35,9 @@ public class Migration051AddNewActionCollectionIdIndex {
 
         // Prod index name
         dropIndexIfExists(mongoTemplate, NewAction.class, unpublishedCollectionIdIndexName);
+        dropIndexIfExists(mongoTemplate, NewAction.class, "unpublishedAction.collectionId_1_deletedAt_1");
         dropIndexIfExists(mongoTemplate, NewAction.class, publishedCollectionIdIndexName);
+        dropIndexIfExists(mongoTemplate, NewAction.class, "publishedAction.collectionId_1_deletedAt_1");
 
         Document unpublishedDoc = new Document();
         unpublishedDoc.put(NewAction.Fields.unpublishedAction_collectionId, 1);
