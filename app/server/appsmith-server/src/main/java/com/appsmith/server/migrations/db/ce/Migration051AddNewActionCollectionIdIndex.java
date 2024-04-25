@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.db.ce;
 
-import com.appsmith.external.models.GitSyncedDomain;
 import com.appsmith.server.domains.NewAction;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
@@ -41,14 +40,14 @@ public class Migration051AddNewActionCollectionIdIndex {
 
         Document unpublishedDoc = new Document();
         unpublishedDoc.put(NewAction.Fields.unpublishedAction_collectionId, 1);
-        unpublishedDoc.put(GitSyncedDomain.Fields.deletedAt, 1);
+        unpublishedDoc.put(NewAction.Fields.deletedAt, 1);
         Index unpublishedCollectionIdIndex =
                 new CompoundIndexDefinition(unpublishedDoc).named(unpublishedCollectionIdIndexName);
         ensureIndexes(mongoTemplate, NewAction.class, unpublishedCollectionIdIndex);
 
         Document publishedDoc = new Document();
         publishedDoc.put(NewAction.Fields.publishedAction_collectionId, 1);
-        publishedDoc.put(GitSyncedDomain.Fields.deletedAt, 1);
+        publishedDoc.put(NewAction.Fields.deletedAt, 1);
         Index publishedCollectionIdIndex =
                 new CompoundIndexDefinition(publishedDoc).named(publishedCollectionIdIndexName);
         ensureIndexes(mongoTemplate, NewAction.class, publishedCollectionIdIndex);
