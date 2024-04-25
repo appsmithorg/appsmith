@@ -106,8 +106,13 @@ app/server/**/git/** @appsmithorg/git-be-reviewers
 app/server/**/import/** @appsmithorg/git-be-reviewers
 app/server/**/export/** @appsmithorg/git-be-reviewers
 app/server/**/*Git*.java @appsmithorg/git-be-reviewers
-app/server/**/*Import*.java @appsmithorg/git-be-reviewers
-app/server/**/*Export*.java @appsmithorg/git-be-reviewers
+app/server/**/Import*.java @appsmithorg/git-be-reviewers
+app/server/**/Export*.java @appsmithorg/git-be-reviewers
+
+# Templates Pod
+app/server/**/*Templates*.java @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/imports/internal/partial/** @AnaghHegde
+app/server/appsmith-server/src/main/java/com/appsmith/server/exports/internal/partial/** @AnaghHegde
 
 app/client/src/pages/Editor/gitSync/ @appsmithorg/git-fe-reviewers
 app/client/packages/dsl/ @appsmithorg/git-fe-reviewers
