@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
+import org.springframework.util.StringUtils;
 
 @Getter
 @Setter
@@ -25,6 +26,16 @@ public class NewPage extends BranchAwareDomain implements Context {
 
     @JsonView(Views.Public.class)
     PageDTO publishedPage;
+
+    @Override
+    public String getDefaultId() {
+        if (this.getDefaultResources() != null
+                && StringUtils.hasLength(this.getDefaultResources().getPageId())) {
+            return this.getDefaultResources().getPageId();
+        } else {
+            return super.getDefaultId();
+        }
+    }
 
     @Override
     public void sanitiseToExportDBObject() {

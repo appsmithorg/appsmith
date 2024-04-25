@@ -17,6 +17,14 @@ public abstract class BranchAwareDomain extends GitSyncedDomain {
     @JsonView(Views.Internal.class)
     DefaultResources defaultResources;
 
+    @JsonView(Views.Internal.class)
+    String defaultId;
+
+    @JsonView(Views.Internal.class)
+    public String getDefaultId() {
+        return this.getId();
+    }
+
     @Override
     public void sanitiseToExportDBObject() {
         this.setDefaultResources(null);
