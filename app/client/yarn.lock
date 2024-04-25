@@ -13108,7 +13108,7 @@ __metadata:
     d3-geo: ^3.1.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "npm:@appsmithorg/design-system@2.1.38"
+    design-system: "npm:@appsmithorg/design-system@2.1.39"
     design-system-old: "npm:@appsmithorg/design-system-old@1.1.16"
     diff: ^5.0.0
     dotenv: ^8.1.0
@@ -17148,9 +17148,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system@npm:@appsmithorg/design-system@2.1.38":
-  version: 2.1.38
-  resolution: "@appsmithorg/design-system@npm:2.1.38"
+"design-system@npm:@appsmithorg/design-system@2.1.39":
+  version: 2.1.39
+  resolution: "@appsmithorg/design-system@npm:2.1.39"
   dependencies:
     "@radix-ui/react-dialog": ^1.0.2
     "@radix-ui/react-dropdown-menu": ^2.0.4
@@ -17170,6 +17170,8 @@ __metadata:
     csstype: ^3.1.2
     date-fns: ^2.29.3
     loglevel: ^1.8.1
+    overlayscrollbars: ^2.7.2
+    overlayscrollbars-react: ^0.5.6
     rc-select: ^14.4.3
     rc-table: ^7.35.2
     rc-tooltip: ^5.3.1
@@ -17180,7 +17182,7 @@ __metadata:
     react-dom: ^17.0.2
     react-router-dom: ^5.0.0
     styled-components: ^5.3.6
-  checksum: 382f7f2c05ab4daf7f200dabfa3da8e06a9e551b87f24bc43c50e84824fde99b25ed505632ad82650246ebaafd53d51cd50082769a9112282938355ceaa2f667
+  checksum: 7b9ed99c41a8fc0b45db101b18bd87a5dde5ef54291843196d1e26bb60d217c7e552be01c914a859717a294caf2637aef7149afd07b6e224d81cb92f2c3b91b4
   languageName: node
   linkType: hard
 
@@ -25731,6 +25733,23 @@ __metadata:
   dependencies:
     shell-quote: ^1.4.2
   checksum: 6f9f23d1607e354f6527d9b0a91796cb0ce478bb111c17e3978cd491910cb13af9f3a777b6f17f26e217f4b91b201201a7a9d057b0cfe06145f30ccc80aed2b2
+  languageName: node
+  linkType: hard
+
+"overlayscrollbars-react@npm:^0.5.6":
+  version: 0.5.6
+  resolution: "overlayscrollbars-react@npm:0.5.6"
+  peerDependencies:
+    overlayscrollbars: ^2.0.0
+    react: ">=16.8.0"
+  checksum: 4a07dda99543522763c5182b1a1344b35a13534ea3213fb8638604e813ec92ff8f9e63d72e11ded596ab5dbe5829d4f50f6b2d0ffc76ce18e6e67a662c7bdb6a
+  languageName: node
+  linkType: hard
+
+"overlayscrollbars@npm:^2.7.2":
+  version: 2.7.2
+  resolution: "overlayscrollbars@npm:2.7.2"
+  checksum: 32b57ea3a33f72e98cd33c2c1f7d4ef864216656286eef0f7cb71639aa6eb92e9ce32c7db6407fa3f2c053fb13052b7c37507a60785a08b7a3c0684cd474d751
   languageName: node
   linkType: hard
 
