@@ -160,9 +160,15 @@ public class DataUtils {
     }
 
     public BodyInserter<?, ?> parseMultimediaData(String requestBodyObj) {
+        // This decoding for base64 is required because of
+        // issue https://github.com/appsmithorg/appsmith/issues/32378
+        // According to this if we tried to upload any multimedia files (img, audio, video)
+        // It was not getting decoded before uploading on required URL
         if (requestBodyObj.contains(BASE64_DELIMITER)) {
             List<String> bodyArrayList = Arrays.asList(requestBodyObj.split(BASE64_DELIMITER));
             requestBodyObj = bodyArrayList.get(bodyArrayList.size() - 1);
+
+            // Using mimeDecoder here, since base64 conversion by file picker widget follows mime standard
             byte[] payload = Base64.getMimeDecoder().decode(bodyArrayList.get(bodyArrayList.size() - 1));
             return BodyInserters.fromValue(payload);
         }
