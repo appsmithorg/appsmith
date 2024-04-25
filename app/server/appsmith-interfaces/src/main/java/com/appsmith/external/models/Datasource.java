@@ -25,7 +25,7 @@ import java.util.Set;
 @NoArgsConstructor
 @Document
 @FieldNameConstants
-public class Datasource extends BranchAwareDomain {
+public class Datasource extends GitSyncedDomain {
 
     @Transient
     public static final String DEFAULT_NAME_PREFIX = "Untitled datasource";
