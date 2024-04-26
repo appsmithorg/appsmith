@@ -43,6 +43,10 @@ class WDSStatBoxWidget extends BaseWidget<StatBoxWidgetProps, WidgetState> {
     return config.anvilConfig;
   }
 
+  static getMethods() {
+    return config.methodsConfig;
+  }
+
   getWidgetView() {
     return <StatBoxComponent {...this.props} />;
   }
