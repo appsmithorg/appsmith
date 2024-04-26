@@ -298,7 +298,6 @@ export function evalTree(request: EvalWorkerSyncRequest) {
     logs: shouldRespondWithLogs ? logs : [],
     unEvalUpdates,
     isCreateFirstTree,
-    configTree,
     staleMetaIds,
     removedPaths,
     isNewWidgetAdded,
