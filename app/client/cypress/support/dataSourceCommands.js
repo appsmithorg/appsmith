@@ -93,10 +93,19 @@ Cypress.Commands.add(
       : datasourceFormData["postgres-databaseName"];
 
     agHelper.ClearNType(datasourceEditor.host, hostAddress);
-    agHelper.ClearNType(datasourceEditor.port, datasourceFormData["postgres-port"]);
+    agHelper.ClearNType(
+      datasourceEditor.port,
+      datasourceFormData["postgres-port"],
+    );
     agHelper.ClearNType(datasourceEditor.databaseName, databaseName);
-    agHelper.ClearNType(datasourceEditor.username, datasourceFormData["postgres-username"]);
-    agHelper.ClearNType(datasourceEditor.password, datasourceFormData["postgres-password"]);
+    agHelper.ClearNType(
+      datasourceEditor.username,
+      datasourceFormData["postgres-username"],
+    );
+    agHelper.ClearNType(
+      datasourceEditor.password,
+      datasourceFormData["postgres-password"],
+    );
   },
 );
 
@@ -109,10 +118,19 @@ Cypress.Commands.add(
     const headerValue = "Bearer token";
 
     agHelper.ClearNType(datasourceEditor.host, hostAddress);
-    agHelper.ClearNType(datasourceEditor.port, datasourceFormData["postgres-port"]);
+    agHelper.ClearNType(
+      datasourceEditor.port,
+      datasourceFormData["postgres-port"],
+    );
     cy.get(datasourceEditor.sectionAuthentication).click();
-    agHelper.ClearNType(datasourceEditor.username, datasourceFormData["postgres-username"]);
-    agHelper.ClearNType(datasourceEditor.password, datasourceFormData["postgres-password"]);
+    agHelper.ClearNType(
+      datasourceEditor.username,
+      datasourceFormData["postgres-username"],
+    );
+    agHelper.ClearNType(
+      datasourceEditor.password,
+      datasourceFormData["postgres-password"],
+    );
     agHelper.ClearNType(datasourceEditor.headers, headerValue);
   },
 );
@@ -128,10 +146,19 @@ Cypress.Commands.add(
       : datasourceFormData["mysql-databaseName"];
 
     agHelper.ClearNType(datasourceEditor.host, hostAddress);
-    agHelper.ClearNType(datasourceEditor.port, datasourceFormData["mysql-port"]);
+    agHelper.ClearNType(
+      datasourceEditor.port,
+      datasourceFormData["mysql-port"],
+    );
     agHelper.ClearNType(datasourceEditor.databaseName, databaseName);
-    agHelper.ClearNType(datasourceEditor.username, datasourceFormData["mysql-username"]);
-    agHelper.ClearNType(datasourceEditor.password, datasourceFormData["mysql-password"]);
+    agHelper.ClearNType(
+      datasourceEditor.username,
+      datasourceFormData["mysql-username"],
+    );
+    agHelper.ClearNType(
+      datasourceEditor.password,
+      datasourceFormData["mysql-password"],
+    );
   },
 );
 
@@ -146,10 +173,19 @@ Cypress.Commands.add(
       : datasourceFormData["mssql-databaseName"];
 
     agHelper.ClearNType(datasourceEditor.host, hostAddress);
-    agHelper.ClearNType(datasourceEditor.port, datasourceFormData["mssql-port"]);
+    agHelper.ClearNType(
+      datasourceEditor.port,
+      datasourceFormData["mssql-port"],
+    );
     agHelper.ClearNType(datasourceEditor.databaseName, databaseName);
-    agHelper.ClearNType(datasourceEditor.username, datasourceFormData["mssql-username"]);
-    agHelper.ClearNType(datasourceEditor.password, datasourceFormData["mssql-password"]);
+    agHelper.ClearNType(
+      datasourceEditor.username,
+      datasourceFormData["mssql-username"],
+    );
+    agHelper.ClearNType(
+      datasourceEditor.password,
+      datasourceFormData["mssql-password"],
+    );
   },
 );
 
@@ -164,10 +200,19 @@ Cypress.Commands.add(
       : datasourceFormData["arango-databaseName"];
 
     agHelper.ClearNType(datasourceEditor.host, hostAddress);
-    agHelper.ClearNType(datasourceEditor.port, datasourceFormData["arango-port"]);
+    agHelper.ClearNType(
+      datasourceEditor.port,
+      datasourceFormData["arango-port"],
+    );
     agHelper.ClearNType(datasourceEditor.databaseName, databaseName);
-    agHelper.ClearNType(datasourceEditor.username, datasourceFormData["arango-username"]);
-    agHelper.ClearNType(datasourceEditor.password, datasourceFormData["arango-password"]);
+    agHelper.ClearNType(
+      datasourceEditor.username,
+      datasourceFormData["arango-username"],
+    );
+    agHelper.ClearNType(
+      datasourceEditor.password,
+      datasourceFormData["arango-password"],
+    );
   },
 );
 
@@ -182,10 +227,19 @@ Cypress.Commands.add(
       : datasourceFormData["redshift-databaseName"];
 
     agHelper.ClearNType(datasourceEditor.host, hostAddress);
-    agHelper.ClearNType(datasourceEditor.port, datasourceFormData["redshift-port"]);
+    agHelper.ClearNType(
+      datasourceEditor.port,
+      datasourceFormData["redshift-port"],
+    );
     agHelper.ClearNType(datasourceEditor.databaseName, databaseName);
-    agHelper.ClearNType(datasourceEditor.username, datasourceFormData["redshift-username"]);
-    agHelper.ClearNType(datasourceEditor.password, datasourceFormData["redshift-password"]);
+    agHelper.ClearNType(
+      datasourceEditor.username,
+      datasourceFormData["redshift-username"],
+    );
+    agHelper.ClearNType(
+      datasourceEditor.password,
+      datasourceFormData["redshift-password"],
+    );
   },
 );
 
@@ -209,7 +263,10 @@ Cypress.Commands.add(
 
     cy.get(datasourceEditor["sectionAuthentication"]).click();
 
-    agHelper.ClearNType(datasourceEditor["password"], datasourceFormData["mockDatabasePassword"]);
+    agHelper.ClearNType(
+      datasourceEditor["password"],
+      datasourceFormData["mockDatabasePassword"],
+    );
     agHelper.ClearNType(datasourceEditor["username"], userMockDatabaseUsername);
   },
 );
@@ -223,8 +280,14 @@ Cypress.Commands.add(
     agHelper.ClearNType(datasourceEditor.host, hostAddress);
     agHelper.ClearNType(datasourceEditor.port, datasourceFormData["smtp-port"]);
     cy.get(datasourceEditor.sectionAuthentication).click();
-    agHelper.ClearNType(datasourceEditor.username, datasourceFormData["smtp-username"]);
-    agHelper.ClearNType(datasourceEditor.password, datasourceFormData["smtp-password"]);
+    agHelper.ClearNType(
+      datasourceEditor.username,
+      datasourceFormData["smtp-username"],
+    );
+    agHelper.ClearNType(
+      datasourceEditor.password,
+      datasourceFormData["smtp-password"],
+    );
   },
 );
 
@@ -256,7 +319,10 @@ Cypress.Commands.add("renameDatasource", (datasourceName) => {
 
 Cypress.Commands.add("fillAmazonS3DatasourceForm", () => {
   agHelper.ClearNType(datasourceEditor.projectID, Cypress.env("S3_ACCESS_KEY"));
-  agHelper.ClearNType(datasourceEditor.serviceAccCredential, Cypress.env("S3_SECRET_KEY"));
+  agHelper.ClearNType(
+    datasourceEditor.serviceAccCredential,
+    Cypress.env("S3_SECRET_KEY"),
+  );
 });
 
 Cypress.Commands.add("createAmazonS3Datasource", () => {
