@@ -7,6 +7,7 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
+import com.appsmith.server.dtos.PageCreationDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PageUpdateDTO;
 import com.appsmith.server.dtos.ResponseDTO;
@@ -16,8 +17,8 @@ import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,6 +33,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import reactor.core.publisher.Mono;
 
 @RequestMapping(Url.PAGE_URL)
+@RequiredArgsConstructor
 @Slf4j
 public class PageControllerCE {
 
@@ -39,25 +41,15 @@ public class PageControllerCE {
     private final NewPageService newPageService;
     private final CreateDBTablePageSolution createDBTablePageSolution;
 
-    @Autowired
-    public PageControllerCE(
-            ApplicationPageService applicationPageService,
-            NewPageService newPageService,
-            CreateDBTablePageSolution createDBTablePageSolution) {
-        this.applicationPageService = applicationPageService;
-        this.newPageService = newPageService;
-        this.createDBTablePageSolution = createDBTablePageSolution;
-    }
-
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<PageDTO>> createPage(
-            @Valid @RequestBody PageDTO resource,
+            @Valid @RequestBody PageCreationDTO page,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        log.debug("Going to create resource {}", resource.getClass().getName());
+        log.debug("Going to create page {}", page.getClass().getName());
         return applicationPageService
-                .createPageWithBranchName(resource, branchName)
+                .createPageWithBranchName(page.toPageDTO(), branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 

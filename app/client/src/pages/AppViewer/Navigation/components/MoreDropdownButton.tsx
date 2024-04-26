@@ -17,15 +17,18 @@ import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { builderURL, viewerURL } from "@appsmith/RouteBuilder";
 import { trimQueryString } from "utils/helpers";
+import { NavigationMethod } from "utils/history";
 
 interface MoreDropdownButtonProps {
   navigationSetting?: NavigationSetting;
   pages: Page[];
+  query: string;
 }
 
 const MoreDropdownButton = ({
   navigationSetting,
   pages,
+  query,
 }: MoreDropdownButtonProps) => {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const navColorStyle =
@@ -117,6 +120,8 @@ const MoreDropdownButton = ({
             primaryColor={primaryColor}
             to={{
               pathname: trimQueryString(pageURL),
+              search: query,
+              state: { invokedBy: NavigationMethod.AppNavigation },
             }}
           >
             {navigationSetting?.itemStyle !==
