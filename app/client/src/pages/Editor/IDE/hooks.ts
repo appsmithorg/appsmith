@@ -186,7 +186,7 @@ export const useGetPageFocusUrl = (pageId: string): string => {
       const lastSelectedEntity =
         editorStateFocusInfo.state[FocusElement.SelectedEntity];
 
-      setFocusPageUrl(lastSelectedEntity);
+      setFocusPageUrl(builderURL({ pageId, suffix: lastSelectedEntity }));
     }
   }, [editorStateFocusInfo, branch]);
 

@@ -1,5 +1,6 @@
 import history, { NavigationMethod } from "utils/history";
 import {
+  builderURL,
   curlImportPageURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
@@ -54,6 +55,15 @@ export function setSelectedJSObject(focusInfo?: FocusEntityInfo) {
       jsCollectionIdURL({
         collectionId: focusInfo.id,
       }),
+      { invokedBy: NavigationMethod.ContextSwitching },
     );
+  }
+}
+
+export function setSelectedEntityUrl(url?: string) {
+  if (url) {
+    history.replace(builderURL({ suffix: url }), {
+      invokedBy: NavigationMethod.ContextSwitching,
+    });
   }
 }

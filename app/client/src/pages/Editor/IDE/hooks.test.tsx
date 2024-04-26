@@ -16,18 +16,20 @@ describe("useGetPageFocusUrl", () => {
   const focusHistory = {
     [page1FocusHistory.key]: {
       entityInfo: page1FocusHistory.entityInfo,
-      state: { SelectedEntity: "app/app_id/page/page_id/edit/jsObjects/js_id" },
+      state: {
+        SelectedEntity: "jsObjects/js_id",
+      },
     },
     [page2FocusHistory.key]: {
       entityInfo: page2FocusHistory.entityInfo,
       state: {
-        SelectedEntity: "app/app_id/page/page_id/edit/widgets/widgetId",
+        SelectedEntity: "widgets/widgetId",
       },
     },
     [page3FocusHistory.key]: {
       entityInfo: page3FocusHistory.entityInfo,
       state: {
-        SelectedEntity: "app/app_id/page/page_id/edit/queries/query_id",
+        SelectedEntity: "queries/query_id",
       },
     },
   };
@@ -43,7 +45,7 @@ describe("useGetPageFocusUrl", () => {
     });
 
     expect(result.current).toEqual(
-      "app/app_id/page/page_id/edit/jsObjects/js_id",
+      "/app/application/page-page_id_1/edit/jsObjects/js_id",
     );
   });
 
@@ -53,7 +55,7 @@ describe("useGetPageFocusUrl", () => {
     });
 
     expect(result.current).toEqual(
-      "app/app_id/page/page_id/edit/widgets/widgetId",
+      "/app/application/page-page_id_2/edit/widgets/widgetId",
     );
   });
 
@@ -63,7 +65,7 @@ describe("useGetPageFocusUrl", () => {
     });
 
     expect(result.current).toEqual(
-      "app/app_id/page/page_id/edit/queries/query_id",
+      "/app/application/page-page_id_3/edit/queries/query_id",
     );
   });
 
@@ -88,7 +90,7 @@ describe("useGetPageFocusUrl", () => {
         [page1FocusHistoryWithBranch.key]: {
           entityInfo: page1FocusHistoryWithBranch.entityInfo,
           state: {
-            SelectedEntity: "app/app_id/page/page_id/edit/widgets/widgetId2",
+            SelectedEntity: "widgets/widgetId2",
           },
         },
       },
@@ -102,7 +104,7 @@ describe("useGetPageFocusUrl", () => {
     });
 
     expect(result.current).toEqual(
-      "app/app_id/page/page_id/edit/widgets/widgetId2",
+      "/app/application/page-page_id_1/edit/widgets/widgetId2",
     );
   });
 });
