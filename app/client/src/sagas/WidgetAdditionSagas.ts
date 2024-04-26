@@ -11,10 +11,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import {
-  getActions,
-  getCanvasWidgets,
-} from "@appsmith/selectors/entitiesSelector";
+import { getActions } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import type { WidgetBlueprint } from "WidgetProvider/constants";
 import {
@@ -82,11 +79,6 @@ import {
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "./WidgetBlueprintSagas";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
-import {
-  getDefaultCanvas,
-  getMousePositionFromCanvasGridPosition,
-  getSnappedGrid,
-} from "./WidgetOperationUtils";
 import {
   getDragDetails,
   getWidget,
@@ -555,36 +547,6 @@ function* addBuildingBlockActionsToApp(dragDetails: DragDetails) {
     yield call(ApplicationApi.importBuildingBlockToApplication, body);
 
   return response;
-}
-
-export function* getBuildingBlocksDropMousePosition(
-  topRow: number,
-  leftColumn: number,
-) {
-  const canvasWidgets: CanvasWidgetsReduxState = yield select(getCanvasWidgets);
-  let mousePosition = { x: 0, y: 0 };
-
-  // convert grid position to mouse position for paste functionality
-  const { canvasDOM, canvasId, containerWidget } =
-    getDefaultCanvas(canvasWidgets);
-  if (!canvasDOM || !containerWidget || !canvasId) {
-    mousePosition = { x: 0, y: 0 };
-  } else {
-    const canvasRect = canvasDOM.getBoundingClientRect();
-    const { padding, snapGrid } = getSnappedGrid(
-      containerWidget,
-      canvasRect.width,
-    );
-    mousePosition = getMousePositionFromCanvasGridPosition(
-      topRow,
-      leftColumn,
-      snapGrid,
-      padding,
-      canvasId as string,
-    );
-  }
-
-  return mousePosition;
 }
 
 function* runSingleAction(actionId: string) {
