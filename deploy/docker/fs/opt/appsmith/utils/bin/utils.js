@@ -97,9 +97,7 @@ async function getLastBackupErrorMailSentInMilliSec() {
 }
 
 async function getCurrentAppsmithVersion() {
-  const version = JSON.parse(await fsPromises.readFile("/opt/appsmith/info.json", "utf8")).version;
-  // This will be of the form "refs/tags/v1.2.3".
-  return version ?? "";
+  return JSON.parse(await fsPromises.readFile("/opt/appsmith/info.json", "utf8")).version ?? "";
 }
 
 function preprocessMongoDBURI(uri /* string */) {
