@@ -31,7 +31,7 @@
 
   & label {
     position: relative;
-    background: conic-gradient(from 180deg, red, orange, lime, aqua, blue, magenta, red);
+    background: conic-gradient(from 275deg, red, yellow, lime, aqua, blue, magenta, red);
   }
 
   & label input {
@@ -40,5 +40,11 @@
     opacity: 0;
     position: absolute;
     top: 30px;
+  }
+
+  & svg path {
+    stroke: color-mix(in srgb, black, 75% transparent);
+    stroke-width: 2px;
+    paint-order: stroke;
   }
 }
