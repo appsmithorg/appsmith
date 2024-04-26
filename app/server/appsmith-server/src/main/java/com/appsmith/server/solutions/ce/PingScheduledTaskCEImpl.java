@@ -33,7 +33,7 @@ import static java.util.Map.entry;
 
 /**
  * This class represents a scheduled task that pings a data point indicating that this server installation is live.
- * This ping is only invoked if the Appsmith server is NOT running in Appsmith Clouud & the user has given Appsmith
+ * This ping is only invoked if the Appsmith server is NOT running in Appsmith Cloud & the user has given Appsmith
  * permissions to collect anonymized data
  */
 @Slf4j
@@ -164,9 +164,6 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                             entry("tool", deploymentProperties.getTool()),
                             entry("hostname", deploymentProperties.getHostname()),
                             entry("deployedAt", deploymentProperties.getDeployedAt()));
-
-                    // to-delete
-                    log.debug("propertiesMap: {0}", propertiesMap);
 
                     final String ipAddress = statsData.getT2();
                     return WebClientUtils.create("https://api.segment.io")

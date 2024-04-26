@@ -1,7 +1,6 @@
 package com.appsmith.server;
 
 import com.appsmith.server.annotations.ConditionalOnMicrometerMetricsEnabled;
-import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import io.micrometer.core.aop.TimedAspect;
 import io.micrometer.core.instrument.MeterRegistry;
@@ -43,7 +42,6 @@ public class ServerApplication {
     public static final int MICROMETER_COLLECTION_INTERVAL_SECONDS = 60;
 
     private final ProjectProperties projectProperties;
-    private final DeploymentProperties deploymentProperties;
 
     @Value("${appsmith.newrelic.micrometer.metrics.application.name}")
     private String newRelicApplicationName;
@@ -51,9 +49,8 @@ public class ServerApplication {
     @Value("${appsmith.newrelic.licensekey}")
     private String newRelicKey;
 
-    public ServerApplication(ProjectProperties projectProperties, DeploymentProperties deploymentProperties) {
+    public ServerApplication(ProjectProperties projectProperties) {
         this.projectProperties = projectProperties;
-        this.deploymentProperties = deploymentProperties;
         printBuildInfo();
     }
 
