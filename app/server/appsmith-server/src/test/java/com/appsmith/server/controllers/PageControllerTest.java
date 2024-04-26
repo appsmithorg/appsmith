@@ -3,6 +3,7 @@ package com.appsmith.server.controllers;
 import com.appsmith.server.configurations.SecurityTestConfig;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.newpages.base.NewPageService;
+import com.appsmith.server.services.ApplicationPageService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -37,11 +38,15 @@ public class PageControllerTest {
     private WebTestClient client;
 
     @MockBean
+    private ApplicationPageService applicationPageService;
+
+    @MockBean
     private NewPageService newPageService;
 
     @Test
     @WithMockUser
     void noBody() {
+        client.post().uri("/api/v1/pages").exchange().expectStatus().isBadRequest();
         client.put().uri("/api/v1/pages/abcdef").exchange().expectStatus().isBadRequest();
     }
 
@@ -148,6 +153,19 @@ public class PageControllerTest {
             })
     @WithMockUser
     void invalidName(String name) {
+        client.post()
+                .uri("/api/v1/pages")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(Map.of("name", name)))
+                .exchange()
+                .expectStatus()
+                .isBadRequest()
+                .expectBody()
+                .jsonPath("$.errorDisplay")
+                .value(s -> assertThat((String) s).contains("Validation Failure"));
+
+        verifyNoInteractions(applicationPageService);
+
         client.put()
                 .uri("/api/v1/pages/abcdef")
                 .contentType(MediaType.APPLICATION_JSON)
@@ -183,6 +201,19 @@ public class PageControllerTest {
             })
     @WithMockUser
     void invalidCustomSlug(String slug) {
+        client.post()
+                .uri("/api/v1/pages")
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(BodyInserters.fromValue(Map.of("customSlug", slug)))
+                .exchange()
+                .expectStatus()
+                .isBadRequest()
+                .expectBody()
+                .jsonPath("$.errorDisplay")
+                .value(s -> assertThat((String) s).contains("Validation Failure"));
+
+        verifyNoInteractions(applicationPageService);
+
         client.put()
                 .uri("/api/v1/pages/abcdef")
                 .contentType(MediaType.APPLICATION_JSON)
