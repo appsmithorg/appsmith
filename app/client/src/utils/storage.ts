@@ -953,18 +953,16 @@ interface ActionTestPayload {
   [actionId: string]: any;
 }
 
-export const getActionTestPayload = async (actionId: string) => {
+export const getAllActionTestPayloads = async () => {
   try {
     const storedPayload: ActionTestPayload | null = await store.getItem(
       STORAGE_KEYS.ACTION_TEST_PAYLOAD,
     );
-    if (storedPayload && storedPayload.hasOwnProperty(actionId)) {
-      return storedPayload[actionId];
-    }
-    return null;
+    return storedPayload;
   } catch (error) {
     log.error("An error occurred while fetching ACTION_TEST_PAYLOAD");
     log.error(error);
+    return null;
   }
 };
 
