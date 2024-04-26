@@ -89,6 +89,8 @@ import {
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -639,7 +641,7 @@ export function* addBuildingBlockToApplication(
         (Date.now() - buildingBlockDragStartTimestamp) / 1000;
       yield call(postPageAdditionSaga, applicationId);
       // remove selecting of recently pasted widgets caused by pasteWidget
-      // yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       // stop loading after pasting process is complete
       yield put({
