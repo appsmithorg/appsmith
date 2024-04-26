@@ -221,20 +221,12 @@ const Header = () => {
 
   return (
     <>
-      <IDEHeader
-        left={
-          <>
-            <HeaderTitleComponent
-              appState={appState}
-              currentPage={currentPage}
-            />
-            <EditorSaveIndicator
-              isSaving={isSaving}
-              saveError={pageSaveError}
-            />
-          </>
-        }
-        middle={
+      <IDEHeader>
+        <IDEHeader.Left>
+          <HeaderTitleComponent appState={appState} currentPage={currentPage} />
+          <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
+        </IDEHeader.Left>
+        <IDEHeader.Center>
           <Flex alignItems={"center"}>
             {currentWorkspace.name && (
               <>
@@ -272,99 +264,97 @@ const Header = () => {
               </>
             )}
           </Flex>
-        }
-        right={
-          <>
-            <HelpBar />
-            <StyledDivider orientation={"vertical"} />
-            <ToggleModeButton />
-            {applicationId && <EditorShareButton setShowModal={setShowModal} />}
-            <Modal
-              onOpenChange={(isOpen) => setShowModal(isOpen)}
-              open={showModal}
-            >
-              <ModalContent style={{ width: "640px" }}>
-                <ModalHeader>
-                  {createMessage(
-                    APPLICATION_INVITE,
-                    currentWorkspace.name,
-                    !isGACEnabled,
-                  )}
-                </ModalHeader>
-                <ModalBody>
-                  <Tabs
-                    onValueChange={(value) => setActiveTab(value)}
-                    value={activeTab}
-                  >
-                    <TabsList>
-                      <Tab data-testid="t--tab-INVITE" value="invite">
-                        {createMessage(INVITE_TAB)}
+        </IDEHeader.Center>
+        <IDEHeader.Right>
+          <HelpBar />
+          <StyledDivider orientation={"vertical"} />
+          <ToggleModeButton />
+          {applicationId && <EditorShareButton setShowModal={setShowModal} />}
+          <Modal
+            onOpenChange={(isOpen) => setShowModal(isOpen)}
+            open={showModal}
+          >
+            <ModalContent style={{ width: "640px" }}>
+              <ModalHeader>
+                {createMessage(
+                  APPLICATION_INVITE,
+                  currentWorkspace.name,
+                  !isGACEnabled,
+                )}
+              </ModalHeader>
+              <ModalBody>
+                <Tabs
+                  onValueChange={(value) => setActiveTab(value)}
+                  value={activeTab}
+                >
+                  <TabsList>
+                    <Tab data-testid="t--tab-INVITE" value="invite">
+                      {createMessage(INVITE_TAB)}
+                    </Tab>
+                    <Tab data-testid="t--tab-EMBED" value="embed">
+                      {createMessage(IN_APP_EMBED_SETTING.embed)}
+                    </Tab>
+                    {isPublishAppToCommunityEnabled && cloudHosting && (
+                      <Tab data-testid="t--tab-PUBLISH" value="publish">
+                        {createMessage(COMMUNITY_TEMPLATES.tabTitle)}
                       </Tab>
-                      <Tab data-testid="t--tab-EMBED" value="embed">
-                        {createMessage(IN_APP_EMBED_SETTING.embed)}
-                      </Tab>
-                      {isPublishAppToCommunityEnabled && cloudHosting && (
-                        <Tab data-testid="t--tab-PUBLISH" value="publish">
-                          {createMessage(COMMUNITY_TEMPLATES.tabTitle)}
-                        </Tab>
-                      )}
-                    </TabsList>
-                    <TabPanel value="invite">
-                      <AppInviteUsersForm
-                        applicationId={applicationId}
-                        workspaceId={currentWorkspace.id}
+                    )}
+                  </TabsList>
+                  <TabPanel value="invite">
+                    <AppInviteUsersForm
+                      applicationId={applicationId}
+                      workspaceId={currentWorkspace.id}
+                    />
+                  </TabPanel>
+                  <TabPanel value="embed">
+                    {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
+                  </TabPanel>
+                  {cloudHosting && (
+                    <TabPanel value="publish">
+                      <CommunityTemplatesPublishInfo
+                        onPublishClick={() =>
+                          setShowPublishCommunityTemplateModal(true)
+                        }
+                        setShowHostModal={setShowModal}
                       />
                     </TabPanel>
-                    <TabPanel value="embed">
-                      {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
-                    </TabPanel>
-                    {cloudHosting && (
-                      <TabPanel value="publish">
-                        <CommunityTemplatesPublishInfo
-                          onPublishClick={() =>
-                            setShowPublishCommunityTemplateModal(true)
-                          }
-                          setShowHostModal={setShowModal}
-                        />
-                      </TabPanel>
-                    )}
-                  </Tabs>
-                </ModalBody>
-              </ModalContent>
-            </Modal>
-            <PublishCommunityTemplateModal
-              onPublishSuccess={() => {
-                setShowPublishCommunityTemplateModal(false);
-                setShowModal(true);
-              }}
-              setShowModal={setShowPublishCommunityTemplateModal}
-              showModal={showPublishCommunityTemplateModal}
-            />
-            <div className="flex items-center">
-              <Tooltip
-                content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
-                placement="bottomRight"
+                  )}
+                </Tabs>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+          <PublishCommunityTemplateModal
+            onPublishSuccess={() => {
+              setShowPublishCommunityTemplateModal(false);
+              setShowModal(true);
+            }}
+            setShowModal={setShowPublishCommunityTemplateModal}
+            showModal={showPublishCommunityTemplateModal}
+          />
+          <div className="flex items-center">
+            <Tooltip
+              content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
+              placement="bottomRight"
+            >
+              <Button
+                className="t--application-publish-btn"
+                data-guided-tour-iid="deploy"
+                id={"application-publish-btn"}
+                isDisabled={isProtectedMode}
+                isLoading={isPublishing}
+                kind="tertiary"
+                onClick={() => handleClickDeploy(true)}
+                size="md"
+                startIcon={"rocket"}
               >
-                <Button
-                  className="t--application-publish-btn"
-                  data-guided-tour-iid="deploy"
-                  id={"application-publish-btn"}
-                  isDisabled={isProtectedMode}
-                  isLoading={isPublishing}
-                  kind="tertiary"
-                  onClick={() => handleClickDeploy(true)}
-                  size="md"
-                  startIcon={"rocket"}
-                >
-                  {DEPLOY_MENU_OPTION()}
-                </Button>
-              </Tooltip>
+                {DEPLOY_MENU_OPTION()}
+              </Button>
+            </Tooltip>
 
-              <DeployLinkButtonDialog link={deployLink} trigger="" />
-            </div>
-          </>
-        }
-      />
+            <DeployLinkButtonDialog link={deployLink} trigger="" />
+          </div>
+        </IDEHeader.Right>
+      </IDEHeader>
       <Omnibar />
     </>
   );
