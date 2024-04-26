@@ -26,8 +26,6 @@ import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
 import { runAction } from "actions/pluginActionActions";
-import { pasteWidget } from "actions/widgetActions";
-import { selectWidgetInitAction } from "actions/widgetSelectionActions";
 import type { ApiResponse } from "api/ApiResponses";
 import type { Template } from "api/TemplatesApi";
 import {
@@ -49,7 +47,15 @@ import type {
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import { all, call, put, select, take, takeEvery } from "redux-saga/effects";
+import {
+  all,
+  call,
+  put,
+  race,
+  select,
+  take,
+  takeEvery,
+} from "redux-saga/effects";
 import { getDataTree } from "selectors/dataTreeSelectors";
 import {
   getCanvasWidth,
@@ -81,7 +87,6 @@ import {
   getMousePositionFromCanvasGridPosition,
   getSnappedGrid,
 } from "./WidgetOperationUtils";
-import { SelectionRequestType } from "./WidgetSelectUtils";
 import {
   getDragDetails,
   getWidget,
@@ -89,9 +94,9 @@ import {
   getWidgets,
 } from "./selectors";
 
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
-import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -552,7 +557,7 @@ function* addBuildingBlockActionsToApp(dragDetails: DragDetails) {
   return response;
 }
 
-function* getBuildingBlocksDropMousePosition(
+export function* getBuildingBlocksDropMousePosition(
   topRow: number,
   leftColumn: number,
 ) {
@@ -630,7 +635,14 @@ export function* addBuildingBlockToApplication(
     });
 
     // makes sure updateAndSaveLayout completes first for skeletonWidget addition
-    yield take(ReduxActionTypes.SAVE_PAGE_SUCCESS);
+    const saveResult: unknown = yield race({
+      success: take(ReduxActionTypes.SAVE_PAGE_SUCCESS),
+      failure: take(ReduxActionErrorTypes.SAVE_PAGE_ERROR),
+    });
+
+    if (typeof saveResult === "object" && "failure" in saveResult!) {
+      throw new Error("Save page failed");
+    }
 
     const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
       yield call(addBuildingBlockActionsToApp, dragDetails);
@@ -638,12 +650,6 @@ export function* addBuildingBlockToApplication(
 
     if (isValid) {
       yield saveBuildingBlockWidgetsToStore(response);
-
-      const mousePosition: { x: number; y: number } = yield call(
-        getBuildingBlocksDropMousePosition,
-        topRow,
-        leftColumn,
-      );
 
       // remove skeleton loader just before pasting the building block
       yield put({
@@ -656,12 +662,22 @@ export function* addBuildingBlockToApplication(
         },
       });
 
-      yield put(pasteWidget(false, mousePosition));
+      yield put({
+        type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
+        payload: {
+          groupWidgets: false,
+          gridLocation: {
+            top: topRow,
+            left: leftColumn,
+          },
+        },
+      });
+
       const timeTakenToDropWidgetsInSeconds =
         (Date.now() - buildingBlockDragStartTimestamp) / 1000;
       yield call(postPageAdditionSaga, applicationId);
       // remove selecting of recently pasted widgets caused by pasteWidget
-      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
+      // yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       // stop loading after pasting process is complete
       yield put({

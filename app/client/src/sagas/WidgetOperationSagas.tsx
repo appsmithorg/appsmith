@@ -1170,6 +1170,7 @@ const getNewPositions = function* (
   copiedTotalWidth: number,
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
+  gridLocation?: { top: number; left: number },
 ) {
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -1221,6 +1222,7 @@ const getNewPositions = function* (
     copiedTotalWidth,
     copiedTopMostRow,
     copiedLeftMostColumn,
+    gridLocation,
   );
   return newPastingPositionDetails;
 };
@@ -1374,6 +1376,7 @@ function* getNewPositionsBasedOnMousePositions(
   copiedTotalWidth: number,
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
+  gridLocation?: { top: number; left: number },
 ) {
   let { canvasDOM, canvasId, containerWidget } =
     getDefaultCanvas(canvasWidgets);
@@ -1395,13 +1398,9 @@ function* getNewPositionsBasedOnMousePositions(
   );
 
   // get mouse positions in terms of grid rows and columns of the pasting canvas
-  const mousePositions = getMousePositions(
-    canvasRect,
-    canvasId,
-    snapGrid,
-    padding,
-    mouseLocation,
-  );
+  const mousePositions = gridLocation
+    ? gridLocation
+    : getMousePositions(canvasRect, canvasId, snapGrid, padding, mouseLocation);
 
   if (!snapGrid || !mousePositions) return {};
 
@@ -1489,6 +1488,7 @@ function* pasteWidgetSaga(
   action: ReduxAction<{
     groupWidgets: boolean;
     mouseLocation: { x: number; y: number };
+    gridLocation?: { top: number; left: number };
   }>,
 ) {
   const {
@@ -1584,6 +1584,7 @@ function* pasteWidgetSaga(
           copiedTotalWidth,
           topMostWidget.topRow,
           leftMostWidget.leftColumn,
+          action.payload.gridLocation,
         ));
 
       if (canvasId) pastingIntoWidgetId = canvasId;
