@@ -31,7 +31,7 @@
 
   & label {
     position: relative;
-    background: conic-gradient(from 275deg, red, yellow, lime, aqua, blue, magenta, red);
+    background: conic-gradient(from 180deg, red, orange, lime, aqua, blue, magenta, red);
   }
 
   & label input {
