@@ -72,7 +72,6 @@ export const KeyText = styled.span`
   overflow: hidden;
   flex: 1;
   font-size: 10px;
-  text-transform: uppercase;
   color: var(--ads-v2-color-fg);
   direction: rtl;
   margin-right: 8px;

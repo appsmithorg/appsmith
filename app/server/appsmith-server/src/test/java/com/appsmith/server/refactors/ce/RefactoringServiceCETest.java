@@ -813,11 +813,9 @@ class RefactoringServiceCETest {
         assert createdActionCollectionDTO1 != null;
         final Mono<ActionCollection> actionCollectionMono =
                 actionCollectionService.getById(createdActionCollectionDTO1.getId());
-        final Optional<String> optional =
-                createdActionCollectionDTO1.getDefaultToBranchedActionIdsMap().values().stream()
-                        .findFirst();
-        assert optional.isPresent();
-        final Mono<NewAction> actionMono = newActionService.findById(optional.get());
+        final Mono<NewAction> actionMono = newActionService
+                .findByCollectionIdAndViewMode(createdActionCollectionDTO1.getId(), false, null)
+                .next();
 
         StepVerifier.create(Mono.zip(actionCollectionMono, actionMono))
                 .assertNext(tuple -> {

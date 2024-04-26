@@ -111,7 +111,7 @@
     "d3-geo": "^3.1.0",
     "dayjs": "^1.10.6",
     "deep-diff": "^1.0.2",
-    "design-system": "npm:@appsmithorg/design-system@2.1.38",
+    "design-system": "npm:@appsmithorg/design-system@2.1.39",
     "design-system-old": "npm:@appsmithorg/design-system-old@1.1.16",
     "downloadjs": "^1.4.7",
     "echarts": "^5.4.2",

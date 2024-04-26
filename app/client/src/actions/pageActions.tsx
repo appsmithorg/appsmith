@@ -44,7 +44,6 @@ export interface CreatePageActionPayload {
   applicationId: string;
   name: string;
   layouts: Partial<PageLayout>[];
-  blockNavigation?: boolean;
 }
 
 export interface updateLayoutOptions {
@@ -176,7 +175,6 @@ export const createPage = (
   pageName: string,
   layouts: Partial<PageLayout>[],
   orgId: string,
-  blockNavigation?: boolean,
   instanceId?: string,
 ) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
@@ -190,7 +188,6 @@ export const createPage = (
       applicationId,
       name: pageName,
       layouts,
-      blockNavigation,
     },
   };
 };
@@ -199,7 +196,6 @@ export const createNewPageFromEntities = (
   applicationId: string,
   pageName: string,
   orgId: string,
-  blockNavigation?: boolean,
   instanceId?: string,
 ) => {
   AnalyticsUtil.logEvent("CREATE_PAGE", {
@@ -212,7 +208,6 @@ export const createNewPageFromEntities = (
     payload: {
       applicationId,
       name: pageName,
-      blockNavigation,
     },
   };
 };
