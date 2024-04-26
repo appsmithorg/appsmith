@@ -488,6 +488,13 @@ export function* handleExecuteJSFunctionSaga(data: {
         },
         state: { response: result },
       });
+    } else {
+      yield put({
+        type: ReduxActionTypes.JS_ACTION_REMOTE_EXECUTION_INIT,
+        payload: {
+          collectionId,
+        },
+      });
     }
   } catch (error) {
     // open response tab in debugger on runnning js action.
