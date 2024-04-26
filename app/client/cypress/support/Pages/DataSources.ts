@@ -632,10 +632,6 @@ export class DataSources {
         this.dataManager.dsValues[environment].mssql_databaseName;
       this.agHelper.ClearNType(this._databaseName, databaseName);
     }
-    // this.agHelper.UpdateInputValue(
-    //   this._databaseName,
-    //   datasourceFormData["mssql-databaseName"],
-    // ); //Commenting until MsSQL is init loaded into container
     this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].mssql_username,

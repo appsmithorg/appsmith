@@ -1328,18 +1328,6 @@ export class AggregateHelper {
     this.Sleep(500); //for value set to register
   }
 
-  public UpdateInputValue(selector: string, value: string, force = false) {
-    this.GetElement(selector)
-      .closest("input")
-      .scrollIntoView({ easing: "linear" })
-      .clear({ force })
-      .then(($input: any) => {
-        if (value !== "") {
-          cy.wrap($input).type(value, { delay: 3 });
-        }
-      });
-  }
-
   public BlurCodeInput(selector: string) {
     cy.wrap(selector)
       .find(".CodeMirror")
