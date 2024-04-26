@@ -45,7 +45,6 @@ import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 import static com.appsmith.server.services.ce.ApplicationPageServiceCEImpl.EVALUATION_VERSION;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -265,7 +264,6 @@ class RefactoringServiceCEImplTest {
         oldActionCollection.setId("testCollectionId");
         oldUnpublishedCollection.setPageId("testPageId");
         oldUnpublishedCollection.setName("oldName");
-        oldUnpublishedCollection.setDefaultToBranchedActionIdsMap(Map.of("defaultTestActionId", "testActionId"));
         oldActionCollection.setUnpublishedCollection(oldUnpublishedCollection);
         oldActionCollection.setDefaultResources(setDefaultResources(oldActionCollection));
         oldUnpublishedCollection.setDefaultResources(setDefaultResources(oldUnpublishedCollection));
