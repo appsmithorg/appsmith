@@ -93,11 +93,14 @@ const SearchableFilesList = (props: Props) => {
       >
         <SearchInput
           autoFocus
+          className="pb-[4px]"
           data-testid={"t--files-list-search-input"}
           onChange={filterHandler}
           onKeyDown={(e: KeyboardEvent) => e.stopPropagation()}
         />
-        <MenuGroup>{renderMenuItems(files)}</MenuGroup>
+        <MenuGroup className="h-[214px] overflow-scroll">
+          {renderMenuItems(files)}
+        </MenuGroup>
       </MenuContent>
     </Menu>
   );
