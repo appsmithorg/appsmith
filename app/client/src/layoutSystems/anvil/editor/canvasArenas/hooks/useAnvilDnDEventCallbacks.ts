@@ -77,6 +77,7 @@ export const useAnvilDnDEventCallbacks = ({
   const onMouseUp = useCallback(() => {
     if (
       isDragging &&
+      isCurrentDraggedCanvas &&
       canvasIsDragging.current &&
       currentSelectedHighlight.current &&
       !currentSelectedHighlight.current.existingPositionHighlight &&
@@ -86,7 +87,13 @@ export const useAnvilDnDEventCallbacks = ({
       onDrop(currentSelectedHighlight.current);
     }
     resetCanvasState();
-  }, [allowToDrop, isDragging, onDrop, resetCanvasState]);
+  }, [
+    allowToDrop,
+    isDragging,
+    isCurrentDraggedCanvas,
+    onDrop,
+    resetCanvasState,
+  ]);
 
   const getHighlightCompensator = useCallback(
     (highlight: AnvilHighlightInfo) =>
