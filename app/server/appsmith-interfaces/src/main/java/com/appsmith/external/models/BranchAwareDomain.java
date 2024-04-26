@@ -11,7 +11,7 @@ import static com.appsmith.external.helpers.StringUtils.dotted;
 @Setter
 @Getter
 @FieldNameConstants
-public abstract class BranchAwareDomain extends GitSyncedDomain {
+public abstract class BranchAwareDomain extends BaseDomain {
     // This field will be used to store the default/root resource IDs for branched resources generated for git
     // connected applications and will be used to connect resources across the branches
     @JsonView(Views.Internal.class)
@@ -23,7 +23,7 @@ public abstract class BranchAwareDomain extends GitSyncedDomain {
         super.sanitiseToExportDBObject();
     }
 
-    public static class Fields extends GitSyncedDomain.Fields {
+    public static class Fields extends BaseDomain.Fields {
         public static final String defaultResources_applicationId =
                 dotted(defaultResources, DefaultResources.Fields.applicationId);
         public static final String defaultResources_branchName =

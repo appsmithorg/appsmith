@@ -11,7 +11,6 @@ import {
 import type {
   ClonePageActionPayload,
   CreatePageActionPayload,
-  FetchPageListPayload,
 } from "actions/pageActions";
 import { createPage, fetchPublishedPage } from "actions/pageActions";
 import {
@@ -38,7 +37,6 @@ import type {
   ClonePageRequest,
   CreatePageRequest,
   DeletePageRequest,
-  FetchPageListResponse,
   FetchPageRequest,
   FetchPageResponse,
   FetchPageResponseData,
@@ -160,83 +158,6 @@ export const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
-
-export function* fetchPageListSaga(
-  fetchPageListAction: ReduxAction<FetchPageListPayload>,
-) {
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.FETCH_PAGE_LIST_API,
-  );
-  try {
-    const { applicationId, mode } = fetchPageListAction.payload;
-    const apiCall =
-      mode === APP_MODE.EDIT
-        ? PageApi.fetchPageList
-        : PageApi.fetchPageListViewMode;
-    const response: FetchPageListResponse = yield call(apiCall, applicationId);
-    const isValidResponse: boolean = yield validateResponse(response);
-    const prevPagesState: Page[] = yield select(getPageList);
-    const pagePermissionsMap = prevPagesState.reduce(
-      (acc, page) => {
-        acc[page.pageId] = page.userPermissions ?? [];
-        return acc;
-      },
-      {} as Record<string, string[]>,
-    );
-    if (isValidResponse) {
-      const workspaceId = response.data.workspaceId;
-      const pages: Page[] = response.data.pages.map((page) => ({
-        pageName: page.name,
-        description: page.description,
-        pageId: page.id,
-        isDefault: page.isDefault,
-        isHidden: !!page.isHidden,
-        slug: page.slug,
-        userPermissions: page.userPermissions
-          ? page.userPermissions
-          : pagePermissionsMap[page.id],
-      }));
-      yield put({
-        type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
-        payload: {
-          workspaceId,
-          editorId: applicationId,
-        },
-      });
-      yield put({
-        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-        payload: {
-          pages,
-          applicationId: applicationId,
-        },
-      });
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_LIST_API,
-      );
-    } else {
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_LIST_API,
-      );
-      yield put({
-        type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-        payload: {
-          error: response.responseMeta.error,
-        },
-      });
-    }
-  } catch (error) {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_LIST_API,
-      { failed: true },
-    );
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
 
 //Method to load the default page if current page is not found
 export function* refreshTheApp() {
@@ -758,8 +679,7 @@ export function* createNewPageFromEntity(
       },
     ];
 
-    const { applicationId, blockNavigation, name } =
-      createPageAction?.payload || {};
+    const { applicationId, name } = createPageAction?.payload || {};
 
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const instanceId: string | undefined = yield select(getInstanceId);
@@ -774,7 +694,6 @@ export function* createNewPageFromEntity(
         name,
         defaultPageLayouts,
         workspaceId,
-        blockNavigation,
         instanceId,
       ),
     );
@@ -835,13 +754,11 @@ export function* createPageSaga(
       });
       // TODO: Update URL params here
       // route to generate template for new page created
-      if (!createPageAction.payload.blockNavigation) {
-        history.push(
-          builderURL({
-            pageId: response.data.id,
-          }),
-        );
-      }
+      history.push(
+        builderURL({
+          pageId: response.data.id,
+        }),
+      );
     }
   } catch (error) {
     yield put({

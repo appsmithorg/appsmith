@@ -69,13 +69,7 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
       pages.map((page: Page) => page.pageName),
     );
     dispatch(
-      createNewPageFromEntities(
-        applicationId,
-        name,
-        workspaceId,
-        false,
-        instanceId,
-      ),
+      createNewPageFromEntities(applicationId, name, workspaceId, instanceId),
     );
   }, [dispatch, pages, applicationId]);
 
