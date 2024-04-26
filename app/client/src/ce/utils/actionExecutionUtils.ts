@@ -8,6 +8,7 @@ import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 import type { Plugin } from "api/PluginApi";
 import { get, isNil } from "lodash";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 export function getPluginActionNameToDisplay(action: Action) {
   return action.name;
@@ -90,3 +91,14 @@ export function getActionExecutionAnalytics(
 export function isBrowserExecutionAllowed(..._args: any[]) {
   return true;
 }
+
+export const getTestPayloadFromCollectionData = (
+  collectionData: JSCollectionData | undefined,
+): string => {
+  if (!collectionData) return "";
+  const activeJSActionId = collectionData?.activeJSActionId;
+  const testPayload: Record<string, any> | undefined =
+    collectionData?.data?.testPayload || {};
+  if (!activeJSActionId || !testPayload) return "";
+  return (testPayload[activeJSActionId] as string) || "";
+};
