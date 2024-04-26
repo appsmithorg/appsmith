@@ -55,7 +55,7 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
     Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission permission, Boolean view);
 
-    Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission);
+    Mono<Boolean> archivePagesByApplicationId(String applicationId, AclPermission permission);
 
     Mono<List<String>> findAllPageIdsInApplication(String applicationId, AclPermission permission, Boolean view);
 

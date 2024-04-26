@@ -73,7 +73,7 @@ public interface ActionCollectionServiceCE extends CrudService<ActionCollection,
     Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission);
 
-    Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission);
+    Mono<Boolean> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission);
 
     void populateDefaultResources(
             ActionCollection actionCollection, ActionCollection branchedActionCollection, String branchName);

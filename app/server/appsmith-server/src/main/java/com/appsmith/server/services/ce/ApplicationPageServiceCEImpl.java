@@ -579,12 +579,12 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     protected Mono<Application> deleteApplicationResources(Application application) {
         return actionCollectionService
                 .archiveActionCollectionByApplicationId(application.getId(), actionPermission.getDeletePermission())
-                .then(newActionService.archiveActionsByApplicationId(
-                        application.getId(), actionPermission.getDeletePermission()))
+                .then(Mono.defer(() -> newActionService.archiveActionsByApplicationId(
+                        application.getId(), actionPermission.getDeletePermission())))
                 .then(newPageService.archivePagesByApplicationId(
                         application.getId(), pagePermission.getDeletePermission()))
                 .then(themeService.archiveApplicationThemes(application))
-                .flatMap(applicationService::archive);
+                .then(applicationService.archive(application));
     }
 
     protected Mono<Application> sendAppDeleteAnalytics(Application deletedApplication) {
