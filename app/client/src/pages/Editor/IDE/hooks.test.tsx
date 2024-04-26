@@ -3,7 +3,6 @@ import { hookWrapper } from "test/testUtils";
 import { getIDETestState } from "test/factories/AppIDEFactoryUtils";
 import { PageFactory } from "test/factories/PageFactory";
 import { useGetPageFocusUrl } from "./hooks";
-import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 // eslint-disable-next-line @typescript-eslint/no-restricted-imports
 import { createEditorFocusInfo } from "../../../ce/navigation/FocusStrategy/AppIDEFocusStrategy";
 
@@ -17,15 +16,19 @@ describe("useGetPageFocusUrl", () => {
   const focusHistory = {
     [page1FocusHistory.key]: {
       entityInfo: page1FocusHistory.entityInfo,
-      state: { SelectedSegment: EditorEntityTab.JS },
+      state: { SelectedEntity: "app/app_id/page/page_id/edit/jsObjects/js_id" },
     },
     [page2FocusHistory.key]: {
       entityInfo: page2FocusHistory.entityInfo,
-      state: { SelectedSegment: EditorEntityTab.UI },
+      state: {
+        SelectedEntity: "app/app_id/page/page_id/edit/widgets/widgetId",
+      },
     },
     [page3FocusHistory.key]: {
       entityInfo: page3FocusHistory.entityInfo,
-      state: { SelectedSegment: EditorEntityTab.QUERIES },
+      state: {
+        SelectedEntity: "app/app_id/page/page_id/edit/queries/query_id",
+      },
     },
   };
 
@@ -40,7 +43,7 @@ describe("useGetPageFocusUrl", () => {
     });
 
     expect(result.current).toEqual(
-      "/app/application/page-page_id_1/edit/jsObjects",
+      "app/app_id/page/page_id/edit/jsObjects/js_id",
     );
   });
 
@@ -50,7 +53,7 @@ describe("useGetPageFocusUrl", () => {
     });
 
     expect(result.current).toEqual(
-      "/app/application/page-page_id_2/edit/widgets",
+      "app/app_id/page/page_id/edit/widgets/widgetId",
     );
   });
 
@@ -60,7 +63,7 @@ describe("useGetPageFocusUrl", () => {
     });
 
     expect(result.current).toEqual(
-      "/app/application/page-page_id_3/edit/queries",
+      "app/app_id/page/page_id/edit/queries/query_id",
     );
   });
 
@@ -84,7 +87,9 @@ describe("useGetPageFocusUrl", () => {
         ...focusHistory,
         [page1FocusHistoryWithBranch.key]: {
           entityInfo: page1FocusHistoryWithBranch.entityInfo,
-          state: { SelectedSegment: EditorEntityTab.UI },
+          state: {
+            SelectedEntity: "app/app_id/page/page_id/edit/widgets/widgetId2",
+          },
         },
       },
       branch,
@@ -97,7 +102,7 @@ describe("useGetPageFocusUrl", () => {
     });
 
     expect(result.current).toEqual(
-      "/app/application/page-page_id_1/edit/widgets",
+      "app/app_id/page/page_id/edit/widgets/widgetId2",
     );
   });
 });
