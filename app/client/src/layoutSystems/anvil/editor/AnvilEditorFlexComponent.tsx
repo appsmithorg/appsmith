@@ -49,7 +49,7 @@ export const AnvilEditorFlexComponent = (props: AnvilFlexComponentProps) => {
     props.widgetType,
     ref,
   );
-  useAnvilWidgetDrag(props.widgetId, props.layoutId, ref);
+  useAnvilWidgetDrag(props.widgetId, props.widgetType, props.layoutId, ref);
   useAnvilWidgetHover(props.widgetId, ref);
   // Note: For some reason native click callback listeners are somehow hindering with events required for toggle-able widgets like checkbox, switch, etc.
   // Hence supplying click and click capture callbacks to the AnvilFlexComponent
