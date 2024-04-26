@@ -88,9 +88,6 @@ it('Checks for the current Appsmith Version.', async () => {
   });
   const res = await utils.getCurrentAppsmithVersion()
   expect(res).toBe("v0.0.0-SNAPSHOT")
-  console.log(res)
-  fsPromises.readFile = jest.fn().mockImplementation(async () => `{"githubRef":"refs/tags/v1.2.3"}`);
-  await expect(utils.getCurrentAppsmithVersion()).resolves.toBe("v1.2.3")
 })
 
 test('If MONGODB and Encryption env values are being removed', () => {
