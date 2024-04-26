@@ -28,7 +28,9 @@ public class ObservationHelperImpl implements ObservationHelper {
     @Override
     public Span createSpan(String name) {
         Map<String, String> contextMap = MDC.getCopyOfContextMap();
-        if (contextMap != null && contextMap.containsKey(TRACE_ID) && contextMap.containsKey(SPAN_ID)) {
+        if (contextMap == null || !contextMap.containsKey(TRACE_ID) || !contextMap.containsKey(SPAN_ID)) {
+            return Span.NOOP;
+        } else {
             TraceContext traceContext = tracer.traceContextBuilder()
                     .traceId(contextMap.get(TRACE_ID))
                     .spanId(contextMap.get(SPAN_ID))
@@ -37,8 +39,6 @@ public class ObservationHelperImpl implements ObservationHelper {
             Span span = tracer.spanBuilder().setParent(traceContext).name(name).start();
 
             return span;
-        } else {
-            return Span.NOOP;
         }
     }
 
