@@ -49,7 +49,8 @@ const WidgetCardPreview = ({
     (e: MouseEvent) => {
       if (isDragging && dragPreviewRef.current) {
         if (initiatePositionStylesOfDragPreview.current) {
-          dragPreviewRef.current.style.zIndex = "10";
+          dragPreviewRef.current.style.zIndex =
+            " calc(var(--ads-on-canvas-ui-zindex) + 2)";
           // hiding the drag preview to and flipping display so that
           // the drag preview is not visible but its height and width are available
           // to calculate the position of the drag preview
@@ -109,11 +110,11 @@ export const AnvilDragPreview = ({
   isNewWidget: boolean;
 }) => {
   const cards = useSelector(getWidgetCards);
-  const cardProps = cards.find((card) => card.type === widgetType);
-  const showDragPreview = isDragging && !!cardProps;
   const widgetType = isNewWidget
     ? dragDetails?.newWidget?.type
     : dragDetails?.draggingGroupCenter?.widgetType || "";
+  const cardProps = cards.find((card) => card.type === widgetType);
+  const showDragPreview = isDragging && !!cardProps;
   const draggedWidgetCount = draggedBlocks.length;
   return showDragPreview
     ? createPortal(
