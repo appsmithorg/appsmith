@@ -6,6 +6,7 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -51,7 +52,8 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
             ActionCollectionRepository actionCollectionRepository,
             NewActionRepository newActionRepository,
             WorkspaceRepository workspaceRepository,
-            ForkableService<Datasource> datasourceForkableService) {
+            ForkableService<Datasource> datasourceForkableService,
+            UpdateLayoutService updateLayoutService) {
         super(
                 applicationService,
                 workspaceService,
@@ -73,6 +75,7 @@ public class ApplicationForkingServiceImpl extends ApplicationForkingServiceCEIm
                 actionCollectionRepository,
                 newActionRepository,
                 workspaceRepository,
-                datasourceForkableService);
+                datasourceForkableService,
+                updateLayoutService);
     }
 }

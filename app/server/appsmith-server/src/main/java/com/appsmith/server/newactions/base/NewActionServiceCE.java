@@ -96,6 +96,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Flux<ActionDTO> getUnpublishedActions(MultiValueMap<String, String> params, String branchName);
 
+    Mono<ActionDTO> deleteGivenNewAction(NewAction toDelete);
+
     Mono<ActionDTO> populateHintMessages(ActionDTO action);
 
     Mono<NewAction> save(NewAction action);
@@ -103,6 +105,8 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     Flux<NewAction> saveAll(List<NewAction> actions);
 
     Flux<NewAction> findByPageId(String pageId);
+
+    Mono<NewAction> archiveGivenNewAction(NewAction toDelete);
 
     Mono<NewAction> archive(NewAction newAction);
 
@@ -160,4 +164,6 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
     void updateDefaultResourcesInAction(NewAction newAction);
 
     Mono<Void> saveLastEditInformationInParent(ActionDTO actionDTO);
+
+    Flux<NewAction> findByCollectionIdAndViewMode(String collectionId, boolean viewMode, AclPermission aclPermission);
 }
