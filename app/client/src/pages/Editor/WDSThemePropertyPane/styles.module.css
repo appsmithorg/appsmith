@@ -10,6 +10,9 @@
   margin-inline-start: var(--ads-v2-spaces-1);
 
   & :is(button, label) {
+    display: flex;
+    align-items: center;
+    justify-content: center;
     height: var(--ads-v2-spaces-6);
     width: var(--ads-v2-spaces-6);
     border-radius: 50%;
@@ -20,7 +23,7 @@
     box-shadow: 0 0 0 3px var(--ads-color-black-100);
   }
 
-  & button[data-selected] {
+  & :is(button, label)[data-selected] {
     box-shadow:
       0 0 0 2px white,
       0 0 0 4px currentColor;
@@ -28,7 +31,7 @@
 
   & label {
     position: relative;
-    background: conic-gradient(red, yellow, lime, aqua, blue, magenta, red);
+    background: conic-gradient(from 180deg, red, orange, lime, aqua, blue, magenta, red);
   }
 
   & label input {
