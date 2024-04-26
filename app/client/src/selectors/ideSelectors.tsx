@@ -47,9 +47,5 @@ export const getQueryTabs = (state: AppState) =>
 
 export const getIDETabs = (state: AppState) => state.ui.ide.tabs;
 
-export const getIsTabsRevampEnabled = createSelector(
-  selectFeatureFlags,
-  (flags) => flags.release_ide_tabs_revamp_enabled,
-);
 export const getShowCreateNewModal = (state: AppState) =>
   state.ui.ide.showCreateModal;
