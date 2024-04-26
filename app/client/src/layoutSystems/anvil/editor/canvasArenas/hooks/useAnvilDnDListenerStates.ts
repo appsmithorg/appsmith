@@ -119,9 +119,6 @@ export const useAnvilDnDListenerStates = ({
       selectedWidgets,
       allWidgets,
     );
-  /**
-   * boolean that indicates if the widget being dragged in an overlay widget like the Modal widget.
-   */
   const isMainCanvas: boolean = layoutId === mainCanvasLayoutId;
   const isSection: boolean = layoutType === LayoutComponentTypes.SECTION;
   const draggedOn = isMainCanvas

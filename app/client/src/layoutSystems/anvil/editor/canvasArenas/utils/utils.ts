@@ -329,11 +329,12 @@ function calculateDistance(a: AnvilHighlightInfo, b: XYCord): number {
 /**
  * Function to render UX to denote that the widget type cannot be dropped in the layout
  */
-export const renderDisallowOnCanvas = (slidingArena: HTMLDivElement) => {
-  slidingArena.style.backgroundColor = "#EB714D";
-  slidingArena.style.color = "white";
+export const renderDisallowDroppingUI = (slidingArena: HTMLDivElement) => {
+  slidingArena.classList.add("disallow-dropping");
   slidingArena.innerText = "This Layout doesn't support the widget";
+};
 
-  slidingArena.style.textAlign = "center";
-  slidingArena.style.opacity = "0.8";
+export const removeDisallowDroppingsUI = (slidingArena: HTMLDivElement) => {
+  slidingArena.classList.remove("disallow-dropping");
+  slidingArena.innerText = "";
 };

@@ -17,6 +17,12 @@ const StyledDnDListener = styled.div<{
   paddingTop: number;
   zIndex: number;
 }>`
+  &.disallow-dropping {
+    background-color: #eb714d;
+    color: white;
+    text-align: center;
+    opacity: 0.8;
+  }
   position: absolute;
   pointer-events: all;
   top: ${(props) => -props.paddingTop}px;

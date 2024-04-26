@@ -13,14 +13,12 @@ import {
   getDraggedWidgetHierarchy,
   getDraggedWidgetTypes,
 } from "../../canvasArenas/utils/utils";
-import { getCurrentlyOpenAnvilModal } from "layoutSystems/anvil/integrations/modalSelectors";
 import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
 import type { AnvilDraggedWidgetTypesEnum } from "../../canvasArenas/types";
 import { useAnvilDnDDeactivation } from "./useAnvilDnDDeactivation";
 
 export interface AnvilGlobalDnDStates {
   activateOverlayWidgetDrop: boolean;
-  currentlyOpenModal: string | undefined;
   draggedBlocks: DraggedWidget[];
   dragDetails: DragDetails;
   draggedWidgetHierarchy: number;
@@ -103,18 +101,12 @@ export const useAnvilGlobalDnDStates = (): AnvilGlobalDnDStates => {
   );
 
   /**
-   * currently open modal
-   */
-  const currentlyOpenModal = useSelector(getCurrentlyOpenAnvilModal);
-
-  /**
    * This hook handles the deactivation of the canvas(Drop targets) while dragging.
    */
   useAnvilDnDDeactivation(isDragging, isNewWidget);
 
   return {
     activateOverlayWidgetDrop,
-    currentlyOpenModal,
     draggedBlocks,
     draggedWidgetHierarchy,
     dragDetails,

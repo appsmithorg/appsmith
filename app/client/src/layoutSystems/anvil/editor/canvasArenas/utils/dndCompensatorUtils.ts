@@ -1,63 +1,58 @@
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import type { Token } from "@design-system/theming";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { HIGHLIGHT_SIZE } from "layoutSystems/anvil/utils/constants";
-import { getAnvilCanvasId } from "layoutSystems/anvil/viewer/canvas/utils";
+import { EMPTY_MODAL_PADDING } from "../AnvilModalDropArena";
 
 /**
- * Widget spacing CSS variables
+ * DnD Compensation spacing tokens
+ *
+ * main canvas (Aligned Column layout component) using the value spacing-4 which is set via dsl transformer
+ * section widget (WDS widget) - no tokens currently, however we extend the DnD layer on both sides of the section inorder to be able to show highlights and catch mouse movements.
+ * zone widget spacing when elevated (WDS widget) - uses the --outer-spacing-3 value which is set on the widget from the container component.
+ * modal component body top spacing (WDS component) - uses the --outer-spacing-2 value which is set on the WDS component
+ * modal component body left spacing (WDS component) - uses the --outer-spacing-4 value which is set on the WDS component
+ *
+ * ToDo(#32983): These values are hardcoded here for now.
+ *
+ * Ideally they should be coming from a constant or from the entity it-selves as a property to the drag and drop layer.
+ * But we have DnD rendering on the layout component and each of these entities are defining there spacing in different places.
  */
-const WidgetSpacing = {
-  MAIN_CANVAS: "--outer-spacing-4",
-  ZONE: "--outer-spacing-3",
-  MODAL_TOP: "--outer-spacing-2",
-  MODAL_LEFT: "--outer-spacing-4",
+const CompensationSpacingTokens = {
+  MAIN_CANVAS: "4",
+  ZONE: "3",
+  MODAL_TOP: "2",
+  MODAL_LEFT: "4",
 };
 
-/**
- * Extract spacing style values from the main canvas
- */
-const extractSpacingStyleValues = (mainCanvasDom: HTMLElement) => {
-  const computedStyles = getComputedStyle(mainCanvasDom);
-
-  return {
-    mainCanvasSpacing: parseInt(
-      computedStyles.getPropertyValue(WidgetSpacing.MAIN_CANVAS),
-      10,
-    ),
-    zoneSpacing: parseInt(
-      computedStyles.getPropertyValue(WidgetSpacing.ZONE),
-      10,
-    ),
-    modalSpacing: {
-      top: parseInt(
-        computedStyles.getPropertyValue(WidgetSpacing.MODAL_TOP),
-        10,
-      ),
-      left: parseInt(
-        computedStyles.getPropertyValue(WidgetSpacing.MODAL_LEFT),
-        10,
-      ),
-    },
-  };
+const extractFloatValuesOutOfToken = (token: Token) => {
+  if (token) {
+    return parseFloat(token.value + "");
+  }
+  return 0;
 };
+
 /**
  * Get widget spacing CSS variable values
  */
-const getWidgetSpacingCSSVariableValues = () => {
-  const mainCanvasDom = document.getElementById(
-    getAnvilCanvasId(MAIN_CONTAINER_WIDGET_ID),
-  );
-  if (!mainCanvasDom) {
-    return {
-      mainCanvasSpacing: 0,
-      zoneSpacing: 0,
-      modalSpacing: {
-        top: 0,
-        left: 0,
-      },
-    };
-  }
-  return extractSpacingStyleValues(mainCanvasDom);
+const getWidgetSpacingCSSVariableValues = (outerSpacingTokens: {
+  [key: string]: Token;
+}) => {
+  return {
+    mainCanvasSpacing: extractFloatValuesOutOfToken(
+      outerSpacingTokens[CompensationSpacingTokens.MAIN_CANVAS],
+    ),
+    modalSpacing: {
+      top: extractFloatValuesOutOfToken(
+        outerSpacingTokens[CompensationSpacingTokens.MODAL_TOP],
+      ),
+      left: extractFloatValuesOutOfToken(
+        outerSpacingTokens[CompensationSpacingTokens.MODAL_LEFT],
+      ),
+    },
+    zoneSpacing: extractFloatValuesOutOfToken(
+      outerSpacingTokens[CompensationSpacingTokens.ZONE],
+    ),
+  };
 };
 
 /**
@@ -94,9 +89,13 @@ const getSectionCompensators = (mainCanvasSpacing: number) => {
     left: mainCanvasSpacing,
     top: 0,
   };
+  const edgeCompensatorValues = {
+    left: HIGHLIGHT_SIZE * 2,
+    top: 0,
+  };
   return {
     widgetCompensatorValues,
-    edgeCompensatorValues: widgetCompensatorValues,
+    edgeCompensatorValues,
     layoutCompensatorValues: widgetCompensatorValues,
   };
 };
@@ -114,17 +113,13 @@ const getModalCompensators = (
     left: 0,
     top: isEmptyLayout ? 0 : modalSpacing.top,
   };
-  const edgeCompensatorValues = {
-    left: 0,
-    top: isEmptyLayout ? 0 : modalSpacing.top,
-  };
   const layoutCompensatorValues = {
-    left: isEmptyLayout ? HIGHLIGHT_SIZE : 0,
-    top: isEmptyLayout ? HIGHLIGHT_SIZE : modalSpacing.top,
+    left: isEmptyLayout ? EMPTY_MODAL_PADDING : 0,
+    top: isEmptyLayout ? EMPTY_MODAL_PADDING : modalSpacing.top,
   };
   return {
     widgetCompensatorValues,
-    edgeCompensatorValues,
+    edgeCompensatorValues: widgetCompensatorValues,
     layoutCompensatorValues,
   };
 };
@@ -146,8 +141,8 @@ const getZoneCompensators = (
         top: zoneSpacing,
       }
     : {
-        left: 2 * HIGHLIGHT_SIZE,
-        top: 2 * HIGHLIGHT_SIZE,
+        left: HIGHLIGHT_SIZE / 2,
+        top: HIGHLIGHT_SIZE / 2,
       };
   const layoutCompensatorValues = isElevatedWidget
     ? {
@@ -172,9 +167,30 @@ export const getCompensatorsForHierarchy = (
   hierarchy: number,
   isEmptyLayout: boolean,
   isElevatedWidget: boolean,
+  outerSpacingTokens:
+    | {
+        [key: string]: Token;
+      }
+    | undefined,
 ) => {
+  if (!outerSpacingTokens) {
+    return {
+      widgetCompensatorValues: {
+        left: 0,
+        top: 0,
+      },
+      edgeCompensatorValues: {
+        left: 0,
+        top: 0,
+      },
+      layoutCompensatorValues: {
+        left: 0,
+        top: 0,
+      },
+    };
+  }
   const { mainCanvasSpacing, modalSpacing, zoneSpacing } =
-    getWidgetSpacingCSSVariableValues();
+    getWidgetSpacingCSSVariableValues(outerSpacingTokens);
   /**
    * Get compensators based on hierarchy
    * widgetCompensatorValues - compensates for the widget's additional dragging space outside widget and its layout ( Section Widget)

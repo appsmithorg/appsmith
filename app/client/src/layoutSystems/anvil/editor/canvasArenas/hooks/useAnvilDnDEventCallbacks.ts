@@ -8,7 +8,11 @@ import { throttle } from "lodash";
 import { useCallback, useRef } from "react";
 import { getPositionCompensatedHighlight } from "../utils/dndCompensatorUtils";
 import { useDispatch } from "react-redux";
-import { getClosestHighlight, renderDisallowOnCanvas } from "../utils/utils";
+import {
+  getClosestHighlight,
+  removeDisallowDroppingsUI,
+  renderDisallowDroppingUI,
+} from "../utils/utils";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import type { AnvilDnDListenerStates } from "./useAnvilDnDListenerStates";
 import type { LayoutElementPositions } from "layoutSystems/common/types";
@@ -66,9 +70,7 @@ export const useAnvilDnDEventCallbacks = ({
   const resetCanvasState = useCallback(() => {
     // Resetting the dnd listener state when necessary
     if (anvilDnDListenerRef.current) {
-      anvilDnDListenerRef.current.style.backgroundColor = "unset";
-      anvilDnDListenerRef.current.style.color = "unset";
-      anvilDnDListenerRef.current.innerText = "";
+      removeDisallowDroppingsUI(anvilDnDListenerRef.current);
       canvasIsDragging.current = false;
       dispatch(setHighlightsDrawnAction());
       setHighlightShown(null);
@@ -77,6 +79,7 @@ export const useAnvilDnDEventCallbacks = ({
   const onMouseUp = useCallback(() => {
     if (
       isDragging &&
+      isCurrentDraggedCanvas &&
       canvasIsDragging.current &&
       currentSelectedHighlight.current &&
       !currentSelectedHighlight.current.existingPositionHighlight &&
@@ -86,7 +89,13 @@ export const useAnvilDnDEventCallbacks = ({
       onDrop(currentSelectedHighlight.current);
     }
     resetCanvasState();
-  }, [allowToDrop, isDragging, onDrop, resetCanvasState]);
+  }, [
+    allowToDrop,
+    isDragging,
+    isCurrentDraggedCanvas,
+    onDrop,
+    resetCanvasState,
+  ]);
 
   const getHighlightCompensator = useCallback(
     (highlight: AnvilHighlightInfo) =>
@@ -143,7 +152,7 @@ export const useAnvilDnDEventCallbacks = ({
         {
           if (anvilDnDListenerRef.current && !allowToDrop) {
             // Render disallow message if dropping is not allowed
-            renderDisallowOnCanvas(anvilDnDListenerRef.current);
+            renderDisallowDroppingUI(anvilDnDListenerRef.current);
             return;
           }
           // Get the closest highlight based on the mouse position

@@ -43,7 +43,7 @@ const FileTabs = (props: Props) => {
 
   return (
     <ScrollArea
-      className="h-[32px]"
+      className="h-[32px] top-[0.5px]"
       data-testid="t--editor-tabs"
       options={
         isTabsRevampEnabled
