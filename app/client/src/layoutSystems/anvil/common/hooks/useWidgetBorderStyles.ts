@@ -3,13 +3,10 @@ import { Colors } from "constants/Colors";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import {
-  isCurrentWidgetFocused,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
+import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 
 export function useWidgetBorderStyles(widgetId: string) {
-  const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
+  const isFocused = useSelector(isWidgetFocused(widgetId));
   const isSelected = useSelector(isWidgetSelected(widgetId));
   const isDragging = useSelector(
     (state: AppState) => state.ui.widgetDragResize.isDragging,

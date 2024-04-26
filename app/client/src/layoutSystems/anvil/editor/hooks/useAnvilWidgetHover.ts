@@ -2,7 +2,7 @@ import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integration
 import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
-import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
+import { isWidgetFocused } from "selectors/widgetSelectors";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
 export const useAnvilWidgetHover = (
@@ -10,7 +10,7 @@ export const useAnvilWidgetHover = (
   ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent
 ) => {
   // Retrieve state from the Redux store
-  const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
+  const isFocused = useSelector(isWidgetFocused(widgetId));
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
 
