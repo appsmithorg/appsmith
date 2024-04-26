@@ -110,20 +110,16 @@ const getModalCompensators = (
   },
 ) => {
   const widgetCompensatorValues = {
-    left: isEmptyLayout ? -EMPTY_MODAL_PADDING : 0,
-    top: isEmptyLayout ? -EMPTY_MODAL_PADDING : modalSpacing.top,
-  };
-  const edgeCompensatorValues = {
     left: 0,
     top: isEmptyLayout ? 0 : modalSpacing.top,
   };
   const layoutCompensatorValues = {
-    left: isEmptyLayout ? 0 : 0,
-    top: isEmptyLayout ? 0 : modalSpacing.top,
+    left: isEmptyLayout ? EMPTY_MODAL_PADDING : 0,
+    top: isEmptyLayout ? EMPTY_MODAL_PADDING : modalSpacing.top,
   };
   return {
     widgetCompensatorValues,
-    edgeCompensatorValues,
+    edgeCompensatorValues: widgetCompensatorValues,
     layoutCompensatorValues,
   };
 };
