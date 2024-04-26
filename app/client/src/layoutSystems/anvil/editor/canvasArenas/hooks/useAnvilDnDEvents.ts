@@ -3,6 +3,7 @@ import { useEffect, useRef } from "react";
 import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/editor/canvasArenas/AnvilHighlightingCanvas";
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { useAnvilDnDEventCallbacks } from "./useAnvilDnDEventCallbacks";
+import { removeDisallowDroppingsUI } from "../utils/utils";
 
 /**
  * Hook to handle Anvil DnD events
@@ -29,9 +30,7 @@ export const useAnvilDnDEvents = (
     // Effect to handle changes in isCurrentDraggedCanvas
     if (anvilDnDListenerRef.current) {
       if (!isCurrentDraggedCanvas) {
-        anvilDnDListenerRef.current.style.backgroundColor = "unset";
-        anvilDnDListenerRef.current.style.color = "unset";
-        anvilDnDListenerRef.current.innerText = "";
+        removeDisallowDroppingsUI(anvilDnDListenerRef.current);
         canvasIsDragging.current = false;
         setHighlightShown(null);
       }

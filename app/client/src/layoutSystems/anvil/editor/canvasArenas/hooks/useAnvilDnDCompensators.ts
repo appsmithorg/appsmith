@@ -1,5 +1,6 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { getCompensatorsForHierarchy } from "../utils/dndCompensatorUtils";
+import { useTheme } from "@design-system/theming";
 
 export const useAnvilDnDCompensators = (
   canActivate: boolean,
@@ -8,6 +9,7 @@ export const useAnvilDnDCompensators = (
   isEmptyLayout: boolean,
   widgetProps: FlattenedWidgetProps,
 ) => {
+  const { theme } = useTheme();
   const isElevatedWidget = !!widgetProps.elevatedBackground;
   const {
     edgeCompensatorValues,
@@ -17,6 +19,7 @@ export const useAnvilDnDCompensators = (
     currentWidgetHierarchy,
     isEmptyLayout,
     isElevatedWidget,
+    theme.outerSpacing,
   );
   // to make sure main canvas and modal are both treated alike
   const currentHierarchy = Math.max(currentWidgetHierarchy, 1);
