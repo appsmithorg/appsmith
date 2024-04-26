@@ -76,17 +76,13 @@ import {
 import { getDebuggerContext } from "selectors/debuggerSelectors";
 import { setDebuggerContext } from "actions/debuggerActions";
 import { DefaultDebuggerContext } from "reducers/uiReducers/debuggerReducer";
-import { NavigationMethod } from "../../../utils/history";
+import { NavigationMethod } from "utils/history";
 import { JSEditorTab } from "reducers/uiReducers/jsPaneReducer";
-import {
-  getSelectedDatasourceId,
-  getSelectedSegment,
-} from "@appsmith/navigation/FocusSelectors";
+import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
 import {
   setSelectedDatasource,
   setSelectedJSObject,
   setSelectedQuery,
-  setSelectedSegment,
 } from "@appsmith/navigation/FocusSetters";
 import { getFirstDatasourceId } from "selectors/datasourceSelectors";
 import { FocusElement, FocusElementConfigType } from "navigation/FocusElements";
@@ -94,6 +90,7 @@ import type { FocusElementsConfigList } from "sagas/FocusRetentionSaga";
 import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import { setJSTabs, setQueryTabs } from "actions/ideActions";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
+import history from "../../../utils/history";
 
 export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.DATASOURCE_LIST]: [
@@ -296,9 +293,9 @@ export const AppIDEFocusElements: FocusElementsConfigList = {
   [FocusEntity.EDITOR]: [
     {
       type: FocusElementConfigType.URL,
-      name: FocusElement.SelectedSegment,
-      selector: getSelectedSegment,
-      setter: setSelectedSegment,
+      name: FocusElement.SelectedEntity,
+      selector: (url) => url,
+      setter: history.push,
     },
     {
       type: FocusElementConfigType.Redux,
