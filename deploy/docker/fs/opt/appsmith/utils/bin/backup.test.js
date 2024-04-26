@@ -81,7 +81,7 @@ test('Test ln command generation', async () => {
 it('Checks for the current Appsmith Version.', async () => {
   fsPromises.readFile = jest.fn().mockImplementation(async (path) => {
     if (path === "/opt/appsmith/info.json") {
-      return `{"githubRef": "v0.0.0-SNAPSHOT"}`
+      return `{"version": "v0.0.0-SNAPSHOT"}`
     } else {
       throw new Error("Unexpected file to read: " + path)
     }
