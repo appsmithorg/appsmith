@@ -29,11 +29,19 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable> e
      * @param entity The entity which needs to be archived
      * @return Optional<T>
      */
+    // TODO: Some code using this method relies on the `deletedAt` field being set.
+    @Deprecated(forRemoval = true)
     @Modifying
+    @Transactional
     /*no-cake*/ default T archive(T entity) {
-        // TODO: Some code using this method relies on the `deletedAt` field being set. So we can't use `archiveById`.
+        if (entity.isDeleted()) {
+            return entity;
+        }
+        // Setting the deletedAt and then saving the entity throwing the exceptions in few cases of trying to create
+        // new entry with same id hence relying on JPA generated method.
+        this.archiveById(entity.getId());
         entity.setDeletedAt(Instant.now());
-        return save(entity);
+        return entity;
     }
 
     /**
@@ -43,6 +51,7 @@ public interface BaseRepository<T extends BaseDomain, ID extends Serializable> e
      * @return
      */
     @Modifying
+    @Transactional
     @Query("UPDATE #{#entityName} e SET e.deletedAt = instant WHERE e.deletedAt IS NULL AND e.id = :id")
     /*no-cake*/ int archiveById(String id);
 

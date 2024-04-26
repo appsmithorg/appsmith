@@ -45,6 +45,7 @@ public abstract class BaseCake<T extends BaseDomain, R extends BaseRepository<T,
     // Wrappers for methods from BaseRepository
     // ---------------------------------------------------
 
+    @Deprecated(forRemoval = true)
     public Mono<T> archive(T entity) {
         return Mono.fromSupplier(() -> repository.archive(entity)).subscribeOn(Schedulers.boundedElastic());
     }

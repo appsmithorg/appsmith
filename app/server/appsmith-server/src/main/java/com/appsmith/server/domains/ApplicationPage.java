@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -20,6 +21,7 @@ import org.springframework.data.annotation.Transient;
 @NoArgsConstructor
 @Entity
 @Where(clause = "deleted_at IS NULL")
+@EqualsAndHashCode
 public class ApplicationPage {
 
     @Id
