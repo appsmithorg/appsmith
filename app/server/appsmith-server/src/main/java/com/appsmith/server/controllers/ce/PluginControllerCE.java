@@ -34,14 +34,14 @@ import java.util.List;
 @Slf4j
 public class PluginControllerCE {
 
-    private final PluginService service;
+    protected final PluginService service;
 
     private final PluginTriggerSolution pluginTriggerSolution;
 
     @JsonView(Views.Public.class)
     @GetMapping
     public Mono<ResponseDTO<List<Plugin>>> getAll(@RequestParam String workspaceId) {
-        log.debug("Going to get all plugins in {}", workspaceId);
+        log.debug("Getting all plugins in workspace {}", workspaceId);
         return service.getInWorkspace(workspaceId)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
