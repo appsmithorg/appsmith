@@ -156,6 +156,7 @@ export const updateDependencyMap = ({
                     const affectedNodes = dependencyMap.addDependency(
                       path,
                       references,
+                      true,
                     );
                     DependencyMapUtils.makeParentsDependOnChildCollection(
                       dependencyMap,
@@ -180,6 +181,7 @@ export const updateDependencyMap = ({
               const affectedNodes = dependencyMap.addDependency(
                 fullPropertyPath,
                 references,
+                true,
               );
               DependencyMapUtils.makeParentsDependOnChildCollection(
                 dependencyMap,
@@ -249,6 +251,7 @@ export const updateDependencyMap = ({
             const affectedNodes = dependencyMap.addDependency(
               fullPropertyPath,
               references,
+              true,
             );
             DependencyMapUtils.makeParentsDependOnChildCollection(
               dependencyMap,

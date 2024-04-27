@@ -66,6 +66,7 @@ export default class DependencyMap {
   public addDependency = (
     node: string,
     dependencies: string[],
+    shouldReturnAffectedNodes?: boolean,
   ): string[] | undefined => {
     // Only add dependencies for nodes present in the graph
     if (!this.#nodes.has(node)) return;
@@ -129,6 +130,10 @@ export default class DependencyMap {
     // Now set the new deps and invalidDeps
     this.#dependencies.set(node, validDependencies);
     this.#invalidDependencies.set(node, invalidDependencies);
+
+    if (!shouldReturnAffectedNodes) {
+      return;
+    }
     const mergedSet = new Set([
       ...previousNodeDependencies,
       ...(this.#dependencies.get(node) || []),
