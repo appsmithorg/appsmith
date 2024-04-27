@@ -48,6 +48,15 @@ export class DependencyMapUtils {
     }
     return dependencyMap;
   }
+  static makeParentsDependOnChildCollection(
+    dependencyMap: DependencyMap,
+    nodes?: string[],
+  ) {
+    nodes &&
+      nodes.forEach((node) => {
+        this.makeParentsDependOnChild(dependencyMap, node);
+      });
+  }
 
   static makeParentsDependOnChild = (
     dependencyMap: DependencyMap,
@@ -67,6 +76,7 @@ export class DependencyMapUtils {
       // don't perform addDependency unnecessarily
       if (!existingImmediateParentDepsSet.has(curKey)) {
         existingImmediateParentDeps.push(curKey);
+
         dependencyMap.addDependency(
           immediateParent,
           existingImmediateParentDeps,

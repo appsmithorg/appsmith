@@ -63,7 +63,10 @@ export default class DependencyMap {
    * @param node
    * @param dependencies
    */
-  public addDependency = (node: string, dependencies: string[]) => {
+  public addDependency = (
+    node: string,
+    dependencies: string[],
+  ): string[] | undefined => {
     // Only add dependencies for nodes present in the graph
     if (!this.#nodes.has(node)) return;
     const validDependencies = new Set<string>();
@@ -126,6 +129,14 @@ export default class DependencyMap {
     // Now set the new deps and invalidDeps
     this.#dependencies.set(node, validDependencies);
     this.#invalidDependencies.set(node, invalidDependencies);
+    const mergedSet = new Set([
+      ...previousNodeDependencies,
+      ...(this.#dependencies.get(node) || []),
+    ]);
+    const filterdNodes =
+      Array.from(mergedSet).filter((dep) => this.#nodes.has(dep)) || [];
+
+    return [node, ...filterdNodes];
   };
 
   private removeDependency = (node: string) => {
@@ -155,6 +166,7 @@ export default class DependencyMap {
       ? Object.keys(nodes)
       : sort(Object.keys(nodes)).desc((node) => node.split(".").length);
 
+    const ar = [];
     let didUpdateGraph = false;
     for (const newNode of nodesToAdd) {
       if (this.#nodes.has(newNode)) continue;
@@ -183,10 +195,13 @@ export default class DependencyMap {
           }
         }
       }
+
       for (const iNode of nodesThatAlreadyDependedOnThis) {
         // since the invalid node is now valid, add it to the valid dependencies.
         this.#dependencies.get(iNode)?.add(newNode);
         this.#invalidDependencies.get(iNode)?.delete(newNode);
+
+        ar.push(newNode);
         didUpdateGraph = true;
         if (this.#dependenciesInverse.has(newNode)) {
           this.#dependenciesInverse.get(newNode)?.add(iNode);
@@ -196,7 +211,7 @@ export default class DependencyMap {
       }
       this.#invalidDependenciesInverse.delete(newNode);
     }
-    return didUpdateGraph;
+    return didUpdateGraph ? ar : [];
   };
 
   removeNodes = (nodes: Record<string, true>) => {
