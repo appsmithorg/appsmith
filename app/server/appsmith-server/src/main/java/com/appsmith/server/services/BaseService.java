@@ -156,7 +156,7 @@ public abstract class BaseService<
 
         List<BridgeQuery<T>> criteria = new ArrayList<>();
         for (String fieldName : searchableEntityFields) {
-            criteria.add(Bridge.<T>query().searchIgnoreCase(fieldName, searchString));
+            criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
         }
 
         Flux<T> result = repository
@@ -194,7 +194,7 @@ public abstract class BaseService<
 
         List<BridgeQuery<T>> criteria = new ArrayList<>();
         for (String fieldName : searchableEntityFields) {
-            criteria.add(Bridge.<T>query().searchIgnoreCase(fieldName, searchString));
+            criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
         }
 
         Flux<T> result = repository

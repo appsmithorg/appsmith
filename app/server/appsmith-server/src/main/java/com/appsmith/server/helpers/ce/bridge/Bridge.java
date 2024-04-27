@@ -84,6 +84,10 @@ public final class Bridge {
         return Bridge.<T>query().regexMatchIgnoreCase(key, regexPattern);
     }
 
+    public static <T extends BaseDomain> BridgeQuery<T> searchIgnoreCase(@NonNull String key, @NonNull String needle) {
+        return Bridge.<T>query().searchIgnoreCase(key, needle);
+    }
+
     public static <T extends BaseDomain> BridgeQuery<T> in(@NonNull String key, @NonNull Collection<String> value) {
         return Bridge.<T>query().in(key, value);
     }
