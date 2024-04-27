@@ -42,7 +42,7 @@ public class PluginControllerCE {
     @GetMapping
     public Mono<ResponseDTO<List<Plugin>>> getAll(@RequestParam String workspaceId) {
         log.debug("Going to get all plugins in {}", workspaceId);
-        return service.get(workspaceId)
+        return service.getInWorkspace(workspaceId)
                 .collectList()
                 .map(resources -> new ResponseDTO<>(HttpStatus.OK.value(), resources, null));
     }

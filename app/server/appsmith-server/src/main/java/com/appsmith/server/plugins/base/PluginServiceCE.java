@@ -15,7 +15,7 @@ import java.util.Set;
 
 public interface PluginServiceCE extends CrudService<Plugin, String> {
 
-    Flux<Plugin> get(String workspaceId);
+    Flux<Plugin> getInWorkspace(String workspaceId);
 
     Flux<Plugin> getDefaultPlugins();
 
