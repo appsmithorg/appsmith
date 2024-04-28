@@ -15,7 +15,7 @@ mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
 if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
-  ip="$(curl -sS https://api64.ipify.org || echo unknown)"
+  ip="$(set -o pipefail; curl -sS https://cs.appsmith.com/api/v1/ip | grep -Eo '\d+(\.\d+){3}' || echo "unknown")"
   curl \
     --user "$APPSMITH_SEGMENT_CE_KEY:" \
     --header 'Content-Type: application/json' \
