@@ -439,7 +439,7 @@ public class ConsolidatedAPIServiceImplTest {
         sampleAiPlugin.setName("sampleAiPlugin");
         sampleAiPlugin.setId("sampleAiPluginId");
         sampleAiPlugin.setPackageName(APPSMITH_AI_PLUGIN);
-        when(mockPluginService.get(any()))
+        when(mockPluginService.getInWorkspace(anyString()))
                 .thenReturn(Flux.just(samplePlugin, sampleRestApiPlugin, sampleGraphqlPlugin, sampleAiPlugin));
 
         Datasource sampleDatasource = new Datasource();
