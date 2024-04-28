@@ -15,17 +15,16 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.regex.Pattern;
 
 @Slf4j
 @RequiredArgsConstructor
@@ -154,13 +153,15 @@ public abstract class BaseService<
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }
-        List<Criteria> criteriaList = searchableEntityFields.stream()
-                .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
-                .toList();
-        Criteria criteria = new Criteria().orOperator(criteriaList);
+
+        List<BridgeQuery<T>> criteria = new ArrayList<>();
+        for (String fieldName : searchableEntityFields) {
+            criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
+        }
+
         Flux<T> result = repository
                 .queryBuilder()
-                .criteria(criteria)
+                .criteria(Bridge.or(criteria))
                 .permission(permission)
                 .sort(sort)
                 .all();
@@ -190,14 +191,15 @@ public abstract class BaseService<
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }
-        List<Criteria> criteriaList = searchableEntityFields.stream()
-                .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
-                .toList();
-        Criteria criteria = new Criteria().orOperator(criteriaList);
+
+        List<BridgeQuery<T>> criteria = new ArrayList<>();
+        for (String fieldName : searchableEntityFields) {
+            criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
+        }
 
         Flux<T> result = repository
                 .queryBuilder()
-                .criteria(criteria)
+                .criteria(Bridge.or(criteria))
                 .permission(permission)
                 .sort(sort)
                 .includeAnonymousUserPermissions(false)
