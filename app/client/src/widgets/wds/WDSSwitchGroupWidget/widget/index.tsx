@@ -16,7 +16,8 @@ import {
   metaConfig,
   propertyPaneContentConfig,
   settersConfig,
-} from "./../config";
+  methodsConfig,
+} from "../config";
 import { validateInput } from "./helpers";
 import type { SwitchGroupWidgetProps, OptionProps } from "./types";
 
@@ -76,6 +77,10 @@ class WDSSwitchGroupWidget extends BaseWidget<
       selectedValues: undefined,
       isDirty: false,
     };
+  }
+
+  static getMethods() {
+    return methodsConfig;
   }
 
   componentDidUpdate(prevProps: SwitchGroupWidgetProps) {

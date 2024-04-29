@@ -95,6 +95,7 @@
     "@uppy/webcam": "^1.8.4",
     "@welldone-software/why-did-you-render": "^4.2.5",
     "algoliasearch": "^4.2.0",
+    "appsmith-icons": "workspace:^",
     "assert-never": "^1.2.1",
     "astring": "^1.7.5",
     "axios": "^1.6.0",

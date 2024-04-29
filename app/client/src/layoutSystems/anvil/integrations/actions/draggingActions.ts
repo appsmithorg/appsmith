@@ -10,6 +10,14 @@ import type {
 } from "./actionTypes";
 import { AnvilReduxActionTypes } from "./actionTypes";
 
+export const setHighlightsDrawnAction = (highlight?: AnvilHighlightInfo) => {
+  return {
+    type: AnvilReduxActionTypes.ANVIL_SET_HIGHLIGHT_SHOWN,
+    payload: {
+      highlight,
+    },
+  };
+};
 /**
  * Add new anvil widget to canvas.
  */

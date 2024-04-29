@@ -9,7 +9,8 @@ import {
   propertyPaneContentConfig,
   settersConfig,
   anvilConfig,
-} from "./../config";
+  methodsConfig,
+} from "../config";
 import type { InlineButtonsWidgetProps } from "./types";
 import { InlineButtonsComponent } from "../component";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
@@ -52,6 +53,10 @@ class WDSInlineButtonsWidget extends BaseWidget<
 
   static getAnvilConfig(): AnvilConfig | null {
     return anvilConfig;
+  }
+
+  static getMethods() {
+    return methodsConfig;
   }
 
   onButtonClick = (
