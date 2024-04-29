@@ -154,11 +154,5 @@ describe(
             });
         });
     });
-
-    // it("5. Should drag building block to canvas", () => {
-    //   cy.get(commonlocators.entityExplorersearch).should("be.visible");
-    //   cy.get(commonlocators.entityExplorersearch).clear().type("form");
-    //   cy.dragAndDropToCanvas("buildingblock", { x: 700, y: 30 });
-    // });
   },
 );
