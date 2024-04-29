@@ -597,7 +597,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                     .map(idPoliciesOnly -> {
                         NewPage newPage = new NewPage();
-                        newPage.setId(idPoliciesOnly.getId());
+                        newPage.setId(idPoliciesOnly.id());
                         newPage.setPolicies(idPoliciesOnly.getPolicies());
                         return newPage;
                     })
@@ -607,7 +607,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                     .map(idPoliciesOnly -> {
                         NewAction newAction = new NewAction();
-                        newAction.setId(idPoliciesOnly.getId());
+                        newAction.setId(idPoliciesOnly.id());
                         newAction.setPolicies(idPoliciesOnly.getPolicies());
                         return newAction;
                     })
