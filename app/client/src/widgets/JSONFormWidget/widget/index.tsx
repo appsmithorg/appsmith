@@ -816,7 +816,8 @@ class JSONFormWidget extends BaseWidget<
         setMetaInternalFieldState={this.setMetaInternalFieldState}
         showConnectDataOverlay={
           isEmpty(this.props.sourceData) &&
-          this.props.renderMode === RenderModes.CANVAS
+          this.props.renderMode === RenderModes.CANVAS &&
+          !this.props.isWidgetSelectionBlock
         }
         showReset={this.props.showReset}
         submitButtonLabel={this.props.submitButtonLabel}

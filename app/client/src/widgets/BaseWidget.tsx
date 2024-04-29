@@ -443,6 +443,7 @@ export interface WidgetBaseProps {
   widgetName: string;
   parentId?: string;
   renderMode: RenderMode;
+  isWidgetSelectionBlock?: boolean;
   version: number;
   childWidgets?: WidgetEntity[];
   flattenedChildCanvasWidgets?: Record<string, FlattenedWidgetProps>;

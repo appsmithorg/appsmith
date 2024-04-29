@@ -49,6 +49,7 @@ import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { isWidgetSelectedForPropertyPane } from "selectors/propertyPaneSelectors";
 import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
+import { getWidgetSelectionBlock } from "selectors/ui";
 
 const WIDGETS_WITH_CHILD_WIDGETS = ["LIST_WIDGET", "FORM_WIDGET"];
 const WIDGETS_REQUIRING_SELECTED_ANCESTRY = ["MODAL_WIDGET", "TABS_WIDGET"];
@@ -80,6 +81,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
     );
     const googleMapsApiKey = useSelector(getGoogleMapsApiKey);
     const renderMode = useSelector(getRenderMode);
+    const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
 
     const widgetName = canvasWidget?.widgetName || metaWidget?.widgetName;
 
@@ -245,6 +247,7 @@ function withWidgetProps(WrappedWidget: typeof BaseWidget) {
       layoutSystemType,
       renderMode,
       isPreviewMode,
+      isWidgetSelectionBlock,
     };
 
     // adding google maps api key to widget props (although meant for map widget only)
