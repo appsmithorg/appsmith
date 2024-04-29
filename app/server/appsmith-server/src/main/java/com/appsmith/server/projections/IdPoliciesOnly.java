@@ -6,5 +6,4 @@ import lombok.NonNull;
 
 import java.util.Set;
 
-@Getter
-public record IdPoliciesOnly(@NonNull String id, Set<Policy> policies) {}
+public record IdPoliciesOnly(@NonNull String id, @Getter Set<Policy> policies) {}
