@@ -6,7 +6,7 @@ import React, {
   useCallback,
 } from "react";
 import styled from "styled-components";
-import { Icon, Switch } from "design-system";
+import { Switch } from "design-system";
 import {
   Popover,
   InputGroup,
@@ -74,16 +74,7 @@ const ColorIcon = styled.div<{ color: string }>`
   background: ${(props) => (props.color ? props.color : "transparent")};
 `;
 
-const ColorPickerIconContainer = styled.div`
-  position: absolute;
-  top: 11px;
-  left: 6px;
-  height: 24px;
-  width: 24px;
-  z-index: 1;
-`;
-
-const StyledInputGroup = styled(InputGroup)<{
+export const StyledInputGroup = styled(InputGroup)<{
   $isValid?: boolean;
   $isFullColorPicker?: boolean;
 }>`
@@ -332,7 +323,7 @@ interface LeftIconProps {
   handleInputClick?: () => void;
 }
 
-function LeftIcon(props: LeftIconProps) {
+export function LeftIcon(props: LeftIconProps) {
   return isValidColor(props.color) && !isEmptyOrNill(props.color) ? (
     <ColorIcon
       className="rounded-full cursor-pointer"
@@ -340,12 +331,11 @@ function LeftIcon(props: LeftIconProps) {
       onClick={props.handleInputClick}
     />
   ) : (
-    <ColorPickerIconContainer
-      className="cursor-pointer"
+    <ColorIcon
+      className="rounded-full cursor-pointer"
+      color="white"
       onClick={props.handleInputClick}
-    >
-      <Icon name="sip-line" size="md" />
-    </ColorPickerIconContainer>
+    />
   );
 }
 

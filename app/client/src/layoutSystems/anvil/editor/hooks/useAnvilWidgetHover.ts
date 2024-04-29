@@ -1,3 +1,4 @@
+import type { AppState } from "@appsmith/reducers";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
@@ -13,7 +14,9 @@ export const useAnvilWidgetHover = (
   const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isDistributingSpace = useSelector(getAnvilSpaceDistributionStatus);
-
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
   // Access the focusWidget function from the useWidgetSelection hook
   const { focusWidget } = useWidgetSelection();
 
@@ -24,13 +27,21 @@ export const useAnvilWidgetHover = (
       focusWidget &&
         !isFocused &&
         !isDistributingSpace &&
+        !isDragging &&
         !isPreviewMode &&
         focusWidget(widgetId);
 
       // Prevent the event from propagating further
       e.stopPropagation();
     },
-    [focusWidget, isFocused, isDistributingSpace, isPreviewMode, widgetId],
+    [
+      focusWidget,
+      isFocused,
+      isDistributingSpace,
+      isPreviewMode,
+      widgetId,
+      isDragging,
+    ],
   );
 
   // Callback function for handling mouseleave events

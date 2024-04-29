@@ -405,6 +405,19 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     }
 
     @Override
+    public Flux<NewAction> findAllByCollectionIds(
+            List<String> collectionIds, boolean viewMode, AclPermission aclPermission) {
+        String collectionIdPath;
+        if (viewMode) {
+            collectionIdPath = NewAction.Fields.publishedAction_collectionId;
+        } else {
+            collectionIdPath = NewAction.Fields.unpublishedAction_collectionId;
+        }
+        BridgeQuery<NewAction> q = Bridge.in(collectionIdPath, collectionIds);
+        return queryBuilder().criteria(q).permission(aclPermission).all();
+    }
+
+    @Override
     public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
         String contextIdPath = NewAction.Fields.unpublishedAction_pageId;

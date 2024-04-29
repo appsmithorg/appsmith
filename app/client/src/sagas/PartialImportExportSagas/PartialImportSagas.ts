@@ -48,7 +48,12 @@ function* partialImportWidgetsSaga(file: File) {
     if ("widgets" in userUploadedJSON && userUploadedJSON.widgets.length > 0) {
       yield saveCopiedWidgets(userUploadedJSON.widgets);
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-      yield put(pasteWidget(false, { x: 0, y: 0 }));
+      yield put(
+        pasteWidget({
+          groupWidgets: false,
+          mouseLocation: { x: 0, y: 0 },
+        }),
+      );
     }
   } finally {
     if (existingCopiedWidgets) {

@@ -139,6 +139,8 @@ export class PropertyPane {
   _dropdownOptionSpan = ".t--dropdown-option span";
   public _propertyControlColorPicker = (property: string) =>
     `.t--property-control-${property} .bp3-input-group input`;
+  public _propertyControlSelectedColorButton = (property: string) =>
+    `.t--property-control-${property} ${this._fillColor}`;
   _propertyText = ".bp3-ui-text span";
   _paneTitle = ".t--property-pane-title";
   _segmentedControl = (value: string) =>

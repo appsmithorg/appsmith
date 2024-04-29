@@ -561,6 +561,8 @@ export interface WidgetCardProps {
   isBeta?: boolean;
   tags?: WidgetTags[];
   isSearchWildcard?: boolean;
+  IconCmp?: () => JSX.Element;
+  ThumbnailCmp?: () => JSX.Element;
 }
 
 export const WidgetOperations = {
