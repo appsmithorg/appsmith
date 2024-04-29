@@ -1,6 +1,5 @@
 import React from "react";
 import { isNumber, merge, toString } from "lodash";
-
 import * as config from "../config";
 import InputComponent from "../component";
 import { INPUT_TYPES } from "../constants";
@@ -37,10 +36,9 @@ class WDSInputWidget extends WDSBaseInputWidget<InputWidgetProps, WidgetState> {
   }
 
   static getPropertyPaneContentConfig() {
-    return mergeWidgetConfig(
-      config.propertyPaneContentConfig,
-      super.getPropertyPaneContentConfig(),
-    );
+    const parentConfig = super.getPropertyPaneContentConfig();
+
+    return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
   }
 
   static getPropertyPaneStyleConfig() {

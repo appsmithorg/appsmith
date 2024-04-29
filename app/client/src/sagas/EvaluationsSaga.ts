@@ -84,7 +84,11 @@ import {
   getAllJSActionsData,
 } from "@appsmith/selectors/entitiesSelector";
 import type { WidgetEntityConfig } from "@appsmith/entities/DataTree/types";
-import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
+import type {
+  ConfigTree,
+  DataTree,
+  UnEvalTree,
+} from "entities/DataTree/dataTreeTypes";
 import { initiateLinting, lintWorker } from "./LintingSagas";
 import type {
   EvalTreeRequestData,
@@ -103,7 +107,7 @@ import { parseUpdatesAndDeleteUndefinedUpdates } from "./EvaluationSaga.utils";
 import { getFeatureFlagsFetched } from "selectors/usersSelectors";
 import { getIsCurrentEditorWorkflowType } from "@appsmith/selectors/workflowSelectors";
 import { evalErrorHandler } from "./EvalErrorHandler";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 
 const APPSMITH_CONFIGS = getAppsmithConfigs();
@@ -126,15 +130,15 @@ export function* updateDataTreeHandler(
     evalTreeResponse: EvalTreeResponseData;
     unevalTree: UnEvalTree;
     requiresLogging: boolean;
+    configTree: ConfigTree;
   },
   postEvalActions?: Array<AnyReduxAction>,
 ) {
-  const { evalTreeResponse, requiresLogging, unevalTree } = data;
+  const { configTree, evalTreeResponse, requiresLogging, unevalTree } = data;
   const postEvalActionsToDispatch: Array<AnyReduxAction> =
     postEvalActions || [];
 
   const {
-    configTree,
     dependencies,
     errors,
     evalMetaUpdates = [],
@@ -262,6 +266,8 @@ export function* evaluateTreeSaga(
   const widgetsMeta: ReturnType<typeof getWidgetsMeta> =
     yield select(getWidgetsMeta);
 
+  const shouldRespondWithLogs = log.getLevel() === log.levels.DEBUG;
+
   const evalTreeRequestData: EvalTreeRequestData = {
     unevalTree: unEvalAndConfigTree,
     widgetTypeConfigMap,
@@ -273,6 +279,7 @@ export function* evaluateTreeSaga(
     metaWidgets,
     appMode,
     widgetsMeta,
+    shouldRespondWithLogs,
   };
 
   const workerResponse: EvalTreeResponseData = yield call(
@@ -283,7 +290,12 @@ export function* evaluateTreeSaga(
 
   yield call(
     updateDataTreeHandler,
-    { evalTreeResponse: workerResponse, unevalTree, requiresLogging },
+    {
+      evalTreeResponse: workerResponse,
+      unevalTree,
+      configTree: unEvalAndConfigTree.configTree,
+      requiresLogging,
+    },
     postEvalActions,
   );
 }

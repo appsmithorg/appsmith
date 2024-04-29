@@ -137,10 +137,6 @@ export const mockGetWidgetEvalValues = (
   ) as WidgetEntity;
 };
 
-export const mockGetIsAnvilLayout = (state: AppState) => {
-  return false;
-};
-
 export const syntheticTestMouseEvent = (
   event: MouseEvent,
   optionsToAdd = {},

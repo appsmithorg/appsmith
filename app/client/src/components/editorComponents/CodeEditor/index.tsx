@@ -37,7 +37,7 @@ import { ENTITY_TYPE } from "entities/DataTree/dataTreeFactory";
 import type { EvaluationSubstitutionType } from "@appsmith/entities/DataTree/types";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { Skin } from "constants/DefaultTheme";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import "components/editorComponents/CodeEditor/sql/customMimes";
 import "components/editorComponents/CodeEditor/modes";
 import type {

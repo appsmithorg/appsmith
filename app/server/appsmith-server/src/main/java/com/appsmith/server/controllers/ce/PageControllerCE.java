@@ -7,18 +7,18 @@ import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.CRUDPageResourceDTO;
 import com.appsmith.server.dtos.CRUDPageResponseDTO;
+import com.appsmith.server.dtos.PageCreationDTO;
 import com.appsmith.server.dtos.PageDTO;
+import com.appsmith.server.dtos.PageUpdateDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.solutions.CreateDBTablePageSolution;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,10 +30,10 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 @RequestMapping(Url.PAGE_URL)
+@RequiredArgsConstructor
 @Slf4j
 public class PageControllerCE {
 
@@ -41,27 +41,15 @@ public class PageControllerCE {
     private final NewPageService newPageService;
     private final CreateDBTablePageSolution createDBTablePageSolution;
 
-    @Autowired
-    public PageControllerCE(
-            ApplicationPageService applicationPageService,
-            NewPageService newPageService,
-            CreateDBTablePageSolution createDBTablePageSolution) {
-        this.applicationPageService = applicationPageService;
-        this.newPageService = newPageService;
-        this.createDBTablePageSolution = createDBTablePageSolution;
-    }
-
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<PageDTO>> createPage(
-            @Valid @RequestBody PageDTO resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = "Origin", required = false) String originHeader,
-            ServerWebExchange exchange) {
-        log.debug("Going to create resource {}", resource.getClass().getName());
+            @Valid @RequestBody PageCreationDTO page,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        log.debug("Going to create page {}", page.getClass().getName());
         return applicationPageService
-                .createPageWithBranchName(resource, branchName)
+                .createPageWithBranchName(page.toPageDTO(), branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
@@ -136,13 +124,6 @@ public class PageControllerCE {
                 .map(page -> new ResponseDTO<>(HttpStatus.OK.value(), page, null));
     }
 
-    @JsonView(Views.Public.class)
-    @GetMapping("{pageName}/application/{applicationName}/view")
-    public Mono<ResponseDTO<PageDTO>> getPageViewByName(
-            @PathVariable String applicationName, @PathVariable String pageName) {
-        return Mono.error(new AppsmithException(AppsmithError.DEPRECATED_API));
-    }
-
     /**
      * This only deletes the unpublished version of the page.
      * In case the page has never been published, the page gets deleted.
@@ -178,7 +159,7 @@ public class PageControllerCE {
     @PutMapping("/{defaultPageId}")
     public Mono<ResponseDTO<PageDTO>> updatePage(
             @PathVariable String defaultPageId,
-            @RequestBody PageDTO resource,
+            @RequestBody @Valid PageUpdateDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to update page with id: {}, branchName: {}", defaultPageId, branchName);
         return newPageService

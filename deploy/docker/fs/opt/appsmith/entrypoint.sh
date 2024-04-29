@@ -15,7 +15,7 @@ mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
 if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
-  ip="$(curl -sS https://api64.ipify.org || echo unknown)"
+  ip="$(set -o pipefail; curl -sS https://cs.appsmith.com/api/v1/ip | grep -Eo '\d+(\.\d+){3}' || echo "unknown")"
   curl \
     --user "$APPSMITH_SEGMENT_CE_KEY:" \
     --header 'Content-Type: application/json' \
@@ -458,7 +458,16 @@ function setup_auto_heal(){
    fi
 }
 
+print_appsmith_info(){
+  tr '\n' ' ' < /opt/appsmith/info.json
+}
+
+function capture_infra_details(){
+  bash /opt/appsmith/generate-infra-details.sh || true
+}
+
 # Main Section
+print_appsmith_info
 init_loading_pages
 init_env_file
 setup_proxy_variables
@@ -494,6 +503,7 @@ export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
 mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
+capture_infra_details
 
 # Handle CMD command
 exec "$@"

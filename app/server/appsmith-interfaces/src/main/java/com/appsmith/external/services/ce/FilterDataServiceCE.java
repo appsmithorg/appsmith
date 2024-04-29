@@ -8,6 +8,7 @@ import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginError;
 import com.appsmith.external.exceptions.pluginExceptions.AppsmithPluginException;
 import com.appsmith.external.models.Condition;
 import com.appsmith.external.models.UQIDataFilterParams;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -97,7 +98,7 @@ public class FilterDataServiceCE implements IFilterDataServiceCE {
 
     public FilterDataServiceCE() {
 
-        objectMapper = new ObjectMapper();
+        objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
 
         try {
             connection = DriverManager.getConnection(URL);

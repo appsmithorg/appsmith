@@ -9,7 +9,8 @@ import {
   propertyPaneContentConfig,
   propertyPaneStyleConfig,
   settersConfig,
-} from "./../config";
+  methodsConfig,
+} from "../config";
 import type { AnvilConfig } from "WidgetProvider/constants";
 import { Button, Item, Menu, MenuList } from "@design-system/widgets";
 import { isArray, orderBy } from "lodash";
@@ -18,7 +19,6 @@ import {
   EventType,
   type ExecuteTriggerPayload,
 } from "constants/AppsmithActionConstants/ActionConstants";
-import { Text } from "@design-system/widgets";
 
 class WDSMenuButtonWidget extends BaseWidget<
   MenuButtonWidgetProps,
@@ -69,6 +69,10 @@ class WDSMenuButtonWidget extends BaseWidget<
 
   static getSetterConfig(): SetterConfig {
     return settersConfig;
+  }
+
+  static getMethods() {
+    return methodsConfig;
   }
 
   menuItemClickHandler = (onClick: string | undefined, index: number) => {
@@ -187,9 +191,7 @@ class WDSMenuButtonWidget extends BaseWidget<
 
         <MenuList>
           {visibleItems.map((menuItem: MenuItem) => (
-            <Item key={menuItem.id}>
-              <Text color={menuItem.textColor}>{menuItem.label}</Text>
-            </Item>
+            <Item key={menuItem.id}>{menuItem.label}</Item>
           ))}
         </MenuList>
       </Menu>

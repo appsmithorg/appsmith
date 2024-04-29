@@ -112,6 +112,12 @@ export interface HighlightRenderInfo {
   width: number; // width of the highlight.
   posX: number; // x position of the highlight.
   posY: number; // y position of the highlight.
+  edgeDetails: {
+    top: boolean; // Whether the highlight is at the top edge of the layout.
+    bottom: boolean; // Whether the highlight is at the bottom edge of the layout.
+    left: boolean; // Whether the highlight is at the left edge of the layout.
+    right: boolean; // Whether the highlight is at the right edge of the layout.
+  };
 }
 
 export interface HighlightDropInfo {

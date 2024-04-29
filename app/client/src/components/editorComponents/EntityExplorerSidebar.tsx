@@ -25,7 +25,7 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { SIDEBAR_ID } from "constants/Explorer";
 import styled from "styled-components";
 import moment from "moment";
-import AnalyticsUtil from "../../utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 const StyledResizer = styled.div<{ resizing: boolean }>`
   ${(props) =>

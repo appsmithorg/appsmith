@@ -13,7 +13,6 @@ import { sagasToRunForTests } from "test/sagas";
 import {
   MockApplication,
   mockCreateCanvasWidget,
-  mockGetIsAnvilLayout,
   mockGetWidgetEvalValues,
   MockPageDSL,
   syntheticTestMouseEvent,
@@ -24,16 +23,12 @@ import { generateReactKey } from "utils/generators";
 import * as widgetRenderUtils from "utils/widgetRenderUtils";
 import * as widgetSelectionsActions from "actions/widgetSelectionActions";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
-import * as anvilSelectors from "layoutSystems/anvil/integrations/selectors";
 import Canvas from "pages/Editor/Canvas";
 
 describe("Canvas selection test cases", () => {
   jest
     .spyOn(dataTreeSelectors, "getWidgetEvalValues")
     .mockImplementation(mockGetWidgetEvalValues);
-  jest
-    .spyOn(anvilSelectors, "getIsAnvilLayout")
-    .mockImplementation(mockGetIsAnvilLayout);
   jest
     .spyOn(utilities, "computeMainContainerWidget")
     .mockImplementation((widget) => widget as any);

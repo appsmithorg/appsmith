@@ -109,8 +109,8 @@ function ForkApplicationModal(props: ForkApplicationModalProps) {
   const modalHeading = isFetchingApplications
     ? createMessage(FORK_APP_MODAL_LOADING_TITLE)
     : !workspaceList.length
-    ? createMessage(FORK_APP_MODAL_EMPTY_TITLE)
-    : createMessage(FORK_APP_MODAL_SUCCESS_TITLE);
+      ? createMessage(FORK_APP_MODAL_EMPTY_TITLE)
+      : createMessage(FORK_APP_MODAL_SUCCESS_TITLE);
 
   const getApplicationsListAndOpenModal = () => {
     !workspaceList.length &&

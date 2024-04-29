@@ -24,7 +24,7 @@ export enum FocusElement {
   InputField = "InputField",
   SelectedQuery = "SelectedQuery",
   SelectedJSObject = "SelectedJSObject",
-  SelectedSegment = "SelectedSegment",
+  SelectedEntity = "SelectedEntity",
   IDETabs = "IDETabs",
   QueryDebugger = "QueryDebugger",
   ApiDebugger = "ApiDebugger",

@@ -50,8 +50,8 @@ class ButtonTabControl extends BaseControl<ButtonTabControlProps> {
     const values: string[] = propertyValue
       ? propertyValue.split(",")
       : defaultValue
-      ? defaultValue.split(",")
-      : [];
+        ? defaultValue.split(",")
+        : [];
 
     if (values.includes(value)) {
       values.splice(values.indexOf(value), 1);

@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useMemo } from "react";
+import WidgetFactory from "../../../../WidgetProvider/factory";
 import Entity, { EntityClassNames } from "../Entity";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetType } from "constants/WidgetConstants";
@@ -9,7 +10,7 @@ import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureRed
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { useNavigateToWidget } from "./useNavigateToWidget";
 import WidgetIcon from "./WidgetIcon";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { useLocation } from "react-router";
 import { getPagePermissions } from "selectors/editorSelectors";
@@ -75,7 +76,9 @@ export interface WidgetEntityProps {
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const widgetsToExpand = useSelector(getEntityExplorerWidgetsToExpand);
-  const icon = <WidgetIcon type={props.widgetType} />;
+  // If the widget icon is a React component, then we get it from the Widget methods.
+  const { IconCmp } = WidgetFactory.getWidgetMethods(props.widgetType);
+  const icon = IconCmp ? <IconCmp /> : <WidgetIcon type={props.widgetType} />;
   const location = useLocation();
 
   const forceExpand = widgetsToExpand.includes(props.widgetId);

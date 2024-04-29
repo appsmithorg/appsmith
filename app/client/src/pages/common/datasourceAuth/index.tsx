@@ -10,7 +10,7 @@ import {
   toggleSaveActionFlag,
   updateDatasourceAuthState,
 } from "actions/datasourceActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { useParams, useLocation, useHistory } from "react-router";
 import type { ExplorerURLParams } from "@appsmith/pages/Editor/Explorer/helpers";
