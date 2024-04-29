@@ -4,6 +4,7 @@ import com.appsmith.external.models.BaseDomain;
 import lombok.NonNull;
 
 import java.util.Collection;
+import java.util.List;
 
 public class Bridge {
     private Bridge() {}
@@ -18,6 +19,10 @@ public class Bridge {
 
     @SafeVarargs
     public static <T extends BaseDomain> BridgeQuery<T> or(BridgeQuery<T>... items) {
+        return or(List.of(items));
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> or(Collection<BridgeQuery<T>> items) {
         final BridgeQuery<T> q = new BridgeQuery<>();
         q.checks.add(new Check.Or<>(items));
         return q;
@@ -25,6 +30,10 @@ public class Bridge {
 
     @SafeVarargs
     public static <T extends BaseDomain> BridgeQuery<T> and(BridgeQuery<T>... items) {
+        return and(List.of(items));
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> and(Collection<BridgeQuery<T>> items) {
         final BridgeQuery<T> q = new BridgeQuery<>();
         q.checks.add(new Check.And<>(items));
         return q;
@@ -52,6 +61,10 @@ public class Bridge {
 
     public static <T extends BaseDomain> BridgeQuery<T> equalIgnoreCase(@NonNull String key, @NonNull String value) {
         return Bridge.<T>query().equalIgnoreCase(key, value);
+    }
+
+    public static <T extends BaseDomain> BridgeQuery<T> searchIgnoreCase(@NonNull String key, @NonNull String needle) {
+        return Bridge.<T>query().searchIgnoreCase(key, needle);
     }
 
     public static <T extends BaseDomain> BridgeQuery<T> in(

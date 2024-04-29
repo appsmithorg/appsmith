@@ -13,4 +13,5 @@ public enum Op {
     EXISTS,
     NOT_EXISTS,
     AND,
+    SEARCH_IGNORE_CASE,
 }

@@ -23,6 +23,7 @@ import reactor.core.publisher.Mono;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -171,25 +172,26 @@ public abstract class BaseService<
             Pageable pageable,
             Sort sort,
             AclPermission permission) {
-        throw new ex.Marker("filterByEntityFields"); /*
+
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }
-        List<Criteria> criteriaList = searchableEntityFields.stream()
-                .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
-                .toList();
-        Criteria criteria = new Criteria().orOperator(criteriaList);
-        Flux<T> result = Mono.fromSupplier(() -> repositoryDirect
-                        .queryBuilder()
-                        .criteria(criteria)
-                        .permission(permission)
-                        .sort(sort)
-                        .all())
-                .flatMapMany(Flux::fromIterable);
+
+        List<BridgeQuery<T>> criteria = new ArrayList<>();
+        for (String fieldName : searchableEntityFields) {
+            criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
+        }
+
+        Flux<T> result = asFlux(() -> repositoryDirect
+                .queryBuilder()
+                .criteria(Bridge.or(criteria))
+                .permission(permission)
+                .sort(sort)
+                .all());
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result;//*/
+        return result;
     }
 
     /**
@@ -208,27 +210,26 @@ public abstract class BaseService<
             Pageable pageable,
             Sort sort,
             AclPermission permission) {
-        throw new ex.Marker("filterByEntityFieldsWithoutPublicAccess"); /*
 
         if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
             return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
         }
-        List<Criteria> criteriaList = searchableEntityFields.stream()
-                .map(fieldName -> Criteria.where(fieldName).regex(".*" + Pattern.quote(searchString) + ".*", "i"))
-                .toList();
-        Criteria criteria = new Criteria().orOperator(criteriaList);
 
-        Flux<T> result = Mono.fromSupplier(() -> repositoryDirect
-                        .queryBuilder()
-                        .criteria(criteria)
-                        .permission(permission)
-                        .sort(sort)
-                        .includeAnonymousUserPermissions(false)
-                        .all())
-                .flatMapMany(Flux::fromIterable);
+        List<BridgeQuery<T>> criteria = new ArrayList<>();
+        for (String fieldName : searchableEntityFields) {
+            criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
+        }
+
+        Flux<T> result = asFlux(() -> repositoryDirect
+                .queryBuilder()
+                .criteria(Bridge.or(criteria))
+                .permission(permission)
+                .sort(sort)
+                .includeAnonymousUserPermissions(false)
+                .all());
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
-        return result;//*/
+        return result;
     }
 }

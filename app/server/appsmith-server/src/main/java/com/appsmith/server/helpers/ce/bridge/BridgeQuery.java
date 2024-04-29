@@ -13,7 +13,6 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Stream;
 
 public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
     final List<Check> checks = new ArrayList<>();
@@ -41,6 +40,11 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
 
                 } else if (op == Op.EQ_IGNORE_CASE) {
                     predicate = cb.equal(cb.lower(root.get(key)), cb.literal(((String) value).toLowerCase()));
+
+                } else if (op == Op.SEARCH_IGNORE_CASE) {
+                    // TODO(Shri): Use `ilike` here with a custom function.
+                    final String escapedNeedle = ((String) value).toLowerCase().replaceAll("[_%]", "\\\\$0");
+                    predicate = cb.like(cb.lower(root.get(key)), cb.literal("%" + escapedNeedle + "%"));
 
                 } else if (op == Op.IS_TRUE) {
                     if (key.contains(".")) {
@@ -99,14 +103,12 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
                 }
 
             } else if (check instanceof Check.Or<? extends BaseDomain> orCheck) {
-                predicate = cb.or(Stream.of(((Check.Or<T>) orCheck).items())
-                        .map(s -> s.toPredicate(root, cq, cb))
-                        .toArray(Predicate[]::new));
+                predicate = cb.or(((Check.Or<T>) orCheck)
+                        .items().stream().map(s -> s.toPredicate(root, cq, cb)).toArray(Predicate[]::new));
 
-            } else if (check instanceof Check.And<? extends BaseDomain> orCheck) {
-                predicate = cb.and(Stream.of(((Check.And<T>) orCheck).items())
-                        .map(s -> s.toPredicate(root, cq, cb))
-                        .toArray(Predicate[]::new));
+            } else if (check instanceof Check.And<? extends BaseDomain> andCheck) {
+                predicate = cb.and(((Check.And<T>) andCheck)
+                        .items().stream().map(s -> s.toPredicate(root, cq, cb)).toArray(Predicate[]::new));
 
             } else {
                 throw new IllegalArgumentException();
@@ -147,6 +149,15 @@ public class BridgeQuery<T extends BaseDomain> implements Specification<T> {
 
     public BridgeQuery<T> equalIgnoreCase(String key, String value) {
         checks.add(new Check.Unit(Op.EQ_IGNORE_CASE, key, value));
+        return this;
+    }
+
+    public BridgeQuery<T> searchIgnoreCase(@NonNull String key, @NonNull String needle) {
+        if (key.contains(".")) {
+            throw new UnsupportedOperationException("Search-ignore-case is not supported for nested fields");
+        }
+
+        checks.add(new Check.Unit(Op.SEARCH_IGNORE_CASE, key, needle));
         return this;
     }
 
