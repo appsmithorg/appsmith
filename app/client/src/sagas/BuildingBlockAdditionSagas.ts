@@ -13,8 +13,6 @@ import {
   WidgetReduxActionTypes,
   type ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
-import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
-import { getActions } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -24,6 +22,7 @@ import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSele
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getJSCollectionById,
 } from "selectors/editorSelectors";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
@@ -36,6 +35,8 @@ import { getDragDetails, getWidgetByName } from "./selectors";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { addWidgetAndMoveWidgetsSaga } from "./CanvasSagas/DraggingCanvasSagas";
 import { pasteWidget } from "actions/widgetActions";
+import type { JSCollection } from "entities/JSCollection";
+import { PluginType } from "entities/Action";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -66,24 +67,47 @@ function* runSingleAction(actionId: string) {
   yield take(ReduxActionTypes.RUN_ACTION_SUCCESS);
 }
 
-function* runNewlyCreatedActions(
-  actionsBeforeAddingBuildingBlock: ActionDataState,
-  actionsAfterAddingBuildingBlocks: ActionDataState,
+function* runNewlyCreatedJSActions(
+  jsActions: {
+    collectionId: string;
+    actionId: string;
+  }[],
 ) {
-  const actionIdsBeforeAddingBB = actionsBeforeAddingBuildingBlock.map(
-    (obj) => obj.config.id,
-  );
-
-  const newlyAddedActions = actionsAfterAddingBuildingBlocks.filter(
-    (obj) => !actionIdsBeforeAddingBB.includes(obj.config.id),
-  );
-
   // Run each action sequentially. We have a max of 2-3 actions per building block.
   // If we run this in parallel, we will have a racing condition when multiple building blocks are drag and dropped quickly.
-  for (const action of newlyAddedActions) {
-    if (action.config.executeOnLoad) {
-      yield runSingleAction(action.config.id);
+  for (const jsAction of jsActions) {
+    const actionCollection: JSCollection = yield select(getJSCollectionById, {
+      match: {
+        params: {
+          collectionId: jsAction.collectionId,
+        },
+      },
+    });
+
+    for (const action of actionCollection.actions) {
+      yield put({
+        type: ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
+        payload: {
+          action,
+          collection: actionCollection,
+          from: "KEYBOARD_SHORTCUT",
+          openDebugger: false,
+        },
+      });
+      yield take(ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS);
     }
+  }
+}
+
+function* runNewlyCreatedActions(
+  actions: {
+    id: string;
+  }[],
+) {
+  // Run each action sequentially. We have a max of 2-3 actions per building block.
+  // If we run this in parallel, we will have a racing condition when multiple building blocks are drag and dropped quickly.
+  for (const action of actions) {
+    yield runSingleAction(action.id);
   }
 }
 
@@ -96,8 +120,6 @@ export function* loadBuildingBlocksIntoApplication(
     const dragDetails: DragDetails = yield select(getDragDetails);
     const applicationId: string = yield select(getCurrentApplicationId);
     const workspaceId: string = yield select(getCurrentWorkspaceId);
-    const actionsBeforeAddingBuildingBlock: ActionDataState =
-      yield select(getActions);
     const existingCopiedWidgets: unknown = yield call(getCopiedWidgets);
     const buildingBlockDragStartTimestamp: number = yield select(
       getBuildingBlockDragStartTimestamp,
@@ -155,16 +177,23 @@ export function* loadBuildingBlocksIntoApplication(
         type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_SUCCESS,
       });
 
-      const actionsAfterAddingBuildingBlocks: ActionDataState =
-        yield select(getActions);
-
       if (
         response.data.onPageLoadActions &&
         response.data.onPageLoadActions.length > 0
       ) {
         yield runNewlyCreatedActions(
-          actionsBeforeAddingBuildingBlock,
-          actionsAfterAddingBuildingBlocks,
+          response.data.onPageLoadActions
+            .filter((action) => action.pluginType !== PluginType.JS)
+            .map((action) => ({ id: action.id })),
+        );
+
+        yield runNewlyCreatedJSActions(
+          response.data.onPageLoadActions
+            .filter((action) => action.pluginType === PluginType.JS)
+            .map((action) => ({
+              collectionId: action.collectionId as string, // collectionId exists for JS actions only
+              actionId: action.id,
+            })),
         );
       }
 
