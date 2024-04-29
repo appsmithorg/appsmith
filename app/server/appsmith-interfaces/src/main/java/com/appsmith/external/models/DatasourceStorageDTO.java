@@ -17,13 +17,13 @@ public class DatasourceStorageDTO {
     String id;
     String datasourceId;
 
-    @JsonView(FromRequest.class)
+    @JsonView({Views.Public.class, FromRequest.class})
     String environmentId;
 
     @JsonView({Views.Public.class, FromRequest.class})
     DatasourceConfiguration datasourceConfiguration;
 
-    @JsonView(FromRequest.class)
+    @JsonView({Views.Public.class, FromRequest.class})
     Boolean isConfigured;
 
     Set<String> invalids;

@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.views.FromRequest;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
@@ -31,7 +32,7 @@ public class Connection implements AppsmithDomain {
 
     Type type;
 
-    @JsonView(FromRequest.class)
+    @JsonView({Views.Public.class, FromRequest.class})
     SSLDetails ssl;
 
     String defaultDatabaseName;
