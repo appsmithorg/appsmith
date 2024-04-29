@@ -36,37 +36,12 @@ public class CustomPermissionGroupRepositoryCEImpl extends BaseAppsmithRepositor
     @Override
     public List<PermissionGroup> findAllByAssignedToUserIdAndDefaultWorkspaceId(
             String userId, String workspaceId, AclPermission permission) {
-        /*
-        TODO (Shri/Abhijeet): Find better alternative for the queries based on jsonb columns
-        Seems to be failing with in operator applied over jsonb column where query generated ends up with failing to
-        detect the operator
-
-        > where (p1_0.deleted_at IS NULL) and p1_0."assigned_to_user_ids" in(?) and p1_0."default_domain_id"=domain_id
-        and p1_0."default_domain_type"='Workspace' and p1_0."deleted_at" is null ...
-
-        Error:
-        Caused by: org.postgresql.util.PSQLException: ERROR: operator does not exist: jsonb = character varying
-        Hint: No operator matches the given name and argument types. You might need to add explicit type casts.
-
-        BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>in(
-                        PermissionGroup.Fields.assignedToUserIds, List.of(userId))
+        BridgeQuery<PermissionGroup> query = Bridge.<PermissionGroup>jsonIn(
+                        userId, PermissionGroup.Fields.assignedToUserIds)
                 .equal(PermissionGroup.Fields.defaultDomainId, workspaceId)
                 .equal(PermissionGroup.Fields.defaultDomainType, Workspace.class.getSimpleName());
 
         return queryBuilder().criteria(query).permission(permission).all();
-
-         */
-        return queryBuilder()
-                .criteria((root, cq, cb) -> cb.and(
-                        cb.isTrue(cb.function(
-                                "jsonb_path_exists",
-                                Boolean.class,
-                                root.get(PermissionGroup.Fields.assignedToUserIds),
-                                cb.literal("$[*] ? (@ == \"" + userId + "\")"))),
-                        cb.equal(root.get(PermissionGroup.Fields.defaultDomainId), workspaceId),
-                        cb.equal(root.get(PermissionGroup.Fields.defaultDomainType), Workspace.class.getSimpleName())))
-                .permission(permission)
-                .all();
     }
 
     @Override
