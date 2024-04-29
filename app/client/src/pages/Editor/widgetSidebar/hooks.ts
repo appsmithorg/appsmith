@@ -17,9 +17,8 @@ import { isFixedLayoutSelector } from "selectors/layoutSystemSelectors";
  * @returns Object containing cards, grouped cards and entity loading states.
  */
 export const useUIExplorerItems = () => {
-  const releaseDragDropBuildingBlocks = useFeatureFlag(
-    FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
-  );
+  const releaseDragDropBuildingBlocks = true;
+  useFeatureFlag(FEATURE_FLAG.release_drag_drop_building_blocks_enabled);
   const isFixedLayout = useSelector(isFixedLayoutSelector);
   const dispatch = useDispatch();
   // check if entities have loaded

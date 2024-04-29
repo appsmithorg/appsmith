@@ -270,3 +270,12 @@ export const DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS = 62;
 export const BUILDING_BLOCK_MIN_HORIZONTAL_LIMIT = 2000;
 export const BUILDING_BLOCK_MIN_VERTICAL_LIMIT = 800;
 export const BUILDING_BLOCK_EXPLORER_TYPE = "BUILDING_BLOCK";
+
+export type PasteWidgetReduxAction = {
+  groupWidgets: boolean;
+  mouseLocation?: { x: number; y: number };
+  gridPosition?: { top: number; left: number };
+} & (
+  | { mouseLocation: { x: number; y: number }; gridPosition?: never }
+  | { mouseLocation?: never; gridPosition: { top: number; left: number } }
+);

@@ -9,6 +9,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import { resetWidgetMetaProperty } from "actions/metaActions";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import type { PasteWidgetReduxAction } from "constants/WidgetConstants";
 import {
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
@@ -1488,13 +1489,7 @@ function* getNewPositionsBasedOnMousePositions(
  * It allows using both mouseLocation or gridPosition to locate where the copied widgets should be dropped.
  * If gridPosition is available, use it, else, calculate gridPosition from mousePosition
  */
-function* pasteWidgetSaga(
-  action: ReduxAction<{
-    groupWidgets: boolean;
-    mouseLocation: { x: number; y: number };
-    gridPosition?: { top: number; left: number };
-  }>,
-) {
+function* pasteWidgetSaga(action: ReduxAction<PasteWidgetReduxAction>) {
   const {
     flexLayers,
     widgets: copiedWidgets,
@@ -1584,7 +1579,7 @@ function* pasteWidgetSaga(
         yield call(
           getNewPositions,
           copiedWidgetGroups,
-          action.payload.mouseLocation,
+          action.payload.mouseLocation as { x: number; y: number },
           copiedTotalWidth,
           topMostWidget.topRow,
           leftMostWidget.leftColumn,

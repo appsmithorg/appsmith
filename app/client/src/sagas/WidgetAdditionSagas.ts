@@ -44,7 +44,6 @@ import { generateWidgetProps } from "utils/WidgetPropsUtils";
 import { generateReactKey } from "utils/generators";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { isStack } from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
-import { addBuildingBlockToCanvasSaga } from "./BuildingBlocksSagas";
 import {
   buildWidgetBlueprint,
   executeWidgetBlueprintBeforeOperations,
@@ -53,6 +52,7 @@ import {
 } from "./WidgetBlueprintSagas";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { getWidget, getWidgets } from "./selectors";
+import { addBuildingBlockToCanvasSaga } from "./BuildingBlockAdditionSagas";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
