@@ -142,9 +142,9 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
         return new ResponseDTO<>(HttpStatus.OK.value(), data, null);
     }
 
-    <T> Mono<ResponseDTO<T>> getErrorResponseMono(Throwable error, Class<T> type) {
+    private <T> Mono<ResponseDTO<T>> getErrorResponseMono(Throwable error) {
         if (error instanceof AppsmithException appsmithException) {
-            return Mono.just(new ResponseDTO<T>(
+            return Mono.just(new ResponseDTO<>(
                     appsmithException.getHttpStatus(),
                     new ErrorDTO(
                             appsmithException.getAppErrorCode(),
@@ -155,6 +155,11 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
 
         return Mono.just(new ResponseDTO<T>(
                 INTERNAL_SERVER_ERROR_STATUS, new ErrorDTO(INTERNAL_SERVER_ERROR_CODE, error.getMessage())));
+    }
+
+    @Deprecated(forRemoval = true)
+    <T> Mono<ResponseDTO<T>> getErrorResponseMono(Throwable error, Class<T> type) {
+        return getErrorResponseMono(error);
     }
 
     public static String getQualifiedSpanName(String spanName, ApplicationMode mode) {
@@ -450,17 +455,12 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .cache();
 
             /* Get all plugins in workspace */
-            Mono<ResponseDTO<List>> listOfPluginsResponseDTOMonoCache = workspaceIdMonoCache
-                    .flatMap(workspaceId -> {
-                        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-                        if (!EMPTY_WORKSPACE_ID_ON_ERROR.equals(workspaceId)) {
-                            params.add(WORKSPACE_ID, workspaceId);
-                        }
-                        return pluginService.get(params).collectList();
-                    })
-                    .map(res -> (List) res)
+            Mono<ResponseDTO<List<Plugin>>> listOfPluginsResponseDTOMonoCache = workspaceIdMonoCache
+                    .flatMap(workspaceId -> EMPTY_WORKSPACE_ID_ON_ERROR.equals(workspaceId)
+                            ? Mono.empty()
+                            : pluginService.getInWorkspace(workspaceId).collectList())
                     .map(this::getSuccessResponse)
-                    .onErrorResume(error -> getErrorResponseMono(error, List.class))
+                    .onErrorResume(this::getErrorResponseMono)
                     .name(getQualifiedSpanName(PLUGINS_SPAN, mode))
                     .tap(Micrometer.observation(observationRegistry))
                     .cache();

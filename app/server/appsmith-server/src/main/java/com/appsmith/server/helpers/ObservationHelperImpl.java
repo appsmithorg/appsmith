@@ -8,6 +8,7 @@ import io.micrometer.tracing.Tracer;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
 
+import java.util.Map;
 import java.util.Optional;
 
 import static com.appsmith.external.constants.MDCConstants.SPAN_ID;
@@ -26,14 +27,19 @@ public class ObservationHelperImpl implements ObservationHelper {
 
     @Override
     public Span createSpan(String name) {
-        TraceContext traceContext = tracer.traceContextBuilder()
-                .traceId(MDC.getCopyOfContextMap().get(TRACE_ID))
-                .spanId(MDC.get(SPAN_ID))
-                .build();
+        Map<String, String> contextMap = MDC.getCopyOfContextMap();
+        if (contextMap == null || !contextMap.containsKey(TRACE_ID) || !contextMap.containsKey(SPAN_ID)) {
+            return Span.NOOP;
+        } else {
+            TraceContext traceContext = tracer.traceContextBuilder()
+                    .traceId(contextMap.get(TRACE_ID))
+                    .spanId(contextMap.get(SPAN_ID))
+                    .build();
 
-        Span span = tracer.spanBuilder().setParent(traceContext).name(name).start();
+            Span span = tracer.spanBuilder().setParent(traceContext).name(name).start();
 
-        return span;
+            return span;
+        }
     }
 
     @Override

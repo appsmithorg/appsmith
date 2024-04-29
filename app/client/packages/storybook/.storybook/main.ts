@@ -13,7 +13,7 @@ function getStories() {
     .sync(`${dsDir}/**/*.stories.@(ts|tsx)`, { nosort: true })
     .filter((storyPath) => !storyPath.includes("chromatic"));
 
-  return ["../../design-system/**/*.mdx", ...tsStories];
+  return ["../../design-system/**/*.mdx", "../../icons/**/*.mdx", ...tsStories];
 }
 
 const config: StorybookConfig = {
