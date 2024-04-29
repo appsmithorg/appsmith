@@ -701,41 +701,6 @@ function getStickyCanvasDOM(canvasId: string) {
 }
 
 /**
- * calculates mouse positions given canvas grid positions
- *
- * @param canvasRect canvas DOM rect
- * @param canvasId Id of the canvas widget
- * @param snapGrid grid parameters
- * @param padding padding inside of widget
- * @param canvasPosition position in canvas rows and columns
- * @returns
- */
-export function getMousePositionFromCanvasGridPosition(
-  top: number,
-  left: number,
-  snapGrid: { snapRowSpace: number; snapColumnSpace: number },
-  padding: number,
-  canvasId: string,
-) {
-  // Get the canvas element
-  const stickyCanvasDOM = getStickyCanvasDOM(canvasId);
-
-  if (!stickyCanvasDOM) return { x: 0, y: 0 };
-
-  const canvasRect = stickyCanvasDOM.getBoundingClientRect();
-
-  // Calculate actual mouse positions
-  const x = left * snapGrid.snapColumnSpace + padding;
-  const y = top * snapGrid.snapRowSpace + padding;
-
-  // Calculate actual mouse positions relative to the window
-  const actualX = x + canvasRect.left;
-  const actualY = y + canvasRect.top;
-
-  return { x: actualX, y: actualY };
-}
-
-/**
  * calculates mouse positions in terms of grid values
  *
  * @param canvasRect canvas DOM rect
