@@ -34,9 +34,6 @@ describe(
         locators._widgetInCanvas("imagewidget"),
       );
       dataSources.CreateDataSource("Postgres");
-      cy.get("@dsName").then(($dsName) => {
-        dsName = $dsName;
-      });
       cy.fixture("datasources").then((datasourceFormData: any) => {
         AppSidebar.navigate(AppSidebarButton.Editor);
         apiPage.CreateAndFillApi(
