@@ -5,6 +5,7 @@ import com.appsmith.external.helpers.Identifiable;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewPage;
@@ -50,6 +51,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
     private final UserUtils userUtils;
 
     private final ProjectProperties projectProperties;
+    private final DeploymentProperties deploymentProperties;
 
     private final UserDataRepository userDataRepository;
 
@@ -61,6 +63,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
             ConfigService configService,
             UserUtils userUtils,
             ProjectProperties projectProperties,
+            DeploymentProperties deploymentProperties,
             UserDataRepository userDataRepository) {
         this.analytics = analytics;
         this.sessionUserService = sessionUserService;
@@ -68,6 +71,7 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
         this.configService = configService;
         this.userUtils = userUtils;
         this.projectProperties = projectProperties;
+        this.deploymentProperties = deploymentProperties;
         this.userDataRepository = userDataRepository;
     }
 
@@ -255,6 +259,13 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     analyticsProperties.put("originService", "appsmith-server");
                     analyticsProperties.put("instanceId", instanceId);
                     analyticsProperties.put("version", projectProperties.getVersion());
+                    analyticsProperties.put("edition", deploymentProperties.getEdition());
+                    analyticsProperties.put("cloudProvider", deploymentProperties.getCloudProvider());
+                    analyticsProperties.put("efs", deploymentProperties.getEfs());
+                    analyticsProperties.put("tool", deploymentProperties.getTool());
+                    analyticsProperties.put("hostname", deploymentProperties.getHostname());
+                    analyticsProperties.put("deployedAt", deploymentProperties.getDeployedAt());
+
                     messageBuilder = messageBuilder.properties(analyticsProperties);
                     analytics.enqueue(messageBuilder);
                     return instanceId;

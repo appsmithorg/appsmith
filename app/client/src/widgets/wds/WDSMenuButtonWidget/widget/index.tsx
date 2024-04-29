@@ -9,7 +9,8 @@ import {
   propertyPaneContentConfig,
   propertyPaneStyleConfig,
   settersConfig,
-} from "./../config";
+  methodsConfig,
+} from "../config";
 import type { AnvilConfig } from "WidgetProvider/constants";
 import { Button, Item, Menu, MenuList } from "@design-system/widgets";
 import { isArray, orderBy } from "lodash";
@@ -68,6 +69,10 @@ class WDSMenuButtonWidget extends BaseWidget<
 
   static getSetterConfig(): SetterConfig {
     return settersConfig;
+  }
+
+  static getMethods() {
+    return methodsConfig;
   }
 
   menuItemClickHandler = (onClick: string | undefined, index: number) => {
