@@ -426,7 +426,6 @@ export function generateHighlights(
   const width: number = layoutDimension.width / arr.length;
 
   const isFirstHighlight: boolean = rowIndex === 0;
-
   let posY = 0;
   const emptyLayout = isFirstHighlight && isLastHighlight;
   let gap = 0;
@@ -468,6 +467,12 @@ export function generateHighlights(
     posY,
     rowIndex,
     width,
+    edgeDetails: {
+      top: isFirstHighlight,
+      bottom: isLastHighlight,
+      left: width * index === 0,
+      right: width * (index + 1) === layoutDimension.width,
+    },
     ...(isCurrentLayoutEmpty && !hasFillWidget
       ? {
           isVertical: true,

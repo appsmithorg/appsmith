@@ -351,6 +351,10 @@ export const getWidgetCards = createSelector(
         columns = autoLayoutConfig?.defaults?.columns ?? columns;
       }
 
+      const { IconCmp, ThumbnailCmp } = WidgetFactory.getWidgetMethods(
+        config.type,
+      );
+
       return {
         key,
         type,
@@ -360,6 +364,8 @@ export const getWidgetCards = createSelector(
         displayName,
         icon: iconSVG,
         thumbnail: thumbnailSVG,
+        IconCmp,
+        ThumbnailCmp,
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
