@@ -51,6 +51,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -118,6 +119,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, Plugin, S
 
                     Set<String> pluginIds = workspace.getPlugins().stream()
                             .map(WorkspacePlugin::getPluginId)
+                            .filter(Objects::nonNull)
                             .collect(Collectors.toUnmodifiableSet());
 
                     return repository.findAllById(pluginIds);
