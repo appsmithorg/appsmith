@@ -36,6 +36,12 @@ export function mockAnvilHighlightInfo(
     posX: 0,
     posY: 0,
     width: 4,
+    edgeDetails: {
+      bottom: false,
+      left: false,
+      right: false,
+      top: false,
+    },
     ...data,
   };
 }

@@ -122,7 +122,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       ? this.props.submitButtonText || "Submit"
       : undefined;
     const contentClassName = `${this.props.className} ${
-      this.props.allowWidgetInteraction ? styles.disableModalInteraction : ""
+      this.props.allowWidgetInteraction ? "" : styles.disableModalInteraction
     }`;
     return (
       <Modal
