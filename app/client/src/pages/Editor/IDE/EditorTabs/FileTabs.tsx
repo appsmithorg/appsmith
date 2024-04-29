@@ -1,8 +1,7 @@
 import React, { useEffect } from "react";
 import { useLocation } from "react-router";
-import { useSelector } from "react-redux";
 import clsx from "classnames";
-import { Flex, Icon, ScrollArea, Tooltip } from "design-system";
+import { Flex, Icon, ScrollArea } from "design-system";
 
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
 import {
@@ -11,7 +10,6 @@ import {
   TabTextContainer,
 } from "./StyledComponents";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import { getIsTabsRevampEnabled } from "selectors/ideSelectors";
 
 interface Props {
   tabs: EntityItem[];
@@ -21,7 +19,6 @@ interface Props {
 
 const FileTabs = (props: Props) => {
   const { navigateToTab, onClose, tabs } = props;
-  const isTabsRevampEnabled = useSelector(getIsTabsRevampEnabled);
 
   const location = useLocation();
 
@@ -45,21 +42,12 @@ const FileTabs = (props: Props) => {
     <ScrollArea
       className="h-[32px] top-[0.5px]"
       data-testid="t--editor-tabs"
-      options={
-        isTabsRevampEnabled
-          ? {
-              overflow: {
-                x: "scroll",
-                y: "hidden",
-              },
-            }
-          : {
-              overflow: {
-                x: "hidden",
-                y: "hidden",
-              },
-            }
-      }
+      options={{
+        overflow: {
+          x: "scroll",
+          y: "hidden",
+        },
+      }}
       size={"sm"}
     >
       <Flex gap="spaces-2" height="100%">
@@ -72,21 +60,16 @@ const FileTabs = (props: Props) => {
             data-testid={`t--ide-tab-${tab.title}`}
             key={tab.key}
             onClick={() => navigateToTab(tab)}
-            showOverflow={isTabsRevampEnabled}
           >
             <TabIconContainer>{tab.icon}</TabIconContainer>
-            <Tooltip content={tab.title} mouseEnterDelay={1}>
-              <TabTextContainer>{tab.title}</TabTextContainer>
-            </Tooltip>
+            <TabTextContainer>{tab.title}</TabTextContainer>
             {/* not using button component because of the size not matching design */}
-            {isTabsRevampEnabled ? (
-              <Icon
-                className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
-                data-testid="t--tab-close-btn"
-                name="close-line"
-                onClick={(e) => onCloseClick(e, tab.key)}
-              />
-            ) : null}
+            <Icon
+              className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
+              data-testid="t--tab-close-btn"
+              name="close-line"
+              onClick={(e) => onCloseClick(e, tab.key)}
+            />
           </StyledTab>
         ))}
       </Flex>
