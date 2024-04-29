@@ -182,12 +182,12 @@ public abstract class BaseService<
             criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
         }
 
-        Flux<T> result = repository
+        Flux<T> result = asFlux(() -> repositoryDirect
                 .queryBuilder()
                 .criteria(Bridge.or(criteria))
                 .permission(permission)
                 .sort(sort)
-                .all();
+                .all());
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
@@ -220,13 +220,13 @@ public abstract class BaseService<
             criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
         }
 
-        Flux<T> result = repository
+        Flux<T> result = asFlux(() -> repositoryDirect
                 .queryBuilder()
                 .criteria(Bridge.or(criteria))
                 .permission(permission)
                 .sort(sort)
                 .includeAnonymousUserPermissions(false)
-                .all();
+                .all());
         if (pageable != null) {
             return result.skip(pageable.getOffset()).take(pageable.getPageSize());
         }
