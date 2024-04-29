@@ -11,7 +11,6 @@ const Wrapper = styled.div`
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  text-align: center;
   height: calc(100vh - ${(props) => props.theme.headerHeight});
   .bold-text {
     font-weight: ${(props) => props.theme.fontWeights[3]};
