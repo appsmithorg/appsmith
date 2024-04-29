@@ -11,7 +11,7 @@ export class AnvilErrorBoundary extends ErrorBoundary {
   render() {
     return this.state.hasError ? (
       <p>
-        Oops, Something went wrong.
+        Something went wrong.
         <br />
         <RetryLink onClick={() => this.setState({ hasError: false })}>
           Click here to retry
