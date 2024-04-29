@@ -26,6 +26,7 @@ import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.ce.ArtifactGitFileUtilsCE;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.google.gson.Gson;
+import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -39,6 +40,8 @@ import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Type;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -547,5 +550,12 @@ public class ApplicationGitFileUtilsCEImpl implements ArtifactGitFileUtilsCE<App
             newPage.setPublishedPage(gson.fromJson(gson.toJson(newPage.getUnpublishedPage()), PageDTO.class));
         });
         applicationJson.setPageList(pages);
+    }
+
+    @Override
+    public Path getRepoSuffixPath(String workspaceId, String artifactId, String repoName, @NonNull String... args) {
+        List<String> varargs = new ArrayList<>(List.of(artifactId, repoName));
+        varargs.addAll(List.of(args));
+        return Paths.get(workspaceId, varargs.toArray(new String[0]));
     }
 }

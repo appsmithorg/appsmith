@@ -283,7 +283,11 @@ public class CommonGitFileUtilsCE {
     }
 
     public Mono<Map<String, Integer>> reconstructMetadataFromRepo(
-            String workspaceId, String applicationId, String repoName, String branchName, Path baseRepoSuffix) {
+            String workspaceId, String applicationId, String repoName, String branchName, ArtifactType artifactType) {
+
+        ArtifactGitFileUtils<?> artifactGitFileUtils = getArtifactBasedFileHelper(artifactType);
+        Path baseRepoSuffix = artifactGitFileUtils.getRepoSuffixPath(workspaceId, applicationId, repoName);
+
         return fileUtils
                 .reconstructMetadataFromGitRepo(workspaceId, applicationId, repoName, branchName, baseRepoSuffix)
                 .onErrorResume(error -> Mono.error(

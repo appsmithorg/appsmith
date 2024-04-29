@@ -9,6 +9,7 @@ import com.appsmith.external.dtos.MergeStatusDTO;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.external.git.constants.GitConstants;
 import com.appsmith.external.git.constants.GitSpan;
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.constants.ArtifactType;
@@ -43,6 +44,7 @@ import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.repositories.GitDeployKeysRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.GitArtifactHelper;
@@ -3488,5 +3490,30 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         }
 
         return Flux.merge(eventSenderMonos).then();
+    }
+
+    @Override
+    public Mono<Integer> getMetadataServerSchemaMigration(
+            String defaultArtifactId, String branchName, ArtifactType artifactType) {
+        GitArtifactHelper<?> gitArtifactHelper = getArtifactGitService(artifactType);
+        AclPermission readPermission = gitArtifactHelper.getArtifactReadPermission();
+
+        return gitArtifactHelper
+                .getArtifactById(defaultArtifactId, readPermission)
+                .flatMap(artifact -> {
+                    if (artifact.getGitArtifactMetadata() == null) {
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND));
+                    }
+
+                    String workspaceId = artifact.getWorkspaceId();
+                    String repoName = artifact.getGitArtifactMetadata().getRepoName();
+                    return commonGitFileUtils
+                            .reconstructMetadataFromRepo(
+                                    workspaceId, defaultArtifactId, branchName, repoName, artifactType)
+                            .map(metadataMap -> {
+                                return metadataMap.getOrDefault(
+                                        CommonConstants.SERVER_SCHEMA_VERSION, JsonSchemaVersions.serverVersion);
+                            });
+                });
     }
 }

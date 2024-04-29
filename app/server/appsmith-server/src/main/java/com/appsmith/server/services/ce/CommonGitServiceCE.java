@@ -107,4 +107,7 @@ public interface CommonGitServiceCE {
     Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId, ArtifactType artifactType);
 
     Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName, ArtifactType artifactType);
+
+    Mono<Integer> getMetadataServerSchemaMigration(
+            String defaultArtifactId, String branchName, ArtifactType artifactType);
 }
