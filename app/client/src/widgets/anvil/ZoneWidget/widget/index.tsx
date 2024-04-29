@@ -15,6 +15,7 @@ import {
   defaultConfig,
   propertyPaneContent,
   propertyPaneStyle,
+  methodsConfig,
 } from "./config";
 import BaseWidget from "widgets/BaseWidget";
 import type { WidgetProps, WidgetState } from "widgets/BaseWidget";
@@ -54,6 +55,10 @@ class ZoneWidget extends BaseWidget<ZoneWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return propertyPaneStyle;
+  }
+
+  static getMethods() {
+    return methodsConfig;
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
