@@ -16,9 +16,9 @@ public interface ApplicationRepositoryCE extends BaseRepository<Application, Str
 
     List<Application> findByIdIn(List<String> ids);
 
-    Optional<Long> countByWorkspaceId(String workspaceId);
+    List<Application> findByWorkspaceId(String workspaceId);
 
-    List<IdOnly> findIdsByWorkspaceId(String workspaceId);
+    Optional<Long> countByWorkspaceId(String workspaceId);
 
     List<IdOnly> findIdsByWorkspaceId(String workspaceId);
 
