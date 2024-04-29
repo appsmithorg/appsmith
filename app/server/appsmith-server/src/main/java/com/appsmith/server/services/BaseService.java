@@ -78,14 +78,6 @@ public abstract class BaseService<
     }
 
     @Override
-    public Flux<T> get(MultiValueMap<String, String> params) {
-        // In the base service we aren't handling the query parameters. In order to filter records using the query
-        // params,
-        // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
-        return repository.findAll();
-    }
-
-    @Override
     public Mono<T> getById(ID id) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));

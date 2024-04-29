@@ -573,8 +573,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         Optional<AclPermission> optionalAclPermission = Optional.empty();
         Mono<Application> applicationMonoWithOutPermission = applicationService
                 .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
-                .flatMap(branchedApplicationId ->
-                        applicationService.findById(branchedApplicationId, optionalAclPermission))
+                .flatMap(branchedApplicationId -> applicationService.findById(branchedApplicationId, null))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 

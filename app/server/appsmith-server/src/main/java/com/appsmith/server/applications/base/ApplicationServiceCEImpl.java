@@ -35,7 +35,6 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -78,7 +77,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         implements ApplicationServiceCE {
 
     private final PolicySolution policySolution;
-    private final ConfigService configService;
     private final ResponseUtils responseUtils;
     private final PermissionGroupService permissionGroupService;
     private final NewActionRepository newActionRepository;
@@ -99,7 +97,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             ApplicationRepository repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
-            ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
             NewActionRepository newActionRepository,
@@ -113,7 +110,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
         super(validator, repository, analyticsService);
         this.policySolution = policySolution;
-        this.configService = configService;
         this.responseUtils = responseUtils;
         this.permissionGroupService = permissionGroupService;
         this.newActionRepository = newActionRepository;
@@ -175,16 +171,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Mono<Application> findById(String id, Optional<AclPermission> aclPermission) {
-        return repository.findById(id, aclPermission).flatMap(this::setTransientFields);
-    }
-
-    @Override
-    public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
-        return repository.findByIdAndWorkspaceId(id, workspaceId, permission).flatMap(this::setTransientFields);
-    }
-
-    @Override
     public Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission) {
         return setTransientFields(repository.findByWorkspaceId(workspaceId, permission));
     }
@@ -238,11 +224,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                                     || GitUtils.isDefaultBranchedApplication(application);
                         })
                         .map(responseUtils::updateApplicationWithDefaultResources)));
-    }
-
-    @Override
-    public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
-        return repository.findByClonedFromApplicationId(applicationId, permission);
     }
 
     @Override
