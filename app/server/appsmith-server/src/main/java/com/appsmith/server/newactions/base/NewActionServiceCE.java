@@ -20,7 +20,6 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
 
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -109,9 +108,7 @@ public interface NewActionServiceCE extends CrudService<NewAction, String> {
 
     Mono<NewAction> archiveById(String id);
 
-    Mono<Boolean> archiveByIds(Collection<String> idList);
-
-    Mono<Boolean> archiveActionsByApplicationId(String applicationId, AclPermission permission);
+    Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission);
 
     List<MustacheBindingToken> extractMustacheKeysInOrder(String query);
 

@@ -469,10 +469,11 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
      * @return Provided Application publisher
      */
     @Override
-    public Mono<Boolean> archiveApplicationThemes(Application application) {
+    public Mono<Application> archiveApplicationThemes(Application application) {
         return repository
                 .archiveByApplicationId(application.getId())
                 .then(repository.archiveDraftThemesById(
-                        application.getEditModeThemeId(), application.getPublishedModeThemeId()));
+                        application.getEditModeThemeId(), application.getPublishedModeThemeId()))
+                .thenReturn(application);
     }
 }

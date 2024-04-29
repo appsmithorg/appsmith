@@ -59,5 +59,5 @@ public interface ThemeServiceCE extends CrudService<Theme, String> {
 
     Mono<Theme> getOrSaveTheme(Theme theme, Application destApplication);
 
-    Mono<Boolean> archiveApplicationThemes(Application application);
+    Mono<Application> archiveApplicationThemes(Application application);
 }

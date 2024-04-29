@@ -71,7 +71,6 @@ import reactor.util.function.Tuple2;
 
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -1484,14 +1483,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<Boolean> archiveByIds(Collection<String> idList) {
-        if (idList == null || idList.isEmpty()) {
-            return Mono.just(true);
-        }
-        return repository.archiveAllById(idList);
-    }
-
-    @Override
     public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
         Mono<NewAction> branchedActionMono =
                 this.findByBranchNameAndDefaultActionId(branchName, id, false, actionPermission.getDeletePermission());
@@ -1507,16 +1498,15 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<Boolean> archiveActionsByApplicationId(String applicationId, AclPermission permission) {
+    public Mono<List<NewAction>> archiveActionsByApplicationId(String applicationId, AclPermission permission) {
         return repository
                 .findByApplicationId(applicationId, permission)
-                .map(NewAction::getId)
-                .collectList()
-                .flatMap(repository::archiveAllById)
+                .flatMap(repository::archive)
                 .onErrorResume(throwable -> {
                     log.error(throwable.getMessage());
-                    return Mono.just(false);
-                });
+                    return Mono.empty();
+                })
+                .collectList();
     }
 
     public List<MustacheBindingToken> extractMustacheKeysInOrder(String query) {

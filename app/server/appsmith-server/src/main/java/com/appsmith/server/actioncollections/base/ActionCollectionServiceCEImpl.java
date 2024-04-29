@@ -478,11 +478,13 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     @Override
-    public Mono<Boolean> archiveActionCollectionByApplicationId(String applicationId, AclPermission permission) {
+    public Mono<List<ActionCollection>> archiveActionCollectionByApplicationId(
+            String applicationId, AclPermission permission) {
         return repository
                 .findByApplicationId(applicationId, permission, null)
                 .flatMap(actionCollection -> {
-                    Set<String> actionIds = new HashSet<>(actionCollection
+                    Set<String> actionIds = new HashSet<>();
+                    actionIds.addAll(actionCollection
                             .getUnpublishedCollection()
                             .getDefaultToBranchedActionIdsMap()
                             .values());
@@ -494,16 +496,15 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
                                 .getDefaultToBranchedActionIdsMap()
                                 .values());
                     }
-                    return newActionService
-                            .archiveByIds(actionIds)
+                    return Flux.fromIterable(actionIds)
+                            .flatMap(newActionService::archiveById)
                             .onErrorResume(throwable -> {
                                 log.error(throwable.getMessage());
                                 return Mono.empty();
                             })
-                            .thenReturn(actionCollection.getId());
+                            .then(repository.archive(actionCollection));
                 })
-                .collectList()
-                .flatMap(repository::archiveAllById);
+                .collectList();
     }
 
     @Override

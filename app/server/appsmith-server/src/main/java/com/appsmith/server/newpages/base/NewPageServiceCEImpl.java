@@ -472,11 +472,10 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<Boolean> archivePagesByApplicationId(String applicationId, AclPermission permission) {
+    public Mono<List<NewPage>> archivePagesByApplicationId(String applicationId, AclPermission permission) {
         return findNewPagesByApplicationId(applicationId, permission)
-                .map(NewPage::getId)
-                .collectList()
-                .flatMap(repository::archiveAllById);
+                .flatMap(repository::archive)
+                .collectList();
     }
 
     @Override
