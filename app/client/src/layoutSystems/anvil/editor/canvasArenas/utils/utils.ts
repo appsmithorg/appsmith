@@ -122,16 +122,11 @@ export const getDraggedBlocks = (
 };
 
 export const getClosestHighlight = (
-  e: MouseEvent,
+  pos: XYCord,
   highlights: AnvilHighlightInfo[],
 ) => {
   if (!highlights || !highlights.length) return;
 
-  // Current mouse coordinates.
-  const pos: XYCord = {
-    x: e.offsetX,
-    y: e.offsetY,
-  };
   /**
    * Filter highlights that  span the current mouse position.
    */
@@ -330,3 +325,16 @@ function calculateDistance(a: AnvilHighlightInfo, b: XYCord): number {
   }
   return Math.hypot(distX, distY);
 }
+
+/**
+ * Function to render UX to denote that the widget type cannot be dropped in the layout
+ */
+export const renderDisallowDroppingUI = (slidingArena: HTMLDivElement) => {
+  slidingArena.classList.add("disallow-dropping");
+  slidingArena.innerText = "This Layout doesn't support the widget";
+};
+
+export const removeDisallowDroppingsUI = (slidingArena: HTMLDivElement) => {
+  slidingArena.classList.remove("disallow-dropping");
+  slidingArena.innerText = "";
+};

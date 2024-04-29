@@ -45,10 +45,10 @@ class Zone extends AlignedLayoutColumn {
     };
   }
 
-  render() {
+  renderViewMode() {
     return (
       <ZoneColumn {...this.getFlexLayoutProps()}>
-        {this.renderContent()}
+        {this.renderChildren()}
       </ZoneColumn>
     );
   }
