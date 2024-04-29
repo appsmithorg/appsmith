@@ -1,6 +1,5 @@
 import React from "react";
 import { isNumber, merge, toString } from "lodash";
-
 import * as config from "../config";
 import InputComponent from "../component";
 import { INPUT_TYPES } from "../constants";

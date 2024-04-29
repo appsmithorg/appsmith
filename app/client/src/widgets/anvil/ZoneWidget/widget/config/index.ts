@@ -3,6 +3,7 @@ import { baseConfig } from "./baseConfig";
 import { defaultConfig } from "./defaultConfig";
 import { propertyPaneContent } from "./propertyPaneContent";
 import { propertyPaneStyle } from "./propertyPaneStyle";
+import { methodsConfig } from "./methodsConfig";
 
 export {
   anvilConfig,
@@ -10,4 +11,5 @@ export {
   defaultConfig,
   propertyPaneContent,
   propertyPaneStyle,
+  methodsConfig,
 };

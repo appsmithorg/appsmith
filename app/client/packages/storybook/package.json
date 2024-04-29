@@ -39,6 +39,7 @@
     "@design-system/theming": "workspace:^",
     "@design-system/widgets": "workspace:^",
     "@design-system/widgets-old": "workspace:^",
+    "appsmith-icons": "workspace:^",
     "colorjs.io": "^0.4.3"
   }
 }

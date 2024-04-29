@@ -330,4 +330,5 @@ export class CommonLocators {
   _exitFullScreen = ".application-demo-new-dashboard-control-exit-fullscreen";
   _menuItem = ".bp3-menu-item";
   _slashCommandHintText = ".slash-command-hint-text";
+  _selectionItem = ".rc-select-selection-item";
 }

@@ -45,6 +45,10 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     return config.anvilConfig;
   }
 
+  static getMethods() {
+    return config.methodsConfig;
+  }
+
   static getPropertyPaneContentConfig() {
     const parentConfig = clone(super.getPropertyPaneContentConfig());
 
