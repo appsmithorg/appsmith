@@ -164,13 +164,6 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
     }
 
     @Override
-    public Mono<Long> countByWorkspaceId(String workspaceId) {
-        return queryBuilder()
-                .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId))
-                .count();
-    }
-
-    @Override
     public Mono<Long> getGitConnectedApplicationWithPrivateRepoCount(String workspaceId) {
         return queryBuilder()
                 .criteria(Bridge.equal(Application.Fields.workspaceId, workspaceId)
