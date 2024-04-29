@@ -4,6 +4,7 @@ import {
   convertFlexGrowToFlexBasis,
   convertFlexGrowToFlexBasisForPropPane,
 } from "./spaceDistributionEditorUtils";
+import type { Token } from "@design-system/theming";
 
 // Interface representing the DOM elements associated with a space distribution zone
 export interface SpaceDistributionZoneDomCollection {
@@ -24,6 +25,11 @@ const adjustZoneFlexGrowForMagneticEffect = (
   zoneDomCollection: SpaceDistributionZoneDomCollection,
   leftZoneComputedColumnsRoundOff: number,
   rightZoneComputedColumnsRoundOff: number,
+  outerSpacing:
+    | {
+        [key: string]: Token;
+      }
+    | undefined,
 ) => {
   // Destructure zone DOM elements from the collection
   const {
@@ -49,9 +55,11 @@ const adjustZoneFlexGrowForMagneticEffect = (
   // Set new flexGrow values for left and right zones
   leftZoneDom.style.flexBasis = convertFlexGrowToFlexBasis(
     leftZoneComputedColumnsRoundOff,
+    outerSpacing,
   );
   rightZoneDom.style.flexBasis = convertFlexGrowToFlexBasis(
     rightZoneComputedColumnsRoundOff,
+    outerSpacing,
   );
 
   // Add same transition to the prop pane zone blocks if they exist
@@ -125,6 +133,11 @@ export const updateWidgetCSSOnHandleMove = (
   columnIndicatorDivRef: MutableRefObject<HTMLDivElement | undefined>,
   columnPosition: number,
   mouseSpeed: number,
+  outerSpacing:
+    | {
+        [key: string]: Token;
+      }
+    | undefined,
 ) => {
   // Check for resistive force during handle move
   applyResistiveForceOnHandleMove(
@@ -139,6 +152,7 @@ export const updateWidgetCSSOnHandleMove = (
     zoneDomCollection,
     leftZoneComputedColumnsRoundOff,
     rightZoneComputedColumnsRoundOff,
+    outerSpacing,
   );
 
   // Note down the new growth factor for the zones
@@ -163,6 +177,11 @@ export const updateWidgetCSSOnMinimumLimit = (
   currentFlexGrow: { [key: string]: number },
   currentGrowthFactor: { [key: string]: number },
   minimumShrinkableSpacePerBlock: number,
+  outerSpacing:
+    | {
+        [key: string]: Token;
+      }
+    | undefined,
 ) => {
   // Destructure zone DOM elements from the collection
   const {
@@ -183,9 +202,11 @@ export const updateWidgetCSSOnMinimumLimit = (
   if (leftZoneComputedColumns < minimumShrinkableSpacePerBlock) {
     leftZoneDom.style.flexBasis = convertFlexGrowToFlexBasis(
       minimumShrinkableSpacePerBlock,
+      outerSpacing,
     );
     rightZoneDom.style.flexBasis = convertFlexGrowToFlexBasis(
       totalSpace - minimumShrinkableSpacePerBlock,
+      outerSpacing,
     );
 
     // Reflect the changes on prop pane zones if they exist
@@ -208,9 +229,11 @@ export const updateWidgetCSSOnMinimumLimit = (
     // Check if the right zone needs to be shrunk
     rightZoneDom.style.flexBasis = convertFlexGrowToFlexBasis(
       minimumShrinkableSpacePerBlock,
+      outerSpacing,
     );
     leftZoneDom.style.flexBasis = convertFlexGrowToFlexBasis(
       totalSpace - minimumShrinkableSpacePerBlock,
+      outerSpacing,
     );
 
     // Reflect the changes on prop pane zones if they exist

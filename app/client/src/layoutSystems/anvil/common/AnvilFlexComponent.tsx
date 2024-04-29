@@ -14,6 +14,7 @@ import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPos
 import { Layers } from "constants/Layers";
 import { noop } from "utils/AppsmithUtils";
 import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
+import { useThemeContext } from "@design-system/theming";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
@@ -52,7 +53,7 @@ export const AnvilFlexComponent = forwardRef(
     // "Vertical Alignment" and "Asymmetric Padding". The code for the same can be found in `src/index.css`
     // Please do not remove this class.
     const _className = `${className} anvil-widget-wrapper`;
-
+    const { outerSpacing } = useThemeContext();
     const widgetConfigProps = useMemo(() => {
       const widgetConfig:
         | (Partial<WidgetProps> & WidgetConfigProps & { type: string })
@@ -71,7 +72,7 @@ export const AnvilFlexComponent = forwardRef(
       if (flexGrow) {
         // flexGrow is a widget property present only for zone widgets which represents the number of columns the zone occupies in a section.
         // pls refer to convertFlexGrowToFlexBasis for more details.
-        flexBasis = convertFlexGrowToFlexBasis(flexGrow);
+        flexBasis = convertFlexGrowToFlexBasis(flexGrow, outerSpacing);
       } else if (isFillWidget) {
         flexBasis = "0%";
       }
@@ -100,7 +101,7 @@ export const AnvilFlexComponent = forwardRef(
         data.paddingBottom = paddingBottom;
       }
       return data;
-    }, [widgetConfigProps, widgetSize, flexGrow]);
+    }, [widgetConfigProps, widgetSize, flexGrow, outerSpacing]);
 
     // Render the Anvil Flex Component using the Flex component from WDS
     return (
