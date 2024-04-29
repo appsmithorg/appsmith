@@ -273,8 +273,6 @@ export const BUILDING_BLOCK_EXPLORER_TYPE = "BUILDING_BLOCK";
 
 export type PasteWidgetReduxAction = {
   groupWidgets: boolean;
-  mouseLocation?: { x: number; y: number };
-  gridPosition?: { top: number; left: number };
 } & (
   | { mouseLocation: { x: number; y: number }; gridPosition?: never }
   | { mouseLocation?: never; gridPosition: { top: number; left: number } }
