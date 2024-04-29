@@ -51,6 +51,7 @@ html {
   height: 90%;
   flex-direction: column;
   margin-top: 5%;
+  text-align: center;
 }
 
 .not-found-img {
