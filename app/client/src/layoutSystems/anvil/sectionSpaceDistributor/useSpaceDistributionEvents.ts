@@ -21,7 +21,7 @@ import {
   updateWidgetCSSOnHandleMove,
   updateWidgetCSSOnMinimumLimit,
 } from "./utils/onMouseMoveUtils";
-import { useTheme } from "@design-system/theming";
+import { useThemeContext } from "@design-system/theming";
 
 interface SpaceDistributionEventsProps {
   ref: React.RefObject<HTMLDivElement>;
@@ -55,9 +55,8 @@ export const useSpaceDistributionEvents = ({
     getMouseSpeedTrackingCallback(currentMouseSpeed);
   const selectedWidgets = useSelector(getSelectedWidgets);
   const { selectWidget } = useWidgetSelection();
-  const {
-    theme: { outerSpacing },
-  } = useTheme();
+  const { outerSpacing } = useThemeContext();
+
   const selectCorrespondingSectionWidget = useCallback(() => {
     if (
       !(
