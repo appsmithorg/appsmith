@@ -29,10 +29,8 @@ import type {
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import {
-  addBuildingBlockToApplication,
-  getUpdateDslAfterCreatingChild,
-} from "sagas/WidgetAdditionSagas";
+import { addBuildingBlockToApplication } from "sagas/BuildingBlocksSagas";
+import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,

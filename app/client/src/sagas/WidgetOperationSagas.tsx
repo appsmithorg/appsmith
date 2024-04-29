@@ -1162,6 +1162,7 @@ export function calculateNewWidgetPosition(
  * @param copiedTotalWidth total width of the copied widgets
  * @param copiedTopMostRow top row of the top most copied widget
  * @param copiedLeftMostColumn left column of the left most copied widget
+ * @param gridPosition left and top canvas grid position values
  * @returns
  */
 const getNewPositions = function* (
@@ -1170,7 +1171,7 @@ const getNewPositions = function* (
   copiedTotalWidth: number,
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
-  gridLocation?: { top: number; left: number },
+  gridPosition?: { top: number; left: number },
 ) {
   const selectedWidgetIDs: string[] = yield select(getSelectedWidgets);
   const canvasWidgets: CanvasWidgetsReduxState = yield select(getWidgets);
@@ -1222,7 +1223,7 @@ const getNewPositions = function* (
     copiedTotalWidth,
     copiedTopMostRow,
     copiedLeftMostColumn,
-    gridLocation,
+    gridPosition,
   );
   return newPastingPositionDetails;
 };
@@ -1366,6 +1367,7 @@ function* getNewPositionsBasedOnSelectedWidgets(
  * @param copiedTotalWidth total width of the copied widgets
  * @param copiedTopMostRow top row of the top most copied widget
  * @param copiedLeftMostColumn left column of the left most copied widget
+ * @param gridPosition left and top canvas grid position values
  * @returns
  */
 function* getNewPositionsBasedOnMousePositions(
@@ -1376,7 +1378,7 @@ function* getNewPositionsBasedOnMousePositions(
   copiedTotalWidth: number,
   copiedTopMostRow: number,
   copiedLeftMostColumn: number,
-  gridLocation?: { top: number; left: number },
+  gridPosition?: { top: number; left: number },
 ) {
   let { canvasDOM, canvasId, containerWidget } =
     getDefaultCanvas(canvasWidgets);
@@ -1398,8 +1400,8 @@ function* getNewPositionsBasedOnMousePositions(
   );
 
   // get mouse positions in terms of grid rows and columns of the pasting canvas
-  const mousePositions = gridLocation
-    ? gridLocation
+  const mousePositions = gridPosition
+    ? gridPosition
     : getMousePositions(canvasRect, canvasId, snapGrid, padding, mouseLocation);
 
   if (!snapGrid || !mousePositions) return {};
@@ -1482,13 +1484,15 @@ function* getNewPositionsBasedOnMousePositions(
 }
 
 /**
- * this saga create a new widget from the copied one to store
+ * This saga create a new widget from the copied one to store.
+ * It allows using both mouseLocation or gridPosition to locate where the copied widgets should be dropped.
+ * If gridPosition is available, use it, else, calculate gridPosition from mousePosition
  */
 function* pasteWidgetSaga(
   action: ReduxAction<{
     groupWidgets: boolean;
     mouseLocation: { x: number; y: number };
-    gridLocation?: { top: number; left: number };
+    gridPosition?: { top: number; left: number };
   }>,
 ) {
   const {
@@ -1584,7 +1588,7 @@ function* pasteWidgetSaga(
           copiedTotalWidth,
           topMostWidget.topRow,
           leftMostWidget.leftColumn,
-          action.payload.gridLocation,
+          action.payload.gridPosition,
         ));
 
       if (canvasId) pastingIntoWidgetId = canvasId;
