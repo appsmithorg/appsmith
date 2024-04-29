@@ -94,7 +94,7 @@ function WDSThemePropertyPane() {
       });
       setAccentColor(e.target.value);
     }, 250),
-    [],
+    [theme, updateTheme],
   );
 
   const onColorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
