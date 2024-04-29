@@ -6,16 +6,21 @@ import {
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { useCallback } from "react";
 import { useDispatch } from "react-redux";
-import type { AnvilDnDStates } from "./useAnvilDnDStates";
+import type { AnvilDnDListenerStates } from "./useAnvilDnDListenerStates";
 import { anvilWidgets } from "widgets/anvil/constants";
 
 export const useAnvilWidgetDrop = (
   canvasId: string,
-  anvilDragStates: AnvilDnDStates,
+  anvilDragStates: AnvilDnDListenerStates,
 ) => {
   const dispatch = useDispatch();
-  const { dragDetails, dragMeta, isNewWidget, layoutElementPositions } =
-    anvilDragStates;
+  const {
+    dragDetails,
+    draggedBlocks,
+    dragMeta,
+    isNewWidget,
+    layoutElementPositions,
+  } = anvilDragStates;
   const generateNewWidgetBlock = useCallback(() => {
     const { newWidget } = dragDetails;
     const isSectionWidget = newWidget.type === anvilWidgets.SECTION_WIDGET;
@@ -36,17 +41,15 @@ export const useAnvilWidgetDrop = (
         addNewAnvilWidgetAction(newWidgetBlock, renderedBlock, dragMeta),
       );
     } else {
-      const sortDraggedBlocksByPosition = anvilDragStates.draggedBlocks.sort(
-        (a, b) => {
-          const aPos = layoutElementPositions[a.widgetId];
-          const bPos = layoutElementPositions[b.widgetId];
-          // sort by left then top
-          if (aPos.left === bPos.left) {
-            return aPos.top - bPos.top;
-          }
-          return aPos.left - bPos.left;
-        },
-      );
+      const sortDraggedBlocksByPosition = draggedBlocks.sort((a, b) => {
+        const aPos = layoutElementPositions[a.widgetId];
+        const bPos = layoutElementPositions[b.widgetId];
+        // sort by left then top
+        if (aPos.left === bPos.left) {
+          return aPos.top - bPos.top;
+        }
+        return aPos.left - bPos.left;
+      });
       dispatch(
         moveAnvilWidgets(renderedBlock, sortDraggedBlocksByPosition, dragMeta),
       );
