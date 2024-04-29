@@ -1472,8 +1472,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewPage newPage = new NewPage();
-                    newPage.setId(idPoliciesOnly.id());
-                    newPage.setPolicies(idPoliciesOnly.policies());
+                    newPage.setId(idPoliciesOnly.getId());
+                    newPage.setPolicies(idPoliciesOnly.getPolicies());
                     return newPage;
                 })
                 .flatMap(newPageRepository::setUserPermissionsInObject));
@@ -1481,8 +1481,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewAction newAction = new NewAction();
-                    newAction.setId(idPoliciesOnly.id());
-                    newAction.setPolicies(idPoliciesOnly.policies());
+                    newAction.setId(idPoliciesOnly.getId());
+                    newAction.setPolicies(idPoliciesOnly.getPolicies());
                     return newAction;
                 })
                 .flatMap(newActionRepository::setUserPermissionsInObject));
@@ -1490,8 +1490,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     ActionCollection actionCollection = new ActionCollection();
-                    actionCollection.setId(idPoliciesOnly.id());
-                    actionCollection.setPolicies(idPoliciesOnly.policies());
+                    actionCollection.setId(idPoliciesOnly.getId());
+                    actionCollection.setPolicies(idPoliciesOnly.getPolicies());
                     return actionCollection;
                 })
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject));
@@ -1540,8 +1540,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         .findIdsAndPoliciesByIdIn(datasourceIds)
                         .flatMap(idPolicy -> {
                             Datasource datasource = new Datasource();
-                            datasource.setId(idPolicy.id());
-                            datasource.setPolicies(idPolicy.policies());
+                            datasource.setId(idPolicy.getId());
+                            datasource.setPolicies(idPolicy.getPolicies());
                             return datasourceRepository.setUserPermissionsInObject(datasource);
                         }));
 
