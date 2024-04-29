@@ -24,6 +24,7 @@ import { call } from "redux-saga/effects";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalLayoutProvider";
 import styles from "./styles.module.css";
+
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
 
@@ -53,6 +54,10 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return config.propertyPaneStyleConfig;
+  }
+
+  static getMethods() {
+    return config.methodsConfig;
   }
 
   static *performPasteOperation(
