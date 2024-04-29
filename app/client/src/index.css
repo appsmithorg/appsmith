@@ -23,6 +23,7 @@
 body {
   margin: 0;
   padding: 0;
+  background-color: #fff !important;
   color: var(--ads-v2-color-fg);
 }
 
