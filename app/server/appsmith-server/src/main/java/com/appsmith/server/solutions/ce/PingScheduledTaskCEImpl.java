@@ -2,6 +2,7 @@ package com.appsmith.server.solutions.ce;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.configurations.SegmentConfig;
 import com.appsmith.server.helpers.NetworkUtils;
@@ -28,9 +29,11 @@ import reactor.util.function.Tuple6;
 
 import java.util.Map;
 
+import static java.util.Map.entry;
+
 /**
  * This class represents a scheduled task that pings a data point indicating that this server installation is live.
- * This ping is only invoked if the Appsmith server is NOT running in Appsmith Clouud & the user has given Appsmith
+ * This ping is only invoked if the Appsmith server is NOT running in Appsmith Cloud & the user has given Appsmith
  * permissions to collect anonymized data
  */
 @Slf4j
@@ -49,6 +52,7 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
     private final DatasourceRepository datasourceRepository;
     private final UserRepository userRepository;
     private final ProjectProperties projectProperties;
+    private final DeploymentProperties deploymentProperties;
     private final NetworkUtils networkUtils;
     private final PermissionGroupService permissionGroupService;
 
@@ -144,6 +148,23 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                         applicationRepository.getAllApplicationsCountAccessibleToARoleWithPermission(
                                 AclPermission.READ_APPLICATIONS, publicPermissionGroupId)))
                 .flatMap(statsData -> {
+                    Map<String, String> propertiesMap = Map.ofEntries(
+                            entry("instanceId", statsData.getT1()),
+                            entry("numOrgs", statsData.getT3().getT1().toString()),
+                            entry("numApps", statsData.getT3().getT2().toString()),
+                            entry("numPages", statsData.getT3().getT3().toString()),
+                            entry("numActions", statsData.getT3().getT4().toString()),
+                            entry("numDatasources", statsData.getT3().getT5().toString()),
+                            entry("numUsers", statsData.getT3().getT6().toString()),
+                            entry("numPublicApps", statsData.getT4().toString()),
+                            entry("version", projectProperties.getVersion()),
+                            entry("edition", deploymentProperties.getEdition()),
+                            entry("cloudProvider", deploymentProperties.getCloudProvider()),
+                            entry("efs", deploymentProperties.getEfs()),
+                            entry("tool", deploymentProperties.getTool()),
+                            entry("hostname", deploymentProperties.getHostname()),
+                            entry("deployedAt", deploymentProperties.getDeployedAt()));
+
                     final String ipAddress = statsData.getT2();
                     return WebClientUtils.create("https://api.segment.io")
                             .post()
@@ -151,25 +172,14 @@ public class PingScheduledTaskCEImpl implements PingScheduledTaskCE {
                             .headers(headers -> headers.setBasicAuth(ceKey, ""))
                             .contentType(MediaType.APPLICATION_JSON)
                             .body(BodyInserters.fromValue(Map.of(
-                                    "userId", statsData.getT1(),
-                                    "context", Map.of("ip", ipAddress),
+                                    "userId",
+                                    statsData.getT1(),
+                                    "context",
+                                    Map.of("ip", ipAddress),
                                     "properties",
-                                            Map.of(
-                                                    "instanceId", statsData.getT1(),
-                                                    "numOrgs", statsData.getT3().getT1(),
-                                                    "numApps", statsData.getT3().getT2(),
-                                                    "numPages",
-                                                            statsData.getT3().getT3(),
-                                                    "numActions",
-                                                            statsData.getT3().getT4(),
-                                                    "numDatasources",
-                                                            statsData.getT3().getT5(),
-                                                    "numUsers",
-                                                            statsData.getT3().getT6(),
-                                                    "numPublicApps", statsData.getT4(),
-                                                    "version", projectProperties.getVersion(),
-                                                    "edition", ProjectProperties.EDITION),
-                                    "event", "instance_stats")))
+                                    propertiesMap,
+                                    "event",
+                                    "instance_stats")))
                             .retrieve()
                             .bodyToMono(String.class);
                 })

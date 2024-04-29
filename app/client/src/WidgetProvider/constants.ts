@@ -138,6 +138,8 @@ export interface WidgetMethods {
   getCanvasHeightOffset?: GetCanvasHeightOffset;
   getEditorCallouts?: GetEditorCallouts;
   getOneClickBindingConnectableWidgetConfig?: GetOneClickBindingConnectableWidgetConfig;
+  IconCmp?: () => JSX.Element;
+  ThumbnailCmp?: () => JSX.Element;
 }
 
 type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];

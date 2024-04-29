@@ -7,11 +7,10 @@ interface AnvilDnDListenerProps {
     left: number;
     top: number;
   };
-  ref: RefObject<HTMLDivElement>; // Ref object for the div element
-  zIndex: number; // Z-index of the listener
+  ref: RefObject<HTMLDivElement>;
+  zIndex: number;
 }
 
-// Styled component for the DnD listener
 const StyledDnDListener = styled.div<{
   paddingLeft: number;
   paddingTop: number;
@@ -36,11 +35,12 @@ const StyledDnDListener = styled.div<{
 
 export const AnvilDnDListener = forwardRef(
   (props: AnvilDnDListenerProps, ref: Ref<HTMLDivElement>) => {
+    // Refer to useAnvilDnDCompensators to understand zIndex and compensatorValues
     const { compensatorValues, zIndex } = props;
 
     return (
       <StyledDnDListener
-        data-type={"anvil-dnd-listener"}
+        data-type="anvil-dnd-listener"
         paddingLeft={compensatorValues.left}
         paddingTop={compensatorValues.top}
         ref={ref}

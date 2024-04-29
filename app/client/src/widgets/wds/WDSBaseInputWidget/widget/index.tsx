@@ -6,7 +6,6 @@ import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
 import * as config from "../config";
-import IconSVG from "../icon.svg";
 import type { BaseInputWidgetProps } from "./types";
 import type { WidgetDefaultProps } from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
@@ -24,7 +23,6 @@ class WDSBaseInputWidget<
     return {
       name: "Input",
       hideCard: true,
-      iconSVG: IconSVG,
       needsMeta: true,
     };
   }
