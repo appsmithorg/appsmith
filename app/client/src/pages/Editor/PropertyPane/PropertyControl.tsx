@@ -63,6 +63,7 @@ import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBinding
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { savePropertyInSessionStorageIfRequired } from "./helpers";
+import { getParentWidget } from "selectors/widgetSelectors";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -100,6 +101,9 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const widgetProperties: WidgetProperties = useSelector(propsSelector, equal);
+  const parentWidget = useSelector((state) =>
+    getParentWidget(state, widgetProperties.widgetId),
+  );
 
   // get the dataTreePath and apply enhancement if exists
   let dataTreePath: string | undefined =
@@ -581,6 +585,8 @@ const PropertyControl = memo((props: Props) => {
           widgetProperties,
           propertyName,
           propertyValue,
+          parentWidgetId: parentWidget?.widgetId,
+          parentWidgetType: parentWidget?.type,
         });
       }
     },

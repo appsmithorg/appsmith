@@ -141,8 +141,17 @@ export function savePropertyInSessionStorageIfRequired(props: {
   widgetProperties: any;
   propertyName: string;
   propertyValue: string;
+  parentWidgetId?: string;
+  parentWidgetType?: string;
 }) {
-  const { isReusable, propertyName, propertyValue, widgetProperties } = props;
+  const {
+    isReusable,
+    parentWidgetId,
+    parentWidgetType,
+    propertyName,
+    propertyValue,
+    widgetProperties,
+  } = props;
 
   if (isReusable && isDynamicValue(propertyValue) === false) {
     let widgetType = widgetProperties.type;
@@ -157,6 +166,16 @@ export function savePropertyInSessionStorageIfRequired(props: {
     // in case of type is WDS_INLINE_BUTTONS_WIDGET, we want to just store the property that is being changed, not the whole property path
     if (widgetType === "WDS_INLINE_BUTTONS_WIDGET") {
       widgetPropertyName = propertyName.split(".").pop() as string;
+    }
+
+    // if case of type is ZONE_WIDGET, we need to store the property value with parent widget id as well
+    // parent id is required because we want to hydrate value of property of the new zone widget only if the parent widget is same
+    if (widgetType === "ZONE_WIDGET") {
+      if (!(parentWidgetType && parentWidgetId)) {
+        return;
+      }
+
+      widgetPropertyName = `${parentWidgetId}.${widgetPropertyName}`;
     }
 
     sessionStorage.setItem(

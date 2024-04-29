@@ -86,7 +86,7 @@ function* getChildWidgetProps(
   ]);
   const themeDefaultConfig =
     WidgetFactory.getWidgetStylesheetConfigMap(type) || {};
-  const widgetSessionValues = getWidgetSessionValues(type);
+  const widgetSessionValues = getWidgetSessionValues(type, parent);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
 
@@ -523,7 +523,10 @@ export default function* widgetAdditionSagas() {
  * retrieves the values from session storage for the widget properties
  * for hydration of the widget when we create widget on drop
  */
-export function getWidgetSessionValues(type: string) {
+export function getWidgetSessionValues(
+  type: string,
+  parent: FlattenedWidgetProps,
+) {
   // we don't need to hydrate widget for following widgets
   if (["WDS_INLINE_BUTTONS_WIDGET"].includes(type)) return;
 
@@ -538,9 +541,24 @@ export function getWidgetSessionValues(type: string) {
 
   for (const key in configMap) {
     if (configMap[key]) {
-      const valueFromSession = sessionStorage.getItem(`${widgetType}.${key}`);
+      let valueFromSession: any = sessionStorage.getItem(
+        `${widgetType}.${key}`,
+      );
 
-      if (valueFromSession) {
+      if (type === "ZONE_WIDGET") {
+        valueFromSession = sessionStorage.getItem(
+          `${widgetType}.${parent.widgetId}.${key}`,
+        );
+      }
+
+      // parse "true" as true and "false" as false
+      if (valueFromSession === "true") {
+        valueFromSession = true;
+      } else if (valueFromSession === "false") {
+        valueFromSession = false;
+      }
+
+      if (valueFromSession !== undefined && valueFromSession !== null) {
         widgetSessionValues[key] = valueFromSession;
       }
     }
