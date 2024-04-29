@@ -1,6 +1,6 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { getCompensatorsForHierarchy } from "../utils/dndCompensatorUtils";
-import { useTheme } from "@design-system/theming";
+import { useThemeContext } from "@design-system/theming";
 
 export const useAnvilDnDCompensators = (
   canActivate: boolean,
@@ -9,7 +9,7 @@ export const useAnvilDnDCompensators = (
   isEmptyLayout: boolean,
   widgetProps: FlattenedWidgetProps,
 ) => {
-  const { theme } = useTheme();
+  const theme = useThemeContext();
   const isElevatedWidget = !!widgetProps.elevatedBackground;
   const {
     edgeCompensatorValues,
