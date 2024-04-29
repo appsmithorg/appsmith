@@ -17,7 +17,7 @@ import { EMPTY_MODAL_PADDING } from "../AnvilModalDropArena";
  * Ideally they should be coming from a constant or from the entity it-selves as a property to the drag and drop layer.
  * But we have DnD rendering on the layout component and each of these entities are defining there spacing in different places.
  */
-const CompensationSpacingTokens = {
+export const CompensationSpacingTokens = {
   MAIN_CANVAS: "4",
   ZONE: "3",
   MODAL_TOP: "2",

@@ -21,6 +21,7 @@ import {
   updateWidgetCSSOnHandleMove,
   updateWidgetCSSOnMinimumLimit,
 } from "./utils/onMouseMoveUtils";
+import { useTheme } from "@design-system/theming";
 
 interface SpaceDistributionEventsProps {
   ref: React.RefObject<HTMLDivElement>;
@@ -54,6 +55,9 @@ export const useSpaceDistributionEvents = ({
     getMouseSpeedTrackingCallback(currentMouseSpeed);
   const selectedWidgets = useSelector(getSelectedWidgets);
   const { selectWidget } = useWidgetSelection();
+  const {
+    theme: { outerSpacing },
+  } = useTheme();
   const selectCorrespondingSectionWidget = useCallback(() => {
     if (
       !(
@@ -114,7 +118,10 @@ export const useSpaceDistributionEvents = ({
             getPropertyPaneZoneId(zoneId),
           );
           if (zoneDom) {
-            zoneDom.style.flexBasis = convertFlexGrowToFlexBasis(flexGrow);
+            zoneDom.style.flexBasis = convertFlexGrowToFlexBasis(
+              flexGrow,
+              outerSpacing,
+            );
           }
           if (zonePropDom) {
             zonePropDom.style.flexBasis =
@@ -293,6 +300,7 @@ export const useSpaceDistributionEvents = ({
                 columnIndicatorDivRef,
                 columnPosition,
                 currentMouseSpeed.current,
+                outerSpacing,
               );
             } else {
               updateWidgetCSSOnMinimumLimit(
@@ -302,6 +310,7 @@ export const useSpaceDistributionEvents = ({
                 currentFlexGrow,
                 currentGrowthFactor,
                 minimumShrinkableSpacePerBlock,
+                outerSpacing,
               );
             }
           }
@@ -331,5 +340,6 @@ export const useSpaceDistributionEvents = ({
     sectionWidgetId,
     spaceDistributed,
     spaceToWorkWith,
+    outerSpacing,
   ]);
 };

@@ -5,6 +5,21 @@ import {
   ZoneMinColumnWidth,
   ZoneMinShrinkablePixels,
 } from "../constants";
+import type { Token } from "@design-system/theming";
+import { CompensationSpacingTokens } from "layoutSystems/anvil/editor/canvasArenas/utils/dndCompensatorUtils";
+
+export const getZoneSpacingValues = (
+  outerSpacing:
+    | {
+        [key: string]: Token;
+      }
+    | undefined,
+) => {
+  const zoneSpacing = outerSpacing
+    ? outerSpacing[CompensationSpacingTokens.ZONE].value
+    : "";
+  return parseFloat(zoneSpacing + "");
+};
 
 /**
  * Utility function to convert flex-grow values of zone space distribution to flex-basis.
@@ -19,10 +34,19 @@ import {
  * This is because when representing on the UI, we show column values which add up to SectionColumns
  * Also space distribution algorithm(redistributeSpaceWithDynamicMinWidth) works with the flex-grow values.
  */
-export const convertFlexGrowToFlexBasis = (flexGrow: number) => {
+export const convertFlexGrowToFlexBasis = (
+  flexGrow: number,
+  outerSpacing:
+    | {
+        [key: string]: Token;
+      }
+    | undefined,
+) => {
   const columns = SectionColumns / flexGrow;
+  const zoneSpacing = getZoneSpacingValues(outerSpacing);
   // We calculate the total gap count and distribute it proportionally between the zones.
-  return `calc(100% / ${columns} - (${columns} - 1) * var(--outer-spacing-4) / ${columns})`;
+  const flexBasis = 100 / columns - ((columns - 1) * zoneSpacing) / columns;
+  return flexBasis + "%";
 };
 
 export const convertFlexGrowToFlexBasisForPropPane = (
