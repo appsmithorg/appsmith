@@ -55,9 +55,6 @@ describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
   });
 
   it("2. Gives error message when invalid word is entered in the url tab of navigate to", () => {
-    PageList.AddNewPage(); // page 2
-    EditorNavigation.SelectEntityByName("Page2", EntityType.Page);
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     agHelper.GetNClick(propPane._navigateToType("URL"));
@@ -72,9 +69,6 @@ describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
   });
 
   it("3. Navigates to url entered from the url tab of navigate to", () => {
-    PageList.AddNewPage(); // page 3
-    EditorNavigation.SelectEntityByName("Page3", EntityType.Page);
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
