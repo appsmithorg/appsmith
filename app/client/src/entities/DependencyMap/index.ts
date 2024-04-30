@@ -134,14 +134,17 @@ export default class DependencyMap {
     if (!shouldReturnAffectedNodes) {
       return;
     }
+    // we are returning all the affected nodes, which are the parent node and all previous and current nodes
     const mergedSet = new Set([
       ...previousNodeDependencies,
+      //current nodes
       ...(this.#dependencies.get(node) || []),
     ]);
-    const filterdNodes =
+    const previousAndCurrentNodes =
       Array.from(mergedSet).filter((dep) => this.#nodes.has(dep)) || [];
 
-    return [node, ...filterdNodes];
+    // return the affected nodes
+    return [node, ...previousAndCurrentNodes];
   };
 
   private removeDependency = (node: string) => {
@@ -171,7 +174,7 @@ export default class DependencyMap {
       ? Object.keys(nodes)
       : sort(Object.keys(nodes)).desc((node) => node.split(".").length);
 
-    const ar = [];
+    const affectedNodes = [];
     let didUpdateGraph = false;
     for (const newNode of nodesToAdd) {
       if (this.#nodes.has(newNode)) continue;
@@ -206,7 +209,7 @@ export default class DependencyMap {
         this.#dependencies.get(iNode)?.add(newNode);
         this.#invalidDependencies.get(iNode)?.delete(newNode);
 
-        ar.push(newNode);
+        affectedNodes.push(newNode);
         didUpdateGraph = true;
         if (this.#dependenciesInverse.has(newNode)) {
           this.#dependenciesInverse.get(newNode)?.add(iNode);
@@ -216,7 +219,7 @@ export default class DependencyMap {
       }
       this.#invalidDependenciesInverse.delete(newNode);
     }
-    return didUpdateGraph ? ar : [];
+    return didUpdateGraph ? affectedNodes : [];
   };
 
   removeNodes = (nodes: Record<string, true>) => {

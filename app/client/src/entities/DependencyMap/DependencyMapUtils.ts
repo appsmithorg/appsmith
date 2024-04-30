@@ -48,12 +48,14 @@ export class DependencyMapUtils {
     }
     return dependencyMap;
   }
+  // This function only iterates through the affected nodes during dependencyMap updates.
+  // We are not traversing through the entire dependencyMap unlike what makeParentsDependOnChildren does and unnecessarily running this makeParentsDependOnChild on every node of the graph.
   static makeParentsDependOnChildCollection(
     dependencyMap: DependencyMap,
-    nodes?: string[],
+    affectedNodes?: string[],
   ) {
-    nodes &&
-      nodes.forEach((node) => {
+    affectedNodes &&
+      affectedNodes.forEach((node) => {
         this.makeParentsDependOnChild(dependencyMap, node);
       });
   }

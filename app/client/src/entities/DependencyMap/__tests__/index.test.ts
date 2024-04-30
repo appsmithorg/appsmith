@@ -14,7 +14,9 @@ describe("Tests for DependencyMap", () => {
     });
   });
   it("should be able to add a dependency", () => {
-    dataDependencyMap.addDependency("a", ["b", "c"]);
+    const affectedNodes = dataDependencyMap.addDependency("a", ["b", "c"]);
+    // affectedNodes should be undefined as we haven't passed the shouldReturnAffectedNodes flag
+    expect(affectedNodes).toEqual(undefined);
     expect(dataDependencyMap.dependencies).toEqual({
       a: ["b"],
     });
@@ -53,6 +55,35 @@ describe("Tests for DependencyMap", () => {
     expect(dataDependencyMap.inverseDependencies).toEqual({ b: ["a"] });
     expect(dataDependencyMap.invalidDependencies).toEqual({ a: ["c"] });
     expect(dataDependencyMap.inverseInvalidDependencies).toEqual({ c: ["a"] });
+  });
+
+  it("should return affected dependencies when a dependency has been added", () => {
+    dataDependencyMap.addNodes({ c: true });
+    const added_C_Node_AffectedNodes = dataDependencyMap.addDependency(
+      "a",
+      ["b", "c"],
+      true,
+    );
+    expect(dataDependencyMap.dependencies).toEqual({
+      a: ["b", "c"],
+    });
+    // shou
+    expect(added_C_Node_AffectedNodes).toEqual(["a", "b", "c"]);
+
+    dataDependencyMap.addNodes({ d: true });
+
+    //when dependency had "c" earlier and now "d" has been added, we should see the affected nodes to have the previous nodes as well
+    //So "c" node should be included in the affected nodes list
+    const added_d_Node_AffectedNodes = dataDependencyMap.addDependency(
+      "a",
+      ["b", "d"],
+      true,
+    );
+    expect(dataDependencyMap.dependencies).toEqual({
+      a: ["b", "d"],
+    });
+    // should include c in the affected node list
+    expect(added_d_Node_AffectedNodes).toEqual(["a", "b", "c", "d"]);
   });
 });
 describe("Tests for DependencyMapUtils", () => {
@@ -2708,22 +2739,23 @@ describe("Tests for DependencyMapUtils", () => {
       "Api1",
     ]);
   }
+  const createSomeDependencyMap = () => {
+    const dependencyMap = new DependencyMap();
+    dependencyMap.addNodes({
+      tableWidget: true,
+      apiData: true,
+      "tableWidget.tableData": true,
+      "apiData.data": true,
+    });
+    dependencyMap.addDependency("tableWidget", [
+      "tableWidget.tableData",
+      "apiData.data",
+    ]);
+    dependencyMap.addDependency("apiData", []);
+    return dependencyMap;
+  };
+
   describe("makeParentsDependOnChild", () => {
-    const createSomeDependencyMap = () => {
-      const dependencyMap = new DependencyMap();
-      dependencyMap.addNodes({
-        tableWidget: true,
-        apiData: true,
-        "tableWidget.tableData": true,
-        "apiData.data": true,
-      });
-      dependencyMap.addDependency("tableWidget", [
-        "tableWidget.tableData",
-        "apiData.data",
-      ]);
-      dependencyMap.addDependency("apiData", []);
-      return dependencyMap;
-    };
     afterEach(() => {
       jest.clearAllMocks();
     });
@@ -2755,6 +2787,34 @@ describe("Tests for DependencyMapUtils", () => {
       );
       // addDependency is not called
       expect(spy).toHaveBeenCalledTimes(0);
+    });
+  });
+
+  describe("makeParentsDependOnChildCollection", () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+    test("should not trigger an addDependency when affected nodes are empty", () => {
+      const dependencyMap = createSomeDependencyMap();
+      const spy = jest.spyOn(dependencyMap, "addDependency");
+      DependencyMapUtils.makeParentsDependOnChildCollection(dependencyMap, []);
+      // addDependency is not called
+      expect(spy).toHaveBeenCalledTimes(0);
+      DependencyMapUtils.makeParentsDependOnChildCollection(dependencyMap);
+      // addDependency is not called
+      expect(spy).toHaveBeenCalledTimes(0);
+    });
+    test("should trigger an addDependency when there is an affected node", () => {
+      const dependencyMap = createSomeDependencyMap();
+      const spy = jest.spyOn(dependencyMap, "addDependency");
+      DependencyMapUtils.makeParentsDependOnChildCollection(dependencyMap, [
+        "apiData.data",
+      ]);
+      // addDependency is called
+      expect(spy).toHaveBeenCalledTimes(1);
+      expect(dependencyMap.getDirectDependencies("apiData")).toEqual([
+        "apiData.data",
+      ]);
     });
   });
 });
