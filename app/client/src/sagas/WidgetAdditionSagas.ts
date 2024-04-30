@@ -89,6 +89,7 @@ function* getChildWidgetProps(
   const widgetSessionValues = getWidgetSessionValues(type, parent);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
+  const isModalOpen: string = yield select(getCurrentlyOpenAnvilModal);
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
@@ -115,6 +116,12 @@ function* getChildWidgetProps(
         }
       });
     }
+  }
+
+  // in case we are creating zone inside zone, we want to use the parent's column space, we want
+  // to make sure the elevateBackground is set to false
+  if (type === "ZONE_WIDGET" && isModalOpen) {
+    props = { ...props, elevatedBackground: false };
   }
 
   const isAutoLayout = isStack(widgets, parent);
@@ -527,7 +534,8 @@ export function getWidgetSessionValues(
   type: string,
   parent: FlattenedWidgetProps,
 ) {
-  // we don't need to hydrate widget for following widgets
+  // For WDS_INLINE_BUTTONS_WIDGET, we want to hydation only to work when we add more items to the inline button group.
+  // So we don't want to hydrate the values when we drop the widget on the canvas.
   if (["WDS_INLINE_BUTTONS_WIDGET"].includes(type)) return;
 
   let widgetType = type;
@@ -541,15 +549,13 @@ export function getWidgetSessionValues(
 
   for (const key in configMap) {
     if (configMap[key]) {
-      let valueFromSession: any = sessionStorage.getItem(
-        `${widgetType}.${key}`,
-      );
+      let sessionStorageKey = `${widgetType}.${key}`;
 
       if (type === "ZONE_WIDGET") {
-        valueFromSession = sessionStorage.getItem(
-          `${widgetType}.${parent.widgetId}.${key}`,
-        );
+        sessionStorageKey = `${widgetType}.${parent.widgetId}.${key}`;
       }
+
+      let valueFromSession: any = sessionStorage.getItem(sessionStorageKey);
 
       // parse "true" as true and "false" as false
       if (valueFromSession === "true") {
