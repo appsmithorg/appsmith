@@ -13,7 +13,6 @@ import {
 } from "actions/pluginActionActions";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
-  closeJsActionTabSuccess,
   copyJSCollectionError,
   copyJSCollectionSuccess,
   createJSCollectionSuccess,
@@ -74,6 +73,7 @@ import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import { closeJsActionTabSuccess } from "actions/ideActions";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -321,7 +321,7 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
-      yield put(closeJsActionTabSuccess({ id }));
+      yield put(closeJsActionTabSuccess({ id, parentId: pageId }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
@@ -492,11 +492,11 @@ export function* fetchJSCollectionsForViewModeSaga(
 }
 
 export function* closeJSActionTabSaga(
-  actionPayload: ReduxAction<{ id: string }>,
+  actionPayload: ReduxAction<{ id: string; parentId: string }>,
 ) {
-  const id = actionPayload.payload.id;
+  const { id, parentId } = actionPayload.payload;
   const currentUrl = window.location.pathname;
   yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
   yield call(handleJSEntityRedirect, id);
-  yield put(closeJsActionTabSuccess({ id }));
+  yield put(closeJsActionTabSuccess({ id, parentId }));
 }

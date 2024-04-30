@@ -30,7 +30,6 @@ import type {
   SetActionPropertyPayload,
 } from "actions/pluginActionActions";
 import {
-  closeQueryActionTabSuccess,
   copyActionError,
   copyActionSuccess,
   createActionInit,
@@ -144,6 +143,7 @@ import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import {
   setIdeEditorViewMode,
   setShowQueryCreateNewModal,
+  closeQueryActionTabSuccess,
 } from "actions/ideActions";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
@@ -655,7 +655,7 @@ export function* deleteActionSaga(
     });
 
     yield put(deleteActionSuccess({ id }));
-    yield put(closeQueryActionTabSuccess({ id }));
+    yield put(closeQueryActionTabSuccess({ id, parentId: pageId }));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
@@ -1197,11 +1197,12 @@ export function* watchActionSagas() {
 export function* closeActionTabSaga(
   actionPayload: ReduxAction<{
     id: string;
+    parentId: string;
   }>,
 ) {
-  const id = actionPayload.payload.id;
+  const { id, parentId } = actionPayload.payload;
   const currentUrl = window.location.pathname;
   yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
   yield call(handleQueryEntityRedirect, id);
-  yield put(closeQueryActionTabSuccess({ id }));
+  yield put(closeQueryActionTabSuccess({ id, parentId }));
 }

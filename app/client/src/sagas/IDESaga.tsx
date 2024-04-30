@@ -34,7 +34,11 @@ export function* updateIDETabsOnRouteChangeSaga(
 ) {
   const { entity, id, params } = entityInfo;
   const previousEntityInfo = identifyEntityFromPath(previousPath);
-  if (previousEntityInfo.params.pageId !== params.pageId) {
+  if (!params.pageId) return;
+  if (
+    previousEntityInfo.params.pageId &&
+    previousEntityInfo.params.pageId !== params.pageId
+  ) {
     return;
   }
   if (
@@ -43,7 +47,7 @@ export function* updateIDETabsOnRouteChangeSaga(
   ) {
     const jsTabs: string[] = yield select(getJSTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, jsTabs);
-    yield put(setJSTabs(newTabs));
+    yield put(setJSTabs(newTabs, params.pageId));
   }
   if (
     entity === FocusEntity.QUERY ||
@@ -51,7 +55,7 @@ export function* updateIDETabsOnRouteChangeSaga(
   ) {
     const queryTabs: string[] = yield select(getQueryTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, queryTabs);
-    yield put(setQueryTabs(newTabs));
+    yield put(setQueryTabs(newTabs, params.pageId));
   }
 }
 

@@ -1,10 +1,10 @@
 import type {
-  ReduxAction,
   EvaluationReduxAction,
+  ReduxAction,
 } from "@appsmith/constants/ReduxActionConstants";
 import {
-  ReduxActionTypes,
   ReduxActionErrorTypes,
+  ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import type { JSCollection } from "entities/JSCollection";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
@@ -158,20 +158,6 @@ export const fetchJSCollectionsForView = ({
   return {
     type: ReduxActionTypes.FETCH_JS_ACTIONS_VIEW_MODE_INIT,
     payload: { applicationId, publishedActionCollections },
-  };
-};
-
-export const closeJSActionTab = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.CLOSE_JS_ACTION_TAB,
-    payload,
-  };
-};
-
-export const closeJsActionTabSuccess = (payload: { id: string }) => {
-  return {
-    type: ReduxActionTypes.CLOSE_JS_ACTION_TAB_SUCCESS,
-    payload,
   };
 };
 
