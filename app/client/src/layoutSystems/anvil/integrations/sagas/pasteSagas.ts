@@ -7,7 +7,6 @@ import { updateAndSaveAnvilLayout } from "../../utils/anvilChecksUtils";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import {
-  type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -24,7 +23,7 @@ import { getDestinedParent } from "layoutSystems/anvil/utils/paste/destinationUt
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
-import { getIsAnvilLayout } from "../selectors";
+import { callSagaOnlyForAnvil } from "./utils";
 
 function* pasteWidgetSagas() {
   try {
@@ -122,18 +121,11 @@ function* pasteWidgetSagas() {
   }
 }
 
-function* shouldCallSaga(saga: any, action: ReduxAction<unknown>) {
-  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
-  if (isAnvilLayout) {
-    yield call(saga, action);
-  }
-}
-
 export default function* pasteSagas() {
   yield all([
     takeLeading(
       ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
-      shouldCallSaga,
+      callSagaOnlyForAnvil,
       pasteWidgetSagas,
     ),
   ]);
