@@ -65,7 +65,14 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     @Override
     public void handle(AutoCommitEvent event) {
         log.info("received event for auto commit: {}", event);
-        this.autoCommitDSLMigration(event)
+        Mono<Boolean> autocommitMigration;
+        if (Boolean.TRUE.equals(event.getIsServerSideEvent())) {
+            autocommitMigration = this.autoCommitServerMigration(event);
+        } else {
+            autocommitMigration = this.autoCommitDSLMigration(event);
+        }
+
+        autocommitMigration
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe(
                         result -> log.info(
@@ -318,8 +325,6 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         // add file lock
         // reset the file_system.
         // retrieve and create application json from the file system
-        // import the file in a same workspace
-        // export and retrieve the application json
         // write it in the application json
         // commit application
         // push to remote
@@ -327,12 +332,16 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
 
         return addFileLock(defaultApplicationId)
                 .flatMap(isFileLocked -> redisUtils.startAutoCommit(defaultApplicationId, branchName))
+                .flatMap(r -> setProgress(r, defaultApplicationId, 10))
                 .flatMap(autoCommitLocked -> resetUncommittedChanges(autoCommitEvent))
+                .flatMap(r -> setProgress(r, defaultApplicationId, 20))
                 .flatMap(isBranchCheckedOut -> fileUtils.reconstructApplicationJsonFromGitRepo(
                         workspaceId, defaultApplicationId, repoName, branchName))
+                .flatMap(r -> setProgress(r, defaultApplicationId, 30))
                 .flatMap(applicationJson -> {
                     return saveApplicationJsonToFileSystem(applicationJson, autoCommitEvent);
                 })
+                .flatMap(r -> setProgress(r, defaultApplicationId, 50))
                 .flatMap(baseRepoPath -> commitAndPush(autoCommitEvent, baseRepoPath))
                 .flatMap(result -> {
                     log.info(
@@ -353,7 +362,6 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     }
 
     protected Mono<Boolean> commitAndPush(AutoCommitEvent autoCommitEvent, Path baseRepoPath) {
-
         // commit the application
         return gitExecutor
                 .commitArtifact(

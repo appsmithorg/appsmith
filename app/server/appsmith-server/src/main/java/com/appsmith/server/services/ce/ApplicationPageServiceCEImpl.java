@@ -1,6 +1,7 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.Datasource;
@@ -55,6 +56,7 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.repositories.NewPageRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.LayoutActionService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
@@ -93,6 +95,7 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -116,6 +119,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils gitFileUtils;
     private final CommonGitFileUtils commonGitFileUtils;
+    private final FeatureFlagService featureFlagService;
     private final ThemeService themeService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
@@ -251,7 +255,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 return FALSE;
             }
         }
-        return Boolean.TRUE;
+        return TRUE;
     }
 
     private PageDTO getDslEscapedPage(PageDTO page) {
@@ -305,7 +309,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         // Migrate the DSL to the latest version if required
                         NewPage newPage = objects.getT2();
                         if (pageDTO.getLayouts() != null) {
-                            return migrateServer(newPage)
+                            return migrateServerChanges(newPage)
                                     .zipWith(migrateAndUpdatePageDsl(newPage, pageDTO, viewMode))
                                     .map(Tuple2::getT2);
                         }
@@ -315,32 +319,57 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .map(responseUtils::updatePageDTOWithDefaultResources);
     }
 
-    private Mono<Boolean> migrateServer(NewPage newPage) {
-        String defaultApplicationId = newPage.getDefaultResources().getApplicationId();
-        return applicationService
-                .findById(defaultApplicationId, applicationPermission.getReadPermission())
-                .flatMap(application -> {
-                    if (application.getGitArtifactMetadata() == null) {
+    private Mono<Integer> getJsonServerSchemaMigrationVersion(
+            String workspaceId,
+            String defaultArtifactId,
+            String repoName,
+            String branchName,
+            ArtifactType artifactType) {
+        return commonGitFileUtils
+                .reconstructMetadataFromRepo(workspaceId, defaultArtifactId, repoName, branchName, artifactType)
+                .map(metadataMap -> {
+                    return metadataMap.getOrDefault(
+                            CommonConstants.SERVER_SCHEMA_VERSION, JsonSchemaVersions.serverVersion);
+                });
+    }
+
+    private Mono<Boolean> migrateServerChanges(NewPage newPage) {
+        return featureFlagService
+                .check(FeatureFlagEnum.release_git_server_autocommit_feature_enabled)
+                .flatMap(isFeatureEnabled -> {
+                    // We need not check for metadata if the feature flag is disabled.
+                    if (!TRUE.equals(isFeatureEnabled)) {
                         return Mono.just(FALSE);
                     }
 
-                    String workspaceId = application.getWorkspaceId();
-                    String branchName = application.getGitArtifactMetadata().getBranchName();
-                    String repoName = application.getGitArtifactMetadata().getRepoName();
-
-                    return commonGitFileUtils
-                            .reconstructMetadataFromRepo(
-                                    workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION)
-                            .flatMap(metadataMap -> {
-                                Integer serverSchemaVersion = metadataMap.getOrDefault(
-                                        CommonConstants.SERVER_SCHEMA_VERSION, JsonSchemaVersions.serverVersion);
-
-                                if (JsonSchemaVersions.serverVersion > serverSchemaVersion) {
-                                    return gitAutoCommitHelper.autoCommitServerMigration(
-                                            defaultApplicationId, branchName);
+                    String applicationId = newPage.getApplicationId();
+                    return applicationService
+                            .findById(applicationId, applicationPermission.getReadPermission())
+                            .flatMap(application -> {
+                                if (application.getGitArtifactMetadata() == null) {
+                                    return Mono.just(FALSE);
                                 }
 
-                                return Mono.just(FALSE);
+                                String workspaceId = application.getWorkspaceId();
+                                GitArtifactMetadata gitMetadata = application.getGitApplicationMetadata();
+                                String defaultApplicationId = gitMetadata.getDefaultArtifactId();
+                                String branchName = gitMetadata.getBranchName();
+                                String repoName = gitMetadata.getRepoName();
+
+                                return getJsonServerSchemaMigrationVersion(
+                                                workspaceId,
+                                                defaultApplicationId,
+                                                repoName,
+                                                branchName,
+                                                ArtifactType.APPLICATION)
+                                        .flatMap(serverSchemaVersion -> {
+                                            if (JsonSchemaVersions.serverVersion > serverSchemaVersion) {
+                                                return gitAutoCommitHelper.autoCommitServerMigration(
+                                                        defaultApplicationId, branchName);
+                                            }
+
+                                            return Mono.just(FALSE);
+                                        });
                             });
                 });
     }
@@ -482,7 +511,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         application.setPublishedPages(new ArrayList<>());
         application.setUnpublishedCustomJSLibs(new HashSet<>());
-        application.setCollapseInvisibleWidgets(Boolean.TRUE);
+        application.setCollapseInvisibleWidgets(TRUE);
 
         // For all new applications being created, set it to use the latest evaluation version.
         application.setEvaluationVersion(EVALUATION_VERSION);
@@ -1202,7 +1231,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     if (!publishedPageIds.isEmpty()) {
                         archivePageMono = newPageService.archiveByIds(publishedPageIds);
                     } else {
-                        archivePageMono = Mono.just(Boolean.TRUE);
+                        archivePageMono = Mono.just(TRUE);
                     }
 
                     application.setPublishedPages(pages);
@@ -1555,7 +1584,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         pagesValidatedForPermission,
                         actionsValidatedForPermission,
                         actionCollectionsValidatedForPermission)
-                .thenReturn(Boolean.TRUE);
+                .thenReturn(TRUE);
     }
 
     private Mono<Boolean> validateDatasourcesForCreatePermission(Mono<Application> applicationMono) {
@@ -1587,6 +1616,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         permissionGroupService.getSessionUserPermissionGroupIds(),
                         datasourcePermission.getActionCreatePermission(),
                         AppsmithError.APPLICATION_NOT_CLONED_MISSING_PERMISSIONS)
-                .thenReturn(Boolean.TRUE);
+                .thenReturn(TRUE);
     }
 }

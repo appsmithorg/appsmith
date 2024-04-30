@@ -24,6 +24,7 @@ import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.migrations.JsonSchemaMigration;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.SessionUserService;
@@ -463,7 +464,8 @@ public class GitFileUtilsCE {
                     getApplicationResource(applicationReference.getMetadata(), ApplicationJson.class);
             ApplicationJson applicationJson = getApplicationJsonFromGitReference(applicationReference);
             copyNestedNonNullProperties(metadata, applicationJson);
-            return applicationJson;
+            ApplicationJson migratedJson = JsonSchemaMigration.migrateApplicationToLatestSchema(applicationJson);
+            return migratedJson;
         });
     }
 
