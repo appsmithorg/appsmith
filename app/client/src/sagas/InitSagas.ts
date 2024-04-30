@@ -290,10 +290,10 @@ export function* startAppEngine(action: ReduxAction<AppEnginePayload>) {
       action.payload.mode,
     );
     engine.startPerformanceTracking();
-    yield call(engine.setupEngine, action.payload);
     const allResponses: InitConsolidatedApi = yield call(getInitResponses, {
       ...action.payload,
     });
+    yield call(engine.setupEngine, action.payload);
     const { applicationId, toLoadPageId } = yield call(
       engine.loadAppData,
       action.payload,
