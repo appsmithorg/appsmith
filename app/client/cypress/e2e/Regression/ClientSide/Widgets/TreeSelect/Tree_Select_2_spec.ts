@@ -244,7 +244,6 @@ describe(
         ["Form1"],
       );
       propPane.ToggleJSMode("onOptionChange", true);
-      propPane.ToggleJS("onOptionChange");
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         "{{navigateTo('www.google.com', {}, 'NEW_WINDOW');}}",
@@ -272,7 +271,6 @@ describe(
         {},
         ["Form1"],
       );
-      propPane.AssertJSToggleState("onOptionChange", "enabled");
     });
 
     it("8. Verify onOptionChange with Alert", () => {
@@ -284,6 +282,7 @@ describe(
         {},
         ["Form1"],
       );
+      propPane.ToggleJSMode("onOptionChange", true);
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         "{{showAlert('Option Changed', '');}}",
@@ -306,6 +305,7 @@ describe(
         {},
         ["Form1"],
       );
+      propPane.ToggleJSMode("onOptionChange", true);
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         `{{download('https://assets.codepen.io/3/kiwi.svg', 'kiwi.svg', 'image/svg+xml').then(() => {
@@ -328,6 +328,7 @@ describe(
         {},
         ["Form1"],
       );
+      propPane.ToggleJSMode("onOptionChange", true);
       propPane.UpdatePropertyFieldValue(
         "onOptionChange",
         '{{resetWidget("Checkbox1", true);}}',

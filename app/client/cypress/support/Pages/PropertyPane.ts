@@ -673,22 +673,4 @@ export class PropertyPane {
 
     this.agHelper.AssertAutoSave(); //Allowing time for saving entered value
   }
-
-  public ToggleJS(property: string) {
-    const checkToggleJSIsActive = (prop: any) => {
-      if (prop.hasClass("is-active")) {
-        cy.log("Toggle is active");
-      } else {
-        this.ToggleJSMode(property, true); // Activate the toggle
-        // Rerun the assertion to ensure it's now active
-        cy.get(
-          this.locator._jsToggle(property.toLowerCase().replaceAll(" ", "")),
-        ).then(checkToggleJSIsActive);
-      }
-    };
-    // Initially check the toggle state
-    cy.get(
-      this.locator._jsToggle(property.toLowerCase().replaceAll(" ", "")),
-    ).then(checkToggleJSIsActive);
-  }
 }
