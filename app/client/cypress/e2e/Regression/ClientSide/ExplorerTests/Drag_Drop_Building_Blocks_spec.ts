@@ -154,5 +154,12 @@ describe(
             });
         });
     });
+
+    it.only("5. Should drop widget on canvas", () => {
+      featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
+      cy.get(commonlocators.entityExplorersearch).should("be.visible");
+      cy.get(commonlocators.entityExplorersearch).clear().type("form");
+      cy.dragAndDropToCanvas("buildingblock", { x: 10, y: 10 });
+    });
   },
 );
