@@ -51,6 +51,7 @@ describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
       cy.log("deploy url is" + $url);
       expect($url).to.contain("test=123");
     });
+    deployMode.NavigateBacktoEditor();
   });
 
   it("2. Gives error message when invalid word is entered in the url tab of navigate to", () => {
