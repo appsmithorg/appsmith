@@ -81,7 +81,6 @@ import type { ActiveField } from "reducers/uiReducers/activeFieldEditorReducer";
 import type { SelectedWorkspaceReduxState } from "@appsmith/reducers/uiReducers/selectedWorkspaceReducer";
 import type { ConsolidatedPageLoadState } from "reducers/uiReducers/consolidatedPageLoadReducer";
 import type { BuildingBlocksReduxState } from "reducers/uiReducers/buildingBlockReducer";
-import type { AnvilDetachedWidgetsReduxState } from "layoutSystems/anvil/integrations/reducers/anvilDetachedWidgetsReducer";
 
 export const reducerObject = {
   entities: entityReducer,
@@ -147,7 +146,6 @@ export interface AppState {
     oneClickBinding: OneClickBindingState;
     activeField: ActiveField;
     ide: IDEState;
-    anvilDetachedWidgets: AnvilDetachedWidgetsReduxState;
   };
   entities: {
     canvasWidgetsStructure: CanvasWidgetStructure;
