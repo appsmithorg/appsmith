@@ -3,6 +3,16 @@ import type { AppState } from "@appsmith/reducers";
 import type { NameComponentStates } from "./types";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
+import { createSelector } from "reselect";
+import { getIsDragging, getIsResizing } from "selectors/widgetDragSelectors";
+import { getAnvilHighlightShown } from "layoutSystems/anvil/integrations/selectors";
+import {
+  isCurrentWidgetFocused,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
+import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
 
 /**
  *
@@ -32,6 +42,42 @@ export function getWidgetErrorCount(state: AppState, widgetId: string) {
   return errorCount;
 }
 
+export const getIsEditorOpen = createSelector(
+  combinedPreviewModeSelector,
+  getAppMode,
+  (isPreviewMode: boolean, appMode?: APP_MODE) => {
+    return appMode === APP_MODE.EDIT && !isPreviewMode;
+  },
+);
+
 export function shouldSelectOrFocus(widgetId: string) {
-  return (state: AppState): NameComponentStates => "focus";
+  return createSelector(
+    getIsEditorOpen,
+    getIsDragging,
+    getIsResizing,
+    getAnvilHighlightShown,
+    isWidgetSelected(widgetId),
+    isCurrentWidgetFocused(widgetId),
+    (
+      isEditorOpen,
+      isDragging,
+      isResizing,
+      highlightShown,
+      isWidgetSelected,
+      isWidgetFocused,
+    ) => {
+      const baseCondition = isEditorOpen && !isDragging && !isResizing;
+      let onCanvasUIState: NameComponentStates = "none";
+      if (baseCondition) {
+        if (isWidgetSelected) onCanvasUIState = "select";
+        // A widget can be focused and selected at the same time.
+        // I'm not sure if these should be mutually exclusive states.
+        if (isWidgetFocused && !isWidgetSelected) onCanvasUIState = "focus";
+      }
+      if (highlightShown && highlightShown.canvasId === widgetId) {
+        onCanvasUIState = "focus";
+      }
+      return onCanvasUIState;
+    },
+  );
 }
