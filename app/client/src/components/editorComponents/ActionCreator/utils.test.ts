@@ -246,26 +246,26 @@ describe("Test modalSetter", () => {
     {
       index: 1,
       input: "{{showModal('')}}",
-      expected: "{{showModal('Modal1');}}",
-      value: "Modal1",
+      expected: "{{showModal(Modal1.value);}}",
+      value: "Modal1.value",
     },
     {
       index: 2,
-      input: "{{showModal('Modal1')}}",
-      expected: "{{showModal('Modal2');}}",
-      value: "Modal2",
+      input: "{{showModal(Modal1.value)}}",
+      expected: "{{showModal(Modal2.value);}}",
+      value: "Modal2.value",
     },
     {
       index: 3,
       input: "{{closeModal('')}}",
-      expected: "{{closeModal('Modal1');}}",
-      value: "Modal1",
+      expected: "{{closeModal('Modal1.value);}}",
+      value: "Modal1.value",
     },
     {
       index: 4,
-      input: "{{closeModal('Modal1')}}",
-      expected: "{{closeModal('Modal2');}}",
-      value: "Modal2",
+      input: "{{closeModal(Modal1.value)}}",
+      expected: "{{closeModal(Modal2.value);}}",
+      value: "Modal2.value",
     },
   ];
   test.each(cases.map((x) => [x.index, x.input, x.expected, x.value]))(
@@ -286,8 +286,8 @@ describe("Test modalGetter", () => {
     },
     {
       index: 2,
-      input: "{{showModal('Modal1')}}",
-      expected: "Modal1",
+      input: "{{showModal(Modal1.value)}}",
+      expected: "Modal1.value",
     },
     {
       index: 3,
@@ -296,8 +296,8 @@ describe("Test modalGetter", () => {
     },
     {
       index: 4,
-      input: "{{closeModal('Modal1')}}",
-      expected: "Modal1",
+      input: "{{closeModal(Modal1.value)}}",
+      expected: "Modal1.value",
     },
   ];
   test.each(cases.map((x) => [x.index, x.input, x.expected]))(
