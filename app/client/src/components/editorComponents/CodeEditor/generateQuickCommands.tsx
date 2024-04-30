@@ -34,7 +34,6 @@ export enum Shortcuts {
 export function matchingCommands(
   list: CommandsCompletion[],
   searchText: string,
-  limit = 5,
 ) {
   return list
     .filter((action) => {
@@ -43,7 +42,7 @@ export function matchingCommands(
         action.displayText.toLowerCase().indexOf(searchText.toLowerCase()) > -1
       );
     })
-    .slice(0, limit);
+    .slice(0);
 }
 
 export const commandsHeader = (
@@ -311,7 +310,6 @@ export const generateQuickCommands = (
     const suggestionsMatchingSearchText = matchingCommands(
       suggestions,
       searchText,
-      5,
     );
 
     if (suggestionsMatchingSearchText.length) {
@@ -330,7 +328,6 @@ export const generateQuickCommands = (
       const createNewCommandsMatchingSearchText = matchingCommands(
         createNewCommands,
         searchText,
-        3,
       );
 
       // Check if new integration command matches search text
