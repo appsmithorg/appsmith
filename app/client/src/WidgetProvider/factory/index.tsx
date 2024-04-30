@@ -80,7 +80,7 @@ class WidgetFactory {
 
   private static configureWidget(widget: typeof BaseWidget) {
     const config = widget.getConfig();
-
+    const { IconCmp } = widget.getMethods();
     const features = widget.getFeatures();
 
     let enhancedFeatures: Record<string, unknown> = {};
@@ -103,7 +103,7 @@ class WidgetFactory {
       ...enhancedFeatures,
       searchTags: config.searchTags,
       tags: config.tags,
-      hideCard: !!config.hideCard || !config.iconSVG,
+      hideCard: !!config.hideCard || !(config.iconSVG || IconCmp),
       isDeprecated: !!config.isDeprecated,
       replacement: config.replacement,
       displayName: config.name,
