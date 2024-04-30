@@ -42,6 +42,9 @@ export function getWidgetErrorCount(state: AppState, widgetId: string) {
   return errorCount;
 }
 
+/**
+ * A generic selector that checks for all possibilities before returning if we're in the Edit mode.
+ */
 export const getIsEditorOpen = createSelector(
   combinedPreviewModeSelector,
   getAppMode,
@@ -50,6 +53,22 @@ export const getIsEditorOpen = createSelector(
   },
 );
 
+/**
+ * This selector checks if the widget should be selected or focused.
+ * The widget can be selected, focused, or neither.
+ *
+ * We consider the base condition of the following:
+ * - We're in the editor
+ * - We're not dragging
+ * - We're not resizing (Although, this one doesn't make sense in Anvil, I'm using it anyway)
+ *
+ * Then we check if we're distributing space or adding a new widget. In both these scenarios
+ * the `highlightShown` flag is set to true. In this case, we return the widget as focused.
+ *
+ * return "none" by default
+ *
+ * @param widgetId The widgetId for which we need to check if it should be selected or focused.
+ */
 export function shouldSelectOrFocus(widgetId: string) {
   return createSelector(
     getIsEditorOpen,
