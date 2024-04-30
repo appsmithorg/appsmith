@@ -13,6 +13,7 @@ import type {
   LayoutSystemTypeConfig,
   LayoutSystemTypes,
 } from "layoutSystems/types";
+import type { BaseAction } from "entities/Action";
 
 export type EvaluationVersion = number;
 
@@ -267,17 +268,14 @@ export interface ImportBuildingBlockToApplicationRequest {
   templateId: string;
 }
 
+interface ImportBuildingBlockOnPageActions extends BaseAction {
+  timeoutInMilliseconds: number;
+  pluginType: string;
+}
+
 export interface ImportBuildingBlockToApplicationResponse {
   widgetDsl: string;
-  onPageLoadActions: {
-    id: string;
-    name: string;
-    confirmBeforeExecute: boolean;
-    pluginType: string;
-    collectionId?: string;
-    timeoutInMillisecond: number;
-    jsonPathKeys: string[];
-  }[];
+  onPageLoadActions: ImportBuildingBlockOnPageActions[];
 }
 
 export class ApplicationApi extends Api {

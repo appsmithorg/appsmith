@@ -64,7 +64,10 @@ function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
 
 function* runSingleAction(actionId: string) {
   yield put(runAction(actionId));
-  yield take(ReduxActionTypes.RUN_ACTION_SUCCESS);
+  yield race([
+    take(ReduxActionTypes.RUN_ACTION_SUCCESS),
+    take(ReduxActionErrorTypes.RUN_ACTION_ERROR),
+  ]);
 }
 
 function* runNewlyCreatedJSActions(
@@ -99,15 +102,11 @@ function* runNewlyCreatedJSActions(
   }
 }
 
-function* runNewlyCreatedActions(
-  actions: {
-    id: string;
-  }[],
-) {
+function* runNewlyCreatedActions(actions: string[]) {
   // Run each action sequentially. We have a max of 2-3 actions per building block.
   // If we run this in parallel, we will have a racing condition when multiple building blocks are drag and dropped quickly.
   for (const action of actions) {
-    yield runSingleAction(action.id);
+    yield runSingleAction(action);
   }
 }
 
@@ -181,20 +180,23 @@ export function* loadBuildingBlocksIntoApplication(
         response.data.onPageLoadActions &&
         response.data.onPageLoadActions.length > 0
       ) {
-        yield runNewlyCreatedActions(
-          response.data.onPageLoadActions
-            .filter((action) => action.pluginType !== PluginType.JS)
-            .map((action) => ({ id: action.id })),
-        );
+        const jsActions: { collectionId: string; actionId: string }[] = [];
+        const nonJsActionsIds: string[] = [];
 
-        yield runNewlyCreatedJSActions(
-          response.data.onPageLoadActions
-            .filter((action) => action.pluginType === PluginType.JS)
-            .map((action) => ({
-              collectionId: action.collectionId as string, // collectionId exists for JS actions only
+        response.data.onPageLoadActions.forEach((action) => {
+          if (action.pluginType === PluginType.JS) {
+            jsActions.push({
+              collectionId: action.collectionId as string,
               actionId: action.id,
-            })),
-        );
+            });
+          } else {
+            nonJsActionsIds.push(action.id);
+          }
+        });
+
+        yield runNewlyCreatedActions(nonJsActionsIds);
+
+        yield runNewlyCreatedJSActions(jsActions);
       }
 
       const timeTakenToCompleteInMs = buildingBlockDragStartTimestamp
