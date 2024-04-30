@@ -1,18 +1,15 @@
 package com.appsmith.server.solutions;
 
 import com.appsmith.external.git.GitExecutor;
-import com.appsmith.server.applications.solutions.ApplicationSolution;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.AutoCommitEvent;
-import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
-import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.services.AnalyticsService;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
@@ -65,15 +62,6 @@ public class AutoCommitEventHandlerImplTest {
     GitExecutor gitExecutor;
 
     @MockBean
-    ImportService importService;
-
-    @MockBean
-    ExportService exportService;
-
-    @MockBean
-    ApplicationSolution applicationSolution;
-
-    @MockBean
     ProjectProperties projectProperties;
 
     AutoCommitEventHandler autoCommitEventHandler;
@@ -89,10 +77,7 @@ public class AutoCommitEventHandlerImplTest {
                 fileUtils,
                 gitExecutor,
                 projectProperties,
-                analyticsService,
-                importService,
-                exportService,
-                applicationSolution);
+                analyticsService);
     }
 
     @AfterEach

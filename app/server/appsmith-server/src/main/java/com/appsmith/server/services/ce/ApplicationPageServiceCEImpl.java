@@ -7,11 +7,13 @@ import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
+import com.appsmith.git.constants.CommonConstants;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.clonepage.ClonePageService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
@@ -34,6 +36,7 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
@@ -42,6 +45,7 @@ import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.helpers.ce.GitAutoCommitHelper;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.ApplicationVersion;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
@@ -88,6 +92,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
+import static java.lang.Boolean.FALSE;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
 
 @Slf4j
@@ -110,6 +115,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private final NewActionService newActionService;
     private final ActionCollectionService actionCollectionService;
     private final GitFileUtils gitFileUtils;
+    private final CommonGitFileUtils commonGitFileUtils;
     private final ThemeService themeService;
     private final ResponseUtils responseUtils;
     private final WorkspacePermission workspacePermission;
@@ -242,7 +248,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     .filter(applicationPage -> applicationPage.getId().equals(pageId))
                     .count();
             if (count > 0) {
-                return Boolean.FALSE;
+                return FALSE;
             }
         }
         return Boolean.TRUE;
@@ -299,12 +305,44 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         // Migrate the DSL to the latest version if required
                         NewPage newPage = objects.getT2();
                         if (pageDTO.getLayouts() != null) {
-                            return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
+                            return migrateServer(newPage)
+                                    .zipWith(migrateAndUpdatePageDsl(newPage, pageDTO, viewMode))
+                                    .map(Tuple2::getT2);
                         }
                     }
                     return Mono.just(pageDTO);
                 })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
+    }
+
+    private Mono<Boolean> migrateServer(NewPage newPage) {
+        String defaultApplicationId = newPage.getDefaultResources().getApplicationId();
+        return applicationService
+                .findById(defaultApplicationId, applicationPermission.getReadPermission())
+                .flatMap(application -> {
+                    if (application.getGitArtifactMetadata() == null) {
+                        return Mono.just(FALSE);
+                    }
+
+                    String workspaceId = application.getWorkspaceId();
+                    String branchName = application.getGitArtifactMetadata().getBranchName();
+                    String repoName = application.getGitArtifactMetadata().getRepoName();
+
+                    return commonGitFileUtils
+                            .reconstructMetadataFromRepo(
+                                    workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION)
+                            .flatMap(metadataMap -> {
+                                Integer serverSchemaVersion = metadataMap.getOrDefault(
+                                        CommonConstants.SERVER_SCHEMA_VERSION, JsonSchemaVersions.serverVersion);
+
+                                if (JsonSchemaVersions.serverVersion > serverSchemaVersion) {
+                                    return gitAutoCommitHelper.autoCommitServerMigration(
+                                            defaultApplicationId, branchName);
+                                }
+
+                                return Mono.just(FALSE);
+                            });
+                });
     }
 
     private Mono<PageDTO> migrateAndUpdatePageDsl(NewPage newPage, PageDTO page, boolean viewMode) {
@@ -330,7 +368,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                                     newPage.getDefaultResources().getApplicationId(),
                                     newPage.getDefaultResources().getBranchName());
                         } else {
-                            autoCommitEventRunner = Mono.just(Boolean.FALSE);
+                            autoCommitEventRunner = Mono.just(FALSE);
                         }
                         // zipping them so that they can run in parallel
                         return Mono.zip(dslMigrationUtils.migratePageDsl(layoutDsl), autoCommitEventRunner)
@@ -1352,7 +1390,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .flatMap(ignored ->
                                     sendPageOrderAnalyticsEvent(application, defaultPageId, order, branchName))
                             .then(newPageService.findApplicationPagesByApplicationIdViewMode(
-                                    application.getId(), Boolean.FALSE, false));
+                                    application.getId(), FALSE, false));
                 })
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }
