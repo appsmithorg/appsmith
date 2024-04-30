@@ -41,7 +41,7 @@ import saaSPaneSagas from "sagas/SaaSPaneSagas";
 import snapshotSagas from "sagas/SnapshotSagas";
 import snipingModeSagas from "sagas/SnipingModeSagas";
 import templateSagas from "sagas/TemplatesSagas";
-import buildingBlocksSagas from "sagas/BuildingBlocksSagas";
+import buildingBlockSagas from "sagas/BuildingBlockSagas";
 import themeSagas from "sagas/ThemeSaga";
 import utilSagas from "sagas/UtilSagas";
 import websocketSagas from "sagas/WebsocketSagas/WebsocketSagas";
@@ -111,5 +111,5 @@ export const sagas = [
   anvilSagas,
   ternSagas,
   ideSagas,
-  buildingBlocksSagas,
+  buildingBlockSagas,
 ];
