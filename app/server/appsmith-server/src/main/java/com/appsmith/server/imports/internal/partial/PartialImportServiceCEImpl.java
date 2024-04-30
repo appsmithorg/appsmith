@@ -442,18 +442,22 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                                             .getRefactoredEntityNameMap()
                                                             .get(dslExecutableDTO.getName())
                                                     != null) {
+                                                String name = dslExecutableDTO
+                                                                .getName()
+                                                                .contains(".")
+                                                        ? dslExecutableDTO.getName()
+                                                                .split("\\.")[0]
+                                                        : dslExecutableDTO.getName();
                                                 dslExecutableDTO.setName(buildingBlockImportDTO
                                                         .getRefactoredEntityNameMap()
                                                         .get(dslExecutableDTO.getName()));
+                                                newOnPageLoadActionNames.add(buildingBlockImportDTO
+                                                        .getRefactoredEntityNameMap()
+                                                        .get(name));
+                                                buildingBlockResponseDTO
+                                                        .getOnPageLoadActions()
+                                                        .add(dslExecutableDTO);
                                             }
-                                            newOnPageLoadActionNames.add(
-                                                    dslExecutableDTO.getName().contains(".")
-                                                            ? dslExecutableDTO.getName()
-                                                                    .split("\\.")[0]
-                                                            : dslExecutableDTO.getName());
-                                            buildingBlockResponseDTO
-                                                    .getOnPageLoadActions()
-                                                    .add(dslExecutableDTO);
                                         }
                                     });
                                 });
@@ -479,7 +483,10 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                                         if (dslExecutableDTO.getCollectionId() != null) {
                                                             String name = dslExecutableDTO.getCollectionId()
                                                                     .split("_")[1];
-                                                            if (name.equals(actionCollection
+                                                            String refactoredName = buildingBlockImportDTO
+                                                                    .getRefactoredEntityNameMap()
+                                                                    .get(name);
+                                                            if (refactoredName.equals(actionCollection
                                                                     .getUnpublishedCollection()
                                                                     .getName())) {
                                                                 dslExecutableDTO.setId(actionCollection.getId());
