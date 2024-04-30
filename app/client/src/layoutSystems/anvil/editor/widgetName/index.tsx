@@ -1,0 +1,112 @@
+import React, { useCallback, useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import type { AppState } from "@appsmith/reducers";
+
+import { FloatingPortal } from "@floating-ui/react";
+
+import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
+import {
+  getWidgetDOMElement,
+  getWidgetNameComponentStyleProps,
+  handleWidgetUpdate,
+} from "./utils";
+import { ForwardedWidgetNameComponent } from "./Component";
+import { shouldSelectOrFocus } from "./selectors";
+import type { NameComponentStates } from "./types";
+
+export function useWidgetName(
+  widgetId: string,
+  widgetName: string,
+  parentId?: string,
+) {
+  const nameComponentState: NameComponentStates = useSelector(
+    shouldSelectOrFocus(widgetId),
+  );
+  const widgetType = useSelector(
+    (state: AppState) => state.entities.canvasWidgets[widgetId].type,
+  );
+
+  const styleProps = getWidgetNameComponentStyleProps(
+    widgetType,
+    nameComponentState,
+  );
+
+  const { setDraggingState } = useWidgetDragResize();
+
+  const onDragStart = useCallback(
+    (e: React.DragEvent<HTMLDivElement>) => {
+      e.preventDefault();
+      e.stopPropagation();
+      if (nameComponentState === "select") {
+        const startPoints = {
+          top: 0,
+          left: 0,
+        };
+        setDraggingState({
+          isDragging: true,
+          dragGroupActualParent: parentId,
+          draggingGroupCenter: { widgetId },
+          startPoints,
+          draggedOn: parentId,
+        });
+      }
+    },
+    [setDraggingState, nameComponentState],
+  );
+
+  /** Setup Floating UI logic */
+
+  const [widgetNameComponent, setWidgetNameElement] =
+    useState<HTMLDivElement | null>(null);
+
+  const widgetNameRef = useCallback((node) => {
+    if (node !== null) {
+      setWidgetNameElement(node);
+    }
+  }, []);
+
+  const widgetElement = getWidgetDOMElement(widgetId);
+  const widgetsEditorElement: HTMLDivElement | null = document.getElementById(
+    "widgets-editor",
+  ) as HTMLDivElement | null;
+
+  let cleanup = () => {};
+  useEffect(() => {
+    if (widgetElement && widgetNameComponent && widgetsEditorElement) {
+      cleanup = handleWidgetUpdate(
+        widgetElement,
+        widgetNameComponent,
+        widgetsEditorElement,
+        nameComponentState,
+      );
+    }
+    return () => {
+      cleanup();
+    };
+  }, [nameComponentState, widgetElement, widgetNameComponent]);
+
+  /** EO Floating UI Logic */
+
+  // Don't show widget name component for the main container
+  if (widgetId === MAIN_CONTAINER_WIDGET_ID) return null;
+  // Don't show widget name component if the widget DOM element isn't found
+  if (!widgetElement) return null;
+
+  return (
+    <FloatingPortal>
+      <ForwardedWidgetNameComponent
+        bGCSSVar={styleProps.bGCSSVar}
+        colorCSSVar={styleProps.colorCSSVar}
+        disableParentSelection={styleProps.disableParentToggle}
+        key={widgetId}
+        name={widgetName}
+        onDragStart={onDragStart}
+        ref={widgetNameRef}
+        selectionBGCSSVar={styleProps.selectionBGCSSVar}
+        selectionColorCSSVar={styleProps.selectionColorCSSVar}
+        widgetId={widgetId}
+      />
+    </FloatingPortal>
+  );
+}
