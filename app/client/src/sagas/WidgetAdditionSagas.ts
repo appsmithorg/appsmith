@@ -53,6 +53,7 @@ import {
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { getWidget, getWidgets } from "./selectors";
 import { addBuildingBlockToCanvasSaga } from "./BuildingBlockAdditionSagas";
+import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;
 
@@ -89,7 +90,10 @@ function* getChildWidgetProps(
   const widgetSessionValues = getWidgetSessionValues(type, parent);
   const mainCanvasWidth: number = yield select(getCanvasWidth);
   const isMobile: boolean = yield select(getIsAutoLayoutMobileBreakPoint);
-  const isModalOpen: string = yield select(getCurrentlyOpenAnvilModal);
+  const detachedWidgets: string[] = yield select(
+    getCurrentlyOpenAnvilDetachedWidgets,
+  );
+  const isModalOpen = detachedWidgets && detachedWidgets.length > 0;
 
   if (!widgetName) {
     const widgetNames = Object.keys(widgets).map((w) => widgets[w].widgetName);
