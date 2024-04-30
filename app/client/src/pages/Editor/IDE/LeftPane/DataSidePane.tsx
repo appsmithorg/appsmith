@@ -3,8 +3,8 @@ import styled from "styled-components";
 import { Flex, List, Text } from "design-system";
 import { useSelector } from "react-redux";
 import {
-  getActions,
   getCurrentPageId,
+  getDatasourceUsageCountForApp,
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
   getPlugins,
@@ -15,7 +15,7 @@ import {
   integrationEditorURL,
 } from "@appsmith/RouteBuilder";
 import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
-import { countBy, keyBy } from "lodash";
+import { get, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
 import { useLocation } from "react-router";
 import {
@@ -54,7 +54,12 @@ const StyledList = styled(List)`
   gap: 0;
 `;
 
-const DataSidePane = () => {
+interface DataSidePaneProps {
+  dsUsageSelector?: (...args: any[]) => Record<string, string>;
+}
+
+const DataSidePane = (props: DataSidePaneProps) => {
+  const { dsUsageSelector = getDatasourceUsageCountForApp } = props;
   const editorType = useEditorType(history.location.pathname);
   const pageId = useSelector(getCurrentPageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
@@ -64,8 +69,7 @@ const DataSidePane = () => {
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
-  const actions = useSelector(getActions);
-  const actionCount = countBy(actions, "config.datasource.id");
+  const dsUsageMap = useSelector((state) => dsUsageSelector(state, editorType));
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
@@ -135,9 +139,7 @@ const DataSidePane = () => {
                   className: "t--datasource",
                   title: data.name,
                   onClick: () => goToDatasource(data.id),
-                  description: `${
-                    actionCount[data.id] || "No"
-                  } queries in this ${editorType}`,
+                  description: get(dsUsageMap, data.id, ""),
                   descriptionType: "block",
                   isSelected: currentSelectedDatasource === data.id,
                   startIcon: (

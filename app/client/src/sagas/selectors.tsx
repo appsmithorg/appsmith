@@ -191,6 +191,15 @@ export const getPluginIdOfPackageName = (
 export const getDragDetails = (state: AppState) => {
   return state.ui.widgetDragResize.dragDetails;
 };
+
+export const getIsNewWidgetBeingDragged = (state: AppState) => {
+  const { isDragging } = state.ui.widgetDragResize;
+  if (!isDragging) return false;
+  const dragDetails: DragDetails = getDragDetails(state);
+  const { dragGroupActualParent: dragParent, newWidget } = dragDetails;
+  return !!newWidget && !dragParent;
+};
+
 export const isCurrentCanvasDragging = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   getDragDetails,
