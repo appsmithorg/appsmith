@@ -258,7 +258,7 @@ describe("Test modalSetter", () => {
     {
       index: 3,
       input: "{{closeModal('')}}",
-      expected: "{{closeModal('Modal1.value);}}",
+      expected: "{{closeModal(Modal1.value);}}",
       value: "Modal1.value",
     },
     {
