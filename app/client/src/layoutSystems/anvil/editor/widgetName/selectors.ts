@@ -10,7 +10,10 @@ import {
   isCurrentWidgetFocused,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
-import { combinedPreviewModeSelector } from "selectors/editorSelectors";
+import {
+  combinedPreviewModeSelector,
+  isEditOnlyModeSelector,
+} from "selectors/editorSelectors";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 
@@ -43,24 +46,12 @@ export function getWidgetErrorCount(state: AppState, widgetId: string) {
 }
 
 /**
- * A generic selector that checks for all possibilities before returning if we're in the Edit mode.
- */
-export const getIsEditorOpen = createSelector(
-  combinedPreviewModeSelector,
-  getAppMode,
-  (isPreviewMode: boolean, appMode?: APP_MODE) => {
-    return appMode === APP_MODE.EDIT && !isPreviewMode;
-  },
-);
-
-/**
  * This selector checks if the widget should be selected or focused.
  * The widget can be selected, focused, or neither.
  *
  * We consider the base condition of the following:
  * - We're in the editor
  * - We're not dragging
- * - We're not resizing (Although, this one doesn't make sense in Anvil, I'm using it anyway)
  *
  * Then we check if we're distributing space or adding a new widget. In both these scenarios
  * the `highlightShown` flag is set to true. In this case, we return the widget as focused.
@@ -71,21 +62,19 @@ export const getIsEditorOpen = createSelector(
  */
 export function shouldSelectOrFocus(widgetId: string) {
   return createSelector(
-    getIsEditorOpen,
+    isEditOnlyModeSelector,
     getIsDragging,
-    getIsResizing,
     getAnvilHighlightShown,
     isWidgetSelected(widgetId),
     isCurrentWidgetFocused(widgetId),
     (
       isEditorOpen,
       isDragging,
-      isResizing,
       highlightShown,
       isWidgetSelected,
       isWidgetFocused,
     ) => {
-      const baseCondition = isEditorOpen && !isDragging && !isResizing;
+      const baseCondition = isEditorOpen && !isDragging;
       let onCanvasUIState: NameComponentStates = "none";
       if (baseCondition) {
         if (isWidgetSelected) onCanvasUIState = "select";
