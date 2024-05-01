@@ -42,23 +42,7 @@ describe("OnBoarding", () => {
   });
 
   it("renders the onboarding component when drag and drop is enabled", () => {
-    const storeToUse = {
-      ...baseStoreForSpec,
-      ui: {
-        ...baseStoreForSpec.ui,
-        users: {
-          ...baseStoreForSpec.ui.users,
-          featureFlag: {
-            ...baseStoreForSpec.ui.users.featureFlag,
-            data: {
-              ab_show_templates_instead_of_blank_canvas_enabled: false,
-              release_drag_drop_building_blocks_enabled: true,
-            },
-          },
-        },
-      },
-    };
-    render(BaseComponentRender(storeToUse));
+    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
     const title = screen.getByText(
       createMessage(EMPTY_CANVAS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
     );
@@ -70,23 +54,7 @@ describe("OnBoarding", () => {
   });
 
   it("renders the onboarding component when starter buidling blocks on canvas is enabled", () => {
-    const storeToUse = {
-      ...baseStoreForSpec,
-      ui: {
-        ...baseStoreForSpec.ui,
-        users: {
-          ...baseStoreForSpec.ui.users,
-          featureFlag: {
-            ...baseStoreForSpec.ui.users.featureFlag,
-            data: {
-              ab_show_templates_instead_of_blank_canvas_enabled: true,
-              release_drag_drop_building_blocks_enabled: false,
-            },
-          },
-        },
-      },
-    };
-    render(BaseComponentRender(storeToUse));
+    render(BaseComponentRender(storeToUseWithStarterBuildingBlocksEnabled));
     const title = screen.getByText(
       createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
     );
@@ -107,6 +75,40 @@ const baseStoreForSpec = {
       featureFlag: {
         data: {
           ab_show_templates_instead_of_blank_canvas_enabled: false,
+          release_drag_drop_building_blocks_enabled: false,
+        },
+      },
+    },
+  },
+};
+
+const storeToUseWithDragDropBuildingBlocksEnabled = {
+  ...baseStoreForSpec,
+  ui: {
+    ...baseStoreForSpec.ui,
+    users: {
+      ...baseStoreForSpec.ui.users,
+      featureFlag: {
+        ...baseStoreForSpec.ui.users.featureFlag,
+        data: {
+          ab_show_templates_instead_of_blank_canvas_enabled: false,
+          release_drag_drop_building_blocks_enabled: true,
+        },
+      },
+    },
+  },
+};
+
+const storeToUseWithStarterBuildingBlocksEnabled = {
+  ...baseStoreForSpec,
+  ui: {
+    ...baseStoreForSpec.ui,
+    users: {
+      ...baseStoreForSpec.ui.users,
+      featureFlag: {
+        ...baseStoreForSpec.ui.users.featureFlag,
+        data: {
+          ab_show_templates_instead_of_blank_canvas_enabled: true,
           release_drag_drop_building_blocks_enabled: false,
         },
       },
