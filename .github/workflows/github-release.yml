@@ -1,8 +1,7 @@
 name: Appsmith Github Release Workflow
 
 # This workflow builds Docker images for server and client, and then pushes them to Docker Hub.
-# The docker-tag with which this push happens is the release tag (e.g., v1.2.3 etc.).
-# In addition to the above tag, unless the git-tag matches `*beta*`, we also push to the `latest` docker-tag.
+# The docker-tag with which this push happens is `latest` and the release tag (e.g., v1.2.3 etc.).
 # This workflow does NOT run tests.
 # This workflow is automatically triggered when a release is created on GitHub.
 
@@ -19,7 +18,6 @@ jobs:
 
     outputs:
       tag: ${{ steps.get_version.outputs.tag }}
-      is_beta: ${{ steps.get_version.outputs.is_beta }}
 
     steps:
       - name: Environment details
@@ -32,13 +30,11 @@ jobs:
       - name: Get the version
         id: get_version
         run: |
-          tag="${GITHUB_REF#refs/tags/}"
-          echo "tag=$tag" >> $GITHUB_OUTPUT
-          if [[ $tag == *"beta"* ]]; then
-            echo "is_beta=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_beta=false" >> $GITHUB_OUTPUT
+          if ! [[ ${GITHUB_REF-} =~ ^refs/tags/v[[:digit:]]\.[[:digit:]]+(\.[[:digit:]]+)?$ ]]; then
+            echo "Invalid tag: '${GITHUB_REF-}'. Has to be like `v1.22`, `v1.22.33` only."
+            exit 1
           fi
+          echo "tag=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
 
   client-build:
     needs:
@@ -246,9 +242,7 @@ jobs:
 
       - name: Generate info.json
         run: |
-          if [[ -f scripts/generate_info_json.sh ]]; then
-            scripts/generate_info_json.sh
-          fi
+          scripts/generate_info_json.sh
 
       - name: Login to DockerHub
         uses: docker/login-action@v1
@@ -267,17 +261,4 @@ jobs:
             BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
           tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:${{needs.prelude.outputs.tag}}
-
-      # Only build & tag with latest if the tag doesn't contain beta
-      - name: Build and push fat image latest
-        if: needs.prelude.outputs.is_beta == 'false'
-        uses: depot/build-push-action@v1
-        with:
-          context: .
-          push: true
-          platforms: linux/arm64,linux/amd64
-          build-args: |
-            APPSMITH_SEGMENT_CE_KEY=${{ secrets.APPSMITH_SEGMENT_CE_KEY }}
-            BASE=${{ vars.DOCKER_HUB_ORGANIZATION }}/base-${{ vars.EDITION }}:nightly
-          tags: |
             ${{ vars.DOCKER_HUB_ORGANIZATION }}/appsmith-${{ vars.EDITION }}:latest
