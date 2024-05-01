@@ -33,10 +33,16 @@ import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { calculateDropTargetRows } from "./DropTargetUtils";
 
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
-import { EditorState as IDEAppState } from "@appsmith/entities/IDE/constants";
+import {
+  EditorEntityTab,
+  EditorState as IDEAppState,
+} from "@appsmith/entities/IDE/constants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { LayoutSystemTypes } from "layoutSystems/types";
-import { useCurrentAppState } from "pages/Editor/IDE/hooks";
+import {
+  useCurrentAppState,
+  useCurrentEditorState,
+} from "pages/Editor/IDE/hooks";
 import { getIsAppSettingsPaneWithNavigationTabOpen } from "selectors/appSettingsPaneSelectors";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
@@ -77,6 +83,7 @@ function Onboarding() {
   const isDraggingBuildingBlock = useSelector(isDraggingBuildingBlockToCanvas);
   const appState = useCurrentAppState();
   const isAirgappedInstance = isAirgapped();
+  const { segment } = useCurrentEditorState();
 
   const showStarterTemplatesInsteadOfBlankCanvas = useFeatureFlag(
     FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
@@ -105,16 +112,17 @@ function Onboarding() {
   );
 
   const isEditorState = appState === IDEAppState.EDITOR;
+  const isUISegment = segment === EditorEntityTab.UI;
 
   if (shouldShowStarterTemplates && isEditorState) {
     return <StarterBuildingBlocks />;
-  } else if (shouldShowBuildingBlocksDropTarget && isEditorState) {
-    return <BuildingBlockExplorerDropTarget />;
   } else if (
-    !shouldShowBuildingBlocksDropTarget &&
-    !shouldShowStarterTemplates &&
-    !isDraggingBuildingBlock
+    shouldShowBuildingBlocksDropTarget &&
+    isEditorState &&
+    isUISegment
   ) {
+    return <BuildingBlockExplorerDropTarget />;
+  } else if (!isDraggingBuildingBlock) {
     return (
       <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
         Drag and drop a widget here
