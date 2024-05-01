@@ -63,7 +63,6 @@ parts.push(`
     to 127.0.0.1:{args[0]}
     header_up -Forwarded
     header_up X-Appsmith-Request-Id {http.request.uuid}
-    header_up X-Request-Id {http.request.uuid}
   }
 }
 
@@ -80,6 +79,9 @@ parts.push(`
   # We're only accepting v4 UUIDs today, in order to not make it too lax unless needed.
   @request-id expression {header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
   header @request-id X-Request-Id {header.X-Request-Id}
+  @not-request-id expression !{header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @not-request-id X-Request-Id invalid_request_id
+  request_header @not-request-id X-Request-Id invalid_request_id
 
   header {
     -Server

@@ -40,7 +40,9 @@ public class MDCFilter implements WebFilter {
      * We read it from the request, _only_ to log it.
      */
     @SuppressWarnings("UastIncorrectHttpHeaderInspection")
-    private static final String INTERNAL_REQUEST_ID_HEADER = "X-Appsmith-Request-Id";
+    public static final String INTERNAL_REQUEST_ID_HEADER = "X-Appsmith-Request-Id";
+
+    public static final String REQUEST_ID_HEADER = "X-Request-Id";
 
     private static final String REQUEST_ID_LOG = "requestId";
     private static final String SESSION = "SESSION";
@@ -72,7 +74,18 @@ public class MDCFilter implements WebFilter {
         if (user != null) {
             contextMap.put(USER_EMAIL, user.getEmail());
         }
-        contextMap.put(REQUEST_ID_LOG, getOrCreateInternalRequestId(request));
+
+        final String internalRequestId = request.getHeaders().getFirst(INTERNAL_REQUEST_ID_HEADER);
+        if (!StringUtils.isEmpty(internalRequestId)) {
+            contextMap.put(INTERNAL_REQUEST_ID_HEADER, internalRequestId);
+            contextMap.put(REQUEST_ID_LOG, internalRequestId);
+        }
+
+        final String requestId = request.getHeaders().getFirst(REQUEST_ID_HEADER);
+        if (!StringUtils.isEmpty(requestId)) {
+            contextMap.put(REQUEST_ID_HEADER, requestId);
+        }
+
         contextMap.put(SESSION_ID_LOG, getSessionId(request));
 
         // This is for the initial thread that started the request,
@@ -93,13 +106,10 @@ public class MDCFilter implements WebFilter {
                         return;
                     }
 
+                    final Map<String, String> contextMap = ctx.get(LogHelper.CONTEXT_MAP);
+
                     final HttpHeaders httpHeaders = response.getHeaders();
-                    // Add all the request MDC keys to the response object
-                    ctx.<Map<String, String>>get(LogHelper.CONTEXT_MAP).forEach((key, value) -> {
-                        if (!key.equalsIgnoreCase(USER_EMAIL) && !key.contains(REQUEST_ID_LOG)) {
-                            httpHeaders.add(MDC_HEADER_PREFIX + key, value);
-                        }
-                    });
+                    httpHeaders.set(MDC_HEADER_PREFIX + THREAD, contextMap.get(THREAD));
                 })
                 .then();
     }
