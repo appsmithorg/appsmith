@@ -3,7 +3,6 @@ package com.appsmith.server.helpers;
 import com.appsmith.util.WebClientUtils;
 import jakarta.annotation.PostConstruct;
 import lombok.NonNull;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -24,12 +23,11 @@ public class RTSCaller {
 
     private WebClient webClient;
 
-    @PostConstruct
-    private void makeWebClient(@Value("${appsmith.rts.port:}") String rtsPort) {
-        if (StringUtils.isEmpty(rtsPort)) {
-            rtsPort = "8091";
-        }
+    @Value("${appsmith.rts.port:}")
+    private String rtsPort;
 
+    @PostConstruct
+    private void makeWebClient() {
         webClient = WebClientUtils.builder(ConnectionProvider.builder("rts-provider")
                         .maxConnections(100)
                         .maxIdleTime(Duration.ofSeconds(30))
