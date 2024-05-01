@@ -885,7 +885,7 @@ export class AggregateHelper {
   }
 
   public ClearTextField(selector: string, force = false, index = 0) {
-    this.GetElement(selector).eq(index).focus().clear({ force });
+    this.GetElement(selector).eq(index).focus().click().clear({ force });
     this.Sleep(500); //for text to clear for CI runs
   }
 
