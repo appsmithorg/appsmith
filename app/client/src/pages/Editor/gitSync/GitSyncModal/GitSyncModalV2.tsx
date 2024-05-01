@@ -140,8 +140,22 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
             ) : (
               <ConnectionSuccess />
             ))}
-          {activeTabKey === GitSyncModalTab.DEPLOY && <Deploy />}
-          {activeTabKey === GitSyncModalTab.MERGE && <Merge />}
+          <div
+            style={{
+              display:
+                activeTabKey === GitSyncModalTab.DEPLOY ? "block" : "none",
+            }}
+          >
+            <Deploy />
+          </div>
+          <div
+            style={{
+              display:
+                activeTabKey === GitSyncModalTab.MERGE ? "block" : "none",
+            }}
+          >
+            <Merge />
+          </div>
         </StyledModalContent>
       </Modal>
       <GitErrorPopup />
