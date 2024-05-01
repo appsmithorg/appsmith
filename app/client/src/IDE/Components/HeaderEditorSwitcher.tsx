@@ -8,6 +8,7 @@ interface HeaderEditorSwitcherProps {
   titleTestId: string;
   active: boolean;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
+  className?: string;
 }
 
 const SwitchTrigger = styled.div<{ active: boolean }>`
@@ -23,14 +24,14 @@ const SwitchTrigger = styled.div<{ active: boolean }>`
 
 const HeaderEditorSwitcher = React.forwardRef(
   (props: HeaderEditorSwitcherProps, ref: any) => {
-    const { active, onClick, prefix, title, titleTestId } = props;
+    const { active, className, prefix, title, titleTestId, ...rest } = props;
 
     return (
       <SwitchTrigger
         active={active}
-        className="flex align-center justify-center"
-        onClick={onClick}
+        className={`flex align-center justify-center ${className}`}
         ref={ref}
+        {...rest}
       >
         <Text
           color={"var(--ads-v2-colors-content-label-inactive-fg)"}

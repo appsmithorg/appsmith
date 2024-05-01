@@ -54,4 +54,29 @@ describe("HeaderEditorSwitcher", () => {
     );
     fireEvent.click(getByText("Title")); // Should not throw error
   });
+
+  it("forwards additional props correctly", () => {
+    const testId = "test-id";
+    const className = "custom-class";
+
+    const { container } = render(
+      <HeaderEditorSwitcher
+        active
+        className={className}
+        data-testid={testId} // Additional prop
+        prefix="Prefix"
+        title="Title"
+        titleTestId="titleTestId"
+      />,
+    );
+
+    const firstDiv = container.querySelector("div"); // Get the first div element
+    const classNames = firstDiv?.getAttribute("class")?.split(" ") || [];
+
+    expect(firstDiv).toHaveAttribute("data-testid", testId); // Check if data-testid prop is applied
+    expect(classNames).toContain(className); // Check if className prop is applied
+    expect(classNames).toContain("flex"); // Check if internal classes still exists
+    expect(classNames).toContain("align-center"); // Check if internal classes still exists
+    expect(classNames).toContain("justify-center"); // Check if internal classes still exists
+  });
 });
