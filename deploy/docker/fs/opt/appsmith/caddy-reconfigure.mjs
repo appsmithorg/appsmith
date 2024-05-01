@@ -63,6 +63,7 @@ parts.push(`
     to 127.0.0.1:{args[0]}
     header_up -Forwarded
     header_up X-Appsmith-Request-Id {http.request.uuid}
+    header_up X-Request-Id {http.request.uuid}
   }
 }
 
@@ -75,7 +76,9 @@ parts.push(`
   # The internal request ID header should never be accepted from an incoming request.
   request_header -X-Appsmith-Request-Id
 
-  @request-id expression {header.X-Request-Id} != ""
+  # Ref: https://stackoverflow.com/a/38191078/151048
+  # We're only accepting v4 UUIDs today, in order to not make it too lax unless needed.
+  @request-id expression {header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
   header @request-id X-Request-Id {header.X-Request-Id}
 
   header {
