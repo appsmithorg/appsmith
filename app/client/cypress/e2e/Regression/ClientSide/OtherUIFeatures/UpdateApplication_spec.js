@@ -15,11 +15,13 @@ describe("Update Application", () => {
     appname = localStorage.getItem("appName");
 
     cy.get(homePage.searchInput).clear();
-    cy.get(homePage.searchInput).type(workspaceName);
+    cy.get(homePage.searchInput).click().type(workspaceName);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appMoreIcon).first().click({ force: true });
-    cy.get(homePage.applicationName).type(`${appname} updated` + "{enter}");
+    cy.get(homePage.applicationName)
+      .click()
+      .type(`${appname} updated` + "{enter}");
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -76,7 +78,9 @@ describe("Update Application", () => {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appMoreIcon).first().click({ force: true });
-    cy.get(homePage.applicationName).type(veryLongAppName + "{enter}");
+    cy.get(homePage.applicationName)
+      .click()
+      .type(veryLongAppName + "{enter}");
     agHelper.GetNClick(homePage.workspaceCompleteSection, 0, true);
     cy.wait("@updateApplication").should(
       "have.nested.property",
