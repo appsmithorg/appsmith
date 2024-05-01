@@ -30,8 +30,13 @@ function Onboarding() {
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
 
+  const isEditorState = appState === IDEAppState.EDITOR;
+  const isUISegment = segment === EditorEntityTab.UI;
+
   const shouldShowStarterTemplates = useMemo(
     () =>
+      isEditorState &&
+      isUISegment &&
       showStarterTemplatesInsteadOfBlankCanvas &&
       !isMobileCanvas &&
       !isAirgappedInstance &&
@@ -41,24 +46,26 @@ function Onboarding() {
       isMobileCanvas,
       isAirgappedInstance,
       releaseDragDropBuildingBlocksEnabled,
+      isEditorState,
+      isUISegment,
     ],
   );
 
   const shouldShowBuildingBlocksDropTarget = useMemo(
-    () => releaseDragDropBuildingBlocksEnabled && !isDraggingBuildingBlock,
-    [releaseDragDropBuildingBlocksEnabled, isDraggingBuildingBlock],
+    () =>
+      isEditorState &&
+      releaseDragDropBuildingBlocksEnabled &&
+      !isDraggingBuildingBlock,
+    [
+      isEditorState,
+      releaseDragDropBuildingBlocksEnabled,
+      isDraggingBuildingBlock,
+    ],
   );
 
-  const isEditorState = appState === IDEAppState.EDITOR;
-  const isUISegment = segment === EditorEntityTab.UI;
-
-  if (shouldShowStarterTemplates && isEditorState) {
+  if (shouldShowStarterTemplates) {
     return <StarterBuildingBlocks />;
-  } else if (
-    shouldShowBuildingBlocksDropTarget &&
-    isEditorState &&
-    isUISegment
-  ) {
+  } else if (shouldShowBuildingBlocksDropTarget) {
     return <BuildingBlockExplorerDropTarget />;
   } else if (!isDraggingBuildingBlock) {
     return (
