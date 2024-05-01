@@ -1,7 +1,3 @@
-import {
-  ReduxActionTypes,
-  type ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
 import type { AppState } from "@appsmith/reducers";
 import type { DSLWidget } from "WidgetProvider/constants";
 import { focusWidget } from "actions/widgetActions";
@@ -21,6 +17,10 @@ import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import { NavigationMethod } from "utils/history";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { AnvilReduxActionTypes } from "../actions/actionTypes";
+import { setActiveEditorField } from "actions/activeFieldActions";
+import { setFocusablePropertyPaneField } from "actions/propertyPaneActions";
+import { setEvalPopupState } from "actions/editorContextActions";
+import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 
 /**
  * This saga selects widgets in the Anvil Layout system
@@ -86,7 +86,7 @@ export function* selectAnvilWidget(
 }
 
 /**
- * A non optimised function that loops through all the entries in the error object and finds the first error path
+ * A function that loops through all the entries in the error object and finds the first error path
  * @param errors The error object from evaluations
  * @param widget The widget in which the error occured
  * @returns The full property path of the property with the error
@@ -95,14 +95,11 @@ function getErrorPropertyPath(
   errors: Record<string, Array<unknown>>,
   widget: DSLWidget,
 ) {
-  let firstErrorFieldPath = "";
-  Object.entries(errors).forEach(([key, value]) => {
-    if (value && value.length > 0 && firstErrorFieldPath.length === 0) {
-      firstErrorFieldPath = key;
+  for (const [key, value] of Object.entries(errors)) {
+    if (value && value.length > 0) {
+      return `${widget.widgetName}.${key}`;
     }
-  });
-
-  return `${widget.widgetName}.${firstErrorFieldPath}`;
+  }
 }
 
 // This is a stopgap measure until #33014 is resolved
@@ -116,29 +113,23 @@ export function* debugWidget(action: ReduxAction<{ widgetId: string }>) {
   );
 
   const fullPath = getErrorPropertyPath(errors, widget);
-
-  yield put({
-    type: ReduxActionTypes.SET_ACTIVE_EDITOR_FIELD,
-    payload: { field: fullPath },
-  });
-  yield put({
-    type: ReduxActionTypes.SET_FOCUSABLE_PROPERTY_FIELD,
-    payload: { path: fullPath },
-  });
-  yield put({
-    type: ReduxActionTypes.SET_EVAL_POPUP_STATE,
-    payload: {
-      key: fullPath,
-      evalPopupState: {
+  if (fullPath && fullPath.length > 0) {
+    yield put(setActiveEditorField(fullPath));
+    yield put(setFocusablePropertyPaneField(fullPath));
+    yield put(
+      setEvalPopupState(fullPath, {
         type: false,
         value: true,
         example: false,
-      },
-    },
-  });
+      }),
+    );
+  }
 }
 
 export default function* selectAnvilWidgetSaga() {
   yield takeLatest(AnvilReduxActionTypes.DEBUG_WIDGET, debugWidget);
-  yield takeLatest("ANVIL_WIDGET_SELECTION_CLICK", selectAnvilWidget);
+  yield takeLatest(
+    AnvilReduxActionTypes.ANVIL_WIDGET_SELECTION_CLICK,
+    selectAnvilWidget,
+  );
 }
