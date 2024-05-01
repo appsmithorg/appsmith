@@ -3,6 +3,19 @@ import type { AppState } from "@appsmith/reducers";
 import type { NameComponentStates } from "./types";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
+import { createSelector } from "reselect";
+import { getIsDragging, getIsResizing } from "selectors/widgetDragSelectors";
+import { getAnvilHighlightShown } from "layoutSystems/anvil/integrations/selectors";
+import {
+  isCurrentWidgetFocused,
+  isWidgetSelected,
+} from "selectors/widgetSelectors";
+import {
+  combinedPreviewModeSelector,
+  isEditOnlyModeSelector,
+} from "selectors/editorSelectors";
+import { getAppMode } from "@appsmith/selectors/applicationSelectors";
+import { APP_MODE } from "entities/App";
 
 /**
  *
@@ -32,6 +45,47 @@ export function getWidgetErrorCount(state: AppState, widgetId: string) {
   return errorCount;
 }
 
+/**
+ * This selector checks if the widget should be selected or focused.
+ * The widget can be selected, focused, or neither.
+ *
+ * We consider the base condition of the following:
+ * - We're in the editor
+ * - We're not dragging
+ *
+ * Then we check if we're distributing space or adding a new widget. In both these scenarios
+ * the `highlightShown` flag is set to true. In this case, we return the widget as focused.
+ *
+ * return "none" by default
+ *
+ * @param widgetId The widgetId for which we need to check if it should be selected or focused.
+ */
 export function shouldSelectOrFocus(widgetId: string) {
-  return (state: AppState): NameComponentStates => "focus";
+  return createSelector(
+    isEditOnlyModeSelector,
+    getIsDragging,
+    getAnvilHighlightShown,
+    isWidgetSelected(widgetId),
+    isCurrentWidgetFocused(widgetId),
+    (
+      isEditorOpen,
+      isDragging,
+      highlightShown,
+      isWidgetSelected,
+      isWidgetFocused,
+    ) => {
+      const baseCondition = isEditorOpen && !isDragging;
+      let onCanvasUIState: NameComponentStates = "none";
+      if (baseCondition) {
+        if (isWidgetSelected) onCanvasUIState = "select";
+        // A widget can be focused and selected at the same time.
+        // I'm not sure if these should be mutually exclusive states.
+        if (isWidgetFocused && !isWidgetSelected) onCanvasUIState = "focus";
+      }
+      if (highlightShown && highlightShown.canvasId === widgetId) {
+        onCanvasUIState = "focus";
+      }
+      return onCanvasUIState;
+    },
+  );
 }
