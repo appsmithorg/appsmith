@@ -2,6 +2,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   agHelper,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 const commonlocators = require("../../../../locators/commonlocators.json");
@@ -155,11 +156,13 @@ describe(
         });
     });
 
-    it.only("5. Should drop widget on canvas", () => {
+    it.only("5. Should drag and drop building block on canvas", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
-      cy.get(commonlocators.entityExplorersearch).should("be.visible");
-      cy.get(commonlocators.entityExplorersearch).clear().type("form");
-      cy.dragAndDropToCanvas("buildingblock", { x: 10, y: 10 });
+      cy.dragAndDropToCanvas("buildingblock", { x: 600, y: 80 });
+      assertHelper.AssertNetworkStatus(
+        "/applications/import/partial/block",
+        200,
+      );
     });
   },
 );
