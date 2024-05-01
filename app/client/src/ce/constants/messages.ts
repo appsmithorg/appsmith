@@ -693,7 +693,7 @@ export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
 //Import Application Succesful
 export const IMPORT_APP_SUCCESSFUL = () => "Application imported successfully";
 //Unable to import application in workspace
-export const UNABLE_TO_IMPORT_APP_SUCCESSFUL = () =>
+export const UNABLE_TO_IMPORT_APP = () =>
   "Unable to import application in workspace";
 
 //undo redo

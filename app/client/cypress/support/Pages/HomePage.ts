@@ -6,7 +6,7 @@ import { AppSidebar, PageLeftPane } from "./EditorNavigation";
 import {
   createMessage,
   IMPORT_APP_SUCCESSFUL,
-  UNABLE_TO_IMPORT_APP_SUCCESSFUL,
+  UNABLE_TO_IMPORT_APP,
 } from "../../../src/ce/constants/messages";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
@@ -647,7 +647,7 @@ export class HomePage {
       .should("eq", 200);
     this.agHelper.ValidateToastMessage(createMessage(IMPORT_APP_SUCCESSFUL));
     this.agHelper.AssertElementAbsence(
-      this.locator._specificToast(createMessage(UNABLE_TO_IMPORT_APP_SUCCESSFUL));
+      this.locator._specificToast(createMessage(UNABLE_TO_IMPORT_APP)),
     );
   }
 
