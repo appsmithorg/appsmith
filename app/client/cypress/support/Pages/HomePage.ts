@@ -3,6 +3,11 @@ import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
 import { ObjectsRegistry } from "../Objects/Registry";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
+import {
+  createMessage,
+  IMPORT_APP_SUCCESSFUL,
+  UNABLE_TO_IMPORT_APP_SUCCESSFUL,
+} from "../../../src/ce/constants/messages";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -637,13 +642,12 @@ export class HomePage {
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
-    this.agHelper.Sleep(1500);
     cy.wait("@importNewApplication")
       .its("response.statusCode")
       .should("eq", 200);
-    this.agHelper.ValidateToastMessage("Application imported successfully");
+    this.agHelper.ValidateToastMessage(createMessage(IMPORT_APP_SUCCESSFUL));
     this.agHelper.AssertElementAbsence(
-      this.locator._specificToast("Unable to import application in workspace"),
+      this.locator._specificToast(createMessage(UNABLE_TO_IMPORT_APP_SUCCESSFUL));
     );
   }
 
