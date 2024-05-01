@@ -637,7 +637,11 @@ export class HomePage {
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
-    this.agHelper.Sleep(3500);
+    this.agHelper.Sleep(2000);
+    cy.wait("@importNewApplication").its("response.statusCode").should("eq", 200);
+    cy.wait("@importNewApplication").then(() => {
+      this.agHelper.ValidateToastMessage("Application imported successfully")
+  });
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast("Unable to import application in workspace"),
     );
