@@ -144,6 +144,7 @@ import {
   setIdeEditorViewMode,
   setShowQueryCreateNewModal,
   closeQueryActionTabSuccess,
+  closeQueryActionTab,
 } from "actions/ideActions";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
@@ -715,8 +716,13 @@ function* moveActionSaga(
       // @ts-expect-error: response is of type unknown
       apiID: response.data.id,
     });
-    const currentUrl = window.location.pathname;
-    yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+    yield call(
+      closeActionTabSaga,
+      closeQueryActionTab({
+        id: action.payload.id,
+        parentId: action.payload.originalPageId,
+      }),
+    );
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
   } catch (e) {

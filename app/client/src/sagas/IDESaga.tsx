@@ -28,19 +28,9 @@ import {
   selectQuerySegmentEditorTabs,
 } from "@appsmith/selectors/appIDESelectors";
 
-export function* updateIDETabsOnRouteChangeSaga(
-  entityInfo: FocusEntityInfo,
-  previousPath: string,
-) {
+export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   const { entity, id, params } = entityInfo;
-  const previousEntityInfo = identifyEntityFromPath(previousPath);
   if (!params.pageId) return;
-  if (
-    previousEntityInfo.params.pageId &&
-    previousEntityInfo.params.pageId !== params.pageId
-  ) {
-    return;
-  }
   if (
     entity === FocusEntity.JS_OBJECT ||
     entity === FocusEntity.JS_MODULE_INSTANCE

@@ -78,7 +78,7 @@ import type {
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TMessage } from "utils/MessageUtil";
-import { closeJsActionTabSuccess } from "actions/ideActions";
+import { closeJSActionTab, closeJsActionTabSuccess } from "actions/ideActions";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -254,8 +254,19 @@ export function* moveJSCollectionSaga(
         },
       );
     }
-    const currentURL = window.location.pathname;
-    yield call(FocusRetention.handleRemoveFocusHistory, currentURL);
+    yield call(
+      closeJSActionTabSaga,
+      closeJSActionTab({
+        id: action.payload.id,
+        parentId: actionObject.pageId,
+      }),
+    );
+    // yield put(
+    //   closeJSActionTab({
+    //     id: action.payload.id,
+    //     parentId: actionObject.pageId,
+    //   }),
+    // );
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
   } catch (e) {

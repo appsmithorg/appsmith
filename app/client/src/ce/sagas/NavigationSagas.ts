@@ -50,7 +50,7 @@ export function* handleRouteChange(
         yield fork(appBackgroundHandler);
         const entityInfo = identifyEntityFromPath(pathname);
         yield fork(updateRecentEntitySaga, entityInfo);
-        yield fork(updateIDETabsOnRouteChangeSaga, entityInfo, previousPath);
+        yield fork(updateIDETabsOnRouteChangeSaga, entityInfo);
         yield fork(setSelectedWidgetsSaga, state?.invokedBy);
       }
     }
