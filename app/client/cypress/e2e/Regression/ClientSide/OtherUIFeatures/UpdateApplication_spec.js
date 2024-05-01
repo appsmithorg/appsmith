@@ -64,7 +64,9 @@ describe("Update Application", () => {
     );
 
     cy.AppSetupForRename();
-    cy.get(homePage.applicationName).click().type("  " + "{enter}");
+    cy.get(homePage.applicationName)
+      .click()
+      .type("  " + "{enter}");
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.data.name",
