@@ -4,6 +4,7 @@ import type { AnvilHighlightingCanvasProps } from "layoutSystems/anvil/editor/ca
 import type { AnvilHighlightInfo } from "layoutSystems/anvil/utils/anvilTypes";
 import { useAnvilDnDEventCallbacks } from "./useAnvilDnDEventCallbacks";
 import { removeDisallowDroppingsUI } from "../utils/utils";
+import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 
 /**
  * Hook to handle Anvil DnD events
@@ -20,7 +21,11 @@ export const useAnvilDnDEvents = (
     isCurrentDraggedCanvas,
     isDragging,
   } = anvilDragStates;
-
+  useCanvasDragToScroll(
+    anvilDnDListenerRef,
+    isCurrentDraggedCanvas,
+    isDragging,
+  );
   /**
    * Ref to store highlights derived in real time once dragging starts
    */
