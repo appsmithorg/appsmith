@@ -167,7 +167,7 @@ export class GracefulWorkerService {
     const messageId = `${method}__${uniqueId()}`;
     const ch = channel();
     this._channels.set(messageId, ch);
-    const mainThreadStartTime = performance.now();
+    const mainThreadStartTime = Date.now();
     let timeTaken;
     const rootSpan = startRootSpan(method);
 
@@ -193,12 +193,23 @@ export class GracefulWorkerService {
 
       // The `this._broker` method is listening to events and will pass response to us over this channel.
       const response = yield take(ch);
-      const webworkerTelemetryResponse = response.data
-        .webworkerTelemetry as Record<string, WebworkerSpanData>;
+      const { data, endTime, startTime } = response;
+
+      const webworkerTelemetryResponse = data.webworkerTelemetry as Record<
+        string,
+        WebworkerSpanData
+      >;
 
       if (webworkerTelemetryResponse) {
         webworkerTelemetryResponse["transferDataToMainThread"].endTime =
           Date.now();
+
+        webworkerTelemetryResponse["completeWebworkerComplutation"] = {
+          startTime,
+          endTime,
+          attributes: {},
+          spanName: "completeWebworkerComplutation",
+        };
       }
 
       rootSpan &&
@@ -207,26 +218,24 @@ export class GracefulWorkerService {
           webworkerTelemetryResponse,
         );
 
-      timeTaken = response.timeTaken;
-      return response.data;
+      timeTaken = endTime - startTime;
+      return data;
     } finally {
       endSpan(rootSpan);
 
       // Log perf of main thread and worker
-      const mainThreadEndTime = performance.now();
+      const mainThreadEndTime = Date.now();
       const timeTakenOnMainThread = mainThreadEndTime - mainThreadStartTime;
       if (yield cancelled()) {
-        log.debug(
-          `Main ${method} cancelled in ${timeTakenOnMainThread.toFixed(2)}ms`,
-        );
+        log.debug(`Main ${method} cancelled in ${timeTakenOnMainThread}ms`);
       } else {
-        log.debug(`Main ${method} took ${timeTakenOnMainThread.toFixed(2)}ms`);
+        log.debug(`Main ${method} took ${timeTakenOnMainThread}ms`);
       }
 
       if (timeTaken) {
         const transferTime = timeTakenOnMainThread - timeTaken;
         log.debug(` Worker ${method} took ${timeTaken}ms`);
-        log.debug(` Transfer ${method} took ${transferTime.toFixed(2)}ms`);
+        log.debug(` Transfer ${method} took ${transferTime}ms`);
       }
       // Cleanup
       ch.close();
