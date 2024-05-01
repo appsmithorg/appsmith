@@ -173,13 +173,12 @@ export function* loadBuildingBlocksIntoApplication(
         (Date.now() - buildingBlockDragStartTimestamp) / 1000;
       yield call(postPageAdditionSaga, applicationId);
 
-      // remove selecting of recently imported widgets
-      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-
       // stop loading after pasting process is complete
       yield put({
         type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_SUCCESS,
       });
+      // remove selecting of recently imported widgets
+      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       if (
         response.data.onPageLoadActions &&
