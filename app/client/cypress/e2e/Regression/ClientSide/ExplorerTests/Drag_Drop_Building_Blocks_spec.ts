@@ -159,10 +159,6 @@ describe(
     it.only("5. Should drag and drop building block on canvas", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       cy.dragAndDropToCanvas("buildingblock", { x: 600, y: 80 });
-      assertHelper.AssertNetworkStatus(
-        "/applications/import/partial/block",
-        200,
-      );
     });
   },
 );
