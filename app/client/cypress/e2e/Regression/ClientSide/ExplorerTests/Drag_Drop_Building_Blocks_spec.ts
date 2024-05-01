@@ -13,7 +13,7 @@ const MAX_BUILDING_BLOCKS_TO_DISPLAY = 9;
 describe(
   "Building blocks explorer tests",
   {
-    tags: ["@tag.IDE", "@tag.Widget"],
+    tags: ["@tag.IDE", "@tag.Widget", "@tag.Templates"],
   },
   () => {
     it("1. Building blocks tag is visible and open by default", () => {
