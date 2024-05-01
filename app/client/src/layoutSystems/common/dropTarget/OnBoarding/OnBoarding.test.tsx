@@ -16,10 +16,8 @@ import Onboarding from ".";
 import { unitTestBaseMockStore } from "../unitTestUtils";
 
 jest.mock("pages/Editor/IDE/hooks", () => ({
-  useCurrentAppState: () => EditorState.EDITOR,
-  useCurrentEditorState: () => ({
-    segment: EditorEntityTab.UI,
-  }),
+  useCurrentAppState: jest.fn().mockReturnValue(EditorState.EDITOR),
+  useCurrentEditorState: jest.fn(),
 }));
 
 describe("OnBoarding", () => {
@@ -32,8 +30,16 @@ describe("OnBoarding", () => {
       </ThemeProvider>
     </Provider>
   );
+  const mockUseCurrentEditorStatePerTestCase = (segment: EditorEntityTab) => {
+    /* eslint-disable @typescript-eslint/no-var-requires */
+    const { useCurrentEditorState } = require("pages/Editor/IDE/hooks");
+    useCurrentEditorState.mockImplementation(() => ({
+      segment,
+    }));
+  };
 
-  it("renders the onboarding component", () => {
+  it("1. renders the onboarding component", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
     render(BaseComponentRender());
     const onboardingElement = screen.getByText(
       createMessage(EMPTY_CANVAS.DRAG_DROP_WIDGET_HINT),
@@ -41,7 +47,8 @@ describe("OnBoarding", () => {
     expect(onboardingElement).toBeInTheDocument();
   });
 
-  it("renders the onboarding component when drag and drop is enabled", () => {
+  it("2. renders the onboarding component when drag and drop is enabled", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
     const title = screen.getByText(
       createMessage(EMPTY_CANVAS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
@@ -53,15 +60,34 @@ describe("OnBoarding", () => {
     expect(description).toBeInTheDocument();
   });
 
-  it("renders the onboarding component when starter buidling blocks on canvas is enabled", () => {
+  it("3. renders the onboarding component when drag and drop is enabled", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.JS);
+    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
+
+    const onboardingElement = screen.getByText(
+      createMessage(EMPTY_CANVAS.DRAG_DROP_WIDGET_HINT),
+    );
+    expect(onboardingElement).toBeInTheDocument();
+  });
+
+  it("4. renders the onboarding component when drag and drop is enabled", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.QUERIES);
+    render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
+
+    const onboardingElement = screen.getByText(
+      createMessage(EMPTY_CANVAS.DRAG_DROP_WIDGET_HINT),
+    );
+    expect(onboardingElement).toBeInTheDocument();
+  });
+
+  it("5. renders the onboarding component when starter buidling blocks on canvas is enabled", () => {
+    mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
     render(BaseComponentRender(storeToUseWithStarterBuildingBlocksEnabled));
     const title = screen.getByText(
       createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
     );
     expect(title).toBeInTheDocument();
   });
-
-  // Add more test cases as needed
 });
 
 const baseStoreForSpec = {
