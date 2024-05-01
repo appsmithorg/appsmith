@@ -62,13 +62,12 @@ describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "wrongPage",
     );
-    deployMode.DeployApp();
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Enter a valid URL or page name");
-    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Navigates to url entered from the url tab of navigate to", () => {
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.SelectPlatformFunction("onClick", "Navigate to");
     agHelper.GetNClick(propPane._navigateToType("URL"));
     agHelper.TypeText(
