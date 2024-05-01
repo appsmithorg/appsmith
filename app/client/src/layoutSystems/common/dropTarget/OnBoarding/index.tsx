@@ -36,7 +36,6 @@ function Onboarding() {
   const shouldShowStarterTemplates = useMemo(
     () =>
       isEditorState &&
-      isUISegment &&
       showStarterTemplatesInsteadOfBlankCanvas &&
       !isMobileCanvas &&
       !isAirgappedInstance &&
@@ -47,19 +46,19 @@ function Onboarding() {
       isAirgappedInstance,
       releaseDragDropBuildingBlocksEnabled,
       isEditorState,
-      isUISegment,
     ],
   );
-
   const shouldShowBuildingBlocksDropTarget = useMemo(
     () =>
       isEditorState &&
+      isUISegment &&
       releaseDragDropBuildingBlocksEnabled &&
       !isDraggingBuildingBlock,
     [
       isEditorState,
       releaseDragDropBuildingBlocksEnabled,
       isDraggingBuildingBlock,
+      isUISegment,
     ],
   );
 
