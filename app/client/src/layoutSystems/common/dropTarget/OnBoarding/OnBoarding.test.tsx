@@ -60,7 +60,7 @@ describe("OnBoarding", () => {
     expect(description).toBeInTheDocument();
   });
 
-  it("3. renders the onboarding component when drag and drop is enabled", () => {
+  it("3. renders the onboarding component when drag and drop is enabled, with JS segment enabled", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.JS);
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
 
@@ -70,7 +70,7 @@ describe("OnBoarding", () => {
     expect(onboardingElement).toBeInTheDocument();
   });
 
-  it("4. renders the onboarding component when drag and drop is enabled", () => {
+  it("4. renders the onboarding component when drag and drop is enabled, with Queries segment enabled", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.QUERIES);
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
 
