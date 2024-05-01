@@ -27,6 +27,10 @@ import {
   MenuTrigger,
 } from "design-system";
 import { useToggle } from "@mantine/hooks";
+import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import type { ConvertToModuleInstanceCTAProps } from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
+import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
 
 interface EntityContextMenuProps {
   id: string;
@@ -35,12 +39,19 @@ interface EntityContextMenuProps {
   pageId: string;
   isChangePermitted?: boolean;
   isDeletePermitted?: boolean;
+  convertToModuleProps: ConvertToModuleInstanceCTAProps;
 }
 
 export function MoreActionsMenu(props: EntityContextMenuProps) {
   const [isMenuOpen, toggleMenuOpen] = useToggle([false, true]);
   const [confirmDelete, setConfirmDelete] = useState(false);
-  const { isChangePermitted = false, isDeletePermitted = false } = props;
+  const {
+    convertToModuleProps,
+    isChangePermitted = false,
+    isDeletePermitted = false,
+  } = props;
+  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
+  const editorMode = useSelector(getIDEViewMode);
 
   useEffect(() => {
     if (!isMenuOpen) setConfirmDelete(false);
@@ -105,6 +116,11 @@ export function MoreActionsMenu(props: EntityContextMenuProps) {
         />
       </MenuTrigger>
       <MenuContent loop style={{ zIndex: 100 }} width="200px">
+        {/* Create Module items */}
+        {isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen ? (
+          <ConvertToModuleInstanceCTA {...convertToModuleProps} />
+        ) : null}
+        {/* Create Module items ends here */}
         {isChangePermitted && (
           <MenuSub>
             <MenuSubTrigger startIcon="duplicate">
