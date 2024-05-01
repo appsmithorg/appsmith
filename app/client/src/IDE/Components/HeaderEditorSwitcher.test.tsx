@@ -47,4 +47,11 @@ describe("HeaderEditorSwitcher", () => {
     render(<HeaderEditorSwitcher {...defaultProps} ref={ref} />);
     expect(ref.current).toBeTruthy();
   });
+
+  it("does not crash when onClick is not provided", () => {
+    const { getByText } = render(
+      <HeaderEditorSwitcher {...defaultProps} onClick={undefined} />,
+    );
+    fireEvent.click(getByText("Title")); // Should not throw error
+  });
 });

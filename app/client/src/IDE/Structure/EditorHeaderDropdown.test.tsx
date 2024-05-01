@@ -19,4 +19,21 @@ describe("EditorHeaderDropdown", () => {
     expect(getByText("Header")).toBeInTheDocument();
     expect(getByText("Body")).toBeInTheDocument();
   });
+
+  it("applies custom className to the header", () => {
+    const customClass = "my-custom-class";
+    const { container } = render(
+      <EditorHeaderDropdown>
+        <EditorHeaderDropdown.Header className={customClass}>
+          <span>Header</span>
+        </EditorHeaderDropdown.Header>
+        <EditorHeaderDropdown.Body>
+          <span>Body</span>
+        </EditorHeaderDropdown.Body>
+      </EditorHeaderDropdown>,
+    );
+
+    const headerElement = container.querySelector(`.${customClass}`);
+    expect(headerElement).toBeInTheDocument();
+  });
 });
