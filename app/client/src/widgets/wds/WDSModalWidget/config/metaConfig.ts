@@ -5,4 +5,11 @@ export const metaConfig = {
   tags: [WIDGET_TAGS.LAYOUT],
   needsMeta: true,
   searchTags: ["dialog", "popup", "notification"],
+  onCanvasUI: {
+    selectionBGCSSVar: "--ads-widget-selection",
+    focusBGCSSVar: "--ads-widget-focus",
+    selectionColorCSSVar: "--ads-widget-focus",
+    focusColorCSSVar: "--ads-widget-selection",
+    disableParentSelection: true,
+  },
 };

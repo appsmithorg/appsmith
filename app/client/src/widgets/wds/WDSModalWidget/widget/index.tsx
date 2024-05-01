@@ -131,7 +131,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         setOpen={(val) => this.setState({ isVisible: val })}
         size={this.props.size}
       >
-        <ModalContent className={contentClassName}>
+        <ModalContent className={contentClassName.trim()}>
           {this.props.showHeader && <ModalHeader title={this.props.title} />}
           <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
             <ModalLayoutProvider {...this.props} />
