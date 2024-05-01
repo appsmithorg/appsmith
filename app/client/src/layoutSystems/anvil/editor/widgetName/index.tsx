@@ -1,6 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import type { AppState } from "@appsmith/reducers";
 
 import { FloatingPortal } from "@floating-ui/react";
 
@@ -15,16 +14,15 @@ import { ForwardedWidgetNameComponent } from "./Component";
 import { shouldSelectOrFocus } from "./selectors";
 import type { NameComponentStates } from "./types";
 
-export function useWidgetName(
-  widgetId: string,
-  widgetName: string,
-  parentId?: string,
-) {
+export function WidgetName(props: {
+  widgetId: string;
+  widgetName: string;
+  parentId?: string;
+  widgetType: string;
+}) {
+  const { parentId, widgetId, widgetName, widgetType } = props;
   const nameComponentState: NameComponentStates = useSelector(
     shouldSelectOrFocus(widgetId),
-  );
-  const widgetType = useSelector(
-    (state: AppState) => state.entities.canvasWidgets[widgetId].type,
   );
 
   const styleProps = getWidgetNameComponentStyleProps(
@@ -102,6 +100,7 @@ export function useWidgetName(
         key={widgetId}
         name={widgetName}
         onDragStart={onDragStart}
+        parentId={parentId}
         ref={widgetNameRef}
         selectionBGCSSVar={styleProps.selectionBGCSSVar}
         selectionColorCSSVar={styleProps.selectionColorCSSVar}

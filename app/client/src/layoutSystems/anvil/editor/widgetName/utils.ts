@@ -10,6 +10,7 @@ import {
 } from "@floating-ui/dom";
 import WidgetFactory from "WidgetProvider/factory";
 import type { NameComponentStates } from "./types";
+import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 
 /**
  * @param boundaryEl Element that acts as the boundaries for the overflow computations.
@@ -36,13 +37,14 @@ export function getOverflowMiddleware(boundaryEl: HTMLDivElement) {
 }
 
 export function getWidgetDOMElement(widgetId: string): HTMLDivElement | null {
+  const selector = getAnvilWidgetDOMId(widgetId);
   let widgetElement = document.querySelector(
-    "#anvil_widget_" + widgetId,
+    `#${selector}`,
   ) as HTMLDivElement | null;
 
   if (!widgetElement) {
     widgetElement = document.getElementsByClassName(
-      "anvil_widget_" + widgetId,
+      selector,
     )[0] as HTMLDivElement | null;
   }
 

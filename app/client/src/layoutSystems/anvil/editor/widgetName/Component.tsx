@@ -4,12 +4,11 @@ import { useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { ForwardedSplitButton } from "./SplitButton";
-import type { AppState } from "@appsmith/reducers";
 import { getWidgetErrorCount } from "./selectors";
 import {
   ANVIL_WIDGET_NAME_DEBUG_CLICK,
   ANVIL_WIDGET_NAME_TOGGLE_PARENT,
-} from "layoutSystems/anvil/messages";
+} from "layoutSystems/anvil/common/messages";
 import { createMessage } from "@appsmith/constants/messages";
 
 const widgetNameStyles: CSSProperties = {
@@ -37,6 +36,7 @@ export function WidgetNameComponent(
   props: {
     name: string;
     widgetId: string;
+    parentId?: string;
     selectionBGCSSVar: string;
     selectionColorCSSVar: string;
     bGCSSVar: string;
@@ -46,11 +46,7 @@ export function WidgetNameComponent(
   },
   ref: ForwardedRef<HTMLDivElement>,
 ) {
-  const { widgetId } = props;
-
-  const parentId: string | undefined = useSelector(
-    (state: AppState) => state.entities.canvasWidgets[widgetId]?.parentId,
-  );
+  const { parentId, widgetId } = props;
 
   const showError = useSelector(
     (state) => getWidgetErrorCount(state, widgetId) > 0,
@@ -76,23 +72,23 @@ export function WidgetNameComponent(
     [parentId],
   );
 
-  const handleSelectWidget = useCallback((e: React.MouseEvent) => {
-    selectWidget(SelectionRequestType.One, [props.widgetId]);
-    e.stopPropagation();
-  }, []);
+  const handleSelectWidget = useCallback(
+    (e: React.MouseEvent) => {
+      selectWidget(SelectionRequestType.One, [props.widgetId]);
+      e.stopPropagation();
+    },
+    [props.widgetId],
+  );
 
   const handleMouseOver = useCallback((e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
   }, []);
 
-  const handleDebugClick = useCallback(
-    (e: React.MouseEvent) => {
-      e.stopPropagation();
-      e.preventDefault();
-    },
-    [widgetId],
-  );
+  const handleDebugClick = useCallback((e: React.MouseEvent) => {
+    e.stopPropagation();
+    e.preventDefault();
+  }, []);
   /** EO Widget Selection Handlers */
 
   const leftToggle = useMemo(() => {
