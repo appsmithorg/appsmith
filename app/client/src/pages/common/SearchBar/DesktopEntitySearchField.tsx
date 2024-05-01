@@ -27,6 +27,10 @@ const SearchListContainer = styled.div`
   flex-direction: column;
   padding: 12px;
   overflow-y: auto;
+
+  .search-loader {
+    overflow: hidden;
+  }
 `;
 
 const DesktopEntitySearchField = (props: any) => {
