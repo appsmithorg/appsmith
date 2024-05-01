@@ -80,9 +80,7 @@ export const handlers = {
   ) => {
     draftState.loadingStates.isDeletingWorkspace = false;
   },
-  [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (
-    draftState: WorkspaceReduxState,
-  ) => {
+  [ReduxActionTypes.SAVE_WORKSPACE_INIT]: (draftState: WorkspaceReduxState) => {
     draftState.loadingStates.isSavingWorkspaceInfo = true;
   },
   [ReduxActionTypes.SAVE_WORKSPACE_SUCCESS]: (

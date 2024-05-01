@@ -272,9 +272,6 @@ export function* saveWorkspaceSaga(action: ReduxAction<SaveWorkspaceRequest>) {
 
 export function* deleteWorkspaceSaga(action: ReduxAction<string>) {
   try {
-    yield put({
-      type: ReduxActionTypes.SAVING_WORKSPACE_INFO,
-    });
     const workspaceId: string = action.payload;
     const response: ApiResponse = yield call(
       WorkspaceApi.deleteWorkspace,
