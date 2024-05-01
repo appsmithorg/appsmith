@@ -1,5 +1,5 @@
 import {
-  EMPTY_CANVAS,
+  EMPTY_CANVAS_HINTS,
   STARTER_TEMPLATE_PAGE_LAYOUTS,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -42,7 +42,7 @@ describe("OnBoarding", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
     render(BaseComponentRender());
     const onboardingElement = screen.getByText(
-      createMessage(EMPTY_CANVAS.DRAG_DROP_WIDGET_HINT),
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
     expect(onboardingElement).toBeInTheDocument();
   });
@@ -51,11 +51,13 @@ describe("OnBoarding", () => {
     mockUseCurrentEditorStatePerTestCase(EditorEntityTab.UI);
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
     const title = screen.getByText(
-      createMessage(EMPTY_CANVAS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.TITLE),
     );
     expect(title).toBeInTheDocument();
     const description = screen.getByText(
-      createMessage(EMPTY_CANVAS.DRAG_DROP_BUILDING_BLOCK_HINT.DESCRIPTION),
+      createMessage(
+        EMPTY_CANVAS_HINTS.DRAG_DROP_BUILDING_BLOCK_HINT.DESCRIPTION,
+      ),
     );
     expect(description).toBeInTheDocument();
   });
@@ -65,7 +67,7 @@ describe("OnBoarding", () => {
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
 
     const onboardingElement = screen.getByText(
-      createMessage(EMPTY_CANVAS.DRAG_DROP_WIDGET_HINT),
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
     expect(onboardingElement).toBeInTheDocument();
   });
@@ -75,7 +77,7 @@ describe("OnBoarding", () => {
     render(BaseComponentRender(storeToUseWithDragDropBuildingBlocksEnabled));
 
     const onboardingElement = screen.getByText(
-      createMessage(EMPTY_CANVAS.DRAG_DROP_WIDGET_HINT),
+      createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
     );
     expect(onboardingElement).toBeInTheDocument();
   });

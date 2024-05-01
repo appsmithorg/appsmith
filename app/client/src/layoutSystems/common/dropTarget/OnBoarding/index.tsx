@@ -1,4 +1,7 @@
-import { EMPTY_CANVAS, createMessage } from "@appsmith/constants/messages";
+import {
+  EMPTY_CANVAS_HINTS,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
   EditorEntityTab,
@@ -69,7 +72,7 @@ function Onboarding() {
   } else if (!isDraggingBuildingBlock) {
     return (
       <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
-        {createMessage(EMPTY_CANVAS.DRAG_DROP_WIDGET_HINT)}
+        {createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT)}
       </h2>
     );
   } else {
