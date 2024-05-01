@@ -12,12 +12,34 @@
 :root {
   /* TODO: This needs to be fixed! This override is to maintain branding changes. */
   --ads-color-background-secondary: var(--ads-v2-color-bg-subtle);
-  /* All on canvas ui need to be above other editor elements
-     This includes the Modal overlay.
-     The maximum value of z-index in the theme is 9999.
-     This value makes sure that on-canvas ui is always above editor elements
+
+  /* Used for on-canvas ui. Examples of on-canvas ui are selection and focused state, main container resizer, etc */
+  /* Error state color */
+  --ads-widget-error: #ee0132;
+
+  /* General widget selection and focus state colors */
+  --ads-widget-selection: #ce01d3;
+  --ads-widget-focus: #ffe5fe;
+
+  /* Zone widget selection and focus state colors */
+  --ads-zone-selection: #954bff;
+  --ads-zone-focus: #f0ebff;
+
+  /* Section widget selection and focus state colors */
+  --ads-section-selection: #3075ff;
+  --ads-section-focus: #e6efff;
+
+  /* Other common parameters for on-canvas ui */
+  /* 
+    z index of ADS modal components -- 1000
+    z index of ADS on-canvas ui components -- 998
+    z index of WDS modal components -- 990
+
+    When any of the above change, the corresponding z-index in the respective component should also be updated.
+    ADS modal > ADS on-canvas ui > WDS modal
   */
-  --on-canvas-ui-z-index: 999999;
+  --ads-on-canvas-ui-zindex: 998;
+  --ads-on-canvas-ui-border-radius: 4px;
 }
 
 body {
