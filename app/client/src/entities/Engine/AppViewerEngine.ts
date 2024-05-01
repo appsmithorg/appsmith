@@ -127,10 +127,10 @@ export default class AppViewerEngine extends AppEngine {
       throw new ActionsNotFoundError(
         `Unable to fetch actions for the application: ${applicationId}`,
       );
+    yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
 
     yield call(waitForFetchUserSuccess);
     yield call(waitForSegmentInit, true);
     yield call(waitForFetchEnvironments);
-    yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
   }
 }
