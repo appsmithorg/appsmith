@@ -37,6 +37,8 @@ import { addWidgetAndMoveWidgetsSaga } from "./CanvasSagas/DraggingCanvasSagas";
 import { pasteWidget } from "actions/widgetActions";
 import type { JSCollection } from "entities/JSCollection";
 import { PluginType } from "entities/Action";
+import { selectWidgetInitAction } from "actions/widgetSelectionActions";
+import { SelectionRequestType } from "./WidgetSelectUtils";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -175,6 +177,8 @@ export function* loadBuildingBlocksIntoApplication(
       yield put({
         type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_SUCCESS,
       });
+      // remove selecting of recently imported widgets
+      yield put(selectWidgetInitAction(SelectionRequestType.Empty));
 
       if (
         response.data.onPageLoadActions &&
@@ -195,7 +199,6 @@ export function* loadBuildingBlocksIntoApplication(
         });
 
         yield runNewlyCreatedActions(nonJsActionsIds);
-
         yield runNewlyCreatedJSActions(jsActions);
       }
 
