@@ -1,7 +1,7 @@
 package com.appsmith.external.helpers;
 
-import com.appsmith.external.converters.TransientAnnotationSerializer;
-import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.converters.CustomTransientSerializer;
+import com.appsmith.external.markers.TransientAware;
 import com.appsmith.external.views.Views;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -25,14 +25,14 @@ public final class CustomJsonType extends JsonBinaryType {
         final ObjectMapper om = new ObjectMapper();
 
         SimpleModule module = new SimpleModule();
-        module.addSerializer(ActionDTO.class, getSerializer(ActionDTO.class));
+        module.addSerializer(TransientAware.class, getSerializer(TransientAware.class));
 
         return SerializationUtils.configureObjectMapper(om)
                 .registerModule(module)
                 .setConfig(om.getSerializationConfig().withView(Views.Internal.class));
     }
 
-    private static <T> TransientAnnotationSerializer<T> getSerializer(Class<T> tClass) {
-        return new TransientAnnotationSerializer<>(tClass);
+    private static <T> CustomTransientSerializer<T> getSerializer(Class<T> tClass) {
+        return new CustomTransientSerializer<>(tClass);
     }
 }

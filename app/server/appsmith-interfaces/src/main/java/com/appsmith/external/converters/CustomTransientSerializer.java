@@ -14,17 +14,17 @@ import java.util.List;
 
 /**
  *  This class is used to serialize the entity object by ignoring the fields annotated with @Transient. We need
- *  the custom serializer here as the columns with `jsonb` type is not able to ignore the fields annotated with
- *  @Transient by default.
+ *  the custom serializer here as the nested fields within the columns with `jsonb` type is not able to ignore the
+ *  fields annotated with `@Transient` by default.
  */
 @Slf4j
-public class TransientAnnotationSerializer<T> extends StdSerializer<T> {
+public class CustomTransientSerializer<T> extends StdSerializer<T> {
 
-    public TransientAnnotationSerializer() {
+    public CustomTransientSerializer() {
         this(null);
     }
 
-    public TransientAnnotationSerializer(Class<T> t) {
+    public CustomTransientSerializer(Class<T> t) {
         super(t);
     }
 
@@ -39,10 +39,10 @@ public class TransientAnnotationSerializer<T> extends StdSerializer<T> {
         gen.writeStartObject();
         for (final Field field : allFields) {
             field.setAccessible(true);
-            if (field.isAnnotationPresent(Transient.class)) {
-                continue;
-            }
             try {
+                if (field.isAnnotationPresent(Transient.class) || field.get(value) == null) {
+                    continue;
+                }
                 gen.writeObjectField(field.getName(), field.get(value));
             } catch (IllegalAccessException e) {
                 log.error("Error serializing field: {}", field.getName(), e);
