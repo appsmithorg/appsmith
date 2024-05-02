@@ -182,6 +182,7 @@ public class WorkspaceServiceCEImpl extends BaseService<WorkspaceRepository, Wor
                 */
                 .flatMap(org -> pluginRepository
                         .findByDefaultInstall(true)
+                        .filter(plugin -> plugin.getId() != null)
                         .map(obj -> new WorkspacePlugin(obj.getId(), WorkspacePluginStatus.FREE))
                         .collect(Collectors.toSet())
                         .map(pluginList -> {

@@ -1,16 +1,15 @@
 import type { AppState } from "@appsmith/reducers";
-import { getWidgetIdsByType, getWidgetsMeta } from "sagas/selectors";
-import { WDSModalWidget } from "widgets/wds/WDSModalWidget";
+import { getAllDetachedWidgetIds, getWidgetsMeta } from "sagas/selectors";
 
-export const getCurrentlyOpenAnvilModal = (state: AppState) => {
-  const allExistingModals = getWidgetIdsByType(state, WDSModalWidget.type);
-  if (allExistingModals.length === 0) {
-    return;
+export const getCurrentlyOpenAnvilDetachedWidgets = (state: AppState) => {
+  const allExistingDetachedWidgets = getAllDetachedWidgetIds(state);
+  if (allExistingDetachedWidgets.length === 0) {
+    return [];
   }
   const metaWidgets = getWidgetsMeta(state);
-  const currentlyOpenModal = allExistingModals.find((modalId) => {
+  const currentlyOpenWidgets = allExistingDetachedWidgets.filter((modalId) => {
     const modal = metaWidgets[modalId];
     return modal && modal.isVisible;
   });
-  return currentlyOpenModal;
+  return currentlyOpenWidgets;
 };

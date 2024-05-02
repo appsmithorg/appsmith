@@ -12,6 +12,7 @@ import type {
   CanvasWidgetStructure,
   FlattenedWidgetProps,
   WidgetConfigProps,
+  WidgetDefaultProps,
   WidgetMethods,
 } from "WidgetProvider/constants";
 import {
@@ -20,6 +21,7 @@ import {
   convertFunctionsToString,
   enhancePropertyPaneConfig,
   generatePropertyPaneSearchConfig,
+  getDefaultOnCanvasUIConfig,
   PropertyPaneConfigTypes,
 } from "./helpers";
 import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
@@ -79,7 +81,20 @@ class WidgetFactory {
   }
 
   private static configureWidget(widget: typeof BaseWidget) {
+    const defaultConfig: WidgetDefaultProps = widget.getDefaults();
     const config = widget.getConfig();
+
+    /**
+     * As this will make all layout system widgets have these properties.
+     * We're going to prioritise #21825.
+     * This will prevent the DSLs which are persisted from being polluted and overly large.
+     *
+     * The following makes sure that the on canvas ui configurations are picked up from widgets
+     * and added to the WidgetFactory, such that these are accessible when needed in the applcation.
+     */
+    const onCanvasUI =
+      config.onCanvasUI || getDefaultOnCanvasUIConfig(defaultConfig);
+
     const { IconCmp } = widget.getMethods();
     const features = widget.getFeatures();
 
@@ -114,6 +129,7 @@ class WidgetFactory {
       needsHeightForContent: config.needsHeightForContent,
       isSearchWildcard: config.isSearchWildcard,
       needsErrorInfo: !!config.needsErrorInfo,
+      onCanvasUI,
     };
 
     WidgetFactory.widgetConfigMap.set(widget.type, Object.freeze(_config));
