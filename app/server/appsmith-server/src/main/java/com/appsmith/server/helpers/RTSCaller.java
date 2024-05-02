@@ -51,11 +51,11 @@ public class RTSCaller {
                 final Map<String, String> contextMap = ctx.get(LogHelper.CONTEXT_MAP);
 
                 if (contextMap.containsKey(INTERNAL_REQUEST_ID_HEADER)) {
-                    spec.header(INTERNAL_REQUEST_ID_HEADER, ctx.get(INTERNAL_REQUEST_ID_HEADER));
+                    spec.header(INTERNAL_REQUEST_ID_HEADER, contextMap.get(INTERNAL_REQUEST_ID_HEADER));
                 }
 
                 if (contextMap.containsKey(REQUEST_ID_HEADER)) {
-                    spec.header(REQUEST_ID_HEADER, ctx.get(REQUEST_ID_HEADER));
+                    spec.header(REQUEST_ID_HEADER, contextMap.get(REQUEST_ID_HEADER));
                 }
             }
 
