@@ -1,8 +1,11 @@
 package com.appsmith.external.helpers;
 
+import com.appsmith.external.converters.TransientAnnotationSerializer;
+import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.views.Views;
 import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
 
 /**
@@ -13,6 +16,8 @@ import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
  * solution than hunting down the exact version that works.
  */
 public final class CustomJsonType extends JsonBinaryType {
+    static final TransientAnnotationSerializer<Object> serializer = new TransientAnnotationSerializer<>();
+
     public CustomJsonType() {
         super(makeObjectMapperForDatabaseSerialization());
     }
@@ -20,7 +25,11 @@ public final class CustomJsonType extends JsonBinaryType {
     private static ObjectMapper makeObjectMapperForDatabaseSerialization() {
         final ObjectMapper om = new ObjectMapper();
 
+        SimpleModule module = new SimpleModule();
+        module.addSerializer(ActionDTO.class, serializer);
+
         return SerializationUtils.configureObjectMapper(om)
+                .registerModule(module)
                 .setConfig(om.getSerializationConfig().withView(Views.Internal.class));
     }
 }
