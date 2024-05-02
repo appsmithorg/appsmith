@@ -369,7 +369,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Modal name",
     options: (props: FieldProps) => props.modalDropdownList,
     defaultText: "Select modal",
-    exampleText: "showModal('Modal1')",
+    exampleText: "showModal(Modal1.name)",
     getter: (value: any) => {
       return modalGetter(value);
     },
@@ -382,7 +382,7 @@ export const FIELD_CONFIG: AppsmithFunctionConfigType = {
     label: () => "Modal name",
     options: (props: FieldProps) => props.modalDropdownList,
     defaultText: "Select modal",
-    exampleText: "closeModal('Modal1')",
+    exampleText: "closeModal(Modal1.name)",
     getter: (value: any) => {
       return modalGetter(value);
     },
