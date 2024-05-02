@@ -51,6 +51,7 @@
     top: 30px;
   }
 
+  /** here we are adding a black transparrentstroke ont he checkmark icon. This is required to make the icon visible on the color wheel button background */
   & svg path {
     stroke: color-mix(in srgb, black, 75% transparent);
     stroke-width: 2px;
