@@ -64,7 +64,7 @@ describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
       propPane._actionSelectorFieldByLabel("Enter URL"),
       "wrongPage",
     );
-    agHelper.Sleep(3000);
+    
     agHelper.ClickButton("Submit");
     agHelper.ValidateToastMessage("Enter a valid URL or page name");
     propPane.DeleteWidgetFromPropertyPane("Button1");
