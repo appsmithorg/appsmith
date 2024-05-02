@@ -125,7 +125,7 @@ export function* initiateLinting(
 
 export default function* lintTreeSagaWatcher() {
   yield takeEvery(ReduxActionTypes.UPDATE_LINT_GLOBALS, updateLintGlobals);
-  yield takeEvery(ReduxActionTypes.START_EVALUATION, setupSaga);
+  yield takeEvery(ReduxActionTypes.LINT_SETUP, setupSaga);
 }
 
 export function* setupSaga(): any {
