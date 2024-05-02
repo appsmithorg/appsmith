@@ -17,6 +17,7 @@ import java.util.Map;
 
 import static com.appsmith.server.filters.MDCFilter.INTERNAL_REQUEST_ID_HEADER;
 import static com.appsmith.server.filters.MDCFilter.REQUEST_ID_HEADER;
+import static org.apache.commons.lang3.StringUtils.isEmpty;
 
 @Component
 public class RTSCaller {
@@ -28,6 +29,10 @@ public class RTSCaller {
 
     @PostConstruct
     private void makeWebClient() {
+        if (isEmpty(rtsPort)) {
+            rtsPort = "8091";
+        }
+
         webClient = WebClientUtils.builder(ConnectionProvider.builder("rts-provider")
                         .maxConnections(100)
                         .maxIdleTime(Duration.ofSeconds(30))
