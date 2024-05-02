@@ -50,7 +50,7 @@ const WidgetCardPreview = ({
       if (isDragging && dragPreviewRef.current) {
         if (initiatePositionStylesOfDragPreview.current) {
           dragPreviewRef.current.style.zIndex =
-            " calc(var(--ads-on-canvas-ui-zindex) + 2)";
+            " calc(var(--on-canvas-ui-zindex) + 2)";
           // hiding the drag preview to and flipping display so that
           // the drag preview is not visible but its height and width are available
           // to calculate the position of the drag preview

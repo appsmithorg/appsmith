@@ -26,6 +26,7 @@ export const AnvilEditorWrapper = (props: WidgetProps) => {
     <>
       <WidgetOnion {...props}>{props.children}</WidgetOnion>
       <AnvilWidgetName
+        layoutId={props.layoutId}
         parentId={props.parentId}
         widgetId={props.widgetId}
         widgetName={props.widgetName}
