@@ -20,6 +20,10 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
+import {
+  createMessage,
+  IMPORT_APP_SUCCESSFUL,
+} from "../../../../../../src/ce/constants/messages";
 
 describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
@@ -58,7 +62,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
       cy.wait(2000);
       /*cy.get(homePageLocators.toastMessage).should(
         "contain",
-        "Application imported successfully",
+        createMessage(IMPORT_APP_SUCCESSFUL),
       ); */
       cy.wait("@getWorkspace");
       cy.get(reconnectDatasourceModal.ImportSuccessModal).should("be.visible");
@@ -115,7 +119,7 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     });
     /* cy.get(homePageLocators.toastMessage).should(
       "contain",
-     "Application imported successfully",
+     createMessage(IMPORT_APP_SUCCESSFUL),
    ); */
     cy.wait("@gitStatus").then((interception) => {
       cy.log(interception.response.body.data);

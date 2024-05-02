@@ -739,7 +739,7 @@ export class HomePage {
   }
 
   public AssertImportToast(timeout = 5000) {
-    this.agHelper.AssertContains("Application imported successfully");
+    this.agHelper.AssertContains(createMessage(IMPORT_APP_SUCCESSFUL));
     this.agHelper.Sleep(timeout); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
   }
