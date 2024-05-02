@@ -1470,7 +1470,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewPage newPage = new NewPage();
-                    newPage.setId(idPoliciesOnly.id());
+                    newPage.setId(idPoliciesOnly.getId());
                     newPage.setPolicies(idPoliciesOnly.getPolicies());
                     return newPage;
                 })
@@ -1479,7 +1479,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewAction newAction = new NewAction();
-                    newAction.setId(idPoliciesOnly.id());
+                    newAction.setId(idPoliciesOnly.getId());
                     newAction.setPolicies(idPoliciesOnly.getPolicies());
                     return newAction;
                 })
@@ -1488,7 +1488,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     ActionCollection actionCollection = new ActionCollection();
-                    actionCollection.setId(idPoliciesOnly.id());
+                    actionCollection.setId(idPoliciesOnly.getId());
                     actionCollection.setPolicies(idPoliciesOnly.getPolicies());
                     return actionCollection;
                 })
@@ -1538,7 +1538,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         .findIdsAndPoliciesByIdIn(datasourceIds)
                         .flatMap(idPolicy -> {
                             Datasource datasource = new Datasource();
-                            datasource.setId(idPolicy.id());
+                            datasource.setId(idPolicy.getId());
                             datasource.setPolicies(idPolicy.getPolicies());
                             return datasourceRepository.setUserPermissionsInObject(datasource);
                         }));
