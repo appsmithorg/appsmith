@@ -20,10 +20,6 @@ import EditorNavigation, {
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
 import PageList from "../../../../../support/Pages/PageList";
-import {
-  createMessage,
-  IMPORT_APP_SUCCESSFUL,
-} from "../../../../../../src/ce/constants/messages";
 
 describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
   it("1. Import an app from JSON with Postgres, MySQL, Mongo db & then connect it to Git", () => {
@@ -60,10 +56,6 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
       cy.testDatasource(true);
       agHelper.GetNClick(dataSources._saveDs);
       cy.wait(2000);
-      /*cy.get(homePageLocators.toastMessage).should(
-        "contain",
-        createMessage(IMPORT_APP_SUCCESSFUL),
-      ); */
       cy.wait("@getWorkspace");
       cy.get(reconnectDatasourceModal.ImportSuccessModal).should("be.visible");
       cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
@@ -117,10 +109,6 @@ describe("Git import flow ", { tags: ["@tag.Git"] }, function () {
     cy.get(reconnectDatasourceModal.ImportSuccessModalCloseBtn).click({
       force: true,
     });
-    /* cy.get(homePageLocators.toastMessage).should(
-      "contain",
-     createMessage(IMPORT_APP_SUCCESSFUL),
-   ); */
     cy.wait("@gitStatus").then((interception) => {
       cy.log(interception.response.body.data);
       cy.wait(1000);
