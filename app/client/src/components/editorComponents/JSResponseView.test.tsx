@@ -12,6 +12,7 @@ import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import { PluginType } from "entities/Action";
 import "@testing-library/jest-dom/extend-expect";
+import { EMPTY_RESPONSE_LAST_HALF } from "@appsmith/constants/messages";
 
 jest.mock("@appsmith/utils/actionExecutionUtils");
 
@@ -110,7 +111,7 @@ describe("JSResponseView", () => {
         </ThemeProvider>
       </Provider>,
     );
-    expect(getByText("Run")).toBeInTheDocument();
+    expect(getByText(EMPTY_RESPONSE_LAST_HALF())).toBeInTheDocument();
   });
 
   it("should render correctly when isBrowserExecutionAllowed returns false", () => {
@@ -137,9 +138,7 @@ describe("JSResponseView", () => {
         </ThemeProvider>
       </Provider>,
     );
-    // nothing should be rendered
-    expect(
-      queryByText(document.body, "Browser execution is not allowed"),
-    ).toBeNull();
+    // nothing should be rendered here since the implementation for component is in EE code
+    expect(queryByText(document.body, EMPTY_RESPONSE_LAST_HALF())).toBeNull();
   });
 });
