@@ -16,7 +16,6 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getCurrentPageName,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
 import {
@@ -95,7 +94,6 @@ import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getJSActionPathNameToDisplay } from "@appsmith/utils/actionExecutionUtils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
-import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { setIdeEditorViewMode } from "actions/ideActions";
@@ -455,16 +453,6 @@ export function* handleExecuteJSFunctionSaga(data: {
 
     if (!!collection.isMainJSCollection)
       logMainJsActionExecution(actionId, true, collectionId, isDirty);
-
-    yield put(
-      logActionExecutionForAudit({
-        actionName: action.name,
-        actionId: action.id,
-        collectionId: collectionId,
-        pageId: action.pageId,
-        pageName: yield select(getCurrentPageName),
-      }),
-    );
 
     AppsmithConsole.info({
       text: createMessage(JS_EXECUTION_SUCCESS),
