@@ -87,6 +87,7 @@ export function WidgetCardComponent({
   const className = `t--widget-card-draggable t--widget-card-draggable-${type} ${
     !Boolean(details.thumbnail) ? "pt-2 gap-2 mt-2" : ""
   }`;
+  const { ThumbnailCmp } = details;
   return (
     <Wrapper
       className={className}
@@ -96,7 +97,8 @@ export function WidgetCardComponent({
       onDragStart={onDragStart}
     >
       <ThumbnailWrapper height={THUMBNAIL_HEIGHT} width={THUMBNAIL_WIDTH}>
-        <img src={details.thumbnail} />
+        {details.thumbnail && <img src={details.thumbnail} />}
+        {ThumbnailCmp && <ThumbnailCmp />}
       </ThumbnailWrapper>
       <Text kind="body-s">{details.displayName}</Text>
       {details.isBeta && <BetaLabel>Beta</BetaLabel>}
