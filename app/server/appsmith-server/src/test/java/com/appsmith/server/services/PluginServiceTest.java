@@ -74,7 +74,7 @@ public class PluginServiceTest {
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("dependency.json")))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
 
-        Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
+        Mono<Map<?, ?>> formConfig = pluginService.getFormConfig("random-plugin-id");
 
         StepVerifier.create(formConfig).expectError(AppsmithException.class).verify();
     }
@@ -95,7 +95,7 @@ public class PluginServiceTest {
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("dependency.json")))
                 .thenReturn(Mono.error(new AppsmithException(AppsmithError.PLUGIN_LOAD_FORM_JSON_FAIL)));
 
-        Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
+        Mono<Map<?, ?>> formConfig = pluginService.getFormConfig("random-plugin-id");
         StepVerifier.create(formConfig)
                 .assertNext(form -> {
                     assertThat(form).isNotNull();
@@ -130,7 +130,7 @@ public class PluginServiceTest {
         Mockito.when(pluginService.loadPluginResource(Mockito.anyString(), eq("dependency.json")))
                 .thenReturn(Mono.just(dependencyMap));
 
-        Mono<Map> formConfig = pluginService.getFormConfig("random-plugin-id");
+        Mono<Map<?, ?>> formConfig = pluginService.getFormConfig("random-plugin-id");
         StepVerifier.create(formConfig)
                 .assertNext(form -> {
                     assertThat(form).isNotNull();
