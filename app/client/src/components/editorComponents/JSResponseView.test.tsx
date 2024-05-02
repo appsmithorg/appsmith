@@ -50,6 +50,17 @@ const storeState = {
         savingEntity: false,
       },
     },
+    // ee specific store
+    workflowHistoryPane: {
+      workflowRunDetails: {
+        isLoading: false,
+        data: {},
+      },
+      testRunContext: {
+        isTriggering: false,
+        testRunId: "",
+      },
+    },
   },
 };
 
