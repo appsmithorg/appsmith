@@ -1,4 +1,4 @@
-import { all, call, put, spawn, take } from "redux-saga/effects";
+import { all, call, put, select, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
@@ -23,6 +23,9 @@ import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import { evalErrorHandler } from "./EvalErrorHandler";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import { logJSFunctionExecution } from "@appsmith/sagas/JSActionSagas";
+
 export interface UpdateDataTreeMessageData {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
@@ -123,6 +126,10 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       yield call(handleStoreOperations, data);
       break;
     }
+    case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
+      yield call(logJSFunctionExecution, message);
+      break;
+    }
     case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {
       const batchedTriggers = data;
       yield all(
@@ -140,10 +147,13 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.UPDATE_DATATREE: {
       const { unevalTree, workerResponse } = data as UpdateDataTreeMessageData;
+      const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
+        yield select(getUnevaluatedDataTree);
       yield call(updateDataTreeHandler, {
         evalTreeResponse: workerResponse as EvalTreeResponseData,
         unevalTree,
         requiresLogging: false,
+        configTree: unEvalAndConfigTree.configTree,
       });
       break;
     }

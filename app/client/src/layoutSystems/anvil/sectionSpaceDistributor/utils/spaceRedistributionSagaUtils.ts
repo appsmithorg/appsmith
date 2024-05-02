@@ -497,8 +497,8 @@ function adjustZoneSpaces(
             LARGE_SMALL_ZONE_SHRINK_THRESHOLD * spaceDistributedArray[i],
           )
         : index === i
-        ? currentZoneShrinkLimit
-        : minColumnWidth;
+          ? currentZoneShrinkLimit
+          : minColumnWidth;
 
     const adjustedSpace = Math.max(
       Math.round(newlyAdjustedValues[i]),

@@ -20,7 +20,7 @@ import {
   PluginPackageName,
   PluginType,
 } from "entities/Action";
-import { find, get, groupBy, keyBy, sortBy } from "lodash";
+import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -84,7 +84,8 @@ export const getDatasources = (state: AppState): Datasource[] => {
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
 export enum PluginCategory {
-  Integrations = "Integrations",
+  SAAS = "SaaS integrations",
+  AI = "AI integrations",
   Databases = "Databases",
   APIs = "APIs",
   Others = "Others",
@@ -112,11 +113,11 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
       const plugin = groupedPlugins[d.pluginId];
       if (
         plugin.type === PluginType.SAAS ||
-        plugin.type === PluginType.REMOTE ||
-        plugin.type === PluginType.AI
+        plugin.type === PluginType.REMOTE
       ) {
-        return PluginCategory.Integrations;
+        return PluginCategory.SAAS;
       }
+      if (plugin.type === PluginType.AI) return PluginCategory.AI;
       if (plugin.type === PluginType.DB) return PluginCategory.Databases;
       if (plugin.type === PluginType.API) return PluginCategory.APIs;
       return PluginCategory.Others;
@@ -1357,8 +1358,9 @@ export const getDatasourceScopeValue = (
   const options = formConfig[0]?.children?.find(
     (child: any) => child?.configProperty === configProperty,
   )?.options;
-  const label = options?.find((option: any) => option.value === scopeValue)
-    ?.label;
+  const label = options?.find(
+    (option: any) => option.value === scopeValue,
+  )?.label;
   return label;
 };
 
@@ -1539,3 +1541,22 @@ export const getJSSegmentItems = createSelector(
 
 export const getSelectedTableName = (state: AppState) =>
   state.ui.datasourcePane.selectedTableName;
+
+export const getDatasourceUsageCountForApp = createSelector(
+  getActions,
+  getDatasources,
+  (state: AppState, editorType: string) => editorType,
+  (actions, datasources, editorType) => {
+    const actionCount = countBy(actions, "config.datasource.id");
+    const actionDsMap: Record<string, string> = {};
+
+    datasources.forEach((ds) => {
+      actionDsMap[ds.id] = `No queries in this ${editorType}`;
+    });
+    Object.keys(actionCount).forEach((dsId) => {
+      actionDsMap[dsId] = `${actionCount[dsId]} queries in this ${editorType}`;
+    });
+
+    return actionDsMap;
+  },
+);

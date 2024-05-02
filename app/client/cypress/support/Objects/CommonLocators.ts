@@ -84,7 +84,8 @@ export class CommonLocators {
   _visibleTextSpan = (spanText: string, isCss = false) =>
     isCss ? `span:contains("${spanText}")` : `//span[text()="${spanText}"]`;
   _dropHere = ".t--drop-target";
-  _canvasSlider = "[data-type=canvas-slider]";
+  _anvilDnDListener = "[data-type=anvil-dnd-listener]";
+  _anvilDnDHighlight = "[data-type=anvil-dnd-highlight]";
   _editPage = "[data-testid=onboarding-tasks-datasource-text], .t--drop-target";
   _crossBtn = "span.cancel-icon";
   _createNew = ".t--add-item";
@@ -329,4 +330,5 @@ export class CommonLocators {
   _exitFullScreen = ".application-demo-new-dashboard-control-exit-fullscreen";
   _menuItem = ".bp3-menu-item";
   _slashCommandHintText = ".slash-command-hint-text";
+  _selectionItem = ".rc-select-selection-item";
 }

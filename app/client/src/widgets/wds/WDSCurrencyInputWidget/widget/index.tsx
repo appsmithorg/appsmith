@@ -26,6 +26,7 @@ import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+import { klona as clone } from "klona";
 
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,
@@ -57,11 +58,49 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     return config.settersConfig;
   }
 
+  static getMethods() {
+    return config.methodsConfig;
+  }
+
   static getPropertyPaneContentConfig() {
-    return mergeWidgetConfig(
-      config.propertyPaneContentConfig,
-      super.getPropertyPaneContentConfig(),
+    const parentConfig = clone(super.getPropertyPaneContentConfig());
+    const labelSectionIndex = parentConfig.findIndex(
+      (section) => section.sectionName === "Label",
     );
+    const labelPropertyIndex = parentConfig[
+      labelSectionIndex
+    ].children.findIndex((property) => property.propertyName === "label");
+
+    parentConfig[labelSectionIndex].children[labelPropertyIndex] = {
+      ...parentConfig[labelSectionIndex].children[labelPropertyIndex],
+      placeholderText: "Current Price",
+    } as any;
+
+    const generalSectionIndex = parentConfig.findIndex(
+      (section) => section.sectionName === "General",
+    );
+    const tooltipPropertyIndex = parentConfig[
+      generalSectionIndex
+    ].children.findIndex((property) => property.propertyName === "tooltip");
+
+    parentConfig[generalSectionIndex].children[tooltipPropertyIndex] = {
+      ...parentConfig[generalSectionIndex].children[tooltipPropertyIndex],
+      placeholderText:
+        "Prices in other currencies should be recalculated in USD",
+    } as any;
+
+    const placeholderPropertyIndex = parentConfig[
+      generalSectionIndex
+    ].children.findIndex(
+      (property) => property.propertyName === "placeholderText",
+    );
+
+    parentConfig[generalSectionIndex].children[placeholderPropertyIndex] = {
+      ...parentConfig[generalSectionIndex].children[placeholderPropertyIndex],
+      placeholderText: "10",
+    } as any;
+
+    return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
   }
 
   static getPropertyPaneStyleConfig() {

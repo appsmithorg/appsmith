@@ -56,7 +56,7 @@ import GitChangesList from "../components/GitChangesList";
 import ConflictInfo from "../components/ConflictInfo";
 
 import { isEllipsisActive, isMacOrIOS } from "utils/helpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   getApplicationLastDeployedAt,
   getCurrentApplication,

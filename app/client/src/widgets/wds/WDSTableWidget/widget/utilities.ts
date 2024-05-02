@@ -261,8 +261,8 @@ export const getPropertyValue = (
     return isSourceData
       ? getValueForSourceData(value, index)
       : preserveCase
-      ? value[index].toString()
-      : value[index].toString().toUpperCase();
+        ? value[index].toString()
+        : value[index].toString().toUpperCase();
   } else if (value) {
     return preserveCase ? value.toString() : value.toString().toUpperCase();
   } else {

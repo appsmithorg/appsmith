@@ -13,6 +13,7 @@ import {
 } from "actions/pluginActionActions";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
+  closeJsActionTabSuccess,
   copyJSCollectionError,
   copyJSCollectionSuccess,
   createJSCollectionSuccess,
@@ -58,7 +59,7 @@ import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   checkAndLogErrorsIfCyclicDependency,
   getFromServerWhenNoPrefetchedResult,
@@ -73,6 +74,11 @@ import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import type {
+  TriggerKind,
+  TriggerSource,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import type { TMessage } from "utils/MessageUtil";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -320,6 +326,7 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
+      yield put(closeJsActionTabSuccess({ id }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
@@ -493,5 +500,25 @@ export function* closeJSActionTabSaga(
   actionPayload: ReduxAction<{ id: string }>,
 ) {
   const id = actionPayload.payload.id;
+  const currentUrl = window.location.pathname;
+  yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
   yield call(handleJSEntityRedirect, id);
+  yield put(closeJsActionTabSuccess({ id }));
+}
+
+export function* logJSFunctionExecution(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  message: TMessage<{
+    data: {
+      jsFnFullName: string;
+      isSuccess: boolean;
+      triggerMeta: {
+        source: TriggerSource;
+        triggerPropertyName: string | undefined;
+        triggerKind: TriggerKind | undefined;
+      };
+    }[];
+  }>,
+) {
+  /* This is intentionally left blank and has a definition on EE for audit logs, since this function needs to be called in a common file. */
 }

@@ -15,6 +15,8 @@ import java.util.Set;
 
 public interface PluginServiceCE extends CrudService<Plugin, String> {
 
+    Flux<Plugin> getInWorkspace(String workspaceId);
+
     Flux<Plugin> getDefaultPlugins();
 
     Flux<Plugin> getDefaultPluginIcons();
@@ -22,8 +24,6 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
     Mono<Workspace> installPlugin(PluginWorkspaceDTO plugin);
 
     Flux<Workspace> installDefaultPlugins(List<Plugin> plugins);
-
-    Mono<Workspace> uninstallPlugin(PluginWorkspaceDTO plugin);
 
     Mono<Plugin> findByName(String name);
 

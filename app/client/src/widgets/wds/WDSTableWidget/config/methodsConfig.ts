@@ -11,8 +11,11 @@ import type { WidgetProps } from "widgets/BaseWidget";
 import { ColumnTypes, type TableWidgetProps } from "../constants";
 import type { DynamicPath } from "utils/DynamicBindingUtils";
 import { createEditActionColumn } from "../widget/utilities";
+import { TableIcon, TableThumbnail } from "appsmith-icons";
 
 export const methodsConfig = {
+  IconCmp: TableIcon,
+  ThumbnailCmp: TableThumbnail,
   getQueryGenerationConfig: (widget: WidgetProps) => {
     return {
       select: {

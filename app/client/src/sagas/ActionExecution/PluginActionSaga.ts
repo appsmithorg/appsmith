@@ -76,7 +76,7 @@ import {
   validateResponse,
 } from "sagas/ErrorSagas";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { Action } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
 import { PluginType } from "entities/Action";
@@ -570,8 +570,8 @@ export default function* executePluginActionTriggerSaga(
     eventType === EventType.ON_NEXT_PAGE
       ? "NEXT"
       : eventType === EventType.ON_PREV_PAGE
-      ? "PREV"
-      : undefined;
+        ? "PREV"
+        : undefined;
   AppsmithConsole.info({
     text: "Execution started from widget request",
     source: {

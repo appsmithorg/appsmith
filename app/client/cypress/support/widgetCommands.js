@@ -15,6 +15,7 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import { TABLE_COLUMN_ORDER_KEY } from "./Constants";
+import { EntityItems } from "./Pages/AssertHelper";
 
 let pageidcopy = " ";
 
@@ -934,7 +935,12 @@ Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
   PageList.AddNewPage().then((oldPageName) => {
     if (pageName) {
       cy.wait(2000);
-      ee.RenameEntityFromExplorer(oldPageName, pageName, true);
+      ee.RenameEntityFromExplorer(
+        oldPageName,
+        pageName,
+        false,
+        EntityItems.Page,
+      );
     }
     cy.get("#loading").should("not.exist");
   });
