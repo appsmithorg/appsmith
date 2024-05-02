@@ -13,9 +13,9 @@ export enum Elevations {
  * This is the default for the API that allows widgets to define their selection and focus colors.
  */
 export const DEFAULT_WIDGET_ON_CANVAS_UI = {
-  selectionBGCSSVar: "--ads-widget-selection",
-  focusBGCSSVar: "--ads-widget-focus",
-  selectionColorCSSVar: "--ads-widget-focus",
-  focusColorCSSVar: "--ads-widget-selection",
+  selectionBGCSSVar: "--on-canvas-ui-widget-selection",
+  focusBGCSSVar: "--on-canvas-ui-widget-focus",
+  selectionColorCSSVar: "--on-canvas-ui-widget-focus",
+  focusColorCSSVar: "--on-canvas-ui-widget-selection",
   disableParentSelection: false,
 };

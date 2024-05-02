@@ -92,8 +92,8 @@ export function handleWidgetUpdate(
             : "visible",
         zIndex:
           nameComponentState === "focus"
-            ? "calc(var(--ads-on-canvas-ui-zindex) + 1)"
-            : "var(--ads-on-canvas-ui-zindex)",
+            ? "calc(var(--on-canvas-ui-on-canvas-ui-zindex) + 1)"
+            : "var(--on-canvas-ui-on-canvas-ui-zindex)",
       });
     });
   });
@@ -102,20 +102,21 @@ export function handleWidgetUpdate(
 export function getWidgetNameComponentStyleProps(
   widgetType: string,
   nameComponentState: NameComponentStates,
+  showError: boolean,
 ) {
   const config = WidgetFactory.getConfig(widgetType);
   const onCanvasUI = config?.onCanvasUI || {
     disableParentSelection: false,
-    focusBGCSSVar: "--ads-widget-focus",
-    focusColorCSSVar: "--ads-widget-selection",
-    selectionBGCSSVar: "--ads-widget-selection",
-    selectionColorCSSVar: "--ads-widget-focus",
+    focusBGCSSVar: "--on-canvas-ui-widget-focus",
+    focusColorCSSVar: "--on-canvas-ui-widget-selection",
+    selectionBGCSSVar: "--on-canvas-ui-widget-selection",
+    selectionColorCSSVar: "--on-canvas-ui-widget-focus",
   };
-  const bGCSSVar =
+  let bGCSSVar =
     nameComponentState === "focus"
       ? onCanvasUI.focusBGCSSVar
       : onCanvasUI.selectionBGCSSVar;
-  const colorCSSVar =
+  let colorCSSVar =
     nameComponentState === "focus"
       ? onCanvasUI.focusColorCSSVar
       : onCanvasUI.selectionColorCSSVar;
@@ -123,6 +124,14 @@ export function getWidgetNameComponentStyleProps(
   let disableParentToggle = onCanvasUI.disableParentSelection;
   if (nameComponentState === "focus") {
     disableParentToggle = true;
+  }
+
+  // If there is an error, show the widget name in error state
+  // This includes background being the error color
+  // and font color being white.
+  if (showError) {
+    bGCSSVar = "--on-canvas-ui-widget-error";
+    colorCSSVar = "--on-canvas-ui-white";
   }
   return {
     disableParentToggle,

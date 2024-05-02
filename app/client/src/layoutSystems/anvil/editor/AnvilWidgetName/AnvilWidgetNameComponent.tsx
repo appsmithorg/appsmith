@@ -1,25 +1,13 @@
-import type { CSSProperties, ForwardedRef } from "react";
+import type { ForwardedRef } from "react";
 import React, { forwardRef, useCallback, useMemo } from "react";
-import { useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
-import { ForwardedSplitButton } from "./SplitButton";
-import { getWidgetErrorCount } from "./selectors";
+import { SplitButton } from "./SplitButton";
 import {
   ANVIL_WIDGET_NAME_DEBUG_CLICK,
   ANVIL_WIDGET_NAME_TOGGLE_PARENT,
 } from "layoutSystems/anvil/common/messages";
 import { createMessage } from "@appsmith/constants/messages";
-
-const widgetNameStyles: CSSProperties = {
-  height: "24px", // This is 2px more than the ones in the designs.
-  width: "max-content",
-  position: "fixed",
-  top: 0,
-  left: 0,
-  visibility: "hidden",
-  isolation: "isolate",
-};
 
 /**
  *
@@ -32,7 +20,7 @@ const widgetNameStyles: CSSProperties = {
  *
  * Although, I could move some of the logic to the parent component, I decided to keep it here
  */
-export function WidgetNameComponent(
+export function _AnvilWidgetNameComponent(
   props: {
     name: string;
     widgetId: string;
@@ -43,52 +31,25 @@ export function WidgetNameComponent(
     colorCSSVar: string;
     disableParentSelection: boolean;
     onDragStart: React.DragEventHandler;
+    showError: boolean;
   },
   ref: ForwardedRef<HTMLDivElement>,
 ) {
-  const { parentId, widgetId } = props;
-
-  const showError = useSelector(
-    (state) => getWidgetErrorCount(state, widgetId) > 0,
-  );
-
-  // If there is an error, show the widget name in error state
-  // This includes background being the error color
-  // and font color being white.
-  let _bgCSSVar = props.bGCSSVar;
-  let _colorCSSVar = props.colorCSSVar;
-  if (showError) {
-    _bgCSSVar = "--ads-widget-error";
-    _colorCSSVar = "--ads-color-black-0";
-  }
+  const { parentId } = props;
 
   /** Widget Selection Handlers */
   const { selectWidget } = useWidgetSelection();
-  const handleSelectParent = useCallback(
-    (e: React.MouseEvent) => {
-      parentId && selectWidget(SelectionRequestType.One, [parentId]);
-      e.stopPropagation();
-    },
-    [parentId],
-  );
+  const handleSelectParent = useCallback(() => {
+    parentId && selectWidget(SelectionRequestType.One, [parentId]);
+  }, [parentId]);
 
-  const handleSelectWidget = useCallback(
-    (e: React.MouseEvent) => {
-      selectWidget(SelectionRequestType.One, [props.widgetId]);
-      e.stopPropagation();
-    },
-    [props.widgetId],
-  );
+  const handleSelectWidget = useCallback(() => {
+    selectWidget(SelectionRequestType.One, [props.widgetId]);
+  }, [props.widgetId]);
 
-  const handleMouseOver = useCallback((e: React.MouseEvent) => {
-    e.preventDefault();
-    e.stopPropagation();
-  }, []);
+  const handleMouseOver = useCallback(() => {}, []);
 
-  const handleDebugClick = useCallback((e: React.MouseEvent) => {
-    e.stopPropagation();
-    e.preventDefault();
-  }, []);
+  const handleDebugClick = useCallback(() => {}, []);
   /** EO Widget Selection Handlers */
 
   const leftToggle = useMemo(() => {
@@ -101,27 +62,25 @@ export function WidgetNameComponent(
 
   const rightToggle = useMemo(() => {
     return {
-      disable: !showError,
+      disable: !props.showError,
       onClick: handleDebugClick,
       title: createMessage(ANVIL_WIDGET_NAME_DEBUG_CLICK),
     };
-  }, [showError, handleDebugClick]);
+  }, [props.showError, handleDebugClick]);
 
   return (
-    <ForwardedSplitButton
-      bGCSSVar={_bgCSSVar}
-      colorCSSVar={_colorCSSVar}
-      id={`widget-name-${widgetId}`}
+    <SplitButton
+      bGCSSVar={props.bGCSSVar}
+      colorCSSVar={props.colorCSSVar}
       leftToggle={leftToggle}
       onClick={handleSelectWidget}
       onDragStart={props.onDragStart}
       onMouseOverCapture={handleMouseOver}
       ref={ref}
       rightToggle={rightToggle}
-      styles={widgetNameStyles}
       text={props.name}
     />
   );
 }
 
-export const ForwardedWidgetNameComponent = forwardRef(WidgetNameComponent);
+export const AnvilWidgetNameComponent = forwardRef(_AnvilWidgetNameComponent);

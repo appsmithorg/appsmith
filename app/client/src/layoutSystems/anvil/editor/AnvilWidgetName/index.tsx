@@ -10,11 +10,11 @@ import {
   getWidgetNameComponentStyleProps,
   handleWidgetUpdate,
 } from "./utils";
-import { ForwardedWidgetNameComponent } from "./Component";
-import { shouldSelectOrFocus } from "./selectors";
+import { AnvilWidgetNameComponent } from "./AnvilWidgetNameComponent";
+import { getWidgetErrorCount, shouldSelectOrFocus } from "./selectors";
 import type { NameComponentStates } from "./types";
 
-export function WidgetName(props: {
+export function AnilWidgetName(props: {
   widgetId: string;
   widgetName: string;
   parentId?: string;
@@ -25,9 +25,14 @@ export function WidgetName(props: {
     shouldSelectOrFocus(widgetId),
   );
 
+  const showError = useSelector(
+    (state) => getWidgetErrorCount(state, widgetId) > 0,
+  );
+
   const styleProps = getWidgetNameComponentStyleProps(
     widgetType,
     nameComponentState,
+    showError,
   );
 
   const { setDraggingState } = useWidgetDragResize();
@@ -93,7 +98,7 @@ export function WidgetName(props: {
 
   return (
     <FloatingPortal>
-      <ForwardedWidgetNameComponent
+      <AnvilWidgetNameComponent
         bGCSSVar={styleProps.bGCSSVar}
         colorCSSVar={styleProps.colorCSSVar}
         disableParentSelection={styleProps.disableParentToggle}
@@ -104,6 +109,7 @@ export function WidgetName(props: {
         ref={widgetNameRef}
         selectionBGCSSVar={styleProps.selectionBGCSSVar}
         selectionColorCSSVar={styleProps.selectionColorCSSVar}
+        showError={showError}
         widgetId={widgetId}
       />
     </FloatingPortal>
