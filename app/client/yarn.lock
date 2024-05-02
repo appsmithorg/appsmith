@@ -13123,8 +13123,8 @@ __metadata:
     d3-geo: ^3.1.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "npm:@appsmithorg/design-system@2.1.40-alpha.9"
-    design-system-old: "npm:@appsmithorg/design-system-old@1.1.17-alpha.7"
+    design-system: "npm:@appsmithorg/design-system@2.1.40-alpha.10"
+    design-system-old: "npm:@appsmithorg/design-system-old@1.1.17-alpha.8"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -17144,9 +17144,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.17-alpha.7":
-  version: 1.1.17-alpha.7
-  resolution: "@appsmithorg/design-system-old@npm:1.1.17-alpha.7"
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.17-alpha.8":
+  version: 1.1.17-alpha.8
+  resolution: "@appsmithorg/design-system-old@npm:1.1.17-alpha.8"
   dependencies:
     emoji-mart: 3.0.1
   peerDependencies:
@@ -17166,13 +17166,13 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  checksum: d18c772fcfed8585d4058d496c4616f2cc1e22d4847b9e4afe25066dad1d3b6ce4474dae74076db9740eda7fcb2f9afde8564ddc9168a90ef72a10ebe48852dd
+  checksum: c478a8391e859c780a535921a02c2d0c7d8328ae51dece25b10ea4b0bfd4632d6d483c54b7603cff40deb42a532678952ab98ffde3114d37df9bb4e5773a8450
   languageName: node
   linkType: hard
 
-"design-system@npm:@appsmithorg/design-system@2.1.40-alpha.9":
-  version: 2.1.40-alpha.9
-  resolution: "@appsmithorg/design-system@npm:2.1.40-alpha.9"
+"design-system@npm:@appsmithorg/design-system@2.1.40-alpha.10":
+  version: 2.1.40-alpha.10
+  resolution: "@appsmithorg/design-system@npm:2.1.40-alpha.10"
   dependencies:
     "@radix-ui/react-dialog": ^1.0.2
     "@radix-ui/react-dropdown-menu": ^2.0.4
@@ -17204,7 +17204,7 @@ __metadata:
     react-dom: ^17.0.2
     react-router-dom: ^5.0.0
     styled-components: ^5.3.6
-  checksum: 232ea3a5f9adfb598457adf8308a82061971264338b4c5ee1fd03ba511d49e64cfc948d70acaa7169fcc6410c6f038cb77471feccb9852936657a5520cfc2ca1
+  checksum: 5b49f17d3a02e99b6c9c2bad174d983113d5d7ee8e2ee4871c0d1dad1b0588a94eb27a24881be35b329bfadd409f9b67ad85d50774f9e4375a15a86f74501abe
   languageName: node
   linkType: hard
 
