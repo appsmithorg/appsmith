@@ -77,6 +77,12 @@ export const getWidgetIdsByType = (state: AppState, type: WidgetType) => {
     .map((widget: FlattenedWidgetProps) => widget.widgetId);
 };
 
+export const getAllDetachedWidgetIds = (state: AppState) => {
+  return Object.values(state.entities.canvasWidgets)
+    .filter((widget: FlattenedWidgetProps) => !!widget.detachFromLayout)
+    .map((widget: FlattenedWidgetProps) => widget.widgetId);
+};
+
 export const getWidgetOptionsTree = memoize((state: AppState) =>
   Object.values(state.entities.canvasWidgets)
     .filter((w) => w.type !== "CANVAS_WIDGET" && w.type !== "BUTTON_WIDGET")
@@ -191,6 +197,15 @@ export const getPluginIdOfPackageName = (
 export const getDragDetails = (state: AppState) => {
   return state.ui.widgetDragResize.dragDetails;
 };
+
+export const getIsNewWidgetBeingDragged = (state: AppState) => {
+  const { isDragging } = state.ui.widgetDragResize;
+  if (!isDragging) return false;
+  const dragDetails: DragDetails = getDragDetails(state);
+  const { dragGroupActualParent: dragParent, newWidget } = dragDetails;
+  return !!newWidget && !dragParent;
+};
+
 export const isCurrentCanvasDragging = createSelector(
   (state: AppState) => state.ui.widgetDragResize.isDragging,
   getDragDetails,

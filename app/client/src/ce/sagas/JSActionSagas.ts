@@ -74,6 +74,11 @@ import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import type {
+  TriggerKind,
+  TriggerSource,
+} from "constants/AppsmithActionConstants/ActionConstants";
+import type { TMessage } from "utils/MessageUtil";
 import { getAllActionTestPayloads } from "utils/storage";
 
 export function* fetchJSCollectionsSaga(
@@ -500,6 +505,23 @@ export function* closeJSActionTabSaga(
   yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
   yield call(handleJSEntityRedirect, id);
   yield put(closeJsActionTabSuccess({ id }));
+}
+
+export function* logJSFunctionExecution(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  message: TMessage<{
+    data: {
+      jsFnFullName: string;
+      isSuccess: boolean;
+      triggerMeta: {
+        source: TriggerSource;
+        triggerPropertyName: string | undefined;
+        triggerKind: TriggerKind | undefined;
+      };
+    }[];
+  }>,
+) {
+  /* This is intentionally left blank and has a definition on EE for audit logs, since this function needs to be called in a common file. */
 }
 
 export function* fetchStoredTestPayloadsSaga(collections: JSCollection[]) {

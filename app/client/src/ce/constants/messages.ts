@@ -378,7 +378,7 @@ export const INVALID_FORM_CONFIGURATION = () => "Invalid form configuration";
 export const ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF = () => "🙌 Click on";
 export const ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF = () =>
   "after adding your query";
-export const CREATE_NEW_DATASOURCE = () => "Create new datasource";
+export const CREATE_NEW_DATASOURCE = () => "Create datasource";
 export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
 export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
@@ -768,7 +768,7 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 export const TABLE_NOT_FOUND = () => "Table not found.";
 export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
-  `Search for tables in ${name}`;
+  `Tables in ${name}`;
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
@@ -2487,10 +2487,10 @@ export const SPLITPANE_ANNOUNCEMENT = {
 export const CANVAS_VIEW_MODE_TOOLTIP = (shortcutKey: string) =>
   `💡 ${shortcutKey} click a widget to navigate to UI mode.`;
 
-// searchable files list
-export const SEARCHABLE_FILES_LIST = {
-  GROUP_LABEL: (type: string) => `Open a ${type}`,
-  OPENED_GROUP_LABEL: () => `Opened`,
-  QUERY_TEXT: `query`,
-  JS_OBJECT_TEXT: `JS object`,
+export const EMPTY_CANVAS_HINTS = {
+  DRAG_DROP_WIDGET_HINT: () => "Drag and drop a widget here",
+  DRAG_DROP_BUILDING_BLOCK_HINT: {
+    TITLE: () => "Drag & drop a building block",
+    DESCRIPTION: () => "Make a working app in seconds using functional blocks",
+  },
 };

@@ -47,6 +47,10 @@ class WDSToolbarButtonsWidget extends BaseWidget<
     return config.anvilConfig;
   }
 
+  static getMethods() {
+    return config.methodsConfig;
+  }
+
   onButtonClick = (
     onClick: string | undefined,
     callback?: (result: ExecutionResult) => void,

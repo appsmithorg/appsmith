@@ -58,6 +58,10 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
     return config.settersConfig;
   }
 
+  static getMethods() {
+    return config.methodsConfig;
+  }
+
   static getPropertyPaneContentConfig() {
     const parentConfig = clone(super.getPropertyPaneContentConfig());
     const labelSectionIndex = parentConfig.findIndex(

@@ -24,6 +24,8 @@ import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/u
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import { evalErrorHandler } from "./EvalErrorHandler";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+import { logJSFunctionExecution } from "@appsmith/sagas/JSActionSagas";
+
 export interface UpdateDataTreeMessageData {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
@@ -122,6 +124,10 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.PROCESS_STORE_UPDATES: {
       yield call(handleStoreOperations, data);
+      break;
+    }
+    case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
+      yield call(logJSFunctionExecution, message);
       break;
     }
     case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {
