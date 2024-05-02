@@ -524,6 +524,7 @@ export function* logJSFunctionExecution(
   /* This is intentionally left blank and has a definition on EE for audit logs, since this function needs to be called in a common file. */
 }
 
+// Saga to fetch stored test payloads for all collections present in the application
 export function* fetchStoredTestPayloadsSaga(collections: JSCollection[]) {
   try {
     //fetch stored test payloads for all collections

@@ -92,6 +92,7 @@ export function isBrowserExecutionAllowed(..._args: any[]) {
   return true;
 }
 
+// Function to extract the test payload from the collection data
 export const getTestPayloadFromCollectionData = (
   collectionData: JSCollectionData | undefined,
 ): string => {
