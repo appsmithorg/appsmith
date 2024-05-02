@@ -25,14 +25,10 @@ public final class CustomJsonType extends JsonBinaryType {
         final ObjectMapper om = new ObjectMapper();
 
         SimpleModule module = new SimpleModule();
-        module.addSerializer(TransientAware.class, getSerializer(TransientAware.class));
+        module.addSerializer(TransientAware.class, new CustomTransientSerializer<>(TransientAware.class));
 
         return SerializationUtils.configureObjectMapper(om)
                 .registerModule(module)
                 .setConfig(om.getSerializationConfig().withView(Views.Internal.class));
-    }
-
-    private static <T> CustomTransientSerializer<T> getSerializer(Class<T> tClass) {
-        return new CustomTransientSerializer<>(tClass);
     }
 }
