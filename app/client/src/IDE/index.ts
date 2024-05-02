@@ -10,14 +10,6 @@
  * It is possible to use the IDE Header without using these subsections
  */
 export { default as IDEHeader } from "./Structure/Header";
-// Better naming, figure with Hetu
-/**
- * The IDEEditorHeaderDropdown gets exported with 2 layout subsections.
- * IDEEditorHeaderDropdown.Header, IDEEditorHeaderDropdown.Body
- * These are composable components that you can use to spread the content of the header
- * It is possible to use the IDE Header without using these subsections
- */
-export { default as IDEEditorHeaderDropdown } from "./Structure/EditorHeaderDropdown";
 
 /**
  **** UI Components ****
@@ -33,7 +25,13 @@ export { default as IDEHeaderTitle } from "./Components/HeaderTitle";
  * or any list of elements in the header. Eg. Pages / Page 1
  */
 export { default as IDEHeaderEditorSwitcher } from "./Components/HeaderEditorSwitcher";
-
+/**
+ * The IDEHeaderDropdown gets exported with 2 layout subsections.
+ * IDEHeaderDropdown.Header, IDEHeaderDropdown.Body
+ * These are composable components that you can use to spread the content of the header
+ * It is possible to use the IDE Header without using these subsections
+ */
+export { default as IDEHeaderDropdown } from "./Components/HeaderDropdown";
 /**
  **** Interfaces ****
  * Common types that are used by the different components of the IDE

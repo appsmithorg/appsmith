@@ -18,7 +18,7 @@ import { getNextEntityName } from "utils/AppsmithUtils";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
-import { IDEEditorHeaderDropdown } from "IDE";
+import { IDEHeaderDropdown } from "IDE";
 
 const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const dispatch = useDispatch();
@@ -61,8 +61,8 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   );
 
   return (
-    <IDEEditorHeaderDropdown>
-      <IDEEditorHeaderDropdown.Header className="pages">
+    <IDEHeaderDropdown>
+      <IDEHeaderDropdown.Header className="pages">
         <Text kind="heading-xs">{`All Pages (${pages.length})`}</Text>
         {canCreatePages ? (
           <AddPageContextMenu
@@ -74,11 +74,9 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
             openMenu={isMenuOpen}
           />
         ) : null}
-      </IDEEditorHeaderDropdown.Header>
-      <IDEEditorHeaderDropdown.Body>
-        {pageElements}
-      </IDEEditorHeaderDropdown.Body>
-    </IDEEditorHeaderDropdown>
+      </IDEHeaderDropdown.Header>
+      <IDEHeaderDropdown.Body>{pageElements}</IDEHeaderDropdown.Body>
+    </IDEHeaderDropdown>
   );
 };
 

@@ -1,19 +1,19 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import EditorHeaderDropdown from "./EditorHeaderDropdown";
+import HeaderDropdown from "./HeaderDropdown";
 import "@testing-library/jest-dom";
 
-describe("EditorHeaderDropdown", () => {
+describe("HeaderDropdown", () => {
   it("renders children components correctly", () => {
     const { getByText } = render(
-      <EditorHeaderDropdown>
-        <EditorHeaderDropdown.Header>
+      <HeaderDropdown>
+        <HeaderDropdown.Header>
           <span>Header</span>
-        </EditorHeaderDropdown.Header>
-        <EditorHeaderDropdown.Body>
+        </HeaderDropdown.Header>
+        <HeaderDropdown.Body>
           <span>Body</span>
-        </EditorHeaderDropdown.Body>
-      </EditorHeaderDropdown>,
+        </HeaderDropdown.Body>
+      </HeaderDropdown>,
     );
 
     expect(getByText("Header")).toBeInTheDocument();
@@ -23,14 +23,14 @@ describe("EditorHeaderDropdown", () => {
   it("applies custom className to the header", () => {
     const customClass = "my-custom-class";
     const { container } = render(
-      <EditorHeaderDropdown>
-        <EditorHeaderDropdown.Header className={customClass}>
+      <HeaderDropdown>
+        <HeaderDropdown.Header className={customClass}>
           <span>Header</span>
-        </EditorHeaderDropdown.Header>
-        <EditorHeaderDropdown.Body>
+        </HeaderDropdown.Header>
+        <HeaderDropdown.Body>
           <span>Body</span>
-        </EditorHeaderDropdown.Body>
-      </EditorHeaderDropdown>,
+        </HeaderDropdown.Body>
+      </HeaderDropdown>,
     );
 
     const headerElement = container.querySelector(`.${customClass}`);
