@@ -84,10 +84,9 @@ export function WidgetCardComponent({
   onDragStart?: (e: any) => void;
 }) {
   const type = `${details.type.split("_").join("").toLowerCase()}`;
-  const className = `t--widget-card-draggable t--widget-card-draggable-${type} ${
-    !Boolean(details.thumbnail) ? "pt-2 gap-2 mt-2" : ""
-  }`;
+  const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
   const { ThumbnailCmp } = details;
+
   return (
     <Wrapper
       className={className}
