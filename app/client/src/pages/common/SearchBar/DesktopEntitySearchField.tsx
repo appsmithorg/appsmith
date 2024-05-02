@@ -38,8 +38,6 @@ const DesktopEntitySearchField = (props: any) => {
 
   const {
     applicationsList,
-    canShowSearchDropdown,
-    handleInputClicked,
     handleSearchInput,
     isDropdownOpen,
     isFetchingApplications,
@@ -47,11 +45,11 @@ const DesktopEntitySearchField = (props: any) => {
     navigateToApplication,
     noSearchResults,
     searchedPackages,
-    searchedWorkflows,
     searchInput,
     searchInputRef,
     searchListContainerRef,
     setIsDropdownOpen,
+    workflowsList,
     workspacesList,
   } = props;
 
@@ -64,12 +62,11 @@ const DesktopEntitySearchField = (props: any) => {
         data-testid="t--application-search-input"
         isDisabled={isFetchingApplications}
         onChange={handleSearchInput}
-        onClick={handleInputClicked}
         placeholder={""}
         ref={searchInputRef}
         value={searchInput}
       />
-      {isDropdownOpen && canShowSearchDropdown && (
+      {(isDropdownOpen || isFetchingEntities) && (
         <SearchListContainer ref={searchListContainerRef}>
           {noSearchResults && !isFetchingEntities && (
             <div className="no-search-results text-center py-[52px]">
@@ -102,7 +99,7 @@ const DesktopEntitySearchField = (props: any) => {
                 navigateToApplication={navigateToApplication}
               />
               <PackageSearchItem searchedPackages={searchedPackages} />
-              <WorkflowSearchItem searchedWorkflows={searchedWorkflows} />
+              <WorkflowSearchItem workflowsList={workflowsList} />
             </>
           )}
         </SearchListContainer>

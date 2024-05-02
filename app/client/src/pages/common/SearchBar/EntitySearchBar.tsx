@@ -3,7 +3,7 @@ import { APPLICATIONS_URL, AUTH_LOGIN_URL } from "constants/routes";
 import { ANONYMOUS_USERNAME } from "constants/userConstants";
 import { Button } from "design-system";
 import type { RefObject } from "react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import styled from "styled-components";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
@@ -23,13 +23,13 @@ import MobileSideBar from "pages/common/MobileSidebar";
 import {
   resetSearchEntity,
   searchEntities,
-  searchWorkspaceEntitiesLoader,
 } from "@appsmith/actions/workspaceActions";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { viewerURL } from "@appsmith/RouteBuilder";
 import {
   getIsFetchingEntities,
   getSearchedApplications,
+  getSearchedWorkflows,
   getSearchedWorkspaces,
 } from "@appsmith/selectors/workspaceSelectors";
 import DesktopEntitySearchField from "pages/common/SearchBar/DesktopEntitySearchField";
@@ -37,7 +37,6 @@ import MobileEntitySearchField from "pages/common/SearchBar/MobileEntitySearchFi
 import { getIsFetchingApplications } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPackagesList } from "@appsmith/selectors/packageSelectors";
 import Fuse from "fuse.js";
-import { getWorkflowsList } from "@appsmith/selectors/workflowSelectors";
 
 const HeaderSection = styled.div`
   display: flex;
@@ -88,10 +87,8 @@ function EntitySearchBar(props: any) {
   const [isProductUpdatesModalOpen, setIsProductUpdatesModalOpen] =
     useState(false);
   const [searchedPackages, setSearchedPackages] = useState([]);
-  const [searchedWorkflows, setSearchedWorkflows] = useState([]);
 
   const tenantConfig = useSelector(getTenantConfig);
-  const applicationsList = useSelector(getSearchedApplications);
   const isCreateNewAppFlow = useSelector(
     getCurrentApplicationIdForCreateNewApp,
   );
@@ -99,14 +96,14 @@ function EntitySearchBar(props: any) {
   const selectedTheme = useSelector(getSelectedAppTheme);
   const isFetchingApplications = useSelector(getIsFetchingApplications);
   const isFetchingEntities = useSelector(getIsFetchingEntities);
-  const fetchedPackages = useSelector(getPackagesList);
-  const fetchedWorkflows = useSelector(getWorkflowsList);
   const workspacesList = useSelector(getSearchedWorkspaces);
+  const applicationsList = useSelector(getSearchedApplications);
+  const workflowsList = useSelector(getSearchedWorkflows);
+  const fetchedPackages = useSelector(getPackagesList);
 
   const location = useLocation();
 
   const searchListContainerRef = useRef(null);
-  const prevIsFetchingEntitiesRef = useRef<boolean | undefined>(undefined);
   const searchInputRef = useRef(null);
 
   const packageFuzzy = new Fuse(fetchedPackages, {
@@ -116,40 +113,6 @@ function EntitySearchBar(props: any) {
     location: 0,
     distance: 100,
   });
-
-  const workflowFuzzy = new Fuse(fetchedWorkflows, {
-    keys: ["name"],
-    shouldSort: true,
-    threshold: 0.5,
-    location: 0,
-    distance: 100,
-  });
-
-  const canShowSearchDropdown =
-    (noSearchResults && !isFetchingEntities) ||
-    isFetchingEntities ||
-    !!(
-      workspacesList?.length ||
-      applicationsList?.length ||
-      searchedPackages?.length ||
-      searchedWorkflows?.length
-    );
-
-  function handleInputClicked() {
-    if (searchInput?.trim()?.length || !noSearchResults) {
-      dispatch(searchEntities(searchInput));
-      setIsDropdownOpen(true);
-    }
-  }
-
-  const handleSearchDebounced = useCallback(
-    debounce((text: string) => {
-      if (text.trim().length !== 0) {
-        dispatch(searchEntities(text));
-      }
-    }, 1000),
-    [],
-  );
 
   function navigateToApplication(applicationId: string) {
     const searchedApplication = applicationsList?.find(
@@ -162,19 +125,14 @@ function EntitySearchBar(props: any) {
     const viewURL = viewerURL({
       pageId: defaultPageId,
     });
-    setIsDropdownOpen(false);
     window.location.href = `${viewURL}`;
   }
 
-  function handleSearchInput(text: string) {
+  const handleSearchInput = debounce((text: string) => {
     setSearchInput(text);
-    if (text.trim().length !== 0) dispatch(searchWorkspaceEntitiesLoader(true));
-    else dispatch(searchWorkspaceEntitiesLoader(false));
-    handleSearchDebounced(text);
+    dispatch(searchEntities(text));
     setSearchedPackages(packageFuzzy.search(text));
-    setSearchedWorkflows(workflowFuzzy.search(text));
-    setIsDropdownOpen(true);
-  }
+  }, 1000);
 
   useEffect(() => {
     if (!isDropdownOpen) {
@@ -183,21 +141,24 @@ function EntitySearchBar(props: any) {
   }, [isDropdownOpen]);
 
   useEffect(() => {
-    const prevIsFetchingEntities = prevIsFetchingEntitiesRef.current;
-    if (prevIsFetchingEntities && !isFetchingEntities) {
-      if (
-        !workspacesList?.length &&
-        !applicationsList?.length &&
-        !searchedPackages?.length &&
-        !searchedWorkflows?.length
-      ) {
-        setNoSearchResults(true);
-      } else {
-        setNoSearchResults(false);
-      }
+    if (searchInput.trim().length > 0) {
+      setIsDropdownOpen(true);
+    } else {
+      setIsDropdownOpen(false);
     }
-    prevIsFetchingEntitiesRef.current = isFetchingEntities;
-  }, [isFetchingEntities]);
+    if (
+      searchInput.trim()?.length > 0 &&
+      !isFetchingEntities &&
+      !workspacesList?.length &&
+      !applicationsList?.length &&
+      !workflowsList?.length &&
+      !searchedPackages?.length
+    ) {
+      setNoSearchResults(true);
+    } else {
+      setNoSearchResults(false);
+    }
+  }, [isFetchingEntities, searchInput]);
 
   useOutsideClick(searchListContainerRef, searchInputRef, () => {
     setIsDropdownOpen(false);
@@ -223,8 +184,6 @@ function EntitySearchBar(props: any) {
   return showMobileSearchBar && isMobile ? (
     <MobileEntitySearchField
       applicationsList={applicationsList}
-      canShowSearchDropdown={canShowSearchDropdown}
-      handleInputClicked={handleInputClicked}
       handleSearchInput={handleSearchInput}
       isDropdownOpen={isDropdownOpen}
       isFetchingApplications={isFetchingApplications}
@@ -233,9 +192,9 @@ function EntitySearchBar(props: any) {
       noSearchResults={noSearchResults}
       searchListContainerRef={searchListContainerRef}
       searchedPackages={searchedPackages}
-      searchedWorkflows={searchedWorkflows}
       setIsDropdownOpen={setIsDropdownOpen}
       setShowMobileSearchBar={setShowMobileSearchBar}
+      workflowsList={workflowsList}
       workspacesList={workspacesList}
     />
   ) : (
@@ -286,8 +245,6 @@ function EntitySearchBar(props: any) {
         ) : (
           <DesktopEntitySearchField
             applicationsList={applicationsList}
-            canShowSearchDropdown={canShowSearchDropdown}
-            handleInputClicked={handleInputClicked}
             handleSearchInput={handleSearchInput}
             isDropdownOpen={isDropdownOpen}
             isFetchingApplications={isFetchingApplications}
@@ -298,8 +255,8 @@ function EntitySearchBar(props: any) {
             searchInputRef={searchInputRef}
             searchListContainerRef={searchListContainerRef}
             searchedPackages={searchedPackages}
-            searchedWorkflows={searchedWorkflows}
             setIsDropdownOpen={setIsDropdownOpen}
+            workflowsList={workflowsList}
             workspacesList={workspacesList}
           />
         ))}

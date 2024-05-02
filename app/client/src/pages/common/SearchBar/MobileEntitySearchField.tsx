@@ -38,8 +38,6 @@ const MobileSearchInput = styled(SearchInput)`
 function MobileEntitySearchField(props: any) {
   const {
     applicationsList,
-    canShowSearchDropdown,
-    handleInputClicked,
     handleSearchInput,
     isDropdownOpen,
     isFetchingApplications,
@@ -47,10 +45,10 @@ function MobileEntitySearchField(props: any) {
     navigateToApplication,
     noSearchResults,
     searchedPackages,
-    searchedWorkflows,
     searchListContainerRef,
     setIsDropdownOpen,
     setShowMobileSearchBar,
+    workflowsList,
     workspacesList,
   } = props;
 
@@ -66,7 +64,6 @@ function MobileEntitySearchField(props: any) {
           defaultValue=""
           isDisabled={isFetchingApplications}
           onChange={handleSearchInput}
-          onClick={handleInputClicked}
           placeholder={""}
         />
         <Button
@@ -78,7 +75,7 @@ function MobileEntitySearchField(props: any) {
           startIcon="close-x"
         />
       </div>
-      {isDropdownOpen && canShowSearchDropdown && (
+      {(isDropdownOpen || isFetchingEntities) && (
         <SearchListContainer ref={searchListContainerRef}>
           {noSearchResults && !isFetchingEntities && (
             <div className="no-search-results text-center py-[52px]">
@@ -111,7 +108,7 @@ function MobileEntitySearchField(props: any) {
                 navigateToApplication={navigateToApplication}
               />
               <PackageSearchItem searchedPackages={searchedPackages} />
-              <WorkflowSearchItem searchedWorkflows={searchedWorkflows} />
+              <WorkflowSearchItem workflowsList={workflowsList} />
             </>
           )}
         </SearchListContainer>
