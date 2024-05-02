@@ -16,6 +16,7 @@ import { JSONtoForm } from "./JSONtoForm";
 import { TEMP_DATASOURCE_ID } from "constants/Datasource";
 import { DocsLink, openDoc } from "../../../constants/DocumentationLinks";
 import { Callout } from "design-system";
+import store from "store";
 
 const { cloudHosting } = getAppsmithConfigs();
 
@@ -49,7 +50,11 @@ export const Form = styled.form<{
 
 class DatasourceDBEditor extends JSONtoForm<Props> {
   openDocumentation = () => {
-    openDoc(DocsLink.WHITELIST_IP);
+    store.getState().entities.plugins.list.forEach((plugin: any) => {
+      if (plugin.id === this.props.datasource.pluginId) {
+        openDoc(DocsLink.WHITELIST_IP, plugin?.documentationLink, plugin?.name);
+      }
+    });
   };
 
   render() {
