@@ -204,13 +204,21 @@ export class GracefulWorkerService {
         webworkerTelemetryResponse["transferDataToMainThread"].endTime =
           Date.now();
 
-        webworkerTelemetryResponse["completeWebworkerComplutation"] = {
+        webworkerTelemetryResponse["completeWebworkerComputation"] = {
           startTime,
           endTime,
           attributes: {},
-          spanName: "completeWebworkerComplutation",
+          spanName: "completeWebworkerComputation",
         };
       }
+
+      const completeWebworkerComputationRoot = startRootSpan(
+        "completeWebworkerComputationRoot",
+        { method },
+        startTime,
+      );
+
+      completeWebworkerComputationRoot?.end(endTime);
 
       rootSpan &&
         convertWebworkerSpansToRegularSpans(
