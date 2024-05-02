@@ -884,14 +884,6 @@ public enum AppsmithError {
             "Git repo is locked",
             ErrorType.GIT_ACTION_EXECUTION_ERROR,
             null),
-    CSRF_TOKEN_INVALID(
-            403,
-            AppsmithErrorCode.CSRF_TOKEN_INVALID.getCode(),
-            "CSRF token missing/invalid. Please try again.",
-            AppsmithErrorAction.DEFAULT,
-            "CSRF token missing/invalid",
-            ErrorType.BAD_REQUEST,
-            null),
     UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION(
             400,
             AppsmithErrorCode.UNSUPPORTED_IMPORT_OPERATION.getCode(),
