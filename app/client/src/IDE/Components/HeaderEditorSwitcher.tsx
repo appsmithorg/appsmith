@@ -4,7 +4,7 @@ import styled from "styled-components";
 
 interface HeaderEditorSwitcherProps {
   prefix: string;
-  title: string;
+  title?: string;
   titleTestId: string;
   active: boolean;
   onClick?: React.MouseEventHandler<HTMLDivElement>;
@@ -26,18 +26,20 @@ const HeaderEditorSwitcher = React.forwardRef(
   (props: HeaderEditorSwitcherProps, ref: any) => {
     const { active, className, prefix, title, titleTestId, ...rest } = props;
 
+    const separator = title ? " /" : "";
+
     return (
       <SwitchTrigger
         active={active}
-        className={`flex align-center justify-center ${className}`}
+        className={`flex align-center items-center justify-center ${className}`}
         ref={ref}
         {...rest}
       >
         <Text
-          color={"var(--ads-v2-colors-content-label-inactive-fg)"}
+          color="var(--ads-v2-colors-content-label-inactive-fg)"
           kind="body-m"
         >
-          {prefix + " /"}
+          {prefix + separator}
         </Text>
         <Flex
           alignItems="center"
@@ -52,6 +54,11 @@ const HeaderEditorSwitcher = React.forwardRef(
             {title}
           </Text>
           <Icon
+            color={
+              title
+                ? undefined
+                : "var(--ads-v2-colors-content-label-inactive-fg)"
+            }
             name={active ? "arrow-up-s-line" : "arrow-down-s-line"}
             size="md"
           />

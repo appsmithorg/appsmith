@@ -55,6 +55,25 @@ describe("HeaderEditorSwitcher", () => {
     fireEvent.click(getByText("Title")); // Should not throw error
   });
 
+  it("does not show separator and applies different inactive color to icon", () => {
+    const ref = React.createRef();
+    const { container, getByTestId } = render(
+      <HeaderEditorSwitcher
+        {...defaultProps}
+        data-testid="root-div"
+        ref={ref}
+        title={undefined}
+      />,
+    );
+
+    const icon = container.querySelector(".remixicon-icon"); // Get chevron icon
+    expect(getByTestId("root-div")).toHaveTextContent("Prefix");
+    expect(icon).toHaveAttribute(
+      "fill",
+      "var(--ads-v2-colors-content-label-inactive-fg)",
+    );
+  });
+
   it("forwards additional props correctly", () => {
     const testId = "test-id";
     const className = "custom-class";
