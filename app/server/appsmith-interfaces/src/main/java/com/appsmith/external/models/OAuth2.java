@@ -14,9 +14,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.logging.log4j.util.Strings;
 import org.springframework.data.annotation.Transient;
-import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 import java.time.Instant;
@@ -103,7 +103,7 @@ public class OAuth2 extends AuthenticationDTO {
         this.scopeString = scopeString;
         if (scopeString != null && !scopeString.isBlank()) {
             this.scope = Arrays.stream(scopeString.split(","))
-                    .filter(x -> !StringUtils.isEmpty(x))
+                    .filter(StringUtils::isNotEmpty)
                     .map(String::trim)
                     .collect(Collectors.toSet());
         }

@@ -2,7 +2,7 @@ package com.appsmith.external.helpers.restApiUtils.helpers;
 
 import com.appsmith.external.models.AuthenticationDTO;
 import com.appsmith.external.models.OAuth2;
-import org.springframework.util.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import java.util.HashSet;
 import java.util.Set;

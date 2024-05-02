@@ -15,10 +15,10 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.lang.reflect.Type;
@@ -67,12 +67,12 @@ public class PluginUtils {
      * (2) '"around"'
      * (3) "the"
      * (4) 'sun'
-     * - ref: https://stackoverflow.com/questions/171480/regex-grabbing-values-between-quotation-marks
+     * <a href="https://stackoverflow.com/q/171480">Reference</a>.
      */
     public static String MATCH_QUOTED_WORDS_REGEX = "([\\\"'])(?:(?=(\\\\?))\\2.)*?\\1";
 
     public static List<String> getColumnsListForJdbcPlugin(ResultSetMetaData metaData) throws SQLException {
-        List<String> columnsList = IntStream.range(1, metaData.getColumnCount() + 1) // JDBC column indexes start from 1
+        return IntStream.range(1, metaData.getColumnCount() + 1) // JDBC column indexes start from 1
                 .mapToObj(i -> {
                     try {
                         return metaData.getColumnName(i);
@@ -84,8 +84,6 @@ public class PluginUtils {
                     }
                 })
                 .collect(Collectors.toList());
-
-        return columnsList;
     }
 
     public static List<String> getIdenticalColumns(List<String> columnNames) {

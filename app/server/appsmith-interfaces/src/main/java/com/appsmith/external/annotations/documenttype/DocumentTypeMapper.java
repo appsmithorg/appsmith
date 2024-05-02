@@ -10,7 +10,6 @@ import org.springframework.data.util.TypeInformation;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -81,18 +80,8 @@ public class DocumentTypeMapper implements TypeInformationMapper {
             basePackagesToScan = new ArrayList<>();
         }
 
-        public Builder withBasePackage(String basePackage) {
-            basePackagesToScan.add(basePackage);
-            return this;
-        }
-
         public Builder withBasePackages(String[] basePackages) {
             basePackagesToScan.addAll(Arrays.asList(basePackages));
-            return this;
-        }
-
-        public Builder withBasePackages(Collection<? extends String> basePackages) {
-            basePackagesToScan.addAll(basePackages);
             return this;
         }
 

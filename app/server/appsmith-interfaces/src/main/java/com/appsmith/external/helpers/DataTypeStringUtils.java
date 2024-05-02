@@ -48,10 +48,6 @@ import static org.apache.commons.lang3.ClassUtils.isPrimitiveOrWrapper;
 @Slf4j
 public class DataTypeStringUtils {
 
-    private static String regexForQuestionMark = "\\?";
-
-    private static Pattern questionPattern = Pattern.compile(regexForQuestionMark);
-
     public static Pattern placeholderPattern = Pattern.compile(APPSMITH_SUBSTITUTION_PLACEHOLDER);
 
     private static ObjectMapper objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
