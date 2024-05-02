@@ -16,7 +16,6 @@ import io.hypersistence.utils.hibernate.type.json.JsonBinaryType;
  * solution than hunting down the exact version that works.
  */
 public final class CustomJsonType extends JsonBinaryType {
-    static final TransientAnnotationSerializer<Object> serializer = new TransientAnnotationSerializer<>();
 
     public CustomJsonType() {
         super(makeObjectMapperForDatabaseSerialization());
@@ -26,10 +25,14 @@ public final class CustomJsonType extends JsonBinaryType {
         final ObjectMapper om = new ObjectMapper();
 
         SimpleModule module = new SimpleModule();
-        module.addSerializer(ActionDTO.class, serializer);
+        module.addSerializer(ActionDTO.class, getSerializer(ActionDTO.class));
 
         return SerializationUtils.configureObjectMapper(om)
                 .registerModule(module)
                 .setConfig(om.getSerializationConfig().withView(Views.Internal.class));
+    }
+
+    private static <T> TransientAnnotationSerializer<T> getSerializer(Class<T> tClass) {
+        return new TransientAnnotationSerializer<>(tClass);
     }
 }
