@@ -662,8 +662,8 @@ export const isDynamicLeaf = (
   if (!isWidgetActionOrJsObject(entity)) return false;
   const relativePropertyPath = convertPathToString(propPathEls);
   return (
-    (!isEmpty(entityConfig.reactivePaths) &&
-      relativePropertyPath in entityConfig.reactivePaths) ||
+    (!isEmpty(entityConfig.bindingPaths) &&
+      relativePropertyPath in entityConfig.bindingPaths) ||
     (isWidget(entityConfig) &&
       relativePropertyPath in entityConfig?.triggerPaths)
   );

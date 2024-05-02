@@ -117,14 +117,14 @@ export const updateDependencyMap = ({
           });
           // If a new entity is added, add setter functions to all nodes
           if (entityName === fullPropertyPath) {
-            const didUpdateDep = dependencyMap.addNodes(
+            const newValidSetterFnsDependencies = dependencyMap.addNodes(
               getEntitySetterFunctions(entityConfig, entityName, entity),
             );
-            if (didUpdateDep.length) {
+            if (newValidSetterFnsDependencies.length) {
               didUpdateDependencyMap = true;
               DependencyMapUtils.makeParentsDependOnChildCollection(
                 dependencyMap,
-                didUpdateDep,
+                newValidSetterFnsDependencies,
               );
             }
           }
@@ -153,15 +153,8 @@ export const updateDependencyMap = ({
                   ([path, pathDependencies]) => {
                     const { errors: extractDependencyErrors, references } =
                       extractInfoFromBindings(pathDependencies, allKeys);
-                    const affectedNodes = dependencyMap.addDependency(
-                      path,
-                      references,
-                      true,
-                    );
-                    DependencyMapUtils.makeParentsDependOnChildCollection(
-                      dependencyMap,
-                      affectedNodes,
-                    );
+                    dependencyMap.addDependency(path, references, true);
+
                     didUpdateDependencyMap = true;
                     dataTreeEvalErrors = dataTreeEvalErrors.concat(
                       extractDependencyErrors,
@@ -178,15 +171,7 @@ export const updateDependencyMap = ({
               );
               const { errors: extractDependencyErrors, references } =
                 extractInfoFromBindings(entityPathDependencies, allKeys);
-              const affectedNodes = dependencyMap.addDependency(
-                fullPropertyPath,
-                references,
-                true,
-              );
-              DependencyMapUtils.makeParentsDependOnChildCollection(
-                dependencyMap,
-                affectedNodes,
-              );
+              dependencyMap.addDependency(fullPropertyPath, references, true);
 
               didUpdateDependencyMap = true;
               dataTreeEvalErrors = dataTreeEvalErrors.concat(
