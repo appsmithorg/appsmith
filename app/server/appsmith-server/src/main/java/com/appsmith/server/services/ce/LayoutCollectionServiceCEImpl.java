@@ -15,6 +15,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ContextTypeUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -306,6 +308,27 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     return this.moveCollection(actionCollectionMoveDTO);
                 })
                 .map(responseUtils::updateCollectionDTOWithDefaultResources);
+    }
+
+    @Override
+    public Mono<Integer> updateUnpublishedActionCollectionBody(String id, String body, String branchName) {
+
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        Mono<ActionCollection> branchedActionCollectionMono = actionCollectionService
+                .findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getEditPermission())
+                .cache();
+
+        return branchedActionCollectionMono.flatMap(dbActionCollection -> {
+            BridgeUpdate updateObj = Bridge.update();
+            String path = ActionCollection.Fields.unpublishedCollection + "." + ActionCollectionDTO.Fields.body;
+
+            updateObj.set(path, body);
+
+            return actionCollectionRepository.updateById(dbActionCollection.getId(), updateObj);
+        });
     }
 
     @Override
