@@ -12,9 +12,9 @@ export interface SpaceDistributionZoneDomCollection {
   leftZonePropPaneDom: HTMLElement | null;
   rightZonePropPaneDom: HTMLElement | null;
 }
-
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 // Constants for animation and speed control during handle move
-const speedLimitForAnimation = 4000;
+const speedLimitForAnimation = isSafari ? 0 : 4000;
 const baseAnimationDuration = 0.25;
 const ratioOfSpeedToAnimation = baseAnimationDuration / speedLimitForAnimation;
 
