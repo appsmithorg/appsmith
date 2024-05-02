@@ -286,10 +286,10 @@ export const ternDocsInfo: Record<string, any> = {
     ],
   },
   showModal: {
-    exampleArgs: ["'Modal1'"],
+    exampleArgs: ["Modal1.name"],
   },
   closeModal: {
-    exampleArgs: ["'Modal1'"],
+    exampleArgs: ["Modal1.name"],
   },
   navigateTo: {
     exampleArgs: [

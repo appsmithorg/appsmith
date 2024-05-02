@@ -5,6 +5,7 @@ import com.appsmith.server.helpers.LogHelper;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.MDC;
+import org.springframework.http.HttpCookie;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.http.server.reactive.ServerHttpResponse;
@@ -19,7 +20,6 @@ import reactor.util.context.Context;
 import java.util.Map;
 import java.util.UUID;
 
-import static com.appsmith.external.constants.MDCConstants.REQUEST_ID_LOG;
 import static com.appsmith.external.constants.MDCConstants.SESSION_ID_LOG;
 import static com.appsmith.external.constants.MDCConstants.THREAD;
 import static com.appsmith.external.constants.MDCConstants.USER_EMAIL;
@@ -34,7 +34,17 @@ import static java.util.stream.Collectors.toMap;
 public class MDCFilter implements WebFilter {
 
     private static final String MDC_HEADER_PREFIX = "X-MDC-";
-    private static final String REQUEST_ID_HEADER = "X-REQUEST-ID";
+
+    /**
+     * This header is added to the request by Caddy. We don't copy it to the response since that is also done by Caddy.
+     * We read it from the request, _only_ to log it.
+     */
+    @SuppressWarnings("UastIncorrectHttpHeaderInspection")
+    public static final String INTERNAL_REQUEST_ID_HEADER = "X-Appsmith-Request-Id";
+
+    public static final String REQUEST_ID_HEADER = "X-Request-Id";
+
+    private static final String REQUEST_ID_LOG = "requestId";
     private static final String SESSION = "SESSION";
 
     @Override
@@ -64,7 +74,18 @@ public class MDCFilter implements WebFilter {
         if (user != null) {
             contextMap.put(USER_EMAIL, user.getEmail());
         }
-        contextMap.put(REQUEST_ID_LOG, getOrCreateRequestId(request));
+
+        final String internalRequestId = request.getHeaders().getFirst(INTERNAL_REQUEST_ID_HEADER);
+        if (!StringUtils.isEmpty(internalRequestId)) {
+            contextMap.put(INTERNAL_REQUEST_ID_HEADER, internalRequestId);
+            contextMap.put(REQUEST_ID_LOG, internalRequestId);
+        }
+
+        final String requestId = request.getHeaders().getFirst(REQUEST_ID_HEADER);
+        if (!StringUtils.isEmpty(requestId)) {
+            contextMap.put(REQUEST_ID_HEADER, requestId);
+        }
+
         contextMap.put(SESSION_ID_LOG, getSessionId(request));
 
         // This is for the initial thread that started the request,
@@ -85,28 +106,21 @@ public class MDCFilter implements WebFilter {
                         return;
                     }
 
+                    final Map<String, String> contextMap = ctx.get(LogHelper.CONTEXT_MAP);
+
                     final HttpHeaders httpHeaders = response.getHeaders();
-                    // Add all the request MDC keys to the response object
-                    ctx.<Map<String, String>>get(LogHelper.CONTEXT_MAP).forEach((key, value) -> {
-                        if (!key.equalsIgnoreCase(USER_EMAIL) && !key.contains(REQUEST_ID_LOG)) {
-                            httpHeaders.add(MDC_HEADER_PREFIX + key, value);
-                        }
-                    });
+                    httpHeaders.set(MDC_HEADER_PREFIX + THREAD, contextMap.get(THREAD));
                 })
                 .then();
     }
 
     private String getSessionId(final ServerHttpRequest request) {
-
-        if (request.getCookies().get(SESSION) != null
-                && !request.getCookies().get(SESSION).isEmpty()) {
-            return request.getCookies().get(SESSION).get(0).getValue();
-        }
-        return "";
+        final HttpCookie cookie = request.getCookies().getFirst(SESSION);
+        return cookie != null ? cookie.getValue() : "";
     }
 
-    private String getOrCreateRequestId(final ServerHttpRequest request) {
-        final String header = request.getHeaders().getFirst(REQUEST_ID_HEADER);
+    private String getOrCreateInternalRequestId(final ServerHttpRequest request) {
+        final String header = request.getHeaders().getFirst(INTERNAL_REQUEST_ID_HEADER);
         if (!StringUtils.isEmpty(header)) {
             return header;
         }

@@ -11,6 +11,7 @@ import {
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../support/Pages/PageList";
 
 describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
   it("1. Navigates to page name clicked from the page name tab of navigate to", () => {
@@ -50,5 +51,35 @@ describe("Navigate To feature", { tags: ["@tag.JS"] }, () => {
       cy.log("deploy url is" + $url);
       expect($url).to.contain("test=123");
     });
+    deployMode.NavigateBacktoEditor();
+    propPane.DeleteWidgetFromPropertyPane("Button1");
+  });
+
+  it("2. Gives error message when invalid word is entered in the url tab of navigate to", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
+    agHelper.GetNClick(propPane._navigateToType("URL"));
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Enter URL"),
+      "wrongPage",
+    );
+    agHelper.ClickButton("Submit");
+    agHelper.ValidateToastMessage("Enter a valid URL or page name");
+    propPane.DeleteWidgetFromPropertyPane("Button1");
+  });
+
+  it("3. Navigates to url entered from the url tab of navigate to", () => {
+    entityExplorer.DragDropWidgetNVerify(draggableWidgets.BUTTON, 300, 300);
+    EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
+    propPane.SelectPlatformFunction("onClick", "Navigate to");
+    agHelper.GetNClick(propPane._navigateToType("URL"));
+    agHelper.TypeText(
+      propPane._actionSelectorFieldByLabel("Enter URL"),
+      "www.google.com",
+    );
+    deployMode.DeployApp();
+    agHelper.ClickButton("Submit");
+    cy.url().should("include", "google.com");
   });
 });
