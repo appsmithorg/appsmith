@@ -3,19 +3,12 @@ import { useDispatch, useSelector } from "react-redux";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/constants";
-import { renderChildWidget } from "layoutSystems/common/utils/canvasUtils";
-import type { WidgetProps } from "widgets/BaseWidget";
-import { getRenderMode } from "selectors/editorSelectors";
-import { denormalize } from "utils/canvasStructureHelpers";
-import type { CanvasWidgetStructure } from "WidgetProvider/constants";
-import { getWidgets } from "sagas/selectors";
 import log from "loglevel";
 import { useEffect, useMemo } from "react";
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
-import {
-  MAIN_CONTAINER_WIDGET_ID,
-  type RenderModes,
-} from "constants/WidgetConstants";
+import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
+import { getCanvasWidgetsStructure } from "@appsmith/selectors/entitiesSelector";
+import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 /**
  * This hook is used to select and focus on a detached widget
  * As detached widgets are outside of the layout flow, we need to access the correct element in the DOM
@@ -64,7 +57,7 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
     };
 
     // Registering and unregistering listeners
-    if (element) {
+    if (element && !isPreviewMode) {
       element.addEventListener("click", handleWidgetSelect, {
         passive: false,
         capture: false,
@@ -114,48 +107,25 @@ export function useAddBordersToDetachedWidgets(widgetId: string) {
  * @param children
  * @returns
  */
-function useDetachedChildren(children: CanvasWidgetStructure[]) {
+export function useDetachedChildren() {
   const start = performance.now();
   // Get all widgets
-  const widgets = useSelector(getWidgets);
+  const widgets = useSelector(getCanvasWidgetsStructure);
+  const currentlyOpenWidgets = useSelector(
+    getCurrentlyOpenAnvilDetachedWidgets,
+  );
   // Filter out the detached children and denormalise each of the detached widgets to generate
   // a DSL like hierarchy
   const detachedChildren = useMemo(() => {
-    return children
-      .map((child) => widgets[child.widgetId])
-      .filter((child) => child.detachFromLayout === true)
-      .map((child) => {
-        return denormalize(child.widgetId, widgets);
-      });
-  }, [children, widgets]);
+    const allChildren = currentlyOpenWidgets.map((widgetId) => {
+      return (
+        widgets.children &&
+        widgets.children.find((each) => each.widgetId === widgetId)
+      );
+    });
+    return allChildren.filter((child) => !!child) as CanvasWidgetStructure[];
+  }, [currentlyOpenWidgets, widgets]);
   const end = performance.now();
   log.debug("### Computing detached children took:", end - start, "ms");
   return detachedChildren;
-}
-
-export function useRenderDetachedChildren(
-  widgetId: string,
-  children: CanvasWidgetStructure[],
-) {
-  const renderMode: RenderModes = useSelector(getRenderMode);
-  // Get the detached children to render on the canvas
-  const detachedChildren = useDetachedChildren(children);
-  let renderDetachedChildren = null;
-  if (widgetId === MAIN_CONTAINER_WIDGET_ID) {
-    renderDetachedChildren = detachedChildren.map((child) =>
-      renderChildWidget({
-        childWidgetData: child as WidgetProps,
-        defaultWidgetProps: {
-          className: `${getAnvilWidgetDOMId(child.widgetId)}`,
-        },
-        noPad: false,
-        // Adding these properties as the type insists on providing this
-        // while it is not required for detached children
-        layoutSystemProps: { parentColumnSpace: 1, parentRowSpace: 1 },
-        renderMode,
-        widgetId: MAIN_CONTAINER_WIDGET_ID,
-      }),
-    );
-  }
-  return renderDetachedChildren;
 }

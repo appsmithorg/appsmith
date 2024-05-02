@@ -58,6 +58,7 @@ export enum ApiContentType {
   JSON = "json",
   FORM_URLENCODED = "x-www-form-urlencoded",
   MULTIPART_FORM_DATA = "multi-part/form-data",
+  BINARY = "application/octet-stream",
   RAW = "text/plain",
 }
 
@@ -72,6 +73,7 @@ export const POST_BODY_FORMAT_OPTIONS: Record<
   JSON: "application/json",
   FORM_URLENCODED: "application/x-www-form-urlencoded",
   MULTIPART_FORM_DATA: "multipart/form-data",
+  BINARY: "application/octet-stream",
   RAW: "text/plain",
 };
 
