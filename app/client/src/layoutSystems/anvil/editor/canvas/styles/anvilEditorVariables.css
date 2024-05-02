@@ -42,6 +42,11 @@
     When any of the above change, the corresponding z-index in the respective component should also be updated.
     ADS modal > ADS on-canvas ui > WDS modal
   */
-  --on-canvas-ui-on-canvas-ui-zindex: 998;
-  --on-canvas-ui-on-canvas-ui-border-radius: 4px;
+  --on-canvas-ui-zindex: 998;
+  --on-canvas-ui-border-radius: 4px;
+
+  --on-canvas-ui-border-width-1: 1px;
+  --on-canvas-ui-border-width-2: 2px;
+
+  --on-canvas-ui-outline-offset: 3px;
 }
