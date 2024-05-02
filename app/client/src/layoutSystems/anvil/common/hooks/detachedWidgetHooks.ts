@@ -32,28 +32,28 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
       // And since the target element is the detached widget, we can
       // be sure that the click happened on the modal widget and not
       // on any of the children. It is now save to select the detached widget
-      if (e.eventPhase === 2) {
-        element?.dispatchEvent(
-          new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
-            bubbles: true,
-            detail: {
-              widgetId,
-              metaKey: e.metaKey,
-              ctrlKey: e.ctrlKey,
-              shiftKey: e.shiftKey,
-            },
-          }),
-        );
-      }
+      element?.dispatchEvent(
+        new CustomEvent(SELECT_ANVIL_WIDGET_CUSTOM_EVENT, {
+          bubbles: true,
+          detail: {
+            widgetId,
+            metaKey: e.metaKey,
+            ctrlKey: e.ctrlKey,
+            shiftKey: e.shiftKey,
+            isDetached: true,
+          },
+        }),
+      );
       e.stopPropagation();
     };
 
     // The handler for focusing on a detached widget
     // It makes sure to check if the app mode is preview or not
     const handleWidgetFocus = (e: any) => {
-      if (e.eventPhase === 2) {
-        !isPreviewMode && dispatch(focusWidget(widgetId));
-      }
+      // In case of a detached widget like (modal widget) fully capture the focus event.
+      e.stopImmediatePropagation();
+      e.preventDefault();
+      !isPreviewMode && dispatch(focusWidget(widgetId));
     };
 
     // Registering and unregistering listeners
@@ -83,9 +83,12 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
  * for the same widgetId
  * @param widgetId The widget ID which needs to be styled
  */
-export function useAddBordersToDetachedWidgets(widgetId: string) {
+export function useAddBordersToDetachedWidgets(
+  widgetId: string,
+  widgetType: string,
+) {
   // Get the styles to be applied
-  const borderStyled = useWidgetBorderStyles(widgetId);
+  const borderStyled = useWidgetBorderStyles(widgetId, widgetType);
 
   // Get the element from the DOM
   const className = getAnvilWidgetDOMId(widgetId);
@@ -96,6 +99,7 @@ export function useAddBordersToDetachedWidgets(widgetId: string) {
   if (element) {
     element.style.outlineOffset = borderStyled.outlineOffset ?? "unset";
     element.style.outline = borderStyled.outline ?? "none";
+    element.style.borderRadius = borderStyled.borderRadius ?? "unset";
   }
 }
 

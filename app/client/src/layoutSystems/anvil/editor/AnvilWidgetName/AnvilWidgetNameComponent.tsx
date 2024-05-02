@@ -8,6 +8,7 @@ import {
   ANVIL_WIDGET_NAME_TOGGLE_PARENT,
 } from "layoutSystems/anvil/common/messages";
 import { createMessage } from "@appsmith/constants/messages";
+import { debugWidget } from "layoutSystems/anvil/integrations/actions";
 
 /**
  *
@@ -47,9 +48,9 @@ export function _AnvilWidgetNameComponent(
     selectWidget(SelectionRequestType.One, [props.widgetId]);
   }, [props.widgetId]);
 
-  const handleMouseOver = useCallback(() => {}, []);
-
-  const handleDebugClick = useCallback(() => {}, []);
+  const handleDebugClick = useCallback(() => {
+    debugWidget(props.widgetId);
+  }, [props.widgetId]);
   /** EO Widget Selection Handlers */
 
   const leftToggle = useMemo(() => {
@@ -75,7 +76,6 @@ export function _AnvilWidgetNameComponent(
       leftToggle={leftToggle}
       onClick={handleSelectWidget}
       onDragStart={props.onDragStart}
-      onMouseOverCapture={handleMouseOver}
       ref={ref}
       rightToggle={rightToggle}
       text={props.name}

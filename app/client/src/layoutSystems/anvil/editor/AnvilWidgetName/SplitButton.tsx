@@ -1,16 +1,11 @@
-import type { ForwardedRef } from "react";
+import type { ForwardedRef, CSSProperties } from "react";
 import React, { forwardRef } from "react";
 import styled from "styled-components";
-import ErrorIcon from "./error.svg";
-import SelectParentIcon from "./up-arrow.svg";
+import { UpArrowSVG } from "./UpArrowIcon";
+import { ErrorSVG } from "./ErrorIcon";
 
-const SplitButtonWrapper = styled.div<{
-  $BGCSSVar: string;
-  $ColorCSSVar: string;
-  $isLeftToggleDisabled: boolean;
-  $isRightToggleDisabled: boolean;
-}>`
-  display: inline-flex;
+const styles: CSSProperties = {
+  display: "inline-flex",
   height: "24px", // This is 2px more than the ones in the designs.
   width: "max-content",
   position: "fixed",
@@ -18,12 +13,18 @@ const SplitButtonWrapper = styled.div<{
   left: 0,
   visibility: "hidden",
   isolation: "isolate",
+};
 
-  border-radius: var(--on-canvas-ui-on-canvas-ui-border-radius);
+const SplitButtonWrapper = styled.div<{
+  $BGCSSVar: string;
+  $ColorCSSVar: string;
+  $isLeftToggleDisabled: boolean;
+  $isRightToggleDisabled: boolean;
+}>`
+  border-radius: var(--on-canvas-ui-border-radius);
   color: var(${(props) => props.$ColorCSSVar});
   fill: var(${(props) => props.$ColorCSSVar});
   stroke: var(${(props) => props.$ColorCSSVar});
-  
 
   touch-action: manipulation;
   user-select: none;
@@ -54,10 +55,10 @@ const SplitButtonWrapper = styled.div<{
     outline-offset: -5px;
     ${(props) =>
       props.$isLeftToggleDisabled &&
-      "border-start-start-radius: var(--on-canvas-ui-on-canvas-ui-border-radius); border-end-start-radius: var(--on-canvas-ui-on-canvas-ui-border-radius);"}
+      "border-start-start-radius: var(--on-canvas-ui-border-radius); border-end-start-radius: var(--on-canvas-ui-border-radius);"}
     ${(props) =>
       props.$isRightToggleDisabled &&
-      "border-end-end-radius: var(--on-canvas-ui-on-canvas-ui-border-radius); border-start-end-radius: var(--on-canvas-ui-on-canvas-ui-border-radius);"}
+      "border-end-end-radius: var(--on-canvas-ui-border-radius); border-start-end-radius: var(--on-canvas-ui-border-radius);"}
   }
 
   & span {
@@ -66,9 +67,9 @@ const SplitButtonWrapper = styled.div<{
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    border-inline-start: var(--on-canvas-ui-on-canvas-ui-border-radius);
-    border-start-start-radius: var(--on-canvas-ui-on-canvas-ui-border-radius);
-    border-end-start-radius: var(--on-canvas-ui-on-canvas-ui-border-radius);
+    border-inline-start: var(--on-canvas-ui-border-radius);
+    border-start-start-radius: var(--on-canvas-ui-border-radius);
+    border-end-start-radius: var(--on-canvas-ui-border-radius);
     background: var(${(props) => props.$BGCSSVar});
     color: var(${(props) => props.$ColorCSSVar});
 
@@ -91,11 +92,11 @@ const SplitButtonWrapper = styled.div<{
   }
 
   & span:nth-of-type(${(props) => (props.$isLeftToggleDisabled ? 1 : 2)}) {
-    border-inline-end: var(--on-canvas-ui-on-canvas-ui-border-radius);
+    border-inline-end: var(--on-canvas-ui-border-radius);
     border-start-start-radius: 0px;
     border-end-start-radius: 0px;
-    border-end-end-radius: var(--on-canvas-ui-on-canvas-ui-border-radius);
-    border-start-end-radius: var(--on-canvas-ui-on-canvas-ui-border-radius);
+    border-end-end-radius: var(--on-canvas-ui-border-radius);
+    border-start-end-radius: var(--on-canvas-ui-border-radius);
   }
 `;
 
@@ -103,7 +104,6 @@ export function _SplitButton(
   props: {
     text: string;
     onClick: React.MouseEventHandler;
-    onMouseOverCapture: React.MouseEventHandler;
     bGCSSVar: string;
     colorCSSVar: string;
     leftToggle: {
@@ -128,8 +128,8 @@ export function _SplitButton(
       $isRightToggleDisabled={props.rightToggle.disable}
       draggable
       onDragStart={props.onDragStart}
-      onMouseMoveCapture={props.onMouseOverCapture}
       ref={ref}
+      style={styles}
     >
       {!props.leftToggle.disable && (
         <span
@@ -138,7 +138,7 @@ export function _SplitButton(
           onClick={props.leftToggle.onClick}
           title={props.leftToggle.title}
         >
-          {SelectParentIcon}
+          <UpArrowSVG />
         </span>
       )}
       <button onClick={props.onClick}>{props.text}</button>
@@ -149,7 +149,7 @@ export function _SplitButton(
           onClick={props.rightToggle.onClick}
           title={props.rightToggle.title}
         >
-          {ErrorIcon}
+          <ErrorSVG />
         </span>
       )}
     </SplitButtonWrapper>

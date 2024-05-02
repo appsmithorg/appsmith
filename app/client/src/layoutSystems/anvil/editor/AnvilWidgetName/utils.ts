@@ -92,8 +92,8 @@ export function handleWidgetUpdate(
             : "visible",
         zIndex:
           nameComponentState === "focus"
-            ? "calc(var(--on-canvas-ui-on-canvas-ui-zindex) + 1)"
-            : "var(--on-canvas-ui-on-canvas-ui-zindex)",
+            ? "calc(var(--on-canvas-ui-zindex) + 1)"
+            : "var(--on-canvas-ui-zindex)",
       });
     });
   });

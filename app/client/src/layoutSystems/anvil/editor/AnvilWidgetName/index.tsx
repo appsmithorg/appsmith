@@ -14,7 +14,7 @@ import { AnvilWidgetNameComponent } from "./AnvilWidgetNameComponent";
 import { getWidgetErrorCount, shouldSelectOrFocus } from "./selectors";
 import type { NameComponentStates } from "./types";
 
-export function AnilWidgetName(props: {
+export function AnvilWidgetName(props: {
   widgetId: string;
   widgetName: string;
   parentId?: string;
