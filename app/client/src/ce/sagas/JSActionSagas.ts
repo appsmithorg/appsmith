@@ -13,6 +13,8 @@ import {
 } from "actions/pluginActionActions";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
+  closeJSActionTab,
+  closeJsActionTabSuccess,
   copyJSCollectionError,
   copyJSCollectionSuccess,
   createJSCollectionSuccess,
@@ -78,7 +80,6 @@ import type {
   TriggerSource,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { TMessage } from "utils/MessageUtil";
-import { closeJSActionTab, closeJsActionTabSuccess } from "actions/ideActions";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,

@@ -1,8 +1,6 @@
-import type {
-  EvaluationReduxAction,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
 import {
+  type EvaluationReduxAction,
+  type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
@@ -165,4 +163,19 @@ export default {
   fetchJSCollections,
   deleteJSCollection,
   deleteJSCollectionSuccess,
+};
+export const closeJSActionTab = (payload: { id: string; parentId: string }) => {
+  return {
+    type: ReduxActionTypes.CLOSE_JS_ACTION_TAB,
+    payload,
+  };
+};
+export const closeJsActionTabSuccess = (payload: {
+  id: string;
+  parentId: string;
+}) => {
+  return {
+    type: ReduxActionTypes.CLOSE_JS_ACTION_TAB_SUCCESS,
+    payload,
+  };
 };

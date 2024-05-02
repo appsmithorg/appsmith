@@ -25,9 +25,11 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
-import type {
-  FetchActionsPayload,
-  SetActionPropertyPayload,
+import {
+  closeQueryActionTab,
+  closeQueryActionTabSuccess,
+  type FetchActionsPayload,
+  type SetActionPropertyPayload,
 } from "actions/pluginActionActions";
 import {
   copyActionError,
@@ -143,8 +145,6 @@ import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import {
   setIdeEditorViewMode,
   setShowQueryCreateNewModal,
-  closeQueryActionTabSuccess,
-  closeQueryActionTab,
 } from "actions/ideActions";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
