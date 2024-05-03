@@ -9,7 +9,7 @@ import java.util.Base64;
 import static com.appsmith.external.git.constants.SSHConstants.RSA_TYPE;
 
 public class CryptoUtil {
-    public static RSAPublicKeySpec decodeOpenSSHRSAm(byte[] input) {
+    public static RSAPublicKeySpec decodeOpenSSHRSA(byte[] input) {
         String[] fields = new String(input, StandardCharsets.US_ASCII).split(" ");
         if ((fields.length < 2) || (!fields[0].equals(RSA_TYPE)))
             throw new IllegalArgumentException("Unsupported type");
