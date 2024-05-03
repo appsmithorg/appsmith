@@ -50,8 +50,6 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Layout createDefaultLayout();
 
-    Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view);
-
     Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission permission, Boolean view);
 
