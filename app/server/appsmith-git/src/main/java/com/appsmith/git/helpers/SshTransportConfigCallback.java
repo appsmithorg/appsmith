@@ -1,6 +1,7 @@
 package com.appsmith.git.helpers;
 
-import com.appsmith.util.CryptoUtil;
+import com.appsmith.external.git.utils.CryptoUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
 import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil;
 import org.bouncycastle.jcajce.spec.OpenSSHPublicKeySpec;
@@ -23,6 +24,10 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.Base64;
 import java.util.List;
 
+import static com.appsmith.external.git.constants.SSHConstants.ECDSA_KEY_FACTORY_IDENTIFIER_BC;
+import static com.appsmith.external.git.constants.SSHConstants.RSA_KEY_FACTORY_IDENTIFIER;
+import static com.appsmith.external.git.constants.SSHConstants.RSA_TYPE;
+
 /**
  * A custom TransportConfigCallback class that loads private key and public key from the provided strings in constructor.
  * An instance of this class will be used as follows:
@@ -33,6 +38,7 @@ import java.util.List;
  * .setTransportConfigCallback(transportConfigCallback)
  * .call();
  */
+@Slf4j
 public class SshTransportConfigCallback implements TransportConfigCallback {
     private String privateKey;
     private String publicKey;
@@ -50,18 +56,18 @@ public class SshTransportConfigCallback implements TransportConfigCallback {
             try {
                 KeyPair keyPair;
 
-                if (publicKey.startsWith("ssh-rsa")) {
-                    KeyFactory keyFactory = null;
-                    keyFactory = KeyFactory.getInstance("RSA");
+                if (publicKey.startsWith(RSA_TYPE)) {
+                    KeyFactory keyFactory = KeyFactory.getInstance(RSA_KEY_FACTORY_IDENTIFIER);
 
                     PublicKey generatedPublicKey =
-                            keyFactory.generatePublic(CryptoUtil.decodeOpenSSH(publicKey.getBytes()));
+                            keyFactory.generatePublic(CryptoUtil.decodeOpenSSHRSA(publicKey.getBytes()));
                     PKCS8EncodedKeySpec privateKeySpec =
                             new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKey));
                     PrivateKey generatedPrivateKey = keyFactory.generatePrivate(privateKeySpec);
                     keyPair = new KeyPair(generatedPublicKey, generatedPrivateKey);
                 } else {
-                    KeyFactory keyFactory = KeyFactory.getInstance("ECDSA", new BouncyCastleProvider());
+                    KeyFactory keyFactory =
+                            KeyFactory.getInstance(ECDSA_KEY_FACTORY_IDENTIFIER_BC, new BouncyCastleProvider());
                     String[] fields = publicKey.split(" ");
                     AsymmetricKeyParameter keyParameter = OpenSSHPublicKeyUtil.parsePublicKey(
                             Base64.getDecoder().decode(fields[1].getBytes()));
@@ -76,6 +82,7 @@ public class SshTransportConfigCallback implements TransportConfigCallback {
 
                 return List.of(keyPair);
             } catch (NoSuchAlgorithmException | InvalidKeySpecException | IOException e) {
+                log.debug("Error while associating keys for signing: ", e);
                 throw new RuntimeException(e);
             }
         }

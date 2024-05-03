@@ -19,6 +19,11 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import static com.appsmith.external.git.constants.SSHConstants.ECDSA_KEY_FACTORY_IDENTIFIER;
+import static com.appsmith.external.git.constants.SSHConstants.ECDSA_TYPE_PREFIX;
+import static com.appsmith.external.git.constants.SSHConstants.RSA_KEY_FACTORY_IDENTIFIER;
+import static com.appsmith.external.git.constants.SSHConstants.RSA_TYPE_PREFIX;
+
 @Slf4j
 public class GitDeployKeyGenerator {
     public enum supportedProtocols {
@@ -51,19 +56,19 @@ public class GitDeployKeyGenerator {
 
         try {
             if (!StringUtils.isEmpty(keyType) && keyType.equals(supportedProtocols.RSA.name())) {
-                alg = "RSA";
+                alg = RSA_KEY_FACTORY_IDENTIFIER;
                 keySize = supportedProtocols.RSA.key_size;
                 try {
                     keyPair = getKeyPair(alg, keySize);
-                    publicKey = writeJavaPublicKeyToSSH2(keyPair.getPublic(), "ssh-rsa ");
+                    publicKey = writeJavaPublicKeyToSSH2(keyPair.getPublic(), RSA_TYPE_PREFIX);
                 } catch (NoSuchAlgorithmException e) {
                     throw new RuntimeException(e);
                 }
             } else {
-                alg = "EC";
+                alg = ECDSA_KEY_FACTORY_IDENTIFIER;
                 keySize = supportedProtocols.ECDSA.key_size;
                 keyPair = getKeyPair(alg, keySize);
-                publicKey = writeJavaPublicKeyToSSH2(keyPair.getPublic(), "ecdsa-sha2-nistp256 ");
+                publicKey = writeJavaPublicKeyToSSH2(keyPair.getPublic(), ECDSA_TYPE_PREFIX);
             }
         } catch (NoSuchAlgorithmException | IOException e) {
             throw new RuntimeException(e);
