@@ -16,7 +16,6 @@ import {
 import {
   getCurrentApplicationId,
   getCurrentPageId,
-  getCurrentPageName,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
 import {
@@ -98,7 +97,6 @@ import {
 } from "@appsmith/utils/actionExecutionUtils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
-import { logActionExecutionForAudit } from "@appsmith/actions/auditLogsAction";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
 import { getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { setIdeEditorViewMode } from "actions/ideActions";
