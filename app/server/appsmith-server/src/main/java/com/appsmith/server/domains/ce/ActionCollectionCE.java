@@ -9,6 +9,8 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
@@ -47,6 +49,7 @@ public class ActionCollectionCE extends BranchAwareDomain {
     ActionCollectionDTO publishedCollection;
 
     @JsonView(Views.Public.class)
+    @Enumerated(EnumType.STRING)
     CreatorContextType contextType;
 
     @Override

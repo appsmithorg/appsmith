@@ -4,6 +4,8 @@ import com.appsmith.external.helpers.CustomJsonType;
 import com.appsmith.external.models.BaseDomain;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -30,6 +32,7 @@ public class Tenant extends BaseDomain {
     @Transient
     String instanceId;
 
+    @Enumerated(EnumType.STRING)
     PricingPlan pricingPlan;
 
     @Type(CustomJsonType.class)
