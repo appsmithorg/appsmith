@@ -214,10 +214,10 @@ export class GracefulWorkerService {
 
       const completeWebworkerComputationRoot = startRootSpan(
         "completeWebworkerComputationRoot",
-        { method },
+        undefined,
         startTime,
       );
-
+      completeWebworkerComputationRoot?.setAttribute("taskType", method);
       completeWebworkerComputationRoot?.end(endTime);
 
       rootSpan &&
