@@ -32,7 +32,6 @@ export interface JSExecutionData {
   data: unknown;
   collectionId: string;
   actionId: string;
-  testPayload?: unknown;
 }
 
 export interface JSExecutionError {

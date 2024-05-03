@@ -100,8 +100,8 @@ export const getTestPayloadFromCollectionData = (
 ): string => {
   if (!collectionData) return "";
   const activeJSActionId = collectionData?.activeJSActionId;
-  const testPayload: Record<string, unknown> | undefined =
-    collectionData?.data?.testPayload || {};
+  const testPayload: Record<string, unknown> | undefined = collectionData?.data
+    ?.testPayload as Record<string, unknown>;
   if (!activeJSActionId || !testPayload) return "";
   return (testPayload[activeJSActionId] as string) || "";
 };
