@@ -506,7 +506,7 @@ export function* closeJSActionTabSaga(
 export function* fetchStoredTestPayloadsSaga(collections: JSCollection[]) {
   try {
     //fetch stored test payloads for all collections
-    const storedPayloads: Record<string, any> | null =
+    const storedPayloads: Record<string, unknown> | null =
       yield getAllActionTestPayloads();
     if (!!storedPayloads && collections.length > 0) {
       for (const collection of collections) {
