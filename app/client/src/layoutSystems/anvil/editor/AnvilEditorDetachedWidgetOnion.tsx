@@ -22,7 +22,7 @@ import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
 export const AnvilEditorDetachedWidgetOnion = (props: BaseWidgetProps) => {
   useObserveDetachedWidget(props.widgetId);
   useHandleDetachedWidgetSelect(props.widgetId);
-  useAddBordersToDetachedWidgets(props.widgetId);
+  useAddBordersToDetachedWidgets(props.widgetId, props.type);
 
   return props.type !== SKELETON_WIDGET_TYPE ? (
     <AnvilErrorBoundary {...props}>{props.children}</AnvilErrorBoundary>
