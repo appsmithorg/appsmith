@@ -129,21 +129,19 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         }
 
         final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-        final CriteriaQuery<Tenant> cq = cb.createQuery(Tenant.class);
+        final CriteriaQuery<String> cq = cb.createQuery(String.class);
         final Root<Tenant> root = cq.from(Tenant.class);
 
         cq.where(cb.equal(root.get(Tenant.Fields.slug), FieldName.DEFAULT));
         cq.select(root.get(Tenant.Fields.id));
 
-        final Tenant defaultTenant = entityManager.createQuery(cq).getSingleResult();
+        final String id = entityManager.createQuery(cq).getSingleResult();
 
-        if (defaultTenant != null) {
-            final String id = defaultTenant.getId();
+        if (id != null) {
             inMemoryCacheableRepositoryHelper.setDefaultTenantId(id);
-            return Mono.just(id);
         }
 
-        return Mono.empty();
+        return Mono.justOrEmpty(id);
     }
 
     @Override
