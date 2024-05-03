@@ -40,7 +40,6 @@ import {
   DELETE_WORKSPACE_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { toast } from "design-system";
-import { resetSearchEntity } from "@appsmith/actions/workspaceActions";
 import { failFastApiCalls } from "sagas/InitSagas";
 import { getWorkspaceEntitiesActions } from "@appsmith/utils/workspaceHelpers";
 import type { SearchApiResponse } from "@appsmith/types/ApiResponseTypes";
@@ -403,10 +402,6 @@ export function* deleteWorkspaceLogoSaga(action: ReduxAction<{ id: string }>) {
 }
 
 export function* searchWorkspaceEntitiesSaga(action: ReduxAction<any>) {
-  if (!action?.payload || !action?.payload?.trim()) {
-    yield put(resetSearchEntity());
-    return;
-  }
   try {
     const response: SearchApiResponse = yield call(
       SearchApi.searchAllEntities,

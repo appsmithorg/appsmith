@@ -40,7 +40,6 @@ const DesktopEntitySearchField = (props: any) => {
     applicationsList,
     handleSearchInput,
     isDropdownOpen,
-    isFetchingApplications,
     isFetchingEntities,
     navigateToApplication,
     noSearchResults,
@@ -60,15 +59,18 @@ const DesktopEntitySearchField = (props: any) => {
     <SearchContainer isMobile={isMobile}>
       <SearchInput
         data-testid="t--application-search-input"
-        isDisabled={isFetchingApplications}
         onChange={handleSearchInput}
         placeholder={""}
         ref={searchInputRef}
         value={searchInput}
       />
-      {(isDropdownOpen || isFetchingEntities) && (
+      {isDropdownOpen && (
         <SearchListContainer ref={searchListContainerRef}>
-          {noSearchResults && !isFetchingEntities && (
+          {isFetchingEntities ? (
+            <div className="search-loader">
+              <Spinner />
+            </div>
+          ) : noSearchResults ? (
             <div className="no-search-results text-center py-[52px]">
               <Icon
                 className="mb-2"
@@ -82,11 +84,6 @@ const DesktopEntitySearchField = (props: any) => {
               <Text className="!mb-1 !block" kind="body-m">
                 Please try again with a <br /> different search query
               </Text>
-            </div>
-          )}
-          {isFetchingEntities ? (
-            <div className="search-loader">
-              <Spinner />
             </div>
           ) : (
             <>
