@@ -51,6 +51,7 @@ describe("Property Pane Suggestions", { tags: ["@tag.JS"] }, () => {
     // Navigate to table and open slash menu command
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.ToggleJSMode("Table data", true);
+    propPane.UpdatePropertyFieldValue("Table data", "");
     propPane.FocusIntoTextField("Table data");
     agHelper.GetElementsNAssertTextPresence(locators._hints, "Add a binding");
 
