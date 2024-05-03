@@ -298,21 +298,13 @@ export class LightModeTheme implements ColorModeTheme {
     return color;
   }
 
-  private get bgNeutralOpacity() {
-    const color = this.bgNeutral.clone();
-
-    color.alpha = 0.5;
-
-    return color;
-  }
-
   private get bgNeutral() {
     // Low chroma, but not 0, if possible, to produce harmony with accents in the UI
     const color = this.bgAccent.clone();
 
     // For bright accents it helps to make neutral a bit darker to differentiate with bgAccent
     if (this.bgAccent.oklch.l >= 0.85) {
-      color.oklch.l -= 0.02;
+      color.oklch.l -= 0.2;
     }
 
     if (this.bgAccent.oklch.l > 0.25 && this.bgAccent.oklch.l < 0.85) {
@@ -329,6 +321,19 @@ export class LightModeTheme implements ColorModeTheme {
 
     if (!this.seedIsCold && !this.seedIsAchromatic) {
       color.oklch.c = 0.001;
+    }
+
+    return color;
+  }
+
+  private get bgNeutralOpacity() {
+    // Overlay behind modal dialogue
+    const color = this.bgNeutral.clone();
+
+    color.alpha = 0.5;
+
+    if (color.oklch.l > 0.15) {
+      color.oklch.l = 0.15;
     }
 
     return color;

@@ -7,6 +7,7 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.services.CrudService;
 import org.springframework.http.codec.multipart.Part;
+import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,21 +17,17 @@ import java.util.Optional;
 
 public interface ApplicationServiceCE extends CrudService<Application, String> {
 
+    Flux<Application> get(MultiValueMap<String, String> params);
+
     Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName);
 
     Mono<Application> findById(String id);
 
     Mono<Application> findById(String id, AclPermission aclPermission);
 
-    Mono<Application> findById(String id, Optional<AclPermission> aclPermission);
-
-    Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
-
     Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
 
     Flux<Application> findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(String workspaceId);
-
-    Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
 
     Mono<Application> findByName(String name, AclPermission permission);
 
