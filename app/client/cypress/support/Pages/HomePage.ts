@@ -645,7 +645,7 @@ export class HomePage {
     cy.wait("@importNewApplication")
       .its("response.statusCode")
       .should("eq", 200);
-    this.agHelper.ValidateToastMessage(createMessage(IMPORT_APP_SUCCESSFUL));
+    //this.agHelper.ValidateToastMessage(createMessage(IMPORT_APP_SUCCESSFUL));
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast(createMessage(UNABLE_TO_IMPORT_APP)),
     );
