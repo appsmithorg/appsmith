@@ -14,6 +14,7 @@ import type { DataTreeEntityConfig } from "@appsmith/entities/DataTree/types";
 import type { DataTreeEntity } from "entities/DataTree/dataTreeTypes";
 import { getType, Types } from "./TypeHelpers";
 import { ViewTypes } from "components/formControls/utils";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 
 export type DependencyMap = Record<string, Array<string>>;
 export type FormEditorConfigs = Record<string, any[]>;
@@ -587,4 +588,46 @@ export function getEntityName(
   if (isAction(entity)) return entityConfig.name;
   if (isWidget(entity)) return entity.widgetName;
   if (isJSAction(entity)) return entityConfig.name;
+}
+
+export function updateDynamicPathList(
+  widget: FlattenedWidgetProps,
+  oldWidgetName: string,
+  newWidgetName: string,
+) {
+  widget.dynamicBindingPathList = (widget.dynamicBindingPathList || []).map(
+    (path: any) => {
+      if (path.key.startsWith(`template.${oldWidgetName}`)) {
+        return {
+          key: path.key.replace(
+            `template.${oldWidgetName}`,
+            `template.${newWidgetName}`,
+          ),
+        };
+      }
+
+      return path;
+    },
+  );
+}
+
+export function updateDynamicTriggerPathList(
+  widget: FlattenedWidgetProps,
+  oldWidgetName: string,
+  newWidgetName: string,
+) {
+  widget.dynamicTriggerPathList = (widget.dynamicTriggerPathList || []).map(
+    (path: any) => {
+      if (path.key.startsWith(`template.${oldWidgetName}`)) {
+        return {
+          key: path.key.replace(
+            `template.${oldWidgetName}`,
+            `template.${newWidgetName}`,
+          ),
+        };
+      }
+
+      return path;
+    },
+  );
 }

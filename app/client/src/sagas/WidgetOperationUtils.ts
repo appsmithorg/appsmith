@@ -23,6 +23,7 @@ import {
   getStickyCanvasName,
 } from "constants/componentClassNameConstants";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import {
   getWidgetLayoutMetaInfo,
   type WidgetLayoutPositionInfo,
@@ -54,12 +55,17 @@ import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
   combineDynamicBindings,
   getDynamicBindings,
+  updateDynamicPathList,
 } from "utils/DynamicBindingUtils";
 import { areIntersecting } from "utils/boxHelpers";
 import { generateReactKey } from "utils/generators";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { getCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
+import {
+  handleImageWidgetWhenPasting,
+  handleTextWidgetWhenPasting,
+} from "./PasteWidgetUtils";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import {
   getFocusedWidget,
@@ -67,7 +73,6 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -226,36 +231,9 @@ export const handleSpecificCasesWhilePasting = (
       }
 
       // updating dynamicBindingPath in copied widget if the copied widget thas reference to oldWidgetNames
-      widget.dynamicBindingPathList = (widget.dynamicBindingPathList || []).map(
-        (path: any) => {
-          if (path.key.startsWith(`template.${oldWidgetName}`)) {
-            return {
-              key: path.key.replace(
-                `template.${oldWidgetName}`,
-                `template.${newWidgetName}`,
-              ),
-            };
-          }
-
-          return path;
-        },
-      );
-
+      updateDynamicPathList(widget, oldWidgetName, newWidgetName);
       // updating dynamicTriggerPath in copied widget if the copied widget thas reference to oldWidgetNames
-      widget.dynamicTriggerPathList = (widget.dynamicTriggerPathList || []).map(
-        (path: any) => {
-          if (path.key.startsWith(`template.${oldWidgetName}`)) {
-            return {
-              key: path.key.replace(
-                `template.${oldWidgetName}`,
-                `template.${newWidgetName}`,
-              ),
-            };
-          }
-
-          return path;
-        },
-      );
+      updateDynamicPathList(widget, oldWidgetName, newWidgetName);
     });
 
     widgets[widget.widgetId] = widget;
@@ -282,6 +260,10 @@ export const handleSpecificCasesWhilePasting = (
         _.set(widgets[copyWidget.widgetId], "onClick", newOnClick);
       }
     });
+  } else if (widget?.type === "TEXT_WIDGET") {
+    handleTextWidgetWhenPasting(widgetNameMap, widget);
+  } else if (widget?.type === "IMAGE_WIDGET") {
+    handleImageWidgetWhenPasting(widgetNameMap, widget);
   }
 
   widgets = handleListWidgetV2Pasting(widget, widgets, widgetNameMap);
