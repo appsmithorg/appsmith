@@ -72,7 +72,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -165,49 +164,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
         return repository.findByEmailAndTenantId(email, tenantId);
-    }
-
-    /**
-     * This function switches the user's currentWorkspace in the User collection in the DB. This means that on subsequent
-     * logins, the user will see applications for their last used workspace.
-     *
-     * @param workspaceId
-     * @return
-     */
-    @Override
-    public Mono<User> switchCurrentWorkspace(String workspaceId) {
-        if (workspaceId == null || workspaceId.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspaceId"));
-        }
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap(user -> repository.findByEmail(user.getUsername()))
-                .flatMap(user -> {
-                    log.debug("Going to set workspaceId: {} for user: {}", workspaceId, user.getId());
-
-                    if (user.getCurrentWorkspaceId().equals(workspaceId)) {
-                        return Mono.just(user);
-                    }
-
-                    Set<String> workspaceIds = user.getWorkspaceIds();
-                    if (workspaceIds == null || workspaceIds.isEmpty()) {
-                        return Mono.error(
-                                new AppsmithException(AppsmithError.USER_DOESNT_BELONG_ANY_WORKSPACE, user.getId()));
-                    }
-
-                    Optional<String> maybeWorkspaceId = workspaceIds.stream()
-                            .filter(workspaceId1 -> workspaceId1.equals(workspaceId))
-                            .findFirst();
-
-                    if (maybeWorkspaceId.isPresent()) {
-                        user.setCurrentWorkspaceId(maybeWorkspaceId.get());
-                        return repository.save(user);
-                    }
-
-                    // Throw an exception if the workspaceId is not part of the user's workspaces
-                    return Mono.error(new AppsmithException(
-                            AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), workspaceId));
-                });
     }
 
     /**

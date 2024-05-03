@@ -50,7 +50,7 @@
                   "bottomRow": 1,
                   "parentId": "yyyrxs383y",
                   "widgetId": "kxdvolusyp",
-                  "onClick": "{{closeModal('Modal1')}}"
+                  "onClick": "{{closeModal(Modal1.name)}}"
                 },
                 {
                   "isVisible": true,

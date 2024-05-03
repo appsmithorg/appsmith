@@ -92,7 +92,7 @@ describe("JS to non-JS mode in Action Selector", { tags: ["@tag.JS"] }, () => {
     EditorNavigation.SelectEntityByName("Button1", EntityType.Widget);
     propPane.EnterJSContext(
       "onClick",
-      `{{Api1.run().then(() => { showAlert('Hello world!', 'info'); storeValue('a', 18); }).catch(() => { showModal('Modal1'); });}}`,
+      `{{Api1.run().then(() => { showAlert('Hello world!', 'info'); storeValue('a', 18); }).catch(() => { showModal(Modal1.name); });}}`,
       true,
       false,
     );
