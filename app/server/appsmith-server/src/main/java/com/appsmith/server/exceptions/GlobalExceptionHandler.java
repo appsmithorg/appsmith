@@ -29,7 +29,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.support.WebExchangeBindException;
-import org.springframework.web.server.MethodNotAllowedException;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.ServerWebInputException;
 import reactor.core.publisher.Mono;
@@ -278,19 +278,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     @ResponseBody
-    public Mono<ResponseDTO<ErrorDTO>> catchMethodNotAllowed(MethodNotAllowedException e, ServerWebExchange exchange) {
-        AppsmithError appsmithError = AppsmithError.HTTP_METHOD_NOT_ALLOWED;
-
-        exchange.getResponse().setStatusCode(HttpStatus.resolve(appsmithError.getHttpErrorCode()));
+    public Mono<ResponseDTO<ErrorDTO>> catchMethodNotAllowed(ResponseStatusException e, ServerWebExchange exchange) {
+        exchange.getResponse().setStatusCode(e.getStatusCode());
 
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(
-                appsmithError.getHttpErrorCode(),
-                new ErrorDTO(
-                        appsmithError.getAppErrorCode(),
-                        appsmithError.getErrorType(),
-                        appsmithError.getMessage(e.getMessage()),
-                        appsmithError.getTitle()));
+        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(e.getStatusCode().value(), null, e.getMessage(), false);
 
         return getResponseDTOMono(urlPath, response);
     }
