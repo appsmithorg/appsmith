@@ -467,16 +467,6 @@ export function* handleExecuteJSFunctionSaga(data: {
     });
 
     if (localExecutionAllowed) {
-      yield put(
-        logActionExecutionForAudit({
-          actionName: action.name,
-          actionId: action.id,
-          collectionId: collectionId,
-          pageId: action.pageId,
-          pageName: yield select(getCurrentPageName),
-        }),
-      );
-
       AppsmithConsole.info({
         text: createMessage(JS_EXECUTION_SUCCESS),
         source: {
