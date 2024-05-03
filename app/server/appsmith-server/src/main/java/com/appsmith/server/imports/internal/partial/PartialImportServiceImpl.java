@@ -10,6 +10,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -59,8 +60,9 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
             ApplicationTemplateService applicationTemplateService,
             WidgetRefactorUtil widgetRefactorUtil,
             ApplicationPageService applicationPageService,
-            NewActionService newActionService,
-            ActionCollectionService actionCollectionService) {
+            UpdateLayoutService layoutService,
+            ActionCollectionService actionCollectionService,
+            NewActionService newActionService) {
         super(
                 importService,
                 workspaceService,
@@ -85,7 +87,8 @@ public class PartialImportServiceImpl extends PartialImportServiceCEImpl impleme
                 applicationTemplateService,
                 widgetRefactorUtil,
                 applicationPageService,
-                newActionService,
-                actionCollectionService);
+                layoutService,
+                actionCollectionService,
+                newActionService);
     }
 }

@@ -13,4 +13,6 @@ public class BuildingBlockImportDTO {
     String widgetDsl;
 
     Map<String, String> refactoredEntityNameMap;
+
+    String branchedPageId;
 }

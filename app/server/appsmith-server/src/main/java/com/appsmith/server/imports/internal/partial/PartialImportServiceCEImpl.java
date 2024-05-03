@@ -27,6 +27,7 @@ import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ImportArtifactPermissionProvider;
 import com.appsmith.server.imports.importable.ImportableService;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.refactors.applications.RefactoringService;
@@ -53,10 +54,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
-import java.util.Optional;
-import java.util.Set;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -87,8 +85,9 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     private final ApplicationTemplateService applicationTemplateService;
     private final WidgetRefactorUtil widgetRefactorUtil;
     private final ApplicationPageService applicationPageService;
-    private final NewActionService newActionService;
+    private final UpdateLayoutService updateLayoutService;
     private final ActionCollectionService actionCollectionService;
+    private final NewActionService newActionService;
 
     @Override
     public Mono<Application> importResourceInPage(
@@ -124,8 +123,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             ApplicationJson applicationJson) {
         MappedImportableResourcesDTO mappedImportableResourcesDTO = new MappedImportableResourcesDTO();
 
-        Mono<String> branchedPageIdMono =
-                newPageService.findBranchedPageId(branchName, pageId, AclPermission.MANAGE_PAGES);
+        BuildingBlockImportDTO buildingBlockImportDTO = new BuildingBlockImportDTO();
 
         Mono<User> currUserMono = sessionUserService.getCurrentUser();
 
@@ -167,24 +165,28 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                     permissionProvider.getRequiredPermissionOnTargetApplication())
                             .cache();
 
-                    return newPageService
+                    Mono<NewPage> branchedPageMono = newPageService
                             .findByBranchNameAndDefaultPageId(branchName, pageId, AclPermission.MANAGE_PAGES)
+                            .cache();
+
+                    return branchedPageMono
                             .flatMap(page -> {
                                 Layout layout =
                                         page.getUnpublishedPage().getLayouts().get(0);
-                                return refactoringService.getAllExistingEntitiesMono(
-                                        page.getId(), CreatorContextType.PAGE, layout.getId(), false);
-                            })
-                            .flatMap(nameSet -> {
-                                // Fetch name of the existing resources in the page to avoid name clashing
-                                Map<String, String> nameMap =
-                                        nameSet.stream().collect(Collectors.toMap(name -> name, name -> name));
-                                mappedImportableResourcesDTO.setRefactoringNameReference(nameMap);
-                                return importedApplicationMono;
-                            })
-                            .flatMap(application -> {
-                                applicationJson.setExportedApplication(application);
-                                return Mono.just(applicationJson);
+                                return refactoringService
+                                        .getAllExistingEntitiesMono(
+                                                page.getId(), CreatorContextType.PAGE, layout.getId(), false)
+                                        .flatMap(nameSet -> {
+                                            // Fetch name of the existing resources in the page to avoid name clashing
+                                            Map<String, String> nameMap = nameSet.stream()
+                                                    .collect(Collectors.toMap(name -> name, name -> name));
+                                            mappedImportableResourcesDTO.setRefactoringNameReference(nameMap);
+                                            return importedApplicationMono;
+                                        })
+                                        .flatMap(application -> {
+                                            applicationJson.setExportedApplication(application);
+                                            return Mono.just(applicationJson);
+                                        });
                             })
                             // Import Custom Js Lib and Datasource
                             .then(getApplicationImportableEntities(
@@ -196,7 +198,7 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                             .thenReturn("done")
                             // Update the pageName map for actions and action collection
                             .then(paneNameMapForActionAndActionCollectionInAppJson(
-                                    branchedPageIdMono, applicationJson, mappedImportableResourcesDTO))
+                                    branchedPageMono, applicationJson, mappedImportableResourcesDTO))
                             .thenReturn("done")
                             // Import Actions and action collection
                             .then(getActionAndActionCollectionImport(
@@ -277,7 +279,6 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                     FieldName.APPLICATION_ID, application.getId(),
                     FieldName.WORKSPACE_ID, application.getWorkspaceId(),
                     FieldName.EVENT_DATA, eventData);
-            BuildingBlockImportDTO buildingBlockImportDTO = new BuildingBlockImportDTO();
             buildingBlockImportDTO.setApplication(application);
             buildingBlockImportDTO.setWidgetDsl(applicationJson.getWidgets());
             buildingBlockImportDTO.setRefactoredEntityNameMap(
@@ -359,51 +360,49 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
     }
 
     private Mono<String> paneNameMapForActionAndActionCollectionInAppJson(
-            Mono<String> branchedPageIdMono,
+            Mono<NewPage> branchedPageIdMono,
             ApplicationJson applicationJson,
             MappedImportableResourcesDTO mappedImportableResourcesDTO) {
-        return branchedPageIdMono.flatMap(
-                pageId -> newPageService.findById(pageId, Optional.empty()).flatMap(newPage -> {
-                    String pageName = newPage.getUnpublishedPage().getName();
-                    // update page name reference with newPage
-                    Map<String, NewPage> pageNameMap = new HashMap<>();
-                    pageNameMap.put(pageName, newPage);
-                    mappedImportableResourcesDTO.setContextMap(pageNameMap);
+        return branchedPageIdMono.flatMap(newPage -> {
+            String pageName = newPage.getUnpublishedPage().getName();
+            // update page name reference with newPage
+            Map<String, NewPage> pageNameMap = new HashMap<>();
+            pageNameMap.put(pageName, newPage);
+            mappedImportableResourcesDTO.setContextMap(pageNameMap);
 
-                    if (applicationJson.getActionList() == null) {
-                        return Mono.just(pageName);
-                    }
+            if (applicationJson.getActionList() == null) {
+                return Mono.just(pageName);
+            }
 
-                    applicationJson.getActionList().forEach(action -> {
-                        action.getPublishedAction().setPageId(pageName);
-                        action.getUnpublishedAction().setPageId(pageName);
-                        if (action.getPublishedAction().getCollectionId() != null) {
-                            String collectionName = action.getPublishedAction()
-                                    .getCollectionId()
-                                    .split("_")[1];
-                            action.getPublishedAction().setCollectionId(pageName + "_" + collectionName);
-                            action.getUnpublishedAction().setCollectionId(pageName + "_" + collectionName);
-                        }
+            applicationJson.getActionList().forEach(action -> {
+                action.getPublishedAction().setPageId(pageName);
+                action.getUnpublishedAction().setPageId(pageName);
+                if (action.getPublishedAction().getCollectionId() != null) {
+                    String collectionName =
+                            action.getPublishedAction().getCollectionId().split("_")[1];
+                    action.getPublishedAction().setCollectionId(pageName + "_" + collectionName);
+                    action.getUnpublishedAction().setCollectionId(pageName + "_" + collectionName);
+                }
 
-                        String actionName = action.getId().split("_")[1];
-                        action.setId(pageName + "_" + actionName);
-                        action.setGitSyncId(null);
-                    });
+                String actionName = action.getId().split("_")[1];
+                action.setId(pageName + "_" + actionName);
+                action.setGitSyncId(null);
+            });
 
-                    if (applicationJson.getActionCollectionList() == null) {
-                        return Mono.just(pageName);
-                    }
-                    applicationJson.getActionCollectionList().forEach(actionCollection -> {
-                        actionCollection.getUnpublishedCollection().setPageId(pageName);
-                        if (actionCollection.getPublishedCollection() != null) {
-                            actionCollection.getPublishedCollection().setPageId(pageName);
-                        }
-                        String collectionName = actionCollection.getId().split("_")[1];
-                        actionCollection.setId(pageName + "_" + collectionName);
-                        actionCollection.setGitSyncId(null);
-                    });
-                    return Mono.just(pageName);
-                }));
+            if (applicationJson.getActionCollectionList() == null) {
+                return Mono.just(pageName);
+            }
+            applicationJson.getActionCollectionList().forEach(actionCollection -> {
+                actionCollection.getUnpublishedCollection().setPageId(pageName);
+                if (actionCollection.getPublishedCollection() != null) {
+                    actionCollection.getPublishedCollection().setPageId(pageName);
+                }
+                String collectionName = actionCollection.getId().split("_")[1];
+                actionCollection.setId(pageName + "_" + collectionName);
+                actionCollection.setGitSyncId(null);
+            });
+            return Mono.just(pageName);
+        });
     }
 
     @Override
@@ -426,96 +425,42 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                         buildingBlockResponseDTO.setWidgetDsl(buildingBlockImportDTO.getWidgetDsl());
                         buildingBlockResponseDTO.setOnPageLoadActions(new ArrayList<>());
 
-                        Set<String> newOnPageLoadActionNames = new HashSet<>();
-                        applicationJson
-                                .getPageList()
-                                .get(0)
-                                .getPublishedPage()
-                                .getLayouts()
-                                .get(0)
-                                .getLayoutOnLoadActions()
-                                .forEach(dslExecutableDTOS -> {
-                                    dslExecutableDTOS.forEach(dslExecutableDTO -> {
-                                        if (dslExecutableDTO.getName() != null) {
-                                            // Use the refactored names to get the correct ids
-                                            if (buildingBlockImportDTO
-                                                            .getRefactoredEntityNameMap()
-                                                            .get(dslExecutableDTO.getName())
-                                                    != null) {
-                                                String name = dslExecutableDTO
-                                                                .getName()
-                                                                .contains(".")
-                                                        ? dslExecutableDTO.getName()
-                                                                .split("\\.")[0]
-                                                        : dslExecutableDTO.getName();
-                                                dslExecutableDTO.setName(buildingBlockImportDTO
-                                                        .getRefactoredEntityNameMap()
-                                                        .get(dslExecutableDTO.getName()));
-                                                newOnPageLoadActionNames.add(buildingBlockImportDTO
-                                                        .getRefactoredEntityNameMap()
-                                                        .get(name));
-                                                buildingBlockResponseDTO
-                                                        .getOnPageLoadActions()
-                                                        .add(dslExecutableDTO);
-                                            }
-                                        }
-                                    });
-                                });
+                        return newPageService
+                                .findByBranchNameAndDefaultPageId(
+                                        branchName, buildingBlockDTO.getPageId(), AclPermission.MANAGE_PAGES)
+                                .flatMap(newPage -> {
+                                    String layoutId = newPage.getUnpublishedPage()
+                                            .getLayouts()
+                                            .get(0)
+                                            .getId();
+                                    Layout layout = applicationJson
+                                            .getPageList()
+                                            .get(0)
+                                            .getUnpublishedPage()
+                                            .getLayouts()
+                                            .get(0);
+                                    layout.setDsl(widgetRefactorUtil.convertDslStringToJSONObject(
+                                            buildingBlockImportDTO.getWidgetDsl()));
+                                    // fetch the layout and get the onPageLoadActions
+                                    return updateLayoutService
+                                            .getOnPageLoadActions(
+                                                    buildingBlockDTO.getPageId(),
+                                                    layoutId,
+                                                    layout,
+                                                    buildingBlockImportDTO
+                                                            .getApplication()
+                                                            .getEvaluationVersion(),
+                                                    CreatorContextType.PAGE)
+                                            .map(layoutDTO -> {
+                                                layoutDTO.forEach(actionSet -> {
+                                                    buildingBlockResponseDTO
+                                                            .getOnPageLoadActions()
+                                                            .addAll(actionSet.stream()
+                                                                    .toList());
+                                                });
 
-                        // Fetch all actions and action collections and update the onPageLoadActions with correct ids
-                        return actionCollectionService
-                                .findByPageId(buildingBlockDTO.getPageId())
-                                .collectList()
-                                .zipWith(newActionService
-                                        .findByPageId(buildingBlockDTO.getPageId())
-                                        .collectList())
-                                .flatMap(tuple -> {
-                                    List<ActionCollection> actionCollections = tuple.getT1();
-                                    List<NewAction> newActions = tuple.getT2();
-
-                                    actionCollections.forEach(actionCollection -> {
-                                        if (newOnPageLoadActionNames.contains(actionCollection
-                                                .getUnpublishedCollection()
-                                                .getName())) {
-                                            buildingBlockResponseDTO
-                                                    .getOnPageLoadActions()
-                                                    .forEach(dslExecutableDTO -> {
-                                                        if (dslExecutableDTO.getCollectionId() != null) {
-                                                            String name = dslExecutableDTO.getCollectionId()
-                                                                    .split("_")[1];
-                                                            String refactoredName = buildingBlockImportDTO
-                                                                    .getRefactoredEntityNameMap()
-                                                                    .get(name);
-                                                            if (refactoredName.equals(actionCollection
-                                                                    .getUnpublishedCollection()
-                                                                    .getName())) {
-                                                                dslExecutableDTO.setId(actionCollection.getId());
-                                                                dslExecutableDTO.setCollectionId(
-                                                                        actionCollection.getId());
-                                                            }
-                                                        }
-                                                    });
-                                        }
-                                    });
-
-                                    newActions.forEach(newAction -> {
-                                        if (newOnPageLoadActionNames.contains(
-                                                newAction.getUnpublishedAction().getName())) {
-                                            buildingBlockResponseDTO
-                                                    .getOnPageLoadActions()
-                                                    .forEach(dslExecutableDTO -> {
-                                                        if (dslExecutableDTO
-                                                                .getName()
-                                                                .equals(newAction
-                                                                        .getUnpublishedAction()
-                                                                        .getName())) {
-                                                            dslExecutableDTO.setId(newAction.getId());
-                                                        }
-                                                    });
-                                        }
-                                    });
-
-                                    return Mono.just(buildingBlockResponseDTO);
+                                                return buildingBlockResponseDTO;
+                                            });
                                 });
                     });
         });
