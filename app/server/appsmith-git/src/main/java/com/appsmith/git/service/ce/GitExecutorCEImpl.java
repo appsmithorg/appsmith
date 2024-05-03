@@ -116,7 +116,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         final Path repoPath = TRUE.equals(isSuffixedPath) ? createRepoPath(path) : path;
 
         return Mono.using(
-                        () -> Git.open(createRepoPath(repoPath).toFile()),
+                        () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
                                     log.debug("Trying to commit to local repo path, {}", path);
 
