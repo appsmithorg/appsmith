@@ -85,8 +85,10 @@ export function getActionExecutionAnalytics(
   return resultObj;
 }
 
-// Function to check if the browser execution is allowed for the action
-// This is just for code splitting, main feature is in EE
+/**
+ * Function to check if the browser execution is allowed for the action
+ * This is just for code splitting, main feature is in EE
+ * */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export function isBrowserExecutionAllowed(..._args: any[]) {
   return true;
@@ -98,7 +100,7 @@ export const getTestPayloadFromCollectionData = (
 ): string => {
   if (!collectionData) return "";
   const activeJSActionId = collectionData?.activeJSActionId;
-  const testPayload: Record<string, any> | undefined =
+  const testPayload: Record<string, unknown> | undefined =
     collectionData?.data?.testPayload || {};
   if (!activeJSActionId || !testPayload) return "";
   return (testPayload[activeJSActionId] as string) || "";
