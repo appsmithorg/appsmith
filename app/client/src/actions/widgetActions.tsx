@@ -8,6 +8,7 @@ import type { BatchAction } from "actions/batchActions";
 import { batchAction } from "actions/batchActions";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { PartialExportParams } from "sagas/PartialImportExportSagas";
+import type { PasteWidgetReduxAction } from "constants/WidgetConstants";
 
 export const widgetInitialisationSuccess = () => {
   return {
@@ -95,15 +96,17 @@ export const copyWidget = (isShortcut: boolean) => {
   };
 };
 
-export const pasteWidget = (
+export const pasteWidget = ({
+  gridPosition,
   groupWidgets = false,
-  mouseLocation: { x: number; y: number },
-) => {
+  mouseLocation,
+}: PasteWidgetReduxAction) => {
   return {
     type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
     payload: {
-      groupWidgets: groupWidgets,
+      groupWidgets,
       mouseLocation,
+      gridPosition,
     },
   };
 };

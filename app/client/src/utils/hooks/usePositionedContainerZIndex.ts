@@ -33,8 +33,8 @@ export const usePositionedContainerZIndex = (
       return focused
         ? Layers.focusedWidget
         : selected
-        ? Layers.selectedWidget
-        : Layers.positionedWidget;
+          ? Layers.selectedWidget
+          : Layers.positionedWidget;
     }
   }, [isDragging, isThisWidgetDragging, droppableWidget, selected, focused]);
 

@@ -1,4 +1,5 @@
 import React, { memo, useCallback, useMemo } from "react";
+import WidgetFactory from "../../../../WidgetProvider/factory";
 import Entity, { EntityClassNames } from "../Entity";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { WidgetType } from "constants/WidgetConstants";
@@ -75,7 +76,9 @@ export interface WidgetEntityProps {
 
 export const WidgetEntity = memo((props: WidgetEntityProps) => {
   const widgetsToExpand = useSelector(getEntityExplorerWidgetsToExpand);
-  const icon = <WidgetIcon type={props.widgetType} />;
+  // If the widget icon is a React component, then we get it from the Widget methods.
+  const { IconCmp } = WidgetFactory.getWidgetMethods(props.widgetType);
+  const icon = IconCmp ? <IconCmp /> : <WidgetIcon type={props.widgetType} />;
   const location = useLocation();
 
   const forceExpand = widgetsToExpand.includes(props.widgetId);

@@ -24,6 +24,7 @@ import { call } from "redux-saga/effects";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
 import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalLayoutProvider";
 import styles from "./styles.module.css";
+
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
 
@@ -53,6 +54,10 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return config.propertyPaneStyleConfig;
+  }
+
+  static getMethods() {
+    return config.methodsConfig;
   }
 
   static *performPasteOperation(
@@ -117,7 +122,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
       ? this.props.submitButtonText || "Submit"
       : undefined;
     const contentClassName = `${this.props.className} ${
-      this.props.allowWidgetInteraction ? styles.disableModalInteraction : ""
+      this.props.allowWidgetInteraction ? "" : styles.disableModalInteraction
     }`;
     return (
       <Modal
@@ -126,7 +131,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         setOpen={(val) => this.setState({ isVisible: val })}
         size={this.props.size}
       >
-        <ModalContent className={contentClassName}>
+        <ModalContent className={contentClassName.trim()}>
           {this.props.showHeader && <ModalHeader title={this.props.title} />}
           <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
             <ModalLayoutProvider {...this.props} />

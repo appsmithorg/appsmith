@@ -1,28 +1,31 @@
-import {
-  SegmentedControl,
-  Switch,
-  Tooltip,
-  Select,
-  Option,
-} from "design-system";
+import { debounce } from "lodash";
 import styled from "styled-components";
-import React, { useCallback } from "react";
+import { isValidColor } from "utils/helpers";
+import { FONT_METRICS } from "@design-system/theming";
 import { useDispatch, useSelector } from "react-redux";
+import React, { useCallback, useRef, useState } from "react";
 import type { ThemeSetting } from "constants/AppConstants";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { updateApplication } from "@appsmith/actions/applicationActions";
 import type { UpdateApplicationPayload } from "@appsmith/api/ApplicationApi";
 import { getAppThemeSettings } from "@appsmith/selectors/applicationSelectors";
-import ColorPickerComponent from "components/propertyControls/ColorPickerComponentV2";
+import {
+  LeftIcon,
+  StyledInputGroup,
+} from "components/propertyControls/ColorPickerComponentV2";
+import { SegmentedControl, Tooltip, Select, Option, Icon } from "design-system";
+
+import styles from "./styles.module.css";
 
 import {
   THEME_SETTINGS_BORDER_RADIUS_OPTIONS,
   THEME_SETTINGS_DENSITY_OPTIONS,
   THEME_SETTINGS_ICON_STYLE_OPTIONS,
   THEME_SETTINGS_SIZING_OPTIONS,
+  THEME_SETTINGS_COLOR_MODE_OPTIONS,
+  THEME_SETTING_COLOR_PRESETS,
 } from "./constants";
 import SettingSection from "../ThemePropertyPane/SettingSection";
-import { FONT_METRICS } from "@design-system/theming";
 
 const SubText = styled.p`
   font-size: var(--ads-v2-font-size-4);
@@ -57,10 +60,14 @@ const buttonGroupOptions = THEME_SETTINGS_BORDER_RADIUS_OPTIONS.map(
 );
 
 function WDSThemePropertyPane() {
+  const inputRef = useRef<HTMLInputElement>(null);
   const dispatch = useDispatch();
   const theme = useSelector(getAppThemeSettings);
   const applicationId = useSelector(getCurrentApplicationId);
-  const [isFullColorPicker, setFullColorPicker] = React.useState(false);
+  const [accentColor, setAccentColor] = useState(theme.accentColor);
+  const isCustomColor = THEME_SETTING_COLOR_PRESETS[theme.colorMode].includes(
+    theme.accentColor,
+  );
 
   const updateTheme = useCallback(
     (theme: ThemeSetting) => {
@@ -79,37 +86,98 @@ function WDSThemePropertyPane() {
     [updateApplication],
   );
 
+  const debouncedOnColorChange = useCallback(
+    debounce((e: React.ChangeEvent<HTMLInputElement>) => {
+      updateTheme({
+        ...theme,
+        accentColor: e.target.value,
+      });
+      setAccentColor(e.target.value);
+    }, 250),
+    [theme, updateTheme],
+  );
+
+  const onColorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (isValidColor(e.target.value)) {
+      updateTheme({
+        ...theme,
+        accentColor: e.target.value,
+      });
+
+      (document.querySelector("#color-picker") as HTMLInputElement).value =
+        e.target.value;
+    }
+
+    setAccentColor(e.target.value);
+  };
+
   return (
-    <main className="mt-1">
+    <main className={styles.main}>
       {/* COLORS */}
       <SettingSection className="px-4 pb-3" isDefaultOpen title="Color">
         <section className="space-y-2">
-          <ColorPickerComponent
-            changeColor={(color: string) => {
+          <SegmentedControl
+            isFullWidth
+            onChange={(value: string) => {
               updateTheme({
                 ...theme,
-                accentColor: color,
+                colorMode: value as ThemeSetting["colorMode"],
               });
+              inputRef.current?.focus();
             }}
-            color={theme.accentColor}
-            isFullColorPicker={isFullColorPicker}
-            portalContainer={
-              document.getElementById("app-settings-portal") || undefined
-            }
-            setFullColorPicker={setFullColorPicker}
+            options={THEME_SETTINGS_COLOR_MODE_OPTIONS}
+            value={theme.colorMode ?? "LIGHT"}
           />
+          <StyledInputGroup
+            $isValid={isValidColor(accentColor)}
+            data-testid="t--color-picker-input"
+            inputRef={inputRef}
+            leftIcon={<LeftIcon color={accentColor} />}
+            onChange={onColorInputChange}
+            placeholder={"Enter color name or hex"}
+            type="text"
+            value={accentColor}
+          />
+          <div className={styles["presets-list"]}>
+            {THEME_SETTING_COLOR_PRESETS[theme.colorMode].map((color) => (
+              <button
+                data-selected={theme.accentColor === color ? "" : undefined}
+                key={color}
+                onClick={() => {
+                  updateTheme({
+                    ...theme,
+                    accentColor: color,
+                  });
+                  inputRef.current?.focus();
+                  setAccentColor(color);
+                  (
+                    document.querySelector("#color-picker") as HTMLInputElement
+                  ).value = color;
+                }}
+                style={{ backgroundColor: color, color }}
+              >
+                {theme.accentColor === color && (
+                  <Icon color="white" name="check-line" size="md" />
+                )}
+              </button>
+            ))}
+            <label
+              data-selected={isCustomColor === false ? "" : undefined}
+              htmlFor="color-picker"
+              style={{ color: theme.accentColor }}
+            >
+              {isCustomColor === false && (
+                <Icon color="white" name="check-line" size="md" />
+              )}
+              <input
+                defaultValue={theme.accentColor}
+                id="color-picker"
+                onChange={debouncedOnColorChange}
+                type="color"
+              />
+            </label>
+          </div>
         </section>
-        <Switch
-          defaultSelected={theme.colorMode === "DARK"}
-          onChange={(isSelected: boolean) => {
-            updateTheme({
-              ...theme,
-              colorMode: isSelected ? "DARK" : "LIGHT",
-            });
-          }}
-        >
-          Dark Mode
-        </Switch>
       </SettingSection>
 
       <SettingSection

@@ -12,6 +12,14 @@ import java.text.MessageFormat;
 public enum AppsmithError {
     // Ref syntax for message templates:
     // https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/MessageFormat.html
+    HTTP_METHOD_NOT_ALLOWED(
+            405,
+            AppsmithErrorCode.HTTP_METHOD_NOT_ALLOWED.getCode(),
+            "HTTP Method not allowed.",
+            AppsmithErrorAction.DEFAULT,
+            "Invalid method",
+            ErrorType.BAD_REQUEST,
+            null),
     INVALID_PARAMETER(
             400,
             AppsmithErrorCode.INVALID_PARAMETER.getCode(),
@@ -91,22 +99,6 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Deprecated API",
             ErrorType.BAD_REQUEST,
-            null),
-    USER_DOESNT_BELONG_ANY_WORKSPACE(
-            400,
-            AppsmithErrorCode.USER_DOESNT_BELONG_ANY_WORKSPACE.getCode(),
-            "User {0} does not belong to any workspace",
-            AppsmithErrorAction.LOG_EXTERNALLY,
-            "User doesn''t belong to any workspace",
-            ErrorType.INTERNAL_ERROR,
-            null),
-    USER_DOESNT_BELONG_TO_WORKSPACE(
-            400,
-            AppsmithErrorCode.USER_DOESNT_BELONG_TO_WORKSPACE.getCode(),
-            "User {0} does not belong to the workspace with id {1}",
-            AppsmithErrorAction.LOG_EXTERNALLY,
-            "User doesn''t belong to this workspace",
-            ErrorType.INTERNAL_ERROR,
             null),
 
     USER_NOT_ASSIGNED_TO_ROLE(
@@ -875,14 +867,6 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Git repo is locked",
             ErrorType.GIT_ACTION_EXECUTION_ERROR,
-            null),
-    CSRF_TOKEN_INVALID(
-            403,
-            AppsmithErrorCode.CSRF_TOKEN_INVALID.getCode(),
-            "CSRF token missing/invalid. Please try again.",
-            AppsmithErrorAction.DEFAULT,
-            "CSRF token missing/invalid",
-            ErrorType.BAD_REQUEST,
             null),
     UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION(
             400,

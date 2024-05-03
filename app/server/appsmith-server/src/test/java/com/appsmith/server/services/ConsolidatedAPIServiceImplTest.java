@@ -51,6 +51,7 @@ import java.util.Map;
 import static com.appsmith.external.constants.PluginConstants.PackageName.APPSMITH_AI_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.GRAPHQL_PLUGIN;
 import static com.appsmith.external.constants.PluginConstants.PackageName.REST_API_PLUGIN;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -124,7 +125,7 @@ public class ConsolidatedAPIServiceImplTest {
         Mono<ConsolidatedAPIResponseDTO> consolidatedInfoForPageLoad =
                 consolidatedAPIService.getConsolidatedInfoForPageLoad("pageId", null, null, null);
         StepVerifier.create(consolidatedInfoForPageLoad).verifyErrorSatisfies(error -> {
-            assertTrue(error instanceof AppsmithException);
+            assertThat(error).isInstanceOf(AppsmithException.class);
             assertEquals("Please enter a valid parameter appMode.", error.getMessage());
         });
     }
@@ -439,7 +440,7 @@ public class ConsolidatedAPIServiceImplTest {
         sampleAiPlugin.setName("sampleAiPlugin");
         sampleAiPlugin.setId("sampleAiPluginId");
         sampleAiPlugin.setPackageName(APPSMITH_AI_PLUGIN);
-        when(mockPluginService.get(any()))
+        when(mockPluginService.getInWorkspace(anyString()))
                 .thenReturn(Flux.just(samplePlugin, sampleRestApiPlugin, sampleGraphqlPlugin, sampleAiPlugin));
 
         Datasource sampleDatasource = new Datasource();
@@ -447,7 +448,7 @@ public class ConsolidatedAPIServiceImplTest {
         sampleDatasource.setPluginId("samplePluginId");
         when(mockDatasourceService.getAllWithStorages(any())).thenReturn(Flux.just(sampleDatasource));
 
-        Map<String, Map> sampleFormConfig = new HashMap<>();
+        Map<String, Map<?, ?>> sampleFormConfig = new HashMap<>();
         sampleFormConfig.put("key", Map.of());
         when(mockPluginService.getFormConfig(anyString())).thenReturn(Mono.just(sampleFormConfig));
 

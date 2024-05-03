@@ -1,11 +1,7 @@
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import {
-  getIsTabsRevampEnabled,
-  getJSTabs,
-  getQueryTabs,
-} from "selectors/ideSelectors";
+import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import {
   setIdeEditorViewMode,
   setJSTabs,
@@ -54,13 +50,7 @@ export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
 
 function* getUpdatedTabs(newId: string, currentTabs: string[]) {
   if (currentTabs.includes(newId)) return currentTabs;
-  const isTabsRevampEnabled: boolean = yield select(getIsTabsRevampEnabled);
-  let newTabs = isTabsRevampEnabled
-    ? [...currentTabs, newId]
-    : [newId, ...currentTabs];
-  if (!isTabsRevampEnabled && newTabs.length > 5) {
-    newTabs = newTabs.slice(0, 5);
-  }
+  const newTabs = [...currentTabs, newId];
   return newTabs;
 }
 

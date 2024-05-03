@@ -344,8 +344,8 @@ export function Table(props: TableProps) {
             props.isLoading
               ? Classes.SKELETON
               : shouldUseVirtual
-              ? " virtual"
-              : ""
+                ? " virtual"
+                : ""
           }`}
           data-table-wrapper=""
         >

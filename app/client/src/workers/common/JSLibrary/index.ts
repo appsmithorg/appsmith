@@ -32,6 +32,28 @@ export const defaultLibraries: JSLibrary[] = [
 ];
 
 export const JSLibraries = [...defaultLibraries];
+
+const JSLibraryAccessorModifier = () => {
+  let jsLibraryAccessorSet = new Set(
+    JSLibraries.flatMap((lib) => lib.accessor),
+  );
+
+  return {
+    regenerateSet: () => {
+      jsLibraryAccessorSet = new Set(
+        JSLibraries.flatMap((lib) => lib.accessor),
+      );
+
+      return;
+    },
+    getSet: () => {
+      return jsLibraryAccessorSet;
+    },
+  };
+};
+
+export const JSLibraryAccessor = JSLibraryAccessorModifier();
+
 export const libraryReservedIdentifiers = defaultLibraries.reduce(
   (acc, lib) => {
     lib.accessor.forEach((a) => (acc[a] = true));

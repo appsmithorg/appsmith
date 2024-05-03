@@ -19,7 +19,7 @@ public class RedisUtils {
     private static final String AUTO_COMMIT_KEY_FORMAT = "autocommit_%s";
     private static final String AUTO_COMMIT_PROGRESS_KEY_FORMAT = "autocommit_progress_%s";
 
-    private static final Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(20);
+    private static final Duration FILE_LOCK_TIME_LIMIT = Duration.ofSeconds(120);
 
     private static final Duration AUTO_COMMIT_TIME_LIMIT = Duration.ofMinutes(3);
 

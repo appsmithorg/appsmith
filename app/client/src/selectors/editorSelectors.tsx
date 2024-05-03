@@ -309,25 +309,20 @@ export const getWidgetCards = createSelector(
   getIsAnvilLayout,
   (isAutoLayout, isAnvilLayout) => {
     const widgetConfigs = WidgetFactory.getConfigs();
-
-    const cards = Object.values(widgetConfigs).filter((config) => {
-      // if anvil is not enabled, hide all wds widgets
-      if (
-        Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
-        !isAnvilLayout
-      ) {
-        return false;
+    const widgetConfigsArray = Object.values(widgetConfigs);
+    const layoutSystemBasesWidgets = widgetConfigsArray.filter((config) => {
+      const isAnvilWidget = Object.values(WDS_V2_WIDGET_MAP).includes(
+        config.type,
+      );
+      if (isAnvilLayout) {
+        return isAnvilWidget;
       }
-
+      return !isAnvilWidget;
+    });
+    const cards = layoutSystemBasesWidgets.filter((config) => {
       if (isAirgapped()) {
         return config.widgetName !== "Map" && !config.hideCard;
       }
-
-      // if anvil is enabled, only show the wds widgets
-      if (isAnvilLayout) {
-        return Object.values(WDS_V2_WIDGET_MAP).includes(config.type);
-      }
-
       return !config.hideCard;
     });
 
@@ -351,6 +346,10 @@ export const getWidgetCards = createSelector(
         columns = autoLayoutConfig?.defaults?.columns ?? columns;
       }
 
+      const { IconCmp, ThumbnailCmp } = WidgetFactory.getWidgetMethods(
+        config.type,
+      );
+
       return {
         key,
         type,
@@ -360,6 +359,8 @@ export const getWidgetCards = createSelector(
         displayName,
         icon: iconSVG,
         thumbnail: thumbnailSVG,
+        IconCmp,
+        ThumbnailCmp,
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),

@@ -455,8 +455,8 @@ class FilePickerWidget extends BaseWidget<
                     this.props.fileDataType === FileDataTypes.Base64
                       ? base64data
                       : this.props.fileDataType === FileDataTypes.Binary
-                      ? rawData
-                      : text,
+                        ? rawData
+                        : text,
                   name: file.meta ? file.meta.name : undefined,
                 };
 

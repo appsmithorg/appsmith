@@ -42,6 +42,7 @@ export const WARNING_LINT_ERRORS = {
   W014: "Misleading line break before '{a}'; readers may interpret this as an expression boundary.",
   ASYNC_FUNCTION_BOUND_TO_SYNC_FIELD:
     "Cannot execute async code on functions bound to data fields",
+  ACTION_MODAL_STRING: 'Use Modal1.name instead of "Modal" as a string',
 };
 
 export function asyncActionInSyncFieldLintMessage(isJsObject = false) {
@@ -66,6 +67,8 @@ export enum CustomLintErrorCode {
   INVALID_WIDGET_PROPERTY_SETTER = "INVALID_WIDGET_PROPERTY_SETTER",
   // appsmith.store.value = "test"
   INVALID_APPSMITH_STORE_PROPERTY_SETTER = "INVALID_APPSMITH_STORE_PROPERTY_SETTER",
+  // showModal("Modal1")
+  ACTION_MODAL_STRING = "ACTION_MODAL_STRING",
 }
 
 export const CUSTOM_LINT_ERRORS: Record<
@@ -114,5 +117,8 @@ export const CUSTOM_LINT_ERRORS: Record<
   },
   [CustomLintErrorCode.INVALID_APPSMITH_STORE_PROPERTY_SETTER]: () => {
     return "Use storeValue() method to modify the store";
+  },
+  [CustomLintErrorCode.ACTION_MODAL_STRING]: (modalName: string) => {
+    return `Use ${modalName}.name instead of "${modalName}" as a string`;
   },
 };

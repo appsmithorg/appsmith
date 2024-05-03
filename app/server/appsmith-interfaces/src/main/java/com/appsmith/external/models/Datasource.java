@@ -39,18 +39,18 @@ public class Datasource extends BranchAwareDomain {
     // name of the plugin. used to log analytics events where pluginName is a required attribute
     // It'll be null if not set
     @Transient
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView(Views.Public.class)
     String pluginName;
 
     // Organizations migrated to workspaces, kept the field as deprecated to support the old migration
     @Deprecated
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView(Views.Public.class)
     String organizationId;
 
     @JsonView({Views.Public.class, FromRequest.class})
     String workspaceId;
 
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView(Views.Public.class)
     String templateName;
 
     // This is only kept public for embedded datasource
@@ -58,7 +58,7 @@ public class Datasource extends BranchAwareDomain {
     DatasourceConfiguration datasourceConfiguration;
 
     @Transient
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, FromRequest.class})
     Map<String, DatasourceStorageDTO> datasourceStorages = new HashMap<>();
 
     @JsonView(Views.Public.class)
@@ -89,7 +89,7 @@ public class Datasource extends BranchAwareDomain {
     Boolean isConfigured;
 
     @Transient
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView(Views.Public.class)
     Boolean isRecentlyCreated;
 
     /*
@@ -97,14 +97,14 @@ public class Datasource extends BranchAwareDomain {
      * The field is not used anywhere in the codebase because templates are created directly in the DB, and the field
      * serves only as a DTO property.
      */
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView(Views.Public.class)
     Boolean isTemplate;
 
     /*
      * This field is meant to indicate whether the datasource is part of a mock DB, or a copy of the same.
      * The field is set during the creation of the mock db
      */
-    @JsonView({Views.Public.class, FromRequest.class})
+    @JsonView(Views.Public.class)
     Boolean isMock;
 
     @JsonView(Views.Internal.class)

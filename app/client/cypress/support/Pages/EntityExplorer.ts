@@ -174,10 +174,10 @@ export class EntityExplorer {
       dropTargetId
         ? dropTargetId + this.locator._dropHere
         : parentWidgetType
-        ? this.locator._widgetInCanvas(parentWidgetType) +
-          " " +
-          this.locator._dropHere
-        : this.locator._dropHere,
+          ? this.locator._widgetInCanvas(parentWidgetType) +
+            " " +
+            this.locator._dropHere
+          : this.locator._dropHere,
     )
       .first()
       .trigger("mousemove", x, y, {
@@ -191,9 +191,9 @@ export class EntityExplorer {
     this.agHelper.Sleep(200);
     cy.get(
       parentWidgetType
-        ? this.locator._widgetInCanvas(parentWidgetType) +
-            " " +
+        ? `${this.locator._widgetInCanvas(parentWidgetType)} ${
             this.locator._dropHere
+          }`
         : this.locator._dropHere,
     )
       .first()

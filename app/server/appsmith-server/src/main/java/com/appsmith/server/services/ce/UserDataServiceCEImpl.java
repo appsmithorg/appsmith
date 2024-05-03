@@ -348,13 +348,13 @@ public class UserDataServiceCEImpl extends BaseService<UserDataRepository, UserD
      * @return update result obtained from DB
      */
     @Override
-    public Mono<Void> removeRecentWorkspaceAndApps(String userId, String workspaceId) {
+    public Mono<Void> removeRecentWorkspaceAndChildEntities(String userId, String workspaceId) {
 
         return applicationRepository
                 .findIdsByWorkspaceId(workspaceId)
                 .map(IdOnly::id)
                 .collectList()
-                .flatMap(appIdsList -> repository.removeIdFromRecentlyUsedList(userId, workspaceId, appIdsList));
+                .flatMap(appIdsList -> repository.removeEntitiesFromRecentlyUsedList(userId, workspaceId));
     }
 
     /**
