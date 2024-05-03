@@ -949,13 +949,9 @@ export const setFeatureFlagOverrideValues = async (
   }
 };
 
-interface ActionTestPayload {
-  [actionId: string]: any;
-}
-
 export const getAllActionTestPayloads = async () => {
   try {
-    const storedPayload: ActionTestPayload | null = await store.getItem(
+    const storedPayload: Record<string, unknown> | null = await store.getItem(
       STORAGE_KEYS.ACTION_TEST_PAYLOAD,
     );
     return storedPayload;
@@ -971,7 +967,7 @@ export const storeActionTestPayload = async (payload: {
   testData: any;
 }) => {
   try {
-    const storedPayload: ActionTestPayload | null = await store.getItem(
+    const storedPayload: Record<string, unknown> | null = await store.getItem(
       STORAGE_KEYS.ACTION_TEST_PAYLOAD,
     );
     const newPayload = {
