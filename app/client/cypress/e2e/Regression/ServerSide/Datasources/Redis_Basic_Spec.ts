@@ -14,7 +14,7 @@ describe("Validate Redis DS", { tags: ["@tag.Datasource"] }, () => {
     });
   });
 
-  it("Create HAST set (Multiple key value pair under single key name) in redis DB, Read, Delete", () => {
+  it("1. Create HAST set (Multiple key value pair under single key name) in redis DB, Read, Delete", () => {
     let hSetReceipe = `HSET recipe:1 name "Vegetable Stir Fry" ingredients "2 cups mixed vegetables (broccoli, carrots, bell peppers, mushrooms, snow peas), 2 cloves garlic, minced" instructions "1. Heat vegetable oil in a large skillet over medium-high heat. 2. Add mixed vegetables and garlic to the skillet and cook for 3-4 minutes. 3. In a small bowl, whisk together soy sauce and cornstarch. 4. Pour the soy sauce mixture over the vegetables and stir until the vegetables are coated. 5. Cook for an additional 1-2 minutes. 6. Serve hot." difficulty "easy"`;
     let hGetKeys = "HGET recipe:1 name";
     let hMGet = "HMGET recipe:1 difficulty name"; // getting multiple keys
@@ -90,20 +90,19 @@ describe("Validate Redis DS", { tags: ["@tag.Datasource"] }, () => {
     dataSources.EnterQuery(hGetKeys);
     dataSources.RunQueryNVerifyResponseViews(); //5 keys, 5 values
     dataSources.AssertQueryTableResponse(0, "null");
-  });
 
-  after("Delete the query & datasource", () => {
+    // Delete the query & datasource
     agHelper.ActionContextMenuWithInPane({
       action: "Delete",
       entityType: entityItems.Query,
     });
     dataSources.DeleteDatasourceFromWithinDS(dsName);
-    //commenting below since after query delete, we run into risk of not seeing the datasource in EntityExplorer
-    // EditorNavigation.SelectEntityByName(dsName, EntityType.Datasource);
-    // entityExplorer.ActionContextMenuByEntityName({
-    //   entityNameinLeftSidebar: dsName,
-    //   action: "Delete",
-    //   entityType: entityItems.Datasource,
-    // });
+  });
+
+  it("2. Verify the default port for the datasource", function () {
+    dataSources.NavigateToDSCreateNew();
+    dataSources.CreatePlugIn("Redis");
+
+    agHelper.AssertAttribute(dataSources._port, "value", "6379");
   });
 });

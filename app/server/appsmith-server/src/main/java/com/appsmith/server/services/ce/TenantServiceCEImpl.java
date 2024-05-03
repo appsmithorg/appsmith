@@ -108,13 +108,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "tenantId", tenantId)));
     }
 
-    /*
-     * For now, returning just the instance-id, with an empty tenantConfiguration object in this class. Will enhance
-     * this function once we start saving other pertinent environment variables in the tenant collection.
-     */
     @Override
-    public Mono<Tenant> getTenantConfiguration() {
-        Mono<Tenant> dbTenantMono = getDefaultTenant();
+    public Mono<Tenant> getTenantConfiguration(Mono<Tenant> dbTenantMono) {
         Mono<Tenant> clientTenantMono = configService.getInstanceId().map(instanceId -> {
             final Tenant tenant = new Tenant();
             tenant.setInstanceId(instanceId);
@@ -137,11 +132,21 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             return tenant;
         });
 
-        return Mono.zip(dbTenantMono, clientTenantMono).map(tuple -> {
+        return Mono.zip(dbTenantMono, clientTenantMono).flatMap(tuple -> {
             Tenant dbTenant = tuple.getT1();
             Tenant clientTenant = tuple.getT2();
             return getClientPertinentTenant(dbTenant, clientTenant);
         });
+    }
+
+    /*
+     * For now, returning just the instance-id, with an empty tenantConfiguration object in this class. Will enhance
+     * this function once we start saving other pertinent environment variables in the tenant collection.
+     */
+    @Override
+    public Mono<Tenant> getTenantConfiguration() {
+        Mono<Tenant> dbTenantMono = getDefaultTenant();
+        return getTenantConfiguration(dbTenantMono);
     }
 
     @Override
@@ -170,9 +175,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
      * To get the Tenant with values that are pertinent to the client
      * @param dbTenant Original tenant from the database
      * @param clientTenant Tenant object that is sent to the client, can be null
-     * @return Tenant
+     * @return Mono<Tenant>
      */
-    protected Tenant getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
+    protected Mono<Tenant> getClientPertinentTenant(Tenant dbTenant, Tenant clientTenant) {
         if (clientTenant == null) {
             clientTenant = new Tenant();
             clientTenant.setTenantConfiguration(new TenantConfiguration());
@@ -184,7 +189,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         tenantConfiguration.copyNonSensitiveValues(dbTenant.getTenantConfiguration());
         clientTenant.setUserPermissions(dbTenant.getUserPermissions());
 
-        return clientTenant;
+        return Mono.just(clientTenant);
     }
 
     @Override

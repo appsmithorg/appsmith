@@ -93,7 +93,12 @@ function* apiCallForForkBuildingBlockToApplication(request: {
     if (isValid) {
       yield saveBuildingBlockWidgetsToStore(response);
 
-      yield put(pasteWidget(false, { x: 0, y: 0 }));
+      yield put(
+        pasteWidget({
+          groupWidgets: false,
+          mouseLocation: { x: 0, y: 0 },
+        }),
+      );
       yield call(postPageAdditionSaga, request.applicationId);
       // remove selecting of recently imported widgets
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
@@ -153,6 +158,7 @@ function* forkStarterBuildingBlockToApplicationSaga(
     yield call(saveCopiedWidgets, JSON.stringify(existingCopiedWidgets));
   }
 }
+
 export default function* watchActionSagas() {
   if (!isAirgappedInstance)
     yield all([

@@ -592,6 +592,11 @@ export interface AssignmentExpressionData {
   parentNode: NodeWithLocation<AssignmentExpressionNode>;
 }
 
+export interface CallExpressionData {
+  property: NodeWithLocation<IdentifierNode>;
+  params: NodeWithLocation<MemberExpressionNode | LiteralNode>[];
+}
+
 export interface AssignmentExpressionNode extends Node {
   operator: string;
   left: Expression;
@@ -622,8 +627,10 @@ export const extractExpressionsFromCode = (
 ): {
   invalidTopLevelMemberExpressionsArray: MemberExpressionData[];
   assignmentExpressionsData: AssignmentExpressionData[];
+  callExpressionsData: CallExpressionData[];
 } => {
   const assignmentExpressionsData = new Set<AssignmentExpressionData>();
+  const callExpressionsData = new Set<CallExpressionData>();
   const invalidTopLevelMemberExpressions = new Set<MemberExpressionData>();
   const variableDeclarations = new Set<string>();
   let functionalParams = new Set<string>();
@@ -638,6 +645,7 @@ export const extractExpressionsFromCode = (
       return {
         invalidTopLevelMemberExpressionsArray: [],
         assignmentExpressionsData: [],
+        callExpressionsData: [],
       };
     }
     throw e;
@@ -717,6 +725,14 @@ export const extractExpressionsFromCode = (
         parentNode: node,
       } as AssignmentExpressionData);
     },
+    CallExpression(node: Node) {
+      if (isCallExpressionNode(node) && isIdentifierNode(node.callee)) {
+        callExpressionsData.add({
+          property: node.callee,
+          params: node.arguments,
+        } as CallExpressionData);
+      }
+    },
   });
 
   const invalidTopLevelMemberExpressionsArray = Array.from(
@@ -731,6 +747,7 @@ export const extractExpressionsFromCode = (
   return {
     invalidTopLevelMemberExpressionsArray,
     assignmentExpressionsData: [...assignmentExpressionsData],
+    callExpressionsData: [...callExpressionsData],
   };
 };
 
