@@ -310,7 +310,7 @@ export const generateQuickCommands = (
             ? `{{${name}.}}`
             : `{{${name}}}`,
       displayText: `${name}`,
-      className: "CodeMirror-commands group relative",
+      className: "CodeMirror-commands group relative Codemirror-commands-apis",
       data: suggestion,
       triggerCompletionsPostPick: suggestion.type !== ENTITY_TYPE.ACTION,
       render: (element: HTMLElement, _: unknown, data: CommandsCompletion) => {
@@ -430,7 +430,9 @@ export const generateQuickCommands = (
         commandsHeader("Bind data", "", filteredCommands.length > 0),
       );
       filteredCommands.push(...suggestionsMatchingSearchText);
-      filteredCommands.push(loadMoreCommand);
+      if (suggestions.length > NO_OF_QUERIES_TO_SHOW_BY_DEFAULT) {
+        filteredCommands.push(loadMoreCommand);
+      }
     }
 
     if (currentEntityType === ENTITY_TYPE.WIDGET) {
