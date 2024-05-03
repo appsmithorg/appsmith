@@ -278,11 +278,11 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler
     @ResponseBody
-    public Mono<ResponseDTO<ErrorDTO>> catchMethodNotAllowed(ResponseStatusException e, ServerWebExchange exchange) {
+    public Mono<ResponseDTO<Void>> catchResponseStatusException(ResponseStatusException e, ServerWebExchange exchange) {
         exchange.getResponse().setStatusCode(e.getStatusCode());
 
         String urlPath = exchange.getRequest().getPath().toString();
-        ResponseDTO<ErrorDTO> response = new ResponseDTO<>(e.getStatusCode().value(), null, e.getMessage(), false);
+        ResponseDTO<Void> response = new ResponseDTO<>(e.getStatusCode().value(), null, e.getMessage(), false);
 
         return getResponseDTOMono(urlPath, response);
     }
@@ -372,7 +372,7 @@ public class GlobalExceptionHandler {
         return getResponseDTOMono(urlPath, response);
     }
 
-    private Mono<ResponseDTO<ErrorDTO>> getResponseDTOMono(String urlPath, ResponseDTO<ErrorDTO> response) {
+    private <T> Mono<ResponseDTO<T>> getResponseDTOMono(String urlPath, ResponseDTO<T> response) {
         if (urlPath.contains("/git") && urlPath.contains("/app")) {
             String appId = getAppIdFromUrlPath(urlPath);
             if (StringUtils.isEmpty(appId)) {
