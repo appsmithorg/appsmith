@@ -24,9 +24,9 @@ const StyledDraggedWidgetCount = styled.div`
   width: 24px;
   height: 24px;
   border-radius: 3px;
-  background: #f6f3ff;
+  background: var(--anvil-multiple-drag-count-bg);
   position: absolute;
-  color: #390a6d;
+  color: var(--anvil-multiple-drag-count-text);
   z-index: 1;
   top: -12px;
   text-align: center;
