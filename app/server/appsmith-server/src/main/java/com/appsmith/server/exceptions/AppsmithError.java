@@ -100,22 +100,6 @@ public enum AppsmithError {
             "Deprecated API",
             ErrorType.BAD_REQUEST,
             null),
-    USER_DOESNT_BELONG_ANY_WORKSPACE(
-            400,
-            AppsmithErrorCode.USER_DOESNT_BELONG_ANY_WORKSPACE.getCode(),
-            "User {0} does not belong to any workspace",
-            AppsmithErrorAction.LOG_EXTERNALLY,
-            "User doesn''t belong to any workspace",
-            ErrorType.INTERNAL_ERROR,
-            null),
-    USER_DOESNT_BELONG_TO_WORKSPACE(
-            400,
-            AppsmithErrorCode.USER_DOESNT_BELONG_TO_WORKSPACE.getCode(),
-            "User {0} does not belong to the workspace with id {1}",
-            AppsmithErrorAction.LOG_EXTERNALLY,
-            "User doesn''t belong to this workspace",
-            ErrorType.INTERNAL_ERROR,
-            null),
 
     USER_NOT_ASSIGNED_TO_ROLE(
             400,
