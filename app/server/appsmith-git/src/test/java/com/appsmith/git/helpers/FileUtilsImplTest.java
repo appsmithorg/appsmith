@@ -25,7 +25,9 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
-import static com.appsmith.git.constants.GitDirectories.*;
+import static com.appsmith.git.constants.GitDirectories.ACTION_COLLECTION_DIRECTORY;
+import static com.appsmith.git.constants.GitDirectories.ACTION_DIRECTORY;
+import static com.appsmith.git.constants.GitDirectories.PAGE_DIRECTORY;
 
 public class FileUtilsImplTest {
     private FileUtilsImpl fileUtils;
