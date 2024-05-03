@@ -30,7 +30,6 @@ public class QueryAllParams<T extends BaseDomain> {
     @Deprecated
     private final List<String> fields = new ArrayList<>();
 
-    private Class<?> projection;
     private AclPermission permission;
     private Set<String> permissionGroups;
     private Sort sort;
@@ -53,8 +52,16 @@ public class QueryAllParams<T extends BaseDomain> {
         return repo.queryAllExecute(this);
     }
 
+    public <P> Flux<P> all(Class<P> projectionClass) {
+        return repo.queryAllExecute(this, projectionClass);
+    }
+
     public Mono<T> one() {
         return repo.queryOneExecute(this);
+    }
+
+    public <P> Mono<P> one(Class<P> projectionClass) {
+        return repo.queryOneExecute(this, projectionClass);
     }
 
     public Mono<T> first() {
@@ -141,11 +148,6 @@ public class QueryAllParams<T extends BaseDomain> {
             return this;
         }
         this.fields.addAll(fields);
-        return this;
-    }
-
-    public QueryAllParams<T> projection(Class<?> projectionClass) {
-        this.projection = projectionClass;
         return this;
     }
 
