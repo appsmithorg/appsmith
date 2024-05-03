@@ -31,7 +31,6 @@ import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LEN
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 public class UserSignupTest {
@@ -94,12 +93,12 @@ public class UserSignupTest {
                 tenantService);
 
         exchange = Mockito.mock(ServerWebExchange.class);
-        when(exchange.getSession()).thenReturn(Mono.just(new MockWebSession()));
+        Mockito.when(exchange.getSession()).thenReturn(Mono.just(new MockWebSession()));
 
         tenant = new Tenant();
         TenantConfiguration configuration = new TenantConfiguration();
         tenant.setTenantConfiguration(configuration);
-        when(tenantService.getDefaultTenant()).thenReturn(Mono.just(tenant));
+        Mockito.when(tenantService.getDefaultTenant()).thenReturn(Mono.just(tenant));
     }
 
     private String createRandomString(int length) {
@@ -148,7 +147,7 @@ public class UserSignupTest {
         user.setPassword(createRandomString(LOGIN_PASSWORD_MAX_LENGTH - 1));
 
         tenant.getTenantConfiguration().setIsStrongPasswordPolicyEnabled(true);
-        when(tenantService.getDefaultTenant()).thenReturn(Mono.just(tenant));
+        Mockito.when(tenantService.getDefaultTenant()).thenReturn(Mono.just(tenant));
         Mono<User> userMono = userSignup.signupAndLogin(user, exchange);
         StepVerifier.create(userMono)
                 .expectErrorSatisfies(throwable -> {
