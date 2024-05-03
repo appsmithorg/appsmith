@@ -44,7 +44,7 @@ const adjustZoneFlexGrowForMagneticEffect = (
   // Calculate transition duration based on mouse speed
   const transitionStyle = isSafari()
     ? ""
-    : `all ${
+    : `flex-basis ${
         baseAnimationDuration -
         Math.min(mouseSpeed, speedLimitForAnimation) * ratioOfSpeedToAnimation
       }s ease-in-out`;
@@ -102,10 +102,10 @@ const applyResistiveForceOnHandleMove = (
   // Check if the zones hit the minimum limit
   const hasHitMinimumLimit =
     isLeftZoneLessThanMinimum || isRightZoneLessThanMinimum;
-  const enableTransition = !isSafari() && hasHitMinimumLimit;
+  const isTransitionEnabled = !isSafari() && hasHitMinimumLimit;
   // Apply or remove transition based on hitting the minimum limit
-  const transitionStyle = enableTransition
-    ? `all ${baseAnimationDuration}s ease`
+  const transitionStyle = isTransitionEnabled
+    ? `flex-basis ${baseAnimationDuration}s ease`
     : "";
   [leftZoneDom, rightZoneDom].forEach((zoneDom) => {
     zoneDom.style.transition = transitionStyle;
