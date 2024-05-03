@@ -1,5 +1,7 @@
+import type { Workflow } from "@appsmith/constants/WorkflowConstants";
+
 interface Props {
-  workflowsList: any;
+  workflowsList: Workflow[];
 }
 
 const WorkflowSearchItem = (props: Props) => {
