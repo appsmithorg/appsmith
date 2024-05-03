@@ -4,6 +4,8 @@ import {
   convertFlexGrowToFlexBasis,
   convertFlexGrowToFlexBasisForPropPane,
 } from "./spaceDistributionEditorUtils";
+import { getBrowserInfo } from "utils/helpers";
+import memoize from "micro-memoize";
 
 // Interface representing the DOM elements associated with a space distribution zone
 export interface SpaceDistributionZoneDomCollection {
@@ -12,7 +14,10 @@ export interface SpaceDistributionZoneDomCollection {
   leftZonePropPaneDom: HTMLElement | null;
   rightZonePropPaneDom: HTMLElement | null;
 }
-const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+const isSafari = memoize(() => {
+  const browserInfo = getBrowserInfo();
+  return typeof browserInfo === "object" && browserInfo?.browser === "Safari";
+});
 // Constants for animation and speed control during handle move
 const speedLimitForAnimation = 4000;
 const baseAnimationDuration = 0.25;
@@ -37,7 +42,7 @@ const adjustZoneFlexGrowForMagneticEffect = (
   const reflectOnPropPane = leftZonePropPaneDom && rightZonePropPaneDom;
 
   // Calculate transition duration based on mouse speed
-  const transitionStyle = isSafari
+  const transitionStyle = isSafari()
     ? ""
     : `all ${
         baseAnimationDuration -
@@ -97,7 +102,7 @@ const applyResistiveForceOnHandleMove = (
   // Check if the zones hit the minimum limit
   const hasHitMinimumLimit =
     isLeftZoneLessThanMinimum || isRightZoneLessThanMinimum;
-  const enableTransition = !isSafari && hasHitMinimumLimit;
+  const enableTransition = !isSafari() && hasHitMinimumLimit;
   // Apply or remove transition based on hitting the minimum limit
   const transitionStyle = enableTransition
     ? `all ${baseAnimationDuration}s ease`
