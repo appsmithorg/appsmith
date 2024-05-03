@@ -65,6 +65,9 @@ function WDSThemePropertyPane() {
   const theme = useSelector(getAppThemeSettings);
   const applicationId = useSelector(getCurrentApplicationId);
   const [accentColor, setAccentColor] = useState(theme.accentColor);
+  const isCustomColor = THEME_SETTING_COLOR_PRESETS[theme.colorMode].includes(
+    theme.accentColor,
+  );
 
   const updateTheme = useCallback(
     (theme: ThemeSetting) => {
@@ -91,7 +94,7 @@ function WDSThemePropertyPane() {
       });
       setAccentColor(e.target.value);
     }, 250),
-    [],
+    [theme, updateTheme],
   );
 
   const onColorInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -158,7 +161,14 @@ function WDSThemePropertyPane() {
                 )}
               </button>
             ))}
-            <label htmlFor="color-picker">
+            <label
+              data-selected={isCustomColor === false ? "" : undefined}
+              htmlFor="color-picker"
+              style={{ color: theme.accentColor }}
+            >
+              {isCustomColor === false && (
+                <Icon color="white" name="check-line" size="md" />
+              )}
               <input
                 defaultValue={theme.accentColor}
                 id="color-picker"

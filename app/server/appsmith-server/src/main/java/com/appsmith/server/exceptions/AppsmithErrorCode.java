@@ -117,7 +117,6 @@ public enum AppsmithErrorCode {
     TOO_MANY_REQUESTS("AE-TMR-4029", "Too many requests"),
     TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS("AE-TMR-4030", "Too many failed datasource connectoin requests"),
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
-    CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
     UNSUPPORTED_IMPORT_OPERATION("AE-APP-4040", "Unsupported operation for import application via file"),
     DUPLICATE_DATASOURCE_CONFIGURATION("AE-APP-4093", "Duplicate datasource configuration"),
 
