@@ -259,7 +259,6 @@ public class SecurityConfig {
         User user = new User();
         user.setName(FieldName.ANONYMOUS_USER);
         user.setEmail(FieldName.ANONYMOUS_USER);
-        user.setCurrentWorkspaceId("");
         user.setWorkspaceIds(new HashSet<>());
         user.setIsAnonymous(true);
         return user;
