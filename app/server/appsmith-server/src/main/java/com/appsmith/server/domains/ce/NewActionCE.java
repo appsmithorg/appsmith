@@ -11,6 +11,8 @@ import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.MappedSuperclass;
 import lombok.Getter;
 import lombok.Setter;
@@ -35,6 +37,7 @@ public class NewActionCE extends BranchAwareDomain {
     String workspaceId;
 
     @JsonView({Views.Public.class, Git.class})
+    @Enumerated(EnumType.STRING)
     PluginType pluginType;
 
     @JsonView({Views.Public.class, Git.class})
