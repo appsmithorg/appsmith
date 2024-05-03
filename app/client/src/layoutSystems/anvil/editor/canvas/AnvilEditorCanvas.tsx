@@ -3,7 +3,6 @@ import { AnvilViewerCanvas } from "layoutSystems/anvil/viewer/canvas/AnvilViewer
 import React, { useCallback, useEffect, useRef } from "react";
 import { useSelectWidgetListener } from "./hooks/useSelectWidgetListener";
 import { useClickToClearSelections } from "./hooks/useClickToClearSelections";
-import "./styles/anvilEditorVariables.css";
 import {
   useAnvilGlobalDnDStates,
   type AnvilGlobalDnDStates,
