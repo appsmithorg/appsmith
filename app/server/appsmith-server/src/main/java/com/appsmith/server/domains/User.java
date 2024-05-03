@@ -7,6 +7,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.Setter;
@@ -53,9 +55,11 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     private Boolean passwordResetInitiated = false;
 
     @JsonView(Views.Public.class)
+    @Enumerated(EnumType.STRING)
     private LoginSource source = LoginSource.FORM;
 
     @JsonView(Views.Public.class)
+    @Enumerated(EnumType.STRING)
     private UserState state;
 
     @JsonView(Views.Public.class)

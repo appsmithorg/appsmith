@@ -7,6 +7,8 @@ import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -41,6 +43,7 @@ public class Plugin extends BaseDomain {
     String name;
 
     @JsonView(Views.Public.class)
+    @Enumerated(EnumType.STRING)
     PluginType type;
 
     @JsonView(Views.Public.class)
@@ -59,6 +62,7 @@ public class Plugin extends BaseDomain {
     String documentationLink;
 
     @JsonView(Views.Public.class)
+    @Enumerated(EnumType.STRING)
     ResponseType responseType;
 
     @JsonView(Views.Public.class)
