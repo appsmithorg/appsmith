@@ -9,6 +9,7 @@ import {
 } from "layoutSystems/anvil/common/messages";
 import { createMessage } from "@appsmith/constants/messages";
 import { debugWidget } from "layoutSystems/anvil/integrations/actions";
+import { useDispatch } from "react-redux";
 
 /**
  *
@@ -36,6 +37,7 @@ export function _AnvilWidgetNameComponent(
   },
   ref: ForwardedRef<HTMLDivElement>,
 ) {
+  const dispatch = useDispatch();
   const { parentId } = props;
 
   /** Widget Selection Handlers */
@@ -49,7 +51,7 @@ export function _AnvilWidgetNameComponent(
   }, [props.widgetId]);
 
   const handleDebugClick = useCallback(() => {
-    debugWidget(props.widgetId);
+    dispatch(debugWidget(props.widgetId));
   }, [props.widgetId]);
   /** EO Widget Selection Handlers */
 
