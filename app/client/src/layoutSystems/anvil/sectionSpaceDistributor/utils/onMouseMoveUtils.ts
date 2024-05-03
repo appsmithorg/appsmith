@@ -14,7 +14,7 @@ export interface SpaceDistributionZoneDomCollection {
 }
 const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
 // Constants for animation and speed control during handle move
-const speedLimitForAnimation = isSafari ? 0 : 4000;
+const speedLimitForAnimation = 4000;
 const baseAnimationDuration = 0.25;
 const ratioOfSpeedToAnimation = baseAnimationDuration / speedLimitForAnimation;
 
@@ -37,11 +37,12 @@ const adjustZoneFlexGrowForMagneticEffect = (
   const reflectOnPropPane = leftZonePropPaneDom && rightZonePropPaneDom;
 
   // Calculate transition duration based on mouse speed
-  const transitionStyle = `all ${
-    baseAnimationDuration -
-    Math.min(mouseSpeed, speedLimitForAnimation) * ratioOfSpeedToAnimation
-  }s ease-in-out`;
-
+  const transitionStyle = isSafari
+    ? ""
+    : `all ${
+        baseAnimationDuration -
+        Math.min(mouseSpeed, speedLimitForAnimation) * ratioOfSpeedToAnimation
+      }s ease-in-out`;
   // Apply transition styles to left and right zones
   [leftZoneDom, rightZoneDom].forEach((zoneDom) => {
     zoneDom.style.transition = transitionStyle;
@@ -96,9 +97,9 @@ const applyResistiveForceOnHandleMove = (
   // Check if the zones hit the minimum limit
   const hasHitMinimumLimit =
     isLeftZoneLessThanMinimum || isRightZoneLessThanMinimum;
-
+  const enableTransition = !isSafari && hasHitMinimumLimit;
   // Apply or remove transition based on hitting the minimum limit
-  const transitionStyle = hasHitMinimumLimit
+  const transitionStyle = enableTransition
     ? `all ${baseAnimationDuration}s ease`
     : "";
   [leftZoneDom, rightZoneDom].forEach((zoneDom) => {
