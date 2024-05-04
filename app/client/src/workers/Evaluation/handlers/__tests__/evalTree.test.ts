@@ -37,6 +37,8 @@ jest.mock("utils/MessageUtil", () => {
 
 describe("test", () => {
   it("calls custom evalTree error handler", () => {
+    const startTime = Date.now();
+    const endTime = startTime + 1000;
     const UNSERIALIZABLE_DATA = {
       response: () => {},
       logs: {
@@ -46,7 +48,8 @@ describe("test", () => {
     WorkerMessenger.respond(
       "TEST",
       UNSERIALIZABLE_DATA,
-      4,
+      startTime,
+      endTime,
       evalTreeTransmissionErrorHandler,
     );
     // Since response is unserializable, expect EvalErrorHandler to be called
