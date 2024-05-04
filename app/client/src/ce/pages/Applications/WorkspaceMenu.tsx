@@ -1,12 +1,6 @@
 import React from "react";
 import styled from "styled-components";
-import {
-  Button,
-  Menu,
-  MenuItem,
-  MenuContent,
-  MenuTrigger,
-} from "design-system";
+import { Button, Icon, Menu, MenuContent, MenuTrigger } from "design-system";
 import {
   EditInteractionKind,
   EditableText,
@@ -43,6 +37,25 @@ interface WorkspaceMenuProps {
 
 const WorkspaceRename = styled(EditableText)`
   padding: 0 2px;
+`;
+
+export const CustomMenuItem = styled.div`
+  display: flex;
+  align-items: center;
+  padding: var(--ads-v2-spaces-3);
+  margin-bottom: var(--ads-v2-spaces-1);
+  gap: var(--ads-v2-spaces-3);
+  border-radius: var(--ads-v2-border-radius);
+  cursor: pointer;
+  position: relative;
+  color: var(--ads-v2-color-fg);
+  min-height: 36px;
+  box-sizing: border-box;
+  font-size: var(--ads-v2-font-size-4);
+
+  &:hover {
+    background-color: var(--ads-v2-color-bg-subtle);
+  }
 `;
 
 function WorkspaceMenu({
@@ -94,11 +107,11 @@ function WorkspaceMenu({
           <>
             <div
               className="px-3 py-2"
-              onKeyDown={(e) => {
-                // This is to prevent the Menu component to take focus away from the input
-                // https://github.com/radix-ui/primitives/issues/1175
-                e.stopPropagation();
-              }}
+              // onKeyDown={(e) => {
+              //   // This is to prevent the Menu component to take focus away from the input
+              //   // https://github.com/radix-ui/primitives/issues/1175
+              //   e.stopPropagation();
+              // }}
             >
               <WorkspaceRename
                 className="t--workspace-rename-input"
@@ -122,60 +135,60 @@ function WorkspaceMenu({
                 underline
               />
             </div>
-            <MenuItem
+            <CustomMenuItem
               data-testid="t--workspace-setting"
-              onSelect={() =>
+              onClick={() =>
                 getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
                   path: `/workspace/${workspace.id}/settings/general`,
                 })
               }
-              startIcon="settings-2-line"
             >
+              <Icon name="settings-2-line" size="md" />
               Settings
-            </MenuItem>
+            </CustomMenuItem>
           </>
         )}
         {hasManageWorkspacePermissions && canInviteToWorkspace && (
-          <MenuItem
-            onSelect={() =>
+          <CustomMenuItem
+            onClick={() =>
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
                 path: `/workspace/${workspace.id}/settings/members`,
               })
             }
-            startIcon="group-line"
           >
+            <Icon name="group-line" size="md" />
             Members
-          </MenuItem>
+          </CustomMenuItem>
         )}
         <ManageEnvironmentsMenu
           workspaceId={workspace.id}
           workspacePermissions={workspace.userPermissions || []}
         />
         {canInviteToWorkspace && (
-          <MenuItem
+          <CustomMenuItem
             className="error-menuitem"
-            onSelect={() => {
+            onClick={() => {
               !warnLeavingWorkspace
                 ? setWarnLeavingWorkspace(true)
                 : leaveWS(workspace.id);
             }}
-            startIcon="logout"
           >
+            <Icon name="logout" size="md" />
             {!warnLeavingWorkspace ? "Leave workspace" : "Are you sure?"}
-          </MenuItem>
+          </CustomMenuItem>
         )}
         {canDeleteWorkspace && (
-          <MenuItem
+          <CustomMenuItem
             className="error-menuitem"
-            onSelect={() => {
+            onClick={() => {
               warnDeleteWorkspace
                 ? handleDeleteWorkspace(workspace.id)
                 : setWarnDeleteWorkspace(true);
             }}
-            startIcon="delete-bin-line"
           >
+            <Icon name="delete-bin-line" size="md" />
             {!warnDeleteWorkspace ? "Delete workspace" : "Are you sure?"}
-          </MenuItem>
+          </CustomMenuItem>
         )}
       </MenuContent>
     </Menu>
