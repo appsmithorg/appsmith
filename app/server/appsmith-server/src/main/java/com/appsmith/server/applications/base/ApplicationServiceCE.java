@@ -7,7 +7,6 @@ import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
 import com.appsmith.server.services.CrudService;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -16,8 +15,6 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface ApplicationServiceCE extends CrudService<Application, String> {
-
-    Flux<Application> get(MultiValueMap<String, String> params);
 
     Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName);
 
@@ -28,8 +25,6 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
 
     Flux<Application> findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(String workspaceId);
-
-    Mono<Application> findByName(String name, AclPermission permission);
 
     Mono<Application> save(Application application);
 
@@ -72,16 +67,11 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
             List<String> projectionFieldNames,
             AclPermission aclPermission);
 
-    Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(
-            String branchName, String defaultApplicationId, String fieldName, AclPermission aclPermission);
-
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
     Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
     Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(String workspaceId);
-
-    Flux<Application> getGitConnectedApplicationsByWorkspaceId(String workspaceId);
 
     String getRandomAppCardColor();
 
