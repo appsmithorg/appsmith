@@ -86,7 +86,7 @@ import { DSFormHeader } from "./DSFormHeader";
 import type { PluginType } from "entities/Action";
 import { PluginPackageName } from "entities/Action";
 import DSDataFilter from "@appsmith/components/DSDataFilter";
-import { DEFAULT_ENV_ID } from "@appsmith/api/ApiUtils";
+import { DEFAULT_ENV_ID } from "constants/EnvironmentContants";
 import { isStorageEnvironmentCreated } from "@appsmith/utils/Environments";
 import type { CalloutKind } from "design-system";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
