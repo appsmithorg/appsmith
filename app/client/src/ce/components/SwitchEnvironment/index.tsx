@@ -19,6 +19,10 @@ import {
   RampFeature,
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
+import {
+  environmentList,
+  type EnvironmentType,
+} from "constants/EnvironmentContants";
 
 export const Wrapper = styled.div`
   display: flex;
@@ -52,28 +56,24 @@ export interface Props {
   startSwitchEnvMessage: (...strArgs: any[]) => string;
 }
 
-export interface EnvironmentType {
-  id: string;
-  name: string;
-  selected: boolean;
-}
-
-export const environmentList: Array<EnvironmentType> = [
-  {
-    id: "unused_env",
-    name: "production",
-    selected: true,
-  },
-  {
-    id: "unused_env",
-    name: "staging",
-    selected: false,
-  },
-];
-
 export const TooltipLink = styled(Link)`
   display: inline;
 `;
+
+export const DisabledTooltipContent = (rampLink: string) => {
+  return (
+    <Text
+      color="var(--ads-v2-color-white)"
+      data-testid="t--switch-env-tooltip"
+      kind="action-m"
+    >
+      {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
+      <TooltipLink kind="primary" target="_blank" to={rampLink}>
+        {createMessage(BUSINESS_EDITION_TEXT)}
+      </TooltipLink>
+    </Text>
+  );
+};
 
 export default function SwitchEnvironment({}: Props) {
   const [disableSwitchEnvironment, setDisableSwitchEnvironment] =
@@ -111,21 +111,6 @@ export default function SwitchEnvironment({}: Props) {
     );
   };
 
-  const DisabledTooltipContent = () => {
-    return (
-      <Text
-        color="var(--ads-v2-color-white)"
-        data-testid="t--switch-env-tooltip"
-        kind="action-m"
-      >
-        {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
-        <TooltipLink kind="primary" target="_blank" to={rampLink}>
-          {createMessage(BUSINESS_EDITION_TEXT)}
-        </TooltipLink>
-      </Text>
-    );
-  };
-
   return (
     <Wrapper
       aria-disabled={disableSwitchEnvironment && !isDatasourceViewMode}
@@ -156,7 +141,10 @@ export default function SwitchEnvironment({}: Props) {
             {env.selected ? (
               <div className="flex flex-col gap-1">{renderEnvOption(env)}</div>
             ) : (
-              <Tooltip content={DisabledTooltipContent()} placement="right">
+              <Tooltip
+                content={DisabledTooltipContent(rampLink)}
+                placement="right"
+              >
                 {renderEnvOption(env)}
               </Tooltip>
             )}

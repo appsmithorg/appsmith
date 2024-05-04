@@ -33,6 +33,7 @@ export function useOutsideClick<T extends HTMLElement>(
   callback: () => void,
 ) {
   useEffect(() => {
+    // This function checks if the click was outside the specified ref elements and calls the callback if true.
     function handleClickOutside(event: MouseEvent) {
       if (
         ref.current &&

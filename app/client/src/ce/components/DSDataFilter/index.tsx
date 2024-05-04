@@ -1,12 +1,7 @@
 import React, { useEffect, useState } from "react";
 import styled from "styled-components";
 import { Link, Tag, Text, Tooltip } from "design-system";
-import {
-  BUSINESS_EDITION_TEXT,
-  BUSINESS_TAG,
-  SWITCH_ENV_DISABLED_TOOLTIP_TEXT,
-  createMessage,
-} from "@appsmith/constants/messages";
+import { BUSINESS_TAG, createMessage } from "@appsmith/constants/messages";
 import { capitalizeFirstLetter } from "utils/helpers";
 import {
   getRampLink,
@@ -18,6 +13,9 @@ import {
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
 import { useSelector } from "react-redux";
+import type { EnvironmentType } from "constants/EnvironmentContants";
+import { environmentList } from "constants/EnvironmentContants";
+import { DisabledTooltipContent } from "@appsmith/components/SwitchEnvironment";
 
 export const Container = styled.div`
   display: flex;
@@ -67,28 +65,6 @@ export interface DSDataFilterProps {
   filterId: string; // id of the selected environment, used to keep the parent and child in sync
 }
 
-export interface EnvironmentType {
-  id: string;
-  name: string;
-  selected: boolean;
-  userPermissions: string[];
-}
-
-export const environments: Array<EnvironmentType> = [
-  {
-    id: "unused_env",
-    name: "production",
-    selected: true,
-    userPermissions: [],
-  },
-  {
-    id: "unused_env",
-    name: "staging",
-    selected: false,
-    userPermissions: [],
-  },
-];
-
 export function DSDataFilter({
   isInsideReconnectModal,
   viewMode,
@@ -106,15 +82,15 @@ export function DSDataFilter({
   // update the selected environment if the list of environments changes
   useEffect(() => {
     const isRenderAllowed =
-      environments.length > 0 &&
+      environmentList.length > 0 &&
       canShowRamp &&
       !viewMode &&
       !isInsideReconnectModal;
 
     if (showFilterPane !== isRenderAllowed) setShowFilterPane(isRenderAllowed);
     // If there are no environments, do nothing
-    if (!environments.length) return;
-  }, [environments.length, viewMode, isInsideReconnectModal]);
+    if (!environmentList.length) return;
+  }, [environmentList.length, viewMode, isInsideReconnectModal]);
 
   if (!showFilterPane) return null;
 
@@ -145,23 +121,12 @@ export function DSDataFilter({
     );
   };
 
-  const DisabledTooltipContent = () => {
-    return (
-      <Text color="var(--ads-v2-color-white)" kind="action-m">
-        {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
-        <TooltipLink kind="primary" target="_blank" to={rampLink}>
-          {createMessage(BUSINESS_EDITION_TEXT)}
-        </TooltipLink>
-      </Text>
-    );
-  };
-
   return (
     <Container>
-      {environments.map((env: EnvironmentType) => {
+      {environmentList.map((env: EnvironmentType) => {
         const isDisabled = !env.selected;
         return isDisabled ? (
-          <Tooltip content={DisabledTooltipContent()} placement="right">
+          <Tooltip content={DisabledTooltipContent(rampLink)} placement="right">
             {renderOption(env, isDisabled)}
           </Tooltip>
         ) : (

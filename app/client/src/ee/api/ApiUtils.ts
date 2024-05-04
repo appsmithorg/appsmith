@@ -1,6 +1,5 @@
 export * from "ce/api/ApiUtils";
-
-export const DEFAULT_ENV_ID = "unused_env";
+import { DEFAULT_ENV_ID } from "constants/EnvironmentContants";
 
 export const getEnvironmentIdForHeader = (): string => {
   return DEFAULT_ENV_ID;
