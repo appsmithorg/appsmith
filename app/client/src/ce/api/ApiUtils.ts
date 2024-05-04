@@ -27,6 +27,7 @@ import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
+import { DEFAULT_ENV_ID } from "constants/EnvironmentContants";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
@@ -253,4 +254,13 @@ export const apiFailureResponseInterceptor = async (error: any) => {
   }
   log.debug(error.config);
   return Promise.resolve(error);
+};
+
+export const getEnvironmentIdForHeader = (): string => {
+  return DEFAULT_ENV_ID;
+};
+
+// function to get the default environment
+export const getDefaultEnvId = () => {
+  return DEFAULT_ENV_ID;
 };
