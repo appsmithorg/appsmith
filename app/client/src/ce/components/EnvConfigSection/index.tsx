@@ -1,7 +1,7 @@
 import type { Datasource } from "entities/Datasource";
 import { renderDatasourceSection } from "pages/Editor/DataSourceEditor/DatasourceSection";
 
-interface Props {
+export interface Props {
   currentEnv: string;
   config: any;
   datasource: Datasource;

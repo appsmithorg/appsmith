@@ -19,7 +19,7 @@ import {
 } from "utils/ProductRamps/RampsControlList";
 import { useSelector } from "react-redux";
 
-const Container = styled.div`
+export const Container = styled.div`
   display: flex;
   flex-direction: column;
   border-right: 1px solid var(--ads-v2-color-border);
@@ -27,7 +27,7 @@ const Container = styled.div`
   height: 100%;
 `;
 
-const FilterComponentContainer = styled.div<{
+export const FilterComponentContainer = styled.div<{
   isSelected: boolean;
   disabled: boolean;
 }>`
@@ -44,15 +44,17 @@ const FilterComponentContainer = styled.div<{
   ${(props) => (props.disabled ? ` cursor: not-allowed;` : `cursor: pointer;`)}
 `;
 
-const FilterComponentLabel = styled(Text)<{ disabled: boolean }>`
+export const FilterComponentLabel = styled(Text)<{ disabled: boolean }>`
   opacity: ${(props) => (props.disabled ? 0.6 : 1)};
+  text-overflow: ellipsis;
+  overflow: hidden;
 `;
 
-const TooltipLink = styled(Link)`
+export const TooltipLink = styled(Link)`
   display: inline;
 `;
 
-interface DSDataFilterProps {
+export interface DSDataFilterProps {
   updateFilter: (
     id: string,
     name: string,
@@ -65,14 +67,14 @@ interface DSDataFilterProps {
   filterId: string; // id of the selected environment, used to keep the parent and child in sync
 }
 
-interface EnvironmentType {
+export interface EnvironmentType {
   id: string;
   name: string;
   selected: boolean;
   userPermissions: string[];
 }
 
-const environments: Array<EnvironmentType> = [
+export const environments: Array<EnvironmentType> = [
   {
     id: "unused_env",
     name: "production",
@@ -87,7 +89,10 @@ const environments: Array<EnvironmentType> = [
   },
 ];
 
-function DSDataFilter({ isInsideReconnectModal, viewMode }: DSDataFilterProps) {
+export function DSDataFilter({
+  isInsideReconnectModal,
+  viewMode,
+}: DSDataFilterProps) {
   const [showFilterPane, setShowFilterPane] = useState(false);
   const showRampSelector = showProductRamps(RAMP_NAME.MULTIPLE_ENV, true);
   const canShowRamp = useSelector(showRampSelector);

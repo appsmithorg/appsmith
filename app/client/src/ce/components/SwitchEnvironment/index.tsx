@@ -20,7 +20,7 @@ import {
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   display: flex;
   border-right: 1px solid var(--ads-v2-color-border);
   padding: 0px 16px;
@@ -32,7 +32,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const StyledText = styled(Text)<{
+export const StyledText = styled(Text)<{
   disabled: boolean;
 }>`
   color: var(--ads-v2-color-fg-emphasis);
@@ -41,24 +41,24 @@ const StyledText = styled(Text)<{
   flex-direction: row;
 `;
 
-const StyledIcon = styled(Icon)`
+export const StyledIcon = styled(Icon)`
   margin-right: 8px;
 `;
 
-interface Props {
+export interface Props {
   viewMode?: boolean;
   editorId: string;
   onChangeEnv?: () => void;
   startSwitchEnvMessage: (...strArgs: any[]) => string;
 }
 
-interface EnvironmentType {
+export interface EnvironmentType {
   id: string;
   name: string;
   selected: boolean;
 }
 
-const environmentList: Array<EnvironmentType> = [
+export const environmentList: Array<EnvironmentType> = [
   {
     id: "unused_env",
     name: "production",
@@ -71,7 +71,7 @@ const environmentList: Array<EnvironmentType> = [
   },
 ];
 
-const TooltipLink = styled(Link)`
+export const TooltipLink = styled(Link)`
   display: inline;
 `;
 
