@@ -39,7 +39,7 @@ const WorkspaceRename = styled(EditableText)`
   padding: 0 2px;
 `;
 
-export const CustomMenuItem = styled.div`
+export const CustomMenuItem = styled.span`
   display: flex;
   align-items: center;
   padding: var(--ads-v2-spaces-3);
