@@ -4,7 +4,7 @@ import type {
   Setting,
 } from "@appsmith/pages/AdminSettings/config/types";
 import { SettingTypes } from "@appsmith/pages/AdminSettings/config/types";
-export class ConfigFactory {
+export default class ConfigFactory {
   static settingsMap: Record<string, Setting> = {};
   static settings: Setting[] = [];
   static categories: Category[] = [];
