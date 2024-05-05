@@ -62,7 +62,7 @@ body:
     label: Severity
     description: "The impact of the issue"
     options:
-        - Low (Inconsistent UI/UX)
+        - Low (Cosmetic UI issues)
         - Medium (Frustrating UX)
         - High (Blocker to building or releasing)
         - Critical (Broken Production apps)

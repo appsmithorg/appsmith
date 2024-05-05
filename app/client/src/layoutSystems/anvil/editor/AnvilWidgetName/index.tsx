@@ -13,18 +13,26 @@ import {
 import { AnvilWidgetNameComponent } from "./AnvilWidgetNameComponent";
 import { getWidgetErrorCount, shouldSelectOrFocus } from "./selectors";
 import type { NameComponentStates } from "./types";
+import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
 
 export function AnvilWidgetName(props: {
   widgetId: string;
   widgetName: string;
+  layoutId: string;
   parentId?: string;
   widgetType: string;
 }) {
-  const { parentId, widgetId, widgetName, widgetType } = props;
+  const { layoutId, parentId, widgetId, widgetName, widgetType } = props;
   const nameComponentState: NameComponentStates = useSelector(
     shouldSelectOrFocus(widgetId),
   );
 
+  const generateDragState = useCallback(() => {
+    return generateDragStateForAnvilLayout({
+      widgetType,
+      layoutId,
+    });
+  }, [widgetType, layoutId]);
   const showError = useSelector(
     (state) => getWidgetErrorCount(state, widgetId) > 0,
   );
@@ -42,17 +50,7 @@ export function AnvilWidgetName(props: {
       e.preventDefault();
       e.stopPropagation();
       if (nameComponentState === "select") {
-        const startPoints = {
-          top: 0,
-          left: 0,
-        };
-        setDraggingState({
-          isDragging: true,
-          dragGroupActualParent: parentId,
-          draggingGroupCenter: { widgetId },
-          startPoints,
-          draggedOn: parentId,
-        });
+        setDraggingState(generateDragState());
       }
     },
     [setDraggingState, nameComponentState],

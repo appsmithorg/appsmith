@@ -57,7 +57,7 @@ export function useHandleDetachedWidgetSelect(widgetId: string) {
     };
 
     // Registering and unregistering listeners
-    if (element) {
+    if (element && !isPreviewMode) {
       element.addEventListener("click", handleWidgetSelect, {
         passive: false,
         capture: false,

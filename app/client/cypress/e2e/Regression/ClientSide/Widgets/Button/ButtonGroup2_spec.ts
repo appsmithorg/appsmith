@@ -163,7 +163,7 @@ describe(
       agHelper.ClickButton("Close");
       EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
       agHelper.GetNClick(buttongroupwidgetlocators.buttonSettingInPropPane, 0);
-      propPane.EnterJSContext("onClick", "{{showModal('Modal1')}}");
+      propPane.EnterJSContext("onClick", "{{showModal(Modal1.name)}}");
       deployMode.DeployApp();
       agHelper.ClickButton("Favorite");
       agHelper.AssertElementExist(locators._modal);
