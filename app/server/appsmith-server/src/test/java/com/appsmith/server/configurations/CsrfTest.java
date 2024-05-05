@@ -32,7 +32,7 @@ public class CsrfTest {
 
     @ParameterizedTest
     @MethodSource("testParams")
-    void loginFailsWithoutCsrfParam(TestParams t) {
+    void testCsrf(TestParams t) {
         final String tokenValue = UUID.randomUUID().toString();
 
         final WebTestClient.RequestBodySpec spec = webTestClient
@@ -61,7 +61,7 @@ public class CsrfTest {
                     .expectHeader()
                     .valueMatches(HttpHeaders.LOCATION, ".*\\?error=.*");
         } else {
-            response.expectStatus().isUnauthorized();
+            response.expectStatus().isForbidden();
         }
     }
 

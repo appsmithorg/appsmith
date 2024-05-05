@@ -1,8 +1,10 @@
 package com.appsmith.server.configurations;
 
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.config.Customizer;
@@ -40,12 +42,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
  * OWASP on CSRF</a>
  */
 @Component
+@RequiredArgsConstructor
 public class CsrfConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, ServerWebExchangeMatcher, WebFilter {
 
     @SuppressWarnings("UastIncorrectHttpHeaderInspection")
     private static final String X_REQUESTED_BY_NAME = "X-Requested-By";
 
     private static final String X_REQUESTED_BY_VALUE = "Appsmith";
+    private final DefaultDataBufferFactory dataBufferFactory;
 
     void applyTo(ServerHttpSecurity http) {
         http.csrf(this).addFilterAfter(this, SecurityWebFiltersOrder.CSRF);
@@ -53,8 +57,6 @@ public class CsrfConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, Serv
 
     @Override
     public void customize(@NonNull ServerHttpSecurity.CsrfSpec spec) {
-        // TODO: Add exception handling, on error, redirect to the login page or whatever the referrer was, with error
-        //  information.
         spec.requireCsrfProtectionMatcher(this)
                 .csrfTokenRepository(new Repository())
                 // TODO: This shouldn't be necessary. This is weaker than the default and recommended option,
