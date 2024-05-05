@@ -1,10 +1,11 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.server.authentication.handlers.AccessDeniedHandler;
 import lombok.NonNull;
+import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -18,8 +19,6 @@ import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
-
-import java.util.Set;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 
@@ -37,19 +36,14 @@ import static org.springframework.http.MediaType.APPLICATION_JSON;
  * OWASP on CSRF</a>
  */
 @Component
-public class CSRFConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, WebFilter {
+@RequiredArgsConstructor
+public class CsrfConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, WebFilter {
+
+    private final AccessDeniedHandler accessDeniedHandler;
 
     // This custom header is likely not needed anymore, now that we have token-style CSRF protection.
     private static final String X_REQUESTED_BY_NAME = "X-Requested-By";
     private static final String X_REQUESTED_BY_VALUE = "Appsmith";
-
-    /**
-     * These methods should be handled as read-only requests, and assuming that is true, they are safe in the context of
-     * CSRF, and shouldn't have a CSRF token check.
-     * <a href="https://docs.spring.io/spring-security/reference/features/exploits/csrf.html#csrf-protection-read-only">Reference on Spring docs</a>.
-     */
-    private static final Set<HttpMethod> SAFE_READ_ONLY_METHODS =
-            Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.TRACE);
 
     void applyTo(ServerHttpSecurity http) {
         http.csrf(this).addFilterAfter(this, SecurityWebFiltersOrder.CSRF);
@@ -59,18 +53,14 @@ public class CSRFConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, WebF
     public void customize(ServerHttpSecurity.CsrfSpec spec) {
         spec.requireCsrfProtectionMatcher(this::match)
                 .csrfTokenRepository(CookieServerCsrfTokenRepository.withHttpOnlyFalse())
-                .csrfTokenRequestHandler(new SpaHandler());
+                // TODO: This shouldn't be necessary. This is weaker than the default and recommended option,
+                //  `XorServerCsrfTokenRequestAttributeHandler`. Find out why the default request handler isn't working.
+                .csrfTokenRequestHandler(new ServerCsrfTokenRequestAttributeHandler())
+                .accessDeniedHandler(accessDeniedHandler);
     }
 
     private Mono<ServerWebExchangeMatcher.MatchResult> match(ServerWebExchange exchange) {
         final ServerHttpRequest request = exchange.getRequest();
-        final HttpMethod method = request.getMethod();
-
-        if (SAFE_READ_ONLY_METHODS.contains(method)) {
-            // If the method isn't anything supported by the HTML `form` element, CSRF check isn't needed.
-            return ServerWebExchangeMatcher.MatchResult.notMatch();
-        }
-
         final HttpHeaders headers = request.getHeaders();
 
         if (X_REQUESTED_BY_VALUE.equals(headers.getFirst(X_REQUESTED_BY_NAME))) {
@@ -83,18 +73,13 @@ public class CSRFConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, WebF
             return ServerWebExchangeMatcher.MatchResult.notMatch();
         }
 
+        if (StringUtils.isNotEmpty(headers.getFirst(HttpHeaders.AUTHORIZATION))) {
+            // If the request has a non-empty `Authorization` header, CSRF check isn't needed.
+            return ServerWebExchangeMatcher.MatchResult.notMatch();
+        }
+
         // Require a CSRF token check for any request that falls through here.
         return ServerWebExchangeMatcher.MatchResult.match();
-    }
-
-    public static class SpaHandler extends ServerCsrfTokenRequestAttributeHandler {
-        @Override
-        public Mono<String> resolveCsrfTokenValue(ServerWebExchange exchange, CsrfToken csrfToken) {
-            final String tokenValue = exchange.getRequest().getHeaders().getFirst(csrfToken.getHeaderName());
-            return StringUtils.isNotEmpty(tokenValue)
-                    ? Mono.just(tokenValue)
-                    : super.resolveCsrfTokenValue(exchange, csrfToken);
-        }
     }
 
     @Override

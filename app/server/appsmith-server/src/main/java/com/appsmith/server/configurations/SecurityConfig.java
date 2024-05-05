@@ -104,7 +104,7 @@ public class SecurityConfig {
     private CustomOauth2ClientRepositoryManager oauth2ClientManager;
 
     @Autowired
-    private CSRFConfig csrfConfig;
+    private CsrfConfig csrfConfig;
 
     @Value("${appsmith.internal.password}")
     private String INTERNAL_PASSWORD;
