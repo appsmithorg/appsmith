@@ -60,6 +60,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHTMLPageTitle } from "@appsmith/utils/BusinessFeatures/brandingPageHelpers";
 import log from "loglevel";
 import { SELF_HOSTING_DOC } from "constants/ThirdPartyConstants";
+import CsrfTokenInput from "pages/UserAuth/CsrfTokenInput";
 
 declare global {
   interface Window {
@@ -226,6 +227,7 @@ export function SignUp(props: SignUpFormProps) {
           method="POST"
           onSubmit={(e) => handleSubmit(e)}
         >
+          <CsrfTokenInput />
           <FormGroup
             intent={error ? "danger" : "none"}
             label={createMessage(SIGNUP_PAGE_EMAIL_INPUT_LABEL)}

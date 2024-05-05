@@ -88,10 +88,7 @@ export const apiRequestInterceptor = (config: AxiosRequestConfig) => {
   config.headers = config.headers ?? {};
 
   // Add header for CSRF protection.
-  const methodUpper = config.method?.toUpperCase();
-  if (methodUpper && methodUpper !== "GET" && methodUpper !== "HEAD") {
-    config.headers["X-Requested-By"] = "Appsmith";
-  }
+  config.headers["X-Requested-By"] = "Appsmith";
 
   const state = store.getState();
   const branch = getCurrentGitBranch(state) || getQueryParamsObject().branch;
