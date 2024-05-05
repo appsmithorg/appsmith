@@ -1,6 +1,7 @@
 package com.appsmith.server.services;
 
 import com.appsmith.server.configurations.CommonConfig;
+import com.appsmith.server.configurations.DeploymentProperties;
 import com.appsmith.server.configurations.ProjectProperties;
 import com.appsmith.server.helpers.UserUtils;
 import com.appsmith.server.repositories.UserDataRepository;
@@ -22,7 +23,8 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
             ConfigService configService,
             UserUtils userUtils,
             ProjectProperties projectProperties,
-            UserDataRepository userDataRepository) {
+            UserDataRepository userDataRepository,
+            DeploymentProperties deploymentProperties) {
         super(
                 analytics,
                 sessionUserService,
@@ -30,6 +32,7 @@ public class AnalyticsServiceImpl extends AnalyticsServiceCEImpl implements Anal
                 configService,
                 userUtils,
                 projectProperties,
+                deploymentProperties,
                 userDataRepository);
     }
 }

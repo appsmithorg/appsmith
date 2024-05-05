@@ -10,6 +10,7 @@ import {
 } from "layoutSystems/anvil/utils/constants";
 import { FlexLayerAlignment } from "layoutSystems/common/utils/constants";
 import { renderWidgets } from "layoutSystems/anvil/utils/layouts/renderUtils";
+import { isEditOnlyModeSelector } from "../../../../../selectors/editorSelectors";
 import { FlexLayout, type FlexLayoutProps } from "../FlexLayout";
 import { isFillWidgetPresentInList } from "layoutSystems/anvil/utils/layouts/widgetUtils";
 import { getAnvilLayoutDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
@@ -92,6 +93,11 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
     setIsAnyAlignmentOverflowing(shouldOverrideStyle);
   }, [hasFillWidget, renderMode, shouldOverrideStyle]);
 
+  const isEditMode = useSelector(isEditOnlyModeSelector);
+  const isStartVisible = () => startChildren.length > 0 || isEditMode;
+  const isCenterVisible = () => centerChildren.length > 0 || isEditMode;
+  const isEndVisible = () => endChildren.length > 0 || isEditMode;
+
   const commonProps: Omit<
     FlexLayoutProps,
     "children" | "layoutId" | "layoutIndex"
@@ -112,6 +118,7 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
         ? { base: "wrap" }
         : { base: "wrap", [`${MOBILE_BREAKPOINT}px`]: "nowrap" },
       className: props.className,
+      maxWidth: "100%",
     };
   }, [isAnyAlignmentOverflowing]);
 
@@ -145,48 +152,54 @@ const AlignedWidgetRowComp = (props: LayoutComponentProps) => {
   // WDS Flex can be used as a replacement.
   return (
     <>
-      <FlexLayout
-        {...commonProps}
-        justifyContent="start"
-        key={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Start]}`}
-        layoutId={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Start]}`}
-        layoutIndex={AlignmentIndexMap[FlexLayerAlignment.Start]}
-      >
-        {renderWidgets({
-          ...props,
-          layout: startChildren,
-        })}
-      </FlexLayout>
-      <FlexLayout
-        {...commonProps}
-        justifyContent="center"
-        key={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Center]}`}
-        layoutId={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Center]}`}
-        layoutIndex={AlignmentIndexMap[FlexLayerAlignment.Center]}
-      >
-        {renderWidgets(
-          {
+      {isStartVisible() && (
+        <FlexLayout
+          {...commonProps}
+          justifyContent="start"
+          key={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Start]}`}
+          layoutId={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Start]}`}
+          layoutIndex={AlignmentIndexMap[FlexLayerAlignment.Start]}
+        >
+          {renderWidgets({
             ...props,
-            layout: centerChildren,
-          },
-          startChildren?.length,
-        )}
-      </FlexLayout>
-      <FlexLayout
-        {...commonProps}
-        justifyContent="end"
-        key={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.End]}`}
-        layoutId={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.End]}`}
-        layoutIndex={AlignmentIndexMap[FlexLayerAlignment.End]}
-      >
-        {renderWidgets(
-          {
-            ...props,
-            layout: endChildren,
-          },
-          startChildren?.length + centerChildren?.length,
-        )}
-      </FlexLayout>
+            layout: startChildren,
+          })}
+        </FlexLayout>
+      )}
+      {isCenterVisible() && (
+        <FlexLayout
+          {...commonProps}
+          justifyContent="center"
+          key={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Center]}`}
+          layoutId={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.Center]}`}
+          layoutIndex={AlignmentIndexMap[FlexLayerAlignment.Center]}
+        >
+          {renderWidgets(
+            {
+              ...props,
+              layout: centerChildren,
+            },
+            startChildren?.length,
+          )}
+        </FlexLayout>
+      )}
+      {isEndVisible() && (
+        <FlexLayout
+          {...commonProps}
+          justifyContent="end"
+          key={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.End]}`}
+          layoutId={`${layoutId}-${AlignmentIndexMap[FlexLayerAlignment.End]}`}
+          layoutIndex={AlignmentIndexMap[FlexLayerAlignment.End]}
+        >
+          {renderWidgets(
+            {
+              ...props,
+              layout: endChildren,
+            },
+            startChildren?.length + centerChildren?.length,
+          )}
+        </FlexLayout>
+      )}
     </>
   );
 };

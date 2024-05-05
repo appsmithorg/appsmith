@@ -65,7 +65,7 @@ export const getModalDropdownList = createSelector(
     return modalWidgets.map((widget: FlattenedWidgetProps) => ({
       id: widget.widgetId,
       label: widget.widgetName,
-      value: `${widget.widgetName}`,
+      value: `${widget.widgetName}.name`,
     }));
   },
 );

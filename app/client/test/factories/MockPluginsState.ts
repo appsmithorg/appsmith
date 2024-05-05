@@ -1,12 +1,21 @@
 import type { PluginDataState } from "reducers/entityReducers/pluginsReducer";
 import { PluginPackageName } from "entities/Action";
 
-export const PluginIDs = {
+export const PluginIDs: Record<PluginPackageName, string> = {
   [PluginPackageName.POSTGRES]: "65e58df196506a506bd7069c",
   [PluginPackageName.REST_API]: "65e58df196506a506bd7069d",
   [PluginPackageName.MONGO]: "65e58df196506a506bd7069e",
   [PluginPackageName.GOOGLE_SHEETS]: "65e58df296506a506bd706a9",
   [PluginPackageName.JS]: "65e58df296506a506bd706ad",
+  [PluginPackageName.MY_SQL]: "65e58df296506a506bd7069f",
+  [PluginPackageName.S3]: "65e58df296506a506bd706a8",
+  [PluginPackageName.SNOWFLAKE]: "65e58df296506a506bd706ab",
+  [PluginPackageName.FIRESTORE]: "65e58df296506a506bd706a6",
+  [PluginPackageName.GRAPHQL]: "65e58df396506a506bd706be",
+  [PluginPackageName.APPSMITH_AI]: "65e58fe2225bee69e71c536a",
+  [PluginPackageName.MS_SQL]: "65e58df296506a506bd706a5",
+  [PluginPackageName.ORACLE]: "65e58df396506a506bd706bf",
+  [PluginPackageName.WORKFLOW]: "<replace-me-with-default-plugin-id>", // this is added for the typing of PluginIDs to pass
 };
 
 export default {
@@ -5954,6 +5963,7 @@ export default {
                 label: "Port",
                 configProperty: "datasourceConfiguration.endpoints[*].port",
                 dataType: "NUMBER",
+                initialValue: ["5432"],
                 controlType: "KEYVALUE_ARRAY",
                 placeholderText: "5432",
               },

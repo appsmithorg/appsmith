@@ -94,6 +94,14 @@ export interface WidgetBaseConfiguration {
 
   // Flag to tell withWidgetProps HOC to inject evaluation errors into the widget
   needsErrorInfo?: boolean;
+
+  onCanvasUI?: {
+    selectionBGCSSVar: string;
+    focusBGCSSVar: string;
+    selectionColorCSSVar: string;
+    focusColorCSSVar: string;
+    disableParentSelection: boolean;
+  };
 }
 
 export type WidgetDefaultProps = Partial<WidgetProps> & WidgetConfigProps;
@@ -131,6 +139,8 @@ export interface WidgetMethods {
   getCanvasHeightOffset?: GetCanvasHeightOffset;
   getEditorCallouts?: GetEditorCallouts;
   getOneClickBindingConnectableWidgetConfig?: GetOneClickBindingConnectableWidgetConfig;
+  IconCmp?: () => JSX.Element;
+  ThumbnailCmp?: () => JSX.Element;
 }
 
 type GetEditorCallouts = (props: WidgetProps) => WidgetCallout[];

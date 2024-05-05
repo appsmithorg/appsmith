@@ -83,6 +83,12 @@ export const deriveRowHighlights =
       posY: HIGHLIGHT_SIZE / 2,
       rowIndex: 0,
       width: HIGHLIGHT_SIZE,
+      edgeDetails: {
+        top: false,
+        bottom: false,
+        left: false,
+        right: false,
+      },
     };
 
     // If layout is empty, add an initial highlight.
@@ -520,13 +526,20 @@ export function generateHighlights(
       layoutDimension.left,
     );
   }
-
+  const posY = tallestDimension?.top ?? layoutDimension.top;
   return {
     ...baseHighlight,
     height: tallestDimension?.height ?? layoutDimension.height,
     posX,
-    posY: tallestDimension?.top ?? layoutDimension.top,
+    posY,
     rowIndex,
+    edgeDetails: {
+      top: posY === layoutDimension.top,
+      bottom: posY === layoutDimension.top + layoutDimension.height,
+      left: posX === layoutDimension.left,
+      right:
+        posX + HIGHLIGHT_SIZE === layoutDimension.left + layoutDimension.width,
+    },
   };
 }
 

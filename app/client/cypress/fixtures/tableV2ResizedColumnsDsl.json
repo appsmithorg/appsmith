@@ -270,7 +270,7 @@
                   "customColumn2": {
                     "isDerived": true,
                     "computedValue": "",
-                    "onClick": "{{showModal('Modal2')}}",
+                    "onClick": "{{showModal(Modal2.name)}}",
                     "textSize": "PARAGRAPH2",
                     "buttonStyle": "#38AFF4",
                     "index": 9,
@@ -411,7 +411,7 @@
                   "customColumn2": {
                     "isDerived": true,
                     "computedValue": "",
-                    "onClick": "{{showModal('Modal2')}}",
+                    "onClick": "{{showModal(Modal2.name)}}",
                     "textSize": "PARAGRAPH2",
                     "buttonStyle": "#38AFF4",
                     "index": 9,

@@ -295,6 +295,12 @@ describe("rowHighlights tests", () => {
       posY: 0,
       rowIndex: 0,
       width: HIGHLIGHT_SIZE,
+      edgeDetails: {
+        bottom: false,
+        left: false,
+        right: false,
+        top: false,
+      },
     };
     it("should derive highlights for a row", () => {
       const data: WidgetLayoutProps[] = [
