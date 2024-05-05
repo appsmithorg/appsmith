@@ -106,12 +106,12 @@ function WorkspaceMenu({
         {hasManageWorkspacePermissions && (
           <>
             <div
-              className="px-3 py-2"
-              // onKeyDown={(e) => {
-              //   // This is to prevent the Menu component to take focus away from the input
-              //   // https://github.com/radix-ui/primitives/issues/1175
-              //   e.stopPropagation();
-              // }}
+              className="px-3 py-2 workspace-menu-item"
+              onKeyDown={(e) => {
+                // This is to prevent the Menu component to take focus away from the input
+                // https://github.com/radix-ui/primitives/issues/1175
+                e.stopPropagation();
+              }}
             >
               <WorkspaceRename
                 className="t--workspace-rename-input"
@@ -136,6 +136,7 @@ function WorkspaceMenu({
               />
             </div>
             <CustomMenuItem
+              className="workspace-menu-item"
               data-testid="t--workspace-setting"
               onClick={() =>
                 getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
@@ -150,6 +151,7 @@ function WorkspaceMenu({
         )}
         {hasManageWorkspacePermissions && canInviteToWorkspace && (
           <CustomMenuItem
+            className="workspace-menu-item"
             onClick={() =>
               getOnSelectAction(DropdownOnSelectActions.REDIRECT, {
                 path: `/workspace/${workspace.id}/settings/members`,
@@ -166,7 +168,7 @@ function WorkspaceMenu({
         />
         {canInviteToWorkspace && (
           <CustomMenuItem
-            className="error-menuitem"
+            className="error-menuitem workspace-menu-item"
             onClick={() => {
               !warnLeavingWorkspace
                 ? setWarnLeavingWorkspace(true)
@@ -179,7 +181,7 @@ function WorkspaceMenu({
         )}
         {canDeleteWorkspace && (
           <CustomMenuItem
-            className="error-menuitem"
+            className="error-menuitem workspace-menu-item"
             onClick={() => {
               warnDeleteWorkspace
                 ? handleDeleteWorkspace(workspace.id)
