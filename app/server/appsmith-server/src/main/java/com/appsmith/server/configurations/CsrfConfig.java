@@ -4,8 +4,8 @@ import lombok.NonNull;
 import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.server.reactive.ServerHttpRequest;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
@@ -23,6 +23,7 @@ import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
 import reactor.core.publisher.Mono;
 
+import java.util.Set;
 import java.util.UUID;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON;
@@ -49,7 +50,16 @@ public class CsrfConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, Serv
     private static final String X_REQUESTED_BY_NAME = "X-Requested-By";
 
     private static final String X_REQUESTED_BY_VALUE = "Appsmith";
-    private final DefaultDataBufferFactory dataBufferFactory;
+
+    /**
+     * These methods should be handled as read-only requests, and assuming that is true, they are safe in the context of
+     * CSRF, and shouldn't have a CSRF token check. While it looks like it's no-harm doing the CSRF token check for
+     * "GET" requests also, it means we can't simpli open these endpoints in the browser and see the response. This can
+     * seriously inhibit troubleshooting and dev convenience.
+     * <a href="https://docs.spring.io/spring-security/reference/features/exploits/csrf.html#csrf-protection-read-only">Reference on Spring docs</a>.
+     */
+    private static final Set<HttpMethod> SAFE_READ_ONLY_METHODS =
+            Set.of(HttpMethod.GET, HttpMethod.HEAD, HttpMethod.OPTIONS, HttpMethod.TRACE);
 
     void applyTo(ServerHttpSecurity http) {
         http.csrf(this).addFilterAfter(this, SecurityWebFiltersOrder.CSRF);
@@ -60,13 +70,20 @@ public class CsrfConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, Serv
         spec.requireCsrfProtectionMatcher(this)
                 .csrfTokenRepository(new Repository())
                 // TODO: This shouldn't be necessary. This is weaker than the default and recommended option,
-                //  `XorServerCsrfTokenRequestAttributeHandler`. Find out why the default request handler isn't working.
+                //  `XorServerCsrfTokenRequestAttributeHandler`. Figure out a way to switch to the default.
                 .csrfTokenRequestHandler(new ServerCsrfTokenRequestAttributeHandler());
     }
 
     @Override
     public Mono<ServerWebExchangeMatcher.MatchResult> matches(@NonNull ServerWebExchange exchange) {
         final ServerHttpRequest request = exchange.getRequest();
+        final HttpMethod method = request.getMethod();
+
+        if (SAFE_READ_ONLY_METHODS.contains(method)) {
+            // If the method isn't anything supported by the HTML `form` element, CSRF check isn't needed.
+            return ServerWebExchangeMatcher.MatchResult.notMatch();
+        }
+
         final HttpHeaders headers = request.getHeaders();
 
         if (X_REQUESTED_BY_VALUE.equals(headers.getFirst(X_REQUESTED_BY_NAME))) {
@@ -95,7 +112,9 @@ public class CsrfConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, Serv
         // this Mono is not subscribed to, the token won't be available to the client.
         final Mono<CsrfToken> csrfTokenMono =
                 ObjectUtils.defaultIfNull(exchange.getAttribute(CsrfToken.class.getName()), Mono.empty());
-        return csrfTokenMono.then(chain.filter(exchange));
+        return csrfTokenMono
+                .doOnSuccess(token -> exchange.getResponse().getHeaders().set("x-xsrf-token", token.getToken()))
+                .then(chain.filter(exchange));
     }
 
     /**
