@@ -315,14 +315,15 @@ export function evalTree(request: EvalWorkerSyncRequest) {
 
 export const evalTreeTransmissionErrorHandler: TransmissionErrorHandler = (
   messageId: string,
-  timeTaken: number,
+  startTime: number,
+  endTime: number,
   responseData: unknown,
 ) => {
   const sanitizedData = JSON.parse(JSON.stringify(responseData));
   sendMessage.call(self, {
     messageId,
     messageType: MessageType.RESPONSE,
-    body: { data: sanitizedData, timeTaken },
+    body: { data: sanitizedData, startTime, endTime },
   });
 };
 
