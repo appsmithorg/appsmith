@@ -22,17 +22,9 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
 
     Mono<Application> findById(String id, AclPermission aclPermission);
 
-    Mono<Application> findById(String id, Optional<AclPermission> aclPermission);
-
-    Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission);
-
     Flux<Application> findByWorkspaceId(String workspaceId, AclPermission permission);
 
     Flux<Application> findByWorkspaceIdAndDefaultApplicationsInRecentlyUsedOrder(String workspaceId);
-
-    Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission);
-
-    Mono<Application> findByName(String name, AclPermission permission);
 
     Mono<Application> save(Application application);
 
@@ -75,16 +67,11 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
             List<String> projectionFieldNames,
             AclPermission aclPermission);
 
-    Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(
-            String branchName, String defaultApplicationId, String fieldName, AclPermission aclPermission);
-
     Mono<String> findBranchedApplicationId(String branchName, String defaultApplicationId, AclPermission permission);
 
     Flux<Application> findAllApplicationsByDefaultApplicationId(String defaultApplicationId, AclPermission permission);
 
     Mono<Long> getGitConnectedApplicationsCountWithPrivateRepoByWorkspaceId(String workspaceId);
-
-    Flux<Application> getGitConnectedApplicationsByWorkspaceId(String workspaceId);
 
     String getRandomAppCardColor();
 

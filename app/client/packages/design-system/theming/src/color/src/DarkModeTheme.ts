@@ -327,10 +327,14 @@ export class DarkModeTheme implements ColorModeTheme {
   }
 
   private get bgNeutralOpacity() {
+    // Overlay behind modal dialogue
     const color = this.bgNeutral.clone();
 
-    color.oklch.l = 0.15;
     color.alpha = 0.5;
+
+    if (color.oklch.l > 0.15) {
+      color.oklch.l = 0.15;
+    }
 
     return color;
   }

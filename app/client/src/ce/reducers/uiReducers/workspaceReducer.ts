@@ -80,9 +80,7 @@ export const handlers = {
   ) => {
     draftState.loadingStates.isDeletingWorkspace = false;
   },
-  [ReduxActionTypes.SAVING_WORKSPACE_INFO]: (
-    draftState: WorkspaceReduxState,
-  ) => {
+  [ReduxActionTypes.SAVE_WORKSPACE_INIT]: (draftState: WorkspaceReduxState) => {
     draftState.loadingStates.isSavingWorkspaceInfo = true;
   },
   [ReduxActionTypes.SAVE_WORKSPACE_SUCCESS]: (
@@ -122,18 +120,6 @@ export const handlers = {
       loadingStates: {
         ...state.loadingStates,
         isFetchingEntities: true,
-      },
-    };
-  },
-  [ReduxActionTypes.SEARCH_WORKSPACE_ENTITIES_LOADER]: (
-    state: WorkspaceReduxState,
-    action: ReduxAction<boolean>,
-  ) => {
-    return {
-      ...state,
-      loadingStates: {
-        ...state.loadingStates,
-        isFetchingEntities: action.payload,
       },
     };
   },
