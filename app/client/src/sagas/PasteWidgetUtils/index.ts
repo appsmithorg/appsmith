@@ -379,6 +379,7 @@ export function handleTextWidgetWhenPasting(
     }
   });
 }
+
 export function handleImageWidgetWhenPasting(
   widgetNameMap: Record<string, string>,
   widget: FlattenedWidgetProps,
@@ -386,6 +387,20 @@ export function handleImageWidgetWhenPasting(
   Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
     if (widget.image.includes(oldWidgetName)) {
       widget.image = widget.image.replaceAll(oldWidgetName, newWidgetName);
+    }
+  });
+}
+
+export function handleJSONFormWidgetWhenPasting(
+  widgetNameMap: Record<string, string>,
+  widget: FlattenedWidgetProps,
+) {
+  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
+    if (widget.sourceData.includes(oldWidgetName)) {
+      widget.sourceData = widget.sourceData.replaceAll(
+        oldWidgetName,
+        newWidgetName,
+      );
     }
   });
 }

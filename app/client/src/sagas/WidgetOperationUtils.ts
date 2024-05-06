@@ -65,6 +65,7 @@ import { getCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
 import {
   handleImageWidgetWhenPasting,
+  handleJSONFormWidgetWhenPasting,
   handleTextWidgetWhenPasting,
 } from "./PasteWidgetUtils";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
@@ -265,6 +266,8 @@ export const handleSpecificCasesWhilePasting = (
     handleTextWidgetWhenPasting(widgetNameMap, widget);
   } else if (widget?.type === "IMAGE_WIDGET") {
     handleImageWidgetWhenPasting(widgetNameMap, widget);
+  } else if (widget?.type === "JSON_FORM_WIDGET") {
+    handleJSONFormWidgetWhenPasting(widgetNameMap, widget);
   }
 
   widgets = handleListWidgetV2Pasting(widget, widgets, widgetNameMap);
