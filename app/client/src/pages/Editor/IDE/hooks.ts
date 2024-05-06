@@ -31,9 +31,9 @@ import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import { TabSelectors } from "./EditorTabs/constants";
 import { createEditorFocusInfoKey } from "@appsmith/navigation/FocusStrategy/AppIDEFocusStrategy";
-import { FocusElement } from "../../../navigation/FocusElements";
-import { closeJSActionTab } from "../../../actions/jsActionActions";
-import { closeQueryActionTab } from "../../../actions/pluginActionActions";
+import { FocusElement } from "navigation/FocusElements";
+import { closeJSActionTab } from "actions/jsActionActions";
+import { closeQueryActionTab } from "actions/pluginActionActions";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);

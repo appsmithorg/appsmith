@@ -159,11 +159,6 @@ export const fetchJSCollectionsForView = ({
   };
 };
 
-export default {
-  fetchJSCollections,
-  deleteJSCollection,
-  deleteJSCollectionSuccess,
-};
 export const closeJSActionTab = (payload: { id: string; parentId: string }) => {
   return {
     type: ReduxActionTypes.CLOSE_JS_ACTION_TAB,
@@ -178,4 +173,10 @@ export const closeJsActionTabSuccess = (payload: {
     type: ReduxActionTypes.CLOSE_JS_ACTION_TAB_SUCCESS,
     payload,
   };
+};
+
+export default {
+  fetchJSCollections,
+  deleteJSCollection,
+  deleteJSCollectionSuccess,
 };

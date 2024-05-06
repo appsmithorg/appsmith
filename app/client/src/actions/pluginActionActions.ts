@@ -399,16 +399,6 @@ export const updateActionData = (
   };
 };
 
-export default {
-  createAction: createActionRequest,
-  fetchActions,
-  runAction: runAction,
-  deleteAction,
-  deleteActionSuccess,
-  updateAction,
-  updateActionSuccess,
-  bindDataOnCanvas,
-};
 export const closeQueryActionTab = (payload: {
   id: string;
   parentId: string;
@@ -426,4 +416,15 @@ export const closeQueryActionTabSuccess = (payload: {
     type: ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCCESS,
     payload,
   };
+};
+
+export default {
+  createAction: createActionRequest,
+  fetchActions,
+  runAction: runAction,
+  deleteAction,
+  deleteActionSuccess,
+  updateAction,
+  updateActionSuccess,
+  bindDataOnCanvas,
 };
