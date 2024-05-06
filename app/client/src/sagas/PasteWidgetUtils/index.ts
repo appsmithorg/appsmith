@@ -35,6 +35,7 @@ import {
   getVerticallyAdjustedPositions,
   isDropTarget,
 } from "../WidgetOperationUtils";
+import _ from "lodash";
 
 export /**
  * Method to provide the new positions where the widgets can be pasted.
@@ -415,30 +416,26 @@ export function handleJSONFormPropertiesListedInDynamicBindingPath(
   });
 }
 
+/**
+ *
+ * @param obj This is the object that the function will traverse.
+ * @param path: This is a string that specifies the path to the nested value within the object. The path is a string of keys separated by dots (e.g., "key1.key2.key3").
+ * @param oldValue: This is the value that the function will look for and replace within the object.
+ * @param newValue: This is the value that will replace the oldValue.
+ */
 export function accessNestedObjectValue(
   obj: any,
   path: string,
   oldValue: string,
   newValue: string,
 ) {
-  const pathArray = path.split(".");
-  let current = obj;
-  for (let i = 0; i < pathArray.length; i++) {
-    if (i === pathArray.length - 1 && current[pathArray[i]] !== undefined) {
-      if (
-        typeof current[pathArray[i]] === "string" &&
-        current[pathArray[i]].includes(oldValue)
-      ) {
-        current[pathArray[i]] = current[pathArray[i]].replaceAll(
-          oldValue,
-          newValue,
-        );
-      }
-    } else if (current[pathArray[i]] !== undefined) {
-      current = current[pathArray[i]];
-    } else {
-      return undefined;
-    }
-  }
-  return current;
+  // this function is a utility for finding and replacing a specific value within a nested object structure, given a path to the value.
+  _.set(
+    obj,
+    path,
+    _.get(obj, path, "").replace(
+      new RegExp(_.escapeRegExp(oldValue), "g"),
+      newValue,
+    ),
+  );
 }
