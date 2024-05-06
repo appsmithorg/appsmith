@@ -401,7 +401,9 @@ public class DatasourceContextServiceCEImpl implements DatasourceContextServiceC
                     datasourceContextMonoMap.remove(datasourceContextIdentifier);
 
                     if (!datasourceContextMap.containsKey(datasourceContextIdentifier)) {
-                        log.debug("datasourceContextMap does not contain any entry for datasource storage with id: {} ", datasourceStorage.getId());
+                        log.info(
+                                "datasourceContextMap does not contain any entry for datasource storage with id: {} ",
+                                datasourceStorage.getId());
                         return Mono.empty();
                     }
 
