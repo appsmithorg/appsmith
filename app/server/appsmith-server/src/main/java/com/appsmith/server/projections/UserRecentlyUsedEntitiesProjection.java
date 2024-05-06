@@ -1,9 +1,15 @@
 package com.appsmith.server.projections;
 
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-public interface UserRecentlyUsedEntitiesProjection {
-    List<RecentlyUsedEntityDTO> getRecentlyUsedEntityIds();
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+public class UserRecentlyUsedEntitiesProjection {
+    List<RecentlyUsedEntityDTO> recentlyUsedEntityIds;
 }

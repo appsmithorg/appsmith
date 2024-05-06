@@ -37,7 +37,6 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     public Mono<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
-                // .fields(UserData.Fields.recentlyUsedEntityIds)
                 .one(UserRecentlyUsedEntitiesProjection.class)
                 .map(userData -> {
                     final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.getRecentlyUsedEntityIds();

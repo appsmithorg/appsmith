@@ -289,11 +289,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         if (!isEmpty(fields)) {
             fields.addAll(params.getFields());
         }
-        final Query query = createQueryWithPermission(
-                params.getCriteria(), fields, params.getPermissionGroups(), params.getPermission());
         return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> mongoOperations
                 .query(this.genericDomain)
-                .matching(query.cursorBatchSize(10_000))
+                .matching(createQueryWithPermission(
+                                params.getCriteria(), fields, params.getPermissionGroups(), params.getPermission())
+                        .cursorBatchSize(10_000))
                 .one()
                 .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()))));
     }
