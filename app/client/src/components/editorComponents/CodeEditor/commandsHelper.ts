@@ -65,8 +65,7 @@ export const getShowHintOptions = (
           CodeMirror.signal(editor, "postPick", selected.displayText);
 
         try {
-          // eslint-disable-next-line @typescript-eslint/no-unused-vars
-          const { data, render, ...rest } = selected;
+          const { data, ...rest } = selected;
           const { name, type } = data as NavigationData;
           AnalyticsUtil.logEvent("SLASH_COMMAND", {
             ...rest,

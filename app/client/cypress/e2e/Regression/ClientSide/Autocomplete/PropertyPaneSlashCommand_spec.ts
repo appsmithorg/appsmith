@@ -7,6 +7,8 @@ import {
   draggableWidgets,
   apiPage,
   entityItems,
+  homePage,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
@@ -17,10 +19,26 @@ describe("Property Pane Suggestions", { tags: ["@tag.JS"] }, () => {
     featureFlagIntercept({
       ab_learnability_ease_of_initial_use_enabled: true,
     });
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.TABLE, 200, 200);
+  });
+
+  before(function () {
+    agHelper.ClearLocalStorageCache();
+  });
+
+  beforeEach(() => {
+    agHelper.RestoreLocalStorageCache();
+  });
+
+  afterEach(() => {
+    agHelper.SaveLocalStorageCache();
   });
 
   it("1. Should show Property Pane Suggestions on / command & when typing {{}}", () => {
+    homePage.NavigateToHome();
+    homePage.ImportApp("PropertyPaneSlashMenuBindings.json");
+    assertHelper.WaitForNetworkCall("importNewApplication");
+
+    // Select table and check for slash menu command popup
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.ToggleJSMode("Table data", true);
     propPane.FocusIntoTextField("Table data");
@@ -28,7 +46,7 @@ describe("Property Pane Suggestions", { tags: ["@tag.JS"] }, () => {
     agHelper.GetNClickByContains(locators._hints, "Add a binding");
     propPane.ValidatePropertyFieldValue("Table data", "{{}}");
 
-    entityExplorer.DragDropWidgetNVerify(draggableWidgets.JSONFORM, 600, 400);
+    // Select json form widget and check for slash menu command popup
     EditorNavigation.SelectEntityByName("JSONForm1", EntityType.Widget);
     propPane.ToggleJSMode("Source data", true);
     propPane.FocusIntoTextField("Source data");
@@ -38,16 +56,6 @@ describe("Property Pane Suggestions", { tags: ["@tag.JS"] }, () => {
   });
 
   it("2. Should show `load more` option in case number of queries are more than 5", () => {
-    // Create more than 5 apis
-    apiPage.CreateApi("Api1", "GET");
-    apiPage.CreateApi("Api2", "GET");
-    apiPage.CreateApi("Api3", "GET");
-    apiPage.CreateApi("Api4", "GET");
-    apiPage.CreateApi("Api5", "GET");
-    apiPage.CreateApi("Api6", "GET");
-    apiPage.CreateApi("Api7", "GET");
-    apiPage.CreateApi("Api8", "GET");
-
     // Navigate to table and open slash menu command
     EditorNavigation.SelectEntityByName("Table1", EntityType.Widget);
     propPane.ToggleJSMode("Table data", true);
