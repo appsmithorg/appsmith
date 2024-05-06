@@ -145,7 +145,6 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSele
 import { ActionExecutionContext } from "entities/Action";
 import type { LayoutSystemTypes } from "layoutSystems/types";
 import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
-import { isEditorPath } from "@appsmith/pages/Editor/Explorer/helpers";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -1358,19 +1357,11 @@ export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
   if (action.payload) {
     // we animate out elements and then move to the canvas
     yield put(setPreviewModeAction(action.payload));
-    const isUIEditor = isEditorPath(window.location.pathname);
-    if (isUIEditor) {
-      // so when on editor the url is different based on the widgets that are selected.
-      // hence we are making sure widget selections on url are carried to preview mode.
-      // This will avoid route change when switching back to edit mode which would reset the selected widgets and create renders.
-      history.push(window.location.pathname);
-    } else {
-      history.push(
-        builderURL({
-          pageId: currentPageId,
-        }),
-      );
-    }
+    history.push(
+      builderURL({
+        pageId: currentPageId,
+      }),
+    );
   } else if (isPreviewMode) {
     // check if already in edit mode, then only do this
 
