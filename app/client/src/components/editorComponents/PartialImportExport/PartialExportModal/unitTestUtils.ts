@@ -1,4 +1,4 @@
-import { DEFAULT_ENV_ID } from "constants/EnvironmentContants";
+import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
 import type { Datasource } from "entities/Datasource";
 import type { CanvasStructure } from "reducers/uiReducers/pageCanvasStructureReducer";
 
@@ -169,7 +169,7 @@ export const mockAppDSProps: Datasource[] = [
     datasourceStorages: {
       unused_env: {
         datasourceId: "659febdcd0cbfb0c5e0a7457",
-        environmentId: DEFAULT_ENV_ID,
+        environmentId: UNUSED_ENV_ID,
         datasourceConfiguration: {
           url: "string",
           connection: {
@@ -217,7 +217,7 @@ export const mockAppDSProps: Datasource[] = [
     datasourceStorages: {
       unused_env: {
         datasourceId: "659f81c8d0cbfb0c5e0a743c",
-        environmentId: DEFAULT_ENV_ID,
+        environmentId: UNUSED_ENV_ID,
         datasourceConfiguration: {
           url: "string",
           connection: {
@@ -2415,7 +2415,7 @@ export const defaultAppState = {
             unused_env: {
               id: "659febdcd0cbfb0c5e0a7458",
               datasourceId: "659febdcd0cbfb0c5e0a7457",
-              environmentId: DEFAULT_ENV_ID,
+              environmentId: UNUSED_ENV_ID,
               datasourceConfiguration: {
                 connection: {
                   mode: "READ_WRITE",
@@ -2473,7 +2473,7 @@ export const defaultAppState = {
             unused_env: {
               id: "659f81c8d0cbfb0c5e0a743d",
               datasourceId: "659f81c8d0cbfb0c5e0a743c",
-              environmentId: DEFAULT_ENV_ID,
+              environmentId: UNUSED_ENV_ID,
               datasourceConfiguration: {
                 connection: {
                   mode: "READ_WRITE",

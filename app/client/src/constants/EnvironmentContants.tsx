@@ -1,4 +1,4 @@
-export const DEFAULT_ENV_ID = "unused_env";
+export const UNUSED_ENV_ID = "unused_env";
 
 export interface EnvironmentType {
   id: string;
@@ -9,13 +9,13 @@ export interface EnvironmentType {
 
 export const environmentList: Array<EnvironmentType> = [
   {
-    id: DEFAULT_ENV_ID,
+    id: UNUSED_ENV_ID,
     name: "production",
     selected: true,
     userPermissions: [],
   },
   {
-    id: DEFAULT_ENV_ID,
+    id: UNUSED_ENV_ID,
     name: "staging",
     selected: false,
     userPermissions: [],

@@ -27,12 +27,14 @@ import * as Sentry from "@sentry/react";
 import { CONTENT_TYPE_HEADER_KEY } from "constants/ApiEditorConstants/CommonApiConstants";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import { DEFAULT_ENV_ID } from "constants/EnvironmentContants";
+import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
 
 const executeActionRegex = /actions\/execute/;
 const timeoutErrorRegex = /timeout of (\d+)ms exceeded/;
 export const axiosConnectionAbortedCode = "ECONNABORTED";
 const appsmithConfig = getAppsmithConfigs();
+
+export const DEFAULT_ENV_ID = UNUSED_ENV_ID;
 
 export const BLOCKED_ROUTES = [
   "v1/app-templates",
