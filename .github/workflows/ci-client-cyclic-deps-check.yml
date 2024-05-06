@@ -87,7 +87,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const prNumber = context.payload.pull_request.number;
-            const message = `🔄 Cyclic Dependency Check:\n\nYou PR has more cyclic depdencies than the release branch.\n\nResolve any new cyclic dependencies your PR has introduced.\n`;
+            const message = `⚠️ Cyclic Dependency Check:\n\nYou PR has more cyclic depdencies than the release branch.\n\nResolve any new cyclic dependencies your PR has introduced.\n`;
             github.issues.createComment({
               ...context.repo,
               issue_number: prNumber,
