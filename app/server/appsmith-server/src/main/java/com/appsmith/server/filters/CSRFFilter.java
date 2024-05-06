@@ -53,7 +53,7 @@ public class CSRFFilter implements WebFilter {
             response.getHeaders().set("Content-Type", MediaType.APPLICATION_JSON_VALUE);
             try {
                 final byte[] bytes = objectMapper.writeValueAsBytes(
-                        new ResponseDTO<>(HttpStatus.UNAUTHORIZED.value(), null, "Forbidden", false));
+                        new ResponseDTO<>(HttpStatus.FORBIDDEN.value(), null, "Forbidden", false));
                 return response.writeWith(
                         Mono.just(exchange.getResponse().bufferFactory().wrap(bytes)));
             } catch (JsonProcessingException e) {

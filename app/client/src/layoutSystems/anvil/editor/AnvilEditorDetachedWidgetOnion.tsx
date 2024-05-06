@@ -23,7 +23,7 @@ export const AnvilEditorDetachedWidgetOnion = (
 ): JSX.Element => {
   useObserveDetachedWidget(props.widgetId);
   useHandleDetachedWidgetSelect(props.widgetId);
-  useAddBordersToDetachedWidgets(props.widgetId);
+  useAddBordersToDetachedWidgets(props.widgetId, props.type);
 
   return (
     <AnvilWidgetComponent {...props}>{props.children}</AnvilWidgetComponent>

@@ -53,7 +53,6 @@ import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
@@ -584,12 +583,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         return repository.save(existingUser);
     }
 
-    @Override
-    public Flux<User> get(MultiValueMap<String, String> params) {
-        // Get All Users should not be supported. Return an error
-        return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
     private boolean validateName(String name) {
         /*
            Regex allows for Accented characters and alphanumeric with some special characters dot (.), apostrophe ('),
@@ -615,7 +608,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             updates.setName(inputName);
             updatedUserMono = sessionUserService
                     .getCurrentUser()
-                    .flatMap(user -> update(user.getEmail(), updates, User.Fields.email)
+                    .flatMap(user -> update(user.getId(), updates, User.Fields.id)
                             .then(
                                     exchange == null
                                             ? repository.findByEmail(user.getEmail())

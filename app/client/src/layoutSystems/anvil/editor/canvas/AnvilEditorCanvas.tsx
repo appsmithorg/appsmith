@@ -3,11 +3,11 @@ import { AnvilViewerCanvas } from "layoutSystems/anvil/viewer/canvas/AnvilViewer
 import React, { useCallback, useEffect, useRef } from "react";
 import { useSelectWidgetListener } from "./hooks/useSelectWidgetListener";
 import { useClickToClearSelections } from "./hooks/useClickToClearSelections";
-import "./styles/anvilEditorVariables.css";
 import {
   useAnvilGlobalDnDStates,
   type AnvilGlobalDnDStates,
 } from "./hooks/useAnvilGlobalDnDStates";
+import { AnvilDragPreview } from "../canvasArenas/AnvilDragPreview";
 
 export const AnvilDnDStatesContext = React.createContext<
   AnvilGlobalDnDStates | undefined
@@ -60,6 +60,12 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
   return (
     <AnvilDnDStatesContext.Provider value={anvilGlobalDnDStates}>
       <AnvilViewerCanvas {...props} ref={canvasRef} />
+      <AnvilDragPreview
+        dragDetails={anvilGlobalDnDStates.dragDetails}
+        draggedBlocks={anvilGlobalDnDStates.draggedBlocks}
+        isDragging={anvilGlobalDnDStates.isDragging}
+        isNewWidget={anvilGlobalDnDStates.isNewWidget}
+      />
     </AnvilDnDStatesContext.Provider>
   );
 };

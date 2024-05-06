@@ -74,11 +74,7 @@ import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
-import type {
-  TriggerKind,
-  TriggerSource,
-} from "constants/AppsmithActionConstants/ActionConstants";
-import type { TMessage } from "utils/MessageUtil";
+import { getAllActionTestPayloads } from "utils/storage";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -506,19 +502,37 @@ export function* closeJSActionTabSaga(
   yield put(closeJsActionTabSuccess({ id }));
 }
 
-export function* logJSFunctionExecution(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  message: TMessage<{
-    data: {
-      jsFnFullName: string;
-      isSuccess: boolean;
-      triggerMeta: {
-        source: TriggerSource;
-        triggerPropertyName: string | undefined;
-        triggerKind: TriggerKind | undefined;
-      };
-    }[];
-  }>,
-) {
-  /* This is intentionally left blank and has a definition on EE for audit logs, since this function needs to be called in a common file. */
+// Saga to fetch stored test payloads for all collections present in the application
+export function* fetchStoredTestPayloadsSaga(collections: JSCollection[]) {
+  try {
+    //fetch stored test payloads for all collections
+    const storedPayloads: Record<string, unknown> | null =
+      yield getAllActionTestPayloads();
+    if (!!storedPayloads && collections.length > 0) {
+      for (const collection of collections) {
+        const testPayloadForCollection: Record<string, any> = {};
+        let hasStoredPayload = false;
+        for (const action of collection.actions) {
+          if (
+            storedPayloads.hasOwnProperty(action.id) &&
+            !!storedPayloads[action.id]
+          ) {
+            hasStoredPayload = true;
+            testPayloadForCollection[action.id] = storedPayloads[action.id];
+          }
+        }
+        if (hasStoredPayload) {
+          yield put({
+            type: ReduxActionTypes.UPDATE_TEST_PAYLOAD_FOR_COLLECTION,
+            payload: {
+              collectionId: collection.id,
+              testPayload: testPayloadForCollection,
+            },
+          });
+        }
+      }
+    }
+  } catch (error) {
+    log.error("Error fetching stored test payloads", error);
+  }
 }
