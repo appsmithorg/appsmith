@@ -75,10 +75,10 @@ jobs:
         run: |
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
 
-          if [[ $OUTPUT =~ More deps than release! ]]; then
+          if [[ $OUTPUT == *"More deps than release!"* ]]; then
             echo "has_cyclic_deps=true" >> "$GITHUB_OUTPUT"
           fi
-      
+
       # Comment on the PR if cyclic dependencies are found
       - name: Comment the result on PR
         if: steps.check_cyclic_deps.outputs.has_cyclic_deps == 'true'
