@@ -4,133 +4,132 @@ import {
   handleJSONFormWidgetWhenPasting,
   handleTextWidgetWhenPasting,
 } from ".";
+import {
+  widget,
+  expectedImageUpdate,
+  widget2,
+  emptywidget,
+  expectedTextUpdate,
+  expectedSourceDataUpdate,
+} from "./PasteWidgetUtils.fixture.test";
+const widgetNameMap = {
+  table1: "table1Copy",
+};
+
+function testIndividualWidgetPasting(
+  widgetNameMap: Record<string, string>,
+  widget: FlattenedWidgetProps,
+  handler: (
+    widgetNameMap: Record<string, string>,
+    widget: FlattenedWidgetProps,
+  ) => void,
+  expectedWidget: FlattenedWidgetProps,
+) {
+  handler(widgetNameMap, widget);
+  expect(widget).toEqual(expectedWidget);
+}
 
 describe("handleImageWidgetWhenPasting", () => {
   it("1. replaces old widget names with new widget names in the image property", () => {
-    const widgetNameMap = {
-      table1: "table1Copy",
-    };
-
-    const widget = {
-      image: "{{table1.selectedRowData.image}}",
-    };
-
-    handleImageWidgetWhenPasting(widgetNameMap, widget as any);
-
-    expect(widget.image).toBe("{{table1Copy.selectedRowData.image}}");
+    testIndividualWidgetPasting(
+      widgetNameMap,
+      { ...widget } as any as FlattenedWidgetProps,
+      handleImageWidgetWhenPasting,
+      expectedImageUpdate as any as FlattenedWidgetProps,
+    );
   });
 
   it("2. does not replace anything if the image property does not contain old widget names", () => {
-    const widgetNameMap = {
-      table1: "table1Copy",
-    };
-
-    const widget = {
-      image: "{{table2.selectedRowData.image}}",
-    };
-
-    handleImageWidgetWhenPasting(widgetNameMap, widget as any);
-
-    expect(widget.image).toBe("{{table2.selectedRowData.image}}");
+    testIndividualWidgetPasting(
+      widgetNameMap,
+      { ...widget2 } as any as FlattenedWidgetProps,
+      handleImageWidgetWhenPasting,
+      widget2 as any as FlattenedWidgetProps,
+    );
   });
 
   it("3. handles empty widget name map", () => {
-    const widgetNameMap = {};
-
-    const widget = {
-      image: "{{table1.selectedRowData.image}}",
-    };
-
-    handleImageWidgetWhenPasting(widgetNameMap, widget as any);
-
-    expect(widget.image).toBe("{{table1.selectedRowData.image}}");
+    testIndividualWidgetPasting(
+      {},
+      widget as any as FlattenedWidgetProps,
+      handleImageWidgetWhenPasting,
+      widget as any as FlattenedWidgetProps,
+    );
   });
 
   it("4. handles empty image property", () => {
-    const widgetNameMap = {
-      table1: "table1Copy",
-    };
-
-    const widget = {
-      image: "",
-    };
-
-    handleImageWidgetWhenPasting(widgetNameMap, widget as any);
-
-    expect(widget.image).toBe("");
+    testIndividualWidgetPasting(
+      widgetNameMap,
+      { ...emptywidget } as any as FlattenedWidgetProps,
+      handleImageWidgetWhenPasting,
+      emptywidget as any as FlattenedWidgetProps,
+    );
   });
 });
 
 describe("handleTextWidgetWhenPasting", () => {
   it("1. should replace old widget names with new widget names in the widget text", () => {
-    const widgetNameMap = {
-      table1: "table1Copy",
-    };
-
-    const widget = {
-      text: "{{table1.selectedRowData.name}}",
-    };
-
-    handleTextWidgetWhenPasting(widgetNameMap, widget as any);
-
-    expect(widget.text).toBe("{{table1Copy.selectedRowData.name}}");
+    testIndividualWidgetPasting(
+      widgetNameMap,
+      { ...widget } as any as FlattenedWidgetProps,
+      handleTextWidgetWhenPasting,
+      expectedTextUpdate as any as FlattenedWidgetProps,
+    );
   });
 
   it("2. should not modify the widget text if there are no old widget names", () => {
-    const widgetNameMap = {
-      table1: "table1Copy",
-    };
-
-    const widget = {
-      text: "{{table2.selectedRowData.name}}",
-    };
-
-    handleTextWidgetWhenPasting(widgetNameMap, widget as any);
-
-    expect(widget.text).toBe("{{table2.selectedRowData.name}}");
+    testIndividualWidgetPasting(
+      widgetNameMap,
+      { ...widget2 } as any as FlattenedWidgetProps,
+      handleTextWidgetWhenPasting,
+      widget2 as any as FlattenedWidgetProps,
+    );
   });
 
   it("3. should not modify the widget text if the widget name map is empty", () => {
-    const widgetNameMap = {};
+    testIndividualWidgetPasting(
+      {},
+      widget as any as FlattenedWidgetProps,
+      handleTextWidgetWhenPasting,
+      widget as any as FlattenedWidgetProps,
+    );
+  });
 
-    const widget = {
-      text: "{{table1.selectedRowData.name}}",
-    };
-
-    handleTextWidgetWhenPasting(widgetNameMap, widget as any);
-
-    expect(widget.text).toBe("{{table1.selectedRowData.name}}");
+  it("4. handles empty text property", () => {
+    testIndividualWidgetPasting(
+      widgetNameMap,
+      { ...emptywidget } as any as FlattenedWidgetProps,
+      handleImageWidgetWhenPasting,
+      emptywidget as any as FlattenedWidgetProps,
+    );
   });
 });
 
 describe("handleJSONFormWidgetWhenPasting", () => {
-  const widgetNameMap: Record<string, string> = {
-    table1: "table1Copy",
-  };
-
   it("should replace the old widget name with the new widget name in the source data", () => {
-    const widget = {
-      sourceData: "{{table1.selectedRowData}}",
-    };
-
-    handleJSONFormWidgetWhenPasting(
+    testIndividualWidgetPasting(
       widgetNameMap,
-      widget as any as FlattenedWidgetProps,
+      { ...widget } as any as FlattenedWidgetProps,
+      handleJSONFormWidgetWhenPasting,
+      expectedSourceDataUpdate as any as FlattenedWidgetProps,
     );
-
-    expect(widget.sourceData).toEqual("{{table1Copy.selectedRowData}}");
   });
 
   it("should not replace anything if the old widget name is not present in the source data", () => {
-    const widget = {
-      sourceData: "{{table2.selectedRowData}}",
-    };
-
-    handleJSONFormWidgetWhenPasting(
+    testIndividualWidgetPasting(
       widgetNameMap,
-      widget as any as FlattenedWidgetProps,
+      { ...widget2 } as any as FlattenedWidgetProps,
+      handleJSONFormWidgetWhenPasting,
+      widget2 as any as FlattenedWidgetProps,
     );
+  });
 
-    expect(widget.sourceData).toEqual("{{table2.selectedRowData}}");
+  it("4. handles empty sourceData property", () => {
+    testIndividualWidgetPasting(
+      widgetNameMap,
+      { ...emptywidget } as any as FlattenedWidgetProps,
+      handleImageWidgetWhenPasting,
+      emptywidget as any as FlattenedWidgetProps,
+    );
   });
 });
