@@ -256,10 +256,6 @@ export const apiFailureResponseInterceptor = async (error: any) => {
   return Promise.resolve(error);
 };
 
-export const getEnvironmentIdForHeader = (): string => {
-  return DEFAULT_ENV_ID;
-};
-
 // function to get the default environment
 export const getDefaultEnvId = () => {
   return DEFAULT_ENV_ID;
