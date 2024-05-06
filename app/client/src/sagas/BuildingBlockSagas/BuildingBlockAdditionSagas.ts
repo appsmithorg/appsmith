@@ -57,7 +57,11 @@ import {
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
-import { getNewPositions } from "../PasteWidgetUtils";
+import {
+  getNewPositions,
+  handleJSONFormPropertiesListedInDynamicBindingPath,
+  handleJSONFormWidgetWhenPasting,
+} from "../PasteWidgetUtils";
 
 import ApplicationApi, {
   type ImportBuildingBlockToApplicationRequest,
@@ -616,6 +620,19 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
                 log.debug("Error updating widget properties", error);
               }
             }
+
+            if (widget.type === "JSON_FORM_WIDGET") {
+              try {
+                handleJSONFormPropertiesListedInDynamicBindingPath(
+                  widget,
+                  oldWidgetName,
+                  newWidgetName,
+                );
+              } catch (error) {
+                log.debug("Error updating widget properties", error);
+              }
+            }
+
             // If it is the copied widget, update position properties
             if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
               //when the widget is a modal widget, it has to paste on the main container
@@ -735,13 +752,16 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
           // 2. updating dynamicBindingPathList in the copied grid widget
           for (let i = 0; i < newWidgetList.length; i++) {
             const widget = newWidgetList[i];
-
-            widgets = handleSpecificCasesWhilePasting(
-              widget,
-              widgets,
-              widgetNameMap,
-              newWidgetList,
-            );
+            if (widget?.type === "JSON_FORM_WIDGET") {
+              handleJSONFormWidgetWhenPasting(widgetNameMap, widget);
+            } else {
+              widgets = handleSpecificCasesWhilePasting(
+                widget,
+                widgets,
+                widgetNameMap,
+                newWidgetList,
+              );
+            }
           }
         }),
       ),

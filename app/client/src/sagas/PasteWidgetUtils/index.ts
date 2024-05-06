@@ -4,7 +4,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { call, select } from "redux-saga/effects";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getWidgets } from "./selectors";
+import { getWidgets } from "../selectors";
 
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { WidgetSpace } from "constants/CanvasEditorConstants";
@@ -18,7 +18,7 @@ import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import type {
   CopiedWidgetGroup,
   NewPastePositionVariables,
-} from "./WidgetOperationUtils";
+} from "../WidgetOperationUtils";
 import {
   WIDGET_PASTE_PADDING,
   changeIdsOfPastePositions,
@@ -34,7 +34,8 @@ import {
   getVerifiedSelectedWidgets,
   getVerticallyAdjustedPositions,
   isDropTarget,
-} from "./WidgetOperationUtils";
+} from "../WidgetOperationUtils";
+import _ from "lodash";
 
 export /**
  * Method to provide the new positions where the widgets can be pasted.
@@ -379,6 +380,7 @@ export function handleTextWidgetWhenPasting(
     }
   });
 }
+
 export function handleImageWidgetWhenPasting(
   widgetNameMap: Record<string, string>,
   widget: FlattenedWidgetProps,
@@ -388,4 +390,52 @@ export function handleImageWidgetWhenPasting(
       widget.image = widget.image.replaceAll(oldWidgetName, newWidgetName);
     }
   });
+}
+
+export function handleJSONFormWidgetWhenPasting(
+  widgetNameMap: Record<string, string>,
+  widget: FlattenedWidgetProps,
+) {
+  Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
+    if (widget.sourceData.includes(oldWidgetName)) {
+      widget.sourceData = widget.sourceData.replaceAll(
+        oldWidgetName,
+        newWidgetName,
+      );
+    }
+  });
+}
+
+export function handleJSONFormPropertiesListedInDynamicBindingPath(
+  widget: FlattenedWidgetProps,
+  oldName: string,
+  newName: string,
+) {
+  widget.dynamicBindingPathList?.forEach((path: { key: string }) => {
+    accessNestedObjectValue(widget, path.key, oldName, newName);
+  });
+}
+
+/**
+ *
+ * @param obj This is the object that the function will traverse.
+ * @param path: This is a string that specifies the path to the nested value within the object. The path is a string of keys separated by dots (e.g., "key1.key2.key3").
+ * @param oldValue: This is the value that the function will look for and replace within the object.
+ * @param newValue: This is the value that will replace the oldValue.
+ */
+export function accessNestedObjectValue(
+  obj: any,
+  path: string,
+  oldValue: string,
+  newValue: string,
+) {
+  // this function is a utility for finding and replacing a specific value within a nested object structure, given a path to the value.
+  _.set(
+    obj,
+    path,
+    _.get(obj, path, "").replace(
+      new RegExp(_.escapeRegExp(oldValue), "g"),
+      newValue,
+    ),
+  );
 }
