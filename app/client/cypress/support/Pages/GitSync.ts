@@ -157,7 +157,6 @@ export class GitSync {
       cy.get("@guid").then((uid) => {
         cy.wait(`@generateKey-${repoName}`).then((result: any) => {
           let generatedKey = result.response.body.data.publicKey;
-          generatedKey = generatedKey.slice(0, generatedKey.length - 1);
           // fetch the generated key and post to the github repo
           cy.request({
             method: "POST",
