@@ -4,7 +4,7 @@ import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidg
 import { call, select } from "redux-saga/effects";
 import { getContainerWidgetSpacesSelector } from "selectors/editorSelectors";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { getWidgets } from "./selectors";
+import { getWidgets } from "../selectors";
 
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { WidgetSpace } from "constants/CanvasEditorConstants";
@@ -18,7 +18,7 @@ import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import type {
   CopiedWidgetGroup,
   NewPastePositionVariables,
-} from "./WidgetOperationUtils";
+} from "../WidgetOperationUtils";
 import {
   WIDGET_PASTE_PADDING,
   changeIdsOfPastePositions,
@@ -34,7 +34,7 @@ import {
   getVerifiedSelectedWidgets,
   getVerticallyAdjustedPositions,
   isDropTarget,
-} from "./WidgetOperationUtils";
+} from "../WidgetOperationUtils";
 
 export /**
  * Method to provide the new positions where the widgets can be pasted.
