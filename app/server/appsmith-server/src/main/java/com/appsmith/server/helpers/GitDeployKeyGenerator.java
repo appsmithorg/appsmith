@@ -3,6 +3,8 @@ package com.appsmith.server.helpers;
 import com.appsmith.server.constants.Assets;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.GitDeployKeyDTO;
+import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.bouncycastle.crypto.params.AsymmetricKeyParameter;
@@ -58,12 +60,8 @@ public class GitDeployKeyGenerator {
             if (!StringUtils.isEmpty(keyType) && keyType.equals(supportedProtocols.RSA.name())) {
                 alg = RSA_KEY_FACTORY_IDENTIFIER;
                 keySize = supportedProtocols.RSA.key_size;
-                try {
-                    keyPair = getKeyPair(alg, keySize);
-                    publicKey = writeJavaPublicKeyToSSH2(keyPair.getPublic(), RSA_TYPE_PREFIX);
-                } catch (NoSuchAlgorithmException e) {
-                    throw new RuntimeException(e);
-                }
+                keyPair = getKeyPair(alg, keySize);
+                publicKey = writeJavaPublicKeyToSSH2(keyPair.getPublic(), RSA_TYPE_PREFIX);
             } else {
                 alg = ECDSA_KEY_FACTORY_IDENTIFIER;
                 keySize = supportedProtocols.ECDSA.key_size;
@@ -71,7 +69,8 @@ public class GitDeployKeyGenerator {
                 publicKey = writeJavaPublicKeyToSSH2(keyPair.getPublic(), ECDSA_TYPE_PREFIX);
             }
         } catch (NoSuchAlgorithmException | IOException e) {
-            throw new RuntimeException(e);
+            log.debug("Error while creating key pair", e);
+            throw new AppsmithException(AppsmithError.SSH_KEY_GENERATION_ERROR, e);
         }
 
         GitAuth gitAuth = new GitAuth();
@@ -103,6 +102,6 @@ public class GitDeployKeyGenerator {
     private static String writeJavaPublicKeyToSSH2(final PublicKey publicKey, String prefix) throws IOException {
         AsymmetricKeyParameter key = PublicKeyFactory.createKey(publicKey.getEncoded());
         final byte[] sshKey = OpenSSHPublicKeyUtil.encodePublicKey(key);
-        return prefix + Base64.getEncoder().encodeToString(sshKey);
+        return prefix + Base64.getEncoder().encodeToString(sshKey) + " appsmith";
     }
 }
