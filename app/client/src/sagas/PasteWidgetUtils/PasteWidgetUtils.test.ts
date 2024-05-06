@@ -1,4 +1,9 @@
-import { handleImageWidgetWhenPasting, handleTextWidgetWhenPasting } from ".";
+import type { FlattenedWidgetProps } from "WidgetProvider/constants";
+import {
+  handleImageWidgetWhenPasting,
+  handleJSONFormWidgetWhenPasting,
+  handleTextWidgetWhenPasting,
+} from ".";
 
 describe("handleImageWidgetWhenPasting", () => {
   it("1. replaces old widget names with new widget names in the image property", () => {
@@ -95,5 +100,37 @@ describe("handleTextWidgetWhenPasting", () => {
     handleTextWidgetWhenPasting(widgetNameMap, widget as any);
 
     expect(widget.text).toBe("{{table1.selectedRowData.name}}");
+  });
+});
+
+describe("handleJSONFormWidgetWhenPasting", () => {
+  const widgetNameMap: Record<string, string> = {
+    table1: "table1Copy",
+  };
+
+  it("should replace the old widget name with the new widget name in the source data", () => {
+    const widget = {
+      sourceData: "{{table1.selectedRowData}}",
+    };
+
+    handleJSONFormWidgetWhenPasting(
+      widgetNameMap,
+      widget as any as FlattenedWidgetProps,
+    );
+
+    expect(widget.sourceData).toEqual("{{table1Copy.selectedRowData}}");
+  });
+
+  it("should not replace anything if the old widget name is not present in the source data", () => {
+    const widget = {
+      sourceData: "{{table2.selectedRowData}}",
+    };
+
+    handleJSONFormWidgetWhenPasting(
+      widgetNameMap,
+      widget as any as FlattenedWidgetProps,
+    );
+
+    expect(widget.sourceData).toEqual("{{table2.selectedRowData}}");
   });
 });
