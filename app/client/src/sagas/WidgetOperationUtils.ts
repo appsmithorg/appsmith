@@ -56,6 +56,7 @@ import {
   combineDynamicBindings,
   getDynamicBindings,
   updateDynamicPathList,
+  updateDynamicTriggerPathList,
 } from "utils/DynamicBindingUtils";
 import { areIntersecting } from "utils/boxHelpers";
 import { generateReactKey } from "utils/generators";
@@ -233,7 +234,7 @@ export const handleSpecificCasesWhilePasting = (
       // updating dynamicBindingPath in copied widget if the copied widget thas reference to oldWidgetNames
       updateDynamicPathList(widget, oldWidgetName, newWidgetName);
       // updating dynamicTriggerPath in copied widget if the copied widget thas reference to oldWidgetNames
-      updateDynamicPathList(widget, oldWidgetName, newWidgetName);
+      updateDynamicTriggerPathList(widget, oldWidgetName, newWidgetName);
     });
 
     widgets[widget.widgetId] = widget;
