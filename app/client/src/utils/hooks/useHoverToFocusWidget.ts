@@ -1,6 +1,6 @@
 import { useWidgetSelection } from "./useWidgetSelection";
 import { useSelector } from "react-redux";
-import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
+import { isWidgetFocused } from "selectors/widgetSelectors";
 import { getAnvilSpaceDistributionStatus } from "layoutSystems/anvil/integrations/selectors";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import type { AppState } from "@appsmith/reducers";
@@ -16,7 +16,7 @@ export const useHoverToFocusWidget = (
 
   // This state tels us which widget is focused
   // The value is the widgetId of the focused widget.
-  const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
+  const isFocused = useSelector(isWidgetFocused(widgetId));
 
   // This state tells the current IDE state
   const ideState = useCurrentAppState();
