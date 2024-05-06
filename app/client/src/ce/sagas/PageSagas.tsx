@@ -1359,15 +1359,18 @@ export function* setPreviewModeInitSaga(action: ReduxAction<boolean>) {
     // we animate out elements and then move to the canvas
     yield put(setPreviewModeAction(action.payload));
     const isUIEditor = isEditorPath(window.location.pathname);
-    // so when on editor the url is different based on the widgets that are selected.
-    // hence we are making sure widget selections on url are carried to preview mode.
-    // This will avoid route change when switching back to edit mode which would reset the selected widgets and create renders.
-    const urlToSet = isUIEditor
-      ? window.location.pathname
-      : builderURL({
+    if (isUIEditor) {
+      // so when on editor the url is different based on the widgets that are selected.
+      // hence we are making sure widget selections on url are carried to preview mode.
+      // This will avoid route change when switching back to edit mode which would reset the selected widgets and create renders.
+      history.push(window.location.pathname);
+    } else {
+      history.push(
+        builderURL({
           pageId: currentPageId,
-        });
-    history.push(urlToSet);
+        }),
+      );
+    }
   } else if (isPreviewMode) {
     // check if already in edit mode, then only do this
 
