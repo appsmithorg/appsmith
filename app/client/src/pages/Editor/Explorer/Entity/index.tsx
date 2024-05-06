@@ -365,8 +365,8 @@ export const Entity = forwardRef(
           className={classNames({
             highlighted: props.highlight,
             active: props.active,
-            editable: props.editable,
-            t--entity-item: true, 
+            editable: canEditEntityName,
+            "t--entity-item": true,
           })}
           data-guided-tour-id={`explorer-entity-${props.name}`}
           data-guided-tour-iid={props.name}
