@@ -1,5 +1,15 @@
 import type { AppState } from "@appsmith/reducers";
+import memoize from "micro-memoize";
 import { getAllDetachedWidgetIds, getWidgetsMeta } from "sagas/selectors";
+
+const getCurrentlyOpenWidgets = memoize(
+  (allExistingDetachedWidgets: string[], metaWidgets: Record<string, any>) => {
+    return allExistingDetachedWidgets.filter((modalId) => {
+      const modal = metaWidgets[modalId];
+      return modal && modal.isVisible;
+    });
+  },
+);
 
 export const getCurrentlyOpenAnvilDetachedWidgets = (state: AppState) => {
   const allExistingDetachedWidgets = getAllDetachedWidgetIds(state);
@@ -7,9 +17,9 @@ export const getCurrentlyOpenAnvilDetachedWidgets = (state: AppState) => {
     return [];
   }
   const metaWidgets = getWidgetsMeta(state);
-  const currentlyOpenWidgets = allExistingDetachedWidgets.filter((modalId) => {
-    const modal = metaWidgets[modalId];
-    return modal && modal.isVisible;
-  });
+  const currentlyOpenWidgets = getCurrentlyOpenWidgets(
+    allExistingDetachedWidgets,
+    metaWidgets,
+  );
   return currentlyOpenWidgets;
 };

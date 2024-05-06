@@ -77,11 +77,11 @@ export const getWidgetIdsByType = (state: AppState, type: WidgetType) => {
     .map((widget: FlattenedWidgetProps) => widget.widgetId);
 };
 
-export const getAllDetachedWidgetIds = (state: AppState) => {
+export const getAllDetachedWidgetIds = memoize((state: AppState) => {
   return Object.values(state.entities.canvasWidgets)
     .filter((widget: FlattenedWidgetProps) => !!widget.detachFromLayout)
     .map((widget: FlattenedWidgetProps) => widget.widgetId);
-};
+});
 
 export const getWidgetOptionsTree = memoize((state: AppState) =>
   Object.values(state.entities.canvasWidgets)
