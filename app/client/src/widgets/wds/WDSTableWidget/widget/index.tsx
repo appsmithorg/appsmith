@@ -1006,8 +1006,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           showConnectDataOverlay={
             primaryColumns &&
             !Object.keys(primaryColumns).length &&
-            this.props.renderMode === RenderModes.CANVAS &&
-            !this.props.isWidgetSelectionBlock
+            this.props.renderMode === RenderModes.CANVAS
           }
           sortTableColumn={this.handleColumnSorting}
           tableData={finalTableData}
