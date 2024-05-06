@@ -178,7 +178,6 @@ public class SeedData {
             final User anonymousUser = new User();
             anonymousUser.setName(FieldName.ANONYMOUS_USER);
             anonymousUser.setEmail(FieldName.ANONYMOUS_USER);
-            anonymousUser.setCurrentWorkspaceId("");
             anonymousUser.setWorkspaceIds(new HashSet<>());
             anonymousUser.setIsAnonymous(true);
             anonymousUser.setTenantId(defaultTenant.getId());
