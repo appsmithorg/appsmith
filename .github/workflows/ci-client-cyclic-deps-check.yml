@@ -12,7 +12,7 @@ jobs:
   check-cyclic-dependencies:
     runs-on: ubuntu-latest
     outputs:
-      has_cyclic_deps: ${{ steps.check_cyclic_deps.outputs.has_cyclic_deps }}
+      has_more_cyclic_deps: ${{ steps.check_cyclic_deps.outputs.has_more_cyclic_deps }}
     defaults:
       run:
         working-directory: app/client
@@ -76,18 +76,18 @@ jobs:
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
 
           if [[ $OUTPUT == *"More deps than release!"* ]]; then
-            echo "has_cyclic_deps=true" >> "$GITHUB_OUTPUT"
+            echo "has_more_cyclic_deps=true" >> "$GITHUB_OUTPUT"
           fi
 
       # Comment on the PR if cyclic dependencies are found
       - name: Comment the result on PR
-        if: steps.check_cyclic_deps.outputs.has_cyclic_deps == 'true'
+        if: steps.check_cyclic_deps.outputs.has_more_cyclic_deps == 'true'
         uses: actions/github-script@v3
         with:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const prNumber = context.payload.pull_request.number;
-            const message = `🔄 Cyclic Dependency Check:\n\`\`\`\nYou PR has more cyclic depdencies than the release branch.\n\`\`\``;
+            const message = `🔄 Cyclic Dependency Check:\n\`\`\`\nYou PR has more cyclic depdencies than the release branch.\n\nPlease consider resolving any new cyclic dependencies your PR has introduced.\n\`\`\``;
             github.issues.createComment({
               ...context.repo,
               issue_number: prNumber,

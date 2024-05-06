@@ -7,4 +7,6 @@ parseDependencyTree("./src", {}).then((tree) => {
   if (circulars.length > CIRCULAR_DEPS_IN_RELEASE) {
     console.log("More deps than release!");
   }
+
+  console.log(circulars);
 });
