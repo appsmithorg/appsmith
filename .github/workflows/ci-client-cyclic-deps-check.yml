@@ -75,7 +75,7 @@ jobs:
         run: |
           OUTPUT=$(yarn check-cyclic-deps 2>&1) || true
 
-          if [[ $OUTPUT == *"More deps than release!"* ]]; then
+          if [[ $OUTPUT == *"Failed!"* ]]; then
             echo "has_more_cyclic_deps=true" >> "$GITHUB_OUTPUT"
           fi
 
@@ -87,7 +87,7 @@ jobs:
           github-token: ${{secrets.GITHUB_TOKEN}}
           script: |
             const prNumber = context.payload.pull_request.number;
-            const message = `⚠️ Cyclic Dependency Check:\n\nYou PR has more cyclic depdencies than the release branch.\n\nResolve any new cyclic dependencies your PR has introduced.\n`;
+            const message = `⚠️ Cyclic Dependency Check:\n\nThis PR has increased the number of cyclic dependencies, when compared with the release branch.\n\nResolve any new cyclic dependencies your PR has introduced.\n`;
             github.issues.createComment({
               ...context.repo,
               issue_number: prNumber,
