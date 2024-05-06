@@ -590,7 +590,7 @@ export function getEntityName(
   if (isJSAction(entity)) return entityConfig.name;
 }
 
-export function updateDynamicPathList(
+export function updateListTemplateInDynamicPathList(
   widget: FlattenedWidgetProps,
   oldWidgetName: string,
   newWidgetName: string,
@@ -611,7 +611,7 @@ export function updateDynamicPathList(
   );
 }
 
-export function updateDynamicTriggerPathList(
+export function updateListTemplateInDynamicTriggerPathList(
   widget: FlattenedWidgetProps,
   oldWidgetName: string,
   newWidgetName: string,
