@@ -402,63 +402,6 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
     }
 
     @Override
-    public Mono<ApplicationPagesDTO> findNamesByApplicationNameAndViewMode(String applicationName, Boolean view) {
-
-        AclPermission permission;
-        if (view) {
-            permission = applicationPermission.getReadPermission();
-        } else {
-            permission = applicationPermission.getEditPermission();
-        }
-
-        Mono<Application> applicationMono = applicationService
-                .findByName(applicationName, permission)
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.NAME, applicationName)))
-                .cache();
-
-        Mono<List<PageNameIdDTO>> pagesListMono = applicationMono
-                .flatMapMany(application -> findNamesByApplication(application, view))
-                .collectList();
-
-        return Mono.zip(applicationMono, pagesListMono).map(tuple -> {
-            Application application = tuple.getT1();
-            List<PageNameIdDTO> nameIdDTOList = tuple.getT2();
-            ApplicationPagesDTO applicationPagesDTO = new ApplicationPagesDTO();
-            applicationPagesDTO.setWorkspaceId(application.getWorkspaceId());
-            applicationPagesDTO.setPages(nameIdDTOList);
-            return applicationPagesDTO;
-        });
-    }
-
-    private Flux<PageNameIdDTO> findNamesByApplication(Application application, Boolean viewMode) {
-        List<ApplicationPage> pages;
-
-        if (Boolean.TRUE.equals(viewMode)) {
-            pages = application.getPublishedPages();
-        } else {
-            pages = application.getPages();
-        }
-
-        return findByApplicationId(application.getId(), pagePermission.getReadPermission(), viewMode)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND,
-                        FieldName.PAGE + " by application id",
-                        application.getId())))
-                .map(page -> {
-                    PageNameIdDTO pageNameIdDTO = new PageNameIdDTO();
-                    pageNameIdDTO.setId(page.getId());
-                    pageNameIdDTO.setName(page.getName());
-                    for (ApplicationPage applicationPage : pages) {
-                        if (applicationPage.getId().equals(page.getId())) {
-                            pageNameIdDTO.setIsDefault(applicationPage.getIsDefault());
-                        }
-                    }
-                    return pageNameIdDTO;
-                });
-    }
-
-    @Override
     public Mono<PageDTO> findByNameAndApplicationIdAndViewMode(
             String name, String applicationId, AclPermission permission, Boolean view) {
         return repository

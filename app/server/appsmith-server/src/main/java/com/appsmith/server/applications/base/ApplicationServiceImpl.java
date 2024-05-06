@@ -5,7 +5,6 @@ import com.appsmith.server.repositories.ApplicationRepository;
 import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -28,7 +27,6 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
             ApplicationRepository repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
-            ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
             NewActionRepository newActionRepository,
@@ -45,7 +43,6 @@ public class ApplicationServiceImpl extends ApplicationServiceCECompatibleImpl i
                 repository,
                 analyticsService,
                 policySolution,
-                configService,
                 responseUtils,
                 permissionGroupService,
                 newActionRepository,
