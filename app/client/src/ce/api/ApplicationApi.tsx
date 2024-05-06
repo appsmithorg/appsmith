@@ -282,8 +282,6 @@ export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
     `/publish/${applicationId}`;
-  static createApplicationPath = (workspaceId: string) =>
-    `?workspaceId=${workspaceId}`;
   static changeAppViewAccessPath = (applicationId: string) =>
     `/${applicationId}/changeAccess`;
   static setDefaultPagePath = (request: SetDefaultPageRequest) =>
@@ -340,20 +338,13 @@ export class ApplicationApi extends Api {
   static async createApplication(
     request: CreateApplicationRequest,
   ): Promise<AxiosPromise<PublishApplicationResponse>> {
-    return Api.post(
-      ApplicationApi.baseURL +
-        ApplicationApi.createApplicationPath(request.workspaceId),
-      {
-        name: request.name,
-        color: request.color,
-        icon: request.icon,
-        applicationDetail: {
-          appPositioning: {
-            type: request.layoutSystemType,
-          },
-        },
-      },
-    );
+    return Api.post(ApplicationApi.baseURL, {
+      workspaceId: request.workspaceId,
+      name: request.name,
+      color: request.color,
+      icon: request.icon,
+      positioning: request.layoutSystemType,
+    });
   }
 
   static async setDefaultApplicationPage(
