@@ -770,9 +770,7 @@ public class DatasourceContextServiceTest {
         MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
         MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
         StepVerifier.create(datasourceContextService.deleteDatasourceContext(datasourceStorage))
-            .expectNextCount(0)
-            .verifyComplete();
-
+                .expectNextCount(0)
+                .verifyComplete();
     }
-
 }
