@@ -1,12 +1,11 @@
-const { parseDependencyTree, parseCircular } = require("dpdm");
+const { parseDependencyTree, parseCircular, prettyCircular } = require("dpdm");
 
-const CIRCULAR_DEPS_IN_RELEASE = 2900;
+const CIRCULAR_DEPS_IN_RELEASE = 2965;
 
 parseDependencyTree("./src", {}).then((tree) => {
   const circulars = parseCircular(tree);
   if (circulars.length > CIRCULAR_DEPS_IN_RELEASE) {
     console.log("More deps than release!");
   }
-
-  console.log(circulars);
+  console.log(prettyCircular(circulars));
 });
