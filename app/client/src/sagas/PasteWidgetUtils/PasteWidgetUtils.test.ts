@@ -1,8 +1,10 @@
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import {
+  accessNestedObjectValue,
   handleImageWidgetWhenPasting,
   handleJSONFormWidgetWhenPasting,
   handleTextWidgetWhenPasting,
+  handleJSONFormPropertiesListedInDynamicBindingPath,
 } from ".";
 import {
   widget,
@@ -131,5 +133,99 @@ describe("handleJSONFormWidgetWhenPasting", () => {
       handleImageWidgetWhenPasting,
       emptywidget as any as FlattenedWidgetProps,
     );
+  });
+});
+
+describe("accessNestedObjectValue", () => {
+  it("1. should replace the old value with the new value in a nested object", () => {
+    const obj = {
+      foo: {
+        bar: {
+          baz: "oldValue",
+        },
+      },
+    };
+
+    const oldValue = "oldValue";
+    const newValue = "newValue";
+
+    accessNestedObjectValue(obj, "foo.bar.baz", oldValue, newValue);
+
+    expect(obj.foo.bar.baz).toEqual(newValue);
+  });
+
+  it("2. should not replace the value if it does not match the old value", () => {
+    const obj = {
+      foo: {
+        bar: {
+          baz: "value",
+        },
+      },
+    };
+
+    const oldValue = "oldValue";
+    const newValue = "newValue";
+
+    accessNestedObjectValue(obj, "foo.bar.baz", oldValue, newValue);
+
+    expect(obj.foo.bar.baz).toEqual("value");
+  });
+
+  it("3. should return undefined if the path does not exist in the object", () => {
+    const obj = {
+      foo: {
+        bar: {
+          baz: "value",
+        },
+      },
+    };
+
+    const oldValue = "oldValue";
+    const newValue = "newValue";
+
+    const result = accessNestedObjectValue(
+      obj,
+      "foo.bar.qux",
+      oldValue,
+      newValue,
+    );
+
+    expect(result).toBeUndefined();
+  });
+});
+
+describe("handleJSONFormPropertiesListedInDynamicBindingPath", () => {
+  it("1. should replace the oldName with the newName in the dynamicBindingPathList of the widget", () => {
+    const widget = {
+      dynamicBindingPathList: [
+        { key: "schema.__rootSchema__.property1" },
+        { key: "defaultValue" },
+        { key: "property3" },
+      ],
+      defaultValue: "{{oldName.val}}",
+      schema: {
+        __rootSchema__: {
+          property1: "{{oldName.test}}",
+        },
+      },
+    };
+    const oldName = "oldName";
+    const newName = "newName";
+
+    handleJSONFormPropertiesListedInDynamicBindingPath(
+      widget as any as FlattenedWidgetProps,
+      oldName,
+      newName,
+    );
+
+    expect(widget.schema.__rootSchema__.property1).toEqual("{{newName.test}}");
+
+    expect(widget.defaultValue).toEqual("{{newName.val}}");
+
+    expect(widget.dynamicBindingPathList).toEqual([
+      { key: "schema.__rootSchema__.property1" },
+      { key: "defaultValue" },
+      { key: "property3" },
+    ]);
   });
 });

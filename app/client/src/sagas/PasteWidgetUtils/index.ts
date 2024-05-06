@@ -415,7 +415,7 @@ export function handleJSONFormPropertiesListedInDynamicBindingPath(
   });
 }
 
-function accessNestedObjectValue(
+export function accessNestedObjectValue(
   obj: any,
   path: string,
   oldValue: string,
@@ -424,7 +424,7 @@ function accessNestedObjectValue(
   const pathArray = path.split(".");
   let current = obj;
   for (let i = 0; i < pathArray.length; i++) {
-    if (i === pathArray.length - 1) {
+    if (i === pathArray.length - 1 && current[pathArray[i]] !== undefined) {
       if (
         typeof current[pathArray[i]] === "string" &&
         current[pathArray[i]].includes(oldValue)
