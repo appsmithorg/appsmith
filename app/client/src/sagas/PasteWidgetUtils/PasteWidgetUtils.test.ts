@@ -11,7 +11,7 @@ import {
   emptywidget,
   expectedTextUpdate,
   expectedSourceDataUpdate,
-} from "./PasteWidgetUtils.fixture.test";
+} from "./PasteWidgetUtils.fixture";
 const widgetNameMap = {
   table1: "table1Copy",
 };
