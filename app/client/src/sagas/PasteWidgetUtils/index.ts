@@ -404,3 +404,41 @@ export function handleJSONFormWidgetWhenPasting(
     }
   });
 }
+
+export function handleJSONFormPropertiesListedInDynamicBindingPath(
+  widget: FlattenedWidgetProps,
+  oldName: string,
+  newName: string,
+) {
+  widget.dynamicBindingPathList?.forEach((path: { key: string }) => {
+    accessNestedObjectValue(widget, path.key, oldName, newName);
+  });
+}
+
+function accessNestedObjectValue(
+  obj: any,
+  path: string,
+  oldValue: string,
+  newValue: string,
+) {
+  const pathArray = path.split(".");
+  let current = obj;
+  for (let i = 0; i < pathArray.length; i++) {
+    if (i === pathArray.length - 1) {
+      if (
+        typeof current[pathArray[i]] === "string" &&
+        current[pathArray[i]].includes(oldValue)
+      ) {
+        current[pathArray[i]] = current[pathArray[i]].replaceAll(
+          oldValue,
+          newValue,
+        );
+      }
+    } else if (current[pathArray[i]] !== undefined) {
+      current = current[pathArray[i]];
+    } else {
+      return undefined;
+    }
+  }
+  return current;
+}
