@@ -112,9 +112,7 @@ public class CsrfConfig implements Customizer<ServerHttpSecurity.CsrfSpec>, Serv
         // this Mono is not subscribed to, the token won't be available to the client.
         final Mono<CsrfToken> csrfTokenMono =
                 ObjectUtils.defaultIfNull(exchange.getAttribute(CsrfToken.class.getName()), Mono.empty());
-        return csrfTokenMono
-                .doOnSuccess(token -> exchange.getResponse().getHeaders().set("x-xsrf-token", token.getToken()))
-                .then(chain.filter(exchange));
+        return csrfTokenMono.then(chain.filter(exchange));
     }
 
     /**
