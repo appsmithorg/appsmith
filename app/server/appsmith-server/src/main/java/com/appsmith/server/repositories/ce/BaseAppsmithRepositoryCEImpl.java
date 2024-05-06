@@ -244,8 +244,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     private Flux<T> queryAllExecute(QueryAllParams<T> params, List<String> projectionFields) {
         return ensurePermissionGroupsInParams(params).thenMany(Flux.defer(() -> {
+            List<String> fields = new ArrayList<>(projectionFields);
+            if (isEmpty(fields)) {
+                fields.addAll(params.getFields());
+            }
             final Query query = createQueryWithPermission(
-                    params.getCriteria(), params.getFields(), params.getPermissionGroups(), params.getPermission());
+                    params.getCriteria(), fields, params.getPermissionGroups(), params.getPermission());
 
             if (params.getSkip() > NO_SKIP) {
                 query.skip(params.getSkip());
@@ -257,12 +261,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
             if (params.getSort() != null) {
                 query.with(params.getSort());
-            }
-
-            if (!isEmpty(projectionFields)) {
-                query.fields().include(projectionFields.toArray(new String[0]));
-            } else if (!isEmpty(params.getFields())) {
-                query.fields().include(params.getFields().toArray(new String[0]));
             }
 
             return mongoOperations
@@ -286,7 +284,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     private Mono<T> queryOneExecute(QueryAllParams<T> params, List<String> projectionFields) {
         List<String> fields = new ArrayList<>(projectionFields);
-        if (!isEmpty(fields)) {
+        if (isEmpty(fields)) {
             fields.addAll(params.getFields());
         }
         return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> mongoOperations
