@@ -40,7 +40,7 @@ import { PluginType } from "entities/Action";
 import { Icon } from "design-system";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
@@ -63,7 +63,6 @@ function QueryEditor(props: QueryEditorProps) {
     getIsActionConverting(state, actionId || ""),
   );
   const pluginImages = useSelector(getPluginImages);
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
   const icon = resolveIcon({
     iconLocation: pluginImages[pluginId] || "",
@@ -104,17 +103,19 @@ function QueryEditor(props: QueryEditorProps) {
       <>
         <MoreActionsMenu
           className="t--more-action-menu"
-          convertToModuleProps={convertToModuleProps}
           id={action?.id || ""}
           isChangePermitted={isChangePermitted}
           isDeletePermitted={isDeletePermitted}
           name={action?.name || ""}
           pageId={pageId}
+          prefixAdditionalMenus={
+            editorMode === EditorViewMode.SplitScreen && (
+              <ConvertToModuleInstanceCTA {...convertToModuleProps} />
+            )
+          }
         />
         {action?.pluginType !== PluginType.INTERNAL &&
-          !(
-            isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen
-          ) && (
+          editorMode !== EditorViewMode.SplitScreen && (
             // Need to remove this check once workflow query is supported in module
             <ConvertToModuleInstanceCTA {...convertToModuleProps} />
           )}
@@ -127,7 +128,6 @@ function QueryEditor(props: QueryEditorProps) {
     isDeletePermitted,
     pageId,
     isCreatePermitted,
-    isSideBySideEnabled,
     editorMode,
   ]);
 

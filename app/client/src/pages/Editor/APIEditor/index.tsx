@@ -39,7 +39,7 @@ import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotif
 import { Icon } from "design-system";
 import { resolveIcon } from "../utils";
 import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
-import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
+import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 type ApiEditorWrapperProps = RouteComponentProps<APIEditorRouteParams>;
@@ -68,7 +68,6 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
   const isConverting = useSelector((state) =>
     getIsActionConverting(state, action?.id || ""),
   );
-  const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const editorMode = useSelector(getIDEViewMode);
   const pluginGroups = useMemo(() => keyBy(plugins, "id"), [plugins]);
   const icon = resolveIcon({
@@ -108,16 +107,20 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
       <>
         <MoreActionsMenu
           className="t--more-action-menu"
-          convertToModuleProps={convertToModuleProps}
           id={action?.id || ""}
           isChangePermitted={isChangePermitted}
           isDeletePermitted={isDeletePermitted}
           name={action?.name || ""}
           pageId={pageId}
+          prefixAdditionalMenus={
+            editorMode === EditorViewMode.SplitScreen && (
+              <ConvertToModuleInstanceCTA {...convertToModuleProps} />
+            )
+          }
         />
-        {!(
-          isSideBySideEnabled && editorMode === EditorViewMode.SplitScreen
-        ) && <ConvertToModuleInstanceCTA {...convertToModuleProps} />}
+        {editorMode !== EditorViewMode.SplitScreen && (
+          <ConvertToModuleInstanceCTA {...convertToModuleProps} />
+        )}
       </>
     );
   }, [
@@ -127,7 +130,6 @@ function ApiEditorWrapper(props: ApiEditorWrapperProps) {
     isDeletePermitted,
     pageId,
     isCreatePermitted,
-    isSideBySideEnabled,
     editorMode,
   ]);
 
