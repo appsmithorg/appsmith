@@ -361,29 +361,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<PageDTO> getPageByName(String applicationName, String pageName, boolean viewMode) {
-        AclPermission appPermission;
-        AclPermission pagePermission1;
-        if (viewMode) {
-            // If view is set, then this user is trying to view the application
-            appPermission = applicationPermission.getReadPermission();
-            pagePermission1 = pagePermission.getReadPermission();
-        } else {
-            appPermission = applicationPermission.getEditPermission();
-            pagePermission1 = pagePermission.getEditPermission();
-        }
-
-        return applicationService
-                .findByName(applicationName, appPermission)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by application name", applicationName)))
-                .flatMap(application -> newPageService.findByNameAndApplicationIdAndViewMode(
-                        pageName, application.getId(), pagePermission1, viewMode))
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by page name", pageName)));
-    }
-
-    @Override
     public Mono<Application> makePageDefault(PageDTO page) {
         return makePageDefault(page.getApplicationId(), page.getId());
     }
@@ -986,7 +963,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     // Application is accessed without any application permission over here.
                     // previously it was getting accessed only with read permission.
                     Mono<Application> applicationMono = applicationService
-                            .findById(page.getApplicationId(), readApplicationPermission)
+                            .findById(page.getApplicationId(), readApplicationPermission.orElse(null))
                             .switchIfEmpty(Mono.error(
                                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                             .flatMap(application -> {
@@ -1470,8 +1447,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewPage newPage = new NewPage();
-                    newPage.setId(idPoliciesOnly.id());
-                    newPage.setPolicies(idPoliciesOnly.policies());
+                    newPage.setId(idPoliciesOnly.getId());
+                    newPage.setPolicies(idPoliciesOnly.getPolicies());
                     return newPage;
                 })
                 .flatMap(newPageRepository::setUserPermissionsInObject));
@@ -1479,8 +1456,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     NewAction newAction = new NewAction();
-                    newAction.setId(idPoliciesOnly.id());
-                    newAction.setPolicies(idPoliciesOnly.policies());
+                    newAction.setId(idPoliciesOnly.getId());
+                    newAction.setPolicies(idPoliciesOnly.getPolicies());
                     return newAction;
                 })
                 .flatMap(newActionRepository::setUserPermissionsInObject));
@@ -1488,8 +1465,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                 .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                 .map(idPoliciesOnly -> {
                     ActionCollection actionCollection = new ActionCollection();
-                    actionCollection.setId(idPoliciesOnly.id());
-                    actionCollection.setPolicies(idPoliciesOnly.policies());
+                    actionCollection.setId(idPoliciesOnly.getId());
+                    actionCollection.setPolicies(idPoliciesOnly.getPolicies());
                     return actionCollection;
                 })
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject));
@@ -1538,8 +1515,8 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                         .findIdsAndPoliciesByIdIn(datasourceIds)
                         .flatMap(idPolicy -> {
                             Datasource datasource = new Datasource();
-                            datasource.setId(idPolicy.id());
-                            datasource.setPolicies(idPolicy.policies());
+                            datasource.setId(idPolicy.getId());
+                            datasource.setPolicies(idPolicy.getPolicies());
                             return datasourceRepository.setUserPermissionsInObject(datasource);
                         }));
 
