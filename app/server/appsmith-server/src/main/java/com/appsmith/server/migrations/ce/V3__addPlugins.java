@@ -44,7 +44,7 @@ public class V3__addPlugins extends AppsmithJavaMigration {
     private void insertPlugin(Plugin plugin) {
         try {
             String sql =
-                    "INSERT INTO plugin (id, name, type, package_name, icon_location, documentation_link, response_type, ui_component, datasource_component, generatecrudpage_component, default_install, is_remote_plugin, is_supported_for_air_gap, is_dependent_oncs) VALUES (gen_random_uuid(),?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                    "INSERT INTO plugin (id, name, type, package_name, icon_location, documentation_link, response_type, ui_component, datasource_component, generatecrudpage_component, default_install, is_remote_plugin, is_supported_for_air_gap, is_dependent_oncs, created_at, updated_at) VALUES (gen_random_uuid(),?,?,?,?,?,?,?,?,?,?,?,?,?, now(), now())";
             jdbcTemplate.update(
                     sql,
                     plugin.getName(),
