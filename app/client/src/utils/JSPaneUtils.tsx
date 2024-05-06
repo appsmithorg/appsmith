@@ -3,6 +3,7 @@ import type { JSCollection, JSAction, Variable } from "entities/JSCollection";
 import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import AppsmithConsole from "utils/AppsmithConsole";
+import { isEmpty, isEqual, xorWith } from "lodash";
 
 export interface ParsedJSSubAction {
   name: string;
@@ -20,6 +21,9 @@ export interface JSUpdate {
   parsedBody: ParsedBody | undefined;
 }
 
+export const getDifferenceInJSArgumentArrays = (x: any, y: any) =>
+  isEmpty(xorWith(x, y, isEqual));
+
 export const getDifferenceInJSCollection = (
   parsedBody: ParsedBody,
   jsAction: JSCollection,
@@ -36,7 +40,13 @@ export const getDifferenceInJSCollection = (
       const action = parsedBody.actions[i];
       const preExisted = jsAction.actions.find((js) => js.name === action.name);
       if (preExisted) {
-        if (preExisted.actionConfiguration.body !== action.body) {
+        if (
+          preExisted.actionConfiguration.body !== action.body ||
+          !getDifferenceInJSArgumentArrays(
+            preExisted.actionConfiguration?.jsArguments,
+            action.arguments,
+          )
+        ) {
           toBeUpdatedActions.push({
             ...preExisted,
             actionConfiguration: {
