@@ -12,7 +12,9 @@ const getCurrentlyOpenWidgets = memoize(
 );
 
 export const getCurrentlyOpenAnvilDetachedWidgets = (state: AppState) => {
-  const allExistingDetachedWidgets = getAllDetachedWidgetIds(state);
+  const allExistingDetachedWidgets = getAllDetachedWidgetIds(
+    state.entities.canvasWidgets,
+  );
   if (allExistingDetachedWidgets.length === 0) {
     return [];
   }
