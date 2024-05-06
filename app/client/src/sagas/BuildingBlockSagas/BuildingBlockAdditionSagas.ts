@@ -21,7 +21,7 @@ import {
 } from "selectors/editorSelectors";
 import { generateReactKey } from "utils/generators";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
-import { getWidgets, getWidgetsMeta } from "./selectors";
+import { getWidgets, getWidgetsMeta } from "../selectors";
 
 import { builderURL } from "@appsmith/RouteBuilder";
 import { BlueprintOperationTypes } from "WidgetProvider/constants";
@@ -39,12 +39,12 @@ import {
   getNewFlexLayers,
   isStack,
   pasteWidgetInFlexLayers,
-} from "../layoutSystems/autolayout/utils/AutoLayoutUtils";
+} from "../../layoutSystems/autolayout/utils/AutoLayoutUtils";
 import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
-} from "./WidgetBlueprintSagas";
-import type { CopiedWidgetGroup } from "./WidgetOperationUtils";
+} from "../WidgetBlueprintSagas";
+import type { CopiedWidgetGroup } from "../WidgetOperationUtils";
 import {
   getBoundaryWidgetsFromCopiedGroups,
   getNextWidgetName,
@@ -52,12 +52,12 @@ import {
   getReflowedPositions,
   getSelectedWidgetWhenPasting,
   handleSpecificCasesWhilePasting,
-} from "./WidgetOperationUtils";
+} from "../WidgetOperationUtils";
 
 import { updateAndSaveAnvilLayout } from "layoutSystems/anvil/utils/anvilChecksUtils";
 import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUtils";
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
-import { getNewPositions } from "./PasteWidgetUtils";
+import { getNewPositions } from "../PasteWidgetUtils";
 
 import ApplicationApi, {
   type ImportBuildingBlockToApplicationRequest,
@@ -80,13 +80,13 @@ import {
 } from "selectors/editorSelectors";
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
-import { saveBuildingBlockWidgetsToStore } from "./BuildingBlockSagas";
-import { addWidgetAndMoveWidgetsSaga } from "./CanvasSagas/DraggingCanvasSagas";
-import { validateResponse } from "./ErrorSagas";
-import { postPageAdditionSaga } from "./TemplatesSagas";
-import { addChildSaga } from "./WidgetAdditionSagas";
-import { calculateNewWidgetPosition } from "./WidgetOperationSagas";
-import { getDragDetails, getWidgetByName } from "./selectors";
+import { saveBuildingBlockWidgetsToStore } from ".";
+import { addWidgetAndMoveWidgetsSaga } from "../CanvasSagas/DraggingCanvasSagas";
+import { validateResponse } from "../ErrorSagas";
+import { postPageAdditionSaga } from "../TemplatesSagas";
+import { addChildSaga } from "../WidgetAdditionSagas";
+import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
+import { getDragDetails, getWidgetByName } from "../selectors";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -382,7 +382,7 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
  *
  * @param gridPosition - The position of the grid where the widgets will be pasted.
  */
-function* pasteBuildingBlockWidgetsSaga(gridPosition: {
+export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
   top: number;
   left: number;
 }) {
