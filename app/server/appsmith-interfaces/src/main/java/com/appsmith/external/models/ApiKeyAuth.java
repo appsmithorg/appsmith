@@ -2,7 +2,10 @@ package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.views.FromRequest;
+import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -25,10 +28,15 @@ public class ApiKeyAuth extends AuthenticationDTO {
         HEADER,
     }
 
+    @JsonView({Views.Public.class, FromRequest.class})
     Type addTo;
+
+    @JsonView({Views.Public.class, FromRequest.class})
     String label;
+
+    @JsonView({Views.Public.class, FromRequest.class})
     String headerPrefix;
 
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
+    @JsonView(FromRequest.class)
     @Encrypted String value;
 }

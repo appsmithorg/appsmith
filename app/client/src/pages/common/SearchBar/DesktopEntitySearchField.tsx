@@ -27,6 +27,10 @@ const SearchListContainer = styled.div`
   flex-direction: column;
   padding: 12px;
   overflow-y: auto;
+
+  .search-loader {
+    overflow: hidden;
+  }
 `;
 
 const DesktopEntitySearchField = (props: any) => {
@@ -34,20 +38,17 @@ const DesktopEntitySearchField = (props: any) => {
 
   const {
     applicationsList,
-    canShowSearchDropdown,
-    handleInputClicked,
     handleSearchInput,
     isDropdownOpen,
-    isFetchingApplications,
     isFetchingEntities,
     navigateToApplication,
     noSearchResults,
     searchedPackages,
-    searchedWorkflows,
     searchInput,
     searchInputRef,
     searchListContainerRef,
     setIsDropdownOpen,
+    workflowsList,
     workspacesList,
   } = props;
 
@@ -58,16 +59,18 @@ const DesktopEntitySearchField = (props: any) => {
     <SearchContainer isMobile={isMobile}>
       <SearchInput
         data-testid="t--application-search-input"
-        isDisabled={isFetchingApplications}
         onChange={handleSearchInput}
-        onClick={handleInputClicked}
         placeholder={""}
         ref={searchInputRef}
         value={searchInput}
       />
-      {isDropdownOpen && canShowSearchDropdown && (
+      {isDropdownOpen && (
         <SearchListContainer ref={searchListContainerRef}>
-          {noSearchResults && !isFetchingEntities && (
+          {isFetchingEntities ? (
+            <div className="search-loader">
+              <Spinner />
+            </div>
+          ) : noSearchResults ? (
             <div className="no-search-results text-center py-[52px]">
               <Icon
                 className="mb-2"
@@ -82,11 +85,6 @@ const DesktopEntitySearchField = (props: any) => {
                 Please try again with a <br /> different search query
               </Text>
             </div>
-          )}
-          {isFetchingEntities ? (
-            <div className="search-loader">
-              <Spinner />
-            </div>
           ) : (
             <>
               <WorkspaceSearchItems
@@ -98,7 +96,7 @@ const DesktopEntitySearchField = (props: any) => {
                 navigateToApplication={navigateToApplication}
               />
               <PackageSearchItem searchedPackages={searchedPackages} />
-              <WorkflowSearchItem searchedWorkflows={searchedWorkflows} />
+              <WorkflowSearchItem workflowsList={workflowsList} />
             </>
           )}
         </SearchListContainer>

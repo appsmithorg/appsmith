@@ -72,9 +72,6 @@ public class User extends BaseDomain implements UserDetails, OidcUser {
     private Boolean emailVerified;
 
     @JsonView(Views.Public.class)
-    private String currentWorkspaceId;
-
-    @JsonView(Views.Public.class)
     @Type(CustomJsonType.class)
     @Column(columnDefinition = "jsonb")
     private Set<String> workspaceIds;

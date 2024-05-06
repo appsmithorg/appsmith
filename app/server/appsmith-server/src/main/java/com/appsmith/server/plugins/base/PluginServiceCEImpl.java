@@ -52,6 +52,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -66,7 +67,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
     private final ChannelTopic topic;
     private final ObjectMapper objectMapper;
 
-    private final Map<String, Mono<Map>> formCache = new HashMap<>();
+    private final Map<String, Mono<Map<?, ?>>> formCache = new HashMap<>();
     private final Map<String, Mono<Map<String, String>>> templateCache = new HashMap<>();
     private final Map<String, Mono<Map>> labelCache = new HashMap<>();
 
@@ -121,6 +122,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
 
                     Set<String> pluginIds = workspace.getPlugins().stream()
                             .map(WorkspacePlugin::getPluginId)
+                            .filter(Objects::nonNull)
                             .collect(Collectors.toUnmodifiableSet());
 
                     return repository.findAllById(pluginIds);
@@ -300,36 +302,36 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
     }
 
     @Override
-    public Mono<Map> getFormConfig(String pluginId) {
+    public Mono<Map<?, ?>> getFormConfig(String pluginId) {
         if (!formCache.containsKey(pluginId)) {
-            final Mono<Map> formMono = loadPluginResource(pluginId, "form.json")
+            final Mono<Map<?, ?>> formMono = loadPluginResource(pluginId, "form.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId))
                     .onErrorMap(Exceptions::unwrap)
                     .cache();
-            final Mono<Map> editorMono = loadPluginResource(pluginId, "editor.json")
+            final Mono<Map<?, ?>> editorMono = loadPluginResource(pluginId, "editor.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId))
-                    .onErrorReturn(new HashMap())
+                    .onErrorReturn(new HashMap<>())
                     .cache();
-            final Mono<Map> settingMono = loadPluginResource(pluginId, "setting.json")
+            final Mono<Map<?, ?>> settingMono = loadPluginResource(pluginId, "setting.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId))
-                    .onErrorReturn(new HashMap())
+                    .onErrorReturn(new HashMap<>())
                     .cache();
-            final Mono<Map> dependencyMono = loadPluginResource(pluginId, "dependency.json")
+            final Mono<Map<?, ?>> dependencyMono = loadPluginResource(pluginId, "dependency.json")
                     .doOnError(throwable ->
                             // Remove this pluginId from the cache so it is tried again next time.
                             formCache.remove(pluginId))
-                    .onErrorReturn(new HashMap())
+                    .onErrorReturn(new HashMap<>())
                     .cache();
 
-            Mono<Map> resourceMono = Mono.zip(formMono, editorMono, settingMono, dependencyMono)
+            Mono<Map<?, ?>> resourceMono = Mono.zip(formMono, editorMono, settingMono, dependencyMono)
                     .map(tuple -> {
-                        Map formMap = tuple.getT1();
+                        Map<?, ?> formMap = tuple.getT1();
                         Map editorMap = tuple.getT2();
                         Map settingMap = tuple.getT3();
                         Map dependencyMap = tuple.getT4();
@@ -353,7 +355,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
             return labelCache.get(pluginId);
         }
 
-        Mono<Map> formConfig = getFormConfig(pluginId);
+        Mono<Map<?, ?>> formConfig = getFormConfig(pluginId);
 
         if (formConfig == null) {
             return Mono.just(new HashMap());
@@ -481,12 +483,10 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
     /**
      * This function reads from the folder editor/ starting with file root.json. root.json declares all the combination
      * of commands that would be present as well as the files from which the action types should be loaded.
-     *
-     * @param plugin
      * @return Map of the editor in the format expected by the client for displaying all the UI fields with conditionals
      */
     @Override
-    public Map loadEditorPluginResourceUqi(Plugin plugin) {
+    public Map<?, ?> loadEditorPluginResourceUqi(Plugin plugin) {
         String resourcePath = UQI_QUERY_EDITOR_BASE_FOLDER + "/" + UQI_QUERY_EDITOR_ROOT_FILE;
 
         ObjectNode rootTree;
@@ -573,7 +573,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
         return repository.findByType(PluginType.REMOTE);
     }
 
-    private Map loadPluginResourceGivenPluginAsMap(Plugin plugin, String resourcePath) {
+    private Map<?, ?> loadPluginResourceGivenPluginAsMap(Plugin plugin, String resourcePath) {
         try (InputStream resourceAsStream = pluginManager
                 .getPlugin(plugin.getPackageName())
                 .getPluginClassLoader()
@@ -586,8 +586,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
                         "form resource " + resourcePath + " not found");
             }
 
-            Map resourceMap = objectMapper.readValue(resourceAsStream, Map.class);
-            return resourceMap;
+            return objectMapper.readValue(resourceAsStream, Map.class);
         } catch (IOException e) {
             log.error(
                     "[{}] : Error loading resource JSON for resourcePath {}", plugin.getPackageName(), resourcePath, e);
@@ -616,7 +615,7 @@ public class PluginServiceCEImpl extends BaseService<PluginRepository, PluginRep
     }
 
     @Override
-    public Mono<Map> loadPluginResource(String pluginId, String resourcePath) {
+    public Mono<Map<?, ?>> loadPluginResource(String pluginId, String resourcePath) {
         return findById(pluginId).map(plugin -> {
             if ("editor.json".equals(resourcePath)) {
                 // UI config will be available if this plugin is sourced from the cloud

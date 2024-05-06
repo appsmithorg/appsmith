@@ -574,8 +574,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         Optional<AclPermission> optionalAclPermission = Optional.empty();
         Mono<Application> applicationMonoWithOutPermission = applicationService
                 .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
-                .flatMap(branchedApplicationId ->
-                        applicationService.findById(branchedApplicationId, optionalAclPermission))
+                .flatMap(branchedApplicationId -> applicationService.findById(branchedApplicationId, null))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
@@ -597,8 +596,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                     .map(idPoliciesOnly -> {
                         NewPage newPage = new NewPage();
-                        newPage.setId(idPoliciesOnly.id());
-                        newPage.setPolicies(idPoliciesOnly.policies());
+                        newPage.setId(idPoliciesOnly.getId());
+                        newPage.setPolicies(idPoliciesOnly.getPolicies());
                         return newPage;
                     })
                     .flatMap(newPageRepository::setUserPermissionsInObject));
@@ -607,8 +606,8 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                     .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
                     .map(idPoliciesOnly -> {
                         NewAction newAction = new NewAction();
-                        newAction.setId(idPoliciesOnly.id());
-                        newAction.setPolicies(idPoliciesOnly.policies());
+                        newAction.setId(idPoliciesOnly.getId());
+                        newAction.setPolicies(idPoliciesOnly.getPolicies());
                         return newAction;
                     })
                     .flatMap(newActionRepository::setUserPermissionsInObject));

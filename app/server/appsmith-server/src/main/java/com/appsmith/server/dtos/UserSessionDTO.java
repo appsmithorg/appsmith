@@ -84,9 +84,8 @@ public class UserSessionDTO {
         session.source = user.getSource();
         session.state = user.getState();
         session.isEnabled = user.isEnabled();
-        session.currentWorkspaceId = user.getCurrentWorkspaceId();
-        // session.workspaceIds = user.getWorkspaceIds();
-        session.tenantId = String.valueOf(user.getTenantId());
+        session.workspaceIds = user.getWorkspaceIds();
+        session.tenantId = user.getTenantId();
         session.emailVerified = Boolean.TRUE.equals(user.getEmailVerified());
         session.emailVerificationRequired = Boolean.TRUE.equals(user.getEmailVerificationRequired());
 
@@ -126,8 +125,7 @@ public class UserSessionDTO {
         user.setSource(source);
         user.setState(state);
         user.setIsEnabled(isEnabled);
-        user.setCurrentWorkspaceId(currentWorkspaceId);
-        // user.setWorkspaceIds(workspaceIds);
+        user.setWorkspaceIds(workspaceIds);
         user.setTenantId(tenantId);
         user.setEmailVerified(Boolean.TRUE.equals(emailVerified));
         user.setEmailVerificationRequired(Boolean.TRUE.equals(emailVerificationRequired));

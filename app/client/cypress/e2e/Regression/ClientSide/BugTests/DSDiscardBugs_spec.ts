@@ -141,7 +141,7 @@ describe(
         // Edit datasource, change connection string uri param and click on back button
         _.dataSources.EditDatasource();
 
-        _.agHelper.UpdateInputValue(_.dataSources._host(), "jargons");
+        _.agHelper.ClearNType(_.dataSources._host(), "jargons");
 
         // Assert that popup is visible
         _.dataSources.cancelDSEditAndAssertModalPopUp(true, false);

@@ -158,7 +158,7 @@ public class SecurityConfig {
         return http
                 // The native CSRF solution doesn't work with WebFlux, yet, but only for WebMVC. So we make our own.
                 .csrf(csrfSpec -> csrfSpec.disable())
-                .addFilterAt(new CSRFFilter(), SecurityWebFiltersOrder.CSRF)
+                .addFilterAt(new CSRFFilter(objectMapper), SecurityWebFiltersOrder.CSRF)
                 // Default security headers configuration from
                 // https://docs.spring.io/spring-security/site/docs/5.0.x/reference/html/headers.html
                 .headers(headerSpec -> headerSpec
@@ -258,8 +258,7 @@ public class SecurityConfig {
         User user = new User();
         user.setName(FieldName.ANONYMOUS_USER);
         user.setEmail(FieldName.ANONYMOUS_USER);
-        user.setCurrentWorkspaceId("");
-        // user.setWorkspaceIds(new HashSet<>());
+        user.setWorkspaceIds(new HashSet<>());
         user.setIsAnonymous(true);
         return user;
     }

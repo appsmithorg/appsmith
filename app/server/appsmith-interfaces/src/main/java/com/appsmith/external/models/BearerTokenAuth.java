@@ -1,7 +1,8 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.annotations.encryption.Encrypted;
-import com.fasterxml.jackson.annotation.JsonProperty;
+import com.appsmith.external.views.FromRequest;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -14,7 +15,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BearerTokenAuth extends AuthenticationDTO {
-
-    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
-    @Encrypted String bearerToken;
+    @Encrypted @JsonView(FromRequest.class)
+    String bearerToken;
 }
