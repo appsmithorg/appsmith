@@ -60,6 +60,7 @@ import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   getNewPositions,
   handleJSONFormPropertiesListedInDynamicBindingPath,
+  handleJSONFormWidgetWhenPasting,
 } from "../PasteWidgetUtils";
 
 import ApplicationApi, {
@@ -751,13 +752,16 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
           // 2. updating dynamicBindingPathList in the copied grid widget
           for (let i = 0; i < newWidgetList.length; i++) {
             const widget = newWidgetList[i];
-
-            widgets = handleSpecificCasesWhilePasting(
-              widget,
-              widgets,
-              widgetNameMap,
-              newWidgetList,
-            );
+            if (widget?.type === "JSON_FORM_WIDGET") {
+              handleJSONFormWidgetWhenPasting(widgetNameMap, widget);
+            } else {
+              widgets = handleSpecificCasesWhilePasting(
+                widget,
+                widgets,
+                widgetNameMap,
+                newWidgetList,
+              );
+            }
           }
         }),
       ),
