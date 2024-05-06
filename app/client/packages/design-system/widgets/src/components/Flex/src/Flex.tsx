@@ -5,6 +5,8 @@ import clsx from "clsx";
 
 import type { Ref } from "react";
 import type { FlexProps } from "./types";
+import type { DOMProps } from "@react-types/shared";
+import { filterDOMProps } from "@react-aria/utils";
 
 const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
   const {
@@ -19,6 +21,8 @@ const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
     ...rest
   } = props;
 
+  const domProps = filterDOMProps(rest as DOMProps);
+
   const renderFlex = () => {
     return (
       <div
@@ -28,6 +32,7 @@ const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
         onClickCapture={onClickCapture}
         ref={ref}
         style={style}
+        {...domProps}
       >
         {children}
       </div>
