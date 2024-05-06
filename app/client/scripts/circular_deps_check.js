@@ -1,6 +1,6 @@
 const { parseDependencyTree, parseCircular } = require("dpdm");
 
-const CIRCULAR_DEPS_IN_RELEASE = 2971;
+const CIRCULAR_DEPS_IN_RELEASE = 2900;
 
 parseDependencyTree("./src", {}).then((tree) => {
   const circulars = parseCircular(tree);

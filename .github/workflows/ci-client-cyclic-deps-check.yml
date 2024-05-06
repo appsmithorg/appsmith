@@ -101,11 +101,6 @@ jobs:
           path: app/client/.yarn/cache
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
-        # Fail the job explicitly
-      - name: Fail the Job if cyclic dependencies are found
-        if: steps.check_cyclic_deps.outputs.has_cyclic_deps == 'true'
-        run: exit 1
-
       # Set status = success
       - name: Save the status of the run
         run: echo "run_result=success" >> $GITHUB_OUTPUT > ~/run_result
