@@ -86,7 +86,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
   const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
   const isAltWidgetSelectionBlock = useSelector(getAltBlockWidgetSelection);
-  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+  const isAppSettingsPaneWithNavigationTabOpen: boolean = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
 
@@ -116,7 +116,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isParentWidgetSelected = useSelector(
     isCurrentWidgetLastSelected(parentWidgetToSelect?.widgetId || ""),
   );
-  const isCurrentWidgetFocused = isFocused || isLastSelected || isSelected;
+  const canPerformResize = isFocused || isLastSelected || isSelected;
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
@@ -327,7 +327,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isEnabled =
     !isAutoCanvasResizing &&
     !isDragging &&
-    isCurrentWidgetFocused &&
+    canPerformResize &&
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode &&
