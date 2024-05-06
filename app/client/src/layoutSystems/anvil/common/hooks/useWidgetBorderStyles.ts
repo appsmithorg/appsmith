@@ -52,7 +52,7 @@ export function useWidgetBorderStyles(widgetId: string, widgetType: string) {
   let borderColor = "transparent";
   let borderWidth = "var(--on-canvas-ui-border-width-2)";
   // If widget is focused, use the thin borders
-  if (isFocused) {
+  if (isFocused && !isSelected) {
     borderColor = `var(${onCanvasUI.selectionBGCSSVar})`;
     borderWidth = "var(--on-canvas-ui-border-width-1)";
   }

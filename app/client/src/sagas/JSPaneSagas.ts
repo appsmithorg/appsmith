@@ -91,7 +91,10 @@ import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
-import { getJSActionPathNameToDisplay } from "@appsmith/utils/actionExecutionUtils";
+import {
+  getJSActionPathNameToDisplay,
+  isBrowserExecutionAllowed,
+} from "@appsmith/utils/actionExecutionUtils";
 import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
 import { logMainJsActionExecution } from "@appsmith/utils/analyticsHelpers";
 import { getFocusablePropertyPaneField } from "selectors/propertyPaneSelectors";
@@ -421,12 +424,20 @@ export function* handleExecuteJSFunctionSaga(data: {
   );
 
   try {
-    const { isDirty, result } = yield call(
-      executeJSFunction,
-      action,
-      collection,
-      onPageLoad,
-    );
+    const localExecutionAllowed = isBrowserExecutionAllowed(collection, action);
+    let isDirty = false;
+    let result: any = null;
+
+    if (localExecutionAllowed) {
+      const response: { isDirty: false; result: any } = yield call(
+        executeJSFunction,
+        action,
+        collection,
+        onPageLoad,
+      );
+      result = response.result;
+      isDirty = response.isDirty;
+    }
     // open response tab in debugger on runnning or page load js action.
 
     if (doesURLPathContainCollectionId || openDebugger) {
@@ -442,6 +453,10 @@ export function* handleExecuteJSFunctionSaga(data: {
         }),
       );
     }
+
+    if (!!collection.isMainJSCollection)
+      logMainJsActionExecution(actionId, true, collectionId, isDirty);
+
     yield put({
       type: ReduxActionTypes.EXECUTE_JS_FUNCTION_SUCCESS,
       payload: {
@@ -451,18 +466,24 @@ export function* handleExecuteJSFunctionSaga(data: {
       },
     });
 
-    if (!!collection.isMainJSCollection)
-      logMainJsActionExecution(actionId, true, collectionId, isDirty);
-
-    AppsmithConsole.info({
-      text: createMessage(JS_EXECUTION_SUCCESS),
-      source: {
-        type: ENTITY_TYPE.JSACTION,
-        name: jsActionPathNameToDisplay,
-        id: collectionId,
-      },
-      state: { response: result },
-    });
+    if (localExecutionAllowed) {
+      AppsmithConsole.info({
+        text: createMessage(JS_EXECUTION_SUCCESS),
+        source: {
+          type: ENTITY_TYPE.JSACTION,
+          name: jsActionPathNameToDisplay,
+          id: collectionId,
+        },
+        state: { response: result },
+      });
+    } else {
+      yield put({
+        type: ReduxActionTypes.JS_ACTION_REMOTE_EXECUTION_INIT,
+        payload: {
+          collectionId,
+        },
+      });
+    }
   } catch (error) {
     // open response tab in debugger on runnning js action.
     if (doesURLPathContainCollectionId) {

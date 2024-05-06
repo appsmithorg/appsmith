@@ -1,5 +1,7 @@
 :root {
   --anvil-drop-indicator: #ce01d3;
+  --anvil-multiple-drag-count-bg: #f6f3ff;
+  --anvil-multiple-drag-count-text: #390a6d;
   --anvil-cell-highlight: rgba(206, 1, 211, 0.2);
   --info-text-font-size: 14px;
   --info-text-font-weight: 510;

@@ -361,29 +361,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<PageDTO> getPageByName(String applicationName, String pageName, boolean viewMode) {
-        AclPermission appPermission;
-        AclPermission pagePermission1;
-        if (viewMode) {
-            // If view is set, then this user is trying to view the application
-            appPermission = applicationPermission.getReadPermission();
-            pagePermission1 = pagePermission.getReadPermission();
-        } else {
-            appPermission = applicationPermission.getEditPermission();
-            pagePermission1 = pagePermission.getEditPermission();
-        }
-
-        return applicationService
-                .findByName(applicationName, appPermission)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by application name", applicationName)))
-                .flatMap(application -> newPageService.findByNameAndApplicationIdAndViewMode(
-                        pageName, application.getId(), pagePermission1, viewMode))
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by page name", pageName)));
-    }
-
-    @Override
     public Mono<Application> makePageDefault(PageDTO page) {
         return makePageDefault(page.getApplicationId(), page.getId());
     }
