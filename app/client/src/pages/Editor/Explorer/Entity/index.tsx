@@ -363,7 +363,7 @@ export const Entity = forwardRef(
           alwaysShowRightIcon={props.alwaysShowRightIcon}
           className={`${props.highlight ? "highlighted" : ""} ${
             props.active ? "active" : ""
-          } t--entity-item`}
+          } ${canEditEntityName ? "editable" : ""} t--entity-item`}
           data-guided-tour-id={`explorer-entity-${props.name}`}
           data-guided-tour-iid={props.name}
           data-testid={`t--entity-item-${props.name}`}
