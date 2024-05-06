@@ -86,7 +86,6 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     ActionPermission actionPermission;
 
-    @MockBean
     ObservationRegistry observationRegistry;
 
     @SpyBean
@@ -140,6 +139,8 @@ class ActionExecutionSolutionCEImplTest {
 
     @BeforeEach
     public void beforeEach() {
+        observationRegistry = Mockito.mock(ObservationRegistry.class);
+
         actionExecutionSolution = new ActionExecutionSolutionCEImpl(
                 newActionService,
                 actionPermission,
@@ -282,9 +283,6 @@ class ActionExecutionSolutionCEImplTest {
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
-
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("test body");
@@ -304,6 +302,9 @@ class ActionExecutionSolutionCEImplTest {
         doReturn(Mono.just(newAction))
                 .when(newActionService)
                 .findByBranchNameAndDefaultActionId(any(), any(), Mockito.anyBoolean(), any());
+
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
@@ -342,9 +343,6 @@ class ActionExecutionSolutionCEImplTest {
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
 
-        Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
-
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
         mockResult.setBody("test body");
@@ -364,6 +362,9 @@ class ActionExecutionSolutionCEImplTest {
         doReturn(Mono.just(newAction))
                 .when(newActionService)
                 .findByBranchNameAndDefaultActionId(any(), any(), Mockito.anyBoolean(), any());
+
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {

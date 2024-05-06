@@ -32,8 +32,9 @@ const StyledPageHeader = styled(StyledHeader)<{
     `
     padding: 0 12px;
     padding-left: 10px;
-  `};
-  ${({ isBannerVisible }) => isBannerVisible && `top: 40px;`};
+    `};
+  ${({ isBannerVisible, isMobile }) =>
+    isBannerVisible ? (isMobile ? `top: 70px;` : `top: 40px;`) : ""};
 `;
 
 interface PageHeaderProps {
