@@ -362,12 +362,12 @@ export const Entity = forwardRef(
         <EntityItem
           active={!!props.active}
           alwaysShowRightIcon={props.alwaysShowRightIcon}
-          className={classNames(
-            props.highlight && "highlighted",
-            props.active && "active",
-            canEditEntityName && "editable",
-            "t--entity-item",
-          )}
+          className={classNames({
+            highlighted: props.highlight,
+            active: props.active,
+            editable: props.editable,
+            t--entity-item: true, 
+          })}
           data-guided-tour-id={`explorer-entity-${props.name}`}
           data-guided-tour-iid={props.name}
           data-testid={`t--entity-item-${props.name}`}
