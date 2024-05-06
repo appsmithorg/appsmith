@@ -14,7 +14,7 @@ const CanvasResizerIcon = importSvg(
 
 const AutoLayoutCanvasResizer = styled.div`
   position: relative;
-  z-index: var(--on-canvas-ui-z-index);
+  z-index: var(--on-canvas-ui-zindex);
   cursor: col-resize;
   user-select: none;
   -webkit-user-select: none;

@@ -1,5 +1,4 @@
 import { isPromise } from "workers/Evaluation/JSObject/utils";
-import { postJSFunctionExecutionLog } from "@appsmith/workers/Evaluation/JSObject/postJSFunctionExecution";
 import TriggerEmitter, { BatchKey } from "./TriggerEmitter";
 import ExecutionMetaData from "./ExecutionMetaData";
 function addMetaDataToError(e: any, fnName: string, fnString: string) {
@@ -42,10 +41,7 @@ function saveExecutionData({
 export function jsObjectFunctionFactory<P extends ReadonlyArray<unknown>>(
   fn: (...args: P) => unknown,
   name: string,
-  postProcessors: PostProcessor[] = [
-    saveExecutionData,
-    postJSFunctionExecutionLog,
-  ],
+  postProcessors: PostProcessor[] = [saveExecutionData],
 ) {
   return function (this: unknown, ...args: P) {
     if (!ExecutionMetaData.getExecutionMetaData().enableJSFnPostProcessors) {

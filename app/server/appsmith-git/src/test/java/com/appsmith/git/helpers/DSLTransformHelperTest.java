@@ -7,8 +7,6 @@ import org.json.JSONObject;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.io.File;
 import java.io.IOException;
@@ -19,13 +17,12 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-@ExtendWith(SpringExtension.class)
+import static org.assertj.core.api.Assertions.assertThat;
+
 public class DSLTransformHelperTest {
 
     private Map<String, JSONObject> jsonMap;
     private Map<String, List<String>> pathMapping;
-
-    String path = "src/test/resources";
 
     @BeforeEach
     public void setup() {
@@ -259,10 +256,6 @@ public class DSLTransformHelperTest {
 
         JSONObject result = DSLTransformerHelper.appendChildren(parent, childWidgets);
 
-        JSONArray expectedChildren = new JSONArray()
-                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child1"))
-                .put(new JSONObject().put(CommonConstants.WIDGET_NAME, "Child2"));
-
         JSONArray actualChildren = result.optJSONArray(CommonConstants.CHILDREN);
 
         Assertions.assertEquals(actualChildren.length(), 2);
@@ -295,11 +288,11 @@ public class DSLTransformHelperTest {
         for (Map.Entry<String, JSONObject> entry : flattenedWidgets.entrySet()) {
             JSONObject widget = entry.getValue();
             String relativePath = entry.getKey();
-            Assertions.assertEquals(relativePath.contains("Tabs1"), true);
+            assertThat(relativePath.contains("Tabs1")).isTrue();
             if (widget.getString(CommonConstants.WIDGET_NAME).equals("Button1")) {
-                Assertions.assertEquals(relativePath.endsWith("Button1"), true);
+                assertThat(relativePath.endsWith("Button1")).isTrue();
             } else if (widget.getString(CommonConstants.WIDGET_NAME).equals("CurrencyInput1")) {
-                Assertions.assertEquals(relativePath.endsWith("CurrencyInput1"), true);
+                assertThat(relativePath.endsWith("CurrencyInput1")).isTrue();
             }
         }
     }

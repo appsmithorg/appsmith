@@ -5,7 +5,7 @@ import { useSelector } from "react-redux";
 import { getIsPropertyPaneVisible } from "selectors/propertyPaneSelectors";
 import {
   getFocusedParentToOpen,
-  isCurrentWidgetFocused,
+  isWidgetFocused,
   isResizingOrDragging,
   isWidgetSelected,
   shouldWidgetIgnoreClicksSelector,
@@ -33,12 +33,12 @@ export function ClickContentToOpenPropPane({
 
   const clickToSelectWidget = useClickToSelectWidget(widgetId);
 
-  const isWidgetFocused = useSelector(isCurrentWidgetFocused(widgetId));
+  const isCurrentWidgetFocused = useSelector(isWidgetFocused(widgetId));
   const resizingOrDragging = useSelector(isResizingOrDragging);
   const handleMouseOver = (e: any) => {
     focusWidget &&
       !resizingOrDragging &&
-      !isWidgetFocused &&
+      !isCurrentWidgetFocused &&
       focusWidget(widgetId);
     e.stopPropagation();
   };

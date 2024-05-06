@@ -9,8 +9,9 @@ import { BUILDING_BLOCK_EXPLORER_TYPE } from "constants/WidgetConstants";
 import { useSelector } from "react-redux";
 import { getCurrentApplicationId } from "selectors/editorSelectors";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { noop } from "utils/AppsmithUtils";
 
-interface CardProps {
+export interface CardProps {
   details: WidgetCardProps;
 }
 
@@ -75,6 +76,35 @@ export const BetaLabel = styled.div`
 const THUMBNAIL_HEIGHT = 76;
 const THUMBNAIL_WIDTH = 72;
 
+export function WidgetCardComponent({
+  details,
+  onDragStart = noop,
+}: {
+  details: WidgetCardProps;
+  onDragStart?: (e: any) => void;
+}) {
+  const type = `${details.type.split("_").join("").toLowerCase()}`;
+  const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
+  const { ThumbnailCmp } = details;
+
+  return (
+    <Wrapper
+      className={className}
+      data-guided-tour-id={`widget-card-${type}`}
+      draggable
+      id={`widget-card-draggable-${type}`}
+      onDragStart={onDragStart}
+    >
+      <ThumbnailWrapper height={THUMBNAIL_HEIGHT} width={THUMBNAIL_WIDTH}>
+        {details.thumbnail && <img src={details.thumbnail} />}
+        {ThumbnailCmp && <ThumbnailCmp />}
+      </ThumbnailWrapper>
+      <Text kind="body-s">{details.displayName}</Text>
+      {details.isBeta && <BetaLabel>Beta</BetaLabel>}
+    </Wrapper>
+  );
+}
+
 function WidgetCard(props: CardProps) {
   const applicationId = useSelector(getCurrentApplicationId);
   const workspaceId = useSelector(getCurrentWorkspaceId);
@@ -105,25 +135,8 @@ function WidgetCard(props: CardProps) {
       });
   };
 
-  const type = `${props.details.type.split("_").join("").toLowerCase()}`;
-  const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
-  const { ThumbnailCmp } = props.details;
-
   return (
-    <Wrapper
-      className={className}
-      data-guided-tour-id={`widget-card-${type}`}
-      draggable
-      id={`widget-card-draggable-${type}`}
-      onDragStart={onDragStart}
-    >
-      <ThumbnailWrapper height={THUMBNAIL_HEIGHT} width={THUMBNAIL_WIDTH}>
-        {props.details.thumbnail && <img src={props.details.thumbnail} />}
-        {ThumbnailCmp && <ThumbnailCmp />}
-      </ThumbnailWrapper>
-      <Text kind="body-s">{props.details.displayName}</Text>
-      {props.details.isBeta && <BetaLabel>Beta</BetaLabel>}
-    </Wrapper>
+    <WidgetCardComponent details={props.details} onDragStart={onDragStart} />
   );
 }
 
