@@ -3357,6 +3357,7 @@ public class GitServiceCETest {
         StepVerifier.create(publicKey)
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
                     assertThat(s.getPublicKey()).startsWith("ecdsa-sha2-nistp256");
                 })
                 .verifyComplete();
@@ -3370,6 +3371,7 @@ public class GitServiceCETest {
         StepVerifier.create(publicKey)
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
                     assertThat(s.getPublicKey()).startsWith("ssh-rsa");
                 })
                 .verifyComplete();
@@ -3385,6 +3387,7 @@ public class GitServiceCETest {
         StepVerifier.create(newKey)
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
                     assertThat(s.getPublicKey()).startsWith("ecdsa-sha2-nistp256");
                     assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
                     assertThat(s.getPrivateKey()).isNotEmpty();
@@ -3402,6 +3405,7 @@ public class GitServiceCETest {
         StepVerifier.create(newKey)
                 .assertNext(s -> {
                     assertThat(s).isNotNull();
+                    assertThat(s.getPublicKey()).contains("appsmith");
                     assertThat(s.getPublicKey()).startsWith("ssh-rsa");
                     assertThat(s.getPublicKey()).isNotEqualTo(publicKey.getPublicKey());
                     assertThat(s.getPrivateKey()).isNotEmpty();
