@@ -65,6 +65,20 @@ public class V3__addPlugins extends AppsmithJavaMigration {
         } catch (DuplicateKeyException e) {
             log.warn("{} plugin already present in database.", plugin.getName());
         }
+        installPluginToAllWorkspaces(plugin);
+    }
+
+    public void installPluginToAllWorkspaces(Plugin plugin) {
+        // Get the plugin ID
+        String pluginId =
+                jdbcTemplate.queryForObject("SELECT id FROM plugin WHERE name = ?", String.class, plugin.getName());
+        // Define the new plugin as a JSON object
+        String newPlugin = String.format("'{\"pluginId\": \"%s\", \"status\": \"FREE\"}'::JSONB", pluginId);
+
+        // Update the workspace table
+        String sql =
+                "UPDATE workspace SET plugins = plugins || " + newPlugin + " WHERE NOT (plugins @> " + newPlugin + ")";
+        jdbcTemplate.update(sql);
     }
 
     private void addPostgresPlugin() {
