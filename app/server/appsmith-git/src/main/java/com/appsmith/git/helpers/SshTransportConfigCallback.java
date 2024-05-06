@@ -7,13 +7,16 @@ import org.bouncycastle.crypto.util.OpenSSHPublicKeyUtil;
 import org.bouncycastle.jcajce.spec.OpenSSHPublicKeySpec;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 import org.eclipse.jgit.api.TransportConfigCallback;
+import org.eclipse.jgit.transport.CredentialsProvider;
 import org.eclipse.jgit.transport.SshSessionFactory;
 import org.eclipse.jgit.transport.SshTransport;
 import org.eclipse.jgit.transport.Transport;
+import org.eclipse.jgit.transport.sshd.ServerKeyDatabase;
 import org.eclipse.jgit.transport.sshd.SshdSessionFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.security.KeyFactory;
 import java.security.KeyPair;
 import java.security.NoSuchAlgorithmException;
@@ -49,6 +52,27 @@ public class SshTransportConfigCallback implements TransportConfigCallback {
     }
 
     private final SshSessionFactory sshSessionFactory = new SshdSessionFactory() {
+
+        @Override
+        protected ServerKeyDatabase getServerKeyDatabase(File homeDir, File sshDir) {
+            return new ServerKeyDatabase() {
+                @Override
+                public List<PublicKey> lookup(
+                        String connectAddress, InetSocketAddress remoteAddress, Configuration config) {
+                    return List.of();
+                }
+
+                @Override
+                public boolean accept(
+                        String connectAddress,
+                        InetSocketAddress remoteAddress,
+                        PublicKey serverKey,
+                        Configuration config,
+                        CredentialsProvider provider) {
+                    return true;
+                }
+            };
+        }
 
         @Override
         protected Iterable<KeyPair> getDefaultKeys(File sshDir) {
