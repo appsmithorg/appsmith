@@ -5,24 +5,26 @@
   [elevation="2"] — zone
 */
 .anvilWidgetWrapper {
-  /**
-    If a section or zone have elevation, then add padding.
-    Also add padding for zones without elevation if at least one zone has an elevation inside a section.
-  */
+  /** If a section or zone have elevation, then add padding */
   [data-elevation="true"][elevation="1"],
-  [data-elevation="true"][elevation="2"],
-  [elevation="1"]:has([data-elevation="true"]) [data-elevation="false"] {
+  [data-elevation="true"][elevation="2"] {
     padding-block: var(--outer-spacing-3);
     padding-inline: var(--outer-spacing-3);
   }
 
+  /** Add padding(also border) for zones without elevation if at least one zone has an elevation inside a section */
+  [elevation="1"]:has([data-elevation="true"]) [data-elevation="false"] {
+    padding-block: calc(var(--outer-spacing-3) + var(--border-width-1));
+    padding-inline: calc(var(--outer-spacing-3) + var(--border-width-1));
+  }
+
   [data-elevation="false"][elevation="2"] {
-    min-height: var(--sizing-9);
+    min-height: var(--sizing-8);
   }
 
   /** If the elevation is enabled, then set the minimum height of the zone with paddings */
   [data-elevation="true"][elevation="2"] {
-    min-height: calc(var(--sizing-9) + var(--outer-spacing-3) * 2);
+    min-height: calc(var(--sizing-8) + var(--outer-spacing-3) * 2);
   }
 
   /** Styles for the section if elevation is enabled only for section */
