@@ -23,7 +23,6 @@ import {
   getStickyCanvasName,
 } from "constants/componentClassNameConstants";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
-import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 import {
   getWidgetLayoutMetaInfo,
   type WidgetLayoutPositionInfo,
@@ -68,6 +67,7 @@ import {
   getWidgetMetaProps,
   getWidgets,
 } from "./selectors";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export interface CopiedWidgetGroup {
   widgetId: string;
@@ -240,6 +240,7 @@ export const handleSpecificCasesWhilePasting = (
           return path;
         },
       );
+
       // updating dynamicTriggerPath in copied widget if the copied widget thas reference to oldWidgetNames
       widget.dynamicTriggerPathList = (widget.dynamicTriggerPathList || []).map(
         (path: any) => {
