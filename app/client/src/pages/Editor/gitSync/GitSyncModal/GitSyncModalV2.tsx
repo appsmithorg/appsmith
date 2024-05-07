@@ -141,6 +141,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
               <ConnectionSuccess />
             ))}
           <div
+            data-testid="t--deploy-component"
             style={{
               display:
                 activeTabKey === GitSyncModalTab.DEPLOY ? "block" : "none",
@@ -149,6 +150,7 @@ function GitSyncModalV2({ isImport = false }: GitSyncModalV2Props) {
             <Deploy />
           </div>
           <div
+            data-testid="t--merge-component"
             style={{
               display:
                 activeTabKey === GitSyncModalTab.MERGE ? "block" : "none",
