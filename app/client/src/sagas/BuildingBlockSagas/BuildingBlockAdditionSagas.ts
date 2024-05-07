@@ -347,7 +347,7 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
   }>,
 ) {
   const applicationId: string = yield select(getCurrentApplicationId);
-  const workspaceId: string = yield select(getCurrentApplicationId);
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
   const dragDetails: DragDetails = yield select(getDragDetails);
   const buildingblockName = dragDetails.newWidget.displayName;
   const skeletonWidgetName = `loading_${buildingblockName
