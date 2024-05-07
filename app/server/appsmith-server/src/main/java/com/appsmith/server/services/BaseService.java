@@ -81,11 +81,6 @@ public abstract class BaseService<
                         analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
-    @Override
-    public Mono<T> archiveById(ID id) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-    }
-
     /**
      * This function runs the validation checks on the object and returns a Mono.error if any of the constraints
      * have been violated. If all checks pass, a Mono of the object is returned back to the caller
