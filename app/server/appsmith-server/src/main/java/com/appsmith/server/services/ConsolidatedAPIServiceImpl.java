@@ -301,7 +301,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .map(ApplicationPagesDTO::getPages)
                     .flatMapMany(Flux::fromIterable)
                     .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                            page.getDefaultPageId(), branchName, false, migrateDsl))
+                            page.getDefaultPageId(), branchName, false, true))
                     .collect(Collectors.toList())
                     .as(this::toResponseDTO)
                     .doOnSuccess(consolidatedAPIResponseDTO::setPagesWithMigratedDsl)
