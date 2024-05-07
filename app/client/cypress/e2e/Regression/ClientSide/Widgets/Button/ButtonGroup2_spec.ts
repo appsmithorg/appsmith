@@ -22,9 +22,11 @@ describe(
     });
 
     it("1. Add, Delete more buttons to the group and verify", function () {
+      const newButtonLabel = Cypress.env("MESSAGES").BUTTON_WIDGET_DEFAULT_LABEL();
+
       agHelper.GetNClick(buttongroupwidgetlocators.newButton);
-      agHelper.TypeText("//*[ @value='Do Something']", " New Button");
-      agHelper.AssertContains("Do Something New Button");
+      agHelper.TypeText(`//*[ @value='${newButtonLabel}']`, " New Button");
+      agHelper.AssertContains(`${newButtonLabel} New Button`);
       deployMode.DeployApp();
       agHelper
         .GetElement(buttongroupwidgetlocators.buttongroup)
