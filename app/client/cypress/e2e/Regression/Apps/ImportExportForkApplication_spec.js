@@ -6,6 +6,10 @@ import {
   dataSources,
   assertHelper,
 } from "../../../support/Objects/ObjectsCore";
+import {
+  createMessage,
+  IMPORT_APP_SUCCESSFUL,
+} from "../../../../src/ce/constants/messages";
 
 describe(
   "Import, Export and Fork application and validate data binding",
@@ -36,7 +40,7 @@ describe(
         } else {
           cy.get(homePageLocatores.toastMessage).should(
             "contain",
-            "Application imported successfully",
+            createMessage(IMPORT_APP_SUCCESSFUL),
           );
         }
         agHelper.GenerateUUID();
@@ -132,7 +136,7 @@ describe(
               } else {
                 cy.get(homePageLocatores.toastMessage).should(
                   "contain",
-                  "Application imported successfully",
+                  createMessage(IMPORT_APP_SUCCESSFUL),
                 );
               }
               const importedApp = interception.response.body.data.application;

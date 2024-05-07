@@ -35,6 +35,7 @@ export const FilterComponentContainer = styled.div<{
   align-items: center;
   justify-content: flex-start;
   border-radius: var(--ads-v2-border-radius);
+  width: 159px;
 
   ${(props) =>
     props.isSelected && `background: var(--ads-color-background-secondary);`}
