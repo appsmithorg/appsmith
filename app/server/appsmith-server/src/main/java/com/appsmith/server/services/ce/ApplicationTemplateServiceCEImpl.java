@@ -47,6 +47,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import java.lang.reflect.Type;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
@@ -194,7 +195,8 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
                     return jsonFile;
                 })
                 .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId)));
+                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId)))
+                .cache(Duration.ofHours(24));
     }
 
     @Override
