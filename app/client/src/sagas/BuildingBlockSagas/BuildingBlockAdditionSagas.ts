@@ -771,81 +771,47 @@ function handleSelfWidgetReferencesDuringBuildingBlockPaste(
   switch (widget.type) {
     case "TABS_WIDGET":
       // Update the tabs for the tabs widget.
-      if (widget.tabsObj) {
-        try {
-          const tabs = Object.values(widget.tabsObj);
-          if (Array.isArray(tabs)) {
-            widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
-              tab.widgetId = widgetIdMap[tab.widgetId];
-              obj[tab.id] = tab;
-              return obj;
-            }, {});
-          }
-        } catch (error) {
-          log.debug("Error updating tabs", error);
-        }
+      if (widget.tabsObj && Array.isArray(widget.tabsObj)) {
+        widget.tabsObj = widget.tabsObj.map((tab: any) => ({
+          ...tab,
+          widgetId: widgetIdMap[tab.widgetId],
+        }));
       }
       break;
     case "TABLE_WIDGET_V2":
     case "TABLE_WIDGET":
       // Update the table widget column properties
-      try {
-        // If the primaryColumns of the table exist
-        if (widget.primaryColumns) {
-          // For each column
-          for (const [columnId, column] of Object.entries(
-            widget.primaryColumns,
-          )) {
-            // For each property in the column
-            for (const [key, value] of Object.entries(
-              column as ColumnProperties,
-            )) {
-              // Replace reference of previous widget with the new widgetName
-              // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
-              widget.primaryColumns[columnId][key] = isString(value)
-                ? value.replace(`${oldWidgetName}.`, `${newWidgetName}.`)
-                : value;
+      if (widget.primaryColumns) {
+        Object.entries(widget.primaryColumns).forEach(([columnId, column]) => {
+          Object.entries(column as ColumnProperties).forEach(([key, value]) => {
+            if (isString(value)) {
+              widget.primaryColumns[columnId][key] = value.replace(
+                `${oldWidgetName}.`,
+                `${newWidgetName}.`,
+              );
             }
-          }
-        }
-        // Use the new widget name we used to replace the column properties above.
+          });
+        });
         widget.widgetName = newWidgetName;
-      } catch (error) {
-        log.debug(`Error updating widget properties of ${widget.type}`, error);
       }
       break;
     case "MULTI_SELECT_WIDGET_V2":
     case "SELECT_WIDGET":
       // Update the Select widget defaultValue properties
-
-      try {
-        // If the defaultOptionValue exist
-        if (widget.defaultOptionValue) {
-          const value = widget.defaultOptionValue;
-          // replace All occurrence of old widget name
-          widget.defaultOptionValue = isString(value)
-            ? value.replaceAll(`${oldWidgetName}.`, `${newWidgetName}.`)
-            : value;
-        }
-        // Use the new widget name we used to replace the defaultValue properties above.
-        widget.widgetName = newWidgetName;
-      } catch (error) {
-        log.debug(`Error updating widget properties of ${widget.type}`, error);
+      if (isString(widget.defaultOptionValue)) {
+        widget.defaultOptionValue = widget.defaultOptionValue.replaceAll(
+          `${oldWidgetName}.`,
+          `${newWidgetName}.`,
+        );
       }
+      widget.widgetName = newWidgetName;
       break;
     case "JSON_FORM_WIDGET":
-      try {
-        handleJSONFormPropertiesListedInDynamicBindingPath(
-          widget,
-          oldWidgetName,
-          newWidgetName,
-        );
-      } catch (error) {
-        log.debug(
-          "Error updating widget properties of JSON_FORM_WIDGET",
-          error,
-        );
-      }
+      handleJSONFormPropertiesListedInDynamicBindingPath(
+        widget,
+        oldWidgetName,
+        newWidgetName,
+      );
       break;
   }
 }
