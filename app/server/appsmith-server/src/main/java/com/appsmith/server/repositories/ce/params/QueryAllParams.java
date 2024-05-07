@@ -116,7 +116,8 @@ public class QueryAllParams<T extends BaseDomain> {
     }
 
     /**
-     * @deprecated Use {@link #fields(Collection)} instead.
+     * @deprecated Use class based projections instead.
+     * Refer to {@link #all(Class)} and {@link #one(Class)}.
      * @param fields
      * @return
      */
@@ -126,7 +127,8 @@ public class QueryAllParams<T extends BaseDomain> {
     }
 
     /**
-     * @deprecated Use {@link #fields(Collection)} instead.
+     * @deprecated Use class based projections instead.
+     * Refer to {@link #all(Class)} and {@link #one(Class)}.
      * @param fields
      * @return
      */
