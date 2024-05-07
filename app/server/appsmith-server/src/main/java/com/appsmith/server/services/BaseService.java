@@ -9,13 +9,11 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
-import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -61,20 +59,6 @@ public abstract class BaseService<
                 .flatMap(obj -> repository.findById(id))
                 .flatMap(savedResource ->
                         analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
-    }
-
-    protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
-        final QueryAllParams<T> builder = repository.queryBuilder();
-
-        if (params != null && !params.isEmpty()) {
-            final BridgeQuery<BaseDomain> query = Bridge.query();
-            for (String key : params.keySet()) {
-                query.in(key, params.get(key));
-            }
-            builder.criteria(query);
-        }
-
-        return builder.permission(aclPermission).all();
     }
 
     @Override
