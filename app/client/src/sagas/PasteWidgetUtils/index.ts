@@ -36,6 +36,7 @@ import {
   isDropTarget,
 } from "../WidgetOperationUtils";
 import _ from "lodash";
+import { isString } from "utils/helpers";
 
 export /**
  * Method to provide the new positions where the widgets can be pasted.
@@ -375,7 +376,7 @@ export function handleTextWidgetWhenPasting(
   widget: FlattenedWidgetProps,
 ) {
   Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
-    if (widget.text.includes(oldWidgetName)) {
+    if (isString(widget.text) && widget.text.includes(oldWidgetName)) {
       widget.text = widget.text.replaceAll(oldWidgetName, newWidgetName);
     }
   });
@@ -386,7 +387,7 @@ export function handleImageWidgetWhenPasting(
   widget: FlattenedWidgetProps,
 ) {
   Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
-    if (widget.image.includes(oldWidgetName)) {
+    if (isString(widget.image) && widget.image.includes(oldWidgetName)) {
       widget.image = widget.image.replaceAll(oldWidgetName, newWidgetName);
     }
   });
@@ -397,7 +398,10 @@ export function handleJSONFormWidgetWhenPasting(
   widget: FlattenedWidgetProps,
 ) {
   Object.entries(widgetNameMap).forEach(([oldWidgetName, newWidgetName]) => {
-    if (widget.sourceData.includes(oldWidgetName)) {
+    if (
+      isString(widget.sourceData) &&
+      widget.sourceData.includes(oldWidgetName)
+    ) {
       widget.sourceData = widget.sourceData.replaceAll(
         oldWidgetName,
         newWidgetName,
