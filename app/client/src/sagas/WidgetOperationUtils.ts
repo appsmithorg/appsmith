@@ -61,10 +61,6 @@ import { generateReactKey } from "utils/generators";
 import { getBottomRowAfterReflow } from "utils/reflowHookUtils";
 import { getCopiedWidgets } from "utils/storage";
 import type { WidgetProps } from "widgets/BaseWidget";
-import {
-  handleImageWidgetWhenPasting,
-  handleTextWidgetWhenPasting,
-} from "./PasteWidgetUtils";
 import { getParentWithEnhancementFn } from "./WidgetEnhancementHelpers";
 import {
   getFocusedWidget,
@@ -285,10 +281,6 @@ export const handleSpecificCasesWhilePasting = (
         _.set(widgets[copyWidget.widgetId], "onClick", newOnClick);
       }
     });
-  } else if (widget?.type === "TEXT_WIDGET") {
-    handleTextWidgetWhenPasting(widgetNameMap, widget);
-  } else if (widget?.type === "IMAGE_WIDGET") {
-    handleImageWidgetWhenPasting(widgetNameMap, widget);
   }
 
   widgets = handleListWidgetV2Pasting(widget, widgets, widgetNameMap);

@@ -59,8 +59,10 @@ import { updateWidgetPositions } from "layoutSystems/autolayout/utils/positionUt
 import type { FlexLayer } from "layoutSystems/autolayout/utils/types";
 import {
   getNewPositions,
+  handleImageWidgetWhenPasting,
   handleJSONFormPropertiesListedInDynamicBindingPath,
   handleJSONFormWidgetWhenPasting,
+  handleTextWidgetWhenPasting,
 } from "../PasteWidgetUtils";
 
 import ApplicationApi, {
@@ -91,6 +93,7 @@ import { postPageAdditionSaga } from "../TemplatesSagas";
 import { addChildSaga } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import { getDragDetails, getWidgetByName } from "../selectors";
+import type { WidgetProps } from "widgets/BaseWidget";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -375,6 +378,32 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
     skeletonWidget.widgetId,
   );
 }
+
+const handleSpecificBuildingBlockWidgetWhenPasting = (
+  widget: WidgetProps & {
+    children?: string[] | undefined;
+  },
+  widgets: CanvasWidgetsReduxState,
+  widgetNameMap: Record<string, string>,
+  newWidgetList: (WidgetProps & {
+    children?: string[] | undefined;
+  })[],
+) => {
+  if (widget?.type === "JSON_FORM_WIDGET") {
+    handleJSONFormWidgetWhenPasting(widgetNameMap, widget);
+  } else if (widget?.type === "TEXT_WIDGET") {
+    handleTextWidgetWhenPasting(widgetNameMap, widget);
+  } else if (widget?.type === "IMAGE_WIDGET") {
+    handleImageWidgetWhenPasting(widgetNameMap, widget);
+  }
+
+  return handleSpecificCasesWhilePasting(
+    widget,
+    widgets,
+    widgetNameMap,
+    newWidgetList,
+  );
+};
 
 /**
  * This saga create a new widget from the copied one to store.
@@ -752,16 +781,12 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
           // 2. updating dynamicBindingPathList in the copied grid widget
           for (let i = 0; i < newWidgetList.length; i++) {
             const widget = newWidgetList[i];
-            if (widget?.type === "JSON_FORM_WIDGET") {
-              handleJSONFormWidgetWhenPasting(widgetNameMap, widget);
-            } else {
-              widgets = handleSpecificCasesWhilePasting(
-                widget,
-                widgets,
-                widgetNameMap,
-                newWidgetList,
-              );
-            }
+            widgets = handleSpecificBuildingBlockWidgetWhenPasting(
+              widget,
+              widgets,
+              widgetNameMap,
+              newWidgetList,
+            );
           }
         }),
       ),
