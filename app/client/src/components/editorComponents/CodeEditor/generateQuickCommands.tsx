@@ -45,16 +45,13 @@ export const getShowMoreLabel = (suggestions: CommandsCompletion[]) => {
 export function matchingCommands(
   list: CommandsCompletion[],
   searchText: string,
-  limit = 5,
 ) {
-  return list
-    .filter((action) => {
-      return (
-        action.displayText &&
-        action.displayText.toLowerCase().indexOf(searchText.toLowerCase()) > -1
-      );
-    })
-    .slice(0, limit);
+  return list.filter((action) => {
+    return (
+      action.displayText &&
+      action.displayText.toLowerCase().indexOf(searchText.toLowerCase()) > -1
+    );
+  });
 }
 
 export const showMoreCommandOption = (
@@ -152,7 +149,11 @@ export function ShowMoreCommand(props: {
     event.stopPropagation();
     event.preventDefault();
 
-    const showMoreLabel = getShowMoreLabel(props.suggestions);
+    const suggestionsMatchingSearchText = matchingCommands(
+      props.suggestions,
+      props.searchText,
+    );
+    const showMoreLabel = getShowMoreLabel(suggestionsMatchingSearchText);
     const loadMoreOptionIndex = filteredCommands.findIndex(
       (element) => element.displayText === showMoreLabel,
     );
@@ -163,8 +164,7 @@ export function ShowMoreCommand(props: {
           props.suggestions.length,
         ),
         props.searchText,
-        props.suggestions.length,
-      );
+      ).slice(0, props.suggestions.length);
       filteredCommands.splice(loadMoreOptionIndex, 1, ...suggestionList);
     }
 
@@ -375,13 +375,6 @@ export const generateQuickCommands = (
       },
     };
   });
-  const loadMoreCommand = showMoreCommandOption(
-    getShowMoreLabel(suggestions),
-    editor,
-    focusEditor,
-    suggestions,
-    searchText,
-  );
   const commonCommands: CommandsCompletion[] = [];
 
   if (enableAIAssistance) {
@@ -410,7 +403,7 @@ export const generateQuickCommands = (
   const commonCommandsMatchingSearchText = matchingCommands(
     commonCommands,
     searchText,
-  );
+  ).slice(0, NO_OF_QUERIES_TO_SHOW_BY_DEFAULT);
 
   filteredCommands.push(...commonCommandsMatchingSearchText);
 
@@ -421,7 +414,19 @@ export const generateQuickCommands = (
     const suggestionsMatchingSearchText = matchingCommands(
       suggestions,
       searchText,
+    );
+
+    const limitedSuggestions = suggestionsMatchingSearchText.slice(
+      0,
       NO_OF_QUERIES_TO_SHOW_BY_DEFAULT,
+    );
+
+    const loadMoreCommand = showMoreCommandOption(
+      getShowMoreLabel(suggestionsMatchingSearchText),
+      editor,
+      focusEditor,
+      suggestions,
+      searchText,
     );
 
     if (suggestionsMatchingSearchText.length) {
@@ -429,8 +434,10 @@ export const generateQuickCommands = (
       filteredCommands.push(
         commandsHeader("Bind data", "", filteredCommands.length > 0),
       );
-      filteredCommands.push(...suggestionsMatchingSearchText);
-      if (suggestions.length > NO_OF_QUERIES_TO_SHOW_BY_DEFAULT) {
+      filteredCommands.push(...limitedSuggestions);
+      if (
+        suggestionsMatchingSearchText.length > NO_OF_QUERIES_TO_SHOW_BY_DEFAULT
+      ) {
         filteredCommands.push(loadMoreCommand);
       }
     }
@@ -443,8 +450,7 @@ export const generateQuickCommands = (
       const createNewCommandsMatchingSearchText = matchingCommands(
         createNewCommands,
         searchText,
-        3,
-      );
+      ).slice(0, 3);
 
       // Check if new integration command matches search text
       createNewCommandsMatchingSearchText.push(
