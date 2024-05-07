@@ -40,17 +40,14 @@ const THUMBNAIL_HEIGHT = 76;
 const THUMBNAIL_WIDTH = 72;
 const AnvilDragPreviewWidgetCardComponent = ({
   displayName,
-  thumbnail,
   ThumbnailCmp,
 }: {
-  thumbnail?: string;
   displayName: string;
   ThumbnailCmp?: React.FC;
 }) => {
   return (
     <Wrapper>
       <ThumbnailWrapper height={THUMBNAIL_HEIGHT} width={THUMBNAIL_WIDTH}>
-        {thumbnail && <img src={thumbnail} />}
         {ThumbnailCmp && <ThumbnailCmp />}
       </ThumbnailWrapper>
       <Text kind="body-s">{displayName}</Text>
@@ -62,11 +59,9 @@ export const AnvilDragPreviewComponent = ({
   displayName,
   draggedWidgetCount,
   isDragging,
-  thumbnail,
   ThumbnailCmp,
 }: {
   isDragging: boolean;
-  thumbnail?: string;
   displayName: string;
   ThumbnailCmp?: React.FC;
   draggedWidgetCount: number;
@@ -124,7 +119,6 @@ export const AnvilDragPreviewComponent = ({
       <AnvilDragPreviewWidgetCardComponent
         ThumbnailCmp={ThumbnailCmp}
         displayName={displayName}
-        thumbnail={thumbnail}
       />
     </StyledWidgetCardPreviewWrapper>
   );

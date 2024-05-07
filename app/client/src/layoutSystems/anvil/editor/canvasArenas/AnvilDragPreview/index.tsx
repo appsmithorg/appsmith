@@ -6,12 +6,19 @@ import { AnvilDragPreviewComponent } from "./AnvilDragPreviewComponent";
 import WidgetFactory from "WidgetProvider/factory";
 import memoize from "micro-memoize";
 
+interface DragPreviewConfig {
+  displayName: string;
+  ThumbnailCmp?: () => JSX.Element;
+}
+
 const getWidgetConfigsArray = memoize(() => {
   const widgetConfigs = WidgetFactory.getConfigs();
   return Object.values(widgetConfigs);
 });
 
-const getWidgetDragPreviewProps = (widgetType: string) => {
+const getWidgetDragPreviewProps = (
+  widgetType: string,
+): DragPreviewConfig | undefined => {
   const widgetConfigsArray = getWidgetConfigsArray();
   const widgetConfig = widgetConfigsArray.find(
     (config) => config.type === widgetType,
@@ -23,7 +30,6 @@ const getWidgetDragPreviewProps = (widgetType: string) => {
     widgetConfig.displayName
   ) {
     return {
-      thumbnail: widgetConfig.thumbnailSVG,
       displayName: widgetConfig.displayName,
       ThumbnailCmp,
     };
@@ -45,13 +51,7 @@ export const AnvilDragPreview = ({
   const widgetType = isNewWidget
     ? dragDetails?.newWidget?.type
     : dragDetails?.draggingGroupCenter?.widgetType || "";
-  const dragPreviewProps:
-    | {
-        thumbnail?: string;
-        displayName: string;
-        ThumbnailCmp?: () => JSX.Element;
-      }
-    | undefined = getWidgetDragPreviewProps(widgetType);
+  const dragPreviewProps = getWidgetDragPreviewProps(widgetType);
   const showDragPreview = isDragging && !!dragPreviewProps;
   const draggedWidgetCount = draggedBlocks.length;
   return showDragPreview
