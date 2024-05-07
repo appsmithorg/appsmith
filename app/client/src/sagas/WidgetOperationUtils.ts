@@ -55,8 +55,6 @@ import type { DynamicPath } from "utils/DynamicBindingUtils";
 import {
   combineDynamicBindings,
   getDynamicBindings,
-  updateListTemplateInDynamicPathList,
-  updateListTemplateInDynamicTriggerPathList,
 } from "utils/DynamicBindingUtils";
 import { areIntersecting } from "utils/boxHelpers";
 import { generateReactKey } from "utils/generators";
@@ -232,12 +230,34 @@ export const handleSpecificCasesWhilePasting = (
       }
 
       // updating dynamicBindingPath in copied widget if the copied widget thas reference to oldWidgetNames
-      updateListTemplateInDynamicPathList(widget, oldWidgetName, newWidgetName);
+      widget.dynamicBindingPathList = (widget.dynamicBindingPathList || []).map(
+        (path: any) => {
+          if (path.key.startsWith(`template.${oldWidgetName}`)) {
+            return {
+              key: path.key.replace(
+                `template.${oldWidgetName}`,
+                `template.${newWidgetName}`,
+              ),
+            };
+          }
+
+          return path;
+        },
+      );
       // updating dynamicTriggerPath in copied widget if the copied widget thas reference to oldWidgetNames
-      updateListTemplateInDynamicTriggerPathList(
-        widget,
-        oldWidgetName,
-        newWidgetName,
+      widget.dynamicTriggerPathList = (widget.dynamicTriggerPathList || []).map(
+        (path: any) => {
+          if (path.key.startsWith(`template.${oldWidgetName}`)) {
+            return {
+              key: path.key.replace(
+                `template.${oldWidgetName}`,
+                `template.${newWidgetName}`,
+              ),
+            };
+          }
+
+          return path;
+        },
       );
     });
 
