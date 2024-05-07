@@ -23,8 +23,8 @@ describe(
 
     it("1. Add, Delete more buttons to the group and verify", function () {
       agHelper.GetNClick(buttongroupwidgetlocators.newButton);
-      agHelper.TypeText("//*[ @value='Group Button 1']", " New Button");
-      agHelper.AssertContains("Group Button 1 New Button");
+      agHelper.TypeText("//*[ @value='Do Something']", " New Button");
+      agHelper.AssertContains("Dom Something New Button");
       deployMode.DeployApp();
       agHelper
         .GetElement(buttongroupwidgetlocators.buttongroup)
