@@ -30,6 +30,7 @@ import jakarta.persistence.criteria.CriteriaUpdate;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Selection;
 import jakarta.transaction.Transactional;
 import lombok.Getter;
 import lombok.NonNull;
@@ -46,6 +47,7 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -246,54 +248,32 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return new QueryAllParams<>(this);
     }
 
-    @SneakyThrows
     public List<T> queryAllExecute(QueryAllParams<T> params) {
+        return queryAllExecute(params, genericDomain).stream()
+                .map(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()))
+                .toList();
+    }
+
+    @SneakyThrows
+    public <P> List<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.defer(() -> Mono.just(
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-                    final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
+                    final CriteriaQuery<P> cq = cb.createQuery(projectionClass);
                     final Root<T> root = cq.from(genericDomain);
 
                     final List<Specification<T>> specifications = params.getSpecifications();
                     Predicate predicate = root.get(BaseDomain.Fields.deletedAt).isNull();
-
                     if (!specifications.isEmpty()) {
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
-
-                    if (!permissionGroups.isEmpty()) {
-                        Map<String, String> fnVars = new HashMap<>();
-                        fnVars.put("p", params.getPermission().getValue());
-                        final List<String> conditions = new ArrayList<>();
-                        for (var i = 0; i < permissionGroups.size(); i++) {
-                            fnVars.put("g" + i, permissionGroups.get(i));
-                            conditions.add("@ == $g" + i);
-                        }
-
-                        try {
-                            predicate = cb.and(
-                                    predicate,
-                                    cb.isTrue(cb.function(
-                                            "jsonb_path_exists",
-                                            Boolean.class,
-                                            root.get(PermissionGroup.Fields.policies),
-                                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                                    + String.join(" || ", conditions) + ")))"),
-                                            cb.literal(objectMapper.writeValueAsString(fnVars)))));
-                        } catch (JsonProcessingException e) {
-                            // This should never happen, were serializing a Map<String, String>, which ideally should
-                            // never fail.
-                            throw new RuntimeException(e);
-                        }
-                    }
+                    predicate =
+                            addPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
 
                     cq.where(predicate);
-
-                    // TODO: Projection support
-                    // cq.multiselect(params.getFields().stream().map(f -> (Selection<T>) root.<T>get(f)).toList());
 
                     // cq.orderBy(cb.desc(root.get(FieldName.CREATED_AT)));
                     if (params.getSort() != null) {
@@ -310,7 +290,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                 .toList());
                     }
 
-                    final TypedQuery<T> query = entityManager.createQuery(cq);
+                    if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
+                        List<Selection<?>> selectionList = new ArrayList<>();
+                        Arrays.stream(projectionClass.getDeclaredFields())
+                                .toList()
+                                .forEach(f -> selectionList.add(root.get(f.getName())));
+                        cq.multiselect(selectionList);
+                    }
+
+                    final TypedQuery<P> query = entityManager.createQuery(cq);
 
                     if (params.getLimit() > 0) {
                         query.setMaxResults(params.getLimit());
@@ -318,62 +306,47 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
                     // All public access is via a single permission group. Fetch the same and set the cache with it.
                     return Mono.fromSupplier(query::getResultList)
-                            .onErrorResume(NoResultException.class, e -> Mono.empty())
-                            .map(items -> items.stream()
-                                    .map(item -> setUserPermissionsInObject(item, permissionGroups))
-                                    .toList());
+                            .onErrorResume(NoResultException.class, e -> Mono.empty());
                 })
                 .block();
     }
 
     public Optional<T> queryOneExecute(QueryAllParams<T> params) {
+        return queryOneExecute(params, genericDomain)
+                .map(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()));
+    }
+
+    public <P> Optional<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.defer(() -> Mono.just(
                         getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())))))
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-                    final CriteriaQuery<T> cq = cb.createQuery(genericDomain);
+                    final CriteriaQuery<P> cq = cb.createQuery(projectionClass);
                     final Root<T> root = cq.from(genericDomain);
 
                     final List<Specification<T>> specifications = new ArrayList<>(params.getSpecifications());
 
-                    Predicate predicate = cb.and(
-                            Specification.allOf(specifications).toPredicate(root, cq, cb),
-                            root.get(FieldName.DELETED_AT).isNull());
-
-                    if (!permissionGroups.isEmpty()) {
-                        Map<String, String> fnVars = new HashMap<>();
-                        fnVars.put("p", params.getPermission().getValue());
-                        final List<String> conditions = new ArrayList<>();
-                        for (var i = 0; i < permissionGroups.size(); i++) {
-                            fnVars.put("g" + i, permissionGroups.get(i));
-                            conditions.add("@ == $g" + i);
-                        }
-
-                        try {
-                            predicate = cb.and(
-                                    predicate,
-                                    cb.isTrue(cb.function(
-                                            "jsonb_path_exists",
-                                            Boolean.class,
-                                            root.get(PermissionGroup.Fields.policies),
-                                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                                    + String.join(" || ", conditions) + ")))"),
-                                            cb.literal(objectMapper.writeValueAsString(fnVars)))));
-                        } catch (JsonProcessingException e) {
-                            // This should never happen, were serializing a Map<String, String>, which ideally should
-                            // never fail.
-                            throw new RuntimeException(e);
-                        }
+                    Predicate predicate = root.get(FieldName.DELETED_AT).isNull();
+                    if (!specifications.isEmpty()) {
+                        predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
+                    predicate =
+                            addPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
 
                     cq.where(predicate);
+                    if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
+                        List<Selection<?>> selectionList = new ArrayList<>();
+                        Arrays.stream(projectionClass.getDeclaredFields())
+                                .toList()
+                                .forEach(f -> selectionList.add(root.get(f.getName())));
+                        cq.multiselect(selectionList);
+                    }
 
                     // All public access is via a single permission group. Fetch the same and set the cache with it.
                     return Mono.fromSupplier(entityManager.createQuery(cq)::getSingleResult)
-                            .onErrorResume(NoResultException.class, e -> Mono.empty())
-                            .map(obj -> setUserPermissionsInObject(obj, permissionGroups));
+                            .onErrorResume(NoResultException.class, e -> Mono.empty());
                 })
                 .blockOptional();
     }
@@ -395,35 +368,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
                     final List<Specification<T>> specifications = new ArrayList<>(params.getSpecifications());
 
-                    Predicate predicate = cb.and(
-                            Specification.allOf(specifications).toPredicate(root, cq, cb),
-                            root.get(FieldName.DELETED_AT).isNull());
+                    Predicate predicate = root.get(FieldName.DELETED_AT).isNull();
 
-                    if (!permissionGroups.isEmpty()) {
-                        Map<String, String> fnVars = new HashMap<>();
-                        fnVars.put("p", params.getPermission().getValue());
-                        final List<String> conditions = new ArrayList<>();
-                        for (var i = 0; i < permissionGroups.size(); i++) {
-                            fnVars.put("g" + i, permissionGroups.get(i));
-                            conditions.add("@ == $g" + i);
-                        }
-
-                        try {
-                            predicate = cb.and(
-                                    predicate,
-                                    cb.isTrue(cb.function(
-                                            "jsonb_path_exists",
-                                            Boolean.class,
-                                            root.get(PermissionGroup.Fields.policies),
-                                            cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                                    + String.join(" || ", conditions) + ")))"),
-                                            cb.literal(objectMapper.writeValueAsString(fnVars)))));
-                        } catch (JsonProcessingException e) {
-                            // This should never happen, were serializing a Map<String, String>, which ideally should
-                            // never fail.
-                            throw new RuntimeException(e);
-                        }
+                    if (!specifications.isEmpty()) {
+                        predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
+                    predicate =
+                            addPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
 
                     cq.where(predicate);
                     cq.select(cb.count(root));
@@ -481,7 +432,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     public int updateExecute(QueryAllParams<T> params, BridgeUpdate update) {
         Set<String> permissionGroupsSet = params.getPermissionGroups();
-        List<String> permissionGroups;
+        ArrayList<String> permissionGroups;
 
         if (CollectionUtils.isEmpty(permissionGroupsSet)) {
             permissionGroups = new ArrayList<>(
@@ -499,35 +450,11 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
         final List<Specification<T>> specifications = new ArrayList<>(params.getSpecifications());
 
-        Predicate predicate = cb.and(
-                Specification.allOf(specifications).toPredicate(root, cq, cb),
-                root.get(FieldName.DELETED_AT).isNull());
-
-        if (!permissionGroups.isEmpty()) {
-            Map<String, String> fnVars = new HashMap<>();
-            fnVars.put("p", params.getPermission().getValue());
-            final List<String> conditions = new ArrayList<>();
-            for (var i = 0; i < permissionGroups.size(); i++) {
-                fnVars.put("g" + i, permissionGroups.get(i));
-                conditions.add("@ == $g" + i);
-            }
-
-            try {
-                predicate = cb.and(
-                        predicate,
-                        cb.isTrue(cb.function(
-                                "jsonb_path_exists",
-                                Boolean.class,
-                                root.get(PermissionGroup.Fields.policies),
-                                cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
-                                        + String.join(" || ", conditions) + ")))"),
-                                cb.literal(objectMapper.writeValueAsString(fnVars)))));
-            } catch (JsonProcessingException e) {
-                // This should never happen, were serializing a Map<String, String>, which ideally should
-                // never fail.
-                throw new RuntimeException(e);
-            }
+        Predicate predicate = root.get(FieldName.DELETED_AT).isNull();
+        if (!specifications.isEmpty()) {
+            predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
         }
+        predicate = addPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
 
         cu.where(predicate);
 
@@ -664,6 +591,41 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
     protected Mono<Set<String>> getAnonymousUserPermissionGroups() {
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
+    }
+
+    private Predicate addPermissionGroupsPredicate(
+            ArrayList<String> permissionGroups,
+            AclPermission permission,
+            CriteriaBuilder cb,
+            Root<T> root,
+            Predicate predicate) {
+
+        if (!permissionGroups.isEmpty()) {
+            Map<String, String> fnVars = new HashMap<>();
+            fnVars.put("p", permission.getValue());
+            final List<String> conditions = new ArrayList<>();
+            for (var i = 0; i < permissionGroups.size(); i++) {
+                fnVars.put("g" + i, permissionGroups.get(i));
+                conditions.add("@ == $g" + i);
+            }
+
+            try {
+                return cb.and(
+                        predicate,
+                        cb.isTrue(cb.function(
+                                "jsonb_path_exists",
+                                Boolean.class,
+                                root.get(PermissionGroup.Fields.policies),
+                                cb.literal("$[*] ? (@.permission == $p && exists(@.permissionGroups ? ("
+                                        + String.join(" || ", conditions) + ")))"),
+                                cb.literal(objectMapper.writeValueAsString(fnVars)))));
+            } catch (JsonProcessingException e) {
+                // This should never happen, were serializing a Map<String, String>, which ideally should
+                // never fail.
+                throw new RuntimeException(e);
+            }
+        }
+        return predicate;
     }
 
     /**
