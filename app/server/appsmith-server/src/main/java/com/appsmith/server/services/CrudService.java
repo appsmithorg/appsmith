@@ -22,20 +22,7 @@ public interface CrudService<T extends BaseDomain, ID> {
         return this.getById(id);
     }
 
-    Mono<T> archiveById(ID id);
-
-    default Mono<T> archiveByIdAndBranchName(ID id, String branchName) {
-        return this.archiveById(id);
-    }
-
     Map<String, Object> getAnalyticsProperties(T savedResource);
-
-    Flux<T> filterByEntityFields(
-            List<String> searchableEntityFields,
-            String searchString,
-            Pageable pageable,
-            Sort sort,
-            AclPermission permission);
 
     Flux<T> filterByEntityFieldsWithoutPublicAccess(
             List<String> searchableEntityFields,

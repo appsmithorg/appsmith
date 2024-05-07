@@ -21,6 +21,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mockito;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.mock.web.server.MockWebSession;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -92,6 +93,8 @@ public class UserSignupTest {
                 tenantService);
 
         exchange = Mockito.mock(ServerWebExchange.class);
+        Mockito.when(exchange.getSession()).thenReturn(Mono.just(new MockWebSession()));
+
         tenant = new Tenant();
         TenantConfiguration configuration = new TenantConfiguration();
         tenant.setTenantConfiguration(configuration);
