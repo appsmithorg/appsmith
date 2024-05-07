@@ -249,6 +249,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public List<T> queryAllExecute(QueryAllParams<T> params) {
+        if (CollectionUtils.isEmpty(params.getPermissionGroups())) {
+            params.permissionGroups(
+                    getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())));
+        }
         return queryAllExecute(params, genericDomain).stream()
                 .map(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()))
                 .toList();
@@ -312,6 +316,10 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public Optional<T> queryOneExecute(QueryAllParams<T> params) {
+        if (CollectionUtils.isEmpty(params.getPermissionGroups())) {
+            params.permissionGroups(
+                    getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())));
+        }
         return queryOneExecute(params, genericDomain)
                 .map(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()));
     }
