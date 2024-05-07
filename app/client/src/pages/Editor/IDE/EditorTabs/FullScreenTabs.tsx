@@ -16,6 +16,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { AddButton } from "./AddButton";
 
 const FullScreenTabs = () => {
   const dispatch = useDispatch();
@@ -44,6 +45,7 @@ const FullScreenTabs = () => {
         onClose={closeClickHandler}
         tabs={files}
       />
+      <AddButton />
       <Tooltip
         content={createMessage(MINIMIZE_BUTTON_TOOLTIP)}
         placement="bottomRight"

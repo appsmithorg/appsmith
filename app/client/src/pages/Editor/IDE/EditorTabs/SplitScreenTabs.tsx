@@ -1,5 +1,4 @@
 import React from "react";
-import { Flex, Spinner, ToggleButton } from "design-system";
 
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
@@ -8,21 +7,18 @@ import Container from "./Container";
 import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 import {
   EditorEntityTab,
-  EditorEntityTabState,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import { useIsJSAddLoading } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { TabSelectors } from "./constants";
 import { Announcement } from "../EditorPane/components/Announcement";
 import { SearchableFilesList } from "./SearchableFilesList";
+import { AddButton } from "./AddButton";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
-  const { segment, segmentMode } = useCurrentEditorState();
-  const { addClickHandler, closeClickHandler, tabClickHandler } =
-    useIDETabClickHandlers();
-  const isJSLoading = useIsJSAddLoading();
+  const { segment } = useCurrentEditorState();
+  const { closeClickHandler, tabClickHandler } = useIDETabClickHandlers();
 
   const tabsConfig = TabSelectors[segment];
 
@@ -32,26 +28,6 @@ const SplitScreenTabs = () => {
   if (!isSideBySideEnabled) return null;
   if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
-
-  const AddButton = () => {
-    if (isJSLoading) {
-      return (
-        <Flex px="spaces-2">
-          <Spinner size="md" />
-        </Flex>
-      );
-    }
-    return (
-      <ToggleButton
-        data-testid="t--ide-split-screen-add-button"
-        icon="add-line"
-        id="tabs-add-toggle"
-        isSelected={segmentMode === EditorEntityTabState.Add}
-        onClick={addClickHandler}
-        size="md"
-      />
-    );
-  };
 
   return (
     <>

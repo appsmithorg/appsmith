@@ -3,13 +3,18 @@ import { useLocation } from "react-router";
 import clsx from "classnames";
 import { Flex, Icon, ScrollArea } from "design-system";
 
-import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import {
+  EditorEntityTab,
+  EditorEntityTabState,
+  type EntityItem,
+} from "@appsmith/entities/IDE/constants";
 import {
   StyledTab,
   TabIconContainer,
   TabTextContainer,
 } from "./StyledComponents";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
+import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 
 interface Props {
   tabs: EntityItem[];
@@ -19,6 +24,8 @@ interface Props {
 
 const FileTabs = (props: Props) => {
   const { navigateToTab, onClose, tabs } = props;
+  const { segment, segmentMode } = useCurrentEditorState();
+  const { addClickHandler } = useIDETabClickHandlers();
 
   const location = useLocation();
 
@@ -72,6 +79,24 @@ const FileTabs = (props: Props) => {
             />
           </StyledTab>
         ))}
+        {/* New Tab */}
+        {segmentMode === EditorEntityTabState.Add ? (
+          <StyledTab
+            className={clsx("editor-tab", "active")}
+            data-testid={`t--ide-tab-new`}
+          >
+            <TabTextContainer>
+              New {segment === EditorEntityTab.JS ? "JS" : "Query"}
+            </TabTextContainer>
+            {/* not using button component because of the size not matching design */}
+            <Icon
+              className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
+              data-testid="t--tab-close-btn"
+              name="close-line"
+              onClick={addClickHandler}
+            />
+          </StyledTab>
+        ) : null}
       </Flex>
     </ScrollArea>
   );
