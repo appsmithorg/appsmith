@@ -690,6 +690,12 @@ export const JS_ACTION_EXECUTION_ERROR = (jsFunctionName: string) =>
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
 
+//Import Application Succesful
+export const IMPORT_APP_SUCCESSFUL = () => "Application imported successfully";
+//Unable to import application in workspace
+export const UNABLE_TO_IMPORT_APP = () =>
+  "Unable to import application in workspace";
+
 //undo redo
 export const WIDGET_REMOVED = (widgetName: string) =>
   `${widgetName} is removed`;
