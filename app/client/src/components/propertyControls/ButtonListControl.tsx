@@ -9,6 +9,10 @@ import { Button, Flex } from "design-system";
 import { ButtonPlacementTypes } from "components/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
+import {
+  createMessage,
+  BUTTON_WIDGET_DEFAULT_LABEL,
+} from "@appsmith/constants/messages";
 
 interface State {
   focusedIndex: number | null;
@@ -183,7 +187,9 @@ class ButtonListControl extends BaseControl<
       [newGroupButtonId]: {
         id: newGroupButtonId,
         index: groupButtonsArray.length,
-        label: isSeparator ? "Separator" : "Do Something",
+        label: isSeparator
+          ? "Separator"
+          : createMessage(BUTTON_WIDGET_DEFAULT_LABEL),
         widgetId: generateReactKey(),
         isDisabled: false,
         itemType: isSeparator ? "SEPARATOR" : "BUTTON",
