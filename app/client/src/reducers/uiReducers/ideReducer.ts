@@ -6,7 +6,7 @@ import {
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
 import { klona } from "klona";
-import { remove, set } from "lodash";
+import { get, remove, set } from "lodash";
 
 export const IDETabsDefaultValue = {
   [EditorEntityTab.JS]: [],
@@ -62,14 +62,22 @@ const ideReducer = createImmerReducer(initialState, {
     state: IDEState,
     action: ReduxAction<{ id: string; parentId: string }>,
   ) => {
-    const tabs = state.tabs[action.payload.parentId][EditorEntityTab.JS];
+    const tabs = get(
+      state,
+      ["tabs", action.payload.parentId, EditorEntityTab.JS],
+      [] as string[],
+    );
     remove(tabs, (tab) => tab === action.payload.id);
   },
   [ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCCESS]: (
     state: IDEState,
     action: ReduxAction<{ id: string; parentId: string }>,
   ) => {
-    const tabs = state.tabs[action.payload.parentId][EditorEntityTab.QUERIES];
+    const tabs = get(
+      state,
+      ["tabs", action.payload.parentId, EditorEntityTab.QUERIES],
+      [] as string[],
+    );
     remove(tabs, (tab) => tab === action.payload.id);
   },
 });
