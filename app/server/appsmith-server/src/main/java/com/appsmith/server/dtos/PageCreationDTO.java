@@ -14,7 +14,7 @@ public record PageCreationDTO(
 
     public PageDTO toPageDTO() {
         final PageDTO page = new PageDTO();
-        page.setName(name);
+        page.setName(name.trim());
         page.setApplicationId(applicationId);
         page.setLayouts(layouts);
         return page;

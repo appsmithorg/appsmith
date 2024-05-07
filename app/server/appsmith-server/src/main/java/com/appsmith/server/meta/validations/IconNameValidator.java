@@ -11,6 +11,6 @@ public class IconNameValidator implements ConstraintValidator<IconName, String> 
 
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
-        return value != null && PATTERN.matcher(value).matches();
+        return value == null || PATTERN.matcher(value).matches();
     }
 }

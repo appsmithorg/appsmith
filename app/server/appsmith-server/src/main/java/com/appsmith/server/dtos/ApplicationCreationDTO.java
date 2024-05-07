@@ -6,6 +6,7 @@ import com.appsmith.server.meta.validations.IconName;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+import org.apache.commons.lang3.StringUtils;
 
 public record ApplicationCreationDTO(
         @NotBlank @Size(max = 99) String workspaceId,
@@ -18,7 +19,7 @@ public record ApplicationCreationDTO(
         final Application application = new Application();
         application.setWorkspaceId(workspaceId);
         application.setName(name.trim());
-        application.setIcon(icon);
+        application.setIcon(StringUtils.isBlank(icon) ? null : icon.trim());
         application.setColor(color);
         final ApplicationDetail applicationDetail = new ApplicationDetail();
         applicationDetail.setAppPositioning(positioning);
