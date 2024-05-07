@@ -282,7 +282,8 @@ public class SecurityConfig {
         }
 
         // 2. Check if it's a content-type our controllers actually work with.
-        if (!MediaType.APPLICATION_JSON.equalsTypeAndSubtype(contentType)
+        if (contentType != null
+                && !MediaType.APPLICATION_JSON.equalsTypeAndSubtype(contentType)
                 && !MediaType.APPLICATION_FORM_URLENCODED.equalsTypeAndSubtype(contentType)
                 && !MediaType.MULTIPART_FORM_DATA.equalsTypeAndSubtype(contentType)) {
             return writeErrorResponse(exchange, chain, "Unsupported Content-Type");
