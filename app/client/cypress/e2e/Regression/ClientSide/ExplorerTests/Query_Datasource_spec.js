@@ -18,7 +18,7 @@ let datasourceName;
 describe(
   "Entity explorer tests related to query and datasource",
   { tags: ["@tag.IDE"] },
-  function () {
+  function() {
     before(() => {
       cy.generateUUID().then((uid) => {
         datasourceName = uid;
@@ -29,7 +29,7 @@ describe(
       cy.startRoutesForDatasource();
     });
 
-    it("1. Create a page/moveQuery/rename/delete in explorer", function () {
+    it("1. Create a page/moveQuery/rename/delete in explorer", function() {
       cy.Createpage(pageid);
       cy.wait(2000);
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
@@ -43,7 +43,7 @@ describe(
         .clear()
         .type("download", { force: true })
         .blur();
-      cy.get(".Toastify").should("contain", "Invalid name");
+      cy.get(".Toastify").should("contain", Cypress.env("MESSAGES").INVALID_NAME_ERROR());
 
       // checking a valid name
       cy.get(".t--edit-datasource-name").click();
@@ -83,7 +83,7 @@ describe(
         entityNameinLeftSidebar: "Query1",
         action: "Show bindings",
       });
-      cy.get(apiwidget.propertyList).then(function ($lis) {
+      cy.get(apiwidget.propertyList).then(function($lis) {
         expect($lis).to.have.length(5);
         expect($lis.eq(0)).to.contain("{{Query1.isLoading}}");
         expect($lis.eq(1)).to.contain("{{Query1.data}}");
