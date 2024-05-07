@@ -5,10 +5,13 @@ import { Flex } from "design-system";
 const Container = (props: { children: ReactNode }) => {
   return (
     <Flex
-      backgroundColor="#F8FAFC"
-      borderBottom="#F1F5F9"
+      alignItems="center"
+      backgroundColor="#FFFFFF"
+      borderBottom="1px solid var(--ads-v2-color-border)"
       gap="spaces-2"
-      padding="spaces-2"
+      maxHeight="32px"
+      minHeight="32px"
+      px="spaces-2"
       width="100%"
     >
       {props.children}

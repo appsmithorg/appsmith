@@ -19,7 +19,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.models.SSLDetails;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
-import com.appsmith.server.constants.ArtifactJsonType;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.SerialiseArtifactObjective;
 import com.appsmith.server.datasources.base.DatasourceService;
@@ -28,7 +28,7 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
@@ -43,10 +43,9 @@ import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.exportable.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.importable.ImportService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.jslibs.base.CustomJSLibService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.migrations.JsonSchemaVersions;
@@ -71,7 +70,6 @@ import net.minidev.json.JSONArray;
 import net.minidev.json.JSONObject;
 import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.MethodOrderer;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
@@ -97,7 +95,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import static com.appsmith.external.constants.GitConstants.NAME_SEPARATOR;
+import static com.appsmith.external.git.constants.GitConstants.NAME_SEPARATOR;
 import static com.appsmith.server.acl.AclPermission.MANAGE_APPLICATIONS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_PAGES;
 import static com.appsmith.server.acl.AclPermission.READ_ACTIONS;
@@ -226,7 +224,7 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Application.ThemeSetting themeSettings = getThemeSetting();
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
@@ -282,7 +280,7 @@ public class ExportServiceTests {
     @WithUserDetails(value = "api_user")
     public void exportApplicationWithNullApplicationIdTest() {
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(null, "", ArtifactJsonType.APPLICATION)
+                .exportByArtifactIdAndBranchName(null, "", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -315,7 +313,7 @@ public class ExportServiceTests {
                 .block();
 
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactJsonType.APPLICATION)
+                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -329,11 +327,10 @@ public class ExportServiceTests {
     }
 
     @Test
-    @Disabled
     @WithUserDetails(value = "api_user")
     public void exportApplication_withInvalidApplicationId_throwNoResourceFoundException() {
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName("invalidAppId", "", ArtifactJsonType.APPLICATION)
+                .exportByArtifactIdAndBranchName("invalidAppId", "", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -349,7 +346,7 @@ public class ExportServiceTests {
     @WithUserDetails(value = "api_user")
     public void exportApplicationById_WhenContainsInternalFields_InternalFieldsNotExported() {
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(testAppId, "", ArtifactJsonType.APPLICATION)
+                .exportByArtifactIdAndBranchName(testAppId, "", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -388,7 +385,7 @@ public class ExportServiceTests {
                     return applicationPageService.createApplication(testApplication, workspaceId);
                 })
                 .flatMap(application -> exportService.exportByArtifactIdAndBranchName(
-                        application.getId(), "", ArtifactJsonType.APPLICATION))
+                        application.getId(), "", ArtifactType.APPLICATION))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -498,7 +495,7 @@ public class ExportServiceTests {
                             .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportService.exportByArtifactIdAndBranchName(
-                                    testApp.getId(), "", ArtifactJsonType.APPLICATION))
+                                    testApp.getId(), "", ArtifactType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 })
                 .cache();
@@ -719,7 +716,7 @@ public class ExportServiceTests {
                             .then(exportService.exportByArtifactId(
                                     testApp.getId(),
                                     SerialiseArtifactObjective.VERSION_CONTROL,
-                                    ArtifactJsonType.APPLICATION))
+                                    ArtifactType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
@@ -824,8 +821,8 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -859,7 +856,7 @@ public class ExportServiceTests {
                         .exportByArtifactId(
                                 savedApplication.getId(),
                                 SerialiseArtifactObjective.VERSION_CONTROL,
-                                ArtifactJsonType.APPLICATION)
+                                ArtifactType.APPLICATION)
                         .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                         .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
                                 workspaceId, savedApplication.getId(), applicationJson, gitData.getBranchName())))
@@ -934,8 +931,8 @@ public class ExportServiceTests {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
 
@@ -969,7 +966,7 @@ public class ExportServiceTests {
                 .build();
 
         Mono<Application> applicationMono = exportService
-                .exportByArtifactIdAndBranchName(application.getId(), "master", ArtifactJsonType.APPLICATION)
+                .exportByArtifactIdAndBranchName(application.getId(), "master", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(applicationJson -> importService.importArtifactInWorkspaceFromGit(
                         workspaceId, application.getId(), applicationJson, "master"))
@@ -1090,7 +1087,7 @@ public class ExportServiceTests {
                             .then(updateLayoutService.updateLayout(
                                     testPage.getId(), testPage.getApplicationId(), layout.getId(), layout))
                             .then(exportService.exportByArtifactIdAndBranchName(
-                                    testApp.getId(), "", ArtifactJsonType.APPLICATION))
+                                    testApp.getId(), "", ArtifactType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 })
                 .cache();
@@ -1269,12 +1266,11 @@ public class ExportServiceTests {
      * Test to check if the application can be exported with read only access if this is sample application
      */
     @Test
-    @Disabled
     @WithUserDetails(value = "usertest@usertest.com")
     public void exportApplication_withReadOnlyAccess_exportedWithDecryptedFields() {
         Mono<ApplicationJson> exportApplicationMono = exportService
                 .exportByArtifactId(
-                        exportWithConfigurationAppId, SerialiseArtifactObjective.SHARE, ArtifactJsonType.APPLICATION)
+                        exportWithConfigurationAppId, SerialiseArtifactObjective.SHARE, ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(exportApplicationMono)
@@ -1322,7 +1318,7 @@ public class ExportServiceTests {
         applicationPageService.publish(testApplication.getId(), true).block();
 
         Mono<ApplicationJson> applicationJsonMono = exportService
-                .exportByArtifactIdAndBranchName(testApplication.getId(), "", ArtifactJsonType.APPLICATION)
+                .exportByArtifactIdAndBranchName(testApplication.getId(), "", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .cache();
 
@@ -1418,8 +1414,8 @@ public class ExportServiceTests {
         appNavigationSetting.setOrientation("top");
         testApplication.setUnpublishedApplicationDetail(new ApplicationDetail());
         testApplication.getUnpublishedApplicationDetail().setNavigationSetting(appNavigationSetting);
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
@@ -1432,9 +1428,7 @@ public class ExportServiceTests {
 
         Mono<Application> result = exportService
                 .exportByArtifactId(
-                        savedApplication.getId(),
-                        SerialiseArtifactObjective.VERSION_CONTROL,
-                        ArtifactJsonType.APPLICATION)
+                        savedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
@@ -1479,8 +1473,8 @@ public class ExportServiceTests {
         testApplication.setName(
                 "importApplicationInWorkspaceFromGit_WithAppLayoutInEditMode_ImportedAppHasAppLayoutInEditAndViewMode");
         testApplication.setUnpublishedAppLayout(new Application.AppLayout(Application.AppLayout.Type.DESKTOP));
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("testBranch");
         testApplication.setGitApplicationMetadata(gitData);
         Application savedApplication = applicationPageService
@@ -1493,9 +1487,7 @@ public class ExportServiceTests {
 
         Mono<Application> result = exportService
                 .exportByArtifactId(
-                        savedApplication.getId(),
-                        SerialiseArtifactObjective.VERSION_CONTROL,
-                        ArtifactJsonType.APPLICATION)
+                        savedApplication.getId(), SerialiseArtifactObjective.VERSION_CONTROL, ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .flatMap(applicationJson -> {
                     // setting published mode resource as null, similar to the app json exported to git repo
@@ -1556,7 +1548,7 @@ public class ExportServiceTests {
                 .block();
 
         Mono<ApplicationJson> applicationJsonMono = exportService
-                .exportByArtifactIdAndBranchName(testApplication.getId(), "", ArtifactJsonType.APPLICATION)
+                .exportByArtifactIdAndBranchName(testApplication.getId(), "", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson)
                 .cache();
 
@@ -1655,7 +1647,7 @@ public class ExportServiceTests {
                     return applicationService
                             .save(application)
                             .then(exportService.exportByArtifactIdAndBranchName(
-                                    application.getId(), branchName, ArtifactJsonType.APPLICATION))
+                                    application.getId(), branchName, ArtifactType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
@@ -1746,7 +1738,7 @@ public class ExportServiceTests {
                     return layoutActionService
                             .createSingleAction(action, Boolean.FALSE)
                             .then(exportService.exportByArtifactIdAndBranchName(
-                                    objects.getT1().getId(), "", ArtifactJsonType.APPLICATION))
+                                    objects.getT1().getId(), "", ArtifactType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
@@ -1775,7 +1767,7 @@ public class ExportServiceTests {
                 .block();
 
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactJsonType.APPLICATION)
+                .exportByArtifactIdAndBranchName(createdApplication.getId(), "", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -1813,8 +1805,7 @@ public class ExportServiceTests {
         PageDTO applicationPageDTO = applicationPageService.createPage(pageDTO).block();
 
         Mono<ApplicationJson> resultMono = exportService
-                .exportByArtifactIdAndBranchName(
-                        applicationPageDTO.getApplicationId(), "", ArtifactJsonType.APPLICATION)
+                .exportByArtifactIdAndBranchName(applicationPageDTO.getApplicationId(), "", ArtifactType.APPLICATION)
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(resultMono)
@@ -1842,7 +1833,7 @@ public class ExportServiceTests {
                 })
                 .cache();
         Mono<ApplicationJson> getExportedAppMono = addJSLibMonoCached
-                .then(exportService.exportByArtifactIdAndBranchName(testAppId, "", ArtifactJsonType.APPLICATION))
+                .then(exportService.exportByArtifactIdAndBranchName(testAppId, "", ArtifactType.APPLICATION))
                 .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
 
         StepVerifier.create(Mono.zip(addJSLibMonoCached, getExportedAppMono))
@@ -1952,10 +1943,10 @@ public class ExportServiceTests {
                 })
                 .flatMap(application -> {
                     // set git meta data for the application and set a last commit date
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
-                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    gitArtifactMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application);
                 })
                 .delayElement(Duration.ofMillis(
@@ -1971,7 +1962,7 @@ public class ExportServiceTests {
                             .then(exportService.exportByArtifactId(
                                     application.getId(),
                                     SerialiseArtifactObjective.VERSION_CONTROL,
-                                    ArtifactJsonType.APPLICATION))
+                                    ArtifactType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 
@@ -2057,10 +2048,10 @@ public class ExportServiceTests {
                 .flatMap(objects -> {
                     Application application = objects.getT2();
                     // set git meta data for the application and set a last commit date
-                    GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
+                    GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
                     // add buffer of 5 seconds so that the last commit date is definitely after the last updated date
-                    gitApplicationMetadata.setLastCommittedAt(Instant.now());
-                    application.setGitApplicationMetadata(gitApplicationMetadata);
+                    gitArtifactMetadata.setLastCommittedAt(Instant.now());
+                    application.setGitApplicationMetadata(gitArtifactMetadata);
                     return applicationRepository.save(application).thenReturn(objects);
                 })
                 .delayElement(Duration.ofMillis(
@@ -2075,7 +2066,7 @@ public class ExportServiceTests {
                             .then(exportService.exportByArtifactId(
                                     application.getId(),
                                     SerialiseArtifactObjective.VERSION_CONTROL,
-                                    ArtifactJsonType.APPLICATION))
+                                    ArtifactType.APPLICATION))
                             .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson);
                 });
 

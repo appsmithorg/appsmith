@@ -18,7 +18,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { EditInteractionKind, SavingState } from "design-system-old";
 import styled from "styled-components";
 
-import { AppsmithLink } from "pages/Editor/AppsmithLink";
 import {
   APPLICATION_INVITE,
   COMMUNITY_TEMPLATES,
@@ -27,7 +26,6 @@ import {
   DEPLOY_MENU_OPTION,
   IN_APP_EMBED_SETTING,
   INVITE_TAB,
-  RENAME_APPLICATION_TOOLTIP,
   HEADER_TITLES,
 } from "@appsmith/constants/messages";
 import EditorName from "pages/Editor/EditorName";
@@ -35,8 +33,10 @@ import { GetNavigationMenuData } from "pages/Editor/EditorName/NavigationMenuDat
 import {
   getCurrentApplicationId,
   getCurrentPageId,
+  getIsPageSaving,
   getIsPublishingApplication,
   getPageById,
+  getPageSavingError,
 } from "selectors/editorSelectors";
 import {
   getApplicationList,
@@ -65,15 +65,17 @@ import {
   protectedModeSelector,
 } from "selectors/gitSyncSelectors";
 import { showConnectGitModal } from "actions/gitSyncActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { NavigationSetting } from "constants/AppConstants";
 import { useHref } from "pages/Editor/utils";
 import { viewerURL } from "@appsmith/RouteBuilder";
 import HelpBar from "components/editorComponents/GlobalSearch/HelpBar";
 import { EditorTitle } from "./EditorTitle";
 import { useCurrentAppState } from "pages/Editor/IDE/hooks";
-import { DefaultTitle } from "./DeaultTitle";
 import { EditorState } from "@appsmith/entities/IDE/constants";
+import { EditorSaveIndicator } from "pages/Editor/EditorSaveIndicator";
+import type { Page } from "@appsmith/constants/ReduxActionConstants";
+import { IDEHeader, IDEHeaderTitle } from "IDE";
 
 const StyledDivider = styled(Divider)`
   height: 50%;
@@ -82,6 +84,41 @@ const StyledDivider = styled(Divider)`
 `;
 
 const { cloudHosting } = getAppsmithConfigs();
+
+interface HeaderTitleProps {
+  appState: EditorState;
+  currentPage?: Page;
+}
+
+const HeaderTitleComponent = ({ appState, currentPage }: HeaderTitleProps) => {
+  switch (appState) {
+    case EditorState.DATA:
+      return (
+        <IDEHeaderTitle
+          key={appState}
+          title={createMessage(HEADER_TITLES.DATA)}
+        />
+      );
+    case EditorState.EDITOR:
+      return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
+    case EditorState.SETTINGS:
+      return (
+        <IDEHeaderTitle
+          key={appState}
+          title={createMessage(HEADER_TITLES.SETTINGS)}
+        />
+      );
+    case EditorState.LIBRARIES:
+      return (
+        <IDEHeaderTitle
+          key={appState}
+          title={createMessage(HEADER_TITLES.LIBRARIES)}
+        />
+      );
+    default:
+      return <EditorTitle key={appState} title={currentPage?.pageName || ""} />;
+  }
+};
 
 const Header = () => {
   const dispatch = useDispatch();
@@ -99,6 +136,8 @@ const Header = () => {
   const pageId = useSelector(getCurrentPageId) as string;
   const currentPage = useSelector(getPageById(pageId));
   const appState = useCurrentAppState();
+  const isSaving = useSelector(getIsPageSaving);
+  const pageSaveError = useSelector(getPageSavingError);
 
   // states
   const [isPopoverOpen, setIsPopoverOpen] = useState<boolean>(false);
@@ -180,54 +219,14 @@ const Header = () => {
     [dispatch, handlePublish],
   );
 
-  const TitleComponent = () => {
-    switch (appState) {
-      case EditorState.DATA:
-        return <DefaultTitle title={createMessage(HEADER_TITLES.DATA)} />;
-      case EditorState.EDITOR:
-        return <EditorTitle title={currentPage?.pageName || ""} />;
-      case EditorState.SETTINGS:
-        return <DefaultTitle title={createMessage(HEADER_TITLES.SETTINGS)} />;
-      case EditorState.LIBRARIES:
-        return <DefaultTitle title={createMessage(HEADER_TITLES.LIBRARIES)} />;
-      default:
-        return <EditorTitle title={currentPage?.pageName || ""} />;
-    }
-  };
-
   return (
-    <Flex
-      alignItems={"center"}
-      border={"1px solid var(--ads-v2-color-border)"}
-      className={"t--editor-header"}
-      height={"40px"}
-      overflow={"hidden"}
-      px={"spaces-4"}
-      width={"100%"}
-    >
-      <Flex
-        alignItems={"center"}
-        className={"header-left-section"}
-        flex={"1"}
-        gap={"spaces-4"}
-        height={"100%"}
-        justifyContent={"left"}
-      >
-        <AppsmithLink />
-        <TitleComponent />
-      </Flex>
-      <Flex
-        alignItems={"center"}
-        className={"header-center-section"}
-        flex={"1"}
-        height={"100%"}
-        justifyContent={"center"}
-      >
-        <Tooltip
-          content={createMessage(RENAME_APPLICATION_TOOLTIP)}
-          isDisabled={isPopoverOpen}
-          placement="bottom"
-        >
+    <>
+      <IDEHeader>
+        <IDEHeader.Left>
+          <HeaderTitleComponent appState={appState} currentPage={currentPage} />
+          <EditorSaveIndicator isSaving={isSaving} saveError={pageSaveError} />
+        </IDEHeader.Left>
+        <IDEHeader.Center>
           <Flex alignItems={"center"}>
             {currentWorkspace.name && (
               <>
@@ -265,104 +264,99 @@ const Header = () => {
               </>
             )}
           </Flex>
-        </Tooltip>
-      </Flex>
-      <Flex
-        alignItems={"center"}
-        className={"header-right-section"}
-        flex={"1"}
-        gap={"spaces-3"}
-        height={"100%"}
-        justifyContent={"right"}
-      >
-        <HelpBar />
-        <StyledDivider orientation={"vertical"} />
-        <ToggleModeButton />
-        {applicationId && <EditorShareButton setShowModal={setShowModal} />}
-        <Modal onOpenChange={(isOpen) => setShowModal(isOpen)} open={showModal}>
-          <ModalContent style={{ width: "640px" }}>
-            <ModalHeader>
-              {createMessage(
-                APPLICATION_INVITE,
-                currentWorkspace.name,
-                !isGACEnabled,
-              )}
-            </ModalHeader>
-            <ModalBody>
-              <Tabs
-                onValueChange={(value) => setActiveTab(value)}
-                value={activeTab}
-              >
-                <TabsList>
-                  <Tab data-testid="t--tab-INVITE" value="invite">
-                    {createMessage(INVITE_TAB)}
-                  </Tab>
-                  <Tab data-testid="t--tab-EMBED" value="embed">
-                    {createMessage(IN_APP_EMBED_SETTING.embed)}
-                  </Tab>
-                  {isPublishAppToCommunityEnabled && cloudHosting && (
-                    <Tab data-testid="t--tab-PUBLISH" value="publish">
-                      {createMessage(COMMUNITY_TEMPLATES.tabTitle)}
+        </IDEHeader.Center>
+        <IDEHeader.Right>
+          <HelpBar />
+          <StyledDivider orientation={"vertical"} />
+          <ToggleModeButton />
+          {applicationId && <EditorShareButton setShowModal={setShowModal} />}
+          <Modal
+            onOpenChange={(isOpen) => setShowModal(isOpen)}
+            open={showModal}
+          >
+            <ModalContent style={{ width: "640px" }}>
+              <ModalHeader>
+                {createMessage(
+                  APPLICATION_INVITE,
+                  currentWorkspace.name,
+                  !isGACEnabled,
+                )}
+              </ModalHeader>
+              <ModalBody>
+                <Tabs
+                  onValueChange={(value) => setActiveTab(value)}
+                  value={activeTab}
+                >
+                  <TabsList>
+                    <Tab data-testid="t--tab-INVITE" value="invite">
+                      {createMessage(INVITE_TAB)}
                     </Tab>
-                  )}
-                </TabsList>
-                <TabPanel value="invite">
-                  <AppInviteUsersForm
-                    applicationId={applicationId}
-                    workspaceId={currentWorkspace.id}
-                  />
-                </TabPanel>
-                <TabPanel value="embed">
-                  {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
-                </TabPanel>
-                {cloudHosting && (
-                  <TabPanel value="publish">
-                    <CommunityTemplatesPublishInfo
-                      onPublishClick={() =>
-                        setShowPublishCommunityTemplateModal(true)
-                      }
-                      setShowHostModal={setShowModal}
+                    <Tab data-testid="t--tab-EMBED" value="embed">
+                      {createMessage(IN_APP_EMBED_SETTING.embed)}
+                    </Tab>
+                    {isPublishAppToCommunityEnabled && cloudHosting && (
+                      <Tab data-testid="t--tab-PUBLISH" value="publish">
+                        {createMessage(COMMUNITY_TEMPLATES.tabTitle)}
+                      </Tab>
+                    )}
+                  </TabsList>
+                  <TabPanel value="invite">
+                    <AppInviteUsersForm
+                      applicationId={applicationId}
+                      workspaceId={currentWorkspace.id}
                     />
                   </TabPanel>
-                )}
-              </Tabs>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-        <PublishCommunityTemplateModal
-          onPublishSuccess={() => {
-            setShowPublishCommunityTemplateModal(false);
-            setShowModal(true);
-          }}
-          setShowModal={setShowPublishCommunityTemplateModal}
-          showModal={showPublishCommunityTemplateModal}
-        />
-        <div className="flex items-center">
-          <Tooltip
-            content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
-            placement="bottomRight"
-          >
-            <Button
-              className="t--application-publish-btn"
-              data-guided-tour-iid="deploy"
-              id={"application-publish-btn"}
-              isDisabled={isProtectedMode}
-              isLoading={isPublishing}
-              kind="tertiary"
-              onClick={() => handleClickDeploy(true)}
-              size="md"
-              startIcon={"rocket"}
+                  <TabPanel value="embed">
+                    {getEmbedSnippetForm(isPrivateEmbedEnabled, setActiveTab)}
+                  </TabPanel>
+                  {cloudHosting && (
+                    <TabPanel value="publish">
+                      <CommunityTemplatesPublishInfo
+                        onPublishClick={() =>
+                          setShowPublishCommunityTemplateModal(true)
+                        }
+                        setShowHostModal={setShowModal}
+                      />
+                    </TabPanel>
+                  )}
+                </Tabs>
+              </ModalBody>
+            </ModalContent>
+          </Modal>
+          <PublishCommunityTemplateModal
+            onPublishSuccess={() => {
+              setShowPublishCommunityTemplateModal(false);
+              setShowModal(true);
+            }}
+            setShowModal={setShowPublishCommunityTemplateModal}
+            showModal={showPublishCommunityTemplateModal}
+          />
+          <div className="flex items-center">
+            <Tooltip
+              content={createMessage(DEPLOY_BUTTON_TOOLTIP)}
+              placement="bottomRight"
             >
-              {DEPLOY_MENU_OPTION()}
-            </Button>
-          </Tooltip>
+              <Button
+                className="t--application-publish-btn"
+                data-guided-tour-iid="deploy"
+                id={"application-publish-btn"}
+                isDisabled={isProtectedMode}
+                isLoading={isPublishing}
+                kind="tertiary"
+                onClick={() => handleClickDeploy(true)}
+                size="md"
+                startIcon={"rocket"}
+              >
+                {DEPLOY_MENU_OPTION()}
+              </Button>
+            </Tooltip>
 
-          <DeployLinkButtonDialog link={deployLink} trigger="" />
-        </div>
-      </Flex>
-      {/* Omni bar modal */}
+            <DeployLinkButtonDialog link={deployLink} trigger="" />
+          </div>
+        </IDEHeader.Right>
+      </IDEHeader>
       <Omnibar />
-    </Flex>
+    </>
   );
 };
 

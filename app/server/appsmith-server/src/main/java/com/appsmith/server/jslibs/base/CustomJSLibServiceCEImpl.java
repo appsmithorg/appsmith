@@ -11,11 +11,8 @@ import com.appsmith.server.services.BaseService;
 import jakarta.validation.Validator;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.util.Comparator;
 import java.util.List;
@@ -30,14 +27,11 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
     protected final ContextBasedJsLibService<Application> applicationContextBasedJsLibService;
 
     public CustomJSLibServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             CustomJSLibRepository repository,
             AnalyticsService analyticsService,
             ContextBasedJsLibService<Application> applicationContextBasedJsLibService) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.applicationContextBasedJsLibService = applicationContextBasedJsLibService;
     }
 
@@ -73,7 +67,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 })
                 .flatMap(updatedJSLibDTOSet ->
                         contextBasedService.updateJsLibsInContext(contextId, branchName, updatedJSLibDTOSet))
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
+                .map(count -> count > 0);
     }
 
     @Override
@@ -122,7 +116,7 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                 })
                 .flatMap(updatedJSLibDTOList ->
                         contextBasedService.updateJsLibsInContext(contextId, branchName, updatedJSLibDTOList))
-                .map(updateResult -> updateResult.getModifiedCount() > 0);
+                .map(count -> count > 0);
     }
 
     @Override
@@ -137,5 +131,14 @@ public class CustomJSLibServiceCEImpl extends BaseService<CustomJSLibRepository,
                     jsLibList.sort(Comparator.comparing(CustomJSLib::getUidString));
                     return jsLibList;
                 });
+    }
+
+    @Override
+    public Flux<CustomJSLib> getAllVisibleJSLibsInContext(
+            @NotNull String contextId, CreatorContextType contextType, String branchName, Boolean isViewMode) {
+        ContextBasedJsLibService<?> contextBasedService = getContextBasedService(contextType);
+        return contextBasedService
+                .getAllVisibleJSLibContextDTOFromContext(contextId, branchName, isViewMode)
+                .flatMapMany(repository::findCustomJsLibsInContext);
     }
 }

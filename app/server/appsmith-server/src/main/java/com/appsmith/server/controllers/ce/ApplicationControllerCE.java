@@ -6,42 +6,40 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationSnapshot;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.ApplicationImportDTO;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
+import com.appsmith.server.dtos.ArtifactImportDTO;
+import com.appsmith.server.dtos.BuildingBlockDTO;
+import com.appsmith.server.dtos.BuildingBlockResponseDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
-import com.appsmith.server.dtos.ImportableArtifactDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
 import com.appsmith.server.dtos.ReleaseItemsDTO;
 import com.appsmith.server.dtos.ResponseDTO;
-import com.appsmith.server.dtos.UserHomepageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.exportable.ExportService;
-import com.appsmith.server.exports.internal.ExportApplicationService;
-import com.appsmith.server.exports.internal.PartialExportService;
+import com.appsmith.server.exports.internal.ExportService;
+import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.fork.internal.ApplicationForkingService;
-import com.appsmith.server.imports.importable.ImportService;
-import com.appsmith.server.imports.internal.ImportApplicationService;
-import com.appsmith.server.imports.internal.PartialImportService;
+import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.imports.internal.partial.PartialImportService;
+import com.appsmith.server.projections.ApplicationSnapshotResponseDTO;
 import com.appsmith.server.services.ApplicationPageService;
 import com.appsmith.server.services.ApplicationSnapshotService;
-import com.appsmith.server.solutions.ApplicationFetcher;
+import com.appsmith.server.solutions.UserReleaseNotes;
 import com.appsmith.server.themes.base.ThemeService;
 import com.fasterxml.jackson.annotation.JsonView;
 import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.codec.multipart.Part;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
@@ -54,20 +52,21 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
 
+import static com.appsmith.server.constants.ArtifactType.APPLICATION;
+
 @Slf4j
 @RequestMapping(Url.APPLICATION_URL)
-public class ApplicationControllerCE extends BaseController<ApplicationService, Application, String> {
+@RequiredArgsConstructor
+public class ApplicationControllerCE {
 
+    protected final ApplicationService service;
     private final ApplicationPageService applicationPageService;
-    private final ApplicationFetcher applicationFetcher;
+    private final UserReleaseNotes userReleaseNotes;
     private final ApplicationForkingService applicationForkingService;
-    private final ImportApplicationService importApplicationService;
-    private final ExportApplicationService exportApplicationService;
     private final ThemeService themeService;
     private final ApplicationSnapshotService applicationSnapshotService;
     private final PartialExportService partialExportService;
@@ -75,39 +74,11 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     private final ImportService importService;
     private final ExportService exportService;
 
-    @Autowired
-    public ApplicationControllerCE(
-            ApplicationService service,
-            ApplicationPageService applicationPageService,
-            ApplicationFetcher applicationFetcher,
-            ApplicationForkingService applicationForkingService,
-            ImportApplicationService importApplicationService,
-            ExportApplicationService exportApplicationService,
-            ThemeService themeService,
-            ApplicationSnapshotService applicationSnapshotService,
-            PartialExportService partialExportService,
-            PartialImportService partialImportService,
-            ImportService importService,
-            ExportService exportService) {
-        super(service);
-        this.exportService = exportService;
-        this.applicationPageService = applicationPageService;
-        this.applicationFetcher = applicationFetcher;
-        this.applicationForkingService = applicationForkingService;
-        this.importApplicationService = importApplicationService;
-        this.exportApplicationService = exportApplicationService;
-        this.themeService = themeService;
-        this.applicationSnapshotService = applicationSnapshotService;
-        this.partialExportService = partialExportService;
-        this.partialImportService = partialImportService;
-        this.importService = importService;
-    }
-
     @JsonView(Views.Public.class)
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
     public Mono<ResponseDTO<Application>> create(
-            @Valid @RequestBody Application resource, @RequestParam String workspaceId, ServerWebExchange exchange) {
+            @Valid @RequestBody Application resource, @RequestParam String workspaceId) {
         if (workspaceId == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspace id"));
         }
@@ -150,25 +121,13 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(updatedApplication -> new ResponseDTO<>(HttpStatus.OK.value(), updatedApplication, null));
     }
 
-    @Override
     @JsonView(Views.Public.class)
     @DeleteMapping("/{id}")
-    public Mono<ResponseDTO<Application>> delete(
-            @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+    public Mono<ResponseDTO<Application>> delete(@PathVariable String id) {
         log.debug("Going to delete application with id: {}", id);
         return applicationPageService
                 .deleteApplication(id)
                 .map(deletedResource -> new ResponseDTO<>(HttpStatus.OK.value(), deletedResource, null));
-    }
-
-    @Deprecated
-    @JsonView(Views.Public.class)
-    @GetMapping("/new")
-    public Mono<ResponseDTO<UserHomepageDTO>> getAllApplicationsForHome() {
-        log.debug("Going to get all applications grouped by workspace");
-        return applicationFetcher
-                .getAllApplications()
-                .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
 
     @JsonView(Views.Public.class)
@@ -185,7 +144,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @GetMapping(Url.RELEASE_ITEMS)
     public Mono<ResponseDTO<ReleaseItemsDTO>> getReleaseItemsInformation() {
         log.debug("Going to get version release items");
-        return applicationFetcher
+        return userReleaseNotes
                 .getReleaseItems()
                 .map(applications -> new ResponseDTO<>(HttpStatus.OK.value(), applications, null));
     }
@@ -241,7 +200,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @PathVariable String id, @RequestParam(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to export application with id: {}, branch: {}", id, branchName);
 
-        return exportApplicationService.getApplicationFile(id, branchName).map(fetchedResource -> {
+        return exportService.getArtifactFile(id, branchName, APPLICATION).map(fetchedResource -> {
             HttpHeaders responseHeaders = fetchedResource.getHttpHeaders();
             Object applicationResource = fetchedResource.getArtifactResource();
             return new ResponseEntity<>(applicationResource, responseHeaders, HttpStatus.OK);
@@ -262,7 +221,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @GetMapping("/snapshot/{id}")
-    public Mono<ResponseDTO<ApplicationSnapshot>> getSnapshotWithoutApplicationJson(
+    public Mono<ResponseDTO<ApplicationSnapshotResponseDTO>> getSnapshotWithoutApplicationJson(
             @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to get snapshot with application id: {}, branch: {}", id, branchName);
 
@@ -285,9 +244,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @JsonView(Views.Public.class)
     @PostMapping("/snapshot/{id}/restore")
     public Mono<ResponseDTO<Application>> restoreSnapshot(
-            @PathVariable String id,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
+            @PathVariable String id, @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to restore snapshot with application id: {}, branch: {}", id, branchName);
 
         return applicationSnapshotService
@@ -297,13 +254,13 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
 
     @JsonView(Views.Public.class)
     @PostMapping(value = "/import/{workspaceId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Mono<ResponseDTO<ImportableArtifactDTO>> importApplicationFromFile(
+    public Mono<ResponseDTO<ArtifactImportDTO>> importApplicationFromFile(
             @RequestPart("file") Mono<Part> fileMono,
             @PathVariable String workspaceId,
             @RequestParam(name = FieldName.APPLICATION_ID, required = false) String applicationId) {
         log.debug("Going to import application in workspace with id: {}", workspaceId);
         return fileMono.flatMap(file ->
-                        importApplicationService.extractFileAndSaveApplication(workspaceId, file, applicationId))
+                        importService.extractArtifactExchangeJsonAndSaveArtifact(file, workspaceId, applicationId))
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.OK.value(), fetchedResource, null));
     }
 
@@ -322,7 +279,6 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @Override
     @JsonView(Views.Public.class)
     @PutMapping("/{defaultApplicationId}")
     public Mono<ResponseDTO<Application>> update(
@@ -349,8 +305,8 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
     @GetMapping("/import/{workspaceId}/datasources")
     public Mono<ResponseDTO<List<Datasource>>> getUnConfiguredDatasource(
             @PathVariable String workspaceId, @RequestParam String defaultApplicationId) {
-        return importApplicationService
-                .findDatasourceByApplicationId(defaultApplicationId, workspaceId)
+        return importService
+                .findDatasourceByArtifactId(workspaceId, defaultApplicationId, APPLICATION)
                 .map(result -> new ResponseDTO<>(HttpStatus.OK.value(), result, null));
     }
 
@@ -370,18 +326,7 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @PathVariable String defaultApplicationId,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return service.deleteAppNavigationLogo(branchName, defaultApplicationId)
-                .map(ignored -> new ResponseDTO<>(HttpStatus.OK.value(), null, null));
-    }
-
-    // !! This API endpoint should not be exposed !!
-    @Override
-    @JsonView(Views.Public.class)
-    @GetMapping("")
-    public Mono<ResponseDTO<List<Application>>> getAll(
-            @RequestParam MultiValueMap<String, String> params,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
-        return Mono.just(new ResponseDTO<>(
-                HttpStatus.BAD_REQUEST.value(), null, AppsmithError.UNSUPPORTED_OPERATION.getMessage()));
+                .thenReturn(new ResponseDTO<>(HttpStatus.OK.value(), null, null));
     }
 
     @JsonView(Views.Public.class)
@@ -409,6 +354,16 @@ public class ApplicationControllerCE extends BaseController<ApplicationService, 
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return fileMono.flatMap(fileData -> partialImportService.importResourceInPage(
                         workspaceId, applicationId, pageId, branchName, fileData))
+                .map(fetchedResource -> new ResponseDTO<>(HttpStatus.CREATED.value(), fetchedResource, null));
+    }
+
+    @JsonView(Views.Public.class)
+    @PostMapping("/import/partial/block")
+    public Mono<ResponseDTO<BuildingBlockResponseDTO>> importBlock(
+            @RequestBody BuildingBlockDTO buildingBlockDTO,
+            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
+        return partialImportService
+                .importBuildingBlock(buildingBlockDTO, branchName)
                 .map(fetchedResource -> new ResponseDTO<>(HttpStatus.CREATED.value(), fetchedResource, null));
     }
 }

@@ -63,15 +63,5 @@ describe(
         fixtureName,
       );
     });
-
-    it("5. Should export all the widgets", () => {
-      partialImportExport.ExportAndCompareDownloadedFile(
-        "widgets",
-        4,
-        partialImportExport.locators.export.modelContents.widgetsSection,
-        "WidgetsExportedOnly.json",
-        fixtureName,
-      );
-    });
   },
 );

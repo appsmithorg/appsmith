@@ -1,12 +1,9 @@
-import type {
-  ENTITY_TYPE,
-  Message,
-  SourceEntity,
-} from "entities/AppsmithConsole";
+import type { Message, SourceEntity } from "entities/AppsmithConsole";
 import React, { useCallback } from "react";
 import type LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { Plugin } from "api/PluginApi";
 import { Link } from "design-system";
+import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 
 export enum DebuggerLinkUI {
   ENTITY_TYPE,

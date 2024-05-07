@@ -17,13 +17,9 @@ import com.appsmith.server.services.BaseService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.util.function.Tuples;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_THEMES;
@@ -39,17 +35,14 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     private String defaultThemeId; // acts as a simple cache so that we don't need to fetch from DB always
 
     public ThemeServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ThemeRepository repository,
             AnalyticsService analyticsService,
             ApplicationRepository applicationRepository,
             ApplicationService applicationService,
             PolicyGenerator policyGenerator,
             ApplicationPermission applicationPermission) {
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.applicationRepository = applicationRepository;
         this.applicationService = applicationService;
         this.policyGenerator = policyGenerator;
@@ -71,12 +64,6 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     public Mono<Theme> getById(String s) {
         // we don't allow to get a theme by id from DB
         throw new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION);
-    }
-
-    @Override
-    public Flux<Theme> get(MultiValueMap<String, String> params) {
-        // we return all system themes
-        return repository.getSystemThemes();
     }
 
     @Override

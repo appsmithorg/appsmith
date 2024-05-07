@@ -14,7 +14,7 @@ import {
   createTempDatasourceFromForm,
 } from "actions/datasourceActions";
 import type { AppState } from "@appsmith/reducers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import { getQueryParams } from "utils/URLUtils";
@@ -236,6 +236,7 @@ class DatasourceHomeScreen extends React.Component<Props> {
               !!showMostPopularPlugins ? (
                 <ApiCard
                   className="t--createBlankApiCard create-new-api"
+                  key={`${plugin.id}_${idx}`}
                   onClick={() => this.handleOnClick()}
                 >
                   <CardContentWrapper data-testid="newapi-datasource-content-wrapper">

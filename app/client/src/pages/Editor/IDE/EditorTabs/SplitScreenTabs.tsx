@@ -1,44 +1,77 @@
-import React, { useCallback } from "react";
+import React from "react";
+import { Flex, Spinner, ToggleButton } from "design-system";
+
 import FileTabs from "./FileTabs";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
-import { Button } from "design-system";
 import Container from "./Container";
-import { useCurrentEditorState } from "../hooks";
+import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
 import {
   EditorEntityTab,
   EditorEntityTabState,
   EditorViewMode,
 } from "@appsmith/entities/IDE/constants";
-import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
-import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
+import { useIsJSAddLoading } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+import { TabSelectors } from "./constants";
+import { Announcement } from "../EditorPane/components/Announcement";
+import { SearchableFilesList } from "./SearchableFilesList";
 
 const SplitScreenTabs = () => {
   const isSideBySideEnabled = useSelector(getIsSideBySideEnabled);
   const ideViewMode = useSelector(getIDEViewMode);
   const { segment, segmentMode } = useCurrentEditorState();
+  const { addClickHandler, closeClickHandler, tabClickHandler } =
+    useIDETabClickHandlers();
+  const isJSLoading = useIsJSAddLoading();
 
-  const onJSAddClick = useJSAdd();
-  const onQueryAddClick = useQueryAdd();
-  const onAddClick = useCallback(() => {
-    if (segmentMode === EditorEntityTabState.Add) return;
-    if (segment === EditorEntityTab.JS) onJSAddClick();
-    if (segment === EditorEntityTab.QUERIES) onQueryAddClick();
-  }, [segment, segmentMode]);
+  const tabsConfig = TabSelectors[segment];
+
+  const files = useSelector(tabsConfig.tabsSelector);
+  const allFilesList = useSelector(tabsConfig.listSelector);
 
   if (!isSideBySideEnabled) return null;
   if (ideViewMode === EditorViewMode.FullScreen) return null;
   if (segment === EditorEntityTab.UI) return null;
-  return (
-    <Container>
-      <Button
-        isIconButton
-        kind={"secondary"}
-        onClick={onAddClick}
-        startIcon={"add-line"}
+
+  const AddButton = () => {
+    if (isJSLoading) {
+      return (
+        <Flex px="spaces-2">
+          <Spinner size="md" />
+        </Flex>
+      );
+    }
+    return (
+      <ToggleButton
+        data-testid="t--ide-split-screen-add-button"
+        icon="add-line"
+        id="tabs-add-toggle"
+        isSelected={segmentMode === EditorEntityTabState.Add}
+        onClick={addClickHandler}
+        size="md"
       />
-      <FileTabs />
-    </Container>
+    );
+  };
+
+  return (
+    <>
+      {files.length > 0 ? (
+        <Container>
+          <SearchableFilesList
+            allItems={allFilesList}
+            navigateToTab={tabClickHandler}
+            openTabs={files}
+          />
+          <FileTabs
+            navigateToTab={tabClickHandler}
+            onClose={closeClickHandler}
+            tabs={files}
+          />
+          <AddButton />
+        </Container>
+      ) : null}
+      <Announcement />
+    </>
   );
 };
 

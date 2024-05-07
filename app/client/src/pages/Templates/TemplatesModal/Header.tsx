@@ -18,8 +18,6 @@ const HeaderWrapper = styled.div`
 `;
 
 interface TemplateModalHeaderProps {
-  onBackPress?: () => void;
-  hideBackButton?: boolean;
   className?: string;
 }
 

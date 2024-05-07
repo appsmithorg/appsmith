@@ -18,7 +18,6 @@ import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
-import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AuthenticationValidator;
 import com.appsmith.server.services.ConfigService;
@@ -87,14 +86,10 @@ class ActionExecutionSolutionCEImplTest {
     @MockBean
     ActionPermission actionPermission;
 
-    @MockBean
     ObservationRegistry observationRegistry;
 
     @SpyBean
     ObjectMapper objectMapper;
-
-    @MockBean
-    NewActionRepository repository;
 
     @SpyBean
     DatasourceService datasourceService;
@@ -144,12 +139,13 @@ class ActionExecutionSolutionCEImplTest {
 
     @BeforeEach
     public void beforeEach() {
+        observationRegistry = Mockito.mock(ObservationRegistry.class);
+
         actionExecutionSolution = new ActionExecutionSolutionCEImpl(
                 newActionService,
                 actionPermission,
                 observationRegistry,
                 objectMapper,
-                repository,
                 datasourceService,
                 pluginService,
                 datasourceContextService,
@@ -203,8 +199,8 @@ class ActionExecutionSolutionCEImplTest {
 
     @Test
     public void testExecuteAction_withoutExecuteActionDTOPart_failsValidation() {
-        final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(
+                Flux.empty(), null, FieldName.UNUSED_ENVIRONMENT_ID, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -227,8 +223,8 @@ class ActionExecutionSolutionCEImplTest {
 
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
-        final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID, null);
+        final Mono<ActionExecutionResult> actionExecutionResultMono = actionExecutionSolution.executeAction(
+                partsFlux, null, FieldName.UNUSED_ENVIRONMENT_ID, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -252,7 +248,7 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         final Mono<ActionExecutionResult> actionExecutionResultMono =
-                actionExecutionSolution.executeAction(partsFlux, null, null, null);
+                actionExecutionSolution.executeAction(partsFlux, null, null, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .expectErrorMatches(e -> e instanceof AppsmithException
@@ -264,20 +260,20 @@ class ActionExecutionSolutionCEImplTest {
     public void testExecuteAPIWithUsualOrderingOfTheParts() {
         String usualOrderOfParts =
                 """
-                --boundary\r
-                Content-Disposition: form-data; name="executeActionDTO"\r
-                \r
-                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string"}}}\r
-                --boundary\r
-                Content-Disposition: form-data; name="parameterMap"\r
-                \r
-                {"Input1.text":"k0"}\r
-                --boundary\r
-                Content-Disposition: form-data; name="k0"; filename="blob"\r
-                Content-Type: text/plain\r
-                \r
-                xyz\r
-                --boundary--""";
+                    --boundary\r
+                    Content-Disposition: form-data; name="executeActionDTO"\r
+                    \r
+                    {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string"}}}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="parameterMap"\r
+                    \r
+                    {"Input1.text":"k0"}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="k0"; filename="blob"\r
+                    Content-Type: text/plain\r
+                    \r
+                    xyz\r
+                    --boundary--""";
 
         MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
@@ -286,9 +282,6 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
-
-        Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null, null);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -305,8 +298,13 @@ class ActionExecutionSolutionCEImplTest {
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
-        doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
+        doReturn(Mono.just(newAction))
+                .when(newActionService)
+                .findByBranchNameAndDefaultActionId(any(), any(), Mockito.anyBoolean(), any());
+
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
@@ -322,20 +320,20 @@ class ActionExecutionSolutionCEImplTest {
     public void testExecuteAPIWithParameterMapAsLastPart() {
         String parameterMapAtLast =
                 """
-                --boundary\r
-                Content-Disposition: form-data; name="executeActionDTO"\r
-                \r
-                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string"}}}\r
-                --boundary\r
-                Content-Disposition: form-data; name="k0"; filename="blob"\r
-                Content-Type: text/plain\r
-                \r
-                xyz\r
-                --boundary\r
-                Content-Disposition: form-data; name="parameterMap"\r
-                \r
-                {"Input1.text":"k0"}\r
-                --boundary--""";
+                    --boundary\r
+                    Content-Disposition: form-data; name="executeActionDTO"\r
+                    \r
+                    {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string"}}}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="k0"; filename="blob"\r
+                    Content-Type: text/plain\r
+                    \r
+                    xyz\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="parameterMap"\r
+                    \r
+                    {"Input1.text":"k0"}\r
+                    --boundary--""";
 
         MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))
@@ -344,9 +342,6 @@ class ActionExecutionSolutionCEImplTest {
         final Flux<Part> partsFlux = BodyExtractors.toParts().extract(mock, this.context);
 
         ActionExecutionSolutionCE executionSolutionSpy = spy(actionExecutionSolution);
-
-        Mono<ActionExecutionResult> actionExecutionResultMono =
-                executionSolutionSpy.executeAction(partsFlux, null, null, null);
 
         ActionExecutionResult mockResult = new ActionExecutionResult();
         mockResult.setIsExecutionSuccess(true);
@@ -363,8 +358,13 @@ class ActionExecutionSolutionCEImplTest {
                 .when(datasourceService)
                 .getTrueEnvironmentId(
                         any(), any(), any(), Mockito.eq(environmentPermission.getExecutePermission()), anyBoolean());
-        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any(), any());
-        doReturn(Mono.just(newAction)).when(newActionService).findByBranchNameAndDefaultActionId(any(), any(), any());
+        doReturn(Mono.just(mockResult)).when(executionSolutionSpy).executeAction(any(), any());
+        doReturn(Mono.just(newAction))
+                .when(newActionService)
+                .findByBranchNameAndDefaultActionId(any(), any(), Mockito.anyBoolean(), any());
+
+        Mono<ActionExecutionResult> actionExecutionResultMono =
+                executionSolutionSpy.executeAction(partsFlux, null, null, null, Boolean.FALSE);
 
         StepVerifier.create(actionExecutionResultMono)
                 .assertNext(response -> {
@@ -380,25 +380,25 @@ class ActionExecutionSolutionCEImplTest {
     public void testParsePartsAndGetParamsFlux_withBlobIdentifiers_replacesValueInParam() {
         String partsWithBlobRefs =
                 """
-                --boundary\r
-                Content-Disposition: form-data; name="executeActionDTO"\r
-                \r
-                {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string", "blobIdentifiers": ["blob:12345678-1234-1234-1234-123456781234"]}}}\r
-                --boundary\r
-                Content-Disposition: form-data; name="parameterMap"\r
-                \r
-                {"Input1.text":"k0"}\r
-                --boundary\r
-                Content-Disposition: form-data; name="k0"; filename="blob"\r
-                Content-Type: text/plain\r
-                \r
-                {"name": "randomName", "data": "blob:12345678-1234-1234-1234-123456781234"}\r
-                --boundary\r
-                Content-Disposition: form-data; name="blob:12345678-1234-1234-1234-123456781234"; filename="blob"\r
-                Content-Type: text/plain\r
-                \r
-                xy\\nz\r
-                --boundary--""";
+                    --boundary\r
+                    Content-Disposition: form-data; name="executeActionDTO"\r
+                    \r
+                    {"actionId":"63285a3388e48972c7519b18","viewMode":false,"paramProperties":{"k0":{"datatype": "string", "blobIdentifiers": ["blob:12345678-1234-1234-1234-123456781234"]}}}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="parameterMap"\r
+                    \r
+                    {"Input1.text":"k0"}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="k0"; filename="blob"\r
+                    Content-Type: text/plain\r
+                    \r
+                    {"name": "randomName", "data": "blob:12345678-1234-1234-1234-123456781234"}\r
+                    --boundary\r
+                    Content-Disposition: form-data; name="blob:12345678-1234-1234-1234-123456781234"; filename="blob"\r
+                    Content-Type: text/plain\r
+                    \r
+                    xy\\nz\r
+                    --boundary--""";
 
         MockServerHttpRequest mock = MockServerHttpRequest.method(HttpMethod.POST, URI.create("https://example.com"))
                 .contentType(new MediaType("multipart", "form-data", Map.of("boundary", "boundary")))

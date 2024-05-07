@@ -14,7 +14,9 @@ import {
   entityItems,
   assertHelper,
   locators,
+  apiPage,
 } from "../../../../support/Objects/ObjectsCore";
+import { Widgets } from "../../../../support/Pages/DataSources";
 
 let datasourceName;
 
@@ -286,7 +288,7 @@ describe(
       entityExplorer.ActionContextMenuByEntityName({
         entityNameinLeftSidebar: "ListingAndReviews",
         action: "Delete",
-        entityType: entityItems.Datasource,
+        entityType: entityItems.Page,
       });
       EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
     });
@@ -433,7 +435,8 @@ describe(
       dataSources.AssertTableInVirtuosoList(datasourceName, "NonAsciiTest");
 
       //Verifying Suggested Widgets functionality
-      cy.get(queryLocators.suggestedTableWidget).click().wait(1000);
+      apiPage.SelectPaneTab("Response");
+      dataSources.AddSuggestedWidget(Widgets.Table);
       cy.wait("@updateLayout").then(({ response }) => {
         cy.log("1st Response is :" + JSON.stringify(response.body));
         //expect(response.body.data.dsl.children[0].type).to.eq("TABLE_WIDGET");
@@ -442,7 +445,7 @@ describe(
       cy.get("@entity").then((entityN) =>
         EditorNavigation.SelectEntityByName(entityN, EntityType.Query),
       );
-      cy.get(queryLocators.suggestedWidgetChart).click().wait(1000);
+      dataSources.AddSuggestedWidget(Widgets.Chart);
       cy.wait("@updateLayout").then(({ response }) => {
         cy.log("2nd Response is :" + JSON.stringify(response.body));
         //expect(response.body.data.dsl.children[1].type).to.eq("CHART_WIDGET");
@@ -485,7 +488,7 @@ describe(
       });
 
       // //Update document - All matching documents
-      // cy.validateNSelectDropdown("Commands", "Find document(s)", "Update document(s)");
+      // cy.validateNSelectDropdown("Command", "Find document(s)", "Update document(s)");
       // cy.typeValueNValidate("{_id: {$gte:2}}", "Query");
       // cy.typeValueNValidate("{$set:{ 'Frõ': 'InActive'}}", "Update");
       // cy.validateNSelectDropdown("Limit", "Single document", "All matching documents");
@@ -495,7 +498,7 @@ describe(
       // });
 
       // //Verify Updation Successful:
-      // cy.validateNSelectDropdown("Commands", "Update document(s)", "Find document(s)");
+      // cy.validateNSelectDropdown("Command", "Update document(s)", "Find document(s)");
       // cy.runQuery()
       // cy.wait("@postExecute").then(({ response }) => {
       //   expect(response.body.data.body[0].Frõ).to.eq('InActive');

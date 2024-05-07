@@ -3,6 +3,7 @@ import { ObjectsRegistry as _ } from "../Objects/Registry";
 import ClickOptions = Cypress.ClickOptions;
 import { Sidebar } from "./IDE/Sidebar";
 import { LeftPane } from "./IDE/LeftPane";
+import PageList from "./PageList";
 
 export enum AppSidebarButton {
   Data = "Data",
@@ -18,12 +19,18 @@ export enum PagePaneSegment {
   JS = "JS",
 }
 
+export enum EditorViewMode {
+  FullScreen = "FullScreen",
+  SplitScreen = "SplitScreen",
+}
+
 const pagePaneListItemSelector = (name: string) =>
   "//div[contains(@class, 't--entity-name')][text()='" + name + "']";
 
 export const PageLeftPane = new LeftPane(
   pagePaneListItemSelector,
   ".ide-editor-left-pane",
+  ".ide-editor-left-pane__content .active.t--entity-item",
   Object.values(PagePaneSegment),
 );
 
@@ -36,6 +43,12 @@ export enum EntityType {
   Page = "Page",
 }
 class EditorNavigation {
+  public locators = {
+    MaximizeBtn: "[data-testid='t--ide-maximize']",
+    MinimizeBtn: "[data-testid='t--ide-minimize']",
+    announcementCloseButton: "[data-testid='t--ide-close-announcement']",
+  };
+
   NavigateToDatasource(name: string) {
     AppSidebar.navigate(AppSidebarButton.Data);
     cy.get(datasource.datasourceCard)
@@ -79,7 +92,7 @@ class EditorNavigation {
 
   NavigateToPage(name: string, networkCallAlias = false) {
     AppSidebar.navigate(AppSidebarButton.Editor);
-    PageLeftPane.expandCollapseItem("Pages");
+    PageList.ShowList();
     PageLeftPane.selectItem(name, { multiple: true, force: true });
     _.AggregateHelper.Sleep(); //for selection to settle
     networkCallAlias && _.AssertHelper.AssertNetworkStatus("pageSnap");
@@ -116,6 +129,27 @@ class EditorNavigation {
   ShowCanvas() {
     AppSidebar.navigate(AppSidebarButton.Editor);
     PageLeftPane.switchSegment(PagePaneSegment.UI);
+  }
+
+  SwitchScreenMode(mode: EditorViewMode) {
+    if (mode === EditorViewMode.FullScreen) {
+      _.AggregateHelper.GetNClick(this.locators.MaximizeBtn);
+    } else {
+      _.AggregateHelper.GetNClick(this.locators.MinimizeBtn);
+      this.CloseAnnouncementModal();
+    }
+  }
+
+  CloseAnnouncementModal() {
+    cy.get("body").then(($body) => {
+      if ($body.find(this.locators.announcementCloseButton).length > 0) {
+        _.AggregateHelper.GetNClick(
+          this.locators.announcementCloseButton,
+          0,
+          true,
+        );
+      }
+    });
   }
 }
 

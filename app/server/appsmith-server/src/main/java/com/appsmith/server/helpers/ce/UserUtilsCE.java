@@ -5,15 +5,15 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.QPermissionGroup;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.solutions.PermissionGroupPermission;
 import net.minidev.json.JSONObject;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.util.function.Tuple2;
@@ -31,7 +31,6 @@ import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBER
 import static com.appsmith.server.acl.AclPermission.UNASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.FieldName.INSTANCE_CONFIG;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 
 public class UserUtilsCE {
 
@@ -74,8 +73,8 @@ public class UserUtilsCE {
                         assignedToUserIds.addAll(permissionGroup.getAssignedToUserIds());
                     }
                     assignedToUserIds.addAll(users.stream().map(User::getId).collect(Collectors.toList()));
-                    Update updateObj = new Update();
-                    String path = fieldName(QPermissionGroup.permissionGroup.assignedToUserIds);
+                    BridgeUpdate updateObj = Bridge.update();
+                    String path = PermissionGroup.Fields.assignedToUserIds;
 
                     updateObj.set(path, assignedToUserIds);
                     // Make Super User is called before the first administrator is created.

@@ -8,6 +8,7 @@ import type { BatchAction } from "actions/batchActions";
 import { batchAction } from "actions/batchActions";
 import type { WidgetProps } from "widgets/BaseWidget";
 import type { PartialExportParams } from "sagas/PartialImportExportSagas";
+import type { PasteWidgetReduxAction } from "constants/WidgetConstants";
 
 export const widgetInitialisationSuccess = () => {
   return {
@@ -47,9 +48,15 @@ export const createModalAction = (
 
 export const focusWidget = (
   widgetId?: string,
-): ReduxAction<{ widgetId?: string }> => ({
+  alt?: boolean,
+): ReduxAction<{ widgetId?: string; alt?: boolean }> => ({
   type: ReduxActionTypes.FOCUS_WIDGET,
-  payload: { widgetId },
+  payload: { widgetId, alt },
+});
+
+export const altFocusWidget = (alt: boolean) => ({
+  type: ReduxActionTypes.ALT_FOCUS_WIDGET,
+  payload: alt,
 });
 
 export const showModal = (id: string, shouldSelectModal = true) => {
@@ -89,15 +96,17 @@ export const copyWidget = (isShortcut: boolean) => {
   };
 };
 
-export const pasteWidget = (
+export const pasteWidget = ({
+  gridPosition,
   groupWidgets = false,
-  mouseLocation: { x: number; y: number },
-) => {
+  mouseLocation,
+}: PasteWidgetReduxAction) => {
   return {
     type: ReduxActionTypes.PASTE_COPIED_WIDGET_INIT,
     payload: {
-      groupWidgets: groupWidgets,
+      groupWidgets,
       mouseLocation,
+      gridPosition,
     },
   };
 };
@@ -138,9 +147,23 @@ export const groupWidgets = () => {
   };
 };
 
+export const openPartialExportModal = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.PARTIAL_EXPORT_MODAL_OPEN,
+    payload,
+  };
+};
+
 export const partialExportWidgets = (params: PartialExportParams) => {
   return {
     type: ReduxActionTypes.PARTIAL_EXPORT_INIT,
     payload: params,
+  };
+};
+
+export const setWidgetSelectionBlock = (payload: boolean) => {
+  return {
+    type: ReduxActionTypes.SET_WIDGET_SELECTION_BLOCK,
+    payload,
   };
 };

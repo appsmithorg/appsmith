@@ -9,7 +9,7 @@ import {
 import WidgetFactory from "WidgetProvider/factory";
 import { DatasourceImage, ImageWrapper } from "../../../styles";
 import { getDatatype } from "utils/AppsmithUtils";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { DropdownOptionType } from "../../../types";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { WidgetQueryGeneratorFormContext } from "components/editorComponents/WidgetQueryGeneratorForm";
@@ -18,12 +18,16 @@ import type {
   ActionData,
   ActionDataState,
 } from "@appsmith/reducers/entityReducers/actionsReducer";
-import { EntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import { Icon } from "design-system";
 import type {
   ModuleInstanceData,
   ModuleInstanceDataState,
 } from "@appsmith/constants/ModuleInstanceConstants";
+import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
+import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { AppState } from "@appsmith/reducers";
+import type { Module } from "@appsmith/constants/ModuleConstants";
+import { getAllModules } from "@appsmith/selectors/modulesSelector";
+import { getModuleIcon } from "pages/Editor/utils";
 
 enum SortingWeights {
   alphabetical = 1,
@@ -94,8 +98,14 @@ interface ConnectToOptionsProps {
 export const getQueryIcon = (
   query: ActionData | ModuleInstanceData,
   pluginImages: Record<string, string>,
+  modules: Record<string, Module>,
 ) => {
-  if (!query.config.hasOwnProperty("sourceModuleId")) {
+  if (query.config.hasOwnProperty("type")) {
+    const q = query as ModuleInstanceData;
+    const module = modules[q.config.sourceModuleId];
+
+    return getModuleIcon(module, pluginImages);
+  } else {
     const action = query as ActionData;
     return (
       <ImageWrapper>
@@ -105,12 +115,6 @@ export const getQueryIcon = (
           src={pluginImages[action.config.pluginId]}
         />
       </ImageWrapper>
-    );
-  } else {
-    return (
-      <EntityIcon>
-        <Icon name="module" />
-      </EntityIcon>
     );
   }
 };
@@ -158,10 +162,18 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
 
   const queries = useSelector(getCurrentActions);
   const pluginsPackageNamesMap = useSelector(getPluginIdPackageNamesMap);
+  const isJSEnabledByDefaultOnForOneClickBinding = useSelector(
+    (state: AppState) =>
+      selectFeatureFlagCheck(
+        state,
+        FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
+      ),
+  );
 
   const { pluginImages, widget } = props;
 
   const queryModuleInstances = useSelector(getQueryModuleInstances);
+  const modules = useSelector(getAllModules);
   let filteredQueries: ActionData[] | ModuleInstanceData[] = queries;
 
   /* Exclude Gsheets from query options till this gets resolved https://github.com/appsmithorg/appsmith/issues/27102*/
@@ -183,9 +195,12 @@ function useConnectToOptions(props: ConnectToOptionsProps) {
       id: query.config.id,
       label: query.config.name,
       value: getBindingValue(widget, query),
-      icon: getQueryIcon(query, pluginImages),
+      icon: getQueryIcon(query, pluginImages, modules),
       onSelect: function (value?: string, valueOption?: DropdownOptionType) {
-        addBinding(valueOption?.value, false);
+        addBinding(
+          valueOption?.value,
+          !!isJSEnabledByDefaultOnForOneClickBinding,
+        );
 
         updateConfig({
           datasource: "",

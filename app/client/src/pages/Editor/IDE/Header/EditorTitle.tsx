@@ -1,42 +1,35 @@
-import React from "react";
-import { Flex, Text, Icon } from "design-system";
-import { useDispatch, useSelector } from "react-redux";
+import React, { useState } from "react";
+import { Popover, PopoverTrigger, PopoverContent } from "design-system";
 
 import { createMessage, HEADER_TITLES } from "@appsmith/constants/messages";
-import { setIdeEditorPagesActiveStatus } from "actions/ideActions";
-import { getPagesActiveStatus } from "selectors/ideSelectors";
+import { PagesSection } from "../EditorPane/PagesSection";
+import { IDEHeaderEditorSwitcher } from "IDE";
 
 const EditorTitle = ({ title }: { title: string }) => {
-  const dispatch = useDispatch();
-  const active = useSelector(getPagesActiveStatus);
+  const [active, setActive] = useState(false);
 
-  const onClickHandler = () => {
-    dispatch(setIdeEditorPagesActiveStatus(!active));
+  const closeMenu = () => {
+    setActive(false);
   };
 
   return (
-    <Flex alignItems={"center"} height={"100%"} justifyContent={"center"}>
-      <Text
-        color={"var(--ads-v2-colors-content-label-inactive-fg)"}
-        kind="body-m"
+    <Popover onOpenChange={setActive} open={active}>
+      <PopoverTrigger>
+        <IDEHeaderEditorSwitcher
+          active={active}
+          prefix={createMessage(HEADER_TITLES.EDITOR)}
+          title={title}
+          titleTestId="t--pages-switcher"
+        />
+      </PopoverTrigger>
+      <PopoverContent
+        align="start"
+        className="!p-0 !pb-1"
+        onEscapeKeyDown={closeMenu}
       >
-        {createMessage(HEADER_TITLES.EDITOR) + " /"}
-      </Text>
-      <Flex
-        alignItems={"center"}
-        className={"hover:bg-[var(--ads-v2-color-bg-subtle)] cursor-pointer"}
-        gap={"spaces-1"}
-        height={"100%"}
-        justifyContent={"center"}
-        onClick={onClickHandler}
-        px={"spaces-2"}
-      >
-        <Text isBold kind={"body-m"}>
-          {title}
-        </Text>
-        <Icon name={"arrow-down-s-line"} size={"md"} />
-      </Flex>
-    </Flex>
+        <PagesSection onItemSelected={closeMenu} />
+      </PopoverContent>
+    </Popover>
   );
 };
 

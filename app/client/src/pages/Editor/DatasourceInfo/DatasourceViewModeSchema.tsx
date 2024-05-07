@@ -31,7 +31,7 @@ import type {
 import { DatasourceStructureContext } from "entities/Datasource";
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import {
@@ -253,6 +253,7 @@ const DatasourceViewModeSchema = (props: Props) => {
               context={DatasourceStructureContext.DATASOURCE_VIEW_MODE}
               customEditDatasourceFn={customEditDatasourceFn}
               datasourceId={props.datasource.id}
+              datasourceName={props.datasource.name}
               datasourceStructure={datasourceStructure}
               onEntityTableClick={onEntityTableClick}
               step={0}

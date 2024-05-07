@@ -12,14 +12,16 @@ export const MenuList = <T extends object>(props: MenuListProps<T>) => {
 
   return (
     <ul {...menuProps} className={listClassName} ref={ref}>
-      {[...state.collection].map((item) => (
-        <MenuItem
-          className={itemClassName}
-          item={item}
-          key={item.key}
-          state={state}
-        />
-      ))}
+      {[...state.collection].map((item) => {
+        return (
+          <MenuItem
+            className={itemClassName}
+            item={item}
+            key={item.key}
+            state={state}
+          />
+        );
+      })}
     </ul>
   );
 };

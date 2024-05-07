@@ -161,6 +161,20 @@ export const fetchJSCollectionsForView = ({
   };
 };
 
+export const closeJSActionTab = (payload: { id: string }) => {
+  return {
+    type: ReduxActionTypes.CLOSE_JS_ACTION_TAB,
+    payload,
+  };
+};
+
+export const closeJsActionTabSuccess = (payload: { id: string }) => {
+  return {
+    type: ReduxActionTypes.CLOSE_JS_ACTION_TAB_SUCCESS,
+    payload,
+  };
+};
+
 export default {
   fetchJSCollections,
   deleteJSCollection,

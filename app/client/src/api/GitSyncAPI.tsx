@@ -35,7 +35,7 @@ export interface ConnectToGitPayload {
 interface GitStatusParam {
   applicationId: string;
   branch: string;
-  compareRemote: "true" | "false";
+  compareRemote: boolean;
 }
 
 interface GitRemoteStatusParam {
@@ -143,7 +143,7 @@ class GitSyncAPI extends Api {
   static async getGitStatus({
     applicationId,
     branch,
-    compareRemote = "true",
+    compareRemote = true,
   }: GitStatusParam) {
     return Api.get(
       `${GitSyncAPI.baseURL}/status/app/${applicationId}`,

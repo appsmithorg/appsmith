@@ -1,29 +1,29 @@
 package com.appsmith.server.helpers.ce;
 
+import com.appsmith.external.enums.FeatureFlagEnum;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.AutoCommitProgressDTO;
 import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.featureflags.FeatureFlagEnum;
 import com.appsmith.server.helpers.GitPrivateRepoHelper;
 import com.appsmith.server.helpers.GitUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.services.CommonGitService;
 import com.appsmith.server.services.FeatureFlagService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.AutoCommitEventHandler;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Mono;
 
 @Slf4j
-@RequiredArgsConstructor
 @Service
 public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
     private final GitPrivateRepoHelper gitPrivateRepoHelper;
@@ -33,6 +33,26 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
     private final ApplicationService applicationService;
     private final ApplicationPermission applicationPermission;
     private final RedisUtils redisUtils;
+    private final CommonGitService commonGitService;
+
+    public GitAutoCommitHelperImpl(
+            GitPrivateRepoHelper gitPrivateRepoHelper,
+            AutoCommitEventHandler autoCommitEventHandler,
+            UserDataService userDataService,
+            FeatureFlagService featureFlagService,
+            ApplicationService applicationService,
+            ApplicationPermission applicationPermission,
+            RedisUtils redisUtils,
+            @Lazy CommonGitService commonGitService) {
+        this.gitPrivateRepoHelper = gitPrivateRepoHelper;
+        this.autoCommitEventHandler = autoCommitEventHandler;
+        this.userDataService = userDataService;
+        this.featureFlagService = featureFlagService;
+        this.applicationService = applicationService;
+        this.applicationPermission = applicationPermission;
+        this.redisUtils = redisUtils;
+        this.commonGitService = commonGitService;
+    }
 
     @Override
     public Mono<AutoCommitProgressDTO> getAutoCommitProgress(String applicationId) {
@@ -50,9 +70,23 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
 
     @Override
     public Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName) {
+
+        // if either param is absent, then application is not connected to git.
+        if (!StringUtils.hasText(branchName) || !StringUtils.hasText(defaultApplicationId)) {
+            return Mono.just(Boolean.FALSE);
+        }
+
         Mono<Application> applicationMono = applicationService
                 .findById(defaultApplicationId, applicationPermission.getEditPermission())
                 .cache();
+
+        final String finalBranchName = branchName.replaceFirst("origin/", "");
+
+        Mono<Application> branchedApplicationMono = applicationService
+                .findByBranchNameAndDefaultApplicationId(
+                        finalBranchName, defaultApplicationId, applicationPermission.getEditPermission())
+                .cache();
+
         Mono<Boolean> featureEnabledMono =
                 featureFlagService.check(FeatureFlagEnum.release_git_autocommit_feature_enabled);
         Mono<Boolean> autoCommitDisabledForThisBranchMono = applicationMono.flatMap(application -> {
@@ -67,64 +101,74 @@ public class GitAutoCommitHelperImpl implements GitAutoCommitHelper {
                 .map(a -> Boolean.TRUE)
                 .switchIfEmpty(Mono.just(Boolean.FALSE));
 
-        if (StringUtils.hasLength(defaultApplicationId) && StringUtils.hasLength(branchName)) {
-            // both of them are present, so it's a git connected application
-            return isAutoCommitRunningMono
-                    .flatMap(isRunning -> {
-                        if (isRunning) {
-                            return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
-                        }
-                        return Mono.zip(featureEnabledMono, autoCommitDisabledForThisBranchMono)
-                                .flatMap(tuple -> {
-                                    Boolean isFeatureEnabled = tuple.getT1();
-                                    Boolean isAutoCommitDisabledForBranch = tuple.getT2();
-                                    if (isFeatureEnabled && !isAutoCommitDisabledForBranch) {
-                                        return applicationMono;
-                                    } else {
-                                        log.debug(
-                                                "auto commit is not applicable for application: {} branch: {} isFeatureEnabled: {}, isAutoCommitDisabledForBranch: {}",
-                                                defaultApplicationId,
-                                                branchName,
-                                                isFeatureEnabled,
-                                                isAutoCommitDisabledForBranch);
-                                        return Mono.empty();
-                                    }
-                                })
-                                .zipWith(userDataService.getGitProfileForCurrentUser(defaultApplicationId))
-                                .map(objects -> {
-                                    Application application = objects.getT1();
-                                    GitProfile gitProfile = objects.getT2();
-                                    GitApplicationMetadata gitApplicationMetadata =
-                                            application.getGitApplicationMetadata();
+        return isAutoCommitRunningMono
+                .flatMap(isRunning -> {
+                    if (isRunning) {
+                        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+                    }
+                    return Mono.zip(featureEnabledMono, autoCommitDisabledForThisBranchMono)
+                            .flatMap(tuple -> {
+                                Boolean isFeatureEnabled = tuple.getT1();
+                                Boolean isAutoCommitDisabledForBranch = tuple.getT2();
+                                if (isFeatureEnabled && !isAutoCommitDisabledForBranch) {
+                                    return Mono.zip(applicationMono, branchedApplicationMono);
+                                }
 
-                                    AutoCommitEvent autoCommitEvent = new AutoCommitEvent();
-                                    autoCommitEvent.setApplicationId(defaultApplicationId);
-                                    autoCommitEvent.setBranchName(branchName);
-                                    autoCommitEvent.setRepoName(gitApplicationMetadata.getRepoName());
-                                    autoCommitEvent.setWorkspaceId(application.getWorkspaceId());
-                                    autoCommitEvent.setAuthorName(gitProfile.getAuthorName());
-                                    autoCommitEvent.setAuthorEmail(gitProfile.getAuthorEmail());
-                                    autoCommitEvent.setRepoUrl(gitApplicationMetadata.getRemoteUrl());
-                                    autoCommitEvent.setPrivateKey(
-                                            gitApplicationMetadata.getGitAuth().getPrivateKey());
-                                    autoCommitEvent.setPublicKey(
-                                            gitApplicationMetadata.getGitAuth().getPublicKey());
-                                    // it's a synchronous call, no need to return anything
-                                    autoCommitEventHandler.publish(autoCommitEvent);
-                                    return Boolean.TRUE;
-                                });
-                    })
-                    .defaultIfEmpty(Boolean.FALSE)
-                    // we cannot throw exception from this flow because doing so will fail the main operation
-                    .onErrorResume(throwable -> {
-                        log.error(
-                                "Error during auto-commit for application: {}, branch: {}",
-                                defaultApplicationId,
-                                branchName,
-                                throwable);
-                        return Mono.just(Boolean.FALSE);
-                    });
-        }
-        return Mono.just(Boolean.FALSE);
+                                log.debug(
+                                        "auto commit is not applicable for application: {} branch: {} isFeatureEnabled: {}, isAutoCommitDisabledForBranch: {}",
+                                        defaultApplicationId,
+                                        branchName,
+                                        isFeatureEnabled,
+                                        isAutoCommitDisabledForBranch);
+                                return Mono.empty();
+                            })
+                            .flatMap(tuple2 -> {
+                                Application defaultApplication = tuple2.getT1();
+                                Application branchedApplication = tuple2.getT2();
+                                return commonGitService
+                                        .fetchRemoteChanges(defaultApplication, branchedApplication, branchName, true)
+                                        .flatMap(branchTrackingStatus -> {
+                                            if (branchTrackingStatus.getBehindCount() > 0) {
+                                                log.debug(
+                                                        "the remote is ahead of the local, aborting autocommit for application {} and branch {}",
+                                                        defaultApplicationId,
+                                                        branchName);
+                                                return Mono.empty();
+                                            }
+
+                                            return Mono.just(defaultApplication);
+                                        });
+                            })
+                            .zipWith(userDataService.getGitProfileForCurrentUser(defaultApplicationId))
+                            .map(objects -> {
+                                Application application = objects.getT1();
+                                GitProfile gitProfile = objects.getT2();
+                                GitArtifactMetadata gitArtifactMetadata = application.getGitApplicationMetadata();
+
+                                AutoCommitEvent autoCommitEvent = new AutoCommitEvent(
+                                        defaultApplicationId,
+                                        branchName,
+                                        application.getWorkspaceId(),
+                                        gitArtifactMetadata.getRepoName(),
+                                        gitProfile.getAuthorName(),
+                                        gitProfile.getAuthorEmail(),
+                                        gitArtifactMetadata.getRemoteUrl(),
+                                        gitArtifactMetadata.getGitAuth().getPrivateKey(),
+                                        gitArtifactMetadata.getGitAuth().getPublicKey());
+                                // it's a synchronous call, no need to return anything
+                                autoCommitEventHandler.publish(autoCommitEvent);
+                                return Boolean.TRUE;
+                            });
+                })
+                .defaultIfEmpty(Boolean.FALSE)
+                // we cannot throw exception from this flow because doing so will fail the main operation
+                .onErrorResume(throwable -> {
+                    log.error(
+                            "Error during auto-commit for application: {}, branch: {}",
+                            defaultApplicationId,
+                            branchName,
+                            throwable);
+                    return Mono.just(Boolean.FALSE);
+                });
     }
 }

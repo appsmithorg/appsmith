@@ -79,7 +79,7 @@
                     "key": "borderRadius"
                   }
                 ],
-                "onClick": "{{closeModal('Modal1')}}"
+                "onClick": "{{closeModal(Modal1.name)}}"
               },
               {
                 "isVisible": true,
@@ -158,7 +158,7 @@
                     "key": "borderRadius"
                   }
                 ],
-                "onClick": "{{closeModal('Modal1')}}"
+                "onClick": "{{closeModal(Modal1.name)}}"
               },
               {
                 "isVisible": true,

@@ -8,10 +8,9 @@ import { all, call, put, select, takeLatest } from "redux-saga/effects";
 import type {
   AnvilHighlightInfo,
   WidgetLayoutProps,
-} from "../../utils/anvilTypes";
+} from "layoutSystems/anvil/utils/anvilTypes";
 import { getWidget, getWidgets } from "sagas/selectors";
 import { addWidgetsToPreset } from "../../utils/layouts/update/additionUtils";
-import { moveWidgets } from "../../utils/layouts/update/moveUtils";
 import type {
   AnvilMoveWidgetsPayload,
   AnvilNewWidgetsPayload,
@@ -41,6 +40,7 @@ import {
   getCreateWidgetPayload,
 } from "layoutSystems/anvil/utils/widgetAdditionUtils";
 import { updateAndSaveAnvilLayout } from "../../utils/anvilChecksUtils";
+import { moveWidgetsToZone } from "layoutSystems/anvil/utils/layouts/update/zoneUtils";
 
 // Function to retrieve highlighting information for the last row in the main canvas layout
 export function* getMainCanvasLastRowHighlight() {
@@ -229,7 +229,9 @@ function* addWidgetsSaga(actionPayload: ReduxAction<AnvilNewWidgetsPayload>) {
 
     // Select the newly added widget
     yield put(
-      selectWidgetInitAction(SelectionRequestType.One, [newWidget.newWidgetId]),
+      selectWidgetInitAction(SelectionRequestType.Create, [
+        newWidget.newWidgetId,
+      ]),
     );
 
     log.debug("Anvil: add new widget took", performance.now() - start, "ms");
@@ -363,8 +365,14 @@ export function* handleWidgetMovement(
       highlight,
     );
   } else {
-    updatedWidgets = moveWidgets(allWidgets, movedWidgetIds, highlight);
+    updatedWidgets = yield call(
+      moveWidgetsToZone,
+      allWidgets,
+      movedWidgetIds,
+      highlight,
+    );
   }
+
   return updatedWidgets;
 }
 

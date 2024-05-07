@@ -1,13 +1,9 @@
 import React, { useCallback, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  deleteDatasource,
-  refreshDatasourceStructure,
-} from "actions/datasourceActions";
+import { deleteDatasource } from "actions/datasourceActions";
 import { initExplorerEntityNameEdit } from "actions/explorerActions";
 import {
   CONTEXT_EDIT_NAME,
-  CONTEXT_REFRESH,
   CONTEXT_DELETE,
   CONFIRM_CONTEXT_DELETE,
   createMessage,
@@ -23,7 +19,6 @@ import {
   getHasDeleteDatasourcePermission,
   getHasManageDatasourcePermission,
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
-import { DatasourceStructureContext } from "entities/Datasource";
 
 export function DataSourceContextMenu(props: {
   datasourceId: string;
@@ -38,14 +33,6 @@ export function DataSourceContextMenu(props: {
     () => dispatch(initExplorerEntityNameEdit(props.entityId)),
     [dispatch, props.entityId],
   );
-  const dispatchRefresh = useCallback(() => {
-    dispatch(
-      refreshDatasourceStructure(
-        props.datasourceId,
-        DatasourceStructureContext.EXPLORER,
-      ),
-    );
-  }, [dispatch, props.datasourceId]);
 
   const [confirmDelete, setConfirmDelete] = useState(false);
 
@@ -73,12 +60,6 @@ export function DataSourceContextMenu(props: {
       className: "single-select t--datasource-rename",
       onSelect: editDatasourceName,
       label: createMessage(CONTEXT_EDIT_NAME),
-    },
-    {
-      value: "refresh",
-      className: "single-select t--datasource-refresh",
-      onSelect: dispatchRefresh,
-      label: createMessage(CONTEXT_REFRESH),
     },
     canDeleteDatasource && {
       confirmDelete: confirmDelete,

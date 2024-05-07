@@ -28,4 +28,6 @@ public class CustomJSLib extends CustomJSLibCE {
             @JsonProperty("defs") String defs) {
         super(name, accessor, url, docsUrl, version, defs);
     }
+
+    public static class Fields extends CustomJSLibCE.Fields {}
 }

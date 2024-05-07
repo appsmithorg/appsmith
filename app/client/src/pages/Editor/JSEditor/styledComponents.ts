@@ -53,7 +53,8 @@ export const Form = styled.form`
 `;
 
 export const StyledFormRow = styled(FormRow)`
-  padding: 0px 20px 16px 20px;
+  padding: 0 var(--ads-v2-spaces-7) var(--ads-v2-spaces-5)
+    var(--ads-v2-spaces-7);
   flex: 0;
 `;
 
@@ -61,6 +62,9 @@ export const NameWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 50%;
+  overflow: hidden;
+
   input {
     margin: 0;
     box-sizing: border-box;

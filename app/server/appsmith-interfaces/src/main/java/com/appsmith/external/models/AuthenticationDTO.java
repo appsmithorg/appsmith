@@ -1,6 +1,7 @@
 package com.appsmith.external.models;
 
 import com.appsmith.external.constants.Authentication;
+import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonSubTypes;
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
@@ -8,6 +9,7 @@ import com.fasterxml.jackson.annotation.JsonView;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
@@ -23,6 +25,7 @@ import java.util.Set;
     @JsonSubTypes.Type(value = ApiKeyAuth.class, name = Authentication.API_KEY),
     @JsonSubTypes.Type(value = BearerTokenAuth.class, name = Authentication.BEARER_TOKEN)
 })
+@FieldNameConstants
 public class AuthenticationDTO implements AppsmithDomain {
     // In principle, this class should've been abstract. However, when this class is abstract, Spring's deserialization
     // routines choke on identifying the correct class to instantiate and ends up trying to instantiate this abstract
@@ -38,7 +41,7 @@ public class AuthenticationDTO implements AppsmithDomain {
         IN_PROGRESS_PERMISSIONS_GRANTED
     };
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, FromRequest.class})
     String authenticationType;
 
     @JsonView(Views.Public.class)

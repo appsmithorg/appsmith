@@ -8,6 +8,8 @@ import {
   deployMode,
   entityExplorer,
 } from "../../../../support/Objects/ObjectsCore";
+import PageList from "../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../support/Pages/AssertHelper";
 
 describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   afterEach(() => {
@@ -20,7 +22,7 @@ describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
 
   before(() => {
     agHelper.AddDsl("PageLoadDsl");
-    cy.CreatePage();
+    PageList.AddNewPage();
     cy.get("h2").contains("Drag and drop a widget here");
   });
 
@@ -85,6 +87,7 @@ describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page1",
       action: "Hide",
+      entityType: EntityItems.Page,
     });
     deployMode.DeployApp();
     // Assert active page DSL

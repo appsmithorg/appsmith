@@ -57,10 +57,11 @@ import {
   updateApplicationThemeSettingAction,
   fetchAllApplicationsOfWorkspace,
 } from "@appsmith/actions/applicationActions";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
+  IMPORT_APP_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { APP_MODE } from "entities/App";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
@@ -114,8 +115,6 @@ import {
 } from "constants/AppConstants";
 import { setAllEntityCollapsibleStates } from "actions/editorContextActions";
 import { getCurrentEnvironmentId } from "@appsmith/selectors/environmentSelectors";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import {
   getApplicationsOfWorkspace,
@@ -123,7 +122,7 @@ import {
 } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
-
+import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
@@ -202,10 +201,6 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
       ApplicationApi.fetchAllApplicationsOfWorkspace,
       activeWorkspaceId,
     );
-    const isEnabledForCreateNew: boolean = yield select(
-      selectFeatureFlagCheck,
-      FEATURE_FLAG.ab_create_new_apps_enabled,
-    );
     const workspaces: Workspace[] = yield select(getFetchedWorkspaces);
     const isOnboardingApplicationId: string = yield select(
       getCurrentApplicationIdForCreateNewApp,
@@ -224,11 +219,7 @@ export function* fetchAllApplicationsOfWorkspaceSaga(
       });
 
       // This will initialise the current workspace to first only during onboarding
-      if (
-        isEnabledForCreateNew &&
-        workspaces.length > 0 &&
-        !!isOnboardingApplicationId
-      ) {
+      if (workspaces.length > 0 && !!isOnboardingApplicationId) {
         yield put({
           type: ReduxActionTypes.SET_CURRENT_WORKSPACE,
           payload: workspaces[0],
@@ -559,10 +550,7 @@ export function* createApplicationSaga(
       /** SPECIAL HANDLING FOR ANVIL DURING EXPERIMENTATION */
       // Check if Anvil is enabled for the user
       // If so, default to using Anvil as the layout system for the new app
-      const isAnvilEnabled: boolean = yield select(
-        selectFeatureFlagCheck,
-        FEATURE_FLAG.release_anvil_enabled,
-      );
+      const isAnvilEnabled: boolean = yield select(getIsAnvilLayoutEnabled);
 
       if (isAnvilEnabled) {
         request.layoutSystemType = LayoutSystemTypes.ANVIL;
@@ -803,7 +791,7 @@ export function* importApplicationSaga(
           }
           history.push(pageURL);
 
-          toast.show("Application imported successfully", {
+          toast.show(createMessage(IMPORT_APP_SUCCESSFUL), {
             kind: "success",
           });
         }

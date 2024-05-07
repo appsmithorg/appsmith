@@ -30,7 +30,7 @@ import { setupPage, updateCurrentPage } from "actions/pageActions";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getSearchQuery } from "utils/helpers";
 import RepoLimitExceededErrorModal from "./gitSync/RepoLimitExceededErrorModal";
-import ImportedApplicationSuccessModal from "./gitSync/ImportedAppSuccessModal";
+import ImportedApplicationSuccessModal from "./gitSync/ImportSuccessModal";
 import { getIsBranchUpdated } from "../utils";
 import { APP_MODE } from "entities/App";
 import { GIT_BRANCH_QUERY_KEY } from "constants/routes";
@@ -45,6 +45,8 @@ import DisableAutocommitModal from "./gitSync/DisableAutocommitModal";
 import GitSettingsModal from "./gitSync/GitSettingsModal";
 import ReconfigureCDKeyModal from "@appsmith/components/gitComponents/ReconfigureCDKeyModal";
 import DisableCDModal from "@appsmith/components/gitComponents/DisableCDModal";
+import { PartialExportModal } from "components/editorComponents/PartialImportExport/PartialExportModal";
+import { PartialImportModal } from "components/editorComponents/PartialImportExport/PartialImportModal";
 
 interface EditorProps {
   currentApplicationId?: string;
@@ -178,6 +180,8 @@ class Editor extends Component<Props> {
             <ImportedApplicationSuccessModal />
             <ReconnectDatasourceModal />
             <SignpostingOverlay />
+            <PartialExportModal />
+            <PartialImportModal />
           </GlobalHotKeys>
         </div>
         <RequestConfirmationModal />

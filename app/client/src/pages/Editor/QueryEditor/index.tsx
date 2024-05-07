@@ -2,7 +2,7 @@ import React, { useCallback, useMemo } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import Editor from "./Editor";
 import history from "utils/history";
 import MoreActionsMenu from "../Explorer/Actions/MoreActionsMenu";
@@ -19,6 +19,7 @@ import { DatasourceCreateEntryPoints } from "constants/Datasource";
 import {
   getAction,
   getIsActionConverting,
+  getPluginImages,
   getPluginSettingConfigs,
 } from "@appsmith/selectors/entitiesSelector";
 import { integrationEditorURL } from "@appsmith/RouteBuilder";
@@ -31,13 +32,16 @@ import {
 } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
-import CloseEditor from "components/editorComponents/CloseEditor";
 import Disabler from "pages/common/Disabler";
 import ConvertToModuleInstanceCTA from "@appsmith/pages/Editor/EntityEditor/ConvertToModuleInstanceCTA";
 import { MODULE_TYPE } from "@appsmith/constants/ModuleConstants";
 import ConvertEntityNotification from "@appsmith/pages/common/ConvertEntityNotification";
 import { PluginType } from "entities/Action";
-import { useIsEditorPaneSegmentsEnabled } from "../IDE/hooks";
+import { Icon } from "design-system";
+import { resolveIcon } from "../utils";
+import { ENTITY_ICON_SIZE, EntityIcon } from "../Explorer/ExplorerIcons";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 
 type QueryEditorProps = RouteComponentProps<QueryEditorRouteParams>;
 
@@ -58,6 +62,20 @@ function QueryEditor(props: QueryEditorProps) {
   const isConverting = useSelector((state) =>
     getIsActionConverting(state, actionId || ""),
   );
+  const pluginImages = useSelector(getPluginImages);
+  const editorMode = useSelector(getIDEViewMode);
+  const icon = resolveIcon({
+    iconLocation: pluginImages[pluginId] || "",
+    pluginType: action?.pluginType || "",
+    moduleType: action?.actionConfiguration?.body?.moduleType,
+  }) || (
+    <EntityIcon
+      height={`${ENTITY_ICON_SIZE}px`}
+      width={`${ENTITY_ICON_SIZE}px`}
+    >
+      <Icon name="module" />
+    </EntityIcon>
+  );
 
   const isDeletePermitted = getHasDeleteActionPermission(
     isFeatureEnabled,
@@ -74,8 +92,14 @@ function QueryEditor(props: QueryEditorProps) {
     pagePermissions,
   );
 
-  const moreActionsMenu = useMemo(
-    () => (
+  const moreActionsMenu = useMemo(() => {
+    const convertToModuleProps = {
+      canCreateModuleInstance: isCreatePermitted,
+      canDeleteEntity: isDeletePermitted,
+      entityId: action?.id || "",
+      moduleType: MODULE_TYPE.QUERY,
+    };
+    return (
       <>
         <MoreActionsMenu
           className="t--more-action-menu"
@@ -84,27 +108,28 @@ function QueryEditor(props: QueryEditorProps) {
           isDeletePermitted={isDeletePermitted}
           name={action?.name || ""}
           pageId={pageId}
+          prefixAdditionalMenus={
+            editorMode === EditorViewMode.SplitScreen && (
+              <ConvertToModuleInstanceCTA {...convertToModuleProps} />
+            )
+          }
         />
-        {action?.pluginType !== PluginType.INTERNAL && (
-          // Need to remove this check once workflow query is supported in module
-          <ConvertToModuleInstanceCTA
-            canCreateModuleInstance={isCreatePermitted}
-            canDeleteEntity={isDeletePermitted}
-            entityId={action?.id || ""}
-            moduleType={MODULE_TYPE.QUERY}
-          />
-        )}
+        {action?.pluginType !== PluginType.INTERNAL &&
+          editorMode !== EditorViewMode.SplitScreen && (
+            // Need to remove this check once workflow query is supported in module
+            <ConvertToModuleInstanceCTA {...convertToModuleProps} />
+          )}
       </>
-    ),
-    [
-      action?.id,
-      action?.name,
-      isChangePermitted,
-      isDeletePermitted,
-      pageId,
-      isCreatePermitted,
-    ],
-  );
+    );
+  }, [
+    action?.id,
+    action?.name,
+    isChangePermitted,
+    isDeletePermitted,
+    pageId,
+    isCreatePermitted,
+    editorMode,
+  ]);
 
   const actionRightPaneBackLink = useMemo(() => {
     return <BackToCanvas pageId={pageId} />;
@@ -149,21 +174,22 @@ function QueryEditor(props: QueryEditorProps) {
     [pageId, history, integrationEditorURL],
   );
 
-  const isEditorPaneEnabled = useIsEditorPaneSegmentsEnabled();
-
-  const closeEditorLink = useMemo(() => <CloseEditor />, []);
-
   const notification = useMemo(() => {
     if (!isConverting) return null;
 
-    return <ConvertEntityNotification name={action?.name || ""} withPadding />;
+    return (
+      <ConvertEntityNotification
+        icon={icon}
+        name={action?.name || ""}
+        withPadding
+      />
+    );
   }, [action?.name, isConverting]);
 
   return (
     <QueryEditorContextProvider
       actionRightPaneBackLink={actionRightPaneBackLink}
       changeQueryPage={changeQueryPage}
-      closeEditorLink={isEditorPaneEnabled ? null : closeEditorLink}
       moreActionsMenu={moreActionsMenu}
       notification={notification}
       onCreateDatasourceClick={onCreateDatasourceClick}

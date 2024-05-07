@@ -7,6 +7,9 @@ import {X509Certificate} from "crypto"
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
 
+// Rate limit, numeric value defining the requests-per-second allowed.
+const RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 100, 10)
+
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
 let certLocation = null
@@ -38,12 +41,14 @@ const parts = []
 
 parts.push(`
 {
+  debug
   admin 127.0.0.1:2019
   persist_config off
   acme_ca_root /etc/ssl/certs/ca-certificates.crt
   servers {
     trusted_proxies static 0.0.0.0/0
   }
+  order rate_limit before basicauth
 }
 
 (file_server) {
@@ -57,6 +62,7 @@ parts.push(`
   reverse_proxy {
     to 127.0.0.1:{args[0]}
     header_up -Forwarded
+    header_up X-Appsmith-Request-Id {http.request.uuid}
   }
 }
 
@@ -66,14 +72,26 @@ parts.push(`
   }
   skip_log /api/v1/health
 
+  # The internal request ID header should never be accepted from an incoming request.
+  request_header -X-Appsmith-Request-Id
+
+  # Ref: https://stackoverflow.com/a/38191078/151048
+  # We're only accepting v4 UUIDs today, in order to not make it too lax unless needed.
+  @valid-request-id expression {header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @valid-request-id X-Request-Id {header.X-Request-Id}
+  @invalid-request-id expression !{header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @invalid-request-id X-Request-Id invalid_request_id
+  request_header @invalid-request-id X-Request-Id invalid_request_id
+
   header {
     -Server
     Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
     X-Content-Type-Options "nosniff"
+    X-Appsmith-Request-Id {http.request.uuid}
   }
 
   request_body {
-    max_size 150MB
+    max_size ${process.env.APPSMITH_CODEC_SIZE || 150}MB
   }
 
   handle {
@@ -111,6 +129,14 @@ parts.push(`
   redir /supervisor /supervisor/
   handle_path /supervisor/* {
     import reverse_proxy 9001
+  }
+
+  rate_limit {
+    zone dynamic_zone {
+      key {http.request.remote_ip}
+      events ${RATE_LIMIT}
+      window 1s
+    }
   }
 
   handle_errors {
@@ -155,22 +181,32 @@ if (CUSTOM_DOMAIN !== "") {
   `)
 }
 
-finalizeIndexHtml()
+if (!process.argv.includes("--no-finalize-index-html")) {
+  finalizeIndexHtml()
+}
+
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
 spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
 spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
 
 function finalizeIndexHtml() {
-  const info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
-  const extraEnv = {
-    APPSMITH_VERSION_ID: info.version ?? "",
-    APPSMITH_VERSION_SHA: info.commitSha ?? "",
-    APPSMITH_VERSION_RELEASE_DATE: info.imageBuiltAt ?? "",
+  let info = null;
+  try {
+    info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
+  } catch(e) {
+    // info will be empty, that's okay.
+    console.error("Error reading info.json", e.message)
   }
 
-  const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replace(
-    /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
+  const extraEnv = {
+    APPSMITH_VERSION_ID: info?.version ?? "",
+    APPSMITH_VERSION_SHA: info?.commitSha ?? "",
+    APPSMITH_VERSION_RELEASE_DATE: info?.imageBuiltAt ?? "",
+  }
+
+  const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replaceAll(
+    /\{\{env\s+"(APPSMITH_[A-Z0-9_]+)"}}/g,
     (_, name) => (process.env[name] || extraEnv[name] || "")
   )
 

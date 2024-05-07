@@ -22,7 +22,7 @@ export class AnvilLayout {
   private entityExplorer = ObjectsRegistry.EntityExplorer;
   private locator = ObjectsRegistry.CommonLocators;
   private agHelper = ObjectsRegistry.AggregateHelper;
-
+  public mainCanvasSelector = "#anvil-canvas-0";
   private getAnvilDropTargetSelectorFromOptions = (
     dropTarget?: DropTargetDetails,
   ) => {
@@ -32,11 +32,11 @@ export class AnvilLayout {
       }
       if (dropTarget.name) {
         return `${getWidgetSelector(dropTarget.name.toLowerCase() as any)} ${
-          this.locator._canvasSlider
+          this.locator._anvilDnDListener
         }`;
       }
     }
-    return this.locator._canvasSlider;
+    return this.locator._anvilDnDListener;
   };
 
   private performDnDInAnvil(
@@ -47,35 +47,30 @@ export class AnvilLayout {
     const dropAreaSelector = this.getAnvilDropTargetSelectorFromOptions(
       options.dropTargetDetails,
     );
-    cy.get(dropAreaSelector)
-      .first()
-      .then((dropAreaDom) => {
-        const { left, top } = dropAreaDom[0].getBoundingClientRect();
-        cy.document()
-          // to activate ANVIL canvas
-          .trigger("mousemove", left + xPos, top + yPos, {
-            eventConstructor: "MouseEvent",
-            clientX: left + xPos,
-            clientY: top + yPos,
-            force: true,
-          });
-        this.agHelper.Sleep(200);
-        cy.get(dropAreaSelector).first().trigger("mousemove", xPos, yPos, {
-          eventConstructor: "MouseEvent",
-          force: true,
-        });
-        this.agHelper.Sleep(200);
-        cy.get(dropAreaSelector).first().trigger("mousemove", xPos, yPos, {
-          eventConstructor: "MouseEvent",
-          force: true,
-        });
-        cy.get(this.locator._canvasSlider)
-          .first()
-          .trigger("mouseup", xPos, yPos, {
-            eventConstructor: "MouseEvent",
-            force: true,
-          });
+    cy.document()
+      // to activate ANVIL canvas
+      .trigger("mousemove", xPos, yPos, {
+        eventConstructor: "MouseEvent",
+        force: true,
       });
+    this.agHelper.Sleep(200);
+    cy.get(dropAreaSelector).first().trigger("mouseover", xPos, yPos, {
+      eventConstructor: "MouseEvent",
+      force: true,
+    });
+    cy.get(dropAreaSelector).first().trigger("mousemove", xPos, yPos, {
+      eventConstructor: "MouseEvent",
+      force: true,
+    });
+    cy.get(dropAreaSelector).first().trigger("mousemove", xPos, yPos, {
+      eventConstructor: "MouseEvent",
+      force: true,
+    });
+    cy.get(this.locator._anvilDnDHighlight);
+    cy.get(dropAreaSelector).first().trigger("mouseup", xPos, yPos, {
+      eventConstructor: "MouseEvent",
+      force: true,
+    });
   }
 
   private startDraggingWidgetFromPane(widgetType: string) {

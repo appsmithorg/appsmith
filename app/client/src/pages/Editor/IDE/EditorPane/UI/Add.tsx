@@ -4,12 +4,12 @@ import { useSelector } from "react-redux";
 
 import history from "utils/history";
 import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
-import WidgetSidebarWithTags from "pages/Editor/WidgetSidebarWithTags";
+import UIEntitySidebar from "pages/Editor/widgetSidebar/UIEntitySidebar";
 import { widgetListURL } from "@appsmith/RouteBuilder";
 import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
 import SegmentAddHeader from "../components/SegmentAddHeader";
 
-const AddWidgets = () => {
+const AddWidgets = (props: { focusSearchInput?: boolean }) => {
   const pageId = useSelector(getCurrentPageId) as string;
 
   const closeButtonClickHandler = useCallback(() => {
@@ -23,7 +23,7 @@ const AddWidgets = () => {
         titleMessage={EDITOR_PANE_TEXTS.widgets_create_tab_title}
       />
       <Flex flexDirection="column" gap="spaces-3" overflowX="scroll">
-        <WidgetSidebarWithTags isActive />
+        <UIEntitySidebar focusSearchInput={props.focusSearchInput} isActive />
       </Flex>
     </>
   );

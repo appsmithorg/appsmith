@@ -92,7 +92,7 @@ import type { CalloutKind } from "design-system";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 
 import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { setCurrentEditingEnvironmentID } from "@appsmith/actions/environmentAction";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
@@ -1011,7 +1011,7 @@ class DatasourceEditorRouter extends React.Component<Props, State> {
                         isSaving={isSaving}
                         isTesting={isTesting}
                         onCancel={() => this.onCancel()}
-                        pageId={pageId}
+                        parentEntityId={pageId}
                         pluginName={pluginName}
                         pluginPackageName={pluginPackageName}
                         pluginType={pluginType as PluginType}

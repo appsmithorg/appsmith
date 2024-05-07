@@ -13,7 +13,7 @@ import {
   toggleAutocommitEnabledInit,
   setIsAutocommitModalOpen,
   setIsDisconnectGitModalOpen,
-  setIsGitSyncModalOpen,
+  setGitSettingsModalOpenAction,
 } from "actions/gitSyncActions";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { Button, Divider, Text } from "design-system";
@@ -26,7 +26,7 @@ import {
   getIsAutocommitToggling,
 } from "selectors/gitSyncSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import {
   useHasConnectToGitPermission,
@@ -68,7 +68,7 @@ const StyledDivider = styled(Divider)`
   margin-bottom: 16px;
 `;
 
-function GitDisconnect() {
+function DangerZone() {
   const isConnectToGitPermitted = useHasConnectToGitPermission();
   const isManageAutoCommitPermitted = useHasManageAutoCommitPermission();
   const isAutocommitFeatureEnabled = useFeatureFlag(
@@ -86,7 +86,7 @@ function GitDisconnect() {
     AnalyticsUtil.logEvent("GS_DISCONNECT_GIT_CLICK", {
       source: "GIT_CONNECTION_MODAL",
     });
-    dispatch(setIsGitSyncModalOpen({ isOpen: false }));
+    dispatch(setGitSettingsModalOpenAction({ open: false }));
     dispatch(
       setDisconnectingGitApplication({
         id: currentApp?.id || "",
@@ -98,7 +98,7 @@ function GitDisconnect() {
 
   const handleToggleAutocommit = () => {
     if (isAutocommitEnabled) {
-      dispatch(setIsGitSyncModalOpen({ isOpen: false }));
+      dispatch(setGitSettingsModalOpenAction({ open: false }));
       dispatch(setIsAutocommitModalOpen(true));
     } else {
       dispatch(toggleAutocommitEnabledInit());
@@ -164,4 +164,4 @@ function GitDisconnect() {
   );
 }
 
-export default GitDisconnect;
+export default DangerZone;

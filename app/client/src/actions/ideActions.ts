@@ -1,6 +1,5 @@
 import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
-import type { IDETabs } from "../reducers/uiReducers/ideReducer";
 
 export const setIdeEditorViewMode = (mode: EditorViewMode) => {
   return {
@@ -11,12 +10,9 @@ export const setIdeEditorViewMode = (mode: EditorViewMode) => {
   };
 };
 
-export const setIdeEditorPagesActiveStatus = (active: boolean) => {
+export const restoreIDEEditorViewMode = () => {
   return {
-    type: ReduxActionTypes.SET_IDE_EDITOR_PAGES_ACTIVE_STATUS,
-    payload: {
-      pagesActive: active,
-    },
+    type: ReduxActionTypes.RESTORE_IDE_EDITOR_VIEW_MODE,
   };
 };
 
@@ -33,10 +29,9 @@ export const setQueryTabs = (tabs: string[]) => {
     payload: tabs,
   };
 };
-
-export const setIDETabs = (tabs: IDETabs) => {
+export const setShowQueryCreateNewModal = (payload: boolean) => {
   return {
-    type: ReduxActionTypes.SET_IDE_TABS,
-    payload: tabs,
+    type: ReduxActionTypes.SET_SHOW_QUERY_CREATE_NEW_MODAL,
+    payload,
   };
 };

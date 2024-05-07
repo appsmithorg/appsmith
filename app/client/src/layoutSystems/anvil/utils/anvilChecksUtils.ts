@@ -4,20 +4,19 @@ import { updateAnvilParentPostWidgetDeletion } from "layoutSystems/anvil/utils/l
 import type { FlattenedWidgetProps } from "WidgetProvider/constants";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { LayoutSystemTypes } from "layoutSystems/types";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { anvilWidgets } from "widgets/anvil/constants";
 import {
   updateSectionWithDefaultSpaceDistribution,
   updateSectionsDistributedSpace,
 } from "layoutSystems/anvil/sectionSpaceDistributor/utils/spaceRedistributionSagaUtils";
+import { getIsAnvilLayout } from "../integrations/selectors";
 
 export function* updateAndSaveAnvilLayout(
   widgets: CanvasWidgetsReduxState,
   options?: { isRetry: boolean; shouldReplay: boolean },
 ) {
-  const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
-  if (layoutSystemType !== LayoutSystemTypes.ANVIL || !widgets) {
+  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
+  if (!isAnvilLayout || !widgets) {
     yield put(updateAndSaveLayout(widgets, options));
     return;
   }

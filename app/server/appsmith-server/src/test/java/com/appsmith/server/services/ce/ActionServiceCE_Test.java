@@ -17,10 +17,11 @@ import com.appsmith.external.models.Property;
 import com.appsmith.external.plugins.PluginExecutor;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.PermissionGroup;
@@ -30,14 +31,15 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ActionMoveDTO;
 import com.appsmith.server.dtos.ActionViewDTO;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.LayoutDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -148,10 +150,10 @@ public class ActionServiceCE_Test {
     DatasourceService datasourceService;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @SpyBean
     PluginService pluginService;
@@ -252,21 +254,22 @@ public class ActionServiceCE_Test {
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("actionServiceTest");
         newApp.setGitApplicationMetadata(gitData);
         gitConnectedApp = applicationPageService
                 .createApplication(newApp, workspaceId)
                 .flatMap(application2 -> {
                     application2.getGitApplicationMetadata().setDefaultApplicationId(application2.getId());
-                    return applicationService
-                            .save(application2)
-                            .zipWhen(application1 -> exportApplicationService.exportApplicationById(
-                                    application1.getId(), gitData.getBranchName()));
+                    return applicationService.save(application2).zipWhen(application1 -> exportService
+                            .exportByArtifactIdAndBranchName(
+                                    application1.getId(), gitData.getBranchName(), ArtifactType.APPLICATION)
+                            .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importApplicationService.importApplicationInWorkspaceFromGit(
-                        workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(tuple -> importService.importArtifactInWorkspaceFromGit(
+                        workspaceId, tuple.getT1().getId(), tuple.getT2(), gitData.getBranchName()))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         gitConnectedPage = newPageService
@@ -312,7 +315,7 @@ public class ActionServiceCE_Test {
         Mono<NewAction> actionMono = layoutActionService
                 .createSingleActionWithBranch(action, branchName)
                 .flatMap(createdAction -> newActionService.findByBranchNameAndDefaultActionId(
-                        branchName, createdAction.getId(), READ_ACTIONS));
+                        branchName, createdAction.getId(), false, READ_ACTIONS));
 
         StepVerifier.create(actionMono)
                 .assertNext(newAction -> {
@@ -858,6 +861,57 @@ public class ActionServiceCE_Test {
                     assertThat(updatedAction).isNotNull();
                     assertThat(updatedAction.getActionConfiguration().getBody()).isEqualTo("New Body");
                     assertThat(updatedAction.getUserSetOnLoad()).isTrue();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void updateActionShouldSetUpdatedAtField() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+
+        Datasource externalDatasource = new Datasource();
+        externalDatasource.setName("updateActionShouldSetUpdatedAtField Database");
+        externalDatasource.setWorkspaceId(workspaceId);
+        Plugin installed_plugin =
+                pluginRepository.findByPackageName("installed-plugin").block();
+        externalDatasource.setPluginId(installed_plugin.getId());
+        DatasourceConfiguration datasourceConfiguration = new DatasourceConfiguration();
+        datasourceConfiguration.setUrl("some url here");
+
+        HashMap<String, DatasourceStorageDTO> storages = new HashMap<>();
+        storages.put(
+                defaultEnvironmentId, new DatasourceStorageDTO(null, defaultEnvironmentId, datasourceConfiguration));
+        externalDatasource.setDatasourceStorages(storages);
+        Datasource savedDs = datasourceService.create(externalDatasource).block();
+
+        ActionDTO action = new ActionDTO();
+        action.setName("updateActionShouldSetUpdatedAtField");
+        action.setPageId(testPage.getId());
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.GET);
+        action.setActionConfiguration(actionConfiguration);
+        action.setDatasource(savedDs);
+
+        Mono<ActionDTO> newActionMono =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).cache();
+
+        Mono<ActionDTO> updateActionMono = newActionMono.flatMap(preUpdateAction -> {
+            ActionDTO actionUpdate = action;
+            actionUpdate.getActionConfiguration().setBody("New Body");
+            return layoutActionService
+                    .updateSingleAction(preUpdateAction.getId(), actionUpdate)
+                    .flatMap(updatedAction -> updateLayoutService
+                            .updatePageLayoutsByPageId(updatedAction.getPageId())
+                            .thenReturn(updatedAction));
+        });
+
+        StepVerifier.create(updateActionMono)
+                .assertNext(updatedAction -> {
+                    assertThat(updatedAction).isNotNull();
+                    assertThat(updatedAction.getUpdatedAt()).isNotNull();
+                    assertThat(updatedAction.getActionConfiguration().getBody()).isEqualTo("New Body");
                 })
                 .verifyComplete();
     }
@@ -1484,6 +1538,34 @@ public class ActionServiceCE_Test {
         assertThat(savedAction.getIsValid()).isTrue();
         datasource.setPolicies(datasourceExistingPolicies);
         datasource = datasourceRepository.save(datasource).block();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void validateAndSaveActionToRepository_ActionDTOHasCreatedAtUpdatedAtFieldsPresent() {
+        Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
+                .thenReturn(Mono.just(new MockPluginExecutor()));
+        Mockito.when(pluginService.getEditorConfigLabelMap(Mockito.anyString())).thenReturn(Mono.just(new HashMap<>()));
+        Mockito.when(pluginExecutor.getHintMessages(Mockito.any(), Mockito.any()))
+                .thenReturn(Mono.zip(Mono.just(new HashSet<>()), Mono.just(new HashSet<>())));
+        ActionDTO action = new ActionDTO();
+        ActionConfiguration actionConfiguration = new ActionConfiguration();
+        actionConfiguration.setHttpMethod(HttpMethod.POST);
+        actionConfiguration.setBody("random-request-body");
+        actionConfiguration.setHeaders(List.of(new Property("random-header-key", "random-header-value")));
+        action.setActionConfiguration(actionConfiguration);
+        action.setPageId(testPage.getId());
+        action.setName("testActionFields");
+        action.setDatasource(datasource);
+        ActionDTO createdAction =
+                layoutActionService.createSingleAction(action, Boolean.FALSE).block();
+
+        NewAction newAction = newActionService.findById(createdAction.getId()).block();
+        ActionDTO savedAction =
+                newActionService.validateAndSaveActionToRepository(newAction).block();
+        assertThat(savedAction.getIsValid()).isTrue();
+        assertThat(savedAction.getCreatedAt()).isNotNull();
+        assertThat(savedAction.getUpdatedAt()).isNotNull();
     }
 
     @Test

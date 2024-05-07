@@ -15,16 +15,17 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "../../../../../support/Pages/EditorNavigation";
+import PageList from "../../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 
 const pagename = "ChildPage";
 const tempBranch = "feat/tempBranch";
 const tempBranch0 = "tempBranch0";
 const mainBranch = "master";
 const jsObject = "JSObject1";
+let repoName;
 
 describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
-  let repoName;
-
   beforeEach(() => {
     agHelper.RestoreLocalStorageCache();
   });
@@ -33,48 +34,45 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     agHelper.SaveLocalStorageCache();
   });
 
-  before(() => {
+  it("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
     homePage.NavigateToHome();
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
-      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+      cy.CreateAppForWorkspace(newWorkspaceName, "app-1");
+      gitSync.CreateNConnectToGit();
+      cy.get("@gitRepoName").then((repName) => {
+        repoName = repName;
+        // adding a new page "ChildPage" to master
+        cy.Createpage(pagename);
+        EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+        cy.commitAndPush();
+        cy.wait(2000);
+        gitSync.CreateGitBranch(tempBranch, false);
+        //cy.createGitBranch(tempBranch);
+        // verify tempBranch should contain this page
+        EditorNavigation.SelectEntityByName(pagename, EntityType.Page);
+        // delete page from tempBranch and merge to master
+        PageList.DeletePage(pagename);
+        cy.get(homePageLocators.publishButton).click();
+        cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+        cy.get(gitSyncLocators.commitButton).click();
+        cy.wait(8000);
+        cy.get(gitSyncLocators.closeGitSyncModal).click();
+        cy.merge(mainBranch);
+        cy.get(gitSyncLocators.closeGitSyncModal).click();
+        // verify ChildPage is not on master
+        cy.switchGitBranch(mainBranch);
+        PageList.ShowList();
+        PageLeftPane.assertAbsence(pagename);
+        // create another branch and verify deleted page doesn't exist on it
+        //cy.createGitBranch(tempBranch0);
+        gitSync.CreateGitBranch(tempBranch0, false);
+        PageList.ShowList();
+        PageLeftPane.assertAbsence(pagename);
+        gitSync.DeleteTestGithubRepo(repoName);
+      });
     });
-    gitSync.CreateNConnectToGit(repoName);
-    cy.get("@gitRepoName").then((repName) => {
-      repoName = repName;
-    });
-  });
-
-  it("1. Bug:10773 When user delete a resource form the child branch and merge it back to parent branch, still the deleted resource will show up in the newly created branch", () => {
-    // adding a new page "ChildPage" to master
-    cy.Createpage(pagename);
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.commitAndPush();
-    cy.wait(2000);
-    gitSync.CreateGitBranch(tempBranch, false);
-    //cy.createGitBranch(tempBranch);
-    cy.CheckAndUnfoldEntityItem("Pages");
-    // verify tempBranch should contain this page
-    EditorNavigation.SelectEntityByName(pagename, EntityType.Page);
-    // delete page from tempBranch and merge to master
-    cy.Deletepage(pagename);
-    cy.get(homePageLocators.publishButton).click();
-    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-    cy.get(gitSyncLocators.commitButton).click();
-    cy.wait(8000);
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
-    cy.merge(mainBranch);
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
-    // verify ChildPage is not on master
-    cy.switchGitBranch(mainBranch);
-    PageLeftPane.expandCollapseItem("Pages");
-    PageLeftPane.assertAbsence(pagename);
-    // create another branch and verify deleted page doesn't exist on it
-    //cy.createGitBranch(tempBranch0);
-    gitSync.CreateGitBranch(tempBranch0, false);
-    PageLeftPane.expandCollapseItem("Pages");
-    PageLeftPane.assertAbsence(pagename);
   });
 
   it("2. Connect app to git, clone the Page ,verify JSobject duplication should not happen and validate data binding in deploy mode and edit mode", () => {
@@ -82,57 +80,59 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     cy.createWorkspace();
     cy.wait("@createWorkspace").then((interception) => {
       const newWorkspaceName = interception.response.body.data.name;
-      cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
+      cy.CreateAppForWorkspace(newWorkspaceName, "app-2");
       agHelper.AddDsl("JsObjecWithGitdsl");
+      // connect app to git
+      gitSync.CreateNConnectToGit();
+      cy.get("@gitRepoName").then((repName) => {
+        repoName = repName;
+
+        // create JS Object and validate its data on Page1
+        jsEditor.CreateJSObject('return "Success";');
+        EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+        cy.wait(1000);
+        EditorNavigation.ShowCanvas();
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
+        // clone the page1 and validate data binding
+        entityExplorer.ActionContextMenuByEntityName({
+          entityNameinLeftSidebar: "Page1",
+          action: "Clone",
+          entityType: EntityItems.Page,
+        });
+        cy.wait("@clonePage").should(
+          "have.nested.property",
+          "response.body.responseMeta.status",
+          201,
+        );
+        PageLeftPane.switchSegment(PagePaneSegment.JS);
+        // verify jsObject is not duplicated
+        PageLeftPane.assertPresence(jsObject);
+        EditorNavigation.ShowCanvas();
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
+        // deploy the app and validate data binding
+        cy.get(homePageLocators.publishButton).click();
+        agHelper.AssertElementExist(gitSync._bottomBarPull);
+        cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
+        cy.get(gitSyncLocators.commitButton).click();
+        cy.wait(8000);
+        cy.get(gitSyncLocators.closeGitSyncModal).click();
+        cy.latestDeployPreview();
+        cy.wait(2000);
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
+        // switch to Page1 and validate data binding
+        cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
+        cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
+          "be.visible",
+        );
+        deployMode.NavigateBacktoEditor();
+      });
     });
-    // connect app to git
-    gitSync.CreateNConnectToGit(repoName);
-    cy.get("@gitRepoName").then((repName) => {
-      repoName = repName;
-    });
-    // create JS Object and validate its data on Page1
-    jsEditor.CreateJSObject('return "Success";');
-    EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
-    cy.wait(1000);
-    EditorNavigation.ShowCanvas();
-    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-      "be.visible",
-    );
-    // clone the page1 and validate data binding
-    entityExplorer.ActionContextMenuByEntityName({
-      entityNameinLeftSidebar: "Page1",
-      action: "Clone",
-    });
-    cy.wait("@clonePage").should(
-      "have.nested.property",
-      "response.body.responseMeta.status",
-      201,
-    );
-    PageLeftPane.switchSegment(PagePaneSegment.JS);
-    // verify jsObject is not duplicated
-    PageLeftPane.assertPresence(jsObject);
-    EditorNavigation.ShowCanvas();
-    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-      "be.visible",
-    );
-    // deploy the app and validate data binding
-    cy.get(homePageLocators.publishButton).click();
-    agHelper.AssertElementExist(gitSync._bottomBarPull);
-    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-    cy.get(gitSyncLocators.commitButton).click();
-    cy.wait(8000);
-    cy.get(gitSyncLocators.closeGitSyncModal).click();
-    cy.latestDeployPreview();
-    cy.wait(2000);
-    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-      "be.visible",
-    );
-    // switch to Page1 and validate data binding
-    cy.get(".t--page-switch-tab").contains("Page1").click({ force: true });
-    cy.xpath("//input[@class='bp3-input' and @value='Success']").should(
-      "be.visible",
-    );
-    deployMode.NavigateBacktoEditor();
   });
 
   it("3. Bug:12724 Js objects are merged to single page when user creates a new branch", () => {
@@ -153,6 +153,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page1",
       action: "Clone",
+      entityType: EntityItems.Page,
     });
     cy.wait("@clonePage").should(
       "have.nested.property",
@@ -182,6 +183,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
     entityExplorer.ActionContextMenuByEntityName({
       entityNameinLeftSidebar: "Page1",
       action: "Clone",
+      entityType: EntityItems.Page,
     });
     cy.wait("@clonePage").should(
       "have.nested.property",
@@ -201,7 +203,7 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
           const commitInputDisabled =
             state.ui.gitSync.gitStatus?.isClean ||
             state.ui.gitSync.isCommitting;
-          cy.log("commitInputDisabled is " + commitInputDisabled);
+
           if (!commitInputDisabled) {
             cy.commitAndPush();
           }
@@ -254,30 +256,19 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       cy.CreateAppForWorkspace(newWorkspaceName, `${newWorkspaceName}app`);
 
       cy.generateUUID().then((uid) => {
-        const owner = Cypress.env("TEST_GITHUB_USER_NAME");
         repoName = uid;
         gitSync.CreateTestGiteaRepo(repoName);
-        //cy.createTestGithubRepo(repoName);
+        gitSync.OpenGitSyncModal();
 
-        // open gitSync modal
-        cy.get(homePageLocators.deployPopupOptionTrigger).click();
-        cy.get(homePageLocators.connectToGitBtn).click({ force: true });
+        agHelper.GetNClick(gitSync.providerRadioOthers);
+        agHelper.GetNClick(gitSync.existingEmptyRepoYes);
+        agHelper.GetNClick(gitSync.gitConnectNextBtn);
+        agHelper.TypeText(
+          gitSync.remoteUrlInput,
+          `${dataManager.GIT_CLONE_URL}/${repoName}.git`,
+        );
+        agHelper.GetNClick(gitSync.gitConnectNextBtn);
 
-        cy.intercept(
-          {
-            url: "api/v1/git/connect/*",
-            hostname: window.location.host,
-          },
-          (req) => {
-            req.headers["origin"] = "Cypress";
-          },
-        );
-        cy.intercept("POST", "/api/v1/applications/ssh-keypair/*").as(
-          `generateKey-${repoName}`,
-        );
-        cy.get(gitSyncLocators.gitRepoInput).type(
-          `{selectAll}${dataManager.GITEA_API_URL_TED}/${repoName}.git`,
-        );
         // abort git flow after generating key
         cy.get(gitSyncLocators.closeGitSyncModal).click();
       });
@@ -287,10 +278,5 @@ describe("Git sync Bug #10773", { tags: ["@tag.Git"] }, function () {
       cy.wait(3000);
       cy.SearchApp(`${newWorkspaceName}app`);
     });
-  });
-
-  after(() => {
-    //clean up
-    gitSync.DeleteTestGithubRepo(repoName);
   });
 });

@@ -1,7 +1,4 @@
-import type {
-  ConfigTree,
-  unEvalAndConfigTree,
-} from "entities/DataTree/dataTreeTypes";
+import type { unEvalAndConfigTree } from "entities/DataTree/dataTreeTypes";
 import type { ActionValidationConfigMap } from "constants/PropertyControlConstants";
 import type { AppTheme } from "entities/AppTheming";
 
@@ -43,6 +40,7 @@ export interface EvalTreeRequestData {
   metaWidgets: MetaWidgetsReduxState;
   appMode?: APP_MODE;
   widgetsMeta: Record<string, any>;
+  shouldRespondWithLogs?: boolean;
 }
 
 export interface EvalTreeResponseData {
@@ -54,7 +52,6 @@ export interface EvalTreeResponseData {
   logs: unknown[];
   unEvalUpdates: DataTreeDiff[];
   isCreateFirstTree: boolean;
-  configTree: ConfigTree;
   staleMetaIds: string[];
   removedPaths: Array<{ entityId: string; fullpath: string }>;
   isNewWidgetAdded: boolean;
@@ -63,5 +60,3 @@ export interface EvalTreeResponseData {
   webworkerTelemetry?: Record<string, WebworkerSpanData>;
   updates: string;
 }
-
-export type JSVarMutatedEvents = Record<string, { path: string; type: string }>;

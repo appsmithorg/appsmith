@@ -1,9 +1,7 @@
 package com.appsmith.server.migrations;
 
-import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.Property;
 import com.appsmith.server.constants.Appsmith;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -14,17 +12,12 @@ import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PasswordResetToken;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QActionCollection;
-import com.appsmith.server.domains.QNewAction;
-import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.QUserData;
 import com.appsmith.server.domains.Sequence;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.domains.WorkspacePlugin;
 import com.appsmith.server.dtos.WorkspacePluginStatus;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import lombok.extern.slf4j.Slf4j;
@@ -42,22 +35,14 @@ import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
 import org.springframework.data.redis.core.script.RedisScript;
-import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -357,9 +342,9 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "029", id = "use-png-logos", author = "")
     public void usePngLogos(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
-                query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
+                query(where(Plugin.Fields.packageName).is("elasticsearch-plugin")),
                 update(
-                        fieldName(QPlugin.plugin.iconLocation),
+                        Plugin.Fields.iconLocation,
                         "https://s3.us-east-2.amazonaws.com/assets.appsmith.com/ElasticSearch.png"),
                 Plugin.class);
     }
@@ -579,71 +564,6 @@ public class DatabaseChangelog1 {
         }
     }
 
-    private static Set<String> getInvalidDynamicBindingPathsInAction(
-            ObjectMapper mapper, NewAction action, List<String> dynamicBindingPathNames) {
-        Set<String> pathsToRemove = new HashSet<>();
-        for (String path : dynamicBindingPathNames) {
-
-            if (path != null) {
-
-                String[] fields = path.split("[].\\[]");
-
-                // Convert actionConfiguration into JSON Object and then walk till we reach the path specified.
-                Map<String, Object> actionConfigurationMap =
-                        mapper.convertValue(action.getUnpublishedAction().getActionConfiguration(), Map.class);
-                Object parent = new JSONObject(actionConfigurationMap);
-                Iterator<String> fieldsIterator = Arrays.stream(fields)
-                        .filter(fieldToken -> !fieldToken.isBlank())
-                        .iterator();
-                Boolean isLeafNode = false;
-
-                while (fieldsIterator.hasNext()) {
-                    String nextKey = fieldsIterator.next();
-                    if (parent instanceof JSONObject) {
-                        parent = ((JSONObject) parent).get(nextKey);
-                    } else if (parent instanceof Map) {
-                        parent = ((Map<String, ?>) parent).get(nextKey);
-                    } else if (parent instanceof List) {
-                        if (Pattern.matches(Pattern.compile("[0-9]+").toString(), nextKey)) {
-                            try {
-                                parent = ((List) parent).get(Integer.parseInt(nextKey));
-                            } catch (IndexOutOfBoundsException e) {
-                                // The index being referred does not exist. Hence the path would not exist.
-                                pathsToRemove.add(path);
-                            }
-                        } else {
-                            // Parent is a list but does not match the pattern. Hence the path would not exist.
-                            pathsToRemove.add(path);
-                            break;
-                        }
-                    }
-
-                    // After updating the parent, check for the types
-                    if (parent == null) {
-                        pathsToRemove.add(path);
-                        break;
-                    } else if (parent instanceof String) {
-                        // If we get String value, then this is a leaf node
-                        isLeafNode = true;
-                    }
-                }
-                // Only extract mustache keys from leaf nodes
-                if (parent != null && isLeafNode) {
-                    Set<String> mustacheKeysFromFields = MustacheHelper.extractMustacheKeysFromFields(parent).stream()
-                            .map(token -> token.getValue())
-                            .collect(Collectors.toSet());
-
-                    // We found the path. But if the path does not have any mustache bindings, remove it from the path
-                    // list
-                    if (mustacheKeysFromFields.isEmpty()) {
-                        pathsToRemove.add(path);
-                    }
-                }
-            }
-        }
-        return pathsToRemove;
-    }
-
     @ChangeSet(order = "058", id = "update-s3-datasource-configuration-and-label", author = "")
     public void updateS3DatasourceConfigurationAndLabel(MongoTemplate mongoTemplate) {
         Plugin s3Plugin = mongoTemplate
@@ -837,88 +757,6 @@ public class DatabaseChangelog1 {
         mongoTemplate.save(s3Plugin);
     }
 
-    /**
-     * Method to port `dynamicBindingPathList` to UQI model.
-     *
-     * @param dynamicBindingPathList : old dynamicBindingPathList
-     * @param objectMapper
-     * @param action
-     * @param migrationMap           : A mapping from `pluginSpecifiedTemplates` index to attribute path in UQI model. For
-     *                               reference, here's an example:
-     *        Map.ofEntries(
-     *             Map.entry(0, List.of("command")),
-     *             Map.entry(1, List.of("bucket")),
-     *             Map.entry(2, List.of("list.signedUrl")),
-     *             Map.entry(3, List.of("list.expiry")),
-     *             Map.entry(4, List.of("list.prefix")),
-     *             Map.entry(5, List.of("read.usingBase64Encoding")),
-     *             Map.entry(6, List.of("create.dataType", "read.dataType")),
-     *             Map.entry(7, List.of("create.expiry", "read.expiry", "delete.expiry")),
-     *             Map.entry(8, List.of("list.unSignedUrl")));
-     * @return : updated dynamicBindingPathList - ported to UQI model.
-     */
-    static List<Property> getUpdatedDynamicBindingPathList(
-            List<Property> dynamicBindingPathList,
-            ObjectMapper objectMapper,
-            NewAction action,
-            Map<Integer, List<String>> migrationMap) {
-        // Return if empty.
-        if (CollectionUtils.isEmpty(dynamicBindingPathList)) {
-            return dynamicBindingPathList;
-        }
-
-        List<Property> newDynamicBindingPathList = new ArrayList<>();
-        for (Property path : dynamicBindingPathList) {
-            String pathKey = path.getKey();
-            if (pathKey.contains("pluginSpecifiedTemplates")) {
-
-                // Pattern looks for pluginSpecifiedTemplates[12 and extracts the 12
-                Pattern pattern = Pattern.compile("(?<=pluginSpecifiedTemplates\\[)([0-9]+)");
-                Matcher matcher = pattern.matcher(pathKey);
-
-                while (matcher.find()) {
-                    int index = Integer.parseInt(matcher.group());
-                    List<String> partialPaths = migrationMap.get(index);
-                    for (String partialPath : partialPaths) {
-                        Property dynamicBindingPath = new Property("formData." + partialPath, null);
-                        newDynamicBindingPathList.add(dynamicBindingPath);
-                    }
-                }
-            } else {
-                // this dynamic binding is for body. Add as is
-                newDynamicBindingPathList.add(path);
-            }
-
-            // We may have an invalid dynamic binding. Trim the same
-            List<String> dynamicBindingPathNames = newDynamicBindingPathList.stream()
-                    .map(property -> property.getKey())
-                    .collect(Collectors.toList());
-
-            Set<String> pathsToRemove =
-                    getInvalidDynamicBindingPathsInAction(objectMapper, action, dynamicBindingPathNames);
-
-            // We have found atleast 1 invalid dynamic binding path.
-            if (!pathsToRemove.isEmpty()) {
-                // First remove the invalid paths from the set of paths
-                dynamicBindingPathNames.removeAll(pathsToRemove);
-
-                // Transform the set of paths to Property as it is stored in the db.
-                List<Property> updatedDynamicBindingPathList = dynamicBindingPathNames.stream()
-                        .map(dynamicBindingPath -> {
-                            Property property = new Property();
-                            property.setKey(dynamicBindingPath);
-                            return property;
-                        })
-                        .collect(Collectors.toList());
-
-                // Reset the path list to only contain valid binding paths.
-                newDynamicBindingPathList = updatedDynamicBindingPathList;
-            }
-        }
-
-        return newDynamicBindingPathList;
-    }
-
     @ChangeSet(order = "099", id = "add-smtp-plugin", author = "")
     public void addSmtpPluginPlugin(MongoTemplate mongoTemplate) {
         Plugin plugin = new Plugin();
@@ -1023,15 +861,15 @@ public class DatabaseChangelog1 {
     @ChangeSet(order = "113", id = "use-assets-cdn-for-plugin-icons", author = "")
     public void useAssetsCDNForPluginIcons(MongoTemplate mongoTemplate) {
         final Query query = query(new Criteria());
-        query.fields().include(fieldName(QPlugin.plugin.iconLocation));
+        query.fields().include(Plugin.Fields.iconLocation);
         List<Plugin> plugins = mongoTemplate.find(query, Plugin.class);
         for (final Plugin plugin : plugins) {
             if (plugin.getIconLocation() != null
                     && plugin.getIconLocation().startsWith("https://s3.us-east-2.amazonaws.com/assets.appsmith.com")) {
                 final String cdnUrl = plugin.getIconLocation().replace("s3.us-east-2.amazonaws.com/", "");
                 mongoTemplate.updateFirst(
-                        query(where(fieldName(QPlugin.plugin.id)).is(plugin.getId())),
-                        update(fieldName(QPlugin.plugin.iconLocation), cdnUrl),
+                        query(where(Plugin.Fields.id).is(plugin.getId())),
+                        update(Plugin.Fields.iconLocation, cdnUrl),
                         Plugin.class);
             }
         }
@@ -1051,7 +889,7 @@ public class DatabaseChangelog1 {
         ensureIndexes(
                 mongoTemplate,
                 UserData.class,
-                makeIndex(fieldName(QUserData.userData.userId)).unique().named("userId"));
+                makeIndex(UserData.Fields.userId).unique().named("userId"));
     }
 
     @ChangeSet(order = "115", id = "mark-mssql-crud-unavailable", author = "")
@@ -1072,33 +910,25 @@ public class DatabaseChangelog1 {
         ensureIndexes(
                 mongoTemplate,
                 NewAction.class,
-                makeIndex(
-                                fieldName(QNewAction.newAction.unpublishedAction) + "." + FieldName.PAGE_ID,
-                                FieldName.DELETED)
+                makeIndex(NewAction.Fields.unpublishedAction + "." + FieldName.PAGE_ID, FieldName.DELETED)
                         .named("unpublishedActionPageId_deleted_compound_index"));
 
         ensureIndexes(
                 mongoTemplate,
                 NewAction.class,
-                makeIndex(fieldName(QNewAction.newAction.publishedAction) + "." + FieldName.PAGE_ID, FieldName.DELETED)
+                makeIndex(NewAction.Fields.publishedAction + "." + FieldName.PAGE_ID, FieldName.DELETED)
                         .named("publishedActionPageId_deleted_compound_index"));
 
         ensureIndexes(
                 mongoTemplate,
                 ActionCollection.class,
-                makeIndex(
-                                fieldName(QActionCollection.actionCollection.unpublishedCollection) + "."
-                                        + FieldName.PAGE_ID,
-                                FieldName.DELETED)
+                makeIndex(ActionCollection.Fields.unpublishedCollection + "." + FieldName.PAGE_ID, FieldName.DELETED)
                         .named("unpublishedCollectionPageId_deleted"));
 
         ensureIndexes(
                 mongoTemplate,
                 ActionCollection.class,
-                makeIndex(
-                                fieldName(QActionCollection.actionCollection.publishedCollection) + "."
-                                        + FieldName.PAGE_ID,
-                                FieldName.DELETED)
+                makeIndex(ActionCollection.Fields.publishedCollection + "." + FieldName.PAGE_ID, FieldName.DELETED)
                         .named("publishedCollectionPageId_deleted"));
     }
 }

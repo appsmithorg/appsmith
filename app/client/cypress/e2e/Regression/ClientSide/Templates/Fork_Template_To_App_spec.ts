@@ -4,6 +4,7 @@ import {
   assertHelper,
   deployMode,
   homePage,
+  locators,
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 
@@ -43,6 +44,10 @@ describe(
       agHelper.GetNClick(template.selectCheckbox, 1);
       // [Bug]: On forking selected pages from a template, resource not found error is shown #17270
       agHelper.GetNClick(template.templateViewForkButton);
+      agHelper.AssertElementAbsence(
+        locators._visibleTextSpan("Setting up the template"),
+        Cypress.config().pageLoadTimeout,
+      );
       assertHelper.AssertNetworkStatus("fetchTemplate");
       agHelper.ValidateToastMessage("template added successfully");
       assertHelper.AssertNetworkStatus("updateLayout");

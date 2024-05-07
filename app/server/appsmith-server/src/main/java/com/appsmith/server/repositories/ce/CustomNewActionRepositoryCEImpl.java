@@ -1,22 +1,19 @@
 package com.appsmith.server.repositories.ce;
 
+import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.PluginType;
-import com.appsmith.external.models.QActionConfiguration;
-import com.appsmith.external.models.QBranchAwareDomain;
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.domains.QNewAction;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
-import com.appsmith.server.repositories.CacheableRepositoryHelper;
-import com.mongodb.bulk.BulkWriteResult;
-import com.mongodb.client.result.UpdateResult;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.mongodb.core.MongoTemplate;
 import org.springframework.data.mongodb.core.ReactiveMongoOperations;
 import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
@@ -24,16 +21,11 @@ import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.aggregation.GroupOperation;
 import org.springframework.data.mongodb.core.aggregation.MatchOperation;
 import org.springframework.data.mongodb.core.aggregation.ProjectionOperation;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Schedulers;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -45,25 +37,16 @@ import static org.springframework.data.mongodb.core.aggregation.Aggregation.proj
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 
 @Slf4j
+@RequiredArgsConstructor
 public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<NewAction>
         implements CustomNewActionRepositoryCE {
 
-    private final MongoTemplate mongoTemplate;
-
-    public CustomNewActionRepositoryCEImpl(
-            ReactiveMongoOperations mongoOperations,
-            MongoConverter mongoConverter,
-            CacheableRepositoryHelper cacheableRepositoryHelper,
-            MongoTemplate mongoTemplate) {
-        super(mongoOperations, mongoConverter, cacheableRepositoryHelper);
-        this.mongoTemplate = mongoTemplate;
-    }
+    private final ReactiveMongoOperations mongoOperations;
 
     @Override
     public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission) {
-        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
         return queryBuilder()
-                .criteria(applicationIdCriteria)
+                .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(aclPermission)
                 .all();
     }
@@ -71,9 +54,9 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findByApplicationId(
             String applicationId, Optional<AclPermission> aclPermission, Optional<Sort> sort) {
-        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
         return queryBuilder()
-                .criteria(applicationIdCriteria)
+                .criteria(getCriterionForFindByApplicationId(applicationId)
+                        .isNull(NewAction.Fields.unpublishedAction_deletedAt))
                 .permission(aclPermission.orElse(null))
                 .sort(sort.orElse(null))
                 .all();
@@ -81,53 +64,28 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Mono<NewAction> findByUnpublishedNameAndPageId(String name, String pageId, AclPermission aclPermission) {
-        Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.name))
-                .is(name);
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                .is(pageId);
-        // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
-        // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
-                .is(null);
+        final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(NewAction.Fields.unpublishedAction_name, name)
+                .equal(NewAction.Fields.unpublishedAction_pageId, pageId)
+                // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
+                // would exist. To handle this, only fetch non-deleted actions
+                .isNull(NewAction.Fields.unpublishedAction_deletedAt);
 
-        return queryBuilder()
-                .criteria(nameCriteria, pageCriteria, deletedCriteria)
-                .permission(aclPermission)
-                .one();
+        return queryBuilder().criteria(q).permission(aclPermission).one();
     }
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, AclPermission aclPermission) {
-        String unpublishedPage = fieldName(QNewAction.newAction.unpublishedAction) + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.pageId);
-        String publishedPage = fieldName(QNewAction.newAction.publishedAction) + "."
-                + fieldName(QNewAction.newAction.publishedAction.pageId);
-
-        Criteria pageCriteria = new Criteria()
-                .orOperator(
-                        where(unpublishedPage).is(pageId), where(publishedPage).is(pageId));
-
-        return queryBuilder().criteria(pageCriteria).permission(aclPermission).all();
+        return queryBuilder()
+                .criteria(Bridge.or(
+                        Bridge.equal(NewAction.Fields.unpublishedAction_pageId, pageId),
+                        Bridge.equal(NewAction.Fields.publishedAction_pageId, pageId)))
+                .permission(aclPermission)
+                .all();
     }
 
     @Override
     public Flux<NewAction> findByPageId(String pageId, Optional<AclPermission> aclPermission) {
-        String unpublishedPage = fieldName(QNewAction.newAction.unpublishedAction) + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.pageId);
-        String publishedPage = fieldName(QNewAction.newAction.publishedAction) + "."
-                + fieldName(QNewAction.newAction.publishedAction.pageId);
-
-        Criteria pageCriteria = new Criteria()
-                .orOperator(
-                        where(unpublishedPage).is(pageId), where(publishedPage).is(pageId));
-
-        return queryBuilder()
-                .criteria(pageCriteria)
-                .permission(aclPermission.orElse(null))
-                .all();
+        return findByPageId(pageId, aclPermission.orElse(null));
     }
 
     @Override
@@ -137,404 +95,218 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     @Override
     public Flux<NewAction> findByPageIdAndViewMode(String pageId, Boolean viewMode, AclPermission aclPermission) {
-
-        List<Criteria> criteria = new ArrayList<>();
-
-        Criteria pageCriterion;
+        final BridgeQuery<NewAction> q;
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
-            pageCriterion = where(fieldName(QNewAction.newAction.publishedAction) + "."
-                            + fieldName(QNewAction.newAction.publishedAction.pageId))
-                    .is(pageId);
-            criteria.add(pageCriterion);
+            q = Bridge.equal(NewAction.Fields.publishedAction_pageId, pageId);
         }
         // Fetch unpublished actions
         else {
-            pageCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                            + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                    .is(pageId);
-            criteria.add(pageCriterion);
+            q = Bridge.equal(NewAction.Fields.unpublishedAction_pageId, pageId);
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                            + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
-                    .is(null);
-            criteria.add(deletedCriteria);
+            q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
         }
-        return queryBuilder().criteria(criteria).permission(aclPermission).all();
-    }
-
-    @Override
-    public Flux<NewAction> findUnpublishedActionsForRestApiOnLoad(
-            Set<String> names, String pageId, String httpMethod, Boolean userSetOnLoad, AclPermission aclPermission) {
-        Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
-                        + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.name))
-                .in(names);
-
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
-                        + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                .is(pageId);
-
-        Criteria userSetOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction)
-                        + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.userSetOnLoad))
-                .is(userSetOnLoad);
-
-        String httpMethodQueryKey = fieldName(QNewAction.newAction.unpublishedAction)
-                + "."
-                + fieldName(QNewAction.newAction.unpublishedAction.actionConfiguration)
-                + "."
-                + fieldName(QActionConfiguration.actionConfiguration.httpMethod);
-
-        Criteria httpMethodCriteria = where(httpMethodQueryKey).is(httpMethod);
-        List<Criteria> criterias = List.of(namesCriteria, pageCriteria, httpMethodCriteria, userSetOnLoadCriteria);
-
-        return queryBuilder().criteria(criterias).permission(aclPermission).all();
+        return queryBuilder().criteria(q).permission(aclPermission).all();
     }
 
     @Override
     public Flux<NewAction> findAllActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        List<Criteria> criteriaList =
-                this.getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode);
-
         return queryBuilder()
-                .criteria(criteriaList)
+                .criteria(getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
     }
 
-    protected List<Criteria> getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(
+    protected BridgeQuery<NewAction> getCriteriaForFindAllActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode) {
-        /**
-         * TODO : This function is called by get(params) to get all actions by params and hence
-         * only covers criteria of few fields like page id, name, etc. Make this generic to cover
-         * all possible fields
-         */
-        List<Criteria> criteriaList = new ArrayList<>();
+        final BridgeQuery<NewAction> q = Bridge.query();
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "."
-                                + fieldName(QNewAction.newAction.publishedAction.name))
-                        .is(name);
-                criteriaList.add(nameCriteria);
+                q.equal(NewAction.Fields.publishedAction_name, name);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "."
-                                + fieldName(QNewAction.newAction.publishedAction.pageId))
-                        .in(pageIds);
-                criteriaList.add(pageCriteria);
+                q.in(NewAction.Fields.publishedAction_pageId, pageIds);
             }
         }
         // Fetch unpublished actions
         else {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                + fieldName(QNewAction.newAction.unpublishedAction.name))
-                        .is(name);
-                criteriaList.add(nameCriteria);
+                q.equal(NewAction.Fields.unpublishedAction_name, name);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                        .in(pageIds);
-                criteriaList.add(pageCriteria);
+                q.in(NewAction.Fields.unpublishedAction_pageId, pageIds);
             }
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                            + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
-                    .is(null);
-            criteriaList.add(deletedCriteria);
+            q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
         }
-        return criteriaList;
-    }
 
-    @Override
-    public Flux<NewAction> findUnpublishedActionsByNameInAndPageIdAndExecuteOnLoadTrue(
-            Set<String> names, String pageId, AclPermission permission) {
-        List<Criteria> criteriaList = new ArrayList<>();
-        if (names != null) {
-            Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                            + fieldName(QNewAction.newAction.unpublishedAction.name))
-                    .in(names);
-            criteriaList.add(namesCriteria);
-        }
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                .is(pageId);
-        criteriaList.add(pageCriteria);
-
-        Criteria executeOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.executeOnLoad))
-                .is(Boolean.TRUE);
-        criteriaList.add(executeOnLoadCriteria);
-
-        // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
-        // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
-                .is(null);
-        criteriaList.add(deletedCriteria);
-
-        return queryBuilder().criteria(criteriaList).permission(permission).all();
+        return q;
     }
 
     @Override
     public Flux<NewAction> findUnpublishedActionsByNameInAndPageId(
             Set<String> names, String pageId, AclPermission permission) {
-        List<Criteria> criteriaList = new ArrayList<>();
+        BridgeQuery<NewAction> q = Bridge.equal(NewAction.Fields.unpublishedAction_pageId, pageId);
 
         if (names != null) {
-            Criteria namesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                            + fieldName(QNewAction.newAction.unpublishedAction.name))
-                    .in(names);
-            Criteria fullyQualifiedNamesCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                            + fieldName(QNewAction.newAction.unpublishedAction.fullyQualifiedName))
-                    .in(names);
-            criteriaList.add(new Criteria().orOperator(namesCriteria, fullyQualifiedNamesCriteria));
+            q.and(Bridge.or(
+                    Bridge.in(NewAction.Fields.unpublishedAction_name, names),
+                    Bridge.in(NewAction.Fields.unpublishedAction_fullyQualifiedName, names)));
         }
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                .is(pageId);
-        criteriaList.add(pageCriteria);
 
         // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
         // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
-                .is(null);
-        criteriaList.add(deletedCriteria);
+        q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
 
-        return queryBuilder().criteria(criteriaList).permission(permission).all();
+        return queryBuilder().criteria(q).permission(permission).all();
     }
 
     @Override
     public Flux<NewAction> findUnpublishedActionsByPageIdAndExecuteOnLoadSetByUserTrue(
             String pageId, AclPermission permission) {
-        List<Criteria> criteriaList = new ArrayList<>();
+        BridgeQuery<NewAction> q = Bridge.<NewAction>isTrue(NewAction.Fields.unpublishedAction_executeOnLoad)
+                .isTrue(NewAction.Fields.unpublishedAction_userSetOnLoad)
+                .equal(NewAction.Fields.unpublishedAction_pageId, pageId)
+                // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
+                // would exist. To handle this, only fetch non-deleted actions
+                .isNull(NewAction.Fields.unpublishedAction_deletedAt);
 
-        Criteria executeOnLoadCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.executeOnLoad))
-                .is(Boolean.TRUE);
-        criteriaList.add(executeOnLoadCriteria);
-
-        Criteria setByUserCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.userSetOnLoad))
-                .is(Boolean.TRUE);
-        criteriaList.add(setByUserCriteria);
-
-        Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                .is(pageId);
-        criteriaList.add(pageCriteria);
-
-        // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object would
-        // exist. To handle this, only fetch non-deleted actions
-        Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
-                .is(null);
-        criteriaList.add(deletedCriteria);
-
-        return queryBuilder().criteria(criteriaList).permission(permission).all();
+        return queryBuilder().criteria(q).permission(permission).all();
     }
 
     @Override
     public Flux<NewAction> findByApplicationId(String applicationId, AclPermission aclPermission, Sort sort) {
-
-        Criteria applicationCriteria = this.getCriterionForFindByApplicationId(applicationId);
-
         return queryBuilder()
-                .criteria(applicationCriteria)
+                .criteria(getCriterionForFindByApplicationId(applicationId))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
     }
 
-    protected Criteria getCriterionForFindByApplicationId(String applicationId) {
-        Criteria applicationCriteria =
-                where(fieldName(QNewAction.newAction.applicationId)).is(applicationId);
-        return applicationCriteria;
+    protected BridgeQuery<NewAction> getCriterionForFindByApplicationId(String applicationId) {
+        return Bridge.equal(NewAction.Fields.applicationId, applicationId);
     }
 
     @Override
     public Flux<NewAction> findByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
-
-        List<Criteria> criteria = this.getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode);
-
-        return queryBuilder().criteria(criteria).permission(aclPermission).all();
+        return queryBuilder()
+                .criteria(getCriteriaForFindByApplicationIdAndViewMode(applicationId, viewMode))
+                .permission(aclPermission)
+                .all();
     }
 
-    protected List<Criteria> getCriteriaForFindByApplicationIdAndViewMode(String applicationId, Boolean viewMode) {
-        List<Criteria> criteria = new ArrayList<>();
-
-        Criteria applicationCriterion = this.getCriterionForFindByApplicationId(applicationId);
-        criteria.add(applicationCriterion);
+    protected BridgeQuery<NewAction> getCriteriaForFindByApplicationIdAndViewMode(
+            String applicationId, Boolean viewMode) {
+        final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                            + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
-                    .is(null);
-            criteria.add(deletedCriterion);
+            q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
         }
-        return criteria;
+
+        return q;
     }
 
     @Override
     public Mono<Long> countByDatasourceId(String datasourceId) {
-        Criteria unpublishedDatasourceCriteria = where(
-                        fieldName(QNewAction.newAction.unpublishedAction) + ".datasource._id")
-                .is(new ObjectId(datasourceId));
-        Criteria publishedDatasourceCriteria = where(
-                        fieldName(QNewAction.newAction.publishedAction) + ".datasource._id")
-                .is(new ObjectId(datasourceId));
+        BridgeQuery<NewAction> q = Bridge.or(
+                Bridge.equal(NewAction.Fields.unpublishedAction + ".datasource._id", new ObjectId(datasourceId)),
+                Bridge.equal(NewAction.Fields.publishedAction + ".datasource._id", new ObjectId(datasourceId)));
 
-        Criteria datasourceCriteria =
-                notDeleted().orOperator(unpublishedDatasourceCriteria, publishedDatasourceCriteria);
-
-        Query query = new Query();
-        query.addCriteria(datasourceCriteria);
-
-        return mongoOperations.count(query, NewAction.class);
+        return queryBuilder().criteria(q).count();
     }
 
     @Override
     public Mono<NewAction> findByBranchNameAndDefaultActionId(
-            String branchName, String defaultActionId, AclPermission permission) {
-        final String defaultResources = fieldName(QNewAction.newAction.defaultResources);
-        Criteria defaultActionIdCriteria =
-                where(defaultResources + "." + FieldName.ACTION_ID).is(defaultActionId);
-        Criteria branchCriteria =
-                where(defaultResources + "." + FieldName.BRANCH_NAME).is(branchName);
-        return queryBuilder()
-                .criteria(defaultActionIdCriteria, branchCriteria)
-                .permission(permission)
-                .one();
-    }
+            String branchName, String defaultActionId, Boolean viewMode, AclPermission permission) {
+        final BridgeQuery<NewAction> q = Bridge.<NewAction>equal(
+                        NewAction.Fields.defaultResources_actionId, defaultActionId)
+                .equal(NewAction.Fields.defaultResources_branchName, branchName);
 
-    @Override
-    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, AclPermission permission) {
-        return findByGitSyncIdAndDefaultApplicationId(defaultApplicationId, gitSyncId, Optional.ofNullable(permission));
-    }
+        if (Boolean.FALSE.equals(viewMode)) {
+            // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
+            // would exist. To handle this, only fetch non-deleted actions
+            q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
+        }
 
-    @Override
-    public Mono<NewAction> findByGitSyncIdAndDefaultApplicationId(
-            String defaultApplicationId, String gitSyncId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
-        Criteria defaultAppIdCriteria =
-                where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
-        Criteria gitSyncIdCriteria = where(FieldName.GIT_SYNC_ID).is(gitSyncId);
-        return queryBuilder()
-                .criteria(defaultAppIdCriteria, gitSyncIdCriteria)
-                .permission(permission.orElse(null))
-                .first();
+        return queryBuilder().criteria(q).permission(permission).one();
     }
 
     @Override
     public Flux<NewAction> findByPageIds(List<String> pageIds, AclPermission permission) {
-
-        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                .in(pageIds);
-
-        return queryBuilder().criteria(pageIdCriteria).permission(permission).all();
+        return queryBuilder()
+                .criteria(Bridge.in(NewAction.Fields.unpublishedAction_pageId, pageIds))
+                .permission(permission)
+                .all();
     }
 
     @Override
+    @Deprecated
     public Flux<NewAction> findByPageIds(List<String> pageIds, Optional<AclPermission> permission) {
-        Criteria pageIdCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                        + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                .in(pageIds);
-
-        return queryBuilder()
-                .criteria(pageIdCriteria)
-                .permission(permission.orElse(null))
-                .all();
+        return findByPageIds(pageIds, permission.orElse(null));
     }
 
     @Override
     public Flux<NewAction> findNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode, AclPermission aclPermission) {
-        List<Criteria> criteria =
-                this.getCriteriaForFindNonJsActionsByApplicationIdAndViewMode(applicationId, viewMode);
-
-        return queryBuilder().criteria(criteria).permission(aclPermission).all();
+        return queryBuilder()
+                .criteria(getCriteriaForFindNonJsActionsByApplicationIdAndViewMode(applicationId, viewMode))
+                .permission(aclPermission)
+                .all();
     }
 
-    protected List<Criteria> getCriteriaForFindNonJsActionsByApplicationIdAndViewMode(
+    protected BridgeQuery<NewAction> getCriteriaForFindNonJsActionsByApplicationIdAndViewMode(
             String applicationId, Boolean viewMode) {
-        List<Criteria> criteria = new ArrayList<>();
-
-        Criteria applicationCriterion = this.getCriterionForFindByApplicationId(applicationId);
-        criteria.add(applicationCriterion);
-
-        Criteria nonJsTypeCriteria =
-                where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
-        criteria.add(nonJsTypeCriteria);
+        final BridgeQuery<NewAction> q =
+                getCriterionForFindByApplicationId(applicationId).notEqual(NewAction.Fields.pluginType, PluginType.JS);
 
         if (Boolean.FALSE.equals(viewMode)) {
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriterion = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                            + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
-                    .is(null);
-            criteria.add(deletedCriterion);
+            q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
         }
-        return criteria;
+
+        return q;
     }
 
     @Override
     public Flux<NewAction> findAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode, AclPermission aclPermission, Sort sort) {
-        List<Criteria> criteriaList =
-                this.getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode);
-
         return queryBuilder()
-                .criteria(criteriaList)
+                .criteria(getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(name, pageIds, viewMode))
                 .permission(aclPermission)
                 .sort(sort)
                 .all();
     }
 
-    protected List<Criteria> getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(
+    protected BridgeQuery<NewAction> getCriteriaForFindAllNonJsActionsByNameAndPageIdsAndViewMode(
             String name, List<String> pageIds, Boolean viewMode) {
-        List<Criteria> criteriaList = new ArrayList<>();
-
-        Criteria nonJsTypeCriteria =
-                where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
-        criteriaList.add(nonJsTypeCriteria);
+        final BridgeQuery<NewAction> q = Bridge.notEqual(NewAction.Fields.pluginType, PluginType.JS);
 
         // Fetch published actions
         if (Boolean.TRUE.equals(viewMode)) {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "."
-                                + fieldName(QNewAction.newAction.publishedAction.name))
-                        .is(name);
-                criteriaList.add(nameCriteria);
+                q.equal(NewAction.Fields.publishedAction_name, name);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QNewAction.newAction.publishedAction) + "."
-                                + fieldName(QNewAction.newAction.publishedAction.pageId))
-                        .in(pageIds);
-                criteriaList.add(pageCriteria);
+                q.in(NewAction.Fields.publishedAction_pageId, pageIds);
             }
 
         }
@@ -542,99 +314,81 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
         else {
 
             if (name != null) {
-                Criteria nameCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                + fieldName(QNewAction.newAction.unpublishedAction.name))
-                        .is(name);
-                criteriaList.add(nameCriteria);
+                q.equal(NewAction.Fields.unpublishedAction_name, name);
             }
 
             if (pageIds != null && !pageIds.isEmpty()) {
-                Criteria pageCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                                + fieldName(QNewAction.newAction.unpublishedAction.pageId))
-                        .in(pageIds);
-                criteriaList.add(pageCriteria);
+                q.in(NewAction.Fields.unpublishedAction_pageId, pageIds);
             }
 
             // In case an action has been deleted in edit mode, but still exists in deployed mode, NewAction object
             // would exist. To handle this, only fetch non-deleted actions
-            Criteria deletedCriteria = where(fieldName(QNewAction.newAction.unpublishedAction) + "."
-                            + fieldName(QNewAction.newAction.unpublishedAction.deletedAt))
-                    .is(null);
-            criteriaList.add(deletedCriteria);
+            q.isNull(NewAction.Fields.unpublishedAction_deletedAt);
         }
-        return criteriaList;
+
+        return q;
     }
 
     @Override
     public Flux<NewAction> findByDefaultApplicationId(String defaultApplicationId, Optional<AclPermission> permission) {
-        final String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
-        Criteria defaultAppIdCriteria =
-                where(defaultResources + "." + FieldName.APPLICATION_ID).is(defaultApplicationId);
+        final String defaultResources = BranchAwareDomain.Fields.defaultResources;
         return queryBuilder()
-                .criteria(defaultAppIdCriteria)
+                .criteria(Bridge.equal(NewAction.Fields.defaultResources_applicationId, defaultApplicationId)
+                        .isNull(NewAction.Fields.unpublishedAction_deletedAt))
                 .permission(permission.orElse(null))
                 .all();
     }
 
     @Override
-    public Mono<List<BulkWriteResult>> publishActions(String applicationId, AclPermission permission) {
-        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
+    public Mono<Void> publishActions(String applicationId, AclPermission permission) {
+        return copyUnpublishedActionToPublishedAction(getCriterionForFindByApplicationId(applicationId), permission);
+    }
 
+    protected Mono<Void> copyUnpublishedActionToPublishedAction(
+            BridgeQuery<NewAction> criteria, AclPermission permission) {
         Mono<Set<String>> permissionGroupsMono =
                 getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
 
         return permissionGroupsMono
-                .flatMap(permissionGroups -> {
-                    return Mono.fromCallable(() -> {
-                                AggregationOperation matchAggregationWithPermission = null;
-                                if (permission == null) {
-                                    matchAggregationWithPermission =
-                                            Aggregation.match(new Criteria().andOperator(notDeleted()));
-                                } else {
-                                    matchAggregationWithPermission = Aggregation.match(new Criteria()
-                                            .andOperator(notDeleted(), userAcl(permissionGroups, permission)));
-                                }
-                                AggregationOperation matchAggregation = Aggregation.match(applicationIdCriteria);
-                                AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
-                                AggregationOperation addFieldsOperation = Aggregation.addFields()
-                                        .addField(fieldName(QNewAction.newAction.publishedAction))
-                                        .withValueOf(Fields.field(fieldName(QNewAction.newAction.unpublishedAction)))
-                                        .build();
-                                Aggregation combinedAggregation = Aggregation.newAggregation(
-                                        matchAggregation,
-                                        matchAggregationWithPermission,
-                                        wholeProjection,
-                                        addFieldsOperation);
-                                return mongoTemplate.aggregate(combinedAggregation, NewAction.class, NewAction.class);
-                            })
-                            .subscribeOn(Schedulers.boundedElastic());
+                .flatMapMany(permissionGroups -> {
+                    AggregationOperation matchAggregationWithPermission;
+                    if (permission == null) {
+                        matchAggregationWithPermission = Aggregation.match(new Criteria().andOperator(notDeleted()));
+                    } else {
+                        matchAggregationWithPermission = Aggregation.match(
+                                new Criteria().andOperator(notDeleted(), userAcl(permissionGroups, permission)));
+                    }
+                    AggregationOperation matchAggregation = Aggregation.match(criteria);
+                    AggregationOperation wholeProjection = Aggregation.project(NewAction.class);
+                    AggregationOperation addFieldsOperation = Aggregation.addFields()
+                            .addField(NewAction.Fields.publishedAction)
+                            .withValueOf(Fields.field(NewAction.Fields.unpublishedAction))
+                            .build();
+                    Aggregation combinedAggregation = Aggregation.newAggregation(
+                            matchAggregation, matchAggregationWithPermission, wholeProjection, addFieldsOperation);
+                    return mongoOperations.aggregate(combinedAggregation, NewAction.class, NewAction.class);
                 })
-                .flatMap(updatedResults -> bulkUpdate(updatedResults.getMappedResults()));
+                .collectList()
+                .flatMap(this::bulkUpdate);
     }
 
     @Override
-    public Mono<UpdateResult> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
-        Criteria applicationIdCriteria = this.getCriterionForFindByApplicationId(applicationId);
-        String unpublishedDeletedAtFieldName = String.format(
-                "%s.%s",
-                fieldName(QNewAction.newAction.unpublishedAction),
-                fieldName(QNewAction.newAction.unpublishedAction.deletedAt));
-        Criteria deletedFromUnpublishedCriteria =
-                where(unpublishedDeletedAtFieldName).ne(null);
+    public Mono<Integer> archiveDeletedUnpublishedActions(String applicationId, AclPermission permission) {
+        final BridgeQuery<NewAction> q = getCriterionForFindByApplicationId(applicationId)
+                .isNotNull(NewAction.Fields.unpublishedAction_deletedAt);
 
-        Update update = new Update();
-        update.set(FieldName.DELETED, true);
-        update.set(FieldName.DELETED_AT, Instant.now());
-        return updateByCriteria(List.of(applicationIdCriteria, deletedFromUnpublishedCriteria), update, permission);
+        BridgeUpdate update = Bridge.update();
+        update.set(NewAction.Fields.deleted, true);
+        update.set(NewAction.Fields.deletedAt, Instant.now());
+        return queryBuilder().criteria(q).permission(permission).updateAll(update);
     }
 
     @Override
     public Flux<PluginTypeAndCountDTO> countActionsByPluginType(String applicationId) {
         GroupOperation countByPluginType =
-                group(fieldName(QNewAction.newAction.pluginType)).count().as("count");
-        MatchOperation filterStates = match(where(fieldName(QNewAction.newAction.applicationId))
-                .is(applicationId)
-                .andOperator(notDeleted()));
+                group(NewAction.Fields.pluginType).count().as("count");
+        MatchOperation filterStates =
+                match(where(NewAction.Fields.applicationId).is(applicationId).andOperator(notDeleted()));
         ProjectionOperation projectionOperation = project("count").and("_id").as("pluginType");
         Aggregation aggregation = newAggregation(filterStates, countByPluginType, projectionOperation);
         return mongoOperations.aggregate(
@@ -644,66 +398,55 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
     @Override
     public Flux<NewAction> findAllByApplicationIdsWithoutPermission(
             List<String> applicationIds, List<String> includeFields) {
-        Criteria applicationCriteria = Criteria.where(FieldName.APPLICATION_ID).in(applicationIds);
         return queryBuilder()
-                .criteria(applicationCriteria)
+                .criteria(Bridge.in(NewAction.Fields.applicationId, applicationIds))
                 .fields(includeFields)
                 .all();
     }
 
     @Override
+    public Flux<NewAction> findAllByCollectionIds(
+            List<String> collectionIds, boolean viewMode, AclPermission aclPermission) {
+        String collectionIdPath;
+        if (viewMode) {
+            collectionIdPath = NewAction.Fields.publishedAction_collectionId;
+        } else {
+            collectionIdPath = NewAction.Fields.unpublishedAction_collectionId;
+        }
+        BridgeQuery<NewAction> q = Bridge.in(collectionIdPath, collectionIds);
+        return queryBuilder().criteria(q).permission(aclPermission).all();
+    }
+
+    @Override
     public Flux<NewAction> findAllUnpublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        List<Criteria> criteriaList = new ArrayList<>();
-
-        String contextIdPath = completeFieldName(QNewAction.newAction.unpublishedAction.pageId);
-        String contextTypePath = completeFieldName(QNewAction.newAction.unpublishedAction.contextType);
-        Criteria contextTypeCriterion = new Criteria()
-                .orOperator(
-                        where(contextTypePath).is(contextType),
-                        where(contextTypePath).isNull());
-        Criteria contextIdAndContextTypeCriteria =
-                where(contextIdPath).is(contextId).andOperator(contextTypeCriterion);
-
-        criteriaList.add(contextIdAndContextTypeCriteria);
+        String contextIdPath = NewAction.Fields.unpublishedAction_pageId;
+        String contextTypePath = NewAction.Fields.unpublishedAction_contextType;
+        final BridgeQuery<NewAction> q = Bridge.<NewAction>or(
+                        Bridge.equal(contextTypePath, contextType), Bridge.isNull(contextTypePath))
+                .equal(contextIdPath, contextId);
 
         if (!includeJs) {
-            Criteria jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
-            criteriaList.add(jsInclusionOrExclusionCriteria);
+            q.notEqual(NewAction.Fields.pluginType, PluginType.JS);
         }
 
-        return queryBuilder()
-                .criteria(criteriaList)
-                .permission(Optional.ofNullable(permission).orElse(null))
-                .all();
+        return queryBuilder().criteria(q).permission(permission).all();
     }
 
     @Override
     public Flux<NewAction> findAllPublishedActionsByContextIdAndContextType(
             String contextId, CreatorContextType contextType, AclPermission permission, boolean includeJs) {
-        List<Criteria> criteriaList = new ArrayList<>();
-        String contextIdPath = completeFieldName(QNewAction.newAction.publishedAction.pageId);
-        String contextTypePath = completeFieldName(QNewAction.newAction.publishedAction.contextType);
-        Criteria contextIdAndContextTypeCriteria =
-                where(contextIdPath).is(contextId).and(contextTypePath).is(contextType);
+        String contextIdPath = NewAction.Fields.publishedAction_pageId;
+        String contextTypePath = NewAction.Fields.publishedAction_contextType;
+        final BridgeQuery<NewAction> q =
+                Bridge.<NewAction>equal(contextIdPath, contextId).equal(contextTypePath, contextType);
 
-        criteriaList.add(contextIdAndContextTypeCriteria);
-
-        Criteria jsInclusionOrExclusionCriteria;
         if (includeJs) {
-            jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).is(PluginType.JS);
+            q.equal(NewAction.Fields.pluginType, PluginType.JS);
         } else {
-            jsInclusionOrExclusionCriteria =
-                    where(fieldName(QNewAction.newAction.pluginType)).ne(PluginType.JS);
+            q.notEqual(NewAction.Fields.pluginType, PluginType.JS);
         }
 
-        criteriaList.add(jsInclusionOrExclusionCriteria);
-
-        return queryBuilder()
-                .criteria(criteriaList)
-                .permission(Optional.ofNullable(permission).orElse(null))
-                .all();
+        return queryBuilder().criteria(q).permission(permission).all();
     }
 }

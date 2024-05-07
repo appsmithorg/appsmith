@@ -18,7 +18,7 @@ import {
   getCodeMirrorNamespaceFromDoc,
   getCodeMirrorNamespaceFromEditor,
 } from "../getCodeMirrorNamespace";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { findIndex, isString } from "lodash";
 import { renderTernTooltipContent } from "./ternDocTooltip";
 
@@ -417,8 +417,6 @@ class CodeMirrorTernService {
     const cursor = cm.getCursor();
     const { extraChars } = this.getFocusedDocValueAndPos(doc);
 
-    const query = this.getQueryForAutocomplete(cm);
-
     let completions: Completion<TernCompletionResult>[] = [];
     let after = "";
     const { end, start } = data;
@@ -534,12 +532,6 @@ class CodeMirrorTernService {
     const CodeMirror = getCodeMirrorNamespaceFromEditor(cm);
 
     CodeMirror.on(obj, "shown", () => {
-      AnalyticsUtil.logEvent("AUTO_COMPLETE_SHOW", {
-        query,
-        numberOfResults: completions.filter(
-          (completion) => !completion.isHeader,
-        ).length,
-      });
       this.activeArgHints && this.remove(this.activeArgHints);
     });
     CodeMirror.on(obj, "close", () => this.remove(tooltip));

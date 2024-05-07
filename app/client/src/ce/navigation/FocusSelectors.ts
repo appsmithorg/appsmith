@@ -1,11 +1,6 @@
-import { matchPath } from "react-router";
-import {
-  BUILDER_CUSTOM_PATH,
-  BUILDER_PATH,
-  BUILDER_PATH_DEPRECATED,
-} from "constants/routes";
-import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
+import { getBaseUrlsForIDEType, getIDETypeByUrl } from "../entities/IDE/utils";
+import { matchPath } from "react-router";
 
 export const getSelectedDatasourceId = (path: string): string | undefined => {
   const entityInfo = identifyEntityFromPath(path);
@@ -14,25 +9,12 @@ export const getSelectedDatasourceId = (path: string): string | undefined => {
   }
 };
 
-export const getSelectedSegment = (path: string): string | undefined => {
-  const match = matchPath<{ entity: string }>(path, {
-    path: [
-      BUILDER_PATH_DEPRECATED + "/:entity",
-      BUILDER_PATH + "/:entity",
-      BUILDER_CUSTOM_PATH + "/:entity",
-    ],
-    exact: false,
-  });
-  if (!match) return undefined;
-  if (match.params.entity === "jsObjects") {
-    return EditorEntityTab.JS;
+export const getSelectedEntityUrl = (path: string): string | undefined => {
+  const ideType = getIDETypeByUrl(path);
+  const basePaths = getBaseUrlsForIDEType(ideType);
+  const entityPaths = basePaths.map((p) => `${p}/:entity*`);
+  const match = matchPath<{ entity: string }>(path, entityPaths);
+  if (match) {
+    return match.params.entity;
   }
-  if (
-    match.params.entity === "queries" ||
-    match.params.entity === "api" ||
-    match.params.entity === "saas"
-  ) {
-    return EditorEntityTab.QUERIES;
-  }
-  return EditorEntityTab.UI;
 };

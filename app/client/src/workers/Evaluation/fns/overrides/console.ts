@@ -4,7 +4,8 @@ import type {
   Methods,
   SourceEntity,
 } from "entities/AppsmithConsole";
-import { ENTITY_TYPE, Severity } from "entities/AppsmithConsole";
+import { Severity } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { klona } from "klona/lite";
 import moment from "moment";
 import type { TriggerMeta } from "@appsmith/sagas/ActionExecution/ActionExecutionSagas";

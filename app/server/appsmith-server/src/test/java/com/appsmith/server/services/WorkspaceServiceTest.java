@@ -13,7 +13,6 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.Asset;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
-import com.appsmith.server.domains.QWorkspace;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.InviteUsersDTO;
@@ -32,8 +31,8 @@ import com.appsmith.server.repositories.UserRepository;
 import com.appsmith.server.repositories.WorkspaceRepository;
 import com.appsmith.server.solutions.EnvironmentPermission;
 import com.appsmith.server.solutions.UserAndAccessManagementService;
-import com.mongodb.client.result.UpdateResult;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.RandomStringUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -45,10 +44,6 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.data.mongodb.core.MongoTemplate;
-import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Query;
-import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.multipart.FilePart;
 import org.springframework.security.test.context.support.WithUserDetails;
@@ -86,7 +81,6 @@ import static com.appsmith.server.constants.FieldName.ADMINISTRATOR;
 import static com.appsmith.server.constants.FieldName.DEVELOPER;
 import static com.appsmith.server.constants.FieldName.VIEWER;
 import static com.appsmith.server.helpers.TextUtils.generateDefaultRoleNameForResource;
-import static com.appsmith.server.repositories.ce.BaseAppsmithRepositoryCEImpl.fieldName;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
@@ -124,9 +118,6 @@ public class WorkspaceServiceTest {
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    MongoTemplate mongoTemplate;
 
     Workspace workspace;
 
@@ -1054,7 +1045,10 @@ public class WorkspaceServiceTest {
 
         Application application = new Application();
         application.setName("User Management Admin Test Application");
-        Mono<Application> applicationMono = applicationPageService.createApplication(application, workspace1.getId());
+        Mono<Application> applicationMono = applicationPageService
+                .createApplication(application, workspace1.getId())
+                .cache();
+        final String applicationId = applicationMono.block().getId();
 
         // Create datasource for this workspace
         Mono<Datasource> datasourceMono = workspaceService
@@ -1087,7 +1081,7 @@ public class WorkspaceServiceTest {
                 .flatMap(tuple -> workspaceService.findById(workspace1.getId(), READ_WORKSPACES));
 
         Mono<Application> readApplicationByNameMono = applicationService
-                .findByName("User Management Admin Test Application", READ_APPLICATIONS)
+                .getById(applicationId)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
@@ -1211,11 +1205,14 @@ public class WorkspaceServiceTest {
                 .single();
 
         // Create an application for this workspace
-        Mono<Application> applicationMono = workspaceMono.flatMap(workspace1 -> {
-            Application application = new Application();
-            application.setName("User Management Viewer Test Application");
-            return applicationPageService.createApplication(application, workspace1.getId());
-        });
+        Mono<Application> applicationMono = workspaceMono
+                .flatMap(workspace1 -> {
+                    Application application = new Application();
+                    application.setName("User Management Viewer Test Application");
+                    return applicationPageService.createApplication(application, workspace1.getId());
+                })
+                .cache();
+        final String applicationId = applicationMono.block().getId();
 
         Mono<Workspace> userAddedToWorkspaceMono = Mono.zip(workspaceMono, viewerPermissionGroupMono)
                 .flatMap(tuple -> {
@@ -1238,7 +1235,7 @@ public class WorkspaceServiceTest {
                 });
 
         Mono<Application> readApplicationByNameMono = applicationService
-                .findByName("User Management Viewer Test Application", READ_APPLICATIONS)
+                .getById(applicationId)
                 .switchIfEmpty(
                         Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application by name")));
 
@@ -1687,47 +1684,6 @@ public class WorkspaceServiceTest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    void testWorkspaceUpdate_checkAdditionalFieldsArePresentAfterUpdate() {
-        String testName = "testWorkspaceUpdate";
-        String additionalField = "testWorkspaceUpdate";
-        Workspace workspace = new Workspace();
-        workspace.setName(testName);
-        Workspace createdWorkspace = workspaceService.create(workspace).block();
-
-        Update updateAddAdditionalField = new Update().set(additionalField, true);
-        Query queryWorkspace =
-                new Query(Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()));
-        UpdateResult updateResult =
-                mongoTemplate.updateMulti(queryWorkspace, updateAddAdditionalField, Workspace.class);
-
-        assertThat(updateResult.wasAcknowledged()).isTrue();
-        assertThat(updateResult.getMatchedCount()).isEqualTo(1);
-        assertThat(updateResult.getModifiedCount()).isEqualTo(1);
-
-        Criteria criteriaAdditionalField = new Criteria()
-                .andOperator(
-                        Criteria.where(fieldName(QWorkspace.workspace.id)).is(createdWorkspace.getId()),
-                        Criteria.where(additionalField).exists(true));
-        Query queryWorkspaceWithAdditionalField = new Query(criteriaAdditionalField);
-
-        long countWorkspaceWithAdditionalField =
-                mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
-        assertThat(countWorkspaceWithAdditionalField).isEqualTo(1);
-
-        Workspace updateWorkspace = new Workspace();
-        updateWorkspace.setName(testName + " updated");
-        Workspace updatedWorkspace = workspaceService
-                .update(createdWorkspace.getId(), updateWorkspace)
-                .block();
-        assertThat(updatedWorkspace.getName()).isEqualTo(testName + " updated");
-
-        long countWorkspaceWithAdditionalFieldAfterUpdate =
-                mongoTemplate.count(queryWorkspaceWithAdditionalField, Workspace.class);
-        assertThat(countWorkspaceWithAdditionalFieldAfterUpdate).isEqualTo(1);
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     void testInviteDuplicateUsers_shouldReturnUniqueUsers() {
         String testName = "test";
         List<String> duplicateUsernames = List.of(testName + "user@test.com", testName + "user@test.com");
@@ -1752,5 +1708,73 @@ public class WorkspaceServiceTest {
         assertThat(userList).hasSize(1);
         User invitedUser = userList.get(0);
         assertThat(invitedUser.getUsername()).isEqualTo(testName + "user@test.com");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteInvalidEmailTooLongLocalPart() {
+        Workspace toCreate = new Workspace();
+        toCreate.setName("inviteInvalidEmail");
+        toCreate.setDomain("example.com");
+        toCreate.setWebsite("https://example.com");
+
+        Workspace workspace = workspaceService.create(toCreate).block();
+
+        // Do the assertions now
+        assertThat(workspace).isNotNull();
+        assertThat(workspace.getName()).isEqualTo("inviteInvalidEmail");
+
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        String viewerPermissionGroupId = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst()
+                .get()
+                .getId();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(List.of(RandomStringUtils.randomAlphanumeric(65) + "@example.com"));
+        inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
+
+        Mono<List<User>> createdUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
+
+        StepVerifier.create(createdUsers).verifyErrorMessage("Please enter a valid parameter usernames.");
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void inviteInvalidEmailTooLongDomainPart() {
+        Workspace toCreate = new Workspace();
+        toCreate.setName("inviteInvalidEmail");
+        toCreate.setDomain("example.com");
+        toCreate.setWebsite("https://example.com");
+
+        Workspace workspace = workspaceService.create(toCreate).block();
+
+        // Do the assertions now
+        assertThat(workspace).isNotNull();
+        assertThat(workspace.getName()).isEqualTo("inviteInvalidEmail");
+
+        List<PermissionGroup> permissionGroups = permissionGroupRepository
+                .findAllById(workspace.getDefaultPermissionGroups())
+                .collectList()
+                .block();
+
+        String viewerPermissionGroupId = permissionGroups.stream()
+                .filter(permissionGroup -> permissionGroup.getName().startsWith(VIEWER))
+                .findFirst()
+                .get()
+                .getId();
+
+        InviteUsersDTO inviteUsersDTO = new InviteUsersDTO();
+        inviteUsersDTO.setUsernames(List.of("abcd@" + RandomStringUtils.randomAlphanumeric(255) + ".com"));
+        inviteUsersDTO.setPermissionGroupId(viewerPermissionGroupId);
+
+        Mono<List<User>> createdUsers = userAndAccessManagementService.inviteUsers(inviteUsersDTO, origin);
+
+        StepVerifier.create(createdUsers).verifyErrorMessage("Please enter a valid parameter usernames.");
     }
 }

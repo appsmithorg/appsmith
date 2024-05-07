@@ -4,17 +4,13 @@ import {
   curlImportPageURL,
   datasourcesEditorIdURL,
   jsCollectionIdURL,
-  jsCollectionListURL,
-  queryListURL,
-  widgetListURL,
 } from "@appsmith/RouteBuilder";
 import { PluginType } from "entities/Action";
-import { EditorEntityTab } from "@appsmith/entities/IDE/constants";
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity } from "navigation/FocusEntity";
 import { getQueryEntityItemUrl } from "../pages/Editor/IDE/EditorPane/Query/utils";
 
-export function setSelectedDatasource(id: string | undefined) {
+export function setSelectedDatasource(id?: string) {
   if (id) {
     history.replace(
       datasourcesEditorIdURL({
@@ -27,7 +23,7 @@ export function setSelectedDatasource(id: string | undefined) {
   }
 }
 
-export function setSelectedQuery(entityInfo: FocusEntityInfo) {
+export function setSelectedQuery(entityInfo?: FocusEntityInfo) {
   if (entityInfo && entityInfo.params.pageId) {
     if ([FocusEntity.API, FocusEntity.QUERY].includes(entityInfo.entity)) {
       const { apiId, pluginPackageName, queryId } = entityInfo.params;
@@ -53,38 +49,21 @@ export function setSelectedQuery(entityInfo: FocusEntityInfo) {
   }
 }
 
-export function setSelectedJSObject(focusInfo: FocusEntityInfo) {
-  if (focusInfo.entity === FocusEntity.JS_OBJECT) {
+export function setSelectedJSObject(focusInfo?: FocusEntityInfo) {
+  if (focusInfo && focusInfo.entity === FocusEntity.JS_OBJECT) {
     history.replace(
       jsCollectionIdURL({
         collectionId: focusInfo.id,
       }),
+      { invokedBy: NavigationMethod.ContextSwitching },
     );
   }
 }
 
-export function setSelectedSegment(tab?: EditorEntityTab) {
-  if (tab) {
-    switch (tab) {
-      case EditorEntityTab.JS:
-        history.replace(jsCollectionListURL({ persistExistingParams: true }), {
-          invokedBy: NavigationMethod.ContextSwitching,
-        });
-        break;
-      case EditorEntityTab.QUERIES:
-        history.replace(queryListURL({ persistExistingParams: true }), {
-          invokedBy: NavigationMethod.ContextSwitching,
-        });
-        break;
-      case EditorEntityTab.UI:
-        history.replace(widgetListURL({ persistExistingParams: true }), {
-          invokedBy: NavigationMethod.ContextSwitching,
-        });
-        break;
-      default:
-        history.replace(builderURL({ persistExistingParams: true }), {
-          invokedBy: NavigationMethod.ContextSwitching,
-        });
-    }
+export function setSelectedEntityUrl(url?: string) {
+  if (url) {
+    history.replace(builderURL({ suffix: url }), {
+      invokedBy: NavigationMethod.ContextSwitching,
+    });
   }
 }

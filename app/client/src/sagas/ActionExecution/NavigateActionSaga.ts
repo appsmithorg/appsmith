@@ -1,8 +1,11 @@
-import { call, select } from "redux-saga/effects";
+import { call, put, select } from "redux-saga/effects";
 import { getCurrentPageId, getPageList } from "selectors/editorSelectors";
 import _ from "lodash";
-import type { Page } from "@appsmith/constants/ReduxActionConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import {
+  ReduxActionTypes,
+  type Page,
+} from "@appsmith/constants/ReduxActionConstants";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
 import { APP_MODE } from "entities/App";
 import { getQueryStringfromObject } from "@appsmith/entities/URLRedirect/URLAssembly";
@@ -58,6 +61,9 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
       history.push(path);
       if (currentPageId === page.pageId) {
         yield call(setDataUrl);
+        yield put({
+          type: ReduxActionTypes.TRIGGER_EVAL,
+        });
       }
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(path, "_blank");
@@ -88,6 +94,7 @@ export default function* navigateActionSaga(action: TNavigateToDescription) {
     } else if (target === NavigationTargetType.NEW_WINDOW) {
       window.open(url, "_blank");
     }
+
     AppsmithConsole.info({
       text: `navigateTo('${url}') was triggered`,
       state: {

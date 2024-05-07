@@ -1,5 +1,11 @@
 import type { RefObject } from "react";
-import React, { useEffect, useRef, useCallback, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
@@ -9,15 +15,14 @@ import type { AppState } from "@appsmith/reducers";
 import type { JSEditorRouteParams } from "constants/routes";
 import {
   createMessage,
-  DEBUGGER_LOGS,
   DEBUGGER_ERRORS,
+  DEBUGGER_LOGS,
   EXECUTING_FUNCTION,
   NO_JS_FUNCTION_RETURN_VALUE,
   UPDATING_JS_COLLECTION,
 } from "@appsmith/constants/messages";
 import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
-import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
 import type { JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
@@ -26,22 +31,14 @@ import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScre
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { DEBUGGER_TAB_KEYS } from "./Debugger/helpers";
+import type { BottomTab } from "./EntityBottomTabs";
 import EntityBottomTabs from "./EntityBottomTabs";
 import { TAB_MIN_HEIGHT } from "design-system-old";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { getIsSavingEntity } from "selectors/editorSelectors";
 import { getJSResponseViewState } from "./utils";
-import {
-  getDebuggerSelectedTab,
-  getFilteredErrors,
-  getResponsePaneHeight,
-} from "selectors/debuggerSelectors";
+import { getFilteredErrors } from "selectors/debuggerSelectors";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import {
-  setDebuggerSelectedTab,
-  setResponsePaneHeight,
-  showDebugger,
-} from "actions/debuggerActions";
 import {
   NoResponse,
   ResponseTabErrorContainer,
@@ -50,8 +47,15 @@ import {
 import LogHelper from "./Debugger/ErrorLogs/components/LogHelper";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { SourceEntity, Log } from "entities/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import { CloseDebugger } from "./Debugger/DebuggerTabs";
+import { getJsPaneDebuggerState } from "selectors/jsPaneSelectors";
+import { setJsPaneDebuggerState } from "actions/jsPaneActions";
+import { getIDEViewMode } from "selectors/ideSelectors";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import ErrorLogs from "./Debugger/Errors";
+import { isBrowserExecutionAllowed } from "@appsmith/utils/actionExecutionUtils";
+import JSRemoteExecutionView from "@appsmith/components/JSRemoteExecutionView";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
@@ -165,6 +169,13 @@ function JSResponseView(props: Props) {
   let errorMessage: string | undefined;
   let errorType = "ValidationError";
 
+  const localExecutionAllowed = useMemo(() => {
+    return isBrowserExecutionAllowed(
+      jsCollectionData?.config,
+      currentFunction || undefined,
+    );
+  }, [jsCollectionData?.config, currentFunction]);
+
   // action source for analytics.
   let actionSource: SourceEntity = {
     type: ENTITY_TYPE.JSACTION,
@@ -210,7 +221,10 @@ function JSResponseView(props: Props) {
       }
     }
   } catch (e) {}
-  const tabs = [
+
+  const ideViewMode = useSelector(getIDEViewMode);
+
+  const tabs: BottomTab[] = [
     {
       key: "response",
       title: "Response",
@@ -235,38 +249,45 @@ function JSResponseView(props: Props) {
           <ResponseTabWrapper className={errors.length ? "disable" : ""}>
             <ResponseViewer>
               <>
-                {responseStatus === JSResponseState.NoResponse && (
-                  <NoResponse
-                    isButtonDisabled={disabled}
-                    isQueryRunning={isLoading}
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    onRunClick={onButtonClick}
-                  />
+                {localExecutionAllowed && (
+                  <>
+                    {responseStatus === JSResponseState.NoResponse && (
+                      <NoResponse
+                        isButtonDisabled={disabled}
+                        isQueryRunning={isLoading}
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        onRunClick={onButtonClick}
+                      />
+                    )}
+                    {responseStatus === JSResponseState.IsExecuting && (
+                      <LoadingOverlayScreen theme={props.theme}>
+                        {createMessage(EXECUTING_FUNCTION)}
+                      </LoadingOverlayScreen>
+                    )}
+                    {responseStatus === JSResponseState.NoReturnValue && (
+                      <NoReturnValueWrapper>
+                        <Text kind="body-m">
+                          {createMessage(
+                            NO_JS_FUNCTION_RETURN_VALUE,
+                            currentFunction?.name,
+                          )}
+                        </Text>
+                      </NoReturnValueWrapper>
+                    )}
+                    {responseStatus === JSResponseState.ShowResponse && (
+                      <ReadOnlyEditor
+                        folding
+                        height={"100%"}
+                        input={{
+                          value: response as string,
+                        }}
+                      />
+                    )}
+                  </>
                 )}
-                {responseStatus === JSResponseState.IsExecuting && (
-                  <LoadingOverlayScreen theme={props.theme}>
-                    {createMessage(EXECUTING_FUNCTION)}
-                  </LoadingOverlayScreen>
-                )}
-                {responseStatus === JSResponseState.NoReturnValue && (
-                  <NoReturnValueWrapper>
-                    <Text kind="body-m">
-                      {createMessage(
-                        NO_JS_FUNCTION_RETURN_VALUE,
-                        currentFunction?.name,
-                      )}
-                    </Text>
-                  </NoReturnValueWrapper>
-                )}
-                {responseStatus === JSResponseState.ShowResponse && (
-                  <ReadOnlyEditor
-                    folding
-                    height={"100%"}
-                    input={{
-                      value: response as string,
-                    }}
-                  />
+                {!localExecutionAllowed && (
+                  <JSRemoteExecutionView collectionData={jsCollectionData} />
                 )}
                 {responseStatus === JSResponseState.IsUpdating && (
                   <LoadingOverlayScreen theme={props.theme}>
@@ -280,36 +301,40 @@ function JSResponseView(props: Props) {
       ),
     },
     {
-      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
-      title: createMessage(DEBUGGER_ERRORS),
-      count: errorCount,
-      panelComponent: <ErrorLogs />,
-    },
-    {
       key: DEBUGGER_TAB_KEYS.LOGS_TAB,
       title: createMessage(DEBUGGER_LOGS),
       panelComponent: <DebuggerLogs searchQuery={jsObject?.name} />,
     },
   ];
 
+  if (ideViewMode === EditorViewMode.FullScreen) {
+    tabs.push({
+      key: DEBUGGER_TAB_KEYS.ERROR_TAB,
+      title: createMessage(DEBUGGER_ERRORS),
+      count: errorCount,
+      panelComponent: <ErrorLogs />,
+    });
+  }
+
   // get the selected tab from the store.
-  const selectedResponseTab = useSelector(getDebuggerSelectedTab);
+  const { open, responseTabHeight, selectedTab } = useSelector(
+    getJsPaneDebuggerState,
+  );
+
   // set the selected tab in the store.
   const setSelectedResponseTab = useCallback((selectedTab: string) => {
-    dispatch(setDebuggerSelectedTab(selectedTab));
+    dispatch(setJsPaneDebuggerState({ selectedTab }));
   }, []);
-  // get the height of the response pane.
-  const responseTabHeight = useSelector(getResponsePaneHeight);
   // set the height of the response pane on resize.
   const setResponseHeight = useCallback((height: number) => {
-    dispatch(setResponsePaneHeight(height));
+    dispatch(setJsPaneDebuggerState({ responseTabHeight: height }));
   }, []);
 
   // close the debugger
-  const onClose = () => dispatch(showDebugger(false));
+  const onClose = () => dispatch(setJsPaneDebuggerState({ open: false }));
 
   // Do not render if header tab is selected in the bottom bar.
-  return !(selectedResponseTab === DEBUGGER_TAB_KEYS.HEADER_TAB) ? (
+  return open && selectedTab ? (
     <ResponseContainer
       className="t--js-editor-bottom-pane-container"
       ref={panelRef}
@@ -323,7 +348,7 @@ function JSResponseView(props: Props) {
         <EntityBottomTabs
           expandedHeight={`${ActionExecutionResizerHeight}px`}
           onSelect={setSelectedResponseTab}
-          selectedTabKey={selectedResponseTab}
+          selectedTabKey={selectedTab}
           tabs={tabs}
         />
 

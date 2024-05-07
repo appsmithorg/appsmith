@@ -72,7 +72,7 @@ jobs:
         uses: depot/setup-action@v1
 
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
@@ -135,7 +135,7 @@ jobs:
       # In case of run-id provided download the artifact from the previous run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id != 0
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: cicontainer.tar.gz
           key: docker-image-${{ inputs.previous-workflow-run-id }}
@@ -143,7 +143,7 @@ jobs:
       # In case of run-id is 0 download the artifact from the current run
       - name: Download Docker image artifact
         if: inputs.previous-workflow-run-id == 0
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: cicontainer.tar.gz
           key: docker-image-${{github.run_id}}
@@ -167,7 +167,7 @@ jobs:
           mkdir -p ~/git-server/keys
           mkdir -p ~/git-server/repos
           docker run --name test-event-driver -d -p 22:22 -p 5001:5001 -p 3306:3306 \
-          -p 5432:5432 -p 28017:27017 -p 25:25 -p 5000:5000 -p 3001:3000 -p 6001:6001 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
+          -p 5432:5432 -p 28017:27017 -p 25:25 -p 4200:4200 -p 5000:5000 -p 3001:3000 -p 6001:6001 -p 8001:8000 --privileged --pid=host --ipc=host --volume /:/host -v ~/git-server/keys:/git-server/keys \
           -v ~/git-server/repos:/git-server/repos  appsmith/test-event-driver:latest
           docker run --name cloud-services -d -p 8000:80 -p 8090:8090 \
             --privileged --pid=host --ipc=host --add-host=host.docker.internal:host-gateway\
@@ -210,18 +210,20 @@ jobs:
             cicontainer
 
       - name: Use Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version-file: app/client/package.json
 
-      # actions/setup-node@v3 doesn’t work properly with Yarn 3
+      # actions/setup-node@v4 doesn’t work properly with Yarn 3
       # when the project lives in a subdirectory: https://github.com/actions/setup-node/issues/488
       # Restoring the cache manually instead
       - name: Restore Yarn cache
         if: steps.run_result.outputs.run_result != 'success'
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
-          path: app/client/.yarn/cache
+          path: |
+            app/client/.yarn/cache
+            app/client/node_modules/.cache/webpack/
           key: v1-yarn3-${{ hashFiles('app/client/yarn.lock') }}
 
       # Install all the dependencies
@@ -301,15 +303,12 @@ jobs:
           CYPRESS_TESTPASSWORD4: ${{ secrets.CYPRESS_TESTPASSWORD4 }}
           CYPRESS_S3_ACCESS_KEY: ${{ secrets.CYPRESS_S3_ACCESS_KEY }}
           CYPRESS_S3_SECRET_KEY: ${{ secrets.CYPRESS_S3_SECRET_KEY }}
-          CYPRESS_GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
           CYPRESS_AIRTABLE_BEARER: ${{ secrets.AIRTABLE_BEARER }}
           CYPRESS_ORACLE_HOST: ${{ secrets.ORACLE_HOST }}
           CYPRESS_ORACLE_SERVICE: ${{ secrets.ORACLE_SERVICE }}
           CYPRESS_ORACLE_USERNAME: ${{ secrets.ORACLE_USERNAME }}
           CYPRESS_ORACLE_PASSWORD: ${{ secrets.ORACLE_PASSWORD }}
           CYPRESS_FIRESTORE_PRIVATE_KEY: ${{ secrets.FIRESTORE_PRIVATE_KEY }}
-          CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN: ${{ secrets.CYPRESS_GITHUB_PERSONAL_ACCESS_TOKEN }}
-          CYPRESS_TEST_GITHUB_USER_NAME: ${{ secrets.CYPRESS_TEST_GITHUB_USER_NAME }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_ID }}
           CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GOOGLE_CLIENT_SECRET }}
           CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID: ${{ secrets.CYPRESS_APPSMITH_OAUTH2_GITHUB_CLIENT_ID }}

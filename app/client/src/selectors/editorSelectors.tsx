@@ -18,17 +18,8 @@ import type {
   WidgetSpace,
 } from "constants/CanvasEditorConstants";
 import { PLACEHOLDER_APP_SLUG, PLACEHOLDER_PAGE_SLUG } from "constants/routes";
-import {
-  DefaultDimensionMap,
-  MAIN_CONTAINER_WIDGET_ID,
-  RenderModes,
-} from "constants/WidgetConstants";
+import { DefaultDimensionMap, RenderModes } from "constants/WidgetConstants";
 import { APP_MODE } from "entities/App";
-import type {
-  WidgetEntity,
-  WidgetEntityConfig,
-} from "@appsmith/entities/DataTree/types";
-import type { DataTree, ConfigTree } from "entities/DataTree/dataTreeTypes";
 import { find, sortBy } from "lodash";
 import {
   getDataTree,
@@ -43,26 +34,19 @@ import {
   getJSCollections,
 } from "@appsmith/selectors/entitiesSelector";
 import { checkIsDropTarget } from "WidgetProvider/factory/helpers";
-import {
-  buildChildWidgetTree,
-  createCanvasWidget,
-  createLoadingWidget,
-} from "utils/widgetRenderUtils";
-import type { ContainerWidgetProps } from "widgets/ContainerWidget/widget";
+import { buildChildWidgetTree } from "utils/widgetRenderUtils";
 import { LOCAL_STORAGE_KEYS } from "utils/localStorage";
 import type { CanvasWidgetStructure } from "WidgetProvider/constants";
 import { denormalize } from "utils/canvasStructureHelpers";
 import { isAutoHeightEnabledForWidget } from "widgets/WidgetUtils";
 import WidgetFactory from "WidgetProvider/factory";
 import { isAirgapped } from "@appsmith/utils/airgapHelpers";
-import { nestDSL } from "@shared/dsl";
 import { getIsAnonymousDataPopupVisible } from "./onboardingSelectors";
 import { WDS_V2_WIDGET_MAP } from "widgets/wds/constants";
-import { selectFeatureFlagCheck } from "@appsmith/selectors/featureFlagsSelectors";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemType } from "./layoutSystemSelectors";
 import { protectedModeSelector } from "./gitSyncSelectors";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 const getIsDraggingOrResizing = (state: AppState) =>
   state.ui.widgetDragResize.isResizing || state.ui.widgetDragResize.isDragging;
@@ -322,29 +306,23 @@ export const getCurrentPageName = createSelector(
 
 export const getWidgetCards = createSelector(
   getIsAutoLayout,
-  (_state: AppState) =>
-    selectFeatureFlagCheck(_state, FEATURE_FLAG.ab_wds_enabled),
-  (isAutoLayout, isWDSEnabled) => {
+  getIsAnvilLayout,
+  (isAutoLayout, isAnvilLayout) => {
     const widgetConfigs = WidgetFactory.getConfigs();
-
-    const cards = Object.values(widgetConfigs).filter((config) => {
-      // if wds_vs is not enabled, hide all wds_v2 widgets
-      if (
-        Object.values(WDS_V2_WIDGET_MAP).includes(config.type) &&
-        isWDSEnabled === false
-      ) {
-        return false;
+    const widgetConfigsArray = Object.values(widgetConfigs);
+    const layoutSystemBasesWidgets = widgetConfigsArray.filter((config) => {
+      const isAnvilWidget = Object.values(WDS_V2_WIDGET_MAP).includes(
+        config.type,
+      );
+      if (isAnvilLayout) {
+        return isAnvilWidget;
       }
-
+      return !isAnvilWidget;
+    });
+    const cards = layoutSystemBasesWidgets.filter((config) => {
       if (isAirgapped()) {
         return config.widgetName !== "Map" && !config.hideCard;
       }
-
-      // if wds is enabled, only show the wds_v2 widgets
-      if (isWDSEnabled === true) {
-        return Object.values(WDS_V2_WIDGET_MAP).includes(config.type);
-      }
-
       return !config.hideCard;
     });
 
@@ -357,6 +335,7 @@ export const getWidgetCards = createSelector(
         key,
         searchTags,
         tags,
+        thumbnailSVG,
         type,
       } = config;
       let { columns, rows } = config;
@@ -367,6 +346,10 @@ export const getWidgetCards = createSelector(
         columns = autoLayoutConfig?.defaults?.columns ?? columns;
       }
 
+      const { IconCmp, ThumbnailCmp } = WidgetFactory.getWidgetMethods(
+        config.type,
+      );
+
       return {
         key,
         type,
@@ -375,6 +358,9 @@ export const getWidgetCards = createSelector(
         detachFromLayout,
         displayName,
         icon: iconSVG,
+        thumbnail: thumbnailSVG,
+        IconCmp,
+        ThumbnailCmp,
         searchTags,
         tags,
         isDynamicHeight: isAutoHeightEnabledForWidget(config as WidgetProps),
@@ -459,79 +445,6 @@ export const computeMainContainerWidget = (
   rightColumn: mainCanvasProps.width,
   minHeight: mainCanvasProps.height,
 });
-
-export const getMainContainer = (
-  canvasWidgets: CanvasWidgetsReduxState,
-  evaluatedDataTree: DataTree,
-  configTree: ConfigTree,
-  mainCanvasProps: MainCanvasReduxState,
-) => {
-  const canvasWidget = computeMainContainerWidget(
-    canvasWidgets[MAIN_CONTAINER_WIDGET_ID],
-    mainCanvasProps,
-  );
-
-  //TODO: Need to verify why `evaluatedDataTree` is required here.
-  const evaluatedWidget = find(evaluatedDataTree, {
-    widgetId: MAIN_CONTAINER_WIDGET_ID,
-  }) as WidgetEntity;
-  const evaluatedWidgetConfig = find(configTree, {
-    widgetId: MAIN_CONTAINER_WIDGET_ID,
-  }) as WidgetEntityConfig;
-  return createCanvasWidget(
-    canvasWidget,
-    evaluatedWidget,
-    evaluatedWidgetConfig,
-  );
-};
-
-export const getCanvasWidgetDsl = createSelector(
-  getCanvasWidgets,
-  getDataTree,
-  getConfigTree,
-  getLoadingEntities,
-  getMainCanvasProps,
-  (
-    canvasWidgets: CanvasWidgetsReduxState,
-    evaluatedDataTree,
-    configTree,
-    loadingEntities,
-    mainCanvasProps,
-  ): ContainerWidgetProps<WidgetProps> => {
-    const widgets: Record<string, WidgetEntity> = {
-      [MAIN_CONTAINER_WIDGET_ID]: getMainContainer(
-        canvasWidgets,
-        evaluatedDataTree,
-        configTree,
-        mainCanvasProps,
-      ),
-    };
-    Object.keys(canvasWidgets)
-      .filter((each) => each !== MAIN_CONTAINER_WIDGET_ID)
-      .forEach((widgetKey) => {
-        const canvasWidget = canvasWidgets[widgetKey];
-        const evaluatedWidget = find(evaluatedDataTree, {
-          widgetId: widgetKey,
-        }) as WidgetEntity;
-        const evaluatedWidgetConfig = find(configTree, {
-          widgetId: widgetKey,
-        });
-        if (evaluatedWidget) {
-          widgets[widgetKey] = createCanvasWidget(
-            canvasWidget,
-            evaluatedWidget,
-            evaluatedWidgetConfig,
-          );
-        } else {
-          widgets[widgetKey] = createLoadingWidget(canvasWidget);
-        }
-        widgets[widgetKey].isLoading = loadingEntities.has(
-          canvasWidget.widgetName,
-        );
-      });
-    return nestDSL(widgets);
-  },
-);
 
 export const getChildWidgets = createSelector(
   [
@@ -959,6 +872,20 @@ export const getApplicationLastDeployedAt = (state: AppState) =>
 export const previewModeSelector = (state: AppState) => {
   return state.ui.editor.isPreviewMode;
 };
+
+/**
+ * This selector is used to identify if the application is in an edit-only state,
+ * meaning it is in the canvas render mode but not in preview or protected mode.
+ * This is useful for enabling or disabling certain UI elements or functionalities
+ * that are only applicable in this specific mode.
+ */
+export const isEditOnlyModeSelector = createSelector(
+  getRenderMode,
+  previewModeSelector,
+  protectedModeSelector,
+  (renderMode, isPreviewMode, isProtectedMode) =>
+    renderMode === RenderModes.CANVAS && !(isPreviewMode || isProtectedMode),
+);
 
 /**
  * returns the `state.ui.editor.zoomLevel`

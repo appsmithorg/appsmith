@@ -1,10 +1,10 @@
 import React, { useCallback, useEffect, useState } from "react";
 import styled from "styled-components";
-import { List, Text } from "design-system";
+import { Flex, List, Text } from "design-system";
 import { useSelector } from "react-redux";
 import {
-  getActions,
   getCurrentPageId,
+  getDatasourceUsageCountForApp,
   getDatasources,
   getDatasourcesGroupedByPluginCategory,
   getPlugins,
@@ -15,7 +15,7 @@ import {
   integrationEditorURL,
 } from "@appsmith/RouteBuilder";
 import { getSelectedDatasourceId } from "@appsmith/navigation/FocusSelectors";
-import { countBy, keyBy } from "lodash";
+import { get, keyBy } from "lodash";
 import CreateDatasourcePopover from "./CreateDatasourcePopover";
 import { useLocation } from "react-router";
 import {
@@ -32,21 +32,16 @@ import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { getHasCreateDatasourcePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { EmptyState } from "../EditorPane/components/EmptyState";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
 
 const PaneContainer = styled.div`
   width: 300px;
 `;
 
 const PaneBody = styled.div`
-  padding: 12px;
+  padding: var(--ads-v2-spaces-3) 0;
   height: calc(100vh - 120px);
   overflow-y: scroll;
-`;
-
-const SubListContainer = styled.div`
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
 `;
 
 const DatasourceIcon = styled.img`
@@ -59,7 +54,12 @@ const StyledList = styled(List)`
   gap: 0;
 `;
 
-const DataSidePane = () => {
+interface DataSidePaneProps {
+  dsUsageSelector?: (...args: any[]) => Record<string, string>;
+}
+
+const DataSidePane = (props: DataSidePaneProps) => {
+  const { dsUsageSelector = getDatasourceUsageCountForApp } = props;
   const editorType = useEditorType(history.location.pathname);
   const pageId = useSelector(getCurrentPageId) as string;
   const [currentSelectedDatasource, setCurrentSelectedDatasource] = useState<
@@ -69,8 +69,7 @@ const DataSidePane = () => {
   const groupedDatasources = useSelector(getDatasourcesGroupedByPluginCategory);
   const plugins = useSelector(getPlugins);
   const groupedPlugins = keyBy(plugins, "id");
-  const actions = useSelector(getActions);
-  const actionCount = countBy(actions, "config.datasource.id");
+  const dsUsageMap = useSelector((state) => dsUsageSelector(state, editorType));
   const goToDatasource = useCallback((id: string) => {
     history.push(datasourcesEditorIdURL({ datasourceId: id }));
   }, []);
@@ -119,28 +118,42 @@ const DataSidePane = () => {
             onClick={canCreateDatasource ? addButtonClickHandler : undefined}
           />
         ) : null}
-        {Object.entries(groupedDatasources).map(([key, value]) => (
-          <SubListContainer key={key}>
-            <Text kind="heading-xs">{key}</Text>
-            <StyledList
-              items={value.map((data) => ({
-                className: "t--datasource",
-                title: data.name,
-                onClick: () => goToDatasource(data.id),
-                description: `${
-                  actionCount[data.id] || "No"
-                } queries in this ${editorType}`,
-                descriptionType: "block",
-                isSelected: currentSelectedDatasource === data.id,
-                startIcon: (
-                  <DatasourceIcon
-                    src={groupedPlugins[data.pluginId].iconLocation}
-                  />
-                ),
-              }))}
-            />
-          </SubListContainer>
-        ))}
+        <Flex
+          flexDirection={"column"}
+          gap="spaces-4"
+          overflowY="auto"
+          px="spaces-3"
+        >
+          {Object.entries(groupedDatasources).map(([key, value]) => (
+            <Flex flexDirection={"column"} key={key}>
+              <Flex px="spaces-3" py="spaces-1">
+                <Text
+                  className="overflow-hidden overflow-ellipsis whitespace-nowrap"
+                  kind="body-s"
+                >
+                  {key}
+                </Text>
+              </Flex>
+              <StyledList
+                items={value.map((data) => ({
+                  className: "t--datasource",
+                  title: data.name,
+                  onClick: () => goToDatasource(data.id),
+                  description: get(dsUsageMap, data.id, ""),
+                  descriptionType: "block",
+                  isSelected: currentSelectedDatasource === data.id,
+                  startIcon: (
+                    <DatasourceIcon
+                      src={getAssetUrl(
+                        groupedPlugins[data.pluginId].iconLocation,
+                      )}
+                    />
+                  ),
+                }))}
+              />
+            </Flex>
+          ))}
+        </Flex>
       </PaneBody>
     </PaneContainer>
   );

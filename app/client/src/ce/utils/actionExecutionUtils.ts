@@ -1,4 +1,5 @@
 import type { Action } from "entities/Action";
+import { ActionExecutionContext } from "entities/Action";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import type { ApplicationPayload } from "@appsmith/constants/ReduxActionConstants";
 import store from "store";
@@ -7,6 +8,7 @@ import { getDatasource } from "@appsmith/selectors/entitiesSelector";
 import { getCurrentEnvironmentDetails } from "@appsmith/selectors/environmentSelectors";
 import type { Plugin } from "api/PluginApi";
 import { get, isNil } from "lodash";
+import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 
 export function getPluginActionNameToDisplay(action: Action) {
   return action.name;
@@ -65,6 +67,7 @@ export function getActionExecutionAnalytics(
     isMock: !!datasource?.isMock,
     actionId: action?.id,
     inputParams: Object.keys(params).length,
+    source: ActionExecutionContext.EVALUATION_ACTION_TRIGGER, // Used in analytic events to understand who triggered action execution
   };
 
   if (!!currentApp) {
@@ -81,3 +84,24 @@ export function getActionExecutionAnalytics(
 
   return resultObj;
 }
+
+/**
+ * Function to check if the browser execution is allowed for the action
+ * This is just for code splitting, main feature is in EE
+ * */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function isBrowserExecutionAllowed(..._args: any[]) {
+  return true;
+}
+
+// Function to extract the test payload from the collection data
+export const getTestPayloadFromCollectionData = (
+  collectionData: JSCollectionData | undefined,
+): string => {
+  if (!collectionData) return "";
+  const activeJSActionId = collectionData?.activeJSActionId;
+  const testPayload: Record<string, unknown> | undefined = collectionData?.data
+    ?.testPayload as Record<string, unknown>;
+  if (!activeJSActionId || !testPayload) return "";
+  return (testPayload[activeJSActionId] as string) || "";
+};

@@ -9,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.StringUtils;
 
@@ -25,6 +26,7 @@ import static com.appsmith.server.constants.FieldName.DEFAULT;
 @Setter
 @ToString
 @Document
+@FieldNameConstants
 @NoArgsConstructor
 public class UserData extends BaseDomain {
 
@@ -53,12 +55,12 @@ public class UserData extends BaseDomain {
     private String releaseNotesViewedVersion;
 
     // list of workspace ids that were recently accessed by the user
-    @Deprecated
+    @Deprecated(forRemoval = true)
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedWorkspaceIds;
 
     // list of application ids that were recently accessed by the user
-    @Deprecated
+    @Deprecated(forRemoval = true)
     @JsonView(Views.Public.class)
     private List<String> recentlyUsedAppIds;
 
@@ -102,4 +104,6 @@ public class UserData extends BaseDomain {
     public UserData(String userId) {
         this.userId = userId;
     }
+
+    public static class Fields extends BaseDomain.Fields {}
 }

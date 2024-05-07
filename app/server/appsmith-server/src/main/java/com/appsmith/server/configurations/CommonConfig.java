@@ -1,6 +1,8 @@
 package com.appsmith.server.configurations;
 
+import com.appsmith.util.JSONPrettyPrinter;
 import com.appsmith.util.SerializationUtils;
+import com.fasterxml.jackson.core.PrettyPrinter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -63,8 +65,8 @@ public class CommonConfig {
     @Value("${disable.telemetry:true}")
     private boolean isTelemetryDisabled;
 
-    @Value("${appsmith.rts.port:8091}")
-    private String rtsPort;
+    @Value("${appsmith.micrometer.tracing.detail.enabled:false}")
+    private boolean tracingDetail;
 
     private List<String> allowedDomains;
 
@@ -88,8 +90,13 @@ public class CommonConfig {
     }
 
     @Bean
+    public PrettyPrinter prettyPrinter() {
+        return new JSONPrettyPrinter();
+    }
+
+    @Bean
     public ObjectMapper objectMapper() {
-        return SerializationUtils.getDefaultObjectMapper();
+        return SerializationUtils.getDefaultObjectMapper(null);
     }
 
     @Bean
@@ -131,10 +138,6 @@ public class CommonConfig {
     public void setSignupDisabled(@Value("${signup.disabled}") String value) {
         // If `true`, then disable signup. If anything else, including empty string, then signups will be enabled.
         isSignupDisabled = "true".equalsIgnoreCase(value);
-    }
-
-    public String getRtsBaseUrl() {
-        return "http://127.0.0.1:" + rtsPort;
     }
 
     public boolean isMongoUptoDate() {

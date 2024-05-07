@@ -1,8 +1,4 @@
-import type {
-  ConfigTree,
-  DataTree,
-  UnEvalTree,
-} from "entities/DataTree/dataTreeTypes";
+import type { DataTree, UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { dataTreeEvaluator } from "./handlers/evalTree";
 import type { DataTreeDiff } from "@appsmith/workers/Evaluation/evaluationUtils";
 import type { EvalMetaUpdates } from "@appsmith/workers/common/DataTreeEvaluator/types";
@@ -13,7 +9,11 @@ import { MessageType, sendMessage } from "utils/MessageUtil";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import type { UpdateDataTreeMessageData } from "sagas/EvalWorkerActionSagas";
 import type { JSUpdate } from "utils/JSPaneUtils";
-import { generateOptimisedUpdatesAndSetPrevState } from "./helpers";
+import {
+  generateOptimisedUpdatesAndSetPrevState,
+  getNewDataTreeUpdates,
+  uniqueOrderUpdatePaths,
+} from "./helpers";
 
 export function evalTreeWithChanges(
   updatedValuePaths: string[][],
@@ -31,7 +31,6 @@ export function evalTreeWithChanges(
   let staleMetaIds: string[] = [];
   const removedPaths: Array<{ entityId: string; fullpath: string }> = [];
   let unevalTree: UnEvalTree = {};
-  let configTree: ConfigTree = {};
 
   if (dataTreeEvaluator) {
     const setupUpdateTreeResponse =
@@ -49,8 +48,6 @@ export function evalTreeWithChanges(
 
     dataTree = makeEntityConfigsAsObjProperties(dataTreeEvaluator.evalTree, {
       evalProps: dataTreeEvaluator.evalProps,
-      identicalEvalPathsPatches:
-        dataTreeEvaluator.getEvalPathsIdenticalToState(),
     });
 
     /** Make sure evalMetaUpdates is sanitized to prevent postMessage failure */
@@ -60,13 +57,27 @@ export function evalTreeWithChanges(
 
     staleMetaIds = updateResponse.staleMetaIds;
     unevalTree = dataTreeEvaluator.getOldUnevalTree();
-    configTree = dataTreeEvaluator.oldConfigTree;
   }
+  const allUnevalUpdates = unEvalUpdates.map(
+    (update) => update.payload.propertyPath,
+  );
+  const completeEvalOrder = uniqueOrderUpdatePaths([
+    ...allUnevalUpdates,
+    ...evalOrder,
+  ]);
+
+  const setterAndLocalStorageUpdates = getNewDataTreeUpdates(
+    uniqueOrderUpdatePaths(updatedValuePaths.map((val) => val.join("."))),
+    dataTree,
+  );
 
   const updates = generateOptimisedUpdatesAndSetPrevState(
     dataTree,
     dataTreeEvaluator,
+    completeEvalOrder,
+    setterAndLocalStorageUpdates,
   );
+
   const evalTreeResponse: EvalTreeResponseData = {
     updates,
     dependencies,
@@ -77,7 +88,6 @@ export function evalTreeWithChanges(
     logs,
     unEvalUpdates,
     isCreateFirstTree,
-    configTree,
     staleMetaIds,
     removedPaths,
     isNewWidgetAdded: false,

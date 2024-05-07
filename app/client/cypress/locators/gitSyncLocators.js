@@ -23,7 +23,6 @@ export default {
   mergeBranchDropdownDestination: ".t--merge-branch-dropdown-destination",
   mergeCTA: "[data-testid=t--git-merge-button]",
   loaderQuickGitAction: ".t--loader-quick-git-action",
-  copySshKey: ".t--copy-ssh-key",
   connetStatusbar: ".t--connect-statusbar",
   useGlobalGitConfig: "[data-testid=t--use-global-config-checkbox]",
   connectGitBottomBar: ".t--connect-git-bottom-bar",

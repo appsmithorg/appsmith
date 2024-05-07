@@ -5,6 +5,8 @@ import com.appsmith.server.authentication.handlers.AuthenticationSuccessHandler;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.LoginSource;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.UserState;
@@ -18,12 +20,13 @@ import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.CaptchaService;
 import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.EmailService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.UserService;
 import com.appsmith.server.solutions.EnvManager;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.http.client.utils.URIBuilder;
+import org.apache.hc.core5.net.URIBuilder;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -53,15 +56,17 @@ import static com.appsmith.external.constants.AnalyticsConstants.SUBSCRIBE_MARKE
 import static com.appsmith.server.constants.Appsmith.DEFAULT_ORIGIN_HEADER;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_ADMIN_EMAILS;
 import static com.appsmith.server.constants.EnvVariables.APPSMITH_DISABLE_TELEMETRY;
+import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 import static com.appsmith.server.constants.ce.FieldNameCE.EMAIL;
 import static com.appsmith.server.constants.ce.FieldNameCE.NAME;
 import static com.appsmith.server.constants.ce.FieldNameCE.PROFICIENCY;
 import static com.appsmith.server.constants.ce.FieldNameCE.ROLE;
+import static com.appsmith.server.constants.ce.FieldNameCE.TENANT;
 import static com.appsmith.server.helpers.RedirectHelper.REDIRECT_URL_QUERY_PARAM;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.validateEmail;
-import static com.appsmith.server.helpers.ValidationUtils.validateLoginPassword;
+import static com.appsmith.server.helpers.ValidationUtils.validateUserPassword;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
 
 @Slf4j
@@ -78,6 +83,7 @@ public class UserSignupCEImpl implements UserSignupCE {
     private final UserUtils userUtils;
     private final NetworkUtils networkUtils;
     private final EmailService emailService;
+    private final TenantService tenantService;
 
     private static final ServerRedirectStrategy redirectStrategy = new DefaultServerRedirectStrategy();
 
@@ -94,7 +100,8 @@ public class UserSignupCEImpl implements UserSignupCE {
             CommonConfig commonConfig,
             UserUtils userUtils,
             NetworkUtils networkUtils,
-            EmailService emailService) {
+            EmailService emailService,
+            TenantService tenantService) {
 
         this.userService = userService;
         this.userDataService = userDataService;
@@ -107,6 +114,7 @@ public class UserSignupCEImpl implements UserSignupCE {
         this.userUtils = userUtils;
         this.networkUtils = networkUtils;
         this.emailService = emailService;
+        this.tenantService = tenantService;
     }
 
     /**
@@ -125,19 +133,34 @@ public class UserSignupCEImpl implements UserSignupCE {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, EMAIL));
         }
 
-        if (!validateLoginPassword(user.getPassword())) {
-            return Mono.error(new AppsmithException(
-                    AppsmithError.INVALID_PASSWORD_LENGTH, LOGIN_PASSWORD_MIN_LENGTH, LOGIN_PASSWORD_MAX_LENGTH));
-        }
+        Mono<Tenant> tenantMono = tenantService
+                .getDefaultTenant()
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, TENANT)));
 
-        // only creating user, welcome email will be sent post user email verification
-        Mono<UserSignupDTO> createUserMono = userService
-                .createUser(user)
-                .elapsed()
-                .map(pair -> {
-                    log.debug("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());
-                    return pair.getT2();
-                });
+        // - Only creating user if the password strength is acceptable as per the tenant policy
+        // - Welcome email will be sent post user email verification
+        Mono<UserSignupDTO> createUserMono = tenantMono.flatMap(tenant -> {
+            TenantConfiguration tenantConfiguration = tenant.getTenantConfiguration();
+            boolean isStrongPasswordPolicyEnabled = tenantConfiguration != null
+                    && Boolean.TRUE.equals(tenantConfiguration.getIsStrongPasswordPolicyEnabled());
+
+            if (!validateUserPassword(user.getPassword(), isStrongPasswordPolicyEnabled)) {
+                return isStrongPasswordPolicyEnabled
+                        ? Mono.error(new AppsmithException(
+                                AppsmithError.INSUFFICIENT_PASSWORD_STRENGTH,
+                                LOGIN_PASSWORD_MIN_LENGTH,
+                                LOGIN_PASSWORD_MAX_LENGTH))
+                        : Mono.error(new AppsmithException(
+                                AppsmithError.INVALID_PASSWORD_LENGTH,
+                                LOGIN_PASSWORD_MIN_LENGTH,
+                                LOGIN_PASSWORD_MAX_LENGTH));
+            }
+
+            return userService.createUser(user).elapsed().map(pair -> {
+                log.debug("UserSignupCEImpl::Time taken for create user and send email: {} ms", pair.getT1());
+                return pair.getT2();
+            });
+        });
 
         return Mono.zip(createUserMono, exchange.getSession(), ReactiveSecurityContextHolder.getContext())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INTERNAL_SERVER_ERROR)))
@@ -219,18 +242,26 @@ public class UserSignupCEImpl implements UserSignupCE {
                 .flatMap(user -> signupAndLogin(user, exchange))
                 .then()
                 .onErrorResume(error -> {
+                    String path = "/user/signup";
+
                     String referer = exchange.getRequest().getHeaders().getFirst("referer");
-                    if (referer == null) {
-                        referer = DEFAULT_ORIGIN_HEADER;
+                    if (referer != null) {
+                        try {
+                            path = URI.create(referer).getPath();
+                        } catch (IllegalArgumentException ex) {
+                            // This is okay, we just use the default value for `path`.
+                        }
                     }
-                    final URIBuilder redirectUriBuilder =
-                            new URIBuilder(URI.create(referer)).setParameter("error", error.getMessage());
+
                     URI redirectUri;
                     try {
-                        redirectUri = redirectUriBuilder.build();
+                        redirectUri = new URIBuilder()
+                                .setPath(path)
+                                .setParameter("error", error.getMessage())
+                                .build();
                     } catch (URISyntaxException e) {
                         log.error("Error building redirect URI with error for signup, {}.", e.getMessage(), error);
-                        redirectUri = URI.create(referer);
+                        redirectUri = URI.create("/");
                     }
                     return redirectStrategy.sendRedirect(exchange, redirectUri);
                 });

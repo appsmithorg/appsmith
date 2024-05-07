@@ -2,6 +2,7 @@ package com.appsmith.server.dtos;
 
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.domains.Layout;
 import com.fasterxml.jackson.annotation.JsonFormat;
@@ -10,6 +11,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 
 import java.time.Instant;
@@ -21,22 +23,23 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @ToString
+@FieldNameConstants
 public class PageDTO {
 
     @Transient
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class})
     private String id;
 
-    @JsonView({Views.Public.class, Views.Export.class})
+    @JsonView({Views.Public.class, Views.Export.class, Git.class})
     String name;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class})
     String icon;
 
     @JsonView(Views.Public.class)
     String description;
 
-    @JsonView({Views.Public.class, Views.Export.class})
+    @JsonView({Views.Public.class, Views.Export.class, Git.class})
     String slug;
 
     @JsonView(Views.Public.class)
@@ -46,7 +49,7 @@ public class PageDTO {
     @JsonView(Views.Public.class)
     String applicationId;
 
-    @JsonView({Views.Public.class, Views.Export.class})
+    @JsonView({Views.Public.class, Views.Export.class, Git.class})
     List<Layout> layouts;
 
     @Transient

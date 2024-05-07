@@ -9,7 +9,8 @@ export const propertyPaneContentConfig = [
         helpText: "Sets the text of the widget",
         label: "Text",
         controlType: "INPUT_TEXT",
-        placeholderText: "Name:",
+        placeholderText:
+          "The important thing is not to stop questioning. Curiosity has its own reason for existence.",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {
@@ -22,7 +23,7 @@ export const propertyPaneContentConfig = [
         helpText: "Controls the number of lines displayed",
         label: "Line clamp (max lines)",
         controlType: "INPUT_TEXT",
-        placeholderText: "No. of lines to display",
+        placeholderText: "unlimited",
         isBindProperty: true,
         isTriggerProperty: false,
         validation: {

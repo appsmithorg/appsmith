@@ -1,8 +1,7 @@
-import { all, call, put, spawn, take } from "redux-saga/effects";
+import { all, call, put, select, spawn, take } from "redux-saga/effects";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { MAIN_THREAD_ACTION } from "@appsmith/workers/Evaluation/evalWorkerActions";
 import log from "loglevel";
-import { logJSVarMutationEvent } from "../sagas/PostEvaluationSagas";
 import type { Channel } from "redux-saga";
 import { storeLogs } from "../sagas/DebuggerSagas";
 import type {
@@ -17,17 +16,15 @@ import {
   executeTriggerRequestSaga,
   updateDataTreeHandler,
 } from "../sagas/EvaluationsSaga";
-import { logJSFunctionExecution } from "@appsmith/sagas/JSFunctionExecutionSaga";
 import { handleStoreOperations } from "./ActionExecution/StoreActionSaga";
-import type {
-  EvalTreeResponseData,
-  JSVarMutatedEvents,
-} from "workers/Evaluation/types";
+import type { EvalTreeResponseData } from "workers/Evaluation/types";
 import isEmpty from "lodash/isEmpty";
 import type { UnEvalTree } from "entities/DataTree/dataTreeTypes";
 import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/utils";
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import { evalErrorHandler } from "./EvalErrorHandler";
+import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+
 export interface UpdateDataTreeMessageData {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;
@@ -128,10 +125,6 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
       yield call(handleStoreOperations, data);
       break;
     }
-    case MAIN_THREAD_ACTION.LOG_JS_FUNCTION_EXECUTION: {
-      yield call(logJSFunctionExecution, message);
-      break;
-    }
     case MAIN_THREAD_ACTION.PROCESS_BATCHED_TRIGGERS: {
       const batchedTriggers = data;
       yield all(
@@ -149,17 +142,15 @@ export function* handleEvalWorkerMessage(message: TMessage<any>) {
     }
     case MAIN_THREAD_ACTION.UPDATE_DATATREE: {
       const { unevalTree, workerResponse } = data as UpdateDataTreeMessageData;
+      const unEvalAndConfigTree: ReturnType<typeof getUnevaluatedDataTree> =
+        yield select(getUnevaluatedDataTree);
       yield call(updateDataTreeHandler, {
         evalTreeResponse: workerResponse as EvalTreeResponseData,
         unevalTree,
         requiresLogging: false,
+        configTree: unEvalAndConfigTree.configTree,
       });
       break;
-    }
-
-    case MAIN_THREAD_ACTION.PROCESS_JS_VAR_MUTATION_EVENTS: {
-      const jsVarMutatedEvents: JSVarMutatedEvents = data;
-      yield call(logJSVarMutationEvent, jsVarMutatedEvents);
     }
   }
 

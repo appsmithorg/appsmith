@@ -1,6 +1,4 @@
-import EditorNavigation, {
-  EntityType,
-} from "../../../support/Pages/EditorNavigation";
+import EditorNavigation from "../../../support/Pages/EditorNavigation";
 
 const datasource = require("../../../locators/DatasourcesEditor.json");
 const queryLocators = require("../../../locators/QueryEditor.json");
@@ -57,7 +55,7 @@ describe(
         .eq(6)
         .type("{{FilePicker.files}}", { parseSpecialCharSequences: false });
       agHelper.ClickOutside(); //to close the evaluated pop-up
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.ShowCanvas();
       cy.wait(2000);
     });
 
@@ -96,8 +94,7 @@ describe(
     });
 
     it("3. On canvas, fill to email, from email, subject, body, attachment and run query", function () {
-      EditorNavigation.SelectEntityByName("smtpquery", EntityType.Query);
-      EditorNavigation.SelectEntityByName("Page1", EntityType.Page);
+      EditorNavigation.ShowCanvas();
       const noise = Math.random().toString(36).substring(0, 7);
       const fromEmail = `smtp.datasource.tester.${noise}@appsmith.com`;
       cy.wait(2000);
@@ -125,6 +122,13 @@ describe(
         expect(thisTestEmail.headers.to).equal("qwerty@appsmith.com");
         expect(thisTestEmail.attachments.length).equal(1);
       });
+    });
+
+    it("4. Verify the default port for the datasource", function () {
+      dataSources.NavigateToDSCreateNew();
+      dataSources.CreatePlugIn("SMTP");
+
+      agHelper.AssertAttribute(dataSources._port, "value", "25");
     });
   },
 );

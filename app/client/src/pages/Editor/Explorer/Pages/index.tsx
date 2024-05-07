@@ -77,13 +77,7 @@ function Pages() {
     );
 
     dispatch(
-      createNewPageFromEntities(
-        applicationId,
-        name,
-        workspaceId,
-        false,
-        instanceId,
-      ),
+      createNewPageFromEntities(applicationId, name, workspaceId, instanceId),
     );
   }, [dispatch, pages, applicationId]);
 

@@ -6,18 +6,26 @@ import org.junit.jupiter.api.Test;
 import org.springframework.dao.DuplicateKeyException;
 
 import java.util.Arrays;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
 public class AppsmithErrorTest {
     @Test
     public void verifyUniquenessOfAppsmithErrorCode() {
-        assert (Arrays.stream(AppsmithError.values())
-                        .map(AppsmithError::getAppErrorCode)
-                        .distinct()
-                        .count()
-                == AppsmithError.values().length);
+        final List<String> duplicateErrorCodes = Arrays.stream(AppsmithError.values())
+                .collect(Collectors.groupingBy(AppsmithError::getAppErrorCode, Collectors.counting()))
+                .entrySet()
+                .stream()
+                .filter(entry -> entry.getValue() > 1)
+                .map(Map.Entry::getKey)
+                .toList();
+
+        assertThat(duplicateErrorCodes).isEmpty();
     }
 
     @Test

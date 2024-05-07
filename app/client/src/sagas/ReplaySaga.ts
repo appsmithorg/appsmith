@@ -30,7 +30,7 @@ import {
   scrollWidgetIntoView,
   switchTab,
 } from "utils/replayHelpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   getCurrentApplicationId,
   snipingModeSelector,
@@ -62,7 +62,7 @@ import { API_EDITOR_TABS } from "constants/ApiEditorConstants/CommonApiConstants
 import { EDITOR_TABS } from "constants/QueryEditorConstants";
 import _, { isEmpty } from "lodash";
 import type { ReplayEditorUpdate } from "entities/Replay/ReplayEntity/ReplayEditor";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type { Datasource } from "entities/Datasource";
 import { initialize } from "redux-form";
 import {
@@ -194,13 +194,14 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     if (!workerResponse) return;
 
     const {
+      endTime,
       event,
       logs,
       paths,
       replay,
       replayEntity,
       replayEntityType,
-      timeTaken,
+      startTime,
     } = workerResponse;
 
     logs && logs.forEach((evalLog: any) => log.debug(evalLog));
@@ -213,7 +214,10 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     switch (replayEntityType) {
       case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
-        AnalyticsUtil.logEvent(event, { paths, timeTaken });
+        AnalyticsUtil.logEvent(event, {
+          paths,
+          timeTaken: endTime - startTime,
+        });
 
         yield call(updateAndSaveAnvilLayout, replayEntity.widgets, {
           isRetry: false,

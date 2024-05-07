@@ -1,6 +1,7 @@
 import React from "react";
 import log from "loglevel";
 import merge from "lodash/merge";
+import { klona as clone } from "klona";
 import * as Sentry from "@sentry/react";
 import { mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
@@ -15,20 +16,12 @@ import type {
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { AsYouType, parseIncompletePhoneNumber } from "libphonenumber-js";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
+import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 
-import {
-  anvilConfig,
-  autocompleteConfig,
-  defaultsConfig,
-  featuresConfig,
-  propertyPaneContentConfig,
-  settersConfig,
-} from "./config";
-import { metaConfig } from "./config/metaConfig";
+import * as config from "../config";
 import { PhoneInputComponent } from "../component";
 import type { PhoneInputWidgetProps } from "./types";
 import { getCountryCode, validateInput } from "./helpers";
-import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
 
 class WDSPhoneInputWidget extends WDSBaseInputWidget<
   PhoneInputWidgetProps,
@@ -37,30 +30,68 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   static type = "WDS_PHONE_INPUT_WIDGET";
 
   static getConfig() {
-    return metaConfig;
+    return config.metaConfig;
   }
 
   static getFeatures() {
-    return featuresConfig;
+    return config.featuresConfig;
   }
 
   static getDefaults() {
-    return defaultsConfig;
+    return config.defaultsConfig;
   }
 
   static getAnvilConfig(): AnvilConfig | null {
-    return anvilConfig;
+    return config.anvilConfig;
+  }
+
+  static getMethods() {
+    return config.methodsConfig;
   }
 
   static getPropertyPaneContentConfig() {
-    return mergeWidgetConfig(
-      propertyPaneContentConfig,
-      super.getPropertyPaneContentConfig(),
+    const parentConfig = clone(super.getPropertyPaneContentConfig());
+
+    const labelSectionIndex = parentConfig.findIndex(
+      (section) => section.sectionName === "Label",
     );
+    const labelPropertyIndex = parentConfig[
+      labelSectionIndex
+    ].children.findIndex((property) => property.propertyName === "label");
+
+    parentConfig[labelSectionIndex].children[labelPropertyIndex] = {
+      ...parentConfig[labelSectionIndex].children[labelPropertyIndex],
+      placeholderText: "Phone Number",
+    } as any;
+
+    const generalSectionIndex = parentConfig.findIndex(
+      (section) => section.sectionName === "General",
+    );
+    const tooltipPropertyIndex = parentConfig[
+      generalSectionIndex
+    ].children.findIndex((property) => property.propertyName === "tooltip");
+
+    parentConfig[generalSectionIndex].children[tooltipPropertyIndex] = {
+      ...parentConfig[generalSectionIndex].children[tooltipPropertyIndex],
+      placeholderText: "You may skip local prefixes",
+    } as any;
+
+    const placeholderPropertyIndex = parentConfig[
+      generalSectionIndex
+    ].children.findIndex(
+      (property) => property.propertyName === "placeholderText",
+    );
+
+    parentConfig[generalSectionIndex].children[placeholderPropertyIndex] = {
+      ...parentConfig[generalSectionIndex].children[placeholderPropertyIndex],
+      placeholderText: "(123) 456-7890",
+    } as any;
+
+    return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return autocompleteConfig;
+    return config.autocompleteConfig;
   }
 
   static getPropertyPaneStyleConfig() {
@@ -91,7 +122,7 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
   }
 
   static getSetterConfig(): SetterConfig {
-    return settersConfig;
+    return config.settersConfig;
   }
 
   getFormattedPhoneNumber(value: string) {

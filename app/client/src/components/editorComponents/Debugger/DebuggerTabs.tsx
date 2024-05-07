@@ -13,7 +13,7 @@ import {
   getErrorCount,
   getResponsePaneHeight,
 } from "selectors/debuggerSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import Errors from "./Errors";
 import Resizer, { ResizerCSS } from "./Resizer";
 import EntityDeps from "./EntityDependecies";
@@ -99,10 +99,11 @@ function DebuggerTabs() {
     },
   ];
 
-  // Do not render if response tab and header tab is selected in the bottom bar.
+  // Do not render if response, header or schema tab is selected in the bottom bar.
   const shouldRender = !(
     selectedTab === DEBUGGER_TAB_KEYS.RESPONSE_TAB ||
-    selectedTab === DEBUGGER_TAB_KEYS.HEADER_TAB
+    selectedTab === DEBUGGER_TAB_KEYS.HEADER_TAB ||
+    selectedTab === DEBUGGER_TAB_KEYS.SCHEMA_TAB
   );
 
   return shouldRender ? (

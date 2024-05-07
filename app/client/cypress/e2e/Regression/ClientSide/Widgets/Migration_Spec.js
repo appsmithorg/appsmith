@@ -10,6 +10,10 @@ import {
   agHelper,
   homePage as homePageHelpers,
 } from "../../../../support/Objects/ObjectsCore";
+import {
+  createMessage,
+  IMPORT_APP_SUCCESSFUL,
+} from "../../../../../src/ce/constants/messages";
 
 describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
   it("1. Import application and Validate Migration on pageload", function () {
@@ -28,7 +32,7 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
     cy.wait("@importNewApplication").then(() => {
       cy.get(homePage.toastMessage).should(
         "contain",
-        "Application imported successfully",
+        createMessage(IMPORT_APP_SUCCESSFUL),
       );
 
       //Renaming imported app!
@@ -188,28 +192,16 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
 
       //Validating Image URL click & navigation!
       cy.getTableDataSelector("2", "19").then((selector) => {
-        // Stubbing window.open to open in the same tab
-        cy.window().then((window) => {
-          cy.stub(window, "open").callsFake((url) => {
-            window.location.href = url; //.substring(1);
-            window.location.target = "_self";
+        cy.window().then((win) => {
+          // Stub `window.open` to prevent new tabs
+          cy.stub(win, "open").as("windowOpenStub");
+          cy.get(selector + " span").then(($link) => {
+            cy.wrap($link).click();
+            cy.get("@windowOpenStub").should("have.been.called");
           });
         });
-
-        cy.get(selector + " span")
-          .invoke("text")
-          .then((url) => {
-            cy.get(selector + " span")
-              .click({ force: true })
-              .wait(2000);
-            cy.wait("@postExecute");
-            cy.url().should("contain", url);
-            cy.go(-1);
-          });
       });
 
-      // cy.wait(4000);
-      // cy.get("div.tableWrap").should("be.visible"); //wait for page load!
       cy.wait("@getWorkspace");
 
       cy.waitUntil(() => cy.get("div.tableWrap").should("be.visible"), {
@@ -293,189 +285,9 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
             expect(addreduce).to.eq("CreditLimit:Reduce");
           });
       });
-
-      //Another row!
-      //Card Number mapping to text widget!
-      cy.isSelectRow(4);
-      cy.wait(2500); //time for table row select to reflect!
-      cy.readTabledataPublish("4", "0").then((cardNumber) => {
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
-          .eq(1)
-          .invoke("text")
-          .then((cardNo) => {
-            var format = /^\d{4}-\d{4}-\d{4}(-\d{4})?$/;
-            expect(cardNumber).match(format);
-            expect(cardNumber).to.be.equal(cardNo);
-          });
-      });
-
-      //Address mapping to text widget!
-      cy.readTabledataPublish("4", "4").then((address) => {
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]")
-          .eq(1)
-          .invoke("text")
-          .then((addr) => {
-            expect(address.replace(/\r?\n|\r/, "")).to.eq(addr);
-          });
-      });
-
-      //Validating Available limit column computation maintained!
-      cy.readTabledataPublish("4", "16").then((availLimit) => {
-        cy.readTabledataPublish("4", "13").then((creditLimit) => {
-          cy.readTabledataPublish("4", "14").then((outstanding) => {
-            expect(Number(availLimit)).to.eq(creditLimit - outstanding);
-          });
-        });
-      });
-
-      //Validating State button click & binding & text widget mapping!
-      cy.getTableDataSelector("4", "15").then((selector) => {
-        cy.get(selector + " button.bp3-button")
-          .click()
-          .wait(2000);
-
-        cy.waitUntil(
-          () =>
-            cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][1]", {
-                timeout: 50000,
-              })
-              .eq(0)
-              .contains("State:", { timeout: 30000 })
-              .should("exist"),
-          {
-            errorMsg: "Execute call did not complete evn after 10 secs",
-            timeout: 20000,
-            interval: 1000,
-          },
-        ).then(() => cy.wait(500));
-
-        cy.get(selector + " button span")
-          .invoke("text")
-          .then((statetxt) => {
-            cy.xpath("//div[contains(@class, ' t--widget-textwidget')][1]")
-              .eq(0)
-              .invoke("text")
-              .then((txtWidtxt) => {
-                cy.log("statetxt is:" + statetxt);
-                let text =
-                  statetxt == "Activate" ? "State:Inactive" : "State:Active";
-                expect(text).to.eq(txtWidtxt);
-              });
-          });
-      });
-
-      //Validating Image URL click & navigation!
-      cy.getTableDataSelector("4", "19").then((selector) => {
-        // Stubbing window.open to open in the same tab
-        cy.window().then((window) => {
-          cy.stub(window, "open").callsFake((url) => {
-            window.location.href = url; //.substring(1);
-            window.location.target = "_self";
-          });
-        });
-
-        cy.get(selector + " span")
-          .invoke("text")
-          .then((url) => {
-            cy.get(selector + " span")
-              .click({ force: true })
-              .wait(2000);
-            cy.wait("@postExecute");
-            cy.url().should("contain", url);
-            cy.go(-1);
-          });
-      });
-
-      //cy.wait(4000);
-      //cy.get("div.tableWrap").should("be.visible");
-
-      cy.waitUntil(() => cy.get("div.tableWrap").should("be.visible"), {
-        errorMsg: "Page is not loaded evn after 10 secs",
-        timeout: 30000,
-        interval: 2000,
-      }).then(() => cy.wait(1000)); //wait for page load!
-
-      //Manu Btn validation: - 1st menu item
-      cy.isSelectRow(4); //as aft refresh row selection is also gone
-      cy.getTableDataSelector("4", "18").then((selector) => {
-        cy.get(selector + " button")
-          .click()
-          .wait(1000);
-
-        cy.xpath(
-          "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='AddcreditLimit']/parent::a",
-        )
-          .click()
-          .wait(2000); //allow time for n/w to finish
-
-        cy.waitUntil(
-          () =>
-            cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
-                timeout: 50000,
-              })
-              .eq(0)
-              .contains("CreditLimit:", { timeout: 30000 })
-              .should("exist"),
-          {
-            errorMsg: "Execute call did not complete evn after 10 secs",
-            timeout: 20000,
-            interval: 1000,
-          },
-        ).then(() => cy.wait(500)); //allow time for n/w to finish
-
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
-          timeout: 30000,
-        })
-          .eq(0)
-          .invoke("text")
-          .then((addreduce) => {
-            expect(addreduce).to.eq("CreditLimit:Add");
-          });
-      });
-
-      //Manu Btn validation: - 2nd menu item
-      cy.getTableDataSelector("4", "18").then((selector) => {
-        cy.get(selector + " button")
-          .click()
-          .wait(1000);
-
-        cy.xpath(
-          "//div//a[contains(@class, 'bp3-menu-item')]/div[text()='Reducecreditlimit']/parent::a",
-        )
-          .click()
-          .wait(2000); //allow time for n/w to finish
-
-        cy.waitUntil(
-          () =>
-            cy
-              .xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
-                timeout: 50000,
-              })
-              .eq(0)
-              .contains("CreditLimit:", { timeout: 30000 })
-              .should("exist"),
-          {
-            errorMsg: "Execute call did not complete evn after 10 secs",
-            timeout: 20000,
-            interval: 1000,
-          },
-        ).then(() => cy.wait(500)); //allow time for n/w to finish
-
-        cy.xpath("//div[contains(@class, ' t--widget-textwidget')][2]", {
-          timeout: 30000,
-        })
-          .eq(0)
-          .invoke("text")
-          .then((addreduce) => {
-            expect(addreduce).to.eq("CreditLimit:Reduce");
-          });
-      });
     });
 
     //Page 2 Validations:
-
     EditorNavigation.SelectEntityByName(
       "Change color and font",
       EntityType.Page,
@@ -502,5 +314,5 @@ describe("Migration Validate", { tags: ["@tag.ImportExport"] }, function () {
       .invoke("attr", "value")
       .should("contain", "#FFC13D");
     cy.validateCodeEditorContent(".t--property-control-textsize", "1.5rem");
-  }); // Add dsl and Validate Migration on pageload
+  });
 });

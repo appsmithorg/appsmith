@@ -58,6 +58,20 @@ export class OneClickBinding {
       false,
     );
   }
+
+  public ChooseQuery(queryName: string) {
+    agHelper.GetNClick(oneClickBindingLocator.datasourceDropdownSelector);
+
+    agHelper.TypeText(oneClickBindingLocator.datasourceSearch, queryName);
+
+    agHelper
+      .GetElement(oneClickBindingLocator.datasourceQuerySelector())
+      .then(($ele) => {
+        expect($ele.length).greaterThan(0);
+      });
+
+    agHelper.GetNClick(oneClickBindingLocator.datasourceQuerySelector());
+  }
 }
 
 export function expandLoadMoreOptions() {

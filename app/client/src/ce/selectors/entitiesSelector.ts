@@ -20,7 +20,7 @@ import {
   PluginPackageName,
   PluginType,
 } from "entities/Action";
-import { find, get, groupBy, keyBy, sortBy } from "lodash";
+import { countBy, find, get, groupBy, keyBy, sortBy } from "lodash";
 import ImageAlt from "assets/images/placeholder-image.svg";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
@@ -60,6 +60,19 @@ import { MAX_DATASOURCE_SUGGESTIONS } from "constants/DatasourceEditorConstants"
 import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { getNextEntityName } from "utils/AppsmithUtils";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
+import {
+  ActionUrlIcon,
+  JsFileIconV2,
+} from "pages/Editor/Explorer/ExplorerIcons";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+
+export enum GROUP_TYPES {
+  API = "APIs",
+  JS_ACTIONS = "JS Objects",
+  AI = "AI Queries",
+  WORKFLOWS = "Workflows",
+  PACKAGES = "Packages",
+}
 
 export const getEntities = (state: AppState): AppState["entities"] =>
   state.entities;
@@ -71,7 +84,8 @@ export const getDatasources = (state: AppState): Datasource[] => {
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
 export enum PluginCategory {
-  Integrations = "Integrations",
+  SAAS = "SaaS integrations",
+  AI = "AI integrations",
   Databases = "Databases",
   APIs = "APIs",
   Others = "Others",
@@ -81,6 +95,8 @@ export interface NewEntityNameOptions {
   prefix: string;
   parentEntityId: string;
   parentEntityKey: CreateNewActionKeyInterface;
+  suffix?: string;
+  startWithoutIndex?: boolean;
 }
 
 export type DatasourceGroupByPluginCategory = Record<
@@ -97,11 +113,11 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
       const plugin = groupedPlugins[d.pluginId];
       if (
         plugin.type === PluginType.SAAS ||
-        plugin.type === PluginType.REMOTE ||
-        plugin.type === PluginType.AI
+        plugin.type === PluginType.REMOTE
       ) {
-        return PluginCategory.Integrations;
+        return PluginCategory.SAAS;
       }
+      if (plugin.type === PluginType.AI) return PluginCategory.AI;
       if (plugin.type === PluginType.DB) return PluginCategory.Databases;
       if (plugin.type === PluginType.API) return PluginCategory.APIs;
       return PluginCategory.Others;
@@ -1037,20 +1053,20 @@ export const selectFilesForExplorer = createSelector(
       ...workflowActions,
       ...workflowJsActions,
     ].reduce((acc, file) => {
-      let group = "";
+      let group;
       if (file.config.pluginType === PluginType.JS) {
-        group = "JS Objects";
+        group = GROUP_TYPES.JS_ACTIONS;
       } else if (file.config.pluginType === PluginType.API) {
         group = isEmbeddedRestDatasource(file.config.datasource)
-          ? "APIs"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "APIs";
+          ? GROUP_TYPES.API
+          : datasourceIdToNameMap[file.config.datasource.id] ?? GROUP_TYPES.API;
       } else if (file.config.pluginType === PluginType.AI) {
         group = isEmbeddedAIDataSource(file.config.datasource)
-          ? "AI Queries"
-          : datasourceIdToNameMap[file.config.datasource.id] ?? "AI Queries";
+          ? GROUP_TYPES.AI
+          : datasourceIdToNameMap[file.config.datasource.id] ?? GROUP_TYPES.AI;
       } else if (file.config.pluginType === PluginType.INTERNAL) {
         // TODO: Add a group for internal actions, currently only Workflow actions are internal
-        group = "Workflows";
+        group = GROUP_TYPES.WORKFLOWS;
       } else {
         group = datasourceIdToNameMap[file.config.datasource.id];
       }
@@ -1342,8 +1358,9 @@ export const getDatasourceScopeValue = (
   const options = formConfig[0]?.children?.find(
     (child: any) => child?.configProperty === configProperty,
   )?.options;
-  const label = options?.find((option: any) => option.value === scopeValue)
-    ?.label;
+  const label = options?.find(
+    (option: any) => option.value === scopeValue,
+  )?.label;
   return label;
 };
 
@@ -1449,7 +1466,13 @@ export const getNewEntityName = createSelector(
   getJSCollections,
   (_state: AppState, options: NewEntityNameOptions) => options,
   (actions, jsCollections, options) => {
-    const { parentEntityId, parentEntityKey, prefix } = options;
+    const {
+      parentEntityId,
+      parentEntityKey,
+      prefix,
+      startWithoutIndex = false,
+      suffix = "",
+    } = options;
 
     const actionNames = actions
       .filter((a) => a.config[parentEntityKey] === parentEntityId)
@@ -1458,16 +1481,29 @@ export const getNewEntityName = createSelector(
       .filter((a) => a.config[parentEntityKey] === parentEntityId)
       .map((a) => a.config.name);
 
-    return getNextEntityName(prefix, actionNames.concat(jsActionNames));
+    const entityNames = actionNames.concat(jsActionNames);
+
+    const prefixExists = entityNames.indexOf(`${prefix}`) > -1;
+
+    return getNextEntityName(
+      prefixExists ? `${prefix}${suffix}` : prefix,
+      entityNames,
+      startWithoutIndex,
+    );
   },
 );
 
 export const getQuerySegmentItems = createSelector(
   getCurrentActions,
+  getPlugins,
   selectDatasourceIdToNameMap,
-  (actions, datasourceIdToNameMap) => {
+  (actions, plugins, datasourceIdToNameMap) => {
+    const pluginGroups = keyBy(plugins, "id");
     const items: EntityItem[] = actions.map((action) => {
       let group;
+      const iconUrl = getAssetUrl(
+        pluginGroups[action.config.pluginId]?.iconLocation,
+      );
       if (action.config.pluginType === PluginType.API) {
         group = isEmbeddedRestDatasource(action.config.datasource)
           ? "APIs"
@@ -1480,6 +1516,7 @@ export const getQuerySegmentItems = createSelector(
         group = datasourceIdToNameMap[action.config.datasource.id];
       }
       return {
+        icon: ActionUrlIcon(iconUrl),
         title: action.config.name,
         key: action.config.id,
         type: action.config.pluginType,
@@ -1493,6 +1530,7 @@ export const getJSSegmentItems = createSelector(
   getCurrentJSCollections,
   (jsActions) => {
     const items: EntityItem[] = jsActions.map((js) => ({
+      icon: JsFileIconV2(),
       title: js.config.name,
       key: js.config.id,
       type: PluginType.JS,
@@ -1503,3 +1541,22 @@ export const getJSSegmentItems = createSelector(
 
 export const getSelectedTableName = (state: AppState) =>
   state.ui.datasourcePane.selectedTableName;
+
+export const getDatasourceUsageCountForApp = createSelector(
+  getActions,
+  getDatasources,
+  (state: AppState, editorType: string) => editorType,
+  (actions, datasources, editorType) => {
+    const actionCount = countBy(actions, "config.datasource.id");
+    const actionDsMap: Record<string, string> = {};
+
+    datasources.forEach((ds) => {
+      actionDsMap[ds.id] = `No queries in this ${editorType}`;
+    });
+    Object.keys(actionCount).forEach((dsId) => {
+      actionDsMap[dsId] = `${actionCount[dsId]} queries in this ${editorType}`;
+    });
+
+    return actionDsMap;
+  },
+);

@@ -46,8 +46,10 @@ import { FILL_WIDGET_MIN_WIDTH } from "constants/minWidthConstants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_TAGS, layoutConfigurations } from "constants/WidgetConstants";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import type { DynamicPath } from "utils/DynamicBindingUtils";
 
 class MultiSelectWidget extends BaseWidget<
   MultiSelectWidgetProps,
@@ -59,6 +61,7 @@ class MultiSelectWidget extends BaseWidget<
     return {
       name: "MultiSelect",
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       tags: [WIDGET_TAGS.SELECT],
       needsMeta: true,
       searchTags: ["dropdown", "tags"],
@@ -161,6 +164,9 @@ class MultiSelectWidget extends BaseWidget<
       ) {
         let modify;
 
+        const dynamicPropertyPathList: DynamicPath[] = [
+          ...(widget.dynamicPropertyPathList || []),
+        ];
         if (queryConfig.select) {
           modify = {
             sourceData: queryConfig.select.data,
@@ -172,10 +178,20 @@ class MultiSelectWidget extends BaseWidget<
             serverSideFiltering: true,
             onFilterUpdate: queryConfig.select.run,
           };
+
+          if (
+            !!MultiSelectWidget.getFeatureFlag(
+              FEATURE_FLAG.rollout_js_enabled_one_click_binding_enabled,
+            )
+          )
+            dynamicPropertyPathList.push({ key: "sourceData" });
         }
 
         return {
           modify,
+          dynamicUpdates: {
+            dynamicPropertyPathList,
+          },
         };
       },
     };

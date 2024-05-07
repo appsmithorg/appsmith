@@ -89,6 +89,7 @@ export class DataSources {
   _activeDS = "[data-selected='true']";
   _mockDatasourceName = "[data-testid=mockdatasource-name]";
   _templateMenu = ".t--template-menu";
+  _bindDataButton = "[data-testid=t--bind-data]";
   _addSuggestedExisting = "t--suggested-widget-existing";
   _addSuggestedAddNew = "t--suggested-widget-add-new";
   _templateMenuOption = (action: string) =>
@@ -204,9 +205,9 @@ export class DataSources {
   private _pageSelectMenuItem = ".ads-v2-menu__menu-item";
 
   private _suggestedWidget = (widgetType: string, parentClass: string) =>
-    "//div[contains(@class, '" +
+    "//div[contains(@data-testid, '" +
     parentClass +
-    "')]//div[contains(@class, 't--suggested-widget-" +
+    "')]//div[contains(@data-testid, 't--suggested-widget-" +
     widgetType +
     "')]";
 
@@ -289,7 +290,7 @@ export class DataSources {
   _entityExplorerID = (dsName: string) =>
     "[data-testid='t--entity-item-" + dsName + "']";
   _stagingTab = "[data-testid='t--ds-data-filter-Staging']";
-  _graphQlDsFromRightPane = (dsName: string) =>
+  _graphQlDsHintOption = (dsName: string) =>
     "//div/span[text() ='" + dsName + "']";
   _imgFireStoreLogo = "//img[contains(@src, 'firestore.svg')]";
   _dsVirtuosoElement = `div .t--schema-virtuoso-container`;
@@ -309,6 +310,7 @@ export class DataSources {
   _dsStructurePreviewMode = ".datasourceStructure-datasource-view-mode";
   private _dsSchemaEntityItem = ".t--entity-item";
   private _entityTriggerElement = ".t--template-menu-trigger";
+  _dsSchemaTableResponse = ".t--table-response";
 
   public AssertDSEditViewMode(mode: AppModes) {
     if (mode == "Edit") this.agHelper.AssertElementAbsence(this._editButton);
@@ -367,7 +369,6 @@ export class DataSources {
         currentURL = url;
         const myRegexp = /applications(.*)/;
         const match = myRegexp.exec(currentURL);
-        cy.log(currentURL + "currentURL from intercept is");
         currentAppId = match ? match[1].split("/")[1] : null;
         data.data.page.applicationId = currentAppId;
         cy.writeFile(fixtureFile, JSON.stringify(data));
@@ -494,18 +495,23 @@ export class DataSources {
     const databaseName = shouldAddTrailingSpaces
       ? this.dataManager.dsValues[environment].postgres_databaseName + "  "
       : this.dataManager.dsValues[environment].postgres_databaseName;
-    this.agHelper.UpdateInputValue(
+    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].postgres_port.toString(),
     );
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
+    this.agHelper.ClearNType(this._host(), hostAddress);
     this.agHelper.ClearNType(this._databaseName, databaseName);
-    cy.get(this._username).type(
+
+    this.agHelper.ClearNType(
+      this._username,
       username == ""
         ? this.dataManager.dsValues[environment].postgres_username
         : username,
     );
-    cy.get(this._password).type(
+
+    this.agHelper.ClearNType(
+      this._password,
       password == ""
         ? this.dataManager.dsValues[environment].postgres_password
         : password,
@@ -539,18 +545,20 @@ export class DataSources {
     const databaseName = shouldAddTrailingSpaces
       ? this.dataManager.dsValues[environment].oracle_service + "  "
       : this.dataManager.dsValues[environment].oracle_service;
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(this._host(), hostAddress);
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].oracle_port.toString(),
     );
-    cy.get(this._databaseName).type(databaseName);
-    cy.get(this._username).type(
+    this.agHelper.ClearNType(this._databaseName, databaseName);
+    this.agHelper.ClearNType(
+      this._username,
       username == ""
         ? this.dataManager.dsValues[environment].oracle_username
         : username,
     );
-    cy.get(this._password).type(
+    this.agHelper.ClearNType(
+      this._password,
       password == ""
         ? this.dataManager.dsValues[environment].oracle_password
         : password,
@@ -564,8 +572,9 @@ export class DataSources {
     const hostAddress = shouldAddTrailingSpaces
       ? this.dataManager.dsValues[environment].mongo_host + "  "
       : this.dataManager.dsValues[environment].mongo_host;
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
-    this.agHelper.UpdateInputValue(
+    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
+    this.agHelper.ClearNType(this._host(), hostAddress);
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].mongo_port.toString(),
     );
@@ -587,17 +596,18 @@ export class DataSources {
       ? this.dataManager.dsValues[environment].mysql_databaseName + "  "
       : this.dataManager.dsValues[environment].mysql_databaseName;
 
-    this.agHelper.UpdateInputValue(this._host(), hostAddress);
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(this._host(), hostAddress);
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].mysql_port.toString(),
     );
     this.agHelper.ClearNType(this._databaseName, databaseName);
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].mysql_username,
     );
-    cy.get(this._password).type(
+    this.agHelper.ClearNType(
+      this._password,
       this.dataManager.dsValues[environment].mysql_password,
     );
   }
@@ -606,11 +616,11 @@ export class DataSources {
     environment = this.dataManager.defaultEnviorment,
     leaveDBNameEmpty = true,
   ) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].mssql_host,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].mssql_port.toString(),
     );
@@ -622,15 +632,11 @@ export class DataSources {
         this.dataManager.dsValues[environment].mssql_databaseName;
       this.agHelper.ClearNType(this._databaseName, databaseName);
     }
-    // this.agHelper.UpdateInputValue(
-    //   this._databaseName,
-    //   datasourceFormData["mssql-databaseName"],
-    // ); //Commenting until MsSQL is init loaded into container
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].mssql_username,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._password,
       this.dataManager.dsValues[environment].mssql_password,
     );
@@ -652,11 +658,11 @@ export class DataSources {
   }
 
   public FillArangoDSForm(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].arango_host,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].arango_port.toString(),
     );
@@ -664,11 +670,11 @@ export class DataSources {
     this.agHelper
       .GetText(this._databaseName, "val")
       .then(($dbName) => expect($dbName).to.eq("_system"));
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].arango_username,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._password,
       this.dataManager.dsValues[environment].arango_password,
     );
@@ -700,41 +706,30 @@ export class DataSources {
         this.locator._inputField,
       this.dataManager.dsValues[environment].firestore_projectID,
     );
-    // cy.fixture("firestore-ServiceAccCreds").then((json: any) => {
-    //   let ServiceAccCreds = JSON.parse(
-    //     JSON.stringify(json.serviceAccCredentials),
-    //   );
-    //   ServiceAccCreds.private_key = Cypress.env("FIRESTORE_PRIVATE_KEY");
-    //   //cy.log("ServiceAccCreds is " + JSON.stringify(ServiceAccCreds));
-    //   cy.log(
-    //     "ServiceAccCreds.private_key  is " +
-    //       JSON.stringify(ServiceAccCreds.private_key),
-    //   );
     this.agHelper.UpdateFieldInput(
       this.locator._inputFieldByName("Service account credentials"),
       JSON.stringify(
         this.dataManager.dsValues[environment].firestore_serviceaccountkey,
       ),
     );
-    //});
   }
 
   public FillElasticSearchDSForm(
     environment = this.dataManager.defaultEnviorment,
   ) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].elastic_host,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].elastic_port.toString(),
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].elastic_username,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._password,
       this.dataManager.dsValues[environment].elastic_password,
     );
@@ -753,8 +748,10 @@ export class DataSources {
         this.apiPage.EnterURL(
           this.dataManager.dsValues[environment].GraphqlApiUrl_TED,
         );
-      else if (enterOrSelectUrl == "select")
-        this.agHelper.GetNClick(this._graphQlDsFromRightPane(dsNameToSelect));
+      else if (enterOrSelectUrl == "select") {
+        this.agHelper.GetNClick(this.apiPage._resourceUrl);
+        this.agHelper.GetNClick(this._graphQlDsHintOption(dsNameToSelect));
+      }
 
       this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
       cy.wrap("GraphQL_API" + "_" + uid).as("dsName");
@@ -778,8 +775,8 @@ export class DataSources {
   ) {
     this.FillAuthenticatedGrapgQLURL(environment);
 
-    this.agHelper.UpdateInputValue(this._graphQLHeaderKey, hKey);
-    this.agHelper.UpdateInputValue(this._graphQLHeaderValue, hValue);
+    this.agHelper.ClearNType(this._graphQLHeaderKey, hKey);
+    this.agHelper.ClearNType(this._graphQLHeaderValue, hValue);
     cy.get("@guid").then((uid: any) => {
       dataSourceName = dataSourceName + " " + uid;
       this.agHelper.RenameWithInPane(dataSourceName, false);
@@ -789,34 +786,28 @@ export class DataSources {
   }
 
   public FillRedisDSForm(environment = this.dataManager.defaultEnviorment) {
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._host(),
       this.dataManager.dsValues[environment].redis_host,
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._port,
       this.dataManager.dsValues[environment].redis_port.toString(),
     );
   }
 
   public FillS3DSForm() {
-    this.agHelper.UpdateInputValue(
-      this._username,
-      Cypress.env("S3_ACCESS_KEY"),
-    );
-    this.agHelper.UpdateInputValue(
-      this._password,
-      Cypress.env("S3_SECRET_KEY"),
-    );
+    this.agHelper.ClearNType(this._username, Cypress.env("S3_ACCESS_KEY"));
+    this.agHelper.ClearNType(this._password, Cypress.env("S3_SECRET_KEY"));
   }
 
   public FillTwilioDSForm(environment = this.dataManager.defaultEnviorment) {
     this.ValidateNSelectDropdown("Authentication type", "", "Basic auth");
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._username,
       this.dataManager.dsValues[environment].twilio_username.toString(),
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this._password,
       this.dataManager.dsValues[environment].twilio_password.toString(),
     );
@@ -937,7 +928,7 @@ export class DataSources {
     }
   }
 
-  private AssertRunButtonVisibility() {
+  public AssertRunButtonVisibility() {
     this.agHelper.AssertElementVisibility(
       this.locator._buttonByText("Run"),
       true,
@@ -1016,7 +1007,6 @@ export class DataSources {
     dsName: "PostgreSQL" | "MySQL" | "MongoDB",
   ) {
     this.ReconnectModalValidation(dbName, dsName);
-    this.ValidateNSelectDropdown("Connection mode", "Read / Write");
     if (dsName == "PostgreSQL") this.FillPostgresDSForm();
     else if (dsName == "MySQL") this.FillMySqlDSForm();
     else if (dsName == "MongoDB") this.FillMongoDSForm();
@@ -1390,16 +1380,6 @@ export class DataSources {
     this.agHelper.GetNClick(this._datasourceSchemaRefreshBtn);
   }
 
-  public VerifySchemaCollapsibleOpenState(isOpen = false) {
-    if (isOpen) {
-      this.agHelper.AssertElementVisibility(
-        this._datasourceStructureSearchInput,
-      );
-    } else {
-      this.agHelper.AssertElementAbsence(this._datasourceStructureSearchInput);
-    }
-  }
-
   public FilterAndVerifyDatasourceSchemaBySearch(
     search: string,
     expectedTableName = search,
@@ -1417,7 +1397,11 @@ export class DataSources {
   ) {
     this.CreateQueryForDS(datasourceName);
     this.AssertTableInVirtuosoList(datasourceName, tableName);
-    cy.get(this._dsVirtuosoElementTable(tableName)).click();
+    this.agHelper.GetNClick(this._dsVirtuosoElementTable(tableName));
+    cy.get(this._dsVirtuosoElementTable(tableName))
+      .find(this._entityTriggerElement)
+      .should("be.visible")
+      .click();
     this.agHelper.GetNClick(
       this.entityExplorer.locator._contextMenuItem(templateName),
       0,
@@ -1515,7 +1499,7 @@ export class DataSources {
       "No",
       "Yes",
     );
-    this.agHelper.UpdateInputValue(
+    this.agHelper.ClearNType(
       this.locator._inputFieldByName("Connection string URI") + "//input",
       this.dataManager.mongo_uri(environment),
     );
@@ -1652,12 +1636,17 @@ export class DataSources {
     );
   }
 
+  public AssertBindDataVisible() {
+    cy.get(this._bindDataButton).should("be.visible");
+  }
+
   public AddSuggestedWidget(
     widget: Widgets,
     parentClass = this._addSuggestedAddNew,
     force = false,
     index = 0,
   ) {
+    cy.get(this._bindDataButton).should("be.visible").click({ force: true });
     switch (widget) {
       case Widgets.Dropdown:
         this.agHelper.GetNClick(
@@ -1879,6 +1868,7 @@ export class DataSources {
     cy.intercept("GET", "/api/v1/datasources/*/structure?ignoreCache=*").as(
       `getDatasourceStructureUpdated_${ds_entity_name}`,
     );
+    cy.get("[data-testid=t--tab-schema]").first().click({ force: true });
     this.RefreshDatasourceSchema();
     this.assertHelper
       .WaitForNetworkCall(`@getDatasourceStructureUpdated_${ds_entity_name}`)
@@ -1903,7 +1893,6 @@ export class DataSources {
               );
               // Total height of the parent container holding the tables in the dom normally without virtualization rendering
               const totalScroll = tables.length * elementHeight;
-              cy.log(JSON.stringify({ heightOfParentElement, totalScroll }));
               if (heightOfParentElement < totalScroll) {
                 // Index of the table present in the array of tables which will determine the presence of element inside the parent container
                 let offset = indexOfTable * elementHeight;

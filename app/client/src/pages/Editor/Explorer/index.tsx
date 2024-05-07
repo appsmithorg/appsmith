@@ -8,13 +8,13 @@ import type { AppState } from "@appsmith/reducers";
 import { builderURL } from "@appsmith/RouteBuilder";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import { getIsFirstTimeUserOnboardingEnabled } from "selectors/onboardingSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { trimQueryString } from "utils/helpers";
 import history from "utils/history";
 import EntityExplorer from "./EntityExplorer";
 import { getExplorerSwitchIndex } from "selectors/editorContextSelectors";
 import { setExplorerSwitchIndex } from "actions/editorContextActions";
-import WidgetSidebarWithTags from "../WidgetSidebarWithTags";
+import UIEntitySidebar from "../widgetSidebar/UIEntitySidebar";
 import { ExplorerWrapper } from "./Common/ExplorerWrapper";
 
 const selectForceOpenWidgetPanel = (state: AppState) =>
@@ -89,7 +89,7 @@ function ExplorerContent() {
         />
       </div>
 
-      <WidgetSidebarWithTags isActive={activeOption === "widgets"} />
+      <UIEntitySidebar isActive={activeOption === "widgets"} />
 
       <EntityExplorer isActive={activeOption === "explorer"} />
     </ExplorerWrapper>

@@ -1,9 +1,8 @@
-import IconSVG from "../icon.svg";
+import type { WidgetTags } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
 
 export const metaConfig = {
   name: "Paragraph",
-  iconSVG: IconSVG,
-  tags: [WIDGET_TAGS.SUGGESTED_WIDGETS, WIDGET_TAGS.CONTENT],
+  tags: [WIDGET_TAGS.CONTENT] as WidgetTags[],
   searchTags: ["typography", "paragraph", "label"],
 };

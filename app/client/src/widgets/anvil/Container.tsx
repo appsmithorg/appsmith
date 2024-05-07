@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import React from "react";
 import styled from "styled-components";
 import { generateClassName } from "utils/generators";
-import { Elevations } from "./constants";
+import type { Elevations } from "./constants";
 
 /**
  * This container component wraps the Zone and Section widgets and allows Anvil to utilise tokens from the themes
@@ -19,27 +19,31 @@ const StyledContainerComponent = styled.div<
   outline: none;
   border: none;
   position: relative;
+  /* If the elevatedBackground is true, then apply the elevation styles */
+  ${(props) => {
+    if (props.elevatedBackground) {
+      return `
+      background-color: var(--color-bg-elevation-${props.elevation});
+      border-radius: var(--border-radius-elevation-${props.elevation})};
+      border-color: var(--color-bd-elevation-${props.elevation});
+      border-width: var(--border-width-1);
+      border-style: solid;
 
-  ${(props) =>
-    props.elevatedBackground
-      ? `background: var(--color-bg-elevation-${props.elevation}); box-shadow: var(--box-shadow-${props.elevation});`
-      : ""}
-
-  border-radius: var(--border-radius-1);
-  padding-block: var(--outer-spacing-1);
-  padding-inline: var(--outer-spacing-1);
-  ${(props) =>
-    props.elevation === Elevations.SECTION_ELEVATION
-      ? `padding-block: var(--outer-spacing-0); padding-inline: var(--outer-spacing-0);`
-      : ""}
-
-  border-width: var(--border-width-1);
+      /* Add padding to the container to maintain the visual spacing rhythm */
+      /* This is based on the hypothesis of asymmetric padding */
+        padding-block:
+        ${props.elevation === 1 ? 0 : "var(--outer-spacing-3)"};
+  padding-inline: ${props.elevation === 1 ? 0 : "var(--outer-spacing-3)"};
+      `;
+    }
+  }}
 `;
 
 export function ContainerComponent(props: ContainerComponentProps) {
   return (
     <StyledContainerComponent
       className={`${generateClassName(props.widgetId)}`}
+      data-elevation={props.elevatedBackground}
       elevatedBackground={props.elevatedBackground}
       elevation={props.elevation}
     >

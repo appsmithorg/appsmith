@@ -27,17 +27,26 @@ export interface ContextMenuOption {
 interface EntityContextMenuProps {
   className?: string;
   options: ContextMenuOption[];
+  onMenuClose: (() => void) | undefined;
 }
 
 export function JSEditorContextMenu({
   className,
+  onMenuClose,
   options,
 }: EntityContextMenuProps) {
   if (options.length === 0) {
     return null;
   }
   return (
-    <Menu className={className}>
+    <Menu
+      className={className}
+      onOpenChange={(open) => {
+        if (!open) {
+          onMenuClose?.();
+        }
+      }}
+    >
       <MenuTrigger>
         <Button
           data-testid="more-action-trigger"

@@ -11,11 +11,10 @@ import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationDetail;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Asset;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
-import com.appsmith.server.domains.QApplication;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
@@ -36,7 +35,6 @@ import com.appsmith.server.repositories.NewActionRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.AssetService;
 import com.appsmith.server.services.BaseService;
-import com.appsmith.server.services.ConfigService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.UserDataService;
@@ -45,21 +43,16 @@ import com.appsmith.server.solutions.ApplicationPermission;
 import com.appsmith.server.solutions.DatasourcePermission;
 import com.appsmith.server.solutions.PolicySolution;
 import com.appsmith.server.solutions.WorkspacePermission;
-import com.mongodb.client.result.UpdateResult;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.DuplicateKeyException;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.http.codec.multipart.Part;
 import org.springframework.stereotype.Service;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -83,7 +76,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         implements ApplicationServiceCE {
 
     private final PolicySolution policySolution;
-    private final ConfigService configService;
     private final ResponseUtils responseUtils;
     private final PermissionGroupService permissionGroupService;
     private final NewActionRepository newActionRepository;
@@ -100,14 +92,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
 
     @Autowired
     public ApplicationServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             ApplicationRepository repository,
             AnalyticsService analyticsService,
             PolicySolution policySolution,
-            ConfigService configService,
             ResponseUtils responseUtils,
             PermissionGroupService permissionGroupService,
             NewActionRepository newActionRepository,
@@ -119,9 +107,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
             WorkspaceService workspaceService,
             WorkspacePermission workspacePermission) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.policySolution = policySolution;
-        this.configService = configService;
         this.responseUtils = responseUtils;
         this.permissionGroupService = permissionGroupService;
         this.newActionRepository = newActionRepository;
@@ -132,18 +119,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         this.userDataService = userDataService;
         this.workspaceService = workspaceService;
         this.workspacePermission = workspacePermission;
-    }
-
-    @Override
-    public Flux<Application> get(MultiValueMap<String, String> params) {
-        if (!StringUtils.isEmpty(params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME))) {
-            params.add(
-                    "gitApplicationMetadata.branchName",
-                    params.getFirst(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME));
-            params.remove(FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME);
-        }
-        return setTransientFields(super.getWithPermission(params, applicationPermission.getReadPermission()))
-                .map(responseUtils::updateApplicationWithDefaultResources);
     }
 
     @Override
@@ -177,19 +152,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    @Deprecated
     public Mono<Application> findById(String id, AclPermission aclPermission) {
         return repository.findById(id, aclPermission).flatMap(this::setTransientFields);
-    }
-
-    @Override
-    public Mono<Application> findById(String id, Optional<AclPermission> aclPermission) {
-        return repository.findById(id, aclPermission).flatMap(this::setTransientFields);
-    }
-
-    @Override
-    public Mono<Application> findByIdAndWorkspaceId(String id, String workspaceId, AclPermission permission) {
-        return repository.findByIdAndWorkspaceId(id, workspaceId, permission).flatMap(this::setTransientFields);
     }
 
     @Override
@@ -249,16 +213,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
     }
 
     @Override
-    public Flux<Application> findByClonedFromApplicationId(String applicationId, AclPermission permission) {
-        return repository.findByClonedFromApplicationId(applicationId, permission);
-    }
-
-    @Override
-    public Mono<Application> findByName(String name, AclPermission permission) {
-        return repository.findByName(name, permission).flatMap(this::setTransientFields);
-    }
-
-    @Override
     public Mono<Application> save(Application application) {
         if (!StringUtils.isEmpty(application.getName())) {
             application.setSlug(TextUtils.makeSlug(application.getName()));
@@ -267,12 +221,8 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         if (application.getApplicationVersion() != null) {
             int appVersion = application.getApplicationVersion();
             if (appVersion < ApplicationVersion.EARLIEST_VERSION || appVersion > ApplicationVersion.LATEST_VERSION) {
-                return Mono.error(new AppsmithException(
-                        AppsmithError.INVALID_PARAMETER,
-                        QApplication.application
-                                .applicationVersion
-                                .getMetadata()
-                                .getName()));
+                return Mono.error(
+                        new AppsmithException(AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
             }
         }
         return repository.save(application).flatMap(this::setTransientFields);
@@ -343,16 +293,12 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 if (appVersion < ApplicationVersion.EARLIEST_VERSION
                         || appVersion > ApplicationVersion.LATEST_VERSION) {
                     return Mono.error(new AppsmithException(
-                            AppsmithError.INVALID_PARAMETER,
-                            QApplication.application
-                                    .applicationVersion
-                                    .getMetadata()
-                                    .getName()));
+                            AppsmithError.INVALID_PARAMETER, Application.Fields.applicationVersion));
                 }
             }
 
             Mono<String> applicationIdMono;
-            GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+            GitArtifactMetadata gitData = application.getGitApplicationMetadata();
             if (gitData != null
                     && !StringUtils.isEmpty(gitData.getBranchName())
                     && !StringUtils.isEmpty(gitData.getDefaultApplicationId())) {
@@ -403,8 +349,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         });
     }
 
-    public Mono<UpdateResult> update(
-            String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName) {
+    public Mono<Integer> update(String defaultApplicationId, Map<String, Object> fieldNameValueMap, String branchName) {
         String defaultIdPath = "id";
         if (!isBlank(branchName)) {
             defaultIdPath = "gitApplicationMetadata.defaultApplicationId";
@@ -750,7 +695,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "application", applicationId)))
                 .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     // Check if the current application is the root application
 
                     if (gitData != null
@@ -762,10 +707,10 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                         return save(application);
                     } else if (gitData == null) {
                         // This is a root application with generate SSH key request
-                        GitApplicationMetadata gitApplicationMetadata = new GitApplicationMetadata();
-                        gitApplicationMetadata.setDefaultApplicationId(applicationId);
-                        gitApplicationMetadata.setGitAuth(gitAuth);
-                        application.setGitApplicationMetadata(gitApplicationMetadata);
+                        GitArtifactMetadata gitArtifactMetadata = new GitArtifactMetadata();
+                        gitArtifactMetadata.setDefaultApplicationId(applicationId);
+                        gitArtifactMetadata.setGitAuth(gitAuth);
+                        application.setGitApplicationMetadata(gitArtifactMetadata);
                         return save(application);
                     }
                     // Children application with update SSH key request for root application
@@ -781,11 +726,11 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                     return repository
                             .findById(gitData.getDefaultApplicationId(), applicationPermission.getEditPermission())
                             .flatMap(defaultApplication -> {
-                                GitApplicationMetadata gitApplicationMetadata =
+                                GitArtifactMetadata gitArtifactMetadata =
                                         defaultApplication.getGitApplicationMetadata();
-                                gitApplicationMetadata.setDefaultApplicationId(defaultApplication.getId());
-                                gitApplicationMetadata.setGitAuth(gitAuth);
-                                defaultApplication.setGitApplicationMetadata(gitApplicationMetadata);
+                                gitArtifactMetadata.setDefaultApplicationId(defaultApplication.getId());
+                                gitArtifactMetadata.setGitAuth(gitAuth);
+                                defaultApplication.setGitApplicationMetadata(gitArtifactMetadata);
                                 return save(defaultApplication);
                             });
                 })
@@ -826,7 +771,7 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.APPLICATION_ID, applicationId)))
                 .flatMap(application -> {
-                    GitApplicationMetadata gitData = application.getGitApplicationMetadata();
+                    GitArtifactMetadata gitData = application.getGitApplicationMetadata();
                     List<GitDeployKeyDTO> gitDeployKeyDTOList = GitDeployKeyGenerator.getSupportedProtocols();
                     if (gitData == null) {
                         return Mono.error(new AppsmithException(
@@ -890,24 +835,6 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return repository
                 .getApplicationByGitBranchAndDefaultApplicationId(
                         defaultApplicationId, projectionFieldNames, branchName, aclPermission)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.NO_RESOURCE_FOUND,
-                        FieldName.APPLICATION,
-                        defaultApplicationId + "," + branchName)));
-    }
-
-    @Override
-    public Mono<Application> findByBranchNameAndDefaultApplicationIdAndFieldName(
-            String branchName, String defaultApplicationId, String fieldName, AclPermission aclPermission) {
-        if (StringUtils.isEmpty(branchName)) {
-            return repository
-                    .findById(defaultApplicationId, aclPermission)
-                    .switchIfEmpty(Mono.error(new AppsmithException(
-                            AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, defaultApplicationId)));
-        }
-
-        return repository
-                .getApplicationByGitBranchAndDefaultApplicationId(defaultApplicationId, branchName, aclPermission)
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND,
                         FieldName.APPLICATION,
@@ -998,18 +925,13 @@ public class ApplicationServiceCEImpl extends BaseService<ApplicationRepository,
         return repository.getGitConnectedApplicationWithPrivateRepoCount(workspaceId);
     }
 
-    @Override
-    public Flux<Application> getGitConnectedApplicationsByWorkspaceId(String workspaceId) {
-        return repository.getGitConnectedApplicationByWorkspaceId(workspaceId);
-    }
-
     public String getRandomAppCardColor() {
         int randomColorIndex = (int) (System.currentTimeMillis() % ApplicationConstants.APP_CARD_COLORS.length);
         return ApplicationConstants.APP_CARD_COLORS[randomColorIndex];
     }
 
     @Override
-    public Mono<UpdateResult> setAppTheme(
+    public Mono<Integer> setAppTheme(
             String applicationId, String editModeThemeId, String publishedModeThemeId, AclPermission aclPermission) {
         return repository.setAppTheme(applicationId, editModeThemeId, publishedModeThemeId, aclPermission);
     }

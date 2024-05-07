@@ -27,6 +27,7 @@ import {
   assertHelper,
 } from "../../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../../support/Pages/PageList";
+import { EntityItems } from "../../../../../support/Pages/AssertHelper";
 
 const newPage = "ApiCalls_1";
 const pageName = "crudpage_1";
@@ -50,7 +51,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
 
     cy.contains("Connect new datasource").click({ force: true });
 
-    cy.get(datasource.PostgreSQL).click();
+    agHelper.GetNClick(datasource.PostgreSQL);
 
     cy.fillPostgresDatasourceForm();
 
@@ -102,7 +103,12 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       expect(cellData).to.be.equal("New Config");
     });
     // rename page to crud_page
-    entityExplorer.RenameEntityFromExplorer("Page1", pageName);
+    entityExplorer.RenameEntityFromExplorer(
+      "Page1",
+      pageName,
+      false,
+      EntityItems.Page,
+    );
     EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     // create a clone of page
     cy.get(`.t--entity-item:contains(${pageName})`).within(() => {
@@ -277,7 +283,6 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     );
     dataSources.RunQuery();
     // create a new page
-    cy.CheckAndUnfoldEntityItem("Pages");
     cy.Createpage("Child_Page");
     EditorNavigation.SelectEntityByName(`${newPage} Copy`, EntityType.Page);
     EditorNavigation.SelectEntityByName("get_users", EntityType.Query);
@@ -459,7 +464,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     // delete page from page settings
     EditorNavigation.SelectEntityByName("Child_Page Copy", EntityType.Page);
     cy.wait("@getConsolidatedData");
-    cy.Deletepage("Child_Page Copy");
+    PageList.DeletePage("Child_Page Copy");
     cy.get(homePageLocators.publishButton).click();
     cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
@@ -482,11 +487,11 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       expect(cellData).to.be.equal("New Config");
     });
     agHelper.AssertAutoSave();
-    PageLeftPane.expandCollapseItem("Pages");
+    PageList.ShowList();
     PageLeftPane.assertAbsence("Child_Page Copy");
     // create another branch and verify deleted page doesn't exist on it
     gitSync.CreateGitBranch(tempBranch0, true);
-    PageLeftPane.expandCollapseItem("Pages");
+    PageList.ShowList();
     PageLeftPane.assertAbsence("Child_Page Copy");
   });
 
@@ -498,7 +503,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     // import application from git
     cy.importAppFromGit(repoName);
     // verify page order remains same as in orignal app
-    cy.CheckAndUnfoldEntityItem("Pages");
+    PageList.ShowList();
     cy.get(".t--entity-item").eq(1).contains("crudpage_1");
     cy.get(".t--entity-item").eq(2).contains("crudpage_1 Copy");
     cy.get(".t--entity-item").eq(3).contains("ApiCalls_1");

@@ -7,25 +7,22 @@ import {
 import type { DatasourceStructure as DatasourceStructureType } from "entities/Datasource";
 import { DatasourceStructureContext } from "entities/Datasource";
 import type { ReactElement } from "react";
-import React, { memo, useEffect, useState, useContext } from "react";
-import EntityPlaceholder from "../Explorer/Entity/Placeholder";
+import React, { memo, useCallback, useEffect, useState } from "react";
 import DatasourceStructure from "./DatasourceStructure";
-import { SearchInput, Text } from "design-system";
+import { Button, Flex, SearchInput, Text } from "design-system";
 import { getIsFetchingDatasourceStructure } from "@appsmith/selectors/entitiesSelector";
-import { useSelector } from "react-redux";
+import { useDispatch, useSelector } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import ItemLoadingIndicator from "./ItemLoadingIndicator";
 import DatasourceStructureNotFound from "./DatasourceStructureNotFound";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { PluginName } from "entities/Action";
-import WalkthroughContext from "components/featureWalkthrough/walkthroughContext";
-import { setFeatureWalkthroughShown } from "utils/storage";
-import { FEATURE_WALKTHROUGH_KEYS } from "constants/WalkthroughConstants";
-import { SCHEMA_SECTION_ID } from "entities/Action";
 import { DatasourceStructureSearchContainer } from "./SchemaViewModeCSS";
+import { refreshDatasourceStructure } from "actions/datasourceActions";
 
 interface Props {
   datasourceId: string;
+  datasourceName: string;
   datasourceStructure?: DatasourceStructureType;
   step: number;
   context: DatasourceStructureContext;
@@ -34,6 +31,7 @@ interface Props {
   onEntityTableClick?: (table: string) => void;
   tableName?: string;
   customEditDatasourceFn?: () => void;
+  showRefresh?: boolean;
 }
 
 // leaving out DynamoDB and Firestore because they have a schema but not templates
@@ -52,6 +50,7 @@ export const SCHEMALESS_PLUGINS: Array<string> = [
 ];
 
 const Container = (props: Props) => {
+  const dispatch = useDispatch();
   const isLoading = useSelector((state: AppState) =>
     getIsFetchingDatasourceStructure(state, props.datasourceId),
   );
@@ -61,31 +60,9 @@ const Container = (props: Props) => {
     DatasourceStructureType | undefined
   >(props.datasourceStructure);
 
-  const { isOpened: isWalkthroughOpened, popFeature } =
-    useContext(WalkthroughContext) || {};
-
-  const attachCloseWalkthrough =
-    props.context !== DatasourceStructureContext.EXPLORER &&
-    isWalkthroughOpened &&
-    !isLoading &&
-    !props.datasourceStructure?.tables?.length;
-
-  const closeWalkthrough = () => {
-    popFeature && popFeature("DATASOURCE_SCHEMA_CONTAINER");
-    setFeatureWalkthroughShown(FEATURE_WALKTHROUGH_KEYS.ds_schema, true);
-  };
-
-  useEffect(() => {
-    const schemaContainer = document.querySelector(`#${SCHEMA_SECTION_ID}`);
-    if (schemaContainer && attachCloseWalkthrough) {
-      schemaContainer.addEventListener("click", closeWalkthrough);
-    }
-    return () => {
-      if (schemaContainer && attachCloseWalkthrough) {
-        schemaContainer.removeEventListener("click", closeWalkthrough);
-      }
-    };
-  }, [attachCloseWalkthrough]);
+  const refreshStructure = useCallback(() => {
+    dispatch(refreshDatasourceStructure(props.datasourceId, props.context));
+  }, []);
 
   useEffect(() => {
     if (datasourceStructure !== props.datasourceStructure) {
@@ -113,30 +90,16 @@ const Container = (props: Props) => {
     if (props.datasourceStructure?.tables?.length) {
       view = (
         <>
-          {props.context !== DatasourceStructureContext.EXPLORER && (
-            <DatasourceStructureSearchContainer
-              className={`t--search-container--${props.context.toLowerCase()}`}
-            >
-              <SearchInput
-                className="datasourceStructure-search"
-                endIcon="close"
-                onChange={(value) => handleOnChange(value)}
-                placeholder={createMessage(
-                  DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
-                )}
-                size={"sm"}
-                startIcon="search"
-                type="text"
-              />
-            </DatasourceStructureSearchContainer>
-          )}
           {!!datasourceStructure?.tables?.length && (
             <DatasourceStructure
               context={props.context}
               currentActionId={props.currentActionId || ""}
               datasourceId={props.datasourceId}
-              // If set, then it doesn't set the context menu to generate query from templates
               onEntityTableClick={props.onEntityTableClick}
+              showTemplates={
+                props.context !==
+                DatasourceStructureContext.DATASOURCE_VIEW_MODE
+              }
               step={props.step + 1}
               // Selected table name for the view mode datasource preview data page
               tableName={props.tableName}
@@ -152,43 +115,62 @@ const Container = (props: Props) => {
         </>
       );
     } else {
-      if (props.context !== DatasourceStructureContext.EXPLORER) {
-        view = (
-          <DatasourceStructureNotFound
-            context={props.context}
-            customEditDatasourceFn={props?.customEditDatasourceFn}
-            datasourceId={props.datasourceId}
-            error={
-              !!props.datasourceStructure &&
-              "error" in props.datasourceStructure
-                ? props.datasourceStructure.error
-                : { message: createMessage(SCHEMA_NOT_AVAILABLE) }
-            }
-            pluginName={props?.pluginName || ""}
-          />
-        );
-      } else {
-        view = (
-          <EntityPlaceholder step={props.step + 1}>
-            {props.datasourceStructure &&
-            props.datasourceStructure.error &&
-            props.datasourceStructure.error.message &&
-            props.datasourceStructure.error.message !== "null"
-              ? props.datasourceStructure.error.message
-              : createMessage(SCHEMA_NOT_AVAILABLE)}
-          </EntityPlaceholder>
-        );
-      }
+      view = (
+        <DatasourceStructureNotFound
+          context={props.context}
+          customEditDatasourceFn={props?.customEditDatasourceFn}
+          datasourceId={props.datasourceId}
+          error={
+            !!props.datasourceStructure && "error" in props.datasourceStructure
+              ? props.datasourceStructure.error
+              : { message: createMessage(SCHEMA_NOT_AVAILABLE) }
+          }
+          pluginName={props?.pluginName || ""}
+        />
+      );
     }
   } else if (
     // intentionally leaving this here in case we want to show loading states in the explorer or query editor page
-    props.context !== DatasourceStructureContext.EXPLORER &&
     isLoading
   ) {
-    view = <ItemLoadingIndicator type="SCHEMA" />;
+    view = (
+      <Flex padding="spaces-4">
+        <ItemLoadingIndicator type="SCHEMA" />
+      </Flex>
+    );
   }
 
-  return view;
+  return (
+    <>
+      <DatasourceStructureSearchContainer
+        className={`t--search-container--${props.context.toLowerCase()}`}
+      >
+        {props.showRefresh ? (
+          <Button
+            className="datasourceStructure-refresh"
+            isIconButton
+            kind="tertiary"
+            onClick={refreshStructure}
+            size="md"
+            startIcon="refresh"
+          />
+        ) : null}
+        <SearchInput
+          className="datasourceStructure-search"
+          endIcon="close"
+          onChange={(value) => handleOnChange(value)}
+          placeholder={createMessage(
+            DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT,
+            props.datasourceName,
+          )}
+          size={"sm"}
+          startIcon="search"
+          type="text"
+        />
+      </DatasourceStructureSearchContainer>
+      {view}
+    </>
+  );
 };
 
 export const DatasourceStructureContainer = memo(Container);

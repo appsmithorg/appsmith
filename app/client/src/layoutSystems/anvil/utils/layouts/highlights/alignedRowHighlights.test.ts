@@ -11,7 +11,7 @@ import {
 } from "layoutSystems/common/utils/constants";
 import { HIGHLIGHT_SIZE } from "../../constants";
 import LayoutFactory from "layoutSystems/anvil/layoutComponents/LayoutFactory";
-import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/AlignedWidgetRow";
+import AlignedWidgetRow from "layoutSystems/anvil/layoutComponents/components/alignedWidgetRow";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { mockButtonProps } from "mocks/widgetProps/button";
 import { getAlignmentLayoutId } from "../layoutUtils";
@@ -81,7 +81,7 @@ describe("AlignedRow highlights", () => {
       expect(res.length).toEqual(3);
 
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
-      expect(res[0].posX).toEqual(startPosition.left + HIGHLIGHT_SIZE / 2);
+      expect(res[0].posX).toEqual(startPosition.left);
       expect(res[0].posY).toEqual(startPosition.top);
       expect(res[0].height).toEqual(startPosition.height);
 

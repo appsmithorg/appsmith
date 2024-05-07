@@ -1,9 +1,12 @@
 name: Test, build and push Docker Image
 
+run-name: >
+  ${{ github.workflow }} with TED:${{ inputs.ted_tag || 'latest' }}
+
 on:
-  # This workflow will run everyday at 7:00AM, 10:00AM, 1:00PM, 4:00PM IST on weekdays
+  # This workflow will run everyday at 7:00AM, 1:00PM IST on weekdays
   schedule:
-    - cron: "30 1-12/3 * * 1-5"
+    - cron: "30 1-12/6 * * 1-5"
   # This line enables manual triggering of this workflow.
   workflow_dispatch:
     inputs:
@@ -12,6 +15,11 @@ on:
         required: false
         type: string
         default: ""
+      ted_tag:
+        description: TestEventDriver image tag
+        required: false
+        type: string
+        default: latest
 
   # trigger for pushes to master
   push:
@@ -29,6 +37,12 @@ jobs:
       tags: ${{ steps.setup.outputs.tags }}
       matrix: ${{ steps.setup.outputs.matrix }}
     steps:
+      - name: "Post inputs to run summary"
+        env:
+          INPUTS: "${{ toJSON(inputs) }}"
+        run: |
+          echo $'## Inputs\n```\n'"$INPUTS"$'\n```' > "$GITHUB_STEP_SUMMARY"
+
       - name: Set tags and matrix runner
         id: setup
         run: |
@@ -94,6 +108,7 @@ jobs:
       pr: 0
       tags: ${{needs.setup.outputs.tags}}
       matrix: ${{needs.setup.outputs.matrix}}
+      ted_tag: ${{inputs.ted_tag}}
 
   server-unit-tests:
     name: server-unit-tests
@@ -201,6 +216,32 @@ jobs:
           SLACK_FOOTER: "Push Workflow"
           SLACK_MESSAGE: ${{steps.slack_notification.outputs.slack_message}}
 
+      # Dump github context for future use
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: |
+          echo "$GITHUB_CONTEXT"
+          echo ${{ github.repository }}
+
+      # This step triggers an external workflow for automated analysis of Cypress test runs.
+      - name: Invoke Automated analysis workflow
+        run: |
+          curl --location --request POST ${{secrets.CYPRESS_WORKFLOW_API}}    \
+          --header 'x-appsmith-key: ${{ secrets.CYPRESS_WORKFLOW_KEY }}'      \
+          --header 'Content-Type: application/json' \
+          --data-raw '{ "workflow_id" : ${{ github.run_id }} , 
+                        "commit_id" : "${{ github.sha }}" , 
+                        "repo" : "${{  github.event.repository.full_name }}" , 
+                        "task" : "${{  github.job }}" ,   
+                        "workflow_type" : "${{ github.event_name }}",  
+                        "workflow_name" : "${{ github.workflow }}", 
+                        "job_id" : "",     
+                        "job_data": { 
+                            "ci_test_result_sample_data" : "sample_data" 
+                         }  
+           }'
+
       # Force save the CI failed spec list into a cache
       - name: Store the combined run result for CI
         if: needs.ci-test.result != 'success'
@@ -290,7 +331,7 @@ jobs:
         uses: depot/setup-action@v1
 
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}
@@ -365,7 +406,7 @@ jobs:
         uses: depot/setup-action@v1
 
       - name: Login to DockerHub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_ACCESS_TOKEN }}

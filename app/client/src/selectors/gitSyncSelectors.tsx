@@ -6,7 +6,6 @@ import {
   getCurrentApplication,
 } from "@appsmith/selectors/applicationSelectors";
 import type { Branch } from "entities/GitSync";
-import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 
 export const getGitSyncState = (state: AppState): GitSyncReducerState =>
   state.ui.gitSync;
@@ -65,9 +64,6 @@ export const getIsFetchingLocalGitConfig = (state: AppState) =>
 
 export const getGitStatus = (state: AppState) => state.ui.gitSync.gitStatus;
 
-export const getGitRemoteStatus = (state: AppState) =>
-  state.ui.gitSync.gitRemoteStatus;
-
 export const getGitConnectError = (state: AppState) =>
   state.ui.gitSync.connectError?.error;
 
@@ -85,9 +81,6 @@ export const getGitDiscardError = (state: AppState) =>
 
 export const getIsFetchingGitStatus = (state: AppState) =>
   state.ui.gitSync.isFetchingGitStatus;
-
-export const getIsFetchingGitRemoteStatus = (state: AppState) =>
-  state.ui.gitSync.isFetchingGitRemoteStatus;
 
 export const getIsPullingProgress = (state: AppState) =>
   state.ui.gitSync.pullInProgress;
@@ -128,6 +121,9 @@ export const getCurrentGitBranch = (state: AppState): string | undefined => {
   return gitApplicationMetadata?.branchName;
 };
 
+export const showBranchPopupSelector = (state: AppState) =>
+  state.ui.gitSync.showBranchPopup;
+
 export const getPullFailed = (state: AppState) => state.ui.gitSync.pullFailed;
 
 export const getPullInProgress = (state: AppState) =>
@@ -142,8 +138,30 @@ export const getMergeError = (state: AppState) => state.ui.gitSync.mergeError;
 
 export const getCountOfChangesToCommit = (state: AppState) => {
   const gitStatus = getGitStatus(state);
-  const { modifiedPages = 0, modifiedQueries = 0 } = gitStatus || {};
-  return modifiedPages + modifiedQueries;
+  const {
+    modified = [],
+    modifiedDatasources = 0,
+    modifiedJSLibs = 0,
+    modifiedJSObjects = 0,
+    modifiedModules = 0,
+    modifiedPackages = 0,
+    modifiedPages = 0,
+    modifiedQueries = 0,
+  } = gitStatus || {};
+  const themeCount = modified.includes("theme.json") ? 1 : 0;
+  const settingsCount = modified.includes("application.json") ? 1 : 0;
+  // does not include ahead and behind remote counts
+  return (
+    modifiedDatasources +
+    modifiedJSLibs +
+    modifiedJSObjects +
+    modifiedModules +
+    modifiedPackages +
+    modifiedPages +
+    modifiedQueries +
+    themeCount +
+    settingsCount
+  );
 };
 
 export const getShowRepoLimitErrorModal = (state: AppState) =>
@@ -205,17 +223,6 @@ export const getBranchSwitchingDetails = (state: AppState) => ({
   isSwitchingBranch: state.ui.gitSync.isSwitchingBranch,
   switchingToBranch: state.ui.gitSync.switchingToBranch,
 });
-
-// feature flag selectors
-export const getIsGitStatusLiteEnabled = createSelector(
-  selectFeatureFlags,
-  (flags) => !!flags?.release_git_status_lite_enabled,
-);
-
-export const getIsGitConnectV2Enabled = createSelector(
-  selectFeatureFlags,
-  (flags) => !!flags?.release_git_connect_v2_enabled,
-);
 
 export const getProtectedBranchesSelector = (state: AppState) =>
   state.ui.gitSync.protectedBranches;

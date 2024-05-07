@@ -1,6 +1,8 @@
 /* eslint-disable cypress/no-unnecessary-waiting */
 /* eslint-disable cypress/no-assigning-return-values */
 
+import PageList from "./Pages/PageList";
+
 require("cy-verify-downloads").addCustomCommand();
 require("cypress-file-upload");
 const commonlocators = require("../locators/commonlocators.json");
@@ -13,6 +15,7 @@ const dynamicInputLocators = require("../locators/DynamicInput.json");
 const viewWidgetsPage = require("../locators/ViewWidgets.json");
 import { ObjectsRegistry } from "../support/Objects/Registry";
 import { TABLE_COLUMN_ORDER_KEY } from "./Constants";
+import { EntityItems } from "./Pages/AssertHelper";
 
 let pageidcopy = " ";
 
@@ -929,31 +932,22 @@ Cypress.Commands.add("DeleteModal", () => {
 });
 
 Cypress.Commands.add("Createpage", (pageName, navigateToCanvasPage = true) => {
-  cy.CreatePage();
-  cy.wait("@createPage").then((xhr) => {
-    expect(xhr.response.body.responseMeta.status).to.equal(201);
+  PageList.AddNewPage().then((oldPageName) => {
     if (pageName) {
-      const pageId = xhr.response.body.data.id;
-      const oldPageName = xhr.response.body.data.name;
       cy.wait(2000);
-      ee.RenameEntityFromExplorer(oldPageName, pageName, true);
-      cy.wrap(pageId).as("currentPageId");
+      ee.RenameEntityFromExplorer(
+        oldPageName,
+        pageName,
+        false,
+        EntityItems.Page,
+      );
     }
     cy.get("#loading").should("not.exist");
   });
-});
-
-Cypress.Commands.add("Deletepage", (Pagename) => {
-  cy.CheckAndUnfoldEntityItem("Pages");
-  cy.get(`.t--entity-item:contains(${Pagename})`).within(() => {
-    cy.get(".t--context-menu").click({ force: true });
+  cy.get("@createPage").then((xhr) => {
+    const pageId = xhr.response.body.data.id;
+    cy.wrap(pageId).as("currentPageId");
   });
-  cy.wait(2000);
-  cy.selectAction("Delete");
-  cy.selectAction("Are you sure?");
-  cy.wait("@deletePage")
-    .its("response.body.responseMeta.status")
-    .should("eq", 200);
 });
 
 Cypress.Commands.add("dropdownDynamic", (text) => {

@@ -69,8 +69,14 @@ export interface ColorModeTheme {
     // bd on bg*
     bdOnAccent: string;
     bdOnNeutral: string;
+    bdOnNeutralSubtle: string;
+    bdOnNeutralSubtleHover: string;
     bdOnPositive: string;
     bdOnNegative: string;
     bdOnWarning: string;
+    // Elevation
+    bdElevation1: string;
+    bdElevation2: string;
+    bdElevation3: string;
   };
 }

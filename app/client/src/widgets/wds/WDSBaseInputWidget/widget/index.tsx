@@ -5,12 +5,11 @@ import type { DerivedPropertiesMap } from "WidgetProvider/factory";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
-import IconSVG from "../icon.svg";
+import * as config from "../config";
 import type { BaseInputWidgetProps } from "./types";
-import { propertyPaneContentConfig } from "./contentConfig";
+import type { WidgetDefaultProps } from "WidgetProvider/constants";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import type { WidgetBaseConfiguration } from "WidgetProvider/constants";
-import type { WidgetDefaultProps } from "WidgetProvider/constants";
 
 class WDSBaseInputWidget<
   T extends BaseInputWidgetProps,
@@ -24,7 +23,6 @@ class WDSBaseInputWidget<
     return {
       name: "Input",
       hideCard: true,
-      iconSVG: IconSVG,
       needsMeta: true,
     };
   }
@@ -46,7 +44,7 @@ class WDSBaseInputWidget<
   }
 
   static getPropertyPaneContentConfig() {
-    return propertyPaneContentConfig;
+    return config.propertyPaneContentConfig;
   }
 
   static getPropertyPaneStyleConfig() {

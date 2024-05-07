@@ -11,15 +11,19 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.BuildingBlockDTO;
+import com.appsmith.server.dtos.BuildingBlockResponseDTO;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.PartialImportService;
+import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.imports.internal.partial.PartialImportService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
 import com.appsmith.server.plugins.base.PluginService;
@@ -29,6 +33,7 @@ import com.appsmith.server.repositories.PermissionGroupRepository;
 import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.services.ApplicationPageService;
+import com.appsmith.server.services.ApplicationTemplateService;
 import com.appsmith.server.services.PermissionGroupService;
 import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.WorkspaceService;
@@ -139,6 +144,12 @@ public class PartialImportServiceTest {
     @Autowired
     ActionCollectionService actionCollectionService;
 
+    @Autowired
+    ImportService importService;
+
+    @MockBean
+    ApplicationTemplateService applicationTemplateService;
+
     @BeforeEach
     public void setup() {
         Mockito.when(pluginExecutorHelper.getPluginExecutor(Mockito.any()))
@@ -174,7 +185,7 @@ public class PartialImportServiceTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -230,8 +241,8 @@ public class PartialImportServiceTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
@@ -439,6 +450,86 @@ public class PartialImportServiceTest {
                         assertThat(actionNames.contains(
                                         action.getUnpublishedAction().getName()))
                                 .isTrue();
+                    });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void testPartialImportWithBuildingBlock_nameClash_success() {
+
+        Part filePart = createFilePart("test_assets/ImportExportServiceTest/building-block.json");
+        ApplicationJson applicationJson = (ApplicationJson)
+                importService.extractArtifactExchangeJson(filePart).block();
+        // Mock the call to fetch the json file from CS
+        Mockito.when(applicationTemplateService.getApplicationJsonFromTemplate("templatedId"))
+                .thenReturn(Mono.just(applicationJson));
+
+        ApplicationJson applicationJson1 = (ApplicationJson)
+                importService.extractArtifactExchangeJson(filePart).block();
+        Mockito.when(applicationTemplateService.getApplicationJsonFromTemplate("templatedId1"))
+                .thenReturn(Mono.just(applicationJson1));
+
+        // Create an application with all resources
+        Application testApplication = new Application();
+        testApplication.setName("testPartialImportWithBuildingBlock_nameClash_success");
+        testApplication.setWorkspaceId(workspaceId);
+
+        testApplication = applicationPageService
+                .createApplication(testApplication, workspaceId)
+                .block();
+
+        String pageId = newPageService
+                .findById(testApplication.getPages().get(0).getId(), Optional.empty())
+                .block()
+                .getId();
+        BuildingBlockDTO buildingBlockDTO = new BuildingBlockDTO();
+        buildingBlockDTO.setApplicationId(testApplication.getId());
+        buildingBlockDTO.setPageId(pageId);
+        buildingBlockDTO.setWorkspaceId(workspaceId);
+        buildingBlockDTO.setTemplateId("templatedId");
+
+        BuildingBlockDTO buildingBlockDTO1 = new BuildingBlockDTO();
+        buildingBlockDTO1.setApplicationId(testApplication.getId());
+        buildingBlockDTO1.setPageId(pageId);
+        buildingBlockDTO1.setWorkspaceId(workspaceId);
+        buildingBlockDTO1.setTemplateId("templatedId1");
+
+        Mono<Tuple3<BuildingBlockResponseDTO, List<ActionCollection>, List<NewAction>>> result = partialImportService
+                .importBuildingBlock(buildingBlockDTO, null)
+                .flatMap(s -> partialImportService.importBuildingBlock(buildingBlockDTO1, null))
+                .flatMap(buildingBlockResponseDTO -> {
+                    return Mono.zip(
+                            Mono.just(buildingBlockResponseDTO),
+                            actionCollectionService.findByPageId(pageId).collectList(),
+                            newActionService
+                                    .findByPageId(pageId, Optional.empty())
+                                    .collectList());
+                });
+
+        StepVerifier.create(result)
+                .assertNext(tuple -> {
+                    BuildingBlockResponseDTO BuildingBlockResponseDTO1 = tuple.getT1();
+                    List<ActionCollection> actionCollectionList = tuple.getT2();
+                    List<NewAction> actionList = tuple.getT3();
+                    assertThat(BuildingBlockResponseDTO1.getWidgetDsl()).isNotNull();
+                    // Compare the json string of widget DSL,
+                    // the binding names will be updated, and hence the json will be different
+                    assertThat(BuildingBlockResponseDTO1.getWidgetDsl())
+                            .isNotEqualTo(applicationJson
+                                    .getPageList()
+                                    .get(0)
+                                    .getUnpublishedPage()
+                                    .getLayouts()
+                                    .get(0)
+                                    .getDsl());
+                    List<String> actionIds =
+                            actionList.stream().map(action -> action.getId()).toList();
+
+                    BuildingBlockResponseDTO1.getOnPageLoadActions().forEach(action -> {
+                        assertThat(action.getName()).isIn("updateProductVariant1", "getProducts1", "updateProduct1");
+                        assertThat(actionIds).contains(action.getId());
                     });
                 })
                 .verifyComplete();

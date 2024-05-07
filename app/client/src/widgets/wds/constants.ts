@@ -1,3 +1,4 @@
+import { getCanvasClassName } from "utils/generators";
 import { anvilWidgets } from "widgets/anvil/constants";
 
 export const WDS_V2_WIDGET_MAP = {
@@ -10,7 +11,7 @@ export const WDS_V2_WIDGET_MAP = {
   TEXT_WIDGET_V2: "WDS_HEADING_WIDGET",
   TABLE_WIDGET_V2: "WDS_TABLE_WIDGET",
   CURRENCY_INPUT_WIDGET: "WDS_CURRENCY_INPUT_WIDGET",
-  BUTTON_GROUP_WIDGET: "WDS_BUTTON_GROUP_WIDGET",
+  BUTTON_GROUP_WIDGET: "WDS_TOOLBAR_BUTTONS_WIDGET",
   PHONE_INPUT_WIDGET: "WDS_PHONE_INPUT_WIDGET",
   CHECKBOX_GROUP_WIDGET: "WDS_CHECKBOX_GROUP_WIDGET",
   SWITCH_WIDGET: "WDS_SWITCH_WIDGET",
@@ -20,9 +21,10 @@ export const WDS_V2_WIDGET_MAP = {
   MODAL_WIDGET: "WDS_MODAL_WIDGET",
   STATBOX_WIDGET: "WDS_STATBOX_WIDGET",
   KEY_VALUE_WIDGET: "WDS_KEY_VALUE_WIDGET",
+  INLINE_BUTTONS_WIDGET: "WDS_INLINE_BUTTONS_WIDGET",
 
   // Anvil layout widgets
   ZONE_WIDGET: anvilWidgets.ZONE_WIDGET,
 };
-
-export const WDS_MODAL_WIDGET_CLASSNAME = "appsmith-modal-body";
+// getCanvasClassName adds class name to denote that this is scrollable canvas
+export const WDS_MODAL_WIDGET_CLASSNAME = `appsmith-modal-body ${getCanvasClassName()}`;

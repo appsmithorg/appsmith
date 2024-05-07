@@ -1,9 +1,9 @@
 export class DataManager {
   environments = ["Production", "Staging"];
   defaultEnviorment = this.environments[0];
-  GITEA_API_BASE_TED = "localhost";
-  GITEA_API_PORT_TED = "3001";
-  GITEA_API_URL_TED = "git@host.docker.internal:Cypress";
+
+  GIT_API_BASE = "localhost:4200";
+  GIT_CLONE_URL = "git@host.docker.internal:Cypress";
 
   dsValues: Record<string, any> = {
     Production: {
@@ -74,6 +74,7 @@ export class DataManager {
       mockApiUrl: "http://host.docker.internal:5001/v1/mock-api?records=10",
       mockGenderAge:
         "http://host.docker.internal:5001/v1/genderize_agify?name=",
+      mockGzipApi: "http://host.docker.internal:5001/v1/gzip",
 
       mockApiObjectUrl:
         "http://host.docker.internal:5001/v1/mock-api-object?records=10",
@@ -82,6 +83,10 @@ export class DataManager {
       randomTrumpApi:
         "http://host.docker.internal:5001/v1/whatdoestrumpthink/random",
       mockHttpCodeUrl: "http://host.docker.internal:5001/v1/mock-http-codes/",
+      flowerImageUrl1:
+        "http://host.docker.internal:4200/photo-1503469432756-4aae2e18d881.jpeg",
+      flowerImageUrl2:
+        "http://host.docker.internal:4200/photo-1492529029602-33e53698f407.jpeg",
       AirtableBaseForME: "appubHrVbovcudwN6",
       AirtableTableForME: "tblsFCQSskVFf7xNd",
       ApiUrlME: "http://host.docker.internal:5001/v1/production",
@@ -100,7 +105,7 @@ export class DataManager {
       readonly: "readonly",
       authenticatedApiUrl: "https://fakeapi.com",
 
-      GraphqlApiUrl_TED: "http://host.docker.internal:5000/graphql",
+      GraphqlApiUrl_TED: "http://host.docker.internal:4200/graphql",
 
       twilio_username: "random-username",
       twilio_password: "random-password",
@@ -193,7 +198,7 @@ export class DataManager {
       readonly: "readonly",
       authenticatedApiUrl: "https://fakeapi.com",
 
-      GraphqlApiUrl_TED: "http://host.docker.internal:5000/graphql",
+      GraphqlApiUrl_TED: "http://host.docker.internal:4200/graphql",
 
       twilio_username: "random-username",
       twilio_password: "random-password",

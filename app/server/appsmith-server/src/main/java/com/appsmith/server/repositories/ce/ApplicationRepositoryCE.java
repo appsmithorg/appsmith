@@ -17,6 +17,8 @@ public interface ApplicationRepositoryCE extends BaseRepository<Application, Str
 
     Flux<Application> findByWorkspaceId(String workspaceId);
 
+    Mono<Long> countByWorkspaceId(String workspaceId);
+
     Flux<IdOnly> findIdsByWorkspaceId(String workspaceId);
 
     Flux<Application> findByClonedFromApplicationId(String clonedFromApplicationId);

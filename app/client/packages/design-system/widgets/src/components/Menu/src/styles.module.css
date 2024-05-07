@@ -2,7 +2,7 @@
 
 .menu {
   background-color: var(--color-bg-elevation-3);
-  border-radius: var(--border-radius-1);
+  border-radius: var(--border-radius-elevation-3);
   z-index: var(--z-index-99);
   box-shadow: var(--box-shadow-1);
   min-inline-size: var(--sizing-30);
@@ -32,13 +32,13 @@
 }
 
 .menuList li:first-of-type {
-  border-top-left-radius: var(--border-radius-1);
-  border-top-right-radius: var(--border-radius-1);
+  border-top-left-radius: var(--border-radius-elevation-3);
+  border-top-right-radius: var(--border-radius-elevation-3);
 }
 
 .menuList li:last-of-type {
-  border-bottom-left-radius: var(--border-radius-1);
-  border-bottom-right-radius: var(--border-radius-1);
+  border-bottom-left-radius: var(--border-radius-elevation-3);
+  border-bottom-right-radius: var(--border-radius-elevation-3);
 }
 
 .menuList li:focus {
@@ -74,4 +74,19 @@
   box-shadow:
     0 0 0 2px var(--color-bg),
     0 0 0 4px var(--color-bd-focus);
+}
+
+.menuList li[data-separator] {
+  border-top: var(--border-width-1) solid var(--color-bd);
+  padding: 0;
+}
+
+/* this is required so that separator ( <Item isSeprator /> ) if passed with a text as children, the text is hidden */
+.menuList li[data-separator] > * {
+  display: none;
+}
+
+/* making sure the first and last child are not displayed when they have the data-separator attribute */
+.menuList li:is(:first-child, :last-child):is([data-separator]) {
+  display: none;
 }

@@ -80,6 +80,9 @@ export const getSearchedWorkspaces = (state: AppState) =>
 export const getSearchedApplications = (state: AppState) =>
   state.ui.workspaces.searchEntities?.applications;
 
+export const getSearchedWorkflows = (state: AppState) =>
+  state.ui.workspaces.searchEntities?.workflows;
+
 export const getIsFetchingEntities = (state: AppState) => {
   return state.ui.workspaces.loadingStates.isFetchingEntities;
 };

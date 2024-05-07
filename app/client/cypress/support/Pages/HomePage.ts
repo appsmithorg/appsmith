@@ -1,8 +1,13 @@
-import { ObjectsRegistry } from "../Objects/Registry";
-import { REPO, CURRENT_REPO } from "../../fixtures/REPO";
+import { CURRENT_REPO, REPO } from "../../fixtures/REPO";
 import HomePageLocators from "../../locators/HomePage";
 import SignupPageLocators from "../../locators/SignupPage.json";
+import { ObjectsRegistry } from "../Objects/Registry";
 import { AppSidebar, PageLeftPane } from "./EditorNavigation";
+import {
+  createMessage,
+  IMPORT_APP_SUCCESSFUL,
+  UNABLE_TO_IMPORT_APP,
+} from "../../../src/ce/constants/messages";
 export class HomePage {
   private agHelper = ObjectsRegistry.AggregateHelper;
   private locator = ObjectsRegistry.CommonLocators;
@@ -20,7 +25,8 @@ export class HomePage {
   private _optionsIcon = ".t--options-icon";
   public _newIcon = ".createnew";
   private _renameWorkspaceContainer = ".editable-text-container";
-  private _renameWorkspaceInput = ".t--workspace-rename-input input";
+  private _renameWorkspaceParent = ".t--workspace-rename-input";
+  private _renameWorkspaceInput = this._renameWorkspaceParent + " input";
   private _workspaceList = (workspaceName: string) =>
     ".t--workspace-section:contains(" + workspaceName + ")";
   private _workspaceNoApps = (workspaceName: string) =>
@@ -58,6 +64,10 @@ export class HomePage {
   _appContainer = ".t--applications-container";
   _homePageAppCreateBtn = " .createnew";
   _newButtonCreateApplication = "[data-testid=t--workspace-action-create-app]";
+  _newButtonCreateApplicationFromTemplates =
+    "[data-testid=t--workspace-action-create-app-from-template]";
+  _createAppFromTemplatesDialog =
+    "[data-testid=t--create-app-from-templates-dialog-component]";
   _existingWorkspaceCreateNewApp = (existingWorkspaceName: string) =>
     `//span[text()='${existingWorkspaceName}']/ancestor::div[contains(@class, 't--workspace-section')]//button[contains(@class, 't--new-button')]`;
   _applicationName = ".t--application-name";
@@ -95,7 +105,7 @@ export class HomePage {
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
   private _wsAction = (action: string) =>
-    ".ads-v2-menu__menu-item-children:contains('" + action + "')";
+    ".workspace-menu-item:contains('" + action + "')";
   private _homeTab = ".t--apps-tab";
   private adsV2Text = ".ads-v2-text";
   private _forkWorkspaceDropdownOption = "div.rc-select-selector";
@@ -169,14 +179,13 @@ export class HomePage {
         .find(this.adsV2Text)
         .then(($ele) => {
           oldName = $ele.text();
-          cy.log("oldName is : " + oldName);
           this.RenameWorkspace(oldName, workspaceNewName, false);
         });
   }
 
   public OpenWorkspaceOptions(workspaceName: string, networkCallAlias = true) {
     this.SelectWorkspace(workspaceName, networkCallAlias);
-    this.agHelper.GetElement(this._optionsIcon).click({ force: true });
+    this.agHelper.GetNClick(this._optionsIcon, 0, true);
   }
 
   public OpenWorkspaceSettings(workspaceName: string) {
@@ -190,9 +199,14 @@ export class HomePage {
     networkCallAlias = true,
   ) {
     this.OpenWorkspaceOptions(oldName, networkCallAlias);
-    this.agHelper.GetNClick(this._renameWorkspaceContainer, 0, true);
+    this.agHelper.AssertElementVisibility(this._renameWorkspaceContainer);
+    Cypress._.times(2, () => {
+      this.agHelper.GetNClick(this._renameWorkspaceParent, 0, true);
+    });
     this.agHelper.WaitUntilEleAppear(this._renameWorkspaceInput);
-    this.agHelper.TypeText(this._renameWorkspaceInput, newWorkspaceName).blur();
+    this.agHelper
+      .ClearNType(this._renameWorkspaceInput, newWorkspaceName)
+      .blur();
     this.assertHelper.AssertNetworkStatus("@updateWorkspace");
     this.agHelper.AssertContains(newWorkspaceName);
     this.agHelper.AssertElementVisibility(
@@ -319,6 +333,12 @@ export class HomePage {
     if (appname) this.RenameApplication(appname);
   }
 
+  public OpenTemplatesDialogInStartFromTemplates() {
+    this.agHelper.GetNClick(this._homePageAppCreateBtn, 0, true);
+    this.agHelper.GetNClick(this._newButtonCreateApplicationFromTemplates);
+    this.agHelper.AssertElementVisibility(this._createAppFromTemplatesDialog);
+  }
+
   //Maps to AppSetupForRename in command.js
   public RenameApplication(appName: string) {
     this.onboarding.closeIntroModal();
@@ -354,7 +374,6 @@ export class HomePage {
     }).then((response) => {
       expect(response.status).equal(200); //Verifying logout is success
     });
-    this.agHelper.Sleep(2000); //for logout to complete - CI!
   }
 
   public Signout(toNavigateToHome = true) {
@@ -423,8 +442,12 @@ export class HomePage {
     }
   }
 
-  public SignUp(uname: string, pswd: string) {
-    this.agHelper.VisitNAssert("/user/signup", "@getConsolidatedData");
+  public SignUp(
+    uname: string,
+    pswd: string,
+    skipToApplication: boolean = true,
+  ) {
+    this.agHelper.VisitNAssert("/user/signup");
     this.agHelper.AssertElementVisibility(this.signupUsername);
     this.agHelper.AssertAttribute(this._submitBtn, "data-disabled", "true");
     this.agHelper.TypeText(this.signupUsername, uname);
@@ -444,6 +467,15 @@ export class HomePage {
           this.agHelper.ClickButton("Get started");
         }
       });
+
+    this.assertHelper.AssertNetworkStatus("@getApplicationsOfWorkspace");
+
+    if (skipToApplication) {
+      this.agHelper.WaitUntilEleAppear(
+        this.onboarding.locators.skipStartFromData,
+      );
+      this.agHelper.GetNClick(this.onboarding.locators.skipStartFromData);
+    }
     this.assertHelper.AssertNetworkStatus("@getConsolidatedData");
   }
 
@@ -486,7 +518,7 @@ export class HomePage {
   public EditAppFromSearch(appName: string, element?: string) {
     this.agHelper.WaitUntilEleAppear(`[data-testid="${appName}"]`);
     this.agHelper.GetNClick(`[data-testid="${appName}"]`);
-    this.assertHelper.AssertNetworkStatus("viewPage");
+    this.assertHelper.AssertNetworkStatus("getConsolidatedData");
     this.AssertViewPageLoad(element);
     this.deployHelper.NavigateBacktoEditor();
   }
@@ -567,7 +599,6 @@ export class HomePage {
     newRole: string,
   ) {
     this.OpenMembersPageForWorkspace(workspaceName);
-    cy.log(workspaceName, email, currentRole);
     this.agHelper.TypeText(this._searchUsersInput, email);
     cy.get(".search-highlight").should("exist").contains(email);
     this.agHelper.Sleep(2000);
@@ -611,9 +642,11 @@ export class HomePage {
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
-    this.agHelper.Sleep(3500);
+    cy.wait("@importNewApplication")
+      .its("response.statusCode")
+      .should("eq", 200);
     this.agHelper.AssertElementAbsence(
-      this.locator._specificToast("Unable to import application in workspace"),
+      this.locator._specificToast(createMessage(UNABLE_TO_IMPORT_APP)),
     );
   }
 
@@ -624,8 +657,8 @@ export class HomePage {
         .GetElement(this._leftPanel)
         .contains("span", intoWorkspaceName)
         .click();
-      this.agHelper.GetNClick(this._newIcon);
-    } else this.agHelper.GetNClick(this._optionsIcon);
+    }
+    this.agHelper.GetNClick(this._newIcon);
     this.agHelper.GetNClick(this._workspaceImport, 0, true);
     this.agHelper.AssertElementVisibility(this._workspaceImportAppModal);
     this.agHelper.GetNClick(this._importFromGitBtn);
@@ -705,7 +738,7 @@ export class HomePage {
   }
 
   public AssertImportToast(timeout = 5000) {
-    this.agHelper.AssertContains("Application imported successfully");
+    this.agHelper.AssertContains(createMessage(IMPORT_APP_SUCCESSFUL));
     this.agHelper.Sleep(timeout); //for imported app to settle!
     cy.get(this.locator._loading).should("not.exist");
   }

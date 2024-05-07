@@ -295,6 +295,12 @@ describe("rowHighlights tests", () => {
       posY: 0,
       rowIndex: 0,
       width: HIGHLIGHT_SIZE,
+      edgeDetails: {
+        bottom: false,
+        left: false,
+        right: false,
+        top: false,
+      },
     };
     it("should derive highlights for a row", () => {
       const data: WidgetLayoutProps[] = [
@@ -641,7 +647,7 @@ describe("rowHighlights tests", () => {
       ]);
       expect(res[0].posY).toEqual(0);
       expect(res[0].alignment).toEqual(FlexLayerAlignment.Start);
-      expect(res[0].posX).toEqual(HIGHLIGHT_SIZE / 2);
+      expect(res[0].posX).toEqual(0);
       expect(res[0].height).toEqual(positions[layout.layoutId].height);
       expect(res[0].width).toEqual(HIGHLIGHT_SIZE);
     });
@@ -851,7 +857,7 @@ describe("rowHighlights tests", () => {
       expect(res[1].layoutOrder[0]).toEqual(layoutOne.layoutId);
       expect(res[5].layoutOrder[0]).toEqual(layoutTwo.layoutId);
     });
-    it("should discount dragged child widgets in highlights calculation", () => {
+    it("should have existingPositionHighlight prop for highlights of dragged child widgets in highlights calculation", () => {
       /**
        * Create a drop target (DT) layout with two child widgets.
        *
@@ -909,18 +915,13 @@ describe("rowHighlights tests", () => {
           responsiveBehavior: ResponsiveBehavior.Hug,
         },
       ]);
-
-      // highlights for the dragged widget should be discounted.
-      expect(res.length).toEqual(2);
-      // First highlight should be placed before input widget
-      expect(res[0].posX).toBeLessThan(positions[input1].left);
-      expect(res[0].posX).toBeGreaterThan(
-        positions[button1].left + positions[button1].width,
-      );
-      // Second highlight should be placed after input widget
-      expect(res[1].posX).toEqual(
-        positions[input1].left + positions[input1].width,
-      );
+      expect(res.length).toEqual(3);
+      // First highlight should be placed before dragged widget
+      expect(res[0].posX).toBeLessThan(positions[button1].left);
+      // highlights on both sides of the dragged widget should be have existingPositionHighlight true
+      expect(res[0].existingPositionHighlight).toBeTruthy();
+      expect(res[1].existingPositionHighlight).toBeTruthy();
+      expect(res[2].existingPositionHighlight).toBeFalsy();
     });
   });
 });

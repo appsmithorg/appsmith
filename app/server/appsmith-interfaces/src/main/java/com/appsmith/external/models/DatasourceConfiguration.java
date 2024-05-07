@@ -1,5 +1,8 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.views.FromRequest;
+import com.appsmith.external.views.Views;
+import com.fasterxml.jackson.annotation.JsonView;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -7,7 +10,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.springframework.data.mongodb.core.mapping.Document;
+import lombok.experimental.FieldNameConstants;
 
 import java.util.List;
 
@@ -18,25 +21,33 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @AllArgsConstructor
-@Document
+@FieldNameConstants
 public class DatasourceConfiguration implements AppsmithDomain {
 
+    @JsonView({Views.Public.class, FromRequest.class})
     Connection connection;
 
+    @JsonView({Views.Public.class, FromRequest.class})
     List<Endpoint> endpoints;
 
+    @JsonView({Views.Public.class, FromRequest.class})
     AuthenticationDTO authentication;
 
     SSHConnection sshProxy;
 
     Boolean sshProxyEnabled;
 
+    @JsonView({Views.Public.class, FromRequest.class})
     List<Property> properties;
 
     // For REST API.
+    @JsonView({Views.Public.class, FromRequest.class})
     String url;
 
+    @JsonView({Views.Public.class, FromRequest.class})
     List<Property> headers;
+
+    @JsonView({Views.Public.class, FromRequest.class})
     List<Property> queryParameters;
 
     public boolean isSshProxyEnabled() {

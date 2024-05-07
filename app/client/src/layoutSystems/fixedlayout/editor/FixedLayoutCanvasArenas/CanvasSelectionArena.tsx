@@ -30,6 +30,7 @@ import { getAbsolutePixels } from "utils/helpers";
 import type { XYCord } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import { useCanvasDragToScroll } from "layoutSystems/common/canvasArenas/useCanvasDragToScroll";
 import { StickyCanvasArena } from "layoutSystems/common/canvasArenas/StickyCanvasArena";
+import { getWidgetSelectionBlock } from "../../../../selectors/ui";
 
 export interface SelectedArenaDimensions {
   top: number;
@@ -71,6 +72,7 @@ export function CanvasSelectionArena({
   );
   const appMode = useSelector(getAppMode);
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isWidgetSelectionBlocked = useSelector(getWidgetSelectionBlock);
   const isAppSettingsPaneWithNavigationTabOpen = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
@@ -308,13 +310,13 @@ export function CanvasSelectionArena({
           startPositions.left = xInRange
             ? startPoints.x - left
             : outOfMinBounds.x
-            ? width - bufferFromBoundary
-            : bufferFromBoundary;
+              ? width - bufferFromBoundary
+              : bufferFromBoundary;
           startPositions.top = yInRange
             ? startPoints.y - top
             : outOfMinBounds.y
-            ? height - bufferFromBoundary
-            : bufferFromBoundary;
+              ? height - bufferFromBoundary
+              : bufferFromBoundary;
         }
         return startPositions;
       };
@@ -501,6 +503,7 @@ export function CanvasSelectionArena({
     !(
       isDragging ||
       isPreviewMode ||
+      isWidgetSelectionBlocked ||
       isAppSettingsPaneWithNavigationTabOpen ||
       dropDisabled
     );

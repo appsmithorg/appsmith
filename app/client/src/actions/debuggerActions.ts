@@ -1,11 +1,10 @@
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
+import type { Log, Message, SourceEntity } from "entities/AppsmithConsole";
+import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import type {
-  ENTITY_TYPE,
-  Log,
-  Message,
-  SourceEntity,
-} from "entities/AppsmithConsole";
-import type { DebuggerContext } from "reducers/uiReducers/debuggerReducer";
+  CanvasDebuggerState,
+  DebuggerContext,
+} from "reducers/uiReducers/debuggerReducer";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import type { APP_MODE } from "entities/App";
 
@@ -27,6 +26,11 @@ export interface LogDebuggerErrorAnalyticsPayload {
   environmentId?: string;
   environmentName?: string;
 }
+
+export type DeleteErrorLogPayload = {
+  id: string;
+  analytics?: Log["analytics"];
+}[];
 
 export const debuggerLogInit = (payload: Log[]) => ({
   type: ReduxActionTypes.DEBUGGER_LOG_INIT,
@@ -58,9 +62,7 @@ export const addErrorLogs = (payload: Log[]) => ({
   payload,
 });
 
-export const deleteErrorLogsInit = (
-  payload: { id: string; analytics?: Log["analytics"] }[],
-) => ({
+export const deleteErrorLogsInit = (payload: DeleteErrorLogPayload) => ({
   type: ReduxActionTypes.DEBUGGER_DELETE_ERROR_LOG_INIT,
   payload,
 });
@@ -128,5 +130,14 @@ export const setDebuggerContext = (context: DebuggerContext) => {
   return {
     type: ReduxActionTypes.SET_DEBUGGER_CONTEXT,
     payload: { context },
+  };
+};
+
+export const setCanvasDebuggerState = (
+  payload: Partial<CanvasDebuggerState>,
+) => {
+  return {
+    type: ReduxActionTypes.SET_CANVAS_DEBUGGER_STATE,
+    payload,
   };
 };

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from "react";
 import { Container, Space } from "../components/StyledComponents";
 
 import {
+  BRANCH_PROTECTION_PROTECTED,
   CANNOT_MERGE_DUE_TO_UNCOMMITTED_CHANGES,
   createMessage,
   FETCH_GIT_STATUS,
@@ -22,7 +23,6 @@ import {
   getGitStatus,
   getIsFetchingGitStatus,
   getIsFetchingMergeStatus,
-  getIsGitStatusLiteEnabled,
   getIsMergeInProgress,
   getMergeError,
   getMergeStatus,
@@ -31,8 +31,6 @@ import {
 import type { DropdownOptions } from "../../GeneratePage/components/constants";
 import {
   fetchBranchesInit,
-  fetchGitRemoteStatusInit,
-  fetchGitStatusInit,
   fetchMergeStatusInit,
   mergeBranchInit,
   resetMergeStatus,
@@ -54,7 +52,7 @@ import {
   ModalFooter,
   ModalBody,
 } from "design-system";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { Theme } from "constants/DefaultTheme";
 
 const Row = styled.div`
@@ -82,7 +80,6 @@ function MergeSuccessIndicator() {
 export default function Merge() {
   const dispatch = useDispatch();
   const gitMetaData = useSelector(getCurrentAppGitMetaData);
-  const isGitStatusLiteEnabled = useSelector(getIsGitStatusLiteEnabled);
   const gitBranches = useSelector(getGitBranches);
   const isFetchingBranches = useSelector(getFetchingBranches);
   const isFetchingMergeStatus = useSelector(getIsFetchingMergeStatus);
@@ -117,10 +114,7 @@ export default function Merge() {
       if (index === gitBranches.length) break;
       const branchObj = gitBranches[index];
 
-      if (
-        currentBranch !== branchObj.branchName &&
-        !protectedBranches.includes(branchObj.branchName)
-      ) {
+      if (currentBranch !== branchObj.branchName) {
         if (!branchObj.default) {
           branchOptions.push({
             label: branchObj.branchName,
@@ -180,17 +174,11 @@ export default function Merge() {
   }, [currentBranch, selectedBranchOption?.value, dispatch]);
 
   useEffect(() => {
-    if (isGitStatusLiteEnabled) {
-      dispatch(fetchGitRemoteStatusInit());
-      dispatch(fetchGitStatusInit({ compareRemote: false }));
-    } else {
-      dispatch(fetchGitStatusInit({ compareRemote: true }));
-    }
     dispatch(fetchBranchesInit());
     return () => {
       dispatch(resetMergeStatus());
     };
-  }, [isGitStatusLiteEnabled]);
+  }, []);
 
   useEffect(() => {
     // when user selects a branch to merge
@@ -258,9 +246,19 @@ export default function Merge() {
               size="md"
               value={selectedBranchOption}
             >
-              {branchList.map((branch) => (
-                <Option key={branch.value}>{branch.value}</Option>
-              ))}
+              {branchList.map((branch) => {
+                const isProtected = protectedBranches.includes(
+                  branch?.value ?? "",
+                );
+                return (
+                  <Option disabled={isProtected} key={branch.value}>
+                    {branch.value}
+                    {isProtected
+                      ? ` (${createMessage(BRANCH_PROTECTION_PROTECTED)})`
+                      : ""}
+                  </Option>
+                );
+              })}
             </Select>
 
             <Space horizontal size={3} />

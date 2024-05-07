@@ -23,12 +23,12 @@ import {
 } from "selectors/editorSelectors";
 import {
   getParentToOpenSelector,
-  isCurrentWidgetFocused,
+  isWidgetFocused,
   isCurrentWidgetLastSelected,
   isMultiSelectedWidget,
   isWidgetSelected,
 } from "selectors/widgetSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { ResponsiveBehavior } from "layoutSystems/common/utils/constants";
 import {
   getWidgetHeight,
@@ -65,6 +65,10 @@ import {
   computeFinalRowCols,
   computeFinalAutoLayoutRowCols,
 } from "layoutSystems/common/resizer/ResizableUtils";
+import {
+  getAltBlockWidgetSelection,
+  getWidgetSelectionBlock,
+} from "selectors/ui";
 
 export type ResizableComponentProps = WidgetProps & {
   paddingOffset: number;
@@ -80,7 +84,9 @@ export const ResizableComponent = memo(function ResizableComponent(
   const Resizable = isAutoLayout ? AutoLayoutResizable : FixedLayoutResizable;
   const isSnipingMode = useSelector(snipingModeSelector);
   const isPreviewMode = useSelector(combinedPreviewModeSelector);
-  const isAppSettingsPaneWithNavigationTabOpen = useSelector(
+  const isWidgetSelectionBlock = useSelector(getWidgetSelectionBlock);
+  const isAltWidgetSelectionBlock = useSelector(getAltBlockWidgetSelection);
+  const isAppSettingsPaneWithNavigationTabOpen: boolean = useSelector(
     getIsAppSettingsPaneWithNavigationTabOpen,
   );
 
@@ -94,7 +100,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isLastSelected = useSelector(
     isCurrentWidgetLastSelected(props.widgetId),
   );
-  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
+  const isFocused = useSelector(isWidgetFocused(props.widgetId));
   // Check if current widget is one of multiple selected widgets
   const isMultiSelected = useSelector(isMultiSelectedWidget(props.widgetId));
 
@@ -110,7 +116,7 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isParentWidgetSelected = useSelector(
     isCurrentWidgetLastSelected(parentWidgetToSelect?.widgetId || ""),
   );
-  const isWidgetFocused = isFocused || isLastSelected || isSelected;
+  const canPerformResize = isFocused || isLastSelected || isSelected;
 
   // Calculate the dimensions of the widget,
   // The ResizableContainer's size prop is controlled
@@ -321,10 +327,11 @@ export const ResizableComponent = memo(function ResizableComponent(
   const isEnabled =
     !isAutoCanvasResizing &&
     !isDragging &&
-    isWidgetFocused &&
+    canPerformResize &&
     !props.resizeDisabled &&
     !isSnipingMode &&
     !isPreviewMode &&
+    !isWidgetSelectionBlock &&
     !isAppSettingsPaneWithNavigationTabOpen;
   const { updateDropTargetRows } = useContext(DropTargetContext);
 
@@ -387,6 +394,7 @@ export const ResizableComponent = memo(function ResizableComponent(
     !isPreviewMode &&
     !isAppSettingsPaneWithNavigationTabOpen &&
     !isDragging &&
+    !isAltWidgetSelectionBlock &&
     (isHovered || isSelected);
 
   return (

@@ -8,8 +8,8 @@ import type {
   FontFamily,
   Typography,
   TypographyVariantMetric,
+  TokenScaleConfig,
 } from "../../token";
-import type { ScaleConfig } from "./types";
 
 const getFontMetrics = (fontFamily?: FontFamily) => {
   return !Boolean(fontFamily) ||
@@ -20,7 +20,7 @@ const getFontMetrics = (fontFamily?: FontFamily) => {
 };
 
 export const getTypography = (
-  typography: ScaleConfig,
+  typography: TokenScaleConfig,
   userDensity = 1,
   userSizing = 1,
   fontFamily?: FontFamily,
@@ -60,7 +60,7 @@ export const getTypography = (
 };
 
 export const useTypography = (
-  config: ScaleConfig,
+  config: TokenScaleConfig,
   fontFamily?: FontFamily,
   userDensity = 1,
   userSizing = 1,

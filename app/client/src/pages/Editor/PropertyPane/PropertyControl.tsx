@@ -8,7 +8,7 @@ import { ToggleButton, Tooltip, Button } from "design-system";
 import PropertyControlFactory from "utils/PropertyControlFactory";
 import PropertyHelpLabel from "pages/Editor/PropertyPane/PropertyHelpLabel";
 import { useDispatch, useSelector } from "react-redux";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { UpdateWidgetPropertyPayload } from "actions/controlActions";
 import {
   batchUpdateMultipleWidgetProperties,
@@ -33,7 +33,7 @@ import {
 import type { EnhancementFns } from "selectors/widgetEnhancementSelectors";
 import type { EditorTheme } from "components/editorComponents/CodeEditor/EditorConfig";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { getExpectedValue } from "utils/validation/common";
 import type { ControlData } from "components/propertyControls/BaseControl";
@@ -62,6 +62,8 @@ import type { PropertyUpdates } from "WidgetProvider/constants";
 import { getIsOneClickBindingOptionsVisibility } from "selectors/oneClickBindingSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
+import { savePropertyInSessionStorageIfRequired } from "./helpers";
+import { getParentWidget } from "selectors/widgetSelectors";
 
 const ResetIcon = importSvg(
   async () => import("assets/icons/control/undo_2.svg"),
@@ -99,6 +101,9 @@ const PropertyControl = memo((props: Props) => {
   );
 
   const widgetProperties: WidgetProperties = useSelector(propsSelector, equal);
+  const parentWidget = useSelector((state) =>
+    getParentWidget(state, widgetProperties.widgetId),
+  );
 
   // get the dataTreePath and apply enhancement if exists
   let dataTreePath: string | undefined =
@@ -574,6 +579,15 @@ const PropertyControl = memo((props: Props) => {
         // updating properties of a widget(s) should be done only once when property value changes.
         // to make sure dsl updates are atomic which is a necessity for undo/redo.
         onBatchUpdatePropertiesOfMultipleWidgets(allPropertiesToUpdates);
+
+        savePropertyInSessionStorageIfRequired({
+          isReusable: !!props.isReusable,
+          widgetProperties,
+          propertyName,
+          propertyValue,
+          parentWidgetId: parentWidget?.widgetId,
+          parentWidgetType: parentWidget?.type,
+        });
       }
     },
     [
@@ -633,21 +647,36 @@ const PropertyControl = memo((props: Props) => {
     if (hasRenamingError()) {
       return;
     } else if (editedName.trim() && editedName !== props.propertyName) {
-      let update = {
+      let modify = {
         [editedName]: widgetProperties[props.propertyName],
       };
+
+      let triggerPaths: string[] = [];
 
       if (
         props.controlConfig &&
         typeof props.controlConfig.onEdit === "function"
       ) {
-        update = {
-          ...update,
-          ...props.controlConfig.onEdit(widgetProperties, editedName),
+        const updates = props.controlConfig.onEdit(
+          widgetProperties,
+          editedName,
+        );
+
+        modify = {
+          ...modify,
+          ...updates.modify,
         };
+
+        triggerPaths = updates.triggerPaths;
       }
 
-      onBatchUpdateProperties(update);
+      dispatch(
+        batchUpdateWidgetProperty(widgetProperties.widgetId, {
+          modify,
+          triggerPaths,
+        }),
+      );
+
       onDeleteProperties([props.propertyName]);
     }
     resetEditing();
@@ -657,7 +686,7 @@ const PropertyControl = memo((props: Props) => {
     });
   }, [
     props,
-    onBatchUpdateProperties,
+    batchUpdateWidgetProperty,
     onDeleteProperties,
     props.propertyName,
     editedName,
@@ -845,8 +874,8 @@ const PropertyControl = memo((props: Props) => {
     const JSToggleTooltip = isToggleDisabled
       ? JS_TOGGLE_DISABLED_MESSAGE
       : !isDynamic
-      ? JS_TOGGLE_SWITCH_JS_MESSAGE
-      : "";
+        ? JS_TOGGLE_SWITCH_JS_MESSAGE
+        : "";
 
     try {
       return (

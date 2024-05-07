@@ -5,10 +5,13 @@
     display: flex;
     align-items: center;
     gap: var(--inner-spacing-1);
-    border-radius: var(--border-radius-1);
-    box-shadow: inset 0 0 0 1px var(--color-bd-neutral);
-    padding-inline: var(--inner-spacing-1);
+    border-radius: var(--border-radius-elevation-3);
+    background-color: var(--color-bg-neutral-subtle);
     flex: 1;
+    max-inline-size: 100%;
+    isolation: isolate;
+    padding-inline: var(--inner-spacing-2);
+    box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle);
   }
 
   & [data-field-input] :is(input, textarea) {
@@ -18,19 +21,33 @@
     flex-grow: 1;
     color: var(--color-fg);
     text-overflow: ellipsis;
+    max-inline-size: 100%;
     width: 100%;
-    padding: 0;
+    box-sizing: content-box;
+    block-size: calc(
+      var(--body-line-height) + var(--body-margin-start) +
+        var(--body-margin-end)
+    );
+    padding-block: var(--inner-spacing-3);
 
     &:autofill,
     &:autofill:hover,
     &:autofill:focus,
     &:autofill:active {
       font-size: initial;
+      /** Removing browser's autofill styles */
+      -webkit-text-fill-color: var(--color-fg);
+      -webkit-box-shadow: 0 0 0 40rem var(--color-bg-neutral-subtle) inset;
     }
 
     &:focus {
       outline: none;
     }
+  }
+
+  & [data-field-input][data-hovered] {
+    background-color: var(--color-bg-neutral-subtle-hover);
+    box-shadow: inset 0 0 0 1px var(--color-bd-on-neutral-subtle-hover);
   }
 
   /**
@@ -39,6 +56,7 @@
   *-----------------------------------------------------------------------------
   */
   & [data-readonly][data-field-input] {
+    background-color: transparent;
     box-shadow: none;
     padding-inline: 0;
   }
@@ -53,6 +71,12 @@
   * We use an absolutely positioned pseudo element because
   * we need to make the focus state in read mode a bit wider than the component width
   */
+
+  & [data-field-input][data-focused] {
+    background-color: transparent;
+    box-shadow: none;
+  }
+
   & [data-field-input][data-focused]:before {
     content: "";
     left: 0;
@@ -60,7 +84,8 @@
     height: 100%;
     position: absolute;
     box-shadow: 0 0 0 2px var(--color-bd-focus);
-    border-radius: var(--border-radius-1);
+    border-radius: var(--border-radius-elevation-3);
+    z-index: -1;
   }
 
   & [data-readonly][data-field-input][data-focused]:before {
@@ -77,8 +102,8 @@
     box-shadow: 0 0 0 1px var(--color-bd-negative);
   }
 
-  & [data-field-input][data-invalid][data-focused] {
-    box-shadow: 0 0 0 2px var(--color-bd-negative);
+  & [data-field-input][data-invalid][data-hovered] {
+    box-shadow: 0 0 0 1px var(--color-bd-negative-hover);
   }
 
   /**
@@ -115,35 +140,31 @@
 
   /**
   * ----------------------------------------------------------------------------
-  * ICON BUTTON ( used in password input type )
-  *-----------------------------------------------------------------------------
-  */
-  & [data-field-input] [data-icon-button] {
-    block-size: calc(100% - var(--inner-spacing-1));
-    inline-size: calc(100% - var(--inner-spacing-1));
-    min-inline-size: 100%;
-  }
-
-  /**
-  * ----------------------------------------------------------------------------
   * DISABLED
   *-----------------------------------------------------------------------------
   */
-  &[data-disabled],
-  &[data-disabled] :is(input, textarea),
-  &[data-disabled] label {
+  & [data-disabled],
+  & [data-disabled] :is(input, textarea),
+  & [data-disabled] label {
     cursor: not-allowed;
+    box-shadow: none;
   }
 
   /**
   * ----------------------------------------------------------------------------
-  * START ICON AND END ICON
+  * PREFIX AND SUFFIX
   *-----------------------------------------------------------------------------
   */
-  & :is([data-field-input-start-icon], [data-field-input-end-icon]) {
-    width: max-content;
+  & :is([data-field-input-prefix], [data-field-input-suffix]) {
+    block-size: 0;
     display: flex;
     align-items: center;
+  }
+
+  &
+    [data-field-input]:has(textarea)
+    :is([data-field-input-prefix], [data-field-input-suffix]) {
+    display: none;
   }
 
   /**
@@ -151,21 +172,7 @@
   * SIZE
   *-----------------------------------------------------------------------------
   */
-  &:has(input[data-size="small"]) [data-field-input] {
-    block-size: var(--sizing-7);
-
-    & [data-icon] {
-      inline-size: var(--sizing-5);
-      aspect-ratio: 1;
-    }
-  }
-
-  &:has(input[data-size="medium"]) [data-field-input] {
-    block-size: var(--sizing-9);
-
-    & [data-icon] {
-      inline-size: var(--sizing-7);
-      aspect-ratio: 1;
-    }
+  & [data-field-input] input[data-size="small"] {
+    padding-block: var(--inner-spacing-2);
   }
 }

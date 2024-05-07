@@ -96,3 +96,21 @@ export const setSelectedPropertyPanels = (payload: SelectedPropertyPanel) => {
     payload,
   };
 };
+
+export const createNewJSCollectionFromActionCreator = (
+  payload: (bindingValue: string) => void,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_NEW_JS_FROM_ACTION_CREATOR,
+    payload,
+  };
+};
+
+export const createNewQueryFromActionCreator = (
+  payload: (bindingValue: string) => void,
+) => {
+  return {
+    type: ReduxActionTypes.CREATE_NEW_QUERY_FROM_ACTION_CREATOR,
+    payload,
+  };
+};

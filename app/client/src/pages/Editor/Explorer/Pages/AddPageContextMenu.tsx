@@ -16,7 +16,8 @@ import {
   CREATE_PAGE,
   GENERATE_PAGE_ACTION_TITLE,
 } from "@appsmith/constants/messages";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import type { ButtonSizes } from "design-system";
 import {
   Menu,
   MenuContent,
@@ -45,11 +46,15 @@ interface SubMenuProps {
   openMenu: boolean;
   onMenuClose: () => void;
   createPageCallback: () => void;
+  buttonSize?: ButtonSizes;
+  onItemSelected?: () => void;
 }
 
 function AddPageContextMenu({
+  buttonSize,
   className,
   createPageCallback,
+  onItemSelected,
   onMenuClose,
   openMenu,
 }: SubMenuProps) {
@@ -59,9 +64,11 @@ function AddPageContextMenu({
   const isAirgappedInstance = isAirgapped();
 
   const checkLayoutSystemFeatures = useLayoutSystemFeatures();
-  const [enableForkingFromTemplates] = checkLayoutSystemFeatures([
-    LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
-  ]);
+  const [enableForkingFromTemplates, enableGenerateCrud] =
+    checkLayoutSystemFeatures([
+      LayoutSystemFeatures.ENABLE_FORKING_FROM_TEMPLATES,
+      LayoutSystemFeatures.ENABLE_GENERATE_CRUD_APP,
+    ]);
 
   const ContextMenuItems = useMemo(() => {
     const items = [
@@ -72,14 +79,16 @@ function AddPageContextMenu({
         "data-testid": "add-page",
         key: "CREATE_PAGE",
       },
-      {
+    ];
+    if (enableGenerateCrud) {
+      items.push({
         title: createMessage(GENERATE_PAGE_ACTION_TITLE),
         icon: "database-2-line",
         onClick: () => history.push(generateTemplateFormURL({ pageId })),
         "data-testid": "generate-page",
         key: "GENERATE_PAGE",
-      },
-    ];
+      });
+    }
 
     if (enableForkingFromTemplates && !isAirgappedInstance) {
       items.push({
@@ -93,7 +102,7 @@ function AddPageContextMenu({
     }
 
     return items;
-  }, [pageId]);
+  }, [pageId, enableGenerateCrud]);
 
   const handleOpenChange = (open: boolean) => {
     if (open) {
@@ -107,6 +116,7 @@ function AddPageContextMenu({
   };
 
   const onMenuItemClick = (item: (typeof ContextMenuItems)[number]) => {
+    if (onItemSelected) onItemSelected();
     handleOpenChange(false);
     item.onClick();
     AnalyticsUtil.logEvent("ENTITY_EXPLORER_ADD_PAGE_CLICK", {
@@ -124,6 +134,7 @@ function AddPageContextMenu({
         >
           <AddButtonWrapper>
             <EntityAddButton
+              buttonSize={buttonSize}
               className={`${className} ${show ? "selected" : ""}`}
               onClick={() => handleOpenChange(true)}
             />

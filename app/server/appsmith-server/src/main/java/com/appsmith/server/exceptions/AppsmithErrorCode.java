@@ -16,8 +16,6 @@ public enum AppsmithErrorCode {
     PAGE_DOESNT_BELONG_TO_USER_WORKSPACE("AE-APP-4006", "Page doesn't belong to user workspace"),
     UNSUPPORTED_OPERATION("AE-APP-4007", "Unsupported operation"),
     DEPRECATED_API("AE-APP-4008", "Deprecated api"),
-    USER_DOESNT_BELONG_ANY_WORKSPACE("AE-APP-4009", "User doesn't belong any workspace"),
-    USER_DOESNT_BELONG_TO_WORKSPACE("AE-APP-4010", "User doesn't belong to workspace"),
     USER_NOT_ASSIGNED_TO_ROLE("AE-APP-4011", "User is not assigned to role"),
     INVALID_ACTION("AE-APP-4012", "Invalid action"),
     PAYLOAD_TOO_LARGE("AE-APP-4013", "Payload too large"),
@@ -70,6 +68,7 @@ public enum AppsmithErrorCode {
     GENERIC_BAD_REQUEST("AE-BAD-4000", "Generic bad request"),
     MALFORMED_REQUEST("AE-BAD-4001", "Malformed request body"),
     GOOGLE_RECAPTCHA_FAILED("AE-CAP-4035", "Google recaptcha failed"),
+    GOOGLE_RECAPTCHA_INVITE_FLOW_FAILED("AE-CAP-4100", "Google recaptcha failed"),
     INVALID_CRUD_PAGE_REQUEST("AE-CRD-4039", "Invalid crud page request"),
     EMPTY_CURL_INPUT_STATEMENT("AE-CRL-4054", "Invalid CURL input statement"),
     INVALID_CURL_COMMAND("AE-CRL-4029", "Invalid curl command"),
@@ -115,7 +114,6 @@ public enum AppsmithErrorCode {
     TOO_MANY_REQUESTS("AE-TMR-4029", "Too many requests"),
     TOO_MANY_FAILED_DATASOURCE_CONNECTION_REQUESTS("AE-TMR-4030", "Too many failed datasource connectoin requests"),
     USER_NOT_FOUND("AE-USR-4004", "User not found"),
-    CSRF_TOKEN_INVALID("AE-APP-4039", "CSRF token missing/invalid"),
     UNSUPPORTED_IMPORT_OPERATION("AE-APP-4040", "Unsupported operation for import application via file"),
     DUPLICATE_DATASOURCE_CONFIGURATION("AE-APP-4093", "Duplicate datasource configuration"),
 
@@ -133,6 +131,7 @@ public enum AppsmithErrorCode {
     DATASOURCE_CONNECTION_RATE_LIMIT_BLOCKING_FAILED(
             "AE-TMR-4031", "Rate limit exhausted, blocking the host name failed"),
     TRIGGER_PARAMETERS_EMPTY("AE-DS-4001", "Trigger parameters empty."),
+    INSUFFICIENT_PASSWORD_STRENGTH("AE-PSW-4002", "Insufficient password strength"),
     ;
     private final String code;
     private final String description;

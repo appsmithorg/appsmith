@@ -33,18 +33,14 @@ describe(
 
     it("1.Bug #17002 Forking a template into an existing app which is connected to git makes the application go into a bad state ", function () {
       cy.get(template.startFromTemplateCard).click();
-      cy.wait("@fetchTemplate", { timeout: 30000 }).should(
-        "have.nested.property",
-        "response.body.responseMeta.status",
-        200,
-      );
-      cy.wait(1000);
+      _.assertHelper.AssertNetworkStatus("fetchTemplate");
+
       cy.get(template.templateDialogBox).should("be.visible");
-      cy.xpath("//h1[text()='Slack Bot']").scrollIntoView().wait(500).click();
+      cy.get(template.templateCard).first().click();
       cy.get(template.templateViewForkButton).first().click();
       cy.waitUntil(() => cy.xpath("//span[text()='Setting up the template']"), {
         errorMsg: "Setting Templates did not finish even after 75 seconds",
-        timeout: 950000,
+        timeout: 75000,
         interval: 5000,
       }).then(($ele) => {
         cy.wrap($ele).should("have.length", 0);

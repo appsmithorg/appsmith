@@ -52,13 +52,12 @@ export const ENTER_AUDIO_URL = () => `Please provide a valid url`;
 
 export const FORM_VALIDATION_EMPTY_PASSWORD = () => `Please enter the password`;
 export const FORM_VALIDATION_PASSWORD_RULE = () =>
-  `Please provide a password between 6 and 256 characters`;
+  `Please provide a password between 8 and 48 characters`;
 export const FORM_VALIDATION_INVALID_PASSWORD = FORM_VALIDATION_PASSWORD_RULE;
 
 export const LOGIN_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
-export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
-  `Enter your email address`;
+export const LOGIN_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Enter your email`;
 export const LOGIN_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
   `Enter your password`;
 export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
@@ -66,25 +65,28 @@ export const LOGIN_PAGE_INVALID_CREDS_ERROR = () =>
 export const LOGIN_PAGE_INVALID_CREDS_FORGOT_PASSWORD_LINK = () =>
   `Reset password`;
 export const NEW_TO_APPSMITH = () => `Don't have an account?`;
-export const LOGIN_PAGE_TITLE = () => `Sign in`;
+export const LOGIN_PAGE_TITLE = () => `Sign in to your account`;
 export const LOGIN_PAGE_SUBTITLE = () => `Sign in to your account`;
 
 export const LOGIN_PAGE_LOGIN_BUTTON_TEXT = () => `Sign in`;
 export const LOGIN_PAGE_FORGOT_PASSWORD_TEXT = () => `Forgot password`;
 export const LOGIN_PAGE_REMEMBER_ME_LABEL = () => `Remember`;
 export const LOGIN_PAGE_SIGN_UP_LINK_TEXT = () => `Sign up`;
-export const SIGNUP_PAGE_TITLE = () => `Create your free account`;
+export const SIGNUP_PAGE_TITLE = () => `Create your account`;
 export const SIGNUP_PAGE_SUBTITLE = () => `Use your workspace email`;
 export const SIGNUP_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
-export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
+export const SIGNUP_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Enter your email`;
 export const SIGNUP_PAGE_NAME_INPUT_PLACEHOLDER = () => `Name`;
 export const SIGNUP_PAGE_NAME_INPUT_LABEL = () => `Name`;
 export const SIGNUP_PAGE_PASSWORD_INPUT_LABEL = () => `Password`;
-export const SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER = () => `Password`;
+export const SIGNUP_PAGE_PASSWORD_INPUT_PLACEHOLDER = () =>
+  `Enter your password`;
 export const SIGNUP_PAGE_LOGIN_LINK_TEXT = () => `Sign in`;
 export const SIGNUP_PAGE_NAME_INPUT_SUBTEXT = () => `How should we call you?`;
 export const SIGNUP_PAGE_SUBMIT_BUTTON_TEXT = () => `Sign up`;
 export const ALREADY_HAVE_AN_ACCOUNT = () => `Already have an account?`;
+export const LOOKING_TO_SELF_HOST = () => "Looking to self-host Appsmith?";
+export const VISIT_OUR_DOCS = () => "Visit our docs";
 
 export const SIGNUP_PAGE_SUCCESS = () =>
   `Awesome! You have successfully registered.`;
@@ -110,11 +112,14 @@ export const RESET_PASSWORD_INVALID_TOKEN = () =>
 export const RESET_PASSWORD_FORGOT_PASSWORD_LINK = () => `Forgot password`;
 
 export const FORGOT_PASSWORD_PAGE_EMAIL_INPUT_LABEL = () => `Email`;
-export const FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER = () => `Email`;
+export const FORGOT_PASSWORD_PAGE_EMAIL_INPUT_PLACEHOLDER = () =>
+  `Enter your email`;
 export const FORGOT_PASSWORD_PAGE_TITLE = () => `Reset password`;
+export const FORGOT_PASSWORD_PAGE_SUB_TITLE = () =>
+  `Enter the email address associated with your account`;
 export const FORGOT_PASSWORD_PAGE_SUBTITLE = () =>
   `We will send a reset link to the email below`;
-export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Reset`;
+export const FORGOT_PASSWORD_PAGE_SUBMIT_BUTTON_TEXT = () => `Send reset link`;
 export const FORGOT_PASSWORD_SUCCESS_TEXT = (email: string) =>
   `A password reset link has been sent to your email address ${email} registered with Appsmith.`;
 
@@ -122,12 +127,12 @@ export const VERIFICATION_PENDING_TITLE = () => `Check your inbox`;
 export const VERIFICATION_PENDING_BODY = () =>
   `To finish your account setup click on the verification link we have sent in an email to `;
 
-export const VERIFICATION_PENDING_NOT_YOU = () => `(not you?)`;
+export const VERIFICATION_PENDING_NOT_YOU = () => `Not you?`;
 
 export const VERIFICATION_PENDING_NO_EMAIL = () =>
   `No email in your inbox or spam folder?`;
 
-export const VERIFICATION_PENDING_RESEND_LINK = () => `Resend the link`;
+export const VERIFICATION_PENDING_RESEND_LINK = () => `Resend link`;
 
 export const VERIFY_ERROR_ALREADY_VERIFIED_TITLE = () =>
   `Email already verified`;
@@ -264,8 +269,9 @@ export const APPLICATION_CARD_LIST_ZERO_STATE = () =>
 export const TRY_GUIDED_TOUR = () => `Try guided tour`;
 export const JOIN_OUR_DISCORD = () => `Join our discord`;
 export const WHATS_NEW = () => `What's new?`;
-export const WORKSPACE_ACTION_BUTTON = () => "Create New";
-export const NEW_APP = () => "New app";
+export const WORKSPACE_ACTION_BUTTON = () => "Create new";
+export const NEW_APP = () => "Application";
+export const NEW_APP_FROM_TEMPLATE = () => "Templates";
 export const NO_WORKSPACE_HEADING = () => "Oops! No workspace found";
 export const NO_WORKSPACE_DESCRIPTION = () =>
   "You can find workspace list on the left sidebar, try selecting one of them to access a workspace.";
@@ -372,7 +378,7 @@ export const INVALID_FORM_CONFIGURATION = () => "Invalid form configuration";
 export const ACTION_RUN_BUTTON_MESSAGE_FIRST_HALF = () => "🙌 Click on";
 export const ACTION_RUN_BUTTON_MESSAGE_SECOND_HALF = () =>
   "after adding your query";
-export const CREATE_NEW_DATASOURCE = () => "Create new datasource";
+export const CREATE_NEW_DATASOURCE = () => "Create datasource";
 export const CREATE_NEW_DATASOURCE_DATABASE_HEADER = () => "Databases";
 export const CREATE_NEW_DATASOURCE_MOST_POPULAR_HEADER = () => "Most popular";
 export const CREATE_NEW_DATASOURCE_REST_API = () => "REST API";
@@ -606,8 +612,6 @@ export const JS_EXECUTION_FAILURE = () => "JS Function execution failed";
 export const JS_EXECUTION_FAILURE_TOASTER = () =>
   "There was an error while executing function";
 export const JS_SETTINGS_ONPAGELOAD = () => "Run function on page load (Beta)";
-export const JS_EXECUTION_SUCCESS_TOASTER = (actionName: string) =>
-  `${actionName} ran successfully`;
 export const JS_SETTINGS_ONPAGELOAD_SUBTEXT = () =>
   "Will refresh data every time page is reloaded";
 export const JS_SETTINGS_CONFIRM_EXECUTION = () =>
@@ -622,6 +626,12 @@ export const NO_JS_FUNCTION_TO_RUN = (JSObjectName: string) =>
   `${JSObjectName} has no function`;
 export const NO_JS_FUNCTION_RETURN_VALUE = (JSFunctionName: string) =>
   `${JSFunctionName} did not return any data. Did you add a return statement?`;
+
+export const REMOVE_CONFIRM_BEFORE_CALLING_HEADING = () =>
+  `Remove 'Confirm before calling' `;
+export const REMOVE_CONFIRM_BEFORE_CALLING_DESCRIPTION =
+  () => `By turning off this setting, you won't be able to undo or turn on this setting again,
+as it has been deprecated. Are you sure you want to proceed?`;
 
 // Import/Export Application features
 export const ERROR_IMPORTING_APPLICATION_TO_WORKSPACE = () =>
@@ -680,6 +690,12 @@ export const JS_ACTION_EXECUTION_ERROR = (jsFunctionName: string) =>
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
 
+//Import Application Succesful
+export const IMPORT_APP_SUCCESSFUL = () => "Application imported successfully";
+//Unable to import application in workspace
+export const UNABLE_TO_IMPORT_APP = () =>
+  "Unable to import application in workspace";
+
 //undo redo
 export const WIDGET_REMOVED = (widgetName: string) =>
   `${widgetName} is removed`;
@@ -733,14 +749,14 @@ export const NO_CONNECTIONS = () => "No connections to show here";
 export const BACK_TO_CANVAS = () => "Back to canvas";
 export const SUGGESTED_WIDGET_DESCRIPTION = () =>
   "This will add a new widget to the canvas.";
-export const ADD_NEW_WIDGET = () => "Add new widget";
+export const ADD_NEW_WIDGET = () => "Add a widget";
 export const SUGGESTED_WIDGETS = () => "Suggested widgets";
 export const SUGGESTED_WIDGET_TOOLTIP = () => "Add to canvas";
 export const WELCOME_TOUR_STICKY_BUTTON_TEXT = () => "Next mission";
 export const BINDING_SECTION_LABEL = () => "Bindings";
 export const ADD_NEW_WIDGET_SUB_HEADING = () =>
   "Select how you want to display data.";
-export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a Widget";
+export const CONNECT_EXISTING_WIDGET_LABEL = () => "Select a widget";
 export const CONNECT_EXISTING_WIDGET_SUB_HEADING = () =>
   "Replace the data of an existing widget";
 export const NO_EXISTING_WIDGETS = () => "Display data in a new widget";
@@ -757,8 +773,8 @@ export const EMPTY_ACTIVE_DATA_SOURCES = () => "No active datasources found.";
 
 export const SCHEMA_NOT_AVAILABLE = () => "Schema not available";
 export const TABLE_NOT_FOUND = () => "Table not found.";
-export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = () =>
-  "Search for table";
+export const DATASOURCE_STRUCTURE_INPUT_PLACEHOLDER_TEXT = (name: string) =>
+  `Tables in ${name}`;
 export const SCHEMA_LABEL = () => "Schema";
 export const STRUCTURE_NOT_FETCHED = () =>
   "We could not fetch the schema of the database.";
@@ -1099,9 +1115,6 @@ export const BRANCH_PROTECTION_RULE_3 = () =>
   "You can still pull the latest changes and create new branches to edit the app.";
 export const BRANCH_PROTECTION_CHANGE_RULE = () =>
   "You can remove protection on your default branch in Git settings.";
-export const BRANCH_TOOLTIP_TITLE = () => "🚫 This is a protected branch";
-export const BRANCH_TOOLTIP_MESSAGE = () =>
-  "Please create a new branch or checkout an existing one to edit the app.";
 export const GO_TO_SETTINGS = () => "Go to settings";
 export const NOW_PROTECT_BRANCH = () =>
   "You can now protect your default branch.";
@@ -1111,6 +1124,15 @@ export const UPDATE_DEFAULT_BRANCH_SUCCESS = (branchName: string) =>
   `Updated default branch ${!!branchName ? `to ${branchName}` : ""}`;
 export const CONTACT_ADMIN_FOR_GIT = () =>
   "Please contact your workspace admin to connect your app to a git repo";
+export const BRANCH_PROTECTION_CALLOUT_MSG = () =>
+  "The branch is protected; please switch to or create a new branch to edit the app.";
+export const BRANCH_PROTECTION_CALLOUT_CREATE_BRANCH = () =>
+  "Create new branch";
+export const BRANCH_PROTECTION_CALLOUT_UNPROTECT = () => "Unprotect branch";
+export const BRANCH_PROTECTION_CALLOUT_UNPROTECT_LOADING = () =>
+  "Unprotecting branch ...";
+export const BRANCH_PROTECTION_PROTECTED = () => "Protected";
+
 // Git Branch Protection end
 
 export const GENERAL = () => "General";
@@ -1519,6 +1541,7 @@ export const QUERY_CONFIRMATION_MODAL_MESSAGE = () =>
 export const ENTITY_EXPLORER_TITLE = () => "NAVIGATION";
 export const MULTI_SELECT_PROPERTY_PANE_MESSAGE = () =>
   `Select a widget to see it's properties`;
+export const WIDGET_MULTI_SELECT = () => "Multiple selected";
 export const WIDGET_DEPRECATION_MESSAGE = (widgetName: string) =>
   `Drag the latest ${widgetName} to unlock new features and prevent end-of-life headaches for this widget.`;
 
@@ -1833,7 +1856,7 @@ export const PAGE_SETTINGS_PAGE_URL_LABEL = () => "Change page URL";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_1 = () => "Please";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_2 = () => "update";
 export const PAGE_SETTINGS_PAGE_URL_VERSION_UPDATE_3 = () =>
-  "your app URL to new readable format to change this";
+  "your app URL to the new format to set the page URL.";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV = () => "Show page navigation";
 export const PAGE_SETTINGS_SHOW_PAGE_NAV_TOOLTIP = () =>
   "Show or hide the page in the appsmith navbar in view mode";
@@ -2224,6 +2247,7 @@ export const COMMUNITY_TEMPLATES = {
 export const EMPTY_TABLE_TITLE_TEXT = () => "Empty table";
 export const EMPTY_TABLE_MESSAGE_TEXT = () =>
   "There are no data records to show";
+export const NO_COLUMNS_MESSAGE_TEXT = () => "There are no columns to show";
 export const LOADING_RECORDS_TITLE_TEXT = () => "Loading records";
 export const LOADING_RECORDS_MESSAGE_TEXT = () => "This may take a few seconds";
 export const FAILED_RECORDS_TITLE_TEXT = () => "Failed to load";
@@ -2296,16 +2320,17 @@ export const EDITOR_PANE_TEXTS = {
   js_blank_state_description: () =>
     "Use JS to transform your data or write business logic",
   widget_blank_state_description: () =>
-    "Drag & drop widgets to create your app",
+    "Drag & drop UI elements to create your app",
   query_add_button: () => "New query / API",
   js_add_button: () => "New JS object",
   js_blank_object_item: () => "Blank JS object",
-  widget_add_button: () => "New widget",
+  widget_add_button: () => "New UI element",
   query_create_tab_title: () => "Create new query / API",
-  widgets_create_tab_title: () => "Drag & drop a widget",
+  widgets_create_tab_title: () => "Drag & drop UI elements",
   js_create_tab_title: () => "Create JS object",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
+  loading_building_blocks: () => "Loading building blocks",
 };
 
 export const PARTIAL_IMPORT_EXPORT = {
@@ -2351,9 +2376,10 @@ export const CUSTOM_WIDGET_FEATURE = {
       "Connection lost because the custom widget was deselected. Please reselect this widget to continue editing.",
     editor: {
       css: {
-        contextTooltip: () => "You can use following css variables",
+        contextTooltipScss: () => "Supports SCSS syntax.",
+        contextTooltipVariables: () => "You can use following css variables.",
         placeholder: () =>
-          "/* you can access your string properties of your model using `var(--appsmith-model-<property-name>)`*/",
+          "/* you can access string and number properties of your model using `var(--appsmith-model-<property-name>)`*/",
       },
       html: {
         placeholder: () =>
@@ -2433,7 +2459,9 @@ export const CUSTOM_WIDGET_FEATURE = {
 };
 
 export const WIDGET_PANEL_EMPTY_MESSAGE = () =>
-  "We couldn’t find any widgets called";
+  "We couldn’t find any UI elements called";
+
+export const UI_ELEMENT_PANEL_SEARCH_TEXT = () => "Search UI elements";
 
 export const HTTP_PROTOCOL_INPUT_PLACEHOLDER = () => `Select HTTP Protocol`;
 
@@ -2450,3 +2478,27 @@ export const HEADER_TITLES = {
 };
 
 export const PASTE_FAILED = (str: string): string => `Paste failed! ${str}`;
+
+export const CREATE_A_NEW_ITEM = (item: string) => `Create a new ${item}`;
+
+export const MAXIMIZE_BUTTON_TOOLTIP = () =>
+  `Expand code editor to full-screen`;
+export const MINIMIZE_BUTTON_TOOLTIP = () => `Open code editor next to the UI`;
+export const SPLITPANE_ANNOUNCEMENT = {
+  TITLE: () => "Code and UI, side-by-side",
+  DESCRIPTION: () =>
+    "Write queries and JS functions while you refer to the UI on the side! This is a beta version that we will continue to improve with your feedback.",
+};
+
+export const CANVAS_VIEW_MODE_TOOLTIP = (shortcutKey: string) =>
+  `💡 ${shortcutKey} click a widget to navigate to UI mode.`;
+
+export const EMPTY_CANVAS_HINTS = {
+  DRAG_DROP_WIDGET_HINT: () => "Drag and drop a widget here",
+  DRAG_DROP_BUILDING_BLOCK_HINT: {
+    TITLE: () => "Drag & drop a building block",
+    DESCRIPTION: () => "Make a working app in seconds using functional blocks",
+  },
+};
+
+export const BETA_TAG = () => `Beta`;

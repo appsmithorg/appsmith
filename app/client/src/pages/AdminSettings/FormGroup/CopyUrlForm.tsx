@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
 import copy from "copy-to-clipboard";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Icon, Input, Text, toast, Tooltip } from "design-system";
 
 export const BodyContainer = styled.div`
@@ -16,6 +16,11 @@ const HeaderWrapper = styled.div`
   display: flex;
   align-items: center;
   color: var(--ads-v2-color-fg);
+
+  .title-text {
+    font-weight: var(--ads-v2-h5-font-weight);
+  }
+
   .help-icon {
     margin-left: 8px;
     cursor: pointer;

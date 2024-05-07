@@ -15,7 +15,7 @@ mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
 if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
-  ip="$(curl -sS https://api64.ipify.org || echo unknown)"
+  ip="$(set -o pipefail; curl -sS https://cs.appsmith.com/api/v1/ip | grep -Eo '\d+(\.\d+){3}' || echo "unknown")"
   curl \
     --user "$APPSMITH_SEGMENT_CE_KEY:" \
     --header 'Content-Type: application/json' \
@@ -319,7 +319,7 @@ setup-custom-ca-certificates() (
     -deststorepass changeit
 
   # Add the custom CA certificates to the store.
-  find "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
+  find -L "$stacks_ca_certs_path" -maxdepth 1 -type f -name '*.crt' \
     -print \
     -exec keytool -import -alias '{}' -noprompt -keystore "$store" -file '{}' -storepass changeit ';'
 
@@ -454,11 +454,20 @@ function setup_auto_heal(){
    if [[ ${APPSMITH_AUTO_HEAL-} = 1 ]]; then
      # By default APPSMITH_AUTO_HEAL=0
      # To enable auto heal set APPSMITH_AUTO_HEAL=1
-     bash /opt/appsmith/auto_heal.sh $APPSMITH_AUTO_HEAL_CURL_TIMEOUT >> /appsmith-stacks/logs/cron/auto_heal.log 2>&1 &
+     bash /opt/appsmith/auto_heal.sh $APPSMITH_AUTO_HEAL_CURL_TIMEOUT >> "$APPSMITH_LOG_DIR"/cron/auto_heal.log 2>&1 &
    fi
 }
 
+print_appsmith_info(){
+  tr '\n' ' ' < /opt/appsmith/info.json
+}
+
+function capture_infra_details(){
+  bash /opt/appsmith/generate-infra-details.sh || true
+}
+
 # Main Section
+print_appsmith_info
 init_loading_pages
 init_env_file
 setup_proxy_variables
@@ -490,9 +499,11 @@ configure_supervisord
 mkdir -p /appsmith-stacks/data/{backup,restore} /appsmith-stacks/ssl
 
 # Create sub-directory to store services log in the container mounting folder
-mkdir -p /appsmith-stacks/logs/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
+export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
+mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
+capture_infra_details
 
 # Handle CMD command
 exec "$@"

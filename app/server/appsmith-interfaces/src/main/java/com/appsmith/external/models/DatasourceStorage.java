@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.experimental.FieldNameConstants;
 import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.util.CollectionUtils;
@@ -24,6 +25,7 @@ import static com.appsmith.external.constants.PluginConstants.DEFAULT_REST_DATAS
 @AllArgsConstructor
 @NoArgsConstructor
 @Document
+@FieldNameConstants
 public class DatasourceStorage extends BaseDomain {
 
     @JsonView(Views.Public.class)
@@ -141,6 +143,7 @@ public class DatasourceStorage extends BaseDomain {
         this.setIsRecentlyCreated(null);
     }
 
+    @JsonView({Views.Internal.class})
     public boolean isEmbedded() {
         /**
          * We cannot just rely on datasourceId == null check because it will always be true for all cases when the

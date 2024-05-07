@@ -8,6 +8,7 @@ import BaseWidget from "widgets/BaseWidget";
 import CustomComponent from "../component";
 
 import IconSVG from "../icon.svg";
+import ThumbnailSVG from "../thumbnail.svg";
 import { WIDGET_PADDING, WIDGET_TAGS } from "constants/WidgetConstants";
 import { ValidationTypes } from "constants/WidgetValidation";
 import type {
@@ -17,7 +18,6 @@ import type {
 } from "entities/AppTheming";
 import { DefaultAutocompleteDefinitions } from "widgets/WidgetUtils";
 import type { AutocompletionDefinitions } from "WidgetProvider/constants";
-import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { DEFAULT_MODEL } from "../constants";
 import defaultApp from "./defaultApp";
@@ -32,7 +32,7 @@ import { Link } from "design-system";
 import styled from "styled-components";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { Colors } from "constants/Colors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { DynamicHeight, type WidgetFeatures } from "utils/WidgetFeatures";
 
 const StyledLink = styled(Link)`
@@ -48,10 +48,8 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
   static getConfig() {
     return {
       name: "Custom",
-      hideCard: !super.getFeatureFlag(
-        FEATURE_FLAG.release_custom_widgets_enabled,
-      ),
       iconSVG: IconSVG,
+      thumbnailSVG: ThumbnailSVG,
       needsMeta: true,
       isCanvas: false,
       tags: [WIDGET_TAGS.DISPLAY],
@@ -74,6 +72,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
       uncompiledSrcDoc: defaultApp.uncompiledSrcDoc,
       theme: "{{appsmith.theme}}",
       dynamicBindingPathList: [{ key: "theme" }],
+      dynamicTriggerPathList: [{ key: "onResetClick" }],
       borderColor: Colors.GREY_5,
       borderWidth: "1",
       backgroundColor: "#FFFFFF",
@@ -249,7 +248,8 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
             controlConfig: {
               allowEdit: true,
               onEdit: (widget: CustomWidgetProps, newLabel: string) => {
-                return {
+                const triggerPaths = [];
+                const updatedProperties = {
                   events: widget.events.map((e) => {
                     if (e === event) {
                       return newLabel;
@@ -257,6 +257,19 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
 
                     return e;
                   }),
+                };
+
+                if (
+                  widget.dynamicTriggerPathList
+                    ?.map((d) => d.key)
+                    .includes(event)
+                ) {
+                  triggerPaths.push(newLabel);
+                }
+
+                return {
+                  modify: updatedProperties,
+                  triggerPaths,
                 };
               },
               allowDelete: true,
@@ -266,7 +279,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
                 };
               },
             },
-            dependencies: ["events"],
+            dependencies: ["events", "dynamicTriggerPathList"],
             helpText: "when the event is triggered from custom widget",
           }));
         },
@@ -429,6 +442,7 @@ class CustomWidget extends BaseWidget<CustomWidgetProps, WidgetState> {
         dynamicHeight={this.props.dynamicHeight}
         execute={this.execute}
         height={this.props.componentHeight - WIDGET_PADDING * 2}
+        layoutSystemType={this.props.layoutSystemType}
         minDynamicHeight={this.props.minDynamicHeight}
         model={this.props.model || {}}
         renderMode={this.getRenderMode()}

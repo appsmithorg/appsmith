@@ -14,7 +14,6 @@
     <name>reactiveCaching</name>
 
     <properties>
-        <org.projectlombok.version>1.18.22</org.projectlombok.version>
         <org.testcontainers.junit-jupiter.version>1.17.2</org.testcontainers.junit-jupiter.version>
         <uk.co.jemos.podam.podam.version>7.2.11.RELEASE</uk.co.jemos.podam.podam.version>
     </properties>
@@ -108,6 +107,7 @@
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>${jackson-bom.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>

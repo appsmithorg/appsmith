@@ -2,7 +2,7 @@ package com.appsmith.server.services.ce;
 
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.TemplateDTO;
 import com.appsmith.server.exceptions.AppsmithException;
@@ -82,7 +82,7 @@ public class ApplicationTemplateServicePublishTemplateTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         cloudServicesConfig.setBaseUrl(String.format("http://localhost:%s", mockCloudServices.getPort()));
 

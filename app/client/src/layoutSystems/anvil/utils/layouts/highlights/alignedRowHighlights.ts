@@ -66,6 +66,12 @@ export const deriveAlignedRowHighlights =
       posY: HIGHLIGHT_SIZE / 2,
       rowIndex: 0,
       width: HIGHLIGHT_SIZE,
+      edgeDetails: {
+        bottom: false,
+        left: false,
+        right: false,
+        top: false,
+      },
     };
 
     /**
@@ -100,6 +106,15 @@ export const deriveAlignedRowHighlights =
  * @param getDimensions | GetDimensions : method to get relative position of entity.
  * @returns HighlightPayload.
  */
+/**
+ * Retrieves the initial highlights for a layout.
+ *
+ * @param layoutProps - The properties of the layout.
+ * @param baseHighlight - The base highlight to be used.
+ * @param draggedWidgets - The array of dragged widgets.
+ * @param getDimensions - The function to get the dimensions of a layout element.
+ * @returns The payload containing the highlights and a flag indicating whether to skip the entity.
+ */
 function getInitialHighlights(
   layoutProps: LayoutProps,
   baseHighlight: AnvilHighlightInfo,
@@ -117,9 +132,9 @@ function getInitialHighlights(
   /**
    * If dragged widgets contain a fill widget,
    * then draw a single highlight that spans the width of the layout.
-   * else draw three highlights, one for each alignment.
+   * Otherwise, draw three highlights, one for each alignment.
    */
-  const arr = hasFillWidget
+  const alignments = hasFillWidget
     ? [FlexLayerAlignment.Start]
     : [
         FlexLayerAlignment.Start,
@@ -127,10 +142,10 @@ function getInitialHighlights(
         FlexLayerAlignment.End,
       ];
 
-  arr.forEach((alignment: FlexLayerAlignment, index: number) => {
-    const alignmentDimension: LayoutElementPosition = getDimensions(
-      `${layoutProps.layoutId}-${index}`,
-    );
+  alignments.forEach((alignment: FlexLayerAlignment, index: number) => {
+    const alignmentId: string = `${layoutProps.layoutId}-${index}`;
+    const alignmentDimension: LayoutElementPosition =
+      getDimensions(alignmentId);
     highlights = updateHighlights(
       highlights,
       baseHighlight,
@@ -189,7 +204,7 @@ export function getHighlightsForWidgets(
   }
 
   /**
-   * Check if layout has widgets that are not being dragged.
+   * Check if the layout has widgets that are not being dragged.
    */
   const nonDraggedWidgets: WidgetLayoutProps[] = getNonDraggedWidgets(
     layout,
@@ -210,11 +225,14 @@ export function getHighlightsForWidgets(
 
   let highlights: AnvilHighlightInfo[] = [];
   let childCount = 0;
+
+  // Iterate through each alignment in the layout
   Object.keys(alignmentInfo).forEach((alignment: string) => {
     const { dimension, meta, widgets } = alignmentInfo[alignment];
 
     /**
-     * If the alignment doesn't render any widgets, then derive initial highlights for the alignment.
+     * If the alignment doesn't render any widgets,
+     * then derive initial highlights for the alignment.
      */
     if (!widgets.length) {
       /**
@@ -229,22 +247,6 @@ export function getHighlightsForWidgets(
           (layoutDimension.width * 2) / 3
       )
         return;
-
-      // if (
-      //   alignment === FlexLayerAlignment.Start &&
-      //   alignmentInfo[FlexLayerAlignment.Center].dimension.width +
-      //     alignmentInfo[FlexLayerAlignment.End].dimension.width >
-      //     layoutDimension.width * 0.85
-      // )
-      //   return;
-
-      // if (
-      //   alignment === FlexLayerAlignment.End &&
-      //   alignmentInfo[FlexLayerAlignment.Center].dimension.width +
-      //     alignmentInfo[FlexLayerAlignment.Start].dimension.width >
-      //     layoutDimension.width * 0.85
-      // )
-      //   return;
 
       highlights = updateHighlights(
         highlights,
@@ -261,11 +263,16 @@ export function getHighlightsForWidgets(
     } else {
       const { metaData, tallestWidgets } = meta;
       let rIndex = 0;
+
+      // Iterate through each row within the alignment
       while (rIndex < metaData.length) {
         const row: RowMetaData[] = metaData[rIndex];
         const tallestWidget = tallestWidgets[rIndex];
 
         let temp: AnvilHighlightInfo[] = [];
+        const draggedWidgetIndices: number[] = [];
+
+        // Iterate through each widget within the row
         row.forEach((each: RowMetaData, index: number) => {
           const isDraggedWidget: boolean = draggedWidgets.some(
             (widget: DraggedWidget) => widget.widgetId === each.widgetId,
@@ -278,42 +285,51 @@ export function getHighlightsForWidgets(
           );
           const prevDimension: LayoutElementPosition | undefined =
             index === 0 ? undefined : getDimensions(row[index - 1].widgetId);
-
+          const skipHighlightBeforeWidget = draggedWidgetIndices.includes(
+            index - 1,
+          );
           /**
            * Add a highlight before the widget
            */
+          temp = updateHighlights(
+            temp,
+            isDraggedWidget || skipHighlightBeforeWidget
+              ? { ...baseHighlight, existingPositionHighlight: true }
+              : baseHighlight,
+            childCount,
+            alignment as FlexLayerAlignment,
+            layoutProps.layoutId,
+            dimension,
+            currentDimension,
+            tallestDimension,
+            prevDimension,
+            false,
+          );
+
           if (!isDraggedWidget) {
-            temp = updateHighlights(
-              temp,
-              baseHighlight,
-              childCount,
-              alignment as FlexLayerAlignment,
-              layoutProps.layoutId,
-              dimension,
-              currentDimension,
-              tallestDimension,
-              prevDimension,
-              false,
-            );
             childCount += 1;
+          } else {
+            draggedWidgetIndices.push(index);
           }
 
           if (index === row.length - 1) {
-            /**
-             * Add a highlight after the last widget in the row.
-             */
-            temp = updateHighlights(
-              temp,
-              baseHighlight,
-              childCount,
-              alignment as FlexLayerAlignment,
-              layoutProps.layoutId,
-              dimension,
-              currentDimension,
-              tallestDimension,
-              prevDimension,
-              true,
-            );
+            if (!isDraggedWidget) {
+              /**
+               * Add a highlight after the last widget in the row.
+               */
+              temp = updateHighlights(
+                temp,
+                baseHighlight,
+                childCount,
+                alignment as FlexLayerAlignment,
+                layoutProps.layoutId,
+                dimension,
+                currentDimension,
+                tallestDimension,
+                prevDimension,
+                true,
+              );
+            }
             highlights.push(...temp);
             temp = [];
           }
@@ -366,15 +382,24 @@ function generateHighlight(
       layoutDimension.left,
     );
   }
-
+  const posY = tallestWidget ? tallestWidget.top : layoutDimension.top;
+  const edgeDetails = {
+    top: posY === layoutDimension.top,
+    bottom:
+      posY + HIGHLIGHT_SIZE === layoutDimension.top + layoutDimension.height,
+    left: posX === layoutDimension.left,
+    right:
+      posX + HIGHLIGHT_SIZE === layoutDimension.left + layoutDimension.width,
+  };
   return {
     ...baseHighlight,
     layoutId,
     alignment,
     height: tallestWidget?.height ?? layoutDimension.height,
     posX,
-    posY: tallestWidget ? tallestWidget?.top : layoutDimension.top,
+    posY,
     rowIndex: childCount,
+    edgeDetails,
   };
 }
 

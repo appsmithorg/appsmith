@@ -21,19 +21,12 @@ import type {
   AnvilConfig,
   AutocompletionDefinitions,
 } from "WidgetProvider/constants";
-import {
-  anvilConfig,
-  autocompleteConfig,
-  defaultsConfig,
-  featuresConfig,
-  metaConfig,
-  settersConfig,
-  propertyPaneContentConfig,
-} from "./config";
+import * as config from "../config";
 import type { CurrencyInputWidgetProps } from "./types";
 import { WDSBaseInputWidget } from "widgets/wds/WDSBaseInputWidget";
 import { getCountryCodeFromCurrencyCode, validateInput } from "./helpers";
 import type { KeyDownEvent } from "widgets/wds/WDSBaseInputWidget/component/types";
+import { klona as clone } from "klona";
 
 class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   CurrencyInputWidgetProps,
@@ -42,34 +35,72 @@ class WDSCurrencyInputWidget extends WDSBaseInputWidget<
   static type = "WDS_CURRENCY_INPUT_WIDGET";
 
   static getConfig() {
-    return metaConfig;
+    return config.metaConfig;
   }
 
   static getFeatures() {
-    return featuresConfig;
+    return config.featuresConfig;
   }
 
   static getDefaults() {
-    return defaultsConfig;
+    return config.defaultsConfig;
   }
 
   static getAnvilConfig(): AnvilConfig | null {
-    return anvilConfig;
+    return config.anvilConfig;
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {
-    return autocompleteConfig;
+    return config.autocompleteConfig;
   }
 
   static getSetterConfig(): SetterConfig {
-    return settersConfig;
+    return config.settersConfig;
+  }
+
+  static getMethods() {
+    return config.methodsConfig;
   }
 
   static getPropertyPaneContentConfig() {
-    return mergeWidgetConfig(
-      propertyPaneContentConfig,
-      super.getPropertyPaneContentConfig(),
+    const parentConfig = clone(super.getPropertyPaneContentConfig());
+    const labelSectionIndex = parentConfig.findIndex(
+      (section) => section.sectionName === "Label",
     );
+    const labelPropertyIndex = parentConfig[
+      labelSectionIndex
+    ].children.findIndex((property) => property.propertyName === "label");
+
+    parentConfig[labelSectionIndex].children[labelPropertyIndex] = {
+      ...parentConfig[labelSectionIndex].children[labelPropertyIndex],
+      placeholderText: "Current Price",
+    } as any;
+
+    const generalSectionIndex = parentConfig.findIndex(
+      (section) => section.sectionName === "General",
+    );
+    const tooltipPropertyIndex = parentConfig[
+      generalSectionIndex
+    ].children.findIndex((property) => property.propertyName === "tooltip");
+
+    parentConfig[generalSectionIndex].children[tooltipPropertyIndex] = {
+      ...parentConfig[generalSectionIndex].children[tooltipPropertyIndex],
+      placeholderText:
+        "Prices in other currencies should be recalculated in USD",
+    } as any;
+
+    const placeholderPropertyIndex = parentConfig[
+      generalSectionIndex
+    ].children.findIndex(
+      (property) => property.propertyName === "placeholderText",
+    );
+
+    parentConfig[generalSectionIndex].children[placeholderPropertyIndex] = {
+      ...parentConfig[generalSectionIndex].children[placeholderPropertyIndex],
+      placeholderText: "10",
+    } as any;
+
+    return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
   }
 
   static getPropertyPaneStyleConfig() {

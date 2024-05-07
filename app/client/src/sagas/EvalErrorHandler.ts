@@ -1,4 +1,8 @@
-import type { Log, ENTITY_TYPE } from "entities/AppsmithConsole";
+import type { Log } from "entities/AppsmithConsole";
+import {
+  getModuleInstanceInvalidErrors,
+  type ENTITY_TYPE,
+} from "@appsmith/entities/AppsmithConsole/utils";
 import { Severity } from "entities/AppsmithConsole";
 import type { ConfigTree, DataTree } from "entities/DataTree/dataTreeTypes";
 import {
@@ -14,7 +18,7 @@ import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import { select } from "redux-saga/effects";
 import AppsmithConsole from "utils/AppsmithConsole";
 import * as Sentry from "@sentry/react";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_EVAL_ERROR_GENERIC,
@@ -73,6 +77,18 @@ function logLatestEvalPropertyErrors(
     const entityType = entity.ENTITY_TYPE as string;
     const payloadInfo = getEntityPayloadInfo[entityType](entityConfig);
     const entityNameToDisplay = payloadInfo.entityName || entityName;
+
+    const moduleInstanceErrors = getModuleInstanceInvalidErrors(
+      entity,
+      entityConfig,
+      propertyPath,
+    );
+
+    if (moduleInstanceErrors.length) {
+      moduleInstanceErrors.forEach((instanceError) => {
+        errorsToAdd.push(instanceError);
+      });
+    }
 
     if (!payloadInfo) continue;
 

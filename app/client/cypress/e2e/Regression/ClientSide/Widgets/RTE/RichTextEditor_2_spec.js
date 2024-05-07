@@ -22,7 +22,7 @@ const setRTEContent = (textValue) => {
  */
 const testCursorPoistion = (textValueLen, tinyMceId) => {
   cy.window().then((win) => {
-    const editor = win.tinymce.editors[tinyMceId];
+    const editor = win.tinymce.EditorManager.get(tinyMceId);
 
     // Get the current cursor location
     const getCurrentCursorLocation = editor.selection.getSel().anchorOffset;
@@ -71,7 +71,7 @@ describe(
       cy.window().then((win) => {
         const tinyMceId = "rte-6h8j08u7ea";
 
-        const editor = win.tinymce.editors[tinyMceId];
+        const editor = win.tinymce.EditorManager.get(tinyMceId);
 
         //Set the content
         editor.setContent("Test Content");
@@ -97,8 +97,7 @@ describe(
       // Check if the cursor is at the end when input Type is HTML
       setRTEContent(testString);
       testCursorPoistion(testStringLen, tinyMceId);
-      setRTEContent("{selectAll}");
-      setRTEContent("{backspace}");
+      setRTEContent("{selectAll}{del}");
 
       // Changing the input type to markdown and again testing the cursor position
       cy.openPropertyPane("richtexteditorwidget");
@@ -118,7 +117,7 @@ describe(
       cy.contains("Heading 1").click({ force: true });
 
       cy.window().then((win) => {
-        const editor = win.tinymce.editors[tinyMceId];
+        const editor = win.tinymce.EditorManager.get(tinyMceId);
 
         // Get the current editor text
         const getCurrentHtmlContent = editor.getContent();
@@ -133,21 +132,21 @@ describe(
       cy.get('[aria-label="Underline"]').should("exist");
 
       //Check if button for Background Color is rendered only once within the Toolbar of RTE widget
-      cy.get('[aria-label="Background color"]').should("have.length", 1);
+      cy.get('[data-mce-name="backcolor"]').should("have.length", 1);
 
       //Check if button for Text Color is rendered only once within the Toolbar of RTE widget
-      cy.get('[aria-label="Text color"]').should("have.length", 1);
+      cy.get('[data-mce-name="forecolor"]').should("have.length", 1);
     });
 
     it("6. Check if able to add an emoji through toolbar", () => {
-      cy.get('[aria-label="More..."]').click({ force: true });
+      cy.get('[data-mce-name="overflow-button"]').click({ force: true });
       cy.wait(500);
-      cy.get('[aria-label="Emoticons"]').click({ force: true });
+      cy.get('[data-mce-name="emoticons"]').click({ force: true });
       cy.wait(500);
-      cy.get('[aria-label="grinning"]').click({ force: true });
+      cy.get('[data-mce-tooltip="grinning"]').click({ force: true });
       const getEditorContent = (win) => {
         const tinyMceId = "rte-6h8j08u7ea";
-        const editor = win.tinymce.editors[tinyMceId];
+        const editor = win.tinymce.EditorManager.get(tinyMceId);
         return editor.getContent();
       };
 

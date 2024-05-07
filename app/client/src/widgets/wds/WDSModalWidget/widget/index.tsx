@@ -10,7 +10,6 @@ import {
   ModalHeader,
 } from "@design-system/widgets";
 import React from "react";
-import { LayoutProvider } from "layoutSystems/anvil/layoutComponents/LayoutProvider";
 import { EventType } from "constants/AppsmithActionConstants/ActionConstants";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { ModalBody } from "@design-system/widgets";
@@ -23,6 +22,8 @@ import type {
 } from "layoutSystems/anvil/utils/paste/types";
 import { call } from "redux-saga/effects";
 import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/mainCanvasPasteUtils";
+import { ModalLayoutProvider } from "layoutSystems/anvil/layoutComponents/ModalLayoutProvider";
+import styles from "./styles.module.css";
 
 class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
   static type = "WDS_MODAL_WIDGET";
@@ -53,6 +54,10 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
 
   static getPropertyPaneStyleConfig() {
     return config.propertyPaneStyleConfig;
+  }
+
+  static getMethods() {
+    return config.methodsConfig;
   }
 
   static *performPasteOperation(
@@ -116,7 +121,9 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     const submitText = this.props.showSubmitButton
       ? this.props.submitButtonText || "Submit"
       : undefined;
-
+    const contentClassName = `${this.props.className} ${
+      this.props.allowWidgetInteraction ? "" : styles.disableModalInteraction
+    }`;
     return (
       <Modal
         isOpen={this.state.isVisible as boolean}
@@ -124,10 +131,10 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         setOpen={(val) => this.setState({ isVisible: val })}
         size={this.props.size}
       >
-        <ModalContent className={this.props.className}>
+        <ModalContent className={contentClassName.trim()}>
           {this.props.showHeader && <ModalHeader title={this.props.title} />}
           <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
-            <LayoutProvider {...this.props} />
+            <ModalLayoutProvider {...this.props} />
           </ModalBody>
           {this.props.showFooter && (
             <ModalFooter

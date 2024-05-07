@@ -14,15 +14,18 @@ import { error } from "loglevel";
 import { matchPath } from "react-router";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
-import { setUsersFirstApplicationId } from "utils/storage";
+import type {
+  SocialLoginButtonProps,
+  SocialLoginType,
+} from "@appsmith/constants/SocialLogin";
+import { SocialLoginButtonPropsList } from "@appsmith/constants/SocialLogin";
 
 export const redirectUserAfterSignup = (
   redirectUrl: string,
   shouldEnableFirstTimeUserOnboarding: string | null,
   _validLicense?: boolean,
   dispatch?: any,
-  showStarterTemplatesInsteadofBlankCanvas: boolean = false,
-  isEnabledForCreateNew?: boolean,
+  isEnabledForCreateNew?: boolean, // is Enabled for only non-invited users
 ): any => {
   if (redirectUrl) {
     try {
@@ -49,9 +52,6 @@ export const redirectUserAfterSignup = (
         });
         const { applicationId, pageId } = match?.params || {};
         if (applicationId || pageId) {
-          showStarterTemplatesInsteadofBlankCanvas &&
-            applicationId &&
-            setUsersFirstApplicationId(applicationId);
           if (isEnabledForCreateNew) {
             dispatch(
               setCurrentApplicationIdForCreateNewApp(applicationId as string),
@@ -82,4 +82,16 @@ export const redirectUserAfterSignup = (
   } else {
     history.replace(APPLICATIONS_URL);
   }
+};
+
+export const getSocialLoginButtonProps = (
+  logins: SocialLoginType[],
+): SocialLoginButtonProps[] => {
+  return logins.map((login) => {
+    const socialLoginButtonProps = SocialLoginButtonPropsList[login];
+    if (!socialLoginButtonProps) {
+      throw Error("Social login not registered: " + login);
+    }
+    return socialLoginButtonProps;
+  });
 };

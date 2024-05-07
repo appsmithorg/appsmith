@@ -1,6 +1,7 @@
 package com.appsmith.server.controllers.ce;
 
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
@@ -35,9 +36,10 @@ public class RestApiImportControllerCE {
     public Mono<ResponseDTO<ActionDTO>> create(
             @RequestBody(required = false) Object input,
             @RequestParam RestApiImporterType type,
-            @RequestParam String pageId,
+            @RequestParam String contextId,
             @RequestParam String name,
             @RequestParam String workspaceId,
+            @RequestParam(required = false) CreatorContextType contextType,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
             @RequestHeader(name = "Origin", required = false) String originHeader) {
         log.debug("Going to import API");
@@ -51,7 +53,7 @@ public class RestApiImportControllerCE {
                 throw new IllegalStateException("Unexpected value: " + type);
         }
 
-        return service.importAction(input, pageId, name, workspaceId, branchName)
+        return service.importAction(input, contextType, contextId, name, workspaceId, branchName)
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 }

@@ -7,7 +7,7 @@ import type {
 import { CheckboxGroup as HeadlessCheckboxGroup } from "@design-system/headless";
 
 import { fieldStyles } from "../../../styles";
-import { ContextualHelp } from "../../TextInput/src/ContextualHelp";
+import { ContextualHelp } from "../../ContextualHelp";
 import { getTypographyClassName } from "@design-system/theming";
 
 export interface CheckboxGroupProps extends HeadlessCheckboxGroupProps {
@@ -29,7 +29,7 @@ const _CheckboxGroup = (
       contextualHelp={contextualHelp}
       fieldClassName={fieldStyles.field}
       helpTextClassName={getTypographyClassName("footnote")}
-      labelClassName={getTypographyClassName("body")}
+      labelClassName={getTypographyClassName("caption")}
       ref={ref}
       {...rest}
     />

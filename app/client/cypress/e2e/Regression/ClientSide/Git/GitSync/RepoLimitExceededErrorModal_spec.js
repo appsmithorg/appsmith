@@ -24,8 +24,7 @@ describe(
     });
 
     it("1. Verify Repo limit flow for CE/EE instances", function () {
-      agHelper.Sleep(2000); // adding wait for app to load
-      homePage.LogOutviaAPI();
+      homePage.Signout();
       cy.generateUUID().then((uid) => {
         homePage.SignUp(`${uid}@appsmithtest.com`, uid);
         onboarding.closeIntroModal();
@@ -33,26 +32,26 @@ describe(
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
       onboarding.closeIntroModal();
-      gitSync.CreateNConnectToGit(repoName1, true, true);
+      gitSync.CreateNConnectToGit(repoName1, true, true, false);
       cy.get("@gitRepoName").then((repName) => {
         repoName1 = repName;
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
       onboarding.closeIntroModal();
-      gitSync.CreateNConnectToGit(repoName2, true, true);
+      gitSync.CreateNConnectToGit(repoName2, true, true, false);
       cy.get("@gitRepoName").then((repName) => {
         repoName2 = repName;
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
-      gitSync.CreateNConnectToGit(repoName3, true, true);
+      gitSync.CreateNConnectToGit(repoName3, true, true, false);
       cy.get("@gitRepoName").then((repName) => {
         repoName3 = repName;
       });
       homePage.NavigateToHome();
       homePage.CreateNewApplication();
-      gitSync.CreateNConnectToGit(repoName4, false, true);
+      gitSync.CreateNConnectToGit(repoName4, false, true, false);
       cy.get("@gitRepoName").then((repName) => {
         repoName4 = repName;
       });

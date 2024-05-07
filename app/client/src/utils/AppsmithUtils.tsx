@@ -10,7 +10,7 @@ import * as log from "loglevel";
 import { osName } from "react-device-detect";
 import type { ActionDataState } from "@appsmith/reducers/entityReducers/actionsReducer";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
-import AnalyticsUtil from "./AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { CreateNewActionKeyInterface } from "@appsmith/entities/Engine/actionHelpers";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
 
@@ -343,27 +343,41 @@ export function hexToRgb(hex: string): {
       };
 }
 
+/*
+ * Function to call the given function until the promise it returns resolves or the max retries are reached
+ *
+ * @param fn - function that returns a promise
+ * @param retriesLeft - number of retries
+ * @param interval - interval between retries
+ * @param shouldRetry - function to determine if the promise should be retried, helpful when we want to retry only on specific errors
+ * @returns Promise
+ *
+ */
 export const retryPromise = async (
   fn: () => Promise<any>,
   retriesLeft = 5,
   interval = 1000,
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  shouldRetry = (e: Error) => true, // default to retry on all errors
 ): Promise<any> => {
   return new Promise((resolve, reject) => {
     fn()
       .then(resolve)
-      .catch(() => {
-        setTimeout(async () => {
-          if (retriesLeft === 1) {
-            return Promise.reject({
-              code: ERROR_CODES.SERVER_ERROR,
-              message: createMessage(ERROR_500),
-              show: false,
-            });
-          }
+      .catch((e) => {
+        if (shouldRetry(e)) {
+          setTimeout(async () => {
+            if (retriesLeft === 1) {
+              return Promise.reject({
+                code: ERROR_CODES.SERVER_ERROR,
+                message: createMessage(ERROR_500),
+                show: false,
+              });
+            }
 
-          // Passing on "reject" is the important part
-          retryPromise(fn, retriesLeft - 1, interval).then(resolve, reject);
-        }, interval);
+            // Passing on "reject" is the important part
+            retryPromise(fn, retriesLeft - 1, interval).then(resolve, reject);
+          }, interval);
+        }
       });
   });
 };

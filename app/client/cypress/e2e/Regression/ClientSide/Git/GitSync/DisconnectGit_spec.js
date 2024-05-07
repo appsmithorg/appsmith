@@ -11,19 +11,20 @@ describe("Git disconnect modal:", { tags: ["@tag.Git"] }, function () {
       const newWorkspaceName = interception.response.body.data.name;
       cy.CreateAppForWorkspace(newWorkspaceName, newWorkspaceName);
     });
-    cy.generateUUID().then((uid) => {
-      repoName = uid;
-      _.gitSync.CreateTestGiteaRepo(repoName);
-    });
   });
 
   it("1. should be opened with proper components", function () {
-    _.gitSync.AuthorizeKeyToGitea(repoName);
-    cy.get(gitSyncLocators.bottomBarCommitButton).click();
-    cy.get("[data-testid=t--tab-GIT_CONNECTION]").click();
+    cy.generateUUID().then((uid) => {
+      _.gitSync.CreateNConnectToGit(uid);
+      cy.get("@gitRepoName").then((repName) => {
+        repoName = repName;
+      });
+    });
+    cy.get(_.gitSync._bottomSettingsBtn).click();
+    cy.get(_.gitSync._settingsTabGeneral).click();
     // after clicked disconnect on connection modal,
     // it should be closed and disconnect modal should be opened
-    cy.get(gitSyncLocators.disconnectIcon).click();
+    cy.get(_.gitSync._disconnectGitBtn).click();
     cy.get(gitSyncLocators.gitSyncModal).should("not.exist");
     cy.get(gitSyncLocators.disconnectGitModal).should("exist");
 
@@ -60,12 +61,12 @@ describe("Git disconnect modal:", { tags: ["@tag.Git"] }, function () {
   });
 
   it("2. should have disconnect repo button", function () {
-    cy.get(gitSyncLocators.bottomBarCommitButton).click();
-    cy.get("[data-testid=t--tab-GIT_CONNECTION]").click();
+    cy.get(_.gitSync._bottomSettingsBtn).click();
+    cy.get(_.gitSync._settingsTabGeneral).click();
 
     // after clicked disconnect on connection modal,
     // it should be closed and disconnect modal should be opened
-    cy.get(gitSyncLocators.disconnectIcon).click();
+    cy.get(_.gitSync._disconnectGitBtn).click();
     cy.get(gitSyncLocators.disconnectButton).should("be.disabled");
 
     cy.get(gitSyncLocators.disconnectAppNameInput).type(
@@ -110,6 +111,5 @@ describe("Git disconnect modal:", { tags: ["@tag.Git"] }, function () {
 
   after(() => {
     _.gitSync.DeleteTestGithubRepo(repoName);
-    //cy.deleteTestGithubRepo(repoName);
   });
 });

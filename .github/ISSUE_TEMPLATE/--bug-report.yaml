@@ -56,6 +56,18 @@ body:
         - Deploy Preview
   validations:
     required: true
+- type: dropdown
+  id: severity
+  attributes:
+    label: Severity
+    description: "The impact of the issue"
+    options:
+        - Low (Cosmetic UI issues)
+        - Medium (Frustrating UX)
+        - High (Blocker to building or releasing)
+        - Critical (Broken Production apps)
+  validations:
+    required: true
 - type: input
   id: video
   attributes:

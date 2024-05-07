@@ -36,6 +36,7 @@ export const WIDGETS_EDITOR_ID_PATH = `${WIDGETS_EDITOR_BASE_PATH}/:widgetIds`;
  */
 export const CUSTOM_WIDGETS_EDITOR_ID_PATH = `${BUILDER_PATH}${WIDGETS_EDITOR_ID_PATH}/builder`;
 export const CUSTOM_WIDGETS_EDITOR_ID_PATH_CUSTOM = `${BUILDER_CUSTOM_PATH}${WIDGETS_EDITOR_ID_PATH}/builder`;
+export const CUSTOM_WIDGETS_DEPRECATED_EDITOR_ID_PATH = `${BUILDER_PATH_DEPRECATED}${WIDGETS_EDITOR_ID_PATH}/builder`;
 /* */
 
 export const API_EDITOR_BASE_PATH = `/api`;
@@ -52,6 +53,7 @@ export const QUERIES_EDITOR_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`;
 export const QUERIES_EDITOR_ID_ADD_PATH = `${QUERIES_EDITOR_BASE_PATH}/:queryId/add`;
 export const JS_COLLECTION_EDITOR_PATH = `/jsObjects`;
 export const JS_COLLECTION_ID_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId`;
+export const JS_COLLECTION_ID_ADD_PATH = `${JS_COLLECTION_EDITOR_PATH}/:collectionId/add`;
 export const CURL_IMPORT_PAGE_PATH = `/api/curl/curl-import`;
 export const DATA_SOURCES_EDITOR_LIST_PATH = `/datasource`;
 export const DATA_SOURCES_EDITOR_ID_PATH = `/datasource/:datasourceId`;
@@ -100,7 +102,8 @@ export const matchBuilderPath = (
   match(BUILDER_CUSTOM_PATH, options)(pathName) ||
   match(BUILDER_PATH + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
   match(BUILDER_CUSTOM_PATH + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
-  match(BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH, options)(pathName);
+  match(BUILDER_PATH_DEPRECATED + WIDGETS_EDITOR_ID_PATH, options)(pathName) ||
+  match(BUILDER_PATH + WIDGETS_EDITOR_ID_PATH + ADD_PATH, options)(pathName);
 
 export const matchJSObjectPath = match(JS_COLLECTION_ID_PATH);
 export const matchViewerPath = (pathName: string) =>

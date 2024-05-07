@@ -36,12 +36,6 @@ import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import { useLocation } from "react-router";
 import { CANVAS_VIEWPORT } from "constants/componentClassNameConstants";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { getIDEViewMode } from "selectors/ideSelectors";
-import {
-  EditorEntityTab,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
-import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 
 const GUTTER_WIDTH = 72;
 export const AUTOLAYOUT_RESIZER_WIDTH_BUFFER = 40;
@@ -73,8 +67,6 @@ export const useDynamicAppLayout = () => {
   const queryParams = new URLSearchParams(search);
   const isEmbed = queryParams.get("embed");
   const isNavbarVisibleInEmbeddedApp = queryParams.get("navbar");
-  const editorMode = useSelector(getIDEViewMode);
-  const { segment } = useCurrentEditorState();
 
   const isPreviewing = isPreviewMode;
 
@@ -171,20 +163,10 @@ export const useDynamicAppLayout = () => {
     if (
       appMode === APP_MODE.EDIT &&
       appLayout?.type === "FLUID" &&
-      editorMode !== EditorViewMode.SplitScreen &&
-      segment === EditorEntityTab.UI &&
       ele &&
       calculatedWidth > ele.clientWidth
     ) {
       calculatedWidth = ele.clientWidth;
-    }
-
-    // Reduce the width of the border if splitscreen is enabled.
-    if (
-      editorMode === EditorViewMode.SplitScreen &&
-      appLayout?.type === "FLUID"
-    ) {
-      calculatedWidth -= 1;
     }
 
     switch (true) {

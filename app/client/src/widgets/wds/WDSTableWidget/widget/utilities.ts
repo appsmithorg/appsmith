@@ -25,11 +25,6 @@ import { SelectColumnOptionsValidations } from "./propertyUtils";
 import type { TableWidgetProps } from "../constants";
 import { get } from "lodash";
 import { getNextEntityName } from "utils/AppsmithUtils";
-import {
-  combineDynamicBindings,
-  getDynamicBindings,
-} from "utils/DynamicBindingUtils";
-import { ButtonVariantTypes } from "components/constants";
 import { dateFormatOptions } from "WidgetProvider/constants";
 import moment from "moment";
 import type { Stylesheet } from "entities/AppTheming";
@@ -266,8 +261,8 @@ export const getPropertyValue = (
     return isSourceData
       ? getValueForSourceData(value, index)
       : preserveCase
-      ? value[index].toString()
-      : value[index].toString().toUpperCase();
+        ? value[index].toString()
+        : value[index].toString().toUpperCase();
   } else if (value) {
     return preserveCase ? value.toString() : value.toString().toUpperCase();
   } else {
@@ -668,32 +663,11 @@ export const createColumn = (props: TableWidgetProps, baseName: string) => {
 };
 
 export const createEditActionColumn = (props: TableWidgetProps) => {
-  const themeProps: Record<string, string> = {};
-
-  if (props.childStylesheet[ColumnTypes.EDIT_ACTIONS]) {
-    Object.entries(props.childStylesheet[ColumnTypes.EDIT_ACTIONS]).forEach(
-      ([key, value]) => {
-        const { jsSnippets, stringSegments } = getDynamicBindings(
-          value as string,
-        );
-
-        const js = combineDynamicBindings(jsSnippets, stringSegments);
-
-        themeProps[
-          key
-        ] = `{{${props.widgetName}.processedTableData.map((currentRow, currentIndex) => ( ${js}))}}`;
-      },
-    );
-  }
-
   const column = {
     ...createColumn(props, "EditActions"),
     ...getEditActionColumnProperties(),
-    ...themeProps,
     columnType: ColumnTypes.EDIT_ACTIONS,
     label: "Save / Discard",
-    discardButtonVariant: ButtonVariantTypes.TERTIARY,
-    discardButtonColor: Colors.DANGER_SOLID,
     sticky: StickyType.RIGHT,
   };
   const columnOrder = [...(props.columnOrder || [])];
@@ -944,26 +918,27 @@ export const getAllStickyColumnsCount = (columns: TableColumnProps[]) => {
 };
 
 /**
+ * returns the highlight position when the column header is dragged
  *
  * @param currentIndex: current dragging item index
  * @param targetIndex: Index poistion of of header that is being hovered
- * @returns
+ * @returns "start" | "end" | "none
  */
-export const getHeaderClassNameOnDragDirection = (
+export const getHighlightPosition = (
   currentIndex: number,
   targetIndex: number,
 ) => {
-  let parentClasses = "th header-reorder";
+  let position = "none";
 
   if (currentIndex !== -1) {
     if (targetIndex > currentIndex) {
-      parentClasses += " highlight-right";
+      position = "end";
     } else if (targetIndex < currentIndex) {
-      parentClasses += " highlight-left";
+      position = "start";
     }
   }
 
-  return parentClasses;
+  return position;
 };
 
 export const getIndexByColumnName = (
@@ -1001,7 +976,7 @@ export const getDragHandlers = (
   ) => {
     // We get the parent element(.th) so as to apply left and right highlighting
     const targetElem = e.target as HTMLDivElement;
-    const parentTargetElem = targetElem.closest(".th.header-reorder");
+    const parentTargetElem = targetElem.closest("th");
 
     const currentIndex = getIndexByColumnName(
       currentDraggedColumn.current,
@@ -1009,30 +984,30 @@ export const getDragHandlers = (
     );
 
     if (parentTargetElem) {
-      parentTargetElem.className = getHeaderClassNameOnDragDirection(
-        currentIndex,
-        targetIndex,
-      );
+      if (parentTargetElem) {
+        parentTargetElem.dataset.highlightPosition = getHighlightPosition(
+          currentIndex,
+          targetIndex,
+        );
+      }
     }
+
     e.stopPropagation();
     e.preventDefault();
   };
 
   const onDragEnd = (e: React.DragEvent<HTMLDivElement>) => {
     const targetElem = e.target as HTMLDivElement;
-    targetElem.className = targetElem.className.replace(
-      " draggable-header--dragging",
-      "",
-    );
+    targetElem.dataset.status = "";
     e.preventDefault();
   };
 
   const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     const targetElem = e.target as HTMLDivElement;
-    const parentTargetElem = targetElem.closest(".th.header-reorder");
+    const parentTargetElem = targetElem.closest("th");
 
     if (parentTargetElem) {
-      parentTargetElem.className = "th header-reorder";
+      parentTargetElem.dataset.highlightPosition = "none";
     }
 
     e.preventDefault();
@@ -1043,7 +1018,7 @@ export const getDragHandlers = (
   ) => {
     // We get the parent element(.th) so as to apply left and right highlighting
     const targetElem = e.target as HTMLDivElement;
-    const parentTargetElem = targetElem.closest(".th.header-reorder");
+    const parentTargetElem = targetElem.closest("th");
 
     const currentIndex = getIndexByColumnName(
       currentDraggedColumn.current,
@@ -1051,7 +1026,7 @@ export const getDragHandlers = (
     );
 
     if (parentTargetElem) {
-      parentTargetElem.className = getHeaderClassNameOnDragDirection(
+      parentTargetElem.dataset.highlightPosition = getHighlightPosition(
         currentIndex,
         targetIndex,
       );
@@ -1064,7 +1039,7 @@ export const getDragHandlers = (
   const onDragStart = (e: React.DragEvent<HTMLDivElement>, index: number) => {
     currentDraggedColumn.current = columns[index].alias;
     const targetElem = e.target as HTMLDivElement;
-    targetElem.className = targetElem.className + " draggable-header--dragging";
+    targetElem.dataset.status = "dragging";
     e.stopPropagation();
   };
 
@@ -1078,10 +1053,7 @@ export const getDragHandlers = (
       partialColumnOrder.splice(index, 0, currentDraggedColumn.current);
       handleReorderColumn(partialColumnOrder);
     }
-    targetElem.className = targetElem.className.replace(
-      " draggable-header--dragging",
-      "",
-    );
+    targetElem.dataset.status = "";
     e.stopPropagation();
   };
 

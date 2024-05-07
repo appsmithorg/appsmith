@@ -1,4 +1,4 @@
-import { Severity, type ENTITY_TYPE } from "entities/AppsmithConsole";
+import { Severity } from "entities/AppsmithConsole";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { DataTree } from "entities/DataTree/dataTreeTypes";
 import { isEmpty } from "lodash";
@@ -7,6 +7,7 @@ import { getEntityNameAndPropertyPath } from "@appsmith/workers/Evaluation/evalu
 import type { LintErrorsStore } from "reducers/lintingReducers/lintErrorsReducers";
 import isLintErrorLoggingEnabledForEntity from "@appsmith/plugins/Linting/utils/isLintErrorLoggingEnabledForEntity";
 import getEntityUniqueIdForLogs from "@appsmith/plugins/Linting/utils/getEntityUniqueIdForLogs";
+import type { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 
 // We currently only log lint errors in JSObjects
 export function* logLatestLintPropertyErrors({
@@ -52,7 +53,7 @@ export function* logLatestLintPropertyErrors({
         source: {
           id: uniqueId,
           name: entityName,
-          type: entity.ENTITY_TYPE as unknown as ENTITY_TYPE,
+          type: entity.ENTITY_TYPE as ENTITY_TYPE,
           propertyPath,
         },
       },

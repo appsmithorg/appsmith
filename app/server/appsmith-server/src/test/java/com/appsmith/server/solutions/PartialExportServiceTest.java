@@ -12,7 +12,7 @@ import com.appsmith.external.models.Property;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
@@ -20,7 +20,7 @@ import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.dtos.PartialExportFileDTO;
-import com.appsmith.server.exports.internal.PartialExportService;
+import com.appsmith.server.exports.internal.partial.PartialExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -166,7 +166,7 @@ public class PartialExportServiceTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
 
         Application savedApplication = applicationPageService
                 .createApplication(testApplication, workspaceId)
@@ -222,8 +222,8 @@ public class PartialExportServiceTest {
         testApplication.setUpdatedAt(Instant.now());
         testApplication.setLastDeployedAt(Instant.now());
         testApplication.setModifiedBy("some-user");
-        testApplication.setGitApplicationMetadata(new GitApplicationMetadata());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        testApplication.setGitApplicationMetadata(new GitArtifactMetadata());
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("master");
         gitData.setDefaultBranchName("master");
         testApplication.setGitApplicationMetadata(gitData);
@@ -240,7 +240,7 @@ public class PartialExportServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     void testGetPartialExport_nonGitConnectedApp_success() {
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.anySet(), Mockito.anyList()))
                 .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         // Create an application with all resources
@@ -284,7 +284,7 @@ public class PartialExportServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetPartialExport_gitConnectedApp_branchResourceExported() {
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.anySet(), Mockito.anyList()))
                 .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         Application application = createGitConnectedApp("testGetPartialExport_gitConnectedApp_branchResourceExported");
@@ -348,7 +348,7 @@ public class PartialExportServiceTest {
     @Test
     @WithUserDetails(value = "api_user")
     public void testGetPartialExport_gitConnectedApp_featureBranchResourceExported() {
-        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.any(), Mockito.anyList()))
+        Mockito.when(pluginService.findAllByIdsWithoutPermission(Mockito.anySet(), Mockito.anyList()))
                 .thenReturn(Flux.fromIterable(List.of(installedPlugin, installedJsPlugin)));
 
         Application application =

@@ -5,6 +5,8 @@ import { useSizing, useSpacing, useTypography } from "./";
 
 import type { ColorMode } from "../../color";
 import type { TokenSource, FontFamily, IconStyle } from "../../token";
+import { useIconDensity } from "./useIconDensity";
+import { useIconSizing } from "./useIconSizing";
 
 const tokensAccessor = new TokensAccessor({
   ...(defaultTokens as TokenSource),
@@ -45,6 +47,13 @@ export function useTheme(props: UseThemeProps = {}) {
     userSizing,
   );
 
+  const { iconSize } = useIconSizing(tokensConfigs.icon.sizing, userSizing);
+
+  const { strokeWidth } = useIconDensity(
+    tokensConfigs.icon.density,
+    userDensity,
+  );
+
   const [theme, setTheme] = useState(tokensAccessor.getAllTokens);
 
   useEffect(() => {
@@ -63,14 +72,15 @@ export function useTheme(props: UseThemeProps = {}) {
 
   useEffect(() => {
     if (borderRadius != null) {
-      tokensAccessor.updateBorderRadius({
-        1: borderRadius,
+      tokensAccessor.updateBorderRadiusElevation({
+        ...defaultTokens.borderRadiusElevation,
+        base: borderRadius,
       });
 
       setTheme((prevState) => {
         return {
           ...prevState,
-          ...tokensAccessor.getBorderRadius(),
+          ...tokensAccessor.getBorderRadiusElevation(),
         };
       });
     }
@@ -168,6 +178,32 @@ export function useTheme(props: UseThemeProps = {}) {
       });
     }
   }, [iconStyle]);
+
+  useEffect(() => {
+    if (iconSize != null) {
+      tokensAccessor.updateIconSize(iconSize);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getIconSize(),
+        };
+      });
+    }
+  }, [iconSize]);
+
+  useEffect(() => {
+    if (strokeWidth != null) {
+      tokensAccessor.updateStrokeWidth(strokeWidth);
+
+      setTheme((prevState) => {
+        return {
+          ...prevState,
+          ...tokensAccessor.getStrokeWidth(),
+        };
+      });
+    }
+  }, [strokeWidth]);
 
   return { theme, setTheme };
 }

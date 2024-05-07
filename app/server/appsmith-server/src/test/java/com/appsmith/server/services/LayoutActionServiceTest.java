@@ -10,14 +10,16 @@ import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Property;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
+import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.ClonePageMetaDTO;
 import com.appsmith.server.dtos.EntityType;
 import com.appsmith.server.dtos.LayoutDTO;
@@ -26,10 +28,10 @@ import com.appsmith.server.dtos.RefactorEntityNameDTO;
 import com.appsmith.server.dtos.UpdateMultiplePageLayoutDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.exports.internal.ExportApplicationService;
+import com.appsmith.server.exports.internal.ExportService;
 import com.appsmith.server.helpers.MockPluginExecutor;
 import com.appsmith.server.helpers.PluginExecutorHelper;
-import com.appsmith.server.imports.internal.ImportApplicationService;
+import com.appsmith.server.imports.internal.ImportService;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -74,7 +76,6 @@ import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.READ_PAGES;
 import static com.appsmith.server.constants.FieldName.DEFAULT_PAGE_LAYOUT;
-import static com.mongodb.assertions.Assertions.assertNull;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -129,10 +130,10 @@ public class LayoutActionServiceTest {
     ApplicationService applicationService;
 
     @Autowired
-    ImportApplicationService importApplicationService;
+    ImportService importService;
 
     @Autowired
-    ExportApplicationService exportApplicationService;
+    ExportService exportService;
 
     @Autowired
     ApplicationPermission applicationPermission;
@@ -215,21 +216,22 @@ public class LayoutActionServiceTest {
 
         Application newApp = new Application();
         newApp.setName(UUID.randomUUID().toString());
-        GitApplicationMetadata gitData = new GitApplicationMetadata();
+        GitArtifactMetadata gitData = new GitArtifactMetadata();
         gitData.setBranchName("actionServiceTest");
         newApp.setGitApplicationMetadata(gitData);
         gitConnectedApp = applicationPageService
                 .createApplication(newApp, workspaceId)
                 .flatMap(application1 -> {
                     application1.getGitApplicationMetadata().setDefaultApplicationId(application1.getId());
-                    return applicationService
-                            .save(application1)
-                            .zipWhen(application11 -> exportApplicationService.exportApplicationById(
-                                    application11.getId(), gitData.getBranchName()));
+                    return applicationService.save(application1).zipWhen(application11 -> exportService
+                            .exportByArtifactIdAndBranchName(
+                                    application11.getId(), gitData.getBranchName(), ArtifactType.APPLICATION)
+                            .map(artifactExchangeJson -> (ApplicationJson) artifactExchangeJson));
                 })
                 // Assign the branchName to all the resources connected to the application
-                .flatMap(tuple -> importApplicationService.importApplicationInWorkspaceFromGit(
-                        workspaceId, tuple.getT2(), tuple.getT1().getId(), gitData.getBranchName()))
+                .flatMap(tuple -> importService.importArtifactInWorkspaceFromGit(
+                        workspaceId, tuple.getT1().getId(), tuple.getT2(), gitData.getBranchName()))
+                .map(importableArtifact -> (Application) importableArtifact)
                 .block();
 
         gitConnectedPage = newPageService
@@ -1124,7 +1126,7 @@ public class LayoutActionServiceTest {
         newActionArray[0] = newAction1;
         newActionArray[1] = newAction2;
         Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
-        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any()))
+        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.anyString()))
                 .thenReturn(newActionFlux);
 
         Mono<LayoutDTO> updateLayoutMono =
@@ -1196,7 +1198,7 @@ public class LayoutActionServiceTest {
         NewAction[] newActionArray = new NewAction[1];
         newActionArray[0] = newAction1;
         Flux<NewAction> newActionFlux = Flux.fromArray(newActionArray);
-        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.any()))
+        Mockito.when(newActionService.findUnpublishedOnLoadActionsExplicitSetByUserInPage(Mockito.anyString()))
                 .thenReturn(newActionFlux);
 
         Mono<LayoutDTO> updateLayoutMono =
@@ -1276,7 +1278,7 @@ public class LayoutActionServiceTest {
         // by default there should be no error in the layout, hence no error should be sent to ActionDTO/ errorReports
         // will be null
         assertNotNull(createdAction);
-        assertNull(createdAction.getErrorReports());
+        assertThat(createdAction.getErrorReports()).isNull();
 
         // since the dependency has been introduced calling updateLayout will return a LayoutDTO with a populated
         // layoutOnLoadActionErrors

@@ -11,7 +11,6 @@ import {
 import type {
   ClonePageActionPayload,
   CreatePageActionPayload,
-  FetchPageListPayload,
 } from "actions/pageActions";
 import { createPage, fetchPublishedPage } from "actions/pageActions";
 import {
@@ -38,7 +37,6 @@ import type {
   ClonePageRequest,
   CreatePageRequest,
   DeletePageRequest,
-  FetchPageListResponse,
   FetchPageRequest,
   FetchPageResponse,
   FetchPageResponseData,
@@ -100,7 +98,7 @@ import log from "loglevel";
 import { migrateIncorrectDynamicBindingPathLists } from "utils/migrations/IncorrectDynamicBindingPathLists";
 import * as Sentry from "@sentry/react";
 import { ERROR_CODES } from "@appsmith/constants/ApiConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import DEFAULT_TEMPLATE from "templates/default";
 
 import { getAppMode } from "@appsmith/selectors/applicationSelectors";
@@ -139,11 +137,13 @@ import { selectFeatureFlags } from "@appsmith/selectors/featureFlagsSelectors";
 import { isGACEnabled } from "@appsmith/utils/planHelpers";
 import { getHasManagePagePermission } from "@appsmith/utils/BusinessFeatures/permissionPageHelpers";
 import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import { getLayoutSystemDSLTransformer } from "layoutSystems/common/utils/LayoutSystemDSLTransformer";
 import type { DSLWidget } from "WidgetProvider/constants";
 import type { FeatureFlags } from "@appsmith/entities/FeatureFlag";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
+import { ActionExecutionContext } from "entities/Action";
+import type { LayoutSystemTypes } from "layoutSystems/types";
+import { getIsAnvilLayout } from "layoutSystems/anvil/integrations/selectors";
 
 export const checkIfMigrationIsNeeded = (
   fetchPageResponse?: FetchPageResponse,
@@ -157,83 +157,6 @@ export const WidgetTypes = WidgetFactory.widgetTypes;
 
 export const getWidgetName = (state: AppState, widgetId: string) =>
   state.entities.canvasWidgets[widgetId];
-
-export function* fetchPageListSaga(
-  fetchPageListAction: ReduxAction<FetchPageListPayload>,
-) {
-  PerformanceTracker.startAsyncTracking(
-    PerformanceTransactionName.FETCH_PAGE_LIST_API,
-  );
-  try {
-    const { applicationId, mode } = fetchPageListAction.payload;
-    const apiCall =
-      mode === APP_MODE.EDIT
-        ? PageApi.fetchPageList
-        : PageApi.fetchPageListViewMode;
-    const response: FetchPageListResponse = yield call(apiCall, applicationId);
-    const isValidResponse: boolean = yield validateResponse(response);
-    const prevPagesState: Page[] = yield select(getPageList);
-    const pagePermissionsMap = prevPagesState.reduce(
-      (acc, page) => {
-        acc[page.pageId] = page.userPermissions ?? [];
-        return acc;
-      },
-      {} as Record<string, string[]>,
-    );
-    if (isValidResponse) {
-      const workspaceId = response.data.workspaceId;
-      const pages: Page[] = response.data.pages.map((page) => ({
-        pageName: page.name,
-        description: page.description,
-        pageId: page.id,
-        isDefault: page.isDefault,
-        isHidden: !!page.isHidden,
-        slug: page.slug,
-        userPermissions: page.userPermissions
-          ? page.userPermissions
-          : pagePermissionsMap[page.id],
-      }));
-      yield put({
-        type: ReduxActionTypes.SET_CURRENT_WORKSPACE_ID,
-        payload: {
-          workspaceId,
-          editorId: applicationId,
-        },
-      });
-      yield put({
-        type: ReduxActionTypes.FETCH_PAGE_LIST_SUCCESS,
-        payload: {
-          pages,
-          applicationId: applicationId,
-        },
-      });
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_LIST_API,
-      );
-    } else {
-      PerformanceTracker.stopAsyncTracking(
-        PerformanceTransactionName.FETCH_PAGE_LIST_API,
-      );
-      yield put({
-        type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-        payload: {
-          error: response.responseMeta.error,
-        },
-      });
-    }
-  } catch (error) {
-    PerformanceTracker.stopAsyncTracking(
-      PerformanceTransactionName.FETCH_PAGE_LIST_API,
-      { failed: true },
-    );
-    yield put({
-      type: ReduxActionErrorTypes.FETCH_PAGE_LIST_ERROR,
-      payload: {
-        error,
-      },
-    });
-  }
-}
 
 //Method to load the default page if current page is not found
 export function* refreshTheApp() {
@@ -296,6 +219,7 @@ export function* handleFetchedPage({
   isFirstLoad?: boolean;
 }) {
   const layoutSystemType: LayoutSystemTypes = yield select(getLayoutSystemType);
+  const isAnvilLayout: boolean = yield select(getIsAnvilLayout);
   const mainCanvasProps: MainCanvasReduxState =
     yield select(getMainCanvasProps);
   const dslTransformer = getLayoutSystemDSLTransformer(
@@ -351,7 +275,7 @@ export function* handleFetchedPage({
     // If the type of the layoutSystem is ANVIL, then we need to save the layout
     // This is because we have updated the DSL
     // using the AnvilDSLTransformer when we called the getCanvasWidgetsPayload function
-    if (willPageBeMigrated || layoutSystemType === LayoutSystemTypes.ANVIL) {
+    if (willPageBeMigrated || isAnvilLayout) {
       yield put(saveLayout());
     }
   }
@@ -742,8 +666,7 @@ export function* createNewPageFromEntity(
       },
     ];
 
-    const { applicationId, blockNavigation, name } =
-      createPageAction?.payload || {};
+    const { applicationId, name } = createPageAction?.payload || {};
 
     const workspaceId: string = yield select(getCurrentWorkspaceId);
     const instanceId: string | undefined = yield select(getInstanceId);
@@ -758,7 +681,6 @@ export function* createNewPageFromEntity(
         name,
         defaultPageLayouts,
         workspaceId,
-        blockNavigation,
         instanceId,
       ),
     );
@@ -815,13 +737,11 @@ export function* createPageSaga(
       });
       // TODO: Update URL params here
       // route to generate template for new page created
-      if (!createPageAction.payload.blockNavigation) {
-        history.push(
-          builderURL({
-            pageId: response.data.id,
-          }),
-        );
-      }
+      history.push(
+        builderURL({
+          pageId: response.data.id,
+        }),
+      );
     }
   } catch (error) {
     yield put({
@@ -956,7 +876,11 @@ export function* clonePageSaga(
       }
 
       yield put(selectWidgetInitAction(SelectionRequestType.Empty));
-      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+      yield put(
+        fetchAllPageEntityCompletion([
+          executePageLoadActions(ActionExecutionContext.CLONE_PAGE),
+        ]),
+      );
 
       // TODO: Update URL params here.
 
@@ -1346,7 +1270,11 @@ export function* generateTemplatePageSaga(
       if (!afterActionsFetch) {
         throw new Error("Failed generating template");
       }
-      yield put(fetchAllPageEntityCompletion([executePageLoadActions()]));
+      yield put(
+        fetchAllPageEntityCompletion([
+          executePageLoadActions(ActionExecutionContext.GENERATE_CRUD_PAGE),
+        ]),
+      );
 
       history.replace(
         builderURL({

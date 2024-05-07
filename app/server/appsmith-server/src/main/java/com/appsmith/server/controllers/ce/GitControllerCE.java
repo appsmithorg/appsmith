@@ -8,7 +8,7 @@ import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.constants.Url;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.GitApplicationMetadata;
+import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.domains.GitProfile;
 import com.appsmith.server.dtos.ApplicationImportDTO;
@@ -96,7 +96,7 @@ public class GitControllerCE {
 
     @JsonView({Views.Metadata.class})
     @GetMapping("/metadata/app/{defaultApplicationId}")
-    public Mono<ResponseDTO<GitApplicationMetadata>> getGitMetadata(@PathVariable String defaultApplicationId) {
+    public Mono<ResponseDTO<GitArtifactMetadata>> getGitMetadata(@PathVariable String defaultApplicationId) {
         return service.getGitApplicationMetadata(defaultApplicationId)
                 .map(metadata -> new ResponseDTO<>(HttpStatus.OK.value(), metadata, null));
     }

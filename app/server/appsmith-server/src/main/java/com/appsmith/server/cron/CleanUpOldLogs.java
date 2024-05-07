@@ -24,7 +24,7 @@ public class CleanUpOldLogs {
 
         final long cutoffTime = System.currentTimeMillis() - CUTOFF_AGE;
 
-        try (Stream<Path> walk = Files.walk(Paths.get("/appsmith-stacks/logs"))) {
+        try (Stream<Path> walk = Files.walk(Paths.get(System.getenv("APPSMITH_LOG_DIR")))) {
             walk.filter(path -> {
                         try {
                             return Files.isRegularFile(path)

@@ -11,7 +11,7 @@ import {
 import type { noop } from "lodash";
 
 import type { CommonComponentProps } from "design-system-old";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { MenuTypes } from "./types";
 
 export interface MenuItemData {
@@ -26,6 +26,7 @@ export interface MenuItemData {
   confirmText?: string;
   isOpensNewWindow?: boolean | undefined;
   style?: React.CSSProperties;
+  startIcon?: string;
 }
 
 type NavigationMenuItemProps = CommonComponentProps & {
@@ -94,18 +95,21 @@ export function NavigationMenuItem({
         <MenuSub data-testid={`t--editor-menu-${kebabCase(text)}`}>
           <MenuSubTrigger>{menuItemData.text}</MenuSubTrigger>
           <MenuSubContent width="214px">
-            {menuItemData?.children?.map((subitem, idx) => (
-              <MenuItem
-                endIcon={subitem?.isOpensNewWindow ? "share-box-line" : ""}
-                key={idx}
-                onClick={(e) => handleClick(e, subitem)}
-              >
-                <div className="flex justify-between">
-                  {subitem.text}
-                  {subitem?.labelElement}
-                </div>
-              </MenuItem>
-            ))}
+            {menuItemData?.children
+              ?.filter((child) => child.isVisible)
+              .map((subitem, idx) => (
+                <MenuItem
+                  endIcon={subitem?.isOpensNewWindow ? "share-box-line" : ""}
+                  key={idx}
+                  onClick={(e) => handleClick(e, subitem)}
+                  startIcon={subitem?.startIcon}
+                >
+                  <div className="flex justify-between">
+                    {subitem.text}
+                    {subitem?.labelElement}
+                  </div>
+                </MenuItem>
+              ))}
           </MenuSubContent>
         </MenuSub>
       );

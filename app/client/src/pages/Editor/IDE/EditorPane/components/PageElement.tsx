@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { useLocation } from "react-router";
 
@@ -18,18 +18,24 @@ import {
 import { getCurrentApplication } from "@appsmith/selectors/applicationSelectors";
 import type { AppState } from "@appsmith/reducers";
 import { StyledEntity } from "pages/Editor/Explorer/Common/components";
-import { resolveAsSpaceChar } from "utils/helpers";
+import { toValidPageName } from "utils/helpers";
 import { updatePage } from "actions/pageActions";
 import { useGetPageFocusUrl } from "pages/Editor/IDE/hooks";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { toggleInOnboardingWidgetSelection } from "actions/onboardingActions";
-import { setIdeEditorPagesActiveStatus } from "actions/ideActions";
 import history, { NavigationMethod } from "utils/history";
 
-const PageElement = ({ page }: { page: Page }) => {
+const PageElement = ({
+  onClick,
+  page,
+}: {
+  page: Page;
+  onClick?: () => void;
+}) => {
   const dispatch = useDispatch();
   const location = useLocation();
   const navigateToUrl = useGetPageFocusUrl(page.pageId);
+  const ref = useRef<null | HTMLDivElement>(null);
 
   const currentPageId = useSelector(getCurrentPageId);
   const isFeatureEnabled = useFeatureFlag(FEATURE_FLAG.license_gac_enabled);
@@ -51,6 +57,15 @@ const PageElement = ({ page }: { page: Page }) => {
     PERMISSION_TYPE.EXPORT_APPLICATION,
   );
 
+  useEffect(() => {
+    if (ref.current && isCurrentPage) {
+      ref.current.scrollIntoView({
+        inline: "nearest",
+        block: "nearest",
+      });
+    }
+  }, [ref, isCurrentPage]);
+
   const switchPage = useCallback(
     (page: Page) => {
       AnalyticsUtil.logEvent("PAGE_NAME_CLICK", {
@@ -60,10 +75,12 @@ const PageElement = ({ page }: { page: Page }) => {
         toUrl: navigateToUrl,
       });
       dispatch(toggleInOnboardingWidgetSelection(true));
-      dispatch(setIdeEditorPagesActiveStatus(false));
       history.push(navigateToUrl, {
         invokedBy: NavigationMethod.EntityExplorer,
       });
+      if (onClick) {
+        onClick();
+      }
     },
     [location.pathname, currentPageId, navigateToUrl],
   );
@@ -78,6 +95,7 @@ const PageElement = ({ page }: { page: Page }) => {
       isHidden={!!page.isHidden}
       key={page.pageId + "_context-menu"}
       name={page.pageName}
+      onItemSelected={onClick}
       pageId={page.pageId}
     />
   );
@@ -95,9 +113,10 @@ const PageElement = ({ page }: { page: Page }) => {
       isDefaultExpanded={isCurrentPage}
       key={page.pageId}
       name={page.pageName}
-      onNameEdit={resolveAsSpaceChar}
+      onNameEdit={toValidPageName}
+      ref={ref}
       searchKeyword={""}
-      step={1}
+      step={0}
       updateEntityName={(id, name) =>
         updatePage({ id, name, isHidden: !!page.isHidden })
       }

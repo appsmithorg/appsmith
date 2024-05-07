@@ -13,16 +13,8 @@ export const propertyPaneStyleConfig = [
         defaultValue: "body",
         options: [
           {
-            label: "Footnote",
-            value: "footnote",
-          },
-          {
             label: "Body",
             value: "body",
-          },
-          {
-            label: "Caption",
-            value: "caption",
           },
           {
             label: "Subtitle",
@@ -40,6 +32,7 @@ export const propertyPaneStyleConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        isReusable: true,
         validation: {
           type: ValidationTypes.TEXT,
           params: {
@@ -77,6 +70,7 @@ export const propertyPaneStyleConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        isReusable: true,
         validation: {
           type: ValidationTypes.TEXT,
           params: {
@@ -103,6 +97,7 @@ export const propertyPaneStyleConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        isReusable: true,
         validation: { type: ValidationTypes.TEXT },
       },
     ],

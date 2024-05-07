@@ -1,14 +1,11 @@
 package com.appsmith.server.migrations;
 
 import com.appsmith.external.converters.ISOStringToInstantConverter;
-import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
-import com.appsmith.external.models.Property;
-import com.appsmith.external.models.QBaseDomain;
-import com.appsmith.external.models.QBranchAwareDomain;
-import com.appsmith.external.models.QDatasource;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.configurations.CommonConfig;
@@ -22,26 +19,16 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
-import com.appsmith.server.domains.QApplication;
-import com.appsmith.server.domains.QConfig;
-import com.appsmith.server.domains.QPermissionGroup;
-import com.appsmith.server.domains.QPlugin;
-import com.appsmith.server.domains.QTenant;
-import com.appsmith.server.domains.QTheme;
-import com.appsmith.server.domains.QUser;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.UsagePulse;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.dtos.Permission;
-import com.appsmith.server.exceptions.AppsmithError;
-import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.TextUtils;
 import com.appsmith.server.migrations.solutions.UpdateSuperUserMigrationHelper;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.PolicySolution;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.cloudyrock.mongock.ChangeLog;
 import com.github.cloudyrock.mongock.ChangeSet;
 import com.google.gson.GsonBuilder;
@@ -57,22 +44,15 @@ import org.springframework.data.mongodb.core.query.Criteria;
 import org.springframework.data.mongodb.core.query.Query;
 import org.springframework.data.mongodb.core.query.Update;
 import org.springframework.data.redis.core.ReactiveRedisOperations;
-import org.springframework.util.ObjectUtils;
 import org.springframework.util.StreamUtils;
-import org.springframework.util.StringUtils;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
@@ -88,11 +68,9 @@ import static com.appsmith.server.constants.FieldName.PERMISSION_GROUP_ID;
 import static com.appsmith.server.helpers.CollectionUtils.findSymmetricDiff;
 import static com.appsmith.server.migrations.DatabaseChangelog1.dropIndexIfExists;
 import static com.appsmith.server.migrations.DatabaseChangelog1.ensureIndexes;
-import static com.appsmith.server.migrations.DatabaseChangelog1.getUpdatedDynamicBindingPathList;
 import static com.appsmith.server.migrations.DatabaseChangelog1.installPluginToAllWorkspaces;
 import static com.appsmith.server.migrations.DatabaseChangelog1.makeIndex;
 import static com.appsmith.server.migrations.MigrationHelperMethods.evictPermissionCacheForUsers;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
 import static org.springframework.data.mongodb.core.query.Criteria.where;
 import static org.springframework.data.mongodb.core.query.Query.query;
 import static org.springframework.data.mongodb.core.query.Update.update;
@@ -101,499 +79,24 @@ import static org.springframework.data.mongodb.core.query.Update.update;
 @ChangeLog(order = "002")
 public class DatabaseChangelog2 {
 
-    private static final ObjectMapper objectMapper = new ObjectMapper();
-
-    private static final Pattern sheetRangePattern =
-            Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?[^\"]*");
-
     private final UpdateSuperUserMigrationHelper updateSuperUserMigrationHelper = new UpdateSuperUserMigrationHelper();
 
     @ChangeSet(order = "001", id = "fix-plugin-title-casing", author = "")
     public void fixPluginTitleCasing(MongoTemplate mongoTemplate) {
         mongoTemplate.updateFirst(
-                query(where(fieldName(QPlugin.plugin.packageName)).is("mysql-plugin")),
-                update(fieldName(QPlugin.plugin.name), "MySQL"),
+                query(where(Plugin.Fields.packageName).is("mysql-plugin")),
+                update(Plugin.Fields.name, "MySQL"),
                 Plugin.class);
 
         mongoTemplate.updateFirst(
-                query(where(fieldName(QPlugin.plugin.packageName)).is("mssql-plugin")),
-                update(fieldName(QPlugin.plugin.name), "Microsoft SQL Server"),
+                query(where(Plugin.Fields.packageName).is("mssql-plugin")),
+                update(Plugin.Fields.name, "Microsoft SQL Server"),
                 Plugin.class);
 
         mongoTemplate.updateFirst(
-                query(where(fieldName(QPlugin.plugin.packageName)).is("elasticsearch-plugin")),
-                update(fieldName(QPlugin.plugin.name), "Elasticsearch"),
+                query(where(Plugin.Fields.packageName).is("elasticsearch-plugin")),
+                update(Plugin.Fields.name, "Elasticsearch"),
                 Plugin.class);
-    }
-
-    public static void migrateFirestoreActionsFormData(NewAction uqiAction) {
-        ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
-        /**
-         * Migrate unpublished action configuration data.
-         */
-        final Map<String, Object> unpublishedFormData =
-                unpublishedAction.getActionConfiguration().getFormData();
-
-        if (unpublishedFormData != null) {
-            final Object command = unpublishedFormData.get("command");
-
-            if (!(command instanceof String)) {
-                throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
-            }
-
-            unpublishedFormData.keySet().stream().forEach(k -> {
-                if (k != null) {
-                    final Object oldValue = unpublishedFormData.get(k);
-                    final HashMap<String, Object> map = new HashMap<>();
-                    map.put("data", oldValue);
-                    map.put("componentData", oldValue);
-                    map.put("viewType", "component");
-                    unpublishedFormData.put(k, map);
-                }
-            });
-        }
-
-        final String unpublishedBody =
-                unpublishedAction.getActionConfiguration().getBody();
-        if (StringUtils.hasLength(unpublishedBody)) {
-            convertToFormDataObject(unpublishedFormData, "body", unpublishedBody);
-            unpublishedAction.getActionConfiguration().setBody(null);
-        }
-
-        final String unpublishedPath =
-                unpublishedAction.getActionConfiguration().getPath();
-        if (StringUtils.hasLength(unpublishedPath)) {
-            convertToFormDataObject(unpublishedFormData, "path", unpublishedPath);
-            unpublishedAction.getActionConfiguration().setPath(null);
-        }
-
-        final String unpublishedNext =
-                unpublishedAction.getActionConfiguration().getNext();
-        if (StringUtils.hasLength(unpublishedNext)) {
-            convertToFormDataObject(unpublishedFormData, "next", unpublishedNext);
-            unpublishedAction.getActionConfiguration().setNext(null);
-        }
-
-        final String unpublishedPrev =
-                unpublishedAction.getActionConfiguration().getPrev();
-        if (StringUtils.hasLength(unpublishedPrev)) {
-            convertToFormDataObject(unpublishedFormData, "prev", unpublishedPrev);
-            unpublishedAction.getActionConfiguration().setPrev(null);
-        }
-
-        /**
-         * Migrate published action configuration data.
-         */
-        ActionDTO publishedAction = uqiAction.getPublishedAction();
-        if (publishedAction != null
-                && publishedAction.getActionConfiguration() != null
-                && publishedAction.getActionConfiguration().getFormData() != null) {
-            final Map<String, Object> publishedFormData =
-                    publishedAction.getActionConfiguration().getFormData();
-
-            final Object command = publishedFormData.get("command");
-
-            if (!(command instanceof String)) {
-                throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
-            }
-
-            publishedFormData.keySet().stream().forEach(k -> {
-                if (k != null) {
-                    final Object oldValue = publishedFormData.get(k);
-                    final HashMap<String, Object> map = new HashMap<>();
-                    map.put("data", oldValue);
-                    map.put("componentData", oldValue);
-                    map.put("viewType", "component");
-                    publishedFormData.put(k, map);
-                }
-            });
-
-            final String publishedBody =
-                    publishedAction.getActionConfiguration().getBody();
-            if (StringUtils.hasLength(publishedBody)) {
-                convertToFormDataObject(publishedFormData, "body", publishedBody);
-                publishedAction.getActionConfiguration().setBody(null);
-            }
-
-            final String publishedPath =
-                    publishedAction.getActionConfiguration().getPath();
-            if (StringUtils.hasLength(publishedPath)) {
-                convertToFormDataObject(publishedFormData, "path", publishedPath);
-                publishedAction.getActionConfiguration().setPath(null);
-            }
-
-            final String publishedNext =
-                    publishedAction.getActionConfiguration().getNext();
-            if (StringUtils.hasLength(publishedNext)) {
-                convertToFormDataObject(publishedFormData, "next", publishedNext);
-                publishedAction.getActionConfiguration().setNext(null);
-            }
-
-            final String publishedPrev =
-                    publishedAction.getActionConfiguration().getPrev();
-            if (StringUtils.hasLength(publishedPrev)) {
-                convertToFormDataObject(publishedFormData, "prev", publishedPrev);
-                publishedAction.getActionConfiguration().setPrev(null);
-            }
-        }
-
-        /**
-         * Migrate the dynamic binding path list for unpublished action.
-         * Please note that there is no requirement to migrate the dynamic binding path
-         * list for published actions
-         * since the `on page load` actions do not get computed on published actions
-         * data. They are only computed
-         * on unpublished actions data and copied over for the view mode.
-         */
-        List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-        if (dynamicBindingPathList != null && !dynamicBindingPathList.isEmpty()) {
-            dynamicBindingPathList.stream().forEach(dynamicBindingPath -> {
-                if (dynamicBindingPath.getKey().contains("formData")) {
-                    final String oldKey = dynamicBindingPath.getKey();
-                    final Pattern pattern = Pattern.compile("formData\\.([^.]*)(\\..*)?");
-
-                    Matcher matcher = pattern.matcher(oldKey);
-
-                    while (matcher.find()) {
-                        final String fieldName = matcher.group(1);
-                        final String remainderPath = matcher.group(2) == null ? "" : matcher.group(2);
-
-                        dynamicBindingPath.setKey("formData." + fieldName + ".data" + remainderPath);
-                    }
-                } else {
-                    final String oldKey = dynamicBindingPath.getKey();
-                    final Pattern pattern = Pattern.compile("^(body|next|prev|path)(\\..*)?");
-
-                    Matcher matcher = pattern.matcher(oldKey);
-
-                    while (matcher.find()) {
-                        final String fieldName = matcher.group(1);
-                        final String remainderPath = matcher.group(2) == null ? "" : matcher.group(2);
-
-                        dynamicBindingPath.setKey("formData." + fieldName + ".data" + remainderPath);
-                    }
-                }
-            });
-        }
-    }
-
-    private static void convertToFormDataObject(Map<String, Object> formDataMap, String key, Object value) {
-        convertToFormDataObject(formDataMap, key, value, false);
-    }
-
-    private static void convertToFormDataObject(
-            Map<String, Object> formDataMap, String key, Object value, boolean hasBinding) {
-        if (value == null) {
-            return;
-        }
-        if (key != null) {
-            final HashMap<String, Object> map = new HashMap<>();
-            map.put("data", value);
-            // If the element has a binding, it would not make sense to display it in the component mode.
-            if (hasBinding) {
-                map.put("jsonData", value);
-                map.put("viewType", "json");
-            } else {
-                map.put("componentData", value);
-                map.put("viewType", "component");
-            }
-            formDataMap.put(key, map);
-        }
-    }
-
-    private static void mapS3ToNewFormData(ActionDTO action, Map<String, Object> f) {
-        final Map<String, Object> formData = action.getActionConfiguration().getFormData();
-
-        if (formData == null) {
-            return;
-        }
-
-        final Object command = formData.get("command");
-        if (command == null) {
-            return;
-        }
-
-        if (!(command instanceof String)) {
-            throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
-        }
-
-        final String body = action.getActionConfiguration().getBody();
-        if (StringUtils.hasLength(body)) {
-            convertToFormDataObject(f, "body", body);
-            action.getActionConfiguration().setBody(null);
-        }
-
-        final String path = action.getActionConfiguration().getPath();
-        if (StringUtils.hasLength(path)) {
-            convertToFormDataObject(f, "path", path);
-            action.getActionConfiguration().setPath(null);
-        }
-
-        convertToFormDataObject(f, "command", command);
-        convertToFormDataObject(f, "bucket", formData.get("bucket"));
-        convertToFormDataObject(f, "smartSubstitution", formData.get("smartSubstitution"));
-        switch ((String) command) {
-                // No case for delete single and multiple since they only had bucket that needed
-                // migration
-            case "LIST":
-                final Map listMap = (Map) formData.get("list");
-                if (listMap == null) {
-                    break;
-                }
-                final Map<String, Object> newListMap = new HashMap<>();
-                f.put("list", newListMap);
-                convertToFormDataObject(newListMap, "prefix", listMap.get("prefix"));
-                convertToFormDataObject(newListMap, "where", listMap.get("where"));
-                convertToFormDataObject(newListMap, "signedUrl", listMap.get("signedUrl"));
-                convertToFormDataObject(newListMap, "expiry", listMap.get("expiry"));
-                convertToFormDataObject(newListMap, "unSignedUrl", listMap.get("unSignedUrl"));
-                convertToFormDataObject(newListMap, "sortBy", listMap.get("sortBy"));
-                convertToFormDataObject(newListMap, "pagination", listMap.get("pagination"));
-                break;
-            case "UPLOAD_FILE_FROM_BODY":
-            case "UPLOAD_MULTIPLE_FILES_FROM_BODY":
-                final Map createMap = (Map) formData.get("create");
-                if (createMap == null) {
-                    break;
-                }
-                final Map<String, Object> newCreateMap = new HashMap<>();
-                f.put("create", newCreateMap);
-                convertToFormDataObject(newCreateMap, "dataType", createMap.get("dataType"));
-                convertToFormDataObject(newCreateMap, "expiry", createMap.get("expiry"));
-                break;
-            case "READ_FILE":
-                final Map readMap = (Map) formData.get("read");
-                if (readMap == null) {
-                    break;
-                }
-                final Map<String, Object> newReadMap = new HashMap<>();
-                f.put("read", newReadMap);
-                convertToFormDataObject(newReadMap, "dataType", readMap.get("usingBase64Encoding"));
-                break;
-        }
-    }
-
-    public static void migrateAmazonS3ActionsFormData(NewAction uqiAction) {
-        ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
-        /**
-         * Migrate unpublished action configuration data.
-         */
-        Map<String, Object> newUnpublishedFormDataMap = new HashMap<>();
-        mapS3ToNewFormData(unpublishedAction, newUnpublishedFormDataMap);
-        unpublishedAction.getActionConfiguration().setFormData(newUnpublishedFormDataMap);
-
-        ActionDTO publishedAction = uqiAction.getPublishedAction();
-        /**
-         * Migrate published action configuration data.
-         */
-        if (publishedAction.getActionConfiguration() != null) {
-            Map<String, Object> newPublishedFormDataMap = new HashMap<>();
-            mapS3ToNewFormData(publishedAction, newPublishedFormDataMap);
-            publishedAction.getActionConfiguration().setFormData(newPublishedFormDataMap);
-        }
-
-        /**
-         * Migrate the dynamic binding path list for unpublished action.
-         * Please note that there is no requirement to migrate the dynamic binding path
-         * list for published actions
-         * since the `on page load` actions do not get computed on published actions
-         * data. They are only computed
-         * on unpublished actions data and copied over for the view mode.
-         */
-        List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-        if (dynamicBindingPathList != null && !dynamicBindingPathList.isEmpty()) {
-            Map<String, String> dynamicBindingMapper = new HashMap<>();
-            dynamicBindingMapper.put("formData.command", "formData.command.data");
-            dynamicBindingMapper.put("formData.bucket", "formData.bucket.data");
-            dynamicBindingMapper.put("formData.create.dataType", "formData.create.dataType.data");
-            dynamicBindingMapper.put("formData.create.expiry", "formData.create.expiry.data");
-            dynamicBindingMapper.put("formData.delete.expiry", "formData.delete.expiry.data");
-            dynamicBindingMapper.put("formData.list.prefix", "formData.list.prefix.data");
-            dynamicBindingMapper.put("formData.list.where", "formData.list.where.data");
-            dynamicBindingMapper.put("formData.list.signedUrl", "formData.list.signedUrl.data");
-            dynamicBindingMapper.put("formData.list.expiry", "formData.list.expiry.data");
-            dynamicBindingMapper.put("formData.list.unSignedUrl", "formData.list.unSignedUrl.data");
-            dynamicBindingMapper.put("formData.list.sortBy", "formData.list.sortBy.data");
-            dynamicBindingMapper.put("formData.list.pagination", "formData.list.pagination.data");
-            dynamicBindingMapper.put("formData.read.usingBase64Encoding", "formData.read.dataType.data");
-            dynamicBindingMapper.put("formData.read.expiry", "formData.read.expiry.data");
-            dynamicBindingMapper.put("formData.smartSubstitution", "formData.smartSubstitution.data");
-            dynamicBindingMapper.put("body", "formData.body.data");
-            dynamicBindingMapper.put("path", "formData.path.data");
-            dynamicBindingPathList.stream().forEach(dynamicBindingPath -> {
-                final String currentBinding = dynamicBindingPath.getKey();
-                final Optional<String> matchingBinding = dynamicBindingMapper.keySet().stream()
-                        .filter(currentBinding::startsWith)
-                        .findFirst();
-                if (matchingBinding.isPresent()) {
-                    final String newBindingPrefix = dynamicBindingMapper.get(matchingBinding.get());
-                    dynamicBindingPath.setKey(currentBinding.replace(matchingBinding.get(), newBindingPrefix));
-                }
-            });
-        }
-    }
-
-    private static void mapMongoToNewFormData(ActionDTO action, Map<String, Object> f) {
-        final Map<String, Object> formData = action.getActionConfiguration().getFormData();
-        if (formData == null) {
-            return;
-        }
-
-        final Object command = formData.get("command");
-        if (command == null) {
-            return;
-        }
-
-        if (!(command instanceof String)) {
-            throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
-        }
-
-        final String body = action.getActionConfiguration().getBody();
-        if (StringUtils.hasLength(body)) {
-            convertToFormDataObject(f, "body", body);
-            action.getActionConfiguration().setBody(null);
-        }
-
-        convertToFormDataObject(f, "command", command);
-        convertToFormDataObject(f, "collection", formData.get("collection"));
-        convertToFormDataObject(f, "smartSubstitution", formData.get("smartSubstitution"));
-        switch ((String) command) {
-            case "AGGREGATE":
-                final Map aggregateMap = (Map) formData.get("aggregate");
-                if (aggregateMap == null) {
-                    break;
-                }
-                final Map<String, Object> newAggregateMap = new HashMap<>();
-                f.put("aggregate", newAggregateMap);
-                convertToFormDataObject(newAggregateMap, "arrayPipelines", aggregateMap.get("arrayPipelines"));
-                convertToFormDataObject(newAggregateMap, "limit", aggregateMap.get("limit"));
-                break;
-            case "COUNT":
-                final Map countMap = (Map) formData.get("count");
-                if (countMap == null) {
-                    break;
-                }
-                final Map<String, Object> newCountMap = new HashMap<>();
-                f.put("count", newCountMap);
-                convertToFormDataObject(newCountMap, "query", countMap.get("query"));
-                break;
-            case "DELETE":
-                final Map deleteMap = (Map) formData.get("delete");
-                if (deleteMap == null) {
-                    break;
-                }
-                final Map<String, Object> newDeleteMap = new HashMap<>();
-                f.put("delete", newDeleteMap);
-                convertToFormDataObject(newDeleteMap, "query", deleteMap.get("query"));
-                convertToFormDataObject(newDeleteMap, "limit", deleteMap.get("limit"));
-                break;
-            case "DISTINCT":
-                final Map distinctMap = (Map) formData.get("distinct");
-                if (distinctMap == null) {
-                    break;
-                }
-                final Map<String, Object> newDistinctMap = new HashMap<>();
-                f.put("distinct", newDistinctMap);
-                convertToFormDataObject(newDistinctMap, "query", distinctMap.get("query"));
-                convertToFormDataObject(newDistinctMap, "key", distinctMap.get("key"));
-                break;
-            case "FIND":
-                final Map findMap = (Map) formData.get("find");
-                if (findMap == null) {
-                    break;
-                }
-                final Map<String, Object> newFindMap = new HashMap<>();
-                f.put("find", newFindMap);
-                convertToFormDataObject(newFindMap, "query", findMap.get("query"));
-                convertToFormDataObject(newFindMap, "sort", findMap.get("sort"));
-                convertToFormDataObject(newFindMap, "projection", findMap.get("projection"));
-                convertToFormDataObject(newFindMap, "limit", findMap.get("limit"));
-                convertToFormDataObject(newFindMap, "skip", findMap.get("skip"));
-                break;
-            case "INSERT":
-                final Map insertMap = (Map) formData.get("insert");
-                if (insertMap == null) {
-                    break;
-                }
-                final Map<String, Object> newInsertMap = new HashMap<>();
-                f.put("insert", newInsertMap);
-                convertToFormDataObject(newInsertMap, "documents", insertMap.get("documents"));
-                break;
-            case "UPDATE":
-                final Map updateMap = (Map) formData.get("updateMany");
-                if (updateMap == null) {
-                    break;
-                }
-                final Map<String, Object> newUpdateManyMap = new HashMap<>();
-                f.put("updateMany", newUpdateManyMap);
-                convertToFormDataObject(newUpdateManyMap, "query", updateMap.get("query"));
-                convertToFormDataObject(newUpdateManyMap, "update", updateMap.get("update"));
-                convertToFormDataObject(newUpdateManyMap, "limit", updateMap.get("limit"));
-                break;
-        }
-    }
-
-    public static void migrateMongoActionsFormData(NewAction uqiAction) {
-        ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
-        /**
-         * Migrate unpublished action configuration data.
-         */
-        Map<String, Object> newUnpublishedFormDataMap = new HashMap<>();
-        mapMongoToNewFormData(unpublishedAction, newUnpublishedFormDataMap);
-        unpublishedAction.getActionConfiguration().setFormData(newUnpublishedFormDataMap);
-
-        ActionDTO publishedAction = uqiAction.getPublishedAction();
-        /**
-         * Migrate published action configuration data.
-         */
-        if (publishedAction.getActionConfiguration() != null) {
-            Map<String, Object> newPublishedFormDataMap = new HashMap<>();
-            mapMongoToNewFormData(publishedAction, newPublishedFormDataMap);
-            publishedAction.getActionConfiguration().setFormData(newPublishedFormDataMap);
-        }
-
-        /**
-         * Migrate the dynamic binding path list for unpublished action.
-         * Please note that there is no requirement to migrate the dynamic binding path
-         * list for published actions
-         * since the `on page load` actions do not get computed on published actions
-         * data. They are only computed
-         * on unpublished actions data and copied over for the view mode.
-         */
-        List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-        if (dynamicBindingPathList != null && !dynamicBindingPathList.isEmpty()) {
-            Map<String, String> dynamicBindingMapper = new HashMap<>();
-            dynamicBindingMapper.put("formData.command", "formData.command.data");
-            dynamicBindingMapper.put("formData.collection", "formData.collection.data");
-            dynamicBindingMapper.put("formData.aggregate.arrayPipelines", "formData.aggregate.arrayPipelines.data");
-            dynamicBindingMapper.put("formData.aggregate.limit", "formData.aggregate.limit.data");
-            dynamicBindingMapper.put("formData.count.query", "formData.count.query.data");
-            dynamicBindingMapper.put("formData.delete.query", "formData.delete.query.data");
-            dynamicBindingMapper.put("formData.delete.limit", "formData.delete.limit.data");
-            dynamicBindingMapper.put("formData.distinct.query", "formData.distinct.query.data");
-            dynamicBindingMapper.put("formData.distinct.key", "formData.distinct.key.data");
-            dynamicBindingMapper.put("formData.find.query", "formData.find.query.data");
-            dynamicBindingMapper.put("formData.find.sort", "formData.find.sort.data");
-            dynamicBindingMapper.put("formData.find.projection", "formData.find.projection.data");
-            dynamicBindingMapper.put("formData.find.limit", "formData.find.limit.data");
-            dynamicBindingMapper.put("formData.find.skip", "formData.find.skip.data");
-            dynamicBindingMapper.put("formData.insert.documents", "formData.insert.documents.data");
-            dynamicBindingMapper.put("formData.updateMany.query", "formData.updateMany.query.data");
-            dynamicBindingMapper.put("formData.updateMany.update", "formData.updateMany.update.data");
-            dynamicBindingMapper.put("formData.updateMany.limit", "formData.updateMany.limit.data");
-            dynamicBindingMapper.put("formData.smartSubstitution", "formData.smartSubstitution.data");
-            dynamicBindingMapper.put("body", "formData.body.data");
-            dynamicBindingPathList.stream().forEach(dynamicBindingPath -> {
-                final String currentBinding = dynamicBindingPath.getKey();
-                final Optional<String> matchingBinding = dynamicBindingMapper.keySet().stream()
-                        .filter(currentBinding::startsWith)
-                        .findFirst();
-                if (matchingBinding.isPresent()) {
-                    final String newBindingPrefix = dynamicBindingMapper.get(matchingBinding.get());
-                    dynamicBindingPath.setKey(currentBinding.replace(matchingBinding.get(), newBindingPrefix));
-                }
-            });
-        }
     }
 
     /**
@@ -606,13 +109,13 @@ public class DatabaseChangelog2 {
     }
 
     public static void doAddIndexesForGit(MongoTemplate mongoTemplate) {
-        String defaultResources = fieldName(QBranchAwareDomain.branchAwareDomain.defaultResources);
+        String defaultResources = BranchAwareDomain.Fields.defaultResources;
         ensureIndexes(
                 mongoTemplate,
                 ActionCollection.class,
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
-                                fieldName(QBaseDomain.baseDomain.gitSyncId),
+                                BaseDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
@@ -621,7 +124,7 @@ public class DatabaseChangelog2 {
                 NewAction.class,
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
-                                fieldName(QBaseDomain.baseDomain.gitSyncId),
+                                BaseDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
 
@@ -630,7 +133,7 @@ public class DatabaseChangelog2 {
                 NewPage.class,
                 makeIndex(
                                 defaultResources + "." + FieldName.APPLICATION_ID,
-                                fieldName(QBaseDomain.baseDomain.gitSyncId),
+                                BaseDomain.Fields.gitSyncId,
                                 FieldName.DELETED)
                         .named("defaultApplicationId_gitSyncId_deleted"));
     }
@@ -649,7 +152,7 @@ public class DatabaseChangelog2 {
     public void addDefaultTenant(MongoTemplate mongoTemplate) {
 
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
         Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         // if tenant already exists, don't create a new one.
@@ -675,9 +178,9 @@ public class DatabaseChangelog2 {
                 mongoTemplate,
                 Application.class,
                 makeIndex(
-                                fieldName(QApplication.application.workspaceId),
-                                fieldName(QApplication.application.name),
-                                fieldName(QApplication.application.deletedAt),
+                                Application.Fields.workspaceId,
+                                Application.Fields.name,
+                                Application.Fields.deletedAt,
                                 "gitApplicationMetadata.remoteUrl",
                                 "gitApplicationMetadata.branchName")
                         .unique()
@@ -685,303 +188,9 @@ public class DatabaseChangelog2 {
         ensureIndexes(
                 mongoTemplate,
                 Datasource.class,
-                makeIndex(
-                                fieldName(QDatasource.datasource.workspaceId),
-                                fieldName(QDatasource.datasource.name),
-                                fieldName(QDatasource.datasource.deletedAt))
+                makeIndex(Datasource.Fields.workspaceId, Datasource.Fields.name, Datasource.Fields.deletedAt)
                         .unique()
                         .named("workspace_datasource_deleted_compound_index"));
-    }
-
-    public static void migrateGoogleSheetsToUqi(NewAction uqiAction) {
-
-        final Map<Integer, List<String>> googleSheetsMigrationMap = Map.ofEntries(
-                Map.entry(0, List.of("command.data", "entityType.data")),
-                Map.entry(1, List.of("sheetUrl.data")),
-                Map.entry(2, List.of("range.data")),
-                Map.entry(3, List.of("spreadsheetName.data")),
-                Map.entry(4, List.of("tableHeaderIndex.data")),
-                Map.entry(5, List.of("queryFormat.data")),
-                Map.entry(6, List.of("pagination.data.limit")),
-                Map.entry(7, List.of("sheetName.data")),
-                Map.entry(8, List.of("pagination.data.offset")),
-                Map.entry(9, List.of("rowObjects.data")),
-                Map.entry(10, List.of("rowObjects.data")),
-                Map.entry(11, List.of("rowIndex.data")),
-                Map.entry(12, List.of("")), // We do not expect deleteFormat to have been dynamically bound at all
-                Map.entry(13, List.of("smartSubstitution.data")),
-                Map.entry(14, List.of("where.data")));
-
-        ActionDTO unpublishedAction = uqiAction.getUnpublishedAction();
-        /**
-         * Migrate unpublished action configuration data.
-         */
-        Map<String, Object> newUnpublishedFormDataMap = new HashMap<>();
-        mapGoogleSheetsToNewFormData(unpublishedAction, newUnpublishedFormDataMap);
-        unpublishedAction.getActionConfiguration().setFormData(newUnpublishedFormDataMap);
-
-        ActionDTO publishedAction = uqiAction.getPublishedAction();
-        /**
-         * Migrate published action configuration data.
-         */
-        if (publishedAction.getActionConfiguration() != null) {
-            Map<String, Object> newPublishedFormDataMap = new HashMap<>();
-            mapGoogleSheetsToNewFormData(publishedAction, newPublishedFormDataMap);
-            publishedAction.getActionConfiguration().setFormData(newPublishedFormDataMap);
-        }
-
-        List<Property> dynamicBindingPathList = unpublishedAction.getDynamicBindingPathList();
-        List<Property> newDynamicBindingPathList = getUpdatedDynamicBindingPathList(
-                dynamicBindingPathList, objectMapper, uqiAction, googleSheetsMigrationMap);
-        unpublishedAction.setDynamicBindingPathList(newDynamicBindingPathList);
-    }
-
-    private static void mapGoogleSheetsToNewFormData(ActionDTO action, Map<String, Object> f) {
-        final Map<String, Object> formData = action.getActionConfiguration().getFormData();
-
-        if (formData != null) {
-            // This action has already been migrated
-            throw new AppsmithException(AppsmithError.MIGRATION_ERROR);
-        }
-
-        final List<Property> pluginSpecifiedTemplates =
-                action.getActionConfiguration().getPluginSpecifiedTemplates();
-
-        if (pluginSpecifiedTemplates == null || pluginSpecifiedTemplates.isEmpty()) {
-            // Nothing to do with this action, it is already incorrectly configured
-            return;
-        }
-
-        final String oldCommand = (String) pluginSpecifiedTemplates.get(0).getValue();
-
-        switch (oldCommand) {
-            case "GET":
-                convertToFormDataObject(f, "command", "FETCH_MANY");
-                convertToFormDataObject(f, "entityType", "ROWS");
-                break;
-            case "APPEND":
-                convertToFormDataObject(f, "command", "INSERT_ONE");
-                convertToFormDataObject(f, "entityType", "ROWS");
-                break;
-            case "UPDATE":
-                convertToFormDataObject(f, "command", "UPDATE_ONE");
-                convertToFormDataObject(f, "entityType", "ROWS");
-                break;
-            case "DELETE_ROW":
-                convertToFormDataObject(f, "command", "DELETE_ONE");
-                convertToFormDataObject(f, "entityType", "ROWS");
-                break;
-            case "LIST":
-                convertToFormDataObject(f, "command", "FETCH_MANY");
-                convertToFormDataObject(f, "entityType", "SPREADSHEET");
-                break;
-            case "INFO":
-                convertToFormDataObject(f, "command", "FETCH_DETAILS");
-                convertToFormDataObject(f, "entityType", "SPREADSHEET");
-                break;
-            case "CREATE":
-                convertToFormDataObject(f, "command", "INSERT_ONE");
-                convertToFormDataObject(f, "entityType", "SPREADSHEET");
-                break;
-            case "DELETE":
-                convertToFormDataObject(f, "command", "DELETE_ONE");
-                break;
-            case "BULK_APPEND":
-                convertToFormDataObject(f, "command", "INSERT_MANY");
-                convertToFormDataObject(f, "entityType", "ROWS");
-                break;
-            case "BULK_UPDATE":
-                convertToFormDataObject(f, "command", "UPDATE_MANY");
-                convertToFormDataObject(f, "entityType", "ROWS");
-                break;
-            default:
-        }
-
-        final int pluginSpecifiedTemplatesSize = pluginSpecifiedTemplates.size();
-
-        switch (pluginSpecifiedTemplatesSize) {
-            case 15:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(14))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(14).getValue())) {
-                    convertToFormDataObject(
-                            f,
-                            "where",
-                            updateWhereClauseFormat(
-                                    pluginSpecifiedTemplates.get(14).getValue()));
-                }
-            case 14:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(13))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(13).getValue())) {
-                    convertToFormDataObject(
-                            f,
-                            "smartSubstitution",
-                            pluginSpecifiedTemplates.get(13).getValue());
-                }
-            case 13:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(12))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(12).getValue())
-                        && "DELETE".equals(oldCommand)) {
-                    convertToFormDataObject(
-                            f, "entityType", pluginSpecifiedTemplates.get(12).getValue());
-                }
-            case 12:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(11))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(11).getValue())) {
-                    convertToFormDataObject(
-                            f, "rowIndex", pluginSpecifiedTemplates.get(11).getValue());
-                }
-            case 11:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(10))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(10).getValue())) {
-                    if (List.of("BULK_APPEND", "BULK_UPDATE", "CREATE").contains(oldCommand)) {
-                        convertToFormDataObject(
-                                f,
-                                "rowObjects",
-                                pluginSpecifiedTemplates.get(10).getValue());
-                    }
-                }
-            case 10:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(9))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(9).getValue())) {
-                    if (List.of("APPEND", "UPDATE").contains(oldCommand)) {
-                        convertToFormDataObject(
-                                f, "rowObjects", pluginSpecifiedTemplates.get(9).getValue());
-                    }
-                }
-            case 9:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(8))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(8).getValue())) {
-                    if (!f.containsKey("pagination")) {
-                        final HashMap<String, Object> map = new HashMap<>();
-                        map.put("offset", pluginSpecifiedTemplates.get(8).getValue());
-                        convertToFormDataObject(f, "pagination", map);
-                    } else {
-                        final Map<String, Object> pagination = (Map<String, Object>) f.get("pagination");
-                        final Map<String, Object> data = (Map<String, Object>) pagination.get("data");
-                        final Map<String, Object> componentData = (Map<String, Object>) pagination.get("componentData");
-                        data.put("offset", pluginSpecifiedTemplates.get(8).getValue());
-                        componentData.put(
-                                "offset", pluginSpecifiedTemplates.get(8).getValue());
-                    }
-                }
-            case 8:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(7).getValue())) {
-                    // Sheet name will now have a dropdown component that is selected from a pre-populated list.
-                    // Bindings would need to be placed in the JS mode
-                    boolean hasBinding = false;
-                    if (action.getDynamicBindingPathList() != null) {
-                        hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
-                            return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[7]");
-                        });
-                    }
-                    convertToFormDataObject(
-                            f, "sheetName", pluginSpecifiedTemplates.get(7).getValue(), hasBinding);
-                }
-            case 7:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(6))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(6).getValue())) {
-                    if (!f.containsKey("pagination")) {
-                        final HashMap<String, Object> map = new HashMap<>();
-                        map.put("limit", pluginSpecifiedTemplates.get(6).getValue());
-                        convertToFormDataObject(f, "pagination", map);
-                    } else {
-                        final Map<String, Object> pagination = (Map<String, Object>) f.get("pagination");
-                        final Map<String, Object> data = (Map<String, Object>) pagination.get("data");
-                        final Map<String, Object> componentData = (Map<String, Object>) pagination.get("componentData");
-                        data.put("limit", pluginSpecifiedTemplates.get(6).getValue());
-                        componentData.put(
-                                "limit", pluginSpecifiedTemplates.get(6).getValue());
-                    }
-                }
-            case 6:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(5))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(5).getValue())) {
-                    convertToFormDataObject(
-                            f, "queryFormat", pluginSpecifiedTemplates.get(5).getValue());
-                }
-            case 5:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(4))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(4).getValue())) {
-                    convertToFormDataObject(
-                            f,
-                            "tableHeaderIndex",
-                            pluginSpecifiedTemplates.get(4).getValue());
-                }
-            case 4:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(3))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(3).getValue())) {
-                    convertToFormDataObject(
-                            f,
-                            "spreadsheetName",
-                            pluginSpecifiedTemplates.get(3).getValue());
-                }
-            case 3:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(2))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(2).getValue())) {
-                    convertToFormDataObject(
-                            f, "range", pluginSpecifiedTemplates.get(2).getValue());
-                }
-            case 2:
-                if (!ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1))
-                        && !ObjectUtils.isEmpty(pluginSpecifiedTemplates.get(1).getValue())) {
-                    // Sheet URL will now have a dropdown component that is selected from a pre-populated list.
-                    // Bindings would need to be placed in the JS mode
-                    boolean hasBinding = false;
-                    if (action.getDynamicBindingPathList() != null) {
-                        hasBinding = action.getDynamicBindingPathList().stream().anyMatch(dynamicBindingPath -> {
-                            return dynamicBindingPath.getKey().contains("pluginSpecifiedTemplates[1]");
-                        });
-                    }
-                    final String spreadsheetUrl =
-                            (String) pluginSpecifiedTemplates.get(1).getValue();
-                    final Matcher matcher = sheetRangePattern.matcher(spreadsheetUrl);
-
-                    if (matcher.find()) {
-                        final String newSpreadsheetUrl = matcher.replaceAll(
-                                "https://docs.google.com/spreadsheets/d/" + matcher.group(1) + "/edit");
-                        convertToFormDataObject(f, "sheetUrl", newSpreadsheetUrl, hasBinding);
-                    } else {
-                        convertToFormDataObject(f, "sheetUrl", spreadsheetUrl, hasBinding);
-                    }
-                }
-        }
-    }
-
-    private static Map<String, Object> updateWhereClauseFormat(Object oldWhereClauseArray) {
-        final Map<String, Object> newWhereClause = new HashMap<>();
-        newWhereClause.put("condition", "AND");
-        final List<Object> convertedConditionArray = new ArrayList<>();
-
-        if (oldWhereClauseArray instanceof List) {
-            ((ArrayList) oldWhereClauseArray).stream().forEach(oldWhereClauseCondition -> {
-                if (oldWhereClauseCondition != null) {
-                    Map<String, Object> newWhereClauseCondition = new HashMap<>();
-                    final Map clauseCondition = (Map) oldWhereClauseCondition;
-                    if (clauseCondition.isEmpty()) {
-                        return;
-                    }
-                    if (clauseCondition.containsKey("path")) {
-                        newWhereClauseCondition.put("key", clauseCondition.get("path"));
-                    }
-                    if (clauseCondition.containsKey("operator")) {
-                        newWhereClauseCondition.put("condition", clauseCondition.get("operator"));
-                    } else {
-                        newWhereClauseCondition.put("condition", "LT");
-                    }
-                    if (clauseCondition.containsKey("value")) {
-                        newWhereClauseCondition.put("value", clauseCondition.get("value"));
-                    }
-                    convertedConditionArray.add(newWhereClauseCondition);
-                }
-            });
-        }
-
-        if (!convertedConditionArray.isEmpty()) {
-            newWhereClause.put("children", convertedConditionArray);
-        }
-
-        return newWhereClause;
     }
 
     @ChangeSet(order = "021", id = "flush-spring-redis-keys-2a", author = "")
@@ -992,20 +201,19 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "023", id = "add-anonymousUser", author = "")
     public void addAnonymousUser(MongoTemplate mongoTemplate) {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
         Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query userQuery = new Query();
         userQuery
-                .addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
-                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
+                .addCriteria(where(User.Fields.email).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(User.Fields.tenantId).is(tenant.getId()));
         User anonymousUser = mongoTemplate.findOne(userQuery, User.class);
 
         if (anonymousUser == null) {
             anonymousUser = new User();
             anonymousUser.setName(FieldName.ANONYMOUS_USER);
             anonymousUser.setEmail(FieldName.ANONYMOUS_USER);
-            anonymousUser.setCurrentWorkspaceId("");
             anonymousUser.setWorkspaceIds(new HashSet<>());
             anonymousUser.setIsAnonymous(true);
             anonymousUser.setTenantId(tenant.getId());
@@ -1017,8 +225,7 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "029", id = "add-instance-config-object", author = "")
     public void addInstanceConfigurationPlaceHolder(MongoTemplate mongoTemplate) {
         Query instanceConfigurationQuery = new Query();
-        instanceConfigurationQuery.addCriteria(
-                where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
+        instanceConfigurationQuery.addCriteria(where(Config.Fields.name).is(FieldName.INSTANCE_CONFIG));
         Config instanceAdminConfiguration = mongoTemplate.findOne(instanceConfigurationQuery, Config.class);
 
         if (instanceAdminConfiguration != null) {
@@ -1036,8 +243,8 @@ public class DatabaseChangelog2 {
                 Set.of(new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)));
 
         Query adminUserQuery = new Query();
-        adminUserQuery.addCriteria(where(fieldName(QBaseDomain.baseDomain.policies))
-                .elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
+        adminUserQuery.addCriteria(
+                where(BaseDomain.Fields.policies).elemMatch(where("permission").is(MANAGE_INSTANCE_ENV.getValue())));
         List<User> adminUsers = mongoTemplate.find(adminUserQuery, User.class);
 
         instanceManagerPermissionGroup.setAssignedToUserIds(
@@ -1088,8 +295,7 @@ public class DatabaseChangelog2 {
     @ChangeSet(order = "030", id = "add-anonymous-user-permission-group", author = "")
     public void addAnonymousUserPermissionGroup(MongoTemplate mongoTemplate) {
         Query anonymousUserPermissionConfig = new Query();
-        anonymousUserPermissionConfig.addCriteria(
-                where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
+        anonymousUserPermissionConfig.addCriteria(where(Config.Fields.name).is(FieldName.PUBLIC_PERMISSION_GROUP));
 
         Config publicPermissionGroupConfig = mongoTemplate.findOne(anonymousUserPermissionConfig, Config.class);
 
@@ -1102,13 +308,13 @@ public class DatabaseChangelog2 {
         publicPermissionGroup.setDescription("Role for giving accesses for all objects to anonymous users");
 
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
         Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query userQuery = new Query();
         userQuery
-                .addCriteria(where(fieldName(QUser.user.email)).is(FieldName.ANONYMOUS_USER))
-                .addCriteria(where(fieldName(QUser.user.tenantId)).is(tenant.getId()));
+                .addCriteria(where(User.Fields.email).is(FieldName.ANONYMOUS_USER))
+                .addCriteria(where(User.Fields.tenantId).is(tenant.getId()));
         User anonymousUser = mongoTemplate.findOne(userQuery, User.class);
 
         // Give access to anonymous user to the permission group.
@@ -1129,12 +335,12 @@ public class DatabaseChangelog2 {
     public void createThemesIndices(MongoTemplate mongoTemplate) {
 
         Index systemThemeIndex = new Index()
-                .on(fieldName(QTheme.theme.isSystemTheme), Sort.Direction.ASC)
+                .on(Theme.Fields.isSystemTheme, Sort.Direction.ASC)
                 .named("system_theme_index")
                 .background();
 
         Index applicationIdIndex = new Index()
-                .on(fieldName(QTheme.theme.applicationId), Sort.Direction.ASC)
+                .on(Theme.Fields.applicationId, Sort.Direction.ASC)
                 .on(FieldName.DELETED, Sort.Direction.ASC)
                 .named("application_id_index")
                 .background();
@@ -1159,8 +365,7 @@ public class DatabaseChangelog2 {
 
         // Make this theme accessible to anonymous users.
         Query anonymousUserPermissionConfig = new Query();
-        anonymousUserPermissionConfig.addCriteria(
-                where(fieldName(QConfig.config1.name)).is(FieldName.PUBLIC_PERMISSION_GROUP));
+        anonymousUserPermissionConfig.addCriteria(where(Config.Fields.name).is(FieldName.PUBLIC_PERMISSION_GROUP));
         Config publicPermissionGroupConfig = mongoTemplate.findOne(anonymousUserPermissionConfig, Config.class);
 
         String permissionGroupId = publicPermissionGroupConfig.getConfig().getAsString(PERMISSION_GROUP_ID);
@@ -1183,9 +388,9 @@ public class DatabaseChangelog2 {
             theme.setSystemTheme(true);
             theme.setCreatedAt(Instant.now());
             theme.setPolicies(new HashSet<>(Set.of(policyWithCurrentPermission)));
-            Query query = new Query(Criteria.where(fieldName(QTheme.theme.name))
+            Query query = new Query(Criteria.where(Theme.Fields.name)
                     .is(theme.getName())
-                    .and(fieldName(QTheme.theme.isSystemTheme))
+                    .and(Theme.Fields.isSystemTheme)
                     .is(true));
 
             Theme savedTheme = mongoTemplate.findOne(query, Theme.class);
@@ -1233,7 +438,7 @@ public class DatabaseChangelog2 {
         dropIndexIfExists(mongoTemplate, PermissionGroup.class, "permission_group_assignedUserIds_deleted");
 
         Index assignedToUserIds_deleted_compound_index = makeIndex(
-                        fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), FieldName.DELETED)
+                        PermissionGroup.Fields.assignedToUserIds, FieldName.DELETED)
                 .named("permission_group_assignedUserIds_deleted");
 
         ensureIndexes(mongoTemplate, PermissionGroup.class, assignedToUserIds_deleted_compound_index);
@@ -1258,8 +463,7 @@ public class DatabaseChangelog2 {
         Set<String> adminEmails = TextUtils.csvToSet(adminEmailsStr);
 
         Query instanceConfigurationQuery = new Query();
-        instanceConfigurationQuery.addCriteria(
-                where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
+        instanceConfigurationQuery.addCriteria(where(Config.Fields.name).is(FieldName.INSTANCE_CONFIG));
         Config instanceAdminConfiguration = mongoTemplate.findOne(instanceConfigurationQuery, Config.class);
 
         String instanceAdminPermissionGroupId =
@@ -1267,14 +471,13 @@ public class DatabaseChangelog2 {
 
         Query permissionGroupQuery = new Query();
         permissionGroupQuery
-                .addCriteria(
-                        where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId))
+                .addCriteria(where(PermissionGroup.Fields.id).is(instanceAdminPermissionGroupId))
                 .fields()
-                .include(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds));
+                .include(PermissionGroup.Fields.assignedToUserIds);
         PermissionGroup instanceAdminPG = mongoTemplate.findOne(permissionGroupQuery, PermissionGroup.class);
 
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
         Tenant tenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Set<String> userIds = adminEmails.stream()
@@ -1282,7 +485,7 @@ public class DatabaseChangelog2 {
                 .map(String::toLowerCase)
                 .map(email -> {
                     Query userQuery = new Query();
-                    userQuery.addCriteria(where(fieldName(QUser.user.email)).is(email));
+                    userQuery.addCriteria(where(User.Fields.email).is(email));
                     User user = mongoTemplate.findOne(userQuery, User.class);
 
                     if (user == null) {
@@ -1299,7 +502,7 @@ public class DatabaseChangelog2 {
         Set<String> updatedUserIds = findSymmetricDiff(oldSuperUsers, userIds);
         evictPermissionCacheForUsers(updatedUserIds, mongoTemplate, cacheableRepositoryHelper);
 
-        Update update = new Update().set(fieldName(QPermissionGroup.permissionGroup.assignedToUserIds), userIds);
+        Update update = new Update().set(PermissionGroup.Fields.assignedToUserIds, userIds);
         mongoTemplate.updateFirst(permissionGroupQuery, update, PermissionGroup.class);
     }
 
@@ -1311,15 +514,13 @@ public class DatabaseChangelog2 {
         Query query = new Query();
         query.addCriteria(new Criteria()
                 .andOperator(
-                        new Criteria(fieldName(QTheme.theme.isSystemTheme)).is(false),
-                        new Criteria(FieldName.DELETED).is(false)));
+                        new Criteria(Theme.Fields.isSystemTheme).is(false), new Criteria(FieldName.DELETED).is(false)));
 
         mongoTemplate.stream(query, Theme.class).forEach(theme -> {
             Query applicationQuery = new Query();
-            Criteria themeCriteria = new Criteria(fieldName(QApplication.application.editModeThemeId))
+            Criteria themeCriteria = new Criteria(Application.Fields.editModeThemeId)
                     .is(theme.getId())
-                    .orOperator(
-                            new Criteria(fieldName(QApplication.application.publishedModeThemeId)).is(theme.getId()));
+                    .orOperator(new Criteria(Application.Fields.publishedModeThemeId).is(theme.getId()));
 
             List<Application> applications =
                     mongoTemplate.find(applicationQuery.addCriteria(themeCriteria), Application.class);
@@ -1389,20 +590,18 @@ public class DatabaseChangelog2 {
     public void addTenantAdminPermissionsToInstanceAdmin(
             MongoTemplate mongoTemplate, @NonLockGuarded PolicySolution policySolution) {
         Query tenantQuery = new Query();
-        tenantQuery.addCriteria(where(fieldName(QTenant.tenant.slug)).is("default"));
+        tenantQuery.addCriteria(where(Tenant.Fields.slug).is("default"));
         Tenant defaultTenant = mongoTemplate.findOne(tenantQuery, Tenant.class);
 
         Query instanceConfigurationQuery = new Query();
-        instanceConfigurationQuery.addCriteria(
-                where(fieldName(QConfig.config1.name)).is(FieldName.INSTANCE_CONFIG));
+        instanceConfigurationQuery.addCriteria(where(Config.Fields.name).is(FieldName.INSTANCE_CONFIG));
         Config instanceAdminConfiguration = mongoTemplate.findOne(instanceConfigurationQuery, Config.class);
 
         String instanceAdminPermissionGroupId =
                 (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
 
         Query permissionGroupQuery = new Query();
-        permissionGroupQuery.addCriteria(
-                where(fieldName(QPermissionGroup.permissionGroup.id)).is(instanceAdminPermissionGroupId));
+        permissionGroupQuery.addCriteria(where(PermissionGroup.Fields.id).is(instanceAdminPermissionGroupId));
 
         PermissionGroup instanceAdminPGBeforeChanges =
                 mongoTemplate.findOne(permissionGroupQuery, PermissionGroup.class);

@@ -27,6 +27,13 @@ function shouldSetState(
   if (
     state &&
     state.invokedBy &&
+    NavigationMethod.AppNavigation === state.invokedBy
+  ) {
+    return false;
+  }
+  if (
+    state &&
+    state.invokedBy &&
     [NavigationMethod.CommandClick, NavigationMethod.Omnibar].includes(
       state.invokedBy,
     )
@@ -34,6 +41,7 @@ function shouldSetState(
     // If it is a direct navigation, we will set the state
     return true;
   }
+
   const prevFocusEntityInfo = identifyEntityFromPath(prevPath);
   const currFocusEntityInfo = identifyEntityFromPath(currPath);
   const isSamePage = !isPageChange(prevPath, currPath);
@@ -73,6 +81,18 @@ const isPageChange = (prevPath: string, currentPath: string) => {
   );
 };
 
+export const createEditorFocusInfoKey = (pageId: string, branch?: string) =>
+  `EDITOR_STATE.${pageId}#${branch}`;
+export const createEditorFocusInfo = (pageId: string, branch?: string) => ({
+  key: createEditorFocusInfoKey(pageId, branch),
+  entityInfo: {
+    id: `EDITOR.${pageId}`,
+    appState: EditorState.EDITOR,
+    entity: FocusEntity.EDITOR,
+    params: {},
+  },
+});
+
 export const AppIDEFocusStrategy: FocusStrategy = {
   focusElements: AppIDEFocusElements,
   getEntitiesForSet: function* (
@@ -94,15 +114,11 @@ export const AppIDEFocusStrategy: FocusStrategy = {
       (prevEntityInfo.params.pageId !== currentEntityInfo.params.pageId ||
         prevEntityInfo.appState !== currentEntityInfo.appState)
     ) {
-      entities.push({
-        key: `EDITOR_STATE.${currentEntityInfo.params.pageId}#${branch}`,
-        entityInfo: {
-          id: `EDITOR.${currentEntityInfo.params.pageId}`,
-          appState: EditorState.EDITOR,
-          entity: FocusEntity.EDITOR,
-          params: {},
-        },
-      });
+      if (currentEntityInfo.params.pageId) {
+        entities.push(
+          createEditorFocusInfo(currentEntityInfo.params.pageId, branch),
+        );
+      }
     }
 
     entities.push({
@@ -111,15 +127,16 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     });
     return entities;
   },
-  *getEntitiesForStore(path: string) {
+  *getEntitiesForStore(path: string, currentPath: string) {
     const branch: string | undefined = yield select(getCurrentGitBranch);
     const entities: Array<FocusPath> = [];
+    const currentFocusEntityInfo = identifyEntityFromPath(currentPath);
     const prevFocusEntityInfo = identifyEntityFromPath(path);
 
     // If the entity has a parent defined, store the state of the parent as well.
     if (prevFocusEntityInfo.entity in FocusStoreHierarchy) {
       const parentEntity = FocusStoreHierarchy[prevFocusEntityInfo.entity];
-      if (parentEntity) {
+      if (parentEntity && parentEntity !== currentFocusEntityInfo.entity) {
         const parentPath = AppIDEFocusStrategy.getEntityParentUrl(
           prevFocusEntityInfo,
           parentEntity,
@@ -140,7 +157,10 @@ export const AppIDEFocusStrategy: FocusStrategy = {
     // Does not matter if still in editor or not
     if (
       prevFocusEntityInfo.appState === EditorState.EDITOR &&
-      prevFocusEntityInfo.entity !== FocusEntity.NONE
+      prevFocusEntityInfo.entity !== FocusEntity.NONE &&
+      (prevFocusEntityInfo.entity !== currentFocusEntityInfo.entity ||
+        prevFocusEntityInfo.params.pageId !==
+          currentFocusEntityInfo.params.pageId)
     ) {
       entities.push({
         entityInfo: {

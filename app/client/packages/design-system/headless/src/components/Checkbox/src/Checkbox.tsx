@@ -16,7 +16,7 @@ import { Icon as HeadlessIcon } from "../../Icon";
 import type { CheckboxGroupContextType } from "./context";
 
 export interface InlineLabelProps {
-  labelPosition?: "left" | "right";
+  labelPosition?: "start" | "end";
 }
 
 export interface CheckboxProps
@@ -36,7 +36,7 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
     icon: Icon = CheckIcon,
     isDisabled: isDisabledProp = false,
     isIndeterminate = false,
-    labelPosition = "right",
+    labelPosition: labelPositionProp,
     validationState,
   } = props;
   const state = useToggleState(props);
@@ -50,6 +50,7 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
   // it should be safe in this case since the checkbox is not expected to be added or removed from the group.
   const context = useContext(CheckboxGroupContext) as CheckboxGroupContextType;
   const isDisabled = isDisabledProp || context?.isDisabled;
+  const labelPosition = context?.optionsLabelPosition ?? labelPositionProp;
   const { hoverProps, isHovered } = useHover({ isDisabled });
   const { inputProps } = Boolean(context?.state)
     ? // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -75,8 +76,8 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
   const dataState = isIndeterminate
     ? "indeterminate"
     : Boolean(inputProps.checked)
-    ? "checked"
-    : "unchecked";
+      ? "checked"
+      : "unchecked";
 
   return (
     <label

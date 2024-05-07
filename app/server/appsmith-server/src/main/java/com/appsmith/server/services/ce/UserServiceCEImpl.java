@@ -9,7 +9,8 @@ import com.appsmith.server.constants.RateLimitConstants;
 import com.appsmith.server.domains.EmailVerificationToken;
 import com.appsmith.server.domains.LoginSource;
 import com.appsmith.server.domains.PasswordResetToken;
-import com.appsmith.server.domains.QUser;
+import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.domains.Workspace;
@@ -24,7 +25,6 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.UserServiceHelper;
 import com.appsmith.server.helpers.UserUtils;
-import com.appsmith.server.helpers.ValidationUtils;
 import com.appsmith.server.ratelimiting.RateLimitService;
 import com.appsmith.server.repositories.EmailVerificationTokenRepository;
 import com.appsmith.server.repositories.PasswordResetTokenRepository;
@@ -37,16 +37,13 @@ import com.appsmith.server.services.SessionUserService;
 import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserDataService;
 import com.appsmith.server.services.WorkspaceService;
-import com.appsmith.server.solutions.UserChangedHandler;
 import jakarta.validation.Validator;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
-import org.apache.http.NameValuePair;
-import org.apache.http.client.utils.URLEncodedUtils;
-import org.apache.http.message.BasicNameValuePair;
+import org.apache.hc.core5.http.NameValuePair;
+import org.apache.hc.core5.http.message.BasicNameValuePair;
+import org.apache.hc.core5.net.WWWFormCodec;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.mongodb.core.ReactiveMongoTemplate;
-import org.springframework.data.mongodb.core.convert.MongoConverter;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
@@ -56,14 +53,12 @@ import org.springframework.security.web.server.DefaultServerRedirectStrategy;
 import org.springframework.security.web.server.ServerRedirectStrategy;
 import org.springframework.security.web.server.WebFilterExchange;
 import org.springframework.util.CollectionUtils;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilterChain;
 import org.springframework.web.server.WebSession;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
-import reactor.core.scheduler.Scheduler;
 import reactor.core.scheduler.Schedulers;
 
 import java.net.URI;
@@ -76,16 +71,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
 import static com.appsmith.server.acl.AclPermission.MANAGE_USERS;
+import static com.appsmith.server.constants.FieldName.DEFAULT;
+import static com.appsmith.server.constants.FieldName.TENANT;
 import static com.appsmith.server.helpers.RedirectHelper.DEFAULT_REDIRECT_URL;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MAX_LENGTH;
 import static com.appsmith.server.helpers.ValidationUtils.LOGIN_PASSWORD_MIN_LENGTH;
-import static com.appsmith.server.repositories.BaseAppsmithRepositoryImpl.fieldName;
+import static com.appsmith.server.helpers.ValidationUtils.validateUserPassword;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.springframework.security.web.server.context.WebSessionServerSecurityContextRepository.DEFAULT_SPRING_SECURITY_CONTEXT_ATTR_NAME;
@@ -100,7 +96,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     private final PasswordEncoder passwordEncoder;
 
     private final CommonConfig commonConfig;
-    private final UserChangedHandler userChangedHandler;
     private final EncryptionService encryptionService;
     private final UserDataService userDataService;
     private final TenantService tenantService;
@@ -125,10 +120,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     @Autowired
     public UserServiceCEImpl(
-            Scheduler scheduler,
             Validator validator,
-            MongoConverter mongoConverter,
-            ReactiveMongoTemplate reactiveMongoTemplate,
             UserRepository repository,
             WorkspaceService workspaceService,
             AnalyticsService analyticsService,
@@ -136,7 +128,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PasswordResetTokenRepository passwordResetTokenRepository,
             PasswordEncoder passwordEncoder,
             CommonConfig commonConfig,
-            UserChangedHandler userChangedHandler,
             EncryptionService encryptionService,
             UserDataService userDataService,
             TenantService tenantService,
@@ -147,13 +138,12 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             PACConfigurationService pacConfigurationService,
             UserServiceHelper userServiceHelper) {
 
-        super(scheduler, validator, mongoConverter, reactiveMongoTemplate, repository, analyticsService);
+        super(validator, repository, analyticsService);
         this.workspaceService = workspaceService;
         this.sessionUserService = sessionUserService;
         this.passwordResetTokenRepository = passwordResetTokenRepository;
         this.passwordEncoder = passwordEncoder;
         this.commonConfig = commonConfig;
-        this.userChangedHandler = userChangedHandler;
         this.encryptionService = encryptionService;
         this.userDataService = userDataService;
         this.tenantService = tenantService;
@@ -173,49 +163,6 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
     @Override
     public Mono<User> findByEmailAndTenantId(String email, String tenantId) {
         return repository.findByEmailAndTenantId(email, tenantId);
-    }
-
-    /**
-     * This function switches the user's currentWorkspace in the User collection in the DB. This means that on subsequent
-     * logins, the user will see applications for their last used workspace.
-     *
-     * @param workspaceId
-     * @return
-     */
-    @Override
-    public Mono<User> switchCurrentWorkspace(String workspaceId) {
-        if (workspaceId == null || workspaceId.isEmpty()) {
-            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, "workspaceId"));
-        }
-        return sessionUserService
-                .getCurrentUser()
-                .flatMap(user -> repository.findByEmail(user.getUsername()))
-                .flatMap(user -> {
-                    log.debug("Going to set workspaceId: {} for user: {}", workspaceId, user.getId());
-
-                    if (user.getCurrentWorkspaceId().equals(workspaceId)) {
-                        return Mono.just(user);
-                    }
-
-                    Set<String> workspaceIds = user.getWorkspaceIds();
-                    if (workspaceIds == null || workspaceIds.isEmpty()) {
-                        return Mono.error(
-                                new AppsmithException(AppsmithError.USER_DOESNT_BELONG_ANY_WORKSPACE, user.getId()));
-                    }
-
-                    Optional<String> maybeWorkspaceId = workspaceIds.stream()
-                            .filter(workspaceId1 -> workspaceId1.equals(workspaceId))
-                            .findFirst();
-
-                    if (maybeWorkspaceId.isPresent()) {
-                        user.setCurrentWorkspaceId(maybeWorkspaceId.get());
-                        return repository.save(user);
-                    }
-
-                    // Throw an exception if the workspaceId is not part of the user's workspaces
-                    return Mono.error(new AppsmithException(
-                            AppsmithError.USER_DOESNT_BELONG_TO_WORKSPACE, user.getId(), workspaceId));
-                });
     }
 
     /**
@@ -274,7 +221,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     List<NameValuePair> nameValuePairs = new ArrayList<>(2);
                     nameValuePairs.add(new BasicNameValuePair("email", passwordResetToken.getEmail()));
                     nameValuePairs.add(new BasicNameValuePair("token", token));
-                    String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
+                    String urlParams = WWWFormCodec.format(nameValuePairs, StandardCharsets.UTF_8);
                     String resetUrl = String.format(
                             FORGOT_PASSWORD_CLIENT_URL_FORMAT,
                             resetUserPasswordDTO.getBaseUrl(),
@@ -361,6 +308,10 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.TOKEN));
         }
 
+        Mono<Tenant> tenantMono = tenantService
+                .getDefaultTenant()
+                .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, DEFAULT, TENANT)));
+
         return passwordResetTokenRepository
                 .findByEmail(emailTokenDTO.getEmail())
                 .switchIfEmpty(Mono.error(new AppsmithException(AppsmithError.INVALID_PASSWORD_RESET)))
@@ -377,12 +328,24 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                         .findByEmail(emailAddress)
                         .switchIfEmpty(Mono.error(
                                 new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.USER, emailAddress)))
-                        .flatMap(userFromDb -> {
-                            if (!ValidationUtils.validateLoginPassword(user.getPassword())) {
-                                return Mono.error(new AppsmithException(
-                                        AppsmithError.INVALID_PASSWORD_LENGTH,
-                                        LOGIN_PASSWORD_MIN_LENGTH,
-                                        LOGIN_PASSWORD_MAX_LENGTH));
+                        .zipWith(tenantMono)
+                        .flatMap(tuple -> {
+                            User userFromDb = tuple.getT1();
+                            TenantConfiguration tenantConfiguration =
+                                    tuple.getT2().getTenantConfiguration();
+                            boolean isStrongPasswordPolicyEnabled = tenantConfiguration != null
+                                    && Boolean.TRUE.equals(tenantConfiguration.getIsStrongPasswordPolicyEnabled());
+
+                            if (!validateUserPassword(user.getPassword(), isStrongPasswordPolicyEnabled)) {
+                                return isStrongPasswordPolicyEnabled
+                                        ? Mono.error(new AppsmithException(
+                                                AppsmithError.INSUFFICIENT_PASSWORD_STRENGTH,
+                                                LOGIN_PASSWORD_MIN_LENGTH,
+                                                LOGIN_PASSWORD_MAX_LENGTH))
+                                        : Mono.error(new AppsmithException(
+                                                AppsmithError.INVALID_PASSWORD_LENGTH,
+                                                LOGIN_PASSWORD_MIN_LENGTH,
+                                                LOGIN_PASSWORD_MAX_LENGTH));
                             }
 
                             // User has verified via the forgot password token verfication route. Allow the user to set
@@ -617,13 +580,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
         }
 
         AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(userUpdate, existingUser);
-        return repository.save(existingUser).map(userChangedHandler::publish);
-    }
-
-    @Override
-    public Flux<User> get(MultiValueMap<String, String> params) {
-        // Get All Users should not be supported. Return an error
-        return Flux.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
+        return repository.save(existingUser);
     }
 
     private boolean validateName(String name) {
@@ -651,12 +608,11 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
             updates.setName(inputName);
             updatedUserMono = sessionUserService
                     .getCurrentUser()
-                    .flatMap(user -> update(user.getEmail(), updates, fieldName(QUser.user.email))
+                    .flatMap(user -> update(user.getId(), updates, User.Fields.id)
                             .then(
                                     exchange == null
                                             ? repository.findByEmail(user.getEmail())
                                             : sessionUserService.refreshCurrentUser(exchange)))
-                    .map(userChangedHandler::publish)
                     .cache();
             monos.add(updatedUserMono.then());
         } else {
@@ -740,7 +696,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
 
     private EmailTokenDTO parseValueFromEncryptedToken(String encryptedToken) {
         String decryptString = encryptionService.decryptString(encryptedToken);
-        List<NameValuePair> nameValuePairs = URLEncodedUtils.parse(decryptString, StandardCharsets.UTF_8);
+        List<NameValuePair> nameValuePairs = WWWFormCodec.parse(decryptString, StandardCharsets.UTF_8);
         Map<String, String> params = new HashMap<>();
 
         for (NameValuePair nameValuePair : nameValuePairs) {
@@ -816,7 +772,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, User, String>
                     List<NameValuePair> nameValuePairs = new ArrayList<>(2);
                     nameValuePairs.add(new BasicNameValuePair("email", emailVerificationToken.getEmail()));
                     nameValuePairs.add(new BasicNameValuePair("token", token));
-                    String urlParams = URLEncodedUtils.format(nameValuePairs, StandardCharsets.UTF_8);
+                    String urlParams = WWWFormCodec.format(nameValuePairs, StandardCharsets.UTF_8);
                     String redirectUrlCopy = redirectUrl;
                     if (redirectUrlCopy == null) {
                         redirectUrlCopy = String.format("%s/applications", resendEmailVerificationDTO.getBaseUrl());

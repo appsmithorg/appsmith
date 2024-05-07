@@ -1,12 +1,12 @@
+import type { ForwardedRef } from "react";
 import React, { forwardRef } from "react";
 import { Button } from "@design-system/widgets";
 
-import type { ActionGroupItemProps } from "./types";
-import type { ButtonRef as HeadlessButtonRef } from "@design-system/headless";
+import type { ButtonGroupItemProps } from "../../../";
 
 const _ActionGroupItem = <T extends object>(
-  props: ActionGroupItemProps<T>,
-  ref: HeadlessButtonRef,
+  props: ButtonGroupItemProps<T>,
+  ref: ForwardedRef<HTMLButtonElement>,
 ) => {
   const { color, item, variant, ...rest } = props;
 

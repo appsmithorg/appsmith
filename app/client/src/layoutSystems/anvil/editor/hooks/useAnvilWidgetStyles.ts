@@ -3,15 +3,22 @@ import { isWidgetSelected } from "selectors/widgetSelectors";
 import { useSelector } from "react-redux";
 import { useWidgetBorderStyles } from "layoutSystems/anvil/common/hooks/useWidgetBorderStyles";
 import type { AppState } from "@appsmith/reducers";
+import { getIsNewWidgetBeingDragged } from "sagas/selectors";
 
 export const useAnvilWidgetStyles = (
   widgetId: string,
   widgetName: string,
   isVisible = true,
+  widgetType: string,
   ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent
 ) => {
+  // Selectors to determine whether the widget is selected or dragging
+  const isSelected = useSelector(isWidgetSelected(widgetId));
+  const isDragging = useSelector(
+    (state: AppState) => state.ui.widgetDragResize.isDragging,
+  );
   // Get widget border styles using useWidgetBorderStyles
-  const widgetBorderStyles = useWidgetBorderStyles(widgetId);
+  const widgetBorderStyles = useWidgetBorderStyles(widgetId, widgetType);
 
   // Effect hook to apply widget border styles to the widget
   useEffect(() => {
@@ -27,17 +34,13 @@ export const useAnvilWidgetStyles = (
   useEffect(() => {
     if (ref.current) {
       ref.current.setAttribute("data-widgetname-cy", widgetName);
+      ref.current.setAttribute("data-testid", isSelected ? "t--selected" : "");
     }
-  }, [widgetName]);
-
-  // Selectors to determine whether the widget is selected or dragging
-  const isSelected = useSelector(isWidgetSelected(widgetId));
-  const isDragging = useSelector(
-    (state: AppState) => state.ui.widgetDragResize.isDragging,
-  );
-
+  }, [widgetName, isSelected]);
+  const isNewWidgetDrag = useSelector(getIsNewWidgetBeingDragged);
   // Calculate whether the widget should fade based on dragging, selection, and visibility
-  const shouldFadeWidget = (isDragging && isSelected) || !isVisible;
+  const shouldFadeWidget =
+    (isDragging && !isNewWidgetDrag && isSelected) || !isVisible;
 
   // Calculate opacity factor based on whether the widget should fade
   const opacityFactor = useMemo(() => {

@@ -88,6 +88,9 @@ function GetIconForAction(
 
     case AppsmithFunction.postWindowMessage:
       return () => <Icon name="chat-upload-icon" />;
+
+    default:
+      return () => <Icon name="js" />;
   }
 }
 
@@ -146,12 +149,14 @@ function getActionHeading(
 
     case AppsmithFunction.showModal:
       return (
-        FIELD_CONFIG[FieldType.SHOW_MODAL_FIELD].getter(code) || "Select modal"
+        FIELD_CONFIG[FieldType.SHOW_MODAL_FIELD].getter(code).split(".")[0] ||
+        "Select modal"
       );
 
     case AppsmithFunction.closeModal:
       return (
-        FIELD_CONFIG[FieldType.CLOSE_MODAL_FIELD].getter(code) || "Select modal"
+        FIELD_CONFIG[FieldType.CLOSE_MODAL_FIELD].getter(code).split(".")[0] ||
+        "Select modal"
       );
 
     case AppsmithFunction.resetWidget:

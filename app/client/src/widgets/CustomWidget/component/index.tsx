@@ -21,12 +21,13 @@ import { connect } from "react-redux";
 import type { AppState } from "@appsmith/reducers";
 import { combinedPreviewModeSelector } from "selectors/editorSelectors";
 import { getWidgetPropsForPropertyPane } from "selectors/propertyPaneSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { EVENTS } from "./customWidgetscript";
 import { DynamicHeight } from "utils/WidgetFeatures";
 import { getAppsmithConfigs } from "@appsmith/configs";
 import { getIsAutoHeightWithLimitsChanging } from "utils/hooks/autoHeightUIHooks";
 import { GridDefaults } from "constants/WidgetConstants";
+import { LayoutSystemTypes } from "layoutSystems/types";
 
 const StyledIframe = styled.iframe<{
   componentWidth: number;
@@ -44,6 +45,11 @@ const OverlayDiv = styled.div`
   left: 0;
   width: 100%;
   height: 100%;
+`;
+
+const Container = styled.div`
+  height: 100%;
+  width: 100%;
 `;
 
 const { disableIframeWidgetSandbox } = getAppsmithConfigs();
@@ -123,7 +129,8 @@ function CustomComponent(props: CustomComponentProps) {
             if (
               props.renderMode !== "BUILDER" &&
               height &&
-              props.dynamicHeight !== DynamicHeight.FIXED
+              (props.dynamicHeight !== DynamicHeight.FIXED ||
+                props.layoutSystemType === LayoutSystemTypes.AUTO)
             ) {
               iframe.current?.style.setProperty("height", `${height}px`);
               setHeight(height);
@@ -140,7 +147,13 @@ function CustomComponent(props: CustomComponentProps) {
     window.addEventListener("message", handler, false);
 
     return () => window.removeEventListener("message", handler, false);
-  }, [props.model, props.width, props.height]);
+  }, [
+    props.model,
+    props.width,
+    props.height,
+    props.layoutSystemType,
+    props.dynamicHeight,
+  ]);
 
   useEffect(() => {
     if (iframe.current && iframe.current.contentWindow && isIframeReady) {
@@ -182,11 +195,19 @@ function CustomComponent(props: CustomComponentProps) {
   }, [theme]);
 
   useEffect(() => {
-    if (props.dynamicHeight === DynamicHeight.FIXED) {
+    if (
+      props.dynamicHeight === DynamicHeight.FIXED &&
+      props.layoutSystemType === LayoutSystemTypes.FIXED
+    ) {
       iframe.current?.style.setProperty("height", `${props.height}px`);
       setHeight(props.height);
     }
-  }, [props.dynamicHeight, props.height, iframe.current]);
+  }, [
+    props.dynamicHeight,
+    props.height,
+    iframe.current,
+    props.layoutSystemType,
+  ]);
 
   const srcDoc = `
     <html>
@@ -215,7 +236,7 @@ function CustomComponent(props: CustomComponentProps) {
   }, [srcDoc]);
 
   return (
-    <div
+    <Container
       className={clsx({
         "bp3-skeleton": loading,
       })}
@@ -250,7 +271,7 @@ function CustomComponent(props: CustomComponentProps) {
           srcDoc={srcDoc}
         />
       </WidgetStyleContainer>
-    </div>
+    </Container>
   );
 }
 
@@ -278,6 +299,7 @@ export interface CustomComponentProps {
   widgetId: string;
   dynamicHeight: DynamicHeight;
   minDynamicHeight: number;
+  layoutSystemType?: LayoutSystemTypes;
 }
 
 /**

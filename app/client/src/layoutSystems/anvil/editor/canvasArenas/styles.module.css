@@ -1,0 +1,24 @@
+.detachedWidgetsDropOverlay {
+  z-index: var(--z-index-99);
+  background-color: var(--modal-overlay-color);
+  position: fixed;
+  padding: 40px;
+  display: flex;
+  flex-direction: column;
+}
+
+.detachedWidgetsDropOverlayContent {
+  background-color: var(--modal-overlay-content-color);
+  color: var(--modal-overlay-content-text-color);
+  border: var(--modal-overlay-content-outline);
+  padding: 3px;
+  background-clip: content-box;
+  border-radius: 4px;
+  flex: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: var(--info-text-font-size);
+  font-weight: var(--info-text-font-weight);
+  line-height: var(--info-text-line-height);
+}

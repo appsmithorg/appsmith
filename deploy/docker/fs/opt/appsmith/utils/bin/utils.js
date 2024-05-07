@@ -9,9 +9,8 @@ function showHelp() {
     "\nUsage: appsmith <command> to interact with appsmith utils tool"
   );
   console.log("\nOptions:\r");
-  console.log("\tex, export_db\t\tExport interal database.\r");
-  console.log("\tim, import_db\t\tImport interal database.\r");
-  console.log("\tmi, migrate\t\tMigrate new server.\r");
+  console.log("\tex, export_db\t\tExport internal database.\r");
+  console.log("\tim, import_db\t\tImport internal database.\r");
   console.log("\tcrs, check_replica_set\tCheck replica set mongoDB.\r");
   console.log("\tbackup\t\t\tTake a backup of Appsmith instance.\r");
   console.log("\trestore\t\t\tRestore Appsmith instance from a backup.\r");
@@ -71,7 +70,7 @@ async function listLocalBackupFiles() {
     .readdir(Constants.BACKUP_PATH)
     .then((filenames) => {
       for (let filename of filenames) {
-        if (filename.match(/^appsmith-backup-.*\.tar\.gz$/)) {
+        if (filename.match(/^appsmith-backup-.*\.tar\.gz(\.enc)?$/)) {
           backupFiles.push(filename);
         }
       }
@@ -98,9 +97,7 @@ async function getLastBackupErrorMailSentInMilliSec() {
 }
 
 async function getCurrentAppsmithVersion() {
-  const githubRef = JSON.parse(await fsPromises.readFile("/opt/appsmith/info.json", "utf8")).githubRef;
-  // This will be of the form "refs/tags/v1.2.3".
-  return githubRef.split("/").pop() ?? "";
+  return JSON.parse(await fsPromises.readFile("/opt/appsmith/info.json", "utf8")).version ?? "";
 }
 
 function preprocessMongoDBURI(uri /* string */) {
@@ -129,6 +126,41 @@ function preprocessMongoDBURI(uri /* string */) {
 
   return cs.toString();
 }
+function execCommandSilent(cmd, options) {
+  return new Promise((resolve, reject) => {
+    let isPromiseDone = false;
+
+    const p = childProcess.spawn(cmd[0], cmd.slice(1), {
+      ...options,
+    });
+
+    p.on("exit", (code) => {
+      if (isPromiseDone) {
+        return;
+      }
+      isPromiseDone = true;
+      if (code === 0) {
+        resolve();
+      } else {
+        reject();
+      }
+    });
+
+    p.on("error", (err) => {
+      if (isPromiseDone) {
+        return;
+      }
+      isPromiseDone = true;
+      console.error("Error running command", err);
+      reject();
+    });
+  });
+}
+
+function getDatabaseNameFromMongoURI(uri) {
+  const uriParts = uri.split("/");
+  return uriParts[uriParts.length - 1].split("?")[0];
+}
 
 module.exports = {
   showHelp,
@@ -140,4 +172,6 @@ module.exports = {
   getLastBackupErrorMailSentInMilliSec,
   getCurrentAppsmithVersion,
   preprocessMongoDBURI,
+  execCommandSilent,
+  getDatabaseNameFromMongoURI,
 };

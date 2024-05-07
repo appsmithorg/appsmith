@@ -1,12 +1,23 @@
-import type { AnvilDragMeta } from "layoutSystems/anvil/canvasArenas/types";
+import type { AnvilDragMeta } from "layoutSystems/anvil/editor/canvasArenas/types";
 import type { WidgetProps } from "widgets/BaseWidget";
-import type { AnvilHighlightInfo, DraggedWidget } from "../../utils/anvilTypes";
+import type {
+  AnvilHighlightInfo,
+  DraggedWidget,
+} from "layoutSystems/anvil/utils/anvilTypes";
 import type {
   AnvilMoveWidgetsPayload,
   AnvilNewWidgetsPayload,
 } from "./actionTypes";
 import { AnvilReduxActionTypes } from "./actionTypes";
 
+export const setHighlightsDrawnAction = (highlight?: AnvilHighlightInfo) => {
+  return {
+    type: AnvilReduxActionTypes.ANVIL_SET_HIGHLIGHT_SHOWN,
+    payload: {
+      highlight,
+    },
+  };
+};
 /**
  * Add new anvil widget to canvas.
  */

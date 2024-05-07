@@ -12,7 +12,7 @@ import {
 } from "@appsmith/RouteBuilder";
 import { useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Link } from "design-system";
 import styled from "styled-components";
 import type { AppsmithLocationState } from "../../utils/history";

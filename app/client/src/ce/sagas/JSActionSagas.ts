@@ -13,6 +13,7 @@ import {
 } from "actions/pluginActionActions";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
+  closeJsActionTabSuccess,
   copyJSCollectionError,
   copyJSCollectionSuccess,
   createJSCollectionSuccess,
@@ -25,6 +26,7 @@ import {
 } from "actions/jsActionActions";
 import {
   getJSCollection,
+  getNewEntityName,
   getPageNameByPageId,
 } from "@appsmith/selectors/entitiesSelector";
 import history from "utils/history";
@@ -51,13 +53,13 @@ import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { ApiResponse } from "api/ApiResponses";
 import AppsmithConsole from "utils/AppsmithConsole";
-import { ENTITY_TYPE } from "entities/AppsmithConsole";
+import { ENTITY_TYPE } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
 import type { CreateJSCollectionRequest } from "@appsmith/api/JSActionAPI";
 import * as log from "loglevel";
 import { builderURL, jsCollectionIdURL } from "@appsmith/RouteBuilder";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   checkAndLogErrorsIfCyclicDependency,
   getFromServerWhenNoPrefetchedResult,
@@ -66,9 +68,12 @@ import { toast } from "design-system";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
 import { getWidgets } from "sagas/selectors";
-import { removeFocusHistoryRequest } from "actions/focusHistoryActions";
-import { getIsEditorPaneSegmentsEnabled } from "@appsmith/selectors/featureFlagsSelectors";
+import FocusRetention from "sagas/FocusRetentionSaga";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
+import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
+import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
+import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import { getAllActionTestPayloads } from "utils/storage";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -115,15 +120,12 @@ export function* createJSCollectionSaga(
         text: `JS Object created`,
         source: {
           type: ENTITY_TYPE.JSACTION,
-          // @ts-expect-error: response.data is of type unknown
           id: response.data.id,
-          // @ts-expect-error: response.data is of type unknown
           name: response.data.name,
         },
       });
 
       const newAction = response.data;
-      // @ts-expect-error: response.data is of type unknown
       yield put(createJSCollectionSuccess(newAction));
     }
   } catch (error) {
@@ -140,10 +142,17 @@ export function* copyJSCollectionSaga(
     getJSCollection,
     action.payload.id,
   );
+  const newName: string = yield select(getNewEntityName, {
+    prefix: action.payload.name,
+    parentEntityId: action.payload.destinationPageId,
+    parentEntityKey: CreateNewActionKey.PAGE,
+    suffix: "Copy",
+    startWithoutIndex: true,
+  });
   try {
     if (!actionObject) throw new Error("Could not find js collection to copy");
     const copyJSCollection = Object.assign({}, actionObject, {
-      name: action.payload.name,
+      name: newName,
       pageId: action.payload.destinationPageId,
     }) as Partial<JSCollection>;
     delete copyJSCollection.id;
@@ -163,7 +172,6 @@ export function* copyJSCollectionSaga(
     const isValidResponse: boolean = yield validateResponse(response);
     const pageName: string = yield select(
       getPageNameByPageId,
-      // @ts-expect-error: response.data is of type unknown
       response.data.pageId,
     );
     if (isValidResponse) {
@@ -175,7 +183,6 @@ export function* copyJSCollectionSaga(
       );
       const payload = response.data;
 
-      // @ts-expect-error: response.data is of type unknown
       yield put(copyJSCollectionSuccess(payload));
     }
   } catch (e) {
@@ -188,10 +195,9 @@ export function* copyJSCollectionSaga(
 }
 
 export function* handleMoveOrCopySaga(
-  actionPayload: ReduxAction<{ id: string }>,
+  actionPayload: ReduxAction<JSCollection>,
 ) {
-  const { id } = actionPayload.payload;
-  const { pageId }: JSCollection = yield select(getJSCollection, id);
+  const { id, pageId } = actionPayload.payload;
   history.push(
     jsCollectionIdURL({
       pageId: pageId,
@@ -211,11 +217,17 @@ export function* moveJSCollectionSaga(
     getJSCollection,
     action.payload.id,
   );
+  const newName: string = yield select(getNewEntityName, {
+    prefix: action.payload.name,
+    parentEntityId: action.payload.destinationPageId,
+    parentEntityKey: CreateNewActionKey.PAGE,
+    startWithoutIndex: true,
+  });
   try {
     const response: ApiResponse = yield JSActionAPI.moveJSCollection({
       collectionId: actionObject.id,
       destinationPageId: action.payload.destinationPageId,
-      name: action.payload.name,
+      name: newName,
     });
 
     const isValidResponse: boolean = yield validateResponse(response);
@@ -238,9 +250,9 @@ export function* moveJSCollectionSaga(
       );
     }
     const currentURL = window.location.pathname;
+    yield call(FocusRetention.handleRemoveFocusHistory, currentURL);
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
-    yield put(removeFocusHistoryRequest(currentURL));
   } catch (e) {
     toast.show(createMessage(ERROR_JS_ACTION_MOVE_FAIL, actionObject.name), {
       kind: "error",
@@ -280,25 +292,23 @@ export function* deleteJSCollectionSaga(
 ) {
   try {
     const id = actionPayload.payload.id;
+    const currentUrl = window.location.pathname;
     const pageId: string = yield select(getCurrentPageId);
     const response: ApiResponse = yield JSActionAPI.deleteJSCollection(id);
     const isValidResponse: boolean = yield validateResponse(response);
+    const ideType = getIDETypeByUrl(currentUrl);
 
     if (isValidResponse) {
       // @ts-expect-error: response.data is of type unknown
       toast.show(createMessage(JS_ACTION_DELETE_SUCCESS, response.data.name), {
         kind: "success",
       });
-      const currentUrl = window.location.pathname;
-      const isEditorPaneSegmentsEnabled: boolean = yield select(
-        getIsEditorPaneSegmentsEnabled,
-      );
-      if (isEditorPaneSegmentsEnabled) {
+      yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+      if (ideType === IDE_TYPE.App) {
         yield call(handleJSEntityRedirect, id);
-      } else if (pageId) {
+      } else {
         history.push(builderURL({ pageId }));
       }
-      yield put(removeFocusHistoryRequest(currentUrl));
       AppsmithConsole.info({
         logType: LOG_TYPE.ENTITY_DELETED,
         text: "JS Object was deleted",
@@ -311,6 +321,7 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
+      yield put(closeJsActionTabSuccess({ id }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
@@ -473,5 +484,50 @@ export function* fetchJSCollectionsForViewModeSaga(
       type: ReduxActionErrorTypes.FETCH_JS_ACTIONS_VIEW_MODE_ERROR,
       payload: { error },
     });
+  }
+}
+
+export function* closeJSActionTabSaga(
+  actionPayload: ReduxAction<{ id: string }>,
+) {
+  const id = actionPayload.payload.id;
+  const currentUrl = window.location.pathname;
+  yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+  yield call(handleJSEntityRedirect, id);
+  yield put(closeJsActionTabSuccess({ id }));
+}
+
+// Saga to fetch stored test payloads for all collections present in the application
+export function* fetchStoredTestPayloadsSaga(collections: JSCollection[]) {
+  try {
+    //fetch stored test payloads for all collections
+    const storedPayloads: Record<string, unknown> | null =
+      yield getAllActionTestPayloads();
+    if (!!storedPayloads && collections.length > 0) {
+      for (const collection of collections) {
+        const testPayloadForCollection: Record<string, any> = {};
+        let hasStoredPayload = false;
+        for (const action of collection.actions) {
+          if (
+            storedPayloads.hasOwnProperty(action.id) &&
+            !!storedPayloads[action.id]
+          ) {
+            hasStoredPayload = true;
+            testPayloadForCollection[action.id] = storedPayloads[action.id];
+          }
+        }
+        if (hasStoredPayload) {
+          yield put({
+            type: ReduxActionTypes.UPDATE_TEST_PAYLOAD_FOR_COLLECTION,
+            payload: {
+              collectionId: collection.id,
+              testPayload: testPayloadForCollection,
+            },
+          });
+        }
+      }
+    }
+  } catch (error) {
+    log.error("Error fetching stored test payloads", error);
   }
 }

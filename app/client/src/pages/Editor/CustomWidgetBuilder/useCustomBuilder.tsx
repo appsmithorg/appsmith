@@ -16,7 +16,7 @@ import {
   type CustomWidgetBuilderContextType,
 } from "./types";
 import { compileSrcDoc } from "./utility";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 
 let connectionTimeout: number;
 
@@ -75,7 +75,7 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
 
     setContextValue((prev) => ({
       ...prev,
-      debuggerLogs: [...prev.debuggerLogs, ...compileLogs],
+      debuggerLogs: [...compileLogs],
     }));
   }, [contextValue.uncompiledSrcDoc, contextValue.lastSaved]);
 
@@ -252,7 +252,7 @@ export function useCustomBuilder(): [CustomWidgetBuilderContextType, boolean] {
     // if connection cannot be made, redirect to editor
     connectionTimeout = setTimeout(() => {
       history.replace(window.location.pathname.replace("/builder", ""));
-    }, 20000);
+    }, 4000);
   }, []);
 
   return [context, loading];

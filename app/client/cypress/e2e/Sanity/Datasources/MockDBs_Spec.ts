@@ -44,6 +44,12 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
+        // Validates the value of source for action creation -
+        // should be self here as the user explicitly triggered create action
+        cy.wait("@createNewApi").then((interception) => {
+          expect(interception.request.body.source).to.equal("SELF");
+        });
+
         dataSources.RunQueryNVerifyResponseViews(); //minimum 1 rows are expected
         AppSidebar.navigate(AppSidebarButton.Data);
         dataSources
@@ -67,7 +73,7 @@ describe(
         dataSources.CreateQueryAfterDSSaved();
 
         assertHelper.AssertNetworkStatus("@trigger");
-        dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+        dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
         agHelper.Sleep(2000); //for movies collection to load & populate in dropdown
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
@@ -79,7 +85,7 @@ describe(
           );
 
         entityExplorer.CreateNewDsQuery(mockDBName);
-        dataSources.ValidateNSelectDropdown("Commands", "Find document(s)");
+        dataSources.ValidateNSelectDropdown("Command", "Find document(s)");
         dataSources.ValidateNSelectDropdown("Collection", "movies");
         dataSources.RunQueryNVerifyResponseViews(1, false);
         AppSidebar.navigate(AppSidebarButton.Data);

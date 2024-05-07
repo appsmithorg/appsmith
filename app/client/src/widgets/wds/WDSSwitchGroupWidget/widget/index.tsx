@@ -16,7 +16,8 @@ import {
   metaConfig,
   propertyPaneContentConfig,
   settersConfig,
-} from "./../config";
+  methodsConfig,
+} from "../config";
 import { validateInput } from "./helpers";
 import type { SwitchGroupWidgetProps, OptionProps } from "./types";
 
@@ -78,6 +79,10 @@ class WDSSwitchGroupWidget extends BaseWidget<
     };
   }
 
+  static getMethods() {
+    return methodsConfig;
+  }
+
   componentDidUpdate(prevProps: SwitchGroupWidgetProps) {
     if (
       xor(this.props.defaultSelectedValues, prevProps.defaultSelectedValues)
@@ -107,7 +112,7 @@ class WDSSwitchGroupWidget extends BaseWidget<
       labelPosition,
       labelTooltip,
       options,
-      selectedOptionValue,
+      selectedValues,
       widgetId,
       ...rest
     } = this.props;
@@ -120,15 +125,12 @@ class WDSSwitchGroupWidget extends BaseWidget<
         contextualHelp={labelTooltip}
         errorMessage={validation.errorMessage}
         onChange={this.onChange}
+        optionsLabelPosition={labelPosition}
         validationState={validation.validationStatus}
-        value={selectedOptionValue}
+        value={selectedValues}
       >
         {options.map((option, index) => (
-          <Switch
-            key={`${widgetId}-option-${index}`}
-            labelPosition={labelPosition}
-            value={option.value}
-          >
+          <Switch key={`${widgetId}-option-${index}`} value={option.value}>
             {option.label}
           </Switch>
         ))}
