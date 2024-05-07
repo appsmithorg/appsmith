@@ -110,12 +110,19 @@ function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
     workspaceId,
     templateId: selectedBuildingBlock.id,
   };
+  try {
+    // api call adds DS, queries and JS to page and returns new page dsl with building block
+    const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
+      yield call(ApplicationApi.importBuildingBlockToApplication, body);
 
-  // api call adds DS, queries and JS to page and returns new page dsl with building block
-  const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
-    yield call(ApplicationApi.importBuildingBlockToApplication, body);
-
-  return response;
+    return response;
+  } catch (error) {
+    log.debug(
+      "Error making API call to importBuildingBlockToApplication",
+      error,
+    );
+    throw error;
+  }
 }
 
 function* runSingleAction(actionId: string) {
