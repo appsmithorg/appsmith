@@ -106,6 +106,7 @@ export const AnvilFlexComponent = forwardRef(
         isInner
         {...flexProps}
         className={_className}
+        data-testid="t--anvil-widget-wrapper"
         data-widget-wrapper=""
         id={getAnvilWidgetDOMId(widgetId)}
         onClick={onClick}

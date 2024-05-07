@@ -251,7 +251,8 @@ export class CommonLocators {
   _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
   _popoverToolTip = ".bp3-popover-content, .bp3-popover2-content";
-  _selectedWidget = "div[data-testid='t--selected']";
+  _selectedWidget =
+    "[data-testid='t--anvil-widget-wrapper'][data-selected=true]";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
   _sqlKeyword = ".cm-m-sql.cm-keyword";

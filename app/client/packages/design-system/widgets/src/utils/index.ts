@@ -1,0 +1,1 @@
+export { filterDataProps } from "./filterDataProps";

@@ -1,12 +1,11 @@
 import React, { forwardRef } from "react";
+import { filterDataProps } from "../../../utils";
 import { flexCss } from "./flexCss";
 import styles from "./styles.module.css";
 import clsx from "clsx";
 
 import type { Ref } from "react";
 import type { FlexProps } from "./types";
-import type { DOMProps } from "@react-types/shared";
-import { filterDOMProps } from "@react-aria/utils";
 
 const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
   const {
@@ -21,7 +20,7 @@ const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
     ...rest
   } = props;
 
-  const domProps = filterDOMProps(rest as DOMProps);
+  const dataProps = filterDataProps(rest);
 
   const renderFlex = () => {
     return (
@@ -32,7 +31,7 @@ const _Flex = (props: FlexProps, ref: Ref<HTMLDivElement>) => {
         onClickCapture={onClickCapture}
         ref={ref}
         style={style}
-        {...domProps}
+        {...dataProps}
       >
         {children}
       </div>
