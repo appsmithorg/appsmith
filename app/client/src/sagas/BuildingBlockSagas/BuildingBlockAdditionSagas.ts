@@ -93,7 +93,6 @@ import { postPageAdditionSaga } from "../TemplatesSagas";
 import { addChildSaga } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import { getDragDetails, getWidgetByName } from "../selectors";
-import type { WidgetProps } from "widgets/BaseWidget";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -379,32 +378,6 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
   );
 }
 
-const handleSpecificBuildingBlockWidgetWhenPasting = (
-  widget: WidgetProps & {
-    children?: string[] | undefined;
-  },
-  widgets: CanvasWidgetsReduxState,
-  widgetNameMap: Record<string, string>,
-  newWidgetList: (WidgetProps & {
-    children?: string[] | undefined;
-  })[],
-) => {
-  if (widget?.type === "JSON_FORM_WIDGET") {
-    handleJSONFormWidgetWhenPasting(widgetNameMap, widget);
-  } else if (widget?.type === "TEXT_WIDGET") {
-    handleTextWidgetWhenPasting(widgetNameMap, widget);
-  } else if (widget?.type === "IMAGE_WIDGET") {
-    handleImageWidgetWhenPasting(widgetNameMap, widget);
-  }
-
-  return handleSpecificCasesWhilePasting(
-    widget,
-    widgets,
-    widgetNameMap,
-    newWidgetList,
-  );
-};
-
 /**
  * This saga create a new widget from the copied one to store.
  * It allows using both mouseLocation or gridPosition to locate where the copied widgets should be dropped.
@@ -578,89 +551,12 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
               );
             }
 
-            // Update the tabs for the tabs widget.
-            if (widget.tabsObj && widget.type === "TABS_WIDGET") {
-              try {
-                const tabs = Object.values(widget.tabsObj);
-                if (Array.isArray(tabs)) {
-                  widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
-                    tab.widgetId = widgetIdMap[tab.widgetId];
-                    obj[tab.id] = tab;
-                    return obj;
-                  }, {});
-                }
-              } catch (error) {
-                log.debug("Error updating tabs", error);
-              }
-            }
-
-            // Update the table widget column properties
-            if (
-              widget.type === "TABLE_WIDGET_V2" ||
-              widget.type === "TABLE_WIDGET"
-            ) {
-              try {
-                // If the primaryColumns of the table exist
-                if (widget.primaryColumns) {
-                  // For each column
-                  for (const [columnId, column] of Object.entries(
-                    widget.primaryColumns,
-                  )) {
-                    // For each property in the column
-                    for (const [key, value] of Object.entries(
-                      column as ColumnProperties,
-                    )) {
-                      // Replace reference of previous widget with the new widgetName
-                      // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
-                      widget.primaryColumns[columnId][key] = isString(value)
-                        ? value.replace(
-                            `${oldWidgetName}.`,
-                            `${newWidgetName}.`,
-                          )
-                        : value;
-                    }
-                  }
-                }
-                // Use the new widget name we used to replace the column properties above.
-                widget.widgetName = newWidgetName;
-              } catch (error) {
-                log.debug("Error updating table widget properties", error);
-              }
-            }
-
-            // TODO: here to move this to the widget definition
-            // Update the Select widget defaultValue properties
-            if (
-              widget.type === "MULTI_SELECT_WIDGET_V2" ||
-              widget.type === "SELECT_WIDGET"
-            ) {
-              try {
-                // If the defaultOptionValue exist
-                if (widget.defaultOptionValue) {
-                  const value = widget.defaultOptionValue;
-                  // replace All occurrence of old widget name
-                  widget.defaultOptionValue = isString(value)
-                    ? value.replaceAll(`${oldWidgetName}.`, `${newWidgetName}.`)
-                    : value;
-                }
-                // Use the new widget name we used to replace the defaultValue properties above.
-                widget.widgetName = newWidgetName;
-              } catch (error) {
-                log.debug("Error updating widget properties", error);
-              }
-            }
-
-            if (widget.type === "JSON_FORM_WIDGET") {
-              try {
-                handleJSONFormPropertiesListedInDynamicBindingPath(
-                  widget,
-                  oldWidgetName,
-                  newWidgetName,
-                );
-              } catch (error) {
-                log.debug("Error updating widget properties", error);
-              }
-            }
+            handleSelfWidgetReferencesDuringBuildingBlockPaste(
+              widget,
+              widgetIdMap,
+              oldWidgetName,
+              newWidgetName,
+            );
 
             // If it is the copied widget, update position properties
             if (widget.widgetId === widgetIdMap[copiedWidget.widgetId]) {
@@ -781,12 +677,13 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
           // 2. updating dynamicBindingPathList in the copied grid widget
           for (let i = 0; i < newWidgetList.length; i++) {
             const widget = newWidgetList[i];
-            widgets = handleSpecificBuildingBlockWidgetWhenPasting(
-              widget,
-              widgets,
-              widgetNameMap,
-              newWidgetList,
-            );
+            widgets =
+              handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
+                widget,
+                widgets,
+                widgetNameMap,
+                newWidgetList,
+              );
           }
         }),
       ),
@@ -856,4 +753,120 @@ export function* pasteBuildingBlockWidgetsSaga(gridPosition: {
   } catch (error) {
     throw error;
   }
+}
+
+function handleSelfWidgetReferencesDuringBuildingBlockPaste(
+  widget: FlattenedWidgetProps,
+  widgetIdMap: Record<string, string>,
+  oldWidgetName: string,
+  newWidgetName: string,
+) {
+  switch (widget.type) {
+    case "TABS_WIDGET":
+      // Update the tabs for the tabs widget.
+      if (widget.tabsObj) {
+        try {
+          const tabs = Object.values(widget.tabsObj);
+          if (Array.isArray(tabs)) {
+            widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
+              tab.widgetId = widgetIdMap[tab.widgetId];
+              obj[tab.id] = tab;
+              return obj;
+            }, {});
+          }
+        } catch (error) {
+          log.debug("Error updating tabs", error);
+        }
+      }
+      break;
+    case "TABLE_WIDGET_V2":
+    case "TABLE_WIDGET":
+      // Update the table widget column properties
+      try {
+        // If the primaryColumns of the table exist
+        if (widget.primaryColumns) {
+          // For each column
+          for (const [columnId, column] of Object.entries(
+            widget.primaryColumns,
+          )) {
+            // For each property in the column
+            for (const [key, value] of Object.entries(
+              column as ColumnProperties,
+            )) {
+              // Replace reference of previous widget with the new widgetName
+              // This handles binding scenarios like `{{Table2.tableData.map((currentRow) => (currentRow.id))}}`
+              widget.primaryColumns[columnId][key] = isString(value)
+                ? value.replace(`${oldWidgetName}.`, `${newWidgetName}.`)
+                : value;
+            }
+          }
+        }
+        // Use the new widget name we used to replace the column properties above.
+        widget.widgetName = newWidgetName;
+      } catch (error) {
+        log.debug(`Error updating widget properties of ${widget.type}`, error);
+      }
+      break;
+    case "MULTI_SELECT_WIDGET_V2":
+    case "SELECT_WIDGET":
+      // Update the Select widget defaultValue properties
+
+      try {
+        // If the defaultOptionValue exist
+        if (widget.defaultOptionValue) {
+          const value = widget.defaultOptionValue;
+          // replace All occurrence of old widget name
+          widget.defaultOptionValue = isString(value)
+            ? value.replaceAll(`${oldWidgetName}.`, `${newWidgetName}.`)
+            : value;
+        }
+        // Use the new widget name we used to replace the defaultValue properties above.
+        widget.widgetName = newWidgetName;
+      } catch (error) {
+        log.debug(`Error updating widget properties of ${widget.type}`, error);
+      }
+      break;
+    case "JSON_FORM_WIDGET":
+      try {
+        handleJSONFormPropertiesListedInDynamicBindingPath(
+          widget,
+          oldWidgetName,
+          newWidgetName,
+        );
+      } catch (error) {
+        log.debug(
+          "Error updating widget properties of JSON_FORM_WIDGET",
+          error,
+        );
+      }
+      break;
+  }
+}
+
+function handleOtherWidgetReferencesWhilePastingBuildingBlockWidget(
+  widget: FlattenedWidgetProps,
+  widgets: CanvasWidgetsReduxState,
+  widgetNameMap: Record<string, string>,
+  newWidgetList: FlattenedWidgetProps[],
+) {
+  switch (widget?.type) {
+    case "JSON_FORM_WIDGET":
+      handleJSONFormWidgetWhenPasting(widgetNameMap, widget);
+      break;
+    case "TEXT_WIDGET":
+      handleTextWidgetWhenPasting(widgetNameMap, widget);
+      break;
+    case "IMAGE_WIDGET":
+      handleImageWidgetWhenPasting(widgetNameMap, widget);
+      break;
+    default:
+      widgets = handleSpecificCasesWhilePasting(
+        widget,
+        widgets,
+        widgetNameMap,
+        newWidgetList,
+      );
+      break;
+  }
+  return widgets;
 }
