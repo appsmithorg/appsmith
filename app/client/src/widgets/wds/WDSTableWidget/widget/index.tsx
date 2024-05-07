@@ -7,7 +7,6 @@ import _, {
   isEmpty,
   isNil,
   isNumber,
-  isObject,
   isString,
   pickBy,
   union,
@@ -27,14 +26,12 @@ import type {
   ReactTableFilter,
 } from "../component/Constants";
 import {
-  AddNewRowActions,
   DEFAULT_FILTER,
   SORT_ORDER,
   SortOrderTypes,
   StickyType,
 } from "../component/Constants";
 import type {
-  EditableCell,
   OnColumnEventArgs,
   TableWidgetProps,
   TransientDataPayload,
@@ -43,7 +40,6 @@ import {
   ActionColumnTypes,
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   defaultEditableCell,
-  EditableCellActions,
   ORIGINAL_INDEX_KEY,
   PaginationDirection,
   TABLE_COLUMN_ORDER_KEY,
@@ -587,11 +583,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
         this.updateColumnProperties(newPrimaryColumns);
       }
     }
-
-    if (canFreezeColumn && renderMode === RenderModes.PAGE) {
-      //dont neet to batch this since single action
-      this.hydrateStickyColumns();
-    }
   }
 
   componentDidUpdate(prevProps: TableWidgetProps) {
@@ -674,7 +665,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       // reset updatedRowIndex whenever transientTableData is flushed.
       pushBatchMetaUpdates("updatedRowIndex", -1);
 
-      this.pushClearEditableCellsUpdates();
       pushBatchMetaUpdates("selectColumnFilterText", {});
     }
 
@@ -937,11 +927,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           columns={tableColumns}
           delimiter={delimiter}
           disableDrag={this.toggleDrag}
-          disabledAddNewRowSave={this.hasInvalidColumnCell()}
-          editMode={this.props.renderMode === RenderModes.CANVAS}
-          editableCell={this.props.editableCell}
-          filters={this.props.filters}
-          handleColumnFreeze={this.handleColumnFreeze}
           handleReorderColumn={this.handleReorderColumn}
           handleResizeColumn={this.handleResizeColumn}
           height={componentHeight}
@@ -957,10 +942,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             this.props.multiRowSelection && !this.props.isAddRowInProgress
           }
           nextPageClick={this.handleNextPageClick}
-          onAddNewRow={this.handleAddNewRowClick}
-          onAddNewRowAction={this.handleAddNewRowAction}
-          onBulkEditDiscard={this.onBulkEditDiscard}
-          onBulkEditSave={this.onBulkEditSave}
           onConnectData={this.onConnectData}
           onRowClick={this.handleRowClick}
           onSearch={this.handleSearchTable}
@@ -1544,34 +1525,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
     return -1;
   };
 
-  onBulkEditSave = () => {
-    this.props.updateWidgetMetaProperty(
-      "transientTableData",
-      this.props.transientTableData,
-      {
-        triggerPropertyName: "onBulkSave",
-        dynamicString: this.props.onBulkSave,
-        event: {
-          type: EventType.ON_BULK_SAVE,
-        },
-      },
-    );
-  };
-
-  onBulkEditDiscard = () => {
-    this.props.updateWidgetMetaProperty(
-      "transientTableData",
-      {},
-      {
-        triggerPropertyName: "onBulkDiscard",
-        dynamicString: this.props.onBulkDiscard,
-        event: {
-          type: EventType.ON_BULK_DISCARD,
-        },
-      },
-    );
-  };
-
   renderCell = (props: any) => {
     const column =
       this.getColumnByOriginalId(
@@ -1612,13 +1565,11 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       originalIndex = row[ORIGINAL_INDEX_KEY] ?? rowIndex;
     }
 
-    const isNewRow = this.props.isAddRowInProgress && rowIndex === 0;
-
     /*
      * cellProperties order or size does not change when filter/sorting/grouping is applied
      * on the data thus original index is needed to identify the column's cell property.
      */
-    const cellProperties = getCellProperties(column, originalIndex, isNewRow);
+    const cellProperties = getCellProperties(column, originalIndex);
 
     if (this.props.isAddRowInProgress) {
       cellProperties.isCellDisabled = rowIndex !== 0;
@@ -1678,377 +1629,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           />
         );
     }
-  };
-
-  onCellTextChange = (
-    value: EditableCell["value"],
-    inputValue: string,
-    alias: string,
-  ) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    if (this.props.isAddRowInProgress) {
-      this.updateNewRowValues(alias, inputValue, value);
-    } else {
-      pushBatchMetaUpdates("editableCell", {
-        ...this.props.editableCell,
-        value: value,
-        inputValue,
-      });
-
-      if (this.props.editableCell?.column) {
-        pushBatchMetaUpdates("columnEditableCellValue", {
-          ...this.props.columnEditableCellValue,
-          [this.props.editableCell?.column]: value,
-        });
-      }
-      commitBatchMetaUpdates();
-    }
-  };
-
-  toggleCellEditMode = (
-    enable: boolean,
-    rowIndex: number,
-    alias: string,
-    value: string | number,
-    onSubmit?: string,
-    action?: EditableCellActions,
-  ) => {
-    if (this.props.isAddRowInProgress) {
-      return;
-    }
-
-    if (enable) {
-      if (this.inlineEditTimer) {
-        clearTimeout(this.inlineEditTimer);
-      }
-      const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-      pushBatchMetaUpdates("editableCell", {
-        column: alias,
-        index: rowIndex,
-        value: value,
-        // To revert back to previous on discard
-        initialValue: value,
-        inputValue: value,
-      });
-      pushBatchMetaUpdates("columnEditableCellValue", {
-        ...this.props.columnEditableCellValue,
-        [alias]: value,
-      });
-
-      /*
-       * We need to clear the selectedRowIndex and selectedRowIndices
-       * if the rows are sorted, to avoid selectedRow jumping to
-       * different page.
-       */
-      if (this.props.sortOrder.column) {
-        if (this.props.multiRowSelection) {
-          pushBatchMetaUpdates("selectedRowIndices", []);
-        } else {
-          pushBatchMetaUpdates("selectedRowIndex", -1);
-        }
-      }
-      commitBatchMetaUpdates();
-    } else {
-      if (
-        this.isColumnCellValid(alias) &&
-        action === EditableCellActions.SAVE &&
-        value !== this.props.editableCell?.initialValue
-      ) {
-        const { commitBatchMetaUpdates } = this.props;
-
-        this.pushTransientTableDataActionsUpdates({
-          [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
-          [alias]: this.props.editableCell?.value,
-        });
-
-        if (onSubmit && this.props.editableCell?.column) {
-          //since onSubmit is truthy that makes action truthy as well, so we can push this event
-          this.pushOnColumnEvent({
-            rowIndex: rowIndex,
-            action: onSubmit,
-            triggerPropertyName: "onSubmit",
-            eventType: EventType.ON_SUBMIT,
-            row: {
-              ...this.props.filteredTableData[rowIndex],
-              [this.props.editableCell.column]: this.props.editableCell.value,
-            },
-          });
-        }
-        commitBatchMetaUpdates();
-
-        this.clearEditableCell();
-      } else if (
-        action === EditableCellActions.DISCARD ||
-        value === this.props.editableCell?.initialValue
-      ) {
-        this.clearEditableCell();
-      }
-    }
-  };
-
-  onDateSave = (
-    rowIndex: number,
-    alias: string,
-    value: string,
-    onSubmit?: string,
-  ) => {
-    if (this.isColumnCellValid(alias)) {
-      const { commitBatchMetaUpdates } = this.props;
-
-      this.pushTransientTableDataActionsUpdates({
-        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
-        [alias]: value,
-      });
-
-      if (onSubmit && this.props.editableCell?.column) {
-        //since onSubmit is truthy this makes action truthy as well, so we can push this event
-        this.pushOnColumnEvent({
-          rowIndex: rowIndex,
-          action: onSubmit,
-          triggerPropertyName: "onSubmit",
-          eventType: EventType.ON_SUBMIT,
-          row: {
-            ...this.props.filteredTableData[rowIndex],
-            [this.props.editableCell.column]: value,
-          },
-        });
-      }
-
-      commitBatchMetaUpdates();
-      this.clearEditableCell();
-    }
-  };
-  pushClearEditableCellsUpdates = () => {
-    const { pushBatchMetaUpdates } = this.props;
-
-    pushBatchMetaUpdates("editableCell", defaultEditableCell);
-    pushBatchMetaUpdates("columnEditableCellValue", {});
-  };
-
-  clearEditableCell = (skipTimeout?: boolean) => {
-    const clear = () => {
-      const { commitBatchMetaUpdates } = this.props;
-
-      this.pushClearEditableCellsUpdates();
-      commitBatchMetaUpdates();
-    };
-
-    if (skipTimeout) {
-      clear();
-    } else {
-      /*
-       * We need to let the evaulations compute derived property (filteredTableData)
-       * before we clear the editableCell to avoid the text flickering
-       */
-      this.inlineEditTimer = setTimeout(clear, 100);
-    }
-  };
-
-  isColumnCellEditable = (column: ColumnProperties, rowIndex: number) => {
-    return (
-      column.alias === this.props.editableCell?.column &&
-      rowIndex === this.props.editableCell?.index
-    );
-  };
-
-  onOptionSelect = (
-    value: string | number,
-    rowIndex: number,
-    column: string,
-    action?: string,
-  ) => {
-    if (this.props.isAddRowInProgress) {
-      this.updateNewRowValues(column, value, value);
-    } else {
-      const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-      this.pushTransientTableDataActionsUpdates({
-        [ORIGINAL_INDEX_KEY]: this.getRowOriginalIndex(rowIndex),
-        [column]: value,
-      });
-      pushBatchMetaUpdates("editableCell", defaultEditableCell);
-
-      if (action && this.props.editableCell?.column) {
-        //since action is truthy we can push this event
-        this.pushOnColumnEvent({
-          rowIndex,
-          action,
-          triggerPropertyName: "onOptionChange",
-          eventType: EventType.ON_OPTION_CHANGE,
-          row: {
-            ...this.props.filteredTableData[rowIndex],
-            [this.props.editableCell.column]: value,
-          },
-        });
-      }
-      commitBatchMetaUpdates();
-    }
-  };
-
-  onSelectFilterChange = (
-    text: string,
-    rowIndex: number,
-    serverSideFiltering: boolean,
-    alias: string,
-    action?: string,
-  ) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    pushBatchMetaUpdates("selectColumnFilterText", {
-      ...this.props.selectColumnFilterText,
-      [alias]: text,
-    });
-
-    if (action && serverSideFiltering) {
-      //since action is truthy we can push this event
-      this.pushOnColumnEvent({
-        rowIndex,
-        action,
-        triggerPropertyName: "onFilterUpdate",
-        eventType: EventType.ON_FILTER_UPDATE,
-        row: {
-          ...this.props.filteredTableData[rowIndex],
-        },
-        additionalData: {
-          filterText: text,
-        },
-      });
-    }
-    commitBatchMetaUpdates();
-  };
-
-  onCheckChange = (
-    column: any,
-    row: Record<string, unknown>,
-    value: boolean,
-    alias: string,
-    originalIndex: number,
-    rowIndex: number,
-  ) => {
-    if (this.props.isAddRowInProgress) {
-      this.updateNewRowValues(alias, value, value);
-    } else {
-      const { commitBatchMetaUpdates } = this.props;
-
-      this.pushTransientTableDataActionsUpdates({
-        [ORIGINAL_INDEX_KEY]: originalIndex,
-        [alias]: value,
-      });
-      commitBatchMetaUpdates();
-      //cannot batch this update because we are not sure if it action is truthy or not
-      this.onColumnEvent({
-        rowIndex,
-        action: column.onCheckChange,
-        triggerPropertyName: "onCheckChange",
-        eventType: EventType.ON_CHECK_CHANGE,
-        row: {
-          ...row,
-          [alias]: value,
-        },
-      });
-    }
-  };
-
-  handleAddNewRowClick = () => {
-    const defaultNewRow = this.props.defaultNewRow || {};
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    pushBatchMetaUpdates("isAddRowInProgress", true);
-    pushBatchMetaUpdates("newRowContent", defaultNewRow);
-    pushBatchMetaUpdates("newRow", defaultNewRow);
-
-    // New row gets added at the top of page 1 when client side pagination enabled
-    if (!this.props.serverSidePaginationEnabled) {
-      this.updatePaginationDirectionFlags(PaginationDirection.INITIAL);
-    }
-
-    //Since we're adding a newRowContent thats not part of tableData, the index changes
-    // so we're resetting the row selection
-    pushBatchMetaUpdates("selectedRowIndex", -1);
-    pushBatchMetaUpdates("selectedRowIndices", []);
-    commitBatchMetaUpdates();
-  };
-
-  handleAddNewRowAction = (
-    type: AddNewRowActions,
-    onActionComplete: () => void,
-  ) => {
-    let triggerPropertyName, action, eventType;
-
-    const onComplete = () => {
-      const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-      pushBatchMetaUpdates("isAddRowInProgress", false);
-      pushBatchMetaUpdates("newRowContent", undefined);
-      pushBatchMetaUpdates("newRow", undefined);
-      commitBatchMetaUpdates();
-
-      onActionComplete();
-    };
-
-    if (type === AddNewRowActions.SAVE) {
-      triggerPropertyName = "onAddNewRowSave";
-      action = this.props.onAddNewRowSave;
-      eventType = EventType.ON_ADD_NEW_ROW_SAVE;
-    } else {
-      triggerPropertyName = "onAddNewRowDiscard";
-      action = this.props.onAddNewRowDiscard;
-      eventType = EventType.ON_ADD_NEW_ROW_DISCARD;
-    }
-
-    if (action) {
-      super.executeAction({
-        triggerPropertyName: triggerPropertyName,
-        dynamicString: action,
-        event: {
-          type: eventType,
-          callback: onComplete,
-        },
-      });
-    } else {
-      onComplete();
-    }
-  };
-
-  isColumnCellValid = (columnsAlias: string) => {
-    if (this.props.isEditableCellsValid?.hasOwnProperty(columnsAlias)) {
-      return this.props.isEditableCellsValid[columnsAlias];
-    }
-
-    return true;
-  };
-
-  hasInvalidColumnCell = () => {
-    if (isObject(this.props.isEditableCellsValid)) {
-      return Object.values(this.props.isEditableCellsValid).some((d) => !d);
-    } else {
-      return false;
-    }
-  };
-
-  updateNewRowValues = (
-    alias: string,
-    value: unknown,
-    parsedValue: unknown,
-  ) => {
-    const { commitBatchMetaUpdates, pushBatchMetaUpdates } = this.props;
-
-    /*
-     * newRowContent holds whatever the user types while newRow holds the parsed value
-     * newRowContent is being used to populate the cell while newRow is being used
-     * for validations.
-     */
-    pushBatchMetaUpdates("newRowContent", {
-      ...this.props.newRowContent,
-      [alias]: value,
-    });
-    pushBatchMetaUpdates("newRow", {
-      ...this.props.newRow,
-      [alias]: parsedValue,
-    });
-    commitBatchMetaUpdates();
   };
 
   onConnectData = () => {

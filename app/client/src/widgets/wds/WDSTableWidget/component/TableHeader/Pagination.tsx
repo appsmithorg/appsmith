@@ -26,37 +26,34 @@ export const Pagination = (props: PaginationProps) => {
 
   return (
     <>
-      {!!props.columns.length &&
-        props.isVisiblePagination &&
-        props.serverSidePaginationEnabled && (
-          <div data-table-header-pagination="">
-            {props.totalRecordsCount ? (
-              <Text lineClamp={1} variant="footnote">
-                {props.totalRecordsCount} Records
-              </Text>
-            ) : null}
-            <IconButton
-              icon="chevron-left"
-              isDisabled={props.pageNo === 0}
-              onPress={props.prevPageClick}
-              size="small"
-              variant="outlined"
-            />
+      {!!props.columns.length && props.isVisiblePagination && (
+        <div data-table-header-pagination="">
+          {props.totalRecordsCount ? (
             <Text lineClamp={1} variant="footnote">
-              Page {pageCount}
+              {props.totalRecordsCount} Records
             </Text>
-            <IconButton
-              icon="chevron-right"
-              isDisabled={
-                !!props.totalRecordsCount &&
-                props.pageNo === props.pageCount - 1
-              }
-              onPress={props.nextPageClick}
-              size="small"
-              variant="outlined"
-            />
-          </div>
-        )}
+          ) : null}
+          <IconButton
+            icon="chevron-left"
+            isDisabled={props.pageNo === 0}
+            onPress={props.prevPageClick}
+            size="small"
+            variant="outlined"
+          />
+          <Text lineClamp={1} variant="footnote">
+            Page {pageCount}
+          </Text>
+          <IconButton
+            icon="chevron-right"
+            isDisabled={
+              !!props.totalRecordsCount && props.pageNo === props.pageCount - 1
+            }
+            onPress={props.nextPageClick}
+            size="small"
+            variant="outlined"
+          />
+        </div>
+      )}
       {!!props.columns.length &&
         props.isVisiblePagination &&
         !props.serverSidePaginationEnabled && (

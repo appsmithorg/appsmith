@@ -10,9 +10,19 @@ import { Pagination } from "./Pagination";
 interface TableHeaderProps extends SearchProps, PaginationProps {}
 
 function TableHeader(props: TableHeaderProps) {
-  const { columns, isVisibleSearch, onSearch, searchKey, tableData, ...rest } =
-    props;
+  const {
+    columns,
+    isVisiblePagination,
+    isVisibleSearch,
+    onSearch,
+    searchKey,
+    tableData,
+    ...rest
+  } = props;
+
   const tableHeaderRef = useRef<HTMLDivElement>(null);
+
+  if (!(isVisibleSearch || isVisiblePagination)) return null;
 
   const content = (() => {
     return (
@@ -23,7 +33,12 @@ function TableHeader(props: TableHeaderProps) {
           searchKey={searchKey}
         />
         <Flex flexGrow={1} gap="spacing-1" justifyContent="space-between">
-          <Pagination columns={columns} tableData={tableData} {...rest} />
+          <Pagination
+            columns={columns}
+            isVisiblePagination={isVisiblePagination}
+            tableData={tableData}
+            {...rest}
+          />
         </Flex>
       </>
     );

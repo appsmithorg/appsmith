@@ -206,11 +206,6 @@ const HeaderCellComponent = (props: HeaderProps) => {
           <MenuList>
             <Item key="sort-asc">Sort column ascending</Item>
             <Item key="sort-desc">Sort column descending</Item>
-            <Item isSeparator key="separator">
-              Separator
-            </Item>
-            <Item key="freeze-left">Freeze column left</Item>
-            <Item key="freeze-right">Freeze column right</Item>
           </MenuList>
         </Menu>
       </Flex>
