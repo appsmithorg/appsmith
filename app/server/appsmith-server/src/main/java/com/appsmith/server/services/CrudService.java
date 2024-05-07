@@ -22,8 +22,6 @@ public interface CrudService<T extends BaseDomain, ID> {
         return this.getById(id);
     }
 
-    Mono<T> archiveById(ID id);
-
     Map<String, Object> getAnalyticsProperties(T savedResource);
 
     Flux<T> filterByEntityFieldsWithoutPublicAccess(
