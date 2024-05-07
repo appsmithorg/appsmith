@@ -24,11 +24,7 @@ const getWidgetDragPreviewProps = (
     (config) => config.type === widgetType,
   );
   const { ThumbnailCmp } = WidgetFactory.getWidgetMethods(widgetType);
-  if (
-    widgetConfig &&
-    (widgetConfig.thumbnailSVG || ThumbnailCmp) &&
-    widgetConfig.displayName
-  ) {
+  if (widgetConfig && ThumbnailCmp && widgetConfig.displayName) {
     return {
       displayName: widgetConfig.displayName,
       ThumbnailCmp,
