@@ -273,6 +273,7 @@ export function* loadBuildingBlocksIntoApplication(
       }
     }
   } catch (error) {
+    log.error("Error dropping building block", error);
     yield put({
       type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
       payload: {
