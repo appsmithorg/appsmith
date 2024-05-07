@@ -1,7 +1,10 @@
 import { ObjectsRegistry } from "../Objects/Registry";
 const GITHUB_API_BASE = "https://api.github.com";
 //const GITEA_API_BASE = "http://35.154.225.218";
-
+import {
+  createMessage,
+  UNABLE_TO_IMPORT_APP,
+} from "../../../src/ce/constants/messages";
 export class GitSync {
   public agHelper = ObjectsRegistry.AggregateHelper;
   public locator = ObjectsRegistry.CommonLocators;
@@ -157,7 +160,6 @@ export class GitSync {
       cy.get("@guid").then((uid) => {
         cy.wait(`@generateKey-${repoName}`).then((result: any) => {
           let generatedKey = result.response.body.data.publicKey;
-          generatedKey = generatedKey.slice(0, generatedKey.length - 1);
           // fetch the generated key and post to the github repo
           cy.request({
             method: "POST",
@@ -322,9 +324,7 @@ export class GitSync {
       assertCreateBranch &&
         this.assertHelper.AssertNetworkStatus("createBranch", 201);
       this.agHelper.AssertElementAbsence(
-        this.locator._specificToast(
-          "Unable to import application in workspace",
-        ),
+        this.locator._specificToast(createMessage(UNABLE_TO_IMPORT_APP)),
       );
       this.agHelper.WaitUntilEleAppear(this._branchName(branch + uid));
       this.agHelper.AssertElementVisibility(this._branchName(branch + uid));
