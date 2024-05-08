@@ -202,6 +202,7 @@ export class CommonLocators {
     `//p[text()='${fieldName}']/parent::div//following-sibling::div//input[@type='checkbox']`;
   _deployedPage = `.t--page-switch-tab`;
   _hints = "ul.CodeMirror-hints li";
+  _hints_apis = "ul.CodeMirror-hints li.Codemirror-commands-apis";
   _tern_doc = ".t--tern-doc";
   _argHintFnName = ".CodeMirror-Tern-tooltip .CodeMirror-Tern-fname";
   _cancelActionExecution = ".t--cancel-action-button";
@@ -250,7 +251,8 @@ export class CommonLocators {
   _fixedLayout = "#t--layout-conversion-cta:contains('fixed')";
   _forkAppToWorkspaceBtn = ".t--fork-app-to-workspace-button";
   _popoverToolTip = ".bp3-popover-content, .bp3-popover2-content";
-  _selectedWidget = "div[data-testid='t--selected']";
+  _selectedWidget =
+    "[data-testid='t--anvil-widget-wrapper'][data-selected=true]";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
   _sqlKeyword = ".cm-m-sql.cm-keyword";
