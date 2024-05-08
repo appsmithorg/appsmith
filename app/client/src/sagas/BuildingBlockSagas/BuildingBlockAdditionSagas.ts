@@ -771,7 +771,7 @@ function handleSelfWidgetReferencesDuringBuildingBlockPaste(
   switch (widget.type) {
     case "TABS_WIDGET":
       // Update the tabs for the tabs widget.
-      if (widget.tabsObj && Array.isArray(widget.tabsObj)) {
+      if (widget.tabsObj && Array.isArray(Object.values(widget.tabsObj))) {
         widget.tabsObj = widget.tabsObj.map((tab: any) => ({
           ...tab,
           widgetId: widgetIdMap[tab.widgetId],
