@@ -428,12 +428,13 @@ public class Application extends BaseDomain implements Artifact {
      */
     @Data
     @NoArgsConstructor
+    @AllArgsConstructor
     public static class AppPositioning {
         @JsonView({Views.Public.class, Git.class})
         Type type;
 
-        public AppPositioning(Type type) {
-            this.type = type;
+        public AppPositioning(String type) {
+            setType(Type.valueOf(type));
         }
 
         public enum Type {
