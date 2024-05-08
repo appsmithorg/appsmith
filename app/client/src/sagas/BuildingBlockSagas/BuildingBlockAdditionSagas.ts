@@ -772,15 +772,15 @@ function handleSelfWidgetReferencesDuringBuildingBlockPaste(
     switch (widget.type) {
       case "TABS_WIDGET":
         // Update the tabs for the tabs widget.
-        if (widget.tabs && Array.isArray(Object.values(widget.tabsObj))) {
-          widget.tabsObj = Object.values(widget.tabsObj).reduce(
-            (obj: any, tab: any) => {
+        if (widget.tabsObj) {
+          const tabs = Object.values(widget.tabsObj);
+          if (Array.isArray(tabs)) {
+            widget.tabsObj = tabs.reduce((obj: any, tab: any) => {
               tab.widgetId = widgetIdMap[tab.widgetId];
               obj[tab.id] = tab;
               return obj;
-            },
-            {},
-          );
+            }, {});
+          }
         }
         break;
       case "TABLE_WIDGET_V2":
