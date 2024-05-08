@@ -14,6 +14,11 @@ import { error } from "loglevel";
 import { matchPath } from "react-router";
 import { getIsSafeRedirectURL } from "utils/helpers";
 import history from "utils/history";
+import type {
+  SocialLoginButtonProps,
+  SocialLoginType,
+} from "@appsmith/constants/SocialLogin";
+import { SocialLoginButtonPropsList } from "@appsmith/constants/SocialLogin";
 
 export const redirectUserAfterSignup = (
   redirectUrl: string,
@@ -77,4 +82,16 @@ export const redirectUserAfterSignup = (
   } else {
     history.replace(APPLICATIONS_URL);
   }
+};
+
+export const getSocialLoginButtonProps = (
+  logins: SocialLoginType[],
+): SocialLoginButtonProps[] => {
+  return logins.map((login) => {
+    const socialLoginButtonProps = SocialLoginButtonPropsList[login];
+    if (!socialLoginButtonProps) {
+      throw Error("Social login not registered: " + login);
+    }
+    return socialLoginButtonProps;
+  });
 };

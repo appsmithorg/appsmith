@@ -28,14 +28,16 @@ async function responseHandler(requestId: string): Promise<TPromiseResponse> {
 
 export type TransmissionErrorHandler = (
   messageId: string,
-  timeTaken: number,
+  startTime: number,
+  endTime: number,
   responseData: unknown,
   e: unknown,
 ) => void;
 
 const defaultErrorHandler: TransmissionErrorHandler = (
   messageId: string,
-  timeTaken: number,
+  startTime: number,
+  endTime: number,
   responseData: unknown,
   e: unknown,
 ) => {
@@ -44,7 +46,8 @@ const defaultErrorHandler: TransmissionErrorHandler = (
     messageId,
     messageType: MessageType.RESPONSE,
     body: {
-      timeTaken: timeTaken.toFixed(2),
+      startTime,
+      endTime,
       data: {
         errors: [
           {
@@ -102,21 +105,22 @@ export class WorkerMessenger {
   static respond(
     messageId: string,
     data: unknown,
-    timeTaken: number,
+    startTime: number,
+    endTime: number,
     onErrorHandler?: TransmissionErrorHandler,
   ) {
     try {
       sendMessage.call(self, {
         messageId,
         messageType: MessageType.RESPONSE,
-        body: { data, timeTaken },
+        body: { data, startTime, endTime },
       });
     } catch (e) {
       const errorHandler = onErrorHandler || defaultErrorHandler;
       try {
-        errorHandler(messageId, timeTaken, data, e);
+        errorHandler(messageId, startTime, endTime, data, e);
       } catch {
-        defaultErrorHandler(messageId, timeTaken, data, e);
+        defaultErrorHandler(messageId, startTime, endTime, data, e);
       }
     }
   }
