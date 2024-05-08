@@ -35,7 +35,7 @@ public class ProjectProperties {
             }
         } catch (IOException e) {
             // Ignore the exception and return "UNKNOWN" as the version
-            log.debug("Error reading version from info.json {}", e.getMessage());
+            log.error("Error reading version from info.json {}", e.getMessage(), e);
         }
     }
 }
