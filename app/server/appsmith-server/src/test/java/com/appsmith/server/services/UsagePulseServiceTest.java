@@ -4,6 +4,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.dtos.UsagePulseDTO;
 import com.appsmith.server.exceptions.AppsmithError;
+import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.repositories.UsagePulseRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.codec.digest.DigestUtils;
@@ -16,6 +17,8 @@ import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.test.StepVerifier;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -47,7 +50,7 @@ public class UsagePulseServiceTest {
     public void test_AnonymousUserPulse_Success() {
         UsagePulseDTO usagePulseDTO = new UsagePulseDTO();
         String anonymousUserId = "testAnonymousUserId";
-        usagePulseDTO.setViewMode(false);
+        usagePulseDTO.setViewMode(true);
         usagePulseDTO.setAnonymousUserId(anonymousUserId);
 
         StepVerifier.create(usagePulseService.createPulse(usagePulseDTO))
@@ -58,7 +61,7 @@ public class UsagePulseServiceTest {
                     assertThat(usagePulse.getIsAnonymousUser()).isTrue();
                     assertThat(usagePulse.getInstanceId()).isNotNull();
                     assertThat(usagePulse.getTenantId()).isNotNull();
-                    assertThat(usagePulse.getViewMode()).isFalse();
+                    assertThat(usagePulse.getViewMode()).isTrue();
                 })
                 .verifyComplete();
     }
@@ -118,7 +121,7 @@ public class UsagePulseServiceTest {
     public void createUsagePulse_forAppsmithCloud_pulseNotSavedInDB() {
         UsagePulseDTO usagePulseDTO = new UsagePulseDTO();
         String anonymousUserId = "testAnonymousUserId";
-        usagePulseDTO.setViewMode(false);
+        usagePulseDTO.setViewMode(true);
         usagePulseDTO.setAnonymousUserId(anonymousUserId);
 
         usagePulseService.createPulse(usagePulseDTO).block();
@@ -133,5 +136,20 @@ public class UsagePulseServiceTest {
         assertThat(usagePulseCount).isNotNull();
         assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCount + 1);
         assertThat(usagePulseCountForSelfHostedInstance).isEqualTo(usagePulseCountForCloud);
+    }
+
+    @Test
+    public void createPulse_inEditMode_withAnonymousUser_throwException() {
+        UsagePulseDTO usagePulseDTO = new UsagePulseDTO();
+        usagePulseDTO.setViewMode(false);
+        usagePulseDTO.setAnonymousUserId(UUID.randomUUID().toString());
+
+        StepVerifier.create(usagePulseService.createPulse(usagePulseDTO))
+                .expectErrorSatisfies(throwable -> {
+                    assertThat(throwable).isInstanceOf(AppsmithException.class);
+                    assertThat(throwable.getMessage())
+                            .isEqualTo(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ANONYMOUS_USER_ID));
+                })
+                .verify();
     }
 }

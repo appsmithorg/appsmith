@@ -4,10 +4,7 @@ import { useCallback, useEffect } from "react";
 import { useSelector } from "react-redux";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { getShouldAllowDrag } from "selectors/widgetDragSelectors";
-import {
-  isCurrentWidgetFocused,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
+import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
 
@@ -19,7 +16,7 @@ export const useAnvilWidgetDrag = (
 ) => {
   // Retrieve state from the Redux store
   const isSelected = useSelector(isWidgetSelected(widgetId));
-  const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
+  const isFocused = useSelector(isWidgetFocused(widgetId));
   const shouldAllowDrag = useSelector(getShouldAllowDrag);
   const { selectWidget } = useWidgetSelection();
   const generateDragState = useCallback(() => {

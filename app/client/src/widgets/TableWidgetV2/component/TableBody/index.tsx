@@ -90,7 +90,7 @@ const TableVirtualBodyComponent = React.forwardRef(
           height={
             props.height -
             props.tableSizes.TABLE_HEADER_HEIGHT -
-            2 * WIDGET_PADDING
+            2 * props.tableSizes.VERTICAL_PADDING
           }
           innerElementType={props.innerElementType}
           itemCount={Math.max(props.rows.length, props.pageSize)}

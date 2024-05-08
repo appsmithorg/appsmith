@@ -1,1 +1,1 @@
-export * from "./src";
+export { filterDataProps } from "./filterDataProps";

@@ -1,14 +1,12 @@
 import type { ActionResponse, PaginationField } from "api/ActionAPI";
-import type {
-  EvaluationReduxAction,
-  AnyReduxAction,
-  ReduxAction,
-} from "@appsmith/constants/ReduxActionConstants";
-import type { JSUpdate } from "utils/JSPaneUtils";
 import {
+  type AnyReduxAction,
+  type EvaluationReduxAction,
+  type ReduxAction,
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import type { JSUpdate } from "utils/JSPaneUtils";
 import type { Action, ActionViewMode } from "entities/Action";
 import { ActionExecutionContext } from "entities/Action";
 import { batchAction } from "actions/batchActions";
@@ -401,14 +399,19 @@ export const updateActionData = (
   };
 };
 
-export const closeQueryActionTab = (payload: { id: string }) => {
+export const closeQueryActionTab = (payload: {
+  id: string;
+  parentId: string;
+}) => {
   return {
     type: ReduxActionTypes.CLOSE_QUERY_ACTION_TAB,
     payload,
   };
 };
-
-export const closeQueryActionTabSuccess = (payload: { id: string }) => {
+export const closeQueryActionTabSuccess = (payload: {
+  id: string;
+  parentId: string;
+}) => {
   return {
     type: ReduxActionTypes.CLOSE_QUERY_ACTION_TAB_SUCCESS,
     payload,
