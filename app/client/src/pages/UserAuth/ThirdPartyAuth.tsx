@@ -1,7 +1,7 @@
 import React from "react";
 import styled from "styled-components";
 import type { SocialLoginType } from "@appsmith/constants/SocialLogin";
-import { getSocialLoginButtonProps } from "@appsmith/constants/SocialLogin";
+import { getSocialLoginButtonProps } from "@appsmith/utils/signupHelpers";
 import type { EventName } from "@appsmith/utils/analyticsUtilTypes";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useLocation } from "react-router-dom";

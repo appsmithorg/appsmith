@@ -3,15 +3,12 @@ import {
   dataSources,
   debuggerHelper,
   deployMode,
-  entityExplorer,
   homePage,
   jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import EditorNavigation, {
   EntityType,
 } from "../../../../support/Pages/EditorNavigation";
-
-let datasourceName: any;
 
 describe(
   "JSObjects OnLoad Actions tests",

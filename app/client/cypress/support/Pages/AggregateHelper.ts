@@ -885,7 +885,11 @@ export class AggregateHelper {
   }
 
   public ClearTextField(selector: string, force = false, index = 0) {
-    this.GetElement(selector).eq(index).clear({ force });
+    this.GetElement(selector)
+      .eq(index)
+      .scrollIntoView({ easing: "linear" })
+      .click()
+      .clear({ force });
     this.Sleep(500); //for text to clear for CI runs
   }
 
@@ -933,6 +937,8 @@ export class AggregateHelper {
     if (shouldFocus) {
       element.focus();
     }
+
+    if (value === "") return element;
 
     return element.wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,
@@ -1326,18 +1332,6 @@ export class AggregateHelper {
       .first()
       .type(value, { delay: 0, force: true, parseSpecialCharSequences: false });
     this.Sleep(500); //for value set to register
-  }
-
-  public UpdateInputValue(selector: string, value: string, force = false) {
-    this.GetElement(selector)
-      .closest("input")
-      .scrollIntoView({ easing: "linear" })
-      .clear({ force })
-      .then(($input: any) => {
-        if (value !== "") {
-          cy.wrap($input).type(value, { delay: 3 });
-        }
-      });
   }
 
   public BlurCodeInput(selector: string) {

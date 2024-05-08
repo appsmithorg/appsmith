@@ -19,9 +19,7 @@ import {
   queryListURL,
   widgetListURL,
 } from "@appsmith/RouteBuilder";
-import isEmpty from "lodash/isEmpty";
-import pickBy from "lodash/pickBy";
-import { getFocusInfo } from "selectors/focusHistorySelectors";
+import { getCurrentFocusInfo } from "selectors/focusHistorySelectors";
 import { getCurrentGitBranch } from "selectors/gitSyncSelectors";
 import {
   DEFAULT_EDITOR_PANE_WIDTH,
@@ -34,6 +32,8 @@ import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import { TabSelectors } from "./EditorTabs/constants";
 import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
+import { createEditorFocusInfoKey } from "@appsmith/navigation/FocusStrategy/AppIDEFocusStrategy";
+import { FocusElement } from "../../../navigation/FocusElements";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -172,40 +172,23 @@ export const useSegmentNavigation = (): {
 };
 
 export const useGetPageFocusUrl = (pageId: string): string => {
-  const editorStateString = "EDITOR_STATE.";
-  const focusInfo = useSelector(getFocusInfo);
-  const branch = useSelector(getCurrentGitBranch);
   const [focusPageUrl, setFocusPageUrl] = useState(
     builderURL({ pageId: pageId }),
   );
 
+  const branch = useSelector(getCurrentGitBranch);
+  const editorStateFocusInfo = useSelector((appState) =>
+    getCurrentFocusInfo(appState, createEditorFocusInfoKey(pageId, branch)),
+  );
+
   useEffect(() => {
-    const editorState = pickBy(
-      focusInfo,
-      (v, k) =>
-        k === editorStateString + pageId + "#" + (branch || "undefined"),
-    );
+    if (editorStateFocusInfo) {
+      const lastSelectedEntity =
+        editorStateFocusInfo.state[FocusElement.SelectedEntity];
 
-    if (isEmpty(editorState)) {
-      return;
+      setFocusPageUrl(builderURL({ pageId, suffix: lastSelectedEntity }));
     }
-
-    const segment = Object.values(editorState)[0].state?.SelectedSegment;
-
-    switch (segment) {
-      case EditorEntityTab.UI:
-        setFocusPageUrl(widgetListURL({ pageId: pageId }));
-        break;
-      case EditorEntityTab.JS:
-        setFocusPageUrl(jsCollectionListURL({ pageId: pageId }));
-        break;
-      case EditorEntityTab.QUERIES:
-        setFocusPageUrl(queryListURL({ pageId: pageId }));
-        break;
-      default:
-        setFocusPageUrl(widgetListURL({ pageId: pageId }));
-    }
-  }, [focusInfo, branch]);
+  }, [editorStateFocusInfo, branch]);
 
   return focusPageUrl;
 };

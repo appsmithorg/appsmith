@@ -1457,16 +1457,6 @@ public class NewActionServiceCEImpl extends BaseService<NewActionRepository, New
     }
 
     @Override
-    public Mono<NewAction> archiveByIdAndBranchName(String id, String branchName) {
-        Mono<NewAction> branchedActionMono =
-                this.findByBranchNameAndDefaultActionId(branchName, id, false, actionPermission.getDeletePermission());
-
-        return branchedActionMono
-                .flatMap(branchedAction -> this.archiveById(branchedAction.getId()))
-                .map(responseUtils::updateNewActionWithDefaultResources);
-    }
-
-    @Override
     public Mono<NewAction> archive(NewAction newAction) {
         return repository.archive(newAction);
     }

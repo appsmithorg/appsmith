@@ -92,7 +92,9 @@ export const ExplorerJSCollectionEntity = memo(
       <Entity
         action={navigateToJSCollection}
         active={props.isActive}
-        canEditEntityName={canManageJSAction}
+        canEditEntityName={
+          canManageJSAction && !Boolean(jsAction?.isMainJSCollection)
+        }
         className="t--jsaction"
         contextMenu={contextMenu}
         entityId={jsAction.id}

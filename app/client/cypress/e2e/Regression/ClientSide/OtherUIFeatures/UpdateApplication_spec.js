@@ -15,11 +15,13 @@ describe("Update Application", () => {
     appname = localStorage.getItem("appName");
 
     cy.get(homePage.searchInput).clear();
-    cy.get(homePage.searchInput).type(workspaceName);
+    cy.get(homePage.searchInput).click().type(workspaceName);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appMoreIcon).first().click({ force: true });
-    cy.get(homePage.applicationName).type(`${appname} updated` + "{enter}");
+    cy.get(homePage.applicationName)
+      .click()
+      .type(`${appname} updated` + "{enter}");
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.responseMeta.status",
@@ -45,7 +47,7 @@ describe("Update Application", () => {
   it("3. Check for errors in updating application name", () => {
     cy.get(commonlocators.homeIcon).click({ force: true });
     cy.get(homePage.searchInput).clear();
-    cy.get(homePage.searchInput).type(workspaceName);
+    cy.get(homePage.searchInput).click().type(workspaceName);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.applicationCard).first().trigger("mouseover");
@@ -55,14 +57,16 @@ describe("Update Application", () => {
     cy.wait(2000);
 
     cy.AppSetupForRename();
-    cy.get(homePage.applicationName).type("  ");
+    cy.get(homePage.applicationName).click().type("  ");
     cy.get(homePage.toastMessage).should(
       "contain",
       "Application name can't be empty",
     );
 
     cy.AppSetupForRename();
-    cy.get(homePage.applicationName).type("  " + "{enter}");
+    cy.get(homePage.applicationName)
+      .click()
+      .type("  " + "{enter}");
     cy.wait("@updateApplication").should(
       "have.nested.property",
       "response.body.data.name",
@@ -76,7 +80,9 @@ describe("Update Application", () => {
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.appMoreIcon).first().click({ force: true });
-    cy.get(homePage.applicationName).type(veryLongAppName + "{enter}");
+    cy.get(homePage.applicationName)
+      .click()
+      .type(veryLongAppName + "{enter}");
     agHelper.GetNClick(homePage.workspaceCompleteSection, 0, true);
     cy.wait("@updateApplication").should(
       "have.nested.property",
@@ -85,7 +91,7 @@ describe("Update Application", () => {
     );
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
-    cy.get(homePage.searchInput).type(veryLongAppName);
+    cy.get(homePage.searchInput).click().type(veryLongAppName);
     // eslint-disable-next-line cypress/no-unnecessary-waiting
     cy.wait(2000);
     cy.get(homePage.applicationCard)

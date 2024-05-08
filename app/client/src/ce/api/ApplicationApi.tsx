@@ -13,7 +13,7 @@ import type {
   LayoutSystemTypeConfig,
   LayoutSystemTypes,
 } from "layoutSystems/types";
-import type { ActionViewMode } from "entities/Action";
+import type { BaseAction } from "entities/Action";
 
 export type EvaluationVersion = number;
 
@@ -268,9 +268,14 @@ export interface ImportBuildingBlockToApplicationRequest {
   templateId: string;
 }
 
+interface ImportBuildingBlockOnPageActions extends BaseAction {
+  timeoutInMilliseconds: number;
+  pluginType: string;
+}
+
 export interface ImportBuildingBlockToApplicationResponse {
   widgetDsl: string;
-  onPageLoadActions: Omit<ActionViewMode, "pageId">[];
+  onPageLoadActions: ImportBuildingBlockOnPageActions[];
 }
 
 export class ApplicationApi extends Api {

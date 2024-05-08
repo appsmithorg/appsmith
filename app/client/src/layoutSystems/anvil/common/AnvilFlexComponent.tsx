@@ -14,6 +14,7 @@ import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPos
 import { Layers } from "constants/Layers";
 import { noop } from "utils/AppsmithUtils";
 import { convertFlexGrowToFlexBasis } from "../sectionSpaceDistributor/utils/spaceDistributionEditorUtils";
+import styles from "./styles.module.css";
 
 const anvilWidgetStyleProps: CSSProperties = {
   position: "relative",
@@ -48,10 +49,7 @@ export const AnvilFlexComponent = forwardRef(
     }: AnvilFlexComponentProps,
     ref: any,
   ) => {
-    // The `anvil-widget-wrapper` className is necessary for the following features
-    // "Vertical Alignment" and "Asymmetric Padding". The code for the same can be found in `src/index.css`
-    // Please do not remove this class.
-    const _className = `${className} anvil-widget-wrapper`;
+    const _className = `${className} ${styles.anvilWidgetWrapper}`;
 
     const widgetConfigProps = useMemo(() => {
       const widgetConfig:
@@ -108,6 +106,8 @@ export const AnvilFlexComponent = forwardRef(
         isInner
         {...flexProps}
         className={_className}
+        data-testid="t--anvil-widget-wrapper"
+        data-widget-wrapper=""
         id={getAnvilWidgetDOMId(widgetId)}
         onClick={onClick}
         onClickCapture={onClickCapture}

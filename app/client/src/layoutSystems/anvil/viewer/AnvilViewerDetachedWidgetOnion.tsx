@@ -1,7 +1,8 @@
 import React from "react";
 
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
-import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetComponent";
+import { AnvilErrorBoundary } from "../common/widgetComponent/AnvilErrorBoundary";
+import { SKELETON_WIDGET_TYPE } from "constants/WidgetConstants";
 
 /**
  * AnvilViewerDetachedWidgetOnion
@@ -15,7 +16,7 @@ import { AnvilWidgetComponent } from "../common/widgetComponent/AnvilWidgetCompo
  * @returns Enhanced Widget
  */
 export const AnvilViewerDetachedWidgetOnion = (props: BaseWidgetProps) => {
-  return (
-    <AnvilWidgetComponent {...props}>{props.children}</AnvilWidgetComponent>
-  );
+  return props.type !== SKELETON_WIDGET_TYPE ? (
+    <AnvilErrorBoundary {...props}>{props.children}</AnvilErrorBoundary>
+  ) : null;
 };

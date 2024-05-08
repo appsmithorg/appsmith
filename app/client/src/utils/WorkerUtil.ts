@@ -5,12 +5,14 @@ import { uniqueId } from "lodash";
 import log from "loglevel";
 import type { TMessage } from "./MessageUtil";
 import { MessageType, sendMessage } from "./MessageUtil";
+import type { OtlpSpan } from "UITelemetry/generateTraces";
 import { endSpan, startRootSpan } from "UITelemetry/generateTraces";
 import type { WebworkerSpanData } from "UITelemetry/generateWebWorkerTraces";
 import {
   convertWebworkerSpansToRegularSpans,
   newWebWorkerSpanData,
 } from "UITelemetry/generateWebWorkerTraces";
+
 /**
  * Wrap a webworker to provide a synchronous request-response semantic.
  *
@@ -147,6 +149,51 @@ export class GracefulWorkerService {
     });
   }
 
+  private addChildSpansToRootSpan({
+    endTime,
+    method,
+    rootSpan,
+    startTime,
+    webworkerTelemetry,
+  }: {
+    webworkerTelemetry: Record<string, WebworkerSpanData>;
+    rootSpan: OtlpSpan | undefined;
+    method: string;
+    startTime: number;
+    endTime: number;
+  }) {
+    const webworkerTelemetryResponse = webworkerTelemetry as Record<
+      string,
+      WebworkerSpanData
+    >;
+
+    if (webworkerTelemetryResponse) {
+      const { transferDataToMainThread } = webworkerTelemetryResponse;
+      if (transferDataToMainThread) {
+        transferDataToMainThread.endTime = Date.now();
+      }
+      /// Add the completeWebworkerComputation span to the root span
+      webworkerTelemetryResponse["completeWebworkerComputation"] = {
+        startTime,
+        endTime,
+        attributes: {},
+        spanName: "completeWebworkerComputation",
+      };
+    }
+    //we are attaching the child spans to the root span over here
+    rootSpan &&
+      convertWebworkerSpansToRegularSpans(rootSpan, webworkerTelemetryResponse);
+
+    //genereate separate completeWebworkerComputationRoot root span
+    // this span does not contain any child spans, it just captures the webworker computation alone
+    const completeWebworkerComputationRoot = startRootSpan(
+      "completeWebworkerComputationRoot",
+      undefined,
+      startTime,
+    );
+    completeWebworkerComputationRoot?.setAttribute("taskType", method);
+    completeWebworkerComputationRoot?.end(endTime);
+  }
   /**
    * Send a request to the worker for processing.
    * If the worker isn't ready, we wait for it to become ready.
@@ -167,7 +214,7 @@ export class GracefulWorkerService {
     const messageId = `${method}__${uniqueId()}`;
     const ch = channel();
     this._channels.set(messageId, ch);
-    const mainThreadStartTime = performance.now();
+    const mainThreadStartTime = Date.now();
     let timeTaken;
     const rootSpan = startRootSpan(method);
 
@@ -193,41 +240,35 @@ export class GracefulWorkerService {
 
       // The `this._broker` method is listening to events and will pass response to us over this channel.
       const response = yield take(ch);
-      const webworkerTelemetryResponse = response.data
-        .webworkerTelemetry as Record<string, WebworkerSpanData>;
+      const { data, endTime, startTime } = response;
+      const { webworkerTelemetry } = data;
+      this.addChildSpansToRootSpan({
+        webworkerTelemetry,
+        rootSpan,
+        method,
+        startTime,
+        endTime,
+      });
 
-      if (webworkerTelemetryResponse) {
-        webworkerTelemetryResponse["transferDataToMainThread"].endTime =
-          Date.now();
-      }
-
-      rootSpan &&
-        convertWebworkerSpansToRegularSpans(
-          rootSpan,
-          webworkerTelemetryResponse,
-        );
-
-      timeTaken = response.timeTaken;
-      return response.data;
+      timeTaken = endTime - startTime;
+      return data;
     } finally {
-      endSpan(rootSpan);
-
       // Log perf of main thread and worker
-      const mainThreadEndTime = performance.now();
+      const mainThreadEndTime = Date.now();
       const timeTakenOnMainThread = mainThreadEndTime - mainThreadStartTime;
       if (yield cancelled()) {
-        log.debug(
-          `Main ${method} cancelled in ${timeTakenOnMainThread.toFixed(2)}ms`,
-        );
+        rootSpan?.setAttribute("cancelled", true);
+        log.debug(`Main ${method} cancelled in ${timeTakenOnMainThread}ms`);
       } else {
-        log.debug(`Main ${method} took ${timeTakenOnMainThread.toFixed(2)}ms`);
+        log.debug(`Main ${method} took ${timeTakenOnMainThread}ms`);
       }
 
       if (timeTaken) {
         const transferTime = timeTakenOnMainThread - timeTaken;
         log.debug(` Worker ${method} took ${timeTaken}ms`);
-        log.debug(` Transfer ${method} took ${transferTime.toFixed(2)}ms`);
+        log.debug(` Transfer ${method} took ${transferTime}ms`);
       }
+      endSpan(rootSpan);
       // Cleanup
       ch.close();
       this._channels.delete(messageId);
