@@ -6,17 +6,13 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.PricingPlan;
-import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.ThemeRepository;
-import com.appsmith.server.repositories.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.NoResultException;
@@ -39,7 +35,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
@@ -54,25 +49,6 @@ import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GR
 @Slf4j
 public class SeedData {
     // TODO: Move to separate files in a "seeds" package? Or to migrations?
-
-    @Bean
-    public String instanceId(ConfigRepository configRepository) {
-        final Object value = configRepository
-                .findByName("instance-id")
-                .orElseGet(() -> {
-                    log.debug("Adding instance id");
-                    final String valueStr = UUID.randomUUID().toString();
-                    return configRepository.save(new Config(new JSONObject(Map.of("value", valueStr)), "instance-id"));
-                })
-                .getConfig()
-                .get("value");
-
-        if (value instanceof String valueStr) {
-            return valueStr;
-        } else {
-            throw new IllegalStateException("instance-id config value is not a string");
-        }
-    }
 
     @Bean
     public String instanceAdminPermissionGroupId(
@@ -154,31 +130,6 @@ public class SeedData {
         } else {
             throw new IllegalStateException("instance-id config value is not a string");
         }
-    }
-
-    @Bean
-    public Tenant defaultTenant(TenantRepository tenantRepository) {
-        return tenantRepository.findBySlug("default").orElseGet(() -> {
-            Tenant defaultTenant = new Tenant();
-            defaultTenant.setDisplayName("Default");
-            defaultTenant.setSlug("default");
-            defaultTenant.setPricingPlan(PricingPlan.FREE);
-            return tenantRepository.save(defaultTenant);
-        });
-    }
-
-    @Bean
-    public User anonymousUser(UserRepository userRepository, Tenant defaultTenant) {
-        log.debug("Adding anonymous user");
-        return userRepository.findByEmail(FieldName.ANONYMOUS_USER).orElseGet(() -> {
-            final User anonymousUser = new User();
-            anonymousUser.setName(FieldName.ANONYMOUS_USER);
-            anonymousUser.setEmail(FieldName.ANONYMOUS_USER);
-            anonymousUser.setWorkspaceIds(new HashSet<>());
-            anonymousUser.setIsAnonymous(true);
-            anonymousUser.setTenantId(defaultTenant.getId());
-            return userRepository.save(anonymousUser);
-        });
     }
 
     public record PublicPermissionInfo(PermissionGroup permissionGroup, Config config) {}
