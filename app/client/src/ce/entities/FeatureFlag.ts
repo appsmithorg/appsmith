@@ -85,11 +85,11 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_global_add_pane_enabled: false,
   ab_appsmith_ai_query: false,
   release_actions_redesign_enabled: false,
-  rollout_remove_feature_walkthrough_enabled: true,
-  rollout_js_enabled_one_click_binding_enabled: true,
+  rollout_remove_feature_walkthrough_enabled: false,
+  rollout_js_enabled_one_click_binding_enabled: false,
   rollout_side_by_side_enabled: false,
-  ab_learnability_ease_of_initial_use_enabled: true,
-  ab_learnability_discoverability_collapse_all_except_data_enabled: true,
+  ab_learnability_ease_of_initial_use_enabled: false,
+  ab_learnability_discoverability_collapse_all_except_data_enabled: false,
   release_layout_conversion_enabled: false,
 };
 
