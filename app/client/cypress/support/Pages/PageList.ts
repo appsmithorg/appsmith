@@ -112,6 +112,16 @@ class PageList {
       .should("eq", 200);
     this.HideList();
   }
+
+  public HidePage(pageName = "Page1") {
+    AppSidebar.navigate(AppSidebarButton.Editor);
+    EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
+    ObjectsRegistry.EntityExplorer.ActionContextMenuByEntityName({
+      entityNameinLeftSidebar: pageName,
+      action: "Hide",
+      entityType: EntityItems.Page,
+    });
+  }
 }
 
 export default new PageList();
