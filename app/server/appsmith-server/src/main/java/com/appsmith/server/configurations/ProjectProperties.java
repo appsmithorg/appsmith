@@ -30,6 +30,8 @@ public class ProjectProperties {
                 BuildInfo buildInfo = objectMapper.readValue(jsonContent, BuildInfo.class);
                 version = buildInfo.getVersion();
                 commitSha = buildInfo.getCommitSha();
+            } else {
+                log.debug("Unable to find info.json at {}", INFO_JSON_PATH);
             }
         } catch (IOException e) {
             // Ignore the exception and return "UNKNOWN" as the version
