@@ -8,6 +8,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
@@ -42,4 +43,8 @@ public interface CustomNewPageRepositoryCE extends AppsmithRepository<NewPage> {
     Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission);
 
     Flux<NewPage> findAllByApplicationIdsWithoutPermission(List<String> applicationIds, List<String> includeFields);
+
+    Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission);
+
+    Mono<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap);
 }

@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 public interface NewPageServiceCE extends CrudService<NewPage, String> {
@@ -90,4 +91,6 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
     Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
 
     Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission);
+
+    Mono<String> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap, String branchName);
 }

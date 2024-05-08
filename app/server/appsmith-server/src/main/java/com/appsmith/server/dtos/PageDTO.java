@@ -17,6 +17,7 @@ import org.springframework.data.annotation.Transient;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 @Getter
@@ -76,6 +77,9 @@ public class PageDTO {
     @Transient
     @JsonView(Views.Public.class)
     DefaultResources defaultResources;
+
+    @JsonView(Views.Public.class)
+    Map<String, List<String>> dependencyMap;
 
     public void sanitiseToExportDBObject() {
         this.getLayouts().forEach(Layout::sanitiseToExportDBObject);

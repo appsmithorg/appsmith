@@ -15,12 +15,14 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
+import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
 import java.util.Collection;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -160,6 +162,20 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
         return queryBuilder().criteria(q).permission(permission).one();
     }
 
+    public Mono<String> findBranchedPageId(String branchName, String defaultPageId, AclPermission permission) {
+        final BridgeQuery<NewPage> q =
+                // defaultPageIdCriteria
+                Bridge.equal(NewPage.Fields.defaultResources_pageId, defaultPageId);
+        q.equal(NewPage.Fields.defaultResources_branchName, branchName);
+
+        return queryBuilder()
+                .criteria(q)
+                .permission(permission)
+                .fields("id")
+                .one()
+                .map(NewPage::getId);
+    }
+
     @Override
     public Flux<NewPage> findSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission) {
         return queryBuilder()
@@ -237,5 +253,12 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
                 .criteria(Bridge.in(FieldName.APPLICATION_ID, applicationIds))
                 .fields(includeFields)
                 .all();
+    }
+
+    @Override
+    public Mono<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap) {
+        Criteria pageCriteria = where(NewPage.Fields.id).is(pageId);
+        Update update = new Update().set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
+        return queryBuilder().criteria(pageCriteria).updateFirst(update);
     }
 }
