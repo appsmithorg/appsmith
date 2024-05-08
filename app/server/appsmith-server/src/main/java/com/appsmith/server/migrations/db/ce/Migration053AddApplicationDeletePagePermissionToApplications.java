@@ -27,66 +27,55 @@ public class Migration053AddApplicationDeletePagePermissionToApplications {
 
     private final MongoTemplate mongoTemplate;
 
+    private static final String APPLICATION_DELETE_PAGES_VALUE = AclPermission.APPLICATION_DELETE_PAGES.getValue();
+    private static final String DELETE_APPLICATIONS_VALUE = AclPermission.DELETE_APPLICATIONS.getValue();
+
+    private static final String POLICIES = BaseDomain.Fields.policies;
+    private static final String PERMISSION = "permission";
+    private static final String PERMISSION_GROUPS = "permissionGroups";
+
     @RollbackExecution
     public void rollbackExecution() {}
 
     @Execution
     public void addNewPolicyWithPermissionGroupsFromExisting() {
 
-        String applicationDeletePages = AclPermission.APPLICATION_DELETE_PAGES.getValue();
-        String deleteApplications = AclPermission.DELETE_APPLICATIONS.getValue();
-
-        String policies = BaseDomain.Fields.policies;
-        String permission = "permission";
-        String permissionGroups = "permissionGroups";
-
         Criteria applicationCriteria =
                 new Criteria().andOperator(olderCheckForDeletedCriteria(), newerCheckForDeletedCriteria());
 
-        AggregationOperation aggregationOperation = Aggregation.addFields()
-                .addFieldWithValue(
-                        policies,
+        Document equalityConditionDoc = new Document("$eq", List.of("$$this.permission", DELETE_APPLICATIONS_VALUE));
+
+        Document filterPermissionGroupsDoc = new Document(
+                "$filter", new Document().append("input", "$policies").append("cond", equalityConditionDoc));
+
+        Document permissionGroupArrayElementAtDoc = new Document("$arrayElemAt", List.of(filterPermissionGroupsDoc, 0));
+
+        List<Document> singletonPolicyList = List.of(new Document(PERMISSION, APPLICATION_DELETE_PAGES_VALUE)
+                .append(
+                        PERMISSION_GROUPS,
                         new Document(
-                                "$concatArrays",
-                                List.of(
-                                        "$policies",
-                                        List.of(
-                                                new Document(permission, applicationDeletePages)
-                                                        .append(
-                                                                permissionGroups,
-                                                                new Document(
-                                                                        "$let",
-                                                                        new Document()
-                                                                                .append(
-                                                                                        "vars",
-                                                                                        new Document(
-                                                                                                "existingPolicy",
-                                                                                                new Document(
-                                                                                                        "$arrayElemAt",
-                                                                                                        List.of(
-                                                                                                                new Document(
-                                                                                                                        "$filter",
-                                                                                                                        new Document()
-                                                                                                                                .append(
-                                                                                                                                        "input",
-                                                                                                                                        "$policies")
-                                                                                                                                .append(
-                                                                                                                                        "cond",
-                                                                                                                                        new Document(
-                                                                                                                                                "$eq",
-                                                                                                                                                List
-                                                                                                                                                        .of(
-                                                                                                                                                                "$$this.permission",
-                                                                                                                                                                deleteApplications)))),
-                                                                                                                0))))
-                                                                                .append(
-                                                                                        "in",
-                                                                                        "$$existingPolicy.permissionGroups")))))))
+                                "$let",
+                                new Document()
+                                        .append(
+                                                "vars",
+                                                new Document("existingPolicy", permissionGroupArrayElementAtDoc))
+                                        .append("in", "$$existingPolicy.permissionGroups"))));
+
+        Document concatPolicySets = new Document("$concatArrays", List.of("$policies", singletonPolicyList));
+
+        AggregationOperation aggregationOperation = Aggregation.addFields()
+                .addFieldWithValue(POLICIES, concatPolicySets)
                 .build();
 
-        mongoTemplate.updateMulti(
-                new Query().addCriteria(applicationCriteria),
-                Aggregation.newUpdate(aggregationOperation),
-                Application.class);
+        try {
+            mongoTemplate.updateMulti(
+                    new Query().addCriteria(applicationCriteria),
+                    Aggregation.newUpdate(aggregationOperation),
+                    Application.class);
+        } catch (Exception e) {
+            log.debug(
+                    "Migration050 failed due to reason {}. \n skipping addition of policy to appications ",
+                    e.getMessage());
+        }
     }
 }
