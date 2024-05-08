@@ -23,16 +23,18 @@ import { updateBodyContentType } from "actions/apiPaneActions";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
-import { SegmentedControl } from "design-system";
+import { Select, Option } from "design-system";
 
 const PostBodyContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   padding: 12px 0px 0px;
   background-color: var(--ads-v2-color-bg);
   height: 100%;
-  .ads-v2-segmented-control {
-    /* max-width: fit-content;
-    margin-left: 30px; */
-    margin-bottom: 12px;
+  gap: var(--ads-v2-spaces-4);
+  .ads-v2-select {
+    max-width: 250px;
+    width: 100%;
   }
 `;
 
@@ -174,13 +176,18 @@ function PostBodyData(props: Props) {
 
   return (
     <PostBodyContainer>
-      <SegmentedControl
+      <Select
         data-testid="t--api-body-tab-switch"
         defaultValue={selectedTab}
-        isFullWidth={false}
-        onChange={(key: string) => postBodyDataOnChangeFn(key)}
-        options={options}
-      />
+        onSelect={(value) => postBodyDataOnChangeFn(value)}
+        value={selectedTab}
+      >
+        {options.map((option) => (
+          <Option key={option.value} value={option.value}>
+            {option.label}
+          </Option>
+        ))}
+      </Select>
       {tabComponentsMap(selectedTab)}
     </PostBodyContainer>
   );
