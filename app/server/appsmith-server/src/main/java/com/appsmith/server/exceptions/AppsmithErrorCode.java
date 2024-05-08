@@ -4,7 +4,6 @@ import lombok.Getter;
 
 @Getter
 public enum AppsmithErrorCode {
-    HTTP_METHOD_NOT_ALLOWED("AE-APP-4002", "HTTP method not allowed"),
     INVALID_ACTION_COLLECTION("AE-ACC-4038", "Invalid action collection"),
     UNAUTHORIZED_ACCESS("AE-ACL-4003", "Unauthorized access"),
     ACL_NO_RESOURCE_FOUND("AE-ACL-4004", "Acl no resource found"),
@@ -17,8 +16,6 @@ public enum AppsmithErrorCode {
     PAGE_DOESNT_BELONG_TO_USER_WORKSPACE("AE-APP-4006", "Page doesn't belong to user workspace"),
     UNSUPPORTED_OPERATION("AE-APP-4007", "Unsupported operation"),
     DEPRECATED_API("AE-APP-4008", "Deprecated api"),
-    USER_DOESNT_BELONG_ANY_WORKSPACE("AE-APP-4009", "User doesn't belong any workspace"),
-    USER_DOESNT_BELONG_TO_WORKSPACE("AE-APP-4010", "User doesn't belong to workspace"),
     USER_NOT_ASSIGNED_TO_ROLE("AE-APP-4011", "User is not assigned to role"),
     INVALID_ACTION("AE-APP-4012", "Invalid action"),
     PAYLOAD_TOO_LARGE("AE-APP-4013", "Payload too large"),

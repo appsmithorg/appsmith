@@ -116,7 +116,7 @@ public class GitExecutorCEImpl implements GitExecutor {
         final Path repoPath = TRUE.equals(isSuffixedPath) ? createRepoPath(path) : path;
 
         return Mono.using(
-                        () -> Git.open(createRepoPath(repoPath).toFile()),
+                        () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> {
                                     log.debug("Trying to commit to local repo path, {}", path);
 
@@ -1097,7 +1097,7 @@ public class GitExecutorCEImpl implements GitExecutor {
     @Override
     public Mono<BranchTrackingStatus> getBranchTrackingStatus(Path repoPath, String branchName) {
         return Mono.using(
-                        () -> Git.open(createRepoPath(repoPath).toFile()),
+                        () -> Git.open(repoPath.toFile()),
                         git -> Mono.fromCallable(() -> BranchTrackingStatus.of(git.getRepository(), branchName))
                                 .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
                                 .name(GitSpan.FS_BRANCH_TRACK)

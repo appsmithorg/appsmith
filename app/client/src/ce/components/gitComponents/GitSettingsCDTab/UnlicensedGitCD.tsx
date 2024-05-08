@@ -9,23 +9,23 @@ import { useAppsmithEnterpriseLink } from "pages/Editor/gitSync/GitSettingsModal
 import React from "react";
 import styled from "styled-components";
 
-const Container = styled.div`
+export const Container = styled.div`
   padding-top: 8px;
   padding-bottom: 16px;
   overflow: auto;
   min-height: calc(360px + 52px);
 `;
 
-const SectionTitle = styled(Text)`
+export const SectionTitle = styled(Text)`
   font-weight: 600;
   margin-bottom: 4px;
 `;
 
-const SectionDesc = styled(Text)`
+export const SectionDesc = styled(Text)`
   margin-bottom: 12px;
 `;
 
-const StyledButton = styled(Button)`
+export const StyledButton = styled(Button)`
   display: inline-block;
 `;
 

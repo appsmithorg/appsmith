@@ -1,0 +1,37 @@
+/**
+  ASYMMETRIC PADDING
+  [data-elevation] — true or false, indicates whether elevation is enabled or not
+  [elevation="1"] — section
+  [elevation="2"] — zone
+*/
+.anvilWidgetWrapper {
+  /** If a section or zone have elevation, then add padding */
+  [data-elevation="true"][elevation="1"],
+  [data-elevation="true"][elevation="2"],
+  [elevation="1"]:has([data-elevation="true"]) [data-elevation="false"] {
+    padding-block: var(--outer-spacing-3);
+    padding-inline: var(--outer-spacing-3);
+  }
+
+  [data-elevation="false"][elevation="2"] {
+    min-height: var(--sizing-8);
+  }
+
+  /**
+    1. Styles for the section if elevation is enabled only for section
+    2. Styles for the zone if elevation is enabled
+  */
+  [data-elevation="true"][elevation="1"]:has([data-elevation="false"]),
+  [data-elevation="true"][elevation="2"] {
+    background-color: var(--color-bg-elevation-2);
+    border-radius: var(--border-radius-elevation-2);
+    outline: var(--border-width-1) solid var(--color-bd-elevation-2);
+  }
+
+  /** Styles for the section if elevation is enabled for both section and zone */
+  [data-elevation="true"][elevation="1"]:has([data-elevation="true"]) {
+    background-color: var(--color-bg-elevation-1);
+    border-radius: var(--border-radius-elevation-1);
+    outline: var(--border-width-1) solid var(--color-bd-elevation-1);
+  }
+}

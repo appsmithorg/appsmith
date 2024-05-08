@@ -9,6 +9,7 @@ export const useAnvilWidgetStyles = (
   widgetId: string,
   widgetName: string,
   isVisible = true,
+  widgetType: string,
   ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent
 ) => {
   // Selectors to determine whether the widget is selected or dragging
@@ -17,7 +18,7 @@ export const useAnvilWidgetStyles = (
     (state: AppState) => state.ui.widgetDragResize.isDragging,
   );
   // Get widget border styles using useWidgetBorderStyles
-  const widgetBorderStyles = useWidgetBorderStyles(widgetId);
+  const widgetBorderStyles = useWidgetBorderStyles(widgetId, widgetType);
 
   // Effect hook to apply widget border styles to the widget
   useEffect(() => {
@@ -33,7 +34,7 @@ export const useAnvilWidgetStyles = (
   useEffect(() => {
     if (ref.current) {
       ref.current.setAttribute("data-widgetname-cy", widgetName);
-      ref.current.setAttribute("data-testid", isSelected ? "t--selected" : "");
+      ref.current.setAttribute("data-selected", isSelected ? "true" : "false");
     }
   }, [widgetName, isSelected]);
   const isNewWidgetDrag = useSelector(getIsNewWidgetBeingDragged);
