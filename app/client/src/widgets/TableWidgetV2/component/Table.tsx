@@ -301,11 +301,11 @@ export function Table(props: TableProps) {
         props.data.length < props.pageSize
           ? "100%"
           : isHeaderVisible
-          ? props.height -
-            tableSizes.TABLE_HEADER_HEIGHT -
-            TABLE_SCROLLBAR_HEIGHT +
-            SCROLL_BAR_OFFSET
-          : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
+            ? props.height -
+              tableSizes.TABLE_HEADER_HEIGHT -
+              TABLE_SCROLLBAR_HEIGHT +
+              SCROLL_BAR_OFFSET
+            : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
       width: props.width,
     };
   }, [
@@ -430,8 +430,8 @@ export function Table(props: TableProps) {
             props.isLoading
               ? Classes.SKELETON
               : shouldUseVirtual
-              ? "tableWrap virtual"
-              : "tableWrap"
+                ? "tableWrap virtual"
+                : "tableWrap"
           }
           ref={tableWrapperRef}
         >
