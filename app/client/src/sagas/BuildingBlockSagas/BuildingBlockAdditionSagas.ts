@@ -768,51 +768,63 @@ function handleSelfWidgetReferencesDuringBuildingBlockPaste(
   oldWidgetName: string,
   newWidgetName: string,
 ) {
-  switch (widget.type) {
-    case "TABS_WIDGET":
-      // Update the tabs for the tabs widget.
-      if (widget.tabsObj && Array.isArray(Object.values(widget.tabsObj))) {
-        widget.tabsObj = widget.tabsObj.map((tab: any) => ({
-          ...tab,
-          widgetId: widgetIdMap[tab.widgetId],
-        }));
-      }
-      break;
-    case "TABLE_WIDGET_V2":
-    case "TABLE_WIDGET":
-      // Update the table widget column properties
-      if (widget.primaryColumns) {
-        Object.entries(widget.primaryColumns).forEach(([columnId, column]) => {
-          Object.entries(column as ColumnProperties).forEach(([key, value]) => {
-            if (isString(value)) {
-              widget.primaryColumns[columnId][key] = value.replace(
-                `${oldWidgetName}.`,
-                `${newWidgetName}.`,
+  try {
+    switch (widget.type) {
+      case "TABS_WIDGET":
+        // Update the tabs for the tabs widget.
+        if (widget.tabs && Array.isArray(Object.values(widget.tabsObj))) {
+          widget.tabsObj = Object.values(widget.tabsObj).reduce(
+            (obj: any, tab: any) => {
+              tab.widgetId = widgetIdMap[tab.widgetId];
+              obj[tab.id] = tab;
+              return obj;
+            },
+            {},
+          );
+        }
+        break;
+      case "TABLE_WIDGET_V2":
+      case "TABLE_WIDGET":
+        // Update the table widget column properties
+        if (widget.primaryColumns) {
+          Object.entries(widget.primaryColumns).forEach(
+            ([columnId, column]) => {
+              Object.entries(column as ColumnProperties).forEach(
+                ([key, value]) => {
+                  if (isString(value)) {
+                    widget.primaryColumns[columnId][key] = value.replace(
+                      `${oldWidgetName}.`,
+                      `${newWidgetName}.`,
+                    );
+                  }
+                },
               );
-            }
-          });
-        });
+            },
+          );
+          widget.widgetName = newWidgetName;
+        }
+        break;
+      case "MULTI_SELECT_WIDGET_V2":
+      case "SELECT_WIDGET":
+        // Update the Select widget defaultValue properties
+        if (isString(widget.defaultOptionValue)) {
+          widget.defaultOptionValue = widget.defaultOptionValue.replaceAll(
+            `${oldWidgetName}.`,
+            `${newWidgetName}.`,
+          );
+        }
         widget.widgetName = newWidgetName;
-      }
-      break;
-    case "MULTI_SELECT_WIDGET_V2":
-    case "SELECT_WIDGET":
-      // Update the Select widget defaultValue properties
-      if (isString(widget.defaultOptionValue)) {
-        widget.defaultOptionValue = widget.defaultOptionValue.replaceAll(
-          `${oldWidgetName}.`,
-          `${newWidgetName}.`,
+        break;
+      case "JSON_FORM_WIDGET":
+        handleJSONFormPropertiesListedInDynamicBindingPath(
+          widget,
+          oldWidgetName,
+          newWidgetName,
         );
-      }
-      widget.widgetName = newWidgetName;
-      break;
-    case "JSON_FORM_WIDGET":
-      handleJSONFormPropertiesListedInDynamicBindingPath(
-        widget,
-        oldWidgetName,
-        newWidgetName,
-      );
-      break;
+        break;
+    }
+  } catch (error) {
+    log.debug(`Error updating widget properties of ${widget.type}`, error);
   }
 }
 
