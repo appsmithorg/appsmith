@@ -1,6 +1,6 @@
 export const SpaceDistributorHandleDimensions = {
-  width: 6,
-  offsetTop: 10,
+  width: 3,
+  offsetTop: 2,
   borderRadius: 4,
   padding: 2,
 };
