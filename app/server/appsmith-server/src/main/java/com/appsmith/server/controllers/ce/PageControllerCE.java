@@ -67,20 +67,6 @@ public class PageControllerCE {
                 .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
     }
 
-    @JsonView(Views.Public.class)
-    @PutMapping("/crud-page/{defaultPageId}")
-    @ResponseStatus(HttpStatus.OK)
-    public Mono<ResponseDTO<CRUDPageResponseDTO>> createCRUDPage(
-            @PathVariable String defaultPageId,
-            @NonNull @RequestBody CRUDPageResourceDTO resource,
-            @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName,
-            @RequestHeader(name = FieldName.HEADER_ENVIRONMENT_ID, required = false) String environmentId) {
-        log.debug("Going to create CRUD page {}, branchName {}", defaultPageId, branchName);
-        return createDBTablePageSolution
-                .createPageFromDBTable(defaultPageId, resource, environmentId, branchName, Boolean.TRUE)
-                .map(created -> new ResponseDTO<>(HttpStatus.CREATED.value(), created, null));
-    }
-
     @Deprecated
     @JsonView(Views.Public.class)
     @GetMapping("/application/{applicationId}")
