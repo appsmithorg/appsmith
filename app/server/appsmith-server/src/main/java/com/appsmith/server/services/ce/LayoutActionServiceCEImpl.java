@@ -78,7 +78,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
         } else if (action.getCollectionId().length() == 0) {
             // The Action has been removed from existing collection.
             return newActionService
-                    .getById(id)
+                    .getByIdWithoutPermissionCheck(id)
                     .flatMap(action1 -> collectionService.removeSingleActionFromCollection(
                             action1.getUnpublishedAction().getCollectionId(), Mono.just(action1)))
                     .flatMap(action1 -> {
@@ -93,7 +93,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
             // collection.
             // Remove the action from previous collection and add it to the new collection.
             return newActionService
-                    .getById(id)
+                    .getByIdWithoutPermissionCheck(id)
                     .flatMap(action1 -> {
                         if (action1.getUnpublishedAction().getCollectionId() != null) {
                             return collectionService.removeSingleActionFromCollection(

@@ -29,6 +29,8 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
 
     Flux<NewPage> findNewPagesByApplicationId(String applicationId, AclPermission permission);
 
+    Mono<NewPage> findByIdAndBranchName(String id, String branchName);
+
     Mono<PageDTO> saveUnpublishedPage(PageDTO page);
 
     Mono<PageDTO> createDefault(PageDTO object);

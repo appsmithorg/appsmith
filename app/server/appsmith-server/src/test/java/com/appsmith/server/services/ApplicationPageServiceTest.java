@@ -187,8 +187,8 @@ public class ApplicationPageServiceTest {
         String uuid = UUID.randomUUID().toString();
 
         NewPage newPage = createApplication("App_" + uuid)
-                .flatMap(application ->
-                        newPageService.getById(application.getPages().get(0).getId()))
+                .flatMap(application -> newPageService.getByIdWithoutPermissionCheck(
+                        application.getPages().get(0).getId()))
                 .block();
 
         // mock the dsMigrationUtils to return the current DSL version as the latest DSL version
@@ -217,8 +217,8 @@ public class ApplicationPageServiceTest {
     public void getPageAndMigrateDslByBranchAndDefaultPageId_WhenEditModeDslIsNotLatest_EditModeDslMigrated() {
         String uuid = UUID.randomUUID().toString();
         NewPage newPage = createApplication("App_" + uuid)
-                .flatMap(application ->
-                        newPageService.getById(application.getPages().get(0).getId()))
+                .flatMap(application -> newPageService.getByIdWithoutPermissionCheck(
+                        application.getPages().get(0).getId()))
                 .block();
 
         // mock the dsMigrationUtils to return the (current DSL version-1) as the latest DSL version
@@ -243,7 +243,7 @@ public class ApplicationPageServiceTest {
 
         Mono<NewPage> newPageMono = applicationPageService
                 .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, false, true)
-                .then(newPageService.getById(newPage.getId()));
+                .then(newPageService.getByIdWithoutPermissionCheck(newPage.getId()));
 
         StepVerifier.create(newPageMono)
                 .assertNext(newpage -> {
@@ -276,8 +276,8 @@ public class ApplicationPageServiceTest {
     public void getPageAndMigrateDslByBranchAndDefaultPageId_WhenDSLHasNotVersion_DslMigratedToLatest() {
         String uuid = UUID.randomUUID().toString();
         NewPage newPage = createApplication("App_" + uuid)
-                .flatMap(application ->
-                        newPageService.getById(application.getPages().get(0).getId()))
+                .flatMap(application -> newPageService.getByIdWithoutPermissionCheck(
+                        application.getPages().get(0).getId()))
                 .flatMap(page -> {
                     Layout layout = page.getUnpublishedPage().getLayouts().get(0);
                     JSONObject unpublishedDsl = layout.getDsl();
@@ -303,7 +303,7 @@ public class ApplicationPageServiceTest {
 
         Mono<NewPage> newPageMono = applicationPageService
                 .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, false, true)
-                .then(newPageService.getById(newPage.getId()));
+                .then(newPageService.getByIdWithoutPermissionCheck(newPage.getId()));
 
         StepVerifier.create(newPageMono)
                 .assertNext(newpage -> {
@@ -325,8 +325,8 @@ public class ApplicationPageServiceTest {
     public void getPageAndMigrateDslByBranchAndDefaultPageId_WhenViewModeDslIsNotLatest_ViewModeDslMigrated() {
         String uuid = UUID.randomUUID().toString();
         NewPage newPage = createApplication("App_" + uuid)
-                .flatMap(application ->
-                        newPageService.getById(application.getPages().get(0).getId()))
+                .flatMap(application -> newPageService.getByIdWithoutPermissionCheck(
+                        application.getPages().get(0).getId()))
                 .block();
 
         // mock the dsMigrationUtils to return the (current DSL version-1) as the latest DSL version
@@ -351,7 +351,7 @@ public class ApplicationPageServiceTest {
 
         Mono<NewPage> newPageMono = applicationPageService
                 .getPageAndMigrateDslByBranchAndDefaultPageId(newPage.getId(), null, true, true)
-                .then(newPageService.getById(newPage.getId()));
+                .then(newPageService.getByIdWithoutPermissionCheck(newPage.getId()));
 
         StepVerifier.create(newPageMono)
                 .assertNext(newpage -> {
