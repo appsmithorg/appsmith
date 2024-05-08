@@ -61,7 +61,6 @@ import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   createMessage,
   ERROR_IMPORTING_APPLICATION_TO_WORKSPACE,
-  IMPORT_APP_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import { APP_MODE } from "entities/App";
 import type { Workspace } from "@appsmith/constants/workspaceConstants";
@@ -123,6 +122,7 @@ import {
 import equal from "fast-deep-equal";
 import { getFromServerWhenNoPrefetchedResult } from "sagas/helper";
 import { getIsAnvilLayoutEnabled } from "layoutSystems/anvil/integrations/selectors";
+
 export const getDefaultPageId = (
   pages?: ApplicationPagePayload[],
 ): string | undefined => {
@@ -791,7 +791,7 @@ export function* importApplicationSaga(
           }
           history.push(pageURL);
 
-          toast.show(createMessage(IMPORT_APP_SUCCESSFUL), {
+          toast.show("Application imported successfully", {
             kind: "success",
           });
         }
