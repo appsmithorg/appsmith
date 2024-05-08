@@ -7,6 +7,10 @@ import {
 import styled from "styled-components";
 import _ from "lodash";
 import { Button, Spinner, toast, Tooltip } from "design-system";
+import {
+  INVALID_NAME_ERROR,
+  createMessage,
+} from "@appsmith/constants/messages";
 
 export enum EditInteractionKind {
   SINGLE,
@@ -195,7 +199,7 @@ export function EditableText(props: EditableTextProps) {
         onTextChanged(_value);
         setIsEditing(false);
       } else {
-        toast.show(customErrorTooltip || "Invalid name", {
+        toast.show(customErrorTooltip || createMessage(INVALID_NAME_ERROR), {
           kind: "error",
         });
       }

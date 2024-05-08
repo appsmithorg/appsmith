@@ -1,4 +1,8 @@
 import { BUTTON_VARIANTS, COLORS } from "@design-system/widgets";
+import {
+  BUTTON_WIDGET_DEFAULT_LABEL,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 import { capitalize } from "lodash";
 
@@ -40,7 +44,7 @@ export const propertyPaneContentConfig = [
                   helpText: "Sets the label of the button",
                   label: "Text",
                   controlType: "INPUT_TEXT",
-                  placeholderText: "Do Something",
+                  placeholderText: createMessage(BUTTON_WIDGET_DEFAULT_LABEL),
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: { type: ValidationTypes.TEXT },
@@ -104,6 +108,7 @@ export const propertyPaneContentConfig = [
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  isReusable: true,
                   validation: {
                     type: ValidationTypes.TEXT,
                     params: {
@@ -125,6 +130,7 @@ export const propertyPaneContentConfig = [
                   isJSConvertible: true,
                   isBindProperty: true,
                   isTriggerProperty: false,
+                  isReusable: true,
                   validation: {
                     type: ValidationTypes.TEXT,
                     params: {

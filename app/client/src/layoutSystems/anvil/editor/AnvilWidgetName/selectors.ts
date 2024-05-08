@@ -1,21 +1,12 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 import type { AppState } from "@appsmith/reducers";
 import type { NameComponentStates } from "./types";
 import { EVAL_ERROR_PATH } from "utils/DynamicBindingUtils";
 import get from "lodash/get";
 import { createSelector } from "reselect";
-import { getIsDragging, getIsResizing } from "selectors/widgetDragSelectors";
+import { getIsDragging } from "selectors/widgetDragSelectors";
 import { getAnvilHighlightShown } from "layoutSystems/anvil/integrations/selectors";
-import {
-  isCurrentWidgetFocused,
-  isWidgetSelected,
-} from "selectors/widgetSelectors";
-import {
-  combinedPreviewModeSelector,
-  isEditOnlyModeSelector,
-} from "selectors/editorSelectors";
-import { getAppMode } from "@appsmith/selectors/applicationSelectors";
-import { APP_MODE } from "entities/App";
+import { isWidgetFocused, isWidgetSelected } from "selectors/widgetSelectors";
+import { isEditOnlyModeSelector } from "selectors/editorSelectors";
 
 /**
  *
@@ -66,7 +57,7 @@ export function shouldSelectOrFocus(widgetId: string) {
     getIsDragging,
     getAnvilHighlightShown,
     isWidgetSelected(widgetId),
-    isCurrentWidgetFocused(widgetId),
+    isWidgetFocused(widgetId),
     (
       isEditorOpen,
       isDragging,

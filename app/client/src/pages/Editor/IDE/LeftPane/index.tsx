@@ -15,9 +15,10 @@ import DataSidePane from "./DataSidePane";
 import LibrarySidePane from "./LibrarySidePane";
 import EditorPane from "../EditorPane";
 
-export const LeftPaneContainer = styled.div`
+export const LeftPaneContainer = styled.div<{ showRightBorder?: boolean }>`
   height: 100%;
-  border-right: 1px solid var(--ads-v2-color-border);
+  border-right: ${({ showRightBorder = true }) =>
+    showRightBorder ? "1px solid var(--ads-v2-color-border)" : "none"};
   background: var(--ads-v2-color-bg);
 `;
 
