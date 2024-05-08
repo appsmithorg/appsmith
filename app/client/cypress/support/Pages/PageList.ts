@@ -6,7 +6,6 @@ import EditorNavigation, {
 } from "./EditorNavigation";
 import { EntityItems } from "./AssertHelper";
 import { PAGE_ENTITY_NAME } from "../../../src/ce/constants/messages";
-import { getNextEntityName } from "../../../src/utils/AppsmithUtils";
 class PageList {
   private locators = {
     pageListItem: (pageName: string) =>
@@ -16,7 +15,7 @@ class PageList {
     switcher: `.t--pages-switcher`,
   };
 
-  public DefaultPageName = getNextEntityName(PAGE_ENTITY_NAME, []);
+  public DefaultPageName = PAGE_ENTITY_NAME + "1";
 
   public AddNewPage(
     option:
