@@ -5,6 +5,7 @@ import EditorNavigation, {
   EntityType,
 } from "./EditorNavigation";
 import { EntityItems } from "./AssertHelper";
+import { PAGE_ENTITY_NAME } from "../../../src/ce/constants/messages";
 
 class PageList {
   private locators = {
@@ -14,6 +15,8 @@ class PageList {
     newPageOption: ".ads-v2-menu__menu-item-children",
     switcher: `.t--pages-switcher`,
   };
+
+  public DefaultPageName = PAGE_ENTITY_NAME + "1";
 
   public AddNewPage(
     option:
@@ -50,7 +53,7 @@ class PageList {
     this.HideList();
   }
 
-  public ClonePage(pageName = "Page1") {
+  public ClonePage(pageName = this.DefaultPageName) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     ObjectsRegistry.EntityExplorer.ActionContextMenuByEntityName({
@@ -113,7 +116,7 @@ class PageList {
     this.HideList();
   }
 
-  public HidePage(pageName = "Page1") {
+  public HidePage(pageName = this.DefaultPageName) {
     AppSidebar.navigate(AppSidebarButton.Editor);
     EditorNavigation.SelectEntityByName(pageName, EntityType.Page);
     ObjectsRegistry.EntityExplorer.ActionContextMenuByEntityName({
