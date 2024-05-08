@@ -1,3 +1,7 @@
+import {
+  BUTTON_WIDGET_DEFAULT_LABEL,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 export const propertyPaneContentConfig = [
@@ -38,7 +42,7 @@ export const propertyPaneContentConfig = [
                   helpText: "Sets the label of the button",
                   label: "Text",
                   controlType: "INPUT_TEXT",
-                  placeholderText: "Do something",
+                  placeholderText: createMessage(BUTTON_WIDGET_DEFAULT_LABEL),
                   isBindProperty: true,
                   isTriggerProperty: false,
                   validation: { type: ValidationTypes.TEXT },

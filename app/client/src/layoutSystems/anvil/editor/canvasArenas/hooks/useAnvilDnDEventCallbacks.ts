@@ -71,10 +71,11 @@ export const useAnvilDnDEventCallbacks = ({
     // Resetting the dnd listener state when necessary
     if (anvilDnDListenerRef.current) {
       removeDisallowDroppingsUI(anvilDnDListenerRef.current);
-      canvasIsDragging.current = false;
-      dispatch(setHighlightsDrawnAction());
-      setHighlightShown(null);
     }
+    canvasIsDragging.current = false;
+    dispatch(setHighlightsDrawnAction());
+    setHighlightShown(null);
+    currentSelectedHighlight.current = null;
   }, [dispatch, setHighlightShown]);
   const onMouseUp = useCallback(() => {
     if (

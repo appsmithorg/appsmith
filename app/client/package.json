@@ -57,6 +57,7 @@
     "@design-system/theming": "workspace:^",
     "@design-system/widgets": "workspace:^",
     "@design-system/widgets-old": "workspace:^",
+    "@floating-ui/dom": "^1.6.4",
     "@fusioncharts/powercharts": "^3.16.0",
     "@github/g-emoji-element": "^1.1.5",
     "@googlemaps/markerclusterer": "^2.0.14",

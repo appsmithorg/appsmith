@@ -1416,7 +1416,6 @@ public class GitServiceCEImpl implements GitServiceCE {
                                 gitArtifactMetadata.getRepoName());
                         return gitExecutor.listBranches(repoPath);
                     })
-                    .flatMap(branchList -> releaseFileLock(defaultApplicationId).thenReturn(branchList))
                     .flatMap(gitBranchDTOList -> {
                         long branchMatchCount = gitBranchDTOList.stream()
                                 .filter(gitBranchDTO ->
@@ -1457,15 +1456,12 @@ public class GitServiceCEImpl implements GitServiceCE {
                 })
                 .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, FALSE.toString())
                 .name(GitSpan.OPS_CHECKOUT_BRANCH)
-                .tap(Micrometer.observation(observationRegistry))
-                .onErrorResume(throwable -> {
-                    return Mono.error(throwable);
-                });
+                .tap(Micrometer.observation(observationRegistry));
     }
 
     private Mono<Application> checkoutRemoteBranch(String defaultApplicationId, String branchName) {
-        Mono<Application> checkoutRemoteBranchMono = addFileLock(defaultApplicationId)
-                .flatMap(status -> getApplicationById(defaultApplicationId, applicationPermission.getEditPermission()))
+        Mono<Application> checkoutRemoteBranchMono = getApplicationById(
+                        defaultApplicationId, applicationPermission.getEditPermission())
                 .flatMap(application -> {
                     GitArtifactMetadata gitArtifactMetadata = application.getGitApplicationMetadata();
                     String repoName = gitArtifactMetadata.getRepoName();
@@ -1567,9 +1563,7 @@ public class GitServiceCEImpl implements GitServiceCE {
                                     TRUE.equals(application1
                                             .getGitApplicationMetadata()
                                             .getIsRepoPrivate())))
-                            .map(responseUtils::updateApplicationWithDefaultResources)
-                            .flatMap(application1 ->
-                                    releaseFileLock(defaultApplicationId).then(Mono.just(application1)));
+                            .map(responseUtils::updateApplicationWithDefaultResources);
                 })
                 .tag(GitConstants.GitMetricConstants.CHECKOUT_REMOTE, TRUE.toString())
                 .name(GitSpan.OPS_CHECKOUT_BRANCH)

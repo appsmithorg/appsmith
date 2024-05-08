@@ -100,7 +100,7 @@ export class HomePage {
   private _deleteApp = '[data-testid="t--delete-confirm"]';
   private _deleteAppConfirm = '[data-testid="t--delete"]';
   private _wsAction = (action: string) =>
-    ".ads-v2-menu__menu-item-children:contains('" + action + "')";
+    ".workspace-menu-item:contains('" + action + "')";
   private _homeTab = ".t--apps-tab";
   private adsV2Text = ".ads-v2-text";
   private _forkWorkspaceDropdownOption = "div.rc-select-selector";
