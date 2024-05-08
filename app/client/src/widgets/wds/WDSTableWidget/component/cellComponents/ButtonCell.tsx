@@ -9,10 +9,11 @@ export interface ButtonCellProps {
   cellColor?: "default" | keyof typeof COLORS;
   buttonVariant?: ButtonProps["variant"];
   onClick?: (onComplete: () => void) => void;
+  isDisabled?: boolean;
 }
 
 function ButtonCell(props: ButtonCellProps & BaseCellComponentProps) {
-  const { buttonLabel, buttonVariant, cellColor } = props;
+  const { buttonLabel, buttonVariant, cellColor, isDisabled } = props;
   const [isLoading, setIsLoading] = useState(false);
 
   const onComplete = () => {
@@ -30,6 +31,7 @@ function ButtonCell(props: ButtonCellProps & BaseCellComponentProps) {
   return (
     <Button
       color={cellColor === "default" ? "accent" : cellColor}
+      isDisabled={isDisabled}
       isLoading={isLoading}
       onPress={onClick}
       variant={buttonVariant}

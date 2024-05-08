@@ -33,7 +33,7 @@ export default {
         },
       ],
       isJSConvertible: true,
-      customJSControl: "TABLE_COMPUTE_VALUE",
+
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: true,
       isTriggerProperty: false,

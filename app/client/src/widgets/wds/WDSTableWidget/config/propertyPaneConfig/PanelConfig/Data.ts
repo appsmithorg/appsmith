@@ -44,6 +44,10 @@ export default {
           label: "URL",
           value: ColumnTypes.URL,
         },
+        {
+          label: "Date",
+          value: ColumnTypes.DATE,
+        },
       ],
       updateHook: composePropertyUpdateHook([
         updateNumberColumnTypeTextAlignment,
@@ -106,7 +110,7 @@ export default {
       propertyName: "displayText",
       label: "Display text",
       helpText: "The text to be displayed in the column",
-      controlType: "TABLE_COMPUTE_VALUE",
+      controlType: "INPUT_TEXT",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
@@ -114,33 +118,6 @@ export default {
       },
       dependencies: ["primaryColumns", "columnOrder"],
       isBindProperty: false,
-      isTriggerProperty: false,
-    },
-    {
-      helpText:
-        "The value computed & shown in each cell. Use {{currentRow}} to reference each row in the table. This property is not accessible outside the column settings.",
-      propertyName: "computedValue",
-      label: "Computed value",
-      controlType: "TABLE_COMPUTE_VALUE",
-      additionalControlData: {
-        isArrayValue: true,
-      },
-      hidden: (props: TableWidgetProps, propertyPath: string) => {
-        return hideByColumnType(props, propertyPath, [
-          ColumnTypes.DATE,
-          ColumnTypes.IMAGE,
-          ColumnTypes.NUMBER,
-          ColumnTypes.TEXT,
-          ColumnTypes.VIDEO,
-          ColumnTypes.URL,
-          ColumnTypes.CHECKBOX,
-          ColumnTypes.SWITCH,
-          ColumnTypes.SELECT,
-          ColumnTypes.CURRENCY,
-        ]);
-      },
-      dependencies: ["primaryColumns", "columnOrder"],
-      isBindProperty: true,
       isTriggerProperty: false,
     },
     {
@@ -231,7 +208,6 @@ export default {
         },
       ],
       defaultValue: "YYYY-MM-DD HH:mm",
-      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
@@ -278,7 +254,6 @@ export default {
       label: "Display format",
       helpText: "Date format to be shown to users",
       controlType: "DROP_DOWN",
-      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       options: [
         {

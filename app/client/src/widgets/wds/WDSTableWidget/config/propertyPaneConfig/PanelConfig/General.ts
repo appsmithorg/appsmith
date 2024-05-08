@@ -19,7 +19,7 @@ export default {
       helpText: "Controls the visibility of the cell in the column",
       defaultValue: true,
       controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
+
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -36,7 +36,7 @@ export default {
       helpText: "Controls the disabled state of the button",
       defaultValue: false,
       controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
+
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -60,7 +60,7 @@ export default {
       helpText: "Decides if menu items will consume lesser space",
       label: "Compact",
       controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
+
       isJSConvertible: true,
       isBindProperty: true,
       validation: {
@@ -82,7 +82,7 @@ export default {
       helpText: "Allows content of the cell to be wrapped",
       defaultValue: false,
       controlType: "SWITCH",
-      customJSControl: "TABLE_COMPUTE_VALUE",
+
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -100,33 +100,6 @@ export default {
         ]);
       },
     },
-    {
-      propertyName: "sticky",
-      helpText:
-        "Choose column that needs to be frozen left or right of the table",
-      controlType: "ICON_TABS",
-      defaultValue: StickyType.NONE,
-      label: "Column freeze",
-      fullWidth: true,
-      isBindProperty: true,
-      isTriggerProperty: false,
-      dependencies: ["primaryColumns", "columnOrder"],
-      options: [
-        {
-          startIcon: "contract-left-line",
-          value: StickyType.LEFT,
-        },
-        {
-          startIcon: "column-freeze",
-          value: StickyType.NONE,
-        },
-        {
-          startIcon: "contract-right-line",
-          value: StickyType.RIGHT,
-        },
-      ],
-      updateHook: updateColumnOrderWhenFrozen,
-    },
   ],
 };
 
@@ -137,7 +110,7 @@ export const GeneralStyle = {
       propertyName: "buttonVariant",
       label: "Button variant",
       controlType: "DROP_DOWN",
-      customJSControl: "TABLE_COMPUTE_VALUE",
+
       fullWidth: true,
       helpText: "Sets the variant of the button",
       options: Object.values(BUTTON_VARIANTS).map((variant) => ({

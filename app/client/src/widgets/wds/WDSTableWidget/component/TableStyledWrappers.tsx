@@ -228,34 +228,12 @@ export const CellWrapper = styled.div<{
   }
 `;
 
-export const CellCheckboxWrapper = styled(CellWrapper)<{
-  isChecked?: boolean;
-  accentColor?: string;
-  borderRadius?: string;
-}>`
+export const CellCheckboxWrapper = styled(CellWrapper)`
   left: 0;
   z-index: ${Layers.modalWidget};
   justify-content: center;
   width: ${MULTISELECT_CHECKBOX_WIDTH}px;
   height: auto;
-  & > div {
-    border-radius: ${({ borderRadius }) => borderRadius};
-
-    ${(props) =>
-      props.isChecked
-        ? `
-          background: ${props.accentColor};
-          &:hover {
-            background: ${darkenColor(props.accentColor)};
-          }
-            `
-        : `
-          border: 1px solid ${Colors.GREY_3};
-          &:hover {
-            border: 1px solid ${Colors.GREY_5};
-          }
-        `};
-  }
 `;
 
 export const CellCheckbox = styled.div`

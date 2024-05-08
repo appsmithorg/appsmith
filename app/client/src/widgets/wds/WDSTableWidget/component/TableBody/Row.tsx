@@ -62,8 +62,7 @@ export function Row(props: RowType) {
       key={key}
       onClick={onClickRow}
     >
-      {multiRowSelection &&
-        renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
+      {multiRowSelection && renderBodyCheckBoxCell(isRowSelected)}
       {props.row.cells.map((cell, cellIndex) => {
         const cellProperties = cell.getCellProps();
 

@@ -34,7 +34,7 @@ export default {
       updateHook: updateIconAlignment,
       dependencies: ["primaryColumns", "columnOrder"],
       controlType: "ICON_SELECT",
-      customJSControl: "TABLE_COMPUTE_VALUE",
+
       defaultIconName: "add",
       isJSConvertible: true,
       isBindProperty: true,
@@ -54,7 +54,7 @@ export default {
       propertyName: "buttonLabel",
       label: "Text",
       helpText: "Sets the label of the button",
-      controlType: "TABLE_COMPUTE_VALUE",
+      controlType: "INPUT_TEXT",
       defaultValue: "Action",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [ColumnTypes.BUTTON]);

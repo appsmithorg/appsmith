@@ -6,6 +6,7 @@ import CheckboxComponent from "widgets/CheckboxWidget/component/index";
 import { LabelPosition } from "components/constants";
 import styled from "styled-components";
 import { Tooltip } from "@blueprintjs/core";
+import { Checkbox } from "@design-system/widgets";
 
 const UnsavedChangesMarker = styled.div<{ accentColor: string }>`
   position: absolute;
@@ -52,64 +53,15 @@ type CheckboxCellProps = BaseCellComponentProps & {
 };
 
 const CheckboxCellComponent = (props: CheckboxCellProps) => {
-  const {
-    accentColor,
-    borderRadius,
-    cellBackground,
-    disabledCheckbox,
-    disabledCheckboxMessage,
-    hasUnSavedChanges,
-    horizontalAlignment,
-    isCellDisabled,
-    isCellEditable,
-    isCellVisible,
-    isHidden,
-    onChange,
-    value,
-    verticalAlignment,
-  } = props;
+  const { disabledCheckbox, isCellEditable, onChange, value } = props;
 
-  const checkbox = (
-    <CheckboxComponent
-      accentColor={accentColor}
-      borderRadius={borderRadius}
-      isChecked={value}
-      isDisabled={!!disabledCheckbox || !isCellEditable}
-      isLoading={false}
-      isRequired={false}
-      label=""
-      labelPosition={LabelPosition.Auto}
-      onCheckChange={() => onChange()}
-      widgetId={""}
-    />
-  );
   return (
-    <CheckboxCellWrapper
-      cellBackground={cellBackground}
-      horizontalAlignment={horizontalAlignment}
-      isCellDisabled={isCellDisabled}
-      isCellVisible={isCellVisible}
-      isHidden={isHidden}
-      verticalAlignment={verticalAlignment}
-    >
-      {hasUnSavedChanges && <UnsavedChangesMarker accentColor={accentColor} />}
-      {isCellEditable && !!disabledCheckbox ? (
-        <Tooltip
-          autoFocus={false}
-          content={
-            <TooltipContentWrapper>
-              {disabledCheckboxMessage}
-            </TooltipContentWrapper>
-          }
-          hoverOpenDelay={200}
-          position="top"
-        >
-          {checkbox}
-        </Tooltip>
-      ) : (
-        checkbox
-      )}
-    </CheckboxCellWrapper>
+    <Checkbox
+      isDisabled={!!disabledCheckbox || !isCellEditable}
+      isRequired={false}
+      isSelected={value}
+      onChange={() => onChange()}
+    />
   );
 };
 

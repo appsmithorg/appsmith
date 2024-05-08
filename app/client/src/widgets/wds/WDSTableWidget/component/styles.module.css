@@ -24,7 +24,7 @@
   /* adding overflow hidden so that the scollbar at the bottom does not flow out */
   overflow: hidden;
 
-  & [aria-hidden] {
+  & [aria-hidden]:not([role="presentation"]) {
     opacity: 0.6;
   }
 
@@ -208,7 +208,8 @@
     [role="cell"]:is(
       [data-column-type="text"],
       [data-column-type="number"],
-      [data-column-type="url"]
+      [data-column-type="url"],
+      [data-column-type="date"]
     ) {
     padding: var(--outer-spacing-4) var(--outer-spacing-3);
   }

@@ -1532,52 +1532,16 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       ) || props.cell.column.columnProperties;
     const rowIndex = props.cell.row.index;
 
-    /*
-     * We don't need to render cells that don't display data (button, iconButton, etc)
-     */
-    if (
-      this.props.isAddRowInProgress &&
-      rowIndex === 0 &&
-      ActionColumnTypes.includes(column.columnType)
-    ) {
-      return <CellWrapper />;
-    }
-
     const isHidden = !column.isVisible;
-    const {
-      filteredTableData = [],
-      multiRowSelection,
-      selectedRowIndex,
-      selectedRowIndices,
-    } = this.props;
-    let row;
-    let originalIndex: number;
-
-    /*
-     * In add new row flow, a temporary row is injected at the top of the tableData, which doesn't
-     * have original row index value. so we are using -1 as the value
-     */
-    if (this.props.isAddRowInProgress) {
-      row = filteredTableData[rowIndex - 1];
-      originalIndex = rowIndex === 0 ? -1 : row[ORIGINAL_INDEX_KEY] ?? rowIndex;
-    } else {
-      row = filteredTableData[rowIndex];
-      originalIndex = row[ORIGINAL_INDEX_KEY] ?? rowIndex;
-    }
+    const { filteredTableData = [] } = this.props;
+    const row = filteredTableData[rowIndex];
+    const originalIndex = row[ORIGINAL_INDEX_KEY] ?? rowIndex;
 
     /*
      * cellProperties order or size does not change when filter/sorting/grouping is applied
      * on the data thus original index is needed to identify the column's cell property.
      */
     const cellProperties = getCellProperties(column, originalIndex);
-
-    if (this.props.isAddRowInProgress) {
-      cellProperties.isCellDisabled = rowIndex !== 0;
-
-      if (rowIndex === 0) {
-        cellProperties.cellBackground = "red";
-      }
-    }
 
     switch (column.columnType) {
       case "url":
@@ -1593,6 +1557,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           />
         );
       case "button":
+        console.log({ cellProperties });
         return (
           <ButtonCell
             buttonLabel={cellProperties.buttonLabel || "Action"}
@@ -1600,6 +1565,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
             cellColor={cellProperties.cellColor}
             fontStyle={cellProperties.fontStyle}
             isCellVisible={cellProperties.isCellVisible ?? true}
+            isDisabled={cellProperties.isDisabled}
             isHidden={isHidden}
             onClick={(onComplete: () => void) =>
               this.onColumnEvent({

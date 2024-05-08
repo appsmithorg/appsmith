@@ -201,12 +201,7 @@ export function getDefaultColumnProperties(
     isDerived: !!isDerived,
     label: id,
     isSaveVisible: true,
-    isDiscardVisible: true,
-    computedValue: isDerived
-      ? ""
-      : `{{${widgetName}.processedTableData.map((currentRow, currentIndex) => ( currentRow["${escapeString(
-          id,
-        )}"]))}}`,
+    isDiscardVisible: true, 
     sticky: StickyType.NONE,
     validation: {},
     currencyCode: "USD",

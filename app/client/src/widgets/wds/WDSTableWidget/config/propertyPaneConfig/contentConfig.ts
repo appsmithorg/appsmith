@@ -71,6 +71,7 @@ export const contentConfig = [
           "cellBackground",
           "verticalAlignment",
           "horizontalAlignment",
+          "type",
         ],
         isBindProperty: false,
         isTriggerProperty: false,
