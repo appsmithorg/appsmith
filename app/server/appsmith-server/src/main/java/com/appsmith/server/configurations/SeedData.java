@@ -1,13 +1,11 @@
 package com.appsmith.server.configurations;
 
 import com.appsmith.external.helpers.AppsmithBeanUtils;
-import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
-import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.PricingPlan;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
@@ -16,7 +14,6 @@ import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.helpers.InMemoryCacheableRepositoryHelper;
 import com.appsmith.server.repositories.ConfigRepository;
 import com.appsmith.server.repositories.PermissionGroupRepository;
-import com.appsmith.server.repositories.PluginRepository;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.repositories.ThemeRepository;
 import com.appsmith.server.repositories.UserRepository;
@@ -37,7 +34,6 @@ import org.springframework.data.jpa.repository.Modifying;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -215,67 +211,6 @@ public class SeedData {
 
                     return new PublicPermissionInfo(publicPermissionGroup, config);
                 });
-    }
-
-    @Bean
-    public List<Plugin> savedPlugins(EntityManager entityManager, PluginRepository pluginRepository) {
-        final List<Plugin> plugins = Arrays.asList(
-                Plugin.builder()
-                        .name("PostgreSQL")
-                        .packageName("postgres-plugin")
-                        .type(PluginType.DB)
-                        .uiComponent("DbEditorForm")
-                        .defaultInstall(true)
-                        .build(),
-                Plugin.builder()
-                        .name("REST API")
-                        .packageName("restapi-plugin")
-                        .type(PluginType.API)
-                        .uiComponent("ApiEditorForm")
-                        .defaultInstall(true)
-                        .build(),
-                Plugin.builder()
-                        .name("MongoDB")
-                        .packageName("mongo-plugin")
-                        .type(PluginType.DB)
-                        .uiComponent("UQIDbEditorForm")
-                        .defaultInstall(true)
-                        .build(),
-                Plugin.builder()
-                        .name("Authenticated GraphQL API")
-                        .packageName("graphql-plugin")
-                        .type(PluginType.API)
-                        .uiComponent("GraphQLEditorForm")
-                        .defaultInstall(true)
-                        .build(),
-                // TODO remove following plugins from Seed data once the migrations are in place
-                Plugin.builder()
-                        .name("Google Sheets")
-                        .packageName("google-sheets-plugin")
-                        .type(PluginType.SAAS)
-                        .uiComponent("UQIDbEditorForm")
-                        .defaultInstall(true)
-                        .build(),
-                Plugin.builder()
-                        .name("JS Functions")
-                        .packageName("js-plugin")
-                        .type(PluginType.JS)
-                        .uiComponent("JSEditorForm")
-                        .defaultInstall(true)
-                        .build());
-
-        for (final Plugin plugin : plugins) {
-            Plugin pluginToSave = pluginRepository
-                    .findByPackageName(plugin.getPackageName())
-                    .map(existingPlugin -> {
-                        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(plugin, existingPlugin);
-                        return existingPlugin;
-                    })
-                    .orElse(plugin);
-            pluginRepository.save(pluginToSave);
-        }
-
-        return Collections.unmodifiableList(plugins);
     }
 
     @Bean
