@@ -25,8 +25,6 @@ export default {
   bodyType: ".t--apiFormPostBodyType",
   bodyTypeSelected: '[data-testid="t--api-body-tab-switch"] .rc-select-selection-item',
   bodyTab: "Body",
-  jsonBodyTab:
-    ".ads-v2-segmented-control__segments-container-segment[data-value='application/json']",
   headersTab: "Header",
   jsonResponseTab: "[data-value='JSON']",
   tableResponseTab: "[data-value='TABLE']",
