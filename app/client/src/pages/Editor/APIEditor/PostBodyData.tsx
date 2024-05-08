@@ -152,7 +152,7 @@ function PostBodyData(props: Props) {
               dataTreePath={`${dataTreePath}.body`}
               mode={EditorModes.TEXT_WITH_BINDING}
               name="actionConfiguration.body"
-              placeholder={`{{\n\t// File contents should be in base64, Please select data format as base64 in File picker widget\n\tfilePickerName.files[0].data\n}}`}
+              placeholder={`{{\n\t// Make sure to select the 'Base64' in the Data Format property of the Filepicker widget as the file contents are expected to be in Base64 format\n\tfilePickerName.files[0].data\n}}`}
               size={EditorSize.EXTENDED}
               tabBehaviour={TabBehaviour.INDENT}
               theme={theme}
