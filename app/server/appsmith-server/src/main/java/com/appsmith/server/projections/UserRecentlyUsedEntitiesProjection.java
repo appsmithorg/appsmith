@@ -7,8 +7,8 @@ import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 public class UserRecentlyUsedEntitiesProjection {
     List<RecentlyUsedEntityDTO> recentlyUsedEntityIds;
