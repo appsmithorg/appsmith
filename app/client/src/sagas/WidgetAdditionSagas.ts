@@ -52,7 +52,7 @@ import {
 } from "./WidgetBlueprintSagas";
 import { getPropertiesToUpdate } from "./WidgetOperationSagas";
 import { getWidget, getWidgets } from "./selectors";
-import { addBuildingBlockToCanvasSaga } from "./BuildingBlockAdditionSagas";
+import { addBuildingBlockToCanvasSaga } from "./BuildingBlockSagas/BuildingBlockAdditionSagas";
 import { getCurrentlyOpenAnvilDetachedWidgets } from "layoutSystems/anvil/integrations/modalSelectors";
 
 const WidgetTypes = WidgetFactory.widgetTypes;

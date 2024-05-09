@@ -25,7 +25,7 @@ const StyledSpaceDistributionHandle = styled.div<{ left: number }>`
   height: calc(100% - 2 * ${SpaceDistributorHandleDimensions.offsetTop}px);
   top: ${SpaceDistributorHandleDimensions.offsetTop}px;
   border-radius: ${SpaceDistributorHandleDimensions.borderRadius}px;
-  padding: 0px ${SpaceDistributorHandleDimensions.padding}px;
+  padding: 0 ${SpaceDistributorHandleDimensions.padding}px;
   pointer-events: all;
   z-index: 1000;
   left: ${({ left }) => left}px;
