@@ -62,6 +62,7 @@ parts.push(`
   reverse_proxy {
     to 127.0.0.1:{args[0]}
     header_up -Forwarded
+    header_up X-Appsmith-Request-Id {http.request.uuid}
   }
 }
 
@@ -71,10 +72,22 @@ parts.push(`
   }
   skip_log /api/v1/health
 
+  # The internal request ID header should never be accepted from an incoming request.
+  request_header -X-Appsmith-Request-Id
+
+  # Ref: https://stackoverflow.com/a/38191078/151048
+  # We're only accepting v4 UUIDs today, in order to not make it too lax unless needed.
+  @valid-request-id expression {header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @valid-request-id X-Request-Id {header.X-Request-Id}
+  @invalid-request-id expression !{header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @invalid-request-id X-Request-Id invalid_request_id
+  request_header @invalid-request-id X-Request-Id invalid_request_id
+
   header {
     -Server
     Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
     X-Content-Type-Options "nosniff"
+    X-Appsmith-Request-Id {http.request.uuid}
   }
 
   request_body {

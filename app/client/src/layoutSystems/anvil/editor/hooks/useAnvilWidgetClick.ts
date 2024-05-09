@@ -2,14 +2,14 @@ import { SELECT_ANVIL_WIDGET_CUSTOM_EVENT } from "layoutSystems/anvil/utils/cons
 import { useCallback, useEffect, useRef } from "react";
 import { useSelector } from "react-redux";
 import { snipingModeSelector } from "selectors/editorSelectors";
-import { isCurrentWidgetFocused } from "selectors/widgetSelectors";
+import { isWidgetFocused } from "selectors/widgetSelectors";
 
 export const useAnvilWidgetClick = (
   widgetId: string,
   ref: React.RefObject<HTMLDivElement>, // Ref object to reference the AnvilFlexComponent
 ) => {
   // Retrieve state from the Redux store
-  const isFocused = useSelector(isCurrentWidgetFocused(widgetId));
+  const isFocused = useSelector(isWidgetFocused(widgetId));
   const isSnipingMode = useSelector(snipingModeSelector);
   const allowSelectionRef = useRef(false);
   useEffect(() => {

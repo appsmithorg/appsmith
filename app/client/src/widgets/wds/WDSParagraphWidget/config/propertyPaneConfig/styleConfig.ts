@@ -32,6 +32,7 @@ export const propertyPaneStyleConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        isReusable: true,
         validation: {
           type: ValidationTypes.TEXT,
           params: {
@@ -69,6 +70,7 @@ export const propertyPaneStyleConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        isReusable: true,
         validation: {
           type: ValidationTypes.TEXT,
           params: {
@@ -95,6 +97,7 @@ export const propertyPaneStyleConfig = [
         isJSConvertible: true,
         isBindProperty: true,
         isTriggerProperty: false,
+        isReusable: true,
         validation: { type: ValidationTypes.TEXT },
       },
     ],

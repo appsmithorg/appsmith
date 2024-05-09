@@ -276,6 +276,7 @@ export class AggregateHelper {
     timeout = Cypress.config("pageLoadTimeout"),
   ) {
     let locator;
+    expect(selector).to.not.be.undefined;
     if (typeof selector == "string") {
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
@@ -885,7 +886,11 @@ export class AggregateHelper {
   }
 
   public ClearTextField(selector: string, force = false, index = 0) {
-    this.GetElement(selector).eq(index).focus().clear({ force });
+    this.GetElement(selector)
+      .eq(index)
+      .scrollIntoView({ easing: "linear" })
+      .click()
+      .clear({ force });
     this.Sleep(500); //for text to clear for CI runs
   }
 
@@ -933,6 +938,8 @@ export class AggregateHelper {
     if (shouldFocus) {
       element.focus();
     }
+
+    if (value === "") return element;
 
     return element.wait(100).type(value, {
       parseSpecialCharSequences: parseSpecialCharSeq,

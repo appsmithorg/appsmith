@@ -35,11 +35,11 @@ public interface PluginServiceCE extends CrudService<Plugin, String> {
 
     Plugin redisInstallPlugin(InstallPluginRedisDTO installPluginRedisDTO);
 
-    Mono<Map> getFormConfig(String pluginId);
+    Mono<Map<?, ?>> getFormConfig(String pluginId);
 
     Flux<Plugin> getAllRemotePlugins();
 
-    Mono<Map> loadPluginResource(String pluginId, String resourcePath);
+    Mono<Map<?, ?>> loadPluginResource(String pluginId, String resourcePath);
 
     Mono<Map> getEditorConfigLabelMap(String pluginId);
 

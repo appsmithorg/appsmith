@@ -6,6 +6,7 @@ import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.InstanceConfig;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
+import com.appsmith.server.helpers.RTSCaller;
 import com.appsmith.util.WebClientUtils;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -14,8 +15,6 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -41,6 +40,8 @@ public class AstServiceCEImpl implements AstServiceCE {
     private final CommonConfig commonConfig;
 
     private final InstanceConfig instanceConfig;
+
+    private final RTSCaller rtsCaller;
 
     private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
             .maxConnections(100)
@@ -115,16 +116,12 @@ public class AstServiceCEImpl implements AstServiceCE {
                         Mono.just(new HashSet<>(MustacheHelper.getPossibleParentsOld(bindingValue))));
             });
         }
-        return webClient
-                .post()
-                .uri(commonConfig.getRtsBaseUrl() + "/rts-api/v1/ast/multiple-script-data")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(new GetIdentifiersRequestBulk(bindingValues, evalVersion)))
-                .retrieve()
-                .bodyToMono(GetIdentifiersResponseBulk.class)
-                .retryWhen(Retry.max(3))
-                .flatMapIterable(getIdentifiersResponse -> getIdentifiersResponse.data)
-                .index()
+        return rtsCaller
+                .post("/rts-api/v1/ast/multiple-script-data", new GetIdentifiersRequestBulk(bindingValues, evalVersion))
+                .flatMapMany(spec -> spec.bodyToMono(GetIdentifiersResponseBulk.class)
+                        .retryWhen(Retry.max(3))
+                        .flatMapIterable(getIdentifiersResponse -> getIdentifiersResponse.data)
+                        .index())
                 .flatMap(tuple2 -> {
                     long currentIndex = tuple2.getT1();
                     Set<String> references = tuple2.getT2().getReferences();
@@ -148,13 +145,9 @@ public class AstServiceCEImpl implements AstServiceCE {
                 .flatMap(bindingValue -> {
                     EntityRefactorRequest entityRefactorRequest = new EntityRefactorRequest(
                             bindingValue.getValue(), oldName, newName, evalVersion, isJSObject);
-                    return webClient
-                            .post()
-                            .uri(commonConfig.getRtsBaseUrl() + "/rts-api/v1/ast/entity-refactor")
-                            .contentType(MediaType.APPLICATION_JSON)
-                            .body(BodyInserters.fromValue(entityRefactorRequest))
-                            .retrieve()
-                            .toEntity(EntityRefactorResponse.class)
+                    return rtsCaller
+                            .post("/rts-api/v1/ast/entity-refactor", entityRefactorRequest)
+                            .flatMap(spec -> spec.toEntity(EntityRefactorResponse.class))
                             .flatMap(entityRefactorResponseResponseEntity -> {
                                 if (HttpStatus.OK.equals(entityRefactorResponseResponseEntity.getStatusCode())) {
                                     return Mono.just(
@@ -176,7 +169,6 @@ public class AstServiceCEImpl implements AstServiceCE {
                             .filter(details -> details.refactorCount > 0)
                             .flatMap(response -> Mono.just(bindingValue).zipWith(Mono.just(response.script)))
                             .onErrorResume(error -> {
-                                var temp = bindingValue;
                                 // If there is a problem with parsing and refactoring this binding, we just ignore it
                                 // and move ahead
                                 // The expectation is that this binding would error out during eval anyway

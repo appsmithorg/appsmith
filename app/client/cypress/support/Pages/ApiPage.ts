@@ -61,8 +61,11 @@ export class ApiPage {
     "//div[contains(@class, 'rc-select-item-option')]//div[contains(text(),'" +
     verb +
     "')]";
-  private _bodySubTab = (subTab: string) =>
-    `//div[@data-testid="t--api-body-tab-switch"]//span[text()='${subTab}']`;
+  private _bodyTypeSelect = `//div[@data-testid="t--api-body-tab-switch"]`;
+  private _bodyTypeToSelect = (subTab: string) =>
+    "//div[contains(@class, 'rc-select-item-option')]//div[contains(text(),'" +
+    subTab +
+    "')]";
   private _rightPaneTab = (tab: string) =>
     "//span[contains(text(), '" + tab + "')]/parent::button";
   _visibleTextSpan = (spanText: string) => "//span[text()='" + spanText + "']";
@@ -290,7 +293,8 @@ export class ApiPage {
       | "BINARY"
       | "RAW",
   ) {
-    this.agHelper.GetNClick(this._bodySubTab(subTabName));
+    this.agHelper.GetNClick(this._bodyTypeSelect);
+    cy.xpath(this._bodyTypeToSelect(subTabName)).should("be.visible").click();
   }
 
   AssertRightPaneSelectedTab(tabName: RightPaneTabs) {
