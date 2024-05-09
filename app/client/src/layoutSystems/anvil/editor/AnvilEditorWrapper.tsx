@@ -2,6 +2,9 @@ import React, { useMemo } from "react";
 import type { WidgetProps } from "widgets/BaseWidget";
 import { AnvilEditorDetachedWidgetOnion } from "./AnvilEditorDetachedWidgetOnion";
 import { AnvilEditorWidgetOnion } from "./AnvilEditorWidgetOnion";
+import { AnvilWidgetName } from "./AnvilWidgetName/index";
+import "./canvas/styles/anvilEditorVariables.css";
+
 /**
  * AnvilEditorWrapper
  *
@@ -19,5 +22,16 @@ export const AnvilEditorWrapper = (props: WidgetProps) => {
       : AnvilEditorWidgetOnion;
   }, [props.type]);
 
-  return <WidgetOnion {...props}>{props.children}</WidgetOnion>;
+  return (
+    <>
+      <WidgetOnion {...props}>{props.children}</WidgetOnion>
+      <AnvilWidgetName
+        layoutId={props.layoutId}
+        parentId={props.parentId}
+        widgetId={props.widgetId}
+        widgetName={props.widgetName}
+        widgetType={props.type}
+      />
+    </>
+  );
 };

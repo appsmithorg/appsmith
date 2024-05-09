@@ -1,4 +1,4 @@
-package com.appsmith.server.solutions;
+package com.appsmith.server.git.autocommit;
 
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.ProjectProperties;
@@ -11,6 +11,8 @@ import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
 import com.appsmith.server.services.AnalyticsService;
+import com.appsmith.server.solutions.AutoCommitEventHandler;
+import com.appsmith.server.solutions.AutoCommitEventHandlerImpl;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -61,7 +63,7 @@ public class AutoCommitEventHandlerImplTest {
     @MockBean
     GitExecutor gitExecutor;
 
-    @MockBean
+    @Autowired
     ProjectProperties projectProperties;
 
     AutoCommitEventHandler autoCommitEventHandler;

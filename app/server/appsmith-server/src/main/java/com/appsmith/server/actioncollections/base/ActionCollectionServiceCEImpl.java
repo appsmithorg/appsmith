@@ -526,19 +526,6 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
     }
 
     @Override
-    public Mono<ActionCollection> archiveByIdAndBranchName(String id, String branchName) {
-        Mono<ActionCollection> branchedCollectionMono = this.findByBranchNameAndDefaultCollectionId(
-                        branchName, id, actionPermission.getDeletePermission())
-                .switchIfEmpty(Mono.error(
-                        new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.ACTION_COLLECTION, id)));
-
-        return branchedCollectionMono
-                .map(ActionCollection::getId)
-                .flatMap(this::archiveById)
-                .map(responseUtils::updateActionCollectionWithDefaultResources);
-    }
-
-    @Override
     public Mono<ActionCollection> findByBranchNameAndDefaultCollectionId(
             String branchName, String defaultCollectionId, AclPermission permission) {
 
@@ -648,7 +635,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         NewAction newAction = newActionService.generateActionDomain(action);
         newAction.setUnpublishedAction(action);
 
-        Set<Policy> actionCollectionPolicies = new HashSet();
+        Set<Policy> actionCollectionPolicies = new HashSet<>();
         actionCollection.getPolicies().forEach(policy -> {
             Policy actionPolicy = Policy.builder()
                     .permission(policy.getPermission())

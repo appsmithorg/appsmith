@@ -57,8 +57,10 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
       return (
         <IconButton
           color="neutral"
+          excludeFromTabOrder
           icon={icon}
           onPress={onPressEyeIcon}
+          size="small"
           variant="ghost"
         />
       );
