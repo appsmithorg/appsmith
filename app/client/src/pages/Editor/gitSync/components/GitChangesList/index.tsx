@@ -7,7 +7,7 @@ import {
 } from "selectors/gitSyncSelectors";
 import { Callout } from "design-system";
 import { ExpandableChange, ExpandableChangeKind } from "./ExpandableChange";
-import StaticChage, { StaticChangeKind } from "./StaticChange";
+import StaticChange, { StaticChangeKind } from "./StaticChange";
 import PageChanges from "./PageChanges";
 
 const CalloutContainer = styled.div`
@@ -40,18 +40,18 @@ export default function GitChangesList() {
 
   return (
     <div className="my-4 space-y-2" data-testid={"t--git-status-changes"}>
-      <StaticChage kind={StaticChangeKind.REMOTE_BEHIND} status={status} />
-      <StaticChage kind={StaticChangeKind.REMOTE_AHEAD} status={status} />
+      <StaticChange kind={StaticChangeKind.REMOTE_BEHIND} status={status} />
+      <StaticChange kind={StaticChangeKind.REMOTE_AHEAD} status={status} />
       <PageChanges status={status} />
       <ExpandableChange
         kind={ExpandableChangeKind.DATASOURCES}
         status={status}
       />
       <ExpandableChange kind={ExpandableChangeKind.JSLIBS} status={status} />
-      <StaticChage kind={StaticChangeKind.SETTINGS} status={status} />
-      <StaticChage kind={StaticChangeKind.THEME} status={status} />
-      <StaticChage kind={StaticChangeKind.PACKAGES} status={status} />
-      <StaticChage kind={StaticChangeKind.MODULES} status={status} />
+      <StaticChange kind={StaticChangeKind.SETTINGS} status={status} />
+      <StaticChange kind={StaticChangeKind.THEME} status={status} />
+      <StaticChange kind={StaticChangeKind.PACKAGES} status={status} />
+      <StaticChange kind={StaticChangeKind.MODULES} status={status} />
       {status?.migrationMessage ? (
         <CalloutContainer>
           <Callout kind="info">{status.migrationMessage}</Callout>
