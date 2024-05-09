@@ -54,8 +54,7 @@ export const reactJsonProps = {
   displayObjectSize: false,
   displayDataTypes: false,
   style: {
-    fontFamily:
-      "-apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue",
+    fontFamily: "var(--ads-v2-font-family)",
     fontSize: "11px",
     fontWeight: "400",
     letterSpacing: "-0.195px",
