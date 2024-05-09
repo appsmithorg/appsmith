@@ -5,6 +5,6 @@ import com.appsmith.server.repositories.BaseRepository;
 import reactor.core.publisher.Mono;
 
 public interface TenantRepositoryCE extends BaseRepository<Tenant, String>, CustomTenantRepositoryCE {
-
+    // Use tenantService.getDefaultTenant() instead of this method as it is cached to redis.
     Mono<Tenant> findBySlug(String slug);
 }

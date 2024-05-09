@@ -65,7 +65,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
             return Mono.just(tenantId);
         }
 
-        return repository.findBySlug(FieldName.DEFAULT).map(Tenant::getId).map(tenantId -> {
+        return this.getDefaultTenant().map(Tenant::getId).map(tenantId -> {
             // Set the cache value before returning.
             this.tenantId = tenantId;
             return tenantId;
@@ -158,7 +158,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
-        // Fetching Tenant from cache
+        // Fetching Tenant from redis cache
         return getDefaultTenantId()
                 .flatMap(tenantId -> cacheableRepositoryHelper.fetchCachedTenant(tenantId))
                 .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));

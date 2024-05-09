@@ -168,11 +168,15 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                         inMemoryCacheableRepositoryHelper.setInstanceAdminPermissionGroupId(permissionGroupId));
     }
 
+    /**
+     * Returns the default tenant from the cache if present.
+     * If not present in cache, then it fetches the default tenant from the database and adds to redis.
+     * @param tenantId
+     * @return
+     */
     @Cache(cacheName = "defaultTenant", key = "{#tenantId}")
     @Override
     public Mono<Tenant> fetchCachedTenant(String tenantId) {
-        // Get the default tenant object from the DB and then populate the relevant user permissions in that
-        // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
         BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
         Query query = new Query();
         query.addCriteria(defaultTenantCriteria);
