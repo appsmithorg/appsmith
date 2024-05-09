@@ -19,8 +19,6 @@ export const FEATURE_FLAG = {
   release_anvil_enabled: "release_anvil_enabled",
   ab_show_templates_instead_of_blank_canvas_enabled:
     "ab_show_templates_instead_of_blank_canvas_enabled",
-  release_server_dsl_migrations_enabled:
-    "release_server_dsl_migrations_enabled",
   license_git_branch_protection_enabled:
     "license_git_branch_protection_enabled",
   license_git_continuous_delivery_enabled:
@@ -71,7 +69,6 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   license_gac_enabled: false,
   release_anvil_enabled: false,
   ab_show_templates_instead_of_blank_canvas_enabled: false,
-  release_server_dsl_migrations_enabled: false,
   release_drag_drop_building_blocks_enabled: false,
   license_git_branch_protection_enabled: false,
   release_git_autocommit_feature_enabled: false,

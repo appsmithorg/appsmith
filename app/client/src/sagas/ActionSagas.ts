@@ -136,7 +136,6 @@ import { getDefaultTemplateActionConfig } from "utils/editorContextUtils";
 import { sendAnalyticsEventSaga } from "./AnalyticsSaga";
 import { EditorModes } from "components/editorComponents/CodeEditor/EditorConfig";
 import { updateActionAPICall } from "@appsmith/sagas/ApiCallerSagas";
-import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import FocusRetention from "./FocusRetentionSaga";
 import { resolveParentEntityMetadata } from "@appsmith/sagas/helpers";
 import { handleQueryEntityRedirect } from "./IDESaga";
@@ -837,11 +836,7 @@ export function* refactorActionName(
     { actionId: id },
   );
 
-  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
-  const params: FetchPageRequest = { id: pageId };
-  if (isServerDSLMigrationsEnabled) {
-    params.migrateDSL = true;
-  }
+  const params: FetchPageRequest = { id: pageId, migrateDSL: true };
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);

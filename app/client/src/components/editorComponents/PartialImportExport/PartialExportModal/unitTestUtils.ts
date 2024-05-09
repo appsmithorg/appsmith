@@ -12765,7 +12765,6 @@ export const defaultAppState = {
           release_anvil_enabled: false,
           ab_show_templates_instead_of_blank_canvas_enabled: true,
           release_app_sidebar_enabled: false,
-          release_server_dsl_migrations_enabled: false,
           license_git_branch_protection_enabled: false,
           release_git_autocommit_feature_enabled: true,
           license_widget_rtl_support_enabled: false,
