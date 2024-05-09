@@ -36,7 +36,6 @@ const SplitScreenTabs = () => {
           <SearchableFilesList
             allItems={allFilesList}
             navigateToTab={tabClickHandler}
-            openTabs={files}
           />
           <FileTabs
             navigateToTab={tabClickHandler}

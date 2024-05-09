@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import history from "utils/history";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -37,7 +37,7 @@ import ListQuery from "pages/Editor/IDE/EditorPane/Query/List";
 import type { AppState } from "@appsmith/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import type { ListItemProps } from "design-system";
+import { Tag, type ListItemProps } from "design-system";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
 
@@ -167,16 +167,10 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
   }
   return [
     {
-      key: "AddQuery",
-      exact: true,
-      component: AddQuery,
-      path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
-    },
-    {
       key: "ListQuery",
       exact: false,
       component: ListQuery,
-      path: [path],
+      path: [path, `${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
     },
   ];
 };
@@ -212,7 +206,11 @@ export const useAddQueryListItems = () => {
           fileOperation.entityExplorerTitle ||
           fileOperation.dsName ||
           fileOperation.title,
-        description: !!fileOperation.isBeta ? "Beta" : "",
+        description: !!fileOperation.isBeta ? (
+          <Tag isClosable={false}>Beta</Tag>
+        ) : (
+          ""
+        ),
         descriptionType: "inline",
         onClick: onCreateItemClick.bind(null, fileOperation),
       } as ListItemProps;
