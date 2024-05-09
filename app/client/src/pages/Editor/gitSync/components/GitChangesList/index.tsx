@@ -1,6 +1,5 @@
 import React from "react";
 import styled from "styled-components";
-import { Colors } from "constants/Colors";
 import { useSelector } from "react-redux";
 import {
   getGitStatus,
@@ -15,12 +14,12 @@ const CalloutContainer = styled.div`
   margin-top: 16px;
 `;
 
-const DummyChange = styled.div`
+const SkeletonLoader = styled.div`
   width: 50%;
   height: 18px;
   background: linear-gradient(
     90deg,
-    ${Colors.GREY_2} 0%,
+    var(--ads-v2-color-black-75) 0%,
     rgba(240, 240, 240, 0) 100%
   );
   margin-top: 16px;
@@ -32,7 +31,7 @@ export default function GitChangesList() {
   const statusLoading = useSelector(getIsFetchingGitStatus);
 
   if (statusLoading) {
-    return <DummyChange data-testid="t--status-change-skeleton-loading" />;
+    return <SkeletonLoader data-testid="t--status-change-skeleton-loading" />;
   }
 
   if (!status) {
