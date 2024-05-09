@@ -189,7 +189,11 @@ const HeaderCellComponent = (props: HeaderProps) => {
           </Text>
         </Flex>
       </div>
-      <Flex alignItems="center" gap="spacing-1">
+      <Flex
+        alignItems="center"
+        gap="spacing-1"
+        style={{ pointerEvents: "none" }}
+      >
         {props.isAscOrder !== undefined && (
           <Icon
             name={props.isAscOrder ? "arrow-up" : "arrow-down"}

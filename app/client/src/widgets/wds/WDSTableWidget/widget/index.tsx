@@ -37,7 +37,6 @@ import type {
   TransientDataPayload,
 } from "../constants";
 import {
-  ActionColumnTypes,
   ALLOW_TABLE_WIDGET_SERVER_SIDE_FILTERING,
   defaultEditableCell,
   ORIGINAL_INDEX_KEY,
@@ -70,7 +69,6 @@ import {
 } from "../component/cellComponents";
 
 import { klona as clone } from "klona";
-import { CellWrapper } from "../component/TableStyledWrappers";
 import localStorage from "utils/localStorage";
 import type { Stylesheet } from "entities/AppTheming";
 import type { getColumns } from "./reactTableUtils/getColumnsPureFn";
@@ -960,11 +958,7 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           selectedRowIndices={this.getSelectedRowIndices()}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
-          showConnectDataOverlay={
-            primaryColumns &&
-            !Object.keys(primaryColumns).length &&
-            this.props.renderMode === RenderModes.CANVAS
-          }
+          showConnectDataOverlay={false}
           sortTableColumn={this.handleColumnSorting}
           tableData={finalTableData}
           totalRecordsCount={totalRecordsCount}
@@ -1549,21 +1543,20 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           <URLCell
             allowCellWrapping={cellProperties.allowCellWrapping}
             cellColor={cellProperties.cellColor}
-            fontStyle={cellProperties.fontStyle}
             href={props.cell.value}
+            isBold={cellProperties.fontStyle?.includes(FontStyleTypes.BOLD)}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isHidden={isHidden}
+            isItalic={cellProperties.fontStyle?.includes(FontStyleTypes.ITALIC)}
             text={cellProperties.displayText}
           />
         );
       case "button":
-        console.log({ cellProperties });
         return (
           <ButtonCell
             buttonLabel={cellProperties.buttonLabel || "Action"}
             buttonVariant={cellProperties.buttonVariant}
             cellColor={cellProperties.cellColor}
-            fontStyle={cellProperties.fontStyle}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isDisabled={cellProperties.isDisabled}
             isHidden={isHidden}

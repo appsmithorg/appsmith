@@ -19,7 +19,7 @@ export const defaultsConfig = {
   dynamicPropertyPathList: [],
   dynamicBindingPathList: [],
   primaryColumns: {},
-  tableData: "",
+  tableData: [{ id: "1" }],
   columnWidthMap: {},
   columnOrder: [],
   enableClientSideSearch: true,

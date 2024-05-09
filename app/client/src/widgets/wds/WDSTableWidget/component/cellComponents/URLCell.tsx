@@ -10,16 +10,21 @@ export interface NumberCellProps {
   href?: string;
   text?: string;
   cellColor?: CellLayoutProperties["cellColor"];
+  isBold?: boolean;
+  isUnderline?: boolean;
+  isItalic?: boolean;
 }
 
 function URLCell(props: NumberCellProps & BaseCellComponentProps) {
-  const { allowCellWrapping, cellColor, href, text } = props;
+  const { allowCellWrapping, cellColor, href, isBold, isItalic, text } = props;
   const lineClamp = allowCellWrapping ? undefined : 1;
 
   return (
     <Link
       color={cellColor === "default" ? undefined : cellColor}
       href={href}
+      isBold={isBold}
+      isItalic={isItalic}
       lineClamp={lineClamp}
       variant="body"
     >
