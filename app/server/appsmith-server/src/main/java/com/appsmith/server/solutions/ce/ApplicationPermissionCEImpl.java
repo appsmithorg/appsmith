@@ -71,6 +71,7 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE, Dom
         return AclPermission.MANAGE_AUTO_COMMIT;
     }
 
+    @Override
     public AclPermission getPublishPermission() {
         return AclPermission.PUBLISH_APPLICATIONS;
     }
