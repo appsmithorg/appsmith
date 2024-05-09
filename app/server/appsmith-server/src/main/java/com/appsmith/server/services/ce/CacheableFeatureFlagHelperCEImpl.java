@@ -16,8 +16,8 @@ import com.appsmith.server.featureflags.CachedFlags;
 import com.appsmith.server.featureflags.FeatureFlagIdentityTraits;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.SignatureVerifier;
-import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.ConfigService;
+import com.appsmith.server.services.TenantService;
 import com.appsmith.server.services.UserIdentifierService;
 import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
@@ -40,13 +40,11 @@ import java.util.Objects;
 import java.util.Set;
 
 import static com.appsmith.server.constants.ApiConstants.CLOUD_SERVICES_SIGNATURE;
-import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 
 @Slf4j
 @RequiredArgsConstructor
 public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE {
-
-    private final TenantRepository tenantRepository;
+    private final TenantService tenantService;
     private final ConfigService configService;
     private final CloudServicesConfig cloudServicesConfig;
     private final CommonConfig commonConfig;
@@ -112,7 +110,7 @@ public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHel
     private Mono<Map<String, Boolean>> forceAllRemoteFeatureFlagsForUser(String userIdentifier, User user) {
         Mono<String> instanceIdMono = configService.getInstanceId();
         // TODO: Convert to current tenant when the feature is enabled
-        Mono<Tenant> defaultTenantMono = tenantRepository.findBySlug(DEFAULT);
+        Mono<Tenant> defaultTenantMono = tenantService.getDefaultTenant();
         return Mono.zip(instanceIdMono, defaultTenantMono, getUserDefaultTraits(user))
                 .flatMap(objects -> {
                     String tenantId = objects.getT2().getId();
