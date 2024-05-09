@@ -34,7 +34,7 @@ export const useAnvilWidgetStyles = (
   useEffect(() => {
     if (ref.current) {
       ref.current.setAttribute("data-widgetname-cy", widgetName);
-      ref.current.setAttribute("data-testid", isSelected ? "t--selected" : "");
+      ref.current.setAttribute("data-selected", isSelected ? "true" : "false");
     }
   }, [widgetName, isSelected]);
   const isNewWidgetDrag = useSelector(getIsNewWidgetBeingDragged);
