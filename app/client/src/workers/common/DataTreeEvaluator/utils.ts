@@ -81,3 +81,4 @@ export function getValidEntityType(
   }
   return !!entityType ? entityType : "noop";
 }
+
