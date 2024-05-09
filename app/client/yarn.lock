@@ -13134,8 +13134,8 @@ __metadata:
     d3-geo: ^3.1.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "npm:@appsmithorg/design-system@2.1.39"
-    design-system-old: "npm:@appsmithorg/design-system-old@1.1.16"
+    design-system: "npm:@appsmithorg/design-system@2.1.40"
+    design-system-old: "npm:@appsmithorg/design-system-old@1.1.17"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -17155,9 +17155,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.16":
-  version: 1.1.16
-  resolution: "@appsmithorg/design-system-old@npm:1.1.16"
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.17":
+  version: 1.1.17
+  resolution: "@appsmithorg/design-system-old@npm:1.1.17"
   dependencies:
     emoji-mart: 3.0.1
   peerDependencies:
@@ -17177,13 +17177,13 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  checksum: 8fbfba86e54bdcbbb30b8e8b1902408ba0cb13f4d33d36c794f3bc0e281d0e2db8f716c10c6e0a3118f010db24f97c72606885bff4c320f41f5df9564ab6b214
+  checksum: f4e4faf58412912ca95e50ccf8554fa480bdfd8fb4628131f9a35df663207aec35469f340920f4ebe63568f29cc1e01a97c0f223ac753e0d574e099434588f06
   languageName: node
   linkType: hard
 
-"design-system@npm:@appsmithorg/design-system@2.1.39":
-  version: 2.1.39
-  resolution: "@appsmithorg/design-system@npm:2.1.39"
+"design-system@npm:@appsmithorg/design-system@2.1.40":
+  version: 2.1.40
+  resolution: "@appsmithorg/design-system@npm:2.1.40"
   dependencies:
     "@radix-ui/react-dialog": ^1.0.2
     "@radix-ui/react-dropdown-menu": ^2.0.4
@@ -17215,7 +17215,7 @@ __metadata:
     react-dom: ^17.0.2
     react-router-dom: ^5.0.0
     styled-components: ^5.3.6
-  checksum: 7b9ed99c41a8fc0b45db101b18bd87a5dde5ef54291843196d1e26bb60d217c7e552be01c914a859717a294caf2637aef7149afd07b6e224d81cb92f2c3b91b4
+  checksum: 0c45edd67a958fb0f192e405216b3103eb751197b49bb49c9377e9a6185f4a3de007142d5af2df03c9f2b2a9ac337604ca69d1065aac219d97e671f55ef37435
   languageName: node
   linkType: hard
 

@@ -124,6 +124,14 @@ class PageList {
       entityType: EntityItems.Page,
     });
   }
+
+  assertAbsenceOfAddPage() {
+    this.ShowList();
+    ObjectsRegistry.AggregateHelper.AssertElementAbsence(
+      this.locators.newButton,
+    );
+    this.HideList();
+  }
 }
 
 export default new PageList();
