@@ -12,6 +12,7 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.FeatureFlagMigrationHelper;
+import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.TenantRepository;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.services.BaseService;
@@ -39,17 +40,21 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
+    private CacheableRepositoryHelper cacheableRepositoryHelper;
+
     public TenantServiceCEImpl(
             Validator validator,
             TenantRepository repository,
             AnalyticsService analyticsService,
             ConfigService configService,
             @Lazy EnvManager envManager,
-            FeatureFlagMigrationHelper featureFlagMigrationHelper) {
+            FeatureFlagMigrationHelper featureFlagMigrationHelper,
+            CacheableRepositoryHelper cacheableRepositoryHelper) {
         super(validator, repository, analyticsService);
         this.configService = configService;
         this.envManager = envManager;
         this.featureFlagMigrationHelper = featureFlagMigrationHelper;
+        this.cacheableRepositoryHelper = cacheableRepositoryHelper;
     }
 
     @Override
@@ -69,8 +74,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
-        return repository
-                .findById(tenantId, MANAGE_TENANT)
+        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
+        return evictTenantCache
+                .then(repository.findById(tenantId, MANAGE_TENANT))
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.TENANT, tenantId)))
                 .flatMap(tenant -> {
@@ -89,11 +95,13 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                             return Mono.empty();
                         });
                     }
-                    return envMono.then(Mono.zip(Mono.just(oldtenantConfiguration), Mono.just(tenant)));
+
+                    return envMono.then(
+                            Mono.zip(evictTenantCache, Mono.just(oldtenantConfiguration), Mono.just(tenant)));
                 })
-                .flatMap(tuple2 -> {
-                    Tenant tenant = tuple2.getT2();
-                    TenantConfiguration oldConfig = tuple2.getT1();
+                .flatMap(tuple3 -> {
+                    Tenant tenant = tuple3.getT3();
+                    TenantConfiguration oldConfig = tuple3.getT2();
                     AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldConfig);
                     tenant.setTenantConfiguration(oldConfig);
                     return repository.updateById(tenantId, tenant, MANAGE_TENANT);
@@ -151,17 +159,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<Tenant> getDefaultTenant() {
-        // Get the default tenant object from the DB and then populate the relevant user permissions in that
-        // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
-        return repository
-                .findBySlug(FieldName.DEFAULT)
-                .map(tenant -> {
-                    if (tenant.getTenantConfiguration() == null) {
-                        tenant.setTenantConfiguration(new TenantConfiguration());
-                    }
-                    return tenant;
-                })
-                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
+        // Fetching Tenant from cache
+        return getDefaultTenantId().flatMap(tenantId -> cacheableRepositoryHelper.fetchCachedTenant(tenantId));
     }
 
     @Override
