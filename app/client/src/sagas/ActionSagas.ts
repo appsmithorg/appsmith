@@ -25,12 +25,13 @@ import type { ApiResponse } from "api/ApiResponses";
 import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
 import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
-import type {
-  FetchActionsPayload,
-  SetActionPropertyPayload,
+import {
+  closeQueryActionTab,
+  closeQueryActionTabSuccess,
+  type FetchActionsPayload,
+  type SetActionPropertyPayload,
 } from "actions/pluginActionActions";
 import {
-  closeQueryActionTabSuccess,
   copyActionError,
   copyActionSuccess,
   createActionInit,
@@ -655,7 +656,7 @@ export function* deleteActionSaga(
     });
 
     yield put(deleteActionSuccess({ id }));
-    yield put(closeQueryActionTabSuccess({ id }));
+    yield put(closeQueryActionTabSuccess({ id, parentId: pageId }));
   } catch (error) {
     yield put({
       type: ReduxActionErrorTypes.DELETE_ACTION_ERROR,
@@ -715,8 +716,13 @@ function* moveActionSaga(
       // @ts-expect-error: response is of type unknown
       apiID: response.data.id,
     });
-    const currentUrl = window.location.pathname;
-    yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
+    yield call(
+      closeActionTabSaga,
+      closeQueryActionTab({
+        id: action.payload.id,
+        parentId: action.payload.originalPageId,
+      }),
+    );
     // @ts-expect-error: response is of type unknown
     yield put(moveActionSuccess(response.data));
   } catch (e) {
@@ -1197,11 +1203,12 @@ export function* watchActionSagas() {
 export function* closeActionTabSaga(
   actionPayload: ReduxAction<{
     id: string;
+    parentId: string;
   }>,
 ) {
-  const id = actionPayload.payload.id;
+  const { id, parentId } = actionPayload.payload;
   const currentUrl = window.location.pathname;
   yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
   yield call(handleQueryEntityRedirect, id);
-  yield put(closeQueryActionTabSuccess({ id }));
+  yield put(closeQueryActionTabSuccess({ id, parentId }));
 }
