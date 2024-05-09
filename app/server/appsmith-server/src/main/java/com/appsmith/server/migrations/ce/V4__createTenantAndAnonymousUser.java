@@ -15,11 +15,13 @@ import java.util.UUID;
 
 public class V4__createTenantAndAnonymousUser extends AppsmithJavaMigration {
     private JdbcTemplate jdbcTemplate;
+    private CommonMethods commonMethods;
     public static final String INSTANCE_ID = "instance-id";
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
         this.jdbcTemplate = jdbcTemplate;
+        commonMethods = new CommonMethods(jdbcTemplate);
         addInstanceId();
         createDefaultTenant();
         addAnonymousUser();
@@ -41,7 +43,7 @@ public class V4__createTenantAndAnonymousUser extends AppsmithJavaMigration {
     }
 
     private void addAnonymousUser() throws JsonProcessingException {
-        String defaultTenantId = CommonMethods.getDefaultTenantId(jdbcTemplate);
+        String defaultTenantId = commonMethods.getDefaultTenantId();
         if (doesAnonymousUserExist(defaultTenantId)) {
             return;
         }
