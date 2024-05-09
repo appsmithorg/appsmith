@@ -235,6 +235,7 @@ export const SelectCell = (props: SelectProps) => {
     );
   } else {
     const onEdit = () => toggleCellEditMode(true, rowIndex, alias, value);
+    const selectedValue = options.find((option) => option.value === value);
 
     return (
       <BasicCell
@@ -257,7 +258,7 @@ export const SelectCell = (props: SelectProps) => {
         tableWidth={tableWidth}
         textColor={textColor}
         textSize={textSize}
-        value={value}
+        value={selectedValue?.label || value}
         verticalAlignment={verticalAlignment}
       />
     );
