@@ -303,8 +303,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
   it("5. Commit and push changes, validate data binding on all pages in edit and deploy mode on tempBranch", () => {
     // commit and push changes
     cy.get(homePageLocators.publishButton).click();
-    // cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-    agHelper.TypeText(gitSyncLocators.commitCommentInput, "Initial commit");
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verfiy data binding on all pages in deploy mode
@@ -370,8 +369,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     EditorNavigation.SelectEntityByName("Child_Page", EntityType.Page);
     cy.wait("@getConsolidatedData");
     cy.get(homePageLocators.publishButton).click();
-    // cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-    agHelper.TypeText(gitSyncLocators.commitCommentInput, "Initial commit");
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.get(gitSyncLocators.closeGitSyncModal).click();
 
@@ -398,8 +396,7 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     cy.wait("@getConsolidatedData");
     PageList.DeletePage("Child_Page Copy");
     cy.get(homePageLocators.publishButton).click();
-    // cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
-    agHelper.TypeText(gitSyncLocators.commitCommentInput, "Initial commit");
+    cy.get(gitSyncLocators.commitCommentInput).type("Initial Commit");
     cy.get(gitSyncLocators.commitButton).click();
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     cy.merge(mainBranch);
