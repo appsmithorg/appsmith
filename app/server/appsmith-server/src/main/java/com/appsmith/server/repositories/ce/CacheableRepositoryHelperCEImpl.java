@@ -6,6 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -165,5 +166,30 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 })
                 .doOnSuccess(permissionGroupId ->
                         inMemoryCacheableRepositoryHelper.setInstanceAdminPermissionGroupId(permissionGroupId));
+    }
+
+    @Cache(cacheName = "defaultTenant", key = "{#tenantId}")
+    @Override
+    public Mono<Tenant> fetchCachedTenant(String tenantId) {
+        // Get the default tenant object from the DB and then populate the relevant user permissions in that
+        // We are doing this differently because `findBySlug` is a Mongo JPA query and not a custom Appsmith query
+        BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
+        Query query = new Query();
+        query.addCriteria(defaultTenantCriteria);
+
+        return mongoOperations.findOne(query, Tenant.class).map(tenant -> {
+            if (tenant.getTenantConfiguration() == null) {
+                tenant.setTenantConfiguration(new TenantConfiguration());
+            }
+            return tenant;
+        });
+        //                .flatMap(tenant ->
+        //                        setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
+    }
+
+    @CacheEvict(cacheName = "defaultTenant", key = "{#tenantId}")
+    @Override
+    public Mono<Void> evictCachedTenant(String tenantId) {
+        return Mono.empty();
     }
 }
