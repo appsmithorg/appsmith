@@ -3,6 +3,7 @@ package com.appsmith.server.repositories.ce;
 import com.appsmith.server.domains.UserData;
 import com.appsmith.server.dtos.RecentlyUsedEntityDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.projections.UserRecentlyUsedEntitiesProjection;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaUpdate;
@@ -67,8 +68,7 @@ public class CustomUserDataRepositoryCEImpl extends BaseAppsmithRepositoryImpl<U
     public Optional<String> fetchMostRecentlyUsedWorkspaceId(String userId) {
         return queryBuilder()
                 .criteria(Bridge.equal(UserData.Fields.userId, userId))
-                .fields(UserData.Fields.recentlyUsedEntityIds)
-                .one()
+                .one(UserRecentlyUsedEntitiesProjection.class)
                 .map(userData -> {
                     final List<RecentlyUsedEntityDTO> recentlyUsedWorkspaceIds = userData.getRecentlyUsedEntityIds();
                     return CollectionUtils.isEmpty(recentlyUsedWorkspaceIds)
