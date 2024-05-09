@@ -47,7 +47,6 @@ import reactor.core.publisher.Mono;
 import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -57,6 +56,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
+import static com.appsmith.external.helpers.ReflectionHelpers.getAllFields;
+import static com.appsmith.server.helpers.ce.ReflectionHelpers.map;
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
 /**
@@ -249,16 +250,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
     }
 
     public List<T> queryAllExecute(QueryAllParams<T> params) {
-        if (CollectionUtils.isEmpty(params.getPermissionGroups())) {
-            params.permissionGroups(
-                    getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())));
-        }
+        ensurePermissionGroupsInParams(params).block();
         return queryAllExecute(params, genericDomain).stream()
                 .map(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()))
                 .toList();
     }
 
     @SneakyThrows
+    @SuppressWarnings("unchecked")
     public <P> List<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.defer(() -> Mono.just(
@@ -266,7 +265,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-                    final CriteriaQuery<P> cq = cb.createQuery(projectionClass);
+                    CriteriaQuery<?> cq = cb.createQuery(projectionClass);
+
+                    // We are creating the query with generic return type as Object[] and then mapping it to the
+                    // projection class using the constructor. This is required because Hibernate can't associate the
+                    // non-premitive datatype with the correct type.
+                    if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
+                        cq = cb.createQuery(Object[].class);
+                    }
                     final Root<T> root = cq.from(genericDomain);
 
                     final List<Specification<T>> specifications = params.getSpecifications();
@@ -295,14 +301,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     }
 
                     if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
-                        List<Selection<?>> selectionList = new ArrayList<>();
-                        Arrays.stream(projectionClass.getDeclaredFields())
-                                .toList()
-                                .forEach(f -> selectionList.add(root.get(f.getName())));
-                        cq.multiselect(selectionList);
+                        List<Selection<?>> projectionFields = new ArrayList<>();
+                        getAllFields(projectionClass).forEach(f -> projectionFields.add(root.get(f.getName())));
+                        cq.multiselect(projectionFields);
                     }
 
-                    final TypedQuery<P> query = entityManager.createQuery(cq);
+                    final TypedQuery<?> query = entityManager.createQuery(cq);
 
                     if (params.getLimit() > 0) {
                         query.setMaxResults(params.getLimit());
@@ -310,20 +314,24 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
                     // All public access is via a single permission group. Fetch the same and set the cache with it.
                     return Mono.fromSupplier(query::getResultList)
+                            .map(tuple -> {
+                                if (genericDomain.getSimpleName().equals(projectionClass.getSimpleName())) {
+                                    return (List<P>) tuple;
+                                }
+                                return map((List<Object[]>) tuple, projectionClass);
+                            })
                             .onErrorResume(NoResultException.class, e -> Mono.empty());
                 })
                 .block();
     }
 
     public Optional<T> queryOneExecute(QueryAllParams<T> params) {
-        if (CollectionUtils.isEmpty(params.getPermissionGroups())) {
-            params.permissionGroups(
-                    getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(params.getPermission())));
-        }
+        ensurePermissionGroupsInParams(params).block();
         return queryOneExecute(params, genericDomain)
                 .map(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()));
     }
 
+    @SuppressWarnings("unchecked")
     public <P> Optional<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.defer(() -> Mono.just(
@@ -331,7 +339,13 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                 .map(ArrayList::new)
                 .flatMap(permissionGroups -> {
                     final CriteriaBuilder cb = entityManager.getCriteriaBuilder();
-                    final CriteriaQuery<P> cq = cb.createQuery(projectionClass);
+                    CriteriaQuery<?> cq = cb.createQuery(projectionClass);
+                    // We are creating the query with generic return type as Object[] and then mapping it to the
+                    // projection class using the constructor. This is required because Hibernate can't associate the
+                    // non-premitive datatype with the correct type.
+                    if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
+                        cq = cb.createQuery(Object[].class);
+                    }
                     final Root<T> root = cq.from(genericDomain);
 
                     final List<Specification<T>> specifications = new ArrayList<>(params.getSpecifications());
@@ -345,15 +359,31 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
                     cq.where(predicate);
                     if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
-                        List<Selection<?>> selectionList = new ArrayList<>();
-                        Arrays.stream(projectionClass.getDeclaredFields())
-                                .toList()
-                                .forEach(f -> selectionList.add(root.get(f.getName())));
-                        cq.multiselect(selectionList);
+                        List<Selection<?>> projectionFields = new ArrayList<>();
+                        getAllFields(projectionClass).forEach(f -> {
+                            /*
+                            Throws java.lang.IllegalStateException: Basic paths cannot be dereferenced from
+                            org.hibernate.metamodel.model.domain.internal.BasicSqmPathSource.findSubPathSource(BasicSqmPathSource.java:38)
+                            if (f.getType().getPackageName().contains("projection") && f.getType().getDeclaredFields().length > 0) {
+                                getAllFields(f.getType())
+                                    .forEach(nestedField -> {
+                                        projectionFields.add(root.get(f.getName()).get(nestedField.getName()));
+                                    });
+                            }
+                             */
+                            projectionFields.add(root.get(f.getName()));
+                        });
+                        cq.multiselect(projectionFields);
                     }
 
                     // All public access is via a single permission group. Fetch the same and set the cache with it.
                     return Mono.fromSupplier(entityManager.createQuery(cq)::getSingleResult)
+                            .map(tuple -> {
+                                if (genericDomain.getSimpleName().equals(projectionClass.getSimpleName())) {
+                                    return (P) tuple;
+                                }
+                                return map((Object[]) tuple, projectionClass, null);
+                            })
                             .onErrorResume(NoResultException.class, e -> Mono.empty());
                 })
                 .blockOptional();
@@ -428,13 +458,14 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
      * @return the same `params` object, but with permission groups filled in.
      */
     private Mono<Void> ensurePermissionGroupsInParams(QueryAllParams<T> params) {
-        if (params.getPermissionGroups() != null) {
+        if (!CollectionUtils.isEmpty(params.getPermissionGroups())) {
             return Mono.empty();
         }
 
         return Mono.justOrEmpty(params.getPermissionGroups())
                 .switchIfEmpty(Mono.fromSupplier(() -> getCurrentUserPermissionGroupsIfRequired(
                         Optional.ofNullable(params.getPermission()), params.isIncludeAnonymousUserPermissions())))
+                .doOnSuccess(params::permissionGroups)
                 .then();
     }
 

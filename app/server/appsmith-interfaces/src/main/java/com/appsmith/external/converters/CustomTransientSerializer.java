@@ -8,9 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.io.IOException;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+
+import static com.appsmith.external.helpers.ReflectionHelpers.getAllFields;
 
 /**
  *  This class is used to serialize the entity object by ignoring the fields annotated with @Transient. We need
@@ -49,16 +49,5 @@ public class CustomTransientSerializer<T> extends StdSerializer<T> {
             }
         }
         gen.writeEndObject();
-    }
-
-    // Method to get all fields including superclasses
-    private List<Field> getAllFields(Class<?> clazz) {
-        List<Field> fields =
-                new ArrayList<>(Arrays.stream(clazz.getDeclaredFields()).toList());
-        Class<?> superClass = clazz.getSuperclass();
-        if (superClass != null && !superClass.equals(Object.class)) {
-            fields.addAll(getAllFields(superClass));
-        }
-        return fields;
     }
 }
