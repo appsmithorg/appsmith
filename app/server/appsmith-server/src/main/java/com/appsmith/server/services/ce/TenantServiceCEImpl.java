@@ -96,12 +96,11 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                         });
                     }
 
-                    return envMono.then(
-                            Mono.zip(evictTenantCache, Mono.just(oldtenantConfiguration), Mono.just(tenant)));
+                    return envMono.then(Mono.zip(Mono.just(oldtenantConfiguration), Mono.just(tenant)));
                 })
-                .flatMap(tuple3 -> {
-                    Tenant tenant = tuple3.getT3();
-                    TenantConfiguration oldConfig = tuple3.getT2();
+                .flatMap(tuple2 -> {
+                    Tenant tenant = tuple2.getT2();
+                    TenantConfiguration oldConfig = tuple2.getT1();
                     AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldConfig);
                     tenant.setTenantConfiguration(oldConfig);
                     return repository.updateById(tenantId, tenant, MANAGE_TENANT);
@@ -160,7 +159,9 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     @Override
     public Mono<Tenant> getDefaultTenant() {
         // Fetching Tenant from cache
-        return getDefaultTenantId().flatMap(tenantId -> cacheableRepositoryHelper.fetchCachedTenant(tenantId));
+        return getDefaultTenantId()
+                .flatMap(tenantId -> cacheableRepositoryHelper.fetchCachedTenant(tenantId))
+                .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
     }
 
     @Override

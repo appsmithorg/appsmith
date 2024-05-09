@@ -183,8 +183,6 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
             }
             return tenant;
         });
-        //                .flatMap(tenant ->
-        //                        setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
     }
 
     @CacheEvict(cacheName = "defaultTenant", key = "{#tenantId}")
