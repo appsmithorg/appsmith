@@ -24,18 +24,14 @@ public class ProjectProperties {
     public ProjectProperties(ObjectMapper objectMapper) {
         try {
             Path infoJsonPath = Paths.get(INFO_JSON_PATH);
-            if (Files.exists(infoJsonPath)) {
-                String jsonContent = Files.readString(infoJsonPath);
-                // Parse JSON content using the AppsmithInfo class
-                BuildInfo buildInfo = objectMapper.readValue(jsonContent, BuildInfo.class);
-                version = buildInfo.getVersion();
-                commitSha = buildInfo.getCommitSha();
-            } else {
-                log.debug("Unable to find info.json at {}", INFO_JSON_PATH);
-            }
+            String jsonContent = Files.readString(infoJsonPath);
+            // Parse JSON content using the AppsmithInfo class
+            BuildInfo buildInfo = objectMapper.readValue(jsonContent, BuildInfo.class);
+            version = buildInfo.getVersion();
+            commitSha = buildInfo.getCommitSha();
         } catch (IOException e) {
             // Ignore the exception and return "UNKNOWN" as the version
-            log.error("Error reading version from info.json {}", e.getMessage(), e);
+            log.error("Error reading version from info.json", e);
         }
     }
 }
