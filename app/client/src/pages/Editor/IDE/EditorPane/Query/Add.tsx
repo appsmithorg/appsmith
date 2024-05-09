@@ -1,5 +1,4 @@
 import React from "react";
-import type { FlexProps } from "design-system";
 import { Flex } from "design-system";
 
 import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
@@ -10,13 +9,9 @@ import {
   useGroupedAddQueryOperations,
   useQueryAdd,
 } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
+import type { AddProps } from "../types/AddProps";
 
-interface AddQueryProps {
-  containerProps?: FlexProps;
-  innerContainerProps?: FlexProps;
-}
-
-const AddQuery = ({ containerProps, innerContainerProps }: AddQueryProps) => {
+const AddQuery = ({ containerProps, innerContainerProps }: AddProps) => {
   const { getListItems } = useAddQueryListItems();
   const groupedActionOperations = useGroupedAddQueryOperations();
 

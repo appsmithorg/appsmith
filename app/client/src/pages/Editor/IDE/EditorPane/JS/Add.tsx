@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import SegmentAddHeader from "../components/SegmentAddHeader";
 import { EDITOR_PANE_TEXTS } from "@appsmith/constants/messages";
-import type { FlexProps, ListItemProps } from "design-system";
+import type { ListItemProps } from "design-system";
 import { Flex, Tag } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
@@ -11,13 +11,9 @@ import {
   useJSAdd,
 } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
+import type { AddProps } from "../types/AddProps";
 
-interface AddJSProps {
-  containerProps?: FlexProps;
-  innerContainerProps?: FlexProps;
-}
-
-const AddJS = ({ containerProps, innerContainerProps }: AddJSProps) => {
+const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
   const closeButtonClickHandler = useJSAdd();
