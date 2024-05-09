@@ -94,7 +94,6 @@ import {
   ERROR_GIT_INVALID_REMOTE,
   GIT_USER_UPDATED_SUCCESSFULLY,
   PROTECT_BRANCH_SUCCESS,
-  IMPORT_APP_SUCCESSFUL,
 } from "@appsmith/constants/messages";
 import type { GitApplicationMetadata } from "@appsmith/api/ApplicationApi";
 
@@ -850,7 +849,7 @@ function* importAppFromGitSaga(action: ConnectToGitReduxAction) {
             pageId,
           });
           history.push(pageURL);
-          toast.show(createMessage(IMPORT_APP_SUCCESSFUL), {
+          toast.show("Application imported successfully", {
             kind: "success",
           });
         }

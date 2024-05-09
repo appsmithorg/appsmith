@@ -8,10 +8,7 @@ require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
 import { ObjectsRegistry } from "./Objects/Registry";
-import {
-  createMessage,
-  UNABLE_TO_IMPORT_APP,
-} from "../../src/ce/constants/messages";
+
 const gitSync = ObjectsRegistry.GitSync;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const dataManager = ObjectsRegistry.DataManager;
@@ -234,7 +231,10 @@ Cypress.Commands.add("gitDiscardChanges", () => {
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
   cy.validateToastMessage("Discarded changes successfully.");
   cy.wait(2000);
-  assertHelper.AssertContains(createMessage(UNABLE_TO_IMPORT_APP), "not.exist");
+  assertHelper.AssertContains(
+    "Unable to import application in workspace",
+    "not.exist",
+  );
 });
 
 Cypress.Commands.add(

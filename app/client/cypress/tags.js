@@ -36,7 +36,6 @@ module.exports = {
     "@tag.Progress",
     "@tag.Video",
     "@tag.Container",
-    "@tag.Table",
     "@tag.Camera",
     "@tag.Image",
     "@tag.Tab",
