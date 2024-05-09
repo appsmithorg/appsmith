@@ -204,7 +204,7 @@ public class FirestorePluginTest {
                 .add(Map.of("n", 10, "name", "Alvin Zimmerman", "firm", "Facebook", "age", 24))
                 .get();
         paginationCol
-                .add(Map.of("n", 11, "name", "Israel Broc", "firm", "Microsoft", "age", 26))
+                .add(Map.of("n", 11, "name", "Israel Broc", "firm", "Microsoft", "age", 27))
                 .get();
         paginationCol
                 .add(Map.of("n", 12, "name", "Larry Frazie", "firm", "Netflix", "age", 30))
@@ -1398,7 +1398,7 @@ public class FirestorePluginTest {
                     // assert the where clause result
                     final List<Object> names =
                             firstResults.stream().map(d -> d.get("name")).collect(Collectors.toList());
-                    assertEquals(List.of("Alvin Zimmerman", "Israel Broc", "Meghan Steele", "Eunice Hines"), names);
+                    assertEquals(List.of("Alvin Zimmerman", "Meghan Steele", "Israel Broc", "Eunice Hines"), names);
 
                     List<Map<String, Object>> secondResults = (List) secondPageResult.getBody();
                     assertEquals(4, secondResults.size());
