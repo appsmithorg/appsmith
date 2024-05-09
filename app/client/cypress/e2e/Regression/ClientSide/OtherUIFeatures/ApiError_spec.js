@@ -4,7 +4,7 @@ import EditorNavigation, {
   EditorViewMode,
 } from "../../../../support/Pages/EditorNavigation";
 
-describe("Api Error Debugger", { tags: ["@tag.Debugger"] }, () => {
+describe("Api Error Debugger", { tags: ["@tag.IDE"] }, () => {
   before(() => {
     // Create api that causes an error
     _.apiPage.CreateAndFillApi("https://fakeapi/user");
