@@ -12,14 +12,6 @@ import java.text.MessageFormat;
 public enum AppsmithError {
     // Ref syntax for message templates:
     // https://docs.oracle.com/en/java/javase/11/docs/api/java.base/java/text/MessageFormat.html
-    HTTP_METHOD_NOT_ALLOWED(
-            405,
-            AppsmithErrorCode.HTTP_METHOD_NOT_ALLOWED.getCode(),
-            "HTTP Method not allowed.",
-            AppsmithErrorAction.DEFAULT,
-            "Invalid method",
-            ErrorType.BAD_REQUEST,
-            null),
     INVALID_PARAMETER(
             400,
             AppsmithErrorCode.INVALID_PARAMETER.getCode(),

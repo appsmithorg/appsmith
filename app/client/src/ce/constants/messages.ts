@@ -160,6 +160,7 @@ export const ERROR_403 = (entity: string, userEmail: string) =>
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
+export const INVALID_NAME_ERROR = () => `Invalid name`;
 export const MAKE_APPLICATION_PUBLIC = () => "Make application public";
 export const MAKE_APPLICATION_PUBLIC_TOOLTIP = () =>
   "A public app is accessible to anyone who can access your instance of appsmith";
@@ -2494,3 +2495,7 @@ export const EMPTY_CANVAS_HINTS = {
     DESCRIPTION: () => "Make a working app in seconds using functional blocks",
   },
 };
+
+export const BETA_TAG = () => `Beta`;
+
+export const BUTTON_WIDGET_DEFAULT_LABEL = () => "Do something";

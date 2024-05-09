@@ -13,6 +13,7 @@ import {
 } from "actions/pluginActionActions";
 import type { JSAction, JSCollection } from "entities/JSCollection";
 import {
+  closeJSActionTab,
   closeJsActionTabSuccess,
   copyJSCollectionError,
   copyJSCollectionSuccess,
@@ -74,6 +75,7 @@ import { handleJSEntityRedirect } from "sagas/IDESaga";
 import { getIDETypeByUrl } from "@appsmith/entities/IDE/utils";
 import { IDE_TYPE } from "@appsmith/entities/IDE/constants";
 import { CreateNewActionKey } from "@appsmith/entities/Engine/actionHelpers";
+import { getAllActionTestPayloads } from "utils/storage";
 
 export function* fetchJSCollectionsSaga(
   action: EvaluationReduxAction<FetchActionsPayload>,
@@ -249,8 +251,13 @@ export function* moveJSCollectionSaga(
         },
       );
     }
-    const currentURL = window.location.pathname;
-    yield call(FocusRetention.handleRemoveFocusHistory, currentURL);
+    yield call(
+      closeJSActionTabSaga,
+      closeJSActionTab({
+        id: action.payload.id,
+        parentId: actionObject.pageId,
+      }),
+    );
     // @ts-expect-error: response.data is of type unknown
     yield put(moveJSCollectionSuccess(response.data));
   } catch (e) {
@@ -321,7 +328,7 @@ export function* deleteJSCollectionSaga(
         },
       });
       yield put(deleteJSCollectionSuccess({ id }));
-      yield put(closeJsActionTabSuccess({ id }));
+      yield put(closeJsActionTabSuccess({ id, parentId: pageId }));
 
       const widgets: CanvasWidgetsReduxState = yield select(getWidgets);
 
@@ -492,11 +499,46 @@ export function* fetchJSCollectionsForViewModeSaga(
 }
 
 export function* closeJSActionTabSaga(
-  actionPayload: ReduxAction<{ id: string }>,
+  actionPayload: ReduxAction<{ id: string; parentId: string }>,
 ) {
-  const id = actionPayload.payload.id;
+  const { id, parentId } = actionPayload.payload;
   const currentUrl = window.location.pathname;
   yield call(FocusRetention.handleRemoveFocusHistory, currentUrl);
   yield call(handleJSEntityRedirect, id);
-  yield put(closeJsActionTabSuccess({ id }));
+  yield put(closeJsActionTabSuccess({ id, parentId }));
+}
+
+// Saga to fetch stored test payloads for all collections present in the application
+export function* fetchStoredTestPayloadsSaga(collections: JSCollection[]) {
+  try {
+    //fetch stored test payloads for all collections
+    const storedPayloads: Record<string, unknown> | null =
+      yield getAllActionTestPayloads();
+    if (!!storedPayloads && collections.length > 0) {
+      for (const collection of collections) {
+        const testPayloadForCollection: Record<string, any> = {};
+        let hasStoredPayload = false;
+        for (const action of collection.actions) {
+          if (
+            storedPayloads.hasOwnProperty(action.id) &&
+            !!storedPayloads[action.id]
+          ) {
+            hasStoredPayload = true;
+            testPayloadForCollection[action.id] = storedPayloads[action.id];
+          }
+        }
+        if (hasStoredPayload) {
+          yield put({
+            type: ReduxActionTypes.UPDATE_TEST_PAYLOAD_FOR_COLLECTION,
+            payload: {
+              collectionId: collection.id,
+              testPayload: testPayloadForCollection,
+            },
+          });
+        }
+      }
+    }
+  } catch (error) {
+    log.error("Error fetching stored test payloads", error);
+  }
 }

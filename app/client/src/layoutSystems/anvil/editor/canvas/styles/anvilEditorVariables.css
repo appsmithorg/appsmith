@@ -1,5 +1,7 @@
 :root {
   --anvil-drop-indicator: #ce01d3;
+  --anvil-multiple-drag-count-bg: #f6f3ff;
+  --anvil-multiple-drag-count-text: #390a6d;
   --anvil-cell-highlight: rgba(206, 1, 211, 0.2);
   --info-text-font-size: 14px;
   --info-text-font-weight: 510;
@@ -34,7 +36,7 @@
   --on-canvas-ui-white: #ffffff;
 
   /* Other common parameters for on-canvas ui */
-  /* 
+  /*
     z index of ADS modal components -- 1000
     z index of ADS on-canvas ui components -- 998
     z index of WDS modal components -- 990
@@ -48,5 +50,5 @@
   --on-canvas-ui-border-width-1: 1px;
   --on-canvas-ui-border-width-2: 2px;
 
-  --on-canvas-ui-outline-offset: 3px;
+  --on-canvas-ui-outline-offset: 4px;
 }

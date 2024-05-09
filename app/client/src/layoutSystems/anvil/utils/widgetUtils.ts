@@ -1,17 +1,23 @@
 import type { SetDraggingStateActionPayload } from "utils/hooks/dragResizeHooks";
 import type { AnvilConfig, SizeConfig } from "WidgetProvider/constants";
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
+import type { WidgetType } from "WidgetProvider/factory";
 import WidgetFactory from "WidgetProvider/factory";
 import { isFunction } from "lodash";
 
 export const generateDragStateForAnvilLayout = ({
   layoutId,
+  widgetType,
 }: {
   layoutId: string;
+  widgetType: WidgetType;
 }): SetDraggingStateActionPayload => {
   return {
     isDragging: true,
     dragGroupActualParent: layoutId || "",
+    draggingGroupCenter: {
+      widgetType,
+    },
     draggedOn: layoutId,
   };
 };

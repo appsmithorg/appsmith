@@ -19,8 +19,12 @@ import {
   RampFeature,
   RampSection,
 } from "utils/ProductRamps/RampsControlList";
+import {
+  environmentList,
+  type EnvironmentType,
+} from "constants/EnvironmentContants";
 
-const Wrapper = styled.div`
+export const Wrapper = styled.div`
   display: flex;
   border-right: 1px solid var(--ads-v2-color-border);
   padding: 0px 16px;
@@ -32,7 +36,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const StyledText = styled(Text)<{
+export const StyledText = styled(Text)<{
   disabled: boolean;
 }>`
   color: var(--ads-v2-color-fg-emphasis);
@@ -41,39 +45,35 @@ const StyledText = styled(Text)<{
   flex-direction: row;
 `;
 
-const StyledIcon = styled(Icon)`
+export const StyledIcon = styled(Icon)`
   margin-right: 8px;
 `;
 
-interface Props {
+export interface Props {
   viewMode?: boolean;
   editorId: string;
   onChangeEnv?: () => void;
   startSwitchEnvMessage: (...strArgs: any[]) => string;
 }
 
-interface EnvironmentType {
-  id: string;
-  name: string;
-  selected: boolean;
-}
-
-const environmentList: Array<EnvironmentType> = [
-  {
-    id: "unused_env",
-    name: "production",
-    selected: true,
-  },
-  {
-    id: "unused_env",
-    name: "staging",
-    selected: false,
-  },
-];
-
-const TooltipLink = styled(Link)`
+export const TooltipLink = styled(Link)`
   display: inline;
 `;
+
+export const DisabledTooltipContent = (rampLink: string) => {
+  return (
+    <Text
+      color="var(--ads-v2-color-white)"
+      data-testid="t--switch-env-tooltip"
+      kind="action-m"
+    >
+      {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
+      <TooltipLink kind="primary" target="_blank" to={rampLink}>
+        {createMessage(BUSINESS_EDITION_TEXT)}
+      </TooltipLink>
+    </Text>
+  );
+};
 
 export default function SwitchEnvironment({}: Props) {
   const [disableSwitchEnvironment, setDisableSwitchEnvironment] =
@@ -111,21 +111,6 @@ export default function SwitchEnvironment({}: Props) {
     );
   };
 
-  const DisabledTooltipContent = () => {
-    return (
-      <Text
-        color="var(--ads-v2-color-white)"
-        data-testid="t--switch-env-tooltip"
-        kind="action-m"
-      >
-        {createMessage(SWITCH_ENV_DISABLED_TOOLTIP_TEXT)}
-        <TooltipLink kind="primary" target="_blank" to={rampLink}>
-          {createMessage(BUSINESS_EDITION_TEXT)}
-        </TooltipLink>
-      </Text>
-    );
-  };
-
   return (
     <Wrapper
       aria-disabled={disableSwitchEnvironment && !isDatasourceViewMode}
@@ -156,7 +141,10 @@ export default function SwitchEnvironment({}: Props) {
             {env.selected ? (
               <div className="flex flex-col gap-1">{renderEnvOption(env)}</div>
             ) : (
-              <Tooltip content={DisabledTooltipContent()} placement="right">
+              <Tooltip
+                content={DisabledTooltipContent(rampLink)}
+                placement="right"
+              >
                 {renderEnvOption(env)}
               </Tooltip>
             )}
