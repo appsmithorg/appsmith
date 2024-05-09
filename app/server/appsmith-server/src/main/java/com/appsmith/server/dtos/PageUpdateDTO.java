@@ -14,7 +14,7 @@ public record PageUpdateDTO(
 
     public PageDTO toPageDTO() {
         final PageDTO page = new PageDTO();
-        page.setName(name.trim());
+        page.setName(name == null ? null : name.trim());
         page.setIcon(StringUtils.isBlank(icon) ? null : icon.trim());
         page.setCustomSlug(customSlug);
         page.setIsHidden(isHidden);
