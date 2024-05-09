@@ -68,5 +68,6 @@ module.exports = {
     "@tag.Visual",
     "@tag.Module",
     "@tag.Workflows",
+    "@tag.Debugger",
   ],
 };
