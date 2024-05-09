@@ -70,4 +70,13 @@ public class ApplicationPermissionCEImpl implements ApplicationPermissionCE, Dom
     public AclPermission getManageAutoCommitPermission() {
         return AclPermission.MANAGE_AUTO_COMMIT;
     }
+
+    public AclPermission getPublishPermission() {
+        return AclPermission.PUBLISH_APPLICATIONS;
+    }
+
+    @Override
+    public AclPermission getApplicationDeletePagesPermission() {
+        return AclPermission.APPLICATION_DELETE_PAGES;
+    }
 }
