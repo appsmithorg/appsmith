@@ -64,8 +64,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         if (StringUtils.hasLength(tenantId)) {
             return Mono.just(tenantId);
         }
-
-        return this.getDefaultTenant().map(Tenant::getId).map(tenantId -> {
+        return repository.findBySlug(FieldName.DEFAULT).map(Tenant::getId).map(tenantId -> {
             // Set the cache value before returning.
             this.tenantId = tenantId;
             return tenantId;
