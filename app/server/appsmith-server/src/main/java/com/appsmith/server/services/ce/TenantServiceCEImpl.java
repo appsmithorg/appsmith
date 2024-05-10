@@ -40,7 +40,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     private final FeatureFlagMigrationHelper featureFlagMigrationHelper;
 
-    private CacheableRepositoryHelper cacheableRepositoryHelper;
+    private final CacheableRepositoryHelper cacheableRepositoryHelper;
 
     public TenantServiceCEImpl(
             Validator validator,
