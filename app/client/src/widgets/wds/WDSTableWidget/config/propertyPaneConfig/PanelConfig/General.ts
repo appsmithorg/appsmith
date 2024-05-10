@@ -1,11 +1,7 @@
 import { ValidationTypes } from "constants/WidgetValidation";
 import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes } from "widgets/wds/WDSTableWidget/constants";
-import {
-  hideByColumnType,
-  updateColumnOrderWhenFrozen,
-} from "../../../widget/propertyUtils";
-import { StickyType } from "widgets/wds/WDSTableWidget/component/Constants";
+import { hideByColumnType } from "../../../widget/propertyUtils";
 import { BUTTON_VARIANTS } from "@design-system/widgets";
 import capitalize from "lodash/capitalize";
 
@@ -19,7 +15,6 @@ export default {
       helpText: "Controls the visibility of the cell in the column",
       defaultValue: true,
       controlType: "SWITCH",
-
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -36,7 +31,6 @@ export default {
       helpText: "Controls the disabled state of the button",
       defaultValue: false,
       controlType: "SWITCH",
-
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -60,7 +54,6 @@ export default {
       helpText: "Decides if menu items will consume lesser space",
       label: "Compact",
       controlType: "SWITCH",
-
       isJSConvertible: true,
       isBindProperty: true,
       validation: {
@@ -82,7 +75,6 @@ export default {
       helpText: "Allows content of the cell to be wrapped",
       defaultValue: false,
       controlType: "SWITCH",
-
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -110,7 +102,6 @@ export const GeneralStyle = {
       propertyName: "buttonVariant",
       label: "Button variant",
       controlType: "DROP_DOWN",
-
       fullWidth: true,
       helpText: "Sets the variant of the button",
       options: Object.values(BUTTON_VARIANTS).map((variant) => ({

@@ -1,9 +1,10 @@
 import React from "react";
 
-import { TableBodyContext } from './context'
+import { TableBodyContext } from "./context";
 import { StaticTableBody } from "./StaticTableBody";
 import type { TableBodyContextType } from "./context";
-import { VirtualTableBody, VirtualTableBodyProps } from "./VirtualTableBody";
+import type { VirtualTableBodyProps } from "./VirtualTableBody";
+import { VirtualTableBody } from "./VirtualTableBody";
 
 export const TableBody = (
   props: VirtualTableBodyProps & TableBodyContextType & { useVirtual: boolean },

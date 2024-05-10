@@ -1,28 +1,20 @@
 import styled, { css } from "styled-components";
 import type {
-  TableSizes,
   CellLayoutProperties,
   CellAlignment,
   VerticalAlignment,
   ImageSize,
 } from "./Constants";
 import {
-  JUSTIFY_CONTENT,
-  ALIGN_ITEMS,
-  IMAGE_HORIZONTAL_ALIGN,
-  IMAGE_VERTICAL_ALIGN,
-  TEXT_ALIGN,
   TABLE_SIZES,
   ImageSizes,
   MULTISELECT_CHECKBOX_WIDTH,
 } from "./Constants";
-import type { Color } from "constants/Colors";
 import { Colors } from "constants/Colors";
 import { invisible } from "constants/DefaultTheme";
 import { lightenColor, darkenColor } from "widgets/WidgetUtils";
 import { FontStyleTypes } from "constants/WidgetConstants";
 import { Classes } from "@blueprintjs/core";
-import type { TableVariant } from "../constants";
 import { Layers } from "constants/Layers";
 
 const BORDER_RADIUS = "border-radius: 4px;";

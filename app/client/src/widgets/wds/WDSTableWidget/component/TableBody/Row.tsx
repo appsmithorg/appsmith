@@ -16,8 +16,6 @@ interface RowType {
 
 export function Row(props: RowType) {
   const {
-    accentColor,
-    borderRadius,
     columns,
     isAddRowInProgress,
     multiRowSelection,

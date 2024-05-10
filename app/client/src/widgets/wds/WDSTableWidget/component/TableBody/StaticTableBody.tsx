@@ -12,7 +12,7 @@ export interface StaticTableProps {
   ): TableBodyProps;
   pageSize: number;
   rows: ReactTableRowType<Record<string, unknown>>[];
-  height: number; 
+  height: number;
 }
 
 export const StaticTableBody = (props: StaticTableProps) => {

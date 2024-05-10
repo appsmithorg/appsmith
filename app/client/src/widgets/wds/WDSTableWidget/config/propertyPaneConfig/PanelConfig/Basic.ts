@@ -3,15 +3,9 @@ import type { TableWidgetProps } from "widgets/wds/WDSTableWidget/constants";
 import { ColumnTypes, ICON_NAMES } from "widgets/wds/WDSTableWidget/constants";
 import {
   hideByColumnType,
-  hideByMenuItemsSource,
-  hideIfMenuItemsSourceDataIsFalsy,
   updateIconAlignment,
-  updateMenuItemsSource,
 } from "../../../widget/propertyUtils";
 import { IconNames } from "@blueprintjs/icons";
-import { MenuItemsSource } from "widgets/MenuButtonWidget/constants";
-import { EvaluationSubstitutionType } from "entities/DataTree/dataTreeFactory";
-import configureMenuItemsConfig from "./childPanels/configureMenuItemsConfig";
 
 export default {
   sectionName: "Basic",
@@ -34,7 +28,6 @@ export default {
       updateHook: updateIconAlignment,
       dependencies: ["primaryColumns", "columnOrder"],
       controlType: "ICON_SELECT",
-
       defaultIconName: "add",
       isJSConvertible: true,
       isBindProperty: true,

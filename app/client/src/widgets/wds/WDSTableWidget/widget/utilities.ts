@@ -201,7 +201,7 @@ export function getDefaultColumnProperties(
     isDerived: !!isDerived,
     label: id,
     isSaveVisible: true,
-    isDiscardVisible: true, 
+    isDiscardVisible: true,
     sticky: StickyType.NONE,
     validation: {},
     currencyCode: "USD",
