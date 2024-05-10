@@ -420,8 +420,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     return branchedActionCollectionMono.map(dbActionCollection -> {
                         actionCollectionDTO.setId(null);
                         resetContextId(actionCollectionDTO);
+                        // Since we have a different endpoint to update the body, we need to remove it from the DTO
+                        actionCollectionDTO.setBody(null);
+
                         copyNewFieldValuesIntoOldObject(
                                 actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
+
                         return dbActionCollection;
                     });
                 })
