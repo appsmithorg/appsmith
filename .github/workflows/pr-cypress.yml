@@ -211,16 +211,6 @@ jobs:
           regexFlags: ims
           token: ${{ secrets.GITHUB_TOKEN }}
 
-
-      - name: Get workflow duration
-        uses: channyein87/workflow-duration-action@v1
-        id: get_duration
-        with:
-          repository: actions/checkout
-          workflow: ./.github/workflows/ci-test-custom-script.yml
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-
-
       - name: Modify test response in the PR when ci-test is success
         if: needs.ci-test.result == 'success' && steps.combine_ci.outputs.specs_failed == '0'
         uses: nefrob/pr-description@v1.1.1
