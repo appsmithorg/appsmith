@@ -239,10 +239,13 @@ export const useIDETabClickHandlers = () => {
   const tabsConfig = TabSelectors[segment];
   const pageId = useSelector(getCurrentPageId);
 
-  const addClickHandler = useCallback(() => {
-    if (segment === EditorEntityTab.JS) onJSAddClick();
-    if (segment === EditorEntityTab.QUERIES) onQueryAddClick();
-  }, [segment, segmentMode, onQueryAddClick, onJSAddClick]);
+  const addClickHandler = useCallback(
+    (add: boolean) => {
+      if (segment === EditorEntityTab.JS) onJSAddClick();
+      if (segment === EditorEntityTab.QUERIES) onQueryAddClick(add);
+    },
+    [segment, segmentMode, onQueryAddClick, onJSAddClick],
+  );
 
   const tabClickHandler = useCallback(
     (item: EntityItem) => {
