@@ -2499,3 +2499,5 @@ export const EMPTY_CANVAS_HINTS = {
 export const BETA_TAG = () => `Beta`;
 
 export const BUTTON_WIDGET_DEFAULT_LABEL = () => "Do something";
+
+export const PAGE_ENTITY_NAME = "Page";
