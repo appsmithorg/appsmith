@@ -22,6 +22,7 @@ function PlainTextCell(props: PlainTextCellProps & BaseCellComponentProps) {
       isBold={isBold}
       isItalic={isItalic}
       lineClamp={lineClamp}
+      title={value}
       variant="body"
     >
       {value}
