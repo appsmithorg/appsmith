@@ -19,6 +19,9 @@ const storeState = {
   },
   ui: {
     ...unitTestBaseMockStore.ui,
+    editor: {
+      isPreviewMode: false,
+    },
     users: {
       featureFlag: {
         data: {},
