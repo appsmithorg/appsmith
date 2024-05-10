@@ -253,6 +253,7 @@ export class CommonLocators {
   _popoverToolTip = ".bp3-popover-content, .bp3-popover2-content";
   _selectedWidget =
     "[data-testid='t--anvil-widget-wrapper'][data-selected=true]";
+  _autoLayoutSelectedWidget = "div[data-testid='t--selected']";
   _appsmithWidget = (widgetId: string) => `.appsmith_widget_${widgetId}`;
   _selectionCanvas = (canvasId: string) => `#div-selection-${canvasId}`;
   _sqlKeyword = ".cm-m-sql.cm-keyword";

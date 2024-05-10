@@ -90,7 +90,6 @@ import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import {
   getJSActionPathNameToDisplay,
   isBrowserExecutionAllowed,
@@ -634,13 +633,10 @@ function* handleRefactorJSActionNameSaga(
     return;
   }
 
-  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
   const params: FetchPageRequest = {
     id: data.payload.refactorAction.pageId || "",
+    migrateDSL: true,
   };
-  if (isServerDSLMigrationsEnabled) {
-    params.migrateDSL = true;
-  }
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {
