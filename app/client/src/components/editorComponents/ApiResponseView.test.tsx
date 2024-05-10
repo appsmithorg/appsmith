@@ -24,6 +24,13 @@ const storeState = {
   },
   ui: {
     ...unitTestBaseMockStore.ui,
+    gitSync: {
+      branches: [],
+      fetchingBranches: false,
+      isDeploying: false,
+      protectedBranchesLoading: false,
+      protectedBranches: [],
+    },
     editor: {
       isPreviewMode: false,
     },
