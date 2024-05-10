@@ -117,7 +117,7 @@ public class ConsolidatedAPIServiceImplTest {
     @SpyBean
     ApplicationRepository spyApplicationRepository;
 
-    @MockBean
+    @SpyBean
     NewPageRepository mockNewPageRepository;
 
     @Test
