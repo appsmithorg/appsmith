@@ -302,10 +302,19 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     }
 
     @Override
-    public Mono<Integer> updateUnpublishedActionCollectionBody(String id, String body, String branchName) {
+    public Mono<Integer> updateUnpublishedActionCollectionBody(
+            String id, ActionCollectionDTO actionCollectionDTO, String branchName) {
 
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        if (actionCollectionDTO == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_COLLECTION));
+        }
+
+        if (actionCollectionDTO.getBody() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BODY));
         }
 
         Mono<ActionCollection> branchedActionCollectionMono = actionCollectionService
@@ -316,7 +325,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             BridgeUpdate updateObj = Bridge.update();
             String path = ActionCollection.Fields.unpublishedCollection + "." + ActionCollectionDTO.Fields.body;
 
-            updateObj.set(path, body);
+            updateObj.set(path, actionCollectionDTO.getBody());
 
             return actionCollectionRepository.updateById(dbActionCollection.getId(), updateObj);
         });
