@@ -30,6 +30,8 @@ fi
 
 if [[ -z "${APPSMITH_GIT_ROOT:-}" ]]; then
   export APPSMITH_GIT_ROOT=/appsmith-stacks/git-storage
+else
+  echo "WARNING: It appears a custom value has been configured for APPSMITH_GIT_ROOT. This behaviour is deprecated and will soon be removed."
 fi
 mkdir -pv "$APPSMITH_GIT_ROOT"
 
