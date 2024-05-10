@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataIntegrityViolationException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -113,8 +114,12 @@ public class SeedMongoData {
             plugin.setDefaultInstall((Boolean) array[3]);
             log.debug("Create plugin: {}", plugin);
             return pluginRepository.save(plugin).onErrorResume(e -> {
-                log.error("Error creating plugin", e);
-                return Mono.empty();
+                // Ignore the duplicate exception
+                if (e instanceof DataIntegrityViolationException
+                        && e.getMessage().contains("constraint")) {
+                    return Mono.empty();
+                }
+                return Mono.error(e);
             });
         });
 
