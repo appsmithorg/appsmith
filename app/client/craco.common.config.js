@@ -2,7 +2,6 @@ const CracoAlias = require("craco-alias");
 const CracoBabelLoader = require("craco-babel-loader");
 const path = require("path");
 const webpack = require("webpack");
-const WorkboxPlugin = require("workbox-webpack-plugin");
 
 module.exports = {
   devServer: {
@@ -142,30 +141,6 @@ module.exports = {
             "./src/components/designSystems/blueprintjs/icon/index.js",
           ),
         ),
-        new WorkboxPlugin.InjectManifest({
-          swSrc: "./src/serviceWorker.js",
-          mode: "development",
-          swDest: "./pageService.js",
-          maximumFileSizeToCacheInBytes: 11 * 1024 * 1024,
-          exclude: [
-            // Don’t cache source maps and PWA manifests.
-            // (These are the default values of the `exclude` option: https://developer.chrome.com/docs/workbox/reference/workbox-build/#type-WebpackPartial,
-            // so we need to specify them explicitly if we’re extending this array.)
-            /\.map$/,
-            /^manifest.*\.js$/,
-            // Don’t cache the root html file
-            /index\.html/,
-            // Don’t cache LICENSE.txt files emitted by CRA
-            // when a chunk includes some license comments
-            /LICENSE\.txt/,
-            // Don’t cache static icons as there are hundreds of them, and caching them all
-            // one by one (as the service worker does it) keeps the network busy for a long time
-            // and delays the service worker installation
-            /\/*\.svg$/,
-          ],
-          // Don’t cache-bust JS and CSS chunks
-          dontCacheBustURLsMatching: /\.[0-9a-zA-Z]{8}\.chunk\.(js|css)$/,
-        }),
       ],
     },
   },
