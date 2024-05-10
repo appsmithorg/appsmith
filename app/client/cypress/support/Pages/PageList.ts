@@ -112,6 +112,14 @@ class PageList {
       .should("eq", 200);
     this.HideList();
   }
+
+  assertAbsenceOfAddPage() {
+    this.ShowList();
+    ObjectsRegistry.AggregateHelper.AssertElementAbsence(
+      this.locators.newButton,
+    );
+    this.HideList();
+  }
 }
 
 export default new PageList();
