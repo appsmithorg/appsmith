@@ -635,7 +635,7 @@ public class ActionCollectionServiceCEImpl extends BaseService<ActionCollectionR
         NewAction newAction = newActionService.generateActionDomain(action);
         newAction.setUnpublishedAction(action);
 
-        Set<Policy> actionCollectionPolicies = new HashSet<>();
+        Set<Policy> actionCollectionPolicies = new HashSet();
         actionCollection.getPolicies().forEach(policy -> {
             Policy actionPolicy = Policy.builder()
                     .permission(policy.getPermission())

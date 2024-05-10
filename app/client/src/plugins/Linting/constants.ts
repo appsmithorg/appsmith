@@ -59,6 +59,7 @@ export const IGNORED_LINT_ERRORS = ["E041", "W032"];
 export const SUPPORTED_WEB_APIS = {
   console: true,
   crypto: true,
+  fetch: true,
 };
 export enum CustomLintErrorCode {
   INVALID_ENTITY_PROPERTY = "INVALID_ENTITY_PROPERTY",
