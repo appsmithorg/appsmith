@@ -24,7 +24,7 @@ const regexMap = {
   profile: new RegExp(/v1\/(users\/profile|workspaces)/),
 };
 
-/* eslint-disable no-restricted-globals */
+/* eslint-disable no-restricted-globals*/
 // Note: if you need to filter out some files from precaching,
 // do that in craco.build.config.js → workbox webpack plugin options
 const toPrecache = self.__WB_MANIFEST;
