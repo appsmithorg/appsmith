@@ -87,10 +87,9 @@ class JSActionAPI extends API {
     jsCollectionId: string,
     jsCollectionBody: string,
   ): Promise<AxiosPromise<JSCollectionCreateUpdateResponse>> {
-    return API.put(
-      `${JSActionAPI.url}/${jsCollectionId}/body`,
-      jsCollectionBody,
-    );
+    return API.put(`${JSActionAPI.url}/${jsCollectionId}/body`, {
+      body: jsCollectionBody,
+    });
   }
 
   static async updateJSCollection(
