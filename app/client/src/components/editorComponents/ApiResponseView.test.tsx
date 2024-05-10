@@ -10,6 +10,11 @@ import { BrowserRouter as Router } from "react-router-dom";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import "@testing-library/jest-dom/extend-expect";
 
+jest.mock("./EntityBottomTabs", () => ({
+  __esModule: true,
+  default: () => <div />,
+}));
+
 const mockStore = configureStore([]);
 
 const storeState = {
