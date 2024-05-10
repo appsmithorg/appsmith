@@ -409,6 +409,48 @@ export const handlers = {
   [ReduxActionTypes.RESET_EDITOR_REQUEST]: () => {
     return klona(initialState);
   },
+  [ReduxActionTypes.UPDATE_TEST_PAYLOAD_FOR_COLLECTION]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      collectionId: string;
+      testPayload: Record<string, unknown>;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((jsCollectionData) => {
+      if (jsCollectionData.config.id === action.payload.collectionId) {
+        return {
+          ...jsCollectionData,
+          data: {
+            ...jsCollectionData.data,
+            testPayload: action.payload.testPayload,
+          },
+        };
+      }
+      return jsCollectionData;
+    }),
+  [ReduxActionTypes.UPDATE_TEST_PAYLOAD_FOR_JS_ACTION]: (
+    state: JSCollectionDataState,
+    action: ReduxAction<{
+      collectionId: string;
+      actionId: string;
+      testPayload: Record<string, unknown>;
+    }>,
+  ): JSCollectionDataState =>
+    state.map((jsCollectionData) => {
+      if (jsCollectionData.config.id === action.payload.collectionId) {
+        return {
+          ...jsCollectionData,
+          data: {
+            ...jsCollectionData.data,
+            testPayload: {
+              ...(jsCollectionData.data?.testPayload || {}),
+              [action.payload.actionId]: action.payload.testPayload,
+            },
+          },
+        };
+      }
+      return jsCollectionData;
+    }),
 };
 
 const jsActionsReducer = createReducer(initialState, handlers);

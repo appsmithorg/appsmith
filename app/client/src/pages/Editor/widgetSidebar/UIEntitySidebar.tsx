@@ -1,4 +1,5 @@
 import {
+  UI_ELEMENT_PANEL_SEARCH_TEXT,
   WIDGET_PANEL_EMPTY_MESSAGE,
   createMessage,
 } from "@appsmith/constants/messages";
@@ -12,7 +13,7 @@ import { SearchInput, Text } from "design-system";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { groupWidgetCardsByTags } from "../utils";
 import UIEntityTagGroup from "./UIEntityTagGroup";
 import { useUIExplorerItems } from "./hooks";
@@ -103,7 +104,7 @@ function UIEntitySidebar({
           autoComplete="off"
           id={ENTITY_EXPLORER_SEARCH_ID}
           onChange={search}
-          placeholder="Search widgets"
+          placeholder={createMessage(UI_ELEMENT_PANEL_SEARCH_TEXT)}
           ref={searchInputRef}
           type="text"
         />

@@ -3,45 +3,47 @@ import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { BlueprintOperationTypes } from "WidgetProvider/constants";
 import { generateAutoHeightLayoutTreeAction } from "actions/autoHeightActions";
 import type { WidgetAddChild } from "actions/pageActions";
 import { updateAndSaveLayout } from "actions/pageActions";
-import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
 import { CANVAS_DEFAULT_MIN_HEIGHT_PX } from "constants/AppConstants";
 import type { OccupiedSpace } from "constants/CanvasEditorConstants";
 import {
+  BUILDING_BLOCK_EXPLORER_TYPE,
   GridDefaults,
   MAIN_CONTAINER_WIDGET_ID,
 } from "constants/WidgetConstants";
+import { toast } from "design-system";
+import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
+import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
+import { calculateDropTargetRows } from "layoutSystems/common/dropTarget/DropTargetUtils";
+import { LayoutSystemTypes } from "layoutSystems/types";
 import { cloneDeep } from "lodash";
 import log from "loglevel";
 import type {
   CanvasWidgetsReduxState,
   FlattenedWidgetProps,
 } from "reducers/entityReducers/canvasWidgetsReducer";
-import { LayoutSystemTypes } from "layoutSystems/types";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
+import { addAndMoveBuildingBlockToCanvasSaga } from "sagas/BuildingBlockSagas/BuildingBlockAdditionSagas";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   executeWidgetBlueprintBeforeOperations,
   traverseTreeAndExecuteBlueprintChildOperations,
 } from "sagas/WidgetBlueprintSagas";
+import { getWidget, getWidgets, getWidgetsMeta } from "sagas/selectors";
 import {
   getCanvasWidth,
   getIsAutoLayoutMobileBreakPoint,
   getMainCanvasProps,
   getOccupiedSpacesSelectorForContainer,
 } from "selectors/editorSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
-import { updateRelationships } from "layoutSystems/autolayout/utils/autoLayoutDraggingUtils";
+import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 import { collisionCheckPostReflow } from "utils/reflowHookUtils";
 import type { WidgetProps } from "widgets/BaseWidget";
-import { BlueprintOperationTypes } from "WidgetProvider/constants";
-import { toast } from "design-system";
-import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
-import { getLayoutSystemType } from "selectors/layoutSystemSelectors";
 
 export interface WidgetMoveParams {
   widgetId: string;
@@ -139,11 +141,26 @@ const getBottomMostRowAfterMove = (
   return widgetBottomRow;
 };
 
-function* addWidgetAndMoveWidgetsSaga(
+function* addAndMoveUIEntitySaga(
   actionPayload: ReduxAction<{
     newWidget: WidgetAddChild;
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
     canvasId: string;
+  }>,
+) {
+  if (actionPayload.payload.newWidget.type === BUILDING_BLOCK_EXPLORER_TYPE) {
+    yield call(addAndMoveBuildingBlockToCanvasSaga, actionPayload);
+  } else {
+    yield call(addWidgetAndMoveWidgetsSaga, actionPayload);
+  }
+}
+
+export function* addWidgetAndMoveWidgetsSaga(
+  actionPayload: ReduxAction<{
+    newWidget: WidgetAddChild;
+    draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
+    canvasId: string;
+    shouldReplay?: boolean;
   }>,
 ) {
   const start = performance.now();
@@ -165,7 +182,11 @@ function* addWidgetAndMoveWidgetsSaga(
     ) {
       throw Error;
     }
-    yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
+    yield put(
+      updateAndSaveLayout(updatedWidgetsOnAddAndMove, {
+        shouldReplay: actionPayload.payload.shouldReplay,
+      }),
+    );
     yield put(generateAutoHeightLayoutTreeAction(true, true));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
@@ -182,8 +203,6 @@ function* addWidgetAndMoveWidgetsSaga(
     });
   }
 }
-
-// function* update
 
 function* addWidgetAndMoveWidgets(
   newWidget: WidgetAddChild,
@@ -471,7 +490,7 @@ export default function* draggingCanvasSagas() {
     takeLatest(ReduxActionTypes.WIDGETS_MOVE, moveWidgetsSaga),
     takeLatest(
       ReduxActionTypes.WIDGETS_ADD_CHILD_AND_MOVE,
-      addWidgetAndMoveWidgetsSaga,
+      addAndMoveUIEntitySaga,
     ),
   ]);
 }

@@ -13,6 +13,7 @@ import type {
   LayoutSystemTypeConfig,
   LayoutSystemTypes,
 } from "layoutSystems/types";
+import type { BaseAction } from "entities/Action";
 
 export type EvaluationVersion = number;
 
@@ -267,6 +268,16 @@ export interface ImportBuildingBlockToApplicationRequest {
   templateId: string;
 }
 
+interface ImportBuildingBlockOnPageActions extends BaseAction {
+  timeoutInMilliseconds: number;
+  pluginType: string;
+}
+
+export interface ImportBuildingBlockToApplicationResponse {
+  widgetDsl: string;
+  onPageLoadActions: ImportBuildingBlockOnPageActions[];
+}
+
 export class ApplicationApi extends Api {
   static baseURL = "v1/applications";
   static publishURLPath = (applicationId: string) =>
@@ -489,7 +500,9 @@ export class ApplicationApi extends Api {
 
   static async importBuildingBlockToApplication(
     request: ImportBuildingBlockToApplicationRequest,
-  ) {
+  ): Promise<
+    AxiosPromise<ApiResponse<ImportBuildingBlockToApplicationResponse>>
+  > {
     return Api.post(`${ApplicationApi.baseURL}/import/partial/block`, request);
   }
 }

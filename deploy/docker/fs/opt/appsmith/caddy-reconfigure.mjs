@@ -41,6 +41,7 @@ const parts = []
 
 parts.push(`
 {
+  debug
   admin 127.0.0.1:2019
   persist_config off
   acme_ca_root /etc/ssl/certs/ca-certificates.crt
@@ -61,6 +62,7 @@ parts.push(`
   reverse_proxy {
     to 127.0.0.1:{args[0]}
     header_up -Forwarded
+    header_up X-Appsmith-Request-Id {http.request.uuid}
   }
 }
 
@@ -70,10 +72,22 @@ parts.push(`
   }
   skip_log /api/v1/health
 
+  # The internal request ID header should never be accepted from an incoming request.
+  request_header -X-Appsmith-Request-Id
+
+  # Ref: https://stackoverflow.com/a/38191078/151048
+  # We're only accepting v4 UUIDs today, in order to not make it too lax unless needed.
+  @valid-request-id expression {header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @valid-request-id X-Request-Id {header.X-Request-Id}
+  @invalid-request-id expression !{header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @invalid-request-id X-Request-Id invalid_request_id
+  request_header @invalid-request-id X-Request-Id invalid_request_id
+
   header {
     -Server
     Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
     X-Content-Type-Options "nosniff"
+    X-Appsmith-Request-Id {http.request.uuid}
   }
 
   request_body {
@@ -167,7 +181,10 @@ if (CUSTOM_DOMAIN !== "") {
   `)
 }
 
-finalizeIndexHtml()
+if (!process.argv.includes("--no-finalize-index-html")) {
+  finalizeIndexHtml()
+}
+
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
 spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
@@ -179,7 +196,7 @@ function finalizeIndexHtml() {
     info = JSON.parse(fs.readFileSync("/opt/appsmith/info.json", "utf8"))
   } catch(e) {
     // info will be empty, that's okay.
-    console.error("Error reading info.json", e)
+    console.error("Error reading info.json", e.message)
   }
 
   const extraEnv = {
@@ -188,8 +205,8 @@ function finalizeIndexHtml() {
     APPSMITH_VERSION_RELEASE_DATE: info?.imageBuiltAt ?? "",
   }
 
-  const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replace(
-    /\b__(APPSMITH_[A-Z0-9_]+)__\b/g,
+  const content = fs.readFileSync("/opt/appsmith/editor/index.html", "utf8").replaceAll(
+    /\{\{env\s+"(APPSMITH_[A-Z0-9_]+)"}}/g,
     (_, name) => (process.env[name] || extraEnv[name] || "")
   )
 

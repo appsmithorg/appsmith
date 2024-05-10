@@ -15,7 +15,6 @@ import { JSObjectFactory } from "test/factories/Actions/JSObject";
 
 const FeatureFlags = {
   rollout_side_by_side_enabled: true,
-  rollout_editor_pane_segments_enabled: true,
 };
 describe("IDE Render: JS", () => {
   localStorage.setItem("SPLITPANE_ANNOUNCEMENT", "false");
@@ -306,6 +305,57 @@ describe("IDE Render: JS", () => {
       getByText(createMessage(EDITOR_PANE_TEXTS.js_blank_object_item));
       // Close button is rendered
       getByRole("button", { name: "Close pane" });
+    });
+
+    it("Prevents edit of main JS object", () => {
+      const page = PageFactory.build();
+      const Main_JS = JSObjectFactory.build({
+        id: "js_id",
+        name: "Main",
+        pageId: page.pageId,
+      });
+      Main_JS.isMainJSCollection = true;
+
+      const Normal_JS = JSObjectFactory.build({
+        id: "js_id2",
+        name: "Normal",
+        pageId: page.pageId,
+      });
+
+      const state = getIDETestState({
+        pages: [page],
+        js: [Main_JS, Normal_JS],
+        tabs: {
+          [EditorEntityTab.QUERIES]: [],
+          [EditorEntityTab.JS]: ["js_id"],
+        },
+      });
+
+      const { getByTestId } = render(
+        <Route path={BUILDER_PATH}>
+          <IDE />
+        </Route>,
+        {
+          url: "/app/applicationSlug/pageSlug-page_id/edit/jsObjects/js_id",
+          initialState: state,
+          featureFlags: FeatureFlags,
+        },
+      );
+
+      // Normal JS object should be editable
+      const normalJsObjectEntity = getByTestId("t--entity-item-Normal");
+      expect(normalJsObjectEntity.classList.contains("editable")).toBe(true);
+
+      // should have `t--context-menu` as a child of the normalJsObjectEntity
+      expect(
+        normalJsObjectEntity.querySelector(".t--context-menu"),
+      ).not.toBeNull();
+
+      // Main JS object should not be editable
+      const mainJsObjectEntity = getByTestId("t--entity-item-Main");
+      expect(mainJsObjectEntity.classList.contains("editable")).toBe(false);
+      // should not have `t--context-menu` as a child of the mainJsObjectEntity
+      expect(mainJsObjectEntity.querySelector(".t--context-menu")).toBeNull();
     });
   });
 });

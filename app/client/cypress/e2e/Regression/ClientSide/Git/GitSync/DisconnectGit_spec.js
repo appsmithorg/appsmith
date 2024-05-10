@@ -111,6 +111,5 @@ describe("Git disconnect modal:", { tags: ["@tag.Git"] }, function () {
 
   after(() => {
     _.gitSync.DeleteTestGithubRepo(repoName);
-    //cy.deleteTestGithubRepo(repoName);
   });
 });

@@ -1,6 +1,7 @@
 import React from "react";
 import log from "loglevel";
 import merge from "lodash/merge";
+import { klona as clone } from "klona";
 import * as Sentry from "@sentry/react";
 import { mergeWidgetConfig } from "utils/helpers";
 import type { CountryCode } from "libphonenumber-js";
@@ -44,11 +45,49 @@ class WDSPhoneInputWidget extends WDSBaseInputWidget<
     return config.anvilConfig;
   }
 
+  static getMethods() {
+    return config.methodsConfig;
+  }
+
   static getPropertyPaneContentConfig() {
-    return mergeWidgetConfig(
-      config.propertyPaneContentConfig,
-      super.getPropertyPaneContentConfig(),
+    const parentConfig = clone(super.getPropertyPaneContentConfig());
+
+    const labelSectionIndex = parentConfig.findIndex(
+      (section) => section.sectionName === "Label",
     );
+    const labelPropertyIndex = parentConfig[
+      labelSectionIndex
+    ].children.findIndex((property) => property.propertyName === "label");
+
+    parentConfig[labelSectionIndex].children[labelPropertyIndex] = {
+      ...parentConfig[labelSectionIndex].children[labelPropertyIndex],
+      placeholderText: "Phone Number",
+    } as any;
+
+    const generalSectionIndex = parentConfig.findIndex(
+      (section) => section.sectionName === "General",
+    );
+    const tooltipPropertyIndex = parentConfig[
+      generalSectionIndex
+    ].children.findIndex((property) => property.propertyName === "tooltip");
+
+    parentConfig[generalSectionIndex].children[tooltipPropertyIndex] = {
+      ...parentConfig[generalSectionIndex].children[tooltipPropertyIndex],
+      placeholderText: "You may skip local prefixes",
+    } as any;
+
+    const placeholderPropertyIndex = parentConfig[
+      generalSectionIndex
+    ].children.findIndex(
+      (property) => property.propertyName === "placeholderText",
+    );
+
+    parentConfig[generalSectionIndex].children[placeholderPropertyIndex] = {
+      ...parentConfig[generalSectionIndex].children[placeholderPropertyIndex],
+      placeholderText: "(123) 456-7890",
+    } as any;
+
+    return mergeWidgetConfig(config.propertyPaneContentConfig, parentConfig);
   }
 
   static getAutocompleteDefinitions(): AutocompletionDefinitions {

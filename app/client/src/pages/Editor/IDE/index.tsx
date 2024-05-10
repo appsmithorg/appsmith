@@ -13,6 +13,8 @@ import MainPane from "./MainPane";
 import RightPane from "./RightPane";
 import classNames from "classnames";
 import { tailwindLayers } from "constants/Layers";
+import ProtectedCallout from "./ProtectedCallout";
+import { protectedModeSelector } from "selectors/gitSyncSelectors";
 
 /**
  * OldName: MainContainer
@@ -20,9 +22,11 @@ import { tailwindLayers } from "constants/Layers";
 function IDE() {
   const isPreviewMode = useSelector(previewModeSelector);
   const isCombinedPreviewMode = useSelector(combinedPreviewModeSelector);
+  const isProtectedMode = useSelector(protectedModeSelector);
 
   return (
     <>
+      {isProtectedMode && <ProtectedCallout />}
       <EditorWrapperContainer>
         <div
           className={classNames({

@@ -116,7 +116,7 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
     >
       {!props.hideHeader && (
         <FlexContainer>
-          <Flex className="key-value" size={1}>
+          <Flex className="key-value" size={props.hasType ? 2 : 1}>
             <Text kind="body-m">Key</Text>
           </Flex>
           <Flex className="key-value" size={3}>
@@ -144,7 +144,10 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
 
             return (
               <FormRowWithLabel key={index}>
-                <Flex data-location-id={btoa(`${field}.key`)} size={1}>
+                <Flex
+                  data-location-id={btoa(`${field}.key`)}
+                  size={props.hasType ? 2 : 1}
+                >
                   {props.hasType ? (
                     <DynamicTextFieldWithDropdownWrapper>
                       <DynamicTextField
@@ -223,11 +226,11 @@ function KeyValueRow(props: Props & WrappedFieldArrayProps) {
                         props.placeholder
                           ? `${props.placeholder} ${index + 1}`
                           : props.actionConfig[index].mandatory &&
-                            props.actionConfig[index].type
-                          ? `${props.actionConfig[index].type}`
-                          : props.actionConfig[index].type
-                          ? `${props.actionConfig[index].type} (optional)`
-                          : `(optional)`
+                              props.actionConfig[index].type
+                            ? `${props.actionConfig[index].type}`
+                            : props.actionConfig[index].type
+                              ? `${props.actionConfig[index].type} (optional)`
+                              : `(optional)`
                       }
                       showLightningMenu={
                         props.actionConfig[index].editable ||

@@ -6,6 +6,7 @@ import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.JSValue;
 import com.appsmith.external.models.PluginType;
+import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
@@ -23,7 +24,6 @@ import org.springframework.data.annotation.Transient;
 import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import static com.appsmith.external.helpers.AppsmithBeanUtils.copyNewFieldValuesIntoOldObject;
@@ -47,17 +47,17 @@ public class ActionCollectionCE_DTO {
     @JsonView(Views.Public.class)
     String workspaceId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String name;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String pageId;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     CreatorContextType contextType;
 
     // This field will only be populated if this collection is bound to one plugin (eg: JS)
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     String pluginId;
 
     // this attribute carries error messages while processing the actionCollection
@@ -66,39 +66,19 @@ public class ActionCollectionCE_DTO {
     @JsonView(Views.Public.class)
     List<ErrorDTO> errorReports;
 
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     PluginType pluginType;
 
     @JsonFormat(pattern = "yyyy-MM-dd'T'HH:mm:ss'Z'", timezone = "UTC")
     @JsonView(Views.Public.class)
     Instant deletedAt;
 
-    // This property is not shared with the client since the reference is only useful to server
-    // Map<defaultActionId, branchedActionId>
-    @JsonView(Views.Internal.class)
-    Map<String, String> defaultToBranchedActionIdsMap = Map.of();
-
-    @Deprecated
-    @JsonView(Views.Public.class)
-    Set<String> actionIds = Set.of();
-
-    // This property is not shared with the client since the reference is only useful to server
-    // Archived actions represent actions that have been removed from a js object but may be subject to re-use by the
-    // user
-    // Map<defaultActionId, branchedActionId>
-    @JsonView(Views.Internal.class)
-    Map<String, String> defaultToBranchedArchivedActionIdsMap = Map.of();
-
-    @Deprecated
-    @JsonView(Views.Public.class)
-    Set<String> archivedActionIds = Set.of();
-
     // Instead of storing the entire action object, we only populate this field while interacting with the client side
     @Transient
     @JsonView(Views.Public.class)
     List<ActionDTO> actions = List.of();
 
-    // Instead of storing the entire action object, we only populate this field while interacting with the client side
+    // TODO : Remove after clean up, this is only kept as of now because removing it will show up as a diff on git
     @Transient
     @JsonView(Views.Public.class)
     List<ActionDTO> archivedActions = List.of();
@@ -109,7 +89,7 @@ public class ActionCollectionCE_DTO {
     String body;
 
     // This list is currently used to record constants
-    @JsonView(Views.Public.class)
+    @JsonView({Views.Public.class, Git.class})
     List<JSValue> variables;
 
     // This will be used to store the defaultPageId but other fields like branchName, applicationId will act as
@@ -151,13 +131,10 @@ public class ActionCollectionCE_DTO {
     public void sanitiseForExport() {
         this.resetTransientFields();
         this.setDefaultResources(null);
-        this.setDefaultToBranchedActionIdsMap(null);
-        this.setDefaultToBranchedArchivedActionIdsMap(null);
-        this.setActionIds(null);
-        this.setArchivedActionIds(null);
         this.setUserPermissions(Set.of());
     }
 
+    @JsonView({Views.Internal.class})
     public String getUserExecutableName() {
         return this.getName();
     }
@@ -168,7 +145,6 @@ public class ActionCollectionCE_DTO {
         this.setApplicationId(null);
         this.setErrorReports(null);
         this.setActions(List.of());
-        this.setArchivedActions(List.of());
     }
 
     public String calculateContextId() {

@@ -11,12 +11,86 @@ export MONGODB_TMP_KEY_PATH="$TMP/mongodb-key"  # export for use in supervisor p
 
 mkdir -pv "$SUPERVISORD_CONF_TARGET" "$WWW_PATH"
 
+setup_proxy_variables() {
+  export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
+
+  # Ensure `localhost` and `127.0.0.1` are in always present in `NO_PROXY`.
+  local no_proxy_lines
+  no_proxy_lines="$(echo "$NO_PROXY" | tr , \\n)"
+  if ! echo "$no_proxy_lines" | grep -q '^localhost$'; then
+    export NO_PROXY="localhost,$NO_PROXY"
+  fi
+  if ! echo "$no_proxy_lines" | grep -q '^127.0.0.1$'; then
+    export NO_PROXY="127.0.0.1,$NO_PROXY"
+  fi
+
+  # If one of HTTPS_PROXY or https_proxy are set, copy it to the other. If both are set, prefer HTTPS_PROXY.
+  if [[ -n ${HTTPS_PROXY-} ]]; then
+    export https_proxy="$HTTPS_PROXY"
+  elif [[ -n ${https_proxy-} ]]; then
+    export HTTPS_PROXY="$https_proxy"
+  fi
+
+  # If one of HTTP_PROXY or http_proxy are set, copy it to the other. If both are set, prefer HTTP_PROXY.
+  if [[ -n ${HTTP_PROXY-} ]]; then
+    export http_proxy="$HTTP_PROXY"
+  elif [[ -n ${http_proxy-} ]]; then
+    export HTTP_PROXY="$http_proxy"
+  fi
+}
+
+
+init_env_file() {
+  CONF_PATH="/appsmith-stacks/configuration"
+  ENV_PATH="$CONF_PATH/docker.env"
+  TEMPLATES_PATH="/opt/appsmith/templates"
+
+  # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
+  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TMP/pre-define.env"
+
+  echo "Initialize .env file"
+  if ! [[ -e "$ENV_PATH" ]]; then
+    # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
+    echo "Generating default configuration file"
+    mkdir -p "$CONF_PATH"
+    local default_appsmith_mongodb_user="appsmith"
+    local generated_appsmith_mongodb_password=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ""
+    )
+    local generated_appsmith_encryption_password=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ""
+    )
+    local generated_appsmith_encription_salt=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ""
+    )
+    local generated_appsmith_supervisor_password=$(
+      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
+      echo ''
+    )
+    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
+  fi
+
+
+  echo "Load environment configuration"
+  set -o allexport
+  . "$ENV_PATH"
+  . "$TMP/pre-define.env"
+  set +o allexport
+}
+
+init_env_file
+setup_proxy_variables
+
 # ip is a reserved keyword for tracking events in Mixpanel. Instead of showing the ip as is Mixpanel provides derived properties.
 # As we want derived props alongwith the ip address we are sharing the ip address in separate keys
 # https://help.mixpanel.com/hc/en-us/articles/360001355266-Event-Properties
 if [[ -n ${APPSMITH_SEGMENT_CE_KEY-} ]]; then
-  ip="$(curl -sS https://api64.ipify.org || echo unknown)"
+  ip="$(set -o pipefail; curl --connect-timeout 5 -sS https://cs.appsmith.com/api/v1/ip | grep -Eo '\d+(\.\d+){3}' || echo "unknown")"
   curl \
+    --connect-timeout 5 \
     --user "$APPSMITH_SEGMENT_CE_KEY:" \
     --header 'Content-Type: application/json' \
     --data '{
@@ -62,75 +136,6 @@ function setup_backend_heap_arg() {
     if [[ ! -z ${maximum_heap} ]]; then
       export APPSMITH_JAVA_HEAP_ARG="-Xmx${maximum_heap}m"
     fi
-}
-
-init_env_file() {
-  CONF_PATH="/appsmith-stacks/configuration"
-  ENV_PATH="$CONF_PATH/docker.env"
-  TEMPLATES_PATH="/opt/appsmith/templates"
-
-  # Build an env file with current env variables. We single-quote the values, as well as escaping any single-quote characters.
-  printenv | grep -E '^APPSMITH_|^MONGO_' | sed "s/'/'\\\''/g; s/=/='/; s/$/'/" > "$TMP/pre-define.env"
-
-  echo "Initialize .env file"
-  if ! [[ -e "$ENV_PATH" ]]; then
-    # Generate new docker.env file when initializing container for first time or in Heroku which does not have persistent volume
-    echo "Generating default configuration file"
-    mkdir -p "$CONF_PATH"
-    local default_appsmith_mongodb_user="appsmith"
-    local generated_appsmith_mongodb_password=$(
-      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ""
-    )
-    local generated_appsmith_encryption_password=$(
-      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ""
-    )
-    local generated_appsmith_encription_salt=$(
-      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ""
-    )
-    local generated_appsmith_supervisor_password=$(
-      tr -dc A-Za-z0-9 </dev/urandom | head -c 13
-      echo ''
-    )
-    bash "$TEMPLATES_PATH/docker.env.sh" "$default_appsmith_mongodb_user" "$generated_appsmith_mongodb_password" "$generated_appsmith_encryption_password" "$generated_appsmith_encription_salt" "$generated_appsmith_supervisor_password" > "$ENV_PATH"
-  fi
-
-
-  echo "Load environment configuration"
-  set -o allexport
-  . "$ENV_PATH"
-  . "$TMP/pre-define.env"
-  set +o allexport
-}
-
-setup_proxy_variables() {
-  export NO_PROXY="${NO_PROXY-localhost,127.0.0.1}"
-
-  # Ensure `localhost` and `127.0.0.1` are in always present in `NO_PROXY`.
-  local no_proxy_lines
-  no_proxy_lines="$(echo "$NO_PROXY" | tr , \\n)"
-  if ! echo "$no_proxy_lines" | grep -q '^localhost$'; then
-    export NO_PROXY="localhost,$NO_PROXY"
-  fi
-  if ! echo "$no_proxy_lines" | grep -q '^127.0.0.1$'; then
-    export NO_PROXY="127.0.0.1,$NO_PROXY"
-  fi
-
-  # If one of HTTPS_PROXY or https_proxy are set, copy it to the other. If both are set, prefer HTTPS_PROXY.
-  if [[ -n ${HTTPS_PROXY-} ]]; then
-    export https_proxy="$HTTPS_PROXY"
-  elif [[ -n ${https_proxy-} ]]; then
-    export HTTPS_PROXY="$https_proxy"
-  fi
-
-  # If one of HTTP_PROXY or http_proxy are set, copy it to the other. If both are set, prefer HTTP_PROXY.
-  if [[ -n ${HTTP_PROXY-} ]]; then
-    export http_proxy="$HTTP_PROXY"
-  elif [[ -n ${http_proxy-} ]]; then
-    export HTTP_PROXY="$http_proxy"
-  fi
 }
 
 unset_unused_variables() {
@@ -360,6 +365,7 @@ check_redis_compatible_page_size() {
   page_size="$(getconf PAGE_SIZE)"
   if [[ $page_size -gt 4096 ]]; then
     curl \
+    --connect-timeout 5 \
       --silent \
       --user "$APPSMITH_SEGMENT_CE_KEY:" \
       --header 'Content-Type: application/json' \
@@ -369,7 +375,7 @@ check_redis_compatible_page_size() {
     echo "Compile Redis stable with page size of $page_size"
     apt-get update
     apt-get install --yes build-essential
-    curl --location https://download.redis.io/redis-stable.tar.gz | tar -xz -C /tmp
+    curl --connect-timeout 5 --location https://download.redis.io/redis-stable.tar.gz | tar -xz -C /tmp
     pushd /tmp/redis-stable
     make
     make install
@@ -458,10 +464,17 @@ function setup_auto_heal(){
    fi
 }
 
+print_appsmith_info(){
+  tr '\n' ' ' < /opt/appsmith/info.json
+}
+
+function capture_infra_details(){
+  bash /opt/appsmith/generate-infra-details.sh || true
+}
+
 # Main Section
+print_appsmith_info
 init_loading_pages
-init_env_file
-setup_proxy_variables
 unset_unused_variables
 
 check_mongodb_uri
@@ -494,6 +507,7 @@ export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
 mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
+capture_infra_details
 
 # Handle CMD command
 exec "$@"

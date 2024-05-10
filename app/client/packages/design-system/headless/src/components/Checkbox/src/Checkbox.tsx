@@ -76,8 +76,8 @@ const _Checkbox = (props: CheckboxProps, ref: CheckboxRef) => {
   const dataState = isIndeterminate
     ? "indeterminate"
     : Boolean(inputProps.checked)
-    ? "checked"
-    : "unchecked";
+      ? "checked"
+      : "unchecked";
 
   return (
     <label

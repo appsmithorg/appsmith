@@ -10,7 +10,7 @@ import { TextInput as HeadlessTextInput } from "@design-system/headless";
 import { Spinner } from "../../Spinner";
 import type { IconProps } from "../../Icon";
 import { IconButton } from "../../IconButton";
-import { ContextualHelp } from "./ContextualHelp";
+import { ContextualHelp } from "../../ContextualHelp";
 import { textInputStyles, fieldStyles } from "../../../styles";
 import type { SIZES } from "../../../shared";
 
@@ -57,8 +57,10 @@ const _TextInput = (props: TextInputProps, ref: HeadlessTextInputRef) => {
       return (
         <IconButton
           color="neutral"
+          excludeFromTabOrder
           icon={icon}
           onPress={onPressEyeIcon}
+          size="small"
           variant="ghost"
         />
       );

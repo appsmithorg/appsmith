@@ -26,7 +26,7 @@ import {
   CUSTOM_ROLE_TEXT,
 } from "@appsmith/constants/messages";
 import { isEmail } from "utils/formhelpers";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import type { SelectOptionProps } from "design-system";
 import { Callout, Checkbox } from "design-system";
 import {
@@ -274,19 +274,17 @@ export function CustomRolesRamp() {
 function InviteUsersForm(props: any) {
   const [emailError, setEmailError] = useState("");
   const [selectedOption, setSelectedOption] = useState<any[]>([]);
-  const selectedId = props?.selected?.id;
   const showRampSelector = showProductRamps(RAMP_NAME.CUSTOM_ROLES);
   const canShowRamp = useSelector(showRampSelector);
 
   const selected = useMemo(
     () =>
-      selectedId &&
-      props.selected && {
+      props?.selected && {
         description: props.selected.rolename,
         value: props.selected.rolename,
         key: props.selected.id,
       },
-    [selectedId],
+    [props?.selected],
   );
 
   const {
@@ -316,10 +314,6 @@ function InviteUsersForm(props: any) {
     `https://www.google.com/recaptcha/api.js?render=${googleRecaptchaSiteKey.apiKey}`,
     AddScriptTo.HEAD,
   );
-
-  useEffect(() => {
-    setSelectedOption([]);
-  }, [submitSucceeded]);
 
   useEffect(() => {
     fetchCurrentWorkspace(props.workspaceId);

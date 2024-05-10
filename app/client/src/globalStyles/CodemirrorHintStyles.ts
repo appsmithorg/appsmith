@@ -42,9 +42,6 @@ export const CodemirrorHintStyles = createGlobalStyle<{
           color: var(--ads-v2-color-fg);
         }
       }
-      .command-suggestion-edit {
-        background: var(--ads-v2-color-bg-subtle);
-      }
     }
 
     .CodeMirror-command-header {
@@ -115,6 +112,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         display: flex;
         align-items: start;
         gap: 8px;
+      }
+      &.show-more-option {
+        opacity: 0.7;
       }
     }
 

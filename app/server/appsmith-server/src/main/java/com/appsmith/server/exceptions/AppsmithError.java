@@ -92,22 +92,6 @@ public enum AppsmithError {
             "Deprecated API",
             ErrorType.BAD_REQUEST,
             null),
-    USER_DOESNT_BELONG_ANY_WORKSPACE(
-            400,
-            AppsmithErrorCode.USER_DOESNT_BELONG_ANY_WORKSPACE.getCode(),
-            "User {0} does not belong to any workspace",
-            AppsmithErrorAction.LOG_EXTERNALLY,
-            "User doesn''t belong to any workspace",
-            ErrorType.INTERNAL_ERROR,
-            null),
-    USER_DOESNT_BELONG_TO_WORKSPACE(
-            400,
-            AppsmithErrorCode.USER_DOESNT_BELONG_TO_WORKSPACE.getCode(),
-            "User {0} does not belong to the workspace with id {1}",
-            AppsmithErrorAction.LOG_EXTERNALLY,
-            "User doesn''t belong to this workspace",
-            ErrorType.INTERNAL_ERROR,
-            null),
 
     USER_NOT_ASSIGNED_TO_ROLE(
             400,
@@ -875,14 +859,6 @@ public enum AppsmithError {
             AppsmithErrorAction.DEFAULT,
             "Git repo is locked",
             ErrorType.GIT_ACTION_EXECUTION_ERROR,
-            null),
-    CSRF_TOKEN_INVALID(
-            403,
-            AppsmithErrorCode.CSRF_TOKEN_INVALID.getCode(),
-            "CSRF token missing/invalid. Please try again.",
-            AppsmithErrorAction.DEFAULT,
-            "CSRF token missing/invalid",
-            ErrorType.BAD_REQUEST,
             null),
     UNSUPPORTED_IMPORT_OPERATION_FOR_GIT_CONNECTED_APPLICATION(
             400,

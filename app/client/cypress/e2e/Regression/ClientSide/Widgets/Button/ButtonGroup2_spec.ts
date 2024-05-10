@@ -22,9 +22,12 @@ describe(
     });
 
     it("1. Add, Delete more buttons to the group and verify", function () {
+      const newButtonLabel =
+        Cypress.env("MESSAGES").BUTTON_WIDGET_DEFAULT_LABEL();
+
       agHelper.GetNClick(buttongroupwidgetlocators.newButton);
-      agHelper.TypeText("//*[ @value='Group Button 1']", " New Button");
-      agHelper.AssertContains("Group Button 1 New Button");
+      agHelper.TypeText(`//*[ @value='${newButtonLabel}']`, " New Button");
+      agHelper.AssertContains(`${newButtonLabel} New Button`);
       deployMode.DeployApp();
       agHelper
         .GetElement(buttongroupwidgetlocators.buttongroup)
@@ -163,7 +166,7 @@ describe(
       agHelper.ClickButton("Close");
       EditorNavigation.SelectEntityByName("ButtonGroup1", EntityType.Widget);
       agHelper.GetNClick(buttongroupwidgetlocators.buttonSettingInPropPane, 0);
-      propPane.EnterJSContext("onClick", "{{showModal('Modal1')}}");
+      propPane.EnterJSContext("onClick", "{{showModal(Modal1.name)}}");
       deployMode.DeployApp();
       agHelper.ClickButton("Favorite");
       agHelper.AssertElementExist(locators._modal);

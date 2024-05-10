@@ -1,11 +1,7 @@
 import type { FocusEntityInfo } from "navigation/FocusEntity";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
 import { all, call, put, select, takeEvery } from "redux-saga/effects";
-import {
-  getIsTabsRevampEnabled,
-  getJSTabs,
-  getQueryTabs,
-} from "selectors/ideSelectors";
+import { getJSTabs, getQueryTabs } from "selectors/ideSelectors";
 import {
   setIdeEditorViewMode,
   setJSTabs,
@@ -18,14 +14,8 @@ import {
   queryAddURL,
   queryListURL,
 } from "@appsmith/RouteBuilder";
-import type { EditorSegmentList } from "@appsmith/selectors/appIDESelectors";
-import { groupAndSortEntitySegmentList } from "@appsmith/selectors/appIDESelectors";
 import type { EntityItem } from "@appsmith/entities/IDE/constants";
-import {
-  getCurrentPageId,
-  getJSSegmentItems,
-  getQuerySegmentItems,
-} from "@appsmith/selectors/entitiesSelector";
+import { getCurrentPageId } from "@appsmith/selectors/entitiesSelector";
 import { getQueryEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/Query/utils";
 import { getJSEntityItemUrl } from "@appsmith/pages/Editor/IDE/EditorPane/JS/utils";
 import log from "loglevel";
@@ -33,16 +23,21 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import { retrieveIDEViewMode, storeIDEViewMode } from "utils/storage";
+import {
+  selectJSSegmentEditorTabs,
+  selectQuerySegmentEditorTabs,
+} from "@appsmith/selectors/appIDESelectors";
 
 export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
-  const { entity, id } = entityInfo;
+  const { entity, id, params } = entityInfo;
+  if (!params.pageId) return;
   if (
     entity === FocusEntity.JS_OBJECT ||
     entity === FocusEntity.JS_MODULE_INSTANCE
   ) {
     const jsTabs: string[] = yield select(getJSTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, jsTabs);
-    yield put(setJSTabs(newTabs));
+    yield put(setJSTabs(newTabs, params.pageId));
   }
   if (
     entity === FocusEntity.QUERY ||
@@ -50,26 +45,20 @@ export function* updateIDETabsOnRouteChangeSaga(entityInfo: FocusEntityInfo) {
   ) {
     const queryTabs: string[] = yield select(getQueryTabs);
     const newTabs: string[] = yield call(getUpdatedTabs, id, queryTabs);
-    yield put(setQueryTabs(newTabs));
+    yield put(setQueryTabs(newTabs, params.pageId));
   }
 }
 
 function* getUpdatedTabs(newId: string, currentTabs: string[]) {
   if (currentTabs.includes(newId)) return currentTabs;
-  const isTabsRevampEnabled: boolean = yield select(getIsTabsRevampEnabled);
-  let newTabs = isTabsRevampEnabled
-    ? [...currentTabs, newId]
-    : [newId, ...currentTabs];
-  if (newTabs.length > 5) {
-    newTabs = isTabsRevampEnabled ? newTabs.slice(-5) : newTabs.slice(0, 5);
-  }
+  const newTabs = [...currentTabs, newId];
   return newTabs;
 }
 
 export function* handleJSEntityRedirect(deletedId: string) {
   const pageId: string = yield select(getCurrentPageId);
-  const allJsItems: EntityItem[] = yield select(getJSSegmentItems);
-  const redirectAction = getNextEntityAfterDelete(deletedId, allJsItems);
+  const jsTabs: EntityItem[] = yield select(selectJSSegmentEditorTabs);
+  const redirectAction = getNextEntityAfterRemove(deletedId, jsTabs);
   switch (redirectAction.action) {
     case RedirectAction.LIST:
       history.push(jsCollectionListURL({ pageId }));
@@ -88,8 +77,8 @@ export function* handleJSEntityRedirect(deletedId: string) {
 
 export function* handleQueryEntityRedirect(deletedId: string) {
   const pageId: string = yield select(getCurrentPageId);
-  const allQueryItems: EntityItem[] = yield select(getQuerySegmentItems);
-  const redirectAction = getNextEntityAfterDelete(deletedId, allQueryItems);
+  const queryTabs: EntityItem[] = yield select(selectQuerySegmentEditorTabs);
+  const redirectAction = getNextEntityAfterRemove(deletedId, queryTabs);
   switch (redirectAction.action) {
     case RedirectAction.LIST:
       history.push(queryListURL({ pageId }));
@@ -123,53 +112,48 @@ interface RedirectActionDescription {
   payload?: EntityItem;
 }
 
-export function getNextEntityAfterDelete(
-  deletedId: string,
-  allItems: EntityItem[],
+export function getNextEntityAfterRemove(
+  removedId: string,
+  tabs: EntityItem[],
 ): RedirectActionDescription {
   const currentSelectedEntity = identifyEntityFromPath(
     window.location.pathname,
   );
-  const isSelectedActionDeleted = currentSelectedEntity.id === deletedId;
+  const isSelectedActionRemoved = currentSelectedEntity.id === removedId;
 
-  // If deleted item is not currently selected, don't redirect
-  if (!isSelectedActionDeleted) {
+  // If removed item is not currently selected, don't redirect
+  if (!isSelectedActionRemoved) {
     return {
       action: RedirectAction.NA,
     };
   }
 
-  const otherItems = allItems.filter((a) => deletedId !== a.key);
-  // If no other action is remaining, navigate to the creation url
-  if (otherItems.length === 0) {
-    return {
-      action: RedirectAction.LIST,
-    };
-  }
-
-  // Check if another action is present in the group and redirect to it, or else
-  // navigate to tht top of the list
-  const currentSortedList: EditorSegmentList =
-    groupAndSortEntitySegmentList(allItems);
-
-  let remainingGroupEntities: EntityItem[] = [];
-  for (const { items } of currentSortedList) {
-    if (items.find((a) => a.key === deletedId)) {
-      remainingGroupEntities = items.filter((a) => a.key !== deletedId);
-      break;
-    }
-  }
-
-  if (remainingGroupEntities.length === 0) {
-    return {
-      action: RedirectAction.ITEM,
-      payload: otherItems[0],
-    };
-  } else {
-    return {
-      action: RedirectAction.ITEM,
-      payload: remainingGroupEntities[0],
-    };
+  const indexOfTab = tabs.findIndex((item) => item.key === removedId);
+  switch (indexOfTab) {
+    case -1:
+      // If no other action is remaining, navigate to the creation url
+      return {
+        action: RedirectAction.LIST,
+      };
+    case 0:
+      // if the removed item is first item, then if tabs present, tabs + 1
+      // else otherItems[0] -> TODO: consider changing this logic after discussion with
+      // design team. May be new listing UI for side by side
+      if (tabs.length > 1) {
+        return {
+          action: RedirectAction.ITEM,
+          payload: tabs[1],
+        };
+      } else {
+        return {
+          action: RedirectAction.LIST,
+        };
+      }
+    default:
+      return {
+        action: RedirectAction.ITEM,
+        payload: tabs[indexOfTab - 1],
+      };
   }
 }
 

@@ -4,13 +4,22 @@ import { context } from "@opentelemetry/api";
 import { trace } from "@opentelemetry/api";
 
 const GENERATOR_TRACE = "generator-tracer";
-export function startRootSpan(spanName: string, spanAttributes?: Attributes) {
+export function startRootSpan(
+  spanName: string,
+  spanAttributes?: Attributes,
+  startTime?: TimeInput,
+) {
   const tracer = trace.getTracer(GENERATOR_TRACE);
   if (!spanName) {
     return;
   }
   const attributes = spanAttributes ?? { attributes: spanAttributes };
-  return tracer?.startSpan(spanName, { kind: SpanKind.CLIENT, ...attributes });
+  const startTimeAttr = startTime ? { startTime } : {};
+  return tracer?.startSpan(spanName, {
+    kind: SpanKind.CLIENT,
+    ...attributes,
+    ...startTimeAttr,
+  });
 }
 export const generateContext = (span: Span) => {
   return trace.setSpan(context.active(), span);

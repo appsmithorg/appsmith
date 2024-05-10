@@ -16,7 +16,7 @@ import { setGlobalSearchCategory } from "actions/globalSearchActions";
 import { getSelectedText, isMacOrIOS } from "utils/helpers";
 import { getLastSelectedWidget, getSelectedWidgets } from "selectors/ui";
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { WIDGETS_SEARCH_ID } from "constants/Explorer";
 import { resetSnipingMode as resetSnipingModeAction } from "actions/propertyPaneActions";
 
@@ -360,7 +360,12 @@ const mapDispatchToProps = (dispatch: any) => {
   return {
     copySelectedWidget: () => dispatch(copyWidget(true)),
     pasteCopiedWidget: (mouseLocation: { x: number; y: number }) =>
-      dispatch(pasteWidget(false, mouseLocation)),
+      dispatch(
+        pasteWidget({
+          groupWidgets: false,
+          mouseLocation,
+        }),
+      ),
     deleteSelectedWidget: () => dispatch(deleteSelectedWidget(true)),
     cutSelectedWidget: () => dispatch(cutWidget()),
     groupSelectedWidget: () => dispatch(groupWidgets()),

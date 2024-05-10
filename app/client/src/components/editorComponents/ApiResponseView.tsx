@@ -22,7 +22,7 @@ import NoResponseSVG from "assets/images/no-response.svg";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import ErrorLogs from "./Debugger/Errors";
 import Resizer, { ResizerCSS } from "./Debugger/Resizer";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Classes, TAB_MIN_HEIGHT, Text, TextType } from "design-system-old";
 import { Button, Callout, Flex, SegmentedControl } from "design-system";
 import type { BottomTab } from "./EntityBottomTabs";
@@ -51,6 +51,7 @@ import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import ApiResponseMeta from "./ApiResponseMeta";
+import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
@@ -257,14 +258,7 @@ function ApiResponseView(props: Props) {
 
   const ideViewMode = useSelector(getIDEViewMode);
 
-  const onDebugClick = useCallback(() => {
-    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-      source: "API",
-    });
-    dispatch(
-      setApiPaneDebuggerState({ selectedTab: DEBUGGER_TAB_KEYS.ERROR_TAB }),
-    );
-  }, []);
+  const onDebugClick = useDebuggerTriggerClick();
 
   const onRunClick = () => {
     props.onRunClick();
@@ -491,7 +485,7 @@ function ApiResponseView(props: Props) {
                 {
                   children: "Debug",
                   endIcon: "bug",
-                  onClick: () => onDebugClick,
+                  onClick: onDebugClick,
                   to: "",
                 },
               ]}

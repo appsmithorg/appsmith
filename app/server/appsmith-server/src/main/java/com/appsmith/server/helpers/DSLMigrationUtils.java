@@ -1,43 +1,25 @@
 package com.appsmith.server.helpers;
 
-import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.dtos.ResponseDTO;
 import com.appsmith.server.dtos.ce.DslVersionDTO;
-import com.appsmith.util.WebClientUtils;
 import lombok.RequiredArgsConstructor;
 import net.minidev.json.JSONObject;
 import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.http.MediaType;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
-import reactor.netty.resources.ConnectionProvider;
-
-import java.time.Duration;
 
 @Component
 @RequiredArgsConstructor
 public class DSLMigrationUtils {
 
-    private final CommonConfig commonConfig;
-
-    private final WebClient webClient = WebClientUtils.create(ConnectionProvider.builder("rts-provider")
-            .maxConnections(100)
-            .maxIdleTime(Duration.ofSeconds(30))
-            .maxLifeTime(Duration.ofSeconds(40))
-            .pendingAcquireTimeout(Duration.ofSeconds(10))
-            .pendingAcquireMaxCount(-1)
-            .build());
+    private final RTSCaller rtsCaller;
 
     public Mono<Integer> getLatestDslVersion() {
         ParameterizedTypeReference<ResponseDTO<DslVersionDTO>> parameterizedTypeReference =
                 new ParameterizedTypeReference<>() {};
-        return webClient
-                .get()
-                .uri(commonConfig.getRtsBaseUrl() + "/rts-api/v1/dsl/version")
-                .retrieve()
-                .bodyToMono(parameterizedTypeReference)
+        return rtsCaller
+                .get("/rts-api/v1/dsl/version")
+                .flatMap(spec -> spec.bodyToMono(parameterizedTypeReference))
                 .map(responseDTO -> responseDTO.getData().getVersion());
     }
 
@@ -50,13 +32,9 @@ public class DSLMigrationUtils {
         ParameterizedTypeReference<ResponseDTO<JSONObject>> parameterizedTypeReference =
                 new ParameterizedTypeReference<>() {};
 
-        return webClient
-                .post()
-                .uri(commonConfig.getRtsBaseUrl() + "/rts-api/v1/dsl/migrate")
-                .contentType(MediaType.APPLICATION_JSON)
-                .body(BodyInserters.fromValue(pageDsl))
-                .retrieve()
-                .bodyToMono(parameterizedTypeReference)
+        return rtsCaller
+                .post("/rts-api/v1/dsl/migrate", pageDsl)
+                .flatMap(spec -> spec.bodyToMono(parameterizedTypeReference))
                 .map(responseDTO -> responseDTO.getData());
     }
 }

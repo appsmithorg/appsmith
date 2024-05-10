@@ -3,6 +3,7 @@ package com.appsmith.server.services.ce;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.models.ActionDTO;
 import com.appsmith.external.models.BaseDomain;
+import com.appsmith.external.models.Datasource;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.PluginType;
 import com.appsmith.external.models.Policy;
@@ -360,29 +361,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<PageDTO> getPageByName(String applicationName, String pageName, boolean viewMode) {
-        AclPermission appPermission;
-        AclPermission pagePermission1;
-        if (viewMode) {
-            // If view is set, then this user is trying to view the application
-            appPermission = applicationPermission.getReadPermission();
-            pagePermission1 = pagePermission.getReadPermission();
-        } else {
-            appPermission = applicationPermission.getEditPermission();
-            pagePermission1 = pagePermission.getEditPermission();
-        }
-
-        return applicationService
-                .findByName(applicationName, appPermission)
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by application name", applicationName)))
-                .flatMap(application -> newPageService.findByNameAndApplicationIdAndViewMode(
-                        pageName, application.getId(), pagePermission1, viewMode))
-                .switchIfEmpty(Mono.error(new AppsmithException(
-                        AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.PAGE + " by page name", pageName)));
-    }
-
-    @Override
     public Mono<Application> makePageDefault(PageDTO page) {
         return makePageDefault(page.getApplicationId(), page.getId());
     }
@@ -640,10 +618,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             return page;
                         }));
 
-        final Flux<ActionCollection> sourceActionCollectionsFlux = getCloneableActionCollections(pageId);
-
-        Flux<NewAction> sourceActionFlux = getCloneableActions(pageId);
-
         return sourcePageMono
                 .flatMap(page -> {
                     clonePageMetaDTO.setBranchedSourcePageId(page.getId());
@@ -702,10 +676,9 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     protected Mono<Void> clonePageDependentEntities(ClonePageMetaDTO clonePageMetaDTO) {
-        return actionClonePageService
+        return actionCollectionClonePageService
                 .cloneEntities(clonePageMetaDTO)
-                .then(Mono.defer(() -> actionCollectionClonePageService.cloneEntities(clonePageMetaDTO)))
-                .then(Mono.defer(() -> actionCollectionClonePageService.updateClonedEntities(clonePageMetaDTO)));
+                .then(Mono.defer(() -> actionClonePageService.cloneEntities(clonePageMetaDTO)));
     }
 
     protected Mono<PageDTO> updateClonedPageLayout(PageDTO savedPage) {
@@ -990,7 +963,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     // Application is accessed without any application permission over here.
                     // previously it was getting accessed only with read permission.
                     Mono<Application> applicationMono = applicationService
-                            .findById(page.getApplicationId(), readApplicationPermission)
+                            .findById(page.getApplicationId(), readApplicationPermission.orElse(null))
                             .switchIfEmpty(Mono.error(
                                     new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, id)))
                             .flatMap(application -> {
@@ -1471,13 +1444,31 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     private Mono<Boolean> validateAllObjectsForPermissions(
             Mono<Application> applicationMono, AppsmithError expectedError) {
         Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
-                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                .map(idPoliciesOnly -> {
+                    NewPage newPage = new NewPage();
+                    newPage.setId(idPoliciesOnly.getId());
+                    newPage.setPolicies(idPoliciesOnly.getPolicies());
+                    return newPage;
+                })
                 .flatMap(newPageRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
-                .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                .map(idPoliciesOnly -> {
+                    NewAction newAction = new NewAction();
+                    newAction.setId(idPoliciesOnly.getId());
+                    newAction.setPolicies(idPoliciesOnly.getPolicies());
+                    return newAction;
+                })
                 .flatMap(newActionRepository::setUserPermissionsInObject));
         Flux<BaseDomain> actionCollectionFlux = applicationMono.flatMapMany(application -> actionCollectionRepository
-                .findAllByApplicationIds(List.of(application.getId()), List.of("id", "policies"))
+                .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                .map(idPoliciesOnly -> {
+                    ActionCollection actionCollection = new ActionCollection();
+                    actionCollection.setId(idPoliciesOnly.getId());
+                    actionCollection.setPolicies(idPoliciesOnly.getPolicies());
+                    return actionCollection;
+                })
                 .flatMap(actionCollectionRepository::setUserPermissionsInObject));
 
         Mono<Boolean> pagesValidatedForPermission = UserPermissionUtils.validateDomainObjectPermissionsOrError(
@@ -1510,7 +1501,7 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
         Flux<BaseDomain> datasourceFlux = applicationMono
                 .flatMapMany(application -> newActionRepository.findAllByApplicationIdsWithoutPermission(
                         List.of(application.getId()),
-                        List.of(BaseDomain.Fields.id, NewAction.Fields.unpublishedAction_datasource_id)))
+                        List.of(NewAction.Fields.id, NewAction.Fields.unpublishedAction_datasource_id)))
                 .collectList()
                 .map(actions -> {
                     return actions.stream()
@@ -1521,8 +1512,13 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                             .collect(Collectors.toSet());
                 })
                 .flatMapMany(datasourceIds -> datasourceRepository
-                        .findAllByIdsWithoutPermission(datasourceIds, List.of("id", "policies"))
-                        .flatMap(datasourceRepository::setUserPermissionsInObject));
+                        .findIdsAndPoliciesByIdIn(datasourceIds)
+                        .flatMap(idPolicy -> {
+                            Datasource datasource = new Datasource();
+                            datasource.setId(idPolicy.getId());
+                            datasource.setPolicies(idPolicy.getPolicies());
+                            return datasourceRepository.setUserPermissionsInObject(datasource);
+                        }));
 
         return UserPermissionUtils.validateDomainObjectPermissionsOrError(
                         datasourceFlux,

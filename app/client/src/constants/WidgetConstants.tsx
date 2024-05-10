@@ -178,6 +178,7 @@ export const WIDGET_DSL_STRUCTURE_PROPS = {
   topRow: true,
   type: true,
   widgetId: true,
+  layout: true,
 };
 
 export type TextSize = keyof typeof TextSizes;
@@ -228,8 +229,8 @@ export const MAX_MODAL_WIDTH_FROM_MAIN_WIDTH = 0.95;
 export const FILE_SIZE_LIMIT_FOR_BLOBS = 5000 * 1024; // 5MB
 
 export const WIDGET_TAGS = {
-  SUGGESTED_WIDGETS: "Suggested",
   BUILDING_BLOCKS: "Building Blocks",
+  SUGGESTED_WIDGETS: "Suggested",
   INPUTS: "Inputs",
   BUTTONS: "Buttons",
   SELECT: "Select",
@@ -265,6 +266,16 @@ export const SUGGESTED_WIDGETS_ORDER: Record<WidgetType, number> = {
 // Constant key to show walkthrough for a widget -> stores widget id
 export const WIDGET_ID_SHOW_WALKTHROUGH = "WIDGET_ID_SHOW_WALKTHROUGH";
 
-export const DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS = 30;
-export const DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS = 5;
+export const DEFAULT_ROWS_FOR_EXPLORER_BUILDING_BLOCKS = 60;
+export const DEFAULT_COLUMNS_FOR_EXPLORER_BUILDING_BLOCKS = 62;
+export const BUILDING_BLOCK_MIN_HORIZONTAL_LIMIT = 2000;
+export const BUILDING_BLOCK_MIN_VERTICAL_LIMIT = 800;
 export const BUILDING_BLOCK_EXPLORER_TYPE = "BUILDING_BLOCK";
+
+export type EitherMouseLocationORGridPosition =
+  | { mouseLocation: { x: number; y: number }; gridPosition?: never }
+  | { mouseLocation?: never; gridPosition: { top: number; left: number } };
+
+export type PasteWidgetReduxAction = {
+  groupWidgets: boolean;
+} & EitherMouseLocationORGridPosition;

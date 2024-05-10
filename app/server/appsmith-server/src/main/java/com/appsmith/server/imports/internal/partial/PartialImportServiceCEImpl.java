@@ -280,6 +280,8 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
             BuildingBlockImportDTO buildingBlockImportDTO = new BuildingBlockImportDTO();
             buildingBlockImportDTO.setApplication(application);
             buildingBlockImportDTO.setWidgetDsl(applicationJson.getWidgets());
+            buildingBlockImportDTO.setRefactoredEntityNameMap(
+                    mappedImportableResourcesDTO.getRefactoringNameReference());
 
             return analyticsService
                     .sendEvent(AnalyticsEvents.PARTIAL_IMPORT.getEventName(), user.getUsername(), data)
@@ -435,7 +437,20 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                 .forEach(dslExecutableDTOS -> {
                                     dslExecutableDTOS.forEach(dslExecutableDTO -> {
                                         if (dslExecutableDTO.getName() != null) {
-                                            newOnPageLoadActionNames.add(dslExecutableDTO.getName());
+                                            // Use the refactored names to get the correct ids
+                                            if (buildingBlockImportDTO
+                                                            .getRefactoredEntityNameMap()
+                                                            .get(dslExecutableDTO.getName())
+                                                    != null) {
+                                                dslExecutableDTO.setName(buildingBlockImportDTO
+                                                        .getRefactoredEntityNameMap()
+                                                        .get(dslExecutableDTO.getName()));
+                                            }
+                                            newOnPageLoadActionNames.add(
+                                                    dslExecutableDTO.getName().contains(".")
+                                                            ? dslExecutableDTO.getName()
+                                                                    .split("\\.")[0]
+                                                            : dslExecutableDTO.getName());
                                             buildingBlockResponseDTO
                                                     .getOnPageLoadActions()
                                                     .add(dslExecutableDTO);
@@ -461,12 +476,16 @@ public class PartialImportServiceCEImpl implements PartialImportServiceCE {
                                             buildingBlockResponseDTO
                                                     .getOnPageLoadActions()
                                                     .forEach(dslExecutableDTO -> {
-                                                        if (dslExecutableDTO
-                                                                .getName()
-                                                                .equals(actionCollection
-                                                                        .getUnpublishedCollection()
-                                                                        .getName())) {
-                                                            dslExecutableDTO.setId(actionCollection.getId());
+                                                        if (dslExecutableDTO.getCollectionId() != null) {
+                                                            String name = dslExecutableDTO.getCollectionId()
+                                                                    .split("_")[1];
+                                                            if (name.equals(actionCollection
+                                                                    .getUnpublishedCollection()
+                                                                    .getName())) {
+                                                                dslExecutableDTO.setId(actionCollection.getId());
+                                                                dslExecutableDTO.setCollectionId(
+                                                                        actionCollection.getId());
+                                                            }
                                                         }
                                                     });
                                         }

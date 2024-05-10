@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import type { ReactElement } from "react";
 import { Item as HeadlessItem } from "@design-system/headless";
 import type { ItemProps as HeadlessItemProps } from "@react-types/shared";
@@ -6,13 +7,14 @@ import type { IconProps } from "../../Icon";
 import type { COLORS } from "../../../shared";
 import type { ButtonProps } from "../../Button";
 
-interface ItemProps<T> extends HeadlessItemProps<T> {
+interface ItemProps<T> extends Omit<HeadlessItemProps<T>, "children"> {
   color?: keyof typeof COLORS;
   variant?: ButtonProps["variant"];
   icon?: IconProps["name"];
   iconPosition?: "start" | "end";
   isLoading?: boolean;
   isSeparator?: boolean;
+  children?: ReactNode;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-unused-vars

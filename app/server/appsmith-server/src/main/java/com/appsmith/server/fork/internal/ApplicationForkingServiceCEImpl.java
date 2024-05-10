@@ -2,7 +2,6 @@ package com.appsmith.server.fork.internal;
 
 import com.appsmith.external.constants.ActionCreationSourceTypeEnum;
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.dtos.DslExecutableDTO;
 import com.appsmith.external.helpers.AppsmithEventContext;
 import com.appsmith.external.helpers.AppsmithEventContextType;
 import com.appsmith.external.models.ActionDTO;
@@ -33,6 +32,7 @@ import com.appsmith.server.fork.forkable.ForkableService;
 import com.appsmith.server.helpers.ResponseUtils;
 import com.appsmith.server.helpers.UserPermissionUtils;
 import com.appsmith.server.imports.internal.ImportService;
+import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.repositories.ActionCollectionRepository;
 import com.appsmith.server.repositories.NewActionRepository;
@@ -55,6 +55,7 @@ import org.apache.commons.lang.StringUtils;
 import org.bson.types.ObjectId;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.util.function.Tuple2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -90,6 +91,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
     private final NewActionRepository newActionRepository;
     private final WorkspaceRepository workspaceRepository;
     private final ForkableService<Datasource> datasourceForkableService;
+    private final UpdateLayoutService updateLayoutService;
     /**
      * Clone all applications (except deleted ones), including its pages and actions from one workspace into
      * another. Also clones all datasources (not just the ones used by any applications) provided in the parameter list.
@@ -178,282 +180,180 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
                             .forkWithConfiguration(forkWithConfig)
                             .build();
 
-                    return applicationPageService
+                    Mono<NewPage> createForkedPageMono = applicationPageService
                             .createPage(page)
                             .flatMap(savedPage -> isDefault
                                     ? applicationPageService
                                             .makePageDefault(savedPage)
                                             .thenReturn(savedPage)
                                     : Mono.just(savedPage))
-                            .flatMap(savedPage -> newPageRepository.findById(savedPage.getId()))
-                            .flatMap(savedPage -> {
-                                clonedPages.add(savedPage);
-                                Flux<NewAction> sourceActionFlux = newActionService
-                                        .findByPageId(templatePageId)
-                                        .cache();
+                            .flatMap(savedPage -> newPageRepository.findById(savedPage.getId()));
 
-                                forkingSourceToForkableActionsFluxMap.put(sourceMetaForPage, sourceActionFlux);
+                    return createForkedPageMono.flatMap(savedPage -> {
+                        clonedPages.add(savedPage);
+                        Flux<NewAction> sourceActionFlux = newActionService
+                                .findByPageIdsForExport(List.of(templatePageId), Optional.empty())
+                                .cache();
 
-                                ForkingMetaDTO targetMetaForPage = targetMeta.toBuilder()
-                                        .applicationId(newPage.getApplicationId())
-                                        .pageId(newPage.getId())
-                                        .forkWithConfiguration(forkWithConfig)
-                                        .build();
+                        forkingSourceToForkableActionsFluxMap.put(sourceMetaForPage, sourceActionFlux);
 
-                                Flux<Datasource> forkableDatasourceFlux = datasourceForkableService
-                                        .getForkableEntitiesFromSource(sourceMetaForPage, sourceActionFlux)
-                                        .map(forkableDatasource -> {
-                                            if (!clonedDatasourceMonos.containsKey(forkableDatasource.getId())) {
-                                                Mono<Datasource> datasourceMono = datasourceForkableService
-                                                        .createForkedEntity(
-                                                                forkableDatasource,
-                                                                sourceMetaForPage,
-                                                                targetMetaForPage,
-                                                                existingDatasourcesMono)
-                                                        .cache();
-                                                clonedDatasourceMonos.put(forkableDatasource.getId(), datasourceMono);
-                                            }
-                                            return forkableDatasource;
-                                        });
+                        ForkingMetaDTO targetMetaForPage = targetMeta.toBuilder()
+                                .applicationId(newPage.getApplicationId())
+                                .pageId(newPage.getId())
+                                .forkWithConfiguration(forkWithConfig)
+                                .build();
 
-                                return forkableDatasourceFlux
-                                        .thenMany(sourceActionFlux)
-                                        .map(newAction -> {
-                                            ActionDTO action = newAction.getUnpublishedAction();
-                                            log.info(
-                                                    "Preparing action for cloning {} {}.",
-                                                    action.getName(),
-                                                    newAction.getId());
-                                            action.setPageId(savedPage.getId());
-                                            action.setDefaultResources(null);
-                                            return newAction;
-                                        })
-                                        .flatMap(newAction -> {
-                                            final String originalActionId = newAction.getId();
-                                            log.info("Creating clone of action {}", originalActionId);
-                                            newAction.makePristine();
-                                            newAction.setWorkspaceId(toWorkspaceId);
-                                            ActionDTO action = newAction.getUnpublishedAction();
-                                            action.setCollectionId(null);
+                        Flux<Datasource> forkableDatasourceFlux = datasourceForkableService
+                                .getForkableEntitiesFromSource(sourceMetaForPage, sourceActionFlux)
+                                .map(forkableDatasource -> {
+                                    if (!clonedDatasourceMonos.containsKey(forkableDatasource.getId())) {
+                                        Mono<Datasource> datasourceMono = datasourceForkableService
+                                                .createForkedEntity(
+                                                        forkableDatasource,
+                                                        sourceMetaForPage,
+                                                        targetMetaForPage,
+                                                        existingDatasourcesMono)
+                                                .cache();
+                                        clonedDatasourceMonos.put(forkableDatasource.getId(), datasourceMono);
+                                    }
+                                    return forkableDatasource;
+                                });
 
-                                            Mono<ActionDTO> actionMono = Mono.just(action);
-                                            final Datasource datasourceInsideAction = action.getDatasource();
-                                            if (datasourceInsideAction != null) {
-                                                if (datasourceInsideAction.getId() != null) {
-                                                    final String datasourceId = datasourceInsideAction.getId();
-                                                    actionMono = clonedDatasourceMonos
-                                                            .get(datasourceId)
-                                                            .map(newDatasource -> {
-                                                                action.setDatasource(newDatasource);
-                                                                return action;
-                                                            });
-                                                } else {
-                                                    // If this is an embedded datasource, the config will get forked
-                                                    // along with the action
-                                                    datasourceInsideAction.setWorkspaceId(toWorkspaceId);
+                        Mono<HashMap<String, String>> forkedCollectionsMono = actionCollectionService
+                                .findByPageId(templatePageId)
+                                .flatMap(actionCollection -> {
+                                    // Keep a record of the original collection id
+                                    final String originalCollectionId = actionCollection.getId();
+                                    log.info("Creating clone of action collection {}", originalCollectionId);
+                                    // Sanitize them
+                                    actionCollection.makePristine();
+                                    actionCollection.setPublishedCollection(null);
+                                    final ActionCollectionDTO unpublishedCollection =
+                                            actionCollection.getUnpublishedCollection();
+                                    unpublishedCollection.setPageId(savedPage.getId());
+
+                                    DefaultResources defaultResources = new DefaultResources();
+                                    defaultResources.setPageId(savedPage.getId());
+                                    unpublishedCollection.setDefaultResources(defaultResources);
+
+                                    actionCollection.setWorkspaceId(toWorkspaceId);
+                                    actionCollection.setApplicationId(savedPage.getApplicationId());
+
+                                    DefaultResources defaultResources1 = new DefaultResources();
+                                    defaultResources1.setApplicationId(savedPage.getApplicationId());
+                                    actionCollection.setDefaultResources(defaultResources1);
+
+                                    actionCollectionService.generateAndSetPolicies(savedPage, actionCollection);
+
+                                    return actionCollectionService
+                                            .create(actionCollection)
+                                            .flatMap(clonedActionCollection -> {
+                                                Mono<Tuple2<String, String>> tuple2Mono = Mono.zip(
+                                                        Mono.just(clonedActionCollection.getId()),
+                                                        Mono.just(originalCollectionId));
+
+                                                if (org.springframework.util.StringUtils.isEmpty(clonedActionCollection
+                                                        .getDefaultResources()
+                                                        .getCollectionId())) {
+                                                    ActionCollection updates = new ActionCollection();
+                                                    DefaultResources defaultResources2 =
+                                                            clonedActionCollection.getDefaultResources();
+                                                    defaultResources2.setCollectionId(clonedActionCollection.getId());
+                                                    updates.setDefaultResources(defaultResources2);
+                                                    return actionCollectionService
+                                                            .update(clonedActionCollection.getId(), updates)
+                                                            .then(tuple2Mono);
                                                 }
-                                            }
-                                            return Mono.zip(
-                                                    actionMono
-                                                            .flatMap(actionDTO -> {
-                                                                // Indicates that source of action creation is fork
-                                                                // application
-                                                                actionDTO.setSource(
-                                                                        ActionCreationSourceTypeEnum.FORK_APPLICATION);
-                                                                return layoutActionService.createAction(
-                                                                        actionDTO,
-                                                                        new AppsmithEventContext(
-                                                                                AppsmithEventContextType.CLONE_PAGE),
-                                                                        Boolean.FALSE);
-                                                            })
-                                                            .map(ActionDTO::getId),
-                                                    Mono.justOrEmpty(originalActionId));
-                                        })
-                                        // This call to `collectMap` will wait for all actions in all pages to have been
-                                        // processed, and so the
-                                        // `clonedPages` list will also contain all pages cloned.
-                                        .collect(
-                                                HashMap<String, String>::new,
-                                                (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
-                                        .flatMap(actionIdsMap -> {
-                                            // Map of <originalCollectionId, clonedActionCollectionIds>
-                                            HashMap<String, String> collectionIdsMap = new HashMap<>();
-                                            // Pick all action collections
-                                            return actionCollectionService
-                                                    .findByPageId(templatePageId)
-                                                    .flatMap(actionCollection -> {
-                                                        // Keep a record of the original collection id
-                                                        final String originalCollectionId = actionCollection.getId();
-                                                        log.info(
-                                                                "Creating clone of action collection {}",
-                                                                originalCollectionId);
-                                                        // Sanitize them
-                                                        actionCollection.makePristine();
-                                                        actionCollection.setPublishedCollection(null);
-                                                        final ActionCollectionDTO unpublishedCollection =
-                                                                actionCollection.getUnpublishedCollection();
-                                                        unpublishedCollection.setPageId(savedPage.getId());
+                                                return tuple2Mono;
+                                            });
+                                })
+                                .collect(
+                                        HashMap<String, String>::new,
+                                        (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()))
+                                .cache();
 
-                                                        DefaultResources defaultResources = new DefaultResources();
-                                                        defaultResources.setPageId(savedPage.getId());
-                                                        unpublishedCollection.setDefaultResources(defaultResources);
+                        Mono<HashMap<String, String>> forkedActionsMono =
+                                forkedCollectionsMono.flatMap(collectionIdMap -> {
+                                    return sourceActionFlux
+                                            .map(newAction -> {
+                                                ActionDTO action = newAction.getUnpublishedAction();
+                                                log.info(
+                                                        "Preparing action for cloning {} {}.",
+                                                        action.getName(),
+                                                        newAction.getId());
+                                                action.setPageId(savedPage.getId());
+                                                action.setDefaultResources(null);
+                                                return newAction;
+                                            })
+                                            .flatMap(newAction -> {
+                                                final String originalActionId = newAction.getId();
+                                                String originalCollectionId = newAction
+                                                        .getUnpublishedAction()
+                                                        .getCollectionId();
+                                                String forkedCollectionId = collectionIdMap.get(originalCollectionId);
+                                                log.info("Creating clone of action {}", originalActionId);
+                                                newAction.makePristine();
+                                                newAction.setWorkspaceId(toWorkspaceId);
+                                                ActionDTO action = newAction.getUnpublishedAction();
+                                                action.setCollectionId(forkedCollectionId);
 
-                                                        actionCollection.setWorkspaceId(toWorkspaceId);
-                                                        actionCollection.setApplicationId(savedPage.getApplicationId());
-
-                                                        DefaultResources defaultResources1 = new DefaultResources();
-                                                        defaultResources1.setApplicationId(
-                                                                savedPage.getApplicationId());
-                                                        actionCollection.setDefaultResources(defaultResources1);
-
-                                                        actionCollectionService.generateAndSetPolicies(
-                                                                savedPage, actionCollection);
-
-                                                        // Replace all action Ids from map and replace with newly
-                                                        // created actionIds
-                                                        final Map<String, String> newActionIds = new HashMap<>();
-                                                        unpublishedCollection
-                                                                .getDefaultToBranchedActionIdsMap()
-                                                                .forEach((defaultActionId, oldActionId) -> {
-                                                                    if (org.springframework.util.StringUtils.hasLength(
-                                                                                    oldActionId)
-                                                                            && org.springframework.util.StringUtils
-                                                                                    .hasLength(actionIdsMap.get(
-                                                                                    oldActionId))) {
-
-                                                                        // As this is a new application and not
-                                                                        // connected
-                                                                        // through git branch, the default and newly
-                                                                        // created actionId will be same
-                                                                        newActionIds.put(
-                                                                                actionIdsMap.get(oldActionId),
-                                                                                actionIdsMap.get(oldActionId));
-                                                                    } else {
-                                                                        log.debug(
-                                                                                "Unable to find action {} while forking inside ID map: {}",
-                                                                                oldActionId,
-                                                                                actionIdsMap);
-                                                                    }
+                                                Mono<ActionDTO> actionMono = Mono.just(action);
+                                                final Datasource datasourceInsideAction = action.getDatasource();
+                                                if (datasourceInsideAction != null) {
+                                                    if (datasourceInsideAction.getId() != null) {
+                                                        final String datasourceId = datasourceInsideAction.getId();
+                                                        actionMono = clonedDatasourceMonos
+                                                                .get(datasourceId)
+                                                                .map(newDatasource -> {
+                                                                    action.setDatasource(newDatasource);
+                                                                    return action;
                                                                 });
-
-                                                        unpublishedCollection.setDefaultToBranchedActionIdsMap(
-                                                                newActionIds);
-
-                                                        return actionCollectionService
-                                                                .create(actionCollection)
-                                                                .flatMap(clonedActionCollection -> {
-                                                                    if (org.springframework.util.StringUtils.isEmpty(
-                                                                            clonedActionCollection
-                                                                                    .getDefaultResources()
-                                                                                    .getCollectionId())) {
-                                                                        ActionCollection updates =
-                                                                                new ActionCollection();
-                                                                        DefaultResources defaultResources2 =
-                                                                                clonedActionCollection
-                                                                                        .getDefaultResources();
-                                                                        defaultResources2.setCollectionId(
-                                                                                clonedActionCollection.getId());
-                                                                        updates.setDefaultResources(defaultResources2);
-                                                                        return actionCollectionService.update(
-                                                                                clonedActionCollection.getId(),
-                                                                                updates);
-                                                                    }
-                                                                    return Mono.just(clonedActionCollection);
+                                                    } else {
+                                                        // If this is an embedded datasource, the config will get forked
+                                                        // along with the action
+                                                        datasourceInsideAction.setWorkspaceId(toWorkspaceId);
+                                                    }
+                                                }
+                                                return Mono.zip(
+                                                        actionMono
+                                                                .flatMap(actionDTO -> {
+                                                                    actionDTO.setId(null);
+                                                                    // Indicates that source of action creation is fork
+                                                                    // application
+                                                                    actionDTO.setSource(
+                                                                            ActionCreationSourceTypeEnum
+                                                                                    .FORK_APPLICATION);
+                                                                    return layoutActionService.createAction(
+                                                                            actionDTO,
+                                                                            new AppsmithEventContext(
+                                                                                    AppsmithEventContextType
+                                                                                            .CLONE_PAGE),
+                                                                            Boolean.FALSE);
                                                                 })
-                                                                .flatMap(clonedActionCollection -> {
-                                                                    collectionIdsMap.put(
-                                                                            originalCollectionId,
-                                                                            clonedActionCollection.getId());
-                                                                    return Flux.fromIterable(newActionIds.values())
-                                                                            .flatMap(newActionService::findById)
-                                                                            .flatMap(newlyCreatedAction -> {
-                                                                                ActionDTO unpublishedAction =
-                                                                                        newlyCreatedAction
-                                                                                                .getUnpublishedAction();
-                                                                                unpublishedAction.setCollectionId(
-                                                                                        clonedActionCollection.getId());
-                                                                                unpublishedAction
-                                                                                        .getDefaultResources()
-                                                                                        .setCollectionId(
-                                                                                                clonedActionCollection
-                                                                                                        .getId());
-                                                                                return newActionService.update(
-                                                                                        newlyCreatedAction.getId(),
-                                                                                        newlyCreatedAction);
-                                                                            })
-                                                                            .collectList();
-                                                                });
-                                                    })
-                                                    .collectList()
-                                                    .then(Mono.zip(
-                                                            Mono.just(actionIdsMap), Mono.just(collectionIdsMap)));
-                                        });
-                            });
+                                                                .map(ActionDTO::getId),
+                                                        Mono.justOrEmpty(originalActionId));
+                                            })
+                                            // This call to `collectMap` will wait for all actions in all pages to have
+                                            // been processed,
+                                            // and so the `clonedPages` list will also contain all pages cloned.
+                                            .collect(
+                                                    HashMap::new,
+                                                    (map, tuple2) -> map.put(tuple2.getT2(), tuple2.getT1()));
+                                });
+
+                        return forkableDatasourceFlux
+                                .then(forkedCollectionsMono)
+                                .zipWhen(forkedCollectionsMap -> forkedActionsMono);
+                    });
                 })
-                .flatMap(tuple -> updateActionAndCollectionsIdsInForkedPages(clonedPages, tuple.getT1(), tuple.getT2()))
+                .flatMapIterable(tuple2 -> clonedPages)
+                .flatMap(clonedPage -> updateLayoutService.updatePageLayoutsByPageId(clonedPage.getId()))
                 // Now publish all the example applications which have been cloned to ensure that there is a
                 // view mode for the newly created user.
                 .then(Mono.just(newApplicationIds))
                 .flatMapMany(Flux::fromIterable)
                 .flatMap(appId -> applicationPageService.publish(appId, false).thenReturn(appId))
                 .collectList();
-    }
-
-    private Flux<NewPage> updateActionAndCollectionsIdsInForkedPages(
-            List<NewPage> clonedPages, Map<String, String> actionIdsMap, Map<String, String> actionCollectionIdsMap) {
-        final List<Mono<NewPage>> pageSaveMonos = new ArrayList<>();
-
-        for (final NewPage page : clonedPages) {
-            // If there are no unpublished layouts, there would be no published layouts either.
-            // Move on to the next page.
-            if (page.getUnpublishedPage().getLayouts() == null) {
-                continue;
-            }
-
-            boolean shouldSave = false;
-
-            for (final Layout layout : page.getUnpublishedPage().getLayouts()) {
-                if (layout.getLayoutOnLoadActions() != null) {
-                    shouldSave = updateOnLoadActionsWithNewActionAndCollectionIds(
-                            actionIdsMap, actionCollectionIdsMap, page.getId(), shouldSave, layout);
-                }
-            }
-
-            if (shouldSave) {
-                pageSaveMonos.add(newPageRepository.save(page));
-            }
-        }
-
-        return Flux.concat(pageSaveMonos);
-    }
-
-    private boolean updateOnLoadActionsWithNewActionAndCollectionIds(
-            Map<String, String> actionIdsMap,
-            Map<String, String> collectionIdsMap,
-            String pageId,
-            boolean shouldSave,
-            Layout layout) {
-        for (final Set<DslExecutableDTO> actionSet : layout.getLayoutOnLoadActions()) {
-            for (final DslExecutableDTO actionDTO : actionSet) {
-                if (actionIdsMap.containsKey(actionDTO.getId())) {
-                    final String srcActionId = actionDTO.getId();
-                    final String srcCollectionId = actionDTO.getCollectionId();
-                    actionDTO.setId(actionIdsMap.get(srcActionId));
-                    actionDTO.setDefaultActionId(actionIdsMap.get(srcActionId));
-                    if (org.springframework.util.StringUtils.hasLength(srcCollectionId)) {
-                        actionDTO.setDefaultCollectionId(collectionIdsMap.get(actionDTO.getCollectionId()));
-                        actionDTO.setCollectionId(collectionIdsMap.get(actionDTO.getCollectionId()));
-                    }
-                    shouldSave = true;
-                } else {
-                    log.error(
-                            "Couldn't find cloned action ID for publishedLayoutOnLoadAction {} in page {}",
-                            actionDTO.getId(),
-                            pageId);
-                }
-            }
-        }
-        return shouldSave;
     }
 
     /**
@@ -516,6 +416,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         application.setPages(new ArrayList<>());
         application.setPublishedPages(new ArrayList<>());
         application.setIsPublic(false);
+        application.setIsCommunityTemplate(false);
 
         Mono<User> userMono = sessionUserService.getCurrentUser();
 
@@ -672,8 +573,7 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
         Optional<AclPermission> optionalAclPermission = Optional.empty();
         Mono<Application> applicationMonoWithOutPermission = applicationService
                 .findBranchedApplicationId(optionalBranchName, srcApplicationId, optionalAclPermission)
-                .flatMap(branchedApplicationId ->
-                        applicationService.findById(branchedApplicationId, optionalAclPermission))
+                .flatMap(branchedApplicationId -> applicationService.findById(branchedApplicationId, null))
                 .switchIfEmpty(Mono.error(new AppsmithException(
                         AppsmithError.NO_RESOURCE_FOUND, FieldName.APPLICATION, srcApplicationId)));
 
@@ -692,11 +592,23 @@ public class ApplicationForkingServiceCEImpl implements ApplicationForkingServic
 
             // Normal Application forking with developer/edit access
             Flux<BaseDomain> pageFlux = applicationMono.flatMapMany(application -> newPageRepository
-                    .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                    .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                    .map(idPoliciesOnly -> {
+                        NewPage newPage = new NewPage();
+                        newPage.setId(idPoliciesOnly.getId());
+                        newPage.setPolicies(idPoliciesOnly.getPolicies());
+                        return newPage;
+                    })
                     .flatMap(newPageRepository::setUserPermissionsInObject));
 
             Flux<BaseDomain> actionFlux = applicationMono.flatMapMany(application -> newActionRepository
-                    .findAllByApplicationIdsWithoutPermission(List.of(application.getId()), List.of("id", "policies"))
+                    .findIdsAndPoliciesByApplicationIdIn(List.of(application.getId()))
+                    .map(idPoliciesOnly -> {
+                        NewAction newAction = new NewAction();
+                        newAction.setId(idPoliciesOnly.getId());
+                        newAction.setPolicies(idPoliciesOnly.getPolicies());
+                        return newAction;
+                    })
                     .flatMap(newActionRepository::setUserPermissionsInObject));
 
             Flux<BaseDomain> actionCollectionFlux =

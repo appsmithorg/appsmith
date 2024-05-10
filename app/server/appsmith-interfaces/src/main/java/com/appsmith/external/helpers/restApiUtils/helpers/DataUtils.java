@@ -7,6 +7,7 @@ import com.appsmith.external.helpers.PluginUtils;
 import com.appsmith.external.models.ActionConfiguration;
 import com.appsmith.external.models.ApiContentType;
 import com.appsmith.external.models.Property;
+import com.appsmith.util.SerializationUtils;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -39,6 +40,7 @@ import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
@@ -48,6 +50,8 @@ import java.util.stream.Collectors;
 public class DataUtils {
 
     public static String FIELD_API_CONTENT_TYPE = "apiContentType";
+
+    public static String BASE64_DELIMITER = ";base64,";
 
     /**
      * this Gson builder has three parameters for creating a gson instances which is required to maintain the JSON as received
@@ -76,7 +80,7 @@ public class DataUtils {
     }
 
     public DataUtils() {
-        this.objectMapper = new ObjectMapper();
+        this.objectMapper = SerializationUtils.getObjectMapperWithSourceInLocationEnabled();
         this.objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
     }
 
@@ -98,6 +102,8 @@ public class DataUtils {
                 return parseMultipartFileData((List<Property>) body);
             case MediaType.TEXT_PLAIN_VALUE:
                 return BodyInserters.fromValue((String) body);
+            case MediaType.APPLICATION_OCTET_STREAM_VALUE:
+                return parseMultimediaData((String) body);
             default:
                 return BodyInserters.fromValue(((String) body).getBytes(StandardCharsets.ISO_8859_1));
         }
@@ -151,6 +157,23 @@ public class DataUtils {
                     return key + "=" + value;
                 })
                 .collect(Collectors.joining("&"));
+    }
+
+    public BodyInserter<?, ?> parseMultimediaData(String requestBodyObj) {
+        // This decoding for base64 is required because of
+        // issue https://github.com/appsmithorg/appsmith/issues/32378
+        // According to this if we tried to upload any multimedia files (img, audio, video)
+        // It was not getting decoded before uploading on required URL
+        if (requestBodyObj.contains(BASE64_DELIMITER)) {
+            List<String> bodyArrayList = Arrays.asList(requestBodyObj.split(BASE64_DELIMITER));
+            requestBodyObj = bodyArrayList.get(bodyArrayList.size() - 1);
+
+            // Using mimeDecoder here, since base64 conversion by file picker widget follows mime standard
+            byte[] payload = Base64.getMimeDecoder().decode(bodyArrayList.get(bodyArrayList.size() - 1));
+            return BodyInserters.fromValue(payload);
+        }
+
+        return BodyInserters.fromValue(requestBodyObj);
     }
 
     public BodyInserter<?, ?> parseMultipartFileData(List<Property> bodyFormData) {

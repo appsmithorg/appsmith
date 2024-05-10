@@ -1,3 +1,7 @@
+import {
+  BUTTON_WIDGET_DEFAULT_LABEL,
+  createMessage,
+} from "@appsmith/constants/messages";
 import { ValidationTypes } from "constants/WidgetValidation";
 
 /**
@@ -25,7 +29,7 @@ export const menuItemsConfig = {
           helpText: "Sets the label of a menu item",
           label: "Label",
           controlType: "INPUT_TEXT",
-          placeholderText: "Download",
+          placeholderText: createMessage(BUTTON_WIDGET_DEFAULT_LABEL),
           isBindProperty: true,
           isTriggerProperty: false,
           validation: { type: ValidationTypes.TEXT },

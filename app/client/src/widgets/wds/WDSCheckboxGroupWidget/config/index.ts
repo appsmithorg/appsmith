@@ -5,3 +5,4 @@ export { defaultsConfig } from "./defaultsConfig";
 export { featuresConfig } from "./featuresConfig";
 export { metaConfig } from "./metaConfig";
 export { settersConfig } from "./settersConfig";
+export { methodsConfig } from "./methodsConfig";

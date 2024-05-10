@@ -29,6 +29,7 @@ import {
   createMessage,
   EXPLORER_BETA_ENTITY,
 } from "@appsmith/constants/messages";
+import classNames from "classnames";
 
 export enum EntityClassNames {
   CONTEXT_MENU = "entity-context-menu",
@@ -110,8 +111,8 @@ export const EntityItem = styled.div<{
     props.active
       ? `var(--ads-v2-color-bg-muted)`
       : props.isSticky
-      ? "var(--ads-v2-color-bg)"
-      : "none"};
+        ? "var(--ads-v2-color-bg)"
+        : "none"};
   height: 36px;
   width: 100%;
   display: inline-grid;
@@ -361,9 +362,12 @@ export const Entity = forwardRef(
         <EntityItem
           active={!!props.active}
           alwaysShowRightIcon={props.alwaysShowRightIcon}
-          className={`${props.highlight ? "highlighted" : ""} ${
-            props.active ? "active" : ""
-          } t--entity-item`}
+          className={classNames({
+            highlighted: props.highlight,
+            active: props.active,
+            editable: canEditEntityName,
+            "t--entity-item": true,
+          })}
           data-guided-tour-id={`explorer-entity-${props.name}`}
           data-guided-tour-iid={props.name}
           data-testid={`t--entity-item-${props.name}`}

@@ -134,6 +134,7 @@ export function TopInline(props: TopInlineProps) {
             currentApplicationDetails?.applicationDetail?.navigationSetting
           }
           pages={appPages.slice(maxMenuItemsThatCanFit, appPages.length)}
+          query={query}
         />
       )}
     </Container>

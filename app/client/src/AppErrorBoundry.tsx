@@ -3,7 +3,7 @@ import styled from "styled-components";
 import AppCrashImage from "assets/images/404-image.png";
 import * as Sentry from "@sentry/react";
 import log from "loglevel";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { Button } from "design-system";
 
 const Wrapper = styled.div`

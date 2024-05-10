@@ -14,7 +14,7 @@ import {
 } from "selectors/editorSelectors";
 import { getIsTableFilterPaneVisible } from "selectors/tableFilterSelectors";
 import styled from "styled-components";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import PerformanceTracker, {
   PerformanceTransactionName,
 } from "utils/PerformanceTracker";
@@ -25,7 +25,7 @@ import SettingsControl, { Activities } from "./SettingsControl";
 import { theme } from "constants/DefaultTheme";
 import {
   isCurrentWidgetActiveInPropertyPane,
-  isCurrentWidgetFocused,
+  isWidgetFocused,
   isMultiSelectedWidget,
   isResizingOrDragging,
   showWidgetAsSelected,
@@ -92,7 +92,7 @@ export function WidgetNameComponent(props: WidgetNameComponentProps) {
   // Dispatch hook handy to set a widget as focused/selected
   const { selectWidget } = useWidgetSelection();
 
-  const isFocused = useSelector(isCurrentWidgetFocused(props.widgetId));
+  const isFocused = useSelector(isWidgetFocused(props.widgetId));
 
   const shouldHideErrors = useSelector(hideErrors);
 

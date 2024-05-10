@@ -11,10 +11,7 @@ import {
   importStarterBuildingBlockIntoApplication,
   showTemplatesModal,
 } from "actions/templateActions";
-import {
-  STARTER_BUILDING_BLOCKS,
-  STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-} from "constants/TemplatesConstants";
+import { STARTER_BUILDING_BLOCKS } from "constants/TemplatesConstants";
 import { Button, Text } from "design-system";
 import LoadingScreen from "pages/Templates/TemplatesModal/LoadingScreen";
 import { useDispatch, useSelector } from "react-redux";
@@ -23,7 +20,7 @@ import {
   getCurrentApplicationId,
 } from "selectors/editorSelectors";
 import { isImportingStarterBuildingBlockToAppSelector } from "selectors/templatesSelectors";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import {
   IconContainer,
   TemplateLayoutContainer,
@@ -63,12 +60,8 @@ function StarterBuildingBlocks() {
     });
   };
 
-  const onClick = (
-    templateId: string,
-    templateName: string,
-    templatePageName: string,
-  ) => {
-    if (!templateId || !templateName || !templatePageName) return;
+  const onClick = (templateId: string, templateName: string) => {
+    if (!templateId || !templateName) return;
 
     // Close explorer tabs to allow datasource prompt show properly
     saveExplorerStatus(applicationId, "widgets", false);
@@ -76,11 +69,7 @@ function StarterBuildingBlocks() {
     saveExplorerStatus(applicationId, "datasource", false);
 
     dispatch(
-      importStarterBuildingBlockIntoApplication(
-        templateId,
-        templateName,
-        templatePageName,
-      ),
+      importStarterBuildingBlockIntoApplication(templateId, templateName),
     );
 
     AnalyticsUtil.logEvent("fork_APPLICATIONTEMPLATE", {
@@ -90,8 +79,7 @@ function StarterBuildingBlocks() {
       eventData: {
         appMode: currentAppMode,
         application: currentApplication,
-        templateAppName: STARTER_BUILDING_BLOCK_TEMPLATE_NAME,
-        templatePageName,
+        templateAppName: templateName,
       },
     });
   };
@@ -142,11 +130,7 @@ function StarterBuildingBlocks() {
               data-testid="t--canvas-building-block-item"
               key={item.id}
               onClick={() =>
-                onClick(
-                  item.templateId || "",
-                  item.templateName || "",
-                  item.templatePageName || "",
-                )
+                onClick(item.templateId || "", item.templateName || "")
               }
               onMouseEnter={() => handleItemHover(index)}
               onMouseLeave={() => {
@@ -209,5 +193,4 @@ const layoutItems: {
   screenshot: string;
   templateId: string;
   templateName: string;
-  templatePageName: string;
 }[] = STARTER_BUILDING_BLOCKS.STARTER_BUILDING_BLOCKS_TEMPLATES;

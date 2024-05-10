@@ -4,6 +4,7 @@ import type {
   MemberExpressionData,
   IdentifierInfo,
   AssignmentExpressionData,
+  CallExpressionData,
 } from "./src";
 import {
   isIdentifierNode,
@@ -83,6 +84,7 @@ export type {
   AssignmentExpressionData,
   JSVarProperty,
   JSFunctionProperty,
+  CallExpressionData,
 };
 
 export {

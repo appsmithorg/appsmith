@@ -20,8 +20,6 @@ public interface UserServiceCE extends CrudService<User, String> {
 
     Mono<User> findByEmailAndTenantId(String email, String tenantId);
 
-    Mono<User> switchCurrentWorkspace(String workspaceId);
-
     Mono<Boolean> forgotPasswordTokenGenerate(ResetUserPasswordDTO resetUserPasswordDTO);
 
     Mono<Boolean> verifyPasswordResetToken(String token);

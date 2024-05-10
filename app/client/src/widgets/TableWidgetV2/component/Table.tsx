@@ -297,14 +297,25 @@ export function Table(props: TableProps) {
 
   const scrollContainerStyles = useMemo(() => {
     return {
-      height: isHeaderVisible
-        ? props.height -
-          tableSizes.TABLE_HEADER_HEIGHT -
-          TABLE_SCROLLBAR_HEIGHT -
-          SCROLL_BAR_OFFSET
-        : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
+      height:
+        props.data.length < props.pageSize
+          ? "100%"
+          : isHeaderVisible
+            ? props.height -
+              tableSizes.TABLE_HEADER_HEIGHT -
+              TABLE_SCROLLBAR_HEIGHT +
+              SCROLL_BAR_OFFSET
+            : props.height - TABLE_SCROLLBAR_HEIGHT - SCROLL_BAR_OFFSET,
+      width: props.width,
     };
-  }, [isHeaderVisible, props.height, tableSizes.TABLE_HEADER_HEIGHT]);
+  }, [
+    isHeaderVisible,
+    props.height,
+    tableSizes.TABLE_HEADER_HEIGHT,
+    props.width,
+    props.data.length,
+    props.pageSize,
+  ]);
 
   const shouldUseVirtual =
     props.serverSidePaginationEnabled &&
@@ -419,8 +430,8 @@ export function Table(props: TableProps) {
             props.isLoading
               ? Classes.SKELETON
               : shouldUseVirtual
-              ? "tableWrap virtual"
-              : "tableWrap"
+                ? "tableWrap virtual"
+                : "tableWrap"
           }
           ref={tableWrapperRef}
         >

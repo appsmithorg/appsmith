@@ -49,7 +49,6 @@ import {
 import {
   AppIconCollection,
   Classes,
-  EditableText,
   MenuItem as ListItem,
   Text,
   TextType,
@@ -123,10 +122,12 @@ import SharedUserList from "pages/common/SharedUserList";
 import GitSyncModal from "pages/Editor/gitSync/GitSyncModal";
 import ReconnectDatasourceModal from "pages/Editor/gitSync/ReconnectDatasourceModal";
 import RepoLimitExceededErrorModal from "pages/Editor/gitSync/RepoLimitExceededErrorModal";
-import AnalyticsUtil from "utils/AnalyticsUtil";
+import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { useIsMobileDevice } from "utils/hooks/useDeviceDetect";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import CreateNewAppFromTemplatesWrapper from "./CreateNewAppFromTemplateModal/CreateNewAppFromTemplatesWrapper";
+import { getAssetUrl } from "@appsmith/utils/airgapHelpers";
+import { ASSETS_CDN_URL } from "constants/ThirdPartyConstants";
 
 export const { cloudHosting } = getAppsmithConfigs();
 
@@ -450,9 +451,6 @@ export const WorkspaceNameWrapper = styled.div<{ disabled?: boolean }>`
     color: ${(props) => props.theme.colors.applications.iconColor};
   }
 `;
-export const WorkspaceRename = styled(EditableText)`
-  padding: 0 2px;
-`;
 
 export const NoSearchResultImg = styled.img`
   margin: 1em;
@@ -467,7 +465,12 @@ export const ApplicationsWrapper = styled.div<{
   margin-left: ${(props) => props.theme.homePage.leftPane.width}px;
   width: calc(100% - ${(props) => props.theme.homePage.leftPane.width}px);
   scroll-behavior: smooth;
-  ${({ isBannerVisible }) => (isBannerVisible ? "margin-top: 48px;" : "")}
+  ${({ isBannerVisible, isMobile }) =>
+    isBannerVisible
+      ? isMobile
+        ? "margin-top: 78px;"
+        : "margin-top: 48px;"
+      : ""}
   ${({ isMobile }) =>
     isMobile
       ? `padding: ${CONTAINER_WRAPPER_PADDING} 0;`
@@ -648,7 +651,7 @@ export function ApplicationsSection(props: any) {
       <div className="flex flex-col items-center justify-center mt-[180px]">
         <img
           className="mb-6"
-          src="https://assets.appsmith.com/no-workspace-found.svg"
+          src={`${getAssetUrl(`${ASSETS_CDN_URL}/no-workspace-found.svg`)}`}
         />
         <NewText className="!mb-3 !font-semibold" kind="heading-s">
           {createMessage(NO_WORKSPACE_HEADING)}
