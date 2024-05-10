@@ -30,7 +30,9 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -310,6 +312,110 @@ public class NewPageServiceTest {
                                     .isEqualTo(page.getPublishedPage().getSlug());
                         }
                     });
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateDependencyMap_NotNullValue_shouldUpdateDependencyMap() {
+        String randomId = UUID.randomUUID().toString();
+        Application application = new Application();
+        application.setName("app_" + randomId);
+        Mono<NewPage> newPageMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(application1 -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("page_" + randomId);
+                    pageDTO.setApplicationId(application1.getId());
+                    return applicationPageService.createPage(pageDTO);
+                })
+                .flatMap(pageDTO -> {
+                    Map<String, List<String>> dependencyMap = new HashMap<>();
+                    dependencyMap.put("key", List.of("val1", "val2"));
+                    dependencyMap.put("key1", List.of("val1", "val2"));
+                    dependencyMap.put("key2", List.of("val1", "val2"));
+                    dependencyMap.put("key3", List.of("val1", "val2"));
+                    return newPageService
+                            .updateDependencyMap(pageDTO.getId(), dependencyMap, null)
+                            .then(newPageService.getById(pageDTO.getId()));
+                });
+
+        StepVerifier.create(newPageMono)
+                .assertNext(newPage -> {
+                    assertThat(newPage.getUnpublishedPage().getDependencyMap()).isNotNull();
+                    assertThat(newPage.getUnpublishedPage().getDependencyMap().size())
+                            .isEqualTo(4);
+                    assertThat(newPage.getUnpublishedPage().getDependencyMap().get("key"))
+                            .isEqualTo(List.of("val1", "val2"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateDependencyMap_NotNullValueAndPublishApplication_shouldUpdateDependencyMap() {
+        String randomId = UUID.randomUUID().toString();
+        Application application = new Application();
+        application.setName("app_" + randomId);
+        Mono<NewPage> newPageMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(application1 -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("page_" + randomId);
+                    pageDTO.setApplicationId(application1.getId());
+                    return applicationPageService.createPage(pageDTO);
+                })
+                .flatMap(pageDTO -> {
+                    Map<String, List<String>> dependencyMap = new HashMap<>();
+                    dependencyMap.put("key", List.of("val1", "val2"));
+                    dependencyMap.put("key1", List.of("val1", "val2"));
+                    dependencyMap.put("key2", List.of("val1", "val2"));
+                    dependencyMap.put("key3", List.of("val1", "val2"));
+                    return newPageService
+                            .updateDependencyMap(pageDTO.getId(), dependencyMap, null)
+                            .flatMap(page -> applicationPageService.publish(application.getId(), null, false))
+                            .then(newPageService.getById(pageDTO.getId()));
+                });
+
+        StepVerifier.create(newPageMono)
+                .assertNext(newPage -> {
+                    assertThat(newPage.getUnpublishedPage().getDependencyMap()).isNotNull();
+                    assertThat(newPage.getUnpublishedPage().getDependencyMap().size())
+                            .isEqualTo(4);
+                    assertThat(newPage.getUnpublishedPage().getDependencyMap().get("key"))
+                            .isEqualTo(List.of("val1", "val2"));
+
+                    assertThat(newPage.getPublishedPage().getDependencyMap()).isNotNull();
+                    assertThat(newPage.getPublishedPage().getDependencyMap().size())
+                            .isEqualTo(4);
+                    assertThat(newPage.getPublishedPage().getDependencyMap().get("key"))
+                            .isEqualTo(List.of("val1", "val2"));
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    @WithUserDetails("api_user")
+    public void updateDependencyMap_nullValue_shouldUpdateDependencyMap() {
+        String randomId = UUID.randomUUID().toString();
+        Application application = new Application();
+        application.setName("app_" + randomId);
+        Mono<NewPage> newPageMono = applicationPageService
+                .createApplication(application, workspaceId)
+                .flatMap(application1 -> {
+                    PageDTO pageDTO = new PageDTO();
+                    pageDTO.setName("page_" + randomId);
+                    pageDTO.setApplicationId(application1.getId());
+                    return applicationPageService.createPage(pageDTO);
+                })
+                .flatMap(pageDTO -> newPageService
+                        .updateDependencyMap(pageDTO.getId(), null, null)
+                        .then(newPageService.getById(pageDTO.getId())));
+
+        StepVerifier.create(newPageMono)
+                .assertNext(newPage -> {
+                    assertThat(newPage.getUnpublishedPage().getDependencyMap()).isNull();
                 })
                 .verifyComplete();
     }
