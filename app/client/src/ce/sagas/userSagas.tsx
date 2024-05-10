@@ -560,7 +560,7 @@ export function* fetchFeatureFlags(action?: {
       yield put(
         fetchFeatureFlagsSuccess({
           ...DEFAULT_FEATURE_FLAG_VALUE,
-          ...response.data, 
+          ...response.data,
         }),
       );
     }
