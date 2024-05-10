@@ -49,7 +49,7 @@ const ListQuery = () => {
           <Button
             className="t--add-item"
             kind={"secondary"}
-            onClick={() => addButtonClickHandler(true)}
+            onClick={addButtonClickHandler}
             size={"sm"}
             startIcon={"add-line"}
           >

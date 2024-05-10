@@ -26,7 +26,7 @@ const BlankState: React.FC = () => {
         EDITOR_PANE_TEXTS.query_blank_state_description,
       )}
       icon={"queries-v3"}
-      onClick={canCreateActions ? () => addButtonClickHandler(true) : undefined}
+      onClick={canCreateActions ? addButtonClickHandler : undefined}
     />
   );
 };

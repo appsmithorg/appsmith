@@ -41,6 +41,14 @@ export const useJSAdd = () => {
         dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
       }
     } else {
+      if (
+        (currentEntityInfo.entity === FocusEntity.JS_OBJECT_ADD &&
+          segmentMode === EditorEntityTabState.Add) ||
+        (currentEntityInfo.entity !== FocusEntity.JS_OBJECT_ADD &&
+          segmentMode !== EditorEntityTabState.Add)
+      ) {
+        return;
+      }
       const url = getJSUrl(
         currentEntityInfo,
         !(segmentMode === EditorEntityTabState.Add),
