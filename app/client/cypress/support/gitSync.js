@@ -51,7 +51,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
       window.location.target = "_self";
     });
   });
-  cy.get(gitSyncLocators.bottomBarCommitButton).click();
+  agHelper.GetNClick(gitSync._bottomBarCommit);
   cy.wait(2000); // wait for modal to load
   cy.xpath("//span[text()='Latest deployed preview']").click();
   cy.log("pagename: " + localStorage.getItem("PageName"));

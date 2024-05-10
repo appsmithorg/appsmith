@@ -51,6 +51,7 @@ import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import ApiResponseMeta from "./ApiResponseMeta";
+import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
@@ -257,14 +258,7 @@ function ApiResponseView(props: Props) {
 
   const ideViewMode = useSelector(getIDEViewMode);
 
-  const onDebugClick = useCallback(() => {
-    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-      source: "API",
-    });
-    dispatch(
-      setApiPaneDebuggerState({ selectedTab: DEBUGGER_TAB_KEYS.ERROR_TAB }),
-    );
-  }, []);
+  const onDebugClick = useDebuggerTriggerClick();
 
   const onRunClick = () => {
     props.onRunClick();
@@ -491,7 +485,7 @@ function ApiResponseView(props: Props) {
                 {
                   children: "Debug",
                   endIcon: "bug",
-                  onClick: () => onDebugClick,
+                  onClick: onDebugClick,
                   to: "",
                 },
               ]}
