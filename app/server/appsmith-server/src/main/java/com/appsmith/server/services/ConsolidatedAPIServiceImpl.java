@@ -70,8 +70,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 @Service
 @RequiredArgsConstructor
 public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
-    private static final String FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED =
-            "release_server_dsl_migrations_enabled";
     public static final int INTERNAL_SERVER_ERROR_STATUS = AppsmithError.INTERNAL_SERVER_ERROR.getHttpErrorCode();
     public static final String INTERNAL_SERVER_ERROR_CODE = AppsmithError.INTERNAL_SERVER_ERROR.getAppErrorCode();
     public static final String EMPTY_WORKSPACE_ID_ON_ERROR = "";
@@ -237,28 +235,10 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                 .name(getQualifiedSpanName(CUSTOM_JS_LIB_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry)));
 
-        /* Check if release_server_dsl_migrations_enabled flag is true for the user */
-        Mono<Boolean> migrateDslMonoCache = featureFlagsForCurrentUserResponseDTOMonoCache
-                .map(responseDTO -> {
-                    if (INTERNAL_SERVER_ERROR_STATUS
-                            == responseDTO.getResponseMeta().getStatus()) {
-                        return false;
-                    }
-
-                    Map<String, Boolean> flagsMap = responseDTO.getData();
-                    if (!flagsMap.containsKey(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED)) {
-                        return false;
-                    }
-
-                    return flagsMap.get(FEATURE_FLAG_RELEASE_SERVER_DSL_MIGRATIONS_ENABLED);
-                })
-                .cache();
-
         if (!isBlank(defaultPageId)) {
             /* Get current page */
-            fetches.add(migrateDslMonoCache
-                    .flatMap(migrateDsl -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                            defaultPageId, branchName, isViewMode, migrateDsl))
+            fetches.add(applicationPageService
+                    .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, isViewMode, true)
                     .as(this::toResponseDTO)
                     .doOnSuccess(consolidatedAPIResponseDTO::setPageWithMigratedDsl)
                     .name(getQualifiedSpanName(CURRENT_PAGE_SPAN, mode))
@@ -316,14 +296,13 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .tap(Micrometer.observation(observationRegistry)));
 
             /* Get all pages in edit mode post apply migrate DSL changes */
-            fetches.add(migrateDslMonoCache
-                    .flatMap(migrateDsl -> applicationPagesDTOResponseDTOMonoCache
-                            .map(ResponseDTO::getData)
-                            .map(ApplicationPagesDTO::getPages)
-                            .flatMapMany(Flux::fromIterable)
-                            .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                                    page.getDefaultPageId(), branchName, false, migrateDsl))
-                            .collect(Collectors.toList()))
+            fetches.add(applicationPagesDTOResponseDTOMonoCache
+                    .map(ResponseDTO::getData)
+                    .map(ApplicationPagesDTO::getPages)
+                    .flatMapMany(Flux::fromIterable)
+                    .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                            page.getDefaultPageId(), branchName, false, true))
+                    .collect(Collectors.toList())
                     .as(this::toResponseDTO)
                     .doOnSuccess(consolidatedAPIResponseDTO::setPagesWithMigratedDsl)
                     .name(getQualifiedSpanName(PAGES_DSL_SPAN, mode))

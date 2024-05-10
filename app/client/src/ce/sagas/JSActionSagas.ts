@@ -68,7 +68,6 @@ import {
 import { toast } from "design-system";
 import { updateAndSaveLayout } from "actions/pageActions";
 import type { CanvasWidgetsReduxState } from "reducers/entityReducers/canvasWidgetsReducer";
-import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import { getWidgets } from "sagas/selectors";
 import FocusRetention from "sagas/FocusRetentionSaga";
 import { handleJSEntityRedirect } from "sagas/IDESaga";
@@ -389,11 +388,7 @@ export function* refactorJSObjectName(
   oldName: string,
   newName: string,
 ) {
-  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
-  const params: FetchPageRequest = { id: pageId };
-  if (isServerDSLMigrationsEnabled) {
-    params.migrateDSL = true;
-  }
+  const params: FetchPageRequest = { id: pageId, migrateDSL: true };
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   // check if page request is successful
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
