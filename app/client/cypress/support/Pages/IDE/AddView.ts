@@ -2,6 +2,7 @@ import { ObjectsRegistry } from "../../Objects/Registry";
 
 class AddView {
   public locators = {
+    addPane: "[data-testid='t--ide-add-pane']",
     closePaneButton: "[data-testid='t--add-pane-close-icon']",
     createOption: "[data-testid='t--create-option']",
   };
@@ -12,7 +13,7 @@ class AddView {
 
   public assertInAddView() {
     ObjectsRegistry.AggregateHelper.AssertElementVisibility(
-      this.locators.closePaneButton,
+      this.locators.addPane,
     );
   }
 

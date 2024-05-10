@@ -14,7 +14,7 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     // check add pane is open
     PageLeftPane.assertInAddView();
     // close add pane to show blank state
-    PageLeftPane.closeAddView();
+    PageLeftPane.closeAddView(PagePaneSegment.UI);
     // click on add button and check add state
     PageLeftPane.switchToAddNew();
     // check add pane
@@ -28,7 +28,7 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     // check add pane is open
     PageLeftPane.assertInAddView();
     // close add pane
-    PageLeftPane.closeAddView();
+    PageLeftPane.closeAddView(PagePaneSegment.UI);
     // click on canvas and check add pane visible or not
     agHelper.GetNClick(commonLocators._canvas).click();
     // check add pane
@@ -67,7 +67,7 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     // check add pane
     PageLeftPane.assertInAddView();
     // close add pane
-    PageLeftPane.closeAddView();
+    PageLeftPane.closeAddView(PagePaneSegment.Queries);
     // open add pane to add item
     PageLeftPane.switchToAddNew();
     // add item

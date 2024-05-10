@@ -1,5 +1,7 @@
 import { ObjectsRegistry } from "../../Objects/Registry";
+import { PagePaneSegment } from "../EditorNavigation";
 import AddView from "./AddView";
+import FileTabs from "./FileTabs";
 import ListView from "./ListView";
 
 export class LeftPane {
@@ -112,8 +114,16 @@ export class LeftPane {
     this.addView.assertInAddView();
   }
 
-  public closeAddView() {
-    this.addView.closeAddView();
+  public closeAddView(segment: PagePaneSegment) {
+    if (!this.segments) {
+      throw Error("No Segments configured");
+    }
+    cy.log(segment, "===Albin");
+    if (segment === PagePaneSegment.UI) {
+      this.addView.closeAddView();
+    } else {
+      FileTabs.closeTab("new");
+    }
   }
 
   public getCreateOptions() {

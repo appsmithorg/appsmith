@@ -210,7 +210,7 @@ describe("IDE Render: JS", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByTestId("t--ide-split-screen-add-button");
+      getByTestId("t--ide-tabs-add-button");
     });
 
     it("Renders JS add routes in Full Screen", () => {

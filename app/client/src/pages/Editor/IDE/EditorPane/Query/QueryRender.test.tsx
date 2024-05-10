@@ -207,7 +207,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByTestId("t--ide-split-screen-add-button");
+      getByTestId("t--ide-tabs-add-button");
     });
 
     it("Renders Api add routes in Full Screen", () => {
@@ -285,9 +285,7 @@ describe("IDE URL rendering of Queries", () => {
       );
       // Add button active state
       expect(
-        getByTestId("t--ide-split-screen-add-button").getAttribute(
-          "data-selected",
-        ),
+        getByTestId("t--ide-tabs-add-button").getAttribute("data-selected"),
       ).toBe("true");
 
       // Check if the form is not rendered
@@ -395,7 +393,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByTestId("t--ide-split-screen-add-button");
+      getByTestId("t--ide-tabs-add-button");
     });
     it("Renders Postgres add routes in Full Screen", async () => {
       const page = PageFactory.build();
@@ -484,9 +482,7 @@ describe("IDE URL rendering of Queries", () => {
       ).toBe(false);
       // Add button active state
       expect(
-        getByTestId("t--ide-split-screen-add-button").getAttribute(
-          "data-selected",
-        ),
+        getByTestId("t--ide-tabs-add-button").getAttribute("data-selected"),
       ).toBe("true");
 
       // Check if the form is not rendered
@@ -598,7 +594,7 @@ describe("IDE URL rendering of Queries", () => {
       // Check if run button is visible
       getByRole("button", { name: /run/i });
       // Check if the Add new button is shown
-      getByTestId("t--ide-split-screen-add-button");
+      getByTestId("t--ide-tabs-add-button");
     });
     it("Renders Google Sheets add routes in Full Screen", async () => {
       const page = PageFactory.build();
@@ -689,9 +685,7 @@ describe("IDE URL rendering of Queries", () => {
       ).toBe(false);
       // Add button active state
       expect(
-        getByTestId("t--ide-split-screen-add-button").getAttribute(
-          "data-selected",
-        ),
+        getByTestId("t--ide-tabs-add-button").getAttribute("data-selected"),
       ).toBe("true");
 
       // Check if the form is not rendered

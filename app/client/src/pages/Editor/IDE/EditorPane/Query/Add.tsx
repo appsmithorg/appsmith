@@ -15,7 +15,12 @@ const AddQuery = ({ containerProps, innerContainerProps }: AddProps) => {
   const groupedActionOperations = useGroupedAddQueryOperations();
 
   return (
-    <Flex justifyContent="center" p="spaces-3" {...containerProps}>
+    <Flex
+      data-testid="t--ide-add-pane"
+      justifyContent="center"
+      p="spaces-3"
+      {...containerProps}
+    >
       <Flex
         flexDirection="column"
         gap={"spaces-4"}

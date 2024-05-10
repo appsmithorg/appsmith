@@ -22,7 +22,7 @@ const AddButton = () => {
   return (
     <Button
       className="min-w-[24px]"
-      data-testid="t--ide-split-screen-add-button"
+      data-testid="t--ide-tabs-add-button"
       id="tabs-add-toggle"
       isIconButton
       kind="tertiary"

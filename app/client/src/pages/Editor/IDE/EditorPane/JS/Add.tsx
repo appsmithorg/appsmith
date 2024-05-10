@@ -36,7 +36,12 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
   };
 
   return (
-    <Flex justifyContent="center" p="spaces-3" {...containerProps}>
+    <Flex
+      data-testid="t--ide-add-pane"
+      justifyContent="center"
+      p="spaces-3"
+      {...containerProps}
+    >
       <Flex
         flexDirection="column"
         gap={"spaces-4"}
