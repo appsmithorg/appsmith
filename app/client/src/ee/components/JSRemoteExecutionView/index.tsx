@@ -1,2 +1,3 @@
-import JSRemoteExecutionView from "ce/components/JSRemoteExecutionView";
-export default JSRemoteExecutionView;
+export * from "ce/components/JSRemoteExecutionView";
+import { default as CE_JSRemoteExecutionView } from "ce/components/JSRemoteExecutionView";
+export default CE_JSRemoteExecutionView;

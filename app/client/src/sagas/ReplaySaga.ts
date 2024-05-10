@@ -194,13 +194,14 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     if (!workerResponse) return;
 
     const {
+      endTime,
       event,
       logs,
       paths,
       replay,
       replayEntity,
       replayEntityType,
-      timeTaken,
+      startTime,
     } = workerResponse;
 
     logs && logs.forEach((evalLog: any) => log.debug(evalLog));
@@ -213,7 +214,10 @@ export function* undoRedoSaga(action: ReduxAction<UndoRedoPayload>) {
     switch (replayEntityType) {
       case ENTITY_TYPE.WIDGET: {
         const isPropertyUpdate = replay.widgets && replay.propertyUpdates;
-        AnalyticsUtil.logEvent(event, { paths, timeTaken });
+        AnalyticsUtil.logEvent(event, {
+          paths,
+          timeTaken: endTime - startTime,
+        });
 
         yield call(updateAndSaveAnvilLayout, replayEntity.widgets, {
           isRetry: false,

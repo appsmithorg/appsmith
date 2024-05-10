@@ -276,6 +276,7 @@ export class AggregateHelper {
     timeout = Cypress.config("pageLoadTimeout"),
   ) {
     let locator;
+    expect(selector).to.not.be.undefined;
     if (typeof selector == "string") {
       locator =
         selector.startsWith("//") || selector.startsWith("(//")
