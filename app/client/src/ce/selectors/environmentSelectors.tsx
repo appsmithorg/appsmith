@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import type { AppState } from "@appsmith/reducers";
 import type { EnvironmentType } from "@appsmith/configs/types";
+import { UNUSED_ENV_ID } from "constants/EnvironmentContants";
 
 export const areEnvironmentsFetched = (state: AppState, workspaceId: string) =>
   true;
@@ -10,18 +11,19 @@ export const getEnvironmentsWithPermission = (
   state: AppState,
 ): Array<EnvironmentType> => [];
 
-export const getDefaultEnvironmentId = (state: AppState) => "unused_env";
+export const getDefaultEnvironmentId = (state: AppState) => UNUSED_ENV_ID;
 
-export const getCurrentEnvironmentId = (state: AppState) => "unused_env";
+export const getCurrentEnvironmentId = (state: AppState) => UNUSED_ENV_ID;
 
 export const getCurrentEnvironmentName = (state: AppState) => "";
 
-export const getCurrentEditingEnvironmentId = (state: AppState) => "unused_env";
+export const getCurrentEditingEnvironmentId = (state: AppState) =>
+  UNUSED_ENV_ID;
 
 export const getCurrentEnvironmentDetails = (state: AppState) => ({
-  id: "unused_env",
+  id: UNUSED_ENV_ID,
   name: "",
-  editingId: "unused_env",
+  editingId: UNUSED_ENV_ID,
 });
 
 export const allowManageEnvironmentAccessForUser = (state: AppState) => false;

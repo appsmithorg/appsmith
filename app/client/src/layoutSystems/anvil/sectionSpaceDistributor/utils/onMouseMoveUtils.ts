@@ -4,6 +4,8 @@ import {
   convertFlexGrowToFlexBasis,
   convertFlexGrowToFlexBasisForPropPane,
 } from "./spaceDistributionEditorUtils";
+import { getBrowserInfo } from "utils/helpers";
+import memoize from "micro-memoize";
 
 // Interface representing the DOM elements associated with a space distribution zone
 export interface SpaceDistributionZoneDomCollection {
@@ -12,7 +14,10 @@ export interface SpaceDistributionZoneDomCollection {
   leftZonePropPaneDom: HTMLElement | null;
   rightZonePropPaneDom: HTMLElement | null;
 }
-
+const isSafari = memoize(() => {
+  const browserInfo = getBrowserInfo();
+  return typeof browserInfo === "object" && browserInfo?.browser === "Safari";
+});
 // Constants for animation and speed control during handle move
 const speedLimitForAnimation = 4000;
 const baseAnimationDuration = 0.25;
@@ -37,11 +42,12 @@ const adjustZoneFlexGrowForMagneticEffect = (
   const reflectOnPropPane = leftZonePropPaneDom && rightZonePropPaneDom;
 
   // Calculate transition duration based on mouse speed
-  const transitionStyle = `all ${
-    baseAnimationDuration -
-    Math.min(mouseSpeed, speedLimitForAnimation) * ratioOfSpeedToAnimation
-  }s ease-in-out`;
-
+  const transitionStyle = isSafari()
+    ? ""
+    : `flex-basis ${
+        baseAnimationDuration -
+        Math.min(mouseSpeed, speedLimitForAnimation) * ratioOfSpeedToAnimation
+      }s ease-in-out`;
   // Apply transition styles to left and right zones
   [leftZoneDom, rightZoneDom].forEach((zoneDom) => {
     zoneDom.style.transition = transitionStyle;
@@ -96,10 +102,10 @@ const applyResistiveForceOnHandleMove = (
   // Check if the zones hit the minimum limit
   const hasHitMinimumLimit =
     isLeftZoneLessThanMinimum || isRightZoneLessThanMinimum;
-
+  const isTransitionEnabled = !isSafari() && hasHitMinimumLimit;
   // Apply or remove transition based on hitting the minimum limit
-  const transitionStyle = hasHitMinimumLimit
-    ? `all ${baseAnimationDuration}s ease`
+  const transitionStyle = isTransitionEnabled
+    ? `flex-basis ${baseAnimationDuration}s ease`
     : "";
   [leftZoneDom, rightZoneDom].forEach((zoneDom) => {
     zoneDom.style.transition = transitionStyle;

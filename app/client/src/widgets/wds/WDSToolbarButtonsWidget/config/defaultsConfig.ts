@@ -48,6 +48,7 @@ export const defaultsConfig = {
       widgetId: "",
       id: "separator",
       index: 2,
+      label: "Separator",
       itemType: "SEPARATOR",
     },
     button4: {

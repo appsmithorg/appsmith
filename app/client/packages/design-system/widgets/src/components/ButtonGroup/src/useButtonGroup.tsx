@@ -3,7 +3,7 @@ import type { ListState } from "@react-stately/list";
 import { useCallback, type RefObject, useMemo } from "react";
 import type { DOMAttributes, FocusableElement } from "@react-types/shared";
 
-import type { ButtonGroupProps } from "../../../";
+import type { ButtonGroupProps } from "./types";
 import {
   useLayoutEffect,
   useResizeObserver,
@@ -68,7 +68,7 @@ export function useButtonGroup<T>(
             calculatedSize += gap;
           }
 
-          if (calculatedSize >= containerSize) {
+          if (calculatedSize > containerSize) {
             return "vertical";
           }
         }
