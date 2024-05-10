@@ -134,11 +134,11 @@ public class ActionCollectionControllerCE {
     @PutMapping("/{id}/body")
     public Mono<ResponseDTO<Integer>> updateActionCollectionBody(
             @PathVariable String id,
-            @Valid @RequestBody String body,
+            @Valid @RequestBody ActionCollectionDTO resource,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         log.debug("Going to update action collection body with id: {}, branch: {}", id, branchName);
         return layoutCollectionService
-                .updateUnpublishedActionCollectionBody(id, body, branchName)
+                .updateUnpublishedActionCollectionBody(id, resource, branchName)
                 .map(updatedResource -> new ResponseDTO<>(HttpStatus.OK.value(), updatedResource, null));
     }
 

@@ -7,7 +7,6 @@ import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.Layout;
-import com.appsmith.server.domains.NewAction;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ActionCollectionDTO;
 import com.appsmith.server.dtos.ActionCollectionMoveDTO;
@@ -153,33 +152,25 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
         actionCollection.setUnpublishedCollection(collectionDTO);
 
         return newPageService
-                .findById(collectionDTO.getPageId(), pagePermission.getActionCreatePermission())
-                .flatMap(newPage -> {
+                .findByBranchNameAndDefaultPageId(
+                        branchName, collectionDTO.getPageId(), pagePermission.getActionCreatePermission())
+                .map(branchedPage -> {
                     // Insert defaultPageId and defaultAppId from page
-                    DefaultResources defaultResources = newPage.getDefaultResources();
+                    DefaultResources defaultResources = branchedPage.getDefaultResources();
                     defaultResources.setBranchName(branchName);
                     collectionDTO.setDefaultResources(defaultResources);
                     actionCollection.setDefaultResources(defaultResources);
-                    actionCollectionService.generateAndSetPolicies(newPage, actionCollection);
+                    actionCollectionService.generateAndSetPolicies(branchedPage, actionCollection);
                     actionCollection.setUnpublishedCollection(collectionDTO);
-                    return Mono.zip(
-                            newPageService.findByBranchNameAndDefaultPageId(
-                                    branchName, defaultResources.getPageId(), pagePermission.getEditPermission()),
-                            Mono.just(actionCollection));
-                })
-                .flatMap(tuple -> {
-                    NewPage branchedPage = tuple.getT1();
-                    ActionCollection updatedActionCollection = tuple.getT2();
 
-                    ActionCollectionDTO unpublishedCollection = updatedActionCollection.getUnpublishedCollection();
                     // Update the page and application id with branched resource
-                    unpublishedCollection.setApplicationId(branchedPage.getApplicationId());
-                    unpublishedCollection.setPageId(branchedPage.getId());
+                    collectionDTO.setApplicationId(branchedPage.getApplicationId());
+                    collectionDTO.setPageId(branchedPage.getId());
 
-                    updatedActionCollection.setWorkspaceId(collectionDTO.getWorkspaceId());
-                    updatedActionCollection.setApplicationId(branchedPage.getApplicationId());
+                    actionCollection.setWorkspaceId(collectionDTO.getWorkspaceId());
+                    actionCollection.setApplicationId(branchedPage.getApplicationId());
 
-                    return Mono.just(updatedActionCollection);
+                    return actionCollection;
                 });
     }
 
@@ -311,10 +302,19 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     }
 
     @Override
-    public Mono<Integer> updateUnpublishedActionCollectionBody(String id, String body, String branchName) {
+    public Mono<Integer> updateUnpublishedActionCollectionBody(
+            String id, ActionCollectionDTO actionCollectionDTO, String branchName) {
 
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        if (actionCollectionDTO == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_COLLECTION));
+        }
+
+        if (actionCollectionDTO.getBody() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BODY));
         }
 
         Mono<ActionCollection> branchedActionCollectionMono = actionCollectionService
@@ -325,7 +325,7 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
             BridgeUpdate updateObj = Bridge.update();
             String path = ActionCollection.Fields.unpublishedCollection + "." + ActionCollectionDTO.Fields.body;
 
-            updateObj.set(path, body);
+            updateObj.set(path, actionCollectionDTO.getBody());
 
             return actionCollectionRepository.updateById(dbActionCollection.getId(), updateObj);
         });
@@ -386,18 +386,10 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 actionDTO.setCollectionId(null);
                                 // Client only knows about the default action ID, fetch branched action id to update the
                                 // action
-                                Mono<String> branchedActionIdMono = StringUtils.isEmpty(branchName)
-                                        ? Mono.just(actionDTO.getId())
-                                        : newActionService
-                                                .findByBranchNameAndDefaultActionId(
-                                                        branchName,
-                                                        actionDTO.getId(),
-                                                        false,
-                                                        actionPermission.getEditPermission())
-                                                .map(NewAction::getId);
+                                String defaultActionId = actionDTO.getId();
                                 actionDTO.setId(null);
-                                return branchedActionIdMono.flatMap(
-                                        actionId -> layoutActionService.updateSingleAction(actionId, actionDTO));
+                                return layoutActionService.updateSingleActionWithBranchName(
+                                        defaultActionId, actionDTO, branchName);
                             }
                         })
                         .collect(toMap(
@@ -446,8 +438,8 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                                 .flatMap(actionCollectionDTO2 -> actionCollectionService
                                         .saveLastEditInformationInParent(actionCollectionDTO2)
                                         .thenReturn(actionCollectionDTO2))))
-                .map(responseUtils::updateCollectionDTOWithDefaultResources)
-                .flatMap(branchedActionCollection -> sendErrorReportsFromPageToCollection(branchedActionCollection));
+                .flatMap(branchedActionCollection -> sendErrorReportsFromPageToCollection(branchedActionCollection))
+                .map(responseUtils::updateCollectionDTOWithDefaultResources);
     }
 
     private Mono<ActionCollectionDTO> sendErrorReportsFromPageToCollection(
