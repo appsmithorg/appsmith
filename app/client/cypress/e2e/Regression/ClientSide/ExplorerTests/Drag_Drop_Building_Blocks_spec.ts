@@ -2,10 +2,9 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   agHelper,
-  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
-const commonlocators = require("../../../../locators/commonlocators.json");
+const explorerLocators = require("../../../../locators/explorerlocators.json");
 
 // Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
 const MAX_BUILDING_BLOCKS_TO_DISPLAY = 9;
@@ -22,7 +21,8 @@ describe(
         .GetElement(`${entityExplorer._widgetTagBuildingBlocks}`)
         .each(($widgetTag) => {
           const widgetsInThisTag: string[] = [];
-          cy.wrap($widgetTag)
+          agHelper
+            .GetElement($widgetTag)
             .find(entityExplorer._widgetCardTitle)
             .each(($widgetName) => {
               const value = $widgetName.text();
@@ -41,7 +41,8 @@ describe(
       agHelper
         .GetElement(`${entityExplorer._widgetTagBuildingBlocks}`)
         .each(($widgetTag) => {
-          cy.wrap($widgetTag)
+          agHelper
+            .GetElement($widgetTag)
             .find(entityExplorer._widgetCardTitle)
             .each(($widgetName) => {
               const value = $widgetName.text();
@@ -50,7 +51,10 @@ describe(
         });
 
       if (widgetsInThisTag.length > MAX_BUILDING_BLOCKS_TO_DISPLAY) {
-        cy.get(entityExplorer._widgetSeeMoreButton).should("be.visible");
+        agHelper.AssertElementVisibility(
+          entityExplorer._widgetSeeMoreButton,
+          true,
+        );
       }
     });
 
@@ -61,7 +65,8 @@ describe(
       const widgetsInThisTag: string[] = [];
 
       // Find and iterate over each widget card title within the specified tag
-      cy.get(entityExplorer._widgetTagBuildingBlocks)
+      agHelper
+        .GetElement(`${entityExplorer._widgetTagBuildingBlocks}`)
         .find(entityExplorer._widgetCardTitle)
         .each(($widgetName) => {
           // Extract the text of each widget title
@@ -72,10 +77,16 @@ describe(
           // After collecting widget names, assert based on the count
           if (widgetsInThisTag.length < MAX_BUILDING_BLOCKS_TO_DISPLAY) {
             // If less than 9 widgets, ensure the 'See More' button does not exist
-            cy.get(entityExplorer._widgetSeeMoreButton).should("not.exist");
+            agHelper.AssertElementVisibility(
+              entityExplorer._widgetSeeMoreButton,
+              false,
+            );
           } else {
             // If 9 or more widgets, ensure the 'See More' button exists
-            cy.get(entityExplorer._widgetSeeMoreButton).should("exist");
+            agHelper.AssertElementVisibility(
+              entityExplorer._widgetSeeMoreButton,
+              true,
+            );
           }
         });
     });
@@ -86,9 +97,12 @@ describe(
       let widgetsInThisTag: string[] = [];
 
       // Get all building blocks before attempting to click "See More"
-      cy.get(entityExplorer._widgetTagBuildingBlocks)
+      // cy.get(entityExplorer._widgetTagBuildingBlocks)
+      agHelper
+        .GetElement(`${entityExplorer._widgetTagBuildingBlocks}`)
         .each(($widgetTag) => {
-          cy.wrap($widgetTag)
+          agHelper
+            .GetElement($widgetTag)
             .find(entityExplorer._widgetCardTitle)
             .each(($widgetName) => {
               const value = $widgetName.text().trim();
@@ -99,22 +113,32 @@ describe(
           // Check if there are fewer than 9 widgets
           if (widgetsInThisTag.length < MAX_BUILDING_BLOCKS_TO_DISPLAY) {
             // No need to click "See More" if there are already fewer than 9 widgets
-            cy.get(entityExplorer._widgetSeeMoreButton).should("not.exist");
+            // cy.get(entityExplorer._widgetSeeMoreButton).should("not.exist");
+            agHelper.AssertElementVisibility(
+              entityExplorer._widgetSeeMoreButton,
+              false,
+            );
           } else {
             // Click the "See More" button for each widget tag
-            cy.get(entityExplorer._widgetTagsList).each(($widgetTag) => {
-              cy.wrap($widgetTag)
-                .find(entityExplorer._widgetSeeMoreButton)
-                .should("exist")
-                .click({ force: true });
-            });
+            agHelper
+              .GetElement(entityExplorer._widgetTagsList)
+              .each(($widgetTag) => {
+                agHelper
+                  .GetElement($widgetTag)
+                  .find(entityExplorer._widgetSeeMoreButton)
+                  .should("exist")
+                  .click({ force: true });
+              });
           }
 
           // Get all building blocks after attempting to click "See More"
           let widgetsInThisTagAfterSeeMore: string[] = [];
-          cy.get(entityExplorer._widgetTagBuildingBlocks)
+          // cy.get(entityExplorer._widgetTagBuildingBlocks)
+          agHelper
+            .GetElement(`${entityExplorer._widgetTagBuildingBlocks}`)
             .each(($widgetTag) => {
-              cy.wrap($widgetTag)
+              agHelper
+                .GetElement($widgetTag)
                 .find(entityExplorer._widgetCardTitle)
                 .each(($widgetName) => {
                   const value = $widgetName.text().trim();
@@ -129,18 +153,23 @@ describe(
             });
 
           // Click the same "See More" button again to simulate "See Less"
-          cy.get(entityExplorer._widgetTagsList).each(($widgetTag) => {
-            cy.wrap($widgetTag)
-              .find(entityExplorer._widgetSeeMoreButton)
-              .should("exist") // Check if the button still exists (now interpreted as "See Less")
-              .click({ force: true });
-          });
+          agHelper
+            .GetElement(entityExplorer._widgetTagsList)
+            .each(($widgetTag) => {
+              agHelper
+                .GetElement($widgetTag)
+                .find(entityExplorer._widgetSeeMoreButton)
+                .should("exist") // Check if the button still exists (now interpreted as "See Less")
+                .click({ force: true });
+            });
 
           // Get all building blocks after clicking "See Less"
           let widgetsInThisTagAfterSeeLess: string[] = [];
-          cy.get(entityExplorer._widgetTagBuildingBlocks)
+          agHelper
+            .GetElement(entityExplorer._widgetTagBuildingBlocks)
             .each(($widgetTag) => {
-              cy.wrap($widgetTag)
+              agHelper
+                .GetElement($widgetTag)
                 .find(entityExplorer._widgetCardTitle)
                 .each(($widgetName) => {
                   const value = $widgetName.text().trim();
@@ -159,6 +188,26 @@ describe(
     it.only("5. Should drag and drop building block on canvas", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       cy.dragAndDropToCanvas("buildingblock", { x: 600, y: 80 });
+      // const x = 600;
+      // const y = 80;
+      // const selector = `.t--widget-card-draggable-building-blocks-edit`;
+      // cy.wait(500);
+      // cy.get(selector)
+      //   .first()
+      //   .trigger("dragstart", { force: true })
+      //   .trigger("mousemove", x, y, { force: true });
+
+      // const option = {
+      //   eventConstructor: "MouseEvent",
+      //   scrollBehavior: false,
+      // } as any;
+
+      // cy.get(explorerLocators.dropHere)
+      //   .trigger("mousemove", x, y, option)
+      //   .trigger("mousemove", x, y, option)
+      //   .trigger("mouseup", x, y, option);
+      // cy.wait(500);
+      // cy.assertPageSave();
     });
   },
 );
