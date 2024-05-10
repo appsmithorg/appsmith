@@ -109,8 +109,6 @@ import org.springframework.security.core.context.SecurityContextImpl;
 import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
 import org.springframework.util.StringUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -660,27 +658,6 @@ public class ApplicationServiceCETest {
 
     @Test
     @WithUserDetails(value = "api_user")
-    public void validGetApplicationsByName() {
-        Application application = new Application();
-        application.setName("validGetApplicationByName-Test");
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.set(FieldName.NAME, application.getName());
-
-        Mono<Application> createApplication = applicationPageService.createApplication(application, workspaceId);
-
-        Flux<Application> getApplication = createApplication.flatMapMany(t -> applicationService.get(params));
-        StepVerifier.create(getApplication)
-                .assertNext(t -> {
-                    assertThat(t).isNotNull();
-                    assertThat(t.isAppIsExample()).isFalse();
-                    assertThat(t.getId()).isNotNull();
-                    assertThat(t.getName()).isEqualTo("validGetApplicationByName-Test");
-                })
-                .verifyComplete();
-    }
-
-    @Test
-    @WithUserDetails(value = "api_user")
     public void getApplicationByDefaultIdAndBranchName_emptyBranchName_success() {
         Mono<Application> applicationMono = applicationService.findByBranchNameAndDefaultApplicationId(
                 "", gitConnectedApp.getId(), READ_APPLICATIONS);
@@ -721,12 +698,9 @@ public class ApplicationServiceCETest {
     @Test
     @WithUserDetails(value = "api_user")
     public void getApplicationsByBranchName_validBranchName_success() {
-        MultiValueMap<String, String> params = new LinkedMultiValueMap<>();
-        params.set(
-                FieldName.DEFAULT_RESOURCES + "." + FieldName.BRANCH_NAME,
+        Mono<Application> getApplication = applicationService.findByIdAndBranchName(
+                gitConnectedApp.getId(),
                 gitConnectedApp.getGitApplicationMetadata().getBranchName());
-
-        Flux<Application> getApplication = applicationService.get(params);
         StepVerifier.create(getApplication)
                 .assertNext(t -> {
                     assertThat(t).isNotNull();
@@ -777,7 +751,7 @@ public class ApplicationServiceCETest {
 
         Mono<Application> createApplication = applicationPageService.createApplication(application, workspaceId);
         List<Application> applicationList = createApplication
-                .flatMapMany(t -> applicationService.get(new LinkedMultiValueMap<>()))
+                .flatMapMany(app -> applicationService.findById(app.getId()))
                 .collectList()
                 .block();
 
@@ -2673,8 +2647,9 @@ public class ApplicationServiceCETest {
 
         Mono<Application> applicationMono = applicationPageService
                 .createApplication(testApplication, workspaceId)
-                .flatMap(application -> applicationPageService.publish(application.getId(), true))
-                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
+                .flatMap(application -> applicationPageService
+                        .publish(application.getId(), true)
+                        .then(applicationService.findById(application.getId(), MANAGE_APPLICATIONS)))
                 .cache();
 
         Mono<List<NewPage>> applicationPagesMono = applicationMono
@@ -2977,10 +2952,11 @@ public class ApplicationServiceCETest {
                     List<Layout> layouts = new ArrayList<>();
                     layouts.add(defaultLayout);
                     page.setLayouts(layouts);
-                    return applicationPageService.createPage(page);
+                    return applicationPageService
+                            .createPage(page)
+                            .flatMap(page1 -> applicationPageService.publish(page1.getApplicationId(), true))
+                            .then(applicationService.findById(application.getId(), MANAGE_APPLICATIONS));
                 })
-                .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         PageDTO newPage = applicationMono
@@ -3068,10 +3044,11 @@ public class ApplicationServiceCETest {
                     List<Layout> layouts = new ArrayList<>();
                     layouts.add(defaultLayout);
                     page.setLayouts(layouts);
-                    return applicationPageService.createPage(page);
+                    return applicationPageService
+                            .createPage(page)
+                            .flatMap(page1 -> applicationPageService.publish(page1.getApplicationId(), true))
+                            .then(applicationService.findById(application.getId(), MANAGE_APPLICATIONS));
                 })
-                .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         PageDTO newPage = applicationMono
@@ -3145,10 +3122,11 @@ public class ApplicationServiceCETest {
                     List<Layout> layouts = new ArrayList<>();
                     layouts.add(defaultLayout);
                     page.setLayouts(layouts);
-                    return applicationPageService.createPage(page);
+                    return applicationPageService
+                            .createPage(page)
+                            .flatMap(page1 -> applicationPageService.publish(page1.getApplicationId(), true))
+                            .then(applicationService.findById(application.getId(), MANAGE_APPLICATIONS));
                 })
-                .flatMap(page -> applicationPageService.publish(page.getApplicationId(), true))
-                .then(applicationService.findByName(appName, MANAGE_APPLICATIONS))
                 .cache();
 
         PageDTO newPage = applicationMono

@@ -30,8 +30,6 @@ public interface ApplicationPageServiceCE {
 
     Mono<Application> createApplication(Application application, String workspaceId);
 
-    Mono<PageDTO> getPageByName(String applicationName, String pageName, boolean viewMode);
-
     Mono<Application> makePageDefault(PageDTO page);
 
     Mono<Application> makePageDefault(String applicationId, String pageId);

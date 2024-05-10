@@ -134,7 +134,7 @@
                             "isCellVisible": true,
                             "isDerived": true,
                             "computedValue": "",
-                            "onClick": "{{showModal('Delete_Modal')}}",
+                            "onClick": "{{showModal(Delete_Modal.name)}}",
                             "textSize": "PARAGRAPH",
                             "buttonColor": "#DD4B34",
                             "index": 7.0,
@@ -432,7 +432,7 @@
                         "boxShadow": "NONE",
                         "widgetName": "add_btn",
                         "rightColumn": 60.0,
-                        "onClick": "{{showModal('Insert_Modal')}}",
+                        "onClick": "{{showModal(Insert_Modal.name)}}",
                         "iconName": "add",
                         "buttonColor": "#03B365",
                         "widgetId": "kby34l9nbb",
@@ -524,7 +524,7 @@
                       {
                         "widgetName": "Button1",
                         "rightColumn": 46.0,
-                        "onClick": "{{closeModal('Delete_Modal')}}",
+                        "onClick": "{{closeModal(Delete_Modal.name)}}",
                         "isDefaultClickDisabled": true,
                         "dynamicPropertyPathList": [],
                         "buttonColor": "#03B365",
@@ -549,7 +549,7 @@
                       {
                         "widgetName": "Delete_Button",
                         "rightColumn": 64.0,
-                        "onClick": "{{DeleteQuery.run(() => SelectQuery.run(() => closeModal('Delete_Modal')), () => {})}}",
+                        "onClick": "{{DeleteQuery.run(() => SelectQuery.run(() => closeModal(Delete_Modal.name)), () => {})}}",
                         "isDefaultClickDisabled": true,
                         "dynamicPropertyPathList": [
                           {
@@ -688,7 +688,7 @@
                                 "resetFormOnClick": true,
                                 "widgetName": "insert_button",
                                 "rightColumn": 62.0,
-                                "onClick": "{{InsertQuery.run(() => SelectQuery.run(() => closeModal('Insert_Modal')))}}",
+                                "onClick": "{{InsertQuery.run(() => SelectQuery.run(() => closeModal(Insert_Modal.name)))}}",
                                 "isDefaultClickDisabled": true,
                                 "dynamicPropertyPathList": [
                                   {
@@ -719,7 +719,7 @@
                                 "resetFormOnClick": true,
                                 "widgetName": "reset_button",
                                 "rightColumn": 42.0,
-                                "onClick": "{{closeModal('Insert_Modal')}}",
+                                "onClick": "{{closeModal(Insert_Modal.name)}}",
                                 "isDefaultClickDisabled": true,
                                 "buttonColor": "#03B365",
                                 "widgetId": "o23gs26wm5",

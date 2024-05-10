@@ -133,4 +133,10 @@ export class LeftPane {
       this.locators.segment(name),
     ).should("have.attr", "data-selected", "true");
   }
+
+  public assertAbsenceOfAddNew() {
+    ObjectsRegistry.AggregateHelper.AssertElementAbsence(
+      this.listView.locators.addItem,
+    );
+  }
 }

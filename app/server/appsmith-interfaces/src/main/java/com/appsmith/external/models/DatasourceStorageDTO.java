@@ -1,5 +1,6 @@
 package com.appsmith.external.models;
 
+import com.appsmith.external.views.FromRequest;
 import com.appsmith.external.views.Views;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Data;
@@ -15,9 +16,16 @@ public class DatasourceStorageDTO {
 
     String id;
     String datasourceId;
+
+    @JsonView({Views.Public.class, FromRequest.class})
     String environmentId;
+
+    @JsonView({Views.Public.class, FromRequest.class})
     DatasourceConfiguration datasourceConfiguration;
+
+    @JsonView({Views.Public.class, FromRequest.class})
     Boolean isConfigured;
+
     Set<String> invalids;
     Set<String> messages;
 

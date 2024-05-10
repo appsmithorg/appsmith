@@ -10,6 +10,7 @@ import {
   table,
   entityItems,
   apiPage,
+  jsEditor,
 } from "../../../../support/Objects/ObjectsCore";
 import { Widgets } from "../../../../support/Pages/DataSources";
 import EditorNavigation, {
@@ -36,8 +37,7 @@ describe("Validate Oracle DS", { tags: ["@tag.Datasource"] }, () => {
     agHelper.GetNAssertContains(locators._dsName, "Untitled datasource");
     agHelper.GetNClick(locators._dsName);
     agHelper.ClearTextField(locators._dsNameTxt); //removing ds name
-    agHelper.AssertTooltip("Please enter a valid name");
-    //agHelper.ValidateToastMessage("Invalid name");
+    agHelper.AssertTooltip(Cypress.env("MESSAGES").ACTION_INVALID_NAME_ERROR());
     agHelper.TypeText(locators._dsNameTxt, dataSourceName);
     agHelper.PressEnter();
     agHelper.AssertAttribute(
@@ -446,6 +446,7 @@ WHERE aircraft_type = 'Passenger Plane'`;
     propPane.EnterJSContext("onClick", `{{Query1.run()}}`);
     deployMode.DeployApp(locators._widgetInDeployed(draggableWidgets.TABLE));
     agHelper.ClickButton("Submit");
+    jsEditor.ConfirmationClick("No"); //Handling both No & Yes from confirmation dialog
 
     table.WaitUntilTableLoad(0, 0, "v2");
     deployMode.NavigateBacktoEditor();

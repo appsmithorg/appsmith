@@ -9,13 +9,11 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.AppsmithRepository;
 import com.appsmith.server.repositories.BaseRepository;
-import com.appsmith.server.repositories.ce.params.QueryAllParams;
 import jakarta.validation.Validator;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.util.MultiValueMap;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -63,28 +61,6 @@ public abstract class BaseService<
                         analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
     }
 
-    protected Flux<T> getWithPermission(MultiValueMap<String, String> params, AclPermission aclPermission) {
-        final QueryAllParams<T> builder = repository.queryBuilder();
-
-        if (params != null && !params.isEmpty()) {
-            final BridgeQuery<BaseDomain> query = Bridge.query();
-            for (String key : params.keySet()) {
-                query.in(key, params.get(key));
-            }
-            builder.criteria(query);
-        }
-
-        return builder.permission(aclPermission).all();
-    }
-
-    @Override
-    public Flux<T> get(MultiValueMap<String, String> params) {
-        // In the base service we aren't handling the query parameters. In order to filter records using the query
-        // params,
-        // each service must implement it for their usecase. Need to come up with a better strategy for doing this.
-        return repository.findAll();
-    }
-
     @Override
     public Mono<T> getById(ID id) {
         if (id == null) {
@@ -103,11 +79,6 @@ public abstract class BaseService<
                 .flatMap(repository::save)
                 .flatMap(savedResource ->
                         analyticsService.sendCreateEvent(savedResource, getAnalyticsProperties(savedResource)));
-    }
-
-    @Override
-    public Mono<T> archiveById(ID id) {
-        return Mono.error(new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION));
     }
 
     /**
@@ -131,44 +102,6 @@ public abstract class BaseService<
     @Override
     public Map<String, Object> getAnalyticsProperties(T savedResource) {
         return new HashMap<>();
-    }
-
-    /**
-     * This function is used to filter the entities based on the entity fields and the search string.
-     * The search is performed with contains operator on the entity fields and is case-insensitive.
-     * @param searchableEntityFields  The list of entity fields to search for. If null or empty, all entities are searched.
-     * @param searchString  The string to search for in the entity fields.
-     * @param pageable      The page number of the results to return.
-     * @param sort          The sort order of the results to return.
-     * @param permission    The permission to check for the entity.
-     * @return  A Flux of entities.
-     */
-    public Flux<T> filterByEntityFields(
-            List<String> searchableEntityFields,
-            String searchString,
-            Pageable pageable,
-            Sort sort,
-            AclPermission permission) {
-
-        if (searchableEntityFields == null || searchableEntityFields.isEmpty()) {
-            return Flux.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, ENTITY_FIELDS));
-        }
-
-        List<BridgeQuery<T>> criteria = new ArrayList<>();
-        for (String fieldName : searchableEntityFields) {
-            criteria.add(Bridge.searchIgnoreCase(fieldName, searchString));
-        }
-
-        Flux<T> result = repository
-                .queryBuilder()
-                .criteria(Bridge.or(criteria))
-                .permission(permission)
-                .sort(sort)
-                .all();
-        if (pageable != null) {
-            return result.skip(pageable.getOffset()).take(pageable.getPageSize());
-        }
-        return result;
     }
 
     /**

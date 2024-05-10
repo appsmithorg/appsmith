@@ -28,7 +28,7 @@ import type {
 } from "reducers/entityReducers/canvasWidgetsReducer";
 import type { MainCanvasReduxState } from "reducers/uiReducers/mainCanvasReducer";
 import { all, call, put, select, takeLatest } from "redux-saga/effects";
-import { addAndMoveBuildingBlockToCanvasSaga } from "sagas/BuildingBlockAdditionSagas";
+import { addAndMoveBuildingBlockToCanvasSaga } from "sagas/BuildingBlockSagas/BuildingBlockAdditionSagas";
 import { getUpdateDslAfterCreatingChild } from "sagas/WidgetAdditionSagas";
 import {
   executeWidgetBlueprintBeforeOperations,

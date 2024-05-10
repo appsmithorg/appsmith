@@ -65,7 +65,7 @@ export const getModalDropdownList = createSelector(
     return modalWidgets.map((widget: FlattenedWidgetProps) => ({
       id: widget.widgetId,
       label: widget.widgetName,
-      value: `${widget.widgetName}`,
+      value: `${widget.widgetName}.name`,
     }));
   },
 );
@@ -119,7 +119,7 @@ export const isWidgetSelected = (widgetId: string) => {
   );
 };
 
-export const isCurrentWidgetFocused = (widgetId: string) => {
+export const isWidgetFocused = (widgetId: string) => {
   return createSelector(
     getFocusedWidget,
     (widget): boolean => widget === widgetId,

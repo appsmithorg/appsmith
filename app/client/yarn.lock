@@ -3719,10 +3719,12 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@floating-ui/core@npm:^1.2.6":
-  version: 1.2.6
-  resolution: "@floating-ui/core@npm:1.2.6"
-  checksum: e4aa96c435277f1720d4bc939e17a79b1e1eebd589c20b622d3c646a5273590ff889b8c6e126f7be61873cf8c4d7db7d418895986ea19b8b0d0530de32504c3a
+"@floating-ui/core@npm:^1.0.0":
+  version: 1.6.1
+  resolution: "@floating-ui/core@npm:1.6.1"
+  dependencies:
+    "@floating-ui/utils": ^0.2.0
+  checksum: 77ae1bc49127a694f37464e78d8eb7971c346a8691ea62a038beeddb22b80910d326fe544267c2b15fa49ff23ae403bc2763658f6413b67dbd759ab950c11939
   languageName: node
   linkType: hard
 
@@ -3735,12 +3737,13 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@floating-ui/dom@npm:^1.2.7":
-  version: 1.2.8
-  resolution: "@floating-ui/dom@npm:1.2.8"
+"@floating-ui/dom@npm:^1.2.7, @floating-ui/dom@npm:^1.6.4":
+  version: 1.6.4
+  resolution: "@floating-ui/dom@npm:1.6.4"
   dependencies:
-    "@floating-ui/core": ^1.2.6
-  checksum: 02894774475a17baa498c86cd25d2825598e7de0734b8c08f7b8797b19c0bec13c4c726e529feb8bf26c6dee219c153ac1f90d8530a93534f765b3c04cfa3b4a
+    "@floating-ui/core": ^1.0.0
+    "@floating-ui/utils": ^0.2.0
+  checksum: 9cb061b19e3a4dca0e61caaa926eed34f74854df32d743e49f955b97679a097b5d60ee6bb74b7b0d17f4739e3089cf503f213bd3bc64c41328b7d34070ba4550
   languageName: node
   linkType: hard
 
@@ -3780,6 +3783,13 @@ __metadata:
     react: ">=16.8.0"
     react-dom: ">=16.8.0"
   checksum: 89e525412a5f71be1437ce74a3a76f4a6c771074e1dca62dddf11062dd9eca7b967091906c369427a0c8f9c9a7c6c7ae06525917e6809d60d832443a4acfc3f3
+  languageName: node
+  linkType: hard
+
+"@floating-ui/utils@npm:^0.2.0":
+  version: 0.2.2
+  resolution: "@floating-ui/utils@npm:0.2.2"
+  checksum: 3d8d46fd1b071c98e10d374e2dcf54d1eb9de0aa75ed2b994c9132ebf6f783f896f979053be71450bdb6d60021120cfc24d25a5c84ebb3db0994080e13d9762f
   languageName: node
   linkType: hard
 
@@ -12996,6 +13006,7 @@ __metadata:
     "@design-system/widgets": "workspace:^"
     "@design-system/widgets-old": "workspace:^"
     "@faker-js/faker": ^7.4.0
+    "@floating-ui/dom": ^1.6.4
     "@fusioncharts/powercharts": ^3.16.0
     "@github/g-emoji-element": ^1.1.5
     "@googlemaps/markerclusterer": ^2.0.14
@@ -13123,8 +13134,8 @@ __metadata:
     d3-geo: ^3.1.0
     dayjs: ^1.10.6
     deep-diff: ^1.0.2
-    design-system: "npm:@appsmithorg/design-system@2.1.39"
-    design-system-old: "npm:@appsmithorg/design-system-old@1.1.16"
+    design-system: "npm:@appsmithorg/design-system@2.1.40"
+    design-system-old: "npm:@appsmithorg/design-system-old@1.1.17"
     diff: ^5.0.0
     dotenv: ^8.1.0
     downloadjs: ^1.4.7
@@ -17144,9 +17155,9 @@ __metadata:
   languageName: node
   linkType: hard
 
-"design-system-old@npm:@appsmithorg/design-system-old@1.1.16":
-  version: 1.1.16
-  resolution: "@appsmithorg/design-system-old@npm:1.1.16"
+"design-system-old@npm:@appsmithorg/design-system-old@1.1.17":
+  version: 1.1.17
+  resolution: "@appsmithorg/design-system-old@npm:1.1.17"
   dependencies:
     emoji-mart: 3.0.1
   peerDependencies:
@@ -17166,13 +17177,13 @@ __metadata:
     remixicon-react: ^1.0.0
     styled-components: 5.3.6
     tinycolor2: ^1.4.2
-  checksum: 8fbfba86e54bdcbbb30b8e8b1902408ba0cb13f4d33d36c794f3bc0e281d0e2db8f716c10c6e0a3118f010db24f97c72606885bff4c320f41f5df9564ab6b214
+  checksum: f4e4faf58412912ca95e50ccf8554fa480bdfd8fb4628131f9a35df663207aec35469f340920f4ebe63568f29cc1e01a97c0f223ac753e0d574e099434588f06
   languageName: node
   linkType: hard
 
-"design-system@npm:@appsmithorg/design-system@2.1.39":
-  version: 2.1.39
-  resolution: "@appsmithorg/design-system@npm:2.1.39"
+"design-system@npm:@appsmithorg/design-system@2.1.40":
+  version: 2.1.40
+  resolution: "@appsmithorg/design-system@npm:2.1.40"
   dependencies:
     "@radix-ui/react-dialog": ^1.0.2
     "@radix-ui/react-dropdown-menu": ^2.0.4
@@ -17204,7 +17215,7 @@ __metadata:
     react-dom: ^17.0.2
     react-router-dom: ^5.0.0
     styled-components: ^5.3.6
-  checksum: 7b9ed99c41a8fc0b45db101b18bd87a5dde5ef54291843196d1e26bb60d217c7e552be01c914a859717a294caf2637aef7149afd07b6e224d81cb92f2c3b91b4
+  checksum: 0c45edd67a958fb0f192e405216b3103eb751197b49bb49c9377e9a6185f4a3de007142d5af2df03c9f2b2a9ac337604ca69d1065aac219d97e671f55ef37435
   languageName: node
   linkType: hard
 
