@@ -28,11 +28,8 @@ if [[ -z "${APPSMITH_RECAPTCHA_SITE_KEY}" ]] || [[ -z "${APPSMITH_RECAPTCHA_SECR
   unset APPSMITH_RECAPTCHA_ENABLED
 fi
 
-if [[ -z "${APPSMITH_GIT_ROOT:-}" ]]; then
-  export APPSMITH_GIT_ROOT=/appsmith-stacks/git-storage
-else
-  echo "WARNING: It appears a custom value has been configured for APPSMITH_GIT_ROOT. This behaviour is deprecated and will soon be removed."
-fi
+export APPSMITH_GIT_ROOT=/appsmith-stacks/git-storage
+
 mkdir -pv "$APPSMITH_GIT_ROOT"
 
 exec "$@"
