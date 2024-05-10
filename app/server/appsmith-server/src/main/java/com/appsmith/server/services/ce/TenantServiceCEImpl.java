@@ -74,8 +74,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     @Override
     public Mono<Tenant> updateTenantConfiguration(String tenantId, TenantConfiguration tenantConfiguration) {
         Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
-        return evictTenantCache
-                .then(repository.findById(tenantId, MANAGE_TENANT))
+        return repository
+                .findById(tenantId, MANAGE_TENANT)
                 .switchIfEmpty(Mono.error(
                         new AppsmithException(AppsmithError.ACL_NO_RESOURCE_FOUND, FieldName.TENANT, tenantId)))
                 .flatMap(tenant -> {
@@ -102,7 +102,13 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     TenantConfiguration oldConfig = tuple2.getT1();
                     AppsmithBeanUtils.copyNestedNonNullProperties(tenantConfiguration, oldConfig);
                     tenant.setTenantConfiguration(oldConfig);
-                    return repository.updateById(tenantId, tenant, MANAGE_TENANT);
+                    Mono<Tenant> updatedTenantMono = repository
+                            .updateById(tenantId, tenant, MANAGE_TENANT)
+                            .cache();
+                    // Firstly updating the Tenant object in the database and then evicting the cache.
+                    // returning the updatedTenant, notice the updatedTenantMono is cached using .cache()
+                    // hence it will not be evaluated again
+                    return updatedTenantMono.then(evictTenantCache).then(updatedTenantMono);
                 });
     }
 
