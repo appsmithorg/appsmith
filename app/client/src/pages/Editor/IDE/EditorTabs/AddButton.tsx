@@ -21,10 +21,11 @@ const AddButton = () => {
   }
   return (
     <Button
+      className="min-w-[24px]"
       data-testid="t--ide-split-screen-add-button"
       id="tabs-add-toggle"
       isIconButton
-      kind="secondary"
+      kind="tertiary"
       onClick={addClickHandler}
       size="sm"
       startIcon="add-line"

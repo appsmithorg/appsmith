@@ -4,7 +4,6 @@ import { createMessage } from "@appsmith/constants/messages";
 
 interface Props {
   titleMessage: () => string;
-  onCloseClick: () => void;
 }
 
 const SegmentAddHeader = (props: Props) => {

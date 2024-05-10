@@ -6,17 +6,13 @@ import { Flex, Tag } from "design-system";
 import { useDispatch, useSelector } from "react-redux";
 import { getCurrentPageId } from "selectors/editorSelectors";
 import GroupedList from "../components/GroupedList";
-import {
-  useGroupedAddJsOperations,
-  useJSAdd,
-} from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
+import { useGroupedAddJsOperations } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import type { AddProps } from "../types/AddProps";
 
 const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
   const dispatch = useDispatch();
   const pageId = useSelector(getCurrentPageId);
-  const closeButtonClickHandler = useJSAdd();
 
   const groupedJsOperations = useGroupedAddJsOperations();
 
@@ -49,7 +45,6 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
         {...innerContainerProps}
       >
         <SegmentAddHeader
-          onCloseClick={closeButtonClickHandler}
           titleMessage={EDITOR_PANE_TEXTS.js_create_tab_title}
         />
 

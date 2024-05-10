@@ -45,7 +45,7 @@ const FullScreenTabs = () => {
         onClose={closeClickHandler}
         tabs={files}
       />
-      <AddButton />
+      {files.length > 0 ? <AddButton /> : null}
       <Tooltip
         content={createMessage(MINIMIZE_BUTTON_TOOLTIP)}
         placement="bottomRight"

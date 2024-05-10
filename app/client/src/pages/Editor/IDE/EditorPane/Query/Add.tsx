@@ -7,15 +7,12 @@ import GroupedList from "../components/GroupedList";
 import {
   useAddQueryListItems,
   useGroupedAddQueryOperations,
-  useQueryAdd,
 } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import type { AddProps } from "../types/AddProps";
 
 const AddQuery = ({ containerProps, innerContainerProps }: AddProps) => {
   const { getListItems } = useAddQueryListItems();
   const groupedActionOperations = useGroupedAddQueryOperations();
-
-  const closeButtonClickHandler = useQueryAdd();
 
   return (
     <Flex justifyContent="center" p="spaces-3" {...containerProps}>
@@ -27,7 +24,6 @@ const AddQuery = ({ containerProps, innerContainerProps }: AddProps) => {
         {...innerContainerProps}
       >
         <SegmentAddHeader
-          onCloseClick={closeButtonClickHandler}
           titleMessage={EDITOR_PANE_TEXTS.query_create_tab_title}
         />
         <GroupedList
