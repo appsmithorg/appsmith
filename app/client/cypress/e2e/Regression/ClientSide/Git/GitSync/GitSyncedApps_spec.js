@@ -12,6 +12,7 @@ const dynamicInputLocators = require("../../../../../locators/DynamicInput.json"
 import gitSyncLocators from "../../../../../locators/gitSyncLocators";
 import homePageLocators from "../../../../../locators/HomePage";
 import datasource from "../../../../../locators/DatasourcesEditor.json";
+import widgetsPage from "../../../../../locators/Widgets.json";
 
 import {
   agHelper,
@@ -171,27 +172,27 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
 
   it("3. Commit and push changes, validate data binding on all pages in edit and deploy mode on master", () => {
     // verfiy data binding on all pages in edit mode
-    cy.get(".t--draggable-inputwidgetv2").should("be.visible");
-    cy.get(".t--draggable-inputwidgetv2")
+    cy.get(widgetsPage.inputWidget).should("be.visible");
+    cy.get(widgetsPage.inputWidget)
       .first()
-      .find(".bp3-input")
+      .find(widgetsPage.dataclass)
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
-    cy.get(".t--draggable-inputwidgetv2")
+    cy.get(widgetsPage.inputWidget)
       .last()
-      .find(".bp3-input")
+      .find(widgetsPage.dataclass)
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
 
     PageList.ShowList();
     EditorNavigation.SelectEntityByName(newPage, EntityType.Page);
-    cy.get(".t--draggable-inputwidgetv2")
+    cy.get(widgetsPage.inputWidget)
       .first()
-      .find(".bp3-input")
+      .find(widgetsPage.dataclass)
       .should("have.value", "morpheus");
-    cy.get(".t--draggable-inputwidgetv2")
+    cy.get(widgetsPage.inputWidget)
       .last()
-      .find(".bp3-input")
+      .find(widgetsPage.dataclass)
       .should("have.value", "This is a test");
 
     PageList.ShowList();
@@ -219,22 +220,22 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     });
     agHelper.GetNClickByContains(locators._deployedPage, `${newPage}`);
     agHelper.RefreshPage("getConsolidatedData");
-    cy.get(".bp3-input")
+    cy.get(widgetsPage.dataclass)
       .first()
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
-    cy.get(".bp3-input")
+    cy.get(widgetsPage.dataclass)
       .last()
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
     cy.get(".t--page-switch-tab")
       .contains(`${newPage} Copy`)
       .click({ force: true });
-    cy.get(".bp3-input")
+    cy.get(widgetsPage.dataclass)
       .first()
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
-    cy.get(".bp3-input")
+    cy.get(widgetsPage.dataclass)
       .last()
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
@@ -308,12 +309,12 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.closeGitSyncModal).click();
     // verfiy data binding on all pages in deploy mode
     cy.latestDeployPreview();
-    cy.get(".bp3-input").should("be.visible");
-    cy.get(".bp3-input")
+    cy.get(widgetsPage.dataclass).should("be.visible");
+    cy.get(widgetsPage.dataclass)
       .first()
       .invoke("val")
       .should("be.oneOf", ["Success", "Test user 7"]);
-    cy.get(".bp3-input")
+    cy.get(widgetsPage.dataclass)
       .last()
       .invoke("val")
       .should("be.oneOf", ["Success", "Test user 7"]);
@@ -326,21 +327,21 @@ describe("Git sync apps", { tags: ["@tag.Git"] }, function () {
       expect(cellData).to.be.equal("New Config");
     });
     agHelper.GetNClickByContains(locators._deployedPage, `${newPage}`);
-    cy.get(".bp3-input")
+    cy.get(widgetsPage.dataclass)
       .first()
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
-    cy.get(".bp3-input")
+    cy.get(widgetsPage.dataclass)
       .last()
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
 
     agHelper.GetNClickByContains(locators._deployedPage, `${newPage} Copy`);
-    cy.get(".bp3-input")
+    cy.get(widgetsPage.dataclass)
       .first()
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
-    cy.get(".bp3-input")
+    cy.get(widgetsPage.dataclass)
       .last()
       .invoke("val")
       .should("be.oneOf", ["morpheus", "This is a test"]);
