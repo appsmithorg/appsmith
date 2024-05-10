@@ -23,6 +23,7 @@ const regexMap = {
   shims: new RegExp(/shims\/.*.js/),
   profile: new RegExp(/v1\/(users\/profile|workspaces)/),
   appEditUrl: new RegExp(/\/app\/[\w\d-]+\/[\w\d]+-[a-f0-9]+\/edit/),
+  appViewUrl: new RegExp(/\/app\/[\w\d-]+\/[\w\d]+-[a-f0-9]+(\/)?/),
 };
 
 /* eslint-disable no-restricted-globals */
@@ -111,10 +112,15 @@ registerRoute(
     },
     async ({ event, request }) => {
       const isAppEditUrl = regexMap.appEditUrl.test(request.url);
+      const isAppViewUrl = regexMap.appViewUrl.test(request.url);
 
       if (isAppEditUrl) {
         const pageId = request.url.split("-").pop().split("/")[0];
         const apiUrl = `/api/v1/consolidated-api/edit?defaultPageId=${pageId}`;
+        handleApiRequest(apiUrl);
+      } else if (isAppViewUrl) {
+        const pageId = request.url.split("-").pop().split("/")[0];
+        const apiUrl = `/api/v1/consolidated-api/view?defaultPageId=${pageId}`;
         handleApiRequest(apiUrl);
       }
       const networkHandler = new NetworkOnly();
@@ -125,7 +131,7 @@ registerRoute(
 
 // Route for fetching the API directly
 registerRoute(
-  new RegExp("/api/v1/consolidated-api/edit"),
+  new RegExp("/api/v1/consolidated-api/"),
   async ({ url }) => handleApiRequest(url.href),
   "GET",
 );
