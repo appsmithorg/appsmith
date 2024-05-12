@@ -84,7 +84,8 @@ function WidgetCardComponent({
   onDragStart?: (e: any) => void;
 }) {
   const type = `${details.type.split("_").join("").toLowerCase()}`;
-  const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
+  const displayName = details.displayName.split(" ").join("").toLowerCase();
+  const className = `t--widget-card-draggable t--widget-card-draggable-${type} ${details.type === BUILDING_BLOCK_EXPLORER_TYPE ? `t--widget-card-draggable-${type}-${displayName}` : ""}`;
   const { ThumbnailCmp } = details;
 
   return (

@@ -1,13 +1,15 @@
+import { initialEntityCountForExplorerTag } from "../../../../../src/constants/WidgetConstants";
 import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   agHelper,
 } from "../../../../support/Objects/ObjectsCore";
+import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
+import explorerLocators from "../../../../locators/explorerlocators.json";
 
-const explorerLocators = require("../../../../locators/explorerlocators.json");
-
-// Taken from here appsmith/app/client/src/constants/WidgetConstants.tsx
-const MAX_BUILDING_BLOCKS_TO_DISPLAY = 9;
+const MAX_BUILDING_BLOCKS_TO_DISPLAY = initialEntityCountForExplorerTag[
+  "Building Blocks"
+] as number;
 
 describe(
   "Building blocks explorer tests",
@@ -185,29 +187,77 @@ describe(
         });
     });
 
-    it.only("5. Should drag and drop building block on canvas", () => {
+    it("5. Should drag and drop building block on canvas", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
-      cy.dragAndDropToCanvas("buildingblock", { x: 600, y: 80 });
-      // const x = 600;
-      // const y = 80;
-      // const selector = `.t--widget-card-draggable-building-blocks-edit`;
-      // cy.wait(500);
-      // cy.get(selector)
-      //   .first()
-      //   .trigger("dragstart", { force: true })
-      //   .trigger("mousemove", x, y, { force: true });
+      // primary api call for dropping building blocks on canvas
+      cy.intercept("POST", "/api/v1/applications/import/partial/block").as(
+        "blockImport",
+      );
+      const x = 600;
+      const y = 80;
+      // select this specific building block so the test works on release
+      const selector = `.t--widget-card-draggable-buildingblock-viewdata`;
+      cy.wait(500);
+      cy.get(selector)
+        .first()
+        .trigger("dragstart", { force: true })
+        .trigger("mousemove", x, y, { force: true });
 
-      // const option = {
-      //   eventConstructor: "MouseEvent",
-      //   scrollBehavior: false,
-      // } as any;
+      const option = {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      } as any;
 
-      // cy.get(explorerLocators.dropHere)
-      //   .trigger("mousemove", x, y, option)
-      //   .trigger("mousemove", x, y, option)
-      //   .trigger("mouseup", x, y, option);
-      // cy.wait(500);
-      // cy.assertPageSave();
+      cy.get(explorerLocators.dropHere)
+        .trigger("mousemove", x, y, option)
+        .trigger("mousemove", x, y, option)
+        .trigger("mouseup", x, y, option);
+
+      // check that loading skeleton is present
+      PageLeftPane.assertPresence("loading_view_data");
+      cy.wait("@blockImport").then(() => {
+        cy.assertPageSave();
+        // check that the main container of the block has been added to the canvas
+        PageLeftPane.assertPresence("con_viewData");
+      });
+    });
+
+    it("6. Should remove skeleton loader if /block API request fails", () => {
+      featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
+
+      // simluating a failure in the /block API request
+      cy.intercept("POST", "/api/v1/applications/import/partial/block", {
+        statusCode: 500,
+        delay: 1000,
+        body: {},
+      }).as("blockImport");
+
+      const x = 600;
+      const y = 80;
+      // select this specific building block so the test works on release
+      const selector = `.t--widget-card-draggable-buildingblock-viewdata`;
+      cy.wait(500);
+      cy.get(selector)
+        .first()
+        .trigger("dragstart", { force: true })
+        .trigger("mousemove", x, y, { force: true });
+
+      const option = {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      } as any;
+
+      cy.get(explorerLocators.dropHere)
+        .trigger("mousemove", x, y, option)
+        .trigger("mousemove", x, y, option)
+        .trigger("mouseup", x, y, option);
+
+      // check that loading skeleton is present
+      PageLeftPane.assertPresence("loading_view_data");
+      cy.wait("@blockImport").then(() => {
+        // check that the main container of the block has been added to the canvas
+        PageLeftPane.assertAbsence("loading_view_data");
+      });
     });
   },
 );
