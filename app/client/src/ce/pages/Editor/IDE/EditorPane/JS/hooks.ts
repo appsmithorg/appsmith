@@ -32,36 +32,28 @@ export const useJSAdd = () => {
     (opt) => opt.focusEntityType === FocusEntity.JS_MODULE_INSTANCE,
   );
 
-  return useCallback(() => {
-    if (jsModuleCreationOptions.length === 0) {
-      if (segmentMode === EditorEntityTabState.Add) {
-        const url = getJSUrl(currentEntityInfo, false);
-        history.push(url);
+  return useCallback(
+    (add: boolean) => {
+      if (jsModuleCreationOptions.length === 0) {
+        if (segmentMode === EditorEntityTabState.Add) {
+          const url = getJSUrl(currentEntityInfo, false);
+          history.push(url);
+        } else {
+          dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
+        }
       } else {
-        dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
+        if (currentEntityInfo.entity === FocusEntity.JS_OBJECT_ADD && add) {
+          return;
+        }
+        const url = getJSUrl(
+          currentEntityInfo,
+          !(segmentMode === EditorEntityTabState.Add),
+        );
+        history.push(url);
       }
-    } else {
-      if (
-        (currentEntityInfo.entity === FocusEntity.JS_OBJECT_ADD &&
-          segmentMode === EditorEntityTabState.Add) ||
-        (currentEntityInfo.entity !== FocusEntity.JS_OBJECT_ADD &&
-          segmentMode !== EditorEntityTabState.Add)
-      ) {
-        return;
-      }
-      const url = getJSUrl(
-        currentEntityInfo,
-        !(segmentMode === EditorEntityTabState.Add),
-      );
-      history.push(url);
-    }
-  }, [
-    dispatch,
-    pageId,
-    segmentMode,
-    currentEntityInfo,
-    jsModuleCreationOptions,
-  ]);
+    },
+    [dispatch, pageId, segmentMode, currentEntityInfo, jsModuleCreationOptions],
+  );
 };
 
 export const useIsJSAddLoading = () => {

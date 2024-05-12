@@ -93,7 +93,7 @@ const FileTabs = (props: Props) => {
               className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
               data-testid="t--tab-close-btn"
               name="close-line"
-              onClick={addClickHandler}
+              onClick={() => addClickHandler(false)}
             />
           </StyledTab>
         ) : null}

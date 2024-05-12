@@ -61,7 +61,7 @@ const ListJSObjects = () => {
           <Button
             className="t--add-item"
             kind={"secondary"}
-            onClick={addButtonClickHandler}
+            onClick={() => addButtonClickHandler(true)}
             size={"sm"}
             startIcon={"add-line"}
           >

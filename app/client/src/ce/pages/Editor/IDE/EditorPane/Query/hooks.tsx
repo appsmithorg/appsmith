@@ -27,10 +27,7 @@ import {
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import ApiEditor from "pages/Editor/APIEditor";
 import type { UseRoutes } from "@appsmith/entities/IDE/constants";
-import {
-  EditorEntityTabState,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import QueryEditor from "pages/Editor/QueryEditor";
 import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
 import ListQuery from "pages/Editor/IDE/EditorPane/Query/List";
@@ -46,23 +43,18 @@ export const useQueryAdd = () => {
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
   const { segmentMode } = useCurrentEditorState();
 
-  const addButtonClickHandler = useCallback(() => {
-    // if already in add mode, don call url function
-    // same for if not in add mode
-    if (
-      (currentEntityInfo.entity === FocusEntity.QUERY_ADD &&
-        segmentMode === EditorEntityTabState.Add) ||
-      (currentEntityInfo.entity !== FocusEntity.QUERY_ADD &&
-        segmentMode !== EditorEntityTabState.Add)
-    ) {
-      return;
-    }
-    const url = getQueryUrl(
-      currentEntityInfo,
-      !(segmentMode === EditorEntityTabState.Add),
-    );
-    history.push(url);
-  }, [currentEntityInfo, segmentMode]);
+  const addButtonClickHandler = useCallback(
+    (add: boolean) => {
+      // if already in add mode, don call url function
+      // same for if not in add mode
+      if (currentEntityInfo.entity === FocusEntity.QUERY_ADD && add) {
+        return;
+      }
+      const url = getQueryUrl(currentEntityInfo, add);
+      history.push(url);
+    },
+    [currentEntityInfo, segmentMode],
+  );
 
   return addButtonClickHandler;
 };
