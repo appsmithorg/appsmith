@@ -264,21 +264,16 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
      */
     protected Mono<ActionDTO> updateActionBasedOnContextType(NewAction newAction, ActionDTO action) {
         log.debug("Updating action based on context type with action id: {}", action != null ? action.getId() : null);
-        String defaultPageId =
-                newAction.getUnpublishedAction().getDefaultResources().getPageId();
-        String branchName = newAction.getDefaultResources().getBranchName();
+        String pageId = action.getPageId();
         action.setApplicationId(null);
         action.setPageId(null);
         return updateSingleAction(newAction.getId(), action)
-                .flatMap(updatedAction -> newPageService
-                        .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                        .flatMap(branchedPage -> updateLayoutService.updatePageLayoutsByPageId(branchedPage.getId()))
-                        .thenReturn(updatedAction))
+                .flatMap(updatedAction ->
+                        updateLayoutService.updatePageLayoutsByPageId(pageId).thenReturn(updatedAction))
                 .map(responseUtils::updateActionDTOWithDefaultResources)
-                .flatMap(actionDTO -> newPageService
-                        .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getEditPermission())
-                        .flatMap(newPage -> newPageService.getPageByViewMode(newPage, false))
-                        .map(pageDTO -> {
+                .zipWith(
+                        newPageService.findPageById(pageId, pagePermission.getEditPermission(), false),
+                        (actionDTO, pageDTO) -> {
                             // redundant check
                             if (pageDTO.getLayouts().size() > 0) {
                                 actionDTO.setErrorReports(
@@ -288,7 +283,7 @@ public class LayoutActionServiceCEImpl implements LayoutActionServiceCE {
                                     "Update action based on context type completed, returning actionDTO with action id: {}",
                                     actionDTO != null ? actionDTO.getId() : null);
                             return actionDTO;
-                        }));
+                        });
     }
 
     @Override

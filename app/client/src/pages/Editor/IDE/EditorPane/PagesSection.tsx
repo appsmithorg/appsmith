@@ -19,6 +19,7 @@ import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSele
 import { getInstanceId } from "@appsmith/selectors/tenantSelectors";
 import { PageElement } from "pages/Editor/IDE/EditorPane/components/PageElement";
 import { IDEHeaderDropdown } from "IDE";
+import { PAGE_ENTITY_NAME } from "@appsmith/constants/messages";
 
 const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
   const dispatch = useDispatch();
@@ -42,7 +43,7 @@ const PagesSection = ({ onItemSelected }: { onItemSelected: () => void }) => {
 
   const createPageCallback = useCallback(() => {
     const name = getNextEntityName(
-      "Page",
+      PAGE_ENTITY_NAME,
       pages.map((page: Page) => page.pageName),
     );
     dispatch(
