@@ -38,7 +38,7 @@ const FileTabs = (props: Props) => {
         inline: "nearest",
       });
     }
-  }, [tabs]);
+  }, [tabs, segmentMode]);
 
   const onCloseClick = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
