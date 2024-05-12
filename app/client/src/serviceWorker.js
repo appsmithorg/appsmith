@@ -110,17 +110,17 @@ registerRoute(
     ({ request, sameOrigin }) => {
       return sameOrigin && request.destination === "document";
     },
-    async ({ event, request }) => {
+    async ({ event, request, url }) => {
       const isAppEditUrl = regexMap.appEditUrl.test(request.url);
       const isAppViewUrl = regexMap.appViewUrl.test(request.url);
 
       if (isAppEditUrl) {
         const pageId = request.url.split("-").pop().split("/")[0];
-        const apiUrl = `/api/v1/consolidated-api/edit?defaultPageId=${pageId}`;
+        const apiUrl = `${url.origin}/api/v1/consolidated-api/edit?defaultPageId=${pageId}`;
         handleApiRequest(apiUrl);
       } else if (isAppViewUrl) {
         const pageId = request.url.split("-").pop().split("/")[0];
-        const apiUrl = `/api/v1/consolidated-api/view?defaultPageId=${pageId}`;
+        const apiUrl = `${url.origin}/api/v1/consolidated-api/view?defaultPageId=${pageId}`;
         handleApiRequest(apiUrl);
       }
       const networkHandler = new NetworkOnly();
@@ -132,6 +132,8 @@ registerRoute(
 // Route for fetching the API directly
 registerRoute(
   new RegExp("/api/v1/consolidated-api/"),
-  async ({ url }) => handleApiRequest(url.href),
+  async ({ url }) => {
+    return handleApiRequest(url.href);
+  },
   "GET",
 );
