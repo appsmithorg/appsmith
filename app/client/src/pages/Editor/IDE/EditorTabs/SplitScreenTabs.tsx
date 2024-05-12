@@ -61,7 +61,7 @@ const SplitScreenTabs = () => {
 
         <Tooltip content={createMessage(MAXIMIZE_BUTTON_TOOLTIP)}>
           <Button
-            className="ml-auto min-w-[24px]"
+            className="ml-auto !min-w-[24px]"
             data-testid="t--ide-maximize"
             id="editor-mode-maximize"
             isIconButton

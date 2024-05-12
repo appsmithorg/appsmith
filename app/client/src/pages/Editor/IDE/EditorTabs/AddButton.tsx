@@ -21,7 +21,7 @@ const AddButton = () => {
   }
   return (
     <Button
-      className="min-w-[24px]"
+      className="!min-w-[24px]"
       data-testid="t--ide-tabs-add-button"
       id="tabs-add-toggle"
       isIconButton
