@@ -6,10 +6,17 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 import explorerLocators from "../../../../locators/explorerlocators.json";
+import { sample } from "lodash";
 
 const MAX_BUILDING_BLOCKS_TO_DISPLAY = initialEntityCountForExplorerTag[
   "Building Blocks"
 ] as number;
+
+const samepleBuildingBlockData = {
+  skeletonLoaderName: "loading_edit_data",
+  mainContainerName: "con_main",
+  selector: ".t--widget-card-draggable-buildingblock-editdata",
+};
 
 describe(
   "Building blocks explorer tests",
@@ -196,7 +203,7 @@ describe(
       const x = 600;
       const y = 80;
       // select this specific building block so the test works on release
-      const selector = `.t--widget-card-draggable-buildingblock-viewdata`;
+      const selector = samepleBuildingBlockData.selector;
       cy.wait(500);
       cy.get(selector)
         .first()
@@ -214,11 +221,11 @@ describe(
         .trigger("mouseup", x, y, option);
 
       // check that loading skeleton is present
-      PageLeftPane.assertPresence("loading_view_data");
+      PageLeftPane.assertPresence(samepleBuildingBlockData.skeletonLoaderName);
       cy.wait("@blockImport").then(() => {
         cy.assertPageSave();
         // check that the main container of the block has been added to the canvas
-        PageLeftPane.assertPresence("con_viewData");
+        PageLeftPane.assertPresence(samepleBuildingBlockData.mainContainerName);
       });
     });
 
@@ -235,7 +242,7 @@ describe(
       const x = 600;
       const y = 80;
       // select this specific building block so the test works on release
-      const selector = `.t--widget-card-draggable-buildingblock-viewdata`;
+      const selector = samepleBuildingBlockData.selector;
       cy.wait(500);
       cy.get(selector)
         .first()
@@ -253,10 +260,10 @@ describe(
         .trigger("mouseup", x, y, option);
 
       // check that loading skeleton is present
-      PageLeftPane.assertPresence("loading_view_data");
+      PageLeftPane.assertPresence(samepleBuildingBlockData.skeletonLoaderName);
       cy.wait("@blockImport").then(() => {
         // check that the main container of the block has been added to the canvas
-        PageLeftPane.assertAbsence("loading_view_data");
+        PageLeftPane.assertAbsence(samepleBuildingBlockData.skeletonLoaderName);
       });
     });
   },
