@@ -281,7 +281,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
                     predicate =
-                            addPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
 
                     cq.where(predicate);
 
@@ -355,7 +355,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
                     predicate =
-                            addPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
 
                     cq.where(predicate);
                     if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
@@ -402,7 +402,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
                     }
                     predicate =
-                            addPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
+                            getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
 
                     cq.where(predicate);
                     cq.select(cb.count(root));
@@ -483,7 +483,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         if (!specifications.isEmpty()) {
             predicate = cb.and(Specification.allOf(specifications).toPredicate(root, cq, cb), predicate);
         }
-        predicate = addPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
+        predicate = getPermissionGroupsPredicate(permissionGroups, params.getPermission(), cb, root, predicate);
 
         cu.where(predicate);
 
@@ -622,7 +622,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
         return cacheableRepositoryHelper.getPermissionGroupsOfAnonymousUser();
     }
 
-    private Predicate addPermissionGroupsPredicate(
+    private Predicate getPermissionGroupsPredicate(
             ArrayList<String> permissionGroups,
             AclPermission permission,
             CriteriaBuilder cb,
