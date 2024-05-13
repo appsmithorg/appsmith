@@ -189,7 +189,11 @@ const HeaderCellComponent = (props: HeaderProps) => {
           </Text>
         </Flex>
       </div>
-      <Flex alignItems="center" gap="spacing-1">
+      <Flex
+        alignItems="center"
+        gap="spacing-1"
+        style={{ pointerEvents: "none" }}
+      >
         {props.isAscOrder !== undefined && (
           <Icon
             name={props.isAscOrder ? "arrow-up" : "arrow-down"}
@@ -206,11 +210,6 @@ const HeaderCellComponent = (props: HeaderProps) => {
           <MenuList>
             <Item key="sort-asc">Sort column ascending</Item>
             <Item key="sort-desc">Sort column descending</Item>
-            <Item isSeparator key="separator">
-              Separator
-            </Item>
-            <Item key="freeze-left">Freeze column left</Item>
-            <Item key="freeze-right">Freeze column right</Item>
           </MenuList>
         </Menu>
       </Flex>
