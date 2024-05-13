@@ -37,6 +37,7 @@ import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
 import { Tag, type ListItemProps } from "design-system";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
+import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 
 export const useQueryAdd = () => {
   const location = useLocation();
@@ -195,16 +196,19 @@ export const useAddQueryListItems = () => {
 
   const getListItems = (data: any[]) => {
     return data.map((fileOperation) => {
+      const title =
+        fileOperation.entityExplorerTitle ||
+        fileOperation.dsName ||
+        fileOperation.title;
+      const className = createAddClassName(title);
       const icon =
         fileOperation.icon ||
         (fileOperation.pluginId &&
           getPluginEntityIcon(pluginGroups[fileOperation.pluginId]));
       return {
         startIcon: icon,
-        title:
-          fileOperation.entityExplorerTitle ||
-          fileOperation.dsName ||
-          fileOperation.title,
+        wrapperClassName: className,
+        title,
         description: !!fileOperation.isBeta ? (
           <Tag isClosable={false}>Beta</Tag>
         ) : (

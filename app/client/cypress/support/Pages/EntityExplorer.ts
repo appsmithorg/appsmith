@@ -8,6 +8,7 @@ import EditorNavigation, {
   PageLeftPane,
   PagePaneSegment,
 } from "./EditorNavigation";
+import AddView from "./IDE/AddView";
 import PageList from "./PageList";
 
 type templateActions =
@@ -49,6 +50,7 @@ export class EntityExplorer {
   public locator = ObjectsRegistry.CommonLocators;
   private modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   private assertHelper = ObjectsRegistry.AssertHelper;
+  private addView = new AddView();
 
   public _contextMenu = (entityNameinLeftSidebar: string) =>
     "//div[text()='" +
@@ -247,8 +249,8 @@ export class EntityExplorer {
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.switchToAddNew();
-    let overlayItem = this._visibleTextSpan(dsName);
-    this.agHelper.GetNClick(overlayItem);
+    let overlayItem = this.addView.getCreateOptions(dsName);
+    overlayItem.click({ force: true });
   }
 
   public CopyPasteWidget(widgetName: string) {

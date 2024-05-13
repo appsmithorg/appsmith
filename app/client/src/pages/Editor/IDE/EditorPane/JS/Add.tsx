@@ -9,6 +9,7 @@ import GroupedList from "../components/GroupedList";
 import { useGroupedAddJsOperations } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import type { ActionOperation } from "components/editorComponents/GlobalSearch/utils";
 import type { AddProps } from "../types/AddProps";
+import { createAddClassName } from "../utils";
 
 const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
   const dispatch = useDispatch();
@@ -26,12 +27,14 @@ const AddJS = ({ containerProps, innerContainerProps }: AddProps) => {
   );
 
   const getListItems = (data: ActionOperation) => {
+    const title = data.entityExplorerTitle || data.title;
     return {
       startIcon: data.icon,
-      title: data.entityExplorerTitle || data.title,
+      title,
       description: !!data.isBeta ? <Tag isClosable={false}>Beta</Tag> : "",
       descriptionType: "inline",
       onClick: onCreateItemClick.bind(null, data),
+      wrapperClassName: createAddClassName(title),
     } as ListItemProps;
   };
 
