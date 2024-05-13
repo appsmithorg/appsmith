@@ -1,6 +1,19 @@
 import React from "react";
 import { EmptyRows, Row } from "./Row";
-import type { StaticTableProps } from "./types";
+import type {
+  TableBodyProps,
+  TableBodyPropGetter,
+  Row as ReactTableRowType,
+} from "react-table";
+
+export interface StaticTableProps {
+  getTableBodyProps(
+    propGetter?: TableBodyPropGetter<Record<string, unknown>> | undefined,
+  ): TableBodyProps;
+  pageSize: number;
+  rows: ReactTableRowType<Record<string, unknown>>[];
+  height: number;
+}
 
 export const StaticTableBody = (props: StaticTableProps) => {
   return (

@@ -642,9 +642,9 @@ export class HomePage {
     cy.xpath(this._uploadFile).selectFile("cypress/fixtures/" + fixtureJson, {
       force: true,
     });
-    cy.wait("@importNewApplication")
-      .its("response.statusCode")
-      .should("eq", 200);
+    this.agHelper.WaitUntilEleDisappear(
+      HomePageLocators.workspaceImportAppModal,
+    );
     this.agHelper.AssertElementAbsence(
       this.locator._specificToast(createMessage(UNABLE_TO_IMPORT_APP)),
     );
