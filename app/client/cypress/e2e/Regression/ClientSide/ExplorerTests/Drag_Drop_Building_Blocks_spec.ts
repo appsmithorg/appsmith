@@ -3,7 +3,6 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   agHelper,
-  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 import explorerLocators from "../../../../locators/explorerlocators.json";
