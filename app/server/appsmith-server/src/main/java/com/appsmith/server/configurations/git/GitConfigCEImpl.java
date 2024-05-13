@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class GitConfigCEImpl implements GitConfigCE {
 
-    TenantService tenantService;
+    private final TenantService tenantService;
 
     @Override
     public Mono<Boolean> getIsAtomicPushAllowed() {
