@@ -19,7 +19,6 @@ describe(
     beforeEach(() => {
       PageList.AddNewPage("New blank page");
       featureFlagIntercept({
-        ab_show_templates_instead_of_blank_canvas_enabled: true,
         release_drag_drop_building_blocks_enabled: false,
       });
     });

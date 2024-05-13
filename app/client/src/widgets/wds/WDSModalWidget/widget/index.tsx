@@ -60,6 +60,12 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
     return config.methodsConfig;
   }
 
+  static getDerivedPropertiesMap() {
+    return {
+      name: "{{this.widgetName}}",
+    };
+  }
+
   static *performPasteOperation(
     allWidgets: CanvasWidgetsReduxState,
     copiedWidgets: CopiedWidgetData[],

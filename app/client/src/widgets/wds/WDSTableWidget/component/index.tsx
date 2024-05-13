@@ -51,7 +51,6 @@ interface ReactTableComponentProps {
   handleReorderColumn: (columnOrder: string[]) => void;
   onSearch: (searchKey: any) => void;
   filters?: ReactTableFilter[];
-  applyFilter: (filters: ReactTableFilter[]) => void;
   columns: ReactTableColumnProps[];
   compactMode?: CompactMode;
   isVisibleSearch?: boolean;
@@ -89,7 +88,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     allowAddNewRow,
     allowRowSelection,
     allowSorting,
-    applyFilter,
     borderColor,
     borderWidth,
     canFreezeColumn,
@@ -199,7 +197,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
     <Table
       accentColor={props.accentColor}
       allowAddNewRow={allowAddNewRow}
-      applyFilter={applyFilter}
       borderColor={borderColor}
       borderRadius={props.borderRadius}
       borderWidth={borderWidth}
@@ -260,7 +257,6 @@ function ReactTableComponent(props: ReactTableComponentProps) {
 
 export default React.memo(ReactTableComponent, (prev, next) => {
   return (
-    prev.applyFilter === next.applyFilter &&
     prev.compactMode === next.compactMode &&
     prev.delimiter === next.delimiter &&
     prev.disableDrag === next.disableDrag &&
