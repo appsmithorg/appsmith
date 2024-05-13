@@ -302,6 +302,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
 
                     if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
                         List<Selection<?>> projectionFields = new ArrayList<>();
+                        // TODO: Nested fields are not supported yet.
                         getAllFields(projectionClass).forEach(f -> projectionFields.add(root.get(f.getName())));
                         cq.multiselect(projectionFields);
                     }
@@ -312,7 +313,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                         query.setMaxResults(params.getLimit());
                     }
 
-                    // All public access is via a single permission group. Fetch the same and set the cache with it.
                     return Mono.fromSupplier(query::getResultList)
                             .map(tuple -> {
                                 if (genericDomain.getSimpleName().equals(projectionClass.getSimpleName())) {
@@ -361,22 +361,12 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                     if (!projectionClass.getSimpleName().equals(genericDomain.getSimpleName())) {
                         List<Selection<?>> projectionFields = new ArrayList<>();
                         getAllFields(projectionClass).forEach(f -> {
-                            /*
-                            Throws java.lang.IllegalStateException: Basic paths cannot be dereferenced from
-                            org.hibernate.metamodel.model.domain.internal.BasicSqmPathSource.findSubPathSource(BasicSqmPathSource.java:38)
-                            if (f.getType().getPackageName().contains("projection") && f.getType().getDeclaredFields().length > 0) {
-                                getAllFields(f.getType())
-                                    .forEach(nestedField -> {
-                                        projectionFields.add(root.get(f.getName()).get(nestedField.getName()));
-                                    });
-                            }
-                             */
+                            // TODO: Nested fields are not supported yet.
                             projectionFields.add(root.get(f.getName()));
                         });
                         cq.multiselect(projectionFields);
                     }
 
-                    // All public access is via a single permission group. Fetch the same and set the cache with it.
                     return Mono.fromSupplier(entityManager.createQuery(cq)::getSingleResult)
                             .map(tuple -> {
                                 if (genericDomain.getSimpleName().equals(projectionClass.getSimpleName())) {
