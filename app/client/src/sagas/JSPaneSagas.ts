@@ -585,14 +585,17 @@ function* handleUpdateJSCollectionBody(
   jsCollection["body"] = actionPayload.payload.body;
   try {
     if (jsCollection) {
-      const response: JSCollectionCreateUpdateResponse =
-        yield JSActionAPI.updateJSCollection(jsCollection);
+      const response: ApiResponse<any> =
+        yield JSActionAPI.updateJSCollectionBody(
+          jsCollection.id,
+          jsCollection.body,
+        );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         // since server is not sending the info about whether the js collection is main or not
         // we are retaining it manually
         const updatedJSCollection: JSCollection = {
-          ...response.data,
+          ...jsCollection,
           isMainJSCollection: !!jsCollection.isMainJSCollection,
         };
         yield put(
