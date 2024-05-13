@@ -11,7 +11,6 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
 import com.mongodb.client.model.UpdateOneModel;
@@ -76,9 +75,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  */
 @Slf4j
 public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
-
-    @Autowired
-    ObjectMapper objectMapper;
 
     @Autowired
     private ReactiveMongoOperations mongoOperations;
@@ -258,7 +254,8 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
     }
 
     public Mono<T> queryOneExecute(QueryAllParams<T> params) {
-        return queryOneExecute(params, this.genericDomain);
+        return queryOneExecute(params, this.genericDomain)
+                .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()));
     }
 
     public <P> Mono<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
@@ -272,20 +269,6 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                                 params.getPermission())
                         .cursorBatchSize(10_000))
                 .one()));
-    }
-
-    private Mono<T> queryOneExecute(QueryAllParams<T> params, List<String> projectionFields) {
-        List<String> fields = new ArrayList<>(projectionFields);
-        if (isEmpty(fields)) {
-            fields.addAll(params.getFields());
-        }
-        return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> mongoOperations
-                .query(this.genericDomain)
-                .matching(createQueryWithPermission(
-                                params.getCriteria(), fields, params.getPermissionGroups(), params.getPermission())
-                        .cursorBatchSize(10_000))
-                .one()
-                .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()))));
     }
 
     public Mono<T> queryFirstExecute(QueryAllParams<T> params) {
