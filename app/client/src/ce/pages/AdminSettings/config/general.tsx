@@ -115,7 +115,10 @@ export const APPSMITH_USER_SESSION_TIMEOUT_SETTING: Setting = {
   subText:
     "* Default duration is 30 days. To change, enter the new duration in DD:HH:MM format",
   helpText:
-    "Users' session will automatically end if there's no activity for the specified duration, requiring them to log in again for security. The duration can be set between 1 minute and 30 days."
+    "Users' session will automatically end if there's no activity for the specified duration, requiring them to log in again for security. The duration can be set between 1 minute and 30 days.",
+  isFeatureEnabled: false,
+  isEnterprise: true,
+  isDisabled: () => true,
 };
 
 export const APPSMITH_IS_ATOMIC_PUSH_ALLOWED: Setting = {
@@ -124,8 +127,7 @@ export const APPSMITH_IS_ATOMIC_PUSH_ALLOWED: Setting = {
   category: SettingCategories.GENERAL,
   controlType: SettingTypes.CHECKBOX,
   label: "Allow atomic pushes",
-  text:
-    "Git operations on this tenant should attempt to perform pushes atomically"
+  text: "Git operations on this tenant should attempt to perform pushes atomically",
 };
 
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
