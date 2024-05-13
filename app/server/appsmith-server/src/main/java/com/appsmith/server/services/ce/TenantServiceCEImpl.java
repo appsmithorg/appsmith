@@ -108,7 +108,6 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     // Firstly updating the Tenant object in the database and then evicting the cache.
                     // returning the updatedTenant, notice the updatedTenantMono is cached using .cache()
                     // hence it will not be evaluated again
-                    //                    return updatedTenantMono.then(evictTenantCache).then(updatedTenantMono);
                     return updatedTenantMono
                             .then(Mono.defer(() -> evictTenantCache))
                             .then(updatedTenantMono);
@@ -168,7 +167,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     public Mono<Tenant> getDefaultTenant() {
         // Fetching Tenant from redis cache
         return getDefaultTenantId()
-                .flatMap(tenantId -> cacheableRepositoryHelper.fetchCachedTenant(tenantId))
+                .flatMap(tenantId -> cacheableRepositoryHelper.fetchDefaultTenant(tenantId))
                 .flatMap(tenant -> repository.setUserPermissionsInObject(tenant).switchIfEmpty(Mono.just(tenant)));
     }
 
@@ -200,9 +199,12 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         return Mono.just(clientTenant);
     }
 
+    // This function is used to save the tenant object in the database and evict the cache
     @Override
     public Mono<Tenant> save(Tenant tenant) {
-        return repository.save(tenant);
+        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
+        Mono<Tenant> savedTenantMono = repository.save(tenant).cache();
+        return savedTenantMono.then(Mono.defer(() -> evictTenantCache)).then(savedTenantMono);
     }
 
     /**
