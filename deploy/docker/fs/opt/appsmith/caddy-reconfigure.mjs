@@ -7,10 +7,18 @@ import {X509Certificate} from "crypto"
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
 
-// Rate limit, numeric value defining the requests-per-second allowed.
-const RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 100, 10)
-
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
+
+// Rate limit environment.
+const RATE_LIMIT_ENV = (process.env._APPSMITH_RATE_LIMIT)
+
+if (RATE_LIMIT_ENV == "disabled") {
+        var RATE_LIMIT = undefined
+}
+else {
+        // Rate limit, numeric value defining the requests-per-second allowed.
+        var RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 100, 10)
+}
 
 let certLocation = null
 if (CUSTOM_DOMAIN !== "") {
@@ -39,6 +47,111 @@ const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'
 
 const parts = []
 
+if (RATE_LIMIT == undefined ) {
+
+parts.push(`
+{
+  debug
+  admin 127.0.0.1:2019
+  persist_config off
+  acme_ca_root /etc/ssl/certs/ca-certificates.crt
+  servers {
+    trusted_proxies static 0.0.0.0/0
+  }
+}
+
+(file_server) {
+  file_server {
+    precompressed br gzip
+    disable_canonical_uris
+  }
+}
+
+(reverse_proxy) {
+  reverse_proxy {
+    to 127.0.0.1:{args[0]}
+    header_up -Forwarded
+    header_up X-Appsmith-Request-Id {http.request.uuid}
+  }
+}
+
+(all-config) {
+  log {
+    output stdout
+  }
+  skip_log /api/v1/health
+
+  # The internal request ID header should never be accepted from an incoming request.
+  request_header -X-Appsmith-Request-Id
+
+  # Ref: https://stackoverflow.com/a/38191078/151048
+  # We're only accepting v4 UUIDs today, in order to not make it too lax unless needed.
+  @valid-request-id expression {header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @valid-request-id X-Request-Id {header.X-Request-Id}
+  @invalid-request-id expression !{header.X-Request-Id}.matches("(?i)^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$")
+  header @invalid-request-id X-Request-Id invalid_request_id
+  request_header @invalid-request-id X-Request-Id invalid_request_id
+
+  header {
+    -Server
+    Content-Security-Policy "frame-ancestors ${frameAncestorsPolicy}"
+    X-Content-Type-Options "nosniff"
+    X-Appsmith-Request-Id {http.request.uuid}
+  }
+
+  request_body {
+    max_size ${process.env.APPSMITH_CODEC_SIZE || 150}MB
+  }
+
+  handle {
+    root * {$WWW_PATH}
+    try_files /loading.html /index.html
+    import file_server
+  }
+  root * /opt/appsmith/editor
+  @file file
+  handle @file {
+    import file_server
+    skip_log
+  }
+
+  handle /static/* {
+    error 404
+  }
+
+  handle /info {
+    root * /opt/appsmith
+    rewrite * /info.json
+    import file_server
+  }
+
+  @backend path /api/* /oauth2/* /login/*
+  handle @backend {
+    import reverse_proxy 8080
+  }
+
+  handle /rts/* {
+    import reverse_proxy 8091
+  }
+
+  redir /supervisor /supervisor/
+  handle_path /supervisor/* {
+    import reverse_proxy 9001
+  }
+
+  handle_errors {
+    respond "{err.status_code} {err.status_text}" {err.status_code}
+    header -Server
+  }
+}
+
+# We bind to http on 80, so that localhost requests don't get redirected to https.
+:80 {
+  import all-config
+}
+`)
+
+}else{
 parts.push(`
 {
   debug
@@ -150,6 +263,7 @@ parts.push(`
   import all-config
 }
 `)
+}
 
 if (CUSTOM_DOMAIN !== "") {
   if (certLocation) {

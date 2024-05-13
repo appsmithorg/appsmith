@@ -447,6 +447,13 @@ runEmbeddedPostgres=1
 init_postgres || runEmbeddedPostgres=0
 }
 
+setup_caddy() {
+  if [[ $_APPSMITH_RATE_LIMIT == "disabled" ]]; then
+    echo "rate limiting is disabled"
+    mv /opt/basecaddy/caddy /opt/caddy/caddy
+  fi
+}
+
 init_loading_pages(){
   export XDG_DATA_HOME=/appsmith-stacks/data  # so that caddy saves tls certs and other data under stacks/data/caddy
   export XDG_CONFIG_HOME=/appsmith-stacks/configuration
@@ -474,6 +481,7 @@ function capture_infra_details(){
 
 # Main Section
 print_appsmith_info
+setup_caddy
 init_loading_pages
 unset_unused_variables
 
