@@ -1,7 +1,6 @@
 import { Alignment } from "@blueprintjs/core";
 import type { ColumnProperties } from "../component/Constants";
 import { StickyType } from "../component/Constants";
-import { CellAlignmentTypes } from "../component/Constants";
 import type { TableWidgetProps } from "../constants";
 import { ColumnTypes, InlineEditingSaveOptions } from "../constants";
 import _, { findIndex, get, isBoolean } from "lodash";
@@ -540,14 +539,14 @@ export const updateNumberColumnTypeTextAlignment = (
     return [
       {
         propertyPath: `${baseProperty}.horizontalAlignment`,
-        propertyValue: CellAlignmentTypes.RIGHT,
+        propertyValue: "end",
       },
     ];
   } else {
     return [
       {
         propertyPath: `${baseProperty}.horizontalAlignment`,
-        propertyValue: CellAlignmentTypes.LEFT,
+        propertyValue: "start",
       },
     ];
   }

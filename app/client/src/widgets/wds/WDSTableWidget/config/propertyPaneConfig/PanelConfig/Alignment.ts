@@ -5,14 +5,6 @@ import { hideByColumnType } from "../../../widget/propertyUtils";
 
 export default {
   sectionName: "Alignment",
-  hidden: (props: TableWidgetProps, propertyPath: string) => {
-    return hideByColumnType(
-      props,
-      propertyPath,
-      [ColumnTypes.CHECKBOX, ColumnTypes.SWITCH],
-      true,
-    );
-  },
   children: [
     {
       propertyName: "horizontalAlignment",
@@ -22,18 +14,18 @@ export default {
       options: [
         {
           startIcon: "align-left",
-          value: "LEFT",
+          value: "start",
         },
         {
           startIcon: "align-center",
-          value: "CENTER",
+          value: "center",
         },
         {
           startIcon: "align-right",
-          value: "RIGHT",
+          value: "end",
         },
       ],
-      defaultValue: "LEFT",
+      defaultValue: "start",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       dependencies: ["primaryColumns", "columnOrder"],
@@ -43,20 +35,16 @@ export default {
         params: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: ["LEFT", "CENTER", "RIGHT"],
+            allowedValues: ["start", "center", "end"],
           },
         },
       },
       isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
-          ColumnTypes.TEXT,
-          ColumnTypes.DATE,
-          ColumnTypes.NUMBER,
-          ColumnTypes.CURRENCY,
           ColumnTypes.URL,
-          ColumnTypes.CHECKBOX,
-          ColumnTypes.SWITCH,
+          ColumnTypes.TEXT,
+          ColumnTypes.NUMBER,
         ]);
       },
     },
@@ -68,18 +56,18 @@ export default {
       options: [
         {
           startIcon: "vertical-align-top",
-          value: "TOP",
+          value: "start",
         },
         {
           startIcon: "vertical-align-middle",
-          value: "CENTER",
+          value: "center",
         },
         {
           startIcon: "vertical-align-bottom",
-          value: "BOTTOM",
+          value: "end",
         },
       ],
-      defaultValue: "CENTER",
+      defaultValue: "center",
       isJSConvertible: true,
       customJSControl: "TABLE_COMPUTE_VALUE",
       dependencies: ["primaryColumns", "columnOrder"],
@@ -89,20 +77,16 @@ export default {
         params: {
           type: ValidationTypes.TEXT,
           params: {
-            allowedValues: ["TOP", "CENTER", "BOTTOM"],
+            allowedValues: ["start", "center", "end"],
           },
         },
       },
       isTriggerProperty: false,
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         return hideByColumnType(props, propertyPath, [
-          ColumnTypes.TEXT,
-          ColumnTypes.DATE,
-          ColumnTypes.NUMBER,
-          ColumnTypes.CURRENCY,
           ColumnTypes.URL,
-          ColumnTypes.CHECKBOX,
-          ColumnTypes.SWITCH,
+          ColumnTypes.TEXT,
+          ColumnTypes.NUMBER,
         ]);
       },
     },
