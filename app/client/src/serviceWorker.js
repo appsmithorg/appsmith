@@ -37,21 +37,20 @@ skipWaiting();
 clientsClaim();
 
 const CACHE_NAME = "api-cache";
-const API_CACHE_DURATION = 10000; // Cache duration in milliseconds (10 seconds)
 const pendingApiRequests = new Map();
 
 // Function to handle API requests with caching, deduplication, and expiration
-const handleApiRequest = async (apiUrl) => {
+const handleCachedApiRequest = async (apiUrl, resetCache = false) => {
   const cache = await caches.open(CACHE_NAME);
   let cachedResponse = await cache.match(apiUrl);
-  let now = Date.now();
 
   // Check if there is a valid cached response
-  if (
-    cachedResponse &&
-    new Date(cachedResponse.headers.get("sw-cache-expires")) > now
-  ) {
+  if (cachedResponse && !resetCache) {
     return cachedResponse; // Serve from cache
+  }
+
+  if (resetCache) {
+    await cache.delete(apiUrl);
   }
 
   // Check for ongoing request
@@ -64,19 +63,7 @@ const handleApiRequest = async (apiUrl) => {
       if (response.ok) {
         const clonedResponse = response.clone();
         // Store in cache with expiration header
-        const headers = new Headers(clonedResponse.headers);
-        headers.set(
-          "sw-cache-expires",
-          new Date(now + API_CACHE_DURATION).toString(),
-        );
-        await cache.put(
-          apiUrl,
-          new Response(clonedResponse.body, {
-            status: clonedResponse.status,
-            statusText: clonedResponse.statusText,
-            headers: headers,
-          }),
-        );
+        await cache.put(apiUrl, clonedResponse);
       }
       return response;
     })
@@ -118,11 +105,11 @@ registerRoute(
       if (isAppEditUrl) {
         const pageId = request.url.split("-").pop().split("/")[0];
         const apiUrl = `${url.origin}/api/v1/consolidated-api/edit?defaultPageId=${pageId}`;
-        apiFetchPromise = handleApiRequest(apiUrl);
+        apiFetchPromise = handleCachedApiRequest(apiUrl, true);
       } else if (isAppViewUrl) {
         const pageId = request.url.split("-").pop().split("/")[0];
         const apiUrl = `${url.origin}/api/v1/consolidated-api/view?defaultPageId=${pageId}`;
-        apiFetchPromise = handleApiRequest(apiUrl);
+        apiFetchPromise = handleCachedApiRequest(apiUrl, true);
       }
       const networkHandler = new NetworkOnly();
       const htmlPromise = networkHandler.handle({ event, request });
@@ -140,7 +127,7 @@ registerRoute(
 registerRoute(
   new RegExp("/api/v1/consolidated-api/"),
   async ({ url }) => {
-    return handleApiRequest(url.href);
+    return handleCachedApiRequest(url.href);
   },
   "GET",
 );
