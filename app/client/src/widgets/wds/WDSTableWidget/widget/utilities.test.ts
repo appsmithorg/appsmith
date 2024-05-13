@@ -10,7 +10,6 @@ import {
   getColumnType,
   getDerivedColumns,
   getOriginalRowIndex,
-  getSelectOptions,
   getSelectRowIndex,
   getSelectRowIndices,
   getSourceDataAndCaluclateKeysForEventAutoComplete,
@@ -966,16 +965,16 @@ describe("getTableStyles - ", () => {
         textSize: "HEADING1",
         fontStyle: "12",
         cellBackground: "#f00",
-        verticalAlignment: "TOP",
-        horizontalAlignment: "CENTER",
+        verticalAlignment: "start",
+        horizontalAlignment: "center",
       }) as any as TableStyles,
     ).toEqual({
       textColor: "#fff",
       textSize: "HEADING1",
       fontStyle: "12",
       cellBackground: "#f00",
-      verticalAlignment: "TOP",
-      horizontalAlignment: "CENTER",
+      verticalAlignment: "start",
+      horizontalAlignment: "center",
     });
   });
 });
@@ -2538,123 +2537,6 @@ describe("generateNewColumnOrderFromStickyValue", () => {
     tableConfig.primaryColumns.step.sticky = "";
 
     expect(newColumnOrder).toEqual(["status", "task", "step", "action"]);
-  });
-});
-
-describe("getSelectOptions", () => {
-  it("Should return select options when user is not adding a new row", () => {
-    const columnProperties = {
-      allowSameOptionsInNewRow: true,
-      selectOptions: [
-        {
-          label: "male",
-          value: "male",
-        },
-        {
-          label: "female",
-          value: "female",
-        },
-      ],
-    };
-    expect(
-      getSelectOptions(false, 0, columnProperties as ColumnProperties),
-    ).toEqual([
-      {
-        label: "male",
-        value: "male",
-      },
-      {
-        label: "female",
-        value: "female",
-      },
-    ]);
-
-    // Check when select options are inside dynamic binding
-    const columnPropertiesDynamicSelectOptions = {
-      allowSameOptionsInNewRow: true,
-      selectOptions: [
-        [
-          {
-            label: "abc",
-            value: "abc",
-          },
-        ],
-        [
-          {
-            label: "efg",
-            value: "efg",
-          },
-        ],
-        [
-          {
-            label: "xyz",
-            value: "xyz",
-          },
-        ],
-      ],
-    };
-    expect(
-      getSelectOptions(
-        false,
-        0,
-        columnPropertiesDynamicSelectOptions as ColumnProperties,
-      ),
-    ).toEqual([
-      {
-        label: "abc",
-        value: "abc",
-      },
-    ]);
-  });
-
-  it("Should return select options while adding a new row and when 'Same options in new row' option is turned on", () => {
-    const columnProperties = {
-      allowSameOptionsInNewRow: true,
-      selectOptions: [
-        {
-          label: "male",
-          value: "male",
-        },
-        {
-          label: "female",
-          value: "female",
-        },
-      ],
-    };
-
-    expect(
-      getSelectOptions(true, -1, columnProperties as ColumnProperties),
-    ).toEqual([
-      {
-        label: "male",
-        value: "male",
-      },
-      {
-        label: "female",
-        value: "female",
-      },
-    ]);
-  });
-
-  it("Should return new row options", () => {
-    const columnProperties = {
-      allowSameOptionsInNewRow: false,
-      newRowSelectOptions: [
-        {
-          label: "abc",
-          value: "abc",
-        },
-      ],
-    };
-
-    expect(
-      getSelectOptions(true, -1, columnProperties as ColumnProperties),
-    ).toEqual([
-      {
-        label: "abc",
-        value: "abc",
-      },
-    ]);
   });
 });
 

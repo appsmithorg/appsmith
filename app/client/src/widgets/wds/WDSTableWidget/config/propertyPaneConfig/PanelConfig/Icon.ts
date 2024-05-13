@@ -20,7 +20,6 @@ export default {
       updateHook: updateIconAlignment,
       dependencies: ["primaryColumns", "columnOrder"],
       controlType: "ICON_SELECT",
-      customJSControl: "TABLE_COMPUTE_VALUE",
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,

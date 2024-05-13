@@ -115,12 +115,13 @@ class FocusRetention {
   public *handleRemoveFocusHistory(url: string) {
     const branch: string | undefined = yield select(getCurrentGitBranch);
     const removeKeys: string[] = [];
-    const entity = identifyEntityFromPath(url);
+    const focusEntityInfo = identifyEntityFromPath(url);
     removeKeys.push(`${url}#${branch}`);
-    const parentElement = FocusStoreHierarchy[entity.entity];
+
+    const parentElement = FocusStoreHierarchy[focusEntityInfo.entity];
     if (parentElement) {
       const parentPath = this.focusStrategy.getEntityParentUrl(
-        entity,
+        focusEntityInfo,
         parentElement,
       );
       removeKeys.push(`${parentPath}#${branch}`);

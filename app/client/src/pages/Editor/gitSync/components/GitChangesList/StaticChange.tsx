@@ -72,12 +72,12 @@ const allStaticChangeDefs: Record<
   }),
 };
 
-interface StaticChageProps {
+interface StaticChangeProps {
   kind: StaticChangeKind;
   status: GitStatusData;
 }
 
-export default function StaticChage({ kind, status }: StaticChageProps) {
+export default function StaticChange({ kind, status }: StaticChangeProps) {
   const { condition, iconName, message } = allStaticChangeDefs[kind](status);
   if (!condition) {
     return null;

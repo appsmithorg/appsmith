@@ -30,9 +30,9 @@ import {
   getCurrentPageId,
 } from "selectors/editorSelectors";
 import { getCopiedWidgets, saveCopiedWidgets } from "utils/storage";
-import { validateResponse } from "./ErrorSagas";
-import { postPageAdditionSaga } from "./TemplatesSagas";
-import { SelectionRequestType } from "./WidgetSelectUtils";
+import { validateResponse } from "../ErrorSagas";
+import { postPageAdditionSaga } from "../TemplatesSagas";
+import { SelectionRequestType } from "../WidgetSelectUtils";
 
 const isAirgappedInstance = isAirgapped();
 
