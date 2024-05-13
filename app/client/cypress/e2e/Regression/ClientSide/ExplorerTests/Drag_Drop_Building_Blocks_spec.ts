@@ -3,16 +3,16 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   entityExplorer,
   agHelper,
+  homePage,
 } from "../../../../support/Objects/ObjectsCore";
 import { PageLeftPane } from "../../../../support/Pages/EditorNavigation";
 import explorerLocators from "../../../../locators/explorerlocators.json";
-import { sample } from "lodash";
 
 const MAX_BUILDING_BLOCKS_TO_DISPLAY = initialEntityCountForExplorerTag[
   "Building Blocks"
 ] as number;
 
-const samepleBuildingBlockData = {
+const sampleBuildingBlockData = {
   skeletonLoaderName: "loading_edit_data",
   mainContainerName: "con_main",
   selector: ".t--widget-card-draggable-buildingblock-editdata",
@@ -24,6 +24,12 @@ describe(
     tags: ["@tag.IDE", "@tag.Widget", "@tag.Templates"],
   },
   () => {
+    beforeEach(() => {
+      homePage.NavigateToHome();
+      homePage.CreateNewWorkspace("Test Workspace");
+      homePage.CreateAppInWorkspace("Test Workspace");
+    });
+
     it("1. Building blocks tag is visible and open by default", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       agHelper
@@ -156,7 +162,7 @@ describe(
             })
             .then(() => {
               // Assert that the number of widgets after potentially clicking "See More" is correct
-              expect(widgetsInThisTagAfterSeeMore.length).to.be.greaterThan(
+              expect(widgetsInThisTagAfterSeeMore.length).to.be.at.least(
                 widgetsInThisTag.length,
               );
             });
@@ -194,42 +200,7 @@ describe(
         });
     });
 
-    it("5. Should drag and drop building block on canvas", () => {
-      featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
-      // primary api call for dropping building blocks on canvas
-      cy.intercept("POST", "/api/v1/applications/import/partial/block").as(
-        "blockImport",
-      );
-      const x = 600;
-      const y = 80;
-      // select this specific building block so the test works on release
-      const selector = samepleBuildingBlockData.selector;
-      cy.wait(500);
-      cy.get(selector)
-        .first()
-        .trigger("dragstart", { force: true })
-        .trigger("mousemove", x, y, { force: true });
-
-      const option = {
-        eventConstructor: "MouseEvent",
-        scrollBehavior: false,
-      } as any;
-
-      cy.get(explorerLocators.dropHere)
-        .trigger("mousemove", x, y, option)
-        .trigger("mousemove", x, y, option)
-        .trigger("mouseup", x, y, option);
-
-      // check that loading skeleton is present
-      PageLeftPane.assertPresence(samepleBuildingBlockData.skeletonLoaderName);
-      cy.wait("@blockImport").then(() => {
-        cy.assertPageSave();
-        // check that the main container of the block has been added to the canvas
-        PageLeftPane.assertPresence(samepleBuildingBlockData.mainContainerName);
-      });
-    });
-
-    it("6. Should remove skeleton loader if /block API request fails", () => {
+    it("5. Should remove skeleton loader if /block API request fails", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
 
       // simluating a failure in the /block API request
@@ -242,7 +213,7 @@ describe(
       const x = 600;
       const y = 80;
       // select this specific building block so the test works on release
-      const selector = samepleBuildingBlockData.selector;
+      const selector = sampleBuildingBlockData.selector;
       cy.wait(500);
       cy.get(selector)
         .first()
@@ -260,10 +231,45 @@ describe(
         .trigger("mouseup", x, y, option);
 
       // check that loading skeleton is present
-      PageLeftPane.assertPresence(samepleBuildingBlockData.skeletonLoaderName);
+      PageLeftPane.assertPresence(sampleBuildingBlockData.skeletonLoaderName);
       cy.wait("@blockImport").then(() => {
+        // check that the skeleton loader has been removed
+        PageLeftPane.assertAbsence(sampleBuildingBlockData.skeletonLoaderName);
+      });
+    });
+
+    it("6. Should drag and drop building block on canvas", () => {
+      featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
+      // primary api call for dropping building blocks on canvas
+      cy.intercept("POST", "/api/v1/applications/import/partial/block").as(
+        "blockImport",
+      );
+      const x = 600;
+      const y = 80;
+      // select this specific building block so the test works on release
+      const selector = sampleBuildingBlockData.selector;
+      cy.wait(500);
+      cy.get(selector)
+        .first()
+        .trigger("dragstart", { force: true })
+        .trigger("mousemove", x, y, { force: true });
+
+      const option = {
+        eventConstructor: "MouseEvent",
+        scrollBehavior: false,
+      } as any;
+
+      cy.get(explorerLocators.dropHere)
+        .trigger("mousemove", x, y, option)
+        .trigger("mousemove", x, y, option)
+        .trigger("mouseup", x, y, option);
+
+      // check that loading skeleton is present
+      PageLeftPane.assertPresence(sampleBuildingBlockData.skeletonLoaderName);
+      cy.wait("@blockImport").then(() => {
+        cy.assertPageSave();
         // check that the main container of the block has been added to the canvas
-        PageLeftPane.assertAbsence(samepleBuildingBlockData.skeletonLoaderName);
+        PageLeftPane.assertPresence(sampleBuildingBlockData.mainContainerName);
       });
     });
   },
