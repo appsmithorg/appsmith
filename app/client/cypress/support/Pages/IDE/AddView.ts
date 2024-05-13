@@ -22,10 +22,6 @@ class AddView {
     ObjectsRegistry.AggregateHelper.GetNClick(this.locators.closePaneButton);
   }
 
-  public getCreateOptions(name: string): Cypress.Chainable {
-    return cy.get(this.locators.createOption(name));
-  }
-
   public clickCreateOption(name: string) {
     ObjectsRegistry.AggregateHelper.GetNClick(this.locators.createOption(name));
   }

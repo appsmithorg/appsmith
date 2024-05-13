@@ -126,8 +126,8 @@ export class LeftPane {
     }
   }
 
-  public getCreateOptions(name: string) {
-    return this.addView.getCreateOptions(name);
+  public clickCreateOption(name: string) {
+    return this.addView.clickCreateOption(name);
   }
 
   public assertInListView() {
