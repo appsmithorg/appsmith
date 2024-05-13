@@ -192,6 +192,6 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
     @CacheEvict(cacheName = "defaultTenant", key = "{#tenantId}")
     @Override
     public Mono<Void> evictCachedTenant(String tenantId) {
-        return Mono.empty();
+        return Mono.empty().then();
     }
 }

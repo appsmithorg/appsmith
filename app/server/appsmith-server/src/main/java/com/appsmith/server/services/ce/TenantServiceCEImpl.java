@@ -108,7 +108,10 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                     // Firstly updating the Tenant object in the database and then evicting the cache.
                     // returning the updatedTenant, notice the updatedTenantMono is cached using .cache()
                     // hence it will not be evaluated again
-                    return updatedTenantMono.then(evictTenantCache).then(updatedTenantMono);
+                    //                    return updatedTenantMono.then(evictTenantCache).then(updatedTenantMono);
+                    return updatedTenantMono
+                            .then(Mono.defer(() -> evictTenantCache))
+                            .then(updatedTenantMono);
                 });
     }
 
