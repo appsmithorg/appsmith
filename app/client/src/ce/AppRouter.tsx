@@ -156,8 +156,6 @@ export default function AppRouter() {
     dispatch(initCurrentPage());
   }, []);
 
-  useEffect(() => {}, [safeCrash]);
-
   useBrandingTheme();
 
   const isLoading = isConsolidatedPageLoading;
