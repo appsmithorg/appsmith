@@ -35,7 +35,9 @@ public class Migration055AddIsAtomicPushAllowedEnvVarToTenantConfiguration {
         boolean isAtomicPushAllowed = false;
 
         TenantConfiguration defaultTenantConfiguration = new TenantConfiguration();
-        assert defaultTenant != null : "Default tenant not found";
+        if (defaultTenant == null) {
+            throw new IllegalStateException("Default tenant not found");
+        }
         if (Objects.nonNull(defaultTenant.getTenantConfiguration())) {
             defaultTenantConfiguration = defaultTenant.getTenantConfiguration();
         }
