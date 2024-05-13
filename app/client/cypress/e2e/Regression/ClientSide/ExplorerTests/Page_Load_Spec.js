@@ -27,7 +27,9 @@ describe("Page Load tests", { tags: ["@tag.IDE, @tag.Templates"] }, () => {
   before(() => {
     agHelper.AddDsl("PageLoadDsl");
     PageList.AddNewPage();
-    cy.get("span").contains(createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header));
+    cy.get("span").contains(
+      createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
+    );
   });
 
   it("1. Published page loads correctly", () => {
