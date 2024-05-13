@@ -9,7 +9,7 @@ import {
 
 setCacheNameDetails({
   prefix: "appsmith",
-  // suffix: "",
+  suffix: undefined,
   precache: "precache-v1",
   runtime: "runtime",
   googleAnalytics: "appsmith-ga",
