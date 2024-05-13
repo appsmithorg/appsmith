@@ -68,8 +68,6 @@ const TableColumnHeader = (props: TableColumnHeaderProps) => {
               renderHeaderCheckBoxCell(
                 props.handleAllRowSelectClick,
                 props.rowSelectionState,
-                props.accentColor,
-                props.borderRadius,
               )}
 
             {headerGroup.headers.map((column: any, columnIndex: number) => {
