@@ -7,8 +7,17 @@ import {X509Certificate} from "crypto"
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
 
-// Rate limit, numeric value defining the requests-per-second allowed.
-const RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 100, 10)
+// Rate limit environment.
+const RATE_LIMIT_ENV = (process.env._APPSMITH_RATE_LIMIT)
+
+if (RATE_LIMIT_ENV == "disabled") {
+        var RATE_LIMIT = undefined
+}
+else {
+        // Rate limit, numeric value defining the requests-per-second allowed.
+        var RATE_LIMIT = parseInt(process.env._APPSMITH_RATE_LIMIT || 100, 10)
+}
+
 
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
@@ -38,6 +47,20 @@ const frameAncestorsPolicy = (process.env.APPSMITH_ALLOWED_FRAME_ANCESTORS || "'
   .replace(/;.*$/, "")
 
 const parts = []
+
+if (RATE_LIMIT != "disabled") {
+  parts.push(`
+(rate-config) {
+  rate_limit {
+    zone dynamic_zone {
+      key {http.request.remote_ip}
+      events ${RATE_LIMIT}
+      window 1s
+    }
+  }
+}
+`)
+}
 
 parts.push(`
 {
@@ -131,14 +154,6 @@ parts.push(`
     import reverse_proxy 9001
   }
 
-  rate_limit {
-    zone dynamic_zone {
-      key {http.request.remote_ip}
-      events ${RATE_LIMIT}
-      window 1s
-    }
-  }
-
   handle_errors {
     respond "{err.status_code} {err.status_text}" {err.status_code}
     header -Server
@@ -148,6 +163,7 @@ parts.push(`
 # We bind to http on 80, so that localhost requests don't get redirected to https.
 :80 {
   import all-config
+  import rate-config
 }
 `)
 
