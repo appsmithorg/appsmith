@@ -196,6 +196,8 @@ class TenantServiceCETest {
     @Test
     @WithUserDetails("api_user")
     void setEmailVerificationEnabled_WithValidSMTPHost_Success() {
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        String tenantId = tenant.getId();
         final TenantConfiguration changes = new TenantConfiguration();
         changes.setEmailVerificationEnabled(TRUE);
 
@@ -207,7 +209,7 @@ class TenantServiceCETest {
         Mockito.when(envManager.getAllNonEmpty()).thenReturn(Mono.just(envVars));
 
         final Mono<TenantConfiguration> resultMono = tenantService
-                .updateDefaultTenantConfiguration(changes)
+                .updateTenantConfiguration(tenantId, changes)
                 .then(tenantService.getTenantConfiguration())
                 .map(Tenant::getTenantConfiguration);
 
@@ -325,19 +327,17 @@ class TenantServiceCETest {
     void updateTenantConfiguration_updateStrongPasswordPolicy_success() {
 
         // Ensure that the default tenant does not have strong password policy setup
-        Mono<Tenant> tenantMono = tenantService.getDefaultTenant();
-        StepVerifier.create(tenantMono)
-                .assertNext(tenant -> {
-                    assertThat(tenant.getTenantConfiguration().getIsStrongPasswordPolicyEnabled())
-                            .isNull();
-                })
-                .verifyComplete();
+        Tenant tenant = tenantService.getDefaultTenant().block();
+        String tenantId = tenant.getId();
+        assertThat(tenant.getTenantConfiguration().getIsStrongPasswordPolicyEnabled())
+                .isNull();
 
         // Ensure that the strong password policy is enabled after the update
         final TenantConfiguration changes = new TenantConfiguration();
         changes.setIsStrongPasswordPolicyEnabled(TRUE);
+
         Mono<TenantConfiguration> resultMono = tenantService
-                .updateDefaultTenantConfiguration(changes)
+                .updateTenantConfiguration(tenantId, changes)
                 .then(tenantService.getTenantConfiguration())
                 .map(Tenant::getTenantConfiguration);
 
@@ -350,8 +350,9 @@ class TenantServiceCETest {
 
         // Ensure that the strong password policy is disabled after the update
         changes.setIsStrongPasswordPolicyEnabled(FALSE);
+
         resultMono = tenantService
-                .updateDefaultTenantConfiguration(changes)
+                .updateTenantConfiguration(tenantId, changes)
                 .then(tenantService.getTenantConfiguration())
                 .map(Tenant::getTenantConfiguration);
 
