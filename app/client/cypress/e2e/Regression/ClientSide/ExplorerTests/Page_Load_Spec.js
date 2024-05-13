@@ -15,7 +15,7 @@ import {
   STARTER_TEMPLATE_PAGE_LAYOUTS,
 } from "../../../../../src/ce/constants/messages";
 
-describe("Page Load tests", { tags: ["@tag.IDE, @tag.Templates"] }, () => {
+describe("Page Load tests", { tags: ["@tag.IDE", "@tag.Templates"] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
