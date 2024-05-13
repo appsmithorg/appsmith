@@ -204,7 +204,7 @@ public class PageControllerCE {
     @PutMapping("/{defaultPageId}/dependencyMap")
     public Mono<ResponseDTO<String>> updateDependencyMap(
             @PathVariable String defaultPageId,
-            @RequestBody @Valid Map<String, List<String>> dependencyMap,
+            @RequestBody(required = false) Map<String, List<String>> dependencyMap,
             @RequestHeader(name = FieldName.BRANCH_NAME, required = false) String branchName) {
         return newPageService
                 .updateDependencyMap(defaultPageId, dependencyMap, branchName)
