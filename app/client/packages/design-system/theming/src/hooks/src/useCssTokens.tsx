@@ -76,13 +76,11 @@ export function useCssTokens(props: Theme) {
         ${getTypographyCss(typography)}
       `);
     }
-  }, [typography]);
 
-  useEffect(() => {
     setFontFamilyClassName(css`
       ${fontFamilyCss(fontFamily)}
     `);
-  }, [fontFamily]);
+  }, [typography, fontFamily]);
 
   useEffect(() => {
     setProviderClassName(css`
