@@ -33,7 +33,9 @@ const AuthContainer = styled.div`
   display: flex;
   flex-direction: column;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
+  padding: var(--ads-v2-spaces-5);
+  gap: var(--ads-v2-spaces-3);
 `;
 
 const OAuthContainer = styled.div`
@@ -53,10 +55,6 @@ const OAuthText = styled.span<ErrorProps>`
       ? "var(--ads-v2-color-fg-error)"
       : "var(--ads-v2-color-fg-success)"};
   margin-left: 5px;
-`;
-
-const DescriptionText = styled(Text)`
-  margin: 12px auto;
 `;
 
 function OAuthLabel(props: ErrorProps) {
@@ -118,11 +116,11 @@ function ApiAuthentication(props: Props): JSX.Element {
   return (
     <AuthContainer>
       {authType === AuthType.OAuth2 && <OAuthLabel hasError={hasError} />}
-      <DescriptionText kind="body-m">
+      <Text kind="body-m">
         {shouldSave
           ? createMessage(SAVE_DATASOURCE_MESSAGE)
           : createMessage(EDIT_DATASOURCE_MESSAGE)}
-      </DescriptionText>
+      </Text>
       <StoreAsDatasource
         datasourceId={datasourceId}
         enable={isEnabled}

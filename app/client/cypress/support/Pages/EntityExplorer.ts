@@ -191,9 +191,9 @@ export class EntityExplorer {
     this.agHelper.Sleep(200);
     cy.get(
       parentWidgetType
-        ? this.locator._widgetInCanvas(parentWidgetType) +
-            " " +
+        ? `${this.locator._widgetInCanvas(parentWidgetType)} ${
             this.locator._dropHere
+          }`
         : this.locator._dropHere,
     )
       .first()

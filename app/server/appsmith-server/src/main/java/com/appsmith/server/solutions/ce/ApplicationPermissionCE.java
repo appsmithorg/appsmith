@@ -16,4 +16,8 @@ public interface ApplicationPermissionCE extends ArtifactPermission {
     AclPermission getManageDefaultBranchPermission();
 
     AclPermission getManageAutoCommitPermission();
+
+    AclPermission getPublishPermission();
+
+    AclPermission getApplicationDeletePagesPermission();
 }

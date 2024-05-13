@@ -231,7 +231,7 @@ describe("bgNeutralOpacity color", () => {
     const { bgNeutralOpacity } = new LightModeTheme(
       "oklch(0.51 0.24 279)",
     ).getColors();
-    expect(bgNeutralOpacity).toEqual("rgb(29.012% 29.087% 29.559% / 0.5)");
+    expect(bgNeutralOpacity).toEqual("rgb(4.2704% 4.3279% 4.6942% / 0.5)");
   });
 });
 

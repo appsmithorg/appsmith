@@ -259,12 +259,16 @@ public class AnalyticsServiceCEImpl implements AnalyticsServiceCE {
                     analyticsProperties.put("originService", "appsmith-server");
                     analyticsProperties.put("instanceId", instanceId);
                     analyticsProperties.put("version", projectProperties.getVersion());
-                    analyticsProperties.put("edition", deploymentProperties.getEdition());
-                    analyticsProperties.put("cloudProvider", deploymentProperties.getCloudProvider());
-                    analyticsProperties.put("efs", deploymentProperties.getEfs());
-                    analyticsProperties.put("tool", deploymentProperties.getTool());
-                    analyticsProperties.put("hostname", deploymentProperties.getHostname());
-                    analyticsProperties.put("deployedAt", deploymentProperties.getDeployedAt());
+                    analyticsProperties.put(
+                            "edition", ObjectUtils.defaultIfNull(deploymentProperties.getEdition(), ""));
+                    analyticsProperties.put(
+                            "cloudProvider", ObjectUtils.defaultIfNull(deploymentProperties.getCloudProvider(), ""));
+                    analyticsProperties.put("efs", ObjectUtils.defaultIfNull(deploymentProperties.getEfs(), ""));
+                    analyticsProperties.put("tool", ObjectUtils.defaultIfNull(deploymentProperties.getTool(), ""));
+                    analyticsProperties.put(
+                            "hostname", ObjectUtils.defaultIfNull(deploymentProperties.getHostname(), ""));
+                    analyticsProperties.put(
+                            "deployedAt", ObjectUtils.defaultIfNull(deploymentProperties.getDeployedAt(), ""));
 
                     messageBuilder = messageBuilder.properties(analyticsProperties);
                     analytics.enqueue(messageBuilder);

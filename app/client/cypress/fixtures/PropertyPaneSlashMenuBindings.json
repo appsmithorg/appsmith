@@ -1,0 +1,1107 @@
+{
+  "artifactJsonType": "APPLICATION",
+  "clientSchemaVersion": 1,
+  "serverSchemaVersion": 7,
+  "exportedApplication": {
+    "name": "PropertyPaneSlashMenuBindings",
+    "isPublic": false,
+    "pages": [
+      {
+        "id": "Page1",
+        "isDefault": true
+      }
+    ],
+    "publishedPages": [
+      {
+        "id": "Page1",
+        "isDefault": true
+      }
+    ],
+    "viewMode": false,
+    "appIsExample": false,
+    "unreadCommentThreads": 0,
+    "unpublishedApplicationDetail": {
+      "appPositioning": {
+        "type": "FIXED"
+      }
+    },
+    "publishedApplicationDetail": {
+      "appPositioning": {
+        "type": "FIXED"
+      }
+    },
+    "color": "#D9E7FF",
+    "icon": "location",
+    "slug": "propertypaneslashmenubindings",
+    "unpublishedCustomJSLibs": [],
+    "publishedCustomJSLibs": [],
+    "evaluationVersion": 2,
+    "applicationVersion": 2,
+    "collapseInvisibleWidgets": true,
+    "isManualUpdate": false,
+    "deleted": false
+  },
+  "datasourceList": [],
+  "customJSLibList": [],
+  "pageList": [
+    {
+      "unpublishedPage": {
+        "name": "Page1",
+        "slug": "page1",
+        "layouts": [
+          {
+            "viewMode": false,
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 4896,
+              "snapColumns": 64,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 720,
+              "containerStyle": "none",
+              "snapRows": 124,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 89,
+              "minHeight": 1292,
+              "dynamicTriggerPathList": [],
+              "parentColumnSpace": 1,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": [
+                {
+                  "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                  "borderColor": "#E0DEDE",
+                  "isVisibleDownload": true,
+                  "iconSVG": "/static/media/icon.c4395b694ca4b5a84741345b057b6866.svg",
+                  "topRow": 3,
+                  "isSortable": true,
+                  "type": "TABLE_WIDGET_V2",
+                  "inlineEditingSaveOption": "ROW_LEVEL",
+                  "animateLoading": true,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "accentColor"
+                    },
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "boxShadow"
+                    }
+                  ],
+                  "needsHeightForContent": true,
+                  "leftColumn": 3,
+                  "delimiter": ",",
+                  "defaultSelectedRowIndex": 0,
+                  "flexVerticalAlignment": "start",
+                  "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                  "onCanvasUI": {
+                    "selectionBGCSSVar": "--ads-widget-selection",
+                    "focusBGCSSVar": "--ads-widget-focus",
+                    "selectionColorCSSVar": "--ads-widget-focus",
+                    "focusColorCSSVar": "--ads-widget-selection",
+                    "disableParentSelection": false
+                  },
+                  "isVisibleFilters": true,
+                  "isVisible": true,
+                  "enableClientSideSearch": true,
+                  "version": 2,
+                  "totalRecordsCount": 0,
+                  "tags": [
+                    "Suggested",
+                    "Display"
+                  ],
+                  "isLoading": false,
+                  "childStylesheet": {
+                    "button": {
+                      "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "menuButton": {
+                      "menuColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "iconButton": {
+                      "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "editActions": {
+                      "saveButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "saveBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "discardButtonColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "discardBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+                    }
+                  },
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "columnUpdatedAt": 1714982672902,
+                  "defaultSelectedRowIndices": [
+                    0
+                  ],
+                  "needsErrorInfo": false,
+                  "mobileBottomRow": 31,
+                  "widgetName": "Table1",
+                  "defaultPageSize": 0,
+                  "columnOrder": [],
+                  "dynamicPropertyPathList": [],
+                  "displayName": "Table",
+                  "bottomRow": 31,
+                  "columnWidthMap": {},
+                  "parentRowSpace": 10,
+                  "hideCard": false,
+                  "mobileRightColumn": 37,
+                  "parentColumnSpace": 11.890625,
+                  "borderWidth": "1",
+                  "primaryColumns": {},
+                  "key": "blfupp4s3o",
+                  "canFreezeColumn": true,
+                  "isDeprecated": false,
+                  "rightColumn": 37,
+                  "textSize": "0.875rem",
+                  "thumbnailSVG": "https://appcdn.appsmith.com/static/media/thumbnail.d0492f06681daa69baf92b07d3829dfc.svg",
+                  "widgetId": "zm9dwk2m84",
+                  "minWidth": 450,
+                  "tableData": "",
+                  "label": "Data",
+                  "searchKey": "",
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "mobileTopRow": 3,
+                  "horizontalAlignment": "LEFT",
+                  "isVisibleSearch": true,
+                  "responsiveBehavior": "fill",
+                  "mobileLeftColumn": 3,
+                  "isVisiblePagination": true,
+                  "verticalAlignment": "CENTER"
+                },
+                {
+                  "boxShadow": "{{appsmith.theme.boxShadow.appBoxShadow}}",
+                  "borderColor": "#E0DEDE",
+                  "iconSVG": "https://appcdn.appsmith.com/static/media/icon.7df6f087cceba86a9a5481b6c7f4871d.svg",
+                  "topRow": 33,
+                  "type": "JSON_FORM_WIDGET",
+                  "animateLoading": true,
+                  "leftColumn": 3,
+                  "dynamicBindingPathList": [
+                    {
+                      "key": "borderRadius"
+                    },
+                    {
+                      "key": "boxShadow"
+                    },
+                    {
+                      "key": "submitButtonStyles.buttonColor"
+                    },
+                    {
+                      "key": "submitButtonStyles.borderRadius"
+                    },
+                    {
+                      "key": "resetButtonStyles.buttonColor"
+                    },
+                    {
+                      "key": "resetButtonStyles.borderRadius"
+                    }
+                  ],
+                  "showReset": true,
+                  "flexVerticalAlignment": "start",
+                  "dynamicHeight": "AUTO_HEIGHT",
+                  "autoGenerateForm": true,
+                  "onCanvasUI": {
+                    "selectionBGCSSVar": "--ads-widget-selection",
+                    "focusBGCSSVar": "--ads-widget-focus",
+                    "selectionColorCSSVar": "--ads-widget-focus",
+                    "focusColorCSSVar": "--ads-widget-selection",
+                    "disableParentSelection": false
+                  },
+                  "resetButtonStyles": {
+                    "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                    "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "boxShadow": "none",
+                    "buttonVariant": "SECONDARY"
+                  },
+                  "isVisible": true,
+                  "version": 1,
+                  "tags": [
+                    "Suggested",
+                    "Layout"
+                  ],
+                  "isLoading": false,
+                  "submitButtonLabel": "Submit",
+                  "childStylesheet": {
+                    "ARRAY": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none",
+                      "cellBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "cellBoxShadow": "none"
+                    },
+                    "OBJECT": {
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none",
+                      "cellBorderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "cellBoxShadow": "none"
+                    },
+                    "CHECKBOX": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}"
+                    },
+                    "CURRENCY_INPUT": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "DATEPICKER": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "EMAIL_INPUT": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "MULTISELECT": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "MULTILINE_TEXT_INPUT": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "NUMBER_INPUT": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "PASSWORD_INPUT": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "PHONE_NUMBER_INPUT": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "RADIO_GROUP": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "boxShadow": "none"
+                    },
+                    "SELECT": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    },
+                    "SWITCH": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "boxShadow": "none"
+                    },
+                    "TEXT_INPUT": {
+                      "accentColor": "{{appsmith.theme.colors.primaryColor}}",
+                      "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                      "boxShadow": "none"
+                    }
+                  },
+                  "disabledWhenInvalid": true,
+                  "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                  "originalBottomRow": 74,
+                  "useSourceData": false,
+                  "schema": {},
+                  "needsErrorInfo": false,
+                  "mobileBottomRow": 74,
+                  "widgetName": "JSONForm1",
+                  "submitButtonStyles": {
+                    "buttonColor": "{{appsmith.theme.colors.primaryColor}}",
+                    "borderRadius": "{{appsmith.theme.borderRadius.appBorderRadius}}",
+                    "boxShadow": "none",
+                    "buttonVariant": "PRIMARY"
+                  },
+                  "displayName": "JSON Form",
+                  "bottomRow": 72,
+                  "fieldLimitExceeded": false,
+                  "parentRowSpace": 10,
+                  "title": "Form",
+                  "hideCard": false,
+                  "mobileRightColumn": 28,
+                  "parentColumnSpace": 11.890625,
+                  "borderWidth": "1",
+                  "sourceData": "",
+                  "resetButtonLabel": "Reset",
+                  "key": "vfml5dsgu7",
+                  "backgroundColor": "#fff",
+                  "isDeprecated": false,
+                  "rightColumn": 28,
+                  "thumbnailSVG": "https://appcdn.appsmith.com/static/media/thumbnail.1092bbfe332a9ea2da2aa7e3efd01db2.svg",
+                  "widgetId": "f11famg3l0",
+                  "minWidth": 450,
+                  "parentId": "0",
+                  "renderMode": "CANVAS",
+                  "mobileTopRow": 33,
+                  "scrollContents": true,
+                  "responsiveBehavior": "fill",
+                  "fixedFooter": true,
+                  "originalTopRow": 33,
+                  "mobileLeftColumn": 3,
+                  "maxDynamicHeight": 9000,
+                  "minDynamicHeight": 4
+                }
+              ]
+            },
+            "layoutOnLoadActions": [],
+            "layoutOnLoadActionErrors": [],
+            "validOnPageLoadActions": true,
+            "id": "Page1",
+            "deleted": false,
+            "policies": [],
+            "userPermissions": []
+          }
+        ],
+        "userPermissions": [],
+        "policies": []
+      },
+      "publishedPage": {
+        "name": "Page1",
+        "slug": "page1",
+        "layouts": [
+          {
+            "viewMode": false,
+            "dsl": {
+              "widgetName": "MainContainer",
+              "backgroundColor": "none",
+              "rightColumn": 1224,
+              "snapColumns": 16,
+              "detachFromLayout": true,
+              "widgetId": "0",
+              "topRow": 0,
+              "bottomRow": 1250,
+              "containerStyle": "none",
+              "snapRows": 33,
+              "parentRowSpace": 1,
+              "type": "CANVAS_WIDGET",
+              "canExtend": true,
+              "version": 4,
+              "minHeight": 1292,
+              "dynamicTriggerPathList": [],
+              "parentColumnSpace": 1,
+              "dynamicBindingPathList": [],
+              "leftColumn": 0,
+              "children": []
+            },
+            "validOnPageLoadActions": true,
+            "id": "Page1",
+            "deleted": false,
+            "policies": [],
+            "userPermissions": []
+          }
+        ],
+        "userPermissions": [],
+        "policies": []
+      },
+      "deleted": false,
+      "gitSyncId": "66388f108d5cd85e84848f6c_bac75b8c-8e9d-4a75-8ab4-a29a17cd754b"
+    }
+  ],
+  "actionList": [
+    {
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "unpublishedAction": {
+        "name": "Api1",
+        "datasource": {
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "invalids": [],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "autoGeneratedHeaders": [],
+          "encodeParamsToggle": true,
+          "queryParameters": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "body": "",
+          "bodyFormData": [],
+          "httpMethod": "GET",
+          "httpVersion": "HTTP11",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "formData": {
+            "apiContentType": "none"
+          }
+        },
+        "executeOnLoad": false,
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:06:51Z"
+      },
+      "publishedAction": {
+        "datasource": {
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "messages": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:06:51Z"
+      },
+      "id": "Page1_Api1",
+      "deleted": false,
+      "gitSyncId": "66388f108d5cd85e84848f6c_b9757cea-3974-4c33-a10c-619c53b8748f"
+    },
+    {
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "unpublishedAction": {
+        "name": "Api2",
+        "datasource": {
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "invalids": [],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "autoGeneratedHeaders": [],
+          "encodeParamsToggle": true,
+          "queryParameters": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "body": "",
+          "bodyFormData": [],
+          "httpMethod": "GET",
+          "httpVersion": "HTTP11",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "formData": {
+            "apiContentType": "none"
+          }
+        },
+        "executeOnLoad": false,
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:06:54Z"
+      },
+      "publishedAction": {
+        "datasource": {
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "messages": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:06:54Z"
+      },
+      "id": "Page1_Api2",
+      "deleted": false,
+      "gitSyncId": "66388f108d5cd85e84848f6c_b7e42b39-2501-40ee-89d7-8ab0beb16a55"
+    },
+    {
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "unpublishedAction": {
+        "name": "Api3",
+        "datasource": {
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "invalids": [],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "autoGeneratedHeaders": [],
+          "encodeParamsToggle": true,
+          "queryParameters": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "body": "",
+          "bodyFormData": [],
+          "httpMethod": "GET",
+          "httpVersion": "HTTP11",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "formData": {
+            "apiContentType": "none"
+          }
+        },
+        "executeOnLoad": false,
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:06:56Z"
+      },
+      "publishedAction": {
+        "datasource": {
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "messages": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:06:56Z"
+      },
+      "id": "Page1_Api3",
+      "deleted": false,
+      "gitSyncId": "66388f108d5cd85e84848f6c_dd435858-9a2c-4096-bfcd-4e02a7ba55e0"
+    },
+    {
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "unpublishedAction": {
+        "name": "Api4",
+        "datasource": {
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "invalids": [],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "autoGeneratedHeaders": [],
+          "encodeParamsToggle": true,
+          "queryParameters": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "body": "",
+          "bodyFormData": [],
+          "httpMethod": "GET",
+          "httpVersion": "HTTP11",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "formData": {
+            "apiContentType": "none"
+          }
+        },
+        "executeOnLoad": false,
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:06:58Z"
+      },
+      "publishedAction": {
+        "datasource": {
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "messages": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:06:58Z"
+      },
+      "id": "Page1_Api4",
+      "deleted": false,
+      "gitSyncId": "66388f108d5cd85e84848f6c_f35a0e7e-f2b4-47fd-876a-109d0205b41b"
+    },
+    {
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "unpublishedAction": {
+        "name": "Api5",
+        "datasource": {
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "invalids": [],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "autoGeneratedHeaders": [],
+          "encodeParamsToggle": true,
+          "queryParameters": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "body": "",
+          "bodyFormData": [],
+          "httpMethod": "GET",
+          "httpVersion": "HTTP11",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "formData": {
+            "apiContentType": "none"
+          }
+        },
+        "executeOnLoad": false,
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:07:00Z"
+      },
+      "publishedAction": {
+        "datasource": {
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "messages": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:07:00Z"
+      },
+      "id": "Page1_Api5",
+      "deleted": false,
+      "gitSyncId": "66388f108d5cd85e84848f6c_19c087d1-5d5b-4830-b659-a3b65869cf0d"
+    },
+    {
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "unpublishedAction": {
+        "name": "Api6",
+        "datasource": {
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "invalids": [],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "autoGeneratedHeaders": [],
+          "encodeParamsToggle": true,
+          "queryParameters": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "body": "",
+          "bodyFormData": [],
+          "httpMethod": "GET",
+          "httpVersion": "HTTP11",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "formData": {
+            "apiContentType": "none"
+          }
+        },
+        "executeOnLoad": false,
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:07:02Z"
+      },
+      "publishedAction": {
+        "datasource": {
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "messages": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:07:02Z"
+      },
+      "id": "Page1_Api6",
+      "deleted": false,
+      "gitSyncId": "66388f108d5cd85e84848f6c_67d88642-6d4d-42ab-806d-86738b544840"
+    },
+    {
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "unpublishedAction": {
+        "name": "Api7",
+        "datasource": {
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "invalids": [],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "autoGeneratedHeaders": [],
+          "encodeParamsToggle": true,
+          "queryParameters": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "body": "",
+          "bodyFormData": [],
+          "httpMethod": "GET",
+          "httpVersion": "HTTP11",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "formData": {
+            "apiContentType": "none"
+          }
+        },
+        "executeOnLoad": false,
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:07:05Z"
+      },
+      "publishedAction": {
+        "datasource": {
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "messages": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:07:05Z"
+      },
+      "id": "Page1_Api7",
+      "deleted": false,
+      "gitSyncId": "66388f108d5cd85e84848f6c_651615e7-33e8-4f9f-8083-83db246a3b13"
+    },
+    {
+      "pluginType": "API",
+      "pluginId": "restapi-plugin",
+      "unpublishedAction": {
+        "name": "Api8",
+        "datasource": {
+          "name": "DEFAULT_REST_DATASOURCE",
+          "pluginId": "restapi-plugin",
+          "invalids": [],
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "pageId": "Page1",
+        "actionConfiguration": {
+          "timeoutInMillisecond": 10000,
+          "paginationType": "NONE",
+          "headers": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "autoGeneratedHeaders": [],
+          "encodeParamsToggle": true,
+          "queryParameters": [
+            {
+              "key": "",
+              "value": ""
+            },
+            {
+              "key": "",
+              "value": ""
+            }
+          ],
+          "body": "",
+          "bodyFormData": [],
+          "httpMethod": "GET",
+          "httpVersion": "HTTP11",
+          "selfReferencingDataPaths": [],
+          "pluginSpecifiedTemplates": [
+            {
+              "value": true
+            }
+          ],
+          "formData": {
+            "apiContentType": "none"
+          }
+        },
+        "executeOnLoad": false,
+        "isValid": true,
+        "invalids": [],
+        "messages": [],
+        "jsonPathKeys": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:07:07Z"
+      },
+      "publishedAction": {
+        "datasource": {
+          "messages": [],
+          "isAutoGenerated": false,
+          "deleted": false,
+          "policies": [],
+          "userPermissions": []
+        },
+        "messages": [],
+        "userSetOnLoad": false,
+        "confirmBeforeExecute": false,
+        "policies": [],
+        "userPermissions": [],
+        "createdAt": "2024-05-06T08:07:07Z"
+      },
+      "id": "Page1_Api8",
+      "deleted": false,
+      "gitSyncId": "66388f108d5cd85e84848f6c_7f27b095-182c-484d-9bf7-15ee070e8fec"
+    }
+  ],
+  "actionCollectionList": [],
+  "editModeTheme": {
+    "name": "Default-New",
+    "displayName": "Modern",
+    "isSystemTheme": true,
+    "deleted": false
+  },
+  "publishedTheme": {
+    "name": "Default-New",
+    "displayName": "Modern",
+    "isSystemTheme": true,
+    "deleted": false
+  }
+}

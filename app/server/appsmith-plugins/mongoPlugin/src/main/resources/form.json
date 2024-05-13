@@ -107,6 +107,7 @@
               "configProperty": "datasourceConfiguration.endpoints[*].port",
               "dataType": "NUMBER",
               "controlType": "KEYVALUE_ARRAY",
+              "initialValue": ["27017"],
               "hidden": {
                 "path": "datasourceConfiguration.properties[0].value",
                 "comparison": "EQUALS",
