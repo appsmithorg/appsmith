@@ -9,7 +9,7 @@ import type {
   WidgetTags,
 } from "constants/WidgetConstants";
 import { WIDGET_TAGS } from "constants/WidgetConstants";
-import { Flex, SearchInput, Text } from "design-system";
+import { SearchInput, Text } from "design-system";
 import Fuse from "fuse.js";
 import { debounce } from "lodash";
 import React, { useEffect, useMemo, useRef, useState } from "react";
@@ -109,10 +109,9 @@ function UIEntitySidebar({
           type="text"
         />
       </div>
-      <Flex
-        className="flex-grow px-3 overflow-y-scroll"
+      <div
+        className="flex-grow px-3 mt-2 overflow-y-scroll"
         data-testid="t--widget-sidebar-scrollable-wrapper"
-        pt="spaces-2"
       >
         {isEmpty && (
           <Text
@@ -151,7 +150,7 @@ function UIEntitySidebar({
             );
           })}
         </div>
-      </Flex>
+      </div>
     </div>
   );
 }
