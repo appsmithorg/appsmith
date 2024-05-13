@@ -21,6 +21,7 @@ export * from "./components/ActionGroup";
 export * from "./components/ButtonGroup";
 export * from "./components/Select";
 export * from "./components/ContextualHelp";
+export * from "./components/Link";
 
 export * from "./utils";
 export * from "./styles";

@@ -14,21 +14,17 @@ import {
 } from "pages/Editor/IDE/hooks";
 import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
-import { isDraggingBuildingBlockToCanvas } from "selectors/buildingBlocksSelectors";
 import { getIsMobileCanvasLayout } from "selectors/editorSelectors";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
 import BuildingBlockExplorerDropTarget from "../buildingBlockExplorerDropTarget";
 import StarterBuildingBlocks from "../starterBuildingBlocks";
+
 function Onboarding() {
   const isMobileCanvas = useSelector(getIsMobileCanvasLayout);
-  const isDraggingBuildingBlock = useSelector(isDraggingBuildingBlockToCanvas);
   const appState = useCurrentAppState();
   const isAirgappedInstance = isAirgapped();
   const { segment } = useCurrentEditorState();
 
-  const showStarterTemplatesInsteadOfBlankCanvas = useFeatureFlag(
-    FEATURE_FLAG.ab_show_templates_instead_of_blank_canvas_enabled,
-  );
   const releaseDragDropBuildingBlocksEnabled = useFeatureFlag(
     FEATURE_FLAG.release_drag_drop_building_blocks_enabled,
   );
@@ -37,47 +33,26 @@ function Onboarding() {
   const isUISegment = segment === EditorEntityTab.UI;
 
   const shouldShowStarterTemplates = useMemo(
-    () =>
-      isEditorState &&
-      showStarterTemplatesInsteadOfBlankCanvas &&
-      !isMobileCanvas &&
-      !isAirgappedInstance &&
-      !releaseDragDropBuildingBlocksEnabled, // Hide starter templates when drag-drop building blocks are available
-    [
-      showStarterTemplatesInsteadOfBlankCanvas,
-      isMobileCanvas,
-      isAirgappedInstance,
-      releaseDragDropBuildingBlocksEnabled,
-      isEditorState,
-    ],
+    () => isEditorState && !isMobileCanvas,
+    [isMobileCanvas, isEditorState],
   );
   const shouldShowBuildingBlocksDropTarget = useMemo(
-    () =>
-      isEditorState &&
-      isUISegment &&
-      releaseDragDropBuildingBlocksEnabled &&
-      !isDraggingBuildingBlock,
-    [
-      isEditorState,
-      releaseDragDropBuildingBlocksEnabled,
-      isDraggingBuildingBlock,
-      isUISegment,
-    ],
+    () => isEditorState && isUISegment && releaseDragDropBuildingBlocksEnabled,
+    [isEditorState, releaseDragDropBuildingBlocksEnabled, isUISegment],
   );
 
-  if (shouldShowStarterTemplates) {
-    return <StarterBuildingBlocks />;
-  } else if (shouldShowBuildingBlocksDropTarget) {
-    return <BuildingBlockExplorerDropTarget />;
-  } else if (!isDraggingBuildingBlock) {
-    return (
-      <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
-        {createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT)}
-      </h2>
-    );
-  } else {
-    return null;
+  if (!isAirgappedInstance) {
+    if (shouldShowBuildingBlocksDropTarget) {
+      return <BuildingBlockExplorerDropTarget />;
+    } else if (shouldShowStarterTemplates) {
+      return <StarterBuildingBlocks />;
+    }
   }
+  return (
+    <h2 className="absolute top-0 left-0 right-0 flex items-end h-108 justify-center text-2xl font-bold text-gray-300">
+      {createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT)}
+    </h2>
+  );
 }
 
 export default Onboarding;
