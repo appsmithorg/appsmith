@@ -476,7 +476,7 @@ describe("bgNegativeSubtle color", () => {
     const { bgNegativeSubtle } = new LightModeTheme(
       "oklch(0.55 0.22 27)",
     ).getColors();
-    expect(bgNegativeSubtle).toEqual("rgb(80.074% 0% 19.209%)");
+    expect(bgNegativeSubtle).toEqual("rgb(100% 89.936% 89.52%)");
   });
 });
 
