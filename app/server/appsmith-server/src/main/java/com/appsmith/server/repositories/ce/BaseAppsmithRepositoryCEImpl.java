@@ -11,7 +11,6 @@ import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.repositories.ce.params.QueryAllParams;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mongodb.BasicDBObject;
 import com.mongodb.DBObject;
@@ -35,10 +34,8 @@ import org.springframework.util.CollectionUtils;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Field;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
@@ -230,26 +227,15 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
         return new QueryAllParams<>(this);
     }
 
-    public <P> Flux<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
-        List<String> fields = Arrays.stream(projectionClass.getDeclaredFields())
-                .map(Field::getName)
-                .toList();
-
-        return queryAllExecute(params, fields).map(obj -> mapAs(obj, projectionClass));
-    }
-
     public Flux<T> queryAllExecute(QueryAllParams<T> params) {
-        return this.queryAllExecute(params, new ArrayList<>());
+        return queryAllExecute(params, this.genericDomain)
+                .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()));
     }
 
-    private Flux<T> queryAllExecute(QueryAllParams<T> params, List<String> projectionFields) {
+    public <P> Flux<P> queryAllExecute(QueryAllParams<T> params, Class<P> projectionClass) {
         return ensurePermissionGroupsInParams(params).thenMany(Flux.defer(() -> {
-            List<String> fields = new ArrayList<>(projectionFields);
-            if (isEmpty(fields)) {
-                fields.addAll(params.getFields());
-            }
             final Query query = createQueryWithPermission(
-                    params.getCriteria(), fields, params.getPermissionGroups(), params.getPermission());
+                    params.getCriteria(), params.getFields(), params.getPermissionGroups(), params.getPermission());
 
             if (params.getSkip() > NO_SKIP) {
                 query.skip(params.getSkip());
@@ -265,21 +251,27 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
             return mongoOperations
                     .query(this.genericDomain)
+                    .as(projectionClass)
                     .matching(query.cursorBatchSize(10_000))
-                    .all()
-                    .flatMap(obj -> setUserPermissionsInObject(obj, params.getPermissionGroups()));
+                    .all();
         }));
     }
 
-    public <P> Mono<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
-        List<String> fields = Arrays.stream(projectionClass.getDeclaredFields())
-                .map(Field::getName)
-                .toList();
-        return queryOneExecute(params, fields).map(obj -> mapAs(obj, projectionClass));
+    public Mono<T> queryOneExecute(QueryAllParams<T> params) {
+        return queryOneExecute(params, this.genericDomain);
     }
 
-    public Mono<T> queryOneExecute(QueryAllParams<T> params) {
-        return queryOneExecute(params, new ArrayList<>());
+    public <P> Mono<P> queryOneExecute(QueryAllParams<T> params, Class<P> projectionClass) {
+        return ensurePermissionGroupsInParams(params).then(Mono.defer(() -> mongoOperations
+                .query(genericDomain)
+                .as(projectionClass)
+                .matching(createQueryWithPermission(
+                                params.getCriteria(),
+                                params.getFields(),
+                                params.getPermissionGroups(),
+                                params.getPermission())
+                        .cursorBatchSize(10_000))
+                .one()));
     }
 
     private Mono<T> queryOneExecute(QueryAllParams<T> params, List<String> projectionFields) {
@@ -542,15 +534,5 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
                 .flatMapMany(documentMongoCollection -> documentMongoCollection.bulkWrite(dbObjects))
                 .collectList()
                 .then();
-    }
-
-    private <P> P mapAs(T obj, Class<P> projectionClass) {
-        try {
-            String json = objectMapper.writeValueAsString(obj);
-            return objectMapper.readValue(json, projectionClass);
-        } catch (JsonProcessingException e) {
-            log.debug("Error converting object to JSON", e);
-            throw new AppsmithException(AppsmithError.JSON_PROCESSING_ERROR, e.getMessage());
-        }
     }
 }
