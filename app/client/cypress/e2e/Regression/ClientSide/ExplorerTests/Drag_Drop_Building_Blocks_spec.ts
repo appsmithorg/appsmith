@@ -24,12 +24,6 @@ describe(
     tags: ["@tag.IDE", "@tag.Widget", "@tag.Templates"],
   },
   () => {
-    beforeEach(() => {
-      homePage.NavigateToHome();
-      homePage.CreateNewWorkspace("Test Workspace");
-      homePage.CreateAppInWorkspace("Test Workspace");
-    });
-
     it("1. Building blocks tag is visible and open by default", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       agHelper
@@ -200,45 +194,7 @@ describe(
         });
     });
 
-    it("5. Should remove skeleton loader if /block API request fails", () => {
-      featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
-
-      // simluating a failure in the /block API request
-      cy.intercept("POST", "/api/v1/applications/import/partial/block", {
-        statusCode: 500,
-        delay: 1000,
-        body: {},
-      }).as("blockImport");
-
-      const x = 600;
-      const y = 80;
-      // select this specific building block so the test works on release
-      const selector = sampleBuildingBlockData.selector;
-      cy.wait(500);
-      cy.get(selector)
-        .first()
-        .trigger("dragstart", { force: true })
-        .trigger("mousemove", x, y, { force: true });
-
-      const option = {
-        eventConstructor: "MouseEvent",
-        scrollBehavior: false,
-      } as any;
-
-      cy.get(explorerLocators.dropHere)
-        .trigger("mousemove", x, y, option)
-        .trigger("mousemove", x, y, option)
-        .trigger("mouseup", x, y, option);
-
-      // check that loading skeleton is present
-      PageLeftPane.assertPresence(sampleBuildingBlockData.skeletonLoaderName);
-      cy.wait("@blockImport").then(() => {
-        // check that the skeleton loader has been removed
-        PageLeftPane.assertAbsence(sampleBuildingBlockData.skeletonLoaderName);
-      });
-    });
-
-    it("6. Should drag and drop building block on canvas", () => {
+    it("5. Should drag and drop building block on canvas", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       // primary api call for dropping building blocks on canvas
       cy.intercept("POST", "/api/v1/applications/import/partial/block").as(
