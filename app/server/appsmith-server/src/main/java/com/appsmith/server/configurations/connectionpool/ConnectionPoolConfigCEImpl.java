@@ -1,6 +1,6 @@
-package com.appsmith.server.connectionpoolconfig.configurations;
+package com.appsmith.server.configurations.connectionpool;
 
-import com.appsmith.external.connectionpoolconfig.configurations.ConnectionPoolConfigCE;
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfigCE;
 import reactor.core.publisher.Mono;
 
 public class ConnectionPoolConfigCEImpl implements ConnectionPoolConfigCE {

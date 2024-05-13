@@ -6,10 +6,13 @@ import org.springframework.beans.BeanWrapperImpl;
 import org.springframework.beans.PropertyAccessorFactory;
 
 import java.beans.PropertyDescriptor;
+import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Stream;
 
 public final class AppsmithBeanUtils {
 
@@ -123,5 +126,17 @@ public final class AppsmithBeanUtils {
         }
 
         return values;
+    }
+
+    public static Stream<Field> getAllFields(Class<?> currentType) {
+
+        Set<Class<?>> classes = new HashSet<>();
+
+        while (currentType != null) {
+            classes.add(currentType);
+            currentType = currentType.getSuperclass();
+        }
+
+        return classes.stream().flatMap(currentClass -> Arrays.stream(currentClass.getDeclaredFields()));
     }
 }
