@@ -19,7 +19,7 @@ const _Text = (props: TextProps, ref: Ref<HTMLParagraphElement>) => {
     isItalic = false,
     lineClamp,
     style,
-    textAlign = "left",
+    textAlign = "start",
     title,
     variant = "body",
     ...rest
