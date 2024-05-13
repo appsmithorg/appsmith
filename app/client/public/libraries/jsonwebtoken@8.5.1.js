@@ -6,10 +6,10 @@
     ("undefined" != typeof window
       ? window
       : "undefined" != typeof global
-      ? global
-      : "undefined" != typeof self
-      ? self
-      : this
+        ? global
+        : "undefined" != typeof self
+          ? self
+          : this
     ).jsonwebtoken = e();
   }
 })(function () {
@@ -664,8 +664,8 @@
             return "string" == typeof e
               ? e
               : "number" == typeof e || n.isBuffer(e)
-              ? e.toString()
-              : JSON.stringify(e);
+                ? e.toString()
+                : JSON.stringify(e);
           };
         },
         { buffer: 75 },
@@ -898,13 +898,13 @@
             (e = T(e)
               ? e
               : (s = e)
-              ? g(
-                  s,
-                  (function (e) {
-                    return T(e) ? j(e) : B(e);
-                  })(s),
-                )
-              : []),
+                ? g(
+                    s,
+                    (function (e) {
+                      return T(e) ? j(e) : B(e);
+                    })(s),
+                  )
+                : []),
               (r =
                 r && !i
                   ? (function (e) {
@@ -935,8 +935,8 @@
                               return r || b.test(e)
                                 ? m(e.slice(2), r ? 2 : 8)
                                 : l.test(e)
-                                ? a
-                                : +e;
+                                  ? a
+                                  : +e;
                             })(e)) === n ||
                             e === -n
                           ) {
@@ -1045,8 +1045,8 @@
                           return r || u.test(e)
                             ? h(e.slice(2), r ? 2 : 8)
                             : f.test(e)
-                            ? o
-                            : +e;
+                              ? o
+                              : +e;
                         })(e)) === n ||
                         e === -n
                       ) {
@@ -1184,8 +1184,8 @@
                         return r || h.test(e)
                           ? d(e.slice(2), r ? 2 : 8)
                           : c.test(e)
-                          ? a
-                          : +e;
+                            ? a
+                            : +e;
                       })(e)) === i ||
                       e === -i
                     ) {
@@ -1836,20 +1836,20 @@
                 (t = fe(r)
                   ? ""
                   : fe(n)
-                  ? ">=" + r + ".0.0"
-                  : fe(i)
-                  ? ">=" + r + "." + n + ".0"
-                  : ">=" + t) +
+                    ? ">=" + r + ".0.0"
+                    : fe(i)
+                      ? ">=" + r + "." + n + ".0"
+                      : ">=" + t) +
                 " " +
                 (s = fe(f)
                   ? ""
                   : fe(c)
-                  ? "<" + (+f + 1) + ".0.0"
-                  : fe(u)
-                  ? "<" + f + "." + (+c + 1) + ".0"
-                  : h
-                  ? "<=" + f + "." + c + "." + u + "-" + h
-                  : "<=" + s)
+                    ? "<" + (+f + 1) + ".0.0"
+                    : fe(u)
+                      ? "<" + f + "." + (+c + 1) + ".0"
+                      : h
+                        ? "<=" + f + "." + c + "." + u + "-" + h
+                        : "<=" + s)
               ).trim();
             }
             function ue(e, t, r) {
@@ -2019,110 +2019,110 @@
                                       fe(r)
                                         ? (s = "")
                                         : fe(i)
-                                        ? (s =
-                                            ">=" +
-                                            r +
-                                            ".0.0 <" +
-                                            (+r + 1) +
-                                            ".0.0")
-                                        : fe(o)
-                                        ? (s =
-                                            "0" === r
-                                              ? ">=" +
-                                                r +
-                                                "." +
-                                                i +
-                                                ".0 <" +
-                                                r +
-                                                "." +
-                                                (+i + 1) +
-                                                ".0"
-                                              : ">=" +
-                                                r +
-                                                "." +
-                                                i +
-                                                ".0 <" +
-                                                (+r + 1) +
-                                                ".0.0")
-                                        : a
-                                        ? (n("replaceCaret pr", a),
-                                          (s =
-                                            "0" === r
-                                              ? "0" === i
-                                                ? ">=" +
-                                                  r +
-                                                  "." +
-                                                  i +
-                                                  "." +
-                                                  o +
-                                                  "-" +
-                                                  a +
-                                                  " <" +
-                                                  r +
-                                                  "." +
-                                                  i +
-                                                  "." +
-                                                  (+o + 1)
-                                                : ">=" +
-                                                  r +
-                                                  "." +
-                                                  i +
-                                                  "." +
-                                                  o +
-                                                  "-" +
-                                                  a +
-                                                  " <" +
-                                                  r +
-                                                  "." +
-                                                  (+i + 1) +
-                                                  ".0"
-                                              : ">=" +
-                                                r +
-                                                "." +
-                                                i +
-                                                "." +
-                                                o +
-                                                "-" +
-                                                a +
-                                                " <" +
-                                                (+r + 1) +
-                                                ".0.0"))
-                                        : (n("no pr"),
-                                          (s =
-                                            "0" === r
-                                              ? "0" === i
-                                                ? ">=" +
-                                                  r +
-                                                  "." +
-                                                  i +
-                                                  "." +
-                                                  o +
-                                                  " <" +
-                                                  r +
-                                                  "." +
-                                                  i +
-                                                  "." +
-                                                  (+o + 1)
-                                                : ">=" +
-                                                  r +
-                                                  "." +
-                                                  i +
-                                                  "." +
-                                                  o +
-                                                  " <" +
-                                                  r +
-                                                  "." +
-                                                  (+i + 1) +
-                                                  ".0"
-                                              : ">=" +
-                                                r +
-                                                "." +
-                                                i +
-                                                "." +
-                                                o +
-                                                " <" +
-                                                (+r + 1) +
-                                                ".0.0")),
+                                          ? (s =
+                                              ">=" +
+                                              r +
+                                              ".0.0 <" +
+                                              (+r + 1) +
+                                              ".0.0")
+                                          : fe(o)
+                                            ? (s =
+                                                "0" === r
+                                                  ? ">=" +
+                                                    r +
+                                                    "." +
+                                                    i +
+                                                    ".0 <" +
+                                                    r +
+                                                    "." +
+                                                    (+i + 1) +
+                                                    ".0"
+                                                  : ">=" +
+                                                    r +
+                                                    "." +
+                                                    i +
+                                                    ".0 <" +
+                                                    (+r + 1) +
+                                                    ".0.0")
+                                            : a
+                                              ? (n("replaceCaret pr", a),
+                                                (s =
+                                                  "0" === r
+                                                    ? "0" === i
+                                                      ? ">=" +
+                                                        r +
+                                                        "." +
+                                                        i +
+                                                        "." +
+                                                        o +
+                                                        "-" +
+                                                        a +
+                                                        " <" +
+                                                        r +
+                                                        "." +
+                                                        i +
+                                                        "." +
+                                                        (+o + 1)
+                                                      : ">=" +
+                                                        r +
+                                                        "." +
+                                                        i +
+                                                        "." +
+                                                        o +
+                                                        "-" +
+                                                        a +
+                                                        " <" +
+                                                        r +
+                                                        "." +
+                                                        (+i + 1) +
+                                                        ".0"
+                                                    : ">=" +
+                                                      r +
+                                                      "." +
+                                                      i +
+                                                      "." +
+                                                      o +
+                                                      "-" +
+                                                      a +
+                                                      " <" +
+                                                      (+r + 1) +
+                                                      ".0.0"))
+                                              : (n("no pr"),
+                                                (s =
+                                                  "0" === r
+                                                    ? "0" === i
+                                                      ? ">=" +
+                                                        r +
+                                                        "." +
+                                                        i +
+                                                        "." +
+                                                        o +
+                                                        " <" +
+                                                        r +
+                                                        "." +
+                                                        i +
+                                                        "." +
+                                                        (+o + 1)
+                                                      : ">=" +
+                                                        r +
+                                                        "." +
+                                                        i +
+                                                        "." +
+                                                        o +
+                                                        " <" +
+                                                        r +
+                                                        "." +
+                                                        (+i + 1) +
+                                                        ".0"
+                                                    : ">=" +
+                                                      r +
+                                                      "." +
+                                                      i +
+                                                      "." +
+                                                      o +
+                                                      " <" +
+                                                      (+r + 1) +
+                                                      ".0.0")),
                                       n("caret return", s),
                                       s
                                     );
@@ -2146,51 +2146,51 @@
                                       fe(r)
                                         ? (s = "")
                                         : fe(i)
-                                        ? (s =
-                                            ">=" +
-                                            r +
-                                            ".0.0 <" +
-                                            (+r + 1) +
-                                            ".0.0")
-                                        : fe(o)
-                                        ? (s =
-                                            ">=" +
-                                            r +
-                                            "." +
-                                            i +
-                                            ".0 <" +
-                                            r +
-                                            "." +
-                                            (+i + 1) +
-                                            ".0")
-                                        : a
-                                        ? (n("replaceTilde pr", a),
-                                          (s =
-                                            ">=" +
-                                            r +
-                                            "." +
-                                            i +
-                                            "." +
-                                            o +
-                                            "-" +
-                                            a +
-                                            " <" +
-                                            r +
-                                            "." +
-                                            (+i + 1) +
-                                            ".0"))
-                                        : (s =
-                                            ">=" +
-                                            r +
-                                            "." +
-                                            i +
-                                            "." +
-                                            o +
-                                            " <" +
-                                            r +
-                                            "." +
-                                            (+i + 1) +
-                                            ".0"),
+                                          ? (s =
+                                              ">=" +
+                                              r +
+                                              ".0.0 <" +
+                                              (+r + 1) +
+                                              ".0.0")
+                                          : fe(o)
+                                            ? (s =
+                                                ">=" +
+                                                r +
+                                                "." +
+                                                i +
+                                                ".0 <" +
+                                                r +
+                                                "." +
+                                                (+i + 1) +
+                                                ".0")
+                                            : a
+                                              ? (n("replaceTilde pr", a),
+                                                (s =
+                                                  ">=" +
+                                                  r +
+                                                  "." +
+                                                  i +
+                                                  "." +
+                                                  o +
+                                                  "-" +
+                                                  a +
+                                                  " <" +
+                                                  r +
+                                                  "." +
+                                                  (+i + 1) +
+                                                  ".0"))
+                                              : (s =
+                                                  ">=" +
+                                                  r +
+                                                  "." +
+                                                  i +
+                                                  "." +
+                                                  o +
+                                                  " <" +
+                                                  r +
+                                                  "." +
+                                                  (+i + 1) +
+                                                  ".0"),
                                       n("tilde return", s),
                                       s
                                     );
@@ -2225,39 +2225,39 @@
                                                   ? "<0.0.0"
                                                   : "*")
                                             : r && h
-                                            ? (c && (o = 0),
-                                              (a = 0),
-                                              ">" === r
-                                                ? ((r = ">="),
-                                                  c
-                                                    ? ((i = +i + 1),
-                                                      (o = 0),
-                                                      (a = 0))
-                                                    : ((o = +o + 1), (a = 0)))
-                                                : "<=" === r &&
-                                                  ((r = "<"),
-                                                  c
-                                                    ? (i = +i + 1)
-                                                    : (o = +o + 1)),
-                                              (t = r + i + "." + o + "." + a))
-                                            : c
-                                            ? (t =
-                                                ">=" +
-                                                i +
-                                                ".0.0 <" +
-                                                (+i + 1) +
-                                                ".0.0")
-                                            : u &&
-                                              (t =
-                                                ">=" +
-                                                i +
-                                                "." +
-                                                o +
-                                                ".0 <" +
-                                                i +
-                                                "." +
-                                                (+o + 1) +
-                                                ".0"),
+                                              ? (c && (o = 0),
+                                                (a = 0),
+                                                ">" === r
+                                                  ? ((r = ">="),
+                                                    c
+                                                      ? ((i = +i + 1),
+                                                        (o = 0),
+                                                        (a = 0))
+                                                      : ((o = +o + 1), (a = 0)))
+                                                  : "<=" === r &&
+                                                    ((r = "<"),
+                                                    c
+                                                      ? (i = +i + 1)
+                                                      : (o = +o + 1)),
+                                                (t = r + i + "." + o + "." + a))
+                                              : c
+                                                ? (t =
+                                                    ">=" +
+                                                    i +
+                                                    ".0.0 <" +
+                                                    (+i + 1) +
+                                                    ".0.0")
+                                                : u &&
+                                                  (t =
+                                                    ">=" +
+                                                    i +
+                                                    "." +
+                                                    o +
+                                                    ".0 <" +
+                                                    i +
+                                                    "." +
+                                                    (+o + 1) +
+                                                    ".0"),
                                           n("xRange return", t),
                                           t
                                         );
@@ -2509,7 +2509,8 @@
                 var o = e[i];
                 if (o) {
                   if (!o.isValid(r[i])) throw new Error(o.message);
-                } else if (!t) throw new Error('"' + i + '" is not allowed in "' + n + '"');
+                } else if (!t)
+                  throw new Error('"' + i + '" is not allowed in "' + n + '"');
               });
             }
             var m = {
@@ -2754,8 +2755,8 @@
                       ~a.toString().indexOf("BEGIN PUBLIC KEY")
                         ? u
                         : ~a.toString().indexOf("BEGIN RSA PUBLIC KEY")
-                        ? h
-                        : d),
+                          ? h
+                          : d),
                   !~r.algorithms.indexOf(b.header.alg))
                 )
                   return l(new n("invalid algorithm"));
@@ -2781,13 +2782,13 @@
                 if (r.audience) {
                   var w = Array.isArray(r.audience) ? r.audience : [r.audience];
                   if (
-                    !(Array.isArray(g.aud) ? g.aud : [g.aud]).some(function (
-                      e,
-                    ) {
-                      return w.some(function (t) {
-                        return t instanceof RegExp ? t.test(e) : t === e;
-                      });
-                    })
+                    !(Array.isArray(g.aud) ? g.aud : [g.aud]).some(
+                      function (e) {
+                        return w.some(function (t) {
+                          return t instanceof RegExp ? t.test(e) : t === e;
+                        });
+                      },
+                    )
                   )
                     return l(
                       new n(
@@ -3006,8 +3007,8 @@
                       : ("number" == typeof this.value
                           ? (e[t] = this.value)
                           : "string" == typeof this.value
-                          ? e.write(this.value, t)
-                          : o.isBuffer(this.value) && this.value.copy(e, t),
+                            ? e.write(this.value, t)
+                            : o.isBuffer(this.value) && this.value.copy(e, t),
                         (t += this.length)),
                     e)
               );
@@ -3279,8 +3280,8 @@
                   (null !== r.explicit
                     ? (f = r.explicit)
                     : null !== r.implicit
-                    ? (f = r.implicit)
-                    : null !== r.tag && (f = r.tag),
+                      ? (f = r.implicit)
+                      : null !== r.tag && (f = r.tag),
                   null !== f || r.any)
                 ) {
                   if (((a = this._peekTag(e, f, r.any)), e.isError(a)))
@@ -3327,8 +3328,8 @@
                   (i = r.any
                     ? i
                     : null === r.choice
-                    ? this._decodeGeneric(r.tag, e, t)
-                    : this._decodeChoice(e, t)),
+                      ? this._decodeGeneric(r.tag, e, t)
+                      : this._decodeChoice(e, t)),
                   e.isError(i))
                 )
                   return i;
@@ -3361,26 +3362,29 @@
               return "seq" === e || "set" === e
                 ? null
                 : "seqof" === e || "setof" === e
-                ? this._decodeList(t, e, n.args[0], r)
-                : /str$/.test(e)
-                ? this._decodeStr(t, e, r)
-                : "objid" === e && n.args
-                ? this._decodeObjid(t, n.args[0], n.args[1], r)
-                : "objid" === e
-                ? this._decodeObjid(t, null, null, r)
-                : "gentime" === e || "utctime" === e
-                ? this._decodeTime(t, e, r)
-                : "null_" === e
-                ? this._decodeNull(t, r)
-                : "bool" === e
-                ? this._decodeBool(t, r)
-                : "objDesc" === e
-                ? this._decodeStr(t, e, r)
-                : "int" === e || "enum" === e
-                ? this._decodeInt(t, n.args && n.args[0], r)
-                : null !== n.use
-                ? this._getUse(n.use, t._reporterState.obj)._decode(t, r)
-                : t.error("unknown tag: " + e);
+                  ? this._decodeList(t, e, n.args[0], r)
+                  : /str$/.test(e)
+                    ? this._decodeStr(t, e, r)
+                    : "objid" === e && n.args
+                      ? this._decodeObjid(t, n.args[0], n.args[1], r)
+                      : "objid" === e
+                        ? this._decodeObjid(t, null, null, r)
+                        : "gentime" === e || "utctime" === e
+                          ? this._decodeTime(t, e, r)
+                          : "null_" === e
+                            ? this._decodeNull(t, r)
+                            : "bool" === e
+                              ? this._decodeBool(t, r)
+                              : "objDesc" === e
+                                ? this._decodeStr(t, e, r)
+                                : "int" === e || "enum" === e
+                                  ? this._decodeInt(t, n.args && n.args[0], r)
+                                  : null !== n.use
+                                    ? this._getUse(
+                                        n.use,
+                                        t._reporterState.obj,
+                                      )._decode(t, r)
+                                    : t.error("unknown tag: " + e);
             }),
             (c.prototype._getUse = function (e, t) {
               var r = this._baseState;
@@ -4008,18 +4012,18 @@
                       "Encoding of string type: numstr supports only digits and space",
                     )
                 : "printstr" === t
-                ? this._isPrintstr(e)
-                  ? this._createEncoderBuffer(e)
-                  : this.reporter.error(
-                      "Encoding of string type: printstr supports only latin upper and lower case letters, digits, space, apostrophe, left and rigth parenthesis, plus sign, comma, hyphen, dot, slash, colon, equal sign, question mark",
-                    )
-                : /str$/.test(t)
-                ? this._createEncoderBuffer(e)
-                : "objDesc" === t
-                ? this._createEncoderBuffer(e)
-                : this.reporter.error(
-                    "Encoding of string type: " + t + " unsupported",
-                  );
+                  ? this._isPrintstr(e)
+                    ? this._createEncoderBuffer(e)
+                    : this.reporter.error(
+                        "Encoding of string type: printstr supports only latin upper and lower case letters, digits, space, apostrophe, left and rigth parenthesis, plus sign, comma, hyphen, dot, slash, colon, equal sign, question mark",
+                      )
+                  : /str$/.test(t)
+                    ? this._createEncoderBuffer(e)
+                    : "objDesc" === t
+                      ? this._createEncoderBuffer(e)
+                      : this.reporter.error(
+                          "Encoding of string type: " + t + " unsupported",
+                        );
             }),
             (c.prototype._encodeObjid = function (e, t, r) {
               if ("string" == typeof e) {
@@ -4074,18 +4078,18 @@
                       "Z",
                     ].join(""))
                   : "utctime" === t
-                  ? (r = [
-                      u(n.getFullYear() % 100),
-                      u(n.getUTCMonth() + 1),
-                      u(n.getUTCDate()),
-                      u(n.getUTCHours()),
-                      u(n.getUTCMinutes()),
-                      u(n.getUTCSeconds()),
-                      "Z",
-                    ].join(""))
-                  : this.reporter.error(
-                      "Encoding " + t + " time is not supported yet",
-                    ),
+                    ? (r = [
+                        u(n.getFullYear() % 100),
+                        u(n.getUTCMonth() + 1),
+                        u(n.getUTCDate()),
+                        u(n.getUTCHours()),
+                        u(n.getUTCMinutes()),
+                        u(n.getUTCSeconds()),
+                        "Z",
+                      ].join(""))
+                    : this.reporter.error(
+                        "Encoding " + t + " time is not supported yet",
+                      ),
                 this._encodeStr(r, "octstr")
               );
             }),
@@ -4320,8 +4324,8 @@
                     a >= 49 && a <= 54
                       ? a - 49 + 10
                       : a >= 17 && a <= 22
-                      ? a - 17 + 10
-                      : 15 & a);
+                        ? a - 17 + 10
+                        : 15 & a);
               }
               return n;
             }
@@ -4364,15 +4368,18 @@
                   e < 67108864
                     ? ((this.words = [67108863 & e]), (this.length = 1))
                     : e < 4503599627370496
-                    ? ((this.words = [67108863 & e, (e / 67108864) & 67108863]),
-                      (this.length = 2))
-                    : (n(e < 9007199254740992),
-                      (this.words = [
-                        67108863 & e,
-                        (e / 67108864) & 67108863,
-                        1,
-                      ]),
-                      (this.length = 3)),
+                      ? ((this.words = [
+                          67108863 & e,
+                          (e / 67108864) & 67108863,
+                        ]),
+                        (this.length = 2))
+                      : (n(e < 9007199254740992),
+                        (this.words = [
+                          67108863 & e,
+                          (e / 67108864) & 67108863,
+                          1,
+                        ]),
+                        (this.length = 3)),
                   "le" === r && this._initArray(this.toArray(), t, r);
               }),
               (o.prototype._initArray = function (e, t, r) {
@@ -4588,9 +4595,9 @@
                   2 === this.length
                     ? (e += 67108864 * this.words[1])
                     : 3 === this.length && 1 === this.words[2]
-                    ? (e += 4503599627370496 + 67108864 * this.words[1])
-                    : this.length > 2 &&
-                      n(!1, "Number can only safely store up to 53 bits"),
+                      ? (e += 4503599627370496 + 67108864 * this.words[1])
+                      : this.length > 2 &&
+                        n(!1, "Number can only safely store up to 53 bits"),
                   0 !== this.negative ? -e : e
                 );
               }),
@@ -4817,13 +4824,13 @@
                 return 0 !== e.negative && 0 === this.negative
                   ? ((e.negative = 0), (t = this.sub(e)), (e.negative ^= 1), t)
                   : 0 === e.negative && 0 !== this.negative
-                  ? ((this.negative = 0),
-                    (t = e.sub(this)),
-                    (this.negative = 1),
-                    t)
-                  : this.length > e.length
-                  ? this.clone().iadd(e)
-                  : e.clone().iadd(this);
+                    ? ((this.negative = 0),
+                      (t = e.sub(this)),
+                      (this.negative = 1),
+                      t)
+                    : this.length > e.length
+                      ? this.clone().iadd(e)
+                      : e.clone().iadd(this);
               }),
               (o.prototype.isub = function (e) {
                 if (0 !== e.negative) {
@@ -5454,37 +5461,39 @@
                 return 10 === this.length && 10 === e.length
                   ? l(this, e, t)
                   : r < 63
-                  ? d(this, e, t)
-                  : r < 1024
-                  ? (function (e, t, r) {
-                      (r.negative = t.negative ^ e.negative),
-                        (r.length = e.length + t.length);
-                      for (var n = 0, i = 0, o = 0; o < r.length - 1; o++) {
-                        var a = i;
-                        i = 0;
-                        for (
-                          var s = 67108863 & n,
-                            f = Math.min(o, t.length - 1),
-                            c = Math.max(0, o - e.length + 1);
-                          c <= f;
-                          c++
-                        ) {
-                          var u = o - c,
-                            h = (0 | e.words[u]) * (0 | t.words[c]),
-                            d = 67108863 & h;
-                          (s = 67108863 & (d = (d + s) | 0)),
-                            (i +=
-                              (a =
-                                ((a = (a + ((h / 67108864) | 0)) | 0) +
-                                  (d >>> 26)) |
-                                0) >>> 26),
-                            (a &= 67108863);
-                        }
-                        (r.words[o] = s), (n = a), (a = i);
-                      }
-                      return 0 !== n ? (r.words[o] = n) : r.length--, r.strip();
-                    })(this, e, t)
-                  : p(this, e, t);
+                    ? d(this, e, t)
+                    : r < 1024
+                      ? (function (e, t, r) {
+                          (r.negative = t.negative ^ e.negative),
+                            (r.length = e.length + t.length);
+                          for (var n = 0, i = 0, o = 0; o < r.length - 1; o++) {
+                            var a = i;
+                            i = 0;
+                            for (
+                              var s = 67108863 & n,
+                                f = Math.min(o, t.length - 1),
+                                c = Math.max(0, o - e.length + 1);
+                              c <= f;
+                              c++
+                            ) {
+                              var u = o - c,
+                                h = (0 | e.words[u]) * (0 | t.words[c]),
+                                d = 67108863 & h;
+                              (s = 67108863 & (d = (d + s) | 0)),
+                                (i +=
+                                  (a =
+                                    ((a = (a + ((h / 67108864) | 0)) | 0) +
+                                      (d >>> 26)) |
+                                    0) >>> 26),
+                                (a &= 67108863);
+                            }
+                            (r.words[o] = s), (n = a), (a = i);
+                          }
+                          return (
+                            0 !== n ? (r.words[o] = n) : r.length--, r.strip()
+                          );
+                        })(this, e, t)
+                      : p(this, e, t);
               }),
               (b.prototype.makeRBT = function (e) {
                 for (
@@ -5775,15 +5784,15 @@
                   e < 0
                     ? this.isubn(-e)
                     : 0 !== this.negative
-                    ? 1 === this.length && (0 | this.words[0]) < e
-                      ? ((this.words[0] = e - (0 | this.words[0])),
-                        (this.negative = 0),
-                        this)
-                      : ((this.negative = 0),
-                        this.isubn(e),
-                        (this.negative = 1),
-                        this)
-                    : this._iaddn(e)
+                      ? 1 === this.length && (0 | this.words[0]) < e
+                        ? ((this.words[0] = e - (0 | this.words[0])),
+                          (this.negative = 0),
+                          this)
+                        : ((this.negative = 0),
+                          this.isubn(e),
+                          (this.negative = 1),
+                          this)
+                      : this._iaddn(e)
                 );
               }),
               (o.prototype._iaddn = function (e) {
@@ -5898,32 +5907,37 @@
                   this.isZero()
                     ? { div: new o(0), mod: new o(0) }
                     : 0 !== this.negative && 0 === e.negative
-                    ? ((s = this.neg().divmod(e, t)),
-                      "mod" !== t && (i = s.div.neg()),
-                      "div" !== t &&
-                        ((a = s.mod.neg()), r && 0 !== a.negative && a.iadd(e)),
-                      { div: i, mod: a })
-                    : 0 === this.negative && 0 !== e.negative
-                    ? ((s = this.divmod(e.neg(), t)),
-                      "mod" !== t && (i = s.div.neg()),
-                      { div: i, mod: s.mod })
-                    : 0 != (this.negative & e.negative)
-                    ? ((s = this.neg().divmod(e.neg(), t)),
-                      "div" !== t &&
-                        ((a = s.mod.neg()), r && 0 !== a.negative && a.isub(e)),
-                      { div: s.div, mod: a })
-                    : e.length > this.length || this.cmp(e) < 0
-                    ? { div: new o(0), mod: this }
-                    : 1 === e.length
-                    ? "div" === t
-                      ? { div: this.divn(e.words[0]), mod: null }
-                      : "mod" === t
-                      ? { div: null, mod: new o(this.modn(e.words[0])) }
-                      : {
-                          div: this.divn(e.words[0]),
-                          mod: new o(this.modn(e.words[0])),
-                        }
-                    : this._wordDiv(e, t)
+                      ? ((s = this.neg().divmod(e, t)),
+                        "mod" !== t && (i = s.div.neg()),
+                        "div" !== t &&
+                          ((a = s.mod.neg()),
+                          r && 0 !== a.negative && a.iadd(e)),
+                        { div: i, mod: a })
+                      : 0 === this.negative && 0 !== e.negative
+                        ? ((s = this.divmod(e.neg(), t)),
+                          "mod" !== t && (i = s.div.neg()),
+                          { div: i, mod: s.mod })
+                        : 0 != (this.negative & e.negative)
+                          ? ((s = this.neg().divmod(e.neg(), t)),
+                            "div" !== t &&
+                              ((a = s.mod.neg()),
+                              r && 0 !== a.negative && a.isub(e)),
+                            { div: s.div, mod: a })
+                          : e.length > this.length || this.cmp(e) < 0
+                            ? { div: new o(0), mod: this }
+                            : 1 === e.length
+                              ? "div" === t
+                                ? { div: this.divn(e.words[0]), mod: null }
+                                : "mod" === t
+                                  ? {
+                                      div: null,
+                                      mod: new o(this.modn(e.words[0])),
+                                    }
+                                  : {
+                                      div: this.divn(e.words[0]),
+                                      mod: new o(this.modn(e.words[0])),
+                                    }
+                              : this._wordDiv(e, t)
                 );
                 var i, a, s;
               }),
@@ -5946,8 +5960,8 @@
                 return o < 0 || (1 === i && 0 === o)
                   ? t.div
                   : 0 !== t.div.negative
-                  ? t.div.isubn(1)
-                  : t.div.iaddn(1);
+                    ? t.div.isubn(1)
+                    : t.div.iaddn(1);
               }),
               (o.prototype.modn = function (e) {
                 n(e <= 67108863);
@@ -6342,8 +6356,8 @@
                   0 === n
                     ? ((r.words[0] = 0), (r.length = 1))
                     : n > 0
-                    ? r.isub(this.p)
-                    : r.strip(),
+                      ? r.isub(this.p)
+                      : r.strip(),
                   r
                 );
               }),
@@ -6631,14 +6645,14 @@
                   return self.crypto.getRandomValues(t), t;
                 })
               : self.msCrypto && self.msCrypto.getRandomValues
-              ? (i.prototype._rand = function (e) {
-                  var t = new Uint8Array(e);
-                  return self.msCrypto.getRandomValues(t), t;
-                })
-              : "object" == typeof window &&
-                (i.prototype._rand = function () {
-                  throw new Error("Not implemented yet");
-                });
+                ? (i.prototype._rand = function (e) {
+                    var t = new Uint8Array(e);
+                    return self.msCrypto.getRandomValues(t), t;
+                  })
+                : "object" == typeof window &&
+                  (i.prototype._rand = function () {
+                    throw new Error("Not implemented yet");
+                  });
           else
             try {
               var o = e("crypto");
@@ -7043,8 +7057,8 @@
             return "stream" === s.type
               ? new a(s.module, t, r, !0)
               : "auth" === s.type
-              ? new n(s.module, t, r, !0)
-              : new u(s.module, t, r);
+                ? new n(s.module, t, r, !0)
+                : new u(s.module, t, r);
           }
           e("inherits")(u, s),
             (u.prototype._update = function (e) {
@@ -7159,8 +7173,8 @@
             return "stream" === s.type
               ? new a(s.module, t, r)
               : "auth" === s.type
-              ? new i(s.module, t, r)
-              : new u(s.module, t, r);
+                ? new i(s.module, t, r)
+                : new u(s.module, t, r);
           }
           (u.prototype._final = function () {
             var e = this._cache.flush();
@@ -8362,8 +8376,8 @@
                     void 0 === r && void 0 === n
                       ? new Uint8Array(e)
                       : void 0 === n
-                      ? new Uint8Array(e, r)
-                      : new Uint8Array(e, r, n);
+                        ? new Uint8Array(e, r)
+                        : new Uint8Array(e, r, n);
                   return (i.__proto__ = t.prototype), i;
                 })(e, r, n);
               if ("number" == typeof e)
@@ -8471,8 +8485,8 @@
                 ("string" == typeof n
                   ? ((i = n), (n = 0))
                   : n > 2147483647
-                  ? (n = 2147483647)
-                  : n < -2147483648 && (n = -2147483648),
+                    ? (n = 2147483647)
+                    : n < -2147483648 && (n = -2147483648),
                 q((n = +n)) && (n = o ? 0 : e.length - 1),
                 n < 0 && (n = e.length + n),
                 n >= e.length)
@@ -8711,10 +8725,10 @@
                     e <= 0
                       ? a(e)
                       : void 0 !== t
-                      ? "string" == typeof r
-                        ? a(e).fill(t, r)
-                        : a(e).fill(t)
-                      : a(e)
+                        ? "string" == typeof r
+                          ? a(e).fill(t, r)
+                          : a(e).fill(t)
+                        : a(e)
                   );
                 })(e, t, r);
               }),
@@ -8826,42 +8840,45 @@
                 return 0 === e
                   ? ""
                   : 0 === arguments.length
-                  ? E(this, 0, e)
-                  : function (e, t, r) {
-                      var n = !1;
-                      if (((void 0 === t || t < 0) && (t = 0), t > this.length))
-                        return "";
-                      if (
-                        ((void 0 === r || r > this.length) && (r = this.length),
-                        r <= 0)
-                      )
-                        return "";
-                      if ((r >>>= 0) <= (t >>>= 0)) return "";
-                      for (e || (e = "utf8"); ; )
-                        switch (e) {
-                          case "hex":
-                            return A(this, t, r);
-                          case "utf8":
-                          case "utf-8":
-                            return E(this, t, r);
-                          case "ascii":
-                            return k(this, t, r);
-                          case "latin1":
-                          case "binary":
-                            return x(this, t, r);
-                          case "base64":
-                            return S(this, t, r);
-                          case "ucs2":
-                          case "ucs-2":
-                          case "utf16le":
-                          case "utf-16le":
-                            return j(this, t, r);
-                          default:
-                            if (n)
-                              throw new TypeError("Unknown encoding: " + e);
-                            (e = (e + "").toLowerCase()), (n = !0);
-                        }
-                    }.apply(this, arguments);
+                    ? E(this, 0, e)
+                    : function (e, t, r) {
+                        var n = !1;
+                        if (
+                          ((void 0 === t || t < 0) && (t = 0), t > this.length)
+                        )
+                          return "";
+                        if (
+                          ((void 0 === r || r > this.length) &&
+                            (r = this.length),
+                          r <= 0)
+                        )
+                          return "";
+                        if ((r >>>= 0) <= (t >>>= 0)) return "";
+                        for (e || (e = "utf8"); ; )
+                          switch (e) {
+                            case "hex":
+                              return A(this, t, r);
+                            case "utf8":
+                            case "utf-8":
+                              return E(this, t, r);
+                            case "ascii":
+                              return k(this, t, r);
+                            case "latin1":
+                            case "binary":
+                              return x(this, t, r);
+                            case "base64":
+                              return S(this, t, r);
+                            case "ucs2":
+                            case "ucs-2":
+                            case "utf16le":
+                            case "utf-16le":
+                              return j(this, t, r);
+                            default:
+                              if (n)
+                                throw new TypeError("Unknown encoding: " + e);
+                              (e = (e + "").toLowerCase()), (n = !0);
+                          }
+                      }.apply(this, arguments);
               }),
               (t.prototype.toLocaleString = t.prototype.toString),
               (t.prototype.equals = function (e) {
@@ -9739,8 +9756,8 @@
               return "md5" === (e = e.toLowerCase())
                 ? new i()
                 : "rmd160" === e || "ripemd160" === e
-                ? new o()
-                : new f(a(e));
+                  ? new o()
+                  : new f(a(e));
             });
         },
         {
@@ -9803,8 +9820,8 @@
               return "rmd160" === (e = e.toLowerCase()) || "ripemd160" === e
                 ? new h("rmd160", t)
                 : "md5" === e
-                ? new i(s, t)
-                : new h(e, t);
+                  ? new i(s, t)
+                  : new h(e, t);
             });
         },
         {
@@ -10035,8 +10052,8 @@
               return 0 === e.length
                 ? []
                 : "decrypt" === this.type
-                ? this._updateDecrypt(e)
-                : this._updateEncrypt(e);
+                  ? this._updateDecrypt(e)
+                  : this._updateEncrypt(e);
             }),
             (i.prototype._buffer = function (e, t) {
               for (
@@ -10795,8 +10812,8 @@
                         ? f.mixedAdd(i[(u - 1) >> 1])
                         : f.mixedAdd(i[(-u - 1) >> 1].neg())
                       : u > 0
-                      ? f.add(i[(u - 1) >> 1])
-                      : f.add(i[(-u - 1) >> 1].neg()));
+                        ? f.add(i[(u - 1) >> 1])
+                        : f.add(i[(-u - 1) >> 1].neg()));
               }
               return "affine" === e.type ? f.toP() : f;
             }),
@@ -10822,10 +10839,10 @@
                     ? ((b[1] = t[l].add(t[p])),
                       (b[2] = t[l].toJ().mixedAdd(t[p].neg())))
                     : 0 === t[l].y.cmp(t[p].y.redNeg())
-                    ? ((b[1] = t[l].toJ().mixedAdd(t[p])),
-                      (b[2] = t[l].add(t[p].neg())))
-                    : ((b[1] = t[l].toJ().mixedAdd(t[p])),
-                      (b[2] = t[l].toJ().mixedAdd(t[p].neg())));
+                      ? ((b[1] = t[l].toJ().mixedAdd(t[p])),
+                        (b[2] = t[l].add(t[p].neg())))
+                      : ((b[1] = t[l].toJ().mixedAdd(t[p])),
+                        (b[2] = t[l].toJ().mixedAdd(t[p].neg())));
                   var y = [-3, -1, -5, -7, 0, 7, 5, 1, 3],
                     m = a(r[l], r[p]);
                   (u = Math.max(m[0].length, u)),
@@ -11132,8 +11149,8 @@
               return this.isInfinity()
                 ? this
                 : this.curve.extended
-                ? this._extDbl()
-                : this._projDbl();
+                  ? this._extDbl()
+                  : this._projDbl();
             }),
             (c.prototype._extAdd = function (e) {
               var t = this.y.redSub(this.x).redMul(e.y.redSub(e.x)),
@@ -11179,10 +11196,10 @@
               return this.isInfinity()
                 ? e
                 : e.isInfinity()
-                ? this
-                : this.curve.extended
-                ? this._extAdd(e)
-                : this._projAdd(e);
+                  ? this
+                  : this.curve.extended
+                    ? this._extAdd(e)
+                    : this._projAdd(e);
             }),
             (c.prototype.mul = function (e) {
               return this._hasDoubles(e)
@@ -11680,8 +11697,8 @@
                 this._hasDoubles(e)
                   ? this.curve._fixedNafMul(this, e)
                   : this.curve.endo
-                  ? this.curve._endoWnafMulAdd([this], [e])
-                  : this.curve._wnafMul(this, e)
+                    ? this.curve._endoWnafMulAdd([this], [e])
+                    : this.curve._wnafMul(this, e)
               );
             }),
             (c.prototype.mulAdd = function (e, t, r) {
@@ -11823,10 +11840,10 @@
               return this.isInfinity()
                 ? this
                 : this.curve.zeroA
-                ? this._zeroDbl()
-                : this.curve.threeA
-                ? this._threeDbl()
-                : this._dbl();
+                  ? this._zeroDbl()
+                  : this.curve.threeA
+                    ? this._threeDbl()
+                    : this._dbl();
             }),
             (u.prototype._zeroDbl = function () {
               var e, t, r;
@@ -11987,8 +12004,8 @@
             "short" === e.type
               ? (this.curve = new a.short(e))
               : "edwards" === e.type
-              ? (this.curve = new a.edwards(e))
-              : (this.curve = new a.mont(e)),
+                ? (this.curve = new a.edwards(e))
+                : (this.curve = new a.mont(e)),
               (this.g = this.curve.g),
               (this.n = this.curve.n),
               (this.hash = e.hash),
@@ -12345,10 +12362,10 @@
               return e.isInfinity()
                 ? { result: !1, reason: "Invalid public key" }
                 : e.validate()
-                ? e.mul(this.ec.curve.n).isInfinity()
-                  ? { result: !0, reason: null }
-                  : { result: !1, reason: "Public key * N != O" }
-                : { result: !1, reason: "Public key is not a point" };
+                  ? e.mul(this.ec.curve.n).isInfinity()
+                    ? { result: !0, reason: null }
+                    : { result: !1, reason: "Public key * N != O" }
+                  : { result: !1, reason: "Public key is not a point" };
             }),
             (o.prototype.getPublic = function (e, t) {
               return (
@@ -13518,15 +13535,15 @@
                     0 == (1 & f)
                       ? 0
                       : (3 != (s = (e.andln(7) + n) & 7) && 5 !== s) || 2 !== c
-                      ? f
-                      : -f),
+                        ? f
+                        : -f),
                   r[0].push(o),
                   (a =
                     0 == (1 & c)
                       ? 0
                       : (3 != (s = (t.andln(7) + i) & 7) && 5 !== s) || 2 !== f
-                      ? c
-                      : -c),
+                        ? c
+                        : -c),
                   r[1].push(a),
                   2 * n === o + 1 && (n = 1 - n),
                   2 * i === a + 1 && (i = 1 - i),
@@ -13672,8 +13689,8 @@
                 ("function" == typeof s
                   ? (s = a[t] = i ? [r, s] : [s, r])
                   : i
-                  ? s.unshift(r)
-                  : s.push(r),
+                    ? s.unshift(r)
+                    : s.push(r),
                 !s.warned && (o = u(e)) && o > 0 && s.length > o)
               ) {
                 s.warned = !0;
@@ -13750,12 +13767,16 @@
                   ? [i.listener || i]
                   : [i]
                 : r
-                ? (function (e) {
-                    for (var t = new Array(e.length), r = 0; r < t.length; ++r)
-                      t[r] = e[r].listener || e[r];
-                    return t;
-                  })(i)
-                : y(i, i.length)
+                  ? (function (e) {
+                      for (
+                        var t = new Array(e.length), r = 0;
+                        r < t.length;
+                        ++r
+                      )
+                        t[r] = e[r].listener || e[r];
+                      return t;
+                    })(i)
+                  : y(i, i.length)
               : [];
           }
           function b(e) {
@@ -14239,34 +14260,34 @@
             return e <= 15
               ? t ^ r ^ n
               : e <= 31
-              ? (t & r) | (~t & n)
-              : e <= 47
-              ? (t | ~r) ^ n
-              : e <= 63
-              ? (t & n) | (r & ~n)
-              : t ^ (r | ~n);
+                ? (t & r) | (~t & n)
+                : e <= 47
+                  ? (t | ~r) ^ n
+                  : e <= 63
+                    ? (t & n) | (r & ~n)
+                    : t ^ (r | ~n);
           }
           function d(e) {
             return e <= 15
               ? 0
               : e <= 31
-              ? 1518500249
-              : e <= 47
-              ? 1859775393
-              : e <= 63
-              ? 2400959708
-              : 2840853838;
+                ? 1518500249
+                : e <= 47
+                  ? 1859775393
+                  : e <= 63
+                    ? 2400959708
+                    : 2840853838;
           }
           function l(e) {
             return e <= 15
               ? 1352829926
               : e <= 31
-              ? 1548603684
-              : e <= 47
-              ? 1836072691
-              : e <= 63
-              ? 2053994217
-              : 0;
+                ? 1548603684
+                : e <= 47
+                  ? 1836072691
+                  : e <= 63
+                    ? 2053994217
+                    : 0;
           }
           n.inherits(u, c),
             (r.ripemd160 = u),
@@ -14793,10 +14814,10 @@
             return 0 === e
               ? i(t, r, n)
               : 1 === e || 3 === e
-              ? a(t, r, n)
-              : 2 === e
-              ? o(t, r, n)
-              : void 0;
+                ? a(t, r, n)
+                : 2 === e
+                  ? o(t, r, n)
+                  : void 0;
           }),
             (r.ch32 = i),
             (r.maj32 = o),
@@ -14844,18 +14865,18 @@
             return 7 === e.length
               ? "0" + e
               : 6 === e.length
-              ? "00" + e
-              : 5 === e.length
-              ? "000" + e
-              : 4 === e.length
-              ? "0000" + e
-              : 3 === e.length
-              ? "00000" + e
-              : 2 === e.length
-              ? "000000" + e
-              : 1 === e.length
-              ? "0000000" + e
-              : e;
+                ? "00" + e
+                : 5 === e.length
+                  ? "000" + e
+                  : 4 === e.length
+                    ? "0000" + e
+                    : 3 === e.length
+                      ? "00000" + e
+                      : 2 === e.length
+                        ? "000000" + e
+                        : 1 === e.length
+                          ? "0000000" + e
+                          : e;
           }
           (r.inherits = i),
             (r.toArray = function (e, t) {
@@ -14879,19 +14900,19 @@
                     a < 128
                       ? (r[n++] = a)
                       : a < 2048
-                      ? ((r[n++] = (a >> 6) | 192), (r[n++] = (63 & a) | 128))
-                      : o(e, i)
-                      ? ((a =
-                          65536 +
-                          ((1023 & a) << 10) +
-                          (1023 & e.charCodeAt(++i))),
-                        (r[n++] = (a >> 18) | 240),
-                        (r[n++] = ((a >> 12) & 63) | 128),
-                        (r[n++] = ((a >> 6) & 63) | 128),
-                        (r[n++] = (63 & a) | 128))
-                      : ((r[n++] = (a >> 12) | 224),
-                        (r[n++] = ((a >> 6) & 63) | 128),
-                        (r[n++] = (63 & a) | 128));
+                        ? ((r[n++] = (a >> 6) | 192), (r[n++] = (63 & a) | 128))
+                        : o(e, i)
+                          ? ((a =
+                              65536 +
+                              ((1023 & a) << 10) +
+                              (1023 & e.charCodeAt(++i))),
+                            (r[n++] = (a >> 18) | 240),
+                            (r[n++] = ((a >> 12) & 63) | 128),
+                            (r[n++] = ((a >> 6) & 63) | 128),
+                            (r[n++] = (63 & a) | 128))
+                          : ((r[n++] = (a >> 12) | 224),
+                            (r[n++] = ((a >> 6) & 63) | 128),
+                            (r[n++] = (63 & a) | 128));
                   }
               else for (i = 0; i < e.length; i++) r[i] = 0 | e[i];
               return r;
@@ -15158,9 +15179,9 @@
                       a + h >= u
                         ? ((s = 0), (a = u))
                         : a + h >= 1
-                        ? ((s = (t * f - 1) * Math.pow(2, i)), (a += h))
-                        : ((s = t * Math.pow(2, h - 1) * Math.pow(2, i)),
-                          (a = 0)));
+                          ? ((s = (t * f - 1) * Math.pow(2, i)), (a += h))
+                          : ((s = t * Math.pow(2, h - 1) * Math.pow(2, i)),
+                            (a = 0)));
                 i >= 8;
                 e[r + l] = 255 & s, l += p, s /= 256, i -= 8
               );
@@ -15982,10 +16003,10 @@
             "undefined" != typeof global
               ? global
               : "undefined" != typeof self
-              ? self
-              : "undefined" != typeof window
-              ? window
-              : {},
+                ? self
+                : "undefined" != typeof window
+                  ? window
+                  : {},
           );
         },
         {
@@ -16058,10 +16079,10 @@
                       return new i().update(e).digest();
                     }
                   : "md5" === e
-                  ? n
-                  : function (t) {
-                      return o(e).update(t).digest();
-                    };
+                    ? n
+                    : function (t) {
+                        return o(e).update(t).digest();
+                      };
               })(e),
               s = "sha512" === e || "sha384" === e ? 128 : 64;
             t.length > s
@@ -16537,10 +16558,10 @@
             "undefined" != typeof global
               ? global
               : "undefined" != typeof self
-              ? self
-              : "undefined" != typeof window
-              ? window
-              : {},
+                ? self
+                : "undefined" != typeof window
+                  ? window
+                  : {},
           );
         },
         { _process: 145, "safe-buffer": 170 },
@@ -16620,10 +16641,10 @@
             "undefined" != typeof global
               ? global
               : "undefined" != typeof self
-              ? self
-              : "undefined" != typeof window
-              ? window
-              : {},
+                ? self
+                : "undefined" != typeof window
+                  ? window
+                  : {},
           );
         },
         { _process: 145, randombytes: 152, "safe-buffer": 170 },
@@ -16832,29 +16853,32 @@
                   o
                     ? e.emit("error", o)
                     : a.objectMode || (t && t.length > 0)
-                    ? ("string" == typeof t ||
-                        a.objectMode ||
-                        Object.getPrototypeOf(t) === c.prototype ||
-                        (t = (function (e) {
-                          return c.from(e);
-                        })(t)),
-                      n
-                        ? a.endEmitted
-                          ? e.emit(
-                              "error",
-                              new Error("stream.unshift() after end event"),
-                            )
-                          : _(e, a, t, !0)
-                        : a.ended
-                        ? e.emit("error", new Error("stream.push() after EOF"))
-                        : ((a.reading = !1),
-                          a.decoder && !r
-                            ? ((t = a.decoder.write(t)),
-                              a.objectMode || 0 !== t.length
-                                ? _(e, a, t, !1)
-                                : x(e, a))
-                            : _(e, a, t, !1)))
-                    : n || (a.reading = !1));
+                      ? ("string" == typeof t ||
+                          a.objectMode ||
+                          Object.getPrototypeOf(t) === c.prototype ||
+                          (t = (function (e) {
+                            return c.from(e);
+                          })(t)),
+                        n
+                          ? a.endEmitted
+                            ? e.emit(
+                                "error",
+                                new Error("stream.unshift() after end event"),
+                              )
+                            : _(e, a, t, !0)
+                          : a.ended
+                            ? e.emit(
+                                "error",
+                                new Error("stream.push() after EOF"),
+                              )
+                            : ((a.reading = !1),
+                              a.decoder && !r
+                                ? ((t = a.decoder.write(t)),
+                                  a.objectMode || 0 !== t.length
+                                    ? _(e, a, t, !1)
+                                    : x(e, a))
+                                : _(e, a, t, !1)))
+                      : n || (a.reading = !1));
               return (function (e) {
                 return (
                   !e.ended &&
@@ -16920,31 +16944,31 @@
               return e <= 0 || (0 === t.length && t.ended)
                 ? 0
                 : t.objectMode
-                ? 1
-                : e != e
-                ? t.flowing && t.length
-                  ? t.buffer.head.data.length
-                  : t.length
-                : (e > t.highWaterMark &&
-                    (t.highWaterMark = (function (e) {
-                      return (
-                        e >= S
-                          ? (e = S)
-                          : (e--,
-                            (e |= e >>> 1),
-                            (e |= e >>> 2),
-                            (e |= e >>> 4),
-                            (e |= e >>> 8),
-                            (e |= e >>> 16),
-                            e++),
-                        e
-                      );
-                    })(e)),
-                  e <= t.length
-                    ? e
-                    : t.ended
-                    ? t.length
-                    : ((t.needReadable = !0), 0));
+                  ? 1
+                  : e != e
+                    ? t.flowing && t.length
+                      ? t.buffer.head.data.length
+                      : t.length
+                    : (e > t.highWaterMark &&
+                        (t.highWaterMark = (function (e) {
+                          return (
+                            e >= S
+                              ? (e = S)
+                              : (e--,
+                                (e |= e >>> 1),
+                                (e |= e >>> 2),
+                                (e |= e >>> 4),
+                                (e |= e >>> 8),
+                                (e |= e >>> 16),
+                                e++),
+                            e
+                          );
+                        })(e)),
+                      e <= t.length
+                        ? e
+                        : t.ended
+                          ? t.length
+                          : ((t.needReadable = !0), 0));
             }
             function M(e) {
               var t = e._readableState;
@@ -16994,75 +17018,75 @@
                 : (t.objectMode
                     ? (r = t.buffer.shift())
                     : !e || e >= t.length
-                    ? ((r = t.decoder
-                        ? t.buffer.join("")
-                        : 1 === t.buffer.length
-                        ? t.buffer.head.data
-                        : t.buffer.concat(t.length)),
-                      t.buffer.clear())
-                    : (r = (function (e, t, r) {
-                        var n;
-                        e < t.head.data.length
-                          ? ((n = t.head.data.slice(0, e)),
-                            (t.head.data = t.head.data.slice(e)))
-                          : (n =
-                              e === t.head.data.length
-                                ? t.shift()
-                                : r
-                                ? (function (e, t) {
-                                    var r = t.head,
-                                      n = 1,
-                                      i = r.data;
-                                    e -= i.length;
-                                    for (; (r = r.next); ) {
-                                      var o = r.data,
-                                        a = e > o.length ? o.length : e;
-                                      if (
-                                        (a === o.length
-                                          ? (i += o)
-                                          : (i += o.slice(0, e)),
-                                        0 === (e -= a))
-                                      ) {
-                                        a === o.length
-                                          ? (++n,
-                                            r.next
-                                              ? (t.head = r.next)
-                                              : (t.head = t.tail = null))
-                                          : ((t.head = r),
-                                            (r.data = o.slice(a)));
-                                        break;
-                                      }
-                                      ++n;
-                                    }
-                                    return (t.length -= n), i;
-                                  })(e, t)
-                                : (function (e, t) {
-                                    var r = c.allocUnsafe(e),
-                                      n = t.head,
-                                      i = 1;
-                                    n.data.copy(r), (e -= n.data.length);
-                                    for (; (n = n.next); ) {
-                                      var o = n.data,
-                                        a = e > o.length ? o.length : e;
-                                      if (
-                                        (o.copy(r, r.length - e, 0, a),
-                                        0 === (e -= a))
-                                      ) {
-                                        a === o.length
-                                          ? (++i,
-                                            n.next
-                                              ? (t.head = n.next)
-                                              : (t.head = t.tail = null))
-                                          : ((t.head = n),
-                                            (n.data = o.slice(a)));
-                                        break;
-                                      }
-                                      ++i;
-                                    }
-                                    return (t.length -= i), r;
-                                  })(e, t));
-                        return n;
-                      })(e, t.buffer, t.decoder)),
+                      ? ((r = t.decoder
+                          ? t.buffer.join("")
+                          : 1 === t.buffer.length
+                            ? t.buffer.head.data
+                            : t.buffer.concat(t.length)),
+                        t.buffer.clear())
+                      : (r = (function (e, t, r) {
+                          var n;
+                          e < t.head.data.length
+                            ? ((n = t.head.data.slice(0, e)),
+                              (t.head.data = t.head.data.slice(e)))
+                            : (n =
+                                e === t.head.data.length
+                                  ? t.shift()
+                                  : r
+                                    ? (function (e, t) {
+                                        var r = t.head,
+                                          n = 1,
+                                          i = r.data;
+                                        e -= i.length;
+                                        for (; (r = r.next); ) {
+                                          var o = r.data,
+                                            a = e > o.length ? o.length : e;
+                                          if (
+                                            (a === o.length
+                                              ? (i += o)
+                                              : (i += o.slice(0, e)),
+                                            0 === (e -= a))
+                                          ) {
+                                            a === o.length
+                                              ? (++n,
+                                                r.next
+                                                  ? (t.head = r.next)
+                                                  : (t.head = t.tail = null))
+                                              : ((t.head = r),
+                                                (r.data = o.slice(a)));
+                                            break;
+                                          }
+                                          ++n;
+                                        }
+                                        return (t.length -= n), i;
+                                      })(e, t)
+                                    : (function (e, t) {
+                                        var r = c.allocUnsafe(e),
+                                          n = t.head,
+                                          i = 1;
+                                        n.data.copy(r), (e -= n.data.length);
+                                        for (; (n = n.next); ) {
+                                          var o = n.data,
+                                            a = e > o.length ? o.length : e;
+                                          if (
+                                            (o.copy(r, r.length - e, 0, a),
+                                            0 === (e -= a))
+                                          ) {
+                                            a === o.length
+                                              ? (++i,
+                                                n.next
+                                                  ? (t.head = n.next)
+                                                  : (t.head = t.tail = null))
+                                              : ((t.head = n),
+                                                (n.data = o.slice(a)));
+                                            break;
+                                          }
+                                          ++i;
+                                        }
+                                        return (t.length -= i), r;
+                                      })(e, t));
+                          return n;
+                        })(e, t.buffer, t.decoder)),
                   r);
               var r;
             }
@@ -17349,10 +17373,10 @@
             "undefined" != typeof global
               ? global
               : "undefined" != typeof self
-              ? self
-              : "undefined" != typeof window
-              ? window
-              : {},
+                ? self
+                : "undefined" != typeof window
+                  ? window
+                  : {},
           );
         },
         {
@@ -17889,10 +17913,10 @@
             "undefined" != typeof global
               ? global
               : "undefined" != typeof self
-              ? self
-              : "undefined" != typeof window
-              ? window
-              : {},
+                ? self
+                : "undefined" != typeof window
+                  ? window
+                  : {},
             e("timers").setImmediate,
           );
         },
@@ -18164,14 +18188,14 @@
             return e <= 127
               ? 0
               : e >> 5 == 6
-              ? 2
-              : e >> 4 == 14
-              ? 3
-              : e >> 3 == 30
-              ? 4
-              : e >> 6 == 2
-              ? -1
-              : -2;
+                ? 2
+                : e >> 4 == 14
+                  ? 3
+                  : e >> 3 == 30
+                    ? 4
+                    : e >> 6 == 2
+                      ? -1
+                      : -2;
           }
           function s(e) {
             var t = this.lastTotal - this.lastNeed,
@@ -18186,10 +18210,10 @@
             return void 0 !== r
               ? r
               : this.lastNeed <= e.length
-              ? (e.copy(this.lastChar, t, 0, this.lastNeed),
-                this.lastChar.toString(this.encoding, 0, this.lastTotal))
-              : (e.copy(this.lastChar, t, 0, e.length),
-                void (this.lastNeed -= e.length));
+                ? (e.copy(this.lastChar, t, 0, this.lastNeed),
+                  this.lastChar.toString(this.encoding, 0, this.lastTotal))
+                : (e.copy(this.lastChar, t, 0, e.length),
+                  void (this.lastNeed -= e.length));
           }
           function f(e, t) {
             if ((e.length - t) % 2 == 0) {
@@ -18426,16 +18450,16 @@
                   ? ((x = b(r, n, i, o, l, e[s[k]], h[0], c[k])),
                     (A = g(w, _, S, E, M, e[f[k]], d[0], u[k])))
                   : k < 32
-                  ? ((x = y(r, n, i, o, l, e[s[k]], h[1], c[k])),
-                    (A = v(w, _, S, E, M, e[f[k]], d[1], u[k])))
-                  : k < 48
-                  ? ((x = m(r, n, i, o, l, e[s[k]], h[2], c[k])),
-                    (A = m(w, _, S, E, M, e[f[k]], d[2], u[k])))
-                  : k < 64
-                  ? ((x = v(r, n, i, o, l, e[s[k]], h[3], c[k])),
-                    (A = y(w, _, S, E, M, e[f[k]], d[3], u[k])))
-                  : ((x = g(r, n, i, o, l, e[s[k]], h[4], c[k])),
-                    (A = b(w, _, S, E, M, e[f[k]], d[4], u[k]))),
+                    ? ((x = y(r, n, i, o, l, e[s[k]], h[1], c[k])),
+                      (A = v(w, _, S, E, M, e[f[k]], d[1], u[k])))
+                    : k < 48
+                      ? ((x = m(r, n, i, o, l, e[s[k]], h[2], c[k])),
+                        (A = m(w, _, S, E, M, e[f[k]], d[2], u[k])))
+                      : k < 64
+                        ? ((x = v(r, n, i, o, l, e[s[k]], h[3], c[k])),
+                          (A = y(w, _, S, E, M, e[f[k]], d[3], u[k])))
+                        : ((x = g(r, n, i, o, l, e[s[k]], h[4], c[k])),
+                          (A = b(w, _, S, E, M, e[f[k]], d[4], u[k]))),
                   (r = l),
                   (l = o),
                   (o = p(i, 10)),
@@ -18620,8 +18644,8 @@
             return 0 === e
               ? (t & r) | (~t & n)
               : 2 === e
-              ? (t & r) | (t & n) | (r & n)
-              : t ^ r ^ n;
+                ? (t & r) | (t & n) | (r & n)
+                : t ^ r ^ n;
           }
           n(f, i),
             (f.prototype.init = function () {
@@ -18702,8 +18726,8 @@
             return 0 === e
               ? (t & r) | (~t & n)
               : 2 === e
-              ? (t & r) | (t & n) | (r & n)
-              : t ^ r ^ n;
+                ? (t & r) | (t & n) | (r & n)
+                : t ^ r ^ n;
           }
           n(f, i),
             (f.prototype.init = function () {
@@ -19389,10 +19413,10 @@
             "undefined" != typeof global
               ? global
               : "undefined" != typeof self
-              ? self
-              : "undefined" != typeof window
-              ? window
-              : {},
+                ? self
+                : "undefined" != typeof window
+                  ? window
+                  : {},
           );
         },
         {},
@@ -19829,10 +19853,10 @@
             "undefined" != typeof global
               ? global
               : "undefined" != typeof self
-              ? self
-              : "undefined" != typeof window
-              ? window
-              : {},
+                ? self
+                : "undefined" != typeof window
+                  ? window
+                  : {},
           );
         },
         { "./support/isBuffer": 184, _process: 145, inherits: 183 },

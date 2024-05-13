@@ -55,12 +55,12 @@ code {
   border-radius: 3px;
   padding: 0.1rem 0.2rem;
 }
-.mce-content-body:not([dir=rtl]) blockquote {
+.mce-content-body:not([dir="rtl"]) blockquote {
   border-left: 2px solid #ccc;
   margin-left: 1.5rem;
   padding-left: 1rem;
 }
-.mce-content-body[dir=rtl] blockquote {
+.mce-content-body[dir="rtl"] blockquote {
   border-right: 2px solid #ccc;
   margin-right: 1.5rem;
   padding-right: 1rem;

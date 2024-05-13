@@ -89,7 +89,7 @@ module.exports = {
         browserAgentlicenseKey: parseConfig(
           "__APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY__",
         ),
-        browserAgentEndpoint:  parseConfig(
+        browserAgentEndpoint: parseConfig(
           "__APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT__",
         ),
         otlpLicenseKey: parseConfig("__APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY__"),

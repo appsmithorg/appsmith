@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="utf-8" />
@@ -17,31 +17,31 @@
         transition: all ease-in 0.3s;
       }
     </style>
-      <script>
-        // '' (empty strings), 'false' are falsy
-        // could return either boolean or string based on value
-        const parseConfig = (config) => {
-          if (
-            (config.startsWith("{") && config.startsWith("}")) ||
-            config.indexOf("__") === 0 ||
-            config.indexOf("$") === 0 ||
-            config.indexOf("%") === 0
-          )
-            return "";
+    <script>
+      // '' (empty strings), 'false' are falsy
+      // could return either boolean or string based on value
+      const parseConfig = (config) => {
+        if (
+          (config.startsWith("{") && config.startsWith("}")) ||
+          config.indexOf("__") === 0 ||
+          config.indexOf("$") === 0 ||
+          config.indexOf("%") === 0
+        )
+          return "";
 
-          const result = config.trim();
-          if (result.toLowerCase() === "false" || result === "") {
-            return false;
-          } else if (result.toLowerCase() === "true") {
-            return true;
-          }
+        const result = config.trim();
+        if (result.toLowerCase() === "false" || result === "") {
+          return false;
+        } else if (result.toLowerCase() === "true") {
+          return true;
+        }
 
-          return result;
-        };
-        const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
-        const ZIPY_KEY = parseConfig('{{env "APPSMITH_ZIPY_SDK_KEY"}}');
-        const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
-      </script>
+        return result;
+      };
+      const CLOUD_HOSTING = parseConfig('{{env "APPSMITH_CLOUD_HOSTING"}}');
+      const ZIPY_KEY = parseConfig('{{env "APPSMITH_ZIPY_SDK_KEY"}}');
+      const AIRGAPPED = parseConfig('{{env "APPSMITH_AIRGAP_ENABLED"}}');
+    </script>
     <script>
         window.__APPSMITH_CHUNKS_TO_PRELOAD =
       <%=
@@ -75,8 +75,6 @@
         const head = document.getElementsByTagName("head")[0];
         head && head.appendChild(script);
       }
-
-
     </script>
   </head>
 
@@ -166,7 +164,9 @@
       const INTERCOM_APP_ID =
         parseConfig("%REACT_APP_INTERCOM_APP_ID%") ||
         parseConfig('{{env "APPSMITH_INTERCOM_APP_ID"}}');
-      const DISABLE_INTERCOM = parseConfig('{{env "APPSMITH_DISABLE_INTERCOM"}}');
+      const DISABLE_INTERCOM = parseConfig(
+        '{{env "APPSMITH_DISABLE_INTERCOM"}}',
+      );
 
       // Initialize the Intercom library
       if (INTERCOM_APP_ID.length && !DISABLE_INTERCOM) {
@@ -219,26 +219,43 @@
           apiKey: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
           ceKey: parseConfig('{{env "APPSMITH_SEGMENT_CE_KEY"}}'),
         },
-        newRelic:{
-          enableNewRelic: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ENABLE"}}'),
+        newRelic: {
+          enableNewRelic: parseConfig(
+            '{{env "APPSMITH_NEW_RELIC_ACCOUNT_ENABLE"}}',
+          ),
           accountId: parseConfig('{{env "APPSMITH_NEW_RELIC_ACCOUNT_ID"}}'),
-          applicationId: parseConfig('{{env "APPSMITH_NEW_RELIC_APPLICATION_ID"}}'),
-          browserAgentlicenseKey: parseConfig('{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY"}}'),
-          browserAgentEndpoint: parseConfig('{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT"}}'),
-          otlpLicenseKey: parseConfig('{{env "APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY"}}'),
+          applicationId: parseConfig(
+            '{{env "APPSMITH_NEW_RELIC_APPLICATION_ID"}}',
+          ),
+          browserAgentlicenseKey: parseConfig(
+            '{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_LICENSE_KEY"}}',
+          ),
+          browserAgentEndpoint: parseConfig(
+            '{{env "APPSMITH_NEW_RELIC_BROWSER_AGENT_ENDPOINT"}}',
+          ),
+          otlpLicenseKey: parseConfig(
+            '{{env "APPSMITH_NEW_RELIC_OTLP_LICENSE_KEY"}}',
+          ),
           //OTLP following the naming convention of Sdk initialisation
-          otlpServiceName: parseConfig('{{env "APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME"}}'),
-          otlpEndpoint:parseConfig('{{env "APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT"}}'),
-
+          otlpServiceName: parseConfig(
+            '{{env "APPSMITH_NEW_RELIC_OTEL_SERVICE_NAME"}}',
+          ),
+          otlpEndpoint: parseConfig(
+            '{{env "APPSMITH_NEW_RELIC_OTEL_EXPORTER_OTLP_ENDPOINT"}}',
+          ),
         },
         fusioncharts: {
-          licenseKey: parseConfig('{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}'),
+          licenseKey: parseConfig(
+            '{{env "APPSMITH_FUSIONCHARTS_LICENSE_KEY"}}',
+          ),
         },
         enableMixpanel: parseConfig('{{env "APPSMITH_SEGMENT_KEY"}}'),
         algolia: {
           apiId: parseConfig('{{env "APPSMITH_ALGOLIA_API_ID"}}'),
           apiKey: parseConfig('{{env "APPSMITH_ALGOLIA_API_KEY"}}'),
-          indexName: parseConfig('{{env "APPSMITH_ALGOLIA_SEARCH_INDEX_NAME"}}'),
+          indexName: parseConfig(
+            '{{env "APPSMITH_ALGOLIA_SEARCH_INDEX_NAME"}}',
+          ),
         },
         logLevel:
           CONFIG_LOG_LEVEL_INDEX > -1
@@ -255,7 +272,9 @@
         cloudServicesBaseUrl:
           parseConfig('{{env "APPSMITH_CLOUD_SERVICES_BASE_URL"}}') ||
           "https://cs.appsmith.com",
-        googleRecaptchaSiteKey: parseConfig('{{env "APPSMITH_RECAPTCHA_SITE_KEY"}}'),
+        googleRecaptchaSiteKey: parseConfig(
+          '{{env "APPSMITH_RECAPTCHA_SITE_KEY"}}',
+        ),
         hideWatermark: parseConfig('{{env "APPSMITH_HIDE_WATERMARK"}}'),
         disableIframeWidgetSandbox: parseConfig(
           '{{env "APPSMITH_DISABLE_IFRAME_WIDGET_SANDBOX"}}',
