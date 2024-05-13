@@ -171,7 +171,6 @@ module.exports = {
         css: false,
       },
     },
-
     {
       // Prioritize the local src directory over node_modules.
       // This matters for cases where `src/<dirname>` and `node_modules/<dirname>` both exist –
