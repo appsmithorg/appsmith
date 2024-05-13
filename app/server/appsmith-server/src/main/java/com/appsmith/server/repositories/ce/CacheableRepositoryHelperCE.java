@@ -20,7 +20,7 @@ public interface CacheableRepositoryHelperCE {
 
     Mono<String> getInstanceAdminPermissionGroupId();
 
-    Mono<Tenant> fetchCachedTenant(String tenantId);
+    Mono<Tenant> fetchDefaultTenant(String tenantId);
 
     Mono<Void> evictCachedTenant(String tenantId);
 }

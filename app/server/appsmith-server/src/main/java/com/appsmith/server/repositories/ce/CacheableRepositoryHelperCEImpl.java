@@ -176,7 +176,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
      */
     @Cache(cacheName = "defaultTenant", key = "{#tenantId}")
     @Override
-    public Mono<Tenant> fetchCachedTenant(String tenantId) {
+    public Mono<Tenant> fetchDefaultTenant(String tenantId) {
         BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
         Query query = new Query();
         query.addCriteria(defaultTenantCriteria);
