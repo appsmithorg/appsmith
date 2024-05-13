@@ -46,12 +46,14 @@ export const matchViewerPath = (pathName) =>
  * @returns
  */
 export const getConsolidatedAPISearchParams = (params = {}) => {
+  if (!params || !params?.pageId) {
+    return "";
+  }
+
   const { applicationId, pageId } = params;
   const searchParams = new URLSearchParams();
 
-  if (pageId) {
-    searchParams.append("defaultPageId", pageId);
-  }
+  searchParams.append("defaultPageId", pageId);
 
   if (applicationId) {
     searchParams.append("applicationId", applicationId);
@@ -66,6 +68,10 @@ export const getConsolidatedAPISearchParams = (params = {}) => {
  * @returns {Request | null}
  */
 export const getPrefetchRequest = (url) => {
+  if (!url) {
+    return null;
+  }
+
   // Match the URL with the builder and viewer paths
   const matchedBuilder = matchBuilderPath(url.pathname, { end: false });
   const matchViewer = matchViewerPath(url.pathname, { end: false });
