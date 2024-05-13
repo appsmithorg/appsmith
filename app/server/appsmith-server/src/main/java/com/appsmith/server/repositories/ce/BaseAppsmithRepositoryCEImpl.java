@@ -382,7 +382,7 @@ public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> impleme
                                 if (genericDomain.getSimpleName().equals(projectionClass.getSimpleName())) {
                                     return (P) tuple;
                                 }
-                                return map((Object[]) tuple, projectionClass, null);
+                                return map((Object[]) tuple, projectionClass);
                             })
                             .onErrorResume(NoResultException.class, e -> Mono.empty());
                 })

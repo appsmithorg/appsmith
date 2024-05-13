@@ -19,7 +19,7 @@ public class ReflectionHelpers {
      * @return      The object of the given type
      * @param <T>   The type of the object to be created
      */
-    public static <T> T map(Object[] tuple, Class<T> type, List<Class<?>> tupleTypes) {
+    private static <T> T map(Object[] tuple, Class<T> type, List<Class<?>> tupleTypes) {
         if (CollectionUtils.isEmpty(tupleTypes)) {
             tupleTypes = new ArrayList<>();
             for (Field field : type.getDeclaredFields()) {
@@ -32,6 +32,10 @@ public class ReflectionHelpers {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public static <T> T map(Object[] tuple, Class<T> type) {
+        return map(tuple, type, null);
     }
 
     /**
