@@ -9,7 +9,7 @@ import {
 
 setCacheNameDetails({
   prefix: "appsmith",
-  suffix: undefined,
+  suffix: "",
   precache: "precache-v1",
   runtime: "runtime",
   googleAnalytics: "appsmith-ga",
@@ -113,18 +113,25 @@ registerRoute(
     async ({ event, request, url }) => {
       const isAppEditUrl = regexMap.appEditUrl.test(request.url);
       const isAppViewUrl = regexMap.appViewUrl.test(request.url);
+      let apiFetchPromise = null;
 
       if (isAppEditUrl) {
         const pageId = request.url.split("-").pop().split("/")[0];
         const apiUrl = `${url.origin}/api/v1/consolidated-api/edit?defaultPageId=${pageId}`;
-        handleApiRequest(apiUrl);
+        apiFetchPromise = handleApiRequest(apiUrl);
       } else if (isAppViewUrl) {
         const pageId = request.url.split("-").pop().split("/")[0];
         const apiUrl = `${url.origin}/api/v1/consolidated-api/view?defaultPageId=${pageId}`;
-        handleApiRequest(apiUrl);
+        apiFetchPromise = handleApiRequest(apiUrl);
       }
       const networkHandler = new NetworkOnly();
-      return networkHandler.handle({ event, request });
+      const htmlPromise = networkHandler.handle({ event, request });
+
+      if (apiFetchPromise) {
+        apiFetchPromise.then(() => {}).catch(() => {});
+      }
+
+      return htmlPromise;
     },
   ),
 );
