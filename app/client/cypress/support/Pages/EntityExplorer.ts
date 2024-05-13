@@ -249,8 +249,7 @@ export class EntityExplorer {
     this.agHelper.ClickOutside(); //to close the evaluated pop-up
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     PageLeftPane.switchToAddNew();
-    let overlayItem = this.addView.getCreateOptions(dsName);
-    overlayItem.click({ force: true });
+    this.addView.clickCreateOption(dsName);
   }
 
   public CopyPasteWidget(widgetName: string) {
