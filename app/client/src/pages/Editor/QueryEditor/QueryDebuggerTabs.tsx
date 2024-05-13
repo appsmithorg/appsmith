@@ -247,7 +247,7 @@ function QueryDebuggerTabs({
 
   return (
     <TabbedViewContainer
-      className="t--query-bottom-pane-container"
+      className="t--query-bottom-pane-container select-text"
       ref={panelRef}
     >
       <Resizable
