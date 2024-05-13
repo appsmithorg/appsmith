@@ -5,7 +5,7 @@ class AddView {
     addPane: "[data-testid='t--ide-add-pane']",
     closePaneButton: "[data-testid='t--add-pane-close-icon']",
     createOption: (name: string) =>
-      "t--datasoucre-create-option-" + name.toLowerCase().replace(/ /g, "_"),
+      ".t--datasoucre-create-option-" + name.toLowerCase().replace(/ /g, "_"),
   };
 
   constructor() {
