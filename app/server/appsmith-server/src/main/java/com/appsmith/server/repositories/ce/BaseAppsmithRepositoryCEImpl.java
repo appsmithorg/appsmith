@@ -16,7 +16,6 @@ import com.mongodb.DBObject;
 import com.mongodb.client.model.UpdateOneModel;
 import com.mongodb.client.model.WriteModel;
 import lombok.NonNull;
-import lombok.extern.slf4j.Slf4j;
 import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -73,7 +72,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * <p>
  * <a href="https://theappsmith.slack.com/archives/CPQNLFHTN/p1711966160274399">Ref Slack thread</a>.
  */
-@Slf4j
 public abstract class BaseAppsmithRepositoryCEImpl<T extends BaseDomain> {
 
     @Autowired
