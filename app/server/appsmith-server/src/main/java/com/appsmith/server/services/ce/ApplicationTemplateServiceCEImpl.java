@@ -133,7 +133,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @Override
     public Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        return getApplicationByTemplateId(baseUrl, templateId);
+        return getApplicationByTemplateId(templateId, baseUrl);
     }
 
     @Override
