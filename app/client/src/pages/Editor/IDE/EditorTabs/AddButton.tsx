@@ -26,7 +26,7 @@ const AddButton = () => {
       id="tabs-add-toggle"
       isIconButton
       kind="tertiary"
-      onClick={() => addClickHandler(true)}
+      onClick={addClickHandler}
       size="sm"
       startIcon="add-line"
     />

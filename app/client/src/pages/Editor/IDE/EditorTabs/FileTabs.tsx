@@ -14,18 +14,17 @@ import {
   TabTextContainer,
 } from "./StyledComponents";
 import { identifyEntityFromPath } from "navigation/FocusEntity";
-import { useCurrentEditorState, useIDETabClickHandlers } from "../hooks";
+import { useCurrentEditorState } from "../hooks";
 
 interface Props {
   tabs: EntityItem[];
   navigateToTab: (tab: EntityItem) => void;
-  onClose: (actionId: string) => void;
+  onClose: (actionId?: string) => void;
 }
 
 const FileTabs = (props: Props) => {
   const { navigateToTab, onClose, tabs } = props;
   const { segment, segmentMode } = useCurrentEditorState();
-  const { addClickHandler } = useIDETabClickHandlers();
 
   const location = useLocation();
 
@@ -40,7 +39,7 @@ const FileTabs = (props: Props) => {
     }
   }, [tabs, segmentMode]);
 
-  const onCloseClick = (e: React.MouseEvent, id: string) => {
+  const onCloseClick = (e: React.MouseEvent, id?: string) => {
     e.stopPropagation();
     onClose(id);
   };
@@ -93,7 +92,7 @@ const FileTabs = (props: Props) => {
               className="tab-close rounded-[4px] hover:bg-[var(--ads-v2-colors-action-tertiary-surface-hover-bg)] cursor-pointer p-[2px]"
               data-testid="t--tab-close-btn"
               name="close-line"
-              onClick={() => addClickHandler(false)}
+              onClick={(e) => onCloseClick(e)}
             />
           </StyledTab>
         ) : null}

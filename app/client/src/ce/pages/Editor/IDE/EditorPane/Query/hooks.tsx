@@ -44,20 +44,25 @@ export const useQueryAdd = () => {
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
   const { segmentMode } = useCurrentEditorState();
 
-  const addButtonClickHandler = useCallback(
-    (add: boolean) => {
-      // if already in add mode, don call url function
-      // same for if not in add mode
-      if (currentEntityInfo.entity === FocusEntity.QUERY_ADD && add) {
-        return;
-      }
-      const url = getQueryUrl(currentEntityInfo, add);
-      history.push(url);
-    },
-    [currentEntityInfo, segmentMode],
-  );
+  const openAddQuery = useCallback(() => {
+    if (currentEntityInfo.entity === FocusEntity.QUERY_ADD) {
+      return;
+    }
+    let url = "";
+    url = getQueryUrl(currentEntityInfo);
+    history.push(url);
+  }, [currentEntityInfo, segmentMode]);
 
-  return addButtonClickHandler;
+  const closeAddQuery = useCallback(() => {
+    if (currentEntityInfo.entity !== FocusEntity.QUERY_ADD) {
+      return;
+    }
+    let url = "";
+    url = getQueryUrl(currentEntityInfo, false);
+    history.push(url);
+  }, [currentEntityInfo, segmentMode]);
+
+  return { openAddQuery, closeAddQuery };
 };
 
 export type GroupedAddOperations = Array<{
