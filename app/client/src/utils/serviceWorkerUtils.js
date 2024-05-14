@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { match } from "path-to-regexp";
 
 export const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
@@ -117,6 +118,7 @@ export class AppsmithApiCacheStrategy {
   constructor(cacheName) {
     // Map to store ongoing API requests
     this.pendingApiRequests = new Map();
+    this.skipCacheRequests = new Map();
     this.initCache(cacheName);
   }
 
@@ -161,6 +163,39 @@ export class AppsmithApiCacheStrategy {
   }
 
   /**
+   * get the skip cache request in the map
+   * @param {Request} request
+   * @param {Promise<Response>} promise
+   * @returns {boolean}
+   */
+  shouldSkipCacheRequest(request) {
+    const requestKey = `${request.method}:${request.url}`;
+    this.skipCacheRequests.get(requestKey) || false;
+  }
+
+  /**
+   * Set the skip cache request in the map
+   * @param {Request} request
+   * @param {Promise<Response>} promise
+   * @returns {void}
+   */
+  setSkipCacheRequest(request) {
+    const requestKey = `${request.method}:${request.url}`;
+    this.skipCacheRequests.set(requestKey, true);
+  }
+
+  /**
+   * Delete the skip cache request in the map
+   * @param {Request} request
+   * @param {Promise<Response>} promise
+   * @returns {void}
+   */
+  deleteSkipCacheRequest(request) {
+    const requestKey = `${request.method}:${request.url}`;
+    this.skipCacheRequests.delete(requestKey);
+  }
+
+  /**
    *
    * @param {Request} request
    * @returns
@@ -170,12 +205,6 @@ export class AppsmithApiCacheStrategy {
     // Delete the cached response
     await this.cache.delete(request);
 
-    // Check for ongoing request
-    const ongoingRequest = this.getOngoingRequest(request);
-    if (!!ongoingRequest) {
-      return ongoingRequest; // Return the ongoing request
-    }
-
     // Fetch the request
     const fetchPromise = fetch(request)
       .then(async (response) => {
@@ -183,7 +212,13 @@ export class AppsmithApiCacheStrategy {
         if (response.ok) {
           const clonedResponse = response.clone();
           // Store in cache with expiration header
-          await this.cache.put(request, clonedResponse);
+          const shouldSkipCache = this.shouldSkipCacheRequest(request);
+          if (!shouldSkipCache) {
+            await this.cache.put(request, clonedResponse);
+          }
+
+          // Delete the skip cache request
+          this.deleteSkipCacheRequest(request);
         }
         return response;
       })
@@ -199,20 +234,21 @@ export class AppsmithApiCacheStrategy {
   }
 
   async readFromCacheOrFetch(request) {
+    // Check for ongoing request
+    const ongoingRequest = this.getOngoingRequest(request);
+    if (ongoingRequest) {
+      this.skipCacheRequests.set(request);
+      return ongoingRequest; // Return the ongoing request
+    }
+
     // Check if the request is already in cache
-    let cachedResponse = await this.cache.match(request);
+    const cachedResponse = await this.cache.match(request);
 
     if (cachedResponse) {
       // Delete the cached response. This is to ensure that the cache is deleted after the first use
       await this.cache.delete(request);
       // Return the cached response
       return cachedResponse;
-    }
-
-    // Check for ongoing request
-    const ongoingRequest = this.getOngoingRequest(request);
-    if (!!ongoingRequest) {
-      return ongoingRequest; // Return the ongoing request
     }
 
     // Fetch the request
