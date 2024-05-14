@@ -17,8 +17,6 @@ export class LeftPane {
     activeItemSelector: "",
     selector: "",
   };
-
-  private addView: AddView;
   private listView: ListView;
 
   constructor(
@@ -31,7 +29,6 @@ export class LeftPane {
     this.segments = segments;
     this.locators.selector = selector;
     this.locators.activeItemSelector = activeItemSelector;
-    this.addView = new AddView();
     this.listView = new ListView();
   }
 
@@ -111,23 +108,15 @@ export class LeftPane {
   }
 
   public assertInAddView() {
-    this.addView.assertInAddView();
+    AddView.assertInAddView();
   }
 
-  public closeAddView(segment: PagePaneSegment) {
-    if (!this.segments) {
-      throw Error("No Segments configured");
-    }
-    cy.log(segment, "===Albin");
-    if (segment === PagePaneSegment.UI) {
-      this.addView.closeAddView();
-    } else {
-      FileTabs.closeTab("new");
-    }
+  public closeAddView() {
+    AddView.closeAddView();
   }
 
   public clickCreateOption(name: string) {
-    return this.addView.clickCreateOption(name);
+    return AddView.clickCreateOption(name);
   }
 
   public assertInListView() {

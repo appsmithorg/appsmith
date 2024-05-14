@@ -27,4 +27,4 @@ class AddView {
   }
 }
 
-export default AddView;
+export default new AddView();

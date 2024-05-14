@@ -5,6 +5,7 @@ import EditorNavigation, {
 } from "../../../../support/Pages/EditorNavigation";
 import { ObjectsRegistry } from "../../../../support/Objects/Registry";
 import FileTabs from "../../../../support/Pages/IDE/FileTabs";
+import AddView from "../../../../support/Pages/IDE/AddView";
 
 const agHelper = ObjectsRegistry.AggregateHelper;
 const commonLocators = ObjectsRegistry.CommonLocators;
@@ -14,7 +15,7 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     // check add pane is open
     PageLeftPane.assertInAddView();
     // close add pane to show blank state
-    PageLeftPane.closeAddView(PagePaneSegment.UI);
+    PageLeftPane.closeAddView();
     // click on add button and check add state
     PageLeftPane.switchToAddNew();
     // check add pane
@@ -28,7 +29,7 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     // check add pane is open
     PageLeftPane.assertInAddView();
     // close add pane
-    PageLeftPane.closeAddView(PagePaneSegment.UI);
+    PageLeftPane.closeAddView();
     // click on canvas and check add pane visible or not
     agHelper.GetNClick(commonLocators._canvas).click();
     // check add pane
@@ -66,8 +67,8 @@ describe("IDE add pane interactions", { tags: ["@tag.IDE"] }, () => {
     PageLeftPane.switchToAddNew();
     // check add pane
     PageLeftPane.assertInAddView();
-    // close add pane
-    PageLeftPane.closeAddView(PagePaneSegment.Queries);
+    // close add tab
+    FileTabs.closeTab("new");
     // open add pane to add item
     PageLeftPane.switchToAddNew();
     // add item
