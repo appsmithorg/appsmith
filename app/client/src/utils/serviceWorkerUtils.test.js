@@ -261,6 +261,21 @@ describe("serviceWorkerUtils", () => {
       expect(result.params).toHaveProperty("pageId", "123");
     });
 
+    it("should match the standard builder path for alphanumeric pageId", () => {
+      const pathName =
+        "/app/applicationSlug/pageSlug-6616733a6e70274710f21a07/edit";
+      const options = { end: false };
+      const result = matchBuilderPath(pathName, options);
+
+      expect(result).toBeTruthy();
+      expect(result.params).toHaveProperty("applicationSlug");
+      expect(result.params).toHaveProperty("pageSlug");
+      expect(result.params).toHaveProperty(
+        "pageId",
+        "6616733a6e70274710f21a07",
+      );
+    });
+
     it("should match the custom builder path", () => {
       const pathName = "/app/customSlug-custom-456/edit";
       const options = { end: false };
@@ -297,7 +312,7 @@ describe("serviceWorkerUtils", () => {
       expect(result).toBeFalsy();
     });
 
-    it("should not match when the path is edit widgets", () => {
+    it("should match when the path is edit widgets", () => {
       const pathName =
         "/app/applicationSlug/pageSlug-123/edit/widgets/t36hb2zukr";
       const options = { end: false };
