@@ -958,7 +958,11 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
           }
           selectedRowIndices={this.getSelectedRowIndices()}
           serverSidePaginationEnabled={!!this.props.serverSidePaginationEnabled}
-          showConnectDataOverlay={false}
+          showConnectDataOverlay={
+            primaryColumns &&
+            !Object.keys(primaryColumns).length &&
+            this.props.renderMode === RenderModes.CANVAS
+          }
           sortTableColumn={this.handleColumnSorting}
           tableData={finalTableData}
           totalRecordsCount={totalRecordsCount}

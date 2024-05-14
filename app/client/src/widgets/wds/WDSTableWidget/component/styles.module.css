@@ -1,5 +1,4 @@
-/* TODO(pawan): can we access css module variable from packages/widgets */
-@value colors: accent, neutral, negative, warning, positive;
+@import "@design-system/widgets/src/shared/colors/colors.module.css";
 
 .table {
   --th-height: calc(
