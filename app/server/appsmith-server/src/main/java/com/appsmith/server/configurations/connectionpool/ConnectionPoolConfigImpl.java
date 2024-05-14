@@ -1,6 +1,6 @@
-package com.appsmith.server.connectionpoolconfig.configurations;
+package com.appsmith.server.configurations.connectionpool;
 
-import com.appsmith.external.connectionpoolconfig.configurations.ConnectionPoolConfig;
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import org.springframework.stereotype.Component;
 
 @Component
