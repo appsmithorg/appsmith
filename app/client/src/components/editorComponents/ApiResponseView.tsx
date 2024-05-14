@@ -540,7 +540,10 @@ function ApiResponseView(props: Props) {
   if (!open) return null;
 
   return (
-    <ResponseContainer className="t--api-bottom-pane-container" ref={panelRef}>
+    <ResponseContainer
+      className="t--api-bottom-pane-container select-text"
+      ref={panelRef}
+    >
       <Resizer
         initialHeight={responseTabHeight}
         onResizeComplete={(height: number) => {

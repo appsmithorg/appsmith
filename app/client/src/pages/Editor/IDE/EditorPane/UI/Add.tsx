@@ -44,7 +44,7 @@ const AddWidgets = (props: { focusSearchInput?: boolean }) => {
           startIcon={"close-line"}
         />
       </Container>
-      <Flex flexDirection="column" gap="spaces-3" overflowX="scroll">
+      <Flex flexDirection="column" gap="spaces-3" overflowX="auto">
         <UIEntitySidebar focusSearchInput={props.focusSearchInput} isActive />
       </Flex>
     </>
