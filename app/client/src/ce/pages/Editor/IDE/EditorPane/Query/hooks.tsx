@@ -51,7 +51,7 @@ export const useQueryAdd = () => {
     let url = "";
     url = getQueryUrl(currentEntityInfo);
     history.push(url);
-  }, [currentEntityInfo, segmentMode]);
+  }, [currentEntityInfo, segmentMode, location]);
 
   const closeAddQuery = useCallback(() => {
     if (currentEntityInfo.entity !== FocusEntity.QUERY_ADD) {
@@ -60,7 +60,7 @@ export const useQueryAdd = () => {
     let url = "";
     url = getQueryUrl(currentEntityInfo, false);
     history.push(url);
-  }, [currentEntityInfo, segmentMode]);
+  }, [currentEntityInfo, segmentMode, location]);
 
   return { openAddQuery, closeAddQuery };
 };
