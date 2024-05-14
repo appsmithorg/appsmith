@@ -34,6 +34,12 @@ if [[ -f .env ]]; then
   source .env
 fi
 
+# Check the APPSMITH_DB_URL environment variable
+if [[ "${APPSMITH_DB_URL}" == *"postgres"* ]]; then
+  # If it contains "postgres", run the transform script
+  python3 ./tx/transform.py
+fi
+
 node scripts/check-field-constants.mjs
 
 # Build the code. $@ accepts all the parameters from the input command line and uses it in the maven build command
