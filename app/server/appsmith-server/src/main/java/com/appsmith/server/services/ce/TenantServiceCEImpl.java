@@ -59,6 +59,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
 
     @Override
     public Mono<String> getDefaultTenantId() {
+
         // If the value exists in cache, return it as is
         if (StringUtils.hasLength(tenantId)) {
             return Mono.just(tenantId);
@@ -198,16 +199,8 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
         return Mono.just(clientTenant);
     }
 
-    /**
-     * This function saves the tenant object in the database and evicts the cache. This function is specifically created
-     * and deprecated to ensure that only repository level function is called.
-     * Instead of this function, please consider using repository.save(tenant) directly
-     * This is done to ensure that even if we have an EE override, the cache eviction is done from the repository layer
-     * @param tenant
-     * @return
-     */
+    // This function is used to save the tenant object in the database and evict the cache
     @Override
-    @Deprecated
     public Mono<Tenant> save(Tenant tenant) {
         Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
         Mono<Tenant> savedTenantMono = repository.save(tenant).cache();
@@ -239,8 +232,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                         } else {
                             tenant.getTenantConfiguration().setMigrationStatus(MigrationStatus.IN_PROGRESS);
                         }
-                        return repository
-                                .save(tenant)
+                        return this.save(tenant)
                                 // Fetch the tenant again from DB to make sure the downstream chain is consuming the
                                 // latest
                                 // DB object and not the modified one because of the client pertinent changes
@@ -261,16 +253,12 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     }
 
     /**
-     * This function updates the tenant object in the database and evicts the cache.
-     * This function is specifically created and deprecated to ensure that only repository level function is called.
-     * Instead of this function, please consider using repository.update(tenantId, tenant) directly
-     * This is done to ensure that even if we have an EE override, the cache eviction is done from the repository layer
+     * This function updates the tenant object in the database and evicts the cache
      * @param tenantId
      * @param tenant
      * @return
      */
     @Override
-    @Deprecated
     public Mono<Tenant> update(String tenantId, Tenant tenant) {
         Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
         Mono<Tenant> updatedTenantMono = super.update(tenantId, tenant).cache();
@@ -292,9 +280,7 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
                 log.debug("Triggering tenant restart after the feature flag migrations are executed");
                 TenantConfiguration tenantConfiguration = updatedTenant.getTenantConfiguration();
                 tenantConfiguration.setIsRestartRequired(false);
-                return repository
-                        .update(updatedTenant.getId(), updatedTenant)
-                        .then(envManager.restartWithoutAclCheck());
+                return this.update(updatedTenant.getId(), updatedTenant).then(envManager.restartWithoutAclCheck());
             }
             return Mono.empty();
         });
