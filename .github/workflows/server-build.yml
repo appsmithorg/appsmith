@@ -17,7 +17,7 @@ on:
         description: "This is the branch to be used for the build."
         required: false
         type: string
-      is-pg:
+      is-pg-build:
         description: "This is a boolean value in case the workflow is being called for a PG build"
         required: false
         type: string
@@ -138,21 +138,27 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      # Setup Python for conditional execution
+      # Setup Python
+      - name: Set up Python
+        if: inputs.is-pg-build == 'true' && steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
+        uses: actions/setup-python@v3
+
+      # Setup Python for conditional execution to create cake classes
       - name: Conditional Python setup and script execution
         run: |
-          if [[ inputs.is-pg == 'true' ]]; then
-            # Setup Python
-            echo "Setting up Python"
-            actions/setup-python@v3
-
-            # Run transform.py
-            if [[ -f app/server/tx/transform.py ]]; then
+          if [[ inputs.is-pg-build == 'true' && -f app/server/tx/transform.py ]]; then
+              # Run transform.py
               python3 app/server/tx/transform.py
             else
               echo "Error: transform.py does not exist"
               exit 1
             fi
+          fi
+
+      - name: Conditionally start PostgreSQL
+        run: |
+          if [[ inputs.is-pg-build == 'true' ]]; then
+            docker run -d -p 5432:5432 postgres:alpine
           fi
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
