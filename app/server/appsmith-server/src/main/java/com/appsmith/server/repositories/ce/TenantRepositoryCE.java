@@ -6,6 +6,6 @@ import reactor.core.publisher.Mono;
 
 public interface TenantRepositoryCE extends BaseRepository<Tenant, String>, CustomTenantRepositoryCE {
     // Use tenantService.getDefaultTenant() instead of this method as it is cached to redis.
-    @Deprecated
+    @Deprecated(forRemoval = true)
     Mono<Tenant> findBySlug(String slug);
 }
