@@ -54,6 +54,8 @@ public class TenantConfigurationCE implements Serializable {
 
     Boolean isStrongPasswordPolicyEnabled;
 
+    private Boolean isAtomicPushAllowed;
+
     public void addThirdPartyAuth(String auth) {
         if (thirdPartyAuths == null) {
             thirdPartyAuths = new ArrayList<>();
@@ -78,6 +80,7 @@ public class TenantConfigurationCE implements Serializable {
         featuresWithPendingMigration = tenantConfiguration.getFeaturesWithPendingMigration();
         migrationStatus = tenantConfiguration.getMigrationStatus();
         isStrongPasswordPolicyEnabled = tenantConfiguration.getIsStrongPasswordPolicyEnabled();
+        isAtomicPushAllowed = tenantConfiguration.getIsAtomicPushAllowed();
     }
 
     public Boolean isEmailVerificationEnabled() {
