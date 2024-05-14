@@ -116,8 +116,12 @@ export class AppsmithApiCacheStrategy {
    * @param {string} cacheName
    */
   constructor(cacheName) {
-    // Map to store ongoing API requests
+    // If the prefetch request is ongoing, we should not make another request. This scenario occurs when the request from the main thread
+    // was initialised when the prefetch request was ongoing. The map stores the promise returned by fetch of the prefetch request and the same is returned
+    // to the main thread
     this.pendingApiRequests = new Map();
+    // If the request should be skipped from the cache, we should not cache the response. This scenario occurs when the request from the main thread
+    // was initialised when the prefetch request was ongoing. Since the promise is returned to the main thread, the response should not be cached
     this.skipCacheRequests = new Map();
     this.initCache(cacheName);
   }
@@ -213,13 +217,12 @@ export class AppsmithApiCacheStrategy {
           if (!shouldSkipCache) {
             await this.cache.put(request, clonedResponse);
           }
-
-          // Delete the skip cache request
-          this.deleteSkipCacheRequest(request);
         }
         return response;
       })
       .finally(() => {
+        // Delete the skip cache request
+        this.deleteSkipCacheRequest(request);
         // Remove the request from the ongoing request map
         this.deleteOngoingRequest(request);
       });
