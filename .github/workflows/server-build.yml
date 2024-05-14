@@ -138,22 +138,6 @@ jobs:
           distribution: "temurin"
           java-version: "17"
 
-      # Setup Python
-      - name: Set up Python
-        if: inputs.is-pg-build == 'true' && steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        uses: actions/setup-python@v3
-
-      # Conditional execution to create cake classes
-      - name: Generate cake classes conditionally
-        run: |
-          if [[ inputs.is-pg-build == 'true' && -f app/server/tx/transform.py ]]; then
-            # Run transform.py
-            python3 app/server/tx/transform.py
-          else
-            echo "Error: transform.py does not exist, going to exit now"
-            exit 1
-          fi
-
       - name: Conditionally start PostgreSQL
         run: |
           if [[ inputs.is-pg-build == 'true' ]]; then
@@ -186,6 +170,11 @@ jobs:
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
+          if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
+            export APPSMITH_DB_URL="jdbc:postgresql://localhost:5432/postgres"
+          else
+            export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
+          fi
           ./build.sh -DskipTests
 
       # Test the code
