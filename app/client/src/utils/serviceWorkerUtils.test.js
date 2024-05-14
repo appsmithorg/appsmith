@@ -246,6 +246,49 @@ describe("serviceWorkerUtils", () => {
       expect(ongoingRequest).toBeUndefined();
     });
 
+    it("shouldSkipCacheRequest should return false if no skip cache request is found", () => {
+      const request = new Request("https://example.com/api");
+
+      const skipCache = apiCacheStrategy.shouldSkipCacheRequest(request);
+
+      expect(skipCache).toBe(false);
+    });
+
+    it("shouldSkipCacheRequest should return true if skip cache request is found", () => {
+      const request = new Request("https://example.com/api");
+
+      apiCacheStrategy.setSkipCacheRequest(request);
+
+      const skipCache = apiCacheStrategy.shouldSkipCacheRequest(request);
+
+      expect(skipCache).toBe(true);
+    });
+
+    it("setSkipCacheRequest should add the request to the map", () => {
+      const request = new Request("https://example.com/api");
+
+      apiCacheStrategy.setSkipCacheRequest(request);
+
+      const skipCache = apiCacheStrategy.skipCacheRequests.get(
+        `${request.method}:${request.url}`,
+      );
+
+      expect(skipCache).toBe(true);
+    });
+
+    it("deleteSkipCacheRequest should remove the request from the map", () => {
+      const request = new Request("https://example.com/api");
+
+      apiCacheStrategy.setSkipCacheRequest(request);
+      apiCacheStrategy.deleteSkipCacheRequest(request);
+
+      const skipCache = apiCacheStrategy.skipCacheRequests.get(
+        `${request.method}:${request.url}`,
+      );
+
+      expect(skipCache).toBeUndefined();
+    });
+
     it("readFromCacheOrFetch should return cached response and delete it", async () => {
       const request = new Request("https://example.com/api");
       const cachedResponse = new Response("cached data");
@@ -316,6 +359,21 @@ describe("serviceWorkerUtils", () => {
       const ongoingRequest = apiCacheStrategy.getOngoingRequest(request);
 
       expect(ongoingRequest).toBeNull();
+    });
+
+    it("resetCacheAndFetch should not cache the response if skip cache request is set", async () => {
+      const request = new Request("https://example.com/api");
+      const fetchedResponse = new Response("fetched data", { status: 200 });
+
+      fetch.mockResolvedValue(fetchedResponse);
+      apiCacheStrategy.setSkipCacheRequest(request);
+
+      const response = await apiCacheStrategy.resetCacheAndFetch(request);
+
+      expect(cacheMock.delete).toHaveBeenCalledWith(request);
+      expect(fetch).toHaveBeenCalledWith(request);
+      expect(cacheMock.put).not.toHaveBeenCalled();
+      expect(response).toBe(fetchedResponse);
     });
   });
 

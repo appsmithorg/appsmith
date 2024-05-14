@@ -170,7 +170,7 @@ export class AppsmithApiCacheStrategy {
    */
   shouldSkipCacheRequest(request) {
     const requestKey = `${request.method}:${request.url}`;
-    this.skipCacheRequests.get(requestKey) || false;
+    return this.skipCacheRequests.get(requestKey) || false;
   }
 
   /**
@@ -202,9 +202,6 @@ export class AppsmithApiCacheStrategy {
    */
 
   async resetCacheAndFetch(request) {
-    // Delete the cached response
-    await this.cache.delete(request);
-
     // Fetch the request
     const fetchPromise = fetch(request)
       .then(async (response) => {
@@ -229,6 +226,9 @@ export class AppsmithApiCacheStrategy {
 
     // Add the request to the ongoing request map
     this.setOngoingRequest(request, fetchPromise);
+
+    // Delete the cached response
+    await this.cache.delete(request);
 
     return fetchPromise;
   }

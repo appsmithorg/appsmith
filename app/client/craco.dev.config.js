@@ -27,7 +27,6 @@ module.exports = merge(common, {
         swSrc: "./src/serviceWorker.js",
         mode: "development",
         swDest: "./pageService.js",
-        maximumFileSizeToCacheInBytes: 50 * 1024 * 1024,
         exclude: [
           // Don’t cache source maps and PWA manifests.
           // (These are the default values of the `exclude` option: https://developer.chrome.com/docs/workbox/reference/workbox-build/#type-WebpackPartial,
@@ -45,8 +44,6 @@ module.exports = merge(common, {
           /\/*\.svg$/,
           /\.(js|css|html|png|jpg|jpeg|gif)$/, // Exclude JS, CSS, HTML, and image files
         ],
-        // Don’t cache-bust JS and CSS chunks
-        // dontCacheBustURLsMatching: /\.[0-9a-zA-Z]{8}\.chunk\.(js|css)$/,
       }),
     ],
   },
