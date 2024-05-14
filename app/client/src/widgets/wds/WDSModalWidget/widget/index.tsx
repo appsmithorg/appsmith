@@ -138,12 +138,18 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         size={this.props.size}
       >
         <ModalContent className={contentClassName.trim()}>
-          {this.props.showHeader && <ModalHeader title={this.props.title} />}
+          {this.props.showHeader && (
+            <ModalHeader
+              allowInteraction={this.props.allowWidgetInteraction}
+              title={this.props.title}
+            />
+          )}
           <ModalBody className={WDS_MODAL_WIDGET_CLASSNAME}>
             <ModalLayoutProvider {...this.props} />
           </ModalBody>
           {this.props.showFooter && (
             <ModalFooter
+              allowInteraction={this.props.allowWidgetInteraction}
               closeText={closeText}
               onSubmit={submitText ? this.onSubmitClick : undefined}
               submitText={submitText}

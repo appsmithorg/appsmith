@@ -6,7 +6,12 @@ import { Button } from "../../Button";
 import type { ModalFooterProps } from "./types";
 
 export const ModalFooter = (props: ModalFooterProps) => {
-  const { closeText = "Close", onSubmit, submitText = "Submit" } = props;
+  const {
+    allowInteraction = true,
+    closeText = "Close",
+    onSubmit,
+    submitText = "Submit",
+  } = props;
   const { setOpen } = usePopoverContext();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -21,12 +26,20 @@ export const ModalFooter = (props: ModalFooterProps) => {
 
   return (
     <Flex alignItems="center" gap="spacing-4" justifyContent="end">
-      <Button onPress={() => setOpen(false)} variant="ghost">
+      <Button
+        excludeFromTabOrder={!allowInteraction}
+        onPress={() => setOpen(false)}
+        variant="ghost"
+      >
         {closeText}
       </Button>
 
       {onSubmit && (
-        <Button isLoading={isLoading} onPress={handleSubmit}>
+        <Button
+          excludeFromTabOrder={!allowInteraction}
+          isLoading={isLoading}
+          onPress={handleSubmit}
+        >
           {submitText}
         </Button>
       )}
