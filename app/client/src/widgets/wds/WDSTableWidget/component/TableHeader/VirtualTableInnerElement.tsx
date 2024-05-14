@@ -1,9 +1,10 @@
 import React from "react";
 import { useContext } from "react";
 import styled from "styled-components";
-import { MULTISELECT_CHECKBOX_WIDTH } from "../Constants";
-import { BodyContext } from "../TableBody";
+
+import { TableBodyContext } from "../TableBody";
 import TableColumnHeader from "./TableColumnHeader";
+import { MULTISELECT_CHECKBOX_WIDTH } from "../Constants";
 
 const StyledTableBodyWrapper = styled.div<{
   multiRowSelection?: boolean;
@@ -44,7 +45,7 @@ const VirtualTableInnerElement = ({
     totalColumnsWidth,
     widgetId,
     width,
-  } = useContext(BodyContext) as any;
+  } = useContext(TableBodyContext) as any;
 
   return (
     <>

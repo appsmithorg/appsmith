@@ -156,7 +156,7 @@ export default function Debugger() {
 
   return shouldRender ? (
     <TabbedViewContainer
-      className="t--datasource-bottom-pane-container"
+      className="t--datasource-bottom-pane-container select-text"
       ref={panelRef}
     >
       <Resizable
