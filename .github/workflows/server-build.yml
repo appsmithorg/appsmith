@@ -143,16 +143,15 @@ jobs:
         if: inputs.is-pg-build == 'true' && steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         uses: actions/setup-python@v3
 
-      # Setup Python for conditional execution to create cake classes
-      - name: Conditional Python setup and script execution
+      # Conditional execution to create cake classes
+      - name: Generate cake classes conditionally
         run: |
           if [[ inputs.is-pg-build == 'true' && -f app/server/tx/transform.py ]]; then
-              # Run transform.py
-              python3 app/server/tx/transform.py
-            else
-              echo "Error: transform.py does not exist"
-              exit 1
-            fi
+            # Run transform.py
+            python3 app/server/tx/transform.py
+          else
+            echo "Error: transform.py does not exist, going to exit now"
+            exit 1
           fi
 
       - name: Conditionally start PostgreSQL
