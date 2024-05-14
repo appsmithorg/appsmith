@@ -181,17 +181,78 @@ describe("serviceWorkerUtils", () => {
       // Reset all mocks
       jest.clearAllMocks();
 
-      cacheMock = await caches.open();
+      cacheMock = {
+        match: jest.fn(),
+        delete: jest.fn(),
+        put: jest.fn(),
+      };
+
+      global.caches = {
+        open: jest.fn().mockResolvedValue(cacheMock),
+      };
+
       apiCacheStrategy = new AppsmithApiCacheStrategy("testCache");
+      await apiCacheStrategy.initCache("testCache");
     });
 
-    it("should handle a cache hit and return the cached response", async () => {
+    it("should initialize cache with the provided cache name", async () => {
+      expect(caches.open).toHaveBeenCalledWith("testCache");
+      expect(apiCacheStrategy.cache).toBe(cacheMock);
+    });
+
+    it("getOngoingRequest should return null if no ongoing request is found", () => {
+      const request = new Request("https://example.com/api");
+
+      const ongoingRequest = apiCacheStrategy.getOngoingRequest(request);
+
+      expect(ongoingRequest).toBeNull();
+    });
+
+    it("getOngoingRequest should return the ongoing request if found", () => {
+      const request = new Request("https://example.com/api");
+      const promise = Promise.resolve(new Response());
+
+      apiCacheStrategy.setOngoingRequest(request, promise);
+
+      const ongoingRequest = apiCacheStrategy.getOngoingRequest(request);
+
+      expect(ongoingRequest).toBe(promise);
+    });
+
+    it("setOngoingRequest should add the request to the map", () => {
+      const request = new Request("https://example.com/api");
+      const promise = Promise.resolve(new Response());
+
+      apiCacheStrategy.setOngoingRequest(request, promise);
+
+      const ongoingRequest = apiCacheStrategy.pendingApiRequests.get(
+        `${request.method}:${request.url}`,
+      );
+
+      expect(ongoingRequest).toBe(promise);
+    });
+
+    it("deleteOngoingRequest should remove the request from the map", () => {
+      const request = new Request("https://example.com/api");
+      const promise = Promise.resolve(new Response());
+
+      apiCacheStrategy.setOngoingRequest(request, promise);
+      apiCacheStrategy.deleteOngoingRequest(request);
+
+      const ongoingRequest = apiCacheStrategy.pendingApiRequests.get(
+        `${request.method}:${request.url}`,
+      );
+
+      expect(ongoingRequest).toBeUndefined();
+    });
+
+    it("readFromCacheOrFetch should return cached response and delete it", async () => {
       const request = new Request("https://example.com/api");
       const cachedResponse = new Response("cached data");
 
       cacheMock.match.mockResolvedValue(cachedResponse);
 
-      const response = await apiCacheStrategy.handle(request);
+      const response = await apiCacheStrategy.readFromCacheOrFetch(request);
 
       expect(cacheMock.match).toHaveBeenCalledWith(request);
       expect(response).toBe(cachedResponse);
@@ -199,31 +260,27 @@ describe("serviceWorkerUtils", () => {
       expect(fetch).not.toHaveBeenCalled();
     });
 
-    it("should fetch and cache the response if not in cache", async () => {
+    it("readFromCacheOrFetch should handle cache miss and fetch data", async () => {
       const request = new Request("https://example.com/api");
       const fetchedResponse = new Response("fetched data", { status: 200 });
 
       cacheMock.match.mockResolvedValue(null);
       fetch.mockResolvedValue(fetchedResponse);
 
-      const response = await apiCacheStrategy.handle(request);
+      const response = await apiCacheStrategy.readFromCacheOrFetch(request);
 
       expect(cacheMock.match).toHaveBeenCalledWith(request);
       expect(fetch).toHaveBeenCalledWith(request);
-      expect(cacheMock.put).toHaveBeenCalledWith(
-        request,
-        fetchedResponse.clone(),
-      );
       expect(response).toBe(fetchedResponse);
     });
 
-    it("should reset cache when requested", async () => {
+    it("resetCacheAndFetch should reset cache when called", async () => {
       const request = new Request("https://example.com/api");
       const fetchedResponse = new Response("fetched data", { status: 200 });
 
       fetch.mockResolvedValue(fetchedResponse);
 
-      const response = await apiCacheStrategy.handle(request, true);
+      const response = await apiCacheStrategy.resetCacheAndFetch(request, true);
 
       expect(cacheMock.delete).toHaveBeenCalledWith(request);
       expect(fetch).toHaveBeenCalledWith(request);
@@ -240,12 +297,25 @@ describe("serviceWorkerUtils", () => {
 
       fetch.mockResolvedValue(fetchedResponse);
 
-      const promise1 = apiCacheStrategy.handle(request);
-      const promise2 = apiCacheStrategy.handle(request); // This should not trigger a second fetch
+      const promise1 = apiCacheStrategy.resetCacheAndFetch(request);
+      const promise2 = apiCacheStrategy.readFromCacheOrFetch(request); // This should not trigger a second fetch
 
       await Promise.all([promise1, promise2]);
 
       expect(fetch).toHaveBeenCalledTimes(1); // Only one fetch for both requests
+    });
+
+    it("should remove the ongoing request after fetch completes", async () => {
+      const request = new Request("https://example.com/api");
+      const fetchedResponse = new Response("fetched data", { status: 200 });
+
+      fetch.mockResolvedValue(fetchedResponse);
+
+      await apiCacheStrategy.resetCacheAndFetch(request);
+
+      const ongoingRequest = apiCacheStrategy.getOngoingRequest(request);
+
+      expect(ongoingRequest).toBeNull();
     });
   });
 

@@ -126,33 +126,54 @@ export class AppsmithApiCacheStrategy {
   }
 
   /**
+   * Get the ongoing request from the map
+   * @param {Request} request
+   * @returns {any | null}
+   */
+  getOngoingRequest(request) {
+    const requestKey = `${request.method}:${request.url}`;
+    if (this.pendingApiRequests.has(requestKey)) {
+      return this.pendingApiRequests.get(requestKey);
+    }
+
+    return null;
+  }
+
+  /**
+   * Set the ongoing request in the map
+   * @param {Request} request
+   * @param {Promise<Response>} promise
+   * @returns {void}
+   */
+  setOngoingRequest(request, promise) {
+    const requestKey = `${request.method}:${request.url}`;
+    this.pendingApiRequests.set(requestKey, promise);
+  }
+
+  /**
+   * Delete the ongoing request from the map
+   * @param {Request} request
+   * @returns {void}
+   */
+  deleteOngoingRequest(request) {
+    const requestKey = `${request.method}:${request.url}`;
+    this.pendingApiRequests.delete(requestKey);
+  }
+
+  /**
    *
    * @param {Request} request
-   * @param {boolean} resetCache
    * @returns
    */
 
-  async handle(request, resetCache = false) {
-    // Check if the request is already in cache
-    let cachedResponse = await this.cache.match(request);
-
-    // If the response is in cache and resetCache is false, return the cached response
-    if (cachedResponse && !resetCache) {
-      // Delete the cached response. This is to ensure that the cache is deleted after the first use
-      await this.cache.delete(request);
-      // Return the cached response
-      return cachedResponse;
-    }
-
-    // If the resetCache is true, delete the cached response
-    if (resetCache) {
-      await this.cache.delete(request);
-    }
+  async resetCacheAndFetch(request) {
+    // Delete the cached response
+    await this.cache.delete(request);
 
     // Check for ongoing request
-    const requestKey = `${request.method}:${request.url}`;
-    if (this.pendingApiRequests.has(requestKey)) {
-      return this.pendingApiRequests.get(requestKey); // Return the ongoing request
+    const ongoingRequest = this.getOngoingRequest(request);
+    if (!!ongoingRequest) {
+      return ongoingRequest; // Return the ongoing request
     }
 
     // Fetch the request
@@ -168,12 +189,33 @@ export class AppsmithApiCacheStrategy {
       })
       .finally(() => {
         // Remove the request from the ongoing request map
-        this.pendingApiRequests.delete(requestKey);
+        this.deleteOngoingRequest(request);
       });
 
     // Add the request to the ongoing request map
-    this.pendingApiRequests.set(requestKey, fetchPromise);
+    this.setOngoingRequest(request, fetchPromise);
 
     return fetchPromise;
+  }
+
+  async readFromCacheOrFetch(request) {
+    // Check if the request is already in cache
+    let cachedResponse = await this.cache.match(request);
+
+    if (cachedResponse) {
+      // Delete the cached response. This is to ensure that the cache is deleted after the first use
+      await this.cache.delete(request);
+      // Return the cached response
+      return cachedResponse;
+    }
+
+    // Check for ongoing request
+    const ongoingRequest = this.getOngoingRequest(request);
+    if (!!ongoingRequest) {
+      return ongoingRequest; // Return the ongoing request
+    }
+
+    // Fetch the request
+    return fetch(request);
   }
 }

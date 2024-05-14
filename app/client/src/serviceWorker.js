@@ -54,7 +54,7 @@ const handleFetchHtml = async (event, request, url) => {
   const prefetchRequest = getPrefetchRequest(url);
 
   if (prefetchRequest) {
-    appsmithApiCacheStrategy.handle(prefetchRequest, true);
+    appsmithApiCacheStrategy.resetCacheAndFetch(prefetchRequest);
   }
 
   const networkHandler = new NetworkOnly();
@@ -93,7 +93,7 @@ registerRoute(
 registerRoute(
   new RegExp("/api/v1/consolidated-api/"),
   async ({ request }) => {
-    return appsmithApiCacheStrategy.handle(request);
+    return appsmithApiCacheStrategy.readFromCacheOrFetch(request);
   },
   "GET",
 );
