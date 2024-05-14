@@ -16,7 +16,7 @@ import {
   EMPTY_CANVAS_HINTS,
 } from "../../../../../src/ce/constants/messages";
 
-describe("Page Load tests", { tags: ["@tag.IDE", "@tag.Templates"] }, () => {
+describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
