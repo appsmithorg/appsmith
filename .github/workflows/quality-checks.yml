@@ -2,7 +2,7 @@ name: Quality checks
 
 on:
   pull_request:
-    branches: [release, master]
+    branches: [release, master, pg]
 
 jobs:
   path-filter:
@@ -45,6 +45,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.pull_request.number }}
+      is-pg: ${{ github.event.pull_request.base.ref == 'pg' }}
 
   client-build:
     name: client-build

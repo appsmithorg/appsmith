@@ -17,6 +17,11 @@ on:
         description: "This is the branch to be used for the build."
         required: false
         type: string
+      is-pg:
+        description: "This is a boolean value in case the workflow is being called for a PG build"
+        required: false
+        type: string
+        default: "false"
 
 # Change the working directory for all the jobs in this workflow
 defaults:
@@ -132,6 +137,23 @@ jobs:
         with:
           distribution: "temurin"
           java-version: "17"
+
+      # Setup Python for conditional execution
+      - name: Conditional Python setup and script execution
+        run: |
+          if [[ inputs.is-pg == 'true' ]]; then
+            # Setup Python
+            echo "Setting up Python"
+            actions/setup-python@v3
+
+            # Run transform.py
+            if [[ -f app/server/tx/transform.py ]]; then
+              python3 app/server/tx/transform.py
+            else
+              echo "Error: transform.py does not exist"
+              exit 1
+            fi
+          fi
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
       - name: Cache maven dependencies
