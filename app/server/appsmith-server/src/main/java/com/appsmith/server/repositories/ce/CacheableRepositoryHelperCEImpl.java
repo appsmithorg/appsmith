@@ -174,12 +174,14 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
      * @param tenantId
      * @return
      */
-    @Cache(cacheName = "defaultTenant", key = "{#tenantId}")
+    @Cache(cacheName = "tenant", key = "{#tenantId}")
     @Override
     public Mono<Tenant> fetchDefaultTenant(String tenantId) {
         BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
+        BridgeQuery<Tenant> notDeletedCriteria = notDeleted();
+        BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
         Query query = new Query();
-        query.addCriteria(defaultTenantCriteria);
+        query.addCriteria(andCriteria);
 
         return mongoOperations.findOne(query, Tenant.class).map(tenant -> {
             if (tenant.getTenantConfiguration() == null) {
@@ -189,7 +191,7 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
         });
     }
 
-    @CacheEvict(cacheName = "defaultTenant", key = "{#tenantId}")
+    @CacheEvict(cacheName = "tenant", key = "{#tenantId}")
     @Override
     public Mono<Void> evictCachedTenant(String tenantId) {
         return Mono.empty().then();
