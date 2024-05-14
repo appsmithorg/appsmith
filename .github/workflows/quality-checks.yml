@@ -45,7 +45,7 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.pull_request.number }}
-      is-pg: ${{ github.event.pull_request.base.ref == 'pg' }}
+      is-pg-build: ${{ github.event.pull_request.base.ref == 'pg' }}
 
   client-build:
     name: client-build
