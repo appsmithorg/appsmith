@@ -93,6 +93,9 @@ class TenantServiceCETest {
         tenantService
                 .getDefaultTenantId()
                 .flatMap(tenantId -> tenantService.update(tenantId, updatedTenant))
+                .doOnError(error -> {
+                    System.err.println("Error during cleanup: " + error.getMessage());
+                })
                 .block();
     }
 
