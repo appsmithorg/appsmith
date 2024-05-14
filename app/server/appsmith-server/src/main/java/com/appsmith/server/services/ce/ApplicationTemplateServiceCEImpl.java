@@ -1,7 +1,6 @@
 package com.appsmith.server.services.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
-import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.configurations.CloudServicesConfig;
 import com.appsmith.server.constants.ArtifactType;
@@ -28,17 +27,12 @@ import com.appsmith.server.solutions.ReleaseNotesService;
 import com.appsmith.util.WebClientUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.util.DefaultUriBuilderFactory;
 import org.springframework.web.util.UriComponents;
@@ -46,10 +40,11 @@ import org.springframework.web.util.UriComponentsBuilder;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.lang.reflect.Type;
-import java.time.Instant;
 import java.util.List;
 import java.util.Map;
+
+import static com.appsmith.server.helpers.CacheableTemplateHelper.getApplicationByTemplateId;
+import static com.appsmith.server.helpers.CacheableTemplateHelper.getTemplates;
 
 @Service
 public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServiceCE {
@@ -114,31 +109,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
 
     @Override
     public Mono<List<ApplicationTemplate>> getActiveTemplates(List<String> templateIds) {
-        final String baseUrl = cloudServicesConfig.getBaseUrl();
-
-        UriComponentsBuilder uriComponentsBuilder =
-                UriComponentsBuilder.newInstance().queryParam("version", releaseNotesService.getRunningVersion());
-
-        if (!CollectionUtils.isEmpty(templateIds)) {
-            uriComponentsBuilder.queryParam("id", templateIds);
-        }
-
-        // uriComponents will build url in format: version=version&id=id1&id=id2&id=id3
-        UriComponents uriComponents = uriComponentsBuilder.build();
-
-        return WebClientUtils.create(baseUrl + "/api/v1/app-templates?" + uriComponents.getQuery())
-                .get()
-                .exchangeToFlux(clientResponse -> {
-                    if (clientResponse.statusCode().equals(HttpStatus.OK)) {
-                        return clientResponse.bodyToFlux(ApplicationTemplate.class);
-                    } else if (clientResponse.statusCode().isError()) {
-                        return Flux.error(
-                                new AppsmithException(AppsmithError.CLOUD_SERVICES_ERROR, clientResponse.statusCode()));
-                    } else {
-                        return clientResponse.createException().flatMapMany(Flux::error);
-                    }
-                })
-                .collectList();
+        return getTemplates(releaseNotesService.getRunningVersion(), cloudServicesConfig.getBaseUrl());
     }
 
     @Override
@@ -162,39 +133,7 @@ public class ApplicationTemplateServiceCEImpl implements ApplicationTemplateServ
     @Override
     public Mono<ApplicationJson> getApplicationJsonFromTemplate(String templateId) {
         final String baseUrl = cloudServicesConfig.getBaseUrl();
-        final String templateUrl = baseUrl + "/api/v1/app-templates/" + templateId + "/application";
-        /*
-         * using a custom url builder factory because default builder always encodes
-         * URL.
-         * It's expected that the appDataUrl is already encoded, so we don't need to
-         * encode that again.
-         * Encoding an encoded URL will not work and end up resulting a 404 error
-         */
-        final int size = 4 * 1024 * 1024; // 4 MB
-        final ExchangeStrategies strategies = ExchangeStrategies.builder()
-                .codecs(codecs -> codecs.defaultCodecs().maxInMemorySize(size))
-                .build();
-
-        WebClient webClient = WebClientUtils.builder()
-                .uriBuilderFactory(new NoEncodingUriBuilderFactory(templateUrl))
-                .exchangeStrategies(strategies)
-                .build();
-
-        return webClient
-                .get()
-                .retrieve()
-                .bodyToMono(String.class)
-                .map(jsonString -> {
-                    Gson gson = new GsonBuilder()
-                            .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
-                            .create();
-                    Type fileType = new TypeToken<ApplicationJson>() {}.getType();
-
-                    ApplicationJson jsonFile = gson.fromJson(jsonString, fileType);
-                    return jsonFile;
-                })
-                .switchIfEmpty(
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND, "template", templateId)));
+        return getApplicationByTemplateId(baseUrl, templateId);
     }
 
     @Override
