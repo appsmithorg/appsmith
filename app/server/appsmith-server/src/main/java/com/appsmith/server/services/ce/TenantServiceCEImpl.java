@@ -253,6 +253,19 @@ public class TenantServiceCEImpl extends BaseService<TenantRepository, Tenant, S
     }
 
     /**
+     * This function updates the tenant object in the database and evicts the cache
+     * @param tenantId
+     * @param tenant
+     * @return
+     */
+    @Override
+    public Mono<Tenant> update(String tenantId, Tenant tenant) {
+        Mono<Void> evictTenantCache = cacheableRepositoryHelper.evictCachedTenant(tenantId);
+        Mono<Tenant> updatedTenantMono = super.update(tenantId, tenant).cache();
+        return updatedTenantMono.then(Mono.defer(() -> evictTenantCache)).then(updatedTenantMono);
+    }
+
+    /**
      * This function checks if the tenant needs to be restarted and restarts after the feature flag migrations are
      * executed.
      *
