@@ -18,9 +18,9 @@ import {
   getRampLink,
   showProductRamps,
 } from "@appsmith/selectors/rampSelectors";
-import BusinessTag from "components/BusinessTag";
 import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import { useFeatureFlag } from "utils/hooks/useFeatureFlag";
+import EnterpriseTag from "components/EnterpriseTag";
 
 function PrivateEmbeddingContent(props: {
   userAppPermissions: any[];
@@ -71,7 +71,7 @@ export function PrivateEmbedRampModal() {
             <Text kind="body-m">
               {createMessage(IN_APP_EMBED_SETTING.privateAppsText)}
             </Text>
-            <BusinessTag classes="ml-1 mt-0.5" />
+            <EnterpriseTag classes="ml-1 mt-0.5" />
           </div>
           <Text
             className="w-7/10 block"

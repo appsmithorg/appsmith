@@ -19,7 +19,7 @@ describe("Private embed in-app ramp", { tags: ["@tag.Settings"] }, () => {
     _.inviteModal.SelectEmbedTab();
     _.agHelper.GetNAssertElementText(
       _.inviteModal.locators._privateEmbedRampAppSettings,
-      "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+      "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Enterprise plan",
       "contain.text",
     );
     checkRampLink();
