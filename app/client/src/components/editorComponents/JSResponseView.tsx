@@ -336,7 +336,7 @@ function JSResponseView(props: Props) {
   // Do not render if header tab is selected in the bottom bar.
   return open && selectedTab ? (
     <ResponseContainer
-      className="t--js-editor-bottom-pane-container"
+      className="t--js-editor-bottom-pane-container select-text"
       ref={panelRef}
     >
       <Resizer

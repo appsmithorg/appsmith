@@ -200,4 +200,5 @@ public class FieldNameCE {
     public static final String UNPUBLISHED = "unpublished";
     public static final String ARTIFACT_CONTEXT = "artifactContext";
     public static final String ARTIFACT_ID = "artifactId";
+    public static final String BODY = "body";
 }
