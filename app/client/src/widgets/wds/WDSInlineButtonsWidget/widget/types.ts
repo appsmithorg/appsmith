@@ -4,10 +4,9 @@ import type { InlineButtonsItemComponentProps } from "../component/types";
 
 export type ButtonsList = Record<string, InlineButtonsItemComponentProps>;
 
-export interface InlineButtonsWidgetProps extends WidgetProps {
-  buttonColor: ButtonGroupProps<object>["color"];
-  buttonVariant: ButtonGroupProps<object>["variant"];
-  orientation: ButtonGroupProps<object>["orientation"];
+export interface InlineButtonsWidgetProps
+  extends WidgetProps,
+    ButtonGroupProps<object> {
   isVisible: boolean;
   buttonsList: ButtonsList;
 }

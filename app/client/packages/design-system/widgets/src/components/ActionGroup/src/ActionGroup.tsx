@@ -1,18 +1,22 @@
 import React, { forwardRef } from "react";
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
-import type { DOMRef } from "@react-types/shared";
+import { Button, Menu } from "@design-system/widgets";
 import { useListState } from "@react-stately/list";
-
-import styles from "./styles.module.css";
-import type { ActionGroupProps } from "./types";
-import { IconButton } from "../../IconButton";
+import { MenuTrigger } from "react-aria-components";
+import { ActionGroupButton } from "./ActionGroupButton";
 import { useActionGroup } from "./useActionGroup";
-import { Item, Menu, MenuList } from "../../Menu";
-import { ActionGroupItem } from "./ActionGroupItem";
+import styles from "./styles.module.css";
+import { Item } from "@react-stately/collections";
+import type { ActionGroupItem, ActionGroupProps } from "./types";
+import type { DOMRef, CollectionChildren } from "@react-types/shared";
 
-const _ActionGroup = <T extends object>(
-  props: ActionGroupProps<T>,
+interface ActionGroupInnerProps<T> extends ActionGroupProps<T> {
+  children?: CollectionChildren<T>;
+}
+
+const _ActionGroupInner = <T extends ActionGroupItem>(
+  props: ActionGroupInnerProps<T>,
   ref: DOMRef<HTMLDivElement>,
 ) => {
   const {
@@ -21,7 +25,6 @@ const _ActionGroup = <T extends object>(
     density = "regular",
     isDisabled,
     onAction,
-    orientation = "horizontal",
     overflowMode = "collapse",
     size = "medium",
     variant = "filled",
@@ -36,7 +39,7 @@ const _ActionGroup = <T extends object>(
   );
 
   let children = [...state.collection];
-  const menuChildren = children.slice(visibleItems);
+  const menuChildren = (props.items as ActionGroupItem[]).slice(visibleItems);
   children = children.slice(0, visibleItems);
 
   return (
@@ -45,7 +48,6 @@ const _ActionGroup = <T extends object>(
         className={styles.actionGroup}
         data-alignment={alignment}
         data-density={Boolean(density) ? density : undefined}
-        data-orientation={orientation}
         data-overflow={overflowMode}
         ref={domRef}
         {...actionGroupProps}
@@ -53,11 +55,11 @@ const _ActionGroup = <T extends object>(
       >
         {children.map((item) => {
           if (Boolean(item.props.isSeparator)) {
-            return <div data-separator="" key={item.key} />;
+            return <div data-separator="" key={item.key} role="separator" />;
           }
 
           return (
-            <ActionGroupItem
+            <ActionGroupButton
               color={color}
               icon={item.props.icon}
               iconPosition={item.props.iconPosition}
@@ -75,39 +77,33 @@ const _ActionGroup = <T extends object>(
           );
         })}
         {menuChildren?.length > 0 && (
-          <Menu
-            disabledKeys={[
-              ...state.disabledKeys,
-              ...menuChildren
-                // filtering out separators so that they can't be clicked or navigated
-                .filter((item) => item.props.isSeparator)
-                .map((item) => item.key),
-            ]}
-            onAction={onAction}
-          >
-            <IconButton
+          <MenuTrigger>
+            <Button
               color={color}
-              icon="dots"
-              size={size}
+              data-action-group-menu
+              icon="menu-2"
               variant={variant}
             />
-            <MenuList>
-              {menuChildren.map((item) => {
-                return (
-                  <Item
-                    icon={item.props.icon}
-                    isSeparator={item.props.isSeparator}
-                    key={item.key}
-                  >
-                    {item.rendered}
-                  </Item>
-                );
-              })}
-            </MenuList>
-          </Menu>
+            <Menu items={menuChildren} onAction={onAction} />
+          </MenuTrigger>
         )}
       </div>
     </FocusScope>
+  );
+};
+
+const ActionGroupInner = forwardRef(_ActionGroupInner);
+
+const _ActionGroup = <T extends ActionGroupItem>(
+  props: Omit<ActionGroupProps<T>, "children">,
+  ref: DOMRef<HTMLDivElement>,
+) => {
+  const { items, ...rest } = props;
+
+  return (
+    <ActionGroupInner items={items} {...rest} ref={ref}>
+      {(item) => <Item {...item}>{item.label}</Item>}
+    </ActionGroupInner>
   );
 };
 

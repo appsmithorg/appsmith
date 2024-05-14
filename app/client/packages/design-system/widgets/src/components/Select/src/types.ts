@@ -5,7 +5,8 @@ import type {
 } from "react-aria-components";
 import type { IconProps, SIZES } from "@design-system/widgets";
 
-export interface SelectProps<T extends object> extends SpectrumSelectProps<T> {
+export interface SelectProps<T extends object>
+  extends Omit<SpectrumSelectProps<T>, "slot"> {
   /** Item objects in the collection. */
   items: Iterable<SelectItem>;
   /** The content to display as the label. */

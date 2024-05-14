@@ -1,6 +1,6 @@
 import type { Key } from "react";
 import React, { useState } from "react";
-import { ActionGroup, Item } from "@design-system/widgets";
+import { ActionGroup } from "@design-system/widgets";
 import type {
   ToolbarButtonsComponentProps,
   ToolbarButtonsItemComponentProps,
@@ -55,24 +55,10 @@ export const ToolbarButtonsComponent = (
     <ActionGroup
       alignment={props.alignment}
       color={props.color}
-      density={props.density}
       disabledKeys={disabledKeys}
+      items={sortedButtons}
       onAction={onAction}
       variant={props.variant}
-    >
-      {sortedButtons.map((button: ToolbarButtonsItemComponentProps) => {
-        return (
-          <Item
-            icon={button.iconName}
-            iconPosition={button.iconAlign}
-            isLoading={loadingButtonIds.includes(button.id)}
-            isSeparator={button.itemType === "SEPARATOR"}
-            key={button.id}
-          >
-            {button.label}
-          </Item>
-        );
-      })}
-    </ActionGroup>
+    />
   );
 };

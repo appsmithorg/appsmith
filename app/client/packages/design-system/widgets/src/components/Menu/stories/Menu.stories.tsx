@@ -1,6 +1,7 @@
 import React from "react";
+import { Button, Menu, MenuTrigger } from "@design-system/widgets";
+import type { MenuItem } from "@design-system/widgets";
 import type { Meta, StoryObj } from "@storybook/react";
-import { Button, Menu, MenuList, Item, COLORS } from "@design-system/widgets";
 
 /**
  * A menu displays a list of actions or options that a user can choose.
@@ -17,33 +18,39 @@ const meta: Meta<typeof Menu> = {
 export default meta;
 type Story = StoryObj<typeof Menu>;
 
+const items: MenuItem[] = [
+  { id: 1, label: "Aerospace", icon: "rocket" },
+  {
+    id: 2,
+    label: "Mechanical",
+    icon: "settings",
+    childItems: [
+      { id: 21, label: "Aerospace", icon: "rocket" },
+      {
+        id: 22,
+        label: "Mechanical",
+        icon: "settings",
+        childItems: [
+          { id: 31, label: "Aerospace", icon: "rocket" },
+          { id: 32, label: "Mechanical", icon: "settings" },
+        ],
+      },
+    ],
+  },
+  { id: 3, label: "Civil" },
+  { id: 4, label: "Biomedical" },
+  { id: 5, label: "Nuclear" },
+  { id: 6, label: "Industrial" },
+  { id: 7, label: "Chemical" },
+  { id: 8, label: "Agricultural" },
+  { id: 9, label: "Electrical" },
+];
+
 export const Main: Story = {
   render: (args) => (
-    <Menu {...args} disabledKeys={["cut"]} onAction={(key) => alert(key)}>
-      <Button>Press me</Button>
-      <MenuList>
-        <Item key="copy">Copy</Item>
-        <Item key="cut">Cut</Item>
-        <Item key="paste">Paste</Item>
-      </MenuList>
-    </Menu>
-  ),
-};
-
-/**
- * Just like Button component, There are 3 variants of the icon button component.
- */
-export const ItemColor: Story = {
-  render: () => (
-    <Menu>
-      <Button>Press me</Button>
-      <MenuList>
-        {Object.values(COLORS).map((color) => (
-          <Item color={color} key={color}>
-            {color}
-          </Item>
-        ))}
-      </MenuList>
-    </Menu>
+    <MenuTrigger>
+      <Button icon="menu-2" />
+      <Menu items={items} {...args} />
+    </MenuTrigger>
   ),
 };

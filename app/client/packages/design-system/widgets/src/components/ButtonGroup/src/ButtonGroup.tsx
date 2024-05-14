@@ -1,21 +1,24 @@
 import React, { forwardRef } from "react";
 import { FocusScope } from "@react-aria/focus";
 import { useDOMRef } from "@react-spectrum/utils";
-import type { DOMRef } from "@react-types/shared";
 import { useListState } from "@react-stately/list";
-
-import styles from "./styles.module.css";
-import type { ButtonGroupItemProps, ButtonGroupProps } from "./types";
-import { ButtonGroupItem } from "./ButtonGroupItem";
+import { ButtonGroupButton } from "./ButtonGroupButton";
 import { useButtonGroup } from "./useButtonGroup";
+import { Item } from "@react-stately/collections";
+import styles from "./styles.module.css";
+import type { CollectionChildren, DOMRef } from "@react-types/shared";
+import type { ButtonGroupItem, ButtonGroupProps } from "./types";
 
-const _ButtonGroup = <T extends object>(
-  props: ButtonGroupProps<T>,
+interface ButtonGroupInnerProps<T> extends ButtonGroupProps<T> {
+  children?: CollectionChildren<T>;
+}
+
+const _ButtonGroupInner = <T extends ButtonGroupItem>(
+  props: ButtonGroupInnerProps<T>,
   ref: DOMRef<HTMLDivElement>,
 ) => {
   const {
     color = "accent",
-    density = "regular",
     isDisabled,
     onAction,
     overflowMode = "collapse",
@@ -33,62 +36,58 @@ const _ButtonGroup = <T extends object>(
 
   const children = [...state.collection];
 
-  const style = {
-    flexBasis: "100%",
-    display: "flex",
-  };
-
   return (
     <FocusScope>
       <div
-        style={{
-          ...style,
-        }}
+        className={styles.buttonGroup}
+        data-orientation={orientation}
+        data-overflow={overflowMode}
+        ref={domRef}
+        {...buttonGroupProps}
+        {...others}
       >
-        <div
-          className={styles.buttonGroup}
-          data-density={Boolean(density) ? density : undefined}
-          data-orientation={orientation}
-          data-overflow={overflowMode}
-          ref={domRef}
-          {...buttonGroupProps}
-          {...others}
-        >
-          {children.map((item) => {
-            if (Boolean(item.props.isSeparator)) {
-              return <div data-separator="" key={item.key} />;
-            }
+        {children.map((item) => {
+          if (Boolean(item.props.isSeparator)) {
+            return <div data-separator="" key={item.key} />;
+          }
 
-            return (
-              <ButtonGroupItem
-                color={
-                  (item.props.color as ButtonGroupItemProps<object>["color"]) ??
-                  color
-                }
-                icon={item.props.icon}
-                iconPosition={item.props.iconPosition}
-                isDisabled={
-                  Boolean(state.disabledKeys.has(item.key)) ||
-                  Boolean(isDisabled) ||
-                  item.props.isDisabled
-                }
-                isLoading={item.props.isLoading}
-                item={item}
-                key={item.key}
-                onPress={() => onAction?.(item.key)}
-                size={Boolean(size) ? size : undefined}
-                state={state}
-                variant={
-                  (item.props
-                    .variant as ButtonGroupItemProps<object>["variant"]) ??
-                  variant
-                }
-              />
-            );
-          })}
-        </div>
+          return (
+            <ButtonGroupButton
+              color={item.props.color ?? color}
+              icon={item.props.icon}
+              iconPosition={item.props.iconPosition}
+              isDisabled={
+                Boolean(state.disabledKeys.has(item.key)) ||
+                Boolean(isDisabled) ||
+                item.props.isDisabled
+              }
+              isLoading={item.props.isLoading}
+              item={item}
+              key={item.key}
+              onPress={() => onAction?.(item.key)}
+              size={Boolean(size) ? size : undefined}
+              state={state}
+              variant={item.props.variant ?? variant}
+            />
+          );
+        })}
       </div>
     </FocusScope>
+  );
+};
+
+const ButtonGroupInner = forwardRef(_ButtonGroupInner);
+
+const _ButtonGroup = <T extends ButtonGroupItem>(
+  props: ButtonGroupProps<T>,
+  ref: DOMRef<HTMLDivElement>,
+) => {
+  const { items, ...rest } = props;
+
+  return (
+    <ButtonGroupInner items={items} {...rest} ref={ref}>
+      {(item) => <Item {...item}>{item.label}</Item>}
+    </ButtonGroupInner>
   );
 };
 

@@ -1,3 +1,3 @@
-export * from "./types";
 export { ButtonGroup } from "./ButtonGroup";
-export { ButtonGroupItem } from "./ButtonGroupItem";
+export { ButtonGroupButton } from "./ButtonGroupButton";
+export * from "./types";

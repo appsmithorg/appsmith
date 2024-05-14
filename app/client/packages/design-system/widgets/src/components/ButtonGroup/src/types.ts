@@ -1,18 +1,14 @@
 import type { SpectrumActionGroupProps } from "@react-types/actiongroup";
 import type { ListState } from "@react-stately/list";
-
 import type { Node, StyleProps } from "@react-types/shared";
-
 import type { ButtonProps } from "../../Button";
 import type { SIZES } from "../../../shared";
+import type { IconProps } from "../../Icon";
 
 export const BUTTON_GROUP_ORIENTATIONS = {
   vertical: "vertical",
   horizontal: "horizontal",
 };
-
-export interface InheritedActionButtonProps
-  extends Pick<ButtonProps, "variant" | "color"> {}
 
 export interface ButtonGroupProps<T>
   extends Omit<
@@ -29,14 +25,23 @@ export interface ButtonGroupProps<T>
       | "disallowEmptySelection"
       | "onSelectionChange"
       | "selectedKeys"
+      | "density"
+      | "children"
       | keyof StyleProps
     >,
-    InheritedActionButtonProps {
-  orientation?: keyof typeof BUTTON_GROUP_ORIENTATIONS;
+    Pick<ButtonProps, "variant" | "color"> {
   size?: Omit<keyof typeof SIZES, "large">;
+  orientation?: keyof typeof BUTTON_GROUP_ORIENTATIONS;
 }
 
-export interface ButtonGroupItemProps<T> extends ButtonProps {
+export interface ButtonGroupItem {
+  id: string | number;
+  label?: string;
+  icon?: IconProps["name"];
+  isSeparator?: boolean;
+}
+
+export interface ButtonGroupButtonProps<T> extends ButtonProps {
   state: ListState<T>;
   item: Node<T>;
 }

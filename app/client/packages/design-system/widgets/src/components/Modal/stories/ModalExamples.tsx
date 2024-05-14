@@ -1,7 +1,6 @@
 import React, { useRef, useState } from "react";
 import {
   ActionGroup,
-  Item,
   Modal,
   ModalBody,
   ModalContent,
@@ -32,6 +31,11 @@ export const ModalExamples = () => {
   return (
     <>
       <ActionGroup
+        items={[
+          { id: "small", label: "Small" },
+          { id: "medium", label: "Medium" },
+          { id: "large", label: "Large" },
+        ]}
         onAction={(key) => {
           if (key === "small") {
             setSmallOpen(!isSmallOpen);
@@ -45,11 +49,7 @@ export const ModalExamples = () => {
             setLargeOpen(!isLargeOpen);
           }
         }}
-      >
-        <Item key="small">Small</Item>
-        <Item key="medium">Medium</Item>
-        <Item key="large">Large</Item>
-      </ActionGroup>
+      />
       <Modal
         initialFocus={2}
         isOpen={isLargeOpen}

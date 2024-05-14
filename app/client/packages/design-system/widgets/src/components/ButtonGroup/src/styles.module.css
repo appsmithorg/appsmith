@@ -6,7 +6,10 @@
   gap: var(--inner-spacing-2);
 
   & :is([data-button]) {
-    min-inline-size: fit-content;
+    /*
+      We use !important here to be sure that button width and the logic of useButtonGroup hook will not be changed from the outside
+    */
+    min-inline-size: fit-content !important;
   }
 
   &[data-orientation="vertical"] {

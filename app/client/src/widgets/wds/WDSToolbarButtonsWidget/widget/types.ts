@@ -4,10 +4,9 @@ import type { ToolbarButtonsItemComponentProps } from "../component/types";
 
 export type ButtonsList = Record<string, ToolbarButtonsItemComponentProps>;
 
-export interface ButtonGroupWidgetProps extends WidgetProps {
-  buttonColor: ActionGroupProps<object>["color"];
-  buttonVariant: ActionGroupProps<object>["variant"];
+export interface ToolbarButtonsWidgetProps
+  extends WidgetProps,
+    ActionGroupProps<object> {
   isVisible: boolean;
   buttonsList: ButtonsList;
-  alignment: ActionGroupProps<object>["alignment"];
 }

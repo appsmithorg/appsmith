@@ -9,6 +9,7 @@ import {
   useResizeObserver,
   useValueEffect,
 } from "@react-aria/utils";
+import type { ActionGroupProps } from "./types";
 
 export interface ActionGroupAria {
   actionGroupProps: DOMAttributes;
@@ -17,11 +18,11 @@ export interface ActionGroupAria {
 }
 
 export function useActionGroup<T>(
-  props: ButtonGroupProps<T>,
+  props: ActionGroupProps<T>,
   state: ListState<T>,
   ref: RefObject<FocusableElement>,
 ): ActionGroupAria {
-  const { orientation, overflowMode = "collapse" } = props;
+  const { overflowMode = "collapse" } = props;
   const focusManager = createFocusManager(ref);
 
   const onKeyDown = (e: React.KeyboardEvent<FocusableElement>) => {
@@ -55,11 +56,6 @@ export function useActionGroup<T>(
 
   const updateOverflow = useCallback(() => {
     if (overflowMode === "wrap") {
-      return;
-    }
-
-    if (orientation === "vertical") {
-      // Collapsing vertical action groups with selection is currently unsupported.
       return;
     }
 
@@ -140,7 +136,7 @@ export function useActionGroup<T>(
         };
       }
     });
-  }, [ref, state.collection, setVisibleItems, overflowMode, orientation]);
+  }, [ref, state.collection, setVisibleItems, overflowMode]);
 
   const parentRef = useMemo(
     () => ({
@@ -159,12 +155,10 @@ export function useActionGroup<T>(
 
   return {
     actionGroupProps: {
-      "aria-orientation": orientation,
       onKeyDown,
     },
     isMeasuring,
-    visibleItems:
-      orientation === "vertical" ? state.collection.size : visibleItems,
+    visibleItems,
   };
 }
 

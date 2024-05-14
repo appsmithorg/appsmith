@@ -1,6 +1,6 @@
 import type { Key } from "react";
 import React, { useState } from "react";
-import { ButtonGroup, Item } from "@design-system/widgets";
+import { ButtonGroup } from "@design-system/widgets";
 import type {
   InlineButtonsComponentProps,
   InlineButtonsItemComponentProps,
@@ -51,28 +51,9 @@ export const InlineButtonsComponent = (props: InlineButtonsComponentProps) => {
 
   return (
     <ButtonGroup
-      color={props.color}
-      density={props.density}
       disabledKeys={disabledKeys}
+      items={sortedButtons}
       onAction={onAction}
-      orientation={props.orientation}
-      variant={props.variant}
-    >
-      {sortedButtons.map((button: InlineButtonsItemComponentProps) => {
-        return (
-          <Item
-            color={button.buttonColor}
-            icon={button.iconName}
-            iconPosition={button.iconAlign}
-            isLoading={loadingButtonIds.includes(button.id)}
-            isSeparator={button.itemType === "SEPARATOR"}
-            key={button.id}
-            variant={button.buttonVariant}
-          >
-            {button.label}
-          </Item>
-        );
-      })}
-    </ButtonGroup>
+    />
   );
 };

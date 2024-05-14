@@ -5,8 +5,13 @@
   width: 100%;
 
   & :is([data-separator]) {
-    inline-size: var(--sizing-5);
-    block-size: var(--sizing-5);
+    min-inline-size: var(--sizing-5);
+    min-block-size: var(--sizing-5);
+  }
+
+  & [data-separator]:is(:first-child, :last-child),
+  &:has([data-action-group-menu]) [data-separator]:nth-last-child(2) {
+    display: none;
   }
 
   [data-button]:not(:last-of-type) {
@@ -16,16 +21,8 @@
     min-inline-size: fit-content !important;
   }
 
-  &:has([data-icon-button]) [data-button]:nth-last-child(2) {
-    min-inline-size: var(--sizing-14) !important;
-  }
-
-  &[data-orientation="vertical"] {
-    flex-direction: column;
-  }
-
-  &[data-orientation="vertical"] :is([data-button]) {
-    max-inline-size: none;
+  &:has([data-action-group-menu]) [data-button]:nth-last-child(2) {
+    min-inline-size: var(--sizing-18) !important;
   }
 
   &[data-alignment="start"] {
@@ -62,77 +59,20 @@
       border-radius: 0;
     }
 
-    /**
-    * ----------------------------------------------------------------------------
-    * Horizontal orientation
-    *-----------------------------------------------------------------------------
-    */
-    &[data-orientation="horizontal"] {
-      width: 100%;
-    }
-
-    &[data-orientation="horizontal"] [data-button]:not(:last-of-type) {
+    & [data-button]:not(:last-of-type) {
       border-right-width: var(--border-width-1);
     }
 
-    &[data-orientation="horizontal"] [data-button]:first-child {
+    & [data-button]:first-child {
       border-top-right-radius: 0;
     }
 
-    &[data-orientation="horizontal"] [data-button]:last-of-type {
+    & [data-button]:last-of-type {
       border-bottom-left-radius: 0;
     }
 
-    &[data-orientation="horizontal"] [data-variant="outlined"] {
+    & [data-variant="outlined"] {
       margin-right: calc(-1 * var(--border-width-1));
-    }
-
-    /**
-    * ----------------------------------------------------------------------------
-    * Vertical orientation
-    *-----------------------------------------------------------------------------
-    */
-    &[data-orientation="vertical"] [data-button]:not(:last-of-type) {
-      border-bottom-width: var(--border-width-1);
-    }
-
-    &[data-orientation="vertical"] [data-button]:first-child {
-      border-bottom-left-radius: 0;
-    }
-
-    &[data-orientation="vertical"] [data-button]:last-of-type {
-      border-top-right-radius: 0;
-    }
-
-    &[data-orientation="vertical"] [data-variant="outlined"] {
-      margin-bottom: calc(-1 * var(--border-width-1));
-    }
-
-    /**
-    * ----------------------------------------------------------------------------
-    * Filled variant
-    *-----------------------------------------------------------------------------
-    */
-    & [data-variant="filled"] {
-      border-width: 0;
-    }
-
-    @each $color in colors {
-      & [data-variant="filled"][data-color="$(color)"] {
-        border-color: var(--color-bd-on-$(color));
-      }
-    }
-
-    /**
-    * ----------------------------------------------------------------------------
-    * Outlined variant
-    *-----------------------------------------------------------------------------
-    */
-
-    @each $color in colors {
-      & [data-variant="outlined"][data-color="$(color)"] {
-        border-color: var(--color-bd-$(color));
-      }
     }
   }
 }
