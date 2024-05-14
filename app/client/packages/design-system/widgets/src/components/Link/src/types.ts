@@ -1,9 +1,7 @@
-import type { ComponentProps } from "react";
+import type { LinkProps as AriaLinkProps } from "react-aria-components";
 
 import type { TextProps } from "../../Text";
 
-export interface LinkProps extends TextProps {
-  href?: string;
-  target?: ComponentProps<"a">["target"];
-  rel?: string;
-}
+export interface LinkProps
+  extends TextProps,
+    Omit<AriaLinkProps, "style" | "className" | "children"> {}

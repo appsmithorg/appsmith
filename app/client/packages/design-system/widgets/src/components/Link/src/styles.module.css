@@ -2,9 +2,14 @@
   text-decoration: underline;
   text-decoration-color: currentColor;
   text-underline-offset: 2px;
+  color: currentColor;
 
   &:hover {
     color: currentColor;
     text-decoration-color: currentColor;
+  }
+
+  &[aria-disabled="true"] {
+    opacity: var(--opacity-disabled);
   }
 }
