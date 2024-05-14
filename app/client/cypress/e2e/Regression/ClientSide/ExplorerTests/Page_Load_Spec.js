@@ -29,12 +29,12 @@ describe("Page Load tests", { tags: ["@tag.IDE", "@tag.Templates"] }, () => {
     agHelper.AddDsl("PageLoadDsl");
     PageList.AddNewPage();
     if (Cypress.env("AIRGAPPED")) {
-      cy.get("span").contains(
-        createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
-      );
-    } else {
       cy.get("h2").contains(
         createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
+      );
+    } else {
+      cy.get("span").contains(
+        createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
       );
     }
   });
