@@ -2,6 +2,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 import {
   homePage,
   partialImportExport,
+  assertHelper,
 } from "../../../../support/Objects/ObjectsCore";
 
 const fixtureName = "PartialImportExportSampleApp.json";
@@ -12,6 +13,7 @@ describe(
   () => {
     before(() => {
       homePage.ImportApp(`PartialImportExport/${fixtureName}`);
+      assertHelper.AssertNetworkStatus("@importNewApplication");
       featureFlagIntercept({
         release_show_partial_import_export_enabled: true,
       });

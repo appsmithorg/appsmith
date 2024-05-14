@@ -10,8 +10,12 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
+import {
+  createMessage,
+  STARTER_TEMPLATE_PAGE_LAYOUTS,
+} from "../../../../../src/ce/constants/messages";
 
-describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
+describe("Page Load tests", { tags: ["@tag.IDE", "@tag.Templates"] }, () => {
   afterEach(() => {
     agHelper.SaveLocalStorageCache();
   });
@@ -23,7 +27,9 @@ describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   before(() => {
     agHelper.AddDsl("PageLoadDsl");
     PageList.AddNewPage();
-    cy.get("h2").contains("Drag and drop a widget here");
+    cy.get("span").contains(
+      createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
+    );
   });
 
   it("1. Published page loads correctly", () => {

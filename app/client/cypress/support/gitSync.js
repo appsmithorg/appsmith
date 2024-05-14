@@ -8,7 +8,10 @@ require("cypress-file-upload");
 import gitSyncLocators from "../locators/gitSyncLocators";
 import homePage from "../locators/HomePage";
 import { ObjectsRegistry } from "./Objects/Registry";
-
+import {
+  createMessage,
+  UNABLE_TO_IMPORT_APP,
+} from "../../src/ce/constants/messages";
 const gitSync = ObjectsRegistry.GitSync;
 const agHelper = ObjectsRegistry.AggregateHelper;
 const dataManager = ObjectsRegistry.DataManager;
@@ -51,7 +54,7 @@ Cypress.Commands.add("latestDeployPreview", () => {
       window.location.target = "_self";
     });
   });
-  cy.get(gitSyncLocators.bottomBarCommitButton).click();
+  agHelper.GetNClick(gitSync._bottomBarCommit);
   cy.wait(2000); // wait for modal to load
   cy.xpath("//span[text()='Latest deployed preview']").click();
   cy.log("pagename: " + localStorage.getItem("PageName"));
@@ -231,10 +234,7 @@ Cypress.Commands.add("gitDiscardChanges", () => {
   cy.contains(Cypress.env("MESSAGES").DISCARDING_AND_PULLING_CHANGES());
   cy.validateToastMessage("Discarded changes successfully.");
   cy.wait(2000);
-  assertHelper.AssertContains(
-    "Unable to import application in workspace",
-    "not.exist",
-  );
+  assertHelper.AssertContains(createMessage(UNABLE_TO_IMPORT_APP), "not.exist");
 });
 
 Cypress.Commands.add(
