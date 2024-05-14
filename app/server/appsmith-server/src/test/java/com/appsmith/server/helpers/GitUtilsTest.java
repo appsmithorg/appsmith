@@ -60,6 +60,10 @@ public class GitUtilsTest {
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
                         "ssh://git@tim.tam.example.com:9876/v3/sladeping/pyhe/SpaceJunk"))
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
+
+        // custom ssh username:
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("custom@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
+                .isEqualTo("https://vs-ssh.visualstudio.com/v3/newJet/ai/zilla");
     }
 
     @Test
