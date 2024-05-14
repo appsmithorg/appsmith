@@ -32,7 +32,12 @@ export { default as IDEHeaderEditorSwitcher } from "./Components/HeaderEditorSwi
  * It is possible to use the IDE Header without using these subsections
  */
 export { default as IDEHeaderDropdown } from "./Components/HeaderDropdown";
+
+export { default as IDEBottomView } from "./Components/BottomView";
+
 /**
  **** Interfaces ****
  * Common types that are used by the different components of the IDE
  **/
+
+export { ViewHideBehaviour } from "./Interfaces/ViewHideBehaviour";
