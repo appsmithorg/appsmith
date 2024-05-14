@@ -64,6 +64,10 @@ public class GitUtilsTest {
         // custom ssh username:
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("custom@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
                 .isEqualTo("https://vs-ssh.visualstudio.com/v3/newJet/ai/zilla");
+
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "ssh://custom@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
+                .isEqualTo("https://vs-ssh.visualstudio.com/v3/newJet/ai/zilla");
     }
 
     @Test
@@ -135,6 +139,13 @@ public class GitUtilsTest {
         assertThat(GitUtils.getRepoName("user@host.xz:path/to/repo.git")).isEqualTo("repo");
         assertThat(GitUtils.getRepoName("org-987654321@github.com:org_name/repository_name.git"))
                 .isEqualTo("repository_name");
+
+        // custom ssh username:
+        assertThat(GitUtils.getRepoName("custom@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
+                .isEqualTo("zilla");
+
+        assertThat(GitUtils.getRepoName("ssh://custom@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
+                .isEqualTo("zilla");
     }
 
     @Test
