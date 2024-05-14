@@ -123,6 +123,7 @@ export default function Debugger() {
   return (
     <IDEBottomView
       behaviour={ViewHideBehaviour.CLOSE}
+      className="t--datasource-bottom-pane-container"
       height={responsePaneHeight}
       hidden={!shouldRender}
       onHideClick={onClose}

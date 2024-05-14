@@ -230,6 +230,7 @@ function QueryDebuggerTabs({
   return (
     <IDEBottomView
       behaviour={ViewHideBehaviour.COLLAPSE}
+      className="t--query-bottom-pane-container"
       height={responseTabHeight}
       hidden={!open}
       onHideClick={onToggle}

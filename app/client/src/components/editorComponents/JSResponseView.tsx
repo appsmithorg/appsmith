@@ -308,6 +308,7 @@ function JSResponseView(props: Props) {
   return (
     <IDEBottomView
       behaviour={ViewHideBehaviour.COLLAPSE}
+      className="t--js-editor-bottom-pane-container"
       height={responseTabHeight}
       hidden={!open}
       onHideClick={onToggle}

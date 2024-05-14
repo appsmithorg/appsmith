@@ -79,6 +79,7 @@ function DebuggerTabs() {
         bottom: 0,
       }}
       behaviour={ViewHideBehaviour.CLOSE}
+      className="t--debugger-tabs-container"
       height={responsePaneHeight}
       hidden={!shouldRender}
       onHideClick={onClose}
