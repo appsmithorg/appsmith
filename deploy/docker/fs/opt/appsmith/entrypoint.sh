@@ -448,9 +448,10 @@ init_postgres || runEmbeddedPostgres=0
 }
 
 setup_caddy() {
-  if [[ $_APPSMITH_RATE_LIMIT == "disabled" ]]; then
-    echo "rate limiting is disabled"
-    mv /opt/basecaddy/caddy /opt/caddy/caddy
+  if [[ "$APPSMITH_RATE_LIMIT" == "disabled" ]]; then
+    export _APPSMITH_CADDY="/opt/caddy/caddy"
+  else
+    export _APPSMITH_CADDY="/opt/caddy/caddy_ext"
   fi
 }
 
@@ -460,7 +461,7 @@ init_loading_pages(){
   mkdir -p "$XDG_DATA_HOME" "$XDG_CONFIG_HOME"
   cp templates/loading.html "$WWW_PATH"
   node caddy-reconfigure.mjs
-  /opt/caddy/caddy start --config "$TMP/Caddyfile"
+  $_APPSMITH_CADDY start --config "$TMP/Caddyfile"
 }
 
 function setup_auto_heal(){

@@ -49,12 +49,12 @@ RUN set -o xtrace \
 
 # Install Caddy
 RUN set -o xtrace \
-  && mkdir -p /opt/basecaddy \
+  && mkdir -p /opt/caddy \
   && version="$(curl --write-out '%{redirect_url}' 'https://github.com/caddyserver/caddy/releases/latest' | sed 's,.*/v,,')" \
   && curl --location "https://github.com/caddyserver/caddy/releases/download/v$version/caddy_${version}_linux_$(uname -m | sed 's/x86_64/amd64/; s/aarch64/arm64/').tar.gz" \
-  | tar -xz -C /opt/basecaddy
+  | tar -xz -C /opt/caddy
 
-COPY --from=caddybuilder /usr/bin/caddy /opt/caddy/caddy
+COPY --from=caddybuilder /usr/bin/caddy /opt/caddy/caddy_ext
 
 # Clean up
 RUN rm -rf \
