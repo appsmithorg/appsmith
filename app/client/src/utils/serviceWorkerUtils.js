@@ -75,7 +75,7 @@ export const getPrefetchRequest = (url) => {
 
   // Match the URL with the builder and viewer paths
   const matchedBuilder = matchBuilderPath(url.pathname, { end: false });
-  const matchViewer = matchViewerPath(url.pathname, { end: false });
+  const matchedViewer = matchViewerPath(url.pathname, { end: false });
 
   // Get the branch name from the search query
   const branchName = getSearchQuery(url.search, "branch");
@@ -96,8 +96,8 @@ export const getPrefetchRequest = (url) => {
   }
 
   // If the URL matches the viewer path
-  if (matchViewer && matchViewer.params?.pageId) {
-    const searchParams = getConsolidatedAPISearchParams(matchViewer.params);
+  if (matchedViewer && matchedViewer.params?.pageId) {
+    const searchParams = getConsolidatedAPISearchParams(matchedViewer.params);
     const requestUrl = `${url.origin}/api/v1/consolidated-api/view?${searchParams}`;
     const request = new Request(requestUrl, { method: "GET", headers });
     return request;
