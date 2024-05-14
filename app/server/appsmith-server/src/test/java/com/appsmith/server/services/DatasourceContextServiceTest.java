@@ -754,4 +754,23 @@ public class DatasourceContextServiceTest {
                 })
                 .verify();
     }
+
+    @Test
+    @WithUserDetails(value = "api_user")
+    public void verifyDeleteDatasourceContext_whenContextDoesNotExist_returnsEmptyMono() {
+
+        String sampleDatasourceId = UUID.randomUUID().toString();
+        String samplePluginId = UUID.randomUUID().toString();
+
+        DatasourceStorage datasourceStorage = new DatasourceStorage();
+        datasourceStorage.setDatasourceId(sampleDatasourceId);
+        datasourceStorage.setEnvironmentId(defaultEnvironmentId);
+        datasourceStorage.setPluginId(samplePluginId);
+
+        MockPluginExecutor mockPluginExecutor = new MockPluginExecutor();
+        MockPluginExecutor spyMockPluginExecutor = spy(mockPluginExecutor);
+        StepVerifier.create(datasourceContextService.deleteDatasourceContext(datasourceStorage))
+                .expectNextCount(0)
+                .verifyComplete();
+    }
 }

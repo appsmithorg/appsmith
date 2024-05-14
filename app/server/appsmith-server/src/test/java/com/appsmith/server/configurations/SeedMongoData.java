@@ -18,6 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.dao.DataIntegrityViolationException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -103,19 +104,24 @@ public class SeedMongoData {
         };
 
         // Seed the plugin data into the DB
-        Flux<Plugin> pluginFlux = Flux.just(pluginData)
-                .map(array -> {
-                    log.debug("Creating the plugins");
-                    Plugin plugin = new Plugin();
+        Flux<Plugin> pluginFlux = Flux.just(pluginData).flatMap(array -> {
+            log.debug("Creating the plugins");
+            Plugin plugin = new Plugin();
 
-                    plugin.setName((String) array[0]);
-                    plugin.setType((PluginType) array[1]);
-                    plugin.setPackageName((String) array[2]);
-                    plugin.setDefaultInstall((Boolean) array[3]);
-                    log.debug("Create plugin: {}", plugin);
-                    return plugin;
-                })
-                .flatMap(pluginRepository::save);
+            plugin.setName((String) array[0]);
+            plugin.setType((PluginType) array[1]);
+            plugin.setPackageName((String) array[2]);
+            plugin.setDefaultInstall((Boolean) array[3]);
+            log.debug("Create plugin: {}", plugin);
+            return pluginRepository.save(plugin).onErrorResume(e -> {
+                // Ignore the duplicate exception
+                if (e instanceof DataIntegrityViolationException
+                        && e.getMessage().contains("constraint")) {
+                    return Mono.empty();
+                }
+                return Mono.error(e);
+            });
+        });
 
         Tenant defaultTenant = new Tenant();
         defaultTenant.setDisplayName("Default");

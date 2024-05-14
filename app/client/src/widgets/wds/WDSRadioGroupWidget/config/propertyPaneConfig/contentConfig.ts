@@ -36,7 +36,7 @@ export const propertyPaneContentConfig = [
         helpText: "Sets a default selected option",
         propertyName: "defaultOptionValue",
         label: "Default selected value",
-        placeholderText: "Y",
+        placeholderText: "L",
         controlType: "INPUT_TEXT",
         isBindProperty: true,
         isTriggerProperty: false,

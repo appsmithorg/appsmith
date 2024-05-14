@@ -1,12 +1,7 @@
-import { useSelector } from "react-redux";
-import { getWidgetCards } from "selectors/editorSelectors";
 import React, { useCallback, useEffect, useRef } from "react";
-import { createPortal } from "react-dom";
-import type { WidgetCardProps } from "widgets/BaseWidget";
 import styled from "styled-components";
-import { WidgetCardComponent } from "pages/Editor/widgetSidebar/WidgetCard";
-import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
-import type { DraggedWidget } from "layoutSystems/anvil/utils/anvilTypes";
+import { Wrapper } from "pages/Editor/widgetSidebar/WidgetCard";
+import { Text } from "design-system";
 
 const StyledWidgetCardPreviewWrapper = styled.div`
   position: absolute;
@@ -34,13 +29,41 @@ const StyledDraggedWidgetCount = styled.div`
 `;
 const BufferDistanceBetweenPreviewAndCursor = 10;
 
-const WidgetCardPreview = ({
-  cardProps,
+const ThumbnailWrapper = styled.div<{ height: number; width: number }>`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: ${(props) => props.width}px;
+  height: ${(props) => props.height}px;
+`;
+const THUMBNAIL_HEIGHT = 76;
+const THUMBNAIL_WIDTH = 72;
+const AnvilDragPreviewWidgetCardComponent = ({
+  displayName,
+  ThumbnailCmp,
+}: {
+  displayName: string;
+  ThumbnailCmp?: React.FC;
+}) => {
+  return (
+    <Wrapper>
+      <ThumbnailWrapper height={THUMBNAIL_HEIGHT} width={THUMBNAIL_WIDTH}>
+        {ThumbnailCmp && <ThumbnailCmp />}
+      </ThumbnailWrapper>
+      <Text kind="body-s">{displayName}</Text>
+    </Wrapper>
+  );
+};
+
+export const AnvilDragPreviewComponent = ({
+  displayName,
   draggedWidgetCount,
   isDragging,
+  ThumbnailCmp,
 }: {
   isDragging: boolean;
-  cardProps: WidgetCardProps;
+  displayName: string;
+  ThumbnailCmp?: React.FC;
   draggedWidgetCount: number;
 }) => {
   const dragPreviewRef = React.useRef<HTMLDivElement>(null);
@@ -93,37 +116,10 @@ const WidgetCardPreview = ({
           {draggedWidgetCount}
         </StyledDraggedWidgetCount>
       )}
-      <WidgetCardComponent details={cardProps} />
+      <AnvilDragPreviewWidgetCardComponent
+        ThumbnailCmp={ThumbnailCmp}
+        displayName={displayName}
+      />
     </StyledWidgetCardPreviewWrapper>
   );
-};
-
-export const AnvilDragPreview = ({
-  dragDetails,
-  draggedBlocks,
-  isDragging,
-  isNewWidget,
-}: {
-  dragDetails: DragDetails;
-  draggedBlocks: DraggedWidget[];
-  isDragging: boolean;
-  isNewWidget: boolean;
-}) => {
-  const cards = useSelector(getWidgetCards);
-  const widgetType = isNewWidget
-    ? dragDetails?.newWidget?.type
-    : dragDetails?.draggingGroupCenter?.widgetType || "";
-  const cardProps = cards.find((card) => card.type === widgetType);
-  const showDragPreview = isDragging && !!cardProps;
-  const draggedWidgetCount = draggedBlocks.length;
-  return showDragPreview
-    ? createPortal(
-        <WidgetCardPreview
-          cardProps={cardProps}
-          draggedWidgetCount={draggedWidgetCount}
-          isDragging={isDragging}
-        />,
-        document.body,
-      )
-    : null;
 };

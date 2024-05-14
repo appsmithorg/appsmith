@@ -25,7 +25,8 @@ describe(
 
       cy.get(".t--draggable-tablewidgetv2 .table .simplebar-content").then(
         ($scrollBox) =>
-          expect($scrollBox[0].clientHeight).to.be.equal(tableHeight),
+          /* 2 is the scrollbar offset which is needed for virtual table */
+          expect($scrollBox[0].clientHeight + 2).to.be.equal(tableHeight),
       );
     });
   },

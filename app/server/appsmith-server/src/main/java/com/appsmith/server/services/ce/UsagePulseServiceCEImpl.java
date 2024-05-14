@@ -17,6 +17,9 @@ import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.commons.lang.StringUtils;
 import reactor.core.publisher.Mono;
 
+import static java.lang.Boolean.FALSE;
+import static java.lang.Boolean.TRUE;
+
 @RequiredArgsConstructor
 public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
 
@@ -42,11 +45,13 @@ public class UsagePulseServiceCEImpl implements UsagePulseServiceCE {
     public Mono<UsagePulse> createPulse(UsagePulseDTO usagePulseDTO) {
         if (null == usagePulseDTO.getViewMode()) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.VIEW_MODE));
+        } else if (FALSE.equals(usagePulseDTO.getViewMode()) && usagePulseDTO.getAnonymousUserId() != null) {
+            // We don't expect anonymous user to have access to edit mode
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ANONYMOUS_USER_ID));
         }
 
-        // Remove usage pulse logging for appsmith-cloud until multi-tenancy is introduced
         // TODO remove this condition after multi-tenancy is introduced
-        if (Boolean.TRUE.equals(commonConfig.isCloudHosting())) {
+        if (TRUE.equals(commonConfig.isCloudHosting())) {
             return Mono.just(new UsagePulse());
         }
 

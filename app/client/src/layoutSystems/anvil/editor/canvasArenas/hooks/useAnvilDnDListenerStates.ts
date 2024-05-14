@@ -14,6 +14,8 @@ import { useAnvilDnDCompensators } from "./useAnvilDnDCompensators";
 import { getWidgetHierarchy } from "layoutSystems/anvil/utils/paste/utils";
 import type { AnvilGlobalDnDStates } from "../../canvas/hooks/useAnvilGlobalDnDStates";
 import { getWidgets } from "sagas/selectors";
+import { useMemo } from "react";
+import { ZoneWidget } from "widgets/anvil/ZoneWidget";
 
 interface AnvilDnDListenerStatesProps {
   anvilGlobalDragStates: AnvilGlobalDnDStates;
@@ -130,6 +132,24 @@ export const useAnvilDnDListenerStates = ({
     (widgetProps.children || []).filter(
       (each) => !allWidgets[each].detachFromLayout,
     ).length === 0;
+
+  const allSiblingsWidgets = useMemo(() => {
+    const allSiblings =
+      (widgetProps.parentId && allWidgets[widgetProps.parentId]?.children) ||
+      [];
+    return allSiblings.map((each) => allWidgets[each]);
+  }, [widgetProps, allWidgets]);
+
+  const isElevatedWidget = useMemo(() => {
+    if (widgetProps.type === ZoneWidget.type) {
+      const isAnyZoneElevated = allSiblingsWidgets.some(
+        (each) => !!each.elevatedBackground,
+      );
+      return isAnyZoneElevated;
+    }
+    return !!widgetProps.elevatedBackground;
+  }, [widgetProps, allSiblingsWidgets]);
+
   const {
     edgeCompensatorValues,
     layoutCompensatorValues,
@@ -140,7 +160,7 @@ export const useAnvilDnDListenerStates = ({
     draggedWidgetHierarchy,
     currentWidgetHierarchy,
     isEmptyLayout,
-    widgetProps,
+    isElevatedWidget,
   );
 
   return {

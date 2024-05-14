@@ -138,7 +138,7 @@ public class SeedData {
     public PublicPermissionInfo publicPermissionInfo(
             ConfigRepository configRepository,
             PermissionGroupRepository permissionGroupRepository,
-            User anonymousUser) {
+            UserRepository userRepository) {
         return configRepository
                 .findByName(FieldName.PUBLIC_PERMISSION_GROUP)
                 .map(config -> {
@@ -149,10 +149,14 @@ public class SeedData {
                 })
                 .orElseGet(() -> {
                     log.debug("Adding anonymous user permission group");
+                    // Find anonymous user
+                    final User anonymousUser =
+                            userRepository.findByEmail(FieldName.ANONYMOUS_USER).orElseThrow();
 
                     final PermissionGroup publicPermissionGroup = new PermissionGroup();
                     publicPermissionGroup.setName(FieldName.PUBLIC_PERMISSION_GROUP);
                     publicPermissionGroup.setDescription("Role for giving accesses for all objects to anonymous users");
+                    assert anonymousUser.getId() != null : "Anonymous user id is null";
                     publicPermissionGroup.setAssignedToUserIds(Set.of(anonymousUser.getId()));
                     permissionGroupRepository.save(publicPermissionGroup);
 
