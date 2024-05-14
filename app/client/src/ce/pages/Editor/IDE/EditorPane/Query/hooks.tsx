@@ -54,9 +54,6 @@ export const useQueryAdd = () => {
   }, [currentEntityInfo, segmentMode, location]);
 
   const closeAddQuery = useCallback(() => {
-    if (currentEntityInfo.entity !== FocusEntity.QUERY_ADD) {
-      return;
-    }
     let url = "";
     url = getQueryUrl(currentEntityInfo, false);
     history.push(url);

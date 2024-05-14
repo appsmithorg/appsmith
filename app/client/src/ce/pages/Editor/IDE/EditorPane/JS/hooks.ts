@@ -31,6 +31,9 @@ export const useJSAdd = () => {
     if (jsModuleCreationOptions.length === 0) {
       dispatch(createNewJSCollection(pageId, "ENTITY_EXPLORER"));
     } else {
+      if (currentEntityInfo.entity === FocusEntity.JS_OBJECT_ADD) {
+        return;
+      }
       const url = getJSUrl(currentEntityInfo, true);
       history.push(url);
     }
