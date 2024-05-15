@@ -46,8 +46,7 @@ export const renderEmptyRows = (
       };
       return (
         <div {...rowProps} className="tr" key={index}>
-          {multiRowSelection &&
-            renderBodyCheckBoxCell(false, accentColor, borderRadius)}
+          {multiRowSelection && renderBodyCheckBoxCell(false)}
           {row.cells.map(
             (cell: Cell<Record<string, unknown>>, cellIndex: number) => {
               const cellProps = cell.getCellProps();
@@ -100,8 +99,7 @@ export const renderEmptyRows = (
     return rows.map((row: string, index: number) => {
       return (
         <EmptyRow className="tr" key={index} role="row" style={style}>
-          {multiRowSelection &&
-            renderBodyCheckBoxCell(false, accentColor, borderRadius)}
+          {multiRowSelection && renderBodyCheckBoxCell(false)}
           {tableColumns.map((column: any, colIndex: number) => {
             const distanceFromEdge: {
               left?: number;

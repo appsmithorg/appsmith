@@ -26,6 +26,9 @@ public class GitUtils {
     public static final Pattern URL_PATTERN_WITHOUT_SCHEME =
             Pattern.compile("^git@(?<host>.+?):/*(?<path>.+?)(\\.git)?$");
 
+    public static final Pattern URL_PATTERN_WITH_CUSTOM_USERNAME =
+            Pattern.compile("^(ssh://)?[a-zA-Z0-9]+@(?<host>.+?):/*(?<path>.+?)(\\\\.git)?$");
+
     /**
      * Sample repo urls :
      * git@example.com:user/repoName.git
@@ -43,6 +46,10 @@ public class GitUtils {
         Matcher match = URL_PATTERN_WITH_SCHEME.matcher(sshUrl);
         if (!match.matches()) {
             match = URL_PATTERN_WITHOUT_SCHEME.matcher(sshUrl);
+        }
+
+        if (!match.matches()) {
+            match = URL_PATTERN_WITH_CUSTOM_USERNAME.matcher(sshUrl);
         }
 
         if (!match.matches()) {

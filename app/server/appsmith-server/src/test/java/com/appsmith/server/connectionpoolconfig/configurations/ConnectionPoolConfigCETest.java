@@ -1,6 +1,6 @@
 package com.appsmith.server.connectionpoolconfig.configurations;
 
-import com.appsmith.external.connectionpoolconfig.configurations.ConnectionPoolConfig;
+import com.appsmith.external.configurations.connectionpool.ConnectionPoolConfig;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;

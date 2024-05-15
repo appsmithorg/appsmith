@@ -14,6 +14,8 @@ import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.ContextTypeUtils;
 import com.appsmith.server.helpers.ResponseUtils;
+import com.appsmith.server.helpers.ce.bridge.Bridge;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.layouts.UpdateLayoutService;
 import com.appsmith.server.newactions.base.NewActionService;
 import com.appsmith.server.newpages.base.NewPageService;
@@ -300,6 +302,36 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
     }
 
     @Override
+    public Mono<Integer> updateUnpublishedActionCollectionBody(
+            String id, ActionCollectionDTO actionCollectionDTO, String branchName) {
+
+        if (id == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
+        }
+
+        if (actionCollectionDTO == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ACTION_COLLECTION));
+        }
+
+        if (actionCollectionDTO.getBody() == null) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BODY));
+        }
+
+        Mono<ActionCollection> branchedActionCollectionMono = actionCollectionService
+                .findByBranchNameAndDefaultCollectionId(branchName, id, actionPermission.getEditPermission())
+                .cache();
+
+        return branchedActionCollectionMono.flatMap(dbActionCollection -> {
+            BridgeUpdate updateObj = Bridge.update();
+            String path = ActionCollection.Fields.unpublishedCollection + "." + ActionCollectionDTO.Fields.body;
+
+            updateObj.set(path, actionCollectionDTO.getBody());
+
+            return actionCollectionRepository.updateById(dbActionCollection.getId(), updateObj);
+        });
+    }
+
+    @Override
     public Mono<ActionCollectionDTO> updateUnpublishedActionCollection(
             String id, ActionCollectionDTO actionCollectionDTO, String branchName) {
         // new actions without ids are to be created
@@ -388,8 +420,12 @@ public class LayoutCollectionServiceCEImpl implements LayoutCollectionServiceCE 
                     return branchedActionCollectionMono.map(dbActionCollection -> {
                         actionCollectionDTO.setId(null);
                         resetContextId(actionCollectionDTO);
+                        // Since we have a different endpoint to update the body, we need to remove it from the DTO
+                        actionCollectionDTO.setBody(null);
+
                         copyNewFieldValuesIntoOldObject(
                                 actionCollectionDTO, dbActionCollection.getUnpublishedCollection());
+
                         return dbActionCollection;
                     });
                 })

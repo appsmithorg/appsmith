@@ -540,6 +540,7 @@ export const LOGS_FILTER_OPTION_SYSTEM = () => "System logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_RESPONSE = () => "Response";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
@@ -690,6 +691,12 @@ export const JS_ACTION_EXECUTION_ERROR = (jsFunctionName: string) =>
   `An error occured while trying to execute ${jsFunctionName}, please check error logs to debug`;
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
+
+//Import Application Succesful
+export const IMPORT_APP_SUCCESSFUL = () => "Application imported successfully";
+//Unable to import application in workspace
+export const UNABLE_TO_IMPORT_APP = () =>
+  "Unable to import application in workspace";
 
 //undo redo
 export const WIDGET_REMOVED = (widgetName: string) =>
@@ -2499,3 +2506,5 @@ export const EMPTY_CANVAS_HINTS = {
 export const BETA_TAG = () => `Beta`;
 
 export const BUTTON_WIDGET_DEFAULT_LABEL = () => "Do something";
+
+export const PAGE_ENTITY_NAME = "Page";
