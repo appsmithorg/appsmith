@@ -119,6 +119,7 @@ export class ConsolidatedApiCacheStrategy {
   constructor(cacheName) {
     this.initCache(cacheName);
     this.cacheMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds
+    // Mutex to lock the fetch and cache operation
     this.consolidatedApiFetchmutex = new Mutex();
   }
 
@@ -134,33 +135,33 @@ export class ConsolidatedApiCacheStrategy {
    */
 
   async cacheConsolidatedApi(request) {
+    // Acquire the lock
     await this.consolidatedApiFetchmutex.acquire();
-    console.log("SW: fetchAndCache : Mutex locked", performance.now());
 
     try {
       const response = await fetch(request);
-      console.log("SW: fetchAndCache : fetched response", performance.now());
 
       if (response.ok) {
+        // Clone the response as the response can be consumed only once
         const clonedResponse = response.clone();
-        console.log("SW: fetchAndCache : putting in cache", performance.now());
+        // Put the response in the cache
         await this.cache.put(request, clonedResponse);
       }
     } catch (error) {
+      // Delete the existing cache if the fetch fails
       await this.cache.delete(request);
-      console.error("SW: fetchAndCache : Error fetching and caching", error);
     } finally {
-      console.log("SW: fetchAndCache : Mutex released", performance.now());
+      // Release the lock
       this.consolidatedApiFetchmutex.release();
     }
   }
 
   async getCachedResponse(request) {
-    console.log("SW: getCachedResponse : Mutex waiting", performance.now());
+    // Wait for the lock to be released
     await this.consolidatedApiFetchmutex.waitForUnlock();
-    // Check if the request is already in cache
-    console.log("SW: getCachedResponse : Mutex acquired", performance.now());
+    // Check if the response is already in cache
     const cachedResponse = await this.cache.match(request);
+
     if (cachedResponse) {
       const dateHeader = cachedResponse.headers.get("date");
       const cachedTime = new Date(dateHeader).getTime();
@@ -168,23 +169,13 @@ export class ConsolidatedApiCacheStrategy {
 
       const isCacheValid = currentTime - cachedTime < this.cacheMaxAge;
 
-      console.log(
-        "SW: getCachedResponse : Cache valid",
-        isCacheValid,
-        performance.now(),
-      );
       if (isCacheValid) {
         // Delete the cache as this is a one-time cache
         await this.cache.delete(request);
         // Return the cached response
-        console.log(
-          "SW: getCachedResponse : Returning cached response",
-          performance.now(),
-        );
         return cachedResponse;
       }
 
-      console.log("SW: getCachedResponse : Cache invalid", performance.now());
       // If the cache is not valid, delete the cache
       await this.cache.delete(request);
     }
