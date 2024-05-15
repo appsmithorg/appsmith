@@ -10,7 +10,9 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.AssertOpen(PageType.Canvas);
     //Verify if selected tab is errors in tab title.
-    _.debuggerHelper.AssertSelectedTab(Cypress.env("MESSAGES").DEBUGGER_ERRORS);
+    _.debuggerHelper.AssertSelectedTab(
+      Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
+    );
     // verify if bottom bar is closed on clicking close icon in canvas.
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
@@ -22,7 +24,7 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
     _.debuggerHelper.AssertOpen(PageType.JsEditor);
     // Verify if selected tab is response.
     _.debuggerHelper.AssertSelectedTab(
-      Cypress.env("MESSAGES").DEBUGGER_RESPONSE,
+      Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
     );
     //Verify if bottom bar is closed on clicking close icon in JSEditor.
     _.debuggerHelper.CloseBottomBar();
@@ -32,7 +34,7 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
     _.debuggerHelper.AssertOpen(PageType.JsEditor);
     //verify if response tab is selected on execution JSFunction.
     _.debuggerHelper.AssertSelectedTab(
-      Cypress.env("MESSAGES").DEBUGGER_RESPONSE,
+      Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
     );
     //verify if bottom bar is closed on switching to canvas page.
     EditorNavigation.ShowCanvas();
@@ -49,14 +51,16 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
     _.debuggerHelper.ClickDebuggerIcon();
     _.debuggerHelper.AssertOpen(PageType.API);
     //Verify if selected tab is errors in tab title.
-    _.debuggerHelper.AssertSelectedTab(Cypress.env("MESSAGES").DEBUGGER_ERRORS);
+    _.debuggerHelper.AssertSelectedTab(
+      Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
+    );
     //Verify if bottom bar is open on executing api.
     _.apiPage.RunAPI();
     _.agHelper.Sleep(1000);
     _.debuggerHelper.AssertOpen(PageType.API);
     //verify if response tab is selected on execution api.
     _.debuggerHelper.AssertSelectedTab(
-      Cypress.env("MESSAGES").DEBUGGER_RESPONSE,
+      Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
     );
   });
 
@@ -80,7 +84,7 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
         //Verify if selected tab is errors and error count is
         //Verify if selected tab is errors in tab title.
         _.debuggerHelper.AssertSelectedTab(
-          Cypress.env("MESSAGES").DEBUGGER_ERRORS,
+          Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
         );
         //Verify if bottom bar is closed on clicking close icon in active datasource page.
         _.debuggerHelper.CloseBottomBar();
@@ -103,7 +107,7 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
         _.debuggerHelper.AssertOpen(PageType.Query);
         //Verify if response atb is selected on executing query.
         _.debuggerHelper.AssertSelectedTab(
-          Cypress.env("MESSAGES").DEBUGGER_RESPONSE,
+          Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
         );
         // clean up
         _.dataSources.DeleteQuery("Query1");
@@ -118,7 +122,9 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
     _.debuggerHelper.AssertOpen(PageType.DataSources);
     //Verify if selected tab is errors and error count is
     //Verify if selected tab is errors in tab title.
-    _.debuggerHelper.AssertSelectedTab(Cypress.env("MESSAGES").DEBUGGER_ERRORS);
+    _.debuggerHelper.AssertSelectedTab(
+      Cypress.env("MESSAGES").DEBUGGER_ERRORS(),
+    );
     //Verify if bottom bar is closed on clicking close icon in active datasource page.
     _.debuggerHelper.CloseBottomBar();
     _.debuggerHelper.AssertClosed();
@@ -136,7 +142,7 @@ describe("Entity bottom bar", { tags: ["@tag.IDE"] }, () => {
     _.debuggerHelper.AssertOpen(PageType.Query);
     //Verify if response atb is selected on executing query.
     _.debuggerHelper.AssertSelectedTab(
-      Cypress.env("MESSAGES").DEBUGGER_RESPONSE,
+      Cypress.env("MESSAGES").DEBUGGER_RESPONSE(),
     );
     // clean up
     _.dataSources.DeleteQuery("Query1");
