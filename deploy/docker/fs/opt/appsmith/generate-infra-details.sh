@@ -47,13 +47,20 @@ function get_current_time(){
   currentTime="$(date -u -Iseconds)"
 }
 
+## Check if its a fargate deployment
+function check_for_fargate() {
+  if [[ $cloud_provider == "amazon" && $dep_tool == "likely docker" && $efs == "present" ]]; then
+    dep_tool="fargate"
+fi
+}
+
 ## Main Block
 get_cloud_provider
 get_tool
 get_hostname
 check_for_efs
+check_for_fargate
 get_current_time
-
 
 infra_json='{"cloudProvider":"'"$cloud_provider"'","tool":"'"$dep_tool"'","efs":"'"$efs"'","hostname":"'"$hostname"'", "currentTime": "'"$currentTime"'"}'
 echo "$infra_json"
