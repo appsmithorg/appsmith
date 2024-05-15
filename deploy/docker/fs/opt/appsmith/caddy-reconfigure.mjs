@@ -9,7 +9,7 @@ const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
 
 // Rate limit environment.
-const isRateLimitingDisabled = process.env.APPSMITH_RATE_LIMIT === "disabled"
+const isRateLimitingEnabled = process.env.APPSMITH_RATE_LIMIT !== "disabled"
 const RATE_LIMIT = parseInt(process.env.APPSMITH_RATE_LIMIT || 100, 10)
 
 let certLocation = null
@@ -48,7 +48,7 @@ parts.push(`
   servers {
     trusted_proxies static 0.0.0.0/0
   }
-  ${!isRateLimitingDisabled ? "order rate_limit before basicauth" : ""}
+  ${isRateLimitingEnabled ? "order rate_limit before basicauth" : ""}
 }
 
 (file_server) {
@@ -131,7 +131,7 @@ parts.push(`
     import reverse_proxy 9001
   }
 
-  ${!isRateLimitingDisabled ? `rate_limit {
+  ${isRateLimitingEnabled ? `rate_limit {
     zone dynamic_zone {
       key {http.request.remote_ip}
       events ${RATE_LIMIT}
@@ -218,3 +218,4 @@ function isCertExpired(path) {
   console.log(path, cert)
   return new Date(cert.validTo) < new Date()
 }
+
