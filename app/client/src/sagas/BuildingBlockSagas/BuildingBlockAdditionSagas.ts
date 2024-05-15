@@ -79,7 +79,6 @@ import type { JSCollection } from "entities/JSCollection";
 import type { WidgetDraggingUpdateParams } from "layoutSystems/common/canvasArenas/ArenaTypes";
 import type { DragDetails } from "reducers/uiReducers/dragResizeReducer";
 import { race } from "redux-saga/effects";
-import { removeSkeletonLoaderFromCanvas } from "sagas/WidgetDeletionSagas";
 import { getBuildingBlockDragStartTimestamp } from "selectors/buildingBlocksSelectors";
 import {
   getCurrentApplicationId,
@@ -91,7 +90,7 @@ import { saveBuildingBlockWidgetsToStore } from ".";
 import { addWidgetAndMoveWidgetsSaga } from "../CanvasSagas/DraggingCanvasSagas";
 import { validateResponse } from "../ErrorSagas";
 import { postPageAdditionSaga } from "../TemplatesSagas";
-import { getUpdateDslAfterCreatingChild } from "../WidgetAdditionSagas";
+import { addChildSaga } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
 import { getDragDetails, getWidgetByName } from "../selectors";
 
@@ -174,22 +173,6 @@ function* runNewlyCreatedActions(actions: string[]) {
   }
 }
 
-export function* addBuildingBlockSkeletonLoaderToCanvas(
-  addSkeletonAction: ReduxAction<WidgetAddChild>,
-) {
-  const updatedWidgets: {
-    [widgetId: string]: FlattenedWidgetProps;
-  } = yield call(getUpdateDslAfterCreatingChild, addSkeletonAction.payload);
-
-  yield put({
-    type: ReduxActionTypes.ADD_LOCAL_SKELETON_LOADER,
-    payload: {
-      updatedWidgets,
-      widgets: updatedWidgets,
-    },
-  });
-}
-
 export function* loadBuildingBlocksIntoApplication(
   buildingBlockWidget: WidgetAddChild,
   skeletonLoaderId: string,
@@ -209,6 +192,16 @@ export function* loadBuildingBlocksIntoApplication(
       type: ReduxActionTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_INIT,
     });
 
+    // makes sure updateAndSaveLayout completes first for initial skeletonWidget addition
+    const saveResult: unknown = yield race({
+      success: take(ReduxActionTypes.SAVE_PAGE_SUCCESS),
+      failure: take(ReduxActionErrorTypes.SAVE_PAGE_ERROR),
+    });
+
+    if (typeof saveResult === "object" && "failure" in saveResult!) {
+      throw new Error("Save page failed");
+    }
+
     const response: ApiResponse<ImportBuildingBlockToApplicationResponse> =
       yield call(addBuildingBlockActionsToApplication, dragDetails);
     const isValid: boolean = yield validateResponse(response);
@@ -217,7 +210,15 @@ export function* loadBuildingBlocksIntoApplication(
       yield saveBuildingBlockWidgetsToStore(response);
 
       // remove skeleton loader just before pasting the building block
-      yield removeSkeletonLoaderFromCanvas(skeletonLoaderId);
+      yield put({
+        type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
+        payload: {
+          widgetId: skeletonLoaderId,
+          parentId: MAIN_CONTAINER_WIDGET_ID,
+          disallowUndo: true,
+          isShortcut: false,
+        },
+      });
 
       yield pasteBuildingBlockWidgetsSaga({
         top: topRow,
@@ -326,11 +327,15 @@ export function* addBuildingBlockToCanvasSaga(
     buildingblockName,
   });
 
-  yield call(addBuildingBlockSkeletonLoaderToCanvas, addSkeletonWidgetAction);
+  yield call(addChildSaga, addSkeletonWidgetAction);
+  const skeletonWidget: FlattenedWidgetProps = yield select(
+    getWidgetByName,
+    skeletonWidgetName,
+  );
   yield call(
     loadBuildingBlocksIntoApplication,
     addEntityAction.payload,
-    addEntityAction.payload.newWidgetId,
+    skeletonWidget.widgetId,
   );
 }
 

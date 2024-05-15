@@ -69,56 +69,6 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     }
     return widgets;
   },
-
-  [ReduxActionTypes.ADD_LOCAL_SKELETON_LOADER]: (
-    state: CanvasWidgetsReduxState,
-    action: ReduxAction<{
-      updatedWidgets: {
-        [widgetId: string]: FlattenedWidgetProps;
-      };
-    }>,
-  ) => {
-    const updatedLayoutDiffs = diff(state, action.payload.updatedWidgets);
-    if (!updatedLayoutDiffs) return state;
-
-    const listOfUpdatedWidgets = getUpdatedWidgetLists(updatedLayoutDiffs);
-
-    for (const widgetId of listOfUpdatedWidgets) {
-      const updatedWidget = action.payload.updatedWidgets[widgetId];
-      if (updatedWidget) {
-        state[widgetId] = updatedWidget;
-      }
-    }
-
-    const canvasWidgetHeightsToUpdate: Record<string, number> =
-      getCanvasWidgetHeightsToUpdate(listOfUpdatedWidgets, state);
-
-    for (const widgetId in canvasWidgetHeightsToUpdate) {
-      state[widgetId] = {
-        ...state[widgetId],
-        bottomRow: canvasWidgetHeightsToUpdate[widgetId],
-      };
-    }
-  },
-
-  [ReduxActionTypes.REMOVE_LOCAL_SKELETON_LOADER]: (
-    state: CanvasWidgetsReduxState,
-    action: ReduxAction<{
-      updatedWidgets: {
-        [widgetId: string]: FlattenedWidgetProps;
-      };
-    }>,
-  ) => {
-    const updatedLayoutDiffs = diff(state, action.payload.updatedWidgets);
-    if (!updatedLayoutDiffs) return state;
-
-    const listOfUpdatedWidgets = getUpdatedWidgetLists(updatedLayoutDiffs);
-
-    for (const widgetId of listOfUpdatedWidgets) {
-      delete state[widgetId];
-    }
-  },
-
   [ReduxActionTypes.UPDATE_LAYOUT]: (
     state: CanvasWidgetsReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
