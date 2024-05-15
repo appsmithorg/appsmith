@@ -197,8 +197,9 @@ describe(
       const y = 80;
       // select the first building block in the list
       const selector = ".t--widget-card-draggable-buildingblock";
-      cy.wait(500);
-      cy.get(selector)
+      agHelper.Sleep(500);
+      agHelper
+        .GetElement(selector)
         .first()
         .trigger("dragstart", { force: true })
         .trigger("mousemove", x, y, { force: true });
@@ -208,7 +209,8 @@ describe(
         scrollBehavior: false,
       } as any;
 
-      cy.get(explorerLocators.dropHere)
+      agHelper
+        .GetElement(explorerLocators.dropHere)
         .trigger("mousemove", x, y, option)
         .trigger("mousemove", x, y, option)
         .trigger("mouseup", x, y, option);
