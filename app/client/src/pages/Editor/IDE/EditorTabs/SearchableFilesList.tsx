@@ -17,7 +17,6 @@ import { ListIconContainer, TabTextContainer } from "./StyledComponents";
 
 interface Props {
   allItems: EntityItem[];
-  openTabs: EntityItem[];
   navigateToTab: (item: EntityItem) => void;
 }
 
