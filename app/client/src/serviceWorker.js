@@ -55,7 +55,7 @@ const handleFetchHtml = async (event, request, url) => {
   const prefetchConsolidatedApiRequest = getPrefetchConsolidatedApiRequest(url);
 
   if (prefetchConsolidatedApiRequest) {
-    consolidatedApiCacheStrategy.fetchAndCacheConsolidatedApi(
+    consolidatedApiCacheStrategy.cacheConsolidatedApi(
       prefetchConsolidatedApiRequest,
     );
   }

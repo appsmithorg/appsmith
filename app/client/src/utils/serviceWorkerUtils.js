@@ -133,36 +133,26 @@ export class ConsolidatedApiCacheStrategy {
    * @returns
    */
 
-  async fetchAndCacheConsolidatedApi(request) {
+  async cacheConsolidatedApi(request) {
     await this.consolidatedApiFetchmutex.acquire();
     console.log("SW: fetchAndCache : Mutex locked", performance.now());
-    // Fetch the request
-    const fetchPromise = fetch(request)
-      .then(async (response) => {
-        console.log("SW: fetchAndCache : fetched response", performance.now());
 
-        // If the response is ok, clone the response
-        if (response.ok) {
-          const clonedResponse = response.clone();
-          // Store in cache
-          console.log(
-            "SW: fetchAndCache : putting in cache",
-            performance.now(),
-          );
-          await this.cache.put(request, clonedResponse);
-        }
-        console.log(
-          "SW: fetchAndCache : returning response",
-          performance.now(),
-        );
-        return response;
-      })
-      .finally(() => {
-        console.log("SW: fetchAndCache : Mutex released", performance.now());
-        this.consolidatedApiFetchmutex.release();
-      });
+    try {
+      const response = await fetch(request);
+      console.log("SW: fetchAndCache : fetched response", performance.now());
 
-    return fetchPromise;
+      if (response.ok) {
+        const clonedResponse = response.clone();
+        console.log("SW: fetchAndCache : putting in cache", performance.now());
+        await this.cache.put(request, clonedResponse);
+      }
+    } catch (error) {
+      await this.cache.delete(request);
+      console.error("SW: fetchAndCache : Error fetching and caching", error);
+    } finally {
+      console.log("SW: fetchAndCache : Mutex released", performance.now());
+      this.consolidatedApiFetchmutex.release();
+    }
   }
 
   async getCachedResponse(request) {
