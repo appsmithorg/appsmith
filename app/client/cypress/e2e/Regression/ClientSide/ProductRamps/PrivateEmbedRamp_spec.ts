@@ -10,7 +10,7 @@ describe("Private embed in-app ramp", { tags: ["@tag.Settings"] }, () => {
     );
     _.agHelper.GetNAssertElementText(
       _.inviteModal.locators._privateEmbedRampAppSettings,
-      "To embed private Appsmith apps and seamlessly authenticate users through SSO",
+      Cypress.env("MESSAGES").IN_APP_EMBED_SETTING.rampSubtextSidebar(),
       "contain.text",
     );
     checkRampLink();
@@ -19,7 +19,7 @@ describe("Private embed in-app ramp", { tags: ["@tag.Settings"] }, () => {
     _.inviteModal.SelectEmbedTab();
     _.agHelper.GetNAssertElementText(
       _.inviteModal.locators._privateEmbedRampAppSettings,
-      "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Enterprise Edition",
+      Cypress.env("MESSAGES").IN_APP_EMBED_SETTING.rampSubTextModal(),
       "contain.text",
     );
     checkRampLink();
