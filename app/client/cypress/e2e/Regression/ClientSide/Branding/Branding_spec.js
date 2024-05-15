@@ -306,7 +306,7 @@ describe("Branding", { tags: ["@tag.Settings"] }, () => {
       .find("h2")
       .should(
         "have.text",
-        "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business Edition.",
+        "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business plan.",
       );
     cy.get(locators.upgradeButton)
       .should("be.visible")
