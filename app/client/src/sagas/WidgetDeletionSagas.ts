@@ -212,6 +212,26 @@ function* getUpdatedDslAfterDeletingWidget(widgetId: string, parentId: string) {
   }
 }
 
+export function* removeSkeletonLoaderFromCanvas(widgetId: string) {
+  const updatedObj: UpdatedDSLPostDelete = yield call(
+    getUpdatedDslAfterDeletingWidget,
+    widgetId,
+    "0",
+  );
+
+  if (updatedObj) {
+    const { finalWidgets } = updatedObj;
+    const finalData: CanvasWidgetsReduxState = finalWidgets;
+
+    yield put({
+      type: ReduxActionTypes.REMOVE_LOCAL_SKELETON_LOADER,
+      payload: {
+        updatedWidgets: finalData,
+      },
+    });
+  }
+}
+
 function* deleteSaga(deleteAction: ReduxAction<WidgetDelete>) {
   try {
     let { parentId, widgetId } = deleteAction.payload;
