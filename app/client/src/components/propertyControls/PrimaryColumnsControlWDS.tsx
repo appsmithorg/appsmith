@@ -33,7 +33,6 @@ import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
-import { Button } from "design-system";
 
 const EmptyStateLabel = styled.div`
   margin: 20px 0px;
@@ -222,17 +221,6 @@ class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
               updateOption={this.updateOption}
             />
           </EvaluatedValuePopupWrapper>
-          {this.props.widgetProperties.type !== "WDS_TABLE_WIDGET" && (
-            <Button
-              className="self-end t--add-column-btn"
-              kind="tertiary"
-              onClick={this.addNewColumn}
-              size="sm"
-              startIcon="plus"
-            >
-              Add new column
-            </Button>
-          )}
         </div>
       </>
     );
