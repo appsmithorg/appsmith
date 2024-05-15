@@ -477,7 +477,6 @@ export enum IMAGE_VERTICAL_ALIGN {
 
 export interface BaseCellComponentProps {
   isHidden: boolean;
-  allowCellWrapping?: boolean;
   horizontalAlignment?: CellAlignment;
   verticalAlignment?: VerticalAlignment;
   cellBackground?: string;

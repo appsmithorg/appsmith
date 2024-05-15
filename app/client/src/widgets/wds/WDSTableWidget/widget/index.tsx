@@ -1545,7 +1545,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       case "url":
         return (
           <URLCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
             cellColor={cellProperties.cellColor}
             href={props.cell.value}
             isBold={cellProperties.fontStyle?.includes(FontStyleTypes.BOLD)}
@@ -1578,7 +1577,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       default:
         return (
           <PlainTextCell
-            allowCellWrapping={cellProperties.allowCellWrapping}
             cellColor={cellProperties.cellColor}
             fontStyle={cellProperties.fontStyle}
             isBold={cellProperties.fontStyle?.includes(FontStyleTypes.BOLD)}
