@@ -1923,13 +1923,13 @@ export const IN_APP_EMBED_SETTING = {
     "Make your app public by visiting the share settings, and easily embed your Appsmith app into legacy applications",
   privateAppsText: () => "Private apps",
   rampSubtextModal: () =>
-    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Enterprise Edition",
   rampSubtextSidebar: () =>
     "To embed private Appsmith apps and seamlessly authenticate users through SSO, try our ",
-  rampLinktext: () => "Try Business",
-  rampLinktextvariant2: () => "Business Edition",
+  rampLinktext: () => "Try Enterprise",
+  rampLinktextvariant2: () => "Enterprise Edition",
   upgradeContent: () => "Private embedding is now available in",
-  appsmithBusinessEdition: () => "Appsmith Business Edition.",
+  appsmithEnterpriseEdition: () => "Appsmith Enterprise Edition.",
   secondaryHeadingForAppSettings: () =>
     "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
