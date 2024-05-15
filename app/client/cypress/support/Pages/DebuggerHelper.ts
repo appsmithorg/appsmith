@@ -22,7 +22,7 @@ export class DebuggerHelper {
     _debuggerToggle: "[data-testid=t--debugger-toggle]",
     _debuggerDownStreamErrMsg: "[data-testid=t--debugger-downStreamErrorMsg]",
     _tabsContainer: ".t--debugger-tabs-container",
-    _closeButton: ".t--close-debugger",
+    _closeButton: ".t--view-hide-button",
     _logMessage: ".t--debugger-log-message",
     _logEntityLink: ".t--debugger-log-entity-link",
     _logState: ".t--debugger-log-state",
