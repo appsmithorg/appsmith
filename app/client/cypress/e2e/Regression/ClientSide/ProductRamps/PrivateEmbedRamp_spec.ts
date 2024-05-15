@@ -19,7 +19,7 @@ describe("Private embed in-app ramp", { tags: ["@tag.Settings"] }, () => {
     _.inviteModal.SelectEmbedTab();
     _.agHelper.GetNAssertElementText(
       _.inviteModal.locators._privateEmbedRampAppSettings,
-      Cypress.env("MESSAGES").IN_APP_EMBED_SETTING.rampSubTextModal(),
+      Cypress.env("MESSAGES").IN_APP_EMBED_SETTING.rampSubtextModal(),
       "contain.text",
     );
     checkRampLink();
