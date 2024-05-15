@@ -168,8 +168,8 @@ describe("serviceWorkerUtils", () => {
   });
 
   describe("AppsmithApiCacheStrategy", () => {
-    let apiCacheStrategy;
-    let cacheMock;
+    let strategy;
+    let mockCache;
 
     beforeAll(() => {
       global.Request = Request;
@@ -181,40 +181,95 @@ describe("serviceWorkerUtils", () => {
       // Reset all mocks
       jest.clearAllMocks();
 
-      cacheMock = {
+      mockCache = {
         match: jest.fn(),
         delete: jest.fn(),
         put: jest.fn(),
       };
 
       global.caches = {
-        open: jest.fn().mockResolvedValue(cacheMock),
+        open: jest.fn().mockResolvedValue(mockCache),
       };
 
-      apiCacheStrategy = new ConsolidatedApiCacheStrategy("testCache");
-      await apiCacheStrategy.initCache("testCache");
+      strategy = new ConsolidatedApiCacheStrategy("testCache");
     });
 
     it("should initialize cache with the provided cache name", async () => {
       expect(caches.open).toHaveBeenCalledWith("testCache");
-      expect(apiCacheStrategy.cache).toBe(cacheMock);
+      expect(strategy.cache).toBe(mockCache);
     });
 
-    it("resetCacheAndFetch should reset cache when called", async () => {
-      const request = new Request("https://example.com/api");
-      const fetchedResponse = new Response("fetched data", { status: 200 });
+    it("should cache the API response", async () => {
+      const mockRequest = new Request("https://example.com/api");
+      const mockResponse = new Response("mock data", {
+        status: 200,
+        headers: { date: new Date().toUTCString() },
+      });
 
-      fetch.mockResolvedValue(fetchedResponse);
+      fetch.mockResolvedValue(mockResponse);
 
-      const response =
-        await apiCacheStrategy.fetchAndCacheConsolidatedApi(request);
+      await strategy.cacheConsolidatedApi(mockRequest);
 
-      expect(fetch).toHaveBeenCalledWith(request);
-      expect(cacheMock.put).toHaveBeenCalledWith(
-        request,
-        fetchedResponse.clone(),
+      expect(fetch).toHaveBeenCalledWith(mockRequest);
+      expect(mockCache.put).toHaveBeenCalledWith(
+        mockRequest,
+        expect.any(Response),
       );
-      expect(response).toBe(fetchedResponse);
+    });
+
+    it("should handle errors when fetching the API response", async () => {
+      const mockRequest = new Request("https://example.com/api");
+
+      fetch.mockRejectedValue(new Error("Network error"));
+
+      await strategy.cacheConsolidatedApi(mockRequest);
+
+      expect(fetch).toHaveBeenCalledWith(mockRequest);
+      expect(mockCache.delete).toHaveBeenCalledWith(mockRequest);
+    });
+
+    it("should return a valid cached response", async () => {
+      const mockRequest = new Request("https://example.com/api");
+      const mockResponse = new Response("mock data", {
+        status: 200,
+        headers: { date: new Date().toUTCString() },
+      });
+
+      mockCache.match.mockResolvedValue(mockResponse);
+
+      const cachedResponse = await strategy.getCachedResponse(mockRequest);
+
+      expect(mockCache.match).toHaveBeenCalledWith(mockRequest);
+      expect(cachedResponse).toEqual(mockResponse);
+    });
+
+    it("should return null for an invalid cached response", async () => {
+      const mockRequest = new Request("https://example.com/api");
+      const mockResponse = new Response("mock data", {
+        status: 200,
+        headers: {
+          date: new Date(Date.now() - (2 * 60 * 1000 + 1)).toUTCString(),
+        }, // 2 minutes 1 second old cache
+      });
+
+      mockCache.match.mockResolvedValue(mockResponse);
+
+      const cachedResponse = await strategy.getCachedResponse(mockRequest);
+
+      expect(mockCache.match).toHaveBeenCalledWith(mockRequest);
+      expect(mockCache.delete).toHaveBeenCalledWith(mockRequest);
+      expect(cachedResponse).toBeNull();
+    });
+
+    it("should return null if no cached response is found", async () => {
+      const mockRequest = new Request("https://example.com/api");
+
+      mockCache.match.mockResolvedValue(null);
+
+      const cachedResponse = await strategy.getCachedResponse(mockRequest);
+
+      expect(mockCache.match).toHaveBeenCalledWith(mockRequest);
+      expect(cachedResponse).toBeNull();
     });
   });
 
