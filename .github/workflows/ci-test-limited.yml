@@ -365,7 +365,7 @@ jobs:
           spec: ${{ env.specs_to_run }}
           working-directory: app/client
           env: "NODE_ENV=development"
-          command: npx cypress-repeat run -n ${{ inputs.repeat }} --until-passes
+          command: npx cypress-repeat run -n ${{ inputs.repeat }} --until-passes --browser ${{ env.BROWSER_PATH }} --config-file cypress_ci_custom.config.ts --spec ${{ env.specs_to_run }} --env "NODE_ENV=development"
 
       - name: Trim number of cypress log files
         if: failure()
