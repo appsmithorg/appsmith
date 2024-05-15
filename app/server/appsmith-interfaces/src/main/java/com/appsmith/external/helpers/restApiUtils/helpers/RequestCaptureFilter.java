@@ -76,6 +76,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
                 isMultipart.set(true);
             }
         });
+
         actionExecutionRequest.setHeaders(objectMapper.valueToTree(headers));
 
         actionExecutionRequest.setRequestParams(existing.getRequestParams());
