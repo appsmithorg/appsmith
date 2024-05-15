@@ -35,7 +35,7 @@ if [[ -f .env ]]; then
 fi
 
 # Check the APPSMITH_DB_URL environment variable
-if [[ "${APPSMITH_DB_URL}" == *"postgres"* ]]; then
+if [[ "${APPSMITH_DB_URI}" == *"postgresql://"* ]]; then
   # If it contains "postgres", run the transform script
   python3 ./tx/transform.py
 fi
