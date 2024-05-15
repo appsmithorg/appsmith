@@ -51,10 +51,11 @@ const appsmithApiCacheStrategy = new AppsmithApiCacheStrategy(
  * @returns
  */
 const handleFetchHtml = async (event, request, url) => {
-  const prefetchRequest = getPrefetchConsolidatedApiRequest(url);
+  // Get the prefetch consolidated api request if the url matches the builder or viewer path
+  const prefetchConsolidatedApiRequest = getPrefetchConsolidatedApiRequest(url);
 
-  if (prefetchRequest) {
-    appsmithApiCacheStrategy.resetCacheAndFetch(prefetchRequest);
+  if (prefetchConsolidatedApiRequest) {
+    appsmithApiCacheStrategy.resetCacheAndFetch(prefetchConsolidatedApiRequest);
   }
 
   const networkHandler = new NetworkOnly();

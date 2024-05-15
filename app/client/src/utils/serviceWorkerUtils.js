@@ -64,7 +64,7 @@ export const getConsolidatedAPISearchParams = (params = {}) => {
 };
 
 /**
- * Function to get the prefetch request
+ * Function to get the prefetch request for consolidated api
  * @param {URL} url
  * @returns {Request | null}
  */
