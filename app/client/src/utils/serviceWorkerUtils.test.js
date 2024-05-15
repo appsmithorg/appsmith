@@ -167,7 +167,7 @@ describe("serviceWorkerUtils", () => {
     });
   });
 
-  describe("AppsmithApiCacheStrategy", () => {
+  describe("ConsolidatedApiCacheStrategy", () => {
     let strategy;
     let mockCache;
 
