@@ -88,12 +88,14 @@ class TenantServiceCETest {
 
     @AfterEach
     public void cleanup() {
+        Tenant updatedTenant = new Tenant();
+        updatedTenant.setTenantConfiguration(originalTenantConfiguration);
         tenantService
-                .getDefaultTenant()
-                .flatMap(tenant -> tenantRepository.updateAndReturn(
-                        tenant.getId(),
-                        Bridge.update().set(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
-                        Optional.empty()))
+                .getDefaultTenantId()
+                .flatMap(tenantId -> tenantService.update(tenantId, updatedTenant))
+                .doOnError(error -> {
+                    System.err.println("Error during cleanup: " + error.getMessage());
+                })
                 .block();
     }
 
