@@ -14,6 +14,9 @@ import { AnvilWidgetNameComponent } from "./AnvilWidgetNameComponent";
 import { getWidgetErrorCount, shouldSelectOrFocus } from "./selectors";
 import type { NameComponentStates } from "./types";
 import { generateDragStateForAnvilLayout } from "layoutSystems/anvil/utils/widgetUtils";
+import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
+import { SelectionRequestType } from "sagas/WidgetSelectUtils";
+import { isWidgetSelected } from "selectors/widgetSelectors";
 
 export function AnvilWidgetName(props: {
   widgetId: string;
@@ -37,10 +40,15 @@ export function AnvilWidgetName(props: {
     (state) => getWidgetErrorCount(state, widgetId) > 0,
   );
 
+  const isParentSelected = useSelector(isWidgetSelected(parentId || ""));
+
+  const { selectWidget } = useWidgetSelection();
+
   const styleProps = getWidgetNameComponentStyleProps(
     widgetType,
     nameComponentState,
     showError,
+    isParentSelected,
   );
 
   const { setDraggingState } = useWidgetDragResize();
@@ -49,11 +57,10 @@ export function AnvilWidgetName(props: {
     (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       e.stopPropagation();
-      if (nameComponentState === "select") {
-        setDraggingState(generateDragState());
-      }
+      selectWidget(SelectionRequestType.One, [widgetId]);
+      setDraggingState(generateDragState());
     },
-    [setDraggingState, nameComponentState],
+    [setDraggingState],
   );
 
   /** Setup Floating UI logic */
@@ -74,7 +81,12 @@ export function AnvilWidgetName(props: {
 
   let cleanup = () => {};
   useEffect(() => {
-    if (widgetElement && widgetNameComponent && widgetsEditorElement) {
+    if (
+      widgetElement &&
+      widgetNameComponent &&
+      widgetsEditorElement &&
+      nameComponentState !== "none"
+    ) {
       cleanup = handleWidgetUpdate(
         widgetElement,
         widgetNameComponent,
@@ -93,6 +105,7 @@ export function AnvilWidgetName(props: {
   if (widgetId === MAIN_CONTAINER_WIDGET_ID) return null;
   // Don't show widget name component if the widget DOM element isn't found
   if (!widgetElement) return null;
+  if (nameComponentState === "none") return null;
 
   return (
     <FloatingPortal>

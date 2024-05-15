@@ -1,4 +1,4 @@
-import type { ForwardedRef } from "react";
+import type { CSSProperties, ForwardedRef } from "react";
 import React, { forwardRef, useCallback, useMemo } from "react";
 import { SelectionRequestType } from "sagas/WidgetSelectUtils";
 import { useWidgetSelection } from "utils/hooks/useWidgetSelection";
@@ -10,6 +10,25 @@ import {
 import { createMessage } from "@appsmith/constants/messages";
 import { debugWidget } from "layoutSystems/anvil/integrations/actions";
 import { useDispatch } from "react-redux";
+import styled from "styled-components";
+
+const styles: CSSProperties = {
+  display: "inline-flex",
+  height: "32px", // This is 2px more than the ones in the designs.
+  width: "max-content",
+  position: "fixed",
+  top: 0,
+  left: 0,
+  visibility: "hidden",
+  isolation: "isolate",
+  background: "transparent",
+};
+
+const SplitButtonWrapper = styled.div`
+  & > div {
+    margin-block-end: 8px;
+  }
+`;
 
 /**
  *
@@ -72,16 +91,21 @@ export function _AnvilWidgetNameComponent(
   }, [props.showError, handleDebugClick]);
 
   return (
-    <SplitButton
-      bGCSSVar={props.bGCSSVar}
-      colorCSSVar={props.colorCSSVar}
-      leftToggle={leftToggle}
-      onClick={handleSelectWidget}
+    <SplitButtonWrapper
+      draggable
       onDragStart={props.onDragStart}
       ref={ref}
-      rightToggle={rightToggle}
-      text={props.name}
-    />
+      style={styles}
+    >
+      <SplitButton
+        bGCSSVar={props.bGCSSVar}
+        colorCSSVar={props.colorCSSVar}
+        leftToggle={leftToggle}
+        onClick={handleSelectWidget}
+        rightToggle={rightToggle}
+        text={props.name}
+      />
+    </SplitButtonWrapper>
   );
 }
 

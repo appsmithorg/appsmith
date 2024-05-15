@@ -47,7 +47,7 @@ export const useAnvilWidgetHover = (
   // Callback function for handling mouseleave events
   const handleMouseLeave = useCallback(() => {
     // On leaving a widget, reset the focused widget
-    focusWidget && focusWidget();
+    // focusWidget && focusWidget();
   }, [focusWidget]);
 
   // Effect hook to add and remove mouseover and mouseleave event listeners
