@@ -51,6 +51,7 @@ export function PrivateEmbedRampModal() {
   const rampLinkSelector = getRampLink({
     section: RampSection.ShareModal,
     feature: RampFeature.PrivateEmbeds,
+    isBusinessFeature: false,
   });
   const rampLink = useSelector(rampLinkSelector);
   const isPrivateEmbedEnabled = useFeatureFlag(
@@ -99,6 +100,7 @@ export function PrivateEmbedRampSidebar() {
   const rampLinkSelector = getRampLink({
     section: RampSection.AppSettings,
     feature: RampFeature.PrivateEmbeds,
+    isBusinessFeature: false,
   });
   const rampLink = useSelector(rampLinkSelector);
   const isPrivateEmbedEnabled = useFeatureFlag(

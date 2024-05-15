@@ -28,7 +28,7 @@ describe("Private embed in-app ramp", { tags: ["@tag.Settings"] }, () => {
     cy.get(_.inviteModal.locators._privateEmbedRampLink)
       .should("have.attr", "href")
       .then((href) => {
-        expect(href).to.include("customer.appsmith.com");
+        expect(href).to.include("https://www.appsmith.com/pricing?");
       });
   }
 
