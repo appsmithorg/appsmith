@@ -22,7 +22,7 @@ const AddWidgets = (props: { focusSearchInput?: boolean }) => {
         onCloseClick={closeButtonClickHandler}
         titleMessage={EDITOR_PANE_TEXTS.widgets_create_tab_title}
       />
-      <Flex flexDirection="column" gap="spaces-3" overflowX="scroll">
+      <Flex flexDirection="column" gap="spaces-3" overflowX="auto">
         <UIEntitySidebar focusSearchInput={props.focusSearchInput} isActive />
       </Flex>
     </>

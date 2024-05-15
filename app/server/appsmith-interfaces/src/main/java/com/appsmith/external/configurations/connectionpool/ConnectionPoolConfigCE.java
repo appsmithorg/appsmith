@@ -1,4 +1,4 @@
-package com.appsmith.external.connectionpoolconfig.configurations;
+package com.appsmith.external.configurations.connectionpool;
 
 import reactor.core.publisher.Mono;
 

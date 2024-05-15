@@ -1,5 +1,6 @@
 package com.appsmith.git.service.ce;
 
+import com.appsmith.external.configurations.git.GitConfig;
 import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.constants.ErrorReferenceDocUrl;
 import com.appsmith.external.dtos.GitBranchDTO;
@@ -80,6 +81,7 @@ public class GitExecutorCEImpl implements GitExecutor {
     private final RepositoryHelper repositoryHelper = new RepositoryHelper();
 
     private final GitServiceConfig gitServiceConfig;
+    private final GitConfig gitConfig;
 
     protected final ObservationRegistry observationRegistry;
 
@@ -222,43 +224,49 @@ public class GitExecutorCEImpl implements GitExecutor {
         // open the repo
         Path baseRepoPath = createRepoPath(repoSuffix);
 
-        return Mono.using(
-                        () -> Git.open(baseRepoPath.toFile()),
-                        git -> Mono.fromCallable(() -> {
-                                    log.debug(Thread.currentThread().getName() + ": pushing changes to remote "
-                                            + remoteUrl);
-                                    // open the repo
-                                    Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
-                                            baseRepoPath, AnalyticsEvents.GIT_PUSH.getEventName());
-                                    TransportConfigCallback transportConfigCallback =
-                                            new SshTransportConfigCallback(privateKey, publicKey);
+        return gitConfig
+                .getIsAtomicPushAllowed()
+                .flatMap(isAtomicPushAllowed -> {
+                    return Mono.using(
+                            () -> Git.open(baseRepoPath.toFile()),
+                            git -> Mono.fromCallable(() -> {
+                                        log.debug(Thread.currentThread().getName() + ": pushing changes to remote "
+                                                + remoteUrl);
+                                        // open the repo
+                                        Stopwatch processStopwatch = StopwatchHelpers.startStopwatch(
+                                                baseRepoPath, AnalyticsEvents.GIT_PUSH.getEventName());
+                                        TransportConfigCallback transportConfigCallback =
+                                                new SshTransportConfigCallback(privateKey, publicKey);
 
-                                    StringBuilder result = new StringBuilder("Pushed successfully with status : ");
-                                    git.push()
-                                            .setTransportConfigCallback(transportConfigCallback)
-                                            .setRemote(remoteUrl)
-                                            .call()
-                                            .forEach(pushResult -> pushResult
-                                                    .getRemoteUpdates()
-                                                    .forEach(remoteRefUpdate -> {
-                                                        result.append(remoteRefUpdate.getStatus())
-                                                                .append(",");
-                                                        if (!StringUtils.isEmptyOrNull(remoteRefUpdate.getMessage())) {
-                                                            result.append(remoteRefUpdate.getMessage())
+                                        StringBuilder result = new StringBuilder("Pushed successfully with status : ");
+                                        git.push()
+                                                .setAtomic(isAtomicPushAllowed)
+                                                .setTransportConfigCallback(transportConfigCallback)
+                                                .setRemote(remoteUrl)
+                                                .call()
+                                                .forEach(pushResult -> pushResult
+                                                        .getRemoteUpdates()
+                                                        .forEach(remoteRefUpdate -> {
+                                                            result.append(remoteRefUpdate.getStatus())
                                                                     .append(",");
-                                                        }
-                                                    }));
-                                    // We can support username and password in future if needed
-                                    // pushCommand.setCredentialsProvider(new
-                                    // UsernamePasswordCredentialsProvider("username",
-                                    // "password"));
-                                    processStopwatch.stopAndLogTimeInMillis();
-                                    return result.substring(0, result.length() - 1);
-                                })
-                                .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
-                                .name(GitSpan.FS_PUSH)
-                                .tap(Micrometer.observation(observationRegistry)),
-                        Git::close)
+                                                            if (!StringUtils.isEmptyOrNull(
+                                                                    remoteRefUpdate.getMessage())) {
+                                                                result.append(remoteRefUpdate.getMessage())
+                                                                        .append(",");
+                                                            }
+                                                        }));
+                                        // We can support username and password in future if needed
+                                        // pushCommand.setCredentialsProvider(new
+                                        // UsernamePasswordCredentialsProvider("username",
+                                        // "password"));
+                                        processStopwatch.stopAndLogTimeInMillis();
+                                        return result.substring(0, result.length() - 1);
+                                    })
+                                    .timeout(Duration.ofMillis(Constraint.TIMEOUT_MILLIS))
+                                    .name(GitSpan.FS_PUSH)
+                                    .tap(Micrometer.observation(observationRegistry)),
+                            Git::close);
+                })
                 .subscribeOn(scheduler);
     }
 

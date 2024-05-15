@@ -6,6 +6,7 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.TenantConfiguration;
 import com.appsmith.server.domains.User;
 import com.appsmith.server.domains.Workspace;
 import com.appsmith.server.exceptions.AppsmithError;
@@ -165,5 +166,34 @@ public class CacheableRepositoryHelperCEImpl implements CacheableRepositoryHelpe
                 })
                 .doOnSuccess(permissionGroupId ->
                         inMemoryCacheableRepositoryHelper.setInstanceAdminPermissionGroupId(permissionGroupId));
+    }
+
+    /**
+     * Returns the default tenant from the cache if present.
+     * If not present in cache, then it fetches the default tenant from the database and adds to redis.
+     * @param tenantId
+     * @return
+     */
+    @Cache(cacheName = "tenant", key = "{#tenantId}")
+    @Override
+    public Mono<Tenant> fetchDefaultTenant(String tenantId) {
+        BridgeQuery<Tenant> defaultTenantCriteria = Bridge.equal(Tenant.Fields.slug, FieldName.DEFAULT);
+        BridgeQuery<Tenant> notDeletedCriteria = notDeleted();
+        BridgeQuery<Tenant> andCriteria = Bridge.and(defaultTenantCriteria, notDeletedCriteria);
+        Query query = new Query();
+        query.addCriteria(andCriteria);
+
+        return mongoOperations.findOne(query, Tenant.class).map(tenant -> {
+            if (tenant.getTenantConfiguration() == null) {
+                tenant.setTenantConfiguration(new TenantConfiguration());
+            }
+            return tenant;
+        });
+    }
+
+    @CacheEvict(cacheName = "tenant", key = "{#tenantId}")
+    @Override
+    public Mono<Void> evictCachedTenant(String tenantId) {
+        return Mono.empty().then();
     }
 }
