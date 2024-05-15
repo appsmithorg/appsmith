@@ -95,16 +95,3 @@ export const FontWeight: Story = {
     </Flex>
   ),
 };
-
-export const Disabled: Story = {
-  parameters: {
-    width: 300,
-  },
-  args: {
-    target: "_blank",
-    href: "https://appsmith.com",
-    lineClamp: 1,
-    children: "This is a disabled link.",
-    isDisabled: true,
-  },
-};
