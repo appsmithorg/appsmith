@@ -38,21 +38,6 @@ public final class AppsmithBeanUtils {
         BeanUtils.copyProperties(src, target, getNullPropertyNames(src));
     }
 
-    public static int countOfNonNullFields(Object source) {
-        int count = 0;
-        final BeanWrapper src = new BeanWrapperImpl(source);
-        java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
-
-        for (java.beans.PropertyDescriptor pd : pds) {
-            Object srcValue = src.getPropertyValue(pd.getName());
-            if (srcValue != null) {
-                count++;
-            }
-        }
-
-        return count++;
-    }
-
     public static void copyNestedNonNullProperties(Object source, Object target) {
         if (source == null || target == null) {
             return;

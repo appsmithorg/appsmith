@@ -7,9 +7,10 @@ import { getErrorCount } from "selectors/debuggerSelectors";
 import { Text, TextType } from "design-system-old";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
 import {
-  createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_RESPONSE,
+  createMessage,
 } from "@appsmith/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
 import ErrorLogs from "components/editorComponents/Debugger/Errors";
@@ -200,7 +201,7 @@ function QueryDebuggerTabs({
   if (currentActionConfig) {
     responseTabs.unshift({
       key: "response",
-      title: "Response",
+      title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <QueryResponseTab
           actionSource={actionSource}
