@@ -15,14 +15,14 @@ function get_cloud_provider() {
   elif [[ $release_details == *"cloud"* ]];then
      cloud_provider="gcp";
   else
-     cloud_provider="local";
+     cloud_provider="others(including local)";
   fi
 }
 
 ## Get deployment tool details
 function get_tool() {
   if [[ -z "${KUBERNETES_SERVICE_HOST}" ]]; then
-    dep_tool="docker";
+    dep_tool="likely docker";
   else
     dep_tool="kubernetes";
   fi
