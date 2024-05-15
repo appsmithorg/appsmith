@@ -1,5 +1,6 @@
 /* eslint-disable no-console */
 import { match } from "path-to-regexp";
+import { Mutex } from "async-mutex";
 
 export const BUILDER_PATH = `/app/:applicationSlug/:pageSlug(.*\-):pageId/edit`;
 export const BUILDER_CUSTOM_PATH = `/app/:customSlug(.*\-):pageId/edit`;
@@ -110,21 +111,15 @@ export const getPrefetchConsolidatedApiRequest = (url) => {
 /**
  * Cache strategy for Appsmith API
  */
-export class AppsmithApiCacheStrategy {
+export class ConsolidatedApiCacheStrategy {
   /**
-   *
+   * Constructor for the ConsolidatedApiCacheStrategy
    * @param {string} cacheName
    */
   constructor(cacheName) {
-    // If the prefetch request is ongoing, we should not make another request. This scenario occurs when the request from the main thread
-    // was initialised when the prefetch request was ongoing. The map stores the promise returned by fetch of the prefetch request and the same is returned
-    // to the main thread
-    this.pendingApiRequests = new Map();
-    // If the request should be skipped from the cache, we should not cache the response. This scenario occurs when the request from the main thread
-    // was initialised when the prefetch request was ongoing. Since the promise is returned to the main thread, the response should not be cached
-    this.skipCacheRequests = new Map();
     this.initCache(cacheName);
     this.cacheMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds
+    this.consolidatedApiFetchmutex = new Mutex();
   }
 
   async initCache(cacheName) {
@@ -133,114 +128,49 @@ export class AppsmithApiCacheStrategy {
   }
 
   /**
-   * Get the ongoing request from the map
-   * @param {Request} request
-   * @returns {any | null}
-   */
-  getOngoingRequest(request) {
-    const requestKey = `${request.method}:${request.url}`;
-    if (this.pendingApiRequests.has(requestKey)) {
-      return this.pendingApiRequests.get(requestKey);
-    }
-
-    return null;
-  }
-
-  /**
-   * Set the ongoing request in the map
-   * @param {Request} request
-   * @param {Promise<Response>} promise
-   * @returns {void}
-   */
-  setOngoingRequest(request, promise) {
-    const requestKey = `${request.method}:${request.url}`;
-    this.pendingApiRequests.set(requestKey, promise);
-  }
-
-  /**
-   * Delete the ongoing request from the map
-   * @param {Request} request
-   * @returns {void}
-   */
-  deleteOngoingRequest(request) {
-    const requestKey = `${request.method}:${request.url}`;
-    this.pendingApiRequests.delete(requestKey);
-  }
-
-  /**
-   * get the skip cache request in the map
-   * @param {Request} request
-   * @param {Promise<Response>} promise
-   * @returns {boolean}
-   */
-  shouldSkipCacheRequest(request) {
-    const requestKey = `${request.method}:${request.url}`;
-    return this.skipCacheRequests.get(requestKey) || false;
-  }
-
-  /**
-   * Set the skip cache request in the map
-   * @param {Request} request
-   * @param {Promise<Response>} promise
-   * @returns {void}
-   */
-  setSkipCacheRequest(request) {
-    const requestKey = `${request.method}:${request.url}`;
-    this.skipCacheRequests.set(requestKey, true);
-  }
-
-  /**
-   * Delete the skip cache request in the map
-   * @param {Request} request
-   * @param {Promise<Response>} promise
-   * @returns {void}
-   */
-  deleteSkipCacheRequest(request) {
-    const requestKey = `${request.method}:${request.url}`;
-    this.skipCacheRequests.delete(requestKey);
-  }
-
-  /**
-   *
+   * Function to fetch and cache the consolidated API
    * @param {Request} request
    * @returns
    */
 
-  async resetCacheAndFetch(request) {
+  async fetchAndCacheConsolidatedApi(request) {
+    await this.consolidatedApiFetchmutex.acquire();
+    console.log("SW: fetchAndCache : Mutex locked", performance.now());
     // Fetch the request
     const fetchPromise = fetch(request)
       .then(async (response) => {
+        console.log("SW: fetchAndCache : fetched response", performance.now());
+
         // If the response is ok, clone the response
         if (response.ok) {
           const clonedResponse = response.clone();
-          // Store in cache with expiration header
-          const shouldSkipCache = this.shouldSkipCacheRequest(request);
-          if (!shouldSkipCache) {
-            await this.cache.put(request, clonedResponse);
-          }
+          // Store in cache
+          console.log(
+            "SW: fetchAndCache : putting in cache",
+            performance.now(),
+          );
+          await this.cache.put(request, clonedResponse);
         }
+        console.log(
+          "SW: fetchAndCache : returning response",
+          performance.now(),
+        );
         return response;
       })
       .finally(() => {
-        // Delete the skip cache request
-        this.deleteSkipCacheRequest(request);
-        // Remove the request from the ongoing request map
-        this.deleteOngoingRequest(request);
+        console.log("SW: fetchAndCache : Mutex released", performance.now());
+        this.consolidatedApiFetchmutex.release();
       });
-
-    // Add the request to the ongoing request map
-    this.setOngoingRequest(request, fetchPromise);
-
-    // Delete the cached response
-    await this.cache.delete(request);
 
     return fetchPromise;
   }
 
   async getCachedResponse(request) {
+    console.log("SW: getCachedResponse : Mutex waiting", performance.now());
+    await this.consolidatedApiFetchmutex.waitForUnlock();
     // Check if the request is already in cache
+    console.log("SW: getCachedResponse : Mutex acquired", performance.now());
     const cachedResponse = await this.cache.match(request);
-
     if (cachedResponse) {
       const dateHeader = cachedResponse.headers.get("date");
       const cachedTime = new Date(dateHeader).getTime();
@@ -248,13 +178,23 @@ export class AppsmithApiCacheStrategy {
 
       const isCacheValid = currentTime - cachedTime < this.cacheMaxAge;
 
+      console.log(
+        "SW: getCachedResponse : Cache valid",
+        isCacheValid,
+        performance.now(),
+      );
       if (isCacheValid) {
         // Delete the cache as this is a one-time cache
         await this.cache.delete(request);
         // Return the cached response
+        console.log(
+          "SW: getCachedResponse : Returning cached response",
+          performance.now(),
+        );
         return cachedResponse;
       }
 
+      console.log("SW: getCachedResponse : Cache invalid", performance.now());
       // If the cache is not valid, delete the cache
       await this.cache.delete(request);
     }

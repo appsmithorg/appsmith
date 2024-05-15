@@ -8,7 +8,7 @@ import {
 } from "workbox-strategies";
 import {
   getPrefetchConsolidatedApiRequest,
-  AppsmithApiCacheStrategy,
+  ConsolidatedApiCacheStrategy,
 } from "utils/serviceWorkerUtils";
 
 setCacheNameDetails({
@@ -39,7 +39,7 @@ skipWaiting();
 clientsClaim();
 
 const PREFETCH_API_CACHE_NAME = "prefetch-api-cache-v1";
-const appsmithApiCacheStrategy = new AppsmithApiCacheStrategy(
+const consolidatedApiCacheStrategy = new ConsolidatedApiCacheStrategy(
   PREFETCH_API_CACHE_NAME,
 );
 
@@ -55,7 +55,9 @@ const handleFetchHtml = async (event, request, url) => {
   const prefetchConsolidatedApiRequest = getPrefetchConsolidatedApiRequest(url);
 
   if (prefetchConsolidatedApiRequest) {
-    appsmithApiCacheStrategy.resetCacheAndFetch(prefetchConsolidatedApiRequest);
+    consolidatedApiCacheStrategy.fetchAndCacheConsolidatedApi(
+      prefetchConsolidatedApiRequest,
+    );
   }
 
   const networkHandler = new NetworkOnly();
@@ -92,16 +94,9 @@ registerRoute(
 registerRoute(
   new RegExp("/api/v1/consolidated-api/"),
   async ({ event, request }) => {
-    // Check for ongoing request
-    const ongoingRequest = appsmithApiCacheStrategy.getOngoingRequest(request);
-    if (ongoingRequest) {
-      appsmithApiCacheStrategy.setSkipCacheRequest(request);
-      return ongoingRequest; // Return the ongoing request
-    }
-
     // Check for cached response
     const cachedResponse =
-      await appsmithApiCacheStrategy.getCachedResponse(request);
+      await consolidatedApiCacheStrategy.getCachedResponse(request);
 
     // If the response is cached, return the response
     if (cachedResponse) {

@@ -2,7 +2,7 @@ import {
   getSearchQuery,
   getConsolidatedAPISearchParams,
   getPrefetchConsolidatedApiRequest,
-  AppsmithApiCacheStrategy,
+  ConsolidatedApiCacheStrategy,
   matchBuilderPath,
   matchViewerPath,
 } from "./serviceWorkerUtils";
@@ -191,7 +191,7 @@ describe("serviceWorkerUtils", () => {
         open: jest.fn().mockResolvedValue(cacheMock),
       };
 
-      apiCacheStrategy = new AppsmithApiCacheStrategy("testCache");
+      apiCacheStrategy = new ConsolidatedApiCacheStrategy("testCache");
       await apiCacheStrategy.initCache("testCache");
     });
 
@@ -200,137 +200,20 @@ describe("serviceWorkerUtils", () => {
       expect(apiCacheStrategy.cache).toBe(cacheMock);
     });
 
-    it("getOngoingRequest should return null if no ongoing request is found", () => {
-      const request = new Request("https://example.com/api");
-
-      const ongoingRequest = apiCacheStrategy.getOngoingRequest(request);
-
-      expect(ongoingRequest).toBeNull();
-    });
-
-    it("getOngoingRequest should return the ongoing request if found", () => {
-      const request = new Request("https://example.com/api");
-      const promise = Promise.resolve(new Response());
-
-      apiCacheStrategy.setOngoingRequest(request, promise);
-
-      const ongoingRequest = apiCacheStrategy.getOngoingRequest(request);
-
-      expect(ongoingRequest).toBe(promise);
-    });
-
-    it("setOngoingRequest should add the request to the map", () => {
-      const request = new Request("https://example.com/api");
-      const promise = Promise.resolve(new Response());
-
-      apiCacheStrategy.setOngoingRequest(request, promise);
-
-      const ongoingRequest = apiCacheStrategy.pendingApiRequests.get(
-        `${request.method}:${request.url}`,
-      );
-
-      expect(ongoingRequest).toBe(promise);
-    });
-
-    it("deleteOngoingRequest should remove the request from the map", () => {
-      const request = new Request("https://example.com/api");
-      const promise = Promise.resolve(new Response());
-
-      apiCacheStrategy.setOngoingRequest(request, promise);
-      apiCacheStrategy.deleteOngoingRequest(request);
-
-      const ongoingRequest = apiCacheStrategy.pendingApiRequests.get(
-        `${request.method}:${request.url}`,
-      );
-
-      expect(ongoingRequest).toBeUndefined();
-    });
-
-    it("shouldSkipCacheRequest should return false if no skip cache request is found", () => {
-      const request = new Request("https://example.com/api");
-
-      const skipCache = apiCacheStrategy.shouldSkipCacheRequest(request);
-
-      expect(skipCache).toBe(false);
-    });
-
-    it("shouldSkipCacheRequest should return true if skip cache request is found", () => {
-      const request = new Request("https://example.com/api");
-
-      apiCacheStrategy.setSkipCacheRequest(request);
-
-      const skipCache = apiCacheStrategy.shouldSkipCacheRequest(request);
-
-      expect(skipCache).toBe(true);
-    });
-
-    it("setSkipCacheRequest should add the request to the map", () => {
-      const request = new Request("https://example.com/api");
-
-      apiCacheStrategy.setSkipCacheRequest(request);
-
-      const skipCache = apiCacheStrategy.skipCacheRequests.get(
-        `${request.method}:${request.url}`,
-      );
-
-      expect(skipCache).toBe(true);
-    });
-
-    it("deleteSkipCacheRequest should remove the request from the map", () => {
-      const request = new Request("https://example.com/api");
-
-      apiCacheStrategy.setSkipCacheRequest(request);
-      apiCacheStrategy.deleteSkipCacheRequest(request);
-
-      const skipCache = apiCacheStrategy.skipCacheRequests.get(
-        `${request.method}:${request.url}`,
-      );
-
-      expect(skipCache).toBeUndefined();
-    });
-
     it("resetCacheAndFetch should reset cache when called", async () => {
       const request = new Request("https://example.com/api");
       const fetchedResponse = new Response("fetched data", { status: 200 });
 
       fetch.mockResolvedValue(fetchedResponse);
 
-      const response = await apiCacheStrategy.resetCacheAndFetch(request, true);
+      const response =
+        await apiCacheStrategy.fetchAndCacheConsolidatedApi(request);
 
-      expect(cacheMock.delete).toHaveBeenCalledWith(request);
       expect(fetch).toHaveBeenCalledWith(request);
       expect(cacheMock.put).toHaveBeenCalledWith(
         request,
         fetchedResponse.clone(),
       );
-      expect(response).toBe(fetchedResponse);
-    });
-
-    it("should remove the ongoing request after fetch completes", async () => {
-      const request = new Request("https://example.com/api");
-      const fetchedResponse = new Response("fetched data", { status: 200 });
-
-      fetch.mockResolvedValue(fetchedResponse);
-
-      await apiCacheStrategy.resetCacheAndFetch(request);
-
-      const ongoingRequest = apiCacheStrategy.getOngoingRequest(request);
-
-      expect(ongoingRequest).toBeNull();
-    });
-
-    it("resetCacheAndFetch should not cache the response if skip cache request is set", async () => {
-      const request = new Request("https://example.com/api");
-      const fetchedResponse = new Response("fetched data", { status: 200 });
-
-      fetch.mockResolvedValue(fetchedResponse);
-      apiCacheStrategy.setSkipCacheRequest(request);
-
-      const response = await apiCacheStrategy.resetCacheAndFetch(request);
-
-      expect(cacheMock.delete).toHaveBeenCalledWith(request);
-      expect(fetch).toHaveBeenCalledWith(request);
-      expect(cacheMock.put).not.toHaveBeenCalled();
       expect(response).toBe(fetchedResponse);
     });
   });
