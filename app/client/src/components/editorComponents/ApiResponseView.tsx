@@ -14,6 +14,7 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_RESPONSE,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
 } from "@appsmith/constants/messages";
@@ -367,7 +368,7 @@ function ApiResponseView(props: Props) {
   const tabs: BottomTab[] = [
     {
       key: "response",
-      title: "Response",
+      title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <ResponseTabWrapper>
           <ApiResponseMeta
