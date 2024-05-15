@@ -19,6 +19,11 @@ on:
         required: false
         type: string
         default: "[0, 1, 2]"
+      repeat:
+        description: "Repeat test count"
+        required: false
+        type: number
+        default: 1
   workflow_call:
     inputs:
       pr:
@@ -231,6 +236,7 @@ jobs:
         working-directory: app/client
         run: |
           yarn install --immutable
+          yarn add -D cypress-repeat
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -359,6 +365,7 @@ jobs:
           spec: ${{ env.specs_to_run }}
           working-directory: app/client
           env: "NODE_ENV=development"
+          command: npx cypress-repeat run -n ${{ inputs.repeat }} --until-passes
 
       - name: Trim number of cypress log files
         if: failure()
