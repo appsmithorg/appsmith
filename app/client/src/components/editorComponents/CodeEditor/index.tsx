@@ -361,6 +361,10 @@ class CodeEditor extends Component<Props, State> {
           },
           async: true,
           lintOnChange: false,
+          // this option does exist on codeMirror - checkout lint.js from codeMirror/addon/lint/lint.js
+          // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+          // @ts-ignore
+          selfContain: this.props.mode === EditorModes.JAVASCRIPT,
         },
         tabindex: -1,
         // Used to disable multiple cursors on the editor
