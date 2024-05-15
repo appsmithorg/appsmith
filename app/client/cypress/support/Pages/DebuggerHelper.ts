@@ -150,12 +150,7 @@ export class DebuggerHelper {
   }
 
   LogStateContains(text: string, index?: number) {
-    this.agHelper.GetNAssertContains(
-      this.locators._logState,
-      text,
-      "exist",
-      index,
-    );
+    this.agHelper.GetNAssertContains(this.locators._logState, text, "exist");
   }
 
   AssertErrorCount(count: number) {
