@@ -16,11 +16,11 @@ describe("Api Error Debugger", { tags: ["@tag.IDE"] }, () => {
   });
   it("it shows debug button and navigates", () => {
     _.apiPage.DebugError();
-    _.debuggerHelper.AssertSelectedTab("Error");
+    _.debuggerHelper.AssertSelectedTab(Cypress.env("MESSAGES").DEBUGGER_ERRORS);
     _.debuggerHelper.AssertErrorCount(1);
     EditorNavigation.SwitchScreenMode(EditorViewMode.SplitScreen);
     _.apiPage.DebugError();
-    _.debuggerHelper.AssertSelectedTab("Error");
+    _.debuggerHelper.AssertSelectedTab(Cypress.env("MESSAGES").DEBUGGER_ERRORS);
     _.debuggerHelper.AssertErrorCount(1);
   });
 });
