@@ -1,7 +1,7 @@
 import {
   getSearchQuery,
   getConsolidatedAPISearchParams,
-  getPrefetchRequest,
+  getPrefetchConsolidatedApiRequest,
   AppsmithApiCacheStrategy,
   matchBuilderPath,
   matchViewerPath,
@@ -90,7 +90,7 @@ describe("serviceWorkerUtils", () => {
     });
   });
 
-  describe("getPrefetchRequest", () => {
+  describe("getPrefetchConsolidatedApiRequest", () => {
     beforeAll(() => {
       global.Request = Request;
       global.Headers = Headers;
@@ -101,12 +101,12 @@ describe("serviceWorkerUtils", () => {
     });
 
     it("should return null if url is not provided", () => {
-      expect(getPrefetchRequest(null)).toBeNull();
+      expect(getPrefetchConsolidatedApiRequest(null)).toBeNull();
     });
 
     it("should return null if url does not match any paths", () => {
       const url = new URL("https://app.appsmith.com/unknown/path");
-      expect(getPrefetchRequest(url)).toBeNull();
+      expect(getPrefetchConsolidatedApiRequest(url)).toBeNull();
     });
 
     it("should return a request for builder path", async () => {
@@ -114,7 +114,7 @@ describe("serviceWorkerUtils", () => {
         "http://example.com/app/test-slug/test-page-123/edit?branch=test-branch",
       );
 
-      const result = getPrefetchRequest(url);
+      const result = getPrefetchConsolidatedApiRequest(url);
       const expectedResult = new Request(
         "http://example.com/api/v1/consolidated-api/edit?defaultPageId=123",
         {
@@ -143,7 +143,7 @@ describe("serviceWorkerUtils", () => {
         },
       );
 
-      const result = getPrefetchRequest(url);
+      const result = getPrefetchConsolidatedApiRequest(url);
 
       expect(result).toEqual(expectedResult);
     });
@@ -161,7 +161,7 @@ describe("serviceWorkerUtils", () => {
         },
       );
 
-      const result = getPrefetchRequest(url);
+      const result = getPrefetchConsolidatedApiRequest(url);
 
       expect(result).toEqual(expectedResult);
     });

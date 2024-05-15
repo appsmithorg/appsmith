@@ -7,7 +7,7 @@ import {
   StaleWhileRevalidate,
 } from "workbox-strategies";
 import {
-  getPrefetchRequest,
+  getPrefetchConsolidatedApiRequest,
   AppsmithApiCacheStrategy,
 } from "utils/serviceWorkerUtils";
 
@@ -51,7 +51,7 @@ const appsmithApiCacheStrategy = new AppsmithApiCacheStrategy(
  * @returns
  */
 const handleFetchHtml = async (event, request, url) => {
-  const prefetchRequest = getPrefetchRequest(url);
+  const prefetchRequest = getPrefetchConsolidatedApiRequest(url);
 
   if (prefetchRequest) {
     appsmithApiCacheStrategy.resetCacheAndFetch(prefetchRequest);
