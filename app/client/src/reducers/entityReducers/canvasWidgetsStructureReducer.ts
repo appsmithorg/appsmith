@@ -40,6 +40,26 @@ const canvasWidgetsStructureReducer = createImmerReducer(initialState, {
   ) => {
     return denormalize("0", action.payload.widgets);
   },
+  [ReduxActionTypes.ADD_LOCAL_SKELETON_LOADER]: (
+    state: CanvasWidgetsStructureReduxState,
+    action: ReduxAction<{
+      updatedWidgets: {
+        [widgetId: string]: FlattenedWidgetProps;
+      };
+    }>,
+  ) => {
+    return denormalize("0", action.payload.updatedWidgets);
+  },
+  [ReduxActionTypes.REMOVE_LOCAL_SKELETON_LOADER]: (
+    state: CanvasWidgetsStructureReduxState,
+    action: ReduxAction<{
+      updatedWidgets: {
+        [widgetId: string]: FlattenedWidgetProps;
+      };
+    }>,
+  ) => {
+    return denormalize("0", action.payload.updatedWidgets);
+  },
   [ReduxActionTypes.UPDATE_LAYOUT]: (
     state: CanvasWidgetsStructureReduxState,
     action: ReduxAction<UpdateCanvasPayload>,
