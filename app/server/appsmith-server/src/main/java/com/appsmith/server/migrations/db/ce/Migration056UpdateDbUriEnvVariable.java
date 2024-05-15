@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RequiredArgsConstructor
-@ChangeUnit(order = "056", id = "update-db-uri-env-variable", runAlways = true)
+@ChangeUnit(order = "056", id = "update-db-uri-env-variable")
 public class Migration056UpdateDbUriEnvVariable {
     private final CommonConfig commonConfig;
 
@@ -25,7 +25,7 @@ public class Migration056UpdateDbUriEnvVariable {
     @Execution
     public void executeMigration() throws IOException {
         final String currentEnvName = "APPSMITH_MONGODB_URI";
-        final String updatedEnvName = "APPSMITH_DB_URL";
+        final String updatedEnvName = "APPSMITH_DB_URI";
         updateEnvInFile(currentEnvName, updatedEnvName, commonConfig.getEnvFilePath());
     }
 
