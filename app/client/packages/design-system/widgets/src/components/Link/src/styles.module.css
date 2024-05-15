@@ -8,8 +8,4 @@
     color: currentColor;
     text-decoration-color: currentColor;
   }
-
-  &[aria-disabled="true"] {
-    opacity: var(--opacity-disabled);
-  }
 }

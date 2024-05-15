@@ -10,7 +10,6 @@ export function Link(props: LinkProps) {
     children,
     download,
     href,
-    isDisabled,
     ping,
     referrerPolicy,
     rel,
@@ -24,7 +23,6 @@ export function Link(props: LinkProps) {
         className={styles.link}
         download={download}
         href={href}
-        isDisabled={isDisabled}
         ping={ping}
         referrerPolicy={referrerPolicy}
         rel={rel}
