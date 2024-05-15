@@ -83,7 +83,7 @@ export const GeneralStyle = {
         label: BUTTON_VARIANTS[variant],
         value: variant,
       })),
-      defaultValue: BUTTON_VARIANTS.filled,
+      defaultValue: objectKeys(BUTTON_VARIANTS)[0],
       isJSConvertible: true,
       isBindProperty: true,
       isTriggerProperty: false,
@@ -93,7 +93,7 @@ export const GeneralStyle = {
           type: ValidationTypes.TEXT,
           params: {
             allowedValues: objectKeys(BUTTON_VARIANTS),
-            default: BUTTON_VARIANTS.filled,
+            default: objectKeys(BUTTON_VARIANTS)[0],
           },
         },
       },

@@ -113,7 +113,7 @@ export const propertyPaneContentConfig = [
                     type: ValidationTypes.TEXT,
                     params: {
                       allowedValues: objectKeys(BUTTON_VARIANTS),
-                      default: BUTTON_VARIANTS.filled,
+                      default: objectKeys(BUTTON_VARIANTS)[0],
                     },
                   },
                 },

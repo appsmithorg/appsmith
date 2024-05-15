@@ -208,14 +208,15 @@
       [data-column-type="text"],
       [data-column-type="number"],
       [data-column-type="url"],
-      [data-column-type="date"]
+      [data-column-type="date"],
+
     ) {
     padding: var(--outer-spacing-4) var(--outer-spacing-3);
   }
 
   & [role="cell"]:is([data-column-type="button"]) {
     align-items: center !important;
-    justify-content: center !important;
+    padding-inline: var(--outer-spacing-3);
   }
 
   @each $color in colors {

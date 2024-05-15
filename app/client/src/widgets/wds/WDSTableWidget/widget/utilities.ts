@@ -185,7 +185,7 @@ export function getDefaultColumnProperties(
     originalId: id,
     id: sanitizedId,
     alias: id,
-    horizontalAlignment: "start",
+    horizontalAlignment: columnType === ColumnTypes.NUMBER ? "end" : "start",
     verticalAlignment: "center",
     columnType: columnType || ColumnTypes.TEXT,
     textColor: Colors.THUNDER,
