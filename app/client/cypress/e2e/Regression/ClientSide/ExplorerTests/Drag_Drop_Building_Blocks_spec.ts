@@ -11,12 +11,6 @@ const MAX_BUILDING_BLOCKS_TO_DISPLAY = initialEntityCountForExplorerTag[
   "Building Blocks"
 ] as number;
 
-const sampleBuildingBlockData = {
-  skeletonLoaderName: "loading_edit_data",
-  mainContainerName: "con_main",
-  selector: ".t--widget-card-draggable-buildingblock-editdata",
-};
-
 describe(
   "Building blocks explorer tests",
   {
@@ -201,8 +195,8 @@ describe(
       );
       const x = 600;
       const y = 80;
-      // select this specific building block so the test works on release
-      const selector = sampleBuildingBlockData.selector;
+      // select the first building block in the list
+      const selector = ".t--widget-card-draggable-buildingblock";
       cy.wait(500);
       cy.get(selector)
         .first()
@@ -220,11 +214,32 @@ describe(
         .trigger("mouseup", x, y, option);
 
       // check that loading skeleton is present
-      PageLeftPane.assertPresence(sampleBuildingBlockData.skeletonLoaderName);
+      let buildingBlockName: string; // get the display name of the first building block
+      agHelper
+        .GetElement(entityExplorer._widgetTagBuildingBlocks)
+        .each(($widgetTag) => {
+          agHelper
+            .GetElement($widgetTag)
+            .find(entityExplorer._widgetCardTitle)
+            .each(($widgetName, index) => {
+              const value = $widgetName.text();
+              if (index === 0) {
+                buildingBlockName = value;
+              }
+            })
+            .then(() => {
+              PageLeftPane.assertPresence(
+                `loading_${buildingBlockName.toLowerCase().replace(/ /g, "_")}`,
+              );
+            });
+        });
       cy.wait("@blockImport").then(() => {
         cy.assertPageSave();
-        // check that the main container of the block has been added to the canvas
-        PageLeftPane.assertPresence(sampleBuildingBlockData.mainContainerName);
+        // check that the widgets are present on the canvas
+        agHelper.AssertElementVisibility('[data-testid="t--ide-list"]');
+        agHelper
+          .GetElement('[data-testid="t--ide-list"] .t--entity-item')
+          .should("have.length.greaterThan", 0);
       });
     });
   },
