@@ -31,7 +31,7 @@ public class GitUtils {
      * the port number could be not present as well. e.g. ssh://_ab-xy@domain.com:/v3/newJet/ai/zilla
      */
     public static final Pattern URL_PATTERN_WITH_SCHEME =
-            Pattern.compile("^ssh://([a-z_][\\w-]+@)?(?<host>[\\w-.]+?)(:(?<port>\\d*))?/+(?<path>.+?)(\\.git)?$");
+            Pattern.compile("^ssh://([a-z_][\\w-]+@)?(?<host>[\\w-.]+)(:(?<port>\\d*))?/+(?<path>.+?)(\\.git)?$");
 
     /**
      * Pattern for validating the ssh address if it strictly doesn't start with a scheme
@@ -40,7 +40,7 @@ public class GitUtils {
      * the port number could be not present as well. e.g. ssh://_ab-xy@domain.com:/v3/newJet/ai/zilla
      */
     public static final Pattern URL_PATTERN_WITHOUT_SCHEME =
-            Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+?):/*(?<path>.+?)(\\.git)?$");
+            Pattern.compile("^[a-z_][\\w-]+@(?<host>[\\w-.]+):/*(?<path>.+?)(\\.git)?$");
 
     /**
      * Sample repo urls :
