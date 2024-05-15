@@ -28,7 +28,8 @@
     border: none !important;
   }
 
-  a {
+  /* Note: checking for data-rac attribute to avoid overriding the color of our Link component */
+  a:not([data-rac]) {
     color: var(--color-fg-accent) !important;
   }
 </style>
