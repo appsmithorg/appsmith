@@ -58,9 +58,7 @@ const handleFetchHtml = async (event, request, url) => {
   }
 
   const networkHandler = new NetworkOnly();
-  const htmlPromise = networkHandler.handle({ event, request });
-
-  return htmlPromise;
+  return networkHandler.handle({ event, request });
 };
 
 // This route's caching seems too aggressive.
@@ -92,8 +90,26 @@ registerRoute(
 // Route for fetching the API directly
 registerRoute(
   new RegExp("/api/v1/consolidated-api/"),
-  async ({ request }) => {
-    return appsmithApiCacheStrategy.readFromCacheOrFetch(request);
+  async ({ event, request }) => {
+    // Check for ongoing request
+    const ongoingRequest = appsmithApiCacheStrategy.getOngoingRequest(request);
+    if (ongoingRequest) {
+      appsmithApiCacheStrategy.setSkipCacheRequest(request);
+      return ongoingRequest; // Return the ongoing request
+    }
+
+    // Check for cached response
+    const cachedResponse =
+      await appsmithApiCacheStrategy.getCachedResponse(request);
+
+    // If the response is cached, return the response
+    if (cachedResponse) {
+      return cachedResponse;
+    }
+
+    // If the response is not cached, fetch the response
+    const networkHandler = new NetworkOnly();
+    return networkHandler.handle({ event, request });
   },
   "GET",
 );

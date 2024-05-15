@@ -289,39 +289,6 @@ describe("serviceWorkerUtils", () => {
       expect(skipCache).toBeUndefined();
     });
 
-    it("readFromCacheOrFetch should return cached response and delete it", async () => {
-      const request = new Request("https://example.com/api");
-      const cachedResponse = new Response("cached data", {
-        status: 200,
-        headers: {
-          date: new Date().toUTCString(),
-        },
-      });
-
-      cacheMock.match.mockResolvedValue(cachedResponse);
-
-      const response = await apiCacheStrategy.readFromCacheOrFetch(request);
-
-      expect(cacheMock.match).toHaveBeenCalledWith(request);
-      expect(response).toBe(cachedResponse);
-      expect(cacheMock.delete).toBeCalledWith(request);
-      expect(fetch).not.toHaveBeenCalled();
-    });
-
-    it("readFromCacheOrFetch should handle cache miss and fetch data", async () => {
-      const request = new Request("https://example.com/api");
-      const fetchedResponse = new Response("fetched data", { status: 200 });
-
-      cacheMock.match.mockResolvedValue(null);
-      fetch.mockResolvedValue(fetchedResponse);
-
-      const response = await apiCacheStrategy.readFromCacheOrFetch(request);
-
-      expect(cacheMock.match).toHaveBeenCalledWith(request);
-      expect(fetch).toHaveBeenCalledWith(request);
-      expect(response).toBe(fetchedResponse);
-    });
-
     it("resetCacheAndFetch should reset cache when called", async () => {
       const request = new Request("https://example.com/api");
       const fetchedResponse = new Response("fetched data", { status: 200 });
@@ -337,20 +304,6 @@ describe("serviceWorkerUtils", () => {
         fetchedResponse.clone(),
       );
       expect(response).toBe(fetchedResponse);
-    });
-
-    it("should handle simultaneous identical requests by deduplicating them", async () => {
-      const request = new Request("https://example.com/api");
-      const fetchedResponse = new Response("fetched data", { status: 200 });
-
-      fetch.mockResolvedValue(fetchedResponse);
-
-      const promise1 = apiCacheStrategy.resetCacheAndFetch(request);
-      const promise2 = apiCacheStrategy.readFromCacheOrFetch(request); // This should not trigger a second fetch
-
-      await Promise.all([promise1, promise2]);
-
-      expect(fetch).toHaveBeenCalledTimes(1); // Only one fetch for both requests
     });
 
     it("should remove the ongoing request after fetch completes", async () => {

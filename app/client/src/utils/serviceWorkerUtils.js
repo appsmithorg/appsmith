@@ -237,14 +237,7 @@ export class AppsmithApiCacheStrategy {
     return fetchPromise;
   }
 
-  async readFromCacheOrFetch(request) {
-    // Check for ongoing request
-    const ongoingRequest = this.getOngoingRequest(request);
-    if (ongoingRequest) {
-      this.skipCacheRequests.set(request);
-      return ongoingRequest; // Return the ongoing request
-    }
-
+  async getCachedResponse(request) {
     // Check if the request is already in cache
     const cachedResponse = await this.cache.match(request);
 
@@ -266,7 +259,6 @@ export class AppsmithApiCacheStrategy {
       await this.cache.delete(request);
     }
 
-    // Fetch the request
-    return fetch(request);
+    return null;
   }
 }
