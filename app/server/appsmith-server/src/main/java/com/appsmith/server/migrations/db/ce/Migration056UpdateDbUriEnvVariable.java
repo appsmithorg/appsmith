@@ -30,21 +30,24 @@ public class Migration056UpdateDbUriEnvVariable {
     }
 
     private static void updateEnvInFile(
-            final String currentEnvName, final String updatedEnvName, final String envPathString) throws IOException {
+            final String currentEnvName, final String updatedEnvName, final String envPathString) {
         if (StringUtils.isEmpty(envPathString) || StringUtils.isEmpty(updatedEnvName)) {
             return;
         }
 
         final Path envPath = Path.of(envPathString);
-
-        final String updatedLines = Files.readAllLines(envPath).stream()
-                .map(line -> {
-                    if (line.startsWith(currentEnvName + "=")) {
-                        return updatedEnvName + "=" + System.getenv(currentEnvName);
-                    }
-                    return line;
-                })
-                .collect(Collectors.joining("\n"));
-        Files.writeString(envPath, updatedLines);
+        try {
+            final String updatedLines = Files.readAllLines(envPath).stream()
+                    .map(line -> {
+                        if (line.startsWith(currentEnvName + "=")) {
+                            return updatedEnvName + "=" + System.getenv(currentEnvName);
+                        }
+                        return line;
+                    })
+                    .collect(Collectors.joining("\n"));
+            Files.writeString(envPath, updatedLines);
+        } catch (IOException e) {
+            log.error("Error updating the DB URI environment variable in the file at path {}", envPath, e);
+        }
     }
 }
