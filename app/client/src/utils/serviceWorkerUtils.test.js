@@ -291,7 +291,12 @@ describe("serviceWorkerUtils", () => {
 
     it("readFromCacheOrFetch should return cached response and delete it", async () => {
       const request = new Request("https://example.com/api");
-      const cachedResponse = new Response("cached data");
+      const cachedResponse = new Response("cached data", {
+        status: 200,
+        headers: {
+          date: new Date().toUTCString(),
+        },
+      });
 
       cacheMock.match.mockResolvedValue(cachedResponse);
 

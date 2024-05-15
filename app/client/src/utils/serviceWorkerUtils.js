@@ -124,6 +124,7 @@ export class AppsmithApiCacheStrategy {
     // was initialised when the prefetch request was ongoing. Since the promise is returned to the main thread, the response should not be cached
     this.skipCacheRequests = new Map();
     this.initCache(cacheName);
+    this.cacheMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds
   }
 
   async initCache(cacheName) {
@@ -248,10 +249,21 @@ export class AppsmithApiCacheStrategy {
     const cachedResponse = await this.cache.match(request);
 
     if (cachedResponse) {
-      // Delete the cached response. This is to ensure that the cache is deleted after the first use
+      const dateHeader = cachedResponse.headers.get("date");
+      const cachedTime = new Date(dateHeader).getTime();
+      const currentTime = Date.now();
+
+      const isCacheValid = currentTime - cachedTime < this.cacheMaxAge;
+
+      if (isCacheValid) {
+        // Delete the cache as this is a one-time cache
+        await this.cache.delete(request);
+        // Return the cached response
+        return cachedResponse;
+      }
+
+      // If the cache is not valid, delete the cache
       await this.cache.delete(request);
-      // Return the cached response
-      return cachedResponse;
     }
 
     // Fetch the request
