@@ -140,7 +140,7 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
         <ModalContent className={contentClassName.trim()}>
           {this.props.showHeader && (
             <ModalHeader
-              allowInteraction={this.props.allowWidgetInteraction}
+              excludeFromTabOrder={!this.props.allowWidgetInteraction}
               title={this.props.title}
             />
           )}
@@ -149,8 +149,8 @@ class WDSModalWidget extends BaseWidget<ModalWidgetProps, WidgetState> {
           </ModalBody>
           {this.props.showFooter && (
             <ModalFooter
-              allowInteraction={this.props.allowWidgetInteraction}
               closeText={closeText}
+              excludeFromTabOrder={!this.props.allowWidgetInteraction}
               onSubmit={submitText ? this.onSubmitClick : undefined}
               submitText={submitText}
             />

@@ -7,8 +7,8 @@ import type { ModalFooterProps } from "./types";
 
 export const ModalFooter = (props: ModalFooterProps) => {
   const {
-    allowInteraction = true,
     closeText = "Close",
+    excludeFromTabOrder = false,
     onSubmit,
     submitText = "Submit",
   } = props;
@@ -27,7 +27,7 @@ export const ModalFooter = (props: ModalFooterProps) => {
   return (
     <Flex alignItems="center" gap="spacing-4" justifyContent="end">
       <Button
-        excludeFromTabOrder={!allowInteraction}
+        excludeFromTabOrder={excludeFromTabOrder}
         onPress={() => setOpen(false)}
         variant="ghost"
       >
@@ -36,7 +36,7 @@ export const ModalFooter = (props: ModalFooterProps) => {
 
       {onSubmit && (
         <Button
-          excludeFromTabOrder={!allowInteraction}
+          excludeFromTabOrder={excludeFromTabOrder}
           isLoading={isLoading}
           onPress={handleSubmit}
         >
