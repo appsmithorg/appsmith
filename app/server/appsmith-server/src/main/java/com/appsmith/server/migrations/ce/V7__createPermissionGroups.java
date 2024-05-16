@@ -6,8 +6,10 @@ import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.migrations.AppsmithJavaMigration;
-import com.appsmith.server.migrations.CommonMethods;
+import com.appsmith.server.migrations.MigrationHelperMethods;
+import com.appsmith.server.migrations.RepositoryHelperMethods;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import net.minidev.json.JSONObject;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -15,23 +17,25 @@ import org.springframework.jdbc.core.JdbcTemplate;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static com.appsmith.server.acl.AclPermission.ASSIGN_PERMISSION_GROUPS;
 import static com.appsmith.server.acl.AclPermission.MANAGE_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_INSTANCE_CONFIGURATION;
 import static com.appsmith.server.acl.AclPermission.READ_PERMISSION_GROUP_MEMBERS;
+import static com.appsmith.server.acl.AppsmithRole.TENANT_ADMIN;
 import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT_PERMISSION_GROUP;
 import static com.appsmith.server.constants.ce.FieldNameCE.INSTANCE_CONFIG;
 import static com.appsmith.server.constants.ce.FieldNameCE.PERMISSION_GROUP_ID;
 
-public class V5__createPermissionGroups extends AppsmithJavaMigration {
+public class V7__createPermissionGroups extends AppsmithJavaMigration {
     private JdbcTemplate jdbcTemplate;
-    private CommonMethods commonMethods;
+    private RepositoryHelperMethods helperMethods;
 
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
         this.jdbcTemplate = jdbcTemplate;
-        commonMethods = new CommonMethods(jdbcTemplate);
+        helperMethods = new RepositoryHelperMethods(jdbcTemplate);
         addInstanceConfigPlaceHolder();
         addAnonymousUserPermissionGroup();
         addTenantAdminPermissionsToInstanceAdmin();
@@ -45,12 +49,14 @@ public class V5__createPermissionGroups extends AppsmithJavaMigration {
         }
         Config instanceAdminConfig = new Config();
         instanceAdminConfig.setName(INSTANCE_CONFIG);
-        Config savedInstanceConfig = commonMethods.createConfig(instanceAdminConfig);
+        Config savedInstanceConfig = helperMethods.createConfig(instanceAdminConfig);
 
         // Create instance management permission group
         PermissionGroup instanceManagerPermissionGroup = new PermissionGroup();
         instanceManagerPermissionGroup.setName(FieldName.INSTANCE_ADMIN_ROLE);
-        PermissionGroup savedPermissionGroup = commonMethods.createPermissionGroup(instanceManagerPermissionGroup);
+        instanceManagerPermissionGroup.setPermissions(
+                Set.of(new Permission(savedInstanceConfig.getId(), MANAGE_INSTANCE_CONFIGURATION)));
+        PermissionGroup savedPermissionGroup = helperMethods.createPermissionGroup(instanceManagerPermissionGroup);
 
         // Update the instance config with the permission group id
         instanceAdminConfig.setConfig(
@@ -67,7 +73,7 @@ public class V5__createPermissionGroups extends AppsmithJavaMigration {
 
         savedInstanceConfig.setPolicies(new HashSet<>(Set.of(editConfigPolicy, readConfigPolicy)));
 
-        commonMethods.saveConfig(savedInstanceConfig);
+        helperMethods.saveConfig(savedInstanceConfig);
         // Also give the permission group permission to unassign & assign & read to itself
         Policy updatePermissionGroupPolicy = Policy.builder()
                 .permission(AclPermission.UNASSIGN_PERMISSION_GROUPS.getValue())
@@ -82,7 +88,14 @@ public class V5__createPermissionGroups extends AppsmithJavaMigration {
         savedPermissionGroup.setPolicies(
                 new HashSet<>(Set.of(updatePermissionGroupPolicy, assignPermissionGroupPolicy)));
 
-        commonMethods.savePermissionGroup(savedPermissionGroup);
+        Set<Permission> permissions = new HashSet<>(savedPermissionGroup.getPermissions());
+        permissions.addAll(Set.of(
+                new Permission(savedPermissionGroup.getId(), AclPermission.UNASSIGN_PERMISSION_GROUPS),
+                new Permission(savedPermissionGroup.getId(), ASSIGN_PERMISSION_GROUPS),
+                new Permission(savedPermissionGroup.getId(), READ_PERMISSION_GROUP_MEMBERS)));
+        savedPermissionGroup.setPermissions(permissions);
+
+        helperMethods.savePermissionGroup(savedPermissionGroup);
     }
 
     private void addAnonymousUserPermissionGroup() throws JsonProcessingException {
@@ -95,7 +108,7 @@ public class V5__createPermissionGroups extends AppsmithJavaMigration {
         publicPermissionGroup.setName(FieldName.PUBLIC_PERMISSION_GROUP);
         publicPermissionGroup.setDescription("Role for giving accesses for all objects to anonymous users");
 
-        String defaultTenantId = commonMethods.getDefaultTenantId();
+        String defaultTenantId = helperMethods.getDefaultTenantId();
 
         String anonymousUserId = jdbcTemplate.queryForObject(
                 "SELECT id FROM \"user\" WHERE email = ? and tenant_id = ?",
@@ -109,7 +122,7 @@ public class V5__createPermissionGroups extends AppsmithJavaMigration {
 
         // Give access to anonymous user to the permission group.
         publicPermissionGroup.setAssignedToUserIds(Set.of(anonymousUserId));
-        PermissionGroup savedPermissionGroup = commonMethods.createPermissionGroup(publicPermissionGroup);
+        PermissionGroup savedPermissionGroup = helperMethods.createPermissionGroup(publicPermissionGroup);
 
         Config publicPermissionGroupConfig = new Config();
         publicPermissionGroupConfig.setName(FieldName.PUBLIC_PERMISSION_GROUP);
@@ -117,18 +130,18 @@ public class V5__createPermissionGroups extends AppsmithJavaMigration {
         publicPermissionGroupConfig.setConfig(
                 new JSONObject(Map.of(PERMISSION_GROUP_ID, savedPermissionGroup.getId())));
 
-        commonMethods.createConfig(publicPermissionGroupConfig);
+        helperMethods.createConfig(publicPermissionGroupConfig);
     }
 
     private void addTenantAdminPermissionsToInstanceAdmin() throws JsonProcessingException {
-        Tenant defaultTenant = commonMethods.getDefaultTenant();
+        Tenant defaultTenant = helperMethods.getDefaultTenant();
 
-        Config instanceAdminConfiguration = commonMethods.getConfig(INSTANCE_CONFIG);
+        Config instanceAdminConfiguration = helperMethods.getConfig(INSTANCE_CONFIG);
 
         String instanceAdminPermissionGroupId =
                 (String) instanceAdminConfiguration.getConfig().get(DEFAULT_PERMISSION_GROUP);
 
-        PermissionGroup instanceAdminPGBeforeChanges = commonMethods.getPermissionGroup(instanceAdminPermissionGroupId);
+        PermissionGroup instanceAdminPGBeforeChanges = helperMethods.getPermissionGroup(instanceAdminPermissionGroupId);
 
         // Give read permission to instanceAdminPg to all the users who have been assigned this permission group
         Map<String, Policy> readPermissionGroupPolicyMap = Map.of(
@@ -137,14 +150,22 @@ public class V5__createPermissionGroups extends AppsmithJavaMigration {
                         .permission(READ_PERMISSION_GROUP_MEMBERS.getValue())
                         .permissionGroups(Set.of(instanceAdminPGBeforeChanges.getId()))
                         .build());
-        PermissionGroup instanceAdminPG =
-                commonMethods.addPoliciesToExistingObject(readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
+        PermissionGroup instanceAdminPG = MigrationHelperMethods.addPoliciesToExistingObject(
+                readPermissionGroupPolicyMap, instanceAdminPGBeforeChanges);
 
-        commonMethods.savePermissionGroup(instanceAdminPG);
+        // Now add admin permissions to the tenant
+        Set<Permission> tenantPermissions = TENANT_ADMIN.getPermissions().stream()
+                .map(permission -> new Permission(defaultTenant.getId(), permission))
+                .collect(Collectors.toSet());
+        HashSet<Permission> permissions = new HashSet<>(instanceAdminPG.getPermissions());
+        permissions.addAll(tenantPermissions);
+        instanceAdminPG.setPermissions(permissions);
 
-        Map<String, Policy> tenantPolicy =
-                commonMethods.generatePolicyFromPermissionGroupForObject(instanceAdminPG, defaultTenant.getId());
-        Tenant updatedTenant = commonMethods.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
-        commonMethods.saveTenant(updatedTenant);
+        helperMethods.savePermissionGroup(instanceAdminPG);
+
+        Map<String, Policy> tenantPolicy = MigrationHelperMethods.generatePolicyFromPermissionGroupForObject(
+                instanceAdminPG, defaultTenant.getId());
+        Tenant updatedTenant = MigrationHelperMethods.addPoliciesToExistingObject(tenantPolicy, defaultTenant);
+        helperMethods.saveTenant(updatedTenant);
     }
 }

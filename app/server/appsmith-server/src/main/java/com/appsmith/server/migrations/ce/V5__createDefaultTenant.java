@@ -7,8 +7,6 @@ import org.springframework.jdbc.core.JdbcTemplate;
 
 public class V5__createDefaultTenant extends AppsmithJavaMigration {
 
-    private RepositoryHelperMethods helperMethods;
-
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
         RepositoryHelperMethods helperMethods = new RepositoryHelperMethods(jdbcTemplate);
