@@ -20,7 +20,7 @@ defaults:
 
 jobs:
   client-lint:
-    runs-on: ubuntu-latest-8-cores
+    runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: app/client
