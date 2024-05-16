@@ -3,5 +3,5 @@ import type { LinkProps as AriaLinkProps } from "react-aria-components";
 import type { TextProps } from "../../Text";
 
 export interface LinkProps
-  extends TextProps,
+  extends Omit<TextProps, "color">,
     Omit<AriaLinkProps, "style" | "className" | "children" | "isDisabled"> {}

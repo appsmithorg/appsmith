@@ -4,7 +4,7 @@ import {
   TYPOGRAPHY_VARIANTS,
   TYPOGRAPHY_FONT_WEIGHTS,
 } from "@design-system/theming";
-import { Link, Flex, COLORS } from "@design-system/widgets";
+import { Link, Flex } from "@design-system/widgets";
 
 /**
  * Link component is used to navigate to a different page or section of the current page.
@@ -50,24 +50,6 @@ export const Variant: Story = {
       {Object.values(TYPOGRAPHY_VARIANTS).map((variant) => (
         <Link href="https://appsmith.com" key={variant} variant={variant}>
           {variant}
-        </Link>
-      ))}
-    </Flex>
-  ),
-};
-
-export const Color: Story = {
-  render: () => (
-    <Flex
-      alignItems="center"
-      direction="row-reverse"
-      flex="1"
-      gap="spacing-6"
-      justifyContent="start"
-    >
-      {Object.values(COLORS).map((color) => (
-        <Link color={color} href="https://appsmith.com" key={color}>
-          {color}
         </Link>
       ))}
     </Flex>

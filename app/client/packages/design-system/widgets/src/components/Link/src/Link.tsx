@@ -8,7 +8,6 @@ import styles from "./styles.module.css";
 export function Link(props: LinkProps) {
   const {
     children,
-    color = "accent",
     download,
     href,
     ping,
@@ -19,7 +18,7 @@ export function Link(props: LinkProps) {
   } = props;
 
   return (
-    <Text color={color} {...rest}>
+    <Text color="accent" {...rest}>
       <HeadlessLink
         className={styles.link}
         download={download}
