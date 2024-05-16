@@ -161,7 +161,6 @@ jobs:
         if: steps.run_result.outputs.run_result != 'success'  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         env:
           ACTIVE_PROFILE: test
-          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
           APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
           APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
@@ -182,7 +181,6 @@ jobs:
         if: (inputs.skip-tests != 'true' || steps.run_result.outputs.run_result == 'failedtest')  && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
         env:
           ACTIVE_PROFILE: test
-          APPSMITH_MONGODB_URI: "mongodb://localhost:27017/mobtools"
           APPSMITH_CLOUD_SERVICES_BASE_URL: "https://release-cs.appsmith.com"
           APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH: ${{ secrets.APPSMITH_CLOUD_SERVICES_TEMPLATE_UPLOAD_AUTH }}
           APPSMITH_REDIS_URL: "redis://127.0.0.1:6379"
@@ -191,6 +189,11 @@ jobs:
           APPSMITH_ENVFILE_PATH: /tmp/dummy.env
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
+          if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
+            export APPSMITH_DB_URL="jdbc:postgresql://localhost:5432/postgres"
+          else
+            export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
+          fi
           args=()
           if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
             failed_tests="${{ steps.failed_tests.outputs.tests }}"
