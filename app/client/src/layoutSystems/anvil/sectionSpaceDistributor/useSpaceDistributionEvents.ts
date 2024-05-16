@@ -1,7 +1,6 @@
 import { getAnvilWidgetDOMId } from "layoutSystems/common/utils/LayoutElementPositionsObserver/utils";
 import { useCallback, useEffect, useRef } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { AnvilReduxActionTypes } from "../integrations/actions/actionTypes";
 import {
   getMouseSpeedTrackingCallback,
   getPropertyPaneZoneId,
@@ -21,7 +20,11 @@ import {
   updateWidgetCSSOnHandleMove,
   updateWidgetCSSOnMinimumLimit,
 } from "./utils/onMouseMoveUtils";
-import { startAnvilSpaceDistribution } from "./actions";
+import {
+  startAnvilSpaceDistributionAction,
+  stopAnvilSpaceDistributionAction,
+  updateSpaceDistributionAction,
+} from "./actions";
 
 interface SpaceDistributionEventsProps {
   ref: React.RefObject<HTMLDivElement>;
@@ -57,7 +60,7 @@ export const useSpaceDistributionEvents = ({
   const { selectWidget } = useWidgetSelection();
   const onSpaceDistributionStart = useCallback(() => {
     dispatch(
-      startAnvilSpaceDistribution({
+      startAnvilSpaceDistributionAction({
         section: sectionWidgetId,
         zones: zoneIds,
       }),
@@ -147,21 +150,15 @@ export const useSpaceDistributionEvents = ({
           currentFlexGrow.rightZone !== currentGrowthFactor.rightZone
         ) {
           // Dispatch action to update space distribution
-          dispatch({
-            type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_UPDATE,
-            payload: {
-              zonesDistributed: {
-                [leftZone]: currentGrowthFactor.leftZone,
-                [rightZone]: currentGrowthFactor.rightZone,
-              },
-              sectionLayoutId,
-            },
-          });
+          dispatch(
+            updateSpaceDistributionAction(sectionWidgetId, {
+              [leftZone]: currentGrowthFactor.leftZone,
+              [rightZone]: currentGrowthFactor.rightZone,
+            }),
+          );
         }
         // Stop space distribution process
-        dispatch({
-          type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_STOP,
-        });
+        dispatch(stopAnvilSpaceDistributionAction());
         resetCSSOnZones(spaceDistributed);
         removeMouseMoveHandlers();
         currentMouseSpeed.current = 0;
