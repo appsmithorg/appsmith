@@ -130,13 +130,13 @@ reload-caddy
 run-hurl --variable frame_ancestors="something.com" \
   common/*.hurl
 
-# Check if APPSMITH_DB_URI is not set
-if [[ -z "${APPSMITH_DB_URI}" ]]; then
-  # If APPSMITH_DB_URI is not set, fall back to APPSMITH_MONGODB_URI
-  export APPSMITH_DB_URI="${APPSMITH_MONGODB_URI}"
+# Check if APPSMITH_DB_URL is not set
+if [[ -z "${APPSMITH_DB_URL}" ]]; then
+  # If APPSMITH_DB_URL is not set, fall back to APPSMITH_MONGODB_URI
+  export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
 fi
 
-# Check if APPSMITH_DB_URI is a PostgreSQL URL and doesn't start with "jdbc:", prepend "jdbc:"
-if [[ "${APPSMITH_DB_URI}" == *"postgresql://"* && "${APPSMITH_DB_URI}" != jdbc:* ]]; then
-  export APPSMITH_DB_URI="jdbc:${APPSMITH_DB_URI}"
+# Check if APPSMITH_DB_URL is a PostgreSQL URL and doesn't start with "jdbc:", prepend "jdbc:"
+if [[ "${APPSMITH_DB_URL}" == *"postgresql://"* && "${APPSMITH_DB_URL}" != jdbc:* ]]; then
+  export APPSMITH_DB_URL="jdbc:${APPSMITH_DB_URL}"
 fi

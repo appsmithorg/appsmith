@@ -25,7 +25,7 @@ public class Migration056UpdateDbUriEnvVariable {
     @Execution
     public void executeMigration() throws IOException {
         final String currentEnvName = "APPSMITH_MONGODB_URI";
-        final String updatedEnvName = "APPSMITH_DB_URI";
+        final String updatedEnvName = "APPSMITH_DB_URL";
         updateEnvInFile(currentEnvName, updatedEnvName, commonConfig.getEnvFilePath());
     }
 
