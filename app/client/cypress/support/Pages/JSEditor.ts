@@ -157,9 +157,12 @@ export class JSEditor {
     }
 
     this.agHelper.AssertAutoSave();
+    this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
+
     if (prettify) {
       this.agHelper.ActionContextMenuWithInPane({ action: "Prettify code" });
       this.agHelper.AssertAutoSave();
+      this.assertHelper.AssertNetworkStatus("@jsCollections", 200);
     }
 
     if (toRun) {
