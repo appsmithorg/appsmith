@@ -52,9 +52,11 @@ const handleFetchHtml = async (event, request, url) => {
   const prefetchConsolidatedApiRequest = getPrefetchConsolidatedApiRequest(url);
 
   if (prefetchConsolidatedApiRequest) {
-    consolidatedApiCacheStrategy.cacheConsolidatedApi(
-      prefetchConsolidatedApiRequest,
-    );
+    consolidatedApiCacheStrategy
+      .cacheConsolidatedApi(prefetchConsolidatedApiRequest)
+      .catch(() => {
+        // Silently fail
+      });
   }
 
   const networkHandler = new NetworkOnly();
