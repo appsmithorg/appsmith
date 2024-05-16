@@ -124,7 +124,7 @@ class Setters {
       return res;
     });
   }
-  /** Generates a new setter method */
+  /** Generates a new setter method :1 */
   private createSetter(
     path: string,
     setterMethodName: string,
