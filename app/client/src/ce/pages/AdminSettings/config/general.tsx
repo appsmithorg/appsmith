@@ -121,6 +121,15 @@ export const APPSMITH_USER_SESSION_TIMEOUT_SETTING: Setting = {
   isDisabled: () => true,
 };
 
+export const APPSMITH_IS_ATOMIC_PUSH_ALLOWED: Setting = {
+  id: "isAtomicPushAllowed",
+  name: "isAtomicPushAllowed",
+  category: SettingCategories.GENERAL,
+  controlType: SettingTypes.CHECKBOX,
+  label: "Allow atomic pushes",
+  text: "Git operations on this tenant should attempt to perform pushes atomically",
+};
+
 export const APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING: Setting = {
   id: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
   name: "APPSMITH_ALLOWED_FRAME_ANCESTORS",
@@ -201,6 +210,7 @@ export const config: AdminConfigType = {
     APPSMITH_SHOW_ROLES_AND_GROUPS_SETTING,
     APPSMITH_SINGLE_USER_PER_SESSION_SETTING,
     APPSMITH_USER_SESSION_TIMEOUT_SETTING,
+    APPSMITH_IS_ATOMIC_PUSH_ALLOWED,
     APPSMITH_ALLOWED_FRAME_ANCESTORS_SETTING,
   ],
 } as AdminConfigType;

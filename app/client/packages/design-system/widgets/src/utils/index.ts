@@ -1,1 +1,2 @@
-export * from "./src";
+export { filterDataProps } from "./filterDataProps";
+export { objectKeys } from "./objectKeys";

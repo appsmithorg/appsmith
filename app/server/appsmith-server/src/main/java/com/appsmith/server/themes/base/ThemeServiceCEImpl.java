@@ -61,7 +61,7 @@ public class ThemeServiceCEImpl extends BaseService<ThemeRepository, Theme, Stri
     }
 
     @Override
-    public Mono<Theme> getById(String s) {
+    public Mono<Theme> getByIdWithoutPermissionCheck(String s) {
         // we don't allow to get a theme by id from DB
         throw new AppsmithException(AppsmithError.UNSUPPORTED_OPERATION);
     }
