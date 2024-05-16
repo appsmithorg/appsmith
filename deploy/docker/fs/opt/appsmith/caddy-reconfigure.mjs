@@ -7,6 +7,7 @@ import {X509Certificate} from "crypto"
 // This was the effective behaviour before Caddy.
 const CUSTOM_DOMAIN = (process.env.APPSMITH_CUSTOM_DOMAIN || "").replace(/^https?:\/\/.+$/, "")
 const CaddyfilePath = process.env.TMP + "/Caddyfile"
+const AppsmithCaddy = process.env._APPSMITH_CADDY
 
 // Rate limit environment.
 const isRateLimitingEnabled = process.env.APPSMITH_RATE_LIMIT !== "disabled"
@@ -187,8 +188,8 @@ if (!process.argv.includes("--no-finalize-index-html")) {
 
 fs.mkdirSync(dirname(CaddyfilePath), { recursive: true })
 fs.writeFileSync(CaddyfilePath, parts.join("\n"))
-spawnSync("/opt/caddy/caddy", ["fmt", "--overwrite", CaddyfilePath])
-spawnSync("/opt/caddy/caddy", ["reload", "--config", CaddyfilePath])
+spawnSync(AppsmithCaddy, ["fmt", "--overwrite", CaddyfilePath])
+spawnSync(AppsmithCaddy, ["reload", "--config", CaddyfilePath])
 
 function finalizeIndexHtml() {
   let info = null;
