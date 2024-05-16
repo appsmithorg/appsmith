@@ -2,8 +2,10 @@ import { ObjectsRegistry } from "../../Objects/Registry";
 
 class AddView {
   public locators = {
+    addPane: "[data-testid='t--ide-add-pane']",
     closePaneButton: "[data-testid='t--add-pane-close-icon']",
-    createOption: "[data-testid='t--create-option']",
+    createOption: (name: string) =>
+      ".t--datasoucre-create-option-" + name.toLowerCase().replace(/ /g, "_"),
   };
 
   constructor() {
@@ -12,7 +14,7 @@ class AddView {
 
   public assertInAddView() {
     ObjectsRegistry.AggregateHelper.AssertElementVisibility(
-      this.locators.closePaneButton,
+      this.locators.addPane,
     );
   }
 
@@ -20,9 +22,9 @@ class AddView {
     ObjectsRegistry.AggregateHelper.GetNClick(this.locators.closePaneButton);
   }
 
-  public getCreateOptions(): Cypress.Chainable {
-    return cy.get(this.locators.createOption);
+  public clickCreateOption(name: string) {
+    ObjectsRegistry.AggregateHelper.GetNClick(this.locators.createOption(name));
   }
 }
 
-export default AddView;
+export default new AddView();
