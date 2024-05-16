@@ -46,7 +46,7 @@ export const LightMode: Story = {
       <Text isBold>isBold</Text>
 
       {Object.values(TYPOGRAPHY_VARIANTS).map((variant) => (
-        <Text key={variant} variant={variant}>
+        <Text key={variant} size={variant}>
           variant — {variant}
         </Text>
       ))}

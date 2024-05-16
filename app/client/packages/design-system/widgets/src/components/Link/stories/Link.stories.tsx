@@ -38,7 +38,7 @@ export const LineClamp: Story = {
   },
 };
 
-export const Variant: Story = {
+export const Size: Story = {
   render: () => (
     <Flex
       alignItems="center"
@@ -48,7 +48,7 @@ export const Variant: Story = {
       justifyContent="start"
     >
       {Object.values(TYPOGRAPHY_VARIANTS).map((variant) => (
-        <Link href="https://appsmith.com" key={variant} variant={variant}>
+        <Link href="https://appsmith.com" key={variant} size={variant}>
           {variant}
         </Link>
       ))}

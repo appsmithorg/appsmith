@@ -182,8 +182,8 @@ const HeaderCellComponent = (props: HeaderProps) => {
           {isColumnEditable && <Icon name="edit" size="small" />}
           <Text
             lineClamp={1}
+            size="caption"
             title={props.columnName.replace(/\s/g, "\u00a0")}
-            variant="caption"
           >
             {props.columnName.replace(/\s/g, "\u00a0")}
           </Text>

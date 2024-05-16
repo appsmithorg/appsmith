@@ -25,8 +25,8 @@ function URLCell(props: NumberCellProps & BaseCellComponentProps) {
       isBold={isBold}
       isItalic={isItalic}
       lineClamp={lineClamp}
+      size="body"
       title={text}
-      variant="body"
     >
       {text}
     </Link>
