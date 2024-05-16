@@ -472,6 +472,19 @@ function capture_infra_details(){
   bash /opt/appsmith/generate-infra-details.sh || true
 }
 
+configure_database_connection_url() {
+  # Check if APPSMITH_DB_URL is not set
+  if [[ -z "${APPSMITH_DB_URL}" ]]; then
+    # If APPSMITH_DB_URL is not set, fall back to APPSMITH_MONGODB_URI
+    export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
+  fi
+
+  # Check if APPSMITH_DB_URL is a PostgreSQL URL and doesn't start with "jdbc:", prepend "jdbc:"
+  if [[ "${APPSMITH_DB_URL}" == *"postgresql://"* && "${APPSMITH_DB_URL}" != jdbc:* ]]; then
+    export APPSMITH_DB_URL="jdbc:${APPSMITH_DB_URL}"
+  fi
+}
+
 # Main Section
 print_appsmith_info
 init_loading_pages
@@ -507,6 +520,7 @@ export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
 mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
+configure_database_connection_url
 capture_infra_details
 
 # Handle CMD command
