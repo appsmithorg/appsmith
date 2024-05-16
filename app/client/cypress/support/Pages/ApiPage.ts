@@ -141,7 +141,7 @@ export class ApiPage {
   ) {
     this.CreateApi(apiName, apiVerb, aftDSSaved);
     this.EnterURL(url, "", toVerifySave);
-    this.agHelper.Sleep(); //Is needed for the entered url value to be registered, else failing locally & CI
+    this.assertHelper.AssertNetworkStatus("@saveAction", 200);
     this.AssertRunButtonDisability();
     if (queryTimeout != 10000) this.SetAPITimeout(queryTimeout, toVerifySave);
   }
