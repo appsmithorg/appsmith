@@ -33,5 +33,6 @@ export const defaultsConfig = {
   inlineEditingSaveOption: InlineEditingSaveOptions.ROW_LEVEL,
   pageSize: 8,
   buttonLabel: "Action",
+  buttonColor: "accent",
   buttonVariant: "filled",
 } as unknown as WidgetDefaultProps;

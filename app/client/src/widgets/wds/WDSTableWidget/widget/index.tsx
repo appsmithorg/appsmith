@@ -1545,7 +1545,6 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       case "url":
         return (
           <URLCell
-            cellColor={cellProperties.cellColor}
             href={props.cell.value}
             isBold={cellProperties.fontStyle?.includes(FontStyleTypes.BOLD)}
             isCellVisible={cellProperties.isCellVisible ?? true}
@@ -1557,9 +1556,9 @@ export class WDSTableWidget extends BaseWidget<TableWidgetProps, WidgetState> {
       case "button":
         return (
           <ButtonCell
+            buttonColor={cellProperties.buttonColor}
             buttonLabel={cellProperties.buttonLabel || "Action"}
             buttonVariant={cellProperties.buttonVariant}
-            cellColor={cellProperties.cellColor}
             isCellVisible={cellProperties.isCellVisible ?? true}
             isDisabled={cellProperties.isDisabled}
             isHidden={isHidden}

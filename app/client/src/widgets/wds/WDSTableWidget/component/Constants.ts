@@ -156,7 +156,7 @@ export interface CellWrappingProperties {
 
 export interface ButtonCellProperties {
   buttonVariant: ButtonCellProps["buttonVariant"];
-  buttonColor?: string;
+  buttonColor?: ButtonCellProps["buttonColor"];
   buttonLabel?: string;
   isCompact?: boolean;
   iconName?: IconName;
@@ -351,7 +351,7 @@ export interface ColumnProperties
   allowSameOptionsInNewRow?: boolean;
   newRowSelectOptions?: DropdownOption[];
   buttonLabel?: string;
-  buttonColor?: string;
+  buttonColor?: ButtonCellProps["buttonColor"];
   onClick?: string;
   dropdownOptions?: string;
   onOptionChange?: string;
