@@ -168,11 +168,32 @@ unset_unused_variables() {
   fi
 }
 
-check_mongodb_uri() {
-  echo "Checking APPSMITH_MONGODB_URI"
+configure_database_connection_url() {
+  echo "Configuring database connection URL"
+  isPostgresUrl=0
+  isMongoUrl=0
+  # Check if APPSMITH_DB_URL is not set
+  if [[ -z "${APPSMITH_DB_URL}" ]]; then
+    # If APPSMITH_DB_URL is not set, fall back to APPSMITH_MONGODB_URI
+    export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
+  fi
+
+  if [[ "${APPSMITH_DB_URL}" == *"postgresql"* ]]; then
+    isPostgresUrl=1
+    # Check if APPSMITH_DB_URL is a PostgreSQL URL and doesn't start with "jdbc:", prepend "jdbc:"
+    if [[ "${APPSMITH_DB_URL}" != *"jdbc:"* ]]; then
+      export APPSMITH_DB_URL="jdbc:${APPSMITH_DB_URL}"
+    fi
+  elif [[ "${APPSMITH_DB_URL}" == *"mongodb"* ]]; then
+    isMongoUrl=1
+  fi
+}
+
+check_db_uri() {
+  echo "Checking APPSMITH_DB_URL"
   isUriLocal=1
-  if [[ $APPSMITH_MONGODB_URI == *"localhost"* || $APPSMITH_MONGODB_URI == *"127.0.0.1"* ]]; then
-    echo "Detected local MongoDB"
+  if [[ $APPSMITH_DB_URL == *"localhost"* || $APPSMITH_DB_URL == *"127.0.0.1"* ]]; then
+    echo "Detected local DB"
     isUriLocal=0
   fi
 }
@@ -472,29 +493,24 @@ function capture_infra_details(){
   bash /opt/appsmith/generate-infra-details.sh || true
 }
 
-configure_database_connection_url() {
-  # Check if APPSMITH_DB_URL is not set
-  if [[ -z "${APPSMITH_DB_URL}" ]]; then
-    # If APPSMITH_DB_URL is not set, fall back to APPSMITH_MONGODB_URI
-    export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
-  fi
-
-  # Check if APPSMITH_DB_URL is a PostgreSQL URL and doesn't start with "jdbc:", prepend "jdbc:"
-  if [[ "${APPSMITH_DB_URL}" == *"postgresql://"* && "${APPSMITH_DB_URL}" != jdbc:* ]]; then
-    export APPSMITH_DB_URL="jdbc:${APPSMITH_DB_URL}"
-  fi
-}
-
 # Main Section
 print_appsmith_info
 init_loading_pages
 unset_unused_variables
 
-check_mongodb_uri
+configure_database_connection_url
+check_db_uri
+# Don't run MongoDB if running in a Heroku dyno.
 if [[ -z "${DYNO}" ]]; then
-  # Don't run MongoDB if running in a Heroku dyno.
-  init_mongodb
-  init_replica_set
+  # Setup MongoDB and initialize replica set if required
+  if [[ $isMongoUrl -eq 1 ]]; then
+    echo "Initializing MongoDB"
+    init_mongodb
+    init_replica_set
+  elif [ $isPostgresUrl -eq 1 ]; then
+    echo "Initializing Postgres"
+    # init_postgres
+  fi
 else
   # These functions are used to limit heap size for Backend process when deployed on Heroku
   get_maximum_heap
@@ -520,7 +536,6 @@ export APPSMITH_LOG_DIR="${APPSMITH_LOG_DIR:-/appsmith-stacks/logs}"
 mkdir -p "$APPSMITH_LOG_DIR"/{supervisor,backend,cron,editor,rts,mongodb,redis,postgres,appsmithctl}
 
 setup_auto_heal
-configure_database_connection_url
 capture_infra_details
 
 # Handle CMD command
