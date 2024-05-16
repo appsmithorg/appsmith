@@ -9,7 +9,7 @@ import {
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Undo/Redo functionality", function() {
+describe("Undo/Redo functionality", function () {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   let postgresDatasourceName;
 
@@ -43,7 +43,7 @@ describe("Undo/Redo functionality", function() {
     });
   });
 
-  it("2. Checks undo/redo for Api pane", function() {
+  it("2. Checks undo/redo for Api pane", function () {
     cy.CreateAPI("FirstAPI");
     cy.get(`${apiwidget.resourceUrl} .CodeMirror-placeholder`).should(
       "have.text",
