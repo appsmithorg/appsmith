@@ -19,7 +19,7 @@ import type { EditorTheme } from "./CodeEditor/EditorConfig";
 import DebuggerLogs from "./Debugger/DebuggerLogs";
 import type { JSAction } from "entities/JSCollection";
 import ReadOnlyEditor from "components/editorComponents/ReadOnlyEditor";
-import { Text } from "design-system";
+import { Flex, Text } from "design-system";
 import LoadingOverlayScreen from "components/editorComponents/LoadingOverlayScreen";
 import type { JSCollectionData } from "@appsmith/reducers/entityReducers/jsActionsReducer";
 import type { EvaluationError } from "utils/DynamicBindingUtils";
@@ -59,11 +59,6 @@ const ResponseTabWrapper = styled.div`
   .response-run {
     margin: 0 10px;
   }
-`;
-
-const ResponseViewer = styled.div`
-  width: 100%;
-  padding: 0 var(--ads-v2-spaces-7);
 `;
 
 const NoReturnValueWrapper = styled.div`
@@ -216,7 +211,7 @@ function JSResponseView(props: Props) {
             </ResponseTabErrorContainer>
           )}
           <ResponseTabWrapper className={errors.length ? "disable" : ""}>
-            <ResponseViewer>
+            <Flex px="spaces-7" width="100%">
               <>
                 {localExecutionAllowed && (
                   <>
@@ -264,7 +259,7 @@ function JSResponseView(props: Props) {
                   </LoadingOverlayScreen>
                 )}
               </>
-            </ResponseViewer>
+            </Flex>
           </ResponseTabWrapper>
         </>
       ),

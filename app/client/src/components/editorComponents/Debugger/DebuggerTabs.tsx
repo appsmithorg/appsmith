@@ -23,7 +23,7 @@ import {
 import { DEBUGGER_TAB_KEYS } from "./helpers";
 import EntityBottomTabs from "../EntityBottomTabs";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
-import { IDEBottomView, ViewHideBehaviour } from "IDE";
+import { IDEBottomView, ViewHideBehaviour, ViewDisplayMode } from "IDE";
 
 function DebuggerTabs() {
   const dispatch = useDispatch();
@@ -74,12 +74,9 @@ function DebuggerTabs() {
 
   return (
     <IDEBottomView
-      additionalContainerStyles={{
-        position: "absolute",
-        bottom: 0,
-      }}
       behaviour={ViewHideBehaviour.CLOSE}
       className="t--debugger-tabs-container"
+      displayMode={ViewDisplayMode.OVERLAY}
       height={responsePaneHeight}
       hidden={!shouldRender}
       onHideClick={onClose}

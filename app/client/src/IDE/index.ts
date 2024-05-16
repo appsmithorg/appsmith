@@ -45,4 +45,4 @@ export { default as IDEBottomView } from "./Components/BottomView";
     Common types that are used by the different components of the IDE
 =======================================================**/
 
-export { ViewHideBehaviour } from "./Interfaces/ViewHideBehaviour";
+export { ViewHideBehaviour, ViewDisplayMode } from "./Interfaces/View";

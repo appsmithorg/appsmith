@@ -1,29 +1,32 @@
-import React, {
-  type CSSProperties,
-  type RefObject,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useRef, useState } from "react";
 import styled from "styled-components";
 import Resizer, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
 import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
-import { ViewHideBehaviour } from "../Interfaces/ViewHideBehaviour";
+import { ViewHideBehaviour, ViewDisplayMode } from "IDE/Interfaces/View";
 import { Button } from "design-system";
 
-const VIEW_MIN_HEIGHT = "38px";
+const VIEW_MIN_HEIGHT = 38;
 
-const Container = styled.div`
+const Container = styled.div<{ displayMode: ViewDisplayMode }>`
   ${ResizerCSS};
   width: 100%;
   // Minimum height of bottom tabs as it can be resized
-  min-height: ${VIEW_MIN_HEIGHT};
+  min-height: ${VIEW_MIN_HEIGHT}px;
   background-color: var(--ads-v2-color-bg);
   height: ${ActionExecutionResizerHeight}px;
   border-top: 1px solid var(--ads-v2-color-border);
+  ${(props) => {
+    switch (props.displayMode) {
+      case ViewDisplayMode.OVERLAY:
+        return `
+          position: absolute;
+          bottom: 0;
+        `;
+    }
+  }}
 `;
 
 const ViewWrapper = styled.div`
@@ -31,7 +34,7 @@ const ViewWrapper = styled.div`
   &&& {
     ul.ads-v2-tabs__list {
       margin: 0 ${(props) => props.theme.spaces[11]}px;
-      height: ${VIEW_MIN_HEIGHT};
+      height: ${VIEW_MIN_HEIGHT}px;
     }
   }
 
@@ -45,25 +48,25 @@ const ViewWrapper = styled.div`
     .ads-v2-tabs__panel {
       ${CodeEditorWithGutterStyles};
       overflow-y: auto;
-      height: calc(100% - ${VIEW_MIN_HEIGHT});
+      height: calc(100% - ${VIEW_MIN_HEIGHT}px);
     }
   }
 `;
 
 const MIN_HEIGHT = {
-  [ViewHideBehaviour.COLLAPSE]: VIEW_MIN_HEIGHT,
+  [ViewHideBehaviour.COLLAPSE]: `${VIEW_MIN_HEIGHT}px`,
   [ViewHideBehaviour.CLOSE]: "0px",
 };
 
 interface Props {
   className?: string;
   behaviour: ViewHideBehaviour;
+  displayMode?: ViewDisplayMode;
   height: number;
   setHeight: (height: number) => void;
   hidden: boolean;
   onHideClick: () => void;
   children: React.ReactNode;
-  additionalContainerStyles?: CSSProperties;
 }
 
 const ViewHideButton = styled(Button)`
@@ -75,11 +78,13 @@ const ViewHideButton = styled(Button)`
   }
 `;
 
-const ViewHide = (props: {
+interface ViewHideProps {
   hideBehaviour: ViewHideBehaviour;
   isHidden: boolean;
   onToggle: () => void;
-}) => {
+}
+
+const ViewHide = (props: ViewHideProps) => {
   const [icon, setIcon] = useState(() => {
     return props.hideBehaviour === ViewHideBehaviour.CLOSE
       ? "close-modal"
@@ -98,7 +103,8 @@ const ViewHide = (props: {
 
   return (
     <ViewHideButton
-      className="view-hide-button t--view-hide-button"
+      className="view-hide-button"
+      data-testid="t--view-hide-button"
       isIconButton
       kind="tertiary"
       onClick={props.onToggle}
@@ -109,7 +115,7 @@ const ViewHide = (props: {
 };
 
 const BottomView = (props: Props) => {
-  const panelRef: RefObject<HTMLDivElement> = useRef(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   // Handle the height of the tabs when toggling the hidden state
   useEffect(() => {
@@ -120,13 +126,13 @@ const BottomView = (props: Props) => {
     } else {
       panel.style.height = `${props.height}px`;
     }
-  }, [props.hidden]);
+  }, [props.hidden, props.behaviour]);
 
   return (
     <Container
       className={`select-text ${props.className}`}
+      displayMode={props.displayMode || ViewDisplayMode.BLOCK}
       ref={panelRef}
-      style={props.additionalContainerStyles}
     >
       {!props.hidden && (
         <Resizer
