@@ -141,7 +141,7 @@ jobs:
       - name: Conditionally start PostgreSQL
         run: |
           if [[ inputs.is-pg-build == 'true' ]]; then
-            docker run -d -p 5432:5432 postgres:alpine
+            docker run --name appsmith-pg -p 5432:5432 -d -e POSTGRES_PASSWORD=password postgres:alpine
           fi
 
       # Retrieve maven dependencies from cache. After a successful run, these dependencies are cached again
