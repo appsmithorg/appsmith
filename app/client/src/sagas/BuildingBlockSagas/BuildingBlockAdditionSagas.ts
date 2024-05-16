@@ -88,12 +88,12 @@ import {
 import { getTemplatesSelector } from "selectors/templatesSelectors";
 import { initiateBuildingBlockDropEvent } from "utils/buildingBlockUtils";
 import { saveBuildingBlockWidgetsToStore } from ".";
-import { addWidgetAndMoveWidgetsSaga } from "../CanvasSagas/DraggingCanvasSagas";
+import { addWidgetAndMoveWidgets } from "../CanvasSagas/DraggingCanvasSagas";
 import { validateResponse } from "../ErrorSagas";
 import { postPageAdditionSaga } from "../TemplatesSagas";
 import { getUpdateDslAfterCreatingChild } from "../WidgetAdditionSagas";
 import { calculateNewWidgetPosition } from "../WidgetOperationSagas";
-import { getDragDetails, getWidgetByName } from "../selectors";
+import { getDragDetails } from "../selectors";
 
 function* addBuildingBlockActionsToApplication(dragDetails: DragDetails) {
   const applicationId: string = yield select(getCurrentApplicationId);
@@ -185,7 +185,28 @@ export function* addBuildingBlockSkeletonLoaderToCanvas(
     type: ReduxActionTypes.ADD_LOCAL_SKELETON_LOADER,
     payload: {
       updatedWidgets,
-      widgets: updatedWidgets,
+    },
+  });
+}
+
+export function* addAndMoveBuildingBlockSkeletonLoaderToCanvas(
+  actionPayload: ReduxAction<{
+    newWidget: WidgetAddChild;
+    draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
+    canvasId: string;
+  }>,
+) {
+  const updatedWidgetsOnAddAndMove: CanvasWidgetsReduxState = yield call(
+    addWidgetAndMoveWidgets,
+    actionPayload.payload.newWidget,
+    actionPayload.payload.draggedBlocksToUpdate,
+    actionPayload.payload.canvasId,
+  );
+
+  yield put({
+    type: ReduxActionTypes.ADD_LOCAL_SKELETON_LOADER,
+    payload: {
+      updatedWidgets: updatedWidgetsOnAddAndMove,
     },
   });
 }
@@ -212,7 +233,7 @@ export function* loadBuildingBlocksIntoApplication(
       yield saveBuildingBlockWidgetsToStore(response);
 
       // remove skeleton loader just before pasting the building block
-      yield removeSkeletonLoaderFromCanvas(skeletonLoaderId);
+      yield call(removeSkeletonLoaderFromCanvas, skeletonLoaderId);
 
       yield pasteBuildingBlockWidgetsSaga({
         top: topRow,
@@ -301,26 +322,20 @@ export function* addBuildingBlockToCanvasSaga(
   const skeletonWidgetName = `loading_${buildingblockName
     .toLowerCase()
     .replace(/ /g, "_")}`;
-  const addSkeletonWidgetAction: ReduxAction<
-    WidgetAddChild & { shouldReplay: boolean }
-  > = {
+  const addSkeletonWidgetAction: ReduxAction<WidgetAddChild> = {
     ...addEntityAction,
     payload: {
       ...addEntityAction.payload,
       type: "SKELETON_WIDGET",
       widgetName: skeletonWidgetName,
       widgetId: MAIN_CONTAINER_WIDGET_ID,
-      // so that the skeleton loader does not get included when the users uses the undo/redo
-      shouldReplay: false,
     },
   };
-
   yield call(initiateBuildingBlockDropEvent, {
     applicationId,
     workspaceId,
     buildingblockName,
   });
-
   yield call(addBuildingBlockSkeletonLoaderToCanvas, addSkeletonWidgetAction);
   yield call(
     loadBuildingBlocksIntoApplication,
@@ -344,12 +359,15 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
     .toLowerCase()
     .replace(/ /g, "_")}`;
 
-  yield call(addWidgetAndMoveWidgetsSaga, {
+  yield call(initiateBuildingBlockDropEvent, {
+    applicationId,
+    workspaceId,
+    buildingblockName,
+  });
+  yield call(addAndMoveBuildingBlockSkeletonLoaderToCanvas, {
     ...actionPayload,
     payload: {
       ...actionPayload.payload,
-      // so that the skeleton loader does not get included when the users uses the undo/redo
-      shouldReplay: false,
       newWidget: {
         ...actionPayload.payload.newWidget,
         type: "SKELETON_WIDGET",
@@ -358,20 +376,10 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
       },
     },
   });
-  yield call(initiateBuildingBlockDropEvent, {
-    applicationId,
-    workspaceId,
-    buildingblockName,
-  });
-
-  const skeletonWidget: FlattenedWidgetProps = yield select(
-    getWidgetByName,
-    skeletonWidgetName,
-  );
   yield call(
     loadBuildingBlocksIntoApplication,
     actionPayload.payload.newWidget,
-    skeletonWidget.widgetId,
+    actionPayload.payload.newWidget.newWidgetId,
   );
 }
 

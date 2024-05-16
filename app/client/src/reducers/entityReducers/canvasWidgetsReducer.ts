@@ -114,7 +114,12 @@ const canvasWidgetsReducer = createImmerReducer(initialState, {
     const listOfUpdatedWidgets = getUpdatedWidgetLists(updatedLayoutDiffs);
 
     for (const widgetId of listOfUpdatedWidgets) {
-      delete state[widgetId];
+      const updatedWidget = action.payload.updatedWidgets[widgetId];
+      if (updatedWidget) {
+        state[widgetId] = updatedWidget;
+      } else {
+        delete state[widgetId];
+      }
     }
   },
   [ReduxActionTypes.UPDATE_LAYOUT]: (

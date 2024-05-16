@@ -204,7 +204,7 @@ export function* addWidgetAndMoveWidgetsSaga(
   }
 }
 
-function* addWidgetAndMoveWidgets(
+export function* addWidgetAndMoveWidgets(
   newWidget: WidgetAddChild,
   draggedBlocksToUpdate: WidgetDraggingUpdateParams[],
   canvasId: string,
