@@ -34,10 +34,8 @@ if [[ -f .env ]]; then
   source .env
 fi
 
-# Check APPSMITH_DB_URL environment variable for postgres and run the transform script for postgres databases
-if [[ "${APPSMITH_DB_URI}" == *"postgresql://"* ]]; then
-  # If it contains "postgres", run the transform script
-  python3 ./tx/transform.py
+if [[ -f tx/transform.py ]]; then
+  python3 tx/transform.py
 fi
 
 node scripts/check-field-constants.mjs
