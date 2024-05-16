@@ -160,6 +160,7 @@ export const ERROR_403 = (entity: string, userEmail: string) =>
 export const PAGE_NOT_FOUND_ERROR = () =>
   `The page you’re looking for either does not exist, or cannot be found`;
 export const INVALID_URL_ERROR = () => `Invalid URL`;
+export const INVALID_NAME_ERROR = () => `Invalid name`;
 export const MAKE_APPLICATION_PUBLIC = () => "Make application public";
 export const MAKE_APPLICATION_PUBLIC_TOOLTIP = () =>
   "A public app is accessible to anyone who can access your instance of appsmith";
@@ -539,6 +540,7 @@ export const LOGS_FILTER_OPTION_SYSTEM = () => "System logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_RESPONSE = () => "Response";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
@@ -689,6 +691,12 @@ export const JS_ACTION_EXECUTION_ERROR = (jsFunctionName: string) =>
   `An error occured while trying to execute ${jsFunctionName}, please check error logs to debug`;
 //Editor Page
 export const EDITOR_HEADER_SAVE_INDICATOR = () => "Saved";
+
+//Import Application Succesful
+export const IMPORT_APP_SUCCESSFUL = () => "Application imported successfully";
+//Unable to import application in workspace
+export const UNABLE_TO_IMPORT_APP = () =>
+  "Unable to import application in workspace";
 
 //undo redo
 export const WIDGET_REMOVED = (widgetName: string) =>
@@ -1915,13 +1923,13 @@ export const IN_APP_EMBED_SETTING = {
     "Make your app public by visiting the share settings, and easily embed your Appsmith app into legacy applications",
   privateAppsText: () => "Private apps",
   rampSubtextModal: () =>
-    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Enterprise Edition",
   rampSubtextSidebar: () =>
     "To embed private Appsmith apps and seamlessly authenticate users through SSO, try our ",
-  rampLinktext: () => "Try Business",
-  rampLinktextvariant2: () => "Business Edition",
+  rampLinktext: () => "Try Enterprise",
+  rampLinktextvariant2: () => "Enterprise Edition",
   upgradeContent: () => "Private embedding is now available in",
-  appsmithBusinessEdition: () => "Appsmith Business Edition.",
+  appsmithEnterpriseEdition: () => "Appsmith Enterprise Edition.",
   secondaryHeadingForAppSettings: () =>
     "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
@@ -2319,9 +2327,9 @@ export const EDITOR_PANE_TEXTS = {
   js_add_button: () => "New JS object",
   js_blank_object_item: () => "Blank JS object",
   widget_add_button: () => "New UI element",
-  query_create_tab_title: () => "Create new query / API",
+  query_create_tab_title: () => "Create new query from",
   widgets_create_tab_title: () => "Drag & drop UI elements",
-  js_create_tab_title: () => "Create JS object",
+  js_create_tab_title: () => "Create JS object from",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
   loading_building_blocks: () => "Loading building blocks",
@@ -2486,3 +2494,17 @@ export const SPLITPANE_ANNOUNCEMENT = {
 
 export const CANVAS_VIEW_MODE_TOOLTIP = (shortcutKey: string) =>
   `💡 ${shortcutKey} click a widget to navigate to UI mode.`;
+
+export const EMPTY_CANVAS_HINTS = {
+  DRAG_DROP_WIDGET_HINT: () => "Drag and drop a widget here",
+  DRAG_DROP_BUILDING_BLOCK_HINT: {
+    TITLE: () => "Drag & drop a building block",
+    DESCRIPTION: () => "Make a working app in seconds using functional blocks",
+  },
+};
+
+export const BETA_TAG = () => `Beta`;
+
+export const BUTTON_WIDGET_DEFAULT_LABEL = () => "Do something";
+
+export const PAGE_ENTITY_NAME = "Page";

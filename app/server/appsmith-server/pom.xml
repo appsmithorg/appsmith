@@ -186,6 +186,7 @@
             <artifactId>compiler</artifactId>
             <version>0.9.6</version>
         </dependency>
+
         <dependency>
             <groupId>de.flapdoodle.embed</groupId>
             <artifactId>de.flapdoodle.embed.mongo</artifactId>
@@ -268,7 +269,7 @@
         <dependency>
             <groupId>org.bouncycastle</groupId>
             <artifactId>bcprov-jdk18on</artifactId>
-            <version>1.74</version>
+            <version>1.78</version>
         </dependency>
         <!-- Only required to run junit5 test from IDE -->
         <dependency>
@@ -308,6 +309,13 @@
             <groupId>org.modelmapper</groupId>
             <artifactId>modelmapper</artifactId>
             <version>${org.modelmapper.version}</version>
+        </dependency>
+
+        <!-- API documentation dependency -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webflux-ui</artifactId>
+            <version>2.0.0</version>
         </dependency>
 
         <dependency>

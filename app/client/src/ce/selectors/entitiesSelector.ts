@@ -84,7 +84,8 @@ export const getDatasources = (state: AppState): Datasource[] => {
 export const getPlugins = (state: AppState) => state.entities.plugins.list;
 
 export enum PluginCategory {
-  Integrations = "Integrations",
+  SAAS = "SaaS integrations",
+  AI = "AI integrations",
   Databases = "Databases",
   APIs = "APIs",
   Others = "Others",
@@ -112,11 +113,11 @@ export const getDatasourcesGroupedByPluginCategory = createSelector(
       const plugin = groupedPlugins[d.pluginId];
       if (
         plugin.type === PluginType.SAAS ||
-        plugin.type === PluginType.REMOTE ||
-        plugin.type === PluginType.AI
+        plugin.type === PluginType.REMOTE
       ) {
-        return PluginCategory.Integrations;
+        return PluginCategory.SAAS;
       }
+      if (plugin.type === PluginType.AI) return PluginCategory.AI;
       if (plugin.type === PluginType.DB) return PluginCategory.Databases;
       if (plugin.type === PluginType.API) return PluginCategory.APIs;
       return PluginCategory.Others;

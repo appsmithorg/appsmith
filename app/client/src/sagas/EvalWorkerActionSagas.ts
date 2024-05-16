@@ -24,6 +24,7 @@ import { sortJSExecutionDataByCollectionId } from "workers/Evaluation/JSObject/u
 import type { LintTreeSagaRequestData } from "plugins/Linting/types";
 import { evalErrorHandler } from "./EvalErrorHandler";
 import { getUnevaluatedDataTree } from "selectors/dataTreeSelectors";
+
 export interface UpdateDataTreeMessageData {
   workerResponse: EvalTreeResponseData;
   unevalTree: UnEvalTree;

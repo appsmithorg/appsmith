@@ -1,10 +1,18 @@
 import type { BaseWidgetProps } from "widgets/BaseWidgetHOC/withBaseWidgetHOC";
 import { AnvilViewerCanvas } from "layoutSystems/anvil/viewer/canvas/AnvilViewerCanvas";
 import React, { useCallback, useEffect, useRef } from "react";
-import { useCanvasActivation } from "./hooks/useCanvasActivation";
 import { useSelectWidgetListener } from "./hooks/useSelectWidgetListener";
 import { useClickToClearSelections } from "./hooks/useClickToClearSelections";
-import "./styles/anvilEditorVariables.css";
+import {
+  useAnvilGlobalDnDStates,
+  type AnvilGlobalDnDStates,
+} from "./hooks/useAnvilGlobalDnDStates";
+import { AnvilDragPreview } from "../canvasArenas/AnvilDragPreview";
+
+export const AnvilDnDStatesContext = React.createContext<
+  AnvilGlobalDnDStates | undefined
+>(undefined);
+
 /**
  * Anvil Main Canvas is just a wrapper around AnvilCanvas.
  * Why do we need this?
@@ -45,7 +53,19 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
   }, []);
   /* End of click event listener */
 
-  useCanvasActivation();
   useSelectWidgetListener();
-  return <AnvilViewerCanvas {...props} ref={canvasRef} />;
+  // Fetching all states used in Anvil DnD using the useAnvilGlobalDnDStates hook
+  // using AnvilDnDStatesContext to provide the states to the child AnvilDraggingArena
+  const anvilGlobalDnDStates = useAnvilGlobalDnDStates();
+  return (
+    <AnvilDnDStatesContext.Provider value={anvilGlobalDnDStates}>
+      <AnvilViewerCanvas {...props} ref={canvasRef} />
+      <AnvilDragPreview
+        dragDetails={anvilGlobalDnDStates.dragDetails}
+        draggedBlocks={anvilGlobalDnDStates.draggedBlocks}
+        isDragging={anvilGlobalDnDStates.isDragging}
+        isNewWidget={anvilGlobalDnDStates.isNewWidget}
+      />
+    </AnvilDnDStatesContext.Provider>
+  );
 };

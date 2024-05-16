@@ -46,6 +46,8 @@ import { QueriesBlankState } from "pages/Editor/QueryEditor/QueriesBlankState";
 import { useSelector } from "react-redux";
 import { getIDEViewMode, getIsSideBySideEnabled } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
+import { JSAddState } from "pages/Editor/JSEditor/JSAddState";
+import { QueriesAddState } from "pages/Editor/QueryEditor/QueriesAddState";
 
 export interface RouteReturnType extends RouteProps {
   key: string;
@@ -170,58 +172,61 @@ function useRoutes(path: string): RouteReturnType[] {
       path: `${path}${BUILDER_CHECKLIST_PATH}`,
     },
     {
+      key: "QueryEditorAdd",
+      component: QueriesAddState,
+      exact: true,
+      path: [
+        `${path}${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`,
+        `${path}${QUERIES_EDITOR_ID_ADD_PATH}`,
+        `${path}${API_EDITOR_ID_ADD_PATH}`,
+        `${path}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
+        `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
+      ],
+    },
+    {
       key: "ApiEditor",
       component: ApiEditor,
       exact: true,
-      path: [
-        `${path}${API_EDITOR_ID_PATH}`,
-        `${path}${API_EDITOR_ID_ADD_PATH}`,
-      ],
+      path: [`${path}${API_EDITOR_ID_PATH}`],
     },
     {
       key: "QueryEditorList",
       component: QueriesBlankState,
       exact: true,
-      path: [
-        `${path}${QUERIES_EDITOR_BASE_PATH}`,
-        `${path}${QUERIES_EDITOR_BASE_PATH}${ADD_PATH}`,
-      ],
+      path: [`${path}${QUERIES_EDITOR_BASE_PATH}`],
     },
     {
       key: "QueryEditor",
       component: QueryEditor,
       exact: true,
+      path: [`${path}${QUERIES_EDITOR_ID_PATH}`],
+    },
+    {
+      key: "JSEditorAdd",
+      component: JSAddState,
+      exact: true,
       path: [
-        `${path}${QUERIES_EDITOR_ID_PATH}`,
-        `${path}${QUERIES_EDITOR_ID_ADD_PATH}`,
+        `${path}${JS_COLLECTION_EDITOR_PATH}${ADD_PATH}`,
+        `${path}${JS_COLLECTION_ID_PATH}${ADD_PATH}`,
       ],
     },
     {
       key: "JSEditorList",
       component: JSBlankState,
       exact: true,
-      path: [
-        `${path}${JS_COLLECTION_EDITOR_PATH}`,
-        `${path}${JS_COLLECTION_EDITOR_PATH}${ADD_PATH}`,
-      ],
+      path: [`${path}${JS_COLLECTION_EDITOR_PATH}`],
     },
     {
       key: "JSEditor File",
       component: JSEditor,
       exact: true,
-      path: [
-        `${path}${JS_COLLECTION_ID_PATH}`,
-        `${path}${JS_COLLECTION_ID_PATH}${ADD_PATH}`,
-      ],
+      path: [`${path}${JS_COLLECTION_ID_PATH}`],
     },
     {
       key: "CurlImportEditor",
       component: CurlImportEditor,
       exact: true,
-      path: [
-        `${path}${CURL_IMPORT_PAGE_PATH}`,
-        `${path}${CURL_IMPORT_PAGE_PATH}${ADD_PATH}`,
-      ],
+      path: [`${path}${CURL_IMPORT_PAGE_PATH}`],
     },
     {
       key: "SAASList",
@@ -239,10 +244,7 @@ function useRoutes(path: string): RouteReturnType[] {
       key: "SAASEditor",
       component: QueryEditor,
       exact: true,
-      path: [
-        `${path}${SAAS_EDITOR_API_ID_PATH}`,
-        `${path}${SAAS_EDITOR_API_ID_ADD_PATH}`,
-      ],
+      path: [`${path}${SAAS_EDITOR_API_ID_PATH}`],
     },
     {
       key: "DatasourceEditor",

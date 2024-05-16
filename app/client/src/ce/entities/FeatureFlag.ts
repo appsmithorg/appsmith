@@ -17,19 +17,12 @@ export const FEATURE_FLAG = {
     "release_show_publish_app_to_community_enabled",
   license_gac_enabled: "license_gac_enabled",
   release_anvil_enabled: "release_anvil_enabled",
-  ab_show_templates_instead_of_blank_canvas_enabled:
-    "ab_show_templates_instead_of_blank_canvas_enabled",
-  release_server_dsl_migrations_enabled:
-    "release_server_dsl_migrations_enabled",
   license_git_branch_protection_enabled:
     "license_git_branch_protection_enabled",
   license_git_continuous_delivery_enabled:
     "license_git_continuous_delivery_enabled",
-  release_git_continuous_delivery_enabled:
-    "release_git_continuous_delivery_enabled",
   release_git_autocommit_feature_enabled:
     "release_git_autocommit_feature_enabled",
-  release_git_status_granular_enabled: "release_git_status_granular_enabled",
   license_widget_rtl_support_enabled: "license_widget_rtl_support_enabled",
   release_show_partial_import_export_enabled:
     "release_show_partial_import_export_enabled",
@@ -70,14 +63,10 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_show_publish_app_to_community_enabled: false,
   license_gac_enabled: false,
   release_anvil_enabled: false,
-  ab_show_templates_instead_of_blank_canvas_enabled: false,
-  release_server_dsl_migrations_enabled: false,
   release_drag_drop_building_blocks_enabled: false,
   license_git_branch_protection_enabled: false,
   release_git_autocommit_feature_enabled: false,
-  release_git_status_granular_enabled: false,
   license_git_continuous_delivery_enabled: false,
-  release_git_continuous_delivery_enabled: false,
   license_widget_rtl_support_enabled: false,
   release_show_partial_import_export_enabled: false,
   ab_one_click_learning_popover_enabled: false,
@@ -85,11 +74,11 @@ export const DEFAULT_FEATURE_FLAG_VALUE: FeatureFlags = {
   release_global_add_pane_enabled: false,
   ab_appsmith_ai_query: false,
   release_actions_redesign_enabled: false,
-  rollout_remove_feature_walkthrough_enabled: false,
-  rollout_js_enabled_one_click_binding_enabled: false,
+  rollout_remove_feature_walkthrough_enabled: true,
+  rollout_js_enabled_one_click_binding_enabled: true,
   rollout_side_by_side_enabled: false,
-  ab_learnability_ease_of_initial_use_enabled: false,
-  ab_learnability_discoverability_collapse_all_except_data_enabled: false,
+  ab_learnability_ease_of_initial_use_enabled: true,
+  ab_learnability_discoverability_collapse_all_except_data_enabled: true,
   release_layout_conversion_enabled: false,
 };
 

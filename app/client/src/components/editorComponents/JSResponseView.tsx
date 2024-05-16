@@ -1,5 +1,11 @@
 import type { RefObject } from "react";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import React, {
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { connect, useDispatch, useSelector } from "react-redux";
 import type { RouteComponentProps } from "react-router";
 import { withRouter } from "react-router";
@@ -11,6 +17,7 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_RESPONSE,
   EXECUTING_FUNCTION,
   NO_JS_FUNCTION_RETURN_VALUE,
   UPDATING_JS_COLLECTION,
@@ -48,6 +55,8 @@ import { setJsPaneDebuggerState } from "actions/jsPaneActions";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import ErrorLogs from "./Debugger/Errors";
+import { isBrowserExecutionAllowed } from "@appsmith/utils/actionExecutionUtils";
+import JSRemoteExecutionView from "@appsmith/components/JSRemoteExecutionView";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
@@ -161,6 +170,13 @@ function JSResponseView(props: Props) {
   let errorMessage: string | undefined;
   let errorType = "ValidationError";
 
+  const localExecutionAllowed = useMemo(() => {
+    return isBrowserExecutionAllowed(
+      jsCollectionData?.config,
+      currentFunction || undefined,
+    );
+  }, [jsCollectionData?.config, currentFunction]);
+
   // action source for analytics.
   let actionSource: SourceEntity = {
     type: ENTITY_TYPE.JSACTION,
@@ -212,7 +228,7 @@ function JSResponseView(props: Props) {
   const tabs: BottomTab[] = [
     {
       key: "response",
-      title: "Response",
+      title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <>
           {(hasExecutionParseErrors ||
@@ -234,38 +250,45 @@ function JSResponseView(props: Props) {
           <ResponseTabWrapper className={errors.length ? "disable" : ""}>
             <ResponseViewer>
               <>
-                {responseStatus === JSResponseState.NoResponse && (
-                  <NoResponse
-                    isButtonDisabled={disabled}
-                    isQueryRunning={isLoading}
-                    // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                    // @ts-ignore
-                    onRunClick={onButtonClick}
-                  />
+                {localExecutionAllowed && (
+                  <>
+                    {responseStatus === JSResponseState.NoResponse && (
+                      <NoResponse
+                        isButtonDisabled={disabled}
+                        isQueryRunning={isLoading}
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore
+                        onRunClick={onButtonClick}
+                      />
+                    )}
+                    {responseStatus === JSResponseState.IsExecuting && (
+                      <LoadingOverlayScreen theme={props.theme}>
+                        {createMessage(EXECUTING_FUNCTION)}
+                      </LoadingOverlayScreen>
+                    )}
+                    {responseStatus === JSResponseState.NoReturnValue && (
+                      <NoReturnValueWrapper>
+                        <Text kind="body-m">
+                          {createMessage(
+                            NO_JS_FUNCTION_RETURN_VALUE,
+                            currentFunction?.name,
+                          )}
+                        </Text>
+                      </NoReturnValueWrapper>
+                    )}
+                    {responseStatus === JSResponseState.ShowResponse && (
+                      <ReadOnlyEditor
+                        folding
+                        height={"100%"}
+                        input={{
+                          value: response as string,
+                        }}
+                      />
+                    )}
+                  </>
                 )}
-                {responseStatus === JSResponseState.IsExecuting && (
-                  <LoadingOverlayScreen theme={props.theme}>
-                    {createMessage(EXECUTING_FUNCTION)}
-                  </LoadingOverlayScreen>
-                )}
-                {responseStatus === JSResponseState.NoReturnValue && (
-                  <NoReturnValueWrapper>
-                    <Text kind="body-m">
-                      {createMessage(
-                        NO_JS_FUNCTION_RETURN_VALUE,
-                        currentFunction?.name,
-                      )}
-                    </Text>
-                  </NoReturnValueWrapper>
-                )}
-                {responseStatus === JSResponseState.ShowResponse && (
-                  <ReadOnlyEditor
-                    folding
-                    height={"100%"}
-                    input={{
-                      value: response as string,
-                    }}
-                  />
+                {!localExecutionAllowed && (
+                  <JSRemoteExecutionView collectionData={jsCollectionData} />
                 )}
                 {responseStatus === JSResponseState.IsUpdating && (
                   <LoadingOverlayScreen theme={props.theme}>
@@ -314,7 +337,7 @@ function JSResponseView(props: Props) {
   // Do not render if header tab is selected in the bottom bar.
   return open && selectedTab ? (
     <ResponseContainer
-      className="t--js-editor-bottom-pane-container"
+      className="t--js-editor-bottom-pane-container select-text"
       ref={panelRef}
     >
       <Resizer

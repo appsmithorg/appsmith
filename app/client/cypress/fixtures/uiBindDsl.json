@@ -146,7 +146,7 @@
                 "bottomRow": 1,
                 "parentId": "cwamdbv44c",
                 "widgetId": "t3sjfihdb1",
-                "onClick": "{{closeModal('Modal1')}}"
+                "onClick": "{{closeModal(Modal1.name)}}"
               },
               {
                 "isVisible": true,
