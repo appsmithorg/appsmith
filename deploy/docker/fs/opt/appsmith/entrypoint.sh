@@ -181,7 +181,7 @@ configure_database_connection_url() {
   if [[ "${APPSMITH_DB_URL}" == *"postgresql"* ]]; then
     isPostgresUrl=1
     # Check if APPSMITH_DB_URL is a PostgreSQL URL and doesn't start with "jdbc:", prepend "jdbc:"
-    if [[ "${APPSMITH_DB_URL}" != *"jdbc:"* ]]; then
+    if [[ "${APPSMITH_DB_URL}" != "jdbc:"* ]]; then
       export APPSMITH_DB_URL="jdbc:${APPSMITH_DB_URL}"
     fi
   elif [[ "${APPSMITH_DB_URL}" == *"mongodb"* ]]; then
@@ -502,8 +502,8 @@ configure_database_connection_url
 check_db_uri
 # Don't run MongoDB if running in a Heroku dyno.
 if [[ -z "${DYNO}" ]]; then
-  # Setup MongoDB and initialize replica set if required
   if [[ $isMongoUrl -eq 1 ]]; then
+    # Setup MongoDB and initialize replica set
     echo "Initializing MongoDB"
     init_mongodb
     init_replica_set
