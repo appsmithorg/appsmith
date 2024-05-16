@@ -330,10 +330,10 @@ export class DarkModeTheme implements ColorModeTheme {
     // Overlay behind modal dialogue
     const color = this.bgNeutral.clone();
 
-    color.alpha = 0.5;
+    color.alpha = 0.7;
 
-    if (color.oklch.l > 0.15) {
-      color.oklch.l = 0.15;
+    if (color.oklch.l > 0.12) {
+      color.oklch.l = 0.12;
     }
 
     return color;

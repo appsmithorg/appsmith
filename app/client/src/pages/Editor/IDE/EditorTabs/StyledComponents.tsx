@@ -56,6 +56,10 @@ export const StyledTab = styled(Flex)`
   &:hover > .tab-close {
     visibility: visible;
   }
+
+  &.active > .tab-close {
+    visibility: visible;
+  }
 `;
 
 export const TabTextContainer = styled.span`
