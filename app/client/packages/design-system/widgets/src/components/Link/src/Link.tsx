@@ -1,5 +1,5 @@
 import React from "react";
-import { Link as AriaLink } from "react-aria-components";
+import { Link as HeadlessLink } from "react-aria-components";
 
 import { Text } from "../../Text";
 import type { LinkProps } from "./types";
@@ -8,6 +8,7 @@ import styles from "./styles.module.css";
 export function Link(props: LinkProps) {
   const {
     children,
+    color = "accent",
     download,
     href,
     ping,
@@ -18,8 +19,8 @@ export function Link(props: LinkProps) {
   } = props;
 
   return (
-    <Text {...rest}>
-      <AriaLink
+    <Text color={color} {...rest}>
+      <HeadlessLink
         className={styles.link}
         download={download}
         href={href}
@@ -29,7 +30,7 @@ export function Link(props: LinkProps) {
         target={target}
       >
         {children}
-      </AriaLink>
+      </HeadlessLink>
     </Text>
   );
 }
