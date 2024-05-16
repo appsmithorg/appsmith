@@ -3,7 +3,6 @@ import styled from "styled-components";
 import Resizer, {
   ResizerCSS,
 } from "components/editorComponents/Debugger/Resizer";
-import { ActionExecutionResizerHeight } from "pages/Editor/APIEditor/constants";
 import { CodeEditorWithGutterStyles } from "pages/Editor/JSEditor/constants";
 import { ViewHideBehaviour, ViewDisplayMode } from "IDE/Interfaces/View";
 import { Button } from "design-system";
@@ -13,10 +12,7 @@ const VIEW_MIN_HEIGHT = 38;
 const Container = styled.div<{ displayMode: ViewDisplayMode }>`
   ${ResizerCSS};
   width: 100%;
-  // Minimum height of bottom tabs as it can be resized
-  min-height: ${VIEW_MIN_HEIGHT}px;
   background-color: var(--ads-v2-color-bg);
-  height: ${ActionExecutionResizerHeight}px;
   border-top: 1px solid var(--ads-v2-color-border);
   ${(props) => {
     switch (props.displayMode) {
@@ -48,7 +44,7 @@ const ViewWrapper = styled.div`
     .ads-v2-tabs__panel {
       ${CodeEditorWithGutterStyles};
       overflow-y: auto;
-      height: calc(100% - ${VIEW_MIN_HEIGHT}px);
+      height: 100%;
     }
   }
 `;
@@ -137,6 +133,7 @@ const BottomView = (props: Props) => {
       {!props.hidden && (
         <Resizer
           initialHeight={props.height}
+          minHeight={VIEW_MIN_HEIGHT + 50}
           onResizeComplete={props.setHeight}
           panelRef={panelRef}
         />
