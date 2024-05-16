@@ -16,18 +16,17 @@ export interface NumberCellProps {
 }
 
 function URLCell(props: NumberCellProps & BaseCellComponentProps) {
-  const { allowCellWrapping, cellColor, href, isBold, isItalic, text } = props;
+  const { allowCellWrapping, href, isBold, isItalic, text } = props;
   const lineClamp = allowCellWrapping ? undefined : 1;
 
   return (
     <Link
-      color={cellColor === "default" ? undefined : cellColor}
       href={href}
       isBold={isBold}
       isItalic={isItalic}
       lineClamp={lineClamp}
+      size="body"
       title={text}
-      variant="body"
     >
       {text}
     </Link>

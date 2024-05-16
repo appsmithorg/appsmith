@@ -6,10 +6,10 @@ import type { ReactNode } from "react";
 import type { COLORS } from "../../../shared";
 
 export interface TextProps {
-  /** Variant of the text
+  /** size variant of the text
    * @default body
    */
-  variant?: keyof typeof TYPOGRAPHY_VARIANTS;
+  size?: keyof typeof TYPOGRAPHY_VARIANTS;
   /** Color of the text
    * @default inherit
    */
