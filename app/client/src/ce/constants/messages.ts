@@ -460,6 +460,10 @@ export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
 
 export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
 
+// Modules
+export const CONVERT_MODULE_CTA_TEXT = () => "Create module";
+export const CONVERT_MODULE_TO_NEW_PKG_OPTION = () => "Add to a new package";
+
 // cloudHosting used in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) =>
@@ -2327,9 +2331,9 @@ export const EDITOR_PANE_TEXTS = {
   js_add_button: () => "New JS object",
   js_blank_object_item: () => "Blank JS object",
   widget_add_button: () => "New UI element",
-  query_create_tab_title: () => "Create new query / API",
+  query_create_tab_title: () => "Create new query from",
   widgets_create_tab_title: () => "Drag & drop UI elements",
-  js_create_tab_title: () => "Create JS object",
+  js_create_tab_title: () => "Create JS object from",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
   loading_building_blocks: () => "Loading building blocks",

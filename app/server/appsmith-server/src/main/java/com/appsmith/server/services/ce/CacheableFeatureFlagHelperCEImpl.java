@@ -45,6 +45,7 @@ import static com.appsmith.server.constants.ce.FieldNameCE.DEFAULT;
 @Slf4j
 @RequiredArgsConstructor
 public class CacheableFeatureFlagHelperCEImpl implements CacheableFeatureFlagHelperCE {
+
     private final TenantRepository tenantRepository;
     private final ConfigService configService;
     private final CloudServicesConfig cloudServicesConfig;
