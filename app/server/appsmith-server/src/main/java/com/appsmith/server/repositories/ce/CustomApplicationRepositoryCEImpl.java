@@ -7,6 +7,7 @@ import com.appsmith.server.domains.User;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
 import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
+import com.appsmith.server.projections.IdOnly;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import com.appsmith.server.repositories.CacheableRepositoryHelper;
 import com.appsmith.server.solutions.ApplicationPermission;
@@ -225,9 +226,8 @@ public class CustomApplicationRepositoryCEImpl extends BaseAppsmithRepositoryImp
                 // Check if the permission is being provided by the given permission group
                 .permission(permission)
                 .permissionGroups(Set.of(permissionGroupId))
-                .fields(Application.Fields.id)
-                .all()
-                .map(application -> application.getId());
+                .all(IdOnly.class)
+                .map(IdOnly::id);
     }
 
     @Override

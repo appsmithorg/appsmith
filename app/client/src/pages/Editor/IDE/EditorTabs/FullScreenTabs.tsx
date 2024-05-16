@@ -16,6 +16,7 @@ import {
   createMessage,
 } from "@appsmith/constants/messages";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
+import { AddButton } from "./AddButton";
 
 const FullScreenTabs = () => {
   const dispatch = useDispatch();
@@ -44,12 +45,13 @@ const FullScreenTabs = () => {
         onClose={closeClickHandler}
         tabs={files}
       />
+      {files.length > 0 ? <AddButton /> : null}
       <Tooltip
         content={createMessage(MINIMIZE_BUTTON_TOOLTIP)}
         placement="bottomRight"
       >
         <Button
-          className="ml-auto"
+          className="ml-auto !min-w-[24px]"
           data-testid="t--ide-minimize"
           id="editor-mode-minimize"
           isIconButton

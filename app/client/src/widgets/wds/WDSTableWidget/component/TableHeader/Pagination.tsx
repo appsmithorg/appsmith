@@ -25,7 +25,7 @@ export const Pagination = (props: PaginationProps) => {
 
   return (
     <div data-table-header-pagination="">
-      <Text lineClamp={1} variant="footnote">
+      <Text lineClamp={1} size="footnote">
         {props.tableData?.length} Records
       </Text>
       <IconButton
@@ -40,7 +40,7 @@ export const Pagination = (props: PaginationProps) => {
         size="small"
         variant="outlined"
       />
-      <Text lineClamp={1} variant="footnote">
+      <Text lineClamp={1} size="footnote">
         Page
       </Text>
       <PageNumberInput
@@ -49,7 +49,7 @@ export const Pagination = (props: PaginationProps) => {
         pageNo={props.pageNo + 1}
         updatePageNo={props.updatePageNo}
       />
-      <Text lineClamp={1} variant="footnote">
+      <Text lineClamp={1} size="footnote">
         of {props.pageCount}
       </Text>
       <IconButton
