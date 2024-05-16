@@ -305,6 +305,14 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
                     // autocommit if migration is required
                     return migrateSchemasForGitConnectedApps(branchedApplication, newPageList)
+                            .onErrorResume(error -> {
+                                log.debug(
+                                        "Skipping the autocommit for applicationId : {} due to error; {}",
+                                        branchedApplication.getId(),
+                                        error.getMessage());
+
+                                return Mono.just(Boolean.FALSE);
+                            })
                             .thenReturn(newPageList);
                 });
     }
@@ -325,8 +333,22 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             return Mono.just(Boolean.FALSE);
         }
 
-        String defaultApplicationId = application.getGitArtifactMetadata().getDefaultArtifactId();
-        String branchName = application.getGitApplicationMetadata().getBranchName();
+        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
+        String defaultApplicationId = gitMetadata.getDefaultArtifactId();
+        String branchName = gitMetadata.getBranchName();
+
+        if (!StringUtils.hasText(branchName)) {
+            log.debug(
+                    "Skipping the autocommit for applicationId : {}, branch name is not present", application.getId());
+            return Mono.just(Boolean.FALSE);
+        }
+
+        if (!StringUtils.hasText(defaultApplicationId)) {
+            log.debug(
+                    "Skipping the autocommit for applicationId : {}, defaultApplicationId is not present",
+                    application.getId());
+            return Mono.just(Boolean.FALSE);
+        }
 
         // since this method is only called when the app is in edit mode
         Mono<PageDTO> pageDTOMono = getPage(newPages.get(0), false);
