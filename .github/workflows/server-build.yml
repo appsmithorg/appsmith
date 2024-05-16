@@ -176,9 +176,9 @@ jobs:
           APPSMITH_VERBOSE_LOGGING_ENABLED: false
         run: |
           if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
-            export APPSMITH_DB_URL="jdbc:postgresql://localhost:5432/postgres"
+            export APPSMITH_DB_URI="jdbc:postgresql://localhost:5432/postgres"
           else
-            export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
+            export APPSMITH_DB_URI="mongodb://localhost:27017/mobtools"
           fi
           args=()
           if [[ "${{ steps.run_result.outputs.run_result }}" == "failedtest" ]]; then
