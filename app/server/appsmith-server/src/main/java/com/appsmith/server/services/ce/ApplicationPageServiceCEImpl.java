@@ -310,54 +310,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     /**
-     * Creates ApplicationPagesDTO and handles the autocommit if it's required
-     * @param defaultApplicationId : root application id of the application
-     * @param branchName : branch name of the application
-     * @param applicationMode : whether it's view mode or edit mode
-     * @return a Mono of ApplicationPagesDTO
-     */
-    @Override
-    public Mono<ApplicationPagesDTO> getApplicationPageDTOForConsolidatedApis(
-            String defaultApplicationId, String branchName, ApplicationMode applicationMode) {
-
-        Boolean viewMode = ApplicationMode.PUBLISHED.equals(applicationMode) ? Boolean.TRUE : Boolean.FALSE;
-        AclPermission permission = Boolean.FALSE.equals(viewMode)
-                ? applicationPermission.getEditPermission()
-                : applicationPermission.getReadPermission();
-
-        // first get the branched application
-        return applicationService
-                .findByBranchNameAndDefaultApplicationId(branchName, defaultApplicationId, permission)
-                .flatMap(branchedApplication -> {
-                    List<ApplicationPage> applicationPages = Boolean.TRUE.equals(viewMode)
-                            ? branchedApplication.getPublishedPages()
-                            : branchedApplication.getPages();
-
-                    Set<String> pageIds = applicationPages.stream()
-                            .map(ApplicationPage::getId)
-                            .collect(Collectors.toSet());
-
-                    return newPageService
-                            .findNewPagesByApplicationId(
-                                    branchedApplication.getId(), pagePermission.getReadPermission())
-                            .filter(newPage -> pageIds.contains(newPage.getId()))
-                            .collectList()
-                            .flatMap(newPageList -> {
-                                if (Boolean.TRUE.equals(viewMode)) {
-                                    return Mono.just(newPageList);
-                                }
-
-                                // autocommit if migration is required
-                                return migrateSchemasForGitConnectedApps(branchedApplication, newPageList)
-                                        .thenReturn(newPageList);
-                            })
-                            .map(newPages ->
-                                    newPageService.getApplicationPagesDTO(branchedApplication, newPages, viewMode))
-                            .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
-                });
-    }
-
-    /**
      * Publishes the autocommit if it's eligible for one
      * @param application : the branched application which requires schemaMigration
      * @param newPages : list of pages from db

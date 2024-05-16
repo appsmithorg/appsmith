@@ -73,9 +73,6 @@ public interface ApplicationPageServiceCE {
 
     int getEvaluationVersion();
 
-    Mono<ApplicationPagesDTO> getApplicationPageDTOForConsolidatedApis(
-            String defaultApplicationId, String branchName, ApplicationMode applicationMode);
-
     Mono<List<NewPage>> getPagesBasedOnApplicationMode(
             Application branchedApplication, ApplicationMode applicationMode);
 

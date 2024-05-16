@@ -306,7 +306,7 @@ public class NewPageServiceCEImpl extends BaseService<NewPageRepository, NewPage
         }
 
         return markedRecentlyAccessedMono
-                .thenReturn(getApplicationPagesDTO(branchedApplication, newPages, viewMode))
+                .then(Mono.fromCallable(() -> getApplicationPagesDTO(branchedApplication, newPages, viewMode)))
                 .map(responseUtils::updateApplicationPagesDTOWithDefaultResources);
     }
 
