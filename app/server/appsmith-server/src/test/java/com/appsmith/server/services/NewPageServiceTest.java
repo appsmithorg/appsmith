@@ -322,7 +322,7 @@ public class NewPageServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void verifyCreateApplicationPagesDTO_AccordingToViewMode() {
+    public void verifyCreateApplicationPagesDTO_ReturnsRightNumberOfPages_BasedOnViewMode() {
         final String appName = "app" + UUID.randomUUID();
         Application application = new Application();
         application.setName(appName);

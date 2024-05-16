@@ -437,7 +437,7 @@ public class ApplicationPageServiceTest {
 
     @Test
     @WithUserDetails("api_user")
-    public void getPagesBasedOnApplicationMode_returnPagesForEditMode() {
+    public void verifyGetPagesBasedOnApplicationMode_ReturnsRigthNumberOfPages_BasedOnApplicationMode() {
         final String appName = "app" + UUID.randomUUID();
         Application application = new Application();
         application.setName(appName);
