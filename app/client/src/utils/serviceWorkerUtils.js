@@ -112,20 +112,12 @@ export const getPrefetchConsolidatedApiRequest = (url) => {
  * Cache strategy for Appsmith API
  */
 export class ConsolidatedApiCacheStrategy {
-  /**
-   * Constructor for the ConsolidatedApiCacheStrategy
-   * @param {string} cacheName
-   */
-  constructor(cacheName) {
-    this.initCache(cacheName);
-    this.cacheMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds
+  cacheName = "prefetch-cache-v1";
+  cacheMaxAge = 2 * 60 * 1000; // 2 minutes in milliseconds
+
+  constructor() {
     // Mutex to lock the fetch and cache operation
     this.consolidatedApiFetchmutex = new Mutex();
-  }
-
-  async initCache(cacheName) {
-    // Open the cache
-    this.cache = await caches.open(cacheName);
   }
 
   /**
@@ -133,11 +125,10 @@ export class ConsolidatedApiCacheStrategy {
    * @param {Request} request
    * @returns
    */
-
   async cacheConsolidatedApi(request) {
     // Acquire the lock
     await this.consolidatedApiFetchmutex.acquire();
-
+    const prefetchApiCache = await caches.open(this.cacheName);
     try {
       const response = await fetch(request);
 
@@ -145,11 +136,11 @@ export class ConsolidatedApiCacheStrategy {
         // Clone the response as the response can be consumed only once
         const clonedResponse = response.clone();
         // Put the response in the cache
-        await this.cache.put(request, clonedResponse);
+        await prefetchApiCache.put(request, clonedResponse);
       }
     } catch (error) {
       // Delete the existing cache if the fetch fails
-      await this.cache.delete(request);
+      await prefetchApiCache.delete(request);
     } finally {
       // Release the lock
       this.consolidatedApiFetchmutex.release();
@@ -159,8 +150,9 @@ export class ConsolidatedApiCacheStrategy {
   async getCachedResponse(request) {
     // Wait for the lock to be released
     await this.consolidatedApiFetchmutex.waitForUnlock();
+    const prefetchApiCache = await caches.open(this.cacheName);
     // Check if the response is already in cache
-    const cachedResponse = await this.cache.match(request);
+    const cachedResponse = await prefetchApiCache.match(request);
 
     if (cachedResponse) {
       const dateHeader = cachedResponse.headers.get("date");
@@ -171,13 +163,13 @@ export class ConsolidatedApiCacheStrategy {
 
       if (isCacheValid) {
         // Delete the cache as this is a one-time cache
-        await this.cache.delete(request);
+        await prefetchApiCache.delete(request);
         // Return the cached response
         return cachedResponse;
       }
 
       // If the cache is not valid, delete the cache
-      await this.cache.delete(request);
+      await prefetchApiCache.delete(request);
     }
 
     return null;

@@ -38,10 +38,7 @@ self.__WB_DISABLE_DEV_DEBUG_LOGS = false;
 skipWaiting();
 clientsClaim();
 
-const PREFETCH_API_CACHE_NAME = "prefetch-api-cache-v1";
-const consolidatedApiCacheStrategy = new ConsolidatedApiCacheStrategy(
-  PREFETCH_API_CACHE_NAME,
-);
+const consolidatedApiCacheStrategy = new ConsolidatedApiCacheStrategy();
 
 /**
  *

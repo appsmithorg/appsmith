@@ -191,12 +191,7 @@ describe("serviceWorkerUtils", () => {
         open: jest.fn().mockResolvedValue(mockCache),
       };
 
-      strategy = new ConsolidatedApiCacheStrategy("testCache");
-    });
-
-    it("should initialize cache with the provided cache name", async () => {
-      expect(caches.open).toHaveBeenCalledWith("testCache");
-      expect(strategy.cache).toBe(mockCache);
+      strategy = new ConsolidatedApiCacheStrategy();
     });
 
     it("should cache the API response", async () => {
