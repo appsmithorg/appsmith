@@ -9,7 +9,7 @@ import {
   dataSources,
 } from "../../../../support/Objects/ObjectsCore";
 
-describe("Undo/Redo functionality", function () {
+describe("Undo/Redo functionality", function() {
   const modifierKey = Cypress.platform === "darwin" ? "meta" : "ctrl";
   let postgresDatasourceName;
 
@@ -43,14 +43,17 @@ describe("Undo/Redo functionality", function () {
     });
   });
 
-  it("2. Checks undo/redo for Api pane", function () {
+  it("2. Checks undo/redo for Api pane", function() {
     cy.CreateAPI("FirstAPI");
     cy.get(`${apiwidget.resourceUrl} .CodeMirror-placeholder`).should(
       "have.text",
       "https://mock-api.appsmith.com/users", //testing placeholder!
     );
     cy.enterDatasourceAndPath(testdata.baseUrl, testdata.methods);
-    agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
+    agHelper.RemoveUIElement(
+      "Tooltip",
+      Cypress.env("MESSAGES").ADD_QUERY_JS_TOOLTIP(),
+    );
     cy.get(`${apiwidget.headerKey}`).type("Authorization");
     cy.get("body").click(0, 0);
     cy.get(apiwidget.settings).click({ force: true });

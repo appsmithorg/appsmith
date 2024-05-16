@@ -105,7 +105,10 @@ export class ApiPage {
       PageLeftPane.switchSegment(PagePaneSegment.Queries);
       this.agHelper.GetHoverNClick(this.locator._createNew);
       this.agHelper.GetNClick(this._blankAPI, 0, true);
-      this.agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
+      this.agHelper.RemoveUIElement(
+        "Tooltip",
+        Cypress.env("MESSAGES").ADD_QUERY_JS_TOOLTIP(),
+      );
     }
     this.assertHelper.AssertNetworkStatus("@createNewApi", 201);
 

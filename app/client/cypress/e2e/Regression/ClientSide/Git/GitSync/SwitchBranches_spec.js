@@ -23,7 +23,7 @@ let parentBranchKey = "ParentBranch",
   branchQueryKey = "branch";
 
 let repoName;
-describe("Git sync:", { tags: ["@tag.Git"] }, function () {
+describe("Git sync:", { tags: ["@tag.Git"] }, function() {
   before(() => {
     gitSync.CreateNConnectToGit();
     cy.get("@gitRepoName").then((repName) => {
@@ -31,7 +31,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     });
   });
 
-  it("1. create branch input", function () {
+  it("1. create branch input", function() {
     PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(gitSyncLocators.branchButton).click();
 
@@ -59,7 +59,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     cy.get(gitSyncLocators.closeBranchList).click();
   });
 
-  it("2. creates a new branch and create branch specific resources", function () {
+  it("2. creates a new branch and create branch specific resources", function() {
     cy.get(commonLocators.canvas).click({ force: true });
     //cy.createGitBranch(parentBranchKey);
     gitSync.CreateGitBranch(parentBranchKey, true);
@@ -114,7 +114,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   });
 
   // rename entities
-  it("3. makes branch specific resource updates", function () {
+  it("3. makes branch specific resource updates", function() {
     cy.switchGitBranch(childBranchKey);
     EditorNavigation.SelectEntityByName("ParentPage1", EntityType.Page);
     entityExplorer.RenameEntityFromExplorer(
@@ -123,7 +123,10 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
       false,
       EntityItems.Page,
     );
-    agHelper.RemoveUIElement("Tooltip", "Add a new query/JS Object");
+    agHelper.RemoveUIElement(
+      "Tooltip",
+      Cypress.env("MESSAGES").ADD_QUERY_JS_TOOLTIP(),
+    );
     PageLeftPane.switchSegment(PagePaneSegment.Queries);
     entityExplorer.RenameEntityFromExplorer("ParentApi1", "ParentApiRenamed");
 
@@ -215,7 +218,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
   });
 
   // Validate the error faced when user switches between the branches
-  it("6. no error faced when user switches branch with new page", function () {
+  it("6. no error faced when user switches branch with new page", function() {
     deployMode.NavigateBacktoEditor(); //Adding since skipping 6th case
     cy.generateUUID().then((uuid) => {
       gitSync.CreateGitBranch(childBranchKey, true);
@@ -233,7 +236,7 @@ describe("Git sync:", { tags: ["@tag.Git"] }, function () {
     agHelper.RefreshPage();
   });
 
-  it("7. branch list search", function () {
+  it("7. branch list search", function() {
     cy.get(".ads-v2-spinner").should("not.exist");
     PageLeftPane.switchSegment(PagePaneSegment.UI);
     cy.get(commonLocators.canvas).click({ force: true });
