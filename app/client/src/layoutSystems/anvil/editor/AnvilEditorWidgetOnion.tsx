@@ -35,6 +35,7 @@ export const AnvilEditorWidgetOnion = (props: BaseWidgetProps) => {
   }, [isPreviewMode]);
   return (
     <WidgetWrapper
+      elevatedBackground={!!props.elevatedBackground}
       flexGrow={props.flexGrow}
       isVisible={!!props.isVisible}
       layoutId={props.layoutId}

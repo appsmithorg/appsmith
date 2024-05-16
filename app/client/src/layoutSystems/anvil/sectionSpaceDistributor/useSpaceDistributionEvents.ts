@@ -21,6 +21,7 @@ import {
   updateWidgetCSSOnHandleMove,
   updateWidgetCSSOnMinimumLimit,
 } from "./utils/onMouseMoveUtils";
+import { startAnvilSpaceDistribution } from "./actions";
 
 interface SpaceDistributionEventsProps {
   ref: React.RefObject<HTMLDivElement>;
@@ -54,16 +55,19 @@ export const useSpaceDistributionEvents = ({
     getMouseSpeedTrackingCallback(currentMouseSpeed);
   const selectedWidgets = useSelector(getSelectedWidgets);
   const { selectWidget } = useWidgetSelection();
+  const onSpaceDistributionStart = useCallback(() => {
+    dispatch(
+      startAnvilSpaceDistribution({
+        section: sectionWidgetId,
+        zones: zoneIds,
+      }),
+    );
+  }, [sectionWidgetId, zoneIds]);
   const selectCorrespondingSectionWidget = useCallback(() => {
-    if (
-      !(
-        selectedWidgets.includes(sectionWidgetId) ||
-        zoneIds.some((each) => selectedWidgets.includes(each))
-      )
-    ) {
+    if (!selectedWidgets.includes(sectionWidgetId)) {
       selectWidget(SelectionRequestType.One, [sectionWidgetId]);
     }
-  }, [sectionWidgetId, selectedWidgets, zoneIds]);
+  }, [sectionWidgetId, selectedWidgets]);
   useEffect(() => {
     if (ref.current) {
       // Check if the ref to the DOM element exists
@@ -196,9 +200,7 @@ export const useSpaceDistributionEvents = ({
         e.preventDefault();
         x = e.clientX; // Store the initial mouse position
         isCurrentHandleDistributingSpace.current = true; // Set distribution flag
-        dispatch({
-          type: AnvilReduxActionTypes.ANVIL_SPACE_DISTRIBUTION_START,
-        });
+        onSpaceDistributionStart();
         addMouseMoveHandlers();
       };
 
@@ -331,5 +333,6 @@ export const useSpaceDistributionEvents = ({
     sectionWidgetId,
     spaceDistributed,
     spaceToWorkWith,
+    onSpaceDistributionStart,
   ]);
 };
