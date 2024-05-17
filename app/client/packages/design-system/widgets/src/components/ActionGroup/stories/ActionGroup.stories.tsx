@@ -125,7 +125,7 @@ export const Orientation: Story = {
 };
 
 /**
- * The `ActionGroup` can be aligned to the start, center, or end. By default, it is aligned to the start.
+ * The `ActionGroup` can be aligned to the start, or end. By default, it is aligned to the start.
  */
 export const Alignment: Story = {
   render: () => (
