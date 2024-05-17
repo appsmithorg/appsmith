@@ -359,7 +359,7 @@ def convert(domain):
 
 def cleanup():
     print("Cleaning up old cake classes")
-    for filename in glob.iglob('./**/*RepositoryCake.java', recursive=True):
+    for filename in glob.iglob('./**/*RepositoryCake.java', root_dir=server_root, recursive=True):
         os.remove(filename)
 
 def main():
