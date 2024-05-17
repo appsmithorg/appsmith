@@ -84,7 +84,6 @@ function WidgetCardComponent({
   onDragStart?: (e: any) => void;
 }) {
   const type = `${details.type.split("_").join("").toLowerCase()}`;
-  const displayName = details.displayName.split(" ").join("").toLowerCase();
   const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
   const { ThumbnailCmp } = details;
 
@@ -92,7 +91,6 @@ function WidgetCardComponent({
     <Wrapper
       className={className}
       data-guided-tour-id={`widget-card-${type}`}
-      data-testid={`t--widget-card-draggable-${type}-${displayName}`}
       draggable
       id={`widget-card-draggable-${type}`}
       onDragStart={onDragStart}
