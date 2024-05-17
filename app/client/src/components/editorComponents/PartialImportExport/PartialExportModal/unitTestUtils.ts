@@ -10279,10 +10279,10 @@ export const defaultAppState = {
         useCase: "personal project",
         enableTelemetry: true,
         roles: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         groups: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         emptyInstance: false,
         accountNonExpired: true,
@@ -12707,10 +12707,10 @@ export const defaultAppState = {
           useCase: "personal project",
           enableTelemetry: true,
           roles: [
-            "Upgrade to business edition to access roles and groups for conditional business logic",
+            "Upgrade to business plan to access roles and groups for conditional business logic",
           ],
           groups: [
-            "Upgrade to business edition to access roles and groups for conditional business logic",
+            "Upgrade to business plan to access roles and groups for conditional business logic",
           ],
           emptyInstance: false,
           accountNonExpired: true,
@@ -12731,10 +12731,10 @@ export const defaultAppState = {
         useCase: "personal project",
         enableTelemetry: true,
         roles: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         groups: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         emptyInstance: false,
         accountNonExpired: true,

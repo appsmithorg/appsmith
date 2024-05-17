@@ -2,7 +2,6 @@ package com.appsmith.server.applications.base;
 
 import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.GitAuth;
 import com.appsmith.server.dtos.ApplicationAccessDTO;
 import com.appsmith.server.dtos.GitAuthDTO;
@@ -16,6 +15,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public interface ApplicationServiceCE extends CrudService<Application, String> {
+
+    Mono<Application> getById(String id);
+
+    Mono<Application> findByIdAndBranchName(String id, String branchName);
 
     Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName);
 
@@ -92,7 +95,4 @@ public interface ApplicationServiceCE extends CrudService<Application, String> {
     Mono<Boolean> isApplicationConnectedToGit(String applicationId);
 
     Mono<Void> updateProtectedBranches(String applicationId, List<String> protectedBranches);
-
-    Mono<Application> findByDefaultIdBranchNameAndApplicationMode(
-            String defaultApplicationId, String branchName, ApplicationMode mode);
 }
