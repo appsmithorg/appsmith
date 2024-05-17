@@ -49,7 +49,7 @@ public abstract class BaseService<
         return repository
                 .queryBuilder()
                 .byId((String) id)
-                .updateFirst(resource)
+                .updateOne(resource)
                 .flatMap(obj -> repository.findById(id))
                 .flatMap(savedResource ->
                         analyticsService.sendUpdateEvent(savedResource, getAnalyticsProperties(savedResource)));
