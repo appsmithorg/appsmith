@@ -545,7 +545,6 @@ export function* createApplicationSaga(
         color: color,
         workspaceId,
         layoutSystemType: LayoutSystemTypes.FIXED, // Note: This may be provided as an action payload in the future
-        showNavbar: true,
       };
 
       // SPECIAL HANDLING FOR ANVIL DURING EXPERIMENTATION
