@@ -92,6 +92,7 @@ export interface CreateApplicationRequest {
   color?: AppColorCode;
   icon?: IconNames;
   layoutSystemType: LayoutSystemTypes;
+  showNavbar?: boolean;
 }
 
 export interface SetDefaultPageRequest {
@@ -350,6 +351,9 @@ export class ApplicationApi extends Api {
         applicationDetail: {
           appPositioning: {
             type: request.layoutSystemType,
+          },
+          navigationSetting: {
+            showNavbar: request.showNavbar,
           },
         },
       },

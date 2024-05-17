@@ -545,15 +545,17 @@ export function* createApplicationSaga(
         color: color,
         workspaceId,
         layoutSystemType: LayoutSystemTypes.FIXED, // Note: This may be provided as an action payload in the future
+        showNavbar: true,
       };
 
-      /** SPECIAL HANDLING FOR ANVIL DURING EXPERIMENTATION */
-      // Check if Anvil is enabled for the user
-      // If so, default to using Anvil as the layout system for the new app
+      // SPECIAL HANDLING FOR ANVIL DURING EXPERIMENTATION
+      // Check if Anvil is enabled for the user, If so, default to using
+      // Anvil as the layout system for the new app. Also, we want to hide the navbar for anvil apps
       const isAnvilEnabled: boolean = yield select(getIsAnvilLayoutEnabled);
 
       if (isAnvilEnabled) {
         request.layoutSystemType = LayoutSystemTypes.ANVIL;
+        request.showNavbar = false;
       }
       /** EO SPECIAL HANDLING FOR ANVIL DURING EXPERIMENTATION */
 
