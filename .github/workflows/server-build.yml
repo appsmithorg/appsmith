@@ -222,7 +222,7 @@ jobs:
 
       - name: Upload the failed tests report
         if: always()
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: failed-server-tests
           path: app/server/failed-server-tests.txt
@@ -262,7 +262,7 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3
         with:
           name: server-build
           path: app/server/dist/

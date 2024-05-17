@@ -31,7 +31,7 @@ defaults:
     working-directory: app/client/packages/rts
 
 jobs:
-  rts-build:
+  build:
     runs-on: appsmith-self-hosted-deployment-runner
     # Only run this workflow for internally triggered events
     if: |
