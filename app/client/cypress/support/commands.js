@@ -97,16 +97,6 @@ export const addIndexedDBKey = (key, value) => {
   });
 };
 
-// Cypress.Commands.add("goToEditFromPublish", () => {
-//   cy.url().then((url) => {
-//     const urlObject = new URL(url);
-//     if (!urlObject.pathname.includes("edit")) {
-//       urlObject.pathname = urlObject.pathname + "/edit";
-//       cy.visit(urlObject.toString());
-//     }
-//   });
-// });
-
 Cypress.Commands.add(
   "dragTo",
   { prevSubject: "element" },
@@ -125,13 +115,6 @@ Cypress.Commands.add("downloadData", (filetype) => {
 });
 
 Cypress.Commands.add("validateDownload", (fileName) => {
-  // const downloadedFilename = Cypress.config("downloadsFolder")
-  //   .concat("/")
-  //   .concat(fileName);
-  // cy.readFile(downloadedFilename, "binary", {
-  //   timeout: 15000,
-  // }).should((buffer) => expect(buffer.length).to.be.gt(100));
-
   let downloadsFolder = Cypress.config("downloadsFolder");
   cy.log("downloadsFolder is:" + downloadsFolder);
   cy.readFile(path.join(downloadsFolder, fileName)).should("exist");
@@ -1476,12 +1459,6 @@ Cypress.Commands.add(
       });
     }
     cy.EvaluateCurrentValue(valueToType, isDynamic);
-    // cy.xpath("//p[text()='" + fieldName + "']/following-sibling::div//div[@class='CodeMirror-code']//span/span").should((fieldValue) => {
-    //   textF = fieldValue.innerText
-    //   fieldValue.innerText = ""
-    // }).then(() => {
-    //   cy.log("current field value is : '" + textF + "'")
-    // })
   },
 );
 
@@ -1590,15 +1567,6 @@ Cypress.Commands.add(
           cy.wrap($field).invoke("text");
         });
     }
-    //cy.wait(3000); //Increasing wait time to evaluate non-undefined values
-    // if (isDynamicValue) {
-    //   const val = cy
-    //     .get(commonlocators.evaluatedCurrentValue)
-    //     .first()
-    //     .should("be.visible")
-    //     .invoke("text");
-    //   if (toValidate) expect(val).to.eq(currentValue);
-    // }
     if (currentValue) expect(val).to.eq(currentValue);
 
     return val;

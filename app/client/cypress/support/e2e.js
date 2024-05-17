@@ -49,7 +49,6 @@ registerCypressGrep();
 installLogsCollector();
 
 Cypress.on("uncaught:exception", (error) => {
-  //cy.log(error.message);
   return false; // returning false here prevents Cypress from failing the test
 });
 
@@ -82,7 +81,6 @@ before(function () {
   if (RapidMode.config.enabled) {
     return;
   }
-  //console.warn = () => {}; //to remove all warnings in cypress console
   initLocalstorage();
   initLocalstorageRegistry();
   cy.startServerAndRoutes();
@@ -121,7 +119,6 @@ before(function () {
       cy.LogOut();
       cy.LoginFromAPI(username, password);
     } else if (url.indexOf("user/login") > -1) {
-      //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
       cy.LoginFromAPI(username, password);
       cy.wait(3000);
     }
@@ -144,7 +141,6 @@ before(function () {
       binding_widget: true,
     });
   }
-  //console.warn = () => {};
 
   cy.CreateNewAppInNewWorkspace(); //Creating new workspace and app
   cy.fixture("TestDataSet1").then(function (data) {
@@ -153,12 +149,10 @@ before(function () {
 });
 
 beforeEach(function () {
-  //cy.window().then((win) => (win.onbeforeunload = undefined));
   if (!navigator.userAgent.includes("Cypress")) {
     window.addEventListener("beforeunload", this.beforeunloadFunction);
   }
   initLocalstorage();
-  //Cypress.Cookies.preserveOnce("SESSION", "remember_token");
   cy.startServerAndRoutes();
   //-- Delete local storage data of entity explorer
   cy.DeleteEntityStateLocalStorage();
@@ -174,10 +168,4 @@ after(function () {
   //-- Deleting the application by Api---//
   cy.DeleteAppByApi();
   cy.DeleteWorkspaceByApi();
-  //-- LogOut Application---//
-  //cy.LogOut(false);
-  // Commenting until Upgrade Appsmith cases are fixed
-  // const tedUrl = "http://localhost:5001/v1/parent/cmd";
-  // cy.log("Start the appsmith container");
-  // cy.StartContainer(tedUrl, "appsmith"); // start the old container
 });
