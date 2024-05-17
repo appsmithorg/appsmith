@@ -35,6 +35,7 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
     private ClientRequest request;
     private final ObjectMapper objectMapper;
     private final BodyReceiver bodyReceiver = new BodyReceiver();
+    private final String MASKED_VALUE = "****";
 
     public RequestCaptureFilter(ObjectMapper objectMapper) {
         this.objectMapper = objectMapper;
@@ -44,6 +45,33 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
     @NonNull public Mono<ClientResponse> filter(@NonNull ClientRequest request, ExchangeFunction next) {
         this.request = request;
         return next.exchange(request);
+    }
+
+    private URI createURIWithMaskedQueryParam(URI uriToMask, String queryParamKeyToMask) {
+
+        String query = uriToMask.getQuery();
+        String[] queryParams = query.split("&");
+        StringJoiner newQuery = new StringJoiner("&");
+        for (String queryParam : queryParams) {
+            String[] keyValuePair = queryParam.split("=");
+            if (queryParamKeyToMask.equals(keyValuePair[0])) {
+                keyValuePair[1] = MASKED_VALUE;
+            }
+            newQuery.add(keyValuePair[0] + "=" + keyValuePair[1]);
+        }
+
+        try {
+            return new URI(
+                    uriToMask.getScheme(),
+                    uriToMask.getUserInfo(),
+                    uriToMask.getHost(),
+                    uriToMask.getPort(),
+                    uriToMask.getPath(),
+                    newQuery.toString(),
+                    uriToMask.getRawFragment());
+        } catch (URISyntaxException e) {
+            return uriToMask;
+        }
     }
 
     public ActionExecutionRequest populateRequestFields(
@@ -59,52 +87,31 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         }
 
         AtomicBoolean isMultipart = new AtomicBoolean(false);
+
         String headerToMask = "";
-        String queryParamKeyToMask = "";
-        String MASKED_VALUE = "****";
+
         String URLString = request.url().toString();
 
-        // if authenticationType is api_key then check the addTo method and mask the api_key set by user accordingly.
-        if (datasourceConfiguration.getAuthentication().getAuthenticationType().equals(Authentication.API_KEY)) {
-            ApiKeyAuth auth = (ApiKeyAuth) datasourceConfiguration.getAuthentication();
-            if (auth.getAddTo().equals(ApiKeyAuth.Type.HEADER)) {
-                headerToMask = auth.getLabel();
-            }
-            if (auth.getAddTo().equals(ApiKeyAuth.Type.QUERY_PARAMS)) {
-                queryParamKeyToMask = auth.getLabel();
-                URI url = request.url();
-                String query = url.getQuery();
-                String[] queryParams = query.split("&");
-                StringJoiner newQuery = new StringJoiner("&");
-                for (String queryParam : queryParams) {
-                    String[] keyValuePair = queryParam.split("=");
-                    if (queryParamKeyToMask.equals(keyValuePair[0])) {
-                        keyValuePair[1] = MASKED_VALUE;
-                    }
-                    newQuery.add(keyValuePair[0] + "=" + keyValuePair[1]);
-                }
+        AuthenticationDTO authentication = datasourceConfiguration.getAuthentication();
 
-                try {
-                    URLString = new URI(
-                                    url.getScheme(),
-                                    url.getUserInfo(),
-                                    url.getHost(),
-                                    url.getPort(),
-                                    url.getPath(),
-                                    newQuery.toString(),
-                                    url.getRawFragment())
-                            .toString();
-                } catch (URISyntaxException e) {
-                    throw new RuntimeException(e);
+        // if authenticationType is api_key then check the addTo method and mask the api_key set by user accordingly.
+        if (authentication != null
+                && authentication.getAuthenticationType() != null
+                && authentication.getAuthenticationType().equals(Authentication.API_KEY)) {
+            ApiKeyAuth auth = (ApiKeyAuth) authentication;
+            if (auth.getAddTo() != null) {
+                if (auth.getAddTo().equals(ApiKeyAuth.Type.HEADER)) {
+                    headerToMask = auth.getLabel();
+                }
+                if (auth.getAddTo().equals(ApiKeyAuth.Type.QUERY_PARAMS)) {
+                    URI maskedURI = createURIWithMaskedQueryParam(request.url(), auth.getLabel());
+                    URLString = maskedURI.toString();
                 }
             }
         }
-
-        actionExecutionRequest.setUrl(URLString);
+        String finalHeaderToMask = headerToMask;
         MultiValueMap<String, String> headers =
                 CollectionUtils.toMultiValueMap(new LinkedCaseInsensitiveMap<>(8, Locale.ENGLISH));
-
-        String finalHeaderToMask = headerToMask;
         request.headers().forEach((header, value) -> {
             if (HttpHeaders.AUTHORIZATION.equalsIgnoreCase(header)
                     || "api_key".equalsIgnoreCase(header)
@@ -119,8 +126,8 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
             }
         });
 
+        actionExecutionRequest.setUrl(URLString);
         actionExecutionRequest.setHeaders(objectMapper.valueToTree(headers));
-
         actionExecutionRequest.setHttpMethod(request.method());
         actionExecutionRequest.setRequestParams(existing.getRequestParams());
         actionExecutionRequest.setExecutionParameters(existing.getExecutionParameters());
@@ -134,7 +141,6 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
         } else {
             actionExecutionRequest.setBody(existing.getBody());
         }
-
         return actionExecutionRequest;
     }
 
