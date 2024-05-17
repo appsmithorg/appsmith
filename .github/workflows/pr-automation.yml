@@ -17,6 +17,7 @@ jobs:
         shell: bash
     outputs:
       tags: ${{ steps.checkAll.outputs.tags }}
+      tests: ${{ steps.checkAll.outputs.tests }}
       matrix: ${{ steps.checkAll.outputs.matrix }}
     steps:
 
@@ -49,12 +50,15 @@ jobs:
       - name: Parse tags
         id: parseTags
         run: |
-              if [[ '${{ steps.getTags.outputs.tags }}' != '' ]]; then
+              if [[ '${{ steps.getTags.outputs.tags }}' == '' &&  '${{ steps.getTags.outputs.tests }}' == '' ]]; then
+                echo "Neither tags nor tests were found!"
+                echo "outcome=failure" >> $GITHUB_OUTPUT
+              elif [[ '${{ steps.getTags.outputs.tags }}' != '' ]]; then
                 echo "tags=${{ steps.getTags.outputs.tags }}" >> $GITHUB_OUTPUT
                 echo "outcome=success" >> $GITHUB_OUTPUT
-              else
-                echo "Tags were not found!"
-                echo "outcome=failure" >> $GITHUB_OUTPUT
+              elif [[ '${{ steps.getTags.outputs.tests }}' != '' ]]; then
+                echo "tests=${{ steps.getTags.outputs.tests }}" >> $GITHUB_OUTPUT
+                echo "outcome=success" >> $GITHUB_OUTPUT
               fi
 
       # In case of missing tags, guides towards correct usage in test response
@@ -65,7 +69,7 @@ jobs:
             content: |
               <!-- This is an auto-generated comment: Cypress test results  -->
               > [!WARNING]
-              > The provided command lacks proper tags. Please modify PR body, specifying the tags you want to include or use `/ok-to-test tags="@tag.All"` to run all specs.
+              > The provided command lacks proper tags or tests. Please modify PR body, specifying either the tags or tests you want to include or use `/ok-to-test tags="@tag.All"` to run all specs.
               > Explore the tags documentation [here](https://www.notion.so/appsmith/Ok-to-test-With-Tags-7c0fc64d4efb4afebf53348cd6252918)
 
               <!-- end of auto-generated comment: Cypress test results  -->
@@ -78,7 +82,8 @@ jobs:
         if: steps.parseTags.outputs.outcome != 'success'
         run: exit 1
 
-      - name: Check Tags
+      - name: Check tags
+        if: steps.parseTags.outputs.tags != '' && steps.parseTags.outputs.outcome == 'success'
         env:
           TAG_LIST: ${{ steps.getTags.outputs.tags }}
         id: checkTags
@@ -115,6 +120,7 @@ jobs:
     
       # In case of a run with all test cases, allocate a larger matrix
       - name: Check if @tag.All is present in tags
+        if: steps.parseTags.outputs.tags != '' && steps.checkTags.outputs.outcome == ''
         id: checkAll
         run: |
           tags="${{ steps.parseTags.outputs.tags }}"
@@ -196,4 +202,5 @@ jobs:
     secrets: inherit
     with:
       tags: ${{ needs.parse-tags.outputs.tags}}
+      tests: ${{ needs.parse-tags.outputs.tests}}
       matrix: ${{ needs.parse-tags.outputs.matrix}}
