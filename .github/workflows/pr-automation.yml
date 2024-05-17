@@ -41,9 +41,13 @@ jobs:
         env:
           PR_BODY: ${{ github.event.pull_request.body }}
         run: |
-          REGEX='/ok-to-test tags="([^"]*)"';
-          if [[ $PR_BODY =~ $REGEX ]]; then
+          TAG_REGEX='/ok-to-test tags="([^"]*)"';
+          TEST_REGEX='/ok-to-test tests="([^"]*)"';
+
+          if [[ $PR_BODY =~ $TAG_REGEX ]]; then
             echo "tags=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
+          elif [[ $PR_BODY =~ $TEST_REGEX ]]; then
+            echo "tests=${BASH_REMATCH[1]}" >> $GITHUB_OUTPUT
           fi
 
       # Parses the retrieved /ok-to-test slash command to retrieve tags
