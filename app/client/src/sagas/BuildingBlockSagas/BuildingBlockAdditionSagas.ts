@@ -319,15 +319,11 @@ export function* addBuildingBlockToCanvasSaga(
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const dragDetails: DragDetails = yield select(getDragDetails);
   const buildingblockName = dragDetails.newWidget.displayName;
-  const skeletonWidgetName = `loading_${buildingblockName
-    .toLowerCase()
-    .replace(/ /g, "_")}`;
   const addSkeletonWidgetAction: ReduxAction<WidgetAddChild> = {
     ...addEntityAction,
     payload: {
       ...addEntityAction.payload,
       type: "SKELETON_WIDGET",
-      widgetName: skeletonWidgetName,
       widgetId: MAIN_CONTAINER_WIDGET_ID,
     },
   };
@@ -355,9 +351,6 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
   const workspaceId: string = yield select(getCurrentWorkspaceId);
   const dragDetails: DragDetails = yield select(getDragDetails);
   const buildingblockName = dragDetails.newWidget.displayName;
-  const skeletonWidgetName = `loading_${buildingblockName
-    .toLowerCase()
-    .replace(/ /g, "_")}`;
 
   yield call(initiateBuildingBlockDropEvent, {
     applicationId,
@@ -371,7 +364,6 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
       newWidget: {
         ...actionPayload.payload.newWidget,
         type: "SKELETON_WIDGET",
-        widgetName: skeletonWidgetName,
         widgetId: MAIN_CONTAINER_WIDGET_ID,
       },
     },

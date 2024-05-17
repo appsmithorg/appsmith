@@ -160,7 +160,6 @@ export function* addWidgetAndMoveWidgetsSaga(
     newWidget: WidgetAddChild;
     draggedBlocksToUpdate: WidgetDraggingUpdateParams[];
     canvasId: string;
-    shouldReplay?: boolean;
   }>,
 ) {
   const start = performance.now();
@@ -182,11 +181,7 @@ export function* addWidgetAndMoveWidgetsSaga(
     ) {
       throw Error;
     }
-    yield put(
-      updateAndSaveLayout(updatedWidgetsOnAddAndMove, {
-        shouldReplay: actionPayload.payload.shouldReplay,
-      }),
-    );
+    yield put(updateAndSaveLayout(updatedWidgetsOnAddAndMove));
     yield put(generateAutoHeightLayoutTreeAction(true, true));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,

@@ -376,13 +376,7 @@ export function* getUpdateDslAfterCreatingChild(
  *
  * @param addChildAction
  */
-export function* addChildSaga(
-  addChildAction: ReduxAction<
-    WidgetAddChild & {
-      shouldReplay?: boolean;
-    }
-  >,
-) {
+export function* addChildSaga(addChildAction: ReduxAction<WidgetAddChild>) {
   try {
     const start = performance.now();
     toast.dismiss();
@@ -403,11 +397,7 @@ export function* addChildSaga(
     const updatedWidgets: {
       [widgetId: string]: FlattenedWidgetProps;
     } = yield call(getUpdateDslAfterCreatingChild, addChildAction.payload);
-    yield put(
-      updateAndSaveLayout(updatedWidgets, {
-        shouldReplay: addChildAction.payload.shouldReplay,
-      }),
-    );
+    yield put(updateAndSaveLayout(updatedWidgets));
     yield put({
       type: ReduxActionTypes.RECORD_RECENTLY_ADDED_WIDGET,
       payload: [addChildAction.payload.newWidgetId],
