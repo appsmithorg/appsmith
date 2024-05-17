@@ -177,6 +177,8 @@ jobs:
         run: |
           if [[ "${{ inputs.is-pg-build }}" == "true" ]]; then
             export APPSMITH_DB_URL="jdbc:postgresql://localhost:5432/postgres"
+            export APPSMITH_DB_USERNAME="postgres"
+            export APPSMITH_DB_PASSWORD="password"
           else
             export APPSMITH_DB_URL="mongodb://localhost:27017/mobtools"
           fi
