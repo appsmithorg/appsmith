@@ -3,6 +3,7 @@ package com.appsmith.server.helpers;
 import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.AutoCommitConfig;
 import com.appsmith.server.domains.GitArtifactMetadata;
+import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import net.minidev.json.JSONObject;
 import org.junit.jupiter.api.Test;
@@ -62,12 +63,27 @@ public class GitUtilsTest {
                 .isEqualTo("https://tim.tam.example.com/v3/sladeping/pyhe/SpaceJunk");
 
         // custom ssh username:
-        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("custom@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("abc-xy@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
                 .isEqualTo("https://vs-ssh.visualstudio.com/v3/newJet/ai/zilla");
 
         assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl(
-                        "ssh://custom@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
+                        "ssh://cust-om@vs-ssh.visualstudio.com:/v3/newJet/ai/zilla.git"))
                 .isEqualTo("https://vs-ssh.visualstudio.com/v3/newJet/ai/zilla");
+
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://xy-ab@sub.domain.xy:/v3/xy-ab/path/path.git"))
+                .isEqualTo("https://sub.domain.xy/v3/xy-ab/path/path");
+
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://domain.xy:/path/path.git"))
+                .isEqualTo("https://domain.xy/path/path");
+
+        assertThat(GitUtils.convertSshUrlToBrowserSupportedUrl("ssh://user@domain.com/repopath.git"))
+                .isEqualTo("https://domain.com/repopath");
+
+        AppsmithException exception = assertThrows(
+                AppsmithException.class,
+                () -> GitUtils.convertSshUrlToBrowserSupportedUrl(
+                        "ssh://cust-om@vs-ssh.visualstudio.com:v3/newJet/ai/zilla.git"));
+        assertThat(exception.getAppErrorCode()).isEqualTo(AppsmithError.INVALID_GIT_CONFIGURATION.getAppErrorCode());
     }
 
     @Test
@@ -144,8 +160,13 @@ public class GitUtilsTest {
         assertThat(GitUtils.getRepoName("custom@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
                 .isEqualTo("zilla");
 
-        assertThat(GitUtils.getRepoName("ssh://custom@vs-ssh.visualstudio.com:v3/newJet/ai/zilla"))
+        assertThat(GitUtils.getRepoName("ssh://custom@vs-ssh.visualstudio.com:/v3/newJet/ai/zilla"))
                 .isEqualTo("zilla");
+
+        assertThat(GitUtils.getRepoName("ssh://xy-ab@sub.domain.xy:/v3/xy-ab/path/path.git"))
+                .isEqualTo("path");
+
+        assertThat(GitUtils.getRepoName("ssh://domain.xy:/path/path.git")).isEqualTo("path");
     }
 
     @Test
