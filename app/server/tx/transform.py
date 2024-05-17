@@ -4,6 +4,8 @@ import re
 from textwrap import dedent, indent
 from itertools import chain
 import subprocess
+import os
+import glob
 
 root = Path(__file__).parent
 while not (root / ".git").exists() and root != Path("/"):
@@ -355,10 +357,15 @@ def convert(domain):
     generate_cake_class(domain)
     #use_cake(domain)  # Commenting this out since we want both cake and repo to co-exist now.
 
+def cleanup():
+    print("Cleaning up old cake classes")
+    for filename in glob.iglob('./**/*RepositoryCake.java', recursive=True):
+        os.remove(filename)
 
 def main():
     apply(root / "app/server/appsmith-interfaces/pom.xml", add_postgres_dep)
     apply(root / "app/server/appsmith-plugins/postgresPlugin/pom.xml", del_postgres_dep)
+    cleanup()
 
     convert("ActionCollection")
     convert("Application")
@@ -382,6 +389,7 @@ def main():
     convert("Collection")
     convert("Asset")
     convert("UsagePulse")
+    convert("GitDeployKeys")
 
     # print("Format cakes")
     # subprocess.check_call(
