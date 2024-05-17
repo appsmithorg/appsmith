@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { useLocation } from "react-router";
 import clsx from "classnames";
 import { Flex, Icon, ScrollArea } from "design-system";
@@ -25,7 +25,6 @@ interface Props {
 const FileTabs = (props: Props) => {
   const { navigateToTab, onClose, tabs } = props;
   const { segment, segmentMode } = useCurrentEditorState();
-  const [showDivider, setShowDivider] = useState(false);
 
   const location = useLocation();
 
@@ -41,9 +40,13 @@ const FileTabs = (props: Props) => {
   }, [tabs, segmentMode]);
 
   useEffect(() => {
-    const ele = document.getElementById("t--tabs-overflow-check");
+    const ele = document.getElementById(
+      "t--tabs-overflow-check",
+    )?.parentElement;
     if (ele && ele.scrollWidth > ele.clientWidth) {
-      setShowDivider(true);
+      ele.style.borderRight = "1px solid var(--ads-v2-color-border)";
+    } else if (ele) {
+      ele.style.borderRight = "unset";
     }
   }, [tabs]);
 
@@ -64,14 +67,7 @@ const FileTabs = (props: Props) => {
       }}
       size={"sm"}
     >
-      <Flex
-        className={clsx({
-          "border-r-[1px]": showDivider,
-        })}
-        gap="spaces-2"
-        height="100%"
-        id="t--tabs-overflow-check"
-      >
+      <Flex gap="spaces-2" height="100%" id="t--tabs-overflow-check">
         {tabs.map((tab: EntityItem) => (
           <StyledTab
             className={clsx(
