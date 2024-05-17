@@ -10,6 +10,11 @@ import {
 } from "../../../../support/Objects/ObjectsCore";
 import PageList from "../../../../support/Pages/PageList";
 import { EntityItems } from "../../../../support/Pages/AssertHelper";
+import {
+  createMessage,
+  STARTER_TEMPLATE_PAGE_LAYOUTS,
+  EMPTY_CANVAS_HINTS,
+} from "../../../../../src/ce/constants/messages";
 
 describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   afterEach(() => {
@@ -23,7 +28,15 @@ describe("Page Load tests", { tags: ["@tag.IDE"] }, () => {
   before(() => {
     agHelper.AddDsl("PageLoadDsl");
     PageList.AddNewPage();
-    cy.get("h2").contains("Drag and drop a widget here");
+    if (Cypress.env("AIRGAPPED")) {
+      cy.get("h2").contains(
+        createMessage(EMPTY_CANVAS_HINTS.DRAG_DROP_WIDGET_HINT),
+      );
+    } else {
+      cy.get("span").contains(
+        createMessage(STARTER_TEMPLATE_PAGE_LAYOUTS.header),
+      );
+    }
   });
 
   it("1. Published page loads correctly", () => {

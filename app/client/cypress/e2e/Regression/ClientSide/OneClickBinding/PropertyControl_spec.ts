@@ -82,12 +82,6 @@ describe(
 
       agHelper.GetNClick(oneClickBindingLocator.datasourceQuerySelector(), 0);
 
-      agHelper.AssertElementExist(
-        oneClickBindingLocator.dropdownOptionSelector("Query1"),
-      );
-
-      propPane.ToggleJSMode("Table data");
-
       propPane.ValidatePropertyFieldValue("Table data", "{{Query1.data}}");
 
       propPane.AssertJSToggleState("Table data", "enabled");

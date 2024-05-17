@@ -113,6 +113,9 @@ export const CodemirrorHintStyles = createGlobalStyle<{
         align-items: start;
         gap: 8px;
       }
+      &.show-more-option {
+        opacity: 0.7;
+      }
     }
 
     .CodeMirror-hint-header {

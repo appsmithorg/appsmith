@@ -23,16 +23,18 @@ import { updateBodyContentType } from "actions/apiPaneActions";
 import type { CodeEditorExpected } from "components/editorComponents/CodeEditor";
 import { AutocompleteDataType } from "utils/autocomplete/AutocompleteDataType";
 import { createMessage, API_PANE_NO_BODY } from "@appsmith/constants/messages";
-import { SegmentedControl } from "design-system";
+import { Select, Option } from "design-system";
 
 const PostBodyContainer = styled.div`
+  display: flex;
+  flex-direction: column;
   padding: 12px 0px 0px;
   background-color: var(--ads-v2-color-bg);
   height: 100%;
-  .ads-v2-segmented-control {
-    /* max-width: fit-content;
-    margin-left: 30px; */
-    margin-bottom: 12px;
+  gap: var(--ads-v2-spaces-4);
+  .ads-v2-select {
+    max-width: 250px;
+    width: 100%;
   }
 `;
 
@@ -152,7 +154,7 @@ function PostBodyData(props: Props) {
               dataTreePath={`${dataTreePath}.body`}
               mode={EditorModes.TEXT_WITH_BINDING}
               name="actionConfiguration.body"
-              placeholder={`{{\n\t{name: inputName.property, preference: dropdownName.property}\n}}`}
+              placeholder={`{{\n\t// Make sure to select the 'Base64' in the Data Format property of the Filepicker widget as the file contents are expected to be in Base64 format\n\tfilePickerName.files[0].data\n}}`}
               size={EditorSize.EXTENDED}
               tabBehaviour={TabBehaviour.INDENT}
               theme={theme}
@@ -174,13 +176,18 @@ function PostBodyData(props: Props) {
 
   return (
     <PostBodyContainer>
-      <SegmentedControl
+      <Select
         data-testid="t--api-body-tab-switch"
         defaultValue={selectedTab}
-        isFullWidth={false}
-        onChange={(key: string) => postBodyDataOnChangeFn(key)}
-        options={options}
-      />
+        onSelect={(value) => postBodyDataOnChangeFn(value)}
+        value={selectedTab}
+      >
+        {options.map((option) => (
+          <Option key={option.value} value={option.value}>
+            {option.label}
+          </Option>
+        ))}
+      </Select>
       {tabComponentsMap(selectedTab)}
     </PostBodyContainer>
   );

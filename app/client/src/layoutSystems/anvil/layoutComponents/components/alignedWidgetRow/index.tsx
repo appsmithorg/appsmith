@@ -7,6 +7,7 @@ import {
 import type { FlexLayoutProps } from "../FlexLayout";
 import { deriveAlignedRowHighlights } from "layoutSystems/anvil/utils/layouts/highlights/alignedRowHighlights";
 import AlignedWidgetRowComp from "./AlignedWidgetRowComp";
+import styles from "./styles.module.css";
 
 class AlignedWidgetRow extends BaseLayoutComponent {
   static type: LayoutComponentTypes = LayoutComponentTypes.ALIGNED_WIDGET_ROW;
@@ -26,7 +27,7 @@ class AlignedWidgetRow extends BaseLayoutComponent {
       direction: "row",
       wrap: "wrap",
       gap: "spacing-3",
-      className: "aligned-widget-row",
+      className: styles.alignedWidgetRow,
     };
   }
 }

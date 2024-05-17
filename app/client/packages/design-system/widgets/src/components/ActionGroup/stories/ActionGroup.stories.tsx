@@ -7,6 +7,7 @@ import {
   BUTTON_VARIANTS,
   Item,
   SIZES,
+  objectKeys,
 } from "@design-system/widgets";
 
 /**
@@ -41,7 +42,7 @@ export const Main: Story = {
 export const Variants: Story = {
   render: () => (
     <Flex gap="1rem" wrap="wrap">
-      {Object.values(BUTTON_VARIANTS).map((variant) => (
+      {objectKeys(BUTTON_VARIANTS).map((variant) => (
         <ActionGroup key={`${variant}`} variant={variant}>
           <Item>{variant}</Item>
           <Item>{variant}</Item>
@@ -58,7 +59,7 @@ export const Variants: Story = {
 export const Semantic: Story = {
   render: () => (
     <Flex alignItems="center" direction="column" gap="spacing-4">
-      {Object.values(BUTTON_VARIANTS).map((variant) =>
+      {objectKeys(BUTTON_VARIANTS).map((variant) =>
         Object.values(COLORS).map((color) => (
           <ActionGroup
             color={color}
@@ -118,6 +119,26 @@ export const Orientation: Story = {
         <Item key="option-2">Option 2</Item>
         <Item key="option-3">Option 3</Item>
         <Item key="option-4">Option 4</Item>
+      </ActionGroup>
+    </Flex>
+  ),
+};
+
+/**
+ * The `ActionGroup` can be aligned to the start, or end. By default, it is aligned to the start.
+ */
+export const Alignment: Story = {
+  render: () => (
+    <Flex direction="column" gap="spacing-3" width="sizing-100">
+      <ActionGroup alignment="start">
+        <Item key="option-1">Option 1</Item>
+        <Item key="option-2">Option 2</Item>
+        <Item key="option-3">Option 3</Item>
+      </ActionGroup>
+      <ActionGroup alignment="end">
+        <Item key="option-1">Option 1</Item>
+        <Item key="option-2">Option 2</Item>
+        <Item key="option-3">Option 3</Item>
       </ActionGroup>
     </Flex>
   ),

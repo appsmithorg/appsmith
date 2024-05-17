@@ -5,6 +5,7 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.repositories.AppsmithRepository;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.mongodb.core.query.UpdateDefinition;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -49,4 +50,6 @@ public interface CustomActionCollectionRepositoryCE extends AppsmithRepository<A
             String contextId, CreatorContextType contextType, AclPermission permission);
 
     Flux<ActionCollection> findByPageIdAndViewMode(String pageId, boolean viewMode, AclPermission permission);
+
+    Mono<Integer> updateById(String id, UpdateDefinition updateObj);
 }

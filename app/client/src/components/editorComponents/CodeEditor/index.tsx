@@ -648,6 +648,10 @@ class CodeEditor extends Component<Props, State> {
         prevProps.customErrors !== this.props.customErrors
       ) {
         this.lintCode(this.editor);
+      } else {
+        if (!!this.updateLintingCallback) {
+          this.updateLintingCallback(this.editor, this.annotations);
+        }
       }
       if (this.props.datasourceTableKeys !== prevProps.datasourceTableKeys) {
         sqlHint.setDatasourceTableKeys(this.props.datasourceTableKeys);
@@ -814,7 +818,9 @@ class CodeEditor extends Component<Props, State> {
 
   handleMouseOver = (event: MouseEvent) => {
     const tokenElement = event.target;
+    const rect = (tokenElement as Element).getBoundingClientRect();
     if (
+      !(rect.height === 0 && rect.width === 0) &&
       tokenElement instanceof Element &&
       this.isPeekableElement(tokenElement)
     ) {
@@ -1436,12 +1442,12 @@ class CodeEditor extends Component<Props, State> {
       lintErrors.push(...this.props.customErrors);
     }
 
-    const annotations = getLintAnnotations(editor.getValue(), lintErrors, {
+    this.annotations = getLintAnnotations(editor.getValue(), lintErrors, {
       isJSObject,
       contextData,
     });
 
-    this.updateLintingCallback(editor, annotations);
+    this.updateLintingCallback(editor, this.annotations);
   }
 
   static updateMarkings = (

@@ -54,7 +54,7 @@ export const getColumnsPureFn: getColumns = (
         metaProperties: {
           isHidden: isHidden,
           type: column.columnType,
-          format: column.outputFormat || "",
+          format: column.outputFormat || "YYYY-MM-DD",
           inputFormat: column.inputFormat || "",
           decimals: column.decimals || 0,
         },

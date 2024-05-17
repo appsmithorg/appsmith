@@ -90,7 +90,6 @@ import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { checkAndLogErrorsIfCyclicDependency } from "./helper";
 import { toast } from "design-system";
 import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers";
-import { getIsServerDSLMigrationsEnabled } from "selectors/pageSelectors";
 import {
   getJSActionPathNameToDisplay,
   isBrowserExecutionAllowed,
@@ -586,14 +585,17 @@ function* handleUpdateJSCollectionBody(
   jsCollection["body"] = actionPayload.payload.body;
   try {
     if (jsCollection) {
-      const response: JSCollectionCreateUpdateResponse =
-        yield JSActionAPI.updateJSCollection(jsCollection);
+      const response: ApiResponse<any> =
+        yield JSActionAPI.updateJSCollectionBody(
+          jsCollection.id,
+          jsCollection.body,
+        );
       const isValidResponse: boolean = yield validateResponse(response);
       if (isValidResponse) {
         // since server is not sending the info about whether the js collection is main or not
         // we are retaining it manually
         const updatedJSCollection: JSCollection = {
-          ...response.data,
+          ...jsCollection,
           isMainJSCollection: !!jsCollection.isMainJSCollection,
         };
         yield put(
@@ -634,13 +636,10 @@ function* handleRefactorJSActionNameSaga(
     return;
   }
 
-  const isServerDSLMigrationsEnabled = select(getIsServerDSLMigrationsEnabled);
   const params: FetchPageRequest = {
     id: data.payload.refactorAction.pageId || "",
+    migrateDSL: true,
   };
-  if (isServerDSLMigrationsEnabled) {
-    params.migrateDSL = true;
-  }
   const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
   const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
   if (isPageRequestSuccessful) {

@@ -30,10 +30,10 @@ import { altFocusWidget, setWidgetSelectionBlock } from "actions/widgetActions";
 import { useJSAdd } from "@appsmith/pages/Editor/IDE/EditorPane/JS/hooks";
 import { useQueryAdd } from "@appsmith/pages/Editor/IDE/EditorPane/Query/hooks";
 import { TabSelectors } from "./EditorTabs/constants";
+import { createEditorFocusInfoKey } from "@appsmith/navigation/FocusStrategy/AppIDEFocusStrategy";
+import { FocusElement } from "navigation/FocusElements";
 import { closeJSActionTab } from "actions/jsActionActions";
 import { closeQueryActionTab } from "actions/pluginActionActions";
-import { createEditorFocusInfoKey } from "@appsmith/navigation/FocusStrategy/AppIDEFocusStrategy";
-import { FocusElement } from "../../../navigation/FocusElements";
 
 export const useCurrentAppState = () => {
   const [appState, setAppState] = useState(EditorState.EDITOR);
@@ -233,16 +233,16 @@ export function useWidgetSelectionBlockListener() {
 
 export const useIDETabClickHandlers = () => {
   const dispatch = useDispatch();
-  const onJSAddClick = useJSAdd();
-  const onQueryAddClick = useQueryAdd();
+  const { closeAddJS, openAddJS } = useJSAdd();
+  const { closeAddQuery, openAddQuery } = useQueryAdd();
   const { segment, segmentMode } = useCurrentEditorState();
   const tabsConfig = TabSelectors[segment];
   const pageId = useSelector(getCurrentPageId);
 
   const addClickHandler = useCallback(() => {
-    if (segment === EditorEntityTab.JS) onJSAddClick();
-    if (segment === EditorEntityTab.QUERIES) onQueryAddClick();
-  }, [segment, segmentMode, onQueryAddClick, onJSAddClick]);
+    if (segment === EditorEntityTab.JS) openAddJS();
+    if (segment === EditorEntityTab.QUERIES) openAddQuery();
+  }, [segment, segmentMode, openAddQuery, openAddJS]);
 
   const tabClickHandler = useCallback(
     (item: EntityItem) => {
@@ -255,13 +255,17 @@ export const useIDETabClickHandlers = () => {
   );
 
   const closeClickHandler = useCallback(
-    (actionId: string) => {
+    (actionId: string | undefined) => {
+      if (!actionId) {
+        // handle JS
+        return segment === EditorEntityTab.JS ? closeAddJS() : closeAddQuery();
+      }
       if (segment === EditorEntityTab.JS)
-        dispatch(closeJSActionTab({ id: actionId }));
+        dispatch(closeJSActionTab({ id: actionId, parentId: pageId }));
       if (segment === EditorEntityTab.QUERIES)
-        dispatch(closeQueryActionTab({ id: actionId }));
+        dispatch(closeQueryActionTab({ id: actionId, parentId: pageId }));
     },
-    [segment, dispatch],
+    [segment, pageId, dispatch],
   );
 
   return { addClickHandler, tabClickHandler, closeClickHandler };
