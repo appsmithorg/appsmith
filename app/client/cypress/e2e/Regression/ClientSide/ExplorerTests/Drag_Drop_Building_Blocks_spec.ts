@@ -192,7 +192,7 @@ describe(
         });
     });
 
-    it.only("5. Should drag and drop building block on canvas", () => {
+    it("5. Should drag and drop building block on canvas", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       // primary api call for dropping building blocks on canvas
       cy.intercept("POST", "/api/v1/applications/import/partial/block").as(
