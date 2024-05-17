@@ -22,11 +22,12 @@
   }
 
   & [data-table-header-pagination] > [data-field] {
-    width: 5ch;
+    width: max-content;
   }
 
   & [data-table-header-pagination] > [data-field] input {
     text-align: center;
+    width: 3ch;
   }
 }
 

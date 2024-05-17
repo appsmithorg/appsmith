@@ -206,19 +206,18 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       <>
         <div className="flex pt-2 pb-2 justify-between">
           <div>{Object.values(reorderedColumns).length} columns</div>
-          {this.props.widgetProperties.type !== "WDS_TABLE_WIDGET" &&
-            this.isEditableColumnPresent() && (
-              <EdtiableCheckboxWrapper
-                className="flex t--uber-editable-checkbox"
-                rightPadding={this.state.hasScrollableList}
-              >
-                <span className="mr-2">Editable</span>
-                <Checkbox
-                  isSelected={this.isAllColumnsEditable()}
-                  onChange={this.toggleAllColumnsEditability}
-                />
-              </EdtiableCheckboxWrapper>
-            )}
+          {this.isEditableColumnPresent() && (
+            <EdtiableCheckboxWrapper
+              className="flex t--uber-editable-checkbox"
+              rightPadding={this.state.hasScrollableList}
+            >
+              <span className="mr-2">Editable</span>
+              <Checkbox
+                isSelected={this.isAllColumnsEditable()}
+                onChange={this.toggleAllColumnsEditability}
+              />
+            </EdtiableCheckboxWrapper>
+          )}
         </div>
         <div className="flex flex-col w-full gap-1">
           <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
@@ -235,34 +234,26 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               renderComponent={(props: any) =>
                 DraggableListCard({
                   ...props,
-                  showCheckbox:
-                    this.props.widgetProperties.type !== "WDS_TABLE_WIDGET" &&
-                    true,
+                  showCheckbox: true,
                   placeholder: "Column title",
                 })
               }
               toggleCheckbox={this.toggleCheckbox}
-              toggleVisibility={
-                this.props.widgetProperties.type !== "WDS_TABLE_WIDGET"
-                  ? this.toggleVisibility
-                  : undefined
-              }
+              toggleVisibility={this.toggleVisibility}
               updateFocus={this.updateFocus}
               updateItems={this.updateItems}
               updateOption={this.updateOption}
             />
           </EvaluatedValuePopupWrapper>
-          {this.props.widgetProperties.type !== "WDS_TABLE_WIDGET" && (
-            <Button
-              className="self-end t--add-column-btn"
-              kind="tertiary"
-              onClick={this.addNewColumn}
-              size="sm"
-              startIcon="plus"
-            >
-              Add new column
-            </Button>
-          )}
+          <Button
+            className="self-end t--add-column-btn"
+            kind="tertiary"
+            onClick={this.addNewColumn}
+            size="sm"
+            startIcon="plus"
+          >
+            Add new column
+          </Button>
         </div>
       </>
     );

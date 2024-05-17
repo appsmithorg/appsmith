@@ -32,8 +32,8 @@ export const ModalHeader = (props: ModalHeaderProps) => {
         fontWeight={600}
         id={id}
         lineClamp={1}
+        size="subtitle"
         title={title}
-        variant="subtitle"
       >
         {title}
       </Text>

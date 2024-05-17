@@ -62,7 +62,7 @@ public abstract class BaseService<
     }
 
     @Override
-    public Mono<T> getById(ID id) {
+    public Mono<T> getByIdWithoutPermissionCheck(ID id) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
