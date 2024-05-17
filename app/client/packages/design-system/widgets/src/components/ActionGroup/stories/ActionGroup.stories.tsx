@@ -135,11 +135,6 @@ export const Alignment: Story = {
         <Item key="option-2">Option 2</Item>
         <Item key="option-3">Option 3</Item>
       </ActionGroup>
-      <ActionGroup alignment="center">
-        <Item key="option-1">Option 1</Item>
-        <Item key="option-2">Option 2</Item>
-        <Item key="option-3">Option 3</Item>
-      </ActionGroup>
       <ActionGroup alignment="end">
         <Item key="option-1">Option 1</Item>
         <Item key="option-2">Option 2</Item>
