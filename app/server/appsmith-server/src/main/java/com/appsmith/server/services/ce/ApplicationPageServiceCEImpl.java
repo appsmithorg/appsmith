@@ -34,7 +34,6 @@ import com.appsmith.server.dtos.PageNameIdDTO;
 import com.appsmith.server.dtos.PluginTypeAndCountDTO;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
-import com.appsmith.server.helpers.CollectionUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
@@ -282,110 +281,23 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
     }
 
     @Override
-    public Mono<List<NewPage>> getPagesBasedOnApplicationMode(
-            Application branchedApplication, ApplicationMode applicationMode) {
-
-        Boolean viewMode = ApplicationMode.PUBLISHED.equals(applicationMode) ? Boolean.TRUE : Boolean.FALSE;
-
-        List<ApplicationPage> applicationPages = Boolean.TRUE.equals(viewMode)
-                ? branchedApplication.getPublishedPages()
-                : branchedApplication.getPages();
-
-        Set<String> pageIds =
-                applicationPages.stream().map(ApplicationPage::getId).collect(Collectors.toSet());
-
+    public Mono<PageDTO> getPageAndMigrateDslByBranchAndDefaultPageId(
+            String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
+        // Fetch the page with read permission in both editor and in viewer.
         return newPageService
-                .findNewPagesByApplicationId(branchedApplication.getId(), pagePermission.getReadPermission())
-                .filter(newPage -> pageIds.contains(newPage.getId()))
-                .collectList()
-                .flatMap(newPageList -> {
-                    if (Boolean.TRUE.equals(viewMode)) {
-                        return Mono.just(newPageList);
-                    }
-
-                    // autocommit if migration is required
-                    return migrateSchemasForGitConnectedApps(branchedApplication, newPageList)
-                            .onErrorResume(error -> {
-                                log.debug(
-                                        "Skipping the autocommit for applicationId : {} due to error; {}",
-                                        branchedApplication.getId(),
-                                        error.getMessage());
-
-                                return Mono.just(Boolean.FALSE);
-                            })
-                            .thenReturn(newPageList);
-                });
-    }
-
-    /**
-     * Publishes the autocommit if it's eligible for one
-     * @param application : the branched application which requires schemaMigration
-     * @param newPages : list of pages from db
-     * @return : a boolean publisher
-     */
-    private Mono<Boolean> migrateSchemasForGitConnectedApps(Application application, List<NewPage> newPages) {
-
-        if (CollectionUtils.isNullOrEmpty(newPages)) {
-            return Mono.just(Boolean.FALSE);
-        }
-
-        if (application.getGitArtifactMetadata() == null) {
-            return Mono.just(Boolean.FALSE);
-        }
-
-        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
-        String defaultApplicationId = gitMetadata.getDefaultArtifactId();
-        String branchName = gitMetadata.getBranchName();
-
-        if (!StringUtils.hasText(branchName)) {
-            log.debug(
-                    "Skipping the autocommit for applicationId : {}, branch name is not present", application.getId());
-            return Mono.just(Boolean.FALSE);
-        }
-
-        if (!StringUtils.hasText(defaultApplicationId)) {
-            log.debug(
-                    "Skipping the autocommit for applicationId : {}, defaultApplicationId is not present",
-                    application.getId());
-            return Mono.just(Boolean.FALSE);
-        }
-
-        // since this method is only called when the app is in edit mode
-        Mono<PageDTO> pageDTOMono = getPage(newPages.get(0), false);
-        return pageDTOMono
-                .zipWith(dslMigrationUtils.getLatestDslVersion())
-                .onErrorMap(throwable -> {
-                    log.error("Error fetching latest DSL version", throwable);
-                    return new AppsmithException(AppsmithError.RTS_SERVER_ERROR, "Error fetching latest DSL version");
+                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission())
+                .flatMap(newPage -> {
+                    return sendPageViewAnalyticsEvent(newPage, viewMode)
+                            .then(getPage(newPage, viewMode))
+                            .zipWith(Mono.just(newPage));
                 })
-                .flatMap(tuple2 -> {
-                    PageDTO pageDTO = tuple2.getT1();
-                    Integer latestDslVersion = tuple2.getT2();
-                    // ensuring that the page has only one layout, as we don't support multiple layouts yet
-                    // when multiple layouts are supported, this code will have to be updated
-                    assert pageDTO.getLayouts().size() == 1;
-                    Layout layout = pageDTO.getLayouts().get(0);
-                    JSONObject layoutDsl = layout.getDsl();
-
-                    boolean isMigrationRequired = GitUtils.isMigrationRequired(layoutDsl, latestDslVersion);
-                    if (isMigrationRequired) {
-                        // Triggering the autocommit
-                        return gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName);
-                    }
-
-                    return Mono.just(Boolean.FALSE);
-                });
-    }
-
-    @Override
-    public Mono<PageDTO> getPageDTOAfterMigratingDSL(NewPage newPage, boolean viewMode, boolean migrateDsl) {
-        return sendPageViewAnalyticsEvent(newPage, viewMode)
-                .then(getPage(newPage, viewMode))
-                .flatMap(pageDTO -> {
+                .flatMap(objects -> {
+                    PageDTO pageDTO = objects.getT1();
                     if (migrateDsl) {
                         // Call the DSL Utils for on demand migration of the page.
                         // Based on view mode save the migrated DSL to the database
                         // Migrate the DSL to the latest version if required
+                        NewPage newPage = objects.getT2();
                         if (pageDTO.getLayouts() != null) {
                             return migrateAndUpdatePageDsl(newPage, pageDTO, viewMode);
                         }
@@ -393,15 +305,6 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     return Mono.just(pageDTO);
                 })
                 .map(responseUtils::updatePageDTOWithDefaultResources);
-    }
-
-    @Override
-    public Mono<PageDTO> getPageAndMigrateDslByBranchAndDefaultPageId(
-            String defaultPageId, String branchName, boolean viewMode, boolean migrateDsl) {
-        // Fetch the page with read permission in both editor and in viewer.
-        return newPageService
-                .findByBranchNameAndDefaultPageId(branchName, defaultPageId, pagePermission.getReadPermission())
-                .flatMap(newPage -> getPageDTOAfterMigratingDSL(newPage, viewMode, migrateDsl));
     }
 
     private Mono<PageDTO> migrateAndUpdatePageDsl(NewPage newPage, PageDTO page, boolean viewMode) {
@@ -420,15 +323,25 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
                     JSONObject layoutDsl = layout.getDsl();
                     boolean isMigrationRequired = GitUtils.isMigrationRequired(layoutDsl, latestDslVersion);
                     if (isMigrationRequired) {
-                        return dslMigrationUtils
-                                .migratePageDsl(layoutDsl)
+                        // if edit mode, then trigger the auto commit event
+                        Mono<Boolean> autoCommitEventRunner;
+                        if (!viewMode) {
+                            autoCommitEventRunner = gitAutoCommitHelper.autoCommitApplication(
+                                    newPage.getDefaultResources().getApplicationId(),
+                                    newPage.getDefaultResources().getBranchName());
+                        } else {
+                            autoCommitEventRunner = Mono.just(Boolean.FALSE);
+                        }
+                        // zipping them so that they can run in parallel
+                        return Mono.zip(dslMigrationUtils.migratePageDsl(layoutDsl), autoCommitEventRunner)
                                 .onErrorMap(throwable -> {
                                     log.error("Error while migrating DSL ", throwable);
                                     return new AppsmithException(
                                             AppsmithError.RTS_SERVER_ERROR,
                                             "Error while migrating to latest DSL version");
                                 })
-                                .flatMap(migratedDsl -> {
+                                .flatMap(tuple2 -> {
+                                    JSONObject migratedDsl = tuple2.getT1();
                                     // update the current page DTO with migrated dsl
                                     page.getLayouts().get(0).setDsl(migratedDsl);
 

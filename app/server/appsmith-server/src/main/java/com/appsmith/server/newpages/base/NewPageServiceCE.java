@@ -1,7 +1,6 @@
 package com.appsmith.server.newpages.base;
 
 import com.appsmith.server.acl.AclPermission;
-import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -93,9 +92,4 @@ public interface NewPageServiceCE extends CrudService<NewPage, String> {
     Flux<NewPage> findPageSlugsByApplicationIds(List<String> applicationIds, AclPermission aclPermission);
 
     Mono<Void> publishPages(Collection<String> pageIds, AclPermission permission);
-
-    ApplicationPagesDTO getApplicationPagesDTO(Application application, List<NewPage> newPages, boolean viewMode);
-
-    Mono<ApplicationPagesDTO> createApplicationPagesDTO(
-            Application branchedApplication, List<NewPage> newPages, boolean viewMode, boolean isRecentlyAccessed);
 }
