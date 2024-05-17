@@ -7,6 +7,7 @@ import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.helpers.ce.bridge.Bridge;
 import com.appsmith.server.helpers.ce.bridge.BridgeQuery;
+import com.appsmith.server.helpers.ce.bridge.BridgeUpdate;
 import com.appsmith.server.repositories.BaseAppsmithRepositoryImpl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +16,6 @@ import org.springframework.data.mongodb.core.aggregation.Aggregation;
 import org.springframework.data.mongodb.core.aggregation.AggregationOperation;
 import org.springframework.data.mongodb.core.aggregation.Fields;
 import org.springframework.data.mongodb.core.query.Criteria;
-import org.springframework.data.mongodb.core.query.Update;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -257,8 +257,10 @@ public class CustomNewPageRepositoryCEImpl extends BaseAppsmithRepositoryImpl<Ne
 
     @Override
     public Mono<Integer> updateDependencyMap(String pageId, Map<String, List<String>> dependencyMap) {
-        Criteria pageCriteria = where(NewPage.Fields.id).is(pageId);
-        Update update = new Update().set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
-        return queryBuilder().criteria(pageCriteria).updateFirst(update);
+        final BridgeQuery<NewPage> q = Bridge.equal(NewPage.Fields.id, pageId);
+
+        BridgeUpdate update = Bridge.update();
+        update.set(NewPage.Fields.unpublishedPage_dependencyMap, dependencyMap);
+        return queryBuilder().criteria(q).updateFirst(update);
     }
 }
