@@ -16,7 +16,7 @@ const BlankState: React.FC = () => {
     isFeatureEnabled,
     pagePermissions,
   );
-  const addButtonClickHandler = useQueryAdd();
+  const { openAddQuery } = useQueryAdd();
 
   return (
     <EmptyState
@@ -26,7 +26,7 @@ const BlankState: React.FC = () => {
         EDITOR_PANE_TEXTS.query_blank_state_description,
       )}
       icon={"queries-v3"}
-      onClick={canCreateActions ? addButtonClickHandler : undefined}
+      onClick={canCreateActions ? openAddQuery : undefined}
     />
   );
 };

@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from "react";
+import React, { useCallback, useMemo } from "react";
 import history from "utils/history";
 import { useLocation } from "react-router";
 import { FocusEntity, identifyEntityFromPath } from "navigation/FocusEntity";
@@ -27,37 +27,39 @@ import {
 import { SAAS_EDITOR_API_ID_PATH } from "pages/Editor/SaaSEditor/constants";
 import ApiEditor from "pages/Editor/APIEditor";
 import type { UseRoutes } from "@appsmith/entities/IDE/constants";
-import {
-  EditorEntityTabState,
-  EditorViewMode,
-} from "@appsmith/entities/IDE/constants";
+import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import QueryEditor from "pages/Editor/QueryEditor";
 import AddQuery from "pages/Editor/IDE/EditorPane/Query/Add";
 import ListQuery from "pages/Editor/IDE/EditorPane/Query/List";
 import type { AppState } from "@appsmith/reducers";
 import keyBy from "lodash/keyBy";
 import { getPluginEntityIcon } from "pages/Editor/Explorer/ExplorerIcons";
-import type { ListItemProps } from "design-system";
+import { Tag, type ListItemProps } from "design-system";
 import { useCurrentEditorState } from "pages/Editor/IDE/hooks";
 import CurlImportEditor from "pages/Editor/APIEditor/CurlImportEditor";
+import { createAddClassName } from "pages/Editor/IDE/EditorPane/utils";
 
 export const useQueryAdd = () => {
   const location = useLocation();
   const currentEntityInfo = identifyEntityFromPath(location.pathname);
   const { segmentMode } = useCurrentEditorState();
 
-  const addButtonClickHandler = useCallback(() => {
-    let url = "";
-    if (segmentMode === EditorEntityTabState.Add) {
-      // Already in add mode, back to the previous active item
-      url = getQueryUrl(currentEntityInfo, false);
-    } else {
-      url = getQueryUrl(currentEntityInfo);
+  const openAddQuery = useCallback(() => {
+    if (currentEntityInfo.entity === FocusEntity.QUERY_ADD) {
+      return;
     }
+    let url = "";
+    url = getQueryUrl(currentEntityInfo);
     history.push(url);
-  }, [currentEntityInfo, segmentMode]);
+  }, [currentEntityInfo, segmentMode, location]);
 
-  return addButtonClickHandler;
+  const closeAddQuery = useCallback(() => {
+    let url = "";
+    url = getQueryUrl(currentEntityInfo, false);
+    history.push(url);
+  }, [currentEntityInfo, segmentMode, location]);
+
+  return { openAddQuery, closeAddQuery };
 };
 
 export type GroupedAddOperations = Array<{
@@ -167,16 +169,10 @@ export const useQuerySegmentRoutes = (path: string): UseRoutes => {
   }
   return [
     {
-      key: "AddQuery",
-      exact: true,
-      component: AddQuery,
-      path: [`${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
-    },
-    {
       key: "ListQuery",
       exact: false,
       component: ListQuery,
-      path: [path],
+      path: [path, `${path}${ADD_PATH}`, `${path}/:queryId${ADD_PATH}`],
     },
   ];
 };
@@ -202,17 +198,24 @@ export const useAddQueryListItems = () => {
 
   const getListItems = (data: any[]) => {
     return data.map((fileOperation) => {
+      const title =
+        fileOperation.entityExplorerTitle ||
+        fileOperation.dsName ||
+        fileOperation.title;
+      const className = createAddClassName(title);
       const icon =
         fileOperation.icon ||
         (fileOperation.pluginId &&
           getPluginEntityIcon(pluginGroups[fileOperation.pluginId]));
       return {
         startIcon: icon,
-        title:
-          fileOperation.entityExplorerTitle ||
-          fileOperation.dsName ||
-          fileOperation.title,
-        description: !!fileOperation.isBeta ? "Beta" : "",
+        wrapperClassName: className,
+        title,
+        description: !!fileOperation.isBeta ? (
+          <Tag isClosable={false}>Beta</Tag>
+        ) : (
+          ""
+        ),
         descriptionType: "inline",
         onClick: onCreateItemClick.bind(null, fileOperation),
       } as ListItemProps;
