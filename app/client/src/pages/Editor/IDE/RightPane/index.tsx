@@ -14,19 +14,21 @@ import { SentryRoute } from "@appsmith/AppRouter";
 const RightPane = () => {
   const { path } = useRouteMatch();
   return (
-    <SentryRoute
-      component={PropertyPaneWrapper}
-      exact
-      path={[
-        BUILDER_PATH_DEPRECATED,
-        BUILDER_PATH,
-        BUILDER_CUSTOM_PATH,
-        `${path}${ADD_PATH}`,
-        `${path}${WIDGETS_EDITOR_BASE_PATH}`,
-        `${path}${WIDGETS_EDITOR_ID_PATH}`,
-        `${path}${WIDGETS_EDITOR_ID_PATH}${ADD_PATH}`,
-      ]}
-    />
+    <div style={{ height: `calc(100vh - 40px - 37px)` }}>
+      <SentryRoute
+        component={PropertyPaneWrapper}
+        exact
+        path={[
+          BUILDER_PATH_DEPRECATED,
+          BUILDER_PATH,
+          BUILDER_CUSTOM_PATH,
+          `${path}${ADD_PATH}`,
+          `${path}${WIDGETS_EDITOR_BASE_PATH}`,
+          `${path}${WIDGETS_EDITOR_ID_PATH}`,
+          `${path}${WIDGETS_EDITOR_ID_PATH}${ADD_PATH}`,
+        ]}
+      />
+    </div>
   );
 };
 

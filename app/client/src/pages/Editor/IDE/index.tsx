@@ -40,16 +40,7 @@ function IDE() {
           <LeftPane />
         </div>
         <MainPane id="app-body" />
-        <div
-          className={classNames({
-            [`transition-transform transform duration-400 ${tailwindLayers.propertyPane}`]:
-              true,
-            relative: !isCombinedPreviewMode,
-            "translate-x-full fixed right-0": isCombinedPreviewMode,
-          })}
-        >
-          <RightPane />
-        </div>
+        <RightPane />
       </EditorWrapperContainer>
       <BottomBar viewMode={isPreviewMode} />
     </>
