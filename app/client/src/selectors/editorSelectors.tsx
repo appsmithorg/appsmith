@@ -88,26 +88,22 @@ export const getIsPageSaving = createSelector(
     savingJSObjects,
     isSavingAppTheme,
     isSavingNavigationSetting,
-    editorLoadingStatesSavingEntity,
-    editorLoadingStates,
+    isEditorSavingEntity,
+    isEditorSaving,
   ) => {
-    let areApisSaving = false;
-    let areJsObjectsSaving = false;
-
-    Object.keys(savingApis).forEach((apiId) => {
-      areApisSaving = savingApis[apiId] || areApisSaving;
-    });
-
-    Object.keys(savingJSObjects).forEach((collectionId) => {
-      areJsObjectsSaving = savingJSObjects[collectionId] || areJsObjectsSaving;
-    });
+    const areApisSaving = Object.keys(savingApis).some(
+      (apiId) => savingApis[apiId],
+    );
+    const areJsObjectsSaving = Object.keys(savingJSObjects).some(
+      (collectionId) => savingJSObjects[collectionId],
+    );
 
     return (
-      editorLoadingStates ||
+      isEditorSavingEntity ||
       areApisSaving ||
       areJsObjectsSaving ||
       isSavingAppTheme ||
-      editorLoadingStatesSavingEntity ||
+      isEditorSaving ||
       isSavingNavigationSetting
     );
   },
