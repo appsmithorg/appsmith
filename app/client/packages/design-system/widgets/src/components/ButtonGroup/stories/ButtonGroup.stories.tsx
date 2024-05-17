@@ -7,6 +7,7 @@ import {
   COLORS,
   SIZES,
   Item,
+  objectKeys,
 } from "@design-system/widgets";
 
 /**
@@ -39,7 +40,7 @@ export const Main: Story = {
 export const Semantic: Story = {
   render: () => (
     <Flex alignItems="center" direction="column" gap="spacing-4" width="100%">
-      {Object.values(BUTTON_VARIANTS).map((variant) =>
+      {objectKeys(BUTTON_VARIANTS).map((variant) =>
         Object.values(COLORS).map((color) => (
           <ButtonGroup
             color={color}

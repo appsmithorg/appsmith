@@ -2,6 +2,7 @@
   text-decoration: underline;
   text-decoration-color: currentColor;
   text-underline-offset: 2px;
+  color: currentColor;
 
   &:hover {
     color: currentColor;
