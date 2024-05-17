@@ -22,6 +22,8 @@ interface Props {
   onClose: (actionId?: string) => void;
 }
 
+const FILE_TABS_CONTAINER_ID = "file-tabs-container";
+
 const FileTabs = (props: Props) => {
   const { navigateToTab, onClose, tabs } = props;
   const { segment, segmentMode } = useCurrentEditorState();
@@ -40,9 +42,7 @@ const FileTabs = (props: Props) => {
   }, [tabs, segmentMode]);
 
   useEffect(() => {
-    const ele = document.getElementById(
-      "t--tabs-overflow-check",
-    )?.parentElement;
+    const ele = document.getElementById(FILE_TABS_CONTAINER_ID)?.parentElement;
     if (ele && ele.scrollWidth > ele.clientWidth) {
       ele.style.borderRight = "1px solid var(--ads-v2-color-border)";
     } else if (ele) {
@@ -67,7 +67,7 @@ const FileTabs = (props: Props) => {
       }}
       size={"sm"}
     >
-      <Flex gap="spaces-2" height="100%" id="t--tabs-overflow-check">
+      <Flex gap="spaces-2" height="100%" id={FILE_TABS_CONTAINER_ID}>
         {tabs.map((tab: EntityItem) => (
           <StyledTab
             className={clsx(
