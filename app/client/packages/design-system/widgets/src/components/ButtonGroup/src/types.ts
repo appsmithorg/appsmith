@@ -6,16 +6,10 @@ import type { Node, StyleProps } from "@react-types/shared";
 import type { ButtonProps } from "../../Button";
 import type { SIZES } from "../../../shared";
 
-export const ACTION_GROUP_ORIENTATIONS = {
+export const BUTTON_GROUP_ORIENTATIONS = {
   vertical: "vertical",
   horizontal: "horizontal",
 };
-
-export const ACTION_GROUP_ALIGNMENTS = {
-  start: "Start",
-  center: "Center",
-  end: "End",
-} as const;
 
 export interface InheritedActionButtonProps
   extends Pick<ButtonProps, "variant" | "color"> {}
@@ -38,7 +32,7 @@ export interface ButtonGroupProps<T>
       | keyof StyleProps
     >,
     InheritedActionButtonProps {
-  orientation?: keyof typeof ACTION_GROUP_ORIENTATIONS;
+  orientation?: keyof typeof BUTTON_GROUP_ORIENTATIONS;
   size?: Omit<keyof typeof SIZES, "large">;
 }
 

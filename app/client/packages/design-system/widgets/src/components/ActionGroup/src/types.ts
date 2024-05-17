@@ -1,7 +1,10 @@
-import type {
-  ACTION_GROUP_ALIGNMENTS,
-  ButtonGroupProps,
-} from "../../ButtonGroup";
+import type { ButtonGroupProps } from "../../ButtonGroup";
+
+export const ACTION_GROUP_ALIGNMENTS = {
+  start: "Start",
+  center: "Center",
+  end: "End",
+} as const;
 
 export interface ActionGroupProps<T> extends ButtonGroupProps<T> {
   alignment?: keyof typeof ACTION_GROUP_ALIGNMENTS;
