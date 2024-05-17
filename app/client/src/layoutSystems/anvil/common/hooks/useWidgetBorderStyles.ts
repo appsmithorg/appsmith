@@ -44,13 +44,14 @@ export function useWidgetBorderStyles(
   if (isPreviewMode) {
     return {};
   }
-  const isBorderLessZoneOfDistributingSection =
-    widgetsEffectedBySpaceDistribution.zones.includes(widgetId) &&
-    !elevatedBackground;
+  const isZoneDistributingSpace =
+    widgetsEffectedBySpaceDistribution.zones.includes(widgetId);
+  // If the widget is a zone and is distributing space and has no elevated background
+  const isZoneNotElevated = isZoneDistributingSpace && !elevatedBackground;
   // Show the border if the widget has widgets being dragged or redistributed inside it
   const showDraggedOnBorder =
     (highlightShown && highlightShown.canvasId === widgetId) ||
-    isBorderLessZoneOfDistributingSection;
+    isZoneNotElevated;
 
   const onCanvasUI = WidgetFactory.getConfig(widgetType)?.onCanvasUI;
 

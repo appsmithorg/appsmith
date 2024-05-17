@@ -6,12 +6,12 @@ import React, {
   useContext,
 } from "react";
 
-interface WidgetElevationObj {
+interface WidgetElevation {
   [key: string]: boolean;
 }
 
 interface AnvilWidgetElevationContextType {
-  elevatedWidgets: WidgetElevationObj;
+  elevatedWidgets: WidgetElevation;
   setWidgetElevation: (widgetId: string, isElevated: boolean) => void;
 }
 
@@ -22,7 +22,7 @@ const AnvilWidgetElevationContext = createContext<
 export const useAnvilWidgetElevation = () =>
   useContext(AnvilWidgetElevationContext);
 /**
- * AnvilWidgetElevationProvider is a indexes all sections and zones and records their evaluated value of elevation(Visual Separation).
+ * AnvilWidgetElevationProvider indexes all sections and zones and records their evaluated value of elevation(Visual Separation).
  *
  * Why not just use the evaluated values directly?
  * Because we need to keep track of the elevation of each widget in the editor to apply the correct elevation styles.
@@ -39,9 +39,7 @@ export const AnvilWidgetElevationProvider = ({
 }: {
   children: ReactNode;
 }) => {
-  const [elevatedWidgets, setElevatedWidgets] = useState<WidgetElevationObj>(
-    {},
-  );
+  const [elevatedWidgets, setElevatedWidgets] = useState<WidgetElevation>({});
 
   const setWidgetElevation = useCallback(
     (widgetId: string, isElevated: boolean) => {
