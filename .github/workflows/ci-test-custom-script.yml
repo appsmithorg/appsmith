@@ -14,6 +14,11 @@ on:
         required: false
         type: string
         default: ""
+      tests:
+          description: "These are the optional titles of tests a developer can specify in order to run a subset of all the tests"
+          required: false
+          type: string
+          default: ""        
       matrix:
         description: "Matrix jobs"
         required: false
@@ -221,11 +226,13 @@ jobs:
         run: |
           echo 'tags_to_exclude=airgap' >> "$GITHUB_ENV"
           echo "CYPRESS_grepTags=${{ inputs.tags }}" >> $GITHUB_ENV
+          echo "CYPRESS_grep=${{inputs.tests}}" >> $GITHUB_ENV
 
       - name: Print the tags
         run: |
           echo "tags_to_exclude: ${{ env.tags_to_exclude }}"
-          echo "_grepTags: ${{ env.CYPRESS_grepTags }}"
+          echo "CYPRESS_grepTags: ${{ env.CYPRESS_grepTags }}"
+          echo "CYPRESS_grep: ${{ env.CYPRESS_grep }}"
 
       - name: Setting up the cypress tests
         if: steps.run_result.outputs.run_result != 'success'
@@ -347,6 +354,7 @@ jobs:
           CYPRESS_S3_ACCESS: ${{ secrets.CYPRESS_S3_ACCESS }}
           CYPRESS_S3_SECRET: ${{ secrets.CYPRESS_S3_SECRET }}
           CYPRESS_grepTags: ${{ env.CYPRESS_grepTags }} # This is a comma separated list of tags to run a subset of the suite
+          CYPRESS_grep: ${{ env.CYPRESS_grep }} # This is a semi-colon separated list of titles to run a subset of the suite
           CYPRESS_SKIP_FLAKY: true
           CYPRESS_STATIC_ALLOCATION: true
           DEBUG: ${{secrets.CYPRESS_GREP_DEBUG }} # This is derived from secrets so that we can toggle it without having to change any workflow. Only acceptable value is: @cypress/grep
