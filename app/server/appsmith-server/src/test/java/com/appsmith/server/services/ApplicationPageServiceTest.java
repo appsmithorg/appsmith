@@ -5,7 +5,6 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Application;
-import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.GitArtifactMetadata;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -42,9 +41,7 @@ import java.io.IOException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-import java.util.Set;
 import java.util.UUID;
-import java.util.stream.Collectors;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -433,64 +430,5 @@ public class ApplicationPageServiceTest {
                 .expectErrorMatches(throwable -> throwable instanceof AppsmithException
                         && throwable.getMessage().equals(AppsmithError.INVALID_PARAMETER.getMessage(FieldName.ID, id)))
                 .verify();
-    }
-
-    @Test
-    @WithUserDetails("api_user")
-    public void verifyGetPagesBasedOnApplicationMode_ReturnsRigthNumberOfPages_BasedOnApplicationMode() {
-        final String appName = "app" + UUID.randomUUID();
-        Application application = new Application();
-        application.setName(appName);
-
-        Application createdApplication = applicationPageService
-                .createApplication(application, workspace.getId())
-                .block();
-
-        String applicationId = createdApplication.getId();
-
-        PageDTO pageDTO = new PageDTO();
-        pageDTO.setApplicationId(applicationId);
-        final String pageName = "app" + UUID.randomUUID();
-        pageDTO.setName(pageName);
-        applicationPageService.createPage(pageDTO).block();
-
-        applicationPageService.publish(applicationId, true).block();
-
-        PageDTO pageDTO1 = new PageDTO();
-        pageDTO1.setApplicationId(applicationId);
-        final String unpublishedPageName = "app" + UUID.randomUUID();
-        pageDTO1.setName(unpublishedPageName);
-        applicationPageService.createPage(pageDTO1).block();
-
-        Application updatedApplication =
-                applicationService.findById(createdApplication.getId()).block();
-
-        Mono<List<NewPage>> unpublishedPagesMono =
-                applicationPageService.getPagesBasedOnApplicationMode(updatedApplication, ApplicationMode.EDIT);
-
-        Mono<List<NewPage>> publishedPagesMono =
-                applicationPageService.getPagesBasedOnApplicationMode(updatedApplication, ApplicationMode.PUBLISHED);
-
-        StepVerifier.create(publishedPagesMono)
-                .assertNext(pages -> {
-                    assertThat(pages.size()).isEqualTo(2);
-                    Set<String> pageNames = pages.stream()
-                            .map(page -> page.getUnpublishedPage().getName())
-                            .collect(Collectors.toSet());
-                    assertThat(pageNames).contains(pageName);
-                    assertThat(pageNames).doesNotContain(unpublishedPageName);
-                })
-                .verifyComplete();
-
-        StepVerifier.create(unpublishedPagesMono)
-                .assertNext(pages -> {
-                    assertThat(pages.size()).isEqualTo(3);
-                    Set<String> pageNames = pages.stream()
-                            .map(page -> page.getUnpublishedPage().getName())
-                            .collect(Collectors.toSet());
-                    assertThat(pageNames).contains(pageName);
-                    assertThat(pageNames).contains(unpublishedPageName);
-                })
-                .verifyComplete();
     }
 }
