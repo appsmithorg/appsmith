@@ -153,7 +153,7 @@ jobs:
           rm -f ~/combined_failed_spec_ci
 
       # Download failed_spec_ci list for all CI container jobs
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         if: needs.ci-test.result != 'success'
         id: download_ci
         with:
@@ -257,7 +257,7 @@ jobs:
       # This is done for debugging.
       - name: upload combined failed spec
         if: needs.ci-test.result != 'success'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
@@ -292,7 +292,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download the react build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: client-build
           path: app/client
@@ -304,13 +304,13 @@ jobs:
           tar -xvf app/client/build.tar -C app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rts-dist
           path: app/client/packages/rts/dist
@@ -367,7 +367,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Download the react build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: client-build
           path: app/client
@@ -379,13 +379,13 @@ jobs:
           tar -xvf app/client/build.tar -C app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rts-dist
           path: app/client/packages/rts/dist

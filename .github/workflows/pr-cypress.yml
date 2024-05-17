@@ -151,7 +151,7 @@ jobs:
       # This is done for debugging
       - name: Upload combined failed spec
         if: needs.ci-test.result != 'success'
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
