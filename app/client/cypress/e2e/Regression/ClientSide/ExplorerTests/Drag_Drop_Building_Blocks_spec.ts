@@ -219,17 +219,14 @@ describe(
       let buildingBlockName: string; // get the display name of the first building block
       agHelper
         .GetElement(entityExplorer._widgetTagBuildingBlocks)
-        .each(($widgetTag) => {
+        .first()
+        .then(($widgetTag) => {
           agHelper
             .GetElement($widgetTag)
             .find(entityExplorer._widgetCardTitle)
-            .each(($widgetName, index) => {
-              const value = $widgetName.text();
-              if (index === 0) {
-                buildingBlockName = value;
-              }
-            })
-            .then(() => {
+            .first()
+            .then(($widgetName) => {
+              buildingBlockName = $widgetName.text();
               PageLeftPane.assertPresence(
                 `loading_${buildingBlockName.toLowerCase().replace(/ /g, "_")}`,
               );
