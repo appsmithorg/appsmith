@@ -94,7 +94,7 @@ jobs:
         run: |
           vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tee -a ~/run_result.txt
 
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v7
         with:
           script: |
             const dpUrl = require("fs").readFileSync(process.env.HOME + "/run_result.txt", "utf8")
