@@ -2,7 +2,6 @@ import type { ButtonGroupProps } from "../../ButtonGroup";
 
 export const ACTION_GROUP_ALIGNMENTS = {
   start: "Start",
-  center: "Center",
   end: "End",
 } as const;
 
