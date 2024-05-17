@@ -85,13 +85,15 @@ function WidgetCardComponent({
 }) {
   const type = `${details.type.split("_").join("").toLowerCase()}`;
   const displayName = details.displayName.split(" ").join("").toLowerCase();
-  const className = `t--widget-card-draggable t--widget-card-draggable-${type} ${details.type === BUILDING_BLOCK_EXPLORER_TYPE ? `t--widget-card-draggable-${type}-${displayName}` : ""}`;
+  const className = `t--widget-card-draggable t--widget-card-draggable-${type}`;
+  const explorerTestId = `t--widget-card-draggable-${type}-${displayName}`;
   const { ThumbnailCmp } = details;
 
   return (
     <Wrapper
       className={className}
       data-guided-tour-id={`widget-card-${type}`}
+      data-testid={explorerTestId}
       draggable
       id={`widget-card-draggable-${type}`}
       onDragStart={onDragStart}

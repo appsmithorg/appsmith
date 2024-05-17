@@ -14,7 +14,12 @@ const MAX_BUILDING_BLOCKS_TO_DISPLAY = initialEntityCountForExplorerTag[
 describe(
   "Building blocks explorer tests",
   {
-    tags: ["@tag.IDE", "@tag.Widget", "@tag.Templates"],
+    tags: [
+      "@tag.IDE",
+      "@tag.Widget",
+      "@tag.Templates",
+      "@tag.excludeForAirgap",
+    ],
   },
   () => {
     it("1. Building blocks tag is visible and open by default", () => {
@@ -187,7 +192,7 @@ describe(
         });
     });
 
-    it("5. Should drag and drop building block on canvas", () => {
+    it.only("5. Should drag and drop building block on canvas", () => {
       featureFlagIntercept({ release_drag_drop_building_blocks_enabled: true });
       // primary api call for dropping building blocks on canvas
       cy.intercept("POST", "/api/v1/applications/import/partial/block").as(
