@@ -31,20 +31,8 @@ import {
 import type { EvaluationError } from "utils/DynamicBindingUtils";
 import { isDynamicValue } from "utils/DynamicBindingUtils";
 import { DraggableListCard } from "components/propertyControls/DraggableListCard";
-import { Checkbox } from "design-system";
 import { ColumnTypes } from "widgets/TableWidgetV2/constants";
 import { DraggableListControl } from "pages/Editor/PropertyPane/DraggableListControl";
-import { Button } from "design-system";
-const EdtiableCheckboxWrapper = styled.div<{ rightPadding: boolean | null }>`
-  position: relative;
-  ${(props) => props.rightPadding && `right: 6px;`}
-  align-items: center;
-  .ads-v2-checkbox {
-    width: 16px;
-    height: 16px;
-    padding: 0;
-  }
-`;
 
 const EmptyStateLabel = styled.div`
   margin: 20px 0px;
@@ -94,8 +82,8 @@ interface State {
   hasScrollableList: boolean;
 }
 
-const LIST_CLASSNAME = "tablewidgetv2-primarycolumn-list";
-class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
+const LIST_CLASSNAME = "tablewidget-wds-primarycolumn-list";
+class PrimaryColumnsControlWDS extends BaseControl<ControlProps, State> {
   constructor(props: ControlProps) {
     super(props);
 
@@ -206,18 +194,6 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
       <>
         <div className="flex pt-2 pb-2 justify-between">
           <div>{Object.values(reorderedColumns).length} columns</div>
-          {this.isEditableColumnPresent() && (
-            <EdtiableCheckboxWrapper
-              className="flex t--uber-editable-checkbox"
-              rightPadding={this.state.hasScrollableList}
-            >
-              <span className="mr-2">Editable</span>
-              <Checkbox
-                isSelected={this.isAllColumnsEditable()}
-                onChange={this.toggleAllColumnsEditability}
-              />
-            </EdtiableCheckboxWrapper>
-          )}
         </div>
         <div className="flex flex-col w-full gap-1">
           <EvaluatedValuePopupWrapper {...this.props} isFocused={isFocused}>
@@ -234,26 +210,17 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
               renderComponent={(props: any) =>
                 DraggableListCard({
                   ...props,
-                  showCheckbox: true,
+                  showCheckbox: false,
                   placeholder: "Column title",
                 })
               }
               toggleCheckbox={this.toggleCheckbox}
-              toggleVisibility={this.toggleVisibility}
+              toggleVisibility={undefined}
               updateFocus={this.updateFocus}
               updateItems={this.updateItems}
               updateOption={this.updateOption}
             />
           </EvaluatedValuePopupWrapper>
-          <Button
-            className="self-end t--add-column-btn"
-            kind="tertiary"
-            onClick={this.addNewColumn}
-            size="sm"
-            startIcon="plus"
-          >
-            Add new column
-          </Button>
         </div>
       </>
     );
@@ -427,59 +394,12 @@ class PrimaryColumnsControlV2 extends BaseControl<ControlProps, State> {
     this.setState({ focusedIndex: isFocused ? index : null });
   };
 
-  isAllColumnsEditable = () => {
-    const columns: ColumnsType = this.props.propertyValue || {};
-
-    return !Object.values(columns).find(
-      (column) =>
-        !column.isEditable &&
-        isColumnTypeEditable(column.columnType) &&
-        !column.isDerived,
-    );
-  };
-
-  toggleAllColumnsEditability = () => {
-    const isEditable = this.isAllColumnsEditable();
-    const columns: ColumnsType = this.props.propertyValue || {};
-    //consolidate all column editability updates
-    const allUpdates = Object.values(columns)
-      .filter(
-        (column) =>
-          isColumnTypeEditable(column.columnType) && !column.isDerived,
-      )
-      .flatMap((column) =>
-        this.getToggleColumnEditablityUpdates(
-          column,
-          this.props.propertyName,
-          !isEditable,
-        ),
-      );
-    this.batchUpdatePropertiesWithAssociatedUpdates(allUpdates);
-
-    if (isEditable) {
-      const columnOrder = this.props.widgetProperties.columnOrder || [];
-      const editActionColumn = Object.values(columns).find(
-        (column) => column.columnType === ColumnTypes.EDIT_ACTIONS,
-      );
-
-      if (editActionColumn) {
-        this.deleteOption(columnOrder.indexOf(editActionColumn.id));
-      }
-    }
-  };
-
-  isEditableColumnPresent = () => {
-    return Object.values(this.props.propertyValue).some((column) =>
-      isColumnTypeEditable((column as ColumnProperties).columnType),
-    );
-  };
-
   static getControlType() {
-    return "PRIMARY_COLUMNS_V2";
+    return "PRIMARY_COLUMNS_WDS";
   }
 }
 
-export default PrimaryColumnsControlV2;
+export default PrimaryColumnsControlWDS;
 
 /**
  * wrapper component on dragable primary columns

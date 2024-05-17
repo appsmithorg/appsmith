@@ -88,14 +88,12 @@ class TenantServiceCETest {
 
     @AfterEach
     public void cleanup() {
-        Tenant updatedTenant = new Tenant();
-        updatedTenant.setTenantConfiguration(originalTenantConfiguration);
         tenantService
-                .getDefaultTenantId()
-                .flatMap(tenantId -> tenantService.update(tenantId, updatedTenant))
-                .doOnError(error -> {
-                    System.err.println("Error during cleanup: " + error.getMessage());
-                })
+                .getDefaultTenant()
+                .flatMap(tenant -> tenantRepository.updateAndReturn(
+                        tenant.getId(),
+                        Bridge.update().set(Tenant.Fields.tenantConfiguration, originalTenantConfiguration),
+                        Optional.empty()))
                 .block();
     }
 
@@ -312,7 +310,7 @@ class TenantServiceCETest {
                 .verify();
 
         // Verify that the tenant is updated for the feature flag migration failure
-        StepVerifier.create(tenantService.getById(tenant.getId()))
+        StepVerifier.create(tenantService.getByIdWithoutPermissionCheck(tenant.getId()))
                 .assertNext(updatedTenant -> {
                     assertThat(updatedTenant.getTenantConfiguration().getFeaturesWithPendingMigration())
                             .hasSize(1);

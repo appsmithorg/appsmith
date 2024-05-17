@@ -74,6 +74,7 @@ import {
 } from "./SectionSplitterControl";
 import type { IconSelectControlV2Props } from "./IconSelectControlV2";
 import IconSelectControlV2 from "./IconSelectControlV2";
+import PrimaryColumnsControlWDS from "./PrimaryColumnsControlWDS";
 
 export const PropertyControls = {
   InputTextControl,
@@ -124,6 +125,7 @@ export const PropertyControls = {
   ZoneStepperControl,
   SectionSplitterControl,
   IconSelectControlV2,
+  PrimaryColumnsControlWDS,
 };
 
 export type PropertyControlPropsType =

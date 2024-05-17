@@ -308,7 +308,7 @@ export function EditorJSONtoForm(props: Props) {
         />
         {notification}
         <Wrapper>
-          <div className="flex flex-1">
+          <div className="flex flex-1 w-full">
             <SecondaryWrapper>
               <TabContainerView>
                 <Tabs
