@@ -13,7 +13,8 @@ public record ApplicationCreationDTO(
         @NotBlank @Size(max = 99) String name,
         @IconName String icon,
         @Pattern(regexp = "#[A-F0-9]{6}") String color,
-        Application.AppPositioning positioning) {
+        Application.AppPositioning positioningType,
+        Boolean showNavBar) {
 
     public Application toApplication() {
         final Application application = new Application();
@@ -21,9 +22,16 @@ public record ApplicationCreationDTO(
         application.setName(name.trim());
         application.setIcon(StringUtils.isBlank(icon) ? null : icon.trim());
         application.setColor(color);
+
         final ApplicationDetail applicationDetail = new ApplicationDetail();
-        applicationDetail.setAppPositioning(positioning);
         application.setApplicationDetail(applicationDetail);
+
+        applicationDetail.setAppPositioning(positioningType);
+
+        final Application.NavigationSetting navigationSetting = new Application.NavigationSetting();
+        navigationSetting.setShowNavbar(showNavBar);
+        applicationDetail.setNavigationSetting(navigationSetting);
+
         return application;
     }
 }

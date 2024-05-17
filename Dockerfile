@@ -10,7 +10,7 @@ ENV APPSMITH_CLOUD_SERVICES_BASE_URL=${APPSMITH_CLOUD_SERVICES_BASE_URL}
 
 ARG APPSMITH_SEGMENT_CE_KEY
 ENV APPSMITH_SEGMENT_CE_KEY=${APPSMITH_SEGMENT_CE_KEY}
-#Create the plugins directory
+
 RUN mkdir -p ./editor ./rts ./backend/plugins
 
 COPY deploy/docker/fs /

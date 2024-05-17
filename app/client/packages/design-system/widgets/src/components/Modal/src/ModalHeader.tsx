@@ -10,7 +10,7 @@ import styles from "./styles.module.css";
 import type { ModalHeaderProps } from "./types";
 
 export const ModalHeader = (props: ModalHeaderProps) => {
-  const { title } = props;
+  const { excludeFromTabOrder = false, title } = props;
   const { setLabelId, setOpen } = usePopoverContext();
   const id = useId();
 
@@ -37,7 +37,12 @@ export const ModalHeader = (props: ModalHeaderProps) => {
       >
         {title}
       </Text>
-      <IconButton icon="x" onPress={() => setOpen(false)} variant="ghost" />
+      <IconButton
+        excludeFromTabOrder={excludeFromTabOrder}
+        icon="x"
+        onPress={() => setOpen(false)}
+        variant="ghost"
+      />
     </Flex>
   );
 };

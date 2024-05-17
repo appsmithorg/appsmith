@@ -25,6 +25,30 @@ import { pasteWidgetsIntoMainCanvas } from "layoutSystems/anvil/utils/paste/main
 import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
 import WidgetFactory from "WidgetProvider/factory";
 import { getIsAnvilLayout } from "../selectors";
+import { widgetHierarchy } from "layoutSystems/anvil/utils/constants";
+
+function* pasteAnvilModalWidgets(
+  allWidgets: CanvasWidgetsReduxState,
+  modalWidgetsToPaste: CopiedWidgetData[],
+) {
+  const lastDestinationInfo: PasteDestinationInfo = yield call(
+    getDestinedParent,
+    allWidgets,
+    modalWidgetsToPaste,
+    allWidgets[MAIN_CONTAINER_WIDGET_ID],
+  );
+
+  // paste into main canvas
+  const res: PastePayload = yield call(
+    pasteWidgetsIntoMainCanvas,
+    allWidgets,
+    modalWidgetsToPaste,
+    lastDestinationInfo,
+    {},
+    {},
+  );
+  return res;
+}
 
 function* pasteWidgetSagas() {
   try {
@@ -33,7 +57,13 @@ function* pasteWidgetSagas() {
     }: {
       widgets: CopiedWidgetData[];
     } = yield getCopiedWidgets();
-    const originalWidgets: CopiedWidgetData[] = [...copiedWidgets];
+    const modalWidgets = copiedWidgets.filter(
+      (widget) => widget.hierarchy === widgetHierarchy.WDS_MODAL_WIDGET,
+    );
+    const nonModalWidgets = copiedWidgets.filter(
+      (widget) => widget.hierarchy !== widgetHierarchy.WDS_MODAL_WIDGET,
+    );
+    const originalWidgets: CopiedWidgetData[] = [...nonModalWidgets];
 
     if (!originalWidgets.length) return;
 
@@ -86,6 +116,18 @@ function* pasteWidgetSagas() {
       allWidgets = res.widgets;
       widgetIdMap = res.widgetIdMap;
       reverseWidgetIdMap = res.reverseWidgetIdMap;
+    }
+
+    if (modalWidgets.length > 0) {
+      // paste into main canvas
+      const res: PastePayload = yield call(
+        pasteAnvilModalWidgets,
+        allWidgets,
+        modalWidgets,
+      );
+      allWidgets = res.widgets;
+      widgetIdMap = { ...widgetIdMap, ...res.widgetIdMap };
+      reverseWidgetIdMap = { ...reverseWidgetIdMap, ...res.reverseWidgetIdMap };
     }
 
     /**
