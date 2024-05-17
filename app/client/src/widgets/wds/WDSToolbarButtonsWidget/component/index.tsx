@@ -53,6 +53,7 @@ export const ToolbarButtonsComponent = (
 
   return (
     <ActionGroup
+      alignment={props.alignment}
       color={props.color}
       density={props.density}
       disabledKeys={disabledKeys}

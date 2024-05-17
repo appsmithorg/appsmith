@@ -69,6 +69,25 @@ export const propertyPaneStyleConfig = [
         isTriggerProperty: false,
         validation: { type: ValidationTypes.TEXT },
       },
+      {
+        propertyName: "alignment",
+        helpText: "Sets the alignment of the widget",
+        label: "Alignment",
+        controlType: "ICON_TABS",
+        defaultValue: "start",
+        isBindProperty: true,
+        isTriggerProperty: false,
+        options: [
+          {
+            startIcon: "skip-left-line",
+            value: "start",
+          },
+          {
+            startIcon: "skip-right-line",
+            value: "end",
+          },
+        ],
+      },
     ],
   },
 ];

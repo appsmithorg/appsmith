@@ -11,6 +11,12 @@ export const ACTION_GROUP_ORIENTATIONS = {
   horizontal: "horizontal",
 };
 
+export const ACTION_GROUP_ALIGNMENTS = {
+  start: "Start",
+  center: "Center",
+  end: "End",
+} as const;
+
 export interface InheritedActionButtonProps
   extends Pick<ButtonProps, "variant" | "color"> {}
 

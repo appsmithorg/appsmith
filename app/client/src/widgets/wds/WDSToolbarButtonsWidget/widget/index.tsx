@@ -72,6 +72,7 @@ class WDSToolbarButtonsWidget extends BaseWidget<
   getWidgetView() {
     return (
       <ToolbarButtonsComponent
+        alignment={this.props.alignment}
         buttonsList={this.props.buttonsList}
         color={this.props.buttonColor}
         density={this.props.density}
