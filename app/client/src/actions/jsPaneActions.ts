@@ -1,10 +1,7 @@
 import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { JSCollection, JSAction } from "entities/JSCollection";
-import type {
-  RefactorAction,
-  SetFunctionPropertyPayload,
-} from "@appsmith/api/JSActionAPI";
+import type { SetFunctionPropertyPayload } from "@appsmith/api/JSActionAPI";
 import type { EventLocation } from "@appsmith/utils/analyticsUtilTypes";
 import type {
   JSEditorTab,
@@ -48,21 +45,18 @@ export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
   };
 };
 
+export const jsSaveActionComplete = (payload: { data: JSCollection }) => {
+  return {
+    type: ReduxActionTypes.JS_ACTION_SAVE_COMPLETE,
+    payload,
+  };
+};
+
 export const updateJSCollectionBodySuccess = (payload: {
   data: JSCollection;
 }) => {
   return {
     type: ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
-    payload,
-  };
-};
-
-export const refactorJSCollectionAction = (payload: {
-  refactorAction: RefactorAction;
-  actionCollection: JSCollection;
-}) => {
-  return {
-    type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
     payload,
   };
 };

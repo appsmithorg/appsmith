@@ -15,6 +15,7 @@ import {
 } from "@appsmith/constants/ReduxActionConstants";
 import {
   getCurrentApplicationId,
+  getCurrentLayoutId,
   getCurrentPageId,
   getIsSavingEntity,
 } from "selectors/editorSelectors";
@@ -33,7 +34,11 @@ import { createJSCollectionRequest } from "actions/jsActionActions";
 import history from "utils/history";
 import { executeJSFunction } from "./EvaluationsSaga";
 import { getJSCollectionIdFromURL } from "@appsmith/pages/Editor/Explorer/helpers";
-import type { JSUpdate } from "utils/JSPaneUtils";
+import type {
+  JSCollectionDifference,
+  JSUpdate,
+  ParsedBody,
+} from "utils/JSPaneUtils";
 import {
   getDifferenceInJSCollection,
   pushLogsForObjectUpdate,
@@ -50,12 +55,12 @@ import JSActionAPI from "@appsmith/api/JSActionAPI";
 import ActionAPI from "api/ActionAPI";
 import {
   updateJSCollectionSuccess,
-  refactorJSCollectionAction,
   updateJSCollectionBodySuccess,
   updateJSFunction,
   executeJSFunctionInit,
   setJsPaneDebuggerState,
   createNewJSCollection,
+  jsSaveActionComplete,
 } from "actions/jsPaneActions";
 import { getCurrentWorkspaceId } from "@appsmith/selectors/selectedWorkspaceSelectors";
 import { getPluginIdOfPackageName } from "sagas/selectors";
@@ -75,8 +80,6 @@ import {
   PLATFORM_ERROR,
 } from "@appsmith/entities/AppsmithConsole/utils";
 import LOG_TYPE from "entities/AppsmithConsole/logtype";
-import type { FetchPageRequest, FetchPageResponse } from "api/PageApi";
-import PageApi from "api/PageApi";
 import { updateCanvasWithDSL } from "@appsmith/sagas/PageSagas";
 import { set } from "lodash";
 import { updateReplayEntity } from "actions/pageActions";
@@ -196,96 +199,125 @@ function* handleJSCollectionCreatedSaga(
   );
 }
 
-function* handleEachUpdateJSCollection(update: JSUpdate) {
-  const jsActionId = update.id;
-  const workspaceId: string = yield select(getCurrentWorkspaceId);
-  if (jsActionId) {
-    const jsAction: JSCollection = yield select(getJSCollection, jsActionId);
-    const parsedBody = update.parsedBody;
-    if (parsedBody && !!jsAction) {
-      const jsActionTobeUpdated = JSON.parse(JSON.stringify(jsAction));
-      // jsActionTobeUpdated.body = jsAction.body;
-      const data = getDifferenceInJSCollection(parsedBody, jsAction);
-      if (data.nameChangedActions.length) {
-        for (let i = 0; i < data.nameChangedActions.length; i++) {
-          yield put(
-            refactorJSCollectionAction({
-              refactorAction: {
-                actionId: data.nameChangedActions[i].id,
-                collectionName: jsAction.name,
-                pageId: data.nameChangedActions[i].pageId,
-                moduleId: data.nameChangedActions[i].moduleId,
-                oldName: data.nameChangedActions[i].oldName,
-                newName: data.nameChangedActions[i].newName,
-              },
-              actionCollection: jsActionTobeUpdated,
-            }),
-          );
-        }
-      } else {
-        let newActions: Partial<JSAction>[] = [];
-        let updateActions: JSAction[] = [];
-        let deletedActions: JSAction[] = [];
-        let updateCollection = false;
-        const changedVariables = data.changedVariables;
-        if (changedVariables.length) {
-          jsActionTobeUpdated.variables = parsedBody.variables;
-          updateCollection = true;
-        }
-        if (data.newActions.length) {
-          newActions = data.newActions;
-          for (let i = 0; i < data.newActions.length; i++) {
-            jsActionTobeUpdated.actions.push({
-              ...data.newActions[i],
-              workspaceId: workspaceId,
-            });
-          }
-          updateCollection = true;
-        }
-        if (data.updateActions.length > 0) {
-          updateActions = data.updateActions;
-          let changedActions = [];
-          for (let i = 0; i < data.updateActions.length; i++) {
-            changedActions = jsActionTobeUpdated.actions.map(
-              (js: JSAction) =>
-                data.updateActions.find(
-                  (update: JSAction) => update.id === js.id,
-                ) || js,
-            );
-          }
-          updateCollection = true;
-          jsActionTobeUpdated.actions = changedActions;
-        }
-        if (data.deletedActions.length > 0) {
-          deletedActions = data.deletedActions;
-          const nonDeletedActions = jsActionTobeUpdated.actions.filter(
-            (js: JSAction) => {
-              return !data.deletedActions.find((deleted) => {
-                return deleted.id === js.id;
-              });
-            },
-          );
-          updateCollection = true;
-          jsActionTobeUpdated.actions = nonDeletedActions;
-        }
-
-        if (updateCollection) {
-          newActions.forEach((action) => {
-            AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_ADDED", {
-              name: action.name,
-              jsObjectName: jsAction.name,
-            });
-          });
-          yield call(updateJSCollection, {
-            jsCollection: jsActionTobeUpdated,
-            newActions: newActions,
-            updatedActions: updateActions,
-            deletedActions: deletedActions,
-          });
-        }
-      }
-    }
+function getJSCollectionUpdateType(difference: JSCollectionDifference) {
+  if (difference.nameChangedActions.length) {
+    return "REFACTOR";
   }
+
+  if (
+    difference.newActions.length ||
+    difference.updateActions.length ||
+    difference.deletedActions.length
+  ) {
+    return "UPDATE";
+  }
+
+  return "NO_CHANGE";
+}
+
+function* handleRefactorJSCollection(
+  difference: JSCollectionDifference,
+  actionCollection: JSCollection,
+) {
+  yield all(
+    difference.nameChangedActions.map((action) =>
+      call(
+        handleRefactorJSActionNameSaga,
+        {
+          actionId: action.id,
+          collectionName: actionCollection.name,
+          pageId: action.pageId,
+          moduleId: action.moduleId,
+          oldName: action.oldName,
+          newName: action.newName,
+        },
+        actionCollection,
+      ),
+    ),
+  );
+}
+
+function* handleUpdateCollection(
+  difference: JSCollectionDifference,
+  actionCollection: JSCollection,
+  parsedBody: ParsedBody,
+) {
+  const workspaceId: string = yield select(getCurrentWorkspaceId);
+  let newActions: JSAction[] = [];
+  let updateActions: JSAction[] = [];
+  let deletedActions: JSAction[] = [];
+  const changedVariables = difference.changedVariables;
+  if (changedVariables.length) {
+    actionCollection.variables = parsedBody.variables;
+  }
+  if (difference.newActions.length) {
+    newActions = difference.newActions as JSAction[];
+    difference.newActions.forEach((action) => {
+      actionCollection.actions.push({
+        ...(action as JSAction),
+        workspaceId: workspaceId,
+      });
+    });
+  }
+  if (difference.updateActions.length > 0) {
+    updateActions = difference.updateActions;
+    let changedActions: JSAction[] = [];
+    for (let i = 0; i < difference.updateActions.length; i++) {
+      changedActions = actionCollection.actions.map(
+        (js: JSAction) =>
+          difference.updateActions.find(
+            (update: JSAction) => update.id === js.id,
+          ) || js,
+      );
+    }
+    actionCollection.actions = changedActions;
+  }
+  if (difference.deletedActions.length > 0) {
+    deletedActions = difference.deletedActions;
+    const nonDeletedActions = actionCollection.actions.filter(
+      (js: JSAction) => {
+        return !difference.deletedActions.find((deleted) => {
+          return deleted.id === js.id;
+        });
+      },
+    );
+    actionCollection.actions = nonDeletedActions;
+  }
+
+  newActions.forEach((action) => {
+    AnalyticsUtil.logEvent("JS_OBJECT_FUNCTION_ADDED", {
+      name: action.name,
+      jsObjectName: actionCollection.name,
+    });
+  });
+
+  yield call(updateJSCollection, {
+    jsCollection: actionCollection,
+    newActions: newActions,
+    updatedActions: updateActions,
+    deletedActions: deletedActions,
+  });
+}
+
+function* handleEachUpdateJSCollection(update: JSUpdate) {
+  const { id, parsedBody } = update;
+  if (!id || !parsedBody) return;
+
+  const jsAction: JSCollection = yield select(getJSCollection, id);
+  if (!jsAction) return;
+
+  const data = getDifferenceInJSCollection(parsedBody, jsAction);
+  const updateType = getJSCollectionUpdateType(data);
+
+  if (updateType === "REFACTOR") {
+    yield handleRefactorJSCollection(data, jsAction);
+  }
+
+  if (updateType === "UPDATE") {
+    yield handleUpdateCollection(data, jsAction, parsedBody);
+  }
+
+  yield put(jsSaveActionComplete({ data: jsAction }));
 }
 
 export function* makeUpdateJSCollection(
@@ -626,60 +658,49 @@ function* handleUpdateJSCollectionBody(
 }
 
 function* handleRefactorJSActionNameSaga(
-  data: ReduxAction<{
-    refactorAction: RefactorAction;
-    actionCollection: JSCollection;
-  }>,
+  refactorAction: RefactorAction,
+  actionCollection: JSCollection,
 ) {
-  const { pageId } = data.payload.refactorAction;
-  if (!pageId) {
+  const { pageId } = refactorAction;
+  const layoutId: string | undefined = yield select(getCurrentLayoutId);
+  if (!pageId || !layoutId) {
     return;
   }
 
-  const params: FetchPageRequest = {
-    id: data.payload.refactorAction.pageId || "",
-    migrateDSL: true,
+  const requestData = {
+    ...refactorAction,
+    layoutId,
+    actionCollection: actionCollection,
   };
-  const pageResponse: FetchPageResponse = yield call(PageApi.fetchPage, params);
-  const isPageRequestSuccessful: boolean = yield validateResponse(pageResponse);
-  if (isPageRequestSuccessful) {
-    // get the layoutId from the page response
-    const layoutId = pageResponse.data.layouts[0].id;
-    const requestData = {
-      ...data.payload.refactorAction,
-      layoutId: layoutId,
-      actionCollection: data.payload.actionCollection,
-    };
-    // call to refactor action
-    try {
-      const refactorResponse: ApiResponse =
-        yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
+  // call to refactor action
+  try {
+    const refactorResponse: ApiResponse =
+      yield JSActionAPI.updateJSCollectionActionRefactor(requestData);
 
-      const isRefactorSuccessful: boolean =
-        yield validateResponse(refactorResponse);
+    const isRefactorSuccessful: boolean =
+      yield validateResponse(refactorResponse);
 
-      const currentPageId: string | undefined = yield select(getCurrentPageId);
+    const currentPageId: string | undefined = yield select(getCurrentPageId);
 
-      if (isRefactorSuccessful) {
-        yield put({
-          type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS,
-          payload: { collectionId: data.payload.actionCollection.id },
-        });
-        if (currentPageId === data.payload.refactorAction.pageId) {
-          yield updateCanvasWithDSL(
-            // @ts-expect-error: response is of type unknown
-            refactorResponse.data,
-            data.payload.refactorAction.pageId,
-            layoutId,
-          );
-        }
-      }
-    } catch (error) {
+    if (isRefactorSuccessful) {
       yield put({
-        type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
-        payload: { collectionId: data.payload.actionCollection.id },
+        type: ReduxActionTypes.REFACTOR_JS_ACTION_NAME_SUCCESS,
+        payload: { collectionId: actionCollection.id },
       });
+      if (currentPageId === refactorAction.pageId) {
+        yield updateCanvasWithDSL(
+          // @ts-expect-error: response is of type unknown
+          refactorResponse.data,
+          refactorAction.pageId,
+          layoutId,
+        );
+      }
     }
+  } catch (error) {
+    yield put({
+      type: ReduxActionErrorTypes.REFACTOR_JS_ACTION_NAME_ERROR,
+      payload: { collectionId: actionCollection.id },
+    });
   }
 }
 
@@ -824,10 +845,6 @@ export default function* root() {
     takeEvery(
       ReduxActionTypes.START_EXECUTE_JS_FUNCTION,
       handleStartExecuteJSFunctionSaga,
-    ),
-    takeEvery(
-      ReduxActionTypes.REFACTOR_JS_ACTION_NAME,
-      handleRefactorJSActionNameSaga,
     ),
     debounce(
       100,
