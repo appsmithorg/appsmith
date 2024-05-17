@@ -4,8 +4,11 @@ import com.appsmith.external.exceptions.ErrorDTO;
 import com.appsmith.external.models.CreatorContextType;
 import com.appsmith.external.models.Datasource;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
+import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.dtos.ApplicationPagesDTO;
 import com.appsmith.server.dtos.ConsolidatedAPIResponseDTO;
@@ -84,6 +87,7 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
     private final ActionCollectionService actionCollectionService;
     private final ThemeService themeService;
     private final ApplicationPageService applicationPageService;
+    private final ApplicationService applicationService;
     private final CustomJSLibService customJSLibService;
     private final PluginService pluginService;
     private final DatasourceService datasourceService;
@@ -199,14 +203,31 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
             applicationIdMonoCache = Mono.just(applicationId).cache();
         }
 
-        /* Get all pages in application */
-        Mono<ResponseDTO<ApplicationPagesDTO>> applicationPagesDTOResponseDTOMonoCache = applicationIdMonoCache
-                .flatMap(appId -> newPageService.findApplicationPages(appId, null, branchName, mode))
+        // dslMigration-over-here using the branchName and defaultId
+        Mono<Application> branchedApplicationMonoCached = applicationIdMonoCache
+                .flatMap(defaultApplicationId -> applicationService.findByDefaultIdBranchNameAndApplicationMode(
+                        defaultApplicationId, branchName, mode))
+                .cache();
+
+        Mono<List<NewPage>> pagesFromCurrentApplicationMonoCached = branchedApplicationMonoCached
+                .flatMap(branchedApplication ->
+                        applicationPageService.getPagesBasedOnApplicationMode(branchedApplication, mode))
+                .cache();
+
+        /* Get all applicationPages in application */
+        Mono<ResponseDTO<ApplicationPagesDTO>> applicationPagesDTOResponseDTOMonoCache = Mono.zip(
+                        branchedApplicationMonoCached, pagesFromCurrentApplicationMonoCached)
+                .flatMap(tuple2 -> {
+                    Application branchedApplication = tuple2.getT1();
+                    List<NewPage> newPages = tuple2.getT2();
+                    return newPageService.createApplicationPagesDTO(branchedApplication, newPages, isViewMode, true);
+                })
                 .as(this::toResponseDTO)
                 .doOnSuccess(consolidatedAPIResponseDTO::setPages)
                 .name(getQualifiedSpanName(PAGES_SPAN, mode))
                 .tap(Micrometer.observation(observationRegistry))
                 .cache();
+
         fetches.add(applicationPagesDTOResponseDTOMonoCache);
 
         /* Get current theme */
@@ -237,8 +258,9 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
 
         if (!isBlank(defaultPageId)) {
             /* Get current page */
-            fetches.add(applicationPageService
-                    .getPageAndMigrateDslByBranchAndDefaultPageId(defaultPageId, branchName, isViewMode, true)
+            fetches.add(pagesFromCurrentApplicationMonoCached
+                    .then(applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
+                            defaultPageId, branchName, isViewMode, true))
                     .as(this::toResponseDTO)
                     .doOnSuccess(consolidatedAPIResponseDTO::setPageWithMigratedDsl)
                     .name(getQualifiedSpanName(CURRENT_PAGE_SPAN, mode))
@@ -296,12 +318,9 @@ public class ConsolidatedAPIServiceImpl implements ConsolidatedAPIService {
                     .tap(Micrometer.observation(observationRegistry)));
 
             /* Get all pages in edit mode post apply migrate DSL changes */
-            fetches.add(applicationPagesDTOResponseDTOMonoCache
-                    .map(ResponseDTO::getData)
-                    .map(ApplicationPagesDTO::getPages)
+            fetches.add(pagesFromCurrentApplicationMonoCached
                     .flatMapMany(Flux::fromIterable)
-                    .flatMap(page -> applicationPageService.getPageAndMigrateDslByBranchAndDefaultPageId(
-                            page.getDefaultPageId(), branchName, false, true))
+                    .flatMap(page -> applicationPageService.getPageDTOAfterMigratingDSL(page, false, true))
                     .collect(Collectors.toList())
                     .as(this::toResponseDTO)
                     .doOnSuccess(consolidatedAPIResponseDTO::setPagesWithMigratedDsl)
