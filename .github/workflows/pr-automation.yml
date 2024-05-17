@@ -122,6 +122,17 @@ jobs:
         if: steps.checkTags.outputs.outcome == 'failure'
         run: exit 1
     
+      # In case of run with specific tests, allocate a single runner in the matrix. 
+      - name: Check if specific test is present
+        if: steps.parseTags.outputs.tests != '' && steps.checkTags.outputs.outcome == ''
+        id: checkTests
+        run: |
+          tests="${{ steps.parseTags.outputs.tests }}"
+          if [[ $tests != "" ]]; then
+            echo "tests=$tests" >> $GITHUB_OUTPUT
+            echo "matrix=[0]" >> $GITHUB_OUTPUT
+          fi     
+
       # In case of a run with all test cases, allocate a larger matrix
       - name: Check if @tag.All is present in tags
         if: steps.parseTags.outputs.tags != '' && steps.checkTags.outputs.outcome == ''
