@@ -52,7 +52,7 @@ export const ComplexForm = () => {
       }}
     >
       <Flex direction="column" gap="spacing-3">
-        <Text variant="heading">Your order</Text>
+        <Text size="heading">Your order</Text>
         <Text>Choose your favorite dishes and place an order.</Text>
       </Flex>
 

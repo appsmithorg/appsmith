@@ -818,7 +818,9 @@ class CodeEditor extends Component<Props, State> {
 
   handleMouseOver = (event: MouseEvent) => {
     const tokenElement = event.target;
+    const rect = (tokenElement as Element).getBoundingClientRect();
     if (
+      !(rect.height === 0 && rect.width === 0) &&
       tokenElement instanceof Element &&
       this.isPeekableElement(tokenElement)
     ) {

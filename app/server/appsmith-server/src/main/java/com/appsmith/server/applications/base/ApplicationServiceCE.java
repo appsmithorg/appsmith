@@ -17,6 +17,10 @@ import java.util.Optional;
 
 public interface ApplicationServiceCE extends CrudService<Application, String> {
 
+    Mono<Application> getById(String id);
+
+    Mono<Application> findByIdAndBranchName(String id, String branchName);
+
     Mono<Application> findByIdAndBranchName(String id, List<String> projectionFieldNames, String branchName);
 
     Mono<Application> findById(String id);
