@@ -2,6 +2,7 @@ import { createImmerReducer } from "utils/ReducerUtils";
 import type {
   UpdateCanvasPayload,
   ReduxAction,
+  UpdateBuildingBlockSkeletonLoaderPayload,
 } from "@appsmith/constants/ReduxActionConstants";
 import { ReduxActionTypes } from "@appsmith/constants/ReduxActionConstants";
 import type { WidgetProps } from "widgets/BaseWidget";
@@ -42,21 +43,13 @@ const canvasWidgetsStructureReducer = createImmerReducer(initialState, {
   },
   [ReduxActionTypes.ADD_LOCAL_SKELETON_LOADER]: (
     state: CanvasWidgetsStructureReduxState,
-    action: ReduxAction<{
-      updatedWidgets: {
-        [widgetId: string]: FlattenedWidgetProps;
-      };
-    }>,
+    action: ReduxAction<UpdateBuildingBlockSkeletonLoaderPayload>,
   ) => {
     return denormalize("0", action.payload.updatedWidgets);
   },
   [ReduxActionTypes.REMOVE_LOCAL_SKELETON_LOADER]: (
     state: CanvasWidgetsStructureReduxState,
-    action: ReduxAction<{
-      updatedWidgets: {
-        [widgetId: string]: FlattenedWidgetProps;
-      };
-    }>,
+    action: ReduxAction<UpdateBuildingBlockSkeletonLoaderPayload>,
   ) => {
     return denormalize("0", action.payload.updatedWidgets);
   },

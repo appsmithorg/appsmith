@@ -14,7 +14,7 @@ import type {
   PageAction,
 } from "constants/AppsmithActionConstants/ActionConstants";
 import type { AppLayoutConfig } from "reducers/entityReducers/pageListReducer";
-import type { DSLWidget } from "WidgetProvider/constants";
+import type { DSLWidget, FlattenedWidgetProps } from "WidgetProvider/constants";
 import type { LayoutSystemTypeConfig } from "layoutSystems/types";
 
 export const ReduxSagaChannels = {
@@ -1216,6 +1216,12 @@ export interface UpdateCanvasPayload {
   pageActions: PageAction[][];
   updatedWidgetIds?: string[];
   layoutOnLoadActionErrors?: LayoutOnLoadActionErrors[];
+}
+
+export interface UpdateBuildingBlockSkeletonLoaderPayload {
+  updatedWidgets: {
+    [widgetId: string]: FlattenedWidgetProps;
+  };
 }
 
 export interface ShowPropertyPanePayload {

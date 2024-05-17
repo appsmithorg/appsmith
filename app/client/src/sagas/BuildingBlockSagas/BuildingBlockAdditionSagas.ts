@@ -2,7 +2,6 @@ import type { ReduxAction } from "@appsmith/constants/ReduxActionConstants";
 import {
   ReduxActionErrorTypes,
   ReduxActionTypes,
-  WidgetReduxActionTypes,
 } from "@appsmith/constants/ReduxActionConstants";
 import AnalyticsUtil from "@appsmith/utils/AnalyticsUtil";
 import { selectWidgetInitAction } from "actions/widgetSelectionActions";
@@ -212,10 +211,9 @@ export function* addAndMoveBuildingBlockSkeletonLoaderToCanvas(
 }
 
 export function* loadBuildingBlocksIntoApplication(
-  buildingBlockWidget: WidgetAddChild,
-  skeletonLoaderId: string,
+  skeletonWidget: WidgetAddChild,
 ) {
-  const { leftColumn, topRow } = buildingBlockWidget;
+  const { leftColumn, topRow } = skeletonWidget;
   try {
     const dragDetails: DragDetails = yield select(getDragDetails);
     const applicationId: string = yield select(getCurrentApplicationId);
@@ -233,7 +231,7 @@ export function* loadBuildingBlocksIntoApplication(
       yield saveBuildingBlockWidgetsToStore(response);
 
       // remove skeleton loader just before pasting the building block
-      yield call(removeSkeletonLoaderFromCanvas, skeletonLoaderId);
+      yield call(removeSkeletonLoaderFromCanvas, skeletonWidget.newWidgetId);
 
       yield pasteBuildingBlockWidgetsSaga({
         top: topRow,
@@ -297,15 +295,7 @@ export function* loadBuildingBlocksIntoApplication(
       }
     }
   } catch (error) {
-    yield put({
-      type: WidgetReduxActionTypes.WIDGET_SINGLE_DELETE,
-      payload: {
-        widgetId: skeletonLoaderId,
-        parentId: MAIN_CONTAINER_WIDGET_ID,
-        disallowUndo: true,
-        isShortcut: false,
-      },
-    });
+    yield call(removeSkeletonLoaderFromCanvas, skeletonWidget.newWidgetId);
     yield put({
       type: ReduxActionErrorTypes.DRAGGING_BUILDING_BLOCK_TO_CANVAS_ERROR,
     });
@@ -333,11 +323,7 @@ export function* addBuildingBlockToCanvasSaga(
     buildingblockName,
   });
   yield call(addBuildingBlockSkeletonLoaderToCanvas, addSkeletonWidgetAction);
-  yield call(
-    loadBuildingBlocksIntoApplication,
-    addEntityAction.payload,
-    addEntityAction.payload.newWidgetId,
-  );
+  yield call(loadBuildingBlocksIntoApplication, addEntityAction.payload);
 }
 
 export function* addAndMoveBuildingBlockToCanvasSaga(
@@ -371,7 +357,6 @@ export function* addAndMoveBuildingBlockToCanvasSaga(
   yield call(
     loadBuildingBlocksIntoApplication,
     actionPayload.payload.newWidget,
-    actionPayload.payload.newWidget.newWidgetId,
   );
 }
 
