@@ -7,7 +7,6 @@ export type ButtonsList = Record<string, ToolbarButtonsItemComponentProps>;
 export interface ButtonGroupWidgetProps extends WidgetProps {
   buttonColor: ActionGroupProps<object>["color"];
   buttonVariant: ActionGroupProps<object>["variant"];
-  orientation: ActionGroupProps<object>["orientation"];
   isVisible: boolean;
   buttonsList: ButtonsList;
   alignment: ActionGroupProps<object>["alignment"];

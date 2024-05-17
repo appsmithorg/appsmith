@@ -58,7 +58,6 @@ export const ToolbarButtonsComponent = (
       density={props.density}
       disabledKeys={disabledKeys}
       onAction={onAction}
-      orientation={props.orientation}
       variant={props.variant}
     >
       {sortedButtons.map((button: ToolbarButtonsItemComponentProps) => {

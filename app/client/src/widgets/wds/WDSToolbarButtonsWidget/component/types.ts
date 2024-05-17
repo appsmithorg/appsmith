@@ -9,7 +9,6 @@ import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionCo
 export interface ToolbarButtonsComponentProps {
   color?: ActionGroupProps<object>["color"];
   variant?: ActionGroupProps<object>["variant"];
-  orientation: ActionGroupProps<object>["orientation"];
   buttonsList: ButtonsList;
   onButtonClick: (
     onClick?: string,

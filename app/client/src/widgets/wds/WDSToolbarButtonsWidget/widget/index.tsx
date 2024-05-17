@@ -78,7 +78,6 @@ class WDSToolbarButtonsWidget extends BaseWidget<
         density={this.props.density}
         key={this.props.widgetId}
         onButtonClick={this.onButtonClick}
-        orientation={this.props.orientation}
         variant={this.props.buttonVariant}
       />
     );
