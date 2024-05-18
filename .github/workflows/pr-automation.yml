@@ -38,9 +38,11 @@ jobs:
       - name: Get tags
         uses: actions/github-script@v7
         id: getTags
+        env:
+          NODE_PATH: "${{ github.workspace }}/.github/workflows/scripts"
         with:
           script: |
-            const testTagParser = require(process.env.GITHUB_WORKSPACE + "/.github/workflows/scripts/test-tag-parser.js")
+            const testTagParser = require("test-tag-parser.js")
             core.setOutput("tags", testTagParser.parseTags({core, context}))
 
       # Parses the retrieved /ok-to-test slash command to retrieve tags
