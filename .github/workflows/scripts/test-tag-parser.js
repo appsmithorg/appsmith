@@ -5,7 +5,6 @@ function parseTags({core, context}) {
   const strictMatch = body.match(/\/ok-to-test tags="(.+?)"/)?.[1];
   if (strictMatch) {
     return strictMatch;
-    return;
   }
 
   // "/test" matcher.
