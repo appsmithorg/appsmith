@@ -4,6 +4,9 @@ import { ObjectsRegistry } from "../Objects/Registry";
 import type CodeMirror from "codemirror";
 import type { EntityItemsType } from "./AssertHelper";
 import { EntityItems } from "./AssertHelper";
+import EditorNavigator from "./EditorNavigation";
+import { EntityType } from "./EditorNavigation";
+import ClickOptions = Cypress.ClickOptions;
 
 type ElementType = string | JQuery<HTMLElement>;
 
@@ -18,6 +21,15 @@ interface SubActionParams {
   index?: number;
   force?: boolean;
   toastToValidate?: string;
+}
+interface SelectAndValidateParams {
+  widgetName: string;
+  widgetType?: EntityType;
+  clickOptions?: Partial<ClickOptions>;
+  hierarchy?: string[];
+  propFieldName: string;
+  valueToValidate: string;
+  toggleEle?: string | null;
 }
 
 let LOCAL_STORAGE_MEMORY: any = {};
@@ -290,8 +302,8 @@ export class AggregateHelper {
     return exists === "noVerify"
       ? locator // Return the locator without verification if exists is "noVerify"
       : exists === "exist"
-        ? locator.should("have.length.at.least", 1)
-        : locator.should("have.length", 0);
+      ? locator.should("have.length.at.least", 1)
+      : locator.should("have.length", 0);
   }
 
   public GetNAssertElementText(
@@ -1819,5 +1831,34 @@ export class AggregateHelper {
       .children(childSelector)
       .click({ force: force, ctrlKey: ctrlKey })
       .wait(waitTimeInterval);
+  }
+
+  public selectAndValidateWidgetNameAndProperty({
+    widgetName,
+    widgetType = EntityType.Widget,
+    clickOptions = {},
+    hierarchy = [],
+    propFieldName,
+    valueToValidate,
+    toggleEle = null,
+  }: SelectAndValidateParams) {
+    EditorNavigator.SelectEntityByName(
+      widgetName,
+      widgetType,
+      clickOptions,
+      hierarchy,
+    );
+    this.AssertText(
+      ObjectsRegistry.PropertyPane._paneTitle,
+      "text",
+      widgetName,
+    );
+    if (toggleEle) {
+      ObjectsRegistry.PropertyPane.ToggleJSMode(toggleEle);
+    }
+    ObjectsRegistry.PropertyPane.ValidatePropertyFieldValue(
+      propFieldName,
+      valueToValidate,
+    );
   }
 }
