@@ -9,10 +9,10 @@ export const EMPTY_MODAL_PADDING = 4;
 
 const StyledModalEditorDropArenaWrapper = styled.div<{ isModalEmpty: boolean }>`
   position: relative;
-  height: 100% !important;
   ${(props) =>
     props.isModalEmpty &&
     `
+    height: 100% !important;
   padding: ${EMPTY_MODAL_PADDING}px;
   `}
 `;
