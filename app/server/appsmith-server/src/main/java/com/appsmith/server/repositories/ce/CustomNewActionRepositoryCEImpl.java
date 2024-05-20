@@ -346,8 +346,7 @@ public class CustomNewActionRepositoryCEImpl extends BaseAppsmithRepositoryImpl<
 
     protected Mono<Void> copyUnpublishedActionToPublishedAction(
             BridgeQuery<NewAction> criteria, AclPermission permission) {
-        Mono<Set<String>> permissionGroupsMono =
-                getCurrentUserPermissionGroupsIfRequired(Optional.ofNullable(permission));
+        Mono<Set<String>> permissionGroupsMono = getCurrentUserPermissionGroupsIfRequired(permission);
 
         return permissionGroupsMono
                 .flatMapMany(permissionGroups -> {
