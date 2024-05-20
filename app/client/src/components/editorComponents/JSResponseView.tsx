@@ -17,6 +17,7 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_RESPONSE,
   EXECUTING_FUNCTION,
   NO_JS_FUNCTION_RETURN_VALUE,
   UPDATING_JS_COLLECTION,
@@ -227,7 +228,7 @@ function JSResponseView(props: Props) {
   const tabs: BottomTab[] = [
     {
       key: "response",
-      title: "Response",
+      title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <>
           {(hasExecutionParseErrors ||
@@ -336,7 +337,7 @@ function JSResponseView(props: Props) {
   // Do not render if header tab is selected in the bottom bar.
   return open && selectedTab ? (
     <ResponseContainer
-      className="t--js-editor-bottom-pane-container"
+      className="t--js-editor-bottom-pane-container select-text"
       ref={panelRef}
     >
       <Resizer

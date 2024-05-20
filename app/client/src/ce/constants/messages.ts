@@ -200,7 +200,7 @@ export const USERS_HAVE_ACCESS_TO_ALL_APPS = () =>
 export const USERS_HAVE_ACCESS_TO_ONLY_THIS_APP = () =>
   "Users will only have access to this application";
 export const NO_USERS_INVITED = () => "You haven't invited any users yet";
-export const BUSINESS_EDITION_TEXT = () => "business edition";
+export const BUSINESS_EDITION_TEXT = () => "business plan";
 export const PARTNER_PROGRAM_CALLOUT = (
   email: string,
 ) => `${email} is outside your organisation. If you’re building this app
@@ -460,6 +460,10 @@ export const PAGE_CLIENT_ERROR_DESCRIPTION = () =>
 
 export const PAGE_SERVER_UNAVAILABLE_ERROR_CODE = () => "503";
 
+// Modules
+export const CONVERT_MODULE_CTA_TEXT = () => "Create module";
+export const CONVERT_MODULE_TO_NEW_PKG_OPTION = () => "Add to a new package";
+
 // cloudHosting used in EE
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
 export const PAGE_SERVER_UNAVAILABLE_TITLE = (cloudHosting: boolean) =>
@@ -540,6 +544,7 @@ export const LOGS_FILTER_OPTION_SYSTEM = () => "System logs";
 export const NO_LOGS = () => "No logs to show";
 export const NO_ERRORS = () => "No signs of trouble here!";
 export const DEBUGGER_ERRORS = () => "Errors";
+export const DEBUGGER_RESPONSE = () => "Response";
 export const DEBUGGER_LOGS = () => "Logs";
 export const INSPECT_ENTITY = () => "Inspect entity";
 export const INSPECT_ENTITY_BLANK_STATE = () => "Select an entity to inspect";
@@ -1142,7 +1147,7 @@ export const BRANCH = () => "Branch";
 export const CONTINUOUS_DELIVERY = () => "Continuous delivery";
 export const CONFIGURE_CD_TITLE = () => "Configure continuous delivery";
 export const CONFIGURE_CD_DESC = () =>
-  "To automatically trigger a pull when changes occur on the remote branch, consider upgrading to our enterprise edition for enhanced functionality";
+  "To automatically trigger a pull when changes occur on the remote branch, consider upgrading to our enterprise plan for enhanced functionality";
 export const TRY_APPSMITH_ENTERPRISE = () => "Try Appsmith Enterprise";
 
 export const NAV_DESCRIPTION = () =>
@@ -1447,7 +1452,7 @@ export const ENTERPRISE_TAG = () => "Enterprise";
 // Upgrade pages begin
 export const AVAILABLE_ON_BUSINESS = () => "Available on a business plan only";
 export const EXCLUSIVE_TO_BUSINESS = (featureName: string) =>
-  `The ${featureName} feature is exclusive to workspaces on the Business Edition`;
+  `The ${featureName} feature is exclusive to workspaces on the business plan`;
 export const AVAILABLE_ON_ENTERPRISE = () => "Available on Appsmith Enterprise";
 // Upgrade pages end
 
@@ -1492,7 +1497,7 @@ export const RESTRICT_PUBLIC_EXPOSURE = () =>
 export const RESTRICT_PUBLIC_EXPOSURE_DETAIL1 = () =>
   "Proactively disallow groups of non-admin or non-super-admin users from publicly sharing your app or exporting app data out of your environment, domain, and security perimeters.";
 export const ACCESS_CONTROL_UPGRADE_PAGE_FOOTER = () =>
-  "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business edition.";
+  "Unlock granular access controls along with audit logs and SSO for enhanced security and reliability with an upgrade to our Business plan.";
 // Access control upgrade page end
 
 // Provisioning upgrade page begin
@@ -1608,7 +1613,7 @@ export const DISCONNECT_CONFIRMATION = () => "Are you sure?";
 export const ADMIN_BRANDING_SETTINGS_TITLE_UPGRADE = () =>
   "Custom Branding for your workspaces";
 export const ADMIN_BRANDING_SETTINGS_SUBTITLE_UPGRADE = () =>
-  "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business Edition.";
+  "Make your workspaces and apps look more yours in a few clicks as in the example below. Upload your logo and favicon, set your primary color, and preview the new look. To save a look you like, upgrade to our Business plan.";
 export const ADMIN_BRANDING_COLOR_TOOLTIP = () =>
   `When you choose a primary color, we auto-magically fill in the secondary and accent colors. You can change them to get the look you want.`;
 export const ADMIN_BRANDING_LOGO_SIZE_ERROR = () =>
@@ -1916,23 +1921,23 @@ export const IN_APP_EMBED_SETTING = {
   forkLabelTooltip: () =>
     "Forking allows developers to copy your app to their workspace",
   upgradeHeading: () =>
-    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
+    "Embedding in public mode is supported in the free plan. To make your app public, please contact your administrator.",
   upgradeHeadingForInviteModal: () => "Public apps",
   upgradeSubheadingForInviteModal: () =>
     "Make your app public by visiting the share settings, and easily embed your Appsmith app into legacy applications",
   privateAppsText: () => "Private apps",
   rampSubtextModal: () =>
-    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Business Edition",
+    "Embed private Appsmith apps and seamlessly authenticate users through SSO in our Enterprise Plan",
   rampSubtextSidebar: () =>
     "To embed private Appsmith apps and seamlessly authenticate users through SSO, try our ",
-  rampLinktext: () => "Try Business",
-  rampLinktextvariant2: () => "Business Edition",
+  rampLinktext: () => "Try Enterprise",
+  rampLinktextvariant2: () => "Enterprise Plan",
   upgradeContent: () => "Private embedding is now available in",
-  appsmithBusinessEdition: () => "Appsmith Business Edition.",
+  appsmithEnterpriseEdition: () => "Appsmith Enterprise Plan.",
   secondaryHeadingForAppSettings: () =>
     "Make your app public to embed your Appsmith app into legacy applications",
   secondaryHeading: () =>
-    "Embedding in public mode is supported in the community edition. To make your app public, please contact your administrator.",
+    "Embedding in public mode is supported in the free plan. To make your app public, please contact your administrator.",
 };
 
 export const APP_NAVIGATION_SETTING = {
@@ -2100,9 +2105,9 @@ export const customJSLibraryMessages = {
     `Name collision detected: ${accessors}`,
 };
 
-// Business Edition upgrade page
+// Business Plan upgrade page
 export const MOVE_TO_BUSINESS_EDITION = (trailingChar: string) =>
-  `Move to Business edition${trailingChar ? trailingChar : ""}`;
+  `Move to Business plan${trailingChar ? trailingChar : ""}`;
 
 //Datasource environment
 export const START_SWITCH_ENVIRONMENT = (environment: string) =>
@@ -2326,9 +2331,9 @@ export const EDITOR_PANE_TEXTS = {
   js_add_button: () => "New JS object",
   js_blank_object_item: () => "Blank JS object",
   widget_add_button: () => "New UI element",
-  query_create_tab_title: () => "Create new query / API",
+  query_create_tab_title: () => "Create new query from",
   widgets_create_tab_title: () => "Drag & drop UI elements",
-  js_create_tab_title: () => "Create JS object",
+  js_create_tab_title: () => "Create JS object from",
   queries_create_from_existing: () => "From existing datasource",
   queries_create_new: () => "New API",
   loading_building_blocks: () => "Loading building blocks",

@@ -1,3 +1,3 @@
-package com.appsmith.external.connectionpoolconfig.configurations;
+package com.appsmith.external.configurations.connectionpool;
 
 public interface ConnectionPoolConfigCECompatible extends ConnectionPoolConfigCE {}

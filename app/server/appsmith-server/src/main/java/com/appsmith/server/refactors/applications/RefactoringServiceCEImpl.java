@@ -204,7 +204,7 @@ public class RefactoringServiceCEImpl implements RefactoringServiceCE {
             Map<String, String> analyticsProperties) {
         return contextIdMono.flatMap(branchedPageId -> {
             refactorEntityNameDTO.setPageId(branchedPageId);
-            return newPageService.getById(branchedPageId).map(page -> {
+            return newPageService.getByIdWithoutPermissionCheck(branchedPageId).map(page -> {
                 analyticsProperties.put(FieldName.APPLICATION_ID, page.getApplicationId());
                 analyticsProperties.put(FieldName.PAGE_ID, refactorEntityNameDTO.getPageId());
                 return analyticsProperties;
