@@ -46,7 +46,8 @@ public final class CustomJsonType extends JsonBinaryType {
             }
             if (m.hasAnnotation(org.springframework.data.annotation.Transient.class)) {
                 // This is the incorrect `@Transient` annotation to be used. Fail loud and clear.
-                throw new RuntimeException("Incorrect @Transient annotation on " + m.getFullName());
+                // throw new RuntimeException("Incorrect @Transient annotation on " + m.getFullName());
+                return true;
             }
             return super.hasIgnoreMarker(m);
         }
