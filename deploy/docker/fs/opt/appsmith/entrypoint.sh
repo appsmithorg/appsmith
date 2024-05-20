@@ -178,11 +178,8 @@ configure_database_connection_url() {
     export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
   fi
 
-  if [[ "${APPSMITH_DB_URL}" == "jdbc:postgresql:"* ]]; then
-      isPostgresUrl=1
-  elif [[ "${APPSMITH_DB_URL}" == "postgresql:"* ]]; then
+  if [[ "${APPSMITH_DB_URL}" == "postgresql:"* ]]; then
     isPostgresUrl=1
-    export APPSMITH_DB_URL="jdbc:${APPSMITH_DB_URL}"
   elif [[ "${APPSMITH_DB_URL}" == "mongodb"* ]]; then
     isMongoUrl=1
   fi

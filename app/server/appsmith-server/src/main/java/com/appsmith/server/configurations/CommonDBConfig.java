@@ -23,6 +23,8 @@ public class CommonDBConfig {
     @Value("${appsmith.db.url}")
     private String appsmithDbUrl;
 
+    static final String JDBC_PREFIX = "jdbc:";
+
     @Bean
     @Primary
     public MongoProperties configureMongoDB() {
@@ -47,12 +49,13 @@ public class CommonDBConfig {
 
     /**
      * Method to extract Jdbc props from the given DB URL
-     * Expected DB URL: jdbc:postgresql://{username}:{password}@localhost:{port}/{db_name}
+     * Expected DB URL: postgresql://{username}:{password}@localhost:{port}/{db_name}
      */
     public DataSourceProperties extractJdbcProperties(String dbUrl) {
         DataSourceProperties ds = new DataSourceProperties();
         try {
-            URI uri = new URI(dbUrl.substring(5)); // remove "jdbc:" prefix
+            // remove "jdbc:" prefix if exists
+            URI uri = new URI(dbUrl.replaceFirst("^" + JDBC_PREFIX, ""));
             String userInfo = uri.getUserInfo();
             if (StringUtils.hasLength(userInfo)) {
                 String[] userDetails = userInfo.split(":");
@@ -61,7 +64,8 @@ public class CommonDBConfig {
             }
             // If the port is not mentioned default it to standard 5432
             int port = uri.getPort() == -1 ? 5432 : uri.getPort();
-            String updatedUrl = String.format("jdbc:%s://%s:%s%s", uri.getScheme(), uri.getHost(), port, uri.getPath());
+            String updatedUrl =
+                    String.format("%s%s://%s:%s%s", JDBC_PREFIX, uri.getScheme(), uri.getHost(), port, uri.getPath());
             ds.setUrl(updatedUrl);
             return ds;
         } catch (URISyntaxException e) {
