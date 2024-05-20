@@ -147,6 +147,8 @@ function CreateNewDatasource({
     }
   }, [active]);
 
+  const isAirgappedInstance = isAirgapped();
+
   return (
     <div id="new-datasources" ref={newDatasourceRef}>
       <Text kind="heading-m">
@@ -158,6 +160,7 @@ function CreateNewDatasource({
         editorId={editorId}
         editorType={editorType}
         history={history}
+        isAirgappedInstance={isAirgappedInstance}
         isCreating={isCreating}
         location={location}
         parentEntityId={parentEntityId || (isOnboardingScreen && pageId) || ""}
