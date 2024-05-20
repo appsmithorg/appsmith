@@ -294,6 +294,7 @@ jobs:
         with:
           name: client-build
           path: app/client/build.tar
+          overwrite: true
 
       - name: Put release build in cache
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')

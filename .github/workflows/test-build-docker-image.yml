@@ -261,6 +261,7 @@ jobs:
         with:
           name: combined_failed_spec_ci
           path: ~/combined_failed_spec_ci
+          overwrite: true
 
       - name: Return status for ui-matrix
         run: |
