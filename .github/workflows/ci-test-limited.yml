@@ -416,13 +416,11 @@ jobs:
       # Force store previous run result to cache
       - name: Store the previous run result
         if: failure()
-        uses: martijnhols/actions-cache/save@v3
+        uses: actions/cache/save@v4
         with:
           path: |
             ~/run_result
           key: ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
-          restore-keys: |
-            ${{ github.run_id }}-${{ github.job }}-${{ matrix.job }}
 
       # Upload the log artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server logs bundle on failure
