@@ -134,7 +134,7 @@ jobs:
         run: echo "git_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Download the client build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: client-build
           path: app/client
@@ -146,13 +146,13 @@ jobs:
           tar -xvf app/client/build.tar -C app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rts-dist
           path: app/client/packages/rts/dist
