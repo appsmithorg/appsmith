@@ -13,7 +13,7 @@ set +o allexport
 check_mongodb_uri() {
   echo "Check MongoDB uri host"
   isLocalMongo=1
-  if [[ $APPSMITH_MONGODB_URI == *"localhost"* || $APPSMITH_MONGODB_URI == *"127.0.0.1"* ]]; then
+  if [[ $APPSMITH_DB_URL == *"localhost"* || $APPSMITH_DB_URL == *"127.0.0.1"* ]]; then
     echo "Use local MongoDB"
     isLocalMongo=0
   fi

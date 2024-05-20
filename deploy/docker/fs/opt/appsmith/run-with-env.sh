@@ -33,4 +33,10 @@ if [[ -z "${APPSMITH_GIT_ROOT:-}" ]]; then
 fi
 mkdir -pv "$APPSMITH_GIT_ROOT"
 
+# Check if APPSMITH_DB_URL is set
+if [[ -z "${APPSMITH_DB_URL}" ]]; then
+  # If APPSMITH_DB_URL is not set, fall back to APPSMITH_MONGODB_URI
+  export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
+fi
+
 exec "$@"
