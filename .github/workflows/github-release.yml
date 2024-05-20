@@ -93,6 +93,7 @@ jobs:
         with:
           name: client-build
           path: app/client/build.tar
+          overwrite: true
 
   server-build:
     needs:
@@ -140,6 +141,7 @@ jobs:
         with:
           name: server-build
           path: app/server/dist/
+          overwrite: true
 
   rts-build:
     needs:
@@ -193,6 +195,7 @@ jobs:
         with:
           name: rts-dist
           path: app/client/packages/rts/rts-dist.tar
+          overwrite: true
 
   package:
     needs: [prelude, client-build, server-build, rts-build]
