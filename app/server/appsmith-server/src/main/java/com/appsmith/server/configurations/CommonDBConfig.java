@@ -40,7 +40,7 @@ public class CommonDBConfig {
     @Bean
     @Primary
     public DataSourceProperties configurePostgresDB() {
-        if (!appsmithDbUrl.startsWith("jdbc:postgresql")) {
+        if (!appsmithDbUrl.contains("postgresql")) {
             return null;
         }
         log.info("Found PostgreSQL uri configuring now");
