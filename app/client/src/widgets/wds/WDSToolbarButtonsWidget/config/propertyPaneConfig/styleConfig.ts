@@ -49,25 +49,23 @@ export const propertyPaneStyleConfig = [
         },
       },
       {
-        helpText: "Controls widget orientation",
-        propertyName: "orientation",
-        label: "Orientation",
+        propertyName: "alignment",
+        helpText: "Sets the alignment of the widget",
+        label: "Alignment",
         controlType: "ICON_TABS",
-        fullWidth: true,
-        options: [
-          {
-            label: "Horizontal",
-            value: "horizontal",
-          },
-          {
-            label: "Vertical",
-            value: "vertical",
-          },
-        ],
-        defaultValue: "horizontal",
+        defaultValue: "start",
         isBindProperty: true,
         isTriggerProperty: false,
-        validation: { type: ValidationTypes.TEXT },
+        options: [
+          {
+            startIcon: "skip-left-line",
+            value: "start",
+          },
+          {
+            startIcon: "skip-right-line",
+            value: "end",
+          },
+        ],
       },
     ],
   },

@@ -94,7 +94,7 @@ jobs:
         run: |
           vercel deploy --prebuilt --token=${{ secrets.VERCEL_TOKEN }} | tee -a ~/run_result.txt
 
-      - uses: actions/github-script@v6
+      - uses: actions/github-script@v7
         with:
           script: |
             const dpUrl = require("fs").readFileSync(process.env.HOME + "/run_result.txt", "utf8")
@@ -134,7 +134,7 @@ jobs:
         run: echo "git_hash=$(git rev-parse --short HEAD)" >> $GITHUB_OUTPUT
 
       - name: Download the client build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: client-build
           path: app/client
@@ -146,13 +146,13 @@ jobs:
           tar -xvf app/client/build.tar -C app/client/build
 
       - name: Download the server build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: server-build
           path: app/server/dist
 
       - name: Download the rts build artifact
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: rts-dist
           path: app/client/packages/rts/dist
