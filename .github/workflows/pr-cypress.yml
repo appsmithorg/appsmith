@@ -27,7 +27,6 @@ jobs:
     secrets: inherit
     with:
       pr: ${{ github.event.number }}
-      check-test-files: "true"
 
   rts-build:
     if: success()
