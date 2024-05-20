@@ -80,23 +80,20 @@ create table application
     last_edited_at timestamp(6) with time zone,
     name varchar(255) not null,
     pages jsonb,
-    published_app_layout bytea,
+    published_app_layout jsonb,
     published_application_detail jsonb,
     published_customjslibs jsonb,
     published_mode_theme_id varchar(255),
     published_pages jsonb,
     server_schema_version integer,
     slug varchar(255),
-    unpublished_app_layout bytea,
+    unpublished_app_layout jsonb,
     unpublished_application_detail jsonb,
     unpublished_customjslibs jsonb,
     unread_comment_threads bigint not null,
     view_mode boolean,
     workspace_id varchar(255)
 );
-
-create unique index workspace_app_deleted_git_application_metadata
-    on application (name, workspace_id, deleted_at, (git_application_metadata ->> 'remoteUrl'::text), (git_application_metadata ->> 'branchName'::text));
 
 create table application_page
 (
@@ -191,7 +188,7 @@ create table customjslib
     policy_map jsonb,
     updated_at timestamp(6) with time zone,
     default_resources jsonb,
-    accessor varchar(255) [],
+    accessor jsonb,
     defs varchar(255),
     docs_url varchar(255),
     name varchar(255),
@@ -459,9 +456,7 @@ create table tenant
     updated_at timestamp(6) with time zone,
     display_name varchar(255),
     pricing_plan varchar(255),
-    slug varchar(255)
-        constraint uk_kmgrjdf7i4m9lbmfvfsht9g62
-            unique,
+    slug varchar(255) unique,
     tenant_configuration jsonb
 );
 
