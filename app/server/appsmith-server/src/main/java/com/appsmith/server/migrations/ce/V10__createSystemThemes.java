@@ -1,6 +1,5 @@
 package com.appsmith.server.migrations.ce;
 
-import com.appsmith.external.converters.ISOStringToInstantConverter;
 import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
@@ -8,7 +7,9 @@ import com.appsmith.server.domains.Theme;
 import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.migrations.AppsmithJavaMigration;
 import com.appsmith.server.migrations.RepositoryHelperMethods;
-import com.google.gson.GsonBuilder;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.springframework.core.io.DefaultResourceLoader;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StreamUtils;
@@ -36,11 +37,10 @@ public class V10__createSystemThemes extends AppsmithJavaMigration {
         final String themesJson = StreamUtils.copyToString(
                 new DefaultResourceLoader().getResource("system-themes.json").getInputStream(),
                 Charset.defaultCharset());
-
-        Theme[] themes = new GsonBuilder()
-                .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
-                .create()
-                .fromJson(themesJson, Theme[].class);
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new JavaTimeModule());
+        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+        Theme[] themes = mapper.readValue(themesJson, Theme[].class);
 
         Config publicPermissionGroupConfig = repositoryHelperMethods.getConfig(PUBLIC_PERMISSION_GROUP);
         if (publicPermissionGroupConfig == null) {
