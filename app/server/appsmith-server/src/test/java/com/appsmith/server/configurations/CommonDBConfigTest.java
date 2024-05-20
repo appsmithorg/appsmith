@@ -16,6 +16,12 @@ class CommonDBConfigTest {
         assertEquals("postgres", ds.getUsername());
         assertEquals("password", ds.getPassword());
         assertEquals("jdbc:postgresql://localhost:5432/postgres", ds.getUrl());
+
+        String dbUrlWithPort = "jdbc:postgresql://postgres:password@localhost:5432/postgres";
+        ds = commonDBConfig.extractJdbcProperties(dbUrlWithPort);
+        assertEquals("postgres", ds.getUsername());
+        assertEquals("password", ds.getPassword());
+        assertEquals("jdbc:postgresql://localhost:5432/postgres", ds.getUrl());
     }
 
     @Test
