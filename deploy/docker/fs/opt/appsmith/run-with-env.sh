@@ -39,9 +39,4 @@ if [[ -z "${APPSMITH_DB_URL}" ]]; then
   export APPSMITH_DB_URL="${APPSMITH_MONGODB_URI}"
 fi
 
-if [[ "${APPSMITH_DB_URL}" == "postgresql"* ]]; then
-  # Check if APPSMITH_DB_URL is a PostgreSQL URL and doesn't start with "jdbc:", prepend "jdbc:"
-  export APPSMITH_DB_URL="jdbc:${APPSMITH_DB_URL}"
-fi
-
 exec "$@"
