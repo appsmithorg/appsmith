@@ -11,7 +11,7 @@ import { featureFlagIntercept } from "../../../../support/Objects/FeatureFlags";
 
 describe(
   `${ANVIL_EDITOR_TEST}: Validating multiple widgets in anvil layout mode with App navigation settings`,
-  { tags: ["@tag.Anvil"] },
+  { tags: ["@tag.Anvil", "@tag.IDE"] },
   function () {
     beforeEach(() => {
       // intercept features call for Anvil + WDS tests
