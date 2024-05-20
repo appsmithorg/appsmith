@@ -50,8 +50,8 @@ function get_current_time(){
 ## Check if its a fargate deployment
 function check_for_fargate() {
   if [[ $cloud_provider == "amazon" && $dep_tool == "likely docker" && $efs == "present" ]]; then
-    dep_tool="fargate"
-fi
+    dep_tool="ecs-fargate"
+  fi
 }
 
 ## Main Block
