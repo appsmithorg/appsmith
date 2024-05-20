@@ -449,9 +449,9 @@ init_postgres || runEmbeddedPostgres=0
 
 setup_caddy() {
   if [[ "$APPSMITH_RATE_LIMIT" == "disabled" ]]; then
-    export _APPSMITH_CADDY="/opt/caddy/caddy"
+    export _APPSMITH_CADDY="/opt/caddy/caddy_vanilla"
   else
-    export _APPSMITH_CADDY="/opt/caddy/caddy_ext"
+    export _APPSMITH_CADDY="/opt/caddy/caddy"
   fi
 }
 
