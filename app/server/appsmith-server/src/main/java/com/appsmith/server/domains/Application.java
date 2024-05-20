@@ -100,10 +100,12 @@ public class Application extends BaseDomain implements Artifact {
     @JsonView(Views.Public.class)
     private String slug;
 
+    @Type(CustomJsonType.class)
     @JsonView({Views.Internal.class, Git.class})
     @Column(columnDefinition = "jsonb")
     AppLayout unpublishedAppLayout;
 
+    @Type(CustomJsonType.class)
     @JsonView(Views.Internal.class)
     @Column(columnDefinition = "jsonb")
     AppLayout publishedAppLayout;

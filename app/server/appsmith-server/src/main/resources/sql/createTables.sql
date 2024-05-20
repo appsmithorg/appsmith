@@ -18,33 +18,6 @@ create table action_collection
     workspace_id varchar(255)
 );
 
-create table action_configuration
-(
-    id varchar(255) not null
-        primary key,
-    auto_generated_headers jsonb,
-    body varchar(255),
-    body_form_data jsonb,
-    encode_params_toggle boolean,
-    form_data jsonb,
-    headers jsonb,
-    http_method varchar(255),
-    http_version varchar(255),
-    is_async boolean,
-    is_valid boolean,
-    js_arguments jsonb,
-    next varchar(255),
-    pagination_type varchar(255),
-    path varchar(255),
-    plugin_specified_templates jsonb,
-    prev varchar(255),
-    query_parameters jsonb,
-    route_parameters jsonb,
-    timeout_in_millisecond integer
-        constraint action_configuration_timeout_in_millisecond_check
-            check ((timeout_in_millisecond >= 0) AND (timeout_in_millisecond <= 60000))
-);
-
 create table application
 (
     id varchar(255) not null

@@ -10,8 +10,6 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import com.google.gson.annotations.JsonAdapter;
 import jakarta.persistence.Column;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.Transient;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -56,7 +54,6 @@ public class ActionConfiguration implements AppsmithDomain, ExecutableConfigurat
     Integer timeoutInMillisecond;
 
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
-    @Enumerated(EnumType.STRING)
     PaginationType paginationType = PaginationType.NONE;
 
     // API fields
@@ -102,7 +99,6 @@ public class ActionConfiguration implements AppsmithDomain, ExecutableConfigurat
     HttpMethod httpMethod;
 
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
-    @Enumerated(EnumType.STRING)
     HttpProtocol httpVersion;
     // Paginated API fields
     @JsonView({Views.Public.class, FromRequest.class, Git.class})
