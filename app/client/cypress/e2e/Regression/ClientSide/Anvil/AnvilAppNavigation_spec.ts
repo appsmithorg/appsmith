@@ -42,7 +42,7 @@ describe(
       propPane.NavigateToPage("Page1", "onClick");
       appSettings.OpenAppSettings();
       agHelper.GetNClick(appSettings.locators._navigationSettingsTab);
-      // asset that the default value of "Show Navbar" is "Off" for anvil apps
+      // assert that the default value of "Show Navbar" is "Off" for anvil apps
       agHelper.AssertExistingCheckedState(
         appSettings.locators._navigationSettings._showNavbar,
         "false",
