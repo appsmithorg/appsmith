@@ -29,7 +29,7 @@ const ViewWrapper = styled.div`
   height: 100%;
   &&& {
     ul.ads-v2-tabs__list {
-      margin: 0 ${(props) => props.theme.spaces[11]}px;
+      margin: 0 var(--ads-v2-spaces-8);
       height: ${VIEW_MIN_HEIGHT}px;
     }
   }
@@ -113,7 +113,7 @@ const ViewHide = (props: ViewHideProps) => {
 const BottomView = (props: Props) => {
   const panelRef = useRef<HTMLDivElement>(null);
 
-  // Handle the height of the tabs when toggling the hidden state
+  // Handle the height of the view when toggling the hidden state
   useEffect(() => {
     const panel = panelRef.current;
     if (!panel) return;
