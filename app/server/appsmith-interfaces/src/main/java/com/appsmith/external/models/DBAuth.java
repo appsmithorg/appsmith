@@ -30,7 +30,7 @@ public class DBAuth extends AuthenticationDTO {
     @JsonView({Views.Public.class, FromRequest.class})
     String username;
 
-    @Encrypted @JsonView(FromRequest.class)
+    @Encrypted @JsonView({Views.Internal.class, FromRequest.class})
     String password;
 
     @JsonView({Views.Public.class, FromRequest.class})

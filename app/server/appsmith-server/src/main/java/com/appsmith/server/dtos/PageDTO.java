@@ -1,6 +1,5 @@
 package com.appsmith.server.dtos;
 
-import com.appsmith.external.markers.TransientAware;
 import com.appsmith.external.models.DefaultResources;
 import com.appsmith.external.models.Policy;
 import com.appsmith.external.views.Git;
@@ -25,7 +24,7 @@ import java.util.Set;
 @NoArgsConstructor
 @ToString
 @FieldNameConstants
-public class PageDTO implements TransientAware {
+public class PageDTO {
 
     @Transient
     @JsonView({Views.Public.class})
