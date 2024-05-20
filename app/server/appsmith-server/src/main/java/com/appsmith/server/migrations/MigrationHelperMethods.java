@@ -53,6 +53,12 @@ public class MigrationHelperMethods {
     private static final Pattern sheetRangePattern =
             Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?[^\"]*");
 
+    /**
+     * @param policyMap - Map of permission to policy object
+     * @param obj - Domain object to which the policies need to be added
+     * @return - The domain object with the policies added
+     * @param <T> - The type of the domain object
+     */
     public static <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
         // Making a deep copy here so we don't modify the `policyMap` object.
         // TODO: Investigate a solution without using deep-copy.
