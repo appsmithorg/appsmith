@@ -4,6 +4,7 @@ import com.appsmith.external.models.Policy;
 import com.appsmith.server.domains.Config;
 import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.domains.Tenant;
+import com.appsmith.server.domains.Theme;
 import com.appsmith.server.domains.User;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -19,6 +20,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
 
@@ -213,5 +215,59 @@ public class RepositoryHelperMethods {
                 JsonHelper.convertToString(tenant.getPolicies()),
                 id);
         return tenant;
+    }
+
+    public Theme getTheme(String name, boolean isSystemTheme) {
+        String sqlQuery = "SELECT * FROM theme WHERE name = ? AND is_system_theme = ?";
+        RowMapper<Theme> rowMapper = (rs, rowNum) -> {
+            Theme theme = new Theme();
+            theme.setId(rs.getString("id"));
+            theme.setName(rs.getString("name"));
+            theme.setDisplayName(rs.getString("display_name"));
+            theme.setStylesheet(mapObject(rs.getString("stylesheet"), new TypeReference<Map<String, Object>>() {}));
+            theme.setProperties(mapObject(rs.getString("properties"), new TypeReference<Map<String, Object>>() {}));
+            theme.setConfig(mapObject(rs.getString("config"), new TypeReference<Map<String, Object>>() {}));
+            theme.setSystemTheme(rs.getBoolean("is_system_theme"));
+            return theme;
+        };
+        try {
+            return jdbcTemplate.queryForObject(sqlQuery, rowMapper, name, isSystemTheme);
+        } catch (EmptyResultDataAccessException e) {
+            return null;
+        }
+    }
+
+    public Theme saveTheme(Theme theme) throws JsonProcessingException {
+        String id = theme.getId();
+        String insertInstanceConfigurationQuery =
+                "UPDATE theme SET name = ?, display_name = ?, config = cast(? as jsonb), properties = cast(? as jsonb), stylesheet = cast(? as jsonb), policies = cast(? as jsonb), updated_at = now() WHERE id = ?";
+        jdbcTemplate.update(
+                insertInstanceConfigurationQuery,
+                theme.getName(),
+                theme.getDisplayName(),
+                JsonHelper.convertToString(theme.getConfig()),
+                JsonHelper.convertToString(theme.getProperties()),
+                JsonHelper.convertToString(theme.getStylesheet()),
+                JsonHelper.convertToString(theme.getPolicies()),
+                id);
+        return theme;
+    }
+
+    public Theme createTheme(Theme theme) throws JsonProcessingException {
+        String id = UUID.randomUUID().toString();
+        String insertInstanceConfigurationQuery =
+                "INSERT INTO theme (id, name, display_name, config, properties, stylesheet, is_system_theme, policies, created_at, updated_at) VALUES (?, ?, ?, cast(? as jsonb), cast(? as jsonb), cast(? as jsonb), ?, cast(? as jsonb), now(), now())";
+        jdbcTemplate.update(
+                insertInstanceConfigurationQuery,
+                id,
+                theme.getName(),
+                theme.getDisplayName(),
+                JsonHelper.convertToString(theme.getConfig()),
+                JsonHelper.convertToString(theme.getProperties()),
+                JsonHelper.convertToString(theme.getStylesheet()),
+                theme.isSystemTheme(),
+                JsonHelper.convertToString(theme.getPolicies()));
+        theme.setId(id);
+        return theme;
     }
 }
