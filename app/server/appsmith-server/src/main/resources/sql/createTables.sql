@@ -191,12 +191,12 @@ create table customjslib
     policy_map jsonb,
     updated_at timestamp(6) with time zone,
     default_resources jsonb,
-    accessor varchar(255) [],
-    defs varchar(255),
+    accessor jsonb,
+    defs text,
     docs_url varchar(255),
     name varchar(255),
     uid_string varchar(255),
-    url varchar(255),
+    url text,
     version varchar(255)
 );
 
