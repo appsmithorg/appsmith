@@ -2,7 +2,7 @@ import type { CSSProperties, Key } from "react";
 import React, { useContext } from "react";
 import type { Row as ReactTableRowType } from "react-table";
 import type { ListChildComponentProps } from "react-window";
-import { BodyContext } from ".";
+import { TableBodyContext } from "./context";
 import { renderEmptyRows } from "../cellComponents/EmptyCell";
 import { renderBodyCheckBoxCell } from "../cellComponents/SelectionCheckboxCell";
 import { MULTISELECT_CHECKBOX_WIDTH, StickyType } from "../Constants";
@@ -16,8 +16,6 @@ interface RowType {
 
 export function Row(props: RowType) {
   const {
-    accentColor,
-    borderRadius,
     columns,
     isAddRowInProgress,
     multiRowSelection,
@@ -26,7 +24,7 @@ export function Row(props: RowType) {
     selectedRowIndex,
     selectedRowIndices,
     selectTableRow,
-  } = useContext(BodyContext);
+  } = useContext(TableBodyContext);
 
   prepareRow?.(props.row);
   const rowProps = {
@@ -62,18 +60,22 @@ export function Row(props: RowType) {
       key={key}
       onClick={onClickRow}
     >
-      {multiRowSelection &&
-        renderBodyCheckBoxCell(isRowSelected, accentColor, borderRadius)}
+      {multiRowSelection && renderBodyCheckBoxCell(isRowSelected)}
       {props.row.cells.map((cell, cellIndex) => {
         const cellProperties = cell.getCellProps();
 
         cellProperties["style"] = {
           ...cellProperties.style,
+          display: "flex",
+          alignItems: columns[cellIndex].columnProperties.verticalAlignment,
+          justifyContent:
+            columns[cellIndex].columnProperties.horizontalAlignment,
           left:
             columns[cellIndex].sticky === StickyType.LEFT && multiRowSelection
               ? cell.column.totalLeft + MULTISELECT_CHECKBOX_WIDTH
               : cellProperties?.style?.left,
         };
+
         return (
           <div
             {...cellProperties}
@@ -89,7 +91,9 @@ export function Row(props: RowType) {
                       : ""
                   }`
             }
+            data-cell-color={columns[cellIndex].columnProperties.cellColor}
             data-colindex={cellIndex}
+            data-column-type={columns[cellIndex].columnProperties.columnType}
             data-rowindex={props.index}
             key={cellIndex}
           >
@@ -113,7 +117,7 @@ export const EmptyRows = (props: {
     prepareRow,
     rows,
     width,
-  } = useContext(BodyContext);
+  } = useContext(TableBodyContext);
 
   return (
     <>
@@ -141,7 +145,7 @@ export const EmptyRow = (props: { style?: CSSProperties }) => {
     prepareRow,
     rows,
     width,
-  } = useContext(BodyContext);
+  } = useContext(TableBodyContext);
 
   return renderEmptyRows(
     1,

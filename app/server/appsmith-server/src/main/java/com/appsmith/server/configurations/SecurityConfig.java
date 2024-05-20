@@ -196,6 +196,7 @@ public class SecurityConfig {
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/invite/verify"),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.PUT, USER_URL + "/invite/confirm"),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/me"),
+                                ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, "/v3/**"),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, USER_URL + "/features"),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ASSET_URL + "/*"),
                                 ServerWebExchangeMatchers.pathMatchers(HttpMethod.GET, ACTION_URL + "/**"),

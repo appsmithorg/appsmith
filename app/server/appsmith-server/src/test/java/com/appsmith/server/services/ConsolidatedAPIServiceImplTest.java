@@ -6,8 +6,10 @@ import com.appsmith.server.acl.AclPermission;
 import com.appsmith.server.actioncollections.base.ActionCollectionService;
 import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.datasources.base.DatasourceService;
+import com.appsmith.server.domains.Application;
 import com.appsmith.server.domains.ApplicationMode;
 import com.appsmith.server.domains.CustomJSLib;
+import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.domains.Plugin;
 import com.appsmith.server.domains.Tenant;
 import com.appsmith.server.domains.Theme;
@@ -214,8 +216,18 @@ public class ConsolidatedAPIServiceImplTest {
 
         ApplicationPagesDTO sampleApplicationPagesDTO = new ApplicationPagesDTO();
         sampleApplicationPagesDTO.setWorkspaceId("sampleWorkspaceId");
-        when(spyNewPageService.findApplicationPages(anyString(), any(), anyString(), any()))
-                .thenReturn(Mono.just(sampleApplicationPagesDTO));
+
+        doReturn(Mono.just(new Application()))
+                .when(spyApplicationService)
+                .findByDefaultIdBranchNameAndApplicationMode(anyString(), anyString(), any());
+
+        doReturn(Mono.just(List.of(new NewPage())))
+                .when(spyApplicationPageService)
+                .getPagesBasedOnApplicationMode(any(), any());
+
+        doReturn(Mono.just(sampleApplicationPagesDTO))
+                .when(spyNewPageService)
+                .createApplicationPagesDTO(any(), any(), anyBoolean(), anyBoolean());
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
@@ -385,8 +397,18 @@ public class ConsolidatedAPIServiceImplTest {
 
         ApplicationPagesDTO sampleApplicationPagesDTO = new ApplicationPagesDTO();
         sampleApplicationPagesDTO.setWorkspaceId("sampleWorkspaceId");
-        when(spyNewPageService.findApplicationPages(anyString(), any(), anyString(), any()))
-                .thenReturn(Mono.just(sampleApplicationPagesDTO));
+
+        doReturn(Mono.just(new Application()))
+                .when(spyApplicationService)
+                .findByDefaultIdBranchNameAndApplicationMode(anyString(), anyString(), any());
+
+        doReturn(Mono.just(List.of(new NewPage())))
+                .when(spyApplicationPageService)
+                .getPagesBasedOnApplicationMode(any(), any());
+
+        doReturn(Mono.just(sampleApplicationPagesDTO))
+                .when(spyNewPageService)
+                .createApplicationPagesDTO(any(), any(), anyBoolean(), anyBoolean());
 
         Theme sampleTheme = new Theme();
         sampleTheme.setName("sampleTheme");
@@ -405,6 +427,11 @@ public class ConsolidatedAPIServiceImplTest {
                 .doReturn(Mono.just(samplePageDTO))
                 .when(spyApplicationPageService)
                 .getPageAndMigrateDslByBranchAndDefaultPageId(anyString(), anyString(), anyBoolean(), anyBoolean());
+
+        doReturn(Mono.just(samplePageDTO))
+                .doReturn(Mono.just(samplePageDTO))
+                .when(spyApplicationPageService)
+                .getPageDTOAfterMigratingDSL(any(), anyBoolean(), anyBoolean());
 
         ActionDTO sampleActionDTO = new ActionDTO();
         sampleActionDTO.setName("sampleActionDTO");

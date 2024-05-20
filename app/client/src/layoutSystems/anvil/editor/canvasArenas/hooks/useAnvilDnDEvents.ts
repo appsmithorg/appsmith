@@ -97,9 +97,11 @@ export const useAnvilDnDEvents = (
         document.removeEventListener("mouseup", onMouseUp, true);
       };
     } else {
-      canvasIsDragging.current = false;
-      // Reset canvas state if not dragging
-      resetCanvasState();
+      if (canvasIsDragging.current) {
+        canvasIsDragging.current = false;
+        // Reset canvas state if not dragging
+        resetCanvasState();
+      }
     }
   }, [
     isDragging,

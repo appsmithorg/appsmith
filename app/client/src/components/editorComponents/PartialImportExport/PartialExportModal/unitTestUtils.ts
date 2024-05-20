@@ -10279,10 +10279,10 @@ export const defaultAppState = {
         useCase: "personal project",
         enableTelemetry: true,
         roles: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         groups: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         emptyInstance: false,
         accountNonExpired: true,
@@ -12707,10 +12707,10 @@ export const defaultAppState = {
           useCase: "personal project",
           enableTelemetry: true,
           roles: [
-            "Upgrade to business edition to access roles and groups for conditional business logic",
+            "Upgrade to business plan to access roles and groups for conditional business logic",
           ],
           groups: [
-            "Upgrade to business edition to access roles and groups for conditional business logic",
+            "Upgrade to business plan to access roles and groups for conditional business logic",
           ],
           emptyInstance: false,
           accountNonExpired: true,
@@ -12731,10 +12731,10 @@ export const defaultAppState = {
         useCase: "personal project",
         enableTelemetry: true,
         roles: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         groups: [
-          "Upgrade to business edition to access roles and groups for conditional business logic",
+          "Upgrade to business plan to access roles and groups for conditional business logic",
         ],
         emptyInstance: false,
         accountNonExpired: true,
@@ -12763,7 +12763,6 @@ export const defaultAppState = {
           release_show_publish_app_to_community_enabled: false,
           license_gac_enabled: false,
           release_anvil_enabled: false,
-          ab_show_templates_instead_of_blank_canvas_enabled: true,
           release_app_sidebar_enabled: false,
           license_git_branch_protection_enabled: false,
           release_git_autocommit_feature_enabled: true,

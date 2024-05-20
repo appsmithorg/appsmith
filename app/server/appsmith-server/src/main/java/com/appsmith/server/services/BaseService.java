@@ -51,10 +51,6 @@ public abstract class BaseService<
 
     @Override
     public Mono<T> update(ID id, T resource) {
-        return update(id, resource, "id");
-    }
-
-    public Mono<T> update(ID id, T resource, String key) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }
@@ -77,8 +73,6 @@ public abstract class BaseService<
 
         resource.setUpdatedAt(Instant.now());
 
-        // TODO(Shri): update happens with `key=id` and find happens with `id=id` criteria. This is incorrect, but is
-        //   too fragile to touch right now. Need to dig in slow and deep to fix this.
         return asMono(() -> Optional.of(repositoryDirect.updateById((String) id, resource, null)))
                 .flatMap(obj -> repository.findById((String) id))
                 .flatMap(savedResource ->
@@ -86,7 +80,7 @@ public abstract class BaseService<
     }
 
     @Override
-    public Mono<T> getById(ID id) {
+    public Mono<T> getByIdWithoutPermissionCheck(ID id) {
         if (id == null) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ID));
         }

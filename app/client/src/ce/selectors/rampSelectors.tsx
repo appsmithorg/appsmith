@@ -1,7 +1,10 @@
 import { createSelector } from "reselect";
 import type { AppState } from "@appsmith/reducers";
 import { getAppsmithConfigs } from "@appsmith/configs";
-import { CUSTOMER_PORTAL_URL_WITH_PARAMS } from "constants/ThirdPartyConstants";
+import {
+  CUSTOMER_PORTAL_URL_WITH_PARAMS,
+  PRICING_PAGE_URL,
+} from "constants/ThirdPartyConstants";
 import {
   PRODUCT_RAMPS_LIST,
   RAMP_FOR_ROLES,
@@ -12,27 +15,33 @@ import {
   PERMISSION_TYPE,
 } from "@appsmith/utils/permissionHelpers";
 
-const { cloudHosting, customerPortalUrl } = getAppsmithConfigs();
+const { cloudHosting, customerPortalUrl, pricingUrl } = getAppsmithConfigs();
 
 const tenantState = (state: AppState) => state.tenant;
 const uiState = (state: AppState) => state.ui;
 
 export const getRampLink = ({
   feature,
+  isBusinessFeature = true,
   section,
 }: {
   section: string;
   feature: string;
+  isBusinessFeature?: boolean;
 }) =>
   createSelector(tenantState, (tenant) => {
     const instanceId = tenant?.instanceId;
     const source = cloudHosting ? "cloud" : "CE";
-    const RAMP_LINK_TO = CUSTOMER_PORTAL_URL_WITH_PARAMS(
-      customerPortalUrl,
-      source,
-      instanceId,
-    );
-    return `${RAMP_LINK_TO}&feature=${feature}&section=${section}`;
+    const RAMP_LINK_TO = isBusinessFeature
+      ? CUSTOMER_PORTAL_URL_WITH_PARAMS(
+          customerPortalUrl,
+          source,
+          instanceId,
+          feature,
+          section,
+        )
+      : PRICING_PAGE_URL(pricingUrl, source, instanceId, feature, section);
+    return RAMP_LINK_TO;
   });
 
 export const showProductRamps = (

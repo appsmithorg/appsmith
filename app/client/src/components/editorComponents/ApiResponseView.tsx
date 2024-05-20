@@ -14,6 +14,7 @@ import {
   createMessage,
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_RESPONSE,
   EMPTY_RESPONSE_FIRST_HALF,
   EMPTY_RESPONSE_LAST_HALF,
 } from "@appsmith/constants/messages";
@@ -51,6 +52,7 @@ import { getApiPaneDebuggerState } from "selectors/apiPaneSelectors";
 import { getIDEViewMode } from "selectors/ideSelectors";
 import { EditorViewMode } from "@appsmith/entities/IDE/constants";
 import ApiResponseMeta from "./ApiResponseMeta";
+import useDebuggerTriggerClick from "./Debugger/hooks/useDebuggerTriggerClick";
 
 const ResponseContainer = styled.div`
   ${ResizerCSS};
@@ -257,14 +259,7 @@ function ApiResponseView(props: Props) {
 
   const ideViewMode = useSelector(getIDEViewMode);
 
-  const onDebugClick = useCallback(() => {
-    AnalyticsUtil.logEvent("OPEN_DEBUGGER", {
-      source: "API",
-    });
-    dispatch(
-      setApiPaneDebuggerState({ selectedTab: DEBUGGER_TAB_KEYS.ERROR_TAB }),
-    );
-  }, []);
+  const onDebugClick = useDebuggerTriggerClick();
 
   const onRunClick = () => {
     props.onRunClick();
@@ -373,7 +368,7 @@ function ApiResponseView(props: Props) {
   const tabs: BottomTab[] = [
     {
       key: "response",
-      title: "Response",
+      title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <ResponseTabWrapper>
           <ApiResponseMeta
@@ -491,7 +486,7 @@ function ApiResponseView(props: Props) {
                 {
                   children: "Debug",
                   endIcon: "bug",
-                  onClick: () => onDebugClick,
+                  onClick: onDebugClick,
                   to: "",
                 },
               ]}
@@ -546,7 +541,10 @@ function ApiResponseView(props: Props) {
   if (!open) return null;
 
   return (
-    <ResponseContainer className="t--api-bottom-pane-container" ref={panelRef}>
+    <ResponseContainer
+      className="t--api-bottom-pane-container select-text"
+      ref={panelRef}
+    >
       <Resizer
         initialHeight={responseTabHeight}
         onResizeComplete={(height: number) => {

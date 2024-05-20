@@ -1,6 +1,7 @@
 package com.appsmith.server.solutions.ce;
 
 import com.appsmith.external.constants.AnalyticsEvents;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
 import com.appsmith.server.configurations.CommonConfig;
 import com.appsmith.server.configurations.EmailConfig;
 import com.appsmith.server.configurations.GoogleRecaptchaConfig;
@@ -32,6 +33,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.MessagingException;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.beanutils.ConvertUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -63,7 +65,6 @@ import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -296,8 +297,7 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @return
      */
     private Set<String> allowedTenantConfiguration() {
-        Field[] fields = TenantConfiguration.class.getDeclaredFields();
-        return Arrays.stream(fields)
+        return AppsmithBeanUtils.getAllFields(TenantConfiguration.class)
                 .map(field -> {
                     JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
                     return jsonProperty == null ? field.getName() : jsonProperty.value();
@@ -314,20 +314,30 @@ public class EnvManagerCEImpl implements EnvManagerCE {
      * @param value
      */
     private void setConfigurationByKey(TenantConfiguration tenantConfiguration, String key, String value) {
-        Field[] fields = tenantConfiguration.getClass().getDeclaredFields();
-        for (Field field : fields) {
+        Stream<Field> fieldStream = AppsmithBeanUtils.getAllFields(TenantConfiguration.class);
+        fieldStream.forEach(field -> {
             JsonProperty jsonProperty = field.getDeclaredAnnotation(JsonProperty.class);
             if (jsonProperty != null && jsonProperty.value().equals(key)) {
                 try {
                     field.setAccessible(true);
-                    field.set(tenantConfiguration, value);
+                    Object typedValue = ConvertUtils.convert(value, field.getType());
+                    field.set(tenantConfiguration, typedValue);
                 } catch (IllegalAccessException e) {
                     // Catch the error, log it and then do nothing.
                     log.error(
                             "Got error while parsing the JSON annotations from TenantConfiguration class. Cause: ", e);
                 }
+            } else if (field.getName().equals(key)) {
+                try {
+                    field.setAccessible(true);
+                    Object typedValue = ConvertUtils.convert(value, field.getType());
+                    field.set(tenantConfiguration, typedValue);
+                } catch (IllegalAccessException e) {
+                    // Catch the error, log it and then do nothing.
+                    log.error("Got error while attempting to save property to TenantConfiguration class. Cause: ", e);
+                }
             }
-        }
+        });
     }
 
     private Mono<Tenant> updateTenantConfiguration(String tenantId, Map<String, String> changes) {

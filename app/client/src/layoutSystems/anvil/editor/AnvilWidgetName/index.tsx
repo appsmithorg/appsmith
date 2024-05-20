@@ -3,7 +3,10 @@ import { useSelector } from "react-redux";
 
 import { FloatingPortal } from "@floating-ui/react";
 
-import { MAIN_CONTAINER_WIDGET_ID } from "constants/WidgetConstants";
+import {
+  MAIN_CONTAINER_WIDGET_ID,
+  SKELETON_WIDGET_TYPE,
+} from "constants/WidgetConstants";
 import { useWidgetDragResize } from "utils/hooks/dragResizeHooks";
 import {
   getWidgetDOMElement,
@@ -90,7 +93,11 @@ export function AnvilWidgetName(props: {
   /** EO Floating UI Logic */
 
   // Don't show widget name component for the main container
-  if (widgetId === MAIN_CONTAINER_WIDGET_ID) return null;
+  if (
+    widgetId === MAIN_CONTAINER_WIDGET_ID ||
+    widgetType === SKELETON_WIDGET_TYPE
+  )
+    return null;
   // Don't show widget name component if the widget DOM element isn't found
   if (!widgetElement) return null;
 

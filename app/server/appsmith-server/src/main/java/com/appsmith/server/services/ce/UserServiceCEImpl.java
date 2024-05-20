@@ -611,7 +611,7 @@ public class UserServiceCEImpl extends BaseService<UserRepository, UserRepositor
             updates.setName(inputName);
             updatedUserMono = sessionUserService
                     .getCurrentUser()
-                    .flatMap(user -> update(user.getId(), updates, User.Fields.id)
+                    .flatMap(user -> updateWithoutPermission(user.getId(), updates)
                             .then(
                                     exchange == null
                                             ? repository.findByEmail(user.getEmail())

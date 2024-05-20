@@ -183,6 +183,7 @@ public class CustomUserDataRepositoryTest {
         RecentlyUsedEntityDTO recentlyUsedEntityDTO = new RecentlyUsedEntityDTO();
         recentlyUsedEntityDTO.setWorkspaceId("123");
         recentlyUsedEntityDTO.setApplicationIds(List.of("456"));
+
         assert userData != null : "userData can't be null";
         userData.setRecentlyUsedEntityIds(List.of(recentlyUsedEntityDTO));
         userDataRepository.save(userData).block();

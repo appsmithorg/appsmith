@@ -10,7 +10,7 @@ import PageList from "../../../../support/Pages/PageList";
 
 describe(
   "General checks for app navigation",
-  { tags: ["@tag.IDE"] },
+  { tags: ["@tag.IDE", "@tag.ImportExport"] },
   function () {
     it("1. App header should appear when there is a single page in the application, and navigation should appear alongside app header when there are two pages", () => {
       // App header should appear when there is a single page in the application
