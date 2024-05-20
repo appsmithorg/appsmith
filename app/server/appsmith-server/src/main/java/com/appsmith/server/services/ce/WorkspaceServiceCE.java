@@ -21,6 +21,8 @@ public interface WorkspaceServiceCE extends CrudService<Workspace, String> {
 
     Mono<Workspace> create(Workspace workspace, User user, Boolean isDefault);
 
+    Mono<Workspace> getById(String id);
+
     Mono<Workspace> findById(String id, AclPermission permission);
 
     Mono<Workspace> findById(String id, Optional<AclPermission> permission);

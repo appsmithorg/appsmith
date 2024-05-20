@@ -11,7 +11,7 @@ export const propertyPaneContentConfig = [
       {
         helpText: "Group Buttons",
         propertyName: "buttonsList",
-        controlType: "GROUP_BUTTONS",
+        controlType: "TOOLBAR_BUTTONS",
         label: "Buttons",
         allowSeparators: true,
         dependencies: ["childStylesheet", "orientation"],

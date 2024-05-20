@@ -6,14 +6,19 @@ import type { BaseCellComponentProps } from "../Constants";
 
 export interface ButtonCellProps {
   buttonLabel?: string;
-  cellColor?: "default" | keyof typeof COLORS;
+  buttonColor?: keyof typeof COLORS;
   buttonVariant?: ButtonProps["variant"];
   onClick?: (onComplete: () => void) => void;
   isDisabled?: boolean;
 }
 
 function ButtonCell(props: ButtonCellProps & BaseCellComponentProps) {
-  const { buttonLabel, buttonVariant, cellColor, isDisabled } = props;
+  const {
+    buttonColor = "accent",
+    buttonLabel,
+    buttonVariant,
+    isDisabled,
+  } = props;
   const [isLoading, setIsLoading] = useState(false);
 
   const onComplete = () => {
@@ -30,7 +35,7 @@ function ButtonCell(props: ButtonCellProps & BaseCellComponentProps) {
 
   return (
     <Button
-      color={cellColor === "default" ? "accent" : cellColor}
+      color={buttonColor}
       isDisabled={isDisabled}
       isLoading={isLoading}
       onPress={onClick}

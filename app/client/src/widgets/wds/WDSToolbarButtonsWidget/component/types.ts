@@ -1,5 +1,5 @@
 import type {
-  ButtonGroupProps,
+  ActionGroupProps,
   ButtonProps,
   IconProps,
 } from "@design-system/widgets";
@@ -7,15 +7,15 @@ import type { ButtonsList } from "../widget/types";
 import type { ExecutionResult } from "constants/AppsmithActionConstants/ActionConstants";
 
 export interface ToolbarButtonsComponentProps {
-  color?: ButtonGroupProps<object>["color"];
-  variant?: ButtonGroupProps<object>["variant"];
-  orientation: ButtonGroupProps<object>["orientation"];
+  color?: ActionGroupProps<object>["color"];
+  variant?: ActionGroupProps<object>["variant"];
   buttonsList: ButtonsList;
   onButtonClick: (
     onClick?: string,
     callback?: (result: ExecutionResult) => void,
   ) => void;
-  density?: ButtonGroupProps<object>["density"];
+  density?: ActionGroupProps<object>["density"];
+  alignment: ActionGroupProps<object>["alignment"];
 }
 
 export interface ToolbarButtonsItemComponentProps {

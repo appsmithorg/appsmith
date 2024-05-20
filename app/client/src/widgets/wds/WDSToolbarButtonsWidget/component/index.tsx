@@ -53,11 +53,11 @@ export const ToolbarButtonsComponent = (
 
   return (
     <ActionGroup
+      alignment={props.alignment}
       color={props.color}
       density={props.density}
       disabledKeys={disabledKeys}
       onAction={onAction}
-      orientation={props.orientation}
       variant={props.variant}
     >
       {sortedButtons.map((button: ToolbarButtonsItemComponentProps) => {

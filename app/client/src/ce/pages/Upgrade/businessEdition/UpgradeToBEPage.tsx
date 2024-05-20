@@ -92,14 +92,14 @@ export const UpgradeToBEPage = () => {
           <ContentWrapper className="content-wrapper">
             <LeftWrapper>
               <img
-                alt="Upgrade to Business edition"
+                alt="Upgrade to business plan"
                 loading="lazy"
                 src={BUSINESS_FEATURES_IMAGE}
               />
             </LeftWrapper>
             <ImageContainer>
               <img
-                alt="Upgrade to Business edition"
+                alt="Upgrade to business plan"
                 loading="lazy"
                 src={UPGRADE_BOX_IMAGE}
               />
