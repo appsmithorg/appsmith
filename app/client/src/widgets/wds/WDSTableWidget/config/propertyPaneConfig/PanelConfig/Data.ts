@@ -337,7 +337,7 @@ export default {
           value: "MM/DD/YY",
         },
       ],
-      defaultValue: "YYYY-MM-DD HH:mm",
+      defaultValue: "YYYY-MM-DD",
       hidden: (props: TableWidgetProps, propertyPath: string) => {
         const baseProperty = getBasePropertyPath(propertyPath);
         const columnType = get(props, `${baseProperty}.columnType`, "");
