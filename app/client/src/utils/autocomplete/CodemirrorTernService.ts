@@ -92,6 +92,7 @@ interface RequestQuery {
   depth?: number;
   sort?: boolean;
   expandWordForward?: boolean;
+  depths?: boolean;
 }
 
 export interface DataTreeDefEntityInformation {
@@ -553,6 +554,13 @@ class CodeMirrorTernService {
           cm,
           cls + "hint-doc",
         );
+        tooltip.addEventListener("mousedown", (e) => {
+          if ((e.target as HTMLElement)?.closest(".t--state-inspector")) {
+            const customEvent = new CustomEvent("openstateinspector");
+            // Dispatch/Trigger/Fire the event
+            document.dispatchEvent(customEvent);
+          }
+        });
         CodeMirror.on(
           cm,
           "keyup",
@@ -587,6 +595,7 @@ class CodeMirrorTernService {
           guess: false,
           inLiteral: true,
           depth: 3,
+          depths: true,
         },
         (error, data) => this.requestCallback(error, data, cm, resolve),
       );

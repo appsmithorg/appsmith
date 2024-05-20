@@ -64,6 +64,7 @@ import { FEATURE_FLAG } from "@appsmith/entities/FeatureFlag";
 import CustomWidgetBuilderLoader from "pages/Editor/CustomWidgetBuilder/loader";
 import { getIsConsolidatedPageLoading } from "selectors/ui";
 import { useFeatureFlagOverride } from "utils/hooks/useFeatureFlagOverride";
+import StateInspector from "components/editorComponents/StateInspector";
 
 export const SentryRoute = Sentry.withSentryRouting(Route);
 
@@ -190,6 +191,7 @@ export default function AppRouter() {
               <Routes />
             </Walkthrough>
             <ProductAlertBanner />
+            <StateInspector />
           </>
         )}
       </Suspense>

@@ -3,7 +3,7 @@ import ReactDOM from "react-dom";
 import { ternDocsInfo } from "@appsmith/utils/autocomplete/EntityDefinitions";
 import type { Completion, TernCompletionResult } from "./CodemirrorTernService";
 import { CodeEditorColors } from "components/editorComponents/CodeEditor/styledComponents";
-import { Link } from "design-system";
+import { Icon, Link } from "design-system";
 
 export function renderTernTooltipContent(
   element: HTMLElement,
@@ -19,6 +19,7 @@ export function TernDocToolTip(props: {
   const {
     data: { doc, url },
     displayText,
+    type,
   } = completion;
 
   if (!doc || !displayText) return null;
@@ -28,18 +29,19 @@ export function TernDocToolTip(props: {
 
   return (
     <div className="flex flex-col pb-1 t--tern-doc">
-      <div className="flex items-center justify-between px-2 p-1 border-b border-mercury text-sm font-semibold">
-        {displayText}
-        {url && (
-          <Link
-            className="text-xs doc-link"
-            kind="primary"
-            target="_blank"
-            to={url}
-          >
-            [docs]
-          </Link>
-        )}
+      <div className="flex items-center justify-between px-2 p-1 border-b border-mercury gap-2">
+        <div className="flex grow gap-2 items-center">
+          <span className="text-sm font-semibold">{displayText}</span>
+          <div className="t--state-inspector">
+            <Icon name="group-control" size="sm" />
+          </div>
+          {url && (
+            <Link className="doc-link" kind="primary" target="_blank" to={url}>
+              <Icon name="open" size="md" />
+            </Link>
+          )}
+        </div>
+        <span className="capitalize text-sm">{type?.toLowerCase()}</span>
       </div>
       <pre
         className="px-2 p-1 text-xs whitespace-normal"
