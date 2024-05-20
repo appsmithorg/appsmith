@@ -2652,4 +2652,42 @@ public class RestApiPluginTest {
                 })
                 .verifyComplete();
     }
+
+    @Test
+    public void testMaskingOfAPIKeyAddedToQueryParams() {
+
+        DatasourceConfiguration dsConfig = new DatasourceConfiguration();
+        String baseUrl = String.format("http://%s:%s", mockEndpoint.getHostName(), mockEndpoint.getPort());
+        dsConfig.setUrl(baseUrl);
+        ApiKeyAuth auth = new ApiKeyAuth();
+        auth.setAuthenticationType(API_KEY);
+        auth.setAddTo(ApiKeyAuth.Type.QUERY_PARAMS);
+        auth.setLabel("secret");
+        auth.setValue("secret_value");
+
+        ExecuteActionDTO executeActionDTO = new ExecuteActionDTO();
+        List<Param> params = new ArrayList<>();
+        Param param1 = new Param();
+        param1.setKey("jsonFilePicker.files[0].data");
+        param1.setValue(
+                "data:application/json;base64,ewogICJwcm9wZXJ0eTEiOiAidmFsdWUxIiwKICAicHJvcGVydHkyIjogInZhbHVlMiIKfQo=");
+        param1.setClientDataType(ClientDataType.STRING);
+        params.add(param1);
+        executeActionDTO.setParams(params);
+
+        dsConfig.setAuthentication(auth);
+
+        ActionConfiguration actionConfig = new ActionConfiguration();
+        actionConfig.setHttpMethod(HttpMethod.POST);
+
+        Mono<ActionExecutionResult> resultMono =
+                pluginExecutor.executeParameterized(null, executeActionDTO, dsConfig, actionConfig);
+        StepVerifier.create(resultMono)
+                .assertNext(result -> {
+                    assertTrue(result.getIsExecutionSuccess());
+                    assertNotNull(result.getBody());
+                    assertEquals(result.getRequest().getUrl(), (baseUrl + "?" + "secret=****"));
+                })
+                .verifyComplete();
+    }
 }

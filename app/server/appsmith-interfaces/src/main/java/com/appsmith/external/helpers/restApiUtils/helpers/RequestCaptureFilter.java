@@ -50,11 +50,16 @@ public class RequestCaptureFilter implements ExchangeFilterFunction {
     private URI createURIWithMaskedQueryParam(URI uriToMask, String queryParamKeyToMask) {
 
         String query = uriToMask.getQuery();
+        if (query == null) {
+            return uriToMask;
+        }
         String[] queryParams = query.split("&");
         StringJoiner newQuery = new StringJoiner("&");
         for (String queryParam : queryParams) {
             String[] keyValuePair = queryParam.split("=");
+
             if (queryParamKeyToMask.equals(keyValuePair[0])) {
+                // fix when value is not present
                 keyValuePair[1] = MASKED_VALUE;
             }
             newQuery.add(keyValuePair[0] + "=" + keyValuePair[1]);
