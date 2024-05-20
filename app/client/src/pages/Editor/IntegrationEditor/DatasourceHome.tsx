@@ -129,6 +129,7 @@ interface DatasourceHomeScreenProps {
   showMostPopularPlugins?: boolean;
   isCreating?: boolean;
   showUnsupportedPluginDialog: (callback: any) => void;
+  isAirgappedInstance?: boolean;
 }
 
 interface ReduxDispatchProps {
@@ -287,13 +288,20 @@ class DatasourceHomeScreen extends React.Component<Props> {
 
 const mapStateToProps = (
   state: AppState,
-  props: { showMostPopularPlugins?: boolean },
+  props: { showMostPopularPlugins?: boolean; isAirgappedInstance?: boolean },
 ) => {
   const { datasources } = state.entities;
+  const mostPopularPlugins = getMostPopularPlugins(state);
+  const filteredMostPopularPlugins: Plugin[] = !!props?.isAirgappedInstance
+    ? mostPopularPlugins.filter(
+        (plugin: Plugin) =>
+          plugin?.packageName !== PluginPackageName.GOOGLE_SHEETS,
+      )
+    : mostPopularPlugins;
   return {
     pluginImages: getPluginImages(state),
     plugins: !!props?.showMostPopularPlugins
-      ? getMostPopularPlugins(state)
+      ? filteredMostPopularPlugins
       : getDBPlugins(state),
     currentApplication: getCurrentApplication(state),
     isSaving: datasources.loading,
