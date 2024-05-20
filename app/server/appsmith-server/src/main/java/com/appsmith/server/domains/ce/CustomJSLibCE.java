@@ -3,8 +3,6 @@ package com.appsmith.server.domains.ce;
 import com.appsmith.external.models.BranchAwareDomain;
 import com.appsmith.external.views.Git;
 import com.appsmith.external.views.Views;
-import com.fasterxml.jackson.annotation.JsonCreator;
-import com.fasterxml.jackson.annotation.JsonProperty;
 import com.fasterxml.jackson.annotation.JsonView;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -58,14 +56,7 @@ public class CustomJSLibCE extends BranchAwareDomain {
     @JsonView({Views.Public.class, Git.class})
     String defs;
 
-    @JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-    public CustomJSLibCE(
-            @JsonProperty("name") String name,
-            @JsonProperty("accessor") Set<String> accessor,
-            @JsonProperty("url") String url,
-            @JsonProperty("docsUrl") String docsUrl,
-            @JsonProperty("version") String version,
-            @JsonProperty("defs") String defs) {
+    public CustomJSLibCE(String name, Set<String> accessor, String url, String docsUrl, String version, String defs) {
         this.name = name;
         this.accessor = accessor;
         this.url = url;
