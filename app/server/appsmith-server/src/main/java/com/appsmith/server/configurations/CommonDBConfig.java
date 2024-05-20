@@ -7,6 +7,7 @@ import org.springframework.boot.autoconfigure.mongo.MongoProperties;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.util.StringUtils;
 
 import java.net.URI;
@@ -27,6 +28,7 @@ public class CommonDBConfig {
 
     @Bean
     @Primary
+    @Profile("!test")
     public MongoProperties configureMongoDB() {
         if (!appsmithDbUrl.startsWith("mongodb")) {
             return null;
