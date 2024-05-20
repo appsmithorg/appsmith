@@ -1,5 +1,5 @@
 module.exports = async ({core, github, context}) => {
-  const prNumber = context.payload.inputs.pr;
+  const prNumber = process.env.PR_NUMBER;
 
   const affectedFiles = await github.paginate(github.rest.pulls.listFiles, {
     owner: context.repo.owner,
