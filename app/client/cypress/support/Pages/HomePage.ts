@@ -679,7 +679,7 @@ export class HomePage {
     this.agHelper.AssertElementExist(
       "//span[text()='Users will have access to all applications in the workspace. For application-level access, try out our ']",
     );
-    this.agHelper.AssertElementExist("//span[text()='business edition']");
+    this.agHelper.AssertElementExist("//span[text()='business plan']");
     cy.xpath(this._email).click({ force: true }).type(email);
     cy.xpath(this._selectRole).first().click({ force: true });
     this.agHelper.Sleep(500);

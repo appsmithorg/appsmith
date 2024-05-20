@@ -53,7 +53,7 @@ export const contentConfig = [
       },
       {
         propertyName: "primaryColumns",
-        controlType: "PRIMARY_COLUMNS_V2",
+        controlType: "PRIMARY_COLUMNS_WDS",
         label: "Columns",
         updateHook: composePropertyUpdateHook([
           updateColumnOrderHook,
