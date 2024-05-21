@@ -12,8 +12,6 @@ import static com.appsmith.server.constants.EnvVariables.APPSMITH_INSTANCE_NAME;
 
 public class V5__createDefaultTenant extends AppsmithJavaMigration {
 
-    private RepositoryHelperMethods helperMethods;
-
     @Override
     public void migrate(JdbcTemplate jdbcTemplate) throws Exception {
         RepositoryHelperMethods helperMethods = new RepositoryHelperMethods(jdbcTemplate);

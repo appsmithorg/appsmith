@@ -162,11 +162,11 @@ create table customjslib
     updated_at timestamp(6) with time zone,
     default_resources jsonb,
     accessor jsonb,
-    defs varchar(255),
+    defs text,
     docs_url varchar(255),
     name varchar(255),
     uid_string varchar(255),
-    url varchar(255),
+    url text,
     version varchar(255)
 );
 

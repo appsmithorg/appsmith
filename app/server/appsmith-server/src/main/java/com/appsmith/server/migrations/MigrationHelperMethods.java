@@ -2,14 +2,19 @@ package com.appsmith.server.migrations;
 
 import com.appsmith.external.helpers.MustacheHelper;
 import com.appsmith.external.models.ActionDTO;
+import com.appsmith.external.models.BaseDomain;
 import com.appsmith.external.models.InvisibleActionFields;
+import com.appsmith.external.models.Policy;
 import com.appsmith.external.models.Property;
+import com.appsmith.server.acl.PolicyGenerator;
 import com.appsmith.server.constants.ApplicationConstants;
 import com.appsmith.server.constants.ResourceModes;
 import com.appsmith.server.domains.ApplicationPage;
 import com.appsmith.server.domains.CustomJSLib;
 import com.appsmith.server.domains.NewAction;
+import com.appsmith.server.domains.PermissionGroup;
 import com.appsmith.server.dtos.ApplicationJson;
+import com.appsmith.server.dtos.Permission;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
@@ -21,6 +26,7 @@ import org.springframework.util.ObjectUtils;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -28,6 +34,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -37,9 +44,75 @@ import static com.appsmith.server.constants.ResourceModes.VIEW;
 
 public class MigrationHelperMethods {
     private static final ObjectMapper objectMapper = new ObjectMapper();
+    private static final PolicyGenerator policyGenerator = new PolicyGenerator();
+
+    static {
+        policyGenerator.createPolicyGraph();
+    }
 
     private static final Pattern sheetRangePattern =
             Pattern.compile("https://docs.google.com/spreadsheets/d/([^/]+)/?[^\"]*");
+
+    /**
+     * @param policyMap - Map of permission to policy object
+     * @param obj - Domain object to which the policies need to be added
+     * @return - The domain object with the policies added
+     * @param <T> - The type of the domain object
+     */
+    public static <T extends BaseDomain> T addPoliciesToExistingObject(Map<String, Policy> policyMap, T obj) {
+        // Making a deep copy here so we don't modify the `policyMap` object.
+        // TODO: Investigate a solution without using deep-copy.
+        // TODO: Do we need to return the domain object?
+        final Map<String, Policy> policyMap1 = new HashMap<>();
+        for (Map.Entry<String, Policy> entry : policyMap.entrySet()) {
+            Policy entryValue = entry.getValue();
+            Policy policy = Policy.builder()
+                    .permission(entryValue.getPermission())
+                    .permissionGroups(new HashSet<>(entryValue.getPermissionGroups()))
+                    .build();
+            policyMap1.put(entry.getKey(), policy);
+        }
+
+        // Append the user to the existing permission policy if it already exists.
+        for (Policy policy : obj.getPolicies()) {
+            String permission = policy.getPermission();
+            if (policyMap1.containsKey(permission)) {
+                Set<String> permissionGroups = new HashSet<>();
+                if (policy.getPermissionGroups() != null) {
+                    permissionGroups.addAll(policy.getPermissionGroups());
+                }
+                if (policyMap1.get(permission).getPermissionGroups() != null) {
+                    permissionGroups.addAll(policyMap1.get(permission).getPermissionGroups());
+                }
+                policy.setPermissionGroups(permissionGroups);
+                // Remove this permission from the policyMap as this has been accounted for in the above code
+                policyMap1.remove(permission);
+            }
+        }
+
+        obj.getPolicies().addAll(policyMap1.values());
+        return obj;
+    }
+
+    public static Map<String, Policy> generatePolicyFromPermissionGroupForObject(
+            PermissionGroup permissionGroup, String objectId) {
+        Set<Permission> permissions = permissionGroup.getPermissions();
+        return permissions.stream()
+                .filter(perm -> perm.getDocumentId().equals(objectId))
+                .map(perm -> {
+                    Policy policyWithCurrentPermission = Policy.builder()
+                            .permission(perm.getAclPermission().getValue())
+                            .permissionGroups(Set.of(permissionGroup.getId()))
+                            .build();
+                    // Generate any and all lateral policies that might come with the current permission
+                    Set<Policy> policiesForPermissionGroup = policyGenerator.getLateralPolicies(
+                            perm.getAclPermission(), Set.of(permissionGroup.getId()), null);
+                    policiesForPermissionGroup.add(policyWithCurrentPermission);
+                    return policiesForPermissionGroup;
+                })
+                .flatMap(Collection::stream)
+                .collect(Collectors.toMap(Policy::getPermission, Function.identity(), (policy1, policy2) -> policy1));
+    }
 
     // Migration for deprecating archivedAt field in ActionDTO
     public static void updateArchivedAtByDeletedATForActions(List<NewAction> actionList) {
