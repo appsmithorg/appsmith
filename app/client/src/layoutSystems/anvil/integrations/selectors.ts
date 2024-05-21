@@ -24,7 +24,11 @@ export function getDropTargetLayoutId(state: AppState, canvasId: string) {
  * Returns a boolean indicating if space distribution is in progress
  */
 export function getAnvilSpaceDistributionStatus(state: AppState) {
-  return state.ui.widgetDragResize.anvil.isDistributingSpace;
+  return state.ui.widgetDragResize.anvil.spaceDistribution.isDistributingSpace;
+}
+
+export function getWidgetsDistributingSpace(state: AppState) {
+  return state.ui.widgetDragResize.anvil.spaceDistribution.widgetsEffected;
 }
 
 /**

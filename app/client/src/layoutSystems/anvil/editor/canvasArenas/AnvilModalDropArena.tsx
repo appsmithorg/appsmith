@@ -65,7 +65,7 @@ export const AnvilModalDropArena = ({
   return (
     <StyledModalEditorDropArenaWrapper
       isModalEmpty={isModalEmpty}
-      style={{ height: "100%" }}
+      style={{ height: isModalEmpty ? "100%" : "auto" }}
     >
       <StyledEmptyModalDropArena
         isActive={isCurrentDraggedCanvas}

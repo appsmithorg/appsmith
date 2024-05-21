@@ -3,16 +3,14 @@ import { AnvilViewerCanvas } from "layoutSystems/anvil/viewer/canvas/AnvilViewer
 import React, { useCallback, useEffect, useRef } from "react";
 import { useSelectWidgetListener } from "./hooks/useSelectWidgetListener";
 import { useClickToClearSelections } from "./hooks/useClickToClearSelections";
-import {
-  useAnvilGlobalDnDStates,
-  type AnvilGlobalDnDStates,
-} from "./hooks/useAnvilGlobalDnDStates";
+import type { AnvilGlobalDnDStates } from "./hooks/useAnvilGlobalDnDStates";
+import { useAnvilGlobalDnDStates } from "./hooks/useAnvilGlobalDnDStates";
 import { AnvilDragPreview } from "../canvasArenas/AnvilDragPreview";
+import { AnvilWidgetElevationProvider } from "./providers/AnvilWidgetElevationProvider";
 
 export const AnvilDnDStatesContext = React.createContext<
   AnvilGlobalDnDStates | undefined
 >(undefined);
-
 /**
  * Anvil Main Canvas is just a wrapper around AnvilCanvas.
  * Why do we need this?
@@ -58,14 +56,16 @@ export const AnvilEditorCanvas = (props: BaseWidgetProps) => {
   // using AnvilDnDStatesContext to provide the states to the child AnvilDraggingArena
   const anvilGlobalDnDStates = useAnvilGlobalDnDStates();
   return (
-    <AnvilDnDStatesContext.Provider value={anvilGlobalDnDStates}>
-      <AnvilViewerCanvas {...props} ref={canvasRef} />
-      <AnvilDragPreview
-        dragDetails={anvilGlobalDnDStates.dragDetails}
-        draggedBlocks={anvilGlobalDnDStates.draggedBlocks}
-        isDragging={anvilGlobalDnDStates.isDragging}
-        isNewWidget={anvilGlobalDnDStates.isNewWidget}
-      />
-    </AnvilDnDStatesContext.Provider>
+    <AnvilWidgetElevationProvider>
+      <AnvilDnDStatesContext.Provider value={anvilGlobalDnDStates}>
+        <AnvilViewerCanvas {...props} ref={canvasRef} />
+        <AnvilDragPreview
+          dragDetails={anvilGlobalDnDStates.dragDetails}
+          draggedBlocks={anvilGlobalDnDStates.draggedBlocks}
+          isDragging={anvilGlobalDnDStates.isDragging}
+          isNewWidget={anvilGlobalDnDStates.isNewWidget}
+        />
+      </AnvilDnDStatesContext.Provider>
+    </AnvilWidgetElevationProvider>
   );
 };
