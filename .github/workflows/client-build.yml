@@ -98,8 +98,13 @@ jobs:
       - name: Print inputs
         run: |
           cat <<EOF
+          # inputs:
           ${{ toJson(inputs) }}
+
+          # github.pull_request
+          ${{ toJson(github.pull_request) }}
           EOF
+
           echo "github.pull_request.base.ref = ${{ github.pull_request.base.ref }}"
           echo "steps.changed-files-specific.outputs.any_changed = ${{ steps.changed-files-specific.outputs.any_changed }}"
           echo "github.event_name = ${{ github.event_name }}"
