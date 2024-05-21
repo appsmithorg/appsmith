@@ -87,8 +87,6 @@ type ValidateProps = {
   { emailValue: string; isPasswordFieldDirty?: boolean }
 >;
 
-// color: #fff
-
 export function Login(props: LoginFormProps) {
   const { emailValue: email, error, valid } = props;
   const isFormValid = valid && email && !isEmptyString(email);
