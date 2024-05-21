@@ -239,10 +239,10 @@ public class RepositoryHelperMethods {
 
     public Theme saveTheme(Theme theme) throws JsonProcessingException {
         String id = theme.getId();
-        String insertInstanceConfigurationQuery =
+        String updateThemeQuery =
                 "UPDATE theme SET name = ?, display_name = ?, config = cast(? as jsonb), properties = cast(? as jsonb), stylesheet = cast(? as jsonb), policies = cast(? as jsonb), updated_at = now() WHERE id = ?";
         jdbcTemplate.update(
-                insertInstanceConfigurationQuery,
+                updateThemeQuery,
                 theme.getName(),
                 theme.getDisplayName(),
                 JsonHelper.convertToString(theme.getConfig()),

@@ -1,6 +1,5 @@
 create unique index if not exists u_name on config(name);
 create unique index if not exists u_email on password_reset_token(email);
--- create unique index if not exists u_package_name on plugin(package_name);
 create unique index if not exists u_email on "user"(email);
 create unique index if not exists u_name on sequence(name);
 create unique index if not exists u_email on password_reset_token(email);
