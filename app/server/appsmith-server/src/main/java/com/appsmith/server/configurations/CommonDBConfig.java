@@ -56,8 +56,13 @@ public class CommonDBConfig {
     public DataSourceProperties extractJdbcProperties(String dbUrl) {
         DataSourceProperties ds = new DataSourceProperties();
         try {
-            // remove "jdbc:" prefix if exists
-            URI uri = new URI(dbUrl.replaceFirst("^" + JDBC_PREFIX, ""));
+            URI uri = new URI(dbUrl);
+            if (!StringUtils.hasLength(uri.getHost())) {
+                String errorString = String.format(
+                        "Malformed DB URL! Expected format: postgresql://{username}:{password}@localhost:{port}/{db_name}, provided url is %s",
+                        dbUrl);
+                throw new IllegalArgumentException(errorString);
+            }
             String userInfo = uri.getUserInfo();
             if (StringUtils.hasLength(userInfo)) {
                 String[] userDetails = userInfo.split(":");
