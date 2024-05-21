@@ -149,10 +149,11 @@ jobs:
 
       # Upload the build artifacts and dependencies so that it can be used by the test & deploy job in other workflows
       - name: Upload rts build bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: rts-dist
           path: app/client/packages/rts/rts-dist.tar
+          overwrite: true
 
       # Set status = success
       - name: Save the status of the run

@@ -146,7 +146,7 @@ parts.push(`
 }
 
 # We bind to http on 80, so that localhost requests don't get redirected to https.
-:80 {
+:${process.env.PORT || 80} {
   import all-config
 }
 `)

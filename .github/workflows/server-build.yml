@@ -108,7 +108,7 @@ jobs:
 
       - name: Download the failed test artifact in case of rerun
         if: steps.run_result.outputs.run_result == 'failedtest' && (steps.changed-files-specific.outputs.any_changed == 'true' ||  github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: failed-server-tests
           path: ~/failed-server-tests
@@ -222,11 +222,12 @@ jobs:
 
       - name: Upload the failed tests report
         if: always()
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: failed-server-tests
           path: app/server/failed-server-tests.txt
           if-no-files-found: ignore
+          overwrite: true
 
       - name: Fetch server build from cache
         if: steps.changed-files-specific.outputs.any_changed == 'false' && success()  && github.event_name != 'push' && github.event_name != 'workflow_dispatch'  && github.event_name != 'schedule'
@@ -262,10 +263,11 @@ jobs:
 
       # Upload the build artifact so that it can be used by the test & deploy job in the workflow
       - name: Upload server build bundle
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: server-build
           path: app/server/dist/
+          overwrite: true
 
       - name: Put release build in cache
         if: success() && github.ref == 'refs/heads/release' && (github.event_name == 'push' || github.event_name == 'workflow_dispatch' || github.event_name == 'schedule')

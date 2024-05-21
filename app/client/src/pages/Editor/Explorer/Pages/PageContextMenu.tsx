@@ -54,9 +54,6 @@ export function PageContextMenu(props: {
   onItemSelected?: () => void;
 }) {
   const dispatch = useDispatch();
-  const isPartialImportExportEnabled = useFeatureFlag(
-    FEATURE_FLAG.release_show_partial_import_export_enabled,
-  );
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   /**
@@ -118,15 +115,8 @@ export function PageContextMenu(props: {
   );
 
   const showPartialImportExportInMenu = useMemo(
-    () =>
-      isPartialImportExportEnabled &&
-      props.hasExportPermission &&
-      props.isCurrentPage,
-    [
-      isPartialImportExportEnabled,
-      props.hasExportPermission,
-      props.isCurrentPage,
-    ],
+    () => props.hasExportPermission && props.isCurrentPage,
+    [props.hasExportPermission, props.isCurrentPage],
   );
 
   const handlePartialExportClick = () => {

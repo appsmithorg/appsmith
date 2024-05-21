@@ -14,6 +14,7 @@ import { DEBUGGER_TAB_KEYS } from "components/editorComponents/Debugger/helpers"
 import {
   DEBUGGER_ERRORS,
   DEBUGGER_LOGS,
+  DEBUGGER_RESPONSE,
   createMessage,
 } from "@appsmith/constants/messages";
 import DebuggerLogs from "components/editorComponents/Debugger/DebuggerLogs";
@@ -216,7 +217,7 @@ function QueryDebuggerTabs({
   if (currentActionConfig) {
     responseTabs.unshift({
       key: "response",
-      title: "Response",
+      title: createMessage(DEBUGGER_RESPONSE),
       panelComponent: (
         <QueryResponseTab
           actionSource={actionSource}

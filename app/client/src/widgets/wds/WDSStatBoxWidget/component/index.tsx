@@ -28,7 +28,7 @@ export const StatBoxComponent = (props: StatBoxComponentProps) => {
       )}
       <Flex direction="column" flexGrow={1} gap="spacing-3" isInner>
         {label && (
-          <Text color="neutral" lineClamp={1} variant="footnote">
+          <Text color="neutral" lineClamp={1} size="footnote">
             {label}
           </Text>
         )}
@@ -40,18 +40,18 @@ export const StatBoxComponent = (props: StatBoxComponentProps) => {
             isInner
             maxWidth="calc(100% - var(--sizing-1))"
           >
-            <Text fontWeight={500} lineClamp={1} variant="subtitle">
+            <Text fontWeight={500} lineClamp={1} size="subtitle">
               {value}
             </Text>
             {valueChange && (
-              <Text color={valueImpact} lineClamp={1} variant="footnote">
+              <Text color={valueImpact} lineClamp={1} size="footnote">
                 {valueChange}
               </Text>
             )}
           </Flex>
         )}
         {sublabel && (
-          <Text color="neutral" lineClamp={1} variant="footnote">
+          <Text color="neutral" lineClamp={1} size="footnote">
             {sublabel}
           </Text>
         )}

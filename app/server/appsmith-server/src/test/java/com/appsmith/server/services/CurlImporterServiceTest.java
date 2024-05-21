@@ -422,7 +422,8 @@ public class CurlImporterServiceTest {
                         command, null, page.getId(), "actionName", workspaceId, "main"))
                 .cache();
 
-        Mono<NewAction> savedActionMono = resultMono.flatMap(actionDTO -> newActionService.getById(actionDTO.getId()));
+        Mono<NewAction> savedActionMono =
+                resultMono.flatMap(actionDTO -> newActionService.getByIdWithoutPermissionCheck(actionDTO.getId()));
 
         StepVerifier.create(Mono.zip(resultMono, defaultPageMono, savedActionMono))
                 .assertNext(tuple -> {
