@@ -21,8 +21,7 @@ describe(
       // Cleanup the canvas before each test
       agHelper.SelectAllWidgets();
       agHelper.PressDelete();
-    });
-    
+    }); 
     it("1. Change App navigation settings and valdiate the layout settings", () => {
       anvilLayout.DragDropAnvilWidgetNVerify(WIDGET.WDSINPUT, 5, 20, {
         skipWidgetSearch: true,
