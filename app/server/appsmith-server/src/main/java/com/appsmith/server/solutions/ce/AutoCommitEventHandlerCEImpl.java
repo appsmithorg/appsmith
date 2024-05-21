@@ -4,6 +4,7 @@ import com.appsmith.external.constants.AnalyticsEvents;
 import com.appsmith.external.dtos.ModifiedResources;
 import com.appsmith.external.git.GitExecutor;
 import com.appsmith.server.configurations.ProjectProperties;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.constants.FieldName;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
@@ -12,6 +13,7 @@ import com.appsmith.server.events.AutoCommitEvent;
 import com.appsmith.server.exceptions.AppsmithError;
 import com.appsmith.server.exceptions.AppsmithException;
 import com.appsmith.server.helpers.CollectionUtils;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.GitUtils;
@@ -47,6 +49,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
     private final RedisUtils redisUtils;
     private final DSLMigrationUtils dslMigrationUtils;
     private final GitFileUtils fileUtils;
+    private final CommonGitFileUtils commonGitFileUtils;
     private final GitExecutor gitExecutor;
     private final ProjectProperties projectProperties;
     private final AnalyticsService analyticsService;
@@ -136,54 +139,19 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                 .flatMap(autoCommitLocked -> dslMigrationUtils.getLatestDslVersion())
                 .flatMap(latestSchemaVersion -> resetUncommittedChanges(autoCommitEvent)
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 10))
-                        .then(fileUtils.reconstructApplicationJsonFromGitRepo(
+                        .then(commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepo(
                                 autoCommitEvent.getWorkspaceId(),
                                 autoCommitEvent.getApplicationId(),
                                 autoCommitEvent.getRepoName(),
-                                autoCommitEvent.getBranchName()))
+                                autoCommitEvent.getBranchName(),
+                                ArtifactType.APPLICATION))
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 30))
-                        .flatMap(applicationJson ->
-                                migrateUnpublishedPageDSLs(applicationJson, latestSchemaVersion, autoCommitEvent))
+                        .flatMap(applicationJson -> migrateUnpublishedPageDSLs(
+                                (ApplicationJson) applicationJson, latestSchemaVersion, autoCommitEvent))
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 50))
                         .flatMap(applicationJson -> saveApplicationJsonToFileSystem(applicationJson, autoCommitEvent))
                         .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 70))
-                        .flatMap(baseRepoPath -> {
-                            // commit the application
-                            return gitExecutor
-                                    .commitArtifact(
-                                            baseRepoPath,
-                                            String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
-                                            autoCommitEvent.getAuthorName(),
-                                            autoCommitEvent.getAuthorEmail(),
-                                            false,
-                                            false)
-                                    .then(triggerAnalyticsEvent(
-                                            AnalyticsEvents.GIT_COMMIT, autoCommitEvent, Map.of("isAutoCommit", TRUE)));
-                        })
-                        .flatMap(result -> setProgress(result, autoCommitEvent.getApplicationId(), 80))
-                        .flatMap(result -> {
-                            Path baseRepoSuffix = Paths.get(
-                                    autoCommitEvent.getWorkspaceId(),
-                                    autoCommitEvent.getApplicationId(),
-                                    autoCommitEvent.getRepoName());
-
-                            return gitExecutor
-                                    .pushApplication(
-                                            baseRepoSuffix,
-                                            autoCommitEvent.getRepoUrl(),
-                                            autoCommitEvent.getPublicKey(),
-                                            autoCommitEvent.getPrivateKey(),
-                                            autoCommitEvent.getBranchName())
-                                    .flatMap(pushResponse -> {
-                                        if (!pushResponse.contains("REJECTED")) { // push was successful
-                                            return triggerAnalyticsEvent(
-                                                    AnalyticsEvents.GIT_PUSH,
-                                                    autoCommitEvent,
-                                                    Map.of("isAutoCommit", TRUE));
-                                        }
-                                        return Mono.just(TRUE);
-                                    });
-                        })
+                        .flatMap(baseRepoPath -> commitAndPush(autoCommitEvent, baseRepoPath))
                         .defaultIfEmpty(Boolean.FALSE))
                 .flatMap(result -> {
                     log.info(
@@ -323,7 +291,7 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
         String repoName = autoCommitEvent.getRepoName();
 
         // add file lock
-        // reset the file_system.
+        // reset the file_system. while resetting the branch is implicitly checked out.
         // retrieve and create application json from the file system
         // write it in the application json
         // commit application
@@ -335,14 +303,15 @@ public class AutoCommitEventHandlerCEImpl implements AutoCommitEventHandlerCE {
                 .flatMap(r -> setProgress(r, defaultApplicationId, 10))
                 .flatMap(autoCommitLocked -> resetUncommittedChanges(autoCommitEvent))
                 .flatMap(r -> setProgress(r, defaultApplicationId, 20))
-                .flatMap(isBranchCheckedOut -> fileUtils.reconstructApplicationJsonFromGitRepo(
-                        workspaceId, defaultApplicationId, repoName, branchName))
+                .flatMap(isBranchCheckedOut -> commonGitFileUtils.reconstructArtifactExchangeJsonFromGitRepo(
+                        workspaceId, defaultApplicationId, repoName, branchName, ArtifactType.APPLICATION))
                 .flatMap(r -> setProgress(r, defaultApplicationId, 30))
                 .flatMap(applicationJson -> {
-                    return saveApplicationJsonToFileSystem(applicationJson, autoCommitEvent);
+                    return saveApplicationJsonToFileSystem((ApplicationJson) applicationJson, autoCommitEvent);
                 })
                 .flatMap(r -> setProgress(r, defaultApplicationId, 50))
                 .flatMap(baseRepoPath -> commitAndPush(autoCommitEvent, baseRepoPath))
+                .defaultIfEmpty(Boolean.FALSE)
                 .flatMap(result -> {
                     log.info(
                             "server side auto commit finished. added commit: {}, application: {}, branch: {}",

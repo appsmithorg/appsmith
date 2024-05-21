@@ -3358,7 +3358,7 @@ public class GitServiceCEImpl implements GitServiceCE {
 
     @Override
     public Mono<Boolean> autoCommitApplication(String defaultApplicationId, String branchName) {
-        return gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName);
+        return gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName);
     }
 
     @Override

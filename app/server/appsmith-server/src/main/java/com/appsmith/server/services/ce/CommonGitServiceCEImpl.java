@@ -104,6 +104,7 @@ import static com.appsmith.server.helpers.GitUtils.RETRY_DELAY;
 import static java.lang.Boolean.FALSE;
 import static java.lang.Boolean.TRUE;
 import static org.apache.commons.lang.ObjectUtils.defaultIfNull;
+import static org.springframework.util.StringUtils.hasText;
 
 @Slf4j
 @Service
@@ -2032,7 +2033,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
          * 4.Get the latest artifact from the DB and send it back to client
          * */
 
-        if (!org.springframework.util.StringUtils.hasText(branchName)) {
+        if (!hasText(branchName)) {
             return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, branchName));
         }
 
@@ -3372,7 +3373,7 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
      */
     @Override
     public Mono<Boolean> autoCommitApplication(String defaultArtifactId, String branchName, ArtifactType artifactType) {
-        return gitAutoCommitHelper.autoCommitApplication(defaultArtifactId, branchName);
+        return gitAutoCommitHelper.autoCommitClientMigration(defaultArtifactId, branchName);
     }
 
     @Override
@@ -3492,28 +3493,45 @@ public class CommonGitServiceCEImpl implements CommonGitServiceCE {
         return Flux.merge(eventSenderMonos).then();
     }
 
+    /**
+     * Provides the server schema version in the application json for the given branch
+     *
+     * @param workspaceId : workspaceId of the artifact
+     * @param defaultArtifactId : default branch id of the artifact
+     * @param branchName : current branch name of the artifact
+     * @param repoName : repository name
+     * @param artifactType : artifact type of this operation
+     * @return the server schema migration version number
+     */
     @Override
-    public Mono<Integer> getMetadataServerSchemaMigration(
-            String defaultArtifactId, String branchName, ArtifactType artifactType) {
-        GitArtifactHelper<?> gitArtifactHelper = getArtifactGitService(artifactType);
-        AclPermission readPermission = gitArtifactHelper.getArtifactReadPermission();
+    public Mono<Integer> getMetadataServerSchemaMigrationVersion(
+            String workspaceId,
+            String defaultArtifactId,
+            String branchName,
+            String repoName,
+            ArtifactType artifactType) {
 
-        return gitArtifactHelper
-                .getArtifactById(defaultArtifactId, readPermission)
-                .flatMap(artifact -> {
-                    if (artifact.getGitArtifactMetadata() == null) {
-                        Mono.error(new AppsmithException(AppsmithError.NO_RESOURCE_FOUND));
-                    }
+        if (!hasText(workspaceId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.WORKSPACE_ID));
+        }
 
-                    String workspaceId = artifact.getWorkspaceId();
-                    String repoName = artifact.getGitArtifactMetadata().getRepoName();
-                    return commonGitFileUtils
-                            .reconstructMetadataFromRepo(
-                                    workspaceId, defaultArtifactId, branchName, repoName, artifactType)
-                            .map(metadataMap -> {
-                                return metadataMap.getOrDefault(
-                                        CommonConstants.SERVER_SCHEMA_VERSION, JsonSchemaVersions.serverVersion);
-                            });
+        if (!hasText(defaultArtifactId)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.ARTIFACT_ID));
+        }
+
+        if (!hasText(branchName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.BRANCH_NAME));
+        }
+
+        if (!hasText(repoName)) {
+            return Mono.error(new AppsmithException(AppsmithError.INVALID_PARAMETER, FieldName.REPO_NAME));
+        }
+
+        return commonGitFileUtils
+                .reconstructMetadataFromRepo(workspaceId, defaultArtifactId, branchName, repoName, artifactType)
+                .map(metadataMap -> {
+                    return metadataMap.getOrDefault(
+                            CommonConstants.SERVER_SCHEMA_VERSION, JsonSchemaVersions.serverVersion);
                 });
     }
 }

@@ -1,18 +1,28 @@
 package com.appsmith.server.git.autocommit;
 
+import com.appsmith.external.converters.ISOStringToInstantConverter;
+import com.appsmith.external.git.FileInterface;
 import com.appsmith.external.git.GitExecutor;
+import com.appsmith.external.helpers.AppsmithBeanUtils;
+import com.appsmith.external.models.ApplicationGitReference;
 import com.appsmith.server.configurations.ProjectProperties;
+import com.appsmith.server.constants.ArtifactType;
 import com.appsmith.server.domains.Layout;
 import com.appsmith.server.domains.NewPage;
 import com.appsmith.server.dtos.ApplicationJson;
 import com.appsmith.server.dtos.PageDTO;
 import com.appsmith.server.events.AutoCommitEvent;
+import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.RedisUtils;
+import com.appsmith.server.migrations.JsonSchemaMigration;
+import com.appsmith.server.migrations.JsonSchemaVersions;
 import com.appsmith.server.services.AnalyticsService;
 import com.appsmith.server.solutions.AutoCommitEventHandler;
 import com.appsmith.server.solutions.AutoCommitEventHandlerImpl;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import lombok.extern.slf4j.Slf4j;
 import net.minidev.json.JSONObject;
 import org.eclipse.jgit.api.errors.GitAPIException;
@@ -31,14 +41,21 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Instant;
 import java.util.List;
 
 import static com.appsmith.server.solutions.ce.AutoCommitEventHandlerCEImpl.AUTO_COMMIT_MSG_FORMAT;
+import static java.lang.Boolean.TRUE;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
@@ -58,7 +75,16 @@ public class AutoCommitEventHandlerImplTest {
     DSLMigrationUtils dslMigrationUtils;
 
     @MockBean
-    GitFileUtils fileUtils;
+    GitFileUtils gitFileUtils;
+
+    @MockBean
+    FileInterface fileUtils;
+
+    @SpyBean
+    CommonGitFileUtils commonGitFileUtils;
+
+    @SpyBean
+    JsonSchemaMigration jsonSchemaMigration;
 
     @MockBean
     GitExecutor gitExecutor;
@@ -76,7 +102,8 @@ public class AutoCommitEventHandlerImplTest {
                 applicationEventPublisher,
                 redisUtils,
                 dslMigrationUtils,
-                fileUtils,
+                gitFileUtils,
+                commonGitFileUtils,
                 gitExecutor,
                 projectProperties,
                 analyticsService);
@@ -95,9 +122,6 @@ public class AutoCommitEventHandlerImplTest {
         autoCommitEvent.setBranchName(branchName);
 
         Mockito.when(dslMigrationUtils.getLatestDslVersion()).thenReturn(Mono.just(10));
-
-        //        Mockito.when(analyticsService.sendEvent(anyString(), anyString(), anyMap(), anyBoolean()))
-        //            .thenReturn(Mono.empty());
 
         Mono<Boolean> map = redisUtils
                 .startAutoCommit(defaultApplicationId, branchName)
@@ -164,19 +188,21 @@ public class AutoCommitEventHandlerImplTest {
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
 
         Mockito.when(gitExecutor.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName()))
-                .thenReturn(Mono.just(Boolean.TRUE));
+                .thenReturn(Mono.just(TRUE));
 
-        Mockito.when(fileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.doReturn(Mono.just(applicationJson))
+                .when(commonGitFileUtils)
+                .reconstructArtifactExchangeJsonFromGitRepo(
                         autoCommitEvent.getWorkspaceId(),
                         autoCommitEvent.getApplicationId(),
                         autoCommitEvent.getRepoName(),
-                        autoCommitEvent.getBranchName()))
-                .thenReturn(Mono.just(applicationJson));
+                        autoCommitEvent.getBranchName(),
+                        ArtifactType.APPLICATION);
 
         // mock the dsl migration utils to return updated dsl when requested with older dsl
         Mockito.when(dslMigrationUtils.migratePageDsl(any(JSONObject.class))).thenReturn(Mono.just(dslAfterMigration));
 
-        Mockito.when(fileUtils.saveApplicationToLocalRepo(
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
                         autoCommitEvent.getWorkspaceId(),
                         autoCommitEvent.getApplicationId(),
                         autoCommitEvent.getRepoName(),
@@ -230,14 +256,16 @@ public class AutoCommitEventHandlerImplTest {
                 autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
 
         Mockito.when(gitExecutor.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName()))
-                .thenReturn(Mono.just(Boolean.TRUE));
+                .thenReturn(Mono.just(TRUE));
 
-        Mockito.when(fileUtils.reconstructApplicationJsonFromGitRepo(
+        Mockito.doReturn(Mono.just(applicationJson))
+                .when(commonGitFileUtils)
+                .reconstructArtifactExchangeJsonFromGitRepo(
                         autoCommitEvent.getWorkspaceId(),
                         autoCommitEvent.getApplicationId(),
                         autoCommitEvent.getRepoName(),
-                        autoCommitEvent.getBranchName()))
-                .thenReturn(Mono.just(applicationJson));
+                        autoCommitEvent.getBranchName(),
+                        ArtifactType.APPLICATION);
 
         // the rest of the process should not trigger as no migration is required
         StepVerifier.create(autoCommitEventHandler
@@ -248,5 +276,162 @@ public class AutoCommitEventHandlerImplTest {
                     assertThat(tuple2.getT2()).isEqualTo(100);
                 })
                 .verifyComplete();
+    }
+
+    @Test
+    public void autoCommitServerMigration_WhenServerRequiresMigration() throws GitAPIException, IOException {
+        AutoCommitEvent autoCommitEvent = createEvent();
+        autoCommitEvent.setIsServerSideEvent(TRUE);
+        ApplicationJson applicationJson = createApplicationJson();
+
+        Path baseRepoSuffix = Paths.get(
+                autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
+
+        Mockito.when(gitExecutor.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName()))
+                .thenReturn(Mono.just(TRUE));
+
+        Mockito.doReturn(Mono.just(applicationJson))
+                .when(commonGitFileUtils)
+                .reconstructArtifactExchangeJsonFromGitRepo(
+                        autoCommitEvent.getWorkspaceId(),
+                        autoCommitEvent.getApplicationId(),
+                        autoCommitEvent.getRepoName(),
+                        autoCommitEvent.getBranchName(),
+                        ArtifactType.APPLICATION);
+
+        // the rest of the process should not trigger as no migration is required
+        StepVerifier.create(autoCommitEventHandler
+                        .autoCommitServerMigration(autoCommitEvent)
+                        .zipWhen(result -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
+                .assertNext(tuple2 -> {
+                    assertThat(tuple2.getT1()).isFalse();
+                    assertThat(tuple2.getT2()).isEqualTo(100);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void autoCommitServerMigration_WhenAutoCommitAlreadyStarted_ReturnsFalse() {
+        AutoCommitEvent autoCommitEvent = new AutoCommitEvent();
+        autoCommitEvent.setApplicationId(defaultApplicationId);
+        autoCommitEvent.setBranchName(branchName);
+
+        Mono<Boolean> map = redisUtils
+                .startAutoCommit(defaultApplicationId, branchName)
+                .then(autoCommitEventHandler.autoCommitServerMigration(autoCommitEvent));
+
+        StepVerifier.create(map)
+                .assertNext(x -> {
+                    assertThat(x).isFalse();
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void autoCommitServerMigration_WhenServerHasNoChanges_NoCommitMade() throws GitAPIException, IOException {
+        AutoCommitEvent autoCommitEvent = createEvent();
+        autoCommitEvent.setIsServerSideEvent(TRUE);
+        ApplicationJson applicationJson = createApplicationJson();
+
+        Path baseRepoSuffix = Paths.get(
+                autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
+
+        Mockito.when(gitExecutor.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName()))
+                .thenReturn(Mono.just(TRUE));
+
+        Mockito.doReturn(Mono.just(applicationJson))
+                .when(commonGitFileUtils)
+                .reconstructArtifactExchangeJsonFromGitRepo(
+                        autoCommitEvent.getWorkspaceId(),
+                        autoCommitEvent.getApplicationId(),
+                        autoCommitEvent.getRepoName(),
+                        autoCommitEvent.getBranchName(),
+                        ArtifactType.APPLICATION);
+
+        // the rest of the process should not trigger as no migration is required
+        StepVerifier.create(autoCommitEventHandler
+                        .autoCommitServerMigration(autoCommitEvent)
+                        .zipWhen(result -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
+                .assertNext(tuple2 -> {
+                    assertThat(tuple2.getT1()).isFalse();
+                    assertThat(tuple2.getT2()).isEqualTo(100);
+                })
+                .verifyComplete();
+    }
+
+    @Test
+    public void
+            autoCommitServerMigration_WhenNoAutoCommitInProgress_AllStepsSuccessfullyCompleted_CaseJsonSchemaMigration()
+                    throws GitAPIException, IOException, URISyntaxException {
+
+        AutoCommitEvent autoCommitEvent = createEvent();
+        autoCommitEvent.setIsServerSideEvent(TRUE);
+        ApplicationJson applicationJson = getApplicationJson("application.json");
+
+        Path baseRepoSuffix = Paths.get(
+                autoCommitEvent.getWorkspaceId(), autoCommitEvent.getApplicationId(), autoCommitEvent.getRepoName());
+
+        Mockito.when(gitExecutor.resetToLastCommit(baseRepoSuffix, autoCommitEvent.getBranchName()))
+                .thenReturn(Mono.just(TRUE));
+
+        ApplicationGitReference appReference =
+                (ApplicationGitReference) commonGitFileUtils.createArtifactReference(applicationJson);
+
+        Mockito.when(fileUtils.reconstructApplicationReferenceFromGitRepo(
+                        autoCommitEvent.getWorkspaceId(),
+                        autoCommitEvent.getApplicationId(),
+                        autoCommitEvent.getRepoName(),
+                        autoCommitEvent.getBranchName()))
+                .thenReturn(Mono.just(appReference));
+
+        Mockito.when(gitFileUtils.saveApplicationToLocalRepo(
+                        anyString(), anyString(), anyString(), any(ApplicationJson.class), anyString()))
+                .thenReturn(Mono.just(baseRepoSuffix));
+
+        ApplicationJson applicationJson1 = new ApplicationJson();
+        AppsmithBeanUtils.copyNewFieldValuesIntoOldObject(applicationJson, applicationJson1);
+        applicationJson1.setServerSchemaVersion(JsonSchemaVersions.serverVersion + 1);
+
+        Mockito.doReturn(Mono.just(applicationJson1))
+                .when(jsonSchemaMigration)
+                .migrateApplicationJsonToLatestSchema(applicationJson);
+
+        Mockito.when(gitExecutor.commitArtifact(
+                        baseRepoSuffix,
+                        String.format(AUTO_COMMIT_MSG_FORMAT, projectProperties.getVersion()),
+                        autoCommitEvent.getAuthorName(),
+                        autoCommitEvent.getAuthorEmail(),
+                        false,
+                        false))
+                .thenReturn(Mono.just("success"));
+
+        Mockito.when(gitExecutor.pushApplication(
+                        baseRepoSuffix,
+                        autoCommitEvent.getRepoUrl(),
+                        autoCommitEvent.getPublicKey(),
+                        autoCommitEvent.getPrivateKey(),
+                        autoCommitEvent.getBranchName()))
+                .thenReturn(Mono.just("success"));
+
+        StepVerifier.create(autoCommitEventHandler
+                        .autoCommitServerMigration(autoCommitEvent)
+                        .zipWhen(a -> redisUtils.getAutoCommitProgress(autoCommitEvent.getApplicationId())))
+                .assertNext(tuple2 -> {
+                    assertThat(tuple2.getT1()).isTrue();
+                    assertThat(tuple2.getT2()).isEqualTo(100);
+                })
+                .verifyComplete();
+    }
+
+    private ApplicationJson getApplicationJson(String filePath) throws URISyntaxException, IOException {
+        URL resource = this.getClass().getResource(filePath);
+        File file = new File(resource.toURI());
+
+        Gson gson = new GsonBuilder()
+                .registerTypeAdapter(Instant.class, new ISOStringToInstantConverter())
+                .create();
+
+        FileReader fileReader = new FileReader(file);
+        return gson.fromJson(fileReader, ApplicationJson.class);
     }
 }

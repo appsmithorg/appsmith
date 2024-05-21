@@ -6,7 +6,6 @@ import com.appsmith.server.applications.base.ApplicationService;
 import com.appsmith.server.clonepage.ClonePageService;
 import com.appsmith.server.domains.ActionCollection;
 import com.appsmith.server.domains.NewAction;
-import com.appsmith.server.helpers.CommonGitFileUtils;
 import com.appsmith.server.helpers.DSLMigrationUtils;
 import com.appsmith.server.helpers.GitFileUtils;
 import com.appsmith.server.helpers.ResponseUtils;
@@ -49,8 +48,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             NewActionService newActionService,
             ActionCollectionService actionCollectionService,
             GitFileUtils gitFileUtils,
-            CommonGitFileUtils commonGitFileUtils,
-            FeatureFlagService featureFlagService,
             ThemeService themeService,
             ResponseUtils responseUtils,
             WorkspacePermission workspacePermission,
@@ -68,7 +65,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
             GitAutoCommitHelper gitAutoCommitHelper,
             ClonePageService<NewAction> actionClonePageService,
             ClonePageService<ActionCollection> actionCollectionClonePageService) {
-
         super(
                 workspaceService,
                 applicationService,
@@ -83,8 +79,6 @@ public class ApplicationPageServiceImpl extends ApplicationPageServiceCEImpl imp
                 newActionService,
                 actionCollectionService,
                 gitFileUtils,
-                commonGitFileUtils,
-                featureFlagService,
                 themeService,
                 responseUtils,
                 workspacePermission,

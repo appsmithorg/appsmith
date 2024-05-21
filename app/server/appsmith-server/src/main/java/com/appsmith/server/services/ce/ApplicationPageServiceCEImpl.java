@@ -329,13 +329,15 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
             return Mono.just(Boolean.FALSE);
         }
 
+        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
+
         if (application.getGitArtifactMetadata() == null) {
             return Mono.just(Boolean.FALSE);
         }
 
-        GitArtifactMetadata gitMetadata = application.getGitArtifactMetadata();
         String defaultApplicationId = gitMetadata.getDefaultArtifactId();
         String branchName = gitMetadata.getBranchName();
+        String workspaceId = application.getWorkspaceId();
 
         if (!StringUtils.hasText(branchName)) {
             log.debug(
@@ -352,28 +354,53 @@ public class ApplicationPageServiceCEImpl implements ApplicationPageServiceCE {
 
         // since this method is only called when the app is in edit mode
         Mono<PageDTO> pageDTOMono = getPage(newPages.get(0), false);
-        return pageDTOMono
+
+        Mono<Boolean> isClientAutocommitRequiredMono = pageDTOMono
                 .zipWith(dslMigrationUtils.getLatestDslVersion())
-                .onErrorMap(throwable -> {
-                    log.error("Error fetching latest DSL version", throwable);
-                    return new AppsmithException(AppsmithError.RTS_SERVER_ERROR, "Error fetching latest DSL version");
-                })
-                .flatMap(tuple2 -> {
+                .map(tuple2 -> {
                     PageDTO pageDTO = tuple2.getT1();
                     Integer latestDslVersion = tuple2.getT2();
+
                     // ensuring that the page has only one layout, as we don't support multiple layouts yet
                     // when multiple layouts are supported, this code will have to be updated
                     assert pageDTO.getLayouts().size() == 1;
                     Layout layout = pageDTO.getLayouts().get(0);
                     JSONObject layoutDsl = layout.getDsl();
+                    return GitUtils.isMigrationRequired(layoutDsl, latestDslVersion);
+                })
+                .onErrorResume(error -> {
+                    log.debug("Error fetching latest DSL version");
+                    return Mono.just(Boolean.FALSE);
+                });
 
-                    boolean isMigrationRequired = GitUtils.isMigrationRequired(layoutDsl, latestDslVersion);
-                    if (isMigrationRequired) {
-                        // Triggering the autocommit
-                        return gitAutoCommitHelper.autoCommitApplication(defaultApplicationId, branchName);
+        Mono<Boolean> isServerAutocommitRequiredMono = gitAutoCommitHelper
+                .isServerAutocommitRequired(workspaceId, gitMetadata)
+                .onErrorResume(error -> {
+                    log.debug(
+                            "Error in checking server migration for application id : {} branch name : {}",
+                            defaultApplicationId,
+                            branchName);
+                    return Mono.just(Boolean.FALSE);
+                });
+
+        return isClientAutocommitRequiredMono
+                .zipWith(isServerAutocommitRequiredMono)
+                .flatMap(tuple2 -> {
+                    Boolean clientFlag = tuple2.getT1();
+                    Boolean serverFlag = tuple2.getT2();
+
+                    if (Boolean.FALSE.equals(clientFlag) && Boolean.FALSE.equals(serverFlag)) {
+                        return Mono.just(Boolean.FALSE);
                     }
 
-                    return Mono.just(Boolean.FALSE);
+                    // Since server autocommit is a subset of the client migration, hence if only the client migration
+                    // is true then we can only go ahead with client migration.
+                    if (Boolean.TRUE.equals(clientFlag)) {
+                        return gitAutoCommitHelper.autoCommitClientMigration(defaultApplicationId, branchName);
+                    }
+
+                    // at this point only server flag could be true.
+                    return gitAutoCommitHelper.autoCommitServerMigration(defaultApplicationId, branchName);
                 });
     }
 
