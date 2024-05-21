@@ -14,9 +14,6 @@ describe(
     before(() => {
       homePage.ImportApp(`PartialImportExport/${fixtureName}`);
       assertHelper.AssertNetworkStatus("@importNewApplication");
-      featureFlagIntercept({
-        release_show_partial_import_export_enabled: true,
-      });
       partialImportExport.OpenExportModal();
     });
 
