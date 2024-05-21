@@ -22,13 +22,17 @@ describe(
     });
 
     it("1. Import Downloaded file and Verify all the widgets and its properties", () => {
+      //Export widgets selected
       partialImportExport.PartiallyExportFile(
         4,
         partialImportExport.locators.export.modelContents.widgetsSection,
         ["data_table", "Text16", "refresh_btn", "add_btn"],
       );
 
+      //Add a new page
       PageList.AddNewPage();
+
+      //Import the exported App
       partialImportExport.OpenImportModal();
       partialImportExport.ImportPartiallyExportedFile(
         "PartialImportExportSampleApp.json",
@@ -37,6 +41,7 @@ describe(
         "downloads",
       );
 
+      //Properties for each widget exported
       agHelper.selectAndValidateWidgetNameAndProperty({
         widgetName: "data_table",
         propFieldName: "Table data",

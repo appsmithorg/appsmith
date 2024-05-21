@@ -24,8 +24,8 @@ interface SubActionParams {
 }
 interface SelectAndValidateParams {
   widgetName: string;
-  widgetType?: EntityType;
   clickOptions?: Partial<ClickOptions>;
+  widgetType?: EntityType;
   hierarchy?: string[];
   propFieldName: string;
   valueToValidate: string;
@@ -302,8 +302,8 @@ export class AggregateHelper {
     return exists === "noVerify"
       ? locator // Return the locator without verification if exists is "noVerify"
       : exists === "exist"
-      ? locator.should("have.length.at.least", 1)
-      : locator.should("have.length", 0);
+        ? locator.should("have.length.at.least", 1)
+        : locator.should("have.length", 0);
   }
 
   public GetNAssertElementText(
@@ -1835,8 +1835,8 @@ export class AggregateHelper {
 
   public selectAndValidateWidgetNameAndProperty({
     widgetName,
-    widgetType = EntityType.Widget,
     clickOptions = {},
+    widgetType = EntityType.Widget,
     hierarchy = [],
     propFieldName,
     valueToValidate,
