@@ -40,6 +40,15 @@ export const updateJSCollectionSuccess = (payload: { data: JSCollection }) => {
   };
 };
 
+export const updateJSCollectionBodySuccess = (payload: {
+  data: JSCollection;
+}) => {
+  return {
+    type: ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
+    payload,
+  };
+};
+
 export const jsSaveActionStart = (payload: { id: string }) => {
   return {
     type: ReduxActionTypes.JS_ACTION_SAVE_START,
@@ -60,15 +69,6 @@ export const refactorJSCollectionAction = (payload: {
 export const jsSaveActionComplete = (payload: { id: string }) => {
   return {
     type: ReduxActionTypes.JS_ACTION_SAVE_COMPLETE,
-    payload,
-  };
-};
-
-export const updateJSCollectionBodySuccess = (payload: {
-  data: JSCollection;
-}) => {
-  return {
-    type: ReduxActionTypes.UPDATE_JS_ACTION_BODY_SUCCESS,
     payload,
   };
 };
